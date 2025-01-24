@@ -2,7 +2,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from skellysubs.translate_transcript_pipeline.translation_typehints import LanguageNameString, \
+from skellysubs.translate_transcript_pipeline.models.translation_typehints import LanguageNameString, \
     RomanizationMethodString
 
 

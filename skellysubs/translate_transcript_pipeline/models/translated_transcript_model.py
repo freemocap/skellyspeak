@@ -2,18 +2,9 @@ from pydantic import BaseModel, Field
 
 from skellysubs.audio_transcription.whisper_transcript_result_full_model import \
     WhisperTranscriptionResult, WhisperWordTimestamp
-from skellysubs.translate_transcript_pipeline.language_models import LanguageNames, LanguagePairs, \
+from skellysubs.translate_transcript_pipeline.models.language_models import LanguageNames, LanguagePairs, \
     LanguagePair
-from skellysubs.translate_transcript_pipeline.translation_typehints import NOT_TRANSLATED_YET_TEXT, \
-    LanguageNameString, RomanizationMethodString, RomanizedTextString, TranslatedTextString, OriginalTextString, \
-    StartingTimestamp, EndingTimestamp
-from pydantic import BaseModel, Field
-
-from skellysubs.audio_transcription.whisper_transcript_result_full_model import \
-    WhisperTranscriptionResult, WhisperWordTimestamp
-from skellysubs.translate_transcript_pipeline.language_models import LanguageNames, LanguagePairs, \
-    LanguagePair
-from skellysubs.translate_transcript_pipeline.translation_typehints import NOT_TRANSLATED_YET_TEXT, \
+from skellysubs.translate_transcript_pipeline.models.translation_typehints import NOT_TRANSLATED_YET_TEXT, \
     LanguageNameString, RomanizationMethodString, RomanizedTextString, TranslatedTextString, OriginalTextString, \
     StartingTimestamp, EndingTimestamp
 
