@@ -76,8 +76,9 @@ async def run_video_subtitle_pipeline(video_name: str) -> None:
 if __name__ == '__main__':
     import asyncio
     video_paths = [
-        "../sample_data/2025-02-12-jsm-video/2025-02-12-jsm-video.mp4",
+        r"D:\videos\obs-recordings\2025-04-26\2025-04-26T14-40gmt-0400\2025-04-26T14-40gmt-0400-3840x2160-30fps-NV12_vertical.mp4",
         "../sample_data/sample_video_short/sample_video_short.mp4",
+        "../sample_data/2025-02-12-jsm-video/2025-02-12-jsm-video.mp4",
         "../sample_data/sample_video_long/sample_video_long.mp4",
         "../sample_data/start-here-1/start-here-1.mp4",
         "../sample_data/2025-01-27-jsm-video/2025-01-27-jsm-video.mp4",
