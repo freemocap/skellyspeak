@@ -1,0 +1,20 @@
+[package]
+name = "skellysubs-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core domain logic for SkellySubs v2: transcription, translation, word-alignment, subtitles, and language configuration."
+
+[lib]
+name = "skellysubs_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = { version = "0.8", features = ["derive"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["rt", "macros"] }
+thiserror = "2"
+tracing = "0.1"

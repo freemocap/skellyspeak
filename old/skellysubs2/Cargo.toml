@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = ["crates/skellysubs-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/freemocap/skellysubs"
+
+[profile.release]
+lto = true
+codegen-units = 1
