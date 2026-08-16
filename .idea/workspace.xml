@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c5e81d1e-4591-4d57-a912-7581048e1b9a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.sample" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE/bug_report.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/ISSUE_TEMPLATE/feature_request.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/writerside-docs-deploy.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/prettier.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/skellysubs.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.python-version" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fonts/ARIAL.TTF" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fonts/NotoKufiArabic-Regular.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fonts/NotoKufiArabic-Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fonts/NotoSansDevanagari-VariableFont.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fonts/NotoSerifCJKsc-VF-Simplified-Chinese.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/2025-01-27-jsm-video_transcription.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/2025-01-27-jsm-video_translation.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/notes_2025-01-27-video.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_arabic_levantine.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_arabic_levantine_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_chinese_mandarin_simplified.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_chinese_mandarin_simplified_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_english.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_french.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_hindi.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_hindi_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/srt/2025-01-27-jsm-video_spanish.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_arabic_levantine.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_arabic_levantine_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_chinese_mandarin_simplified.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_chinese_mandarin_simplified_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_french.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_french_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_hindi.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_hindi_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_spanish.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/ttml/2025-01-27-jsm-video_spanish_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_arabic_levantine.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_arabic_levantine_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_chinese_mandarin_simplified.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_chinese_mandarin_simplified_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_french.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_hindi.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_hindi_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-01-27-jsm-video/subtitle_files/vtt/2025-01-27-jsm-video_spanish.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/2025-02-12-jsm-video_transcription.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/2025-02-12-jsm-video_translation.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_arabic_levantine.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_arabic_levantine_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_chinese_mandarin_simplified.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_chinese_mandarin_simplified_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_english.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_english_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_french.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_hindi.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_hindi_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/srt/2025-02-12-jsm-video_spanish.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_arabic_levantine.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_arabic_levantine_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_chinese_mandarin_simplified.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_chinese_mandarin_simplified_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_french.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_french_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_hindi.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_hindi_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_spanish.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/ttml/2025-02-12-jsm-video_spanish_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_arabic_levantine.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_arabic_levantine_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_chinese_mandarin_simplified.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_chinese_mandarin_simplified_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_french.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_hindi.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_hindi_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/2025-02-12-jsm-video/subtitle_files/vtt/2025-02-12-jsm-video_spanish.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/sample_video_long_transcription.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/sample_video_long_translation.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_arabic_levantine.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_arabic_levantine_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_chinese_mandarin_simplified.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_chinese_mandarin_simplified_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_english.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_french.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_hindi.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_hindi_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/srt/sample_video_long_spanish.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_arabic_levantine.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_arabic_levantine_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_chinese_mandarin_simplified.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_chinese_mandarin_simplified_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_french.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_french_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_hindi.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_hindi_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_spanish.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/ttml/sample_video_long_spanish_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_arabic_levantine.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_arabic_levantine_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_chinese_mandarin_simplified.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_chinese_mandarin_simplified_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_french.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_hindi.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_hindi_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_long/subtitle_files/vtt/sample_video_long_spanish.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/sample_video_short_transcription.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/sample_video_short_translation.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_arabic_levantine.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_arabic_levantine_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_chinese_mandarin_simplified.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_chinese_mandarin_simplified_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_english.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_french.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_hindi.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_hindi_with_romanization.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/srt/sample_video_short_spanish.srt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_arabic_levantine.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_arabic_levantine_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_chinese_mandarin_simplified.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_chinese_mandarin_simplified_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_french.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_french_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_hindi.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_hindi_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_spanish.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/ttml/sample_video_short_spanish_with_romanization.ttml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_arabic_levantine.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_arabic_levantine_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_chinese_mandarin_simplified.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_chinese_mandarin_simplified_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_french.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_hindi.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_hindi_with_romanization.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample_data/sample_video_short/subtitle_files/vtt/sample_video_short_spanish.vtt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/.eslintrc.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/.prettierrc.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/public/ffmpeg.wasm@0.12.9/ffmpeg-core.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/public/ffmpeg.wasm@0.12.9/ffmpeg-core.wasm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/public/ffmpeg.wasm@0.12.9/ffmpeg-core.worker.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/public/logo/skellysubs-logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/public/logo/skellysubs-logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/App.test.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/App.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/Footnote.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/LogsTerminal.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/ProcessingPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/PromptEditDrawer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/WelcomeContent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/ProcessingPanelLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/file-selection/FileDetails.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/file-selection/FileSelectionBox.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/file-selection/FileSelectionPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/transcription-stage/TranscriptionControls.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/transcription-stage/TranscriptionLanguageSelector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/transcription-stage/TranscriptionPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/LanguageChipsPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/SubtitleDownloadSelector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/TranslatedTranscriptView.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/TranslationControls.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/TranslationPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/language-configs/LanguageAutocompleteField.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/language-configs/LanguageConfigEditor.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/language-configs/LanguageConfigList.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/processing-stages/translation-stage/language-configs/LanguageSearchField.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/CurrentSubtitleCard.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/SubtitleEditor.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/SubtitleFormatting.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/SubtitleTimeline.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/SubtitleVersionSelector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/VideoPlayer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/VideoSubtitleEditor.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/video-subtitle-viewer-styles.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/video-subtitle-viewer-types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/components/video-subtitle-viewer/video-subtitle-viewer-utils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/language_configs.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/language_configs_annotation.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/layout/BasePanelLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/layout/MainContent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/layout/RightConfigPanel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/layout/paperbase_theme/PaperbaseContent.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/layout/paperbase_theme/paperbase-theme.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/main.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/services/FfmpegService/FfmpegContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/services/FfmpegService/useFfmpeg.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/services/WebsocketService/WebSocketContext.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/services/WebsocketService/WebsocketConnectionStatus.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/services/WebsocketService/useWebSocket.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/setupTests.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/AppStateStore.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/hooks.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/LogsSlice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/available-subtitles/available-subtitles-types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/available-subtitles/availableSubtitlesSlice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/processing-status/processing-status-types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/processing-status/processingStatusSlice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/translation-config/languageConfigSchemas.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/slices/translation-config/translationConfigSlice.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/thunks/createProcessingThunk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/thunks/prepareFileThunk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/thunks/transcriptionThunk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/thunks/translationTextThunk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/store/thunks/translationTranscriptThunk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/utils/getApiBaseUrl.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/utils/getLanguageConfigs.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/utils/logger.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/utils/test-utils.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/src/vite-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/tsconfig.node.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs-ui/vite.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/__main__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/ai_client_abc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/ai_client_strategy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/huggingface_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/ollama_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/ai_clients/openai_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/app/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/app/health.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/app/shutdown.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/app/state.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/processing/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/processing/transcribe/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/processing/transcribe/transcribe_router.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/processing/translate/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/processing/translate/translate_router.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/ui/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/http/ui/ui_router.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/middleware/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/middleware/add_middleware.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/middleware/cors.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/routers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/server/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/server/server_constants.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/server/server_manager.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/server/server_singleton.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/websocket/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/websocket/websocket_connect.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/api/websocket/websocket_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/app/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/app/app_lifespan.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/app/app_setup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/app/create_app.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/app/skellysubs_app_state.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/base_subtitle_formatter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/md_subtitle_formatter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/srt_subtitle_formatter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/subtitle_time_formatter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/formatters/vtt_subtitle_formatter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/subtitle_generator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/subtitles/subtitle_types.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/transcription/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/transcription/get_or_compute_video_transcription.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/transcription/whisper_audio_transcription.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/transcription/whisper_transcript_result_model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/language_configs/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/language_configs/annotation_configs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/language_configs/language_configs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/old_transcript_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/text_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/transcript_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/transcript_segment_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/translation_typehints.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/models/word_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/translation_subtasks/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/translation_subtasks/match_translated_words.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/translation_subtasks/translate_full_text.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/translation_subtasks/translate_transcript_segments.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/translation/translation_subtasks/translate_transcription_pipeline.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/video_annotator/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/video_annotator/annotate_video_with_subtitles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/video_annotator/create_multi_line_text.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/core/video_annotator/video_reader_writer_methods.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/files_and_folder_names.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/logging_configuration/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/logging_configuration/configure_logging.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/logging_configuration/log_test_messages.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/logging_configuration/logger_builder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/system/logging_configuration/logging_color_helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/frozen_model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/get_wikipedia_article_contents.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/kill_process_on_port.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/language_name_iso639_helper.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/load_env_variables.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skellysubs/utilities/strip_punctuation_and_whitespace.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/uv.lock" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "jonmatthis"
+  }
+}]]></component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="development" />
+                    <option name="lastUsedInstant" value="1786894664" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1786894663" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/freemocap/skellysubs",
+    "accountId": "7f479ca7-4536-4193-9d0f-c44b2062df97"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 4,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3I0HdbUqo2Y9Pfjit9r9o5WCEB4" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "development",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="DjangoTestsConfigurationType">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <option name="TARGET" value="" />
+      <option name="SETTINGS_FILE" value="" />
+      <option name="CUSTOM_SETTINGS" value="false" />
+      <option name="USE_OPTIONS" value="false" />
+      <option name="OPTIONS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.Celery" factoryName="Python.Celery.App">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.Celery" factoryName="Python.Celery.Task">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.FlaskServer">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Docutils task">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Sphinx task">
+      <module name="skellysubs@1" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-PY-262.8665.369" />
+        <option value="bundled-python-sdk-6fa658e1df1a-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.8665.369" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c5e81d1e-4591-4d57-a912-7581048e1b9a" name="Changes" comment="" />
+      <created>1786894653689</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1786894653689</updated>
+      <workItem from="1786894655108" duration="494000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
