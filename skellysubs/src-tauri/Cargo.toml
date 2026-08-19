@@ -1,0 +1,65 @@
+[package]
+name = "skellysubs"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "skellysubs_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-store = "2.4.1"
+tauri-plugin-log = "2.7.1"
+tauri-plugin-os = "2.3.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+skellysubs-core = { path = "../crates/skellysubs-core" }
+
+# Vendored from Handy (github.com/cjpais/Handy, MIT)
+transcribe-rs = { version = "0.3.8", features = ["onnx"] }
+transcribe-cpp = { version = "0.1.3", default-features = false }
+vad-rs = { git = "https://github.com/cjpais/vad-rs", default-features = false }
+hf-hub = { git = "https://github.com/cjpais/hf-hub", branch = "cancellable-downloads", features = ["tokio"] }
+cpal = "0.16.0"
+whatlang = "0.16"
+isolang = "2"
+specta = "=2.0.0-rc.22"
+tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+flate2 = "1.0"
+tar = "0.4.44"
+sha2 = "0.10"
+futures-util = "0.3"
+reqwest = { version = "0.12", features = ["json", "stream", "gzip", "brotli", "deflate"] }
+anyhow = "1.0.95"
+once_cell = "1"
+log = "0.4.25"
+env_filter = "0.1.0"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "io-util", "sync", "time"] }
+chrono = "0.4"
+regex = "1"
+rustfft = "6.4.0"
+rubato = "0.16.2"
+hound = "3.5.1"
+natural = "0.5.0"
+strsim = "0.11.0"
+rusqlite = { version = "0.37", features = ["bundled"] }
+rusqlite_migration = "2.3"
+
+[dev-dependencies]
+tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.61", features = ["Win32_Media_Audio_Endpoints", "Win32_System_Com", "Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Threading"] }
+

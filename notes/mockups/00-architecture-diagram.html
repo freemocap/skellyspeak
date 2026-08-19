@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language-learning app · architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c1420; --bg2:#0f1a29;
+    --panel:#16222f; --panel2:#1b2a3b; --inset:#0c151f;
+    --line:#2a3b4f; --line2:#38506a;
+    --ink:#e8eef7; --mut:#8a9bb3; --faint:#5d6f88;
+    --steel:#79a6ff; --steel-dim:#4d6a9e;
+    --es:#e7b24c; --zh:#3fc9a6; --ar:#ec6d9c;
+    --radius:11px;
+    --maxw:1040px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif;
+    line-height:1.5;
+    background-image:radial-gradient(1200px 600px at 78% -8%, rgba(121,166,255,.10), transparent 60%),
+                     radial-gradient(900px 500px at 0% 108%, rgba(63,201,166,.06), transparent 55%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:clamp(24px,5vw,64px) clamp(18px,4vw,40px) 80px}
+
+  /* ---- header ---- */
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--steel); margin:0 0 18px}
+  .eyebrow .dim{color:var(--faint)}
+  h1{font-family:"Space Grotesk",sans-serif; font-weight:700; letter-spacing:-.02em;
+    font-size:clamp(34px,6.5vw,60px); line-height:1.02; margin:0 0 20px}
+  h1 .b{color:var(--steel)}
+  h1 .prism{background:linear-gradient(92deg,var(--es),var(--zh) 52%,var(--ar));
+    -webkit-background-clip:text; background-clip:text; color:transparent}
+  .lede{font-size:clamp(15px,1.7vw,18px); color:var(--mut); max-width:60ch; margin:0 0 28px}
+  .lede strong{color:var(--ink); font-weight:600}
+
+  .legend{display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
+    padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius);
+    background:rgba(22,34,47,.5); margin-bottom:44px}
+  .lg{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--mut)}
+  .sw{width:26px; height:10px; border-radius:3px; flex:none}
+  .sw.shared{background:var(--steel)}
+  .sw.spec{background:linear-gradient(90deg,var(--es),var(--zh),var(--ar))}
+  .toggle{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+    color:var(--ink); background:var(--panel2); border:1px solid var(--line2);
+    padding:9px 14px; border-radius:8px; cursor:pointer; letter-spacing:.02em;
+    transition:border-color .18s, background .18s, box-shadow .18s}
+  .toggle:hover{border-color:var(--steel); background:#1f3048}
+  .toggle:focus-visible{outline:2px solid var(--steel); outline-offset:2px}
+  .toggle[aria-pressed="true"]{border-color:var(--steel); color:var(--steel);
+    box-shadow:0 0 0 1px var(--steel) inset, 0 0 24px -6px var(--steel)}
+
+  /* ---- flow scaffolding ---- */
+  .tier{display:flex; justify-content:center}
+  .flow{width:2px; height:30px; margin:0 auto;
+    background:repeating-linear-gradient(180deg,var(--steel-dim) 0 6px, transparent 6px 12px);
+    animation:march 900ms linear infinite}
+  .flow.short{height:20px}
+  @keyframes march{to{background-position:0 12px}}
+
+  /* ---- generic node ---- */
+  .node{position:relative; background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); padding:15px 18px; transition:border-color .18s, transform .18s, box-shadow .18s}
+  .node:hover{border-color:var(--line2); transform:translateY(-2px);
+    box-shadow:0 12px 30px -18px rgba(0,0,0,.8)}
+  .kick{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--faint); margin-bottom:6px}
+  .title{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:16px; letter-spacing:-.01em}
+  .desc{font-size:13px; color:var(--mut); margin-top:5px; line-height:1.45}
+  .node.spine{border-left:2px solid var(--steel-dim)}
+
+  /* reuse badge */
+  .badge{display:none; position:absolute; top:-9px; right:12px;
+    font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.08em;
+    color:var(--bg); background:var(--steel); padding:2px 8px; border-radius:20px; font-weight:500}
+  .show-reuse .reused{border-color:var(--steel);
+    box-shadow:0 0 0 1px var(--steel) inset, 0 0 30px -10px var(--steel)}
+  .show-reuse .reused .badge{display:block}
+
+  /* wide node (learner) */
+  .learner{width:min(560px,100%); text-align:center}
+  .learner .chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:11px}
+  .chip{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mut);
+    border:1px solid var(--line); border-radius:20px; padding:4px 11px; background:var(--inset)}
+
+  .row{display:flex; gap:16px; justify-content:center; width:100%}
+  .row.top{align-items:stretch}
+  .col{display:flex; flex-direction:column; align-items:center; gap:0; flex:1 1 0; min-width:0}
+  .col .flow{flex:none}
+  .w-annot{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint);
+    text-align:center; max-width:22ch; margin:8px auto 0}
+
+  .two-rail{display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(720px,100%)}
+
+  /* ---- signature: analyzer band (prism) ---- */
+  .band{width:100%; border:1px solid var(--line2); border-radius:16px;
+    background:linear-gradient(180deg,var(--bg2),var(--inset));
+    padding:20px clamp(14px,3vw,26px) 24px; position:relative; overflow:hidden}
+  .band::before{content:""; position:absolute; inset:0;
+    background:linear-gradient(92deg, rgba(231,178,76,.05), rgba(63,201,166,.05) 50%, rgba(236,109,156,.05));
+    pointer-events:none}
+  .band-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px; position:relative}
+  .band-head .k{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--ink)}
+  .band-head .sub{font-size:12.5px; color:var(--mut)}
+  .router{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--steel);
+    text-align:center; border:1px dashed var(--line2); border-radius:8px;
+    padding:8px; margin:14px auto 4px; width:min(360px,100%); background:rgba(12,21,31,.5); position:relative}
+  .lanes{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; position:relative}
+  .lane{background:var(--panel); border:1px solid var(--line);
+    border-top:3px solid var(--lane); border-radius:10px; padding:15px 15px 16px;
+    transition:transform .18s, box-shadow .18s, border-color .18s}
+  .lane:hover{transform:translateY(-3px); box-shadow:0 16px 34px -20px var(--lane)}
+  .lane .glyph{font-family:"Space Grotesk",sans-serif; font-size:30px; line-height:1;
+    color:var(--lane); font-weight:600}
+  .lane .lname{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:15px; margin-top:9px}
+  .lane .typo{font-size:12px; color:var(--faint); margin-top:2px}
+  .lane .tools{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--mut);
+    margin-top:11px; line-height:1.7}
+  .lane .feat{margin-top:12px; font-family:"IBM Plex Mono",monospace; font-size:11px;
+    color:var(--lane); border:1px solid var(--lane); border-radius:6px; padding:5px 8px;
+    display:inline-block; opacity:.55; transition:opacity .18s; background:var(--inset)}
+  .lane:hover .feat{opacity:1}
+
+  /* IR chip */
+  .ir{width:min(720px,100%); background:var(--inset); border:1px solid var(--line2);
+    border-radius:12px; padding:15px 18px; text-align:center}
+  .ir .kick{color:var(--steel); text-align:center}
+  .ir .fields{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:10px}
+  .ir .f{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink);
+    background:var(--panel2); border:1px solid var(--line2); border-radius:6px; padding:5px 10px}
+  .ir .f .v{color:var(--steel)}
+
+  .pair{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; width:min(720px,100%)}
+  .pair .link{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--faint);
+    text-align:center; white-space:nowrap; line-height:1.6}
+  .pair .link span{display:block; color:var(--steel)}
+
+  .return{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--zh);
+    text-align:center; margin-top:14px}
+  .return b{color:var(--ink); font-weight:500}
+
+  /* ---- build order ---- */
+  .build{margin-top:64px; border-top:1px solid var(--line); padding-top:34px}
+  .build h2{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin:0 0 4px}
+  .build .why{font-size:13.5px; color:var(--faint); margin:0 0 22px}
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .step{border:1px solid var(--line); border-radius:var(--radius); padding:18px 18px 20px;
+    background:var(--panel); position:relative}
+  .step .num{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--step);
+    letter-spacing:.1em}
+  .step .sname{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:19px; margin-top:8px}
+  .step .snote{font-size:13px; color:var(--mut); margin-top:7px; line-height:1.5}
+  .step .tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--step);
+    text-transform:uppercase; letter-spacing:.12em; margin-top:12px; display:block}
+
+  footer{margin-top:52px; font-family:"IBM Plex Mono",monospace; font-size:12px;
+    color:var(--faint); border-top:1px solid var(--line); padding-top:20px; line-height:1.8}
+  footer b{color:var(--steel); font-weight:500}
+
+  @media (max-width:720px){
+    .two-rail{grid-template-columns:1fr}
+    .lanes{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr}
+    .pair{grid-template-columns:1fr; gap:8px}
+    .pair .link{transform:rotate(90deg); margin:2px 0}
+    .row.top{flex-direction:column; align-items:center}
+    .toggle{margin-left:0; width:100%; text-align:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .flow{animation:none}
+    .node,.lane,.toggle{transition:none}
+    .reveal{opacity:1 !important; transform:none !important}
+  }
+  /* load reveal */
+  .reveal{opacity:0; transform:translateY(10px); animation:rise .5s ease forwards}
+  @keyframes rise{to{opacity:1; transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+
+  <p class="eyebrow reveal">Architecture · v0 <span class="dim">// FOSS · self-hosted · adult self-learners</span></p>
+  <h1 class="reveal" style="animation-delay:.04s">One skeleton.<br><span class="prism">Three analyzers.</span></h1>
+  <p class="lede reveal" style="animation-delay:.08s">Every learner and AI utterance runs the <strong>same shared pipeline</strong>. The languages diverge in exactly one place — the analyzer band — then recombine into a common intermediate representation. <strong>Grey is shared; colour is language-specific.</strong> That's the whole thesis.</p>
+
+  <div class="legend reveal" style="animation-delay:.12s">
+    <span class="lg"><span class="sw shared"></span> Shared skeleton</span>
+    <span class="lg"><span class="sw spec"></span> Language-specific</span>
+    <button class="toggle" id="reuseBtn" aria-pressed="false">◇ Highlight reuse from skellysubs</button>
+  </div>
+
+  <!-- LEARNER -->
+  <div class="tier"><div class="node learner spine reveal">
+    <div class="kick">Client · web-first</div>
+    <div class="title">Learner surface</div>
+    <div class="chips"><span class="chip">chat</span><span class="chip">mechanics panel</span><span class="chip">voice I/O</span></div>
+  </div></div>
+  <div class="flow"></div>
+
+  <!-- ORCHESTRATOR -->
+  <div class="tier"><div class="node spine" style="width:min(560px,100%)">
+    <span class="badge">♻ skellysubs</span>
+    <div class="kick">Orchestrator</div>
+    <div class="title">Turn manager + sheltering gate</div>
+    <div class="desc">Assembles prompts and routes turns. Enforces <em>sheltering</em>: constrains output to the learner's known-vocab allowlist + i+1, regenerating anything above level.</div>
+  </div></div>
+  <div class="flow"></div>
+
+  <!-- SPLIT: conversation | analysis -->
+  <div class="row top">
+    <div class="col">
+      <div class="node reused" style="width:100%">
+        <span class="badge">♻ skellysubs</span>
+        <div class="kick">Generation</div>
+        <div class="title">Conversation LLM</div>
+        <div class="desc">Natural dialogue only. Pluggable via strategy client — Ollama / OpenAI / HuggingFace.</div>
+      </div>
+      <div class="w-annot">its output is also fed to analysis ↓</div>
+    </div>
+    <div class="col">
+      <div class="node spine" style="width:100%">
+        <div class="kick">Processing</div>
+        <div class="title">Analysis pipeline</div>
+        <div class="desc">Runs on <em>both</em> AI and learner utterances — the source of every mechanics card.</div>
+      </div>
+      <div class="flow short"></div>
+    </div>
+  </div>
+
+  <!-- ANALYZER BAND (signature) -->
+  <div class="tier"><div class="band">
+    <div class="band-head">
+      <span class="k">Language-specific</span>
+      <span class="sub">— the only place the pipeline forks. Plugins in, common IR out.</span>
+    </div>
+    <div class="router">Language router → selects analyzer by target language</div>
+    <div class="lanes">
+      <div class="lane" style="--lane:var(--es)">
+        <div class="glyph">habló</div>
+        <div class="lname">Spanish</div>
+        <div class="typo">fusional · affixal inflection</div>
+        <div class="tools">spaCy · Stanza<br>UD morphology</div>
+        <div class="feat">Tense=Past · Person=3</div>
+      </div>
+      <div class="lane" style="--lane:var(--zh)">
+        <div class="glyph">了 / 过</div>
+        <div class="lname">Mandarin</div>
+        <div class="typo">isolating · no inflection</div>
+        <div class="tools">jieba · Stanza · HanLP<br>segment → POS</div>
+        <div class="feat">Aspect=Perfective (了)</div>
+      </div>
+      <div class="lane" style="--lane:var(--ar)">
+        <div class="glyph" dir="rtl">كَتَب</div>
+        <div class="lname">Levantine Arabic</div>
+        <div class="typo">templatic · clitics · dialect</div>
+        <div class="tools">CAMeL · SinaTools · Nâbra<br>+ LLM-assist fallback</div>
+        <div class="feat">Root=k-t-b · +clitics</div>
+      </div>
+    </div>
+  </div></div>
+  <div class="flow"></div>
+
+  <!-- IR ADAPTER -->
+  <div class="tier"><div class="node spine" style="width:min(560px,100%);text-align:center">
+    <div class="kick" style="text-align:center">Adapter</div>
+    <div class="title">IR adapter → normalises every analyzer to one shape</div>
+  </div></div>
+  <div class="flow short"></div>
+  <div class="tier"><div class="ir">
+    <div class="kick">The contract · FeatureEvent</div>
+    <div class="fields">
+      <span class="f">tokens</span>
+      <span class="f">lemma</span>
+      <span class="f">pos</span>
+      <span class="f">features[] <span class="v">{k=v, span}</span></span>
+      <span class="f">constructions[] <span class="v">{id, span}</span></span>
+    </div>
+  </div></div>
+  <div class="flow"></div>
+
+  <!-- CARD ENGINE <-> LEARNER MODEL -->
+  <div class="tier"><div class="pair">
+    <div class="node spine">
+      <div class="kick">Selector · language-agnostic</div>
+      <div class="title">Card-trigger engine</div>
+      <div class="desc">Reads the IR, checks novelty + i+1 pacing, picks which mechanics card fires.</div>
+    </div>
+    <div class="link"><span>reads ▸</span>◂ writes</div>
+    <div class="node spine reused">
+      <span class="badge">♻ partial</span>
+      <div class="kick">State · per learner</div>
+      <div class="title">Learner model + SRS</div>
+      <div class="desc">Known vocab, features seen/mastered, error history. FSRS scheduling.</div>
+    </div>
+  </div></div>
+  <div class="flow"></div>
+
+  <!-- CARD LIBRARY -->
+  <div class="tier"><div class="node spine" style="width:min(560px,100%)">
+    <div class="kick">Content · curated per language</div>
+    <div class="title">Mechanics card library</div>
+    <div class="desc">Shared schema <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mut)">{trigger, CEFR band, explanation, examples, contrast-with-native}</span> — authored separately for es / zh / ar.</div>
+  </div></div>
+  <div class="return">↑ surfaces contextually in the <b>mechanics panel</b> — "here's how this language just handled past tense"</div>
+
+  <!-- SPEECH SIDE MODULE -->
+  <div class="flow" style="margin-top:26px"></div>
+  <div class="tier"><div class="node reused" style="width:min(560px,100%)">
+    <span class="badge">♻ skellysubs</span>
+    <div class="kick">Optional layer · speech I/O</div>
+    <div class="title">Whisper STT + word-level gloss/romanization + TTS</div>
+    <div class="desc">WhisperLevantineArabic for the Arabic dialect. Word-level translation + romanization already exists in skellysubs. TTS is solid for es/zh, a known gap for ar dialect.</div>
+  </div></div>
+
+  <!-- BUILD ORDER -->
+  <section class="build">
+    <h2>Build order</h2>
+    <p class="why">A real sequence — each step de-risks the next. Doing es → zh early forces the IR to generalise before Arabic can demand a rewrite.</p>
+    <div class="steps">
+      <div class="step" style="--step:var(--es)">
+        <span class="num">01</span>
+        <div class="sname">Spanish</div>
+        <div class="snote">Best-supported tooling. Build the entire vertical slice — skeleton, IR, card engine, one analyzer.</div>
+        <span class="tag">proves the slice</span>
+      </div>
+      <div class="step" style="--step:var(--zh)">
+        <span class="num">02</span>
+        <div class="sname">Mandarin</div>
+        <div class="snote">No inflection forces the IR to generalise from features to constructions. If the abstraction survives this, it's right.</div>
+        <span class="tag">stresses the IR</span>
+      </div>
+      <div class="step" style="--step:var(--ar)">
+        <span class="num">03</span>
+        <div class="sname">Levantine</div>
+        <div class="snote">Hardest: dialect NLP, unstandardised orthography, weak ASR/TTS. Aim LLM-assist + curated cards once the core is battle-tested.</div>
+        <span class="tag">the hard case, last</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <b>The IR is the contract.</b> Analyzers are plugins behind it; the card engine, learner model, SRS and UI never know which language they're in.<br>
+    Everything grey ships once. Only the coloured band is paid for three times.
+  </footer>
+
+</div>
+
+<script>
+  const btn = document.getElementById('reuseBtn');
+  const root = document.getElementById('root');
+  btn.addEventListener('click', () => {
+    const on = root.classList.toggle('show-reuse');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.textContent = (on ? '◆ ' : '◇ ') + 'Highlight reuse from skellysubs';
+  });
+</script>
+</body>
+</html>

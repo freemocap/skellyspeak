@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Tutor · UI mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* dark shell (analysis layer) */
+    --bg:#0c1420; --chrome:#14202e; --chrome2:#1a2838; --inset:#0c151f;
+    --line:#26374a; --line2:#38506a;
+    --ink-d:#e8eef7; --mut-d:#8a9bb3; --faint-d:#5d6f88;
+    --steel:#6f9bff; --steel-deep:#3f6ff5;
+    --amber:#e6b357; --amber-deep:#c78a2f;
+    /* paper canvas (immersion layer) */
+    --paper:#f3f1ea; --paper2:#eeebe1; --paper-line:#e0ddd2;
+    --ink:#1d242e; --ink-mut:#6a7686;
+    --user-bg:#e6ecfa; --user-ink:#24405f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:#0a1018; color:var(--ink-d);
+    font-family:"IBM Plex Sans",system-ui,sans-serif; line-height:1.5;
+    background-image:radial-gradient(1000px 600px at 82% -10%, rgba(111,155,255,.10), transparent 60%);
+    min-height:100dvh;
+  }
+  .page{max-width:1080px; margin:0 auto; padding:clamp(20px,4vw,52px) clamp(16px,3vw,36px) 60px;
+    display:grid; grid-template-columns:390px 1fr; gap:clamp(28px,5vw,56px); align-items:start}
+
+  /* ---------- rationale rail ---------- */
+  .rail-eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--steel); margin:0 0 14px}
+  .rail h1{font-family:"Space Grotesk",sans-serif; font-weight:700; letter-spacing:-.02em;
+    font-size:clamp(26px,3.4vw,38px); line-height:1.05; margin:0 0 14px}
+  .rail .sub{color:var(--mut-d); font-size:15px; max-width:46ch; margin:0 0 30px}
+  .principle{border-top:1px solid var(--line); padding:16px 0}
+  .principle:last-child{border-bottom:1px solid var(--line)}
+  .principle .tag{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--amber); margin-bottom:6px}
+  .principle .pt{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:15.5px; color:var(--ink-d)}
+  .principle .pd{font-size:13.5px; color:var(--mut-d); margin-top:5px; line-height:1.5}
+  .note{margin-top:26px; font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint-d); line-height:1.7}
+
+  /* ---------- device ---------- */
+  .device-wrap{position:sticky; top:28px; justify-self:center}
+  .phone{position:relative; width:390px; height:min(820px,88dvh);
+    background:var(--bg); border-radius:44px; overflow:hidden;
+    border:1px solid #2b3a4d; box-shadow:0 40px 90px -30px rgba(0,0,0,.9), 0 0 0 11px #05090f, 0 0 0 12px #1c2734;
+    display:flex; flex-direction:column}
+  .notch{position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:150px; height:26px; background:#05090f; border-radius:0 0 18px 18px; z-index:40}
+
+  /* status + header (chrome) */
+  .status{display:flex; justify-content:space-between; align-items:center;
+    padding:12px 26px 4px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--mut-d)}
+  .appbar{display:flex; align-items:center; justify-content:space-between;
+    padding:8px 20px 14px; border-bottom:1px solid var(--line); background:var(--chrome)}
+  .wordmark{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:17px; letter-spacing:-.01em}
+  .wordmark b{color:var(--steel); font-weight:700}
+  .meta{display:flex; gap:8px; align-items:center}
+  .pill{font-family:"IBM Plex Mono",monospace; font-size:11px; padding:3px 9px; border-radius:20px;
+    border:1px solid var(--line2); color:var(--mut-d)}
+  .pill.level{color:var(--amber); border-color:var(--amber-deep)}
+
+  /* view host */
+  .views{position:relative; flex:1; min-height:0}
+  .view{position:absolute; inset:0; display:flex; flex-direction:column; min-height:0;
+    opacity:0; pointer-events:none; transition:opacity .22s}
+  .phone[data-view="chat"] .view.chat{opacity:1; pointer-events:auto}
+  .phone[data-view="mech"] .view.mech{opacity:1; pointer-events:auto}
+
+  /* ---------- CHAT (paper canvas) ---------- */
+  .stream{flex:1; min-height:0; overflow-y:auto; background:var(--paper);
+    padding:20px 16px 8px; display:flex; flex-direction:column; gap:14px}
+  .daystamp{align-self:center; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mut); opacity:.7}
+  .msg{max-width:82%; padding:11px 14px; border-radius:16px; font-size:16px}
+  .msg.bot{align-self:flex-start; background:#fff; border:1px solid var(--paper-line);
+    border-bottom-left-radius:5px; color:var(--ink); font-family:"Newsreader",Georgia,serif; line-height:1.55}
+  .msg.me{align-self:flex-end; background:var(--user-bg); color:var(--user-ink);
+    border-bottom-right-radius:5px; font-family:"Newsreader",Georgia,serif}
+  .notice{border-bottom:2px dotted var(--amber-deep); cursor:pointer; color:var(--ink);
+    padding-bottom:1px; transition:background .15s}
+  .notice:hover,.notice:focus{background:rgba(199,138,47,.16); outline:none}
+  .recast{align-self:flex-end; max-width:82%; font-family:"IBM Plex Sans",sans-serif; font-size:12.5px;
+    color:var(--ink-mut); background:rgba(111,155,255,.10); border:1px solid rgba(63,111,245,.28);
+    border-radius:12px; padding:8px 11px; margin-top:-6px}
+  .recast b{color:var(--steel-deep); font-weight:600; font-family:"Newsreader",serif; font-style:italic}
+  .recast .k{display:block; font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--steel-deep); margin-bottom:3px; opacity:.85}
+
+  /* scaffolds + composer (chrome dock) */
+  .dock{background:var(--chrome); border-top:1px solid var(--line); padding:10px 12px 12px}
+  .scaffold-k{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--faint-d); margin:2px 4px 8px}
+  .scaffolds{display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none}
+  .scaffolds::-webkit-scrollbar{display:none}
+  .scaf{flex:none; font-family:"Newsreader",serif; font-size:14px; color:var(--ink-d);
+    background:var(--chrome2); border:1px solid var(--line2); border-radius:20px; padding:7px 14px;
+    cursor:pointer; white-space:nowrap; transition:border-color .15s, background .15s}
+  .scaf:hover{border-color:var(--steel); background:#20324a}
+  .scaf.help{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--amber)}
+  .composer{display:flex; gap:9px; align-items:center; margin-top:4px}
+  .composer .field{flex:1; background:var(--inset); border:1px solid var(--line2); border-radius:22px;
+    padding:11px 15px; color:var(--mut-d); font-family:"Newsreader",serif; font-size:15px}
+  .mic,.send{flex:none; width:42px; height:42px; border-radius:50%; border:none; cursor:pointer;
+    display:grid; place-items:center; font-size:17px}
+  .mic{background:var(--chrome2); border:1px solid var(--line2); color:var(--mut-d)}
+  .send{background:var(--steel-deep); color:#fff; font-weight:700}
+
+  /* ---------- MECHANICS (deeper reference) ---------- */
+  .mech-scroll{flex:1; min-height:0; overflow-y:auto; padding:18px 16px 20px; background:var(--bg)}
+  .mech-intro{font-size:13px; color:var(--mut-d); margin:0 0 16px; line-height:1.55}
+  .mech-item{width:100%; text-align:left; background:var(--chrome); border:1px solid var(--line);
+    border-left:3px solid var(--amber); border-radius:12px; padding:14px 15px; margin-bottom:12px;
+    cursor:pointer; display:block; color:inherit; font:inherit; transition:transform .15s, border-color .15s}
+  .mech-item:hover{transform:translateY(-2px); border-color:var(--line2)}
+  .mi-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .mi-title{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:15px}
+  .mi-cefr{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--amber);
+    border:1px solid var(--amber-deep); border-radius:20px; padding:1px 8px}
+  .mi-sub{font-size:12.5px; color:var(--mut-d); margin-top:6px; line-height:1.45}
+  .mi-foot{display:flex; align-items:center; gap:10px; margin-top:11px}
+  .ring{--p:0; flex:none; width:20px; height:20px; border-radius:50%;
+    background:conic-gradient(var(--amber) calc(var(--p)*1%), var(--line2) 0)}
+  .ring i{display:block; width:12px; height:12px; margin:4px; border-radius:50%; background:var(--chrome)}
+  .mi-seen{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint-d)}
+
+  /* ---------- bottom nav ---------- */
+  .nav{display:flex; background:var(--chrome); border-top:1px solid var(--line); padding:6px 0 max(8px,env(safe-area-inset-bottom))}
+  .nav button{flex:1; background:none; border:none; cursor:pointer; padding:7px 0 5px;
+    display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--faint-d);
+    font-family:"IBM Plex Sans",sans-serif; font-size:11px; font-weight:500}
+  .nav button .ic{font-size:18px; line-height:1}
+  .phone[data-view="chat"] .nav .n-chat,
+  .phone[data-view="mech"] .nav .n-mech{color:var(--steel)}
+
+  /* ---------- bottom sheet ---------- */
+  .scrim{position:absolute; inset:0; background:rgba(4,8,14,.55); opacity:0; pointer-events:none;
+    transition:opacity .22s; z-index:50}
+  .scrim.open{opacity:1; pointer-events:auto}
+  .sheet{position:absolute; left:0; right:0; bottom:0; z-index:60; background:var(--chrome2);
+    border-top:1px solid var(--line2); border-radius:22px 22px 0 0; padding:10px 20px 26px;
+    transform:translateY(102%); transition:transform .28s cubic-bezier(.2,.8,.2,1); max-height:78%; overflow-y:auto}
+  .sheet.open{transform:translateY(0)}
+  .handle{width:38px; height:4px; border-radius:4px; background:var(--line2); margin:2px auto 14px}
+  .sh-word{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px}
+  .sh-word .w{font-family:"Newsreader",serif; font-size:26px; color:var(--amber)}
+  .sh-word .tags{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--mut-d)}
+  .sh-gloss{font-size:13px; color:var(--faint-d); font-style:italic; margin-bottom:16px}
+  .sh-title{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:17px; margin:2px 0 2px}
+  .sh-cefr{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--amber)}
+  .sh-block{margin-top:14px}
+  .sh-k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--faint-d); margin-bottom:5px}
+  .sh-expl{font-size:14.5px; color:var(--ink-d); line-height:1.55}
+  .sh-ex{font-family:"Newsreader",serif; font-size:16px; color:var(--amber); line-height:1.5}
+  .sh-contrast{font-size:13.5px; color:var(--mut-d); line-height:1.5}
+  .sh-save{margin-top:20px; width:100%; padding:12px; border-radius:12px; border:1px solid var(--line2);
+    background:var(--inset); color:var(--steel); font-family:"IBM Plex Mono",monospace; font-size:12.5px;
+    letter-spacing:.03em; cursor:pointer}
+
+  @media (max-width:880px){
+    .page{grid-template-columns:1fr; gap:34px; justify-items:center}
+    .rail{order:2; max-width:520px}
+    .device-wrap{position:static}
+  }
+  @media (max-width:440px){
+    body{background:var(--bg)}
+    .page{padding:0}
+    .phone{width:100vw; height:100dvh; border-radius:0; border:none; box-shadow:none}
+    .phone::after{content:none}
+    .notch{display:none}
+    .rail{padding:24px 20px 48px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .view,.sheet,.scrim,.scaf,.mech-item{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- DEVICE -->
+  <div class="device-wrap">
+    <div class="phone" id="phone" data-view="chat">
+      <div class="notch"></div>
+
+      <div class="status"><span>9:41</span><span>tutor · offline</span></div>
+      <div class="appbar">
+        <div class="wordmark">Habla<b>·</b>ES</div>
+        <div class="meta">
+          <span class="pill level">A1</span>
+          <span class="pill">5 met</span>
+        </div>
+      </div>
+
+      <div class="views">
+        <!-- CHAT VIEW -->
+        <div class="view chat">
+          <div class="stream" id="stream">
+            <div class="daystamp">Today · conversation</div>
+
+            <div class="msg bot">¡Hola! ¿Qué <span class="notice" tabindex="0" data-mech="preterite" data-w="hiciste" data-pos="VERB · hacer" data-g="you did / made">hiciste</span> hoy?</div>
+
+            <div class="msg me">Fui al mercado y compré fruta.</div>
+            <div class="recast"><span class="k">nicely done — notice</span>Two preterites: <b>fui</b> and <b>compré</b>. That's the tense for finished actions. ✓</div>
+
+            <div class="msg bot">¡Qué rico! ¿<span class="notice" tabindex="0" data-mech="imperfect" data-w="Estabas" data-pos="VERB · estar" data-g="you were">Estabas</span> con alguien en el mercado?</div>
+          </div>
+
+          <div class="dock">
+            <div class="scaffold-k">Reply — tap to start, or type your own</div>
+            <div class="scaffolds" id="scaffolds">
+              <button class="scaf" data-reply="Sí, estaba con mi amigo.">Sí, estaba con mi amigo.</button>
+              <button class="scaf" data-reply="No, fui solo.">No, fui solo.</button>
+              <button class="scaf help" data-help="1">¿Cómo digo…?</button>
+            </div>
+            <div class="composer">
+              <div class="field">Escribe en español…</div>
+              <button class="mic" title="Speak (low-stakes)">🎙</button>
+              <button class="send">↑</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MECHANICS VIEW -->
+        <div class="view mech">
+          <div class="mech-scroll">
+            <p class="mech-intro">Everything you've met in conversation, kept for review. Structures resurface here as you see them again — no streaks, just what's taking hold.</p>
+            <button class="mech-item" data-mech="preterite">
+              <div class="mi-top"><span class="mi-title">Pretérito</span><span class="mi-cefr">A2</span></div>
+              <div class="mi-sub">Completed past actions — tense folded into the verb ending.</div>
+              <div class="mi-foot"><span class="ring" style="--p:75"><i></i></span><span class="mi-seen">met in context · 6×</span></div>
+            </button>
+            <button class="mech-item" data-mech="imperfect">
+              <div class="mi-top"><span class="mi-title">Imperfecto</span><span class="mi-cefr">A2</span></div>
+              <div class="mi-sub">Ongoing or habitual past — the background tense, opposite the preterite.</div>
+              <div class="mi-foot"><span class="ring" style="--p:40"><i></i></span><span class="mi-seen">met in context · 3×</span></div>
+            </button>
+            <button class="mech-item" data-mech="ser_estar">
+              <div class="mi-top"><span class="mi-title">Ser vs estar</span><span class="mi-cefr">A1</span></div>
+              <div class="mi-sub">Two verbs for “to be” — identity vs current state.</div>
+              <div class="mi-foot"><span class="ring" style="--p:88"><i></i></span><span class="mi-seen">met in context · 11×</span></div>
+            </button>
+            <button class="mech-item" data-mech="gender">
+              <div class="mi-top"><span class="mi-title">Gender agreement</span><span class="mi-cefr">A1</span></div>
+              <div class="mi-sub">Articles and adjectives shift to match the noun.</div>
+              <div class="mi-foot"><span class="ring" style="--p:92"><i></i></span><span class="mi-seen">met in context · 14×</span></div>
+            </button>
+            <button class="mech-item" data-mech="reflexive">
+              <div class="mi-top"><span class="mi-title">Reflexive se</span><span class="mi-cefr">A2</span></div>
+              <div class="mi-sub">Subject acts on itself — everyday routines like llamarse.</div>
+              <div class="mi-foot"><span class="ring" style="--p:25"><i></i></span><span class="mi-seen">met in context · 2×</span></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV -->
+      <div class="nav">
+        <button class="n-chat" data-view="chat"><span class="ic">💬</span>Chat</button>
+        <button class="n-mech" data-view="mech"><span class="ic">◧</span>Mechanics</button>
+      </div>
+
+      <!-- SHEET -->
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="sheet">
+        <div class="handle"></div>
+        <div id="sheet-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATIONALE RAIL -->
+  <div class="rail">
+    <p class="rail-eyebrow">UI mockup · mobile · static prototype</p>
+    <h1>A chat you can read,<br>with the grammar<br>one tap away.</h1>
+    <p class="sub">Two surfaces, one loop: an immersive conversation on paper, and a mechanics layer that explains structures the moment they appear. Every choice below maps to a language-acquisition finding — tap around the phone to feel it.</p>
+
+    <div class="principle">
+      <div class="tag">Comprehensible input · i+1</div>
+      <div class="pt">Meaning on demand, not by default</div>
+      <div class="pd">Spanish stays front and centre; a tap reveals a gloss instead of pre-translating everything. Comprehension stays the learner's work — that's where acquisition happens.</div>
+    </div>
+    <div class="principle">
+      <div class="tag">Focus on form</div>
+      <div class="pt">Grammar surfaces from real sentences</div>
+      <div class="pd">Notable forms carry a faint underline in the actual message. Tapping opens the rule tied to that exact word — never an upfront lecture. Noticing-in-context beats decontextualised drills.</div>
+    </div>
+    <div class="principle">
+      <div class="tag">Recasts · low affective filter</div>
+      <div class="pt">Correction that doesn't sting</div>
+      <div class="pd">Mistakes get a warm recast — “you can also say…” — with the right form modelled, never a red X. Lower anxiety measurably raises willingness to communicate.</div>
+    </div>
+    <div class="principle">
+      <div class="tag">Pushed but scaffolded output</div>
+      <div class="pt">Tappable ways to answer</div>
+      <div class="pd">Response starters model i+1 and kill blank-page anxiety, while still requiring the learner to choose and produce. A “¿Cómo digo…?” chip gives help without switching to English.</div>
+    </div>
+    <div class="principle">
+      <div class="tag">Spaced retrieval</div>
+      <div class="pt">Structures come back around</div>
+      <div class="pd">The Mechanics tab is a living record of what you've met, resurfacing forms as exposure grows — competence you can see, without gamified streak pressure.</div>
+    </div>
+
+    <p class="note">Static mockup · representative Spanish content.<br>Underlined words, reply chips, both tabs and the sheet are live — try them.</p>
+  </div>
+
+</div>
+
+<script>
+  const MECH = {
+    preterite:{title:"Pretérito — completed past", cefr:"A2",
+      expl:"Spanish marks the past inside the verb ending, not with a helper word. The preterite is for single, completed actions: -é / -aste / -ó for -ar verbs, -í / -iste / -ió for -er / -ir verbs.",
+      ex:"Hablé con ella ayer. — “I spoke with her yesterday.”",
+      contrast:"English needs a separate word (“did / spoke”); Spanish folds tense and person into one ending, so hablé already means “I spoke.”"},
+    imperfect:{title:"Imperfecto — ongoing / habitual past", cefr:"A2",
+      expl:"The imperfect (-aba / -ía) paints the past as ongoing, repeated, or background, with no clear endpoint. It sits opposite the preterite's finished actions.",
+      ex:"Estaba en el mercado. — “I was at the market.”",
+      contrast:"English blurs these into one “was / used to”; Spanish makes you choose whether the past action was a finished event or a running background."},
+    ser_estar:{title:"Ser vs estar — two verbs for “to be”", cefr:"A1",
+      expl:"Spanish splits “to be” in two: ser for identity and inherent traits, estar for states, locations, and how things are right now.",
+      ex:"Ella es alta. (trait) · Ella está cansada. (state)",
+      contrast:"English uses one verb for both; the ser / estar choice encodes essence vs current condition."},
+    gender:{title:"Gender agreement", cefr:"A1",
+      expl:"Articles and adjectives change form to match the noun's gender and number: el gato negro, la gata negra, las gatas negras.",
+      ex:"La casa blanca — “the white house.”",
+      contrast:"English adjectives never change shape; in Spanish the whole noun phrase agrees."},
+    reflexive:{title:"Reflexive se", cefr:"A2",
+      expl:"A reflexive pronoun (me / te / se / nos) marks the subject acting on itself. Many everyday routines are reflexive: levantarse, ducharse, llamarse.",
+      ex:"Me llamo Ana. — literally “I call myself Ana.”",
+      contrast:"English rarely says “myself” here; Spanish uses the reflexive as the normal way to express routines."}
+  };
+
+  const phone = document.getElementById('phone');
+  const scrim = document.getElementById('scrim');
+  const sheet = document.getElementById('sheet');
+  const body  = document.getElementById('sheet-body');
+  const stream = document.getElementById('stream');
+
+  function openSheet(id, word){
+    const m = MECH[id]; if(!m) return;
+    const head = word ? `
+      <div class="sh-word"><span class="w">${word.w}</span><span class="tags">${word.pos}</span></div>
+      <div class="sh-gloss">“${word.g}”</div>` : '';
+    body.innerHTML = `${head}
+      <div class="sh-title">${m.title}</div>
+      <div class="sh-cefr">CEFR ${m.cefr}</div>
+      <div class="sh-block"><div class="sh-k">How it works</div><div class="sh-expl">${m.expl}</div></div>
+      <div class="sh-block"><div class="sh-k">In context</div><div class="sh-ex">${m.ex}</div></div>
+      <div class="sh-block"><div class="sh-k">vs English</div><div class="sh-contrast">${m.contrast}</div></div>
+      <button class="sh-save">＋ save to Mechanics for review</button>`;
+    scrim.classList.add('open'); sheet.classList.add('open');
+  }
+  function closeSheet(){ scrim.classList.remove('open'); sheet.classList.remove('open'); }
+  scrim.addEventListener('click', closeSheet);
+
+  // delegated taps: inline notices + mechanics-library items
+  document.addEventListener('click', (e)=>{
+    const n = e.target.closest('.notice');
+    if(n){ openSheet(n.dataset.mech, {w:n.dataset.w, pos:n.dataset.pos, g:n.dataset.g}); return; }
+    const mi = e.target.closest('.mech-item');
+    if(mi){ openSheet(mi.dataset.mech); return; }
+  });
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter' && e.target.classList.contains('notice')){
+      openSheet(e.target.dataset.mech, {w:e.target.dataset.w, pos:e.target.dataset.pos, g:e.target.dataset.g});
+    }
+  });
+
+  // bottom nav
+  phone.querySelectorAll('.nav button').forEach(b=>{
+    b.addEventListener('click',()=>{ phone.dataset.view = b.dataset.view; closeSheet(); });
+  });
+
+  // scaffolded reply → append a turn to show the loop
+  document.getElementById('scaffolds').addEventListener('click',(e)=>{
+    const chip = e.target.closest('.scaf'); if(!chip) return;
+    if(chip.dataset.help){
+      openSheet('imperfect', {w:'estaba', pos:'VERB · estar', g:'I was'}); return;
+    }
+    const me = document.createElement('div');
+    me.className='msg me'; me.textContent = chip.dataset.reply;
+    stream.appendChild(me);
+    const bot = document.createElement('div');
+    bot.className='msg bot';
+    bot.innerHTML = '¡Genial! ¿Y qué <span class="notice" tabindex="0" data-mech="preterite" data-w="compraste" data-pos="VERB · comprar" data-g="you bought">compraste</span> exactamente?';
+    setTimeout(()=>{ stream.appendChild(bot); stream.scrollTop = stream.scrollHeight; }, 260);
+    stream.scrollTop = stream.scrollHeight;
+  });
+</script>
+</body>
+</html>

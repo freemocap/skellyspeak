@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Tutor · split layout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c1420; --chrome:#14202e; --chrome2:#1a2838; --inset:#0c151f;
+    --line:#26374a; --line2:#38506a;
+    --ink-d:#e8eef7; --mut-d:#8a9bb3; --faint-d:#5d6f88;
+    --steel:#6f9bff; --steel-deep:#3f6ff5;
+    --amber:#e6b357; --amber-deep:#c78a2f;
+    --paper:#f3f1ea; --paper2:#eeebe1; --paper-line:#e0ddd2;
+    --ink:#1d242e; --ink-mut:#6a7686; --user-bg:#e6ecfa; --user-ink:#24405f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; height:100%}
+  body{background:#090f17; color:var(--ink-d); font-family:"IBM Plex Sans",system-ui,sans-serif;
+    min-height:100dvh; display:grid; place-items:center;
+    background-image:radial-gradient(1100px 640px at 80% -12%, rgba(111,155,255,.10), transparent 62%);
+    padding:clamp(0px,3vw,40px)}
+
+  .window{width:min(1120px,100%); height:min(780px,94dvh); background:var(--bg);
+    border-radius:20px; overflow:hidden; border:1px solid #263547;
+    box-shadow:0 40px 100px -34px rgba(0,0,0,.9); display:flex; flex-direction:column}
+
+  /* top bar */
+  .topbar{display:flex; align-items:center; justify-content:space-between;
+    padding:12px 18px; border-bottom:1px solid var(--line); background:var(--chrome)}
+  .wordmark{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:17px}
+  .wordmark b{color:var(--steel)}
+  .top-right{display:flex; gap:8px; align-items:center}
+  .pill{font-family:"IBM Plex Mono",monospace; font-size:11px; padding:3px 9px; border-radius:20px;
+    border:1px solid var(--line2); color:var(--mut-d)}
+  .pill.level{color:var(--amber); border-color:var(--amber-deep)}
+
+  /* split */
+  .split{flex:1; min-height:0; display:flex}
+  .divider{width:1px; background:var(--line2); flex:none; position:relative}
+  .divider::after{content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:4px; height:34px; border-radius:4px; background:var(--line2)}
+
+  /* ---- CHAT half (paper) ---- */
+  .chat{flex:1 1 50%; min-width:0; display:flex; flex-direction:column; background:var(--paper)}
+  .chat-head{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-mut); padding:11px 18px 0; opacity:.75}
+  .stream{flex:1; min-height:0; overflow-y:auto; padding:12px 16px 8px;
+    display:flex; flex-direction:column; gap:12px}
+  .msg{max-width:86%; padding:10px 13px; border-radius:15px; font-size:15.5px;
+    font-family:"Newsreader",Georgia,serif; line-height:1.5}
+  .msg.bot{align-self:flex-start; background:#fff; border:1px solid var(--paper-line);
+    border-bottom-left-radius:5px; color:var(--ink); cursor:pointer; position:relative}
+  .msg.bot.focused{border-color:var(--amber-deep); box-shadow:0 0 0 1px var(--amber-deep)}
+  .msg.bot.focused::before{content:"breakdown ▸"; position:absolute; top:-8px; right:10px;
+    font-family:"IBM Plex Mono",monospace; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--amber-deep); background:var(--paper); padding:0 5px}
+  .msg.me{align-self:flex-end; background:var(--user-bg); color:var(--user-ink); border-bottom-right-radius:5px}
+  .notice{border-bottom:2px dotted var(--amber-deep); cursor:pointer; padding-bottom:1px}
+  .notice:hover{background:rgba(199,138,47,.16)}
+  .recast{align-self:flex-end; max-width:86%; font-family:"IBM Plex Sans",sans-serif; font-size:12px;
+    color:var(--ink-mut); background:rgba(111,155,255,.10); border:1px solid rgba(63,111,245,.26);
+    border-radius:11px; padding:7px 10px; margin-top:-4px}
+  .recast b{color:var(--steel-deep); font-family:"Newsreader",serif; font-style:italic}
+
+  /* composer (spans bottom of chat half) */
+  .composer{border-top:1px solid var(--paper-line); background:var(--paper2); padding:9px 12px}
+  .scaffolds{display:flex; gap:7px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none}
+  .scaffolds::-webkit-scrollbar{display:none}
+  .scaf{flex:none; font-family:"Newsreader",serif; font-size:13.5px; color:var(--ink);
+    background:#fff; border:1px solid var(--paper-line); border-radius:18px; padding:6px 12px;
+    cursor:pointer; white-space:nowrap}
+  .scaf:hover{border-color:var(--amber-deep)}
+  .scaf.help{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--amber-deep)}
+  .crow{display:flex; gap:8px; align-items:center}
+  .field{flex:1; background:#fff; border:1px solid var(--paper-line); border-radius:20px;
+    padding:9px 14px; color:var(--ink-mut); font-family:"Newsreader",serif; font-size:14px}
+  .send{flex:none; width:38px; height:38px; border-radius:50%; border:none; background:var(--steel-deep);
+    color:#fff; font-weight:700; cursor:pointer}
+
+  /* ---- BREAKDOWN half (dark) ---- */
+  .break{flex:1 1 50%; min-width:0; display:flex; flex-direction:column; background:var(--bg)}
+  .break-head{display:flex; align-items:baseline; justify-content:space-between;
+    padding:12px 18px 10px; border-bottom:1px solid var(--line)}
+  .break-head .k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--steel)}
+  .break-head .live{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--faint-d)}
+  .break-scroll{flex:1; min-height:0; overflow-y:auto; padding:16px 18px 22px}
+
+  .sentence{font-family:"Newsreader",serif; font-size:19px; line-height:1.5; color:var(--ink-d); margin-bottom:16px}
+  .sentence .hl{color:var(--amber); border-bottom:2px solid var(--amber-deep)}
+
+  .sect-k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--faint-d); margin:20px 0 9px}
+  .sect-k:first-child{margin-top:0}
+
+  /* interlinear gloss */
+  .gloss{display:flex; flex-wrap:wrap; gap:7px}
+  .tok{border:1px solid var(--line); border-radius:9px; padding:7px 9px; background:var(--chrome);
+    display:flex; flex-direction:column; gap:2px; min-width:0}
+  .tok.key{border-color:var(--amber-deep); background:rgba(199,138,47,.10)}
+  .tok .sp{font-family:"Newsreader",serif; font-size:16px; color:var(--ink-d)}
+  .tok.key .sp{color:var(--amber)}
+  .tok .gl{font-size:11px; color:var(--mut-d)}
+  .tok .po{font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.06em; color:var(--faint-d)}
+
+  /* feature tags */
+  .feats{display:flex; flex-wrap:wrap; gap:6px}
+  .feat{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--steel);
+    border:1px solid var(--line2); border-radius:6px; padding:3px 8px; background:var(--inset)}
+  .feat b{color:var(--ink-d); font-weight:500}
+
+  /* explainer card */
+  .exp{border:1px solid var(--line); border-left:3px solid var(--amber); border-radius:11px;
+    padding:13px 14px; background:var(--chrome); margin-top:4px}
+  .exp-top{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+  .exp-title{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:15px}
+  .exp-cefr{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--amber);
+    border:1px solid var(--amber-deep); border-radius:20px; padding:1px 8px}
+  .exp-body{font-size:13.5px; color:var(--mut-d); line-height:1.55; margin-top:9px}
+  .exp-ex{font-family:"Newsreader",serif; font-size:15px; color:var(--amber); margin-top:9px; line-height:1.45}
+  .exp-vs{font-size:12.5px; color:var(--mut-d); margin-top:9px; line-height:1.5}
+  .exp-vs span{font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--faint-d); display:block; margin-bottom:2px}
+
+  /* stacked (mobile / narrow): chat top half, breakdown bottom half */
+  @media (max-width:760px){
+    body{padding:0}
+    .window{height:100dvh; border-radius:0; border:none}
+    .split{flex-direction:column}
+    .divider{width:auto; height:1px}
+    .divider::after{width:34px; height:4px}
+    .chat,.break{flex:1 1 50%}
+    .sentence{font-size:17px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="window">
+    <div class="topbar">
+      <div class="wordmark">Habla<b>·</b>ES</div>
+      <div class="top-right">
+        <span class="pill level">A1</span>
+        <span class="pill">preterite ×6</span>
+      </div>
+    </div>
+
+    <div class="split">
+      <!-- CHAT -->
+      <section class="chat">
+        <div class="chat-head">Conversation</div>
+        <div class="stream" id="stream">
+          <div class="msg bot" data-turn="t1">¡Hola! ¿Qué <span class="notice">hiciste</span> hoy?</div>
+          <div class="msg me">Fui al mercado y compré fruta.</div>
+          <div class="recast"><b>¡Bien!</b> fui · compré — two preterites, nicely done ✓</div>
+          <div class="msg bot focused" data-turn="t2">¡Qué rico! Yo también <span class="notice">compré</span> fruta ayer y <span class="notice">hablé</span> con el vendedor.</div>
+        </div>
+        <div class="composer">
+          <div class="scaffolds">
+            <button class="scaf" data-reply="¿Qué compraste tú?" data-next="t3">¿Qué compraste tú?</button>
+            <button class="scaf" data-reply="Yo hablé con mi vecina." data-next="t3">Yo hablé con mi vecina.</button>
+            <button class="scaf help">¿Cómo digo…?</button>
+          </div>
+          <div class="crow">
+            <div class="field">Escribe en español…</div>
+            <button class="send">↑</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- BREAKDOWN -->
+      <section class="break">
+        <div class="break-head">
+          <span class="k">Breakdown · latest turn</span>
+          <span class="live">● live</span>
+        </div>
+        <div class="break-scroll" id="breakdown"><!-- injected --></div>
+      </section>
+    </div>
+  </div>
+
+<script>
+  const MECH = {
+    preterite:{title:"Pretérito — completed past", cefr:"A2",
+      body:"Spanish marks the past inside the verb ending, not with a helper word. The preterite is for single, completed actions: -é / -aste / -ó (‑ar) and -í / -iste / -ió (‑er/‑ir).",
+      ex:"Compré fruta ayer. — “I bought fruit yesterday.”",
+      vs:"English uses a separate word (“did / bought”); Spanish folds tense + person into one ending, so compré already means “I bought.”"},
+    imperfect:{title:"Imperfecto — ongoing / habitual past", cefr:"A2",
+      body:"The imperfect (-aba / -ía) paints the past as ongoing, repeated, or background, with no clear endpoint — the counterpart to the preterite.",
+      ex:"Hablaba con el vendedor cada semana. — “I used to talk with the seller each week.”",
+      vs:"English blurs these into one form; Spanish makes you choose event vs background."}
+  };
+
+  // Per-turn analysis (what the analyzer/IR would produce). Default focus = t2.
+  const TURNS = {
+    t1:{ sentence:[["¡Hola!",null,"INTJ",null],["¿Qué","what","PRON",null],["hiciste","you did/made","VERB","preterite"],["hoy?","today","ADV",null]],
+         feats:["Tense=Past","Person=2","Number=Sing","Mood=Ind"], mechs:["preterite"] },
+    t2:{ sentence:[["Yo","I","PRON",null],["también","also","ADV",null],["compré","I bought","VERB","preterite"],["fruta","fruit","NOUN",null],["ayer","yesterday","ADV",null],["y","and","CCONJ",null],["hablé","I spoke","VERB","preterite"],["con","with","ADP",null],["el","the","DET",null],["vendedor","seller","NOUN",null]],
+         feats:["Tense=Past","Person=1","Number=Sing","Mood=Ind"], mechs:["preterite"] },
+    t3:{ sentence:[["Compré","I bought","VERB","preterite"],["manzanas","apples","NOUN",null],["porque","because","SCONJ",null],["eran","they were","VERB","imperfect"],["frescas","fresh","ADJ",null]],
+         feats:["Tense=Past","Tense=Imp","Number=Plur"], mechs:["preterite","imperfect"] }
+  };
+
+  const breakdown = document.getElementById('breakdown');
+  const stream = document.getElementById('stream');
+
+  function renderBreakdown(turnId){
+    const d = TURNS[turnId]; if(!d) return;
+    const sentence = d.sentence.map(([w,,,m]) =>
+      m ? `<span class="hl">${w}</span>` : w).join(' ');
+    const gloss = d.sentence.map(([w,g,p,m]) => `
+      <div class="tok ${m?'key':''}">
+        <span class="sp">${w.replace(/[¿?¡!]/g,'')||w}</span>
+        ${g?`<span class="gl">${g}</span>`:''}
+        <span class="po">${p}</span>
+      </div>`).join('');
+    const feats = d.feats.map(f=>{
+      const [k,v]=f.split('='); return `<span class="feat">${k}=<b>${v}</b></span>`;
+    }).join('');
+    const exps = [...new Set(d.mechs)].map(id=>{
+      const m=MECH[id]; return `
+      <div class="exp">
+        <div class="exp-top"><span class="exp-title">${m.title}</span><span class="exp-cefr">${m.cefr}</span></div>
+        <div class="exp-body">${m.body}</div>
+        <div class="exp-ex">${m.ex}</div>
+        <div class="exp-vs"><span>vs English</span>${m.vs}</div>
+      </div>`;
+    }).join('');
+
+    breakdown.innerHTML = `
+      <div class="sentence">${sentence}</div>
+      <div class="sect-k">Word by word</div>
+      <div class="gloss">${gloss}</div>
+      <div class="sect-k">Features detected</div>
+      <div class="feats">${feats}</div>
+      <div class="sect-k">What's happening</div>
+      ${exps}`;
+    breakdown.scrollTop = 0;
+  }
+
+  function focusTurn(turnId){
+    stream.querySelectorAll('.msg.bot').forEach(el=>el.classList.toggle('focused', el.dataset.turn===turnId));
+    renderBreakdown(turnId);
+  }
+
+  // click a bot message → re-pin the breakdown to it
+  stream.addEventListener('click',(e)=>{
+    const m = e.target.closest('.msg.bot');
+    if(m && m.dataset.turn) focusTurn(m.dataset.turn);
+  });
+
+  // scaffolded reply → append a turn, auto-focus breakdown to the new turn
+  document.querySelector('.scaffolds').addEventListener('click',(e)=>{
+    const chip = e.target.closest('.scaf'); if(!chip) return;
+    if(chip.classList.contains('help')){ focusTurn('t2'); return; }
+    const me = document.createElement('div'); me.className='msg me'; me.textContent = chip.dataset.reply;
+    stream.appendChild(me);
+    const nextId = chip.dataset.next;
+    const bot = document.createElement('div'); bot.className='msg bot'; bot.dataset.turn = nextId;
+    bot.innerHTML = '¡Claro! <span class="notice">Compré</span> manzanas porque <span class="notice">eran</span> frescas.';
+    setTimeout(()=>{ stream.appendChild(bot); focusTurn(nextId); stream.scrollTop = stream.scrollHeight; }, 260);
+    stream.scrollTop = stream.scrollHeight;
+    // spend the chips
+    document.querySelectorAll('.scaf:not(.help)').forEach(s=>s.style.display='none');
+  });
+
+  renderBreakdown('t2');
+</script>
+</body>
+</html>
