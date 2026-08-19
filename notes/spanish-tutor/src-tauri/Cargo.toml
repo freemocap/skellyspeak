@@ -1,0 +1,21 @@
+[package]
+name = "spanish-tutor"
+version = "0.1.0"
+edition = "2021"
+description = "Local Spanish tutor powered by Gemma 4 E4B"
+
+[lib]
+name = "spanish_tutor_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync"] }
+reqwest = { version = "0.12", features = ["json"] }
+async-trait = "0.1"
+anyhow = "1"

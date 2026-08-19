@@ -28,23 +28,31 @@ So the product is:
 
 ---
 
-## 2. Why we build on Handy (not fork, not cherry-pick)
+## 2. We build ON Handy — pull the machinery straight from it
 
-Handy (`cjpais/Handy`) is **MIT-licensed** and explicitly designed to be forked: *"Handy isn't trying to be the best speech-to-text app→it's trying to be the most forkable one."* Its README is explicit that **name/logo/brand are NOT open-source** → we use our own branding (we're rebranding anyway).
+Handy (`cjpais/Handy`) is **MIT-licensed** and explicitly designed to be forked: *"Handy isn't trying to be the best speech-to-text app→it's trying to be the most forkable one."* Its README is explicit that **name/logo/brand are NOT open-source** → we use our own branding.
 
-**Strategy: scaffold fresh on Handy's stack, depend on its published crates, mirror its architecture, write our own domain.** We inherit Handy's fixes via crates.io while keeping our app 100% ours.
+**Strategy: VENDOR Handy's capture / transcription / model machinery straight into our app. We do NOT reimplement any of it.** Handy's `src-tauri` is the foundation: fork/vendor its modules, strip the dictation-specific parts (hotkeys, paste, clipboard, tray, overlay, global-shortcut), and keep everything that listens to the mic, transcribes, and manages models.
 
-| Layer | Handy uses | We do |
-|---|---|---|
-| Shell | Tauri **v2.11** + React 18 + TS + Vite + **Tailwind 4** + **Zustand** + i18next | Adopt |
-| Type-safe bridge | **`specta` / `tauri-specta`** → auto `bindings.ts` | Adopt |
-| Parakeet ASR | **`transcribe-rs`** (`onnx`) → Parakeet/Moonshine/Canary/Cohere | Use as dep |
-| Whisper ASR | **`transcribe-cpp`** (GGML) → Whisper + GPU + streaming | Use as dep |
-| VAD | **`vad-rs`** (Silero ONNX) | Use as dep |
-| Model download | **`hf-hub`** + `managers/model` + `model_capabilities` + `gguf_meta` | Mirror |
-| LLM client | `llm_client.rs` → **plain `reqwest` + JSON-schema**, OpenAI-compatible, multi-provider | Mirror |
-| Mobile | `capabilities/` + `gen/` + `swift/`; desktop plugins gated by `cfg(target_os)` | Mirror |
-| Architecture | command→event; `Zustand → command → Rust state → store`; `managers/` + `Arc<Mutex>` | Mirror |
+### Pull straight from Handy (vendor/fork — do not reimplement)
+
+| Concern | Pull from Handy |
+|---|---|
+| Audio capture + VAD | `managers/audio.rs`, `vad-rs` (Silero), `cpal`, `audio_toolkit/` |
+| Transcription | `transcription_coordinator.rs`, `managers/transcription.rs`, `transcribe-rs` (ONNX) + `transcribe-cpp` (GGML) |
+| Model manager | `managers/model.rs` + `model/download.rs`, `model_capabilities.rs`, `gguf_meta.rs`, `hf-hub` |
+| LLM client | `llm_client.rs` (reqwest + JSON-schema, OpenAI-compatible) |
+| Type-safe bridge | `specta` / `tauri-specta` |
+| Frontend stack | React + TS + Tailwind + Zustand + i18next |
+| Mobile gating | `capabilities/` + `gen/` + `swift/` + `cfg(target_os)` |
+
+### We author (SkellySubs-specific — Handy has none of this)
+
+- Translation prompts + word-matching (the `python-only` IP) — already in `skellysubs-core`
+- Tutor conversation layer (mixed-language partner replies)
+- Subtitle formatters (SRT/VTT/ASS/MD) — already in `skellysubs-core`
+- Word-aligned chat transcript UI
+- 78-language config — already in `skellysubs-core`
 
 ---
 

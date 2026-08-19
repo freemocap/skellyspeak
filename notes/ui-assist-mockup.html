@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Tutor · assist slider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c1420; --chrome:#14202e; --chrome2:#1a2838; --inset:#0c151f;
+    --line:#26374a; --line2:#38506a;
+    --ink-d:#e8eef7; --mut-d:#8a9bb3; --faint-d:#5d6f88;
+    --steel:#6f9bff; --steel-deep:#3f6ff5;
+    --amber:#e6b357; --amber-deep:#c78a2f;
+    --paper:#f3f1ea; --paper2:#eeebe1; --paper-line:#e0ddd2;
+    --ink:#1d242e; --ink-mut:#6a7686; --user-bg:#e6ecfa; --user-ink:#24405f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; height:100%}
+  body{background:#090f17; color:var(--ink-d); font-family:"IBM Plex Sans",system-ui,sans-serif;
+    min-height:100dvh; display:grid; place-items:center;
+    background-image:radial-gradient(1100px 640px at 80% -12%, rgba(111,155,255,.10), transparent 62%);
+    padding:clamp(0px,3vw,40px)}
+  .window{width:min(1120px,100%); height:min(800px,95dvh); background:var(--bg);
+    border-radius:20px; overflow:hidden; border:1px solid #263547;
+    box-shadow:0 40px 100px -34px rgba(0,0,0,.9); display:flex; flex-direction:column}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between;
+    padding:12px 18px; border-bottom:1px solid var(--line); background:var(--chrome)}
+  .wordmark{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:17px}
+  .wordmark b{color:var(--steel)}
+  .pill{font-family:"IBM Plex Mono",monospace; font-size:11px; padding:3px 9px; border-radius:20px;
+    border:1px solid var(--line2); color:var(--mut-d)}
+  .pill.level{color:var(--amber); border-color:var(--amber-deep)}
+
+  .split{flex:1; min-height:0; display:flex}
+  .divider{width:1px; background:var(--line2); flex:none; position:relative}
+  .divider::after{content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:4px; height:34px; border-radius:4px; background:var(--line2)}
+
+  /* CHAT half */
+  .chat{flex:1 1 50%; min-width:0; display:flex; flex-direction:column; background:var(--paper)}
+  .chat-head{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-mut); padding:11px 18px 0; opacity:.75}
+  .stream{flex:1; min-height:0; overflow-y:auto; padding:12px 16px 8px; display:flex; flex-direction:column; gap:12px}
+  .msg{max-width:88%; padding:10px 13px; border-radius:15px; font-size:15.5px}
+  .msg.bot{align-self:flex-start; background:#fff; border:1px solid var(--paper-line);
+    border-bottom-left-radius:5px; color:var(--ink); cursor:pointer; position:relative}
+  .msg.bot.focused{border-color:var(--amber-deep); box-shadow:0 0 0 1px var(--amber-deep)}
+  .msg.me{align-self:flex-end; background:var(--user-bg); color:var(--user-ink); border-bottom-right-radius:5px;
+    font-family:"Newsreader",serif}
+  .recast{align-self:flex-end; max-width:86%; font-size:12px; color:var(--ink-mut);
+    background:rgba(111,155,255,.10); border:1px solid rgba(63,111,245,.26); border-radius:11px; padding:7px 10px; margin-top:-4px}
+  .recast b{color:var(--steel-deep); font-family:"Newsreader",serif; font-style:italic}
+
+  /* interlinear word units inside a bot bubble */
+  .line{display:flex; flex-wrap:wrap; gap:2px 7px; align-items:flex-start}
+  .wu{display:inline-flex; flex-direction:column; align-items:flex-start}
+  .w{font-family:"Newsreader",serif; font-size:16px; line-height:1.5}
+  .w.notice{border-bottom:2px dotted var(--amber-deep)}
+  .wg{display:none; font-family:"IBM Plex Sans",sans-serif; font-size:10px; color:var(--ink-mut); line-height:1.2}
+  .trans{display:none; font-family:"IBM Plex Sans",sans-serif; font-size:12.5px; color:var(--ink-mut);
+    font-style:italic; margin-top:7px; padding-top:7px; border-top:1px dashed var(--paper-line)}
+  /* assist-controlled reveals */
+  .window[data-assist="2"] .wg,
+  .window[data-assist="3"] .wg{display:block}
+  .window[data-assist="3"] .trans{display:block}
+
+  /* assist bar + composer */
+  .assistbar{border-top:1px solid var(--paper-line); background:var(--paper2); padding:9px 14px 6px}
+  .assist-row{display:flex; align-items:center; gap:12px}
+  .assist-label{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-mut)}
+  .assist-range{flex:1; accent-color:var(--steel-deep); height:22px}
+  .assist-state{font-family:"IBM Plex Sans",sans-serif; font-size:12.5px; font-weight:600; color:var(--steel-deep);
+    min-width:92px; text-align:right}
+  .ticks{display:flex; justify-content:space-between; margin:2px 2px 0; padding-left:64px}
+  .ticks span{font-family:"IBM Plex Mono",monospace; font-size:9px; color:var(--ink-mut); opacity:.6}
+  .ticks span.on{opacity:1; color:var(--steel-deep)}
+  .assist-hint{font-size:11.5px; color:var(--ink-mut); margin:6px 2px 0; min-height:15px}
+
+  .composer{background:var(--paper2); padding:4px 12px 11px}
+  .scaffolds{display:flex; gap:7px; overflow-x:auto; padding:6px 0 8px; scrollbar-width:none; min-height:38px}
+  .scaffolds::-webkit-scrollbar{display:none}
+  .scaf{flex:none; font-family:"Newsreader",serif; font-size:13.5px; color:var(--ink);
+    background:#fff; border:1px solid var(--paper-line); border-radius:18px; padding:6px 12px; cursor:pointer; white-space:nowrap}
+  .scaf:hover{border-color:var(--amber-deep)}
+  .scaf.help{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--amber-deep)}
+  .scaf.hint{background:transparent; border-style:dashed; color:var(--ink-mut); cursor:default; font-style:italic}
+  .crow{display:flex; gap:8px; align-items:center}
+  .field{flex:1; background:#fff; border:1px solid var(--paper-line); border-radius:20px; padding:9px 14px;
+    color:var(--ink-mut); font-family:"Newsreader",serif; font-size:14px}
+  .field.filled{color:var(--ink)}
+  .send{flex:none; width:38px; height:38px; border-radius:50%; border:none; background:var(--steel-deep); color:#fff; font-weight:700; cursor:pointer}
+
+  /* BREAKDOWN half */
+  .break{flex:1 1 50%; min-width:0; display:flex; flex-direction:column; background:var(--bg)}
+  .break-head{display:flex; align-items:baseline; justify-content:space-between; padding:12px 18px 10px; border-bottom:1px solid var(--line)}
+  .break-head .k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--steel)}
+  .break-head .live{font-family:"IBM Plex Mono",monospace; font-size:10px; color:var(--faint-d)}
+  .break-scroll{flex:1; min-height:0; overflow-y:auto; padding:16px 18px 22px}
+  .sentence{font-family:"Newsreader",serif; font-size:19px; line-height:1.5; color:var(--ink-d); margin-bottom:16px}
+  .sentence .hl{color:var(--amber); border-bottom:2px solid var(--amber-deep)}
+  .sect-k{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint-d); margin:20px 0 9px}
+  .sect-k:first-child{margin-top:0}
+  .gloss{display:flex; flex-wrap:wrap; gap:7px}
+  .tok{border:1px solid var(--line); border-radius:9px; padding:7px 9px; background:var(--chrome); display:flex; flex-direction:column; gap:2px}
+  .tok.key{border-color:var(--amber-deep); background:rgba(199,138,47,.10)}
+  .tok .sp{font-family:"Newsreader",serif; font-size:16px; color:var(--ink-d)}
+  .tok.key .sp{color:var(--amber)}
+  .tok .gl{font-size:11px; color:var(--mut-d)}
+  .tok .po{font-family:"IBM Plex Mono",monospace; font-size:9px; color:var(--faint-d)}
+  .feats{display:flex; flex-wrap:wrap; gap:6px}
+  .feat{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--steel); border:1px solid var(--line2); border-radius:6px; padding:3px 8px; background:var(--inset)}
+  .feat b{color:var(--ink-d); font-weight:500}
+  .exp{border:1px solid var(--line); border-left:3px solid var(--amber); border-radius:11px; padding:13px 14px; background:var(--chrome); margin-top:4px}
+  .exp-top{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+  .exp-title{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:15px}
+  .exp-cefr{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--amber); border:1px solid var(--amber-deep); border-radius:20px; padding:1px 8px}
+  .exp-body{font-size:13.5px; color:var(--mut-d); line-height:1.55; margin-top:9px}
+  .exp-ex{font-family:"Newsreader",serif; font-size:15px; color:var(--amber); margin-top:9px; line-height:1.45}
+  .exp-vs{font-size:12.5px; color:var(--mut-d); margin-top:9px; line-height:1.5}
+  .exp-vs span{font-family:"IBM Plex Mono",monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint-d); display:block; margin-bottom:2px}
+
+  @media (max-width:760px){
+    body{padding:0}
+    .window{height:100dvh; border-radius:0; border:none}
+    .split{flex-direction:column}
+    .divider{width:auto; height:1px}
+    .divider::after{width:34px; height:4px}
+    .chat,.break{flex:1 1 50%}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="window" id="win" data-assist="3">
+    <div class="topbar">
+      <div class="wordmark">Habla<b>·</b>ES</div>
+      <span class="pill level">A1</span>
+    </div>
+
+    <div class="split">
+      <!-- CHAT -->
+      <section class="chat">
+        <div class="chat-head">Conversation</div>
+        <div class="stream" id="stream">
+          <div class="msg bot" data-turn="t1">
+            <div class="line">
+              <span class="wu"><span class="w">¡Hola!</span></span>
+              <span class="wu"><span class="w">¿Qué</span><span class="wg">what</span></span>
+              <span class="wu"><span class="w notice">hiciste</span><span class="wg">you did</span></span>
+              <span class="wu"><span class="w">hoy?</span><span class="wg">today</span></span>
+            </div>
+            <div class="trans">“Hi! What did you do today?”</div>
+          </div>
+
+          <div class="msg me">Fui al mercado y compré fruta.</div>
+          <div class="recast"><b>¡Bien!</b> fui · compré — two preterites ✓</div>
+
+          <div class="msg bot focused" data-turn="t2">
+            <div class="line">
+              <span class="wu"><span class="w">Yo</span><span class="wg">I</span></span>
+              <span class="wu"><span class="w">también</span><span class="wg">also</span></span>
+              <span class="wu"><span class="w notice">compré</span><span class="wg">I bought</span></span>
+              <span class="wu"><span class="w">fruta</span><span class="wg">fruit</span></span>
+              <span class="wu"><span class="w">ayer</span><span class="wg">yesterday</span></span>
+              <span class="wu"><span class="w">y</span></span>
+              <span class="wu"><span class="w notice">hablé</span><span class="wg">I spoke</span></span>
+              <span class="wu"><span class="w">con el</span><span class="wg">with the</span></span>
+              <span class="wu"><span class="w">vendedor.</span><span class="wg">seller</span></span>
+            </div>
+            <div class="trans">“I also bought fruit yesterday and spoke with the seller.”</div>
+          </div>
+        </div>
+
+        <!-- ASSIST -->
+        <div class="assistbar">
+          <div class="assist-row">
+            <span class="assist-label">Assist</span>
+            <input type="range" class="assist-range" min="0" max="3" step="1" value="3" id="assist">
+            <span class="assist-state" id="assistState">Full support</span>
+          </div>
+          <div class="ticks" id="ticks"><span>Immersion</span><span>Light</span><span>Guided</span><span>Full</span></div>
+          <div class="assist-hint" id="assistHint"></div>
+        </div>
+
+        <div class="composer">
+          <div class="scaffolds" id="scaffolds"></div>
+          <div class="crow">
+            <div class="field" id="field">Escribe en español…</div>
+            <button class="send">↑</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- BREAKDOWN -->
+      <section class="break">
+        <div class="break-head"><span class="k">Breakdown · latest turn</span><span class="live">● live</span></div>
+        <div class="break-scroll" id="breakdown"></div>
+      </section>
+    </div>
+  </div>
+
+<script>
+  const MECH = {
+    preterite:{title:"Pretérito — completed past", cefr:"A2",
+      body:"Spanish marks the past inside the verb ending, not with a helper word. The preterite is for single, completed actions: -é / -aste / -ó and -í / -iste / -ió.",
+      ex:"Compré fruta ayer. — “I bought fruit yesterday.”",
+      vs:"English uses a separate word (“did / bought”); Spanish folds tense + person into one ending."},
+    imperfect:{title:"Imperfecto — ongoing / habitual past", cefr:"A2",
+      body:"The imperfect (-aba / -ía) paints the past as ongoing, repeated, or background — the counterpart to the preterite.",
+      ex:"Eran frescas. — “They were fresh.” (a background state)",
+      vs:"English blurs these; Spanish makes you choose event vs background."}
+  };
+  const TURNS = {
+    t1:{sentence:[["¡Hola!",null,"INTJ",null],["¿Qué","what","PRON",null],["hiciste","you did","VERB","preterite"],["hoy","today","ADV",null]],
+        feats:["Tense=Past","Person=2","Number=Sing","Mood=Ind"], mechs:["preterite"]},
+    t2:{sentence:[["Yo","I","PRON",null],["también","also","ADV",null],["compré","I bought","VERB","preterite"],["fruta","fruit","NOUN",null],["ayer","yesterday","ADV",null],["y","and","CCONJ",null],["hablé","I spoke","VERB","preterite"],["con","with","ADP",null],["el","the","DET",null],["vendedor","seller","NOUN",null]],
+        feats:["Tense=Past","Person=1","Number=Sing","Mood=Ind"], mechs:["preterite"]},
+    t3:{sentence:[["Compré","I bought","VERB","preterite"],["manzanas","apples","NOUN",null],["porque","because","SCONJ",null],["eran","they were","VERB","imperfect"],["frescas","fresh","ADJ",null]],
+        feats:["Tense=Past","Tense=Imp","Number=Plur"], mechs:["preterite","imperfect"]}
+  };
+
+  const ASSIST = {
+    0:{state:"Immersion", hint:"Spanish only. Tap any word for its meaning if you're stuck.",
+       scaf:[{t:"Responde como puedas…", kind:"hint"}]},
+    1:{state:"Light", hint:"Key words underlined. A couple of sentence starters to get you going.",
+       scaf:[{t:"Yo también…", kind:"insert"},{t:"¿Y tú?", kind:"insert"},{t:"¿Cómo digo…?", kind:"help"}]},
+    2:{state:"Guided", hint:"English under each word. Fill-in-the-blank frames scaffold your reply.",
+       scaf:[{t:"Yo compré ___.", kind:"insert"},{t:"Hablé con ___.", kind:"insert"},{t:"¿Cómo digo…?", kind:"help"}]},
+    3:{state:"Full support", hint:"Full translation shown. Tap a whole reply to send — hold a conversation before you can build one.",
+       scaf:[{t:"¡Qué rico! ¿Qué compraste?", kind:"send"},{t:"Yo también fui al mercado.", kind:"send"},{t:"¿Cómo digo…?", kind:"help"}]}
+  };
+
+  const win = document.getElementById('win');
+  const stream = document.getElementById('stream');
+  const breakdown = document.getElementById('breakdown');
+  const field = document.getElementById('field');
+  const scaffolds = document.getElementById('scaffolds');
+  const assist = document.getElementById('assist');
+
+  function renderBreakdown(id){
+    const d = TURNS[id]; if(!d) return;
+    const sentence = d.sentence.map(([w,,,m])=> m?`<span class="hl">${w}</span>`:w).join(' ');
+    const gloss = d.sentence.map(([w,g,p,m])=>`<div class="tok ${m?'key':''}"><span class="sp">${w}</span>${g?`<span class="gl">${g}</span>`:''}<span class="po">${p}</span></div>`).join('');
+    const feats = d.feats.map(f=>{const[k,v]=f.split('=');return `<span class="feat">${k}=<b>${v}</b></span>`;}).join('');
+    const exps = [...new Set(d.mechs)].map(id=>{const m=MECH[id];return `<div class="exp"><div class="exp-top"><span class="exp-title">${m.title}</span><span class="exp-cefr">${m.cefr}</span></div><div class="exp-body">${m.body}</div><div class="exp-ex">${m.ex}</div><div class="exp-vs"><span>vs English</span>${m.vs}</div></div>`;}).join('');
+    breakdown.innerHTML = `<div class="sentence">${sentence}</div><div class="sect-k">Word by word</div><div class="gloss">${gloss}</div><div class="sect-k">Features detected</div><div class="feats">${feats}</div><div class="sect-k">What's happening</div>${exps}`;
+    breakdown.scrollTop = 0;
+  }
+  function focusTurn(id){
+    stream.querySelectorAll('.msg.bot').forEach(el=>el.classList.toggle('focused', el.dataset.turn===id));
+    renderBreakdown(id);
+  }
+
+  function renderScaffolds(level){
+    scaffolds.innerHTML = ASSIST[level].scaf.map(s=>
+      `<button class="scaf ${s.kind==='help'?'help':''} ${s.kind==='hint'?'hint':''}" data-kind="${s.kind}" data-t="${s.t}">${s.t}</button>`).join('');
+  }
+  function setFilled(text){ field.textContent = text; field.classList.add('filled'); }
+
+  function updateAssist(){
+    const v = assist.value;
+    win.dataset.assist = v;
+    document.getElementById('assistState').textContent = ASSIST[v].state;
+    document.getElementById('assistHint').textContent = ASSIST[v].hint;
+    document.querySelectorAll('#ticks span').forEach((s,i)=>s.classList.toggle('on', i==v));
+    renderScaffolds(v);
+  }
+  assist.addEventListener('input', updateAssist);
+
+  // bot message → re-pin breakdown
+  stream.addEventListener('click',(e)=>{
+    const m = e.target.closest('.msg.bot'); if(m && m.dataset.turn) focusTurn(m.dataset.turn);
+  });
+
+  // scaffold behaviour depends on kind
+  scaffolds.addEventListener('click',(e)=>{
+    const chip = e.target.closest('.scaf'); if(!chip) return;
+    const kind = chip.dataset.kind, text = chip.dataset.t;
+    if(kind==='hint') return;
+    if(kind==='help'){ focusTurn('t2'); return; }
+    if(kind==='insert'){ setFilled(text); return; }
+    if(kind==='send'){
+      const me=document.createElement('div'); me.className='msg me'; me.textContent=text; stream.appendChild(me);
+      const bot=document.createElement('div'); bot.className='msg bot'; bot.dataset.turn='t3';
+      bot.innerHTML = TURNS.t3.sentence.map(([w,g,,m])=>`<span class="wu"><span class="w ${m?'notice':''}">${w}</span>${g?`<span class="wg">${g}</span>`:''}</span>`).join(' ')
+        + '<div class="trans">“I bought apples because they were fresh.”</div>';
+      bot.innerHTML = '<div class="line">'+TURNS.t3.sentence.map(([w,g,,m])=>`<span class="wu"><span class="w ${m?'notice':''}">${w}</span>${g?`<span class="wg">${g}</span>`:''}</span>`).join('')+'</div><div class="trans">“I bought apples because they were fresh.”</div>';
+      setTimeout(()=>{ stream.appendChild(bot); focusTurn('t3'); stream.scrollTop=stream.scrollHeight; }, 260);
+      field.textContent='Escribe en español…'; field.classList.remove('filled');
+      stream.scrollTop = stream.scrollHeight;
+    }
+  });
+
+  updateAssist();
+  renderBreakdown('t2');
+</script>
+</body>
+</html>
