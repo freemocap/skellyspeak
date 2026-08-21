@@ -1,0 +1,56 @@
+[
+  {
+    "id": "es-preterite",
+    "title": "Preterite: completed past actions",
+    "cefr": "A2",
+    "trigger": { "type": "feature", "key": "Tense", "value": "Past" },
+    "explanation": "Spanish marks the past inside the verb ending, not with a helper word. The preterite is for single, completed actions: -é/-aste/-ó for -ar verbs, -í/-iste/-ió for -er/-ir verbs.",
+    "example": "Hablé con ella ayer. — 'I spoke with her yesterday.'",
+    "contrast": "English needs 'did/spoke' as separate words; Spanish folds tense + person into one ending, so 'hablé' already means 'I spoke'."
+  },
+  {
+    "id": "es-imperfect",
+    "title": "Imperfect: ongoing or habitual past",
+    "cefr": "A2",
+    "trigger": { "type": "construction", "id": "preterite_vs_imperfect" },
+    "explanation": "The imperfect (-aba / -ía) describes the past as ongoing, repeated, or background — with no clear endpoint. It sits opposite the preterite's finished actions.",
+    "example": "Hablaba con ella todos los días. — 'I used to talk / was talking with her every day.'",
+    "contrast": "English blurs these into one 'talked'; Spanish forces you to choose whether the action was a completed event (preterite) or a background/habit (imperfect)."
+  },
+  {
+    "id": "es-ser-estar",
+    "title": "Ser vs estar: two verbs for 'to be'",
+    "cefr": "A1",
+    "trigger": { "type": "construction", "id": "ser_vs_estar" },
+    "explanation": "Spanish splits 'to be' in two: ser for identity and inherent traits, estar for states, locations, and how things are right now.",
+    "example": "Ella es alta. (trait) vs Ella está cansada. (state)",
+    "contrast": "English uses one verb 'to be' for both; the ser/estar choice encodes whether you mean an essential quality or a current condition."
+  },
+  {
+    "id": "es-gender-agreement",
+    "title": "Gender agreement",
+    "cefr": "A1",
+    "trigger": { "type": "construction", "id": "gender_agreement" },
+    "explanation": "Articles and adjectives change form to match the noun's gender and number: el gato negro, la gata negra, las gatas negras.",
+    "example": "La casa blanca — 'the white house' (all three words carry feminine agreement).",
+    "contrast": "English adjectives never change shape; in Spanish the whole noun phrase agrees, so the ending on 'blanca' is grammatical, not decorative."
+  },
+  {
+    "id": "es-reflexive-se",
+    "title": "Reflexive verbs with -se",
+    "cefr": "A2",
+    "trigger": { "type": "construction", "id": "reflexive_se" },
+    "explanation": "A reflexive pronoun (me/te/se/nos) marks that the subject acts on itself. Many everyday routines are reflexive in Spanish: levantarse, ducharse, llamarse.",
+    "example": "Me llamo Ana. — literally 'I call myself Ana' = 'My name is Ana.'",
+    "contrast": "English rarely says 'myself' for these; Spanish uses the reflexive as the normal way to express routines and 'getting' into states."
+  },
+  {
+    "id": "es-subjunctive-present",
+    "title": "Present subjunctive: the unreal / wished-for",
+    "cefr": "B1",
+    "trigger": { "type": "feature", "key": "Mood", "value": "Sub" },
+    "explanation": "The subjunctive appears after wishes, doubts, emotions, and certain conjunctions. The vowel 'flips': -ar verbs take -e endings, -er/-ir verbs take -a endings.",
+    "example": "Espero que hables español. — 'I hope (that) you speak Spanish.'",
+    "contrast": "English mostly lost this mood; Spanish still grammatically marks that something is desired or uncertain rather than factual."
+  }
+]
