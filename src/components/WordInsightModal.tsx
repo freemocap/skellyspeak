@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { invoke } from '../lib/tauri'
 import { openOverlay } from '../lib/back'
-import { logError } from '../lib/log'
+import { reportFault } from '../lib/faults'
 
 export interface WordInsight {
   lemma: string
@@ -43,7 +43,7 @@ export function WordInsightModal({
         if (alive) setInsight(w)
       })
       .catch((e) => {
-        logError('[insight] failed:', e)
+        reportFault('Word insight', e)
         if (alive) setError(String(e).replace(/^Error:\s*/, ''))
       })
     return () => {

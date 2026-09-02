@@ -106,6 +106,8 @@ export type GuidedEvent =
   | { type: 'analysis_done'; turn: GuidedTurnResult }
   | { type: 'analysis_failed'; error: string }
   | { type: 'plan_updated'; plan: TeachingPlan; profile: Profile }
+  // Background work started by this turn failed. Goes straight to the fault bar.
+  | { type: 'fault'; context: string; message: string }
 
 export interface RecurringError {
   error: string

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { invoke, isTauri } from '../../lib/tauri'
-import { logError, logWarn } from '../../lib/log'
 import { CoachFeed } from './CoachFeed'
 import { AnalysisContent, type InspectTarget } from './AnalysisContent'
 import { usePersistentToggle } from '../../hooks/useSteering'
+import { reportFault } from '../../lib/faults'
 
 interface CoachTurn {
   user: string | null
@@ -65,7 +65,7 @@ export function CoachAnalysisPanel({
     if (!isTauri) return
     void invoke<{ role: string; content: string }[]>('get_coach_thread')
       .then(setThread)
-      .catch((e: unknown) => logWarn('[coach] thread load failed:', e))
+      .catch((e: unknown) => reportFault('Coach history', e))
   }, [threadReload])
 
   const coachAsk = useCallback(
@@ -81,7 +81,7 @@ export function CoachAnalysisPanel({
         })
         setThread((t) => [...t, { role: 'coach', content: res.reply }])
       } catch (e) {
-        logError('[coach] ask failed:', e)
+        reportFault('Coach', e)
         setThread((t) => [...t, { role: 'coach', content: `⚠ ${String(e)}` }])
       } finally {
         setThinking(false)
@@ -91,7 +91,7 @@ export function CoachAnalysisPanel({
   )
 
   const coachClear = useCallback(() => {
-    void invoke('coach_thread_clear').catch((e: unknown) => logWarn('[coach] clear failed:', e))
+    void invoke('coach_thread_clear').catch((e: unknown) => reportFault('Clearing coach history', e))
     setThread([])
   }, [])
 

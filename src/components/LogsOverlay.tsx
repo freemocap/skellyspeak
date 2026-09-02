@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { openDevWindow } from '../lib/tauri'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { openOverlay } from '../lib/back'
-import { logError } from '../lib/log'
 import { DevPanel } from './dev/DevPanel'
+import { reportFault } from '../lib/faults'
 
 // The docked observability panel: a toggle button that pulls a resizable
 // sheet up from the bottom, and a pop-out into its own OS window.
@@ -31,18 +32,8 @@ export function LogsOverlay() {
   const [open, setOpen] = useState(false)
   const [poppedOut, setPoppedOut] = useState(false)
   const [heightVh, setHeightVh] = useState<number>(storedHeight)
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth <= 860
-  )
+  const isMobile = useIsMobile()
   const dragging = useRef(false)
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 860px)')
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    setIsMobile(mq.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
 
   // Android back closes the panel instead of exiting the app.
   useEffect(() => (open ? openOverlay(() => setOpen(false)) : undefined), [open])
@@ -77,7 +68,7 @@ export function LogsOverlay() {
         setPoppedOut(true)
         setOpen(false)
       })
-      .catch((e: unknown) => logError('[dev] pop-out failed:', e))
+      .catch((e: unknown) => reportFault('Observability window', e))
   }, [])
 
   // On mobile the panel is a swipe surface inside GuidedPage, not an overlay.

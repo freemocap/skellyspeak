@@ -1,11 +1,12 @@
 import { Component, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, isTauri } from './lib/tauri'
+import { getSettings, isTauri, takeStartupFaults } from './lib/tauri'
 import { comboFromEvent } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
 import StoriesPage from './pages/StoriesPage'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
 import { openOverlay } from './lib/back'
+import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 
 type Page = 'guided' | 'stories'
 
@@ -42,6 +43,19 @@ export default function App() {
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
   const [showNotTauri, setShowNotTauri] = useState(false)
+  // Everything that has gone wrong anywhere in the app, shown at the very top
+  // of the window until dismissed. This is the only destination for a failure.
+  const [faults, setFaults] = useState<Fault[]>([])
+  useEffect(() => subscribeFaults(setFaults), [])
+
+  // Faults the Rust core recorded before this webview existed get pushed onto
+  // the same bus, so a startup problem is as visible as a runtime one.
+  useEffect(() => {
+    if (!isTauri) return
+    void takeStartupFaults()
+      .then((startup) => startup.forEach((m) => reportFault('Startup', m)))
+      .catch((e) => reportFault('Reading startup diagnostics', e))
+  }, [])
 
   // Android back closes the Settings modal instead of exiting the app.
   useEffect(
@@ -118,6 +132,29 @@ export default function App() {
         </button>
       </div>
 
+      {faults.length > 0 && (
+        <div className="fault-bar" role="alert">
+          {faults.map((f) => (
+            <p key={f.id} className="fault">
+              <b>{f.context}:</b> {f.message}
+              <button
+                type="button"
+                className="fault-dismiss"
+                aria-label="Dismiss"
+                onClick={() => dismissFault(f.id)}
+              >
+                ✕
+              </button>
+            </p>
+          ))}
+          {faults.length > 1 && (
+            <button type="button" className="btn tiny" onClick={dismissAllFaults}>
+              Dismiss all
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="content">
         {showNotTauri ? (
           <div className="not-tauri">
@@ -154,10 +191,12 @@ export default function App() {
       {settingsOpen && (
         <SettingsModal
           onClose={() => setSettingsOpen(false)}
-          onSaved={(s) => {
+          // Fires on every autosave, mid-edit. It must NOT close the modal:
+          // closing is the Close button's job (and the Android back
+          // gesture's, via openOverlay).
+          onSettingsChanged={(s) => {
             localStorage.setItem('skellyspeak_target', s.target_language)
             setSettingsVersion((v) => v + 1)
-            setSettingsOpen(false)
           }}
         />
       )}

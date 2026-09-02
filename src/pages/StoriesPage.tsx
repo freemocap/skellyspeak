@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import type { Level, Story } from '../types'
-import { isTauri, logError, logInfo } from '../lib/tauri'
+import { isTauri, logInfo } from '../lib/tauri'
 import { needsSpaceBetween } from '../lib/token-spacing'
 import { GlossPopup, popupAnchor, type PopupState } from '../components/GlossPopup'
 import { openOverlay } from '../lib/back'
+import { reportFault } from '../lib/faults'
 
 const STORAGE_PREFIX = 'skellyspeak_story_'
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced']
@@ -40,7 +41,7 @@ export default function StoriesPage() {
         /* ignore */
       }
     } catch (e) {
-      logError('[stories] generation failed:', e)
+      reportFault('Story generation', e)
       setError(String(e).replace(/^Error:\s*/, ''))
     } finally {
       setLoading(false)

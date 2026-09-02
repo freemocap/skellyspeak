@@ -12,6 +12,7 @@ import {
 } from '@xyflow/react'
 import { SkellySpeakNode, type NodeData, type RunState } from './SkellySpeakNode'
 import type { EdgeKind, Graph, GraphNode, Reconciliation, Run } from '../../types'
+import { reportFault } from '../../lib/faults'
 
 // One pipeline, in its own pane. Several can be open at once — see
 // AgentGraph — so this component owns nothing global.
@@ -19,8 +20,8 @@ import type { EdgeKind, Graph, GraphNode, Reconciliation, Run } from '../../type
 // IMPORTANT: node state lives in React Flow via `useNodesState`, not in a
 // `useMemo` over positions. Rebuilding the node array on every drag frame
 // gives every node a fresh identity, which drops React Flow's `measured`
-// dimensions — and it renders unmeasured nodes with `visibility: hidden`.
-// That is why the graph used to vanish while you were dragging it.
+// dimensions — and it renders unmeasured nodes with `visibility: hidden`,
+// which hides the graph mid-drag.
 
 const nodeTypes = { skellyspeak: SkellySpeakNode }
 
@@ -39,11 +40,15 @@ function posKey(graphId: string) {
   return `skellyspeak_graph_pos_${graphId}`
 }
 
+/// No stored layout is normal and yields an empty map. A stored-but-unreadable
+/// one is a fault and is reported rather than quietly discarded.
 export function loadPositions(graphId: string): Positions {
+  const raw = localStorage.getItem(posKey(graphId))
+  if (raw === null) return {}
   try {
-    const raw = localStorage.getItem(posKey(graphId))
-    return raw ? (JSON.parse(raw) as Positions) : {}
-  } catch {
+    return JSON.parse(raw) as Positions
+  } catch (e) {
+    reportFault('Restoring graph layout', e)
     return {}
   }
 }
@@ -147,8 +152,8 @@ export function GraphPane({
         const saved = loadPositions(graph.id)
         saved[node.id] = node.position
         localStorage.setItem(posKey(graph.id), JSON.stringify(saved))
-      } catch {
-        /* a full quota should not break the canvas */
+      } catch (e) {
+        reportFault('Saving graph layout', e)
       }
     },
     [graph.id]

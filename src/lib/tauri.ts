@@ -44,8 +44,7 @@ export async function invoke<T>(
 }
 
 /// The language registry lives in Rust (`languages.rs`) and is fetched once
-/// at startup. There is no copy of it here — a second table is exactly how
-/// the dialect lists drifted apart before.
+/// at startup. There is no copy of it here: one table, one definition.
 export interface DialectInfo {
   id: string
   label: string
@@ -152,6 +151,18 @@ export async function subscribeRuns(
 
 export function saveSettings(settings: Settings): Promise<void> {
   return invoke('save_settings', { settings })
+}
+
+/// Drain faults the Rust core recorded before the webview existed. Called once
+/// on mount so a startup failure reaches the screen instead of only a log file.
+export function takeStartupFaults(): Promise<string[]> {
+  return invoke<string[]>('take_startup_faults')
+}
+
+/// Restore every setting to its built-in default and clear both API keys.
+/// Returns the fresh settings (secrets masked) as the backend now holds them.
+export function resetSettings(): Promise<Settings> {
+  return invoke<Settings>('reset_settings')
 }
 
 export function generateStory(level: Level): Promise<Story> {

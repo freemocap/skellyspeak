@@ -299,8 +299,8 @@ impl Provider {
             // Route ONLY to providers that actually honor request parameters
             // (json_schema, reasoning, ...). Without this, OpenRouter
             // silently ignores unsupported params and hands the request to a
-            // provider that prompts instead of constraining — which is how
-            // "guaranteed" structured output degrades into suggestions.
+            // provider that prompts instead of constraining, turning
+            // "guaranteed" structured output into a suggestion.
             "provider": {"require_parameters": true},
         });
         apply_dialect(&self.model, &mut payload);

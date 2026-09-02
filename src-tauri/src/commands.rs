@@ -45,8 +45,8 @@ pub struct TtsAudio {
 }
 
 /// Synthesize speech via OpenRouter (gpt-audio-mini). Returns base64 WAV
-/// audio for the webview to play. Loud errors — the frontend falls back to
-/// the OS voice itself, with the failure logged.
+/// audio for the webview to play. Every failure is returned as an error and
+/// shown on screen; nothing substitutes for this engine.
 #[tauri::command]
 pub async fn speak_text(
     state: State<'_, AppState>,
@@ -439,6 +439,30 @@ pub fn get_settings(state: State<'_, AppState>) -> Result<Settings, String> {
         .masked())
 }
 
+/// Drain faults recorded before the webview existed, so the UI can show them.
+/// Anything that goes wrong during startup lands here rather than in a log
+/// file the user will never open.
+#[tauri::command]
+pub fn take_startup_faults(state: State<'_, AppState>) -> Vec<String> {
+    let mut faults = state
+        .startup_faults
+        .lock()
+        .unwrap_or_else(|p| p.into_inner());
+    std::mem::take(&mut *faults)
+}
+
+/// Wipe every setting back to its built-in default, API keys included.
+/// Returns the fresh (masked) settings so the UI does not have to guess what
+/// the defaults are — `Settings::default()` stays the only definition of them.
+#[tauri::command]
+pub fn reset_settings(state: State<'_, AppState>) -> Result<Settings, String> {
+    info!("[cmd] reset_settings: restoring defaults, clearing API keys");
+    let fresh = Settings::default();
+    settings::persist(&state.config_dir, &fresh)?;
+    *state.settings.lock().unwrap_or_else(|p| p.into_inner()) = fresh.clone();
+    Ok(fresh.masked())
+}
+
 #[tauri::command]
 pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Result<(), String> {
     // Phone clipboards love appending whitespace to pasted keys — a dirty
@@ -585,12 +609,11 @@ pub struct MechanicsOut {
     pub mechanics: Vec<Mechanic>,
 }
 
-/// FLAT on the wire on purpose: the old `{scaffolds: {replies, ...}}` wrapper
-/// made models return the inner object at the top level. Flat shape plus
-/// schema-level minItems keeps models compliant; `Scaffolds` below stays the
-/// public turn shape, and the schema-level list constraints mean constrained
-/// providers cannot emit empty lists (the validate closure stays as the
-/// sense-checker).
+/// FLAT on the wire on purpose: given a `{scaffolds: {replies, ...}}` wrapper,
+/// models return the inner object at the top level instead. A flat shape plus
+/// schema-level minItems keeps them compliant; `Scaffolds` below is the public
+/// turn shape, and the schema-level list constraints mean constrained
+/// providers cannot emit empty lists (the validate closure sense-checks).
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct ScaffoldsOut {
     #[schemars(length(min = 1))]
@@ -683,6 +706,19 @@ fn sanitize_reply(raw: &str) -> String {
             plan: observer::TeachingPlan,
             profile: observer::Profile,
         },
+        /// Anything that failed in background work started by this turn.
+        /// The webview puts it on screen; background failures are never left
+        /// to a log file.
+        Fault { context: String, message: String },
+    }
+
+    /// Send an event to the webview, shouting if the channel is gone. This is
+    /// the one place a failure cannot be surfaced to the frontend — the
+    /// frontend channel is what broke — so the log is all that is left.
+    pub fn emit(channel: &Channel<GuidedEvent>, event: GuidedEvent) {
+        if let Err(e) = channel.send(event) {
+            log::error!("[ipc] event channel send FAILED, the webview will not see it: {e}");
+        }
     }
 
 #[tauri::command]
@@ -850,7 +886,7 @@ pub async fn guided_turn(
                 )
                 .await;
             if let Ok(out) = &result {
-                let _ = channel.send(GuidedEvent::AnalysisSection {
+                emit(&channel, GuidedEvent::AnalysisSection {
                     tokens: None,
                     translation: None,
                     user_tokens: Some(out.tokens.clone()),
@@ -872,7 +908,7 @@ pub async fn guided_turn(
             &reply_messages,
             0.6,
             &mut |delta| {
-            let _ = channel.send(GuidedEvent::ReplyDelta {
+            emit(&channel, GuidedEvent::ReplyDelta {
                 text: delta.to_string(),
             });
         })
@@ -894,7 +930,7 @@ pub async fn guided_turn(
         started.elapsed().as_secs_f32(),
         reply.len()
     );
-    let _ = on_event.send(GuidedEvent::ReplyDone {
+    emit(&on_event, GuidedEvent::ReplyDone {
         reply: reply.clone(),
     });
     // The command resolves HERE — the learner can keep talking immediately.
@@ -983,7 +1019,17 @@ pub async fn guided_turn(
             .await;
             match result {
                 Ok(output) => {
-                    observer::persist_documents(&state.config_dir, &output.plan, &output.profile);
+                    for fault in
+                        observer::persist_documents(&state.config_dir, &output.plan, &output.profile)
+                    {
+                        emit(
+                            &event_channel,
+                            GuidedEvent::Fault {
+                                context: "Saving teaching plan".into(),
+                                message: fault,
+                            },
+                        );
+                    }
                     *state.plan.lock().unwrap_or_else(|p| p.into_inner()) = output.plan.clone();
                     *state.profile.lock().unwrap_or_else(|p| p.into_inner()) = output.profile.clone();
                     info!(
@@ -993,15 +1039,22 @@ pub async fn guided_turn(
                         output.plan.recurring_errors.len(),
                         output.plan.taught_ledger.len(),
                     );
-                    let _ = event_channel.send(GuidedEvent::PlanUpdated {
+                    emit(&event_channel, GuidedEvent::PlanUpdated {
                         plan: output.plan,
                         profile: output.profile,
                     });
                 }
                 Err(e) => {
-                    warn!(
-                        "[cmd] observer pass failed after {:.1}s (keeping previous documents): {e}",
-                        obs_started.elapsed().as_secs_f32()
+                    let message = format!(
+                        "The teaching plan was not updated after this turn ({e}).                          The tutor is still working from the previous plan."
+                    );
+                    log::error!("[cmd] observer pass failed after {:.1}s: {e}", obs_started.elapsed().as_secs_f32());
+                    emit(
+                        &event_channel,
+                        GuidedEvent::Fault {
+                            context: "Observer".into(),
+                            message,
+                        },
                     );
                 }
             }
@@ -1075,7 +1128,7 @@ pub async fn guided_turn(
                     )
                     .await;
                 if let Ok(out) = &result {
-                    let _ = channel.send(GuidedEvent::AnalysisSection {
+                    emit(&channel, GuidedEvent::AnalysisSection {
                         tokens: Some(out.tokens.clone()),
                         translation: None,
                         user_tokens: None,
@@ -1105,7 +1158,7 @@ pub async fn guided_turn(
                     )
                     .await;
                 if let Ok(out) = &result {
-                    let _ = channel.send(GuidedEvent::AnalysisSection {
+                    emit(&channel, GuidedEvent::AnalysisSection {
                         tokens: None,
                         translation: Some(out.translation.clone()),
                         user_tokens: None,
@@ -1135,7 +1188,7 @@ pub async fn guided_turn(
                     )
                     .await;
                 if let Ok(out) = &result {
-                    let _ = channel.send(GuidedEvent::AnalysisSection {
+                    emit(&channel, GuidedEvent::AnalysisSection {
                         tokens: None,
                         translation: None,
                         user_tokens: None,
@@ -1172,7 +1225,7 @@ pub async fn guided_turn(
                     )
                     .await;
                 if let Ok(out) = &result {
-                    let _ = channel.send(GuidedEvent::AnalysisSection {
+                    emit(&channel, GuidedEvent::AnalysisSection {
                         tokens: None,
                         translation: None,
                         user_tokens: None,
@@ -1289,7 +1342,7 @@ pub async fn guided_turn(
             }
         }
 
-        let _ = analysis_channel.send(GuidedEvent::AnalysisDone {
+        emit(&analysis_channel, GuidedEvent::AnalysisDone {
             turn: GuidedTurnResult {
                 reply: reply_for_analysis,
                 translation,
@@ -1368,11 +1421,11 @@ pub async fn guided_turn(
                         feedback.comprehensibility,
                         feedback.grammar,
                     );
-                    let _ = coach_channel.send(GuidedEvent::CoachDone { feedback });
+                    emit(&coach_channel, GuidedEvent::CoachDone { feedback });
                 }
                 Err(e) => {
                     error!("[cmd] coach FAILED after retries: {e}");
-                    let _ = coach_channel.send(GuidedEvent::CoachFailed {
+                    emit(&coach_channel, GuidedEvent::CoachFailed {
                         error: format!("coach: {e}"),
                     });
                 }
@@ -1395,18 +1448,26 @@ pub struct CoachChatMessage {
 const COACH_THREAD_FILE: &str = "coach_thread.json";
 const COACH_THREAD_CAP: usize = 40;
 
-pub fn init_coach_thread(dir: &Path) -> Vec<CoachChatMessage> {
+pub fn init_coach_thread(dir: &Path, faults: &mut Vec<String>) -> Vec<CoachChatMessage> {
     let path = dir.join(COACH_THREAD_FILE);
-    let raw = match std::fs::read_to_string(&path) {
-        Ok(raw) => raw,
-        Err(_) => return Vec::new(), // fresh install
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        return Vec::new(); // first run
     };
     match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
             let bad = dir.join(format!("{COACH_THREAD_FILE}.bad"));
-            let _ = std::fs::rename(&path, &bad);
-            log::error!("coach_thread.json was CORRUPT ({e}) - moved aside, thread starts fresh");
+            let mut fault = format!(
+                "The coach history could not be read ({e}), so it starts empty."
+            );
+            match std::fs::rename(&path, &bad) {
+                Ok(()) => fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display())),
+                Err(rename_err) => {
+                    fault.push_str(&format!(" It could not be moved aside either: {rename_err}."))
+                }
+            }
+            log::error!("{fault}");
+            faults.push(fault);
             Vec::new()
         }
     }

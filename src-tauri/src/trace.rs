@@ -456,8 +456,8 @@ pub struct EdgeVerdict {
 /// The graph's own fidelity, computed from runs rather than asserted.
 ///
 /// This is the **reconciled** tier: the declaration can still be wrong, but
-/// it says so instead of lying quietly. It is what would have caught the
-/// hand-drawn `reply -> tokenize_learner` edge on the very first turn.
+/// it says so instead of lying quietly — a hand-drawn edge that never runs
+/// shows up on the very first turn.
 #[derive(Debug, Clone, Serialize)]
 pub struct Reconciliation {
     pub turns_observed: usize,

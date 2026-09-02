@@ -1,19 +1,29 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../types'
 import {
   getSettings,
-  logError,
   logInfo,
-  logWarn,
   saveSettings,
+  resetSettings,
   validateKey,
   languages,
 } from '../lib/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../lib/keyboard'
 import { DialectField } from './DialectField'
 import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
+import { displaySecret } from '../lib/secrets'
+import { speechSupported } from '../lib/speech'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { reportFault } from '../lib/faults'
 
 type KeyCheck = { state: 'idle' | 'checking' | 'valid' | 'invalid'; detail: string }
+
+type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
+
+/// How long an edit rests before it is written. Long enough that typing into a
+/// text field is one write rather than one per keystroke, short enough that
+/// closing the modal straight after a change still catches it.
+const AUTOSAVE_DEBOUNCE_MS = 500
 
 type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts'
 
@@ -35,6 +45,85 @@ function KeyBadge({ check }: { check: KeyCheck }) {
     <span className="key-badge invalid" title={check.detail}>
       ✕
     </span>
+  )
+}
+
+/// Autosave feedback. Settings write themselves, so the footer's job is to
+/// show that it happened — and, above all, to shout if a write FAILED, because
+/// a silent failure means the user's API keys are not on disk.
+function SaveStatus({ state }: { state: SaveState }) {
+  if (state === 'error')
+    return (
+      <span className="save-status error" role="alert">
+        Not saved — check the logs
+      </span>
+    )
+  if (state === 'saving' || state === 'pending')
+    return <span className="save-status">Saving…</span>
+  if (state === 'saved') return <span className="save-status saved">Saved ✓</span>
+  return <span className="save-status hint">Changes save automatically</span>
+}
+
+/// An API key field you can just click into and type, that still never puts
+/// key material on screen.
+///
+/// Unfocused it shows the backend's mask (head 6 + bullets + tail 6) — enough
+/// to tell WHICH key is stored, useless to a shoulder or a screenshot. Sending
+/// that mask back unchanged is how `save_settings` knows to keep the stored
+/// key, so the value passes through verbatim.
+///
+/// Focused it becomes a `type="password"` box with the text pre-selected, so
+/// typing or pasting replaces the key outright and the new key is not readable
+/// either. There is no button to press first: clicking the box is the gesture.
+function SecretField({
+  label,
+  value,
+  placeholder,
+  onChange,
+  onEditingChange,
+  check,
+}: {
+  label: string
+  value: string
+  placeholder: string
+  onChange: (v: string) => void
+  /// Held true while focused, so autosave waits for blur rather than
+  /// persisting a half-typed key over a good one.
+  onEditingChange: (editing: boolean) => void
+  check: KeyCheck
+}) {
+  const [focused, setFocused] = useState(false)
+
+  return (
+    <div className="form-row">
+      <label>{label}</label>
+      <div className="key-row">
+        <input
+          className="key-input"
+          // Password while focused so nothing readable is ever rendered; the
+          // masked text only appears at rest, where it is not editable content.
+          type={focused ? 'password' : 'text'}
+          value={focused ? value : displaySecret(value)}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck={false}
+          aria-label={label}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={(e) => {
+            setFocused(true)
+            onEditingChange(true)
+            // Select-all so the first keystroke or paste replaces the key
+            // instead of appending to the mask.
+            e.target.select()
+          }}
+          onBlur={() => {
+            setFocused(false)
+            onEditingChange(false)
+          }}
+        />
+        <KeyBadge check={check} />
+      </div>
+    </div>
   )
 }
 
@@ -151,18 +240,31 @@ const TTS_VOICES = [
 
 export function SettingsModal({
   onClose,
-  onSaved,
+  onSettingsChanged,
 }: {
   onClose: () => void
-  onSaved: (s: Settings) => void
+  /// Called after every successful autosave so the rest of the app can pick
+  /// the new settings up. It does NOT mean "the user is finished" — this fires
+  /// mid-edit, so nothing hung off it may close the modal.
+  onSettingsChanged: (s: Settings) => void
 }) {
   const [settings, setSettings] = useState<Settings | null>(null)
-  const [saving, setSaving] = useState(false)
+  // The last state known to be on disk. Autosave fires whenever `settings`
+  // drifts from this, and this catches up once the write lands.
+  const [persisted, setPersisted] = useState<Settings | null>(null)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+  // True while an API key box has focus. Autosave holds off until blur so a
+  // half-typed key is never written over a good stored one.
+  const [editingSecret, setEditingSecret] = useState(false)
   const [mics, setMics] = useState<MediaDeviceInfo[]>([])
   const [openrouterCheck, setOpenrouterCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
   const [groqCheck, setGroqCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
+  const isMobile = useIsMobile()
+  // Android's WebView ships no speechSynthesis — offer the OS voice only where
+  // it can actually work, rather than letting it be picked and do nothing.
+  const osVoiceAvailable = speechSupported()
   // The app's UI language follows the learner's NATIVE language.
   const ui = uiLangFromNative(settings?.native_language)
 
@@ -171,6 +273,7 @@ export function SettingsModal({
     void getSettings()
       .then((s) => {
         setSettings(s)
+        setPersisted(s)
         logInfo('[settings] loaded', {
           target: s.target_language,
           native: s.native_language,
@@ -180,7 +283,7 @@ export function SettingsModal({
         })
       })
       .catch((e) => {
-        logError('[settings] load failed:', e)
+        reportFault('Loading settings', e)
         setSettings(null)
       })
   }, [])
@@ -192,12 +295,12 @@ export function SettingsModal({
       const devices = await navigator.mediaDevices.enumerateDevices()
       setMics(devices.filter((d) => d.kind === 'audioinput'))
     } catch (e) {
-      logWarn('[settings] microphone enumeration failed:', e)
+      reportFault('Listing microphones', e)
     }
   }, [])
 
-  // Mic enumeration only when the Audio section is visited — opening
-  // Settings no longer trips the mic-permission prompt as a side effect.
+  // Mic enumeration only when the Audio section is visited, so opening
+  // Settings does not trip the mic-permission prompt as a side effect.
   useEffect(() => {
     if (section === 'voice') void listMics()
   }, [section, listMics])
@@ -237,28 +340,103 @@ export function SettingsModal({
     return () => clearTimeout(t)
   }, [settings?.groq_key])
 
-  const save = useCallback(async () => {
-    if (!settings) return
-    setSaving(true)
-    logInfo('[settings] saving', {
-      target: settings.target_language,
-      native: settings.native_language,
-      model: settings.openrouter_model,
-    })
-    try {
-      await saveSettings(settings)
-      logInfo('[settings] saved ✓')
-      onSaved(settings)
-    } catch (e) {
-      logError('[settings] save failed:', e)
-      setSaving(false)
+  // ── Autosave ────────────────────────────────────────────────────────────
+  // There is no Save button. Every edit is written after a short pause, so a
+  // key typed into the box is on disk whether or not the modal is dismissed.
+  const dirty = !!settings && !!persisted && JSON.stringify(settings) !== JSON.stringify(persisted)
+
+  useEffect(() => {
+    if (!settings || !dirty) return
+    // Wait for the key box to lose focus — writing mid-keystroke would put a
+    // truncated key on disk and clobber the working one.
+    if (editingSecret) return
+    setSaveState('pending')
+    const timer = setTimeout(() => {
+      setSaveState('saving')
+      logInfo('[settings] autosaving', {
+        target: settings.target_language,
+        native: settings.native_language,
+        model: settings.openrouter_model,
+      })
+      saveSettings(settings)
+        .then(() => {
+          logInfo('[settings] autosaved ✓')
+          setPersisted(settings)
+          setSaveState('saved')
+          onSettingsChanged(settings)
+        })
+        .catch((e) => {
+          // A failed write means the keys are NOT on disk. The footer says so
+          // inline, and the fault bus puts it at the top of the app as well.
+          reportFault('Saving settings', e)
+          setSaveState('error')
+        })
+    }, AUTOSAVE_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [settings, dirty, editingSecret, onSettingsChanged])
+
+  // Escape closes. Safe now that everything autosaves — and with backdrop
+  // click-to-dismiss gone, this is the only keyboard way out.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      // ShortcutField binds Escape to "reset this shortcut to its default";
+      // while it is recording, Escape belongs to it, not to the modal.
+      const active = document.activeElement as HTMLElement | null
+      if (active?.hasAttribute('data-shortcut-capture')) return
+      onClose()
     }
-  }, [settings, onSaved])
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Closing the modal inside the debounce window must not drop the pending
+  // edit: an unwritten API key is a lost one. Flush it on unmount.
+  const pendingWrite = useRef<Settings | null>(null)
+  useEffect(() => {
+    pendingWrite.current = dirty || editingSecret ? settings : null
+  }, [settings, dirty, editingSecret])
+  useEffect(
+    () => () => {
+      const outstanding = pendingWrite.current
+      if (!outstanding) return
+      logInfo('[settings] flushing a pending edit on close')
+      void saveSettings(outstanding).catch((e) => reportFault('Saving settings', e))
+    },
+    []
+  )
+
+  // Let "Saved" fade back to nothing so the footer is not permanently shouting.
+  useEffect(() => {
+    if (saveState !== 'saved') return
+    const t = setTimeout(() => setSaveState('idle'), 1800)
+    return () => clearTimeout(t)
+  }, [saveState])
+
+  const resetAll = useCallback(async () => {
+    if (
+      !window.confirm(
+        'Reset every setting to its default?\n\nThis also clears both API keys — you will need to paste them in again.'
+      )
+    )
+      return
+    try {
+      logInfo('[settings] resetting all settings to defaults')
+      const fresh = await resetSettings()
+      setSettings(fresh)
+      setPersisted(fresh)
+      setSaveState('saved')
+      onSettingsChanged(fresh)
+    } catch (e) {
+      reportFault('Resetting settings', e)
+      setSaveState('error')
+    }
+  }, [onSettingsChanged])
 
   if (!settings) {
     return (
-      <div className="modal-backdrop" onClick={onClose}>
-        <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-backdrop">
+        <div className="settings-modal">
           <p className="center-note">Loading…</p>
         </div>
       </div>
@@ -280,18 +458,14 @@ export function SettingsModal({
       label: L('openrouter_key', 'OpenRouter API key'),
       kw: 'openrouter api key credential token chat tutor',
       node: (
-        <div className="form-row">
-          <label>OpenRouter API key</label>
-          <div className="key-row">
-            <input
-              className="key-input"
-              value={settings.openrouter_key}
-              placeholder="sk-or-... (masked after save)"
-              onChange={(e) => setSettings({ ...settings, openrouter_key: e.target.value })}
-            />
-            <KeyBadge check={openrouterCheck} />
-          </div>
-        </div>
+        <SecretField
+          label="OpenRouter API key"
+          value={settings.openrouter_key}
+          placeholder="sk-or-…"
+          check={openrouterCheck}
+          onChange={(v) => setSettings({ ...settings, openrouter_key: v })}
+          onEditingChange={setEditingSecret}
+        />
       ),
     },
     groq_key: {
@@ -299,18 +473,14 @@ export function SettingsModal({
       label: L('groq_key', 'Groq API key (speech-to-text)'),
       kw: 'groq api key credential speech transcription stt whisper voice',
       node: (
-        <div className="form-row">
-          <label>Groq API key (speech-to-text)</label>
-          <div className="key-row">
-            <input
-              className="key-input"
-              value={settings.groq_key}
-              placeholder="gsk_... (masked after save)"
-              onChange={(e) => setSettings({ ...settings, groq_key: e.target.value })}
-            />
-            <KeyBadge check={groqCheck} />
-          </div>
-        </div>
+        <SecretField
+          label="Groq API key (speech-to-text)"
+          value={settings.groq_key}
+          placeholder="gsk_…"
+          check={groqCheck}
+          onChange={(v) => setSettings({ ...settings, groq_key: v })}
+          onEditingChange={setEditingSecret}
+        />
       ),
     },
     worker_model: {
@@ -447,8 +617,16 @@ export function SettingsModal({
             onChange={(e) => setSettings({ ...settings, tts_engine: e.target.value })}
           >
             <option value="cloud">Cloud — gpt-audio-mini via OpenRouter (natural)</option>
-            <option value="os">OS voice (offline)</option>
+            <option value="os" disabled={!osVoiceAvailable}>
+              OS voice (offline){osVoiceAvailable ? '' : ' — not available on this platform'}
+            </option>
           </select>
+          {!osVoiceAvailable && (
+            <p className="field-note">
+              This webview has no speech synthesis of its own (Android), so replies are
+              read aloud by the cloud engine.
+            </p>
+          )}
         </div>
       ),
     },
@@ -563,19 +741,38 @@ export function SettingsModal({
   const q = search.trim().toLowerCase()
   const searching = q.length > 0
   const allRows = Object.entries(rows)
+  // On mobile every section is shown at once, in one vertical scroll with
+  // headings. The section nav became a cramped horizontal strip on a phone —
+  // scrolling past headings beats scrolling sideways to find a tab.
+  const stacked = isMobile && !searching
   const visibleRows = searching
     ? allRows.filter(
         ([, r]) => r.label.toLowerCase().includes(q) || r.kw.includes(q)
       )
-    : allRows.filter(([, r]) => r.section === section)
+    : stacked
+      ? allRows
+      : allRows.filter(([, r]) => r.section === section)
 
   const activeSection = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
+  // A heading is printed wherever the section changes going down the list —
+  // while searching to show where a hit came from, while stacked to divide the
+  // one long scroll into the same groups the desktop nav has. Resolved here,
+  // not during the map, so nothing mutates while rendering.
+  const showGroupHeadings = searching || stacked
+  let runningSection: SectionId | null = null
+  const renderRows = visibleRows.map(([id, row]) => {
+    const heading = showGroupHeadings && row.section !== runningSection ? row.section : null
+    runningSection = row.section
+    return { id, row, heading }
+  })
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    // No click-to-dismiss on the backdrop: the click that refocuses the app
+    // after copying a key from another window lands here, and must not throw
+    // the open settings away. Closing is deliberate — Close, Escape, or back.
+    <div className="modal-backdrop">
       <div
         className="settings-modal"
-        onClick={(e) => e.stopPropagation()}
         onFocusCapture={(e) => {
           const t = e.target as HTMLElement
           if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
@@ -591,22 +788,24 @@ export function SettingsModal({
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search settings"
           />
-          <nav className="settings-tree">
-            {SECTIONS.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                className={`nav-item ${!searching && section === s.id ? 'active' : ''}`}
-                onClick={() => {
-                  setSearch('')
-                  setSection(s.id)
-                }}
-              >
-                <span className="nav-icon">{s.icon}</span>
-                {t(ui, s.labelKey)}
-              </button>
-            ))}
-          </nav>
+          {!isMobile && (
+            <nav className="settings-tree">
+              {SECTIONS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`nav-item ${!searching && section === s.id ? 'active' : ''}`}
+                  onClick={() => {
+                    setSearch('')
+                    setSection(s.id)
+                  }}
+                >
+                  <span className="nav-icon">{s.icon}</span>
+                  {t(ui, s.labelKey)}
+                </button>
+              ))}
+            </nav>
+          )}
         </aside>
         <main className="settings-content">
           <div className="settings-head">
@@ -614,19 +813,19 @@ export function SettingsModal({
             <p className="sub">
               {searching
                 ? `${visibleRows.length} ${t(ui, 'settings.matches')}`
-                : t(ui, activeSection.descKey)}
+                : stacked
+                  ? tOr(ui, 'settings.subtitle', 'All settings — scroll through.')
+                  : t(ui, activeSection.descKey)}
             </p>
           </div>
           <div className="settings-scroll">
             {searching && visibleRows.length === 0 && (
               <p className="center-note">Nothing matches “{search.trim()}”.</p>
             )}
-            {visibleRows.map(([id, row]) => (
+            {renderRows.map(({ id, row, heading }) => (
               <div key={id} className="settings-entry">
-                {searching && (
-                  <p className="settings-group-k">
-                    {t(ui, SECTION_LABEL_KEY[row.section])}
-                  </p>
+                {heading && (
+                  <p className="settings-group-k">{t(ui, SECTION_LABEL_KEY[heading])}</p>
                 )}
                 {row.node}
               </div>
@@ -636,16 +835,12 @@ export function SettingsModal({
             )}
           </div>
           <div className="modal-actions">
-            <button type="button" className="btn" onClick={onClose}>
-              Cancel
+            <button type="button" className="btn danger" onClick={() => void resetAll()}>
+              Reset all
             </button>
-            <button
-              type="button"
-              className="btn primary"
-              disabled={saving}
-              onClick={() => void save()}
-            >
-              {saving ? 'Saving…' : 'Save'}
+            <SaveStatus state={saveState} />
+            <button type="button" className="btn" onClick={onClose}>
+              Close
             </button>
           </div>
         </main>

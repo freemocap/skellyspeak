@@ -23,6 +23,9 @@ pub struct AppState {
     pub observer_running: Mutex<bool>,
     /// The private coach thread (Cyrano side-channel) — persisted.
     pub coach_thread: Mutex<Vec<commands::CoachChatMessage>>,
+    /// Faults from before the webview existed. The UI drains this on mount so
+    /// a startup problem reaches the screen instead of dying in a log file.
+    pub startup_faults: Mutex<Vec<String>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -44,14 +47,23 @@ pub fn run() {
         )
         .setup(|app| {
             log::info!("SkellySpeak starting (version {})", app.package_info().version);
+            // No fallback to a temp dir: settings.json holds the user's API
+            // keys, and a temp directory is wiped out from under them. If the
+            // OS cannot tell us where config lives, refuse to start rather
+            // than write secrets somewhere that silently loses them.
             let config_dir = app
                 .path()
                 .app_config_dir()
-                .unwrap_or_else(|_| std::env::temp_dir().join("skellyspeak"));
+                .map_err(|e| format!("could not resolve the app config dir: {e}"))?;
             log::info!("config dir: {}", config_dir.display());
             std::fs::create_dir_all(&config_dir)
                 .map_err(|e| format!("failed to create config dir: {e}"))?;
-            let settings = settings::load_or_create(&config_dir);
+            let mut startup_faults: Vec<String> = Vec::new();
+            let loaded = settings::load_or_create(&config_dir);
+            if let Some(fault) = loaded.fault {
+                startup_faults.push(fault);
+            }
+            let settings = loaded.settings;
             log::info!(
                 "settings loaded: target={}, native={}, model={}, observer_model={}, openrouter_key={}, groq_key={}",
                 settings.target_language,
@@ -61,7 +73,7 @@ pub fn run() {
                 if settings.openrouter_key.is_empty() { "MISSING" } else { "set" },
                 if settings.groq_key.is_empty() { "MISSING" } else { "set" },
             );
-            let (plan, profile) = observer::load_documents(&config_dir);
+            let (plan, profile) = observer::load_documents(&config_dir, &mut startup_faults);
             log::info!(
                 "documents loaded: focus={:?} profile_about_len={}",
                 plan.session_focus,
@@ -70,7 +82,7 @@ pub fn run() {
             // Attach the trace bus: every AI run is recorded regardless, but
             // this is what lets the webview watch them live.
             trace::attach(app.handle().clone());
-            let coach_thread = commands::init_coach_thread(&config_dir);
+            let coach_thread = commands::init_coach_thread(&config_dir, &mut startup_faults);
             log::info!("coach thread loaded: {} messages", coach_thread.len());
             app.manage(AppState {
                 settings: Mutex::new(settings),
@@ -80,12 +92,15 @@ pub fn run() {
                 recent_mechanics: Mutex::new(Vec::new()),
                 observer_running: Mutex::new(false),
                 coach_thread: Mutex::new(coach_thread),
+                startup_faults: Mutex::new(startup_faults),
             });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             commands::get_settings,
             commands::save_settings,
+            commands::reset_settings,
+            commands::take_startup_faults,
             commands::validate_key,
             commands::get_languages,
             commands::open_dev_window,
