@@ -1974,6 +1974,30 @@ pub async fn transcribe_audio(
 }
 
 #[cfg(test)]
+mod csp_tests {
+    /// Synthesized speech is handed to an <audio> element as a blob: URL. CSP
+    /// has no implicit allowance for that: with no `media-src`, media falls
+    /// back to `default-src`, the blob is refused, and the element reports
+    /// "Failed to load because no supported source was found" — which reads
+    /// like a codec problem and is not one.
+    #[test]
+    fn csp_allows_blob_urls_for_media_and_images() {
+        let conf: serde_json::Value =
+            serde_json::from_str(include_str!("../tauri.conf.json")).expect("tauri.conf.json");
+        let csp = &conf["app"]["security"]["csp"];
+        for directive in ["media-src", "img-src"] {
+            let value = csp[directive]
+                .as_str()
+                .unwrap_or_else(|| panic!("CSP is missing {directive}"));
+            assert!(
+                value.contains("blob:"),
+                "CSP {directive} must allow blob: URLs, got {value:?}"
+            );
+        }
+    }
+}
+
+#[cfg(test)]
 mod wav_tests {
     use super::wav_container;
 
