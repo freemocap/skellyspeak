@@ -42,8 +42,33 @@ jobs:
             exit 1
           fi
 
-  desktop:
+  # The release object is created here, once, so that every build job can
+  # upload to it independently. Without this the Android job would have to wait
+  # for a desktop job to create it first — ordering for a resource, not for a
+  # build dependency.
+  release-draft:
     needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Ensure the draft release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          if gh release view "$TAG" --json id >/dev/null 2>stderr.txt; then
+            echo "release $TAG already exists"
+          elif grep -qi "release not found" stderr.txt; then
+            gh release create "$TAG"               --draft               --title "SkellySpeak $TAG"               --notes 'Desktop builds are signed; the Android APK is debug-signed and sideloadable.'
+            echo "created draft release $TAG"
+          else
+            # Anything other than "not found" is a real failure, not an absence.
+            cat stderr.txt
+            exit 1
+          fi
+
+  desktop:
+    needs: [version, release-draft]
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -114,6 +139,29 @@ jobs:
           curl -sSLo "$RUNNER_TEMP/artifact-signing-cli.exe"             https://github.com/levminer/trusted-signing-cli/releases/download/0.11.0/artifact-signing-cli.exe
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
+      # Tauri runs the sign command but discards its stderr, reporting only
+      # "failed to run artifact-signing-cli" after a full build. Prove the
+      # toolchain and Azure credentials work first, on a throwaway file, where
+      # the actual error is visible and costs seconds instead of minutes.
+      - name: Pre-flight the Windows signing toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SIGNING_SECRET }}
+        run: |
+          Write-Host "--- artifact-signing-cli ---"
+          artifact-signing-cli --version
+          Write-Host "--- signtool on this runner ---"
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like "*x64*" } | Select-Object -First 1
+          if ($signtool) { Write-Host "found: $($signtool.FullName)" } else { Write-Host "NOT FOUND on PATH search" }
+          Write-Host "--- test sign a throwaway binary ---"
+          Copy-Item "$env:SystemRoot\System32\where.exe" "$env:RUNNER_TEMP\signtest.exe"
+          artifact-signing-cli -e https://eus.codesigning.azure.net/ -a freemocap -c freemocap "$env:RUNNER_TEMP\signtest.exe"
+          Write-Host "test sign OK - credentials, account, profile and signtool all work"
+
       - uses: tauri-apps/tauri-action@v0
         id: tauri
         env:
@@ -178,11 +226,9 @@ jobs:
           echo "$sigs"
 
   android:
-    # Ordered after `desktop` only so the draft release already exists.
-    # `always()` keeps a desktop failure from cancelling the APK: one broken
-    # platform must not withhold the others' artifacts.
-    needs: [version, desktop]
-    if: always() && needs.version.result == 'success'
+    # Runs alongside the desktop matrix, not after it: the release already
+    # exists, so there is nothing to wait for.
+    needs: [version, release-draft]
     name: Android (APK)
     runs-on: ubuntu-latest
     steps:
