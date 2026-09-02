@@ -11,6 +11,25 @@ gap. The foundation is mobile-shaped — `Cargo.toml` builds `staticlib` +
 `cdylib` + `rlib` (`src-tauri/Cargo.toml:9`), all heavy work lives in the Rust
 core, and the frontend is plain React that runs in any webview.
 
+## AI providers
+
+The app reaches an AI provider one of three ways, chosen in Settings and
+resolved in exactly one place — `Settings::chat_provider` in
+`src-tauri/src/settings.rs`:
+
+- **`cloud`** — OpenRouter with the user's own API key.
+- **`custom`** — any OpenAI-compatible server they run (Ollama, LM Studio,
+  vLLM). Their address, their model name, key optional. Chat and analysis go
+  there; speech-to-text still uses Groq and cloud speech still uses
+  OpenRouter, because local servers do not provide either. Small local models
+  frequently cannot honour the strict `json_schema` output this app requires,
+  so the analysis, coach and tokenization passes may fail where chat succeeds.
+- **`hosted`** — the project's own service. See [Hosted API](./hosted-api.md).
+
+The resolver never falls back between them. An unusable configuration returns
+the reason, which the UI shows: a request the user asked to send to their own
+machine must not silently go to a paid cloud instead.
+
 ## Versioning
 
 `src-tauri/Cargo.toml` is the **single source of truth** for the app version.
