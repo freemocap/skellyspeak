@@ -13,6 +13,19 @@ val tauriProperties = Properties().apply {
     }
 }
 
+// Release signing. CI writes keystore.properties from repository secrets.
+// It is absent on a normal dev machine, where only debug builds are made and
+// the debug keystore Android generates is enough. A release build that ends up
+// unsigned is caught by the release workflow, which verifies the APK's
+// signature rather than trusting the build to have applied one.
+val keystoreProperties = Properties().apply {
+    val propFile = rootProject.file("keystore.properties")
+    if (propFile.exists()) {
+        propFile.inputStream().use { load(it) }
+    }
+}
+val hasReleaseKeystore = keystoreProperties.getProperty("storeFile") != null
+
 android {
     compileSdk = 36
     namespace = "com.freemocap.skellyspeak"
@@ -23,6 +36,16 @@ android {
         targetSdk = 36
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()
         versionName = tauriProperties.getProperty("tauri.android.versionName", "1.0")
+    }
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
     buildTypes {
         getByName("debug") {
@@ -37,6 +60,9 @@ android {
             }
         }
         getByName("release") {
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             proguardFiles(
                 *fileTree(".") { include("**/*.pro") }

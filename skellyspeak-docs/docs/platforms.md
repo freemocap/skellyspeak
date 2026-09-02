@@ -58,8 +58,9 @@ install.
   matches and `versionCode` rose — Tauri derives that from the semver version
   (`0.1.0` → `1000`), so it always does. Users who want automation can point
   [Obtainium](https://github.com/ImranR98/Obtainium) at the repo's releases.
-  The debug signing key currently used by CI is per-machine, so a release
-  keystore is needed before sideloaded upgrades are reliable.
+  CI signs with the upload keystore (`ANDROID_KEYSTORE_BASE64` and friends),
+  so every build upgrades cleanly over the last. The `.aab` is for Play, which
+  splits it per device; the universal `.apk` is for sideloading.
 - **iOS upgrade paths:** App Store or TestFlight only. Apple forbids apps
   downloading and executing new code, so a self-updater is not merely
   unsupported but grounds for rejection.
@@ -104,7 +105,7 @@ back everything git tracks, since `init` rewrites the manifest, themes,
 | macOS x86_64 | **Built in CI** | `.dmg` | Cross-compiled on `macos-latest`; unsigned |
 | Linux x86_64 | **Built in CI** | deb / AppImage / rpm | webkit2gtk-4.1 dep |
 | Linux aarch64 | **Built in CI** | deb | AppImage on arm64 still to do |
-| Android | **Built in CI** | universal `.apk` | Debug-signed; release keystore still to do |
+| Android | **Built in CI** | universal `.apk` + `.aab` | Release-signed with the upload key |
 | iOS | Compiles, not shippable | — | Simulator smoke build only; needs Apple Developer account |
 | Browser (no Rust) | Intentionally non-functional | — | `App.tsx` shows a "run via tauri dev" notice |
 
