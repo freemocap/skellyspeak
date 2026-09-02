@@ -24,6 +24,7 @@ import {
   loadVoices,
   speakSmart,
   speechSupported,
+  ttsAvailable,
   stopSpeaking,
   subscribeSpeaking,
 } from '../lib/speech'
@@ -37,6 +38,8 @@ import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering, armGreeting, disarmGreeting } from '../hooks/useSteering'
 import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { reportFault } from '../lib/faults'
 
 interface Turn {
   id: number
@@ -96,7 +99,12 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
   const [settings, setSettings] = useState<Settings | null>(null)
   const [plan, setPlan] = useState<TeachingPlan | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [ttsReady, setTtsReady] = useState(speechSupported())
+  // Whether the webview's own speech engine is usable. Some webviews (notably
+  // Android's) implement no speechSynthesis, making the OS engine unavailable
+  // there; the cloud engine is unaffected.
+  const [osVoiceReady, setOsVoiceReady] = useState(speechSupported())
+  const ttsEngine = settings?.tts_engine ?? 'cloud'
+  const ttsReady = ttsAvailable(ttsEngine, osVoiceReady)
   const autoSpeak = settings?.auto_speak ?? false
   const [wordPopup, setWordPopup] = useState<PopupState | null>(null)
   const closePopup = useCallback(() => setWordPopup(null), [])
@@ -140,9 +148,9 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
       const lang = settings?.target_language ?? 'es-ES'
       const engine = settings?.tts_engine ?? 'cloud'
       const voice = settings?.tts_voice || 'nova'
-      void speakSmart(text, lang, engine, voice).then((ok) => {
-        if (!ok) logWarn('[tts] speech unavailable or empty text')
-      })
+      // Any failure to speak reaches the screen. A log line alone would leave
+      // a dead button with no explanation.
+      void speakSmart(text, lang, engine, voice).catch((e) => reportFault('Speech', e))
     },
     [settings?.target_language, settings?.tts_engine, settings?.tts_voice]
   )
@@ -162,8 +170,9 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
   useEffect(() => {
     logInfo('[guided] page mounted, isTauri =', isTauri)
     void loadVoices().then((v) => {
-      setTtsReady(v.length > 0 || speechSupported())
-      if (!v.length) logWarn('[tts] no OS voices found — speech disabled')
+      const ready = v.length > 0 || speechSupported()
+      setOsVoiceReady(ready)
+      logInfo(`[tts] OS voice engine ${ready ? 'available' : 'unavailable'}; ${v.length} voices`)
     })
     // Greeting fires once settings are loaded — it must include the saved
     // level/topic, so it waits for `settings`. A new session also clears the
@@ -182,14 +191,14 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
           logInfo('[guided] firing greeting turn')
           void requestTurn({ greeting: true })
           void invoke('coach_thread_clear').catch((e: unknown) =>
-            logWarn('[coach] thread reset failed:', e)
+            reportFault('Resetting coach history', e)
           )
           setThreadReload((v) => v + 1)
           setRevealed(new Set())
           setFreshScaffolds(null)
         }
       })
-      .catch((e) => logWarn('[guided] settings load failed:', e))
+      .catch((e) => reportFault('Loading settings', e))
     void getPlan()
       .then((docs) => {
         const norm = normalizeDocs(docs.plan, docs.profile)
@@ -200,7 +209,7 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
           errors: docs.plan.recurring_errors.length,
         })
       })
-      .catch((e) => logWarn('[guided] plan load failed:', e))
+      .catch((e) => reportFault('Loading teaching plan', e))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsVersion])
 
@@ -347,6 +356,9 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
               setPlan(norm.plan)
               setProfile(norm.profile)
               break
+            case 'fault':
+              reportFault(event.context, event.message)
+              break
           }
         }
         await invoke<string>('guided_turn', {
@@ -358,7 +370,8 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
           topic: steer.topic || null,
           onEvent: channel,
         })
-        // Command resolved = reply pass done (fallback if the event raced).
+        // Command resolved = reply pass done. Re-asserted here in case the
+        // reply_done event and this resolution raced.
         setSending(false)
         updatePending((t) =>
           t.assistant ? t : { ...t, assistant: emptyAssistant(t.pendingText), analysisState: 'pending', pendingText: '' }
@@ -463,7 +476,7 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
       setSettings((prev) => {
         if (!prev) return prev
         const next = { ...prev, [key]: !prev[key] }
-        void saveSettings(next).catch((e) => logError('[settings] quick toggle failed:', e))
+        void saveSettings(next).catch((e) => reportFault('Saving setting', e))
         return next
       })
     },
@@ -664,10 +677,9 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
 
   // Mobile mode: below the breakpoint the window switches to a tabbed
   // single-surface layout (Chat / Coach / Analysis) instead of stacking
-  // everything into one unusable column.
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth <= 860
-  )
+  // everything into one unusable column. The breakpoint itself lives in
+  // useIsMobile — Settings reads the same one.
+  const isMobile = useIsMobile()
   // Three surfaces on mobile, in this order. The dev panel is the last one
   // deliberately: it is the deepest rung of the disclosure ladder, always
   // reachable but never in the way.
@@ -697,14 +709,6 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
       setMobileSurface(MOBILE_SURFACES[next])
     }
   }
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 860px)')
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    setIsMobile(mq.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-
   return (
     <div
       className="split"
@@ -1138,7 +1142,7 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
                           setProfile(norm.profile)
                           logInfo('[guided] plan refreshed')
                         })
-                        .catch((e) => logError('[guided] plan refresh failed:', e))
+                        .catch((e) => reportFault('Refreshing teaching plan', e))
                     }}
                   >
                     ↻ Refresh

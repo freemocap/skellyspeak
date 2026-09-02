@@ -75,7 +75,7 @@ pub struct Settings {
     #[serde(default)]
     pub shortcuts: Shortcuts,
     /// Speech engine for playback: "cloud" (OpenRouter gpt-audio-mini) or
-    /// "os" (Web Speech). Cloud failures fall back to the OS voice, loudly.
+    /// "os" (Web Speech). A failure in either surfaces as an error in the UI.
     #[serde(default = "default_tts_engine")]
     pub tts_engine: String,
     /// Cloud voice name (OpenAI audio voices: alloy, nova, shimmer, ...).
@@ -103,57 +103,13 @@ fn default_model() -> String {
     "google/gemini-2.5-flash".into()
 }
 
-/// Prior worker defaults — stored settings migrate off these on load.
-const LEGACY_DEFAULT_MODELS: &[&str] = &[
-    "deepseek/deepseek-v4-flash-0731",
-    "google/gemini-3.1-flash-lite",
-    "openai/gpt-5-nano",
-];
-
-fn migrate(settings: &mut Settings) {
-    // Arabic entry restructured: code ar-LE became code ar + dialect preset.
-    if settings.target_language == "ar-LE" {
-        settings.target_language = "ar".into();
-        if settings.target_dialect.is_empty() {
-            settings.target_dialect = "ar-LE".into();
-        }
-    }
-    if LEGACY_DEFAULT_MODELS.contains(&settings.openrouter_model.as_str()) {
-        log::info!(
-            "migrating worker model: {} -> {}",
-            settings.openrouter_model,
-            default_model()
-        );
-        settings.openrouter_model = default_model();
-    }
-    if let Some(m) = settings.observer_model.as_deref() {
-        if LEGACY_OBSERVER_MODELS.contains(&m) {
-            log::info!("migrating observer model: {m} -> {}", default_observer_model());
-            settings.observer_model = Some(default_observer_model());
-        }
-    }
-    if settings.tts_engine == "groq" {
-        settings.tts_engine = "cloud".into();
-    }
-    if settings.tts_voice == "Celeste-PlayAI" {
-        settings.tts_voice = "nova".into();
-    }
-}
-
 /// The observer's model. Reasoning stays ENABLED (that is where its value
 /// comes from) but it does not need a frontier model to do it: the job is
-/// summarising a short transcript into two small documents.
-///
-/// `z-ai/glm-5.3-flash` was the previous default and was intermittently
-/// blowing the 180s client timeout — costing the teaching plan an update on
-/// those turns, silently. Successful passes on the worker model run 19-22s.
-/// Fast and cheap beats clever here.
+/// summarising a short transcript into two small documents. Successful passes
+/// on the worker model run 19-22s, well inside the 180s client timeout.
 pub fn default_observer_model() -> String {
     default_model()
 }
-
-/// Prior observer defaults — stored settings migrate off these on load.
-const LEGACY_OBSERVER_MODELS: &[&str] = &["z-ai/glm-5.3-flash"];
 
 fn default_target() -> String {
     "es-ES".into()
@@ -214,38 +170,54 @@ fn settings_path(dir: &Path) -> std::path::PathBuf {
     dir.join("settings.json")
 }
 
-pub fn load_or_create(dir: &Path) -> Settings {
+/// Settings as loaded, plus any fault the user must be told about. A fault
+/// means the stored settings could not be honoured: the app runs on defaults
+/// and the message is pushed to the webview. It is never left in a log file.
+pub struct Loaded {
+    pub settings: Settings,
+    pub fault: Option<String>,
+}
+
+pub fn load_or_create(dir: &Path) -> Loaded {
     let path = settings_path(dir);
-    match std::fs::read_to_string(&path) {
-        Ok(raw) => match serde_json::from_str::<Settings>(&raw) {
-            Ok(mut s) => {
-                migrate(&mut s);
-                s
-            }
-            Err(e) => {
-                // A corrupt settings file must NEVER be silently replaced —
-                // that would wipe the user's API keys without a word. Move it
-                // aside and scream.
-                let bad = dir.join("settings.json.bad");
-                let _ = std::fs::rename(&path, &bad);
-                log::error!(
-                    "settings.json was CORRUPT ({e}) - moved to {} and starting fresh. \
-                     API keys were NOT loaded; re-enter them in Settings.",
-                    bad.display()
-                );
-                let defaults = Settings::default();
-                if let Err(e) = persist(dir, &defaults) {
-                    log::error!("could not write fresh settings.json: {e}");
-                }
-                defaults
-            }
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        // No file yet: a first run, not a fault. Failing to create one IS.
+        let settings = Settings::default();
+        let fault = persist(dir, &settings)
+            .err()
+            .map(|e| format!("Could not create settings.json: {e}. Settings will not persist."));
+        return Loaded { settings, fault };
+    };
+
+    match serde_json::from_str::<Settings>(&raw) {
+        Ok(settings) => Loaded {
+            settings,
+            fault: None,
         },
-        Err(_) => {
-            let defaults = Settings::default();
-            if let Err(e) = persist(dir, &defaults) {
-                log::error!("could not write initial settings.json: {e}");
+        Err(parse_err) => {
+            // A corrupt settings file is never quietly replaced: that would
+            // discard the user's API keys without a word. Move it aside, run
+            // on defaults, and report all of it to the screen.
+            let bad = dir.join("settings.json.bad");
+            let mut fault = format!(
+                "settings.json could not be read ({parse_err}). Your API keys were NOT loaded \
+                 — re-enter them in Settings."
+            );
+            match std::fs::rename(&path, &bad) {
+                Ok(()) => {
+                    fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display()))
+                }
+                Err(e) => fault.push_str(&format!(" It could not be moved aside either: {e}.")),
             }
-            defaults
+            let settings = Settings::default();
+            if let Err(e) = persist(dir, &settings) {
+                fault.push_str(&format!(" Writing a fresh one also failed: {e}."));
+            }
+            log::error!("{fault}");
+            Loaded {
+                settings,
+                fault: Some(fault),
+            }
         }
     }
 }
@@ -278,18 +250,38 @@ fn mask_shows_head_and_tail_only() {
 }
 
 #[test]
-fn migrate_moves_legacy_defaults_to_current() {
-    for legacy in LEGACY_DEFAULT_MODELS {
-        let mut s = Settings {
-            openrouter_model: legacy.to_string(),
-            ..Settings::default()
-        };
-        migrate(&mut s);
-        assert_eq!(s.openrouter_model, default_model());
-    }
-    // The current default is stable under migration.
-    let mut cur = Settings::default();
-    migrate(&mut cur);
-    assert_eq!(cur.openrouter_model, default_model());
+fn mask_matches_the_typescript_mask() {
+    // These are the exact expectations in src/lib/secrets.test.ts. save_settings
+    // decides "unchanged, keep the stored key" by comparing the value the
+    // webview sends back against mask(stored) — if the two implementations
+    // drift, a save silently overwrites a real key with a row of bullets.
+    assert_eq!(mask("sk-or-v1-0123456789abcdef"), "sk-or-••••••••abcdef");
+    assert_eq!(mask(""), "");
+    assert_eq!(mask("short"), "•••••");
+    assert_eq!(mask("elevenchars"), "•••••••••••");
+    assert_eq!(mask("abcdefghijkl"), "abcdef••••••••ghijkl");
 }
+
+#[test]
+fn a_masked_round_trip_keeps_the_stored_key() {
+    // What the webview sends back untouched must be recognised as "unchanged".
+    let stored = "sk-or-v1-0123456789abcdef";
+    // Masking is idempotent for any real key: a mask is always 6+8+6 chars, so
+    // masking it again yields the same string. That is what lets the webview
+    // hold the mask in the same field the raw key would occupy.
+    assert_eq!(mask(&mask(stored)), mask(stored));
+    let s = Settings {
+        openrouter_key: stored.into(),
+        groq_key: "gsk_0123456789abcdef".into(),
+        ..Settings::default()
+    };
+    let m = s.masked();
+    // masked() is what get_settings returns, and it must equal mask() so the
+    // comparison in save_settings lines up.
+    assert_eq!(m.openrouter_key, mask(stored));
+    assert_eq!(m.groq_key, mask("gsk_0123456789abcdef"));
+    // The real material is gone from the IPC copy.
+    assert!(!m.openrouter_key.contains("v1-0123"));
+}
+
 }

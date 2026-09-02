@@ -1,9 +1,13 @@
-// Web Speech API wrapper: speaks text in the target language using the best
-// available OS voice. No network, no keys, no cost. Voice quality is
-// platform-dependent (Windows SAPI voices, Android TTS engine, ...).
+// Speech playback. Two engines, chosen in Settings:
+//   "cloud" — synthesized by the Rust core (OpenRouter gpt-audio-mini) and
+//             played through an <audio> element. Needs a key and a network.
+//   "os"    — the webview's own Web Speech API. No network, no keys, no cost,
+//             and only available where the webview implements it.
+// Neither engine substitutes for the other: whichever is configured either
+// speaks or throws.
 
 import { invoke } from './tauri'
-import { logError, logInfo } from './log'
+import { logInfo } from './log'
 
 let cachedVoices: SpeechSynthesisVoice[] = []
 
@@ -11,8 +15,17 @@ export function speechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
 }
 
-// Chrome/WebView populates voices asynchronously — and some engines never
-// fire voiceschanged, hence the timeout safety net.
+/// Can replies be read aloud with this engine on this platform?
+///
+/// The cloud engine is synthesized by the Rust core and played through an
+/// <audio> element, so it needs nothing from the webview's speech API. Only
+/// the OS engine does, and only some webviews provide it.
+export function ttsAvailable(engine: string, osVoiceReady: boolean): boolean {
+  return engine === 'cloud' || osVoiceReady
+}
+
+// Voices populate asynchronously and some engines never fire voiceschanged,
+// so the timeout bounds the wait.
 export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   return new Promise((resolve) => {
     if (!speechSupported()) return resolve([])
@@ -99,7 +112,7 @@ export function isSpeaking(): boolean {
   return speakingState
 }
 
-// ── Groq PlayAI TTS (cloud) ──────────────────────────────────────────────────
+// ── Cloud TTS (OpenRouter gpt-audio-mini, synthesized in the Rust core) ─────
 
 let currentAudio: HTMLAudioElement | null = null
 const audioCache = new Map<string, string>() // voice|text → blob URL
@@ -120,38 +133,46 @@ async function cloudTts(text: string, voice: string): Promise<string> {
   return url
 }
 
-/// Speak via the configured engine. "groq" synthesizes cloud audio (cached
-/// per voice+text) and falls back to the OS voice on any failure — loudly
-/// logged, never silent.
+/// Speak via the configured engine. The chosen engine is the ONLY one tried:
+/// if it cannot speak, this throws and the caller puts the reason on screen.
+/// Returns false only when the request was superseded by a newer one.
 export async function speakSmart(
   text: string,
   lang: string,
   engine: string,
   voice: string
 ): Promise<boolean> {
-  if (!text.trim()) return false
+  if (!text.trim()) throw new Error('Nothing to speak.')
   stopSpeaking() // also invalidates any request still in flight
   const token = speakToken
+
   if (engine === 'cloud') {
-    try {
-      const url = await cloudTts(text, voice)
-      // A newer request (or a stop) superseded this one while fetching.
-      if (token !== speakToken) return false
-      const audio = new Audio(url)
-      currentAudio = audio
-      audio.onended = () => setSpeakingState(false)
-      audio.onerror = () => setSpeakingState(false)
-      audio.onpause = () => setSpeakingState(false)
-      setSpeakingState(true)
-      void audio.play()
-      logInfo(`[tts] cloud voice "${voice}" — ${text.length} chars`)
-      return true
-    } catch (e) {
-      // LOUD fallback: if cloud TTS fails the user must know they're
-      // hearing the OS voice instead.
-      logError('[tts] cloud synthesis FAILED — falling back to OS voice:', e)
-    }
+    const url = await cloudTts(text, voice)
+    // A newer request (or a stop) superseded this one while fetching.
+    if (token !== speakToken) return false
+    const audio = new Audio(url)
+    currentAudio = audio
+    audio.onended = () => setSpeakingState(false)
+    audio.onerror = () => setSpeakingState(false)
+    audio.onpause = () => setSpeakingState(false)
+    setSpeakingState(true)
+    await audio.play()
+    logInfo(`[tts] cloud voice "${voice}" — ${text.length} chars`)
+    return true
+  }
+
+  if (engine !== 'os') {
+    throw new Error(`Unknown speech engine "${engine}". Choose Cloud or OS voice in Settings.`)
+  }
+  if (!speechSupported()) {
+    throw new Error(
+      'The OS voice engine is not available on this platform. ' +
+        'Set Speech engine to "Cloud" in Settings.'
+    )
   }
   if (token !== speakToken) return false
-  return speak(text, lang)
+  if (!speak(text, lang)) {
+    throw new Error(`No installed OS voice can speak ${lang}.`)
+  }
+  return true
 }
