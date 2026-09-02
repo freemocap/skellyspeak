@@ -6,7 +6,7 @@ const config: Config = {
   tagline: 'Documentation for SkellySpeak',
   favicon: 'img/favicon.ico',
 
-  url: 'https://github.com',
+  url: 'https://freemocap.github.io',
   baseUrl: '/skellyspeak/',
 
   organizationName: 'freemocap',
