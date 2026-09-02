@@ -46,3 +46,28 @@ jobs:
         working-directory: skellyspeak-docs
       - run: npm run build
         working-directory: skellyspeak-docs
+
+  # The Android resource merger parses these, but only 4 minutes into a release
+  # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec
+  # forbids) here instead, in seconds, on every push.
+  android-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate Android XML resources
+        run: |
+          python3 - <<'EOF'
+          import pathlib, sys, xml.dom.minidom as md
+          failed = []
+          for p in sorted(pathlib.Path('src-tauri/gen/android').rglob('*.xml')):
+              if 'build' in p.parts:
+                  continue
+              try:
+                  md.parse(str(p))
+              except Exception as e:
+                  failed.append(f"{p}: {e}")
+          for f in failed:
+              print(f"::error::{f}")
+          print(f"checked Android XML resources, {len(failed)} malformed")
+          sys.exit(1 if failed else 0)
+          EOF
