@@ -4,9 +4,11 @@
 // private and carries no version, and the Android versionCode/versionName are
 // derived from it by `tauri android build`.
 //
-//   node scripts/set-version.mjs 0.2.0
+//   node scripts/set-version.mjs 0.2.0 --git-tag
 //
-// Pass --tag to also create the matching `v0.2.0` git tag.
+// `--git-tag` also creates the matching `v0.2.0` git tag. The flag is NOT
+// called `--tag`: npm claims that name for its own dist-tag option and
+// silently swallows it instead of forwarding it to the script.
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
@@ -15,11 +17,15 @@ const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
 
 const args = process.argv.slice(2)
 const version = args.find((a) => !a.startsWith('-'))
-const shouldTag = args.includes('--tag')
+const shouldTag = args.includes('--git-tag')
 
 if (!version) {
-  console.error('usage: node scripts/set-version.mjs <version> [--tag]')
+  console.error('usage: node scripts/set-version.mjs <version> [--git-tag]')
   process.exit(1)
+}
+// Catch the old spelling rather than silently not tagging.
+if (args.includes('--tag')) {
+  throw new Error('use --git-tag, not --tag: npm swallows --tag as its own option')
 }
 if (!SEMVER.test(version)) {
   throw new Error(`not a semver version: ${version} (expected e.g. 1.2.3 or 1.2.3-rc.1)`)
