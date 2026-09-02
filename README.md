@@ -1,152 +1,108 @@
-
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/3bb41434-fa1e-4603-a1d9-0072c090ba2a" height="480" alt="SkellySubs Project Logo">
-</p> 
+  <img src="public/skellyspeak-logo.png" alt="SkellySpeak" width="180" />
+</p>
 
-# SkellySubs 💀💬
-### Browser-based multilingual video translation and subtitling tool
+# SkellySpeak
 
-> [!IMPORTANT]
-> This project is still in early development and may not be fully functional yet. Expect broken things and missing features 😌
+A standalone, no-necessary-login, multilingual language tutor. Tauri v2 — Windows
+desktop and Android today.
 
-## Overview
-Skellysubs provides in-browser video translation and subtitling capabilities. Video processing is handled client-side using ffmpeg.wasm, keeping server load light enough to wrangle significant-ish traffic on a free-tier GCP Cloud Run instance 🤞😅
+Two surfaces:
 
-## Demo videos
-#### Original Announcement video
-[https://github.com/user-attachments/assets/0bc27df0-9614-4716-8638-f0b130ef791d](https://github.com/user-attachments/assets/0bc27df0-9614-4716-8638-f0b130ef791d)
+- **Guided** — the conversation. A streamed tutor reply you can interrogate
+  word by word (tap for a gloss, hold for a run, double-click for a full
+  lemma/POS/usage card — on your own messages too), a **Coach** tab that
+  privately grades and corrects what you wrote, an **Analysis** tab with
+  explainer cards and reply scaffolds, a level/topic steer row, and voice
+  in *and* out.
+- **Stories** — level-matched short stories (beginner / intermediate /
+  advanced) with tap-to-translate word glosses.
 
-#### Roughtly how it works
-[https://github.com/user-attachments/assets/089996cf-960d-4704-b5d9-f4ddf19d757b](https://github.com/user-attachments/assets/089996cf-960d-4704-b5d9-f4ddf19d757b)
+Four languages, symmetric: English, French, Spanish, Arabic — any of them as
+the language you're learning, any of them as your own, with regional dialect
+selection on top.
 
+## Architecture
 
-## Development Setup
-
-### Backend
-1. Install `uv`: https://docs.astral.sh/uv/getting-started/installation/
-2. Create and activate virtual environment:
-```bash
-uv venv
-.venv/Scripts/activate  # Windows
-source .venv/bin/activate  # Unix
 ```
-3. Install dependencies:
-```bash
-uv sync
+Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
+├─ OpenAI-compatible client     ├─ Guided conversation (streamed reply,
+│  (OpenRouter; SSE streaming   │   then analysis + coach hydrating in
+│  + json_schema structured     │   asynchronously, section by section)
+│  output, corrective retries)  ├─ Stories reader (tokenized text,
+├─ Observer (reasoning model,   │   tap-for-gloss popover, level chips)
+│  rewrites plan + profile)     └─ Two-layer design: paper conversation /
+├─ Coach (private side-channel)     dark analysis (Habla·ES tokens)
+├─ Settings + document persistence
+│  (JSON in the app config dir)
+└─ Groq Whisper STT · OpenRouter TTS
 ```
-4. Run the server:
-```bash
-python skellysubs/__main__.py
-```
-The API documentation will be available at `http://localhost:8080`
 
-### Frontend
-1. Navigate to the UI directory:
-```bash
-cd skellysubs-ui
-```
-2. Install dependencies:
-```bash
+- **API keys** are stored locally in the OS config dir and used only by the
+  Rust core. The webview only ever receives them masked (`sk-or-••••••••cdef`),
+  and a masked value round-tripping back means "keep the stored key".
+- Structured output uses the native `json_schema` response format on every
+  attempt, with corrective retries for malformed output and 429s. **There is
+  no degraded fallback path** — anything else fails loudly with the
+  provider's actual error, so a bad model gets replaced rather than papered
+  over.
+- No accounts, no server, no Docker. Everything is local except the AI calls.
+
+## Run
+
+```powershell
+cd skellyspeak
 npm install
-```
-3. Start development server:
-```bash
-npm run dev
+npm run tauri dev     # first run compiles the Rust core (~2-5 min)
 ```
 
-## Deployment
-Commits to the `production` branch automatically trigger deployment to Google Cloud Run.
+On first launch: open Settings (⚙) → paste your OpenRouter key (required) and
+Groq key (only needed for voice input) → pick the language you're learning and
+your native language.
 
-## Data Privacy & Usage
-- No video, audio, or translation data is stored on our servers  
-- Translations are processed through OpenAI's API and subject to their standard privacy policy
-- All video processing occurs in your browser (using a WebAssembly version of ffmpeg bundled along with the webpage) 
-- OpenAI API costs are currently covered by the FreeMoCap Foundation as a service to the community
-- If usage grows beyond our free-tier infrastructure capacity or token costs become prohibitive... we'll figure something out ❤️
+## Build an installer
 
-
-## Docker
-For local containerized testing:
-```bash
-docker build -t skellysubs . && docker run -p 8080:8080 --name skellysubs-docker skellysubs
+```powershell
+npm run tauri build   # NSIS installer + portable exe under src-tauri/target/release/bundle
 ```
-## Software Architecture overview 
 
-> [!WARNING]  This section was generated by feeding the repository map into an LLM (deepseek or claude 3.5 Sonnet), may not be totally accurate.
+## Android
 
-# SkellySubs Architecture Overview
+```powershell
+npm run android       # emulator / connected-device dev loop
+npm run android:apk   # sideloadable debug APK
+```
 
-## Overall Architecture
-A full-stack web application with:
-- **Python FastAPI** backend
-- **React/TypeScript** frontend
-- **Redux** state management
-- **FFmpeg.wasm** client-side video processing
-- **Containerized** deployment (Docker + Cloud Run)
+See [Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the toolchain
+env vars and the machine-specific fixes that must survive a `gen/android`
+regeneration.
 
-## Key Architectural Components
-### Client-Side (`skellysubs-ui/`)
->  see - [typescript App.tsx](./skellysubs-ui/src/App.tsx)
-- **Core Stack**: React + TypeScript + Vite + TailwindCSS
-- **State Management**:
-  - Redux Toolkit with slices for processing status, subtitles, logs
-  - Thunks for async operations (file processing, API calls)
-- **Video Processing**:
-  - FFmpeg.wasm integration via context providers
-  - Subtitle editor components with timeline visualization
-- **UI System**:
-  - Configurable panel layouts
-  - Multi-stage processing workflow
-  - Real-time logging terminal
+## Layout
 
-### Backend Service (`skellysubs/`)
-> see - [server_manager.py](./skellysubs/__main__.py)
-- **Core Framework**: FastAPI with REST/WS endpoints
-- **Key Modules**:
-  - AI Service integration (OpenAI/HuggingFace/Ollama)
-  - Video processing pipeline (transcription/translation/subtitles)
-- **Main Components**:
-  - `core/`: Business logic
-  - `api/`: Endpoint routers
-  - `ai_clients/`: AI Provider strategies
+- `src-tauri/src/ai.rs` — provider client (streaming, schema-constrained
+  structured output, fallback ladder, `$defs` inlining)
+- `src-tauri/src/prompts.rs` — shared persona/mandatory-rules blocks,
+  guided + story prompts (ported from the FreeLingo prompt library)
+- `src-tauri/src/languages.rs` — supported languages + per-variant overlays
+- `src-tauri/src/observer.rs` — the TeachingPlan / Profile documents and the
+  background observer pass that rewrites them
+- `src-tauri/src/commands.rs` — the IPC surface (14 commands): `guided_turn`,
+  `coach_ask`, `generate_scaffolds`, `word_insight`, `speak_text`,
+  `transcribe_audio`, `generate_story`, settings
+- `src/pages/GuidedPage.tsx`, `src/pages/StoriesPage.tsx` — the two surfaces
 
-## Notable Architectural Patterns
+## Docs
 
-### Client-Side Video Processing
-> see - [useFfmpeg.ts](./skellysubs-ui/src/services/useFfmpeg.ts)
-- FFmpeg.wasm for browser-based processing
-- Avoids server-side resource usage
-- Enables offline-capable workflows
+Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusaurus):
 
-### AI Service Abstraction
-> see - [ai_client_strategy.py](./skellysubs/ai_clients/ai_client_strategy.py)
-- Strategy pattern implementation
-- Unified interface for multiple providers
-- Easy integration of new AI services
-- Currently focused on OpenAI API, but has the beginnings an Ollama, HuggingFace, Deepseek, and others
+- [Overview](./skellyspeak-docs/docs/overview.md) — what SkellySpeak is, the steer row, the agent architecture
+- [Architecture](./skellyspeak-docs/docs/architecture.md) — IPC surface, turn pipeline, prompt composition
+- [Ontology](./skellyspeak-docs/docs/ontology.md) — every domain entity, field-by-field
+- [Status](./skellyspeak-docs/docs/status.md) — what works, known issues, order of battle
+- [The Coach](./skellyspeak-docs/docs/coach.md) — the private side-channel tutor (the Cyrano principle)
+- [Platforms & Build](./skellyspeak-docs/docs/platforms.md) — Windows + Android today, iOS path
+- [Future Work](./skellyspeak-docs/docs/future-work.md) — replacing per-turn LLM glossing with dictionaries
 
-
-## Deployment Architecture
-> see [Dockerfile](./Dockerfile)
-- Single container deployment:
-  - Python backend (UVicorn)
-  - Pre-built React frontend
-  - FFmpeg.wasm dependencies
-- Cloud Run optimized
-- Stateless design:
-  - Client-side state management
-  - No persistent storage
-
-## Key Dependencies
-
-### Frontend
-> see - [package.json](./skellysubs-ui/package.json)
-- @ffmpeg/ffmpeg - WASM video processing
-- @mui/material - UI components
-- react-resizable-panels - Layout system
-
-### Backend
-> see - [pyproject.toml](./pyproject.toml)
-- fastapi - Web framework
-- openai - AI integrations
-
+```powershell
+cd skellyspeak-docs && npm install && npm start   # preview the docs site
+```
