@@ -115,6 +115,8 @@ const en: Dict = {
   'settings.sc.panel': 'Toggle analysis panel',
   'settings.sc.settings': 'Open settings',
   'settings.matches': 'matches',
+  'settings.section.updates': 'Updates',
+  'settings.desc.updates': 'Application version and updates.',
   'insight.lemma': 'Lemma',
   'insight.pos': 'Part of speech',
   'insight.form': 'Form',

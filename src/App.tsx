@@ -5,6 +5,7 @@ import GuidedPage from './pages/GuidedPage'
 import StoriesPage from './pages/StoriesPage'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
+import { UpdateBanner } from './components/UpdateBanner'
 import { openOverlay } from './lib/back'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 
@@ -131,6 +132,8 @@ export default function App() {
           ⚙
         </button>
       </div>
+
+      <UpdateBanner />
 
       {faults.length > 0 && (
         <div className="fault-bar" role="alert">
