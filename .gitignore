@@ -51,3 +51,7 @@ Thumbs.db
 # Reference archive of earlier incarnations (SkellySubs GCP + Python-only).
 # 17 GB with node_modules — kept on disk for reference, never committed.
 old/
+
+# Server local env
+server/.env
+server/.venv/
