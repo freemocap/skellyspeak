@@ -160,6 +160,12 @@ jobs:
           Write-Host "--- test sign a throwaway binary ---"
           Copy-Item "$env:SystemRoot\System32\where.exe" "$env:RUNNER_TEMP\signtest.exe"
           artifact-signing-cli -e https://eus.codesigning.azure.net/ -a freemocap -c freemocap "$env:RUNNER_TEMP\signtest.exe"
+          # A native command's exit code does not stop pwsh on its own, so the
+          # success line would print over a failed sign. Check it explicitly.
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::Azure signing pre-flight failed (exit $LASTEXITCODE). See the error above."
+            exit 1
+          }
           Write-Host "test sign OK - credentials, account, profile and signtool all work"
 
       - uses: tauri-apps/tauri-action@v0
