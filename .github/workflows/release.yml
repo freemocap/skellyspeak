@@ -117,8 +117,11 @@ jobs:
           args: ${{ matrix.args }}
 
   android:
-    # Runs after `desktop` purely so the draft release already exists.
+    # Ordered after `desktop` only so the draft release already exists.
+    # `always()` keeps a desktop failure from cancelling the APK: one broken
+    # platform must not withhold the others' artifacts.
     needs: [version, desktop]
+    if: always() && needs.version.result == 'success'
     name: Android (APK)
     runs-on: ubuntu-latest
     steps:

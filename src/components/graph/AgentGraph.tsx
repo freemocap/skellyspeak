@@ -12,6 +12,7 @@ import { GraphPane } from './GraphPane'
 import { NodeInspector } from './NodeInspector'
 import { useDragSize } from '../../lib/useDragSize'
 import type { Graph, GraphNode, Reconciliation, Run } from '../../types'
+import { reportFault } from '../../lib/faults'
 
 // D2 of the disclosure ladder: the live system, rendered from the graph Rust
 // declares. The frontend holds NO graph of its own.
@@ -25,20 +26,24 @@ import type { Graph, GraphNode, Reconciliation, Run } from '../../types'
 const OPEN_KEY = 'skellyspeak_graph_open'
 const WIDE_KEY = 'skellyspeak_graph_wide'
 
-function loadIds(key: string, fallback: string[]): string[] {
+/// Nothing stored yet is normal and yields `whenUnset`. Stored-but-unreadable
+/// is a fault: it is reported, not quietly swapped for a default.
+function loadIds(key: string, whenUnset: string[]): string[] {
+  const raw = localStorage.getItem(key)
+  if (raw === null) return whenUnset
   try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as string[]) : fallback
-  } catch {
-    return fallback
+    return JSON.parse(raw) as string[]
+  } catch (e) {
+    reportFault('Restoring graph layout', e)
+    return whenUnset
   }
 }
 
 function save(key: string, ids: string[]) {
   try {
     localStorage.setItem(key, JSON.stringify(ids))
-  } catch {
-    /* non-fatal */
+  } catch (e) {
+    reportFault('Saving graph layout', e)
   }
 }
 

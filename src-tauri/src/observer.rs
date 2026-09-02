@@ -137,46 +137,62 @@ impl ObserverOutput {
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
 
-/// Load one document. A missing file is a fresh install (fine). A CORRUPT
-/// file must never be silently discarded: move it aside and scream.
-fn load_document<T: serde::de::DeserializeOwned + Default>(dir: &Path, name: &str) -> T {
+/// Load one document. A missing file is a first run. An unreadable one is a
+/// fault: it is moved aside, the caller starts from defaults, and the reason
+/// is pushed onto `faults` so it reaches the screen.
+fn load_document<T: serde::de::DeserializeOwned + Default>(
+    dir: &Path,
+    name: &str,
+    faults: &mut Vec<String>,
+) -> T {
     let path = dir.join(name);
-    let raw = match std::fs::read_to_string(&path) {
-        Ok(raw) => raw,
-        Err(_) => return T::default(), // fresh install — nothing to load
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        return T::default(); // first run — nothing to load
     };
     match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
             let bad = dir.join(format!("{name}.bad"));
-            let _ = std::fs::rename(&path, &bad);
-            log::error!(
-                "{name} was CORRUPT ({e}) - moved to {}. Starting fresh; the old file is preserved.",
-                bad.display()
-            );
+            let mut fault =
+                format!("{name} could not be read ({e}), so it starts empty.");
+            match std::fs::rename(&path, &bad) {
+                Ok(()) => fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display())),
+                Err(rename_err) => {
+                    fault.push_str(&format!(" It could not be moved aside either: {rename_err}."))
+                }
+            }
+            log::error!("{fault}");
+            faults.push(fault);
             T::default()
         }
     }
 }
 
-pub fn load_documents(dir: &Path) -> (TeachingPlan, Profile) {
+pub fn load_documents(dir: &Path, faults: &mut Vec<String>) -> (TeachingPlan, Profile) {
     (
-        load_document(dir, "plan.json"),
-        load_document(dir, "profile.json"),
+        load_document(dir, "plan.json", faults),
+        load_document(dir, "profile.json", faults),
     )
 }
 
-pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) {
-    if let Ok(raw) = serde_json::to_string_pretty(plan) {
-        if let Err(e) = std::fs::write(dir.join("plan.json"), raw) {
-            log::error!("FAILED to persist plan.json: {e} - teaching plan will be lost");
+/// Write both documents. Returns every failure so the caller can surface them:
+/// a lost write means the tutor forgets what it learned this session.
+pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) -> Vec<String> {
+    let mut faults = Vec::new();
+    let mut write = |name: &str, raw: Result<String, serde_json::Error>| match raw {
+        Ok(raw) => {
+            if let Err(e) = std::fs::write(dir.join(name), raw) {
+                faults.push(format!("Could not save {name}: {e}. This session's progress is not stored."));
+            }
         }
+        Err(e) => faults.push(format!("Could not serialize {name}: {e}.")),
+    };
+    write("plan.json", serde_json::to_string_pretty(plan));
+    write("profile.json", serde_json::to_string_pretty(profile));
+    for f in &faults {
+        log::error!("{f}");
     }
-    if let Ok(raw) = serde_json::to_string_pretty(profile) {
-        if let Err(e) = std::fs::write(dir.join("profile.json"), raw) {
-            log::error!("FAILED to persist profile.json: {e} - profile will be lost");
-        }
-    }
+    faults
 }
 
 // ─── Prompts ─────────────────────────────────────────────────────────────────
@@ -238,18 +254,19 @@ pub fn directives_block(plan: &TeachingPlan, recent_mechanics: &[String]) -> Str
 /// CHEAP — it dies in ~10s instead of burning 32k tokens over two minutes.
 const OBSERVER_MAX_TOKENS: MaxTokens = MaxTokens(4_000);
 
-/// The observer runs as **two separate structured calls**, one per document.
+/// The observer runs as **two separate structured calls**, one per document,
+/// concurrently.
 ///
-/// It used to be one call returning `{plan, profile}` — two levels of nesting,
-/// each containing arrays of objects. The bench showed that shape is not
-/// reliably servable: providers either returned the nested document as a JSON
-/// *string*, or ran away generating until they blew the token cap (123s on
-/// gemini-2.5-flash, 73s on gemini-3.1-flash-lite, and non-deterministically
-/// so — the same model and prompt succeeded in 2.1s on another run).
+/// A single call returning `{plan, profile}` nests two objects that each
+/// contain arrays of objects, and the bench shows providers cannot serve that
+/// shape reliably: they either return the nested document as a JSON *string*
+/// or generate until they blow the token cap (123s on gemini-2.5-flash, 73s
+/// on gemini-3.1-flash-lite, non-deterministically — the same model and
+/// prompt finished in 2.1s on another run).
 ///
 /// A schema this app depends on must be boring to serve. Two flat documents
-/// are; one nested wrapper is not. They also now run concurrently, so the
-/// split costs nothing in wall time.
+/// are; one nested wrapper is not. Running them concurrently makes the split
+/// free in wall time.
 fn shared_context(
     transcript: &str,
     plan: &TeachingPlan,

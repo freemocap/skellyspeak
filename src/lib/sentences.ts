@@ -15,8 +15,9 @@ export function groupSentences(tokens: GuidedToken[]): GuidedToken[][] {
 }
 
 // Split a translation into sentences the same way, so index i of the
-// translation aligns with sentence i of the token stream. If the counts
-// disagree, callers fall back to the full translation.
+// translation aligns with sentence i of the token stream. Models do not
+// guarantee matching sentence counts, so callers must handle an index with
+// no counterpart; TurnView shows the whole translation in that case.
 export function splitSentences(text: string): string[] {
   return (text.match(/[^.!?…]+[.!?…]*/g) ?? []).map((s) => s.trim()).filter(Boolean)
 }

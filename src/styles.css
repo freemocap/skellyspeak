@@ -523,6 +523,22 @@ body {
 .btn:hover { color: var(--ink-d); border-color: var(--steel); }
 .btn.primary { background: var(--steel-deep); border-color: var(--steel-deep); color: #fff; }
 .btn:disabled { opacity: 0.5; cursor: default; }
+.btn.tiny { padding: 6px 10px; font-size: 10px; letter-spacing: 0.1em; }
+/* Every failure in the app lands here, at the top of the window, above all
+   other chrome. Nothing that goes wrong is allowed to stay in a log file. */
+.fault-bar {
+  flex: none; background: #3a1a1a; border-bottom: 1px solid #7a3535;
+  color: #ffd7d7; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+  max-height: 34dvh; overflow-y: auto;
+}
+.fault-bar .fault { margin: 0; padding-right: 22px; position: relative; width: 100%; }
+.fault-bar .fault b { color: #ffb4b4; }
+.fault-dismiss {
+  position: absolute; top: -2px; right: 0; border: none; background: none;
+  color: #ffd7d7; cursor: pointer; font-size: 13px; line-height: 1; padding: 2px 4px;
+}
+.fault-dismiss:hover { color: #fff; }
 .err-note { color: #e08a8a; text-align: center; font-size: 13px; padding: 24px 0; }
 
 /* Word popup */
@@ -988,15 +1004,26 @@ body {
 /* Settings modal */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(5, 9, 15, 0.72); z-index: 60;
-  display: grid; place-items: center; padding: 24px;
+  display: grid; place-items: center;
+  /* Safe-area insets, and every child below sizes against THIS box (100%),
+     never against dvh. A dvh-sized modal plus this padding was taller than the
+     viewport, and `place-items: center` then clipped it at both ends at once —
+     which put the section nav off the top of the screen and the Save button
+     off the bottom, with no scroll to reach either. */
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
 }
 .modal {
   width: min(480px, 100%); background: var(--chrome); border: 1px solid var(--line);
-  border-radius: 14px; padding: 22px 24px; max-height: 90dvh; overflow-y: auto;
+  border-radius: 14px; padding: 22px 24px; max-height: 100%; overflow-y: auto;
 }
 .modal h2 { margin: 0 0 4px; font-size: 17px; }
 .modal .sub { color: var(--mut-d); font-size: 12.5px; margin-bottom: 16px; line-height: 1.5; }
 .form-row { margin-bottom: 13px; }
+.field-note { margin: 6px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--faint-d); }
 .form-row label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut-d); margin-bottom: 5px; }
 .form-row input, .form-row select {
   width: 100%; background: var(--inset); color: var(--ink-d);
@@ -1019,7 +1046,10 @@ body {
 }
 .shortcut-input:focus { border-color: var(--steel); color: var(--ink-d); }
 .key-row { display: flex; align-items: center; gap: 8px; }
-.key-row input { flex: 1; font-family: var(--mono); font-size: 12px; }
+.key-row input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 12px; }
+/* Resting state is a read-only mask, not a disabled field — keep it readable
+   and let the caret sit in it so the mask can be selected and copied. */
+.key-row input[readonly] { color: var(--mut-d); cursor: default; }
 .key-badge { flex: none; width: 22px; text-align: center; font-size: 15px; }
 .key-badge.checking { color: var(--mut-d); }
 .key-badge.valid { color: #58c98b; }
@@ -1063,7 +1093,7 @@ body {
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .settings-modal {
-  width: min(880px, 96vw); height: min(660px, 92dvh);
+  width: min(880px, 100%); height: min(660px, 100%);
   display: flex; background: var(--chrome);
   border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
 }
@@ -1086,7 +1116,11 @@ body {
 .nav-item:hover { color: var(--ink-d); background: var(--chrome2); }
 .nav-item.active { background: var(--chrome2); color: var(--ink-d); }
 .nav-icon { width: 18px; text-align: center; }
-.settings-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* min-height:0 is load-bearing: as a flex item in the column-direction
+   .settings-modal, min-height:auto would refuse to shrink below the content
+   height and push .modal-actions out of the clipped modal, putting the footer
+   buttons off screen. */
+.settings-content { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .settings-head {
   padding: 16px 22px 10px; border-bottom: 1px solid var(--line); flex: none;
 }
@@ -1100,18 +1134,18 @@ body {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--steel); margin: 2px 0 4px;
 }
-@media (max-width: 700px) {
-  .settings-modal { flex-direction: column; height: 94dvh; }
-  .settings-nav {
-    width: 100%; flex-direction: row; align-items: center;
-    border-right: none; border-bottom: 1px solid var(--line);
-    overflow-x: auto; padding: 10px 12px;
-  }
-  .settings-tree { flex-direction: row; gap: 4px; }
-  .nav-item { white-space: nowrap; }
-  .settings-search { width: 150px; flex: none; }
+.modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+/* Settings autosave: destructive action far left, status in the middle, the
+   only remaining button on the right. No Save — edits write themselves. */
+.save-status {
+  margin: 0 auto 0 12px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--mut-d);
 }
-.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.save-status.hint { color: var(--faint-d); }
+.save-status.saved { color: #58c98b; }
+.save-status.error { color: #e06c6c; }
+.btn.danger { border-color: transparent; color: var(--faint-d); }
+.btn.danger:hover { color: #e06c6c; border-color: #e06c6c; }
 
 /* Mobile mode: the window snapping below the breakpoint IS mobile mode —
    a tabbed single-surface layout (bottom nav switches Chat ⇄ Coach/Analysis)
@@ -1144,8 +1178,34 @@ body {
   .msg { max-width: 94%; }
   /* iOS zooms any focused input under 16px — keep inputs at 16 on touch. */
   .field, .form-row input, .form-row select { font-size: 16px; }
-  .settings-modal { flex-direction: column; }
-  .settings-nav { width: 100%; flex-direction: row; overflow-x: auto; }
+  /* Settings on a phone: nav becomes a scrolling strip along the top, and the
+     shell fills the safe area exactly. The content column stays a flex column
+     so `.modal-actions` is pinned in view — Save must never scroll away. */
+  .settings-modal { flex-direction: column; height: 100%; }
+  .settings-nav {
+    width: 100%; flex: none; flex-direction: row; align-items: center;
+    border-right: none; border-bottom: 1px solid var(--line);
+    overflow-x: auto; padding: 10px 12px;
+  }
+  .settings-tree { flex-direction: row; gap: 4px; }
+  .nav-item { white-space: nowrap; }
+  .settings-search { width: 150px; flex: none; }
+  .settings-head { padding: 12px 16px 8px; }
+  .settings-scroll { padding: 12px 16px; }
+  .settings-content .modal-actions { padding: 10px 16px; }
+  /* Every section is rendered at once here, so the nav strip is gone and only
+     the search box remains along the top. */
+  .settings-nav { padding: 8px 12px; }
+  .settings-search { width: 100%; }
+  /* Headings carry the whole burden of orientation in one long scroll — make
+     them stick so it is always obvious which group is on screen. */
+  .settings-group-k {
+    position: sticky; top: -12px; z-index: 1;
+    margin: 14px 0 6px; padding: 6px 0;
+    background: var(--chrome); border-bottom: 1px solid var(--line);
+  }
+  .settings-entry:first-child .settings-group-k { margin-top: 0; }
+  .save-status { margin-left: 8px; font-size: 9px; }
   .plan-drawer { width: 100%; }
   .insight-modal { width: 94vw; }
 }

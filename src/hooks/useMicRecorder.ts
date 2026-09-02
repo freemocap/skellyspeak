@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { logDebug, logError, logInfo, logWarn } from '../lib/log'
+import { logDebug, logInfo } from '../lib/log'
+import { reportFault } from '../lib/faults'
 
 const MIC_SILENCE_STOP_MS = 20_000
 const MIC_VOICE_THRESHOLD = 0.02
@@ -105,7 +106,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
             peak < 0.01 ? '=> SILENCE (host audio not reaching emulator)' : '=> real audio captured'
           )
         } catch (e) {
-          logWarn('[mic] amplitude probe failed:', e)
+          reportFault('Microphone level meter', e)
         }
         let binary = ''
         const bytes = new Uint8Array(buffer)
@@ -116,10 +117,12 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
             prompt: buildPromptRef.current(),
           })
           logInfo('[mic] transcribed:', text)
+          // Empty transcription is a normal outcome of a silent recording,
+          // not a failure — the composer simply stays as it was.
           if (text) onTranscribeRef.current(text)
-          else logWarn('[mic] transcription was empty (silence?)')
+          else logInfo('[mic] transcription was empty (silence)')
         } catch (e) {
-          logError('[mic] transcription failed:', e)
+          reportFault('Transcription', e)
           onTranscribeRef.current('')
         }
       }
@@ -158,11 +161,11 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
           }
         }, 500)
       } catch (e) {
-        logWarn('[mic] silence detection unavailable — manual stop only:', e)
+        reportFault('Automatic silence detection', e)
       }
     } catch (e) {
       setRecording(false)
-      logError('[mic] failed to start recording:', e)
+      reportFault('Microphone', e)
     }
   }, [])
 

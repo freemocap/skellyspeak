@@ -11,14 +11,14 @@ export type Axis = 'x' | 'y'
 
 export function useDragSize(
   key: string,
-  fallback: number,
+  whenUnset: number,
   opts: { axis: Axis; min: number; max: number; invert?: boolean }
 ) {
   const { axis, min, max, invert } = opts
 
   const [size, setSize] = useState<number>(() => {
     const raw = Number(localStorage.getItem(key))
-    return Number.isFinite(raw) && raw > 0 ? Math.min(max, Math.max(min, raw)) : fallback
+    return Number.isFinite(raw) && raw > 0 ? Math.min(max, Math.max(min, raw)) : whenUnset
   })
 
   const onPointerDown = useCallback(
