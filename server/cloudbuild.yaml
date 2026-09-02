@@ -31,7 +31,7 @@ steps:
       - "--platform=managed"
       # Public: the app authenticates with its own session token, not IAM.
       - "--allow-unauthenticated"
-      - "--set-env-vars=PUBLIC_BASE_URL=${_PUBLIC_BASE_URL},FREE_DAILY_TOKENS=${_FREE_DAILY_TOKENS},GLOBAL_DAILY_TOKENS=${_GLOBAL_DAILY_TOKENS}"
+      - "--set-env-vars=PUBLIC_BASE_URL=${_PUBLIC_BASE_URL},FREE_DAILY_TOKENS=${_FREE_DAILY_TOKENS},GLOBAL_DAILY_TOKENS=${_GLOBAL_DAILY_TOKENS},MAX_USERS=${_MAX_USERS}"
       - "--set-secrets=GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,JWT_SIGNING_KEY=jwt-signing-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,GROQ_API_KEY=groq-api-key:latest"
       - "--memory=512Mi"
       - "--cpu=1"
@@ -44,8 +44,15 @@ substitutions:
   _REGION: "us-central1"
   _IMAGE: "gcr.io/${PROJECT_ID}/skellyspeak-api:${BUILD_ID}"
   _PUBLIC_BASE_URL: ""
-  _FREE_DAILY_TOKENS: "50000"
-  _GLOBAL_DAILY_TOKENS: "5000000"
+  # Closed testing: a generous per-person allowance handed to a deliberately
+  # small number of people. What a conversation actually costs is unmeasured,
+  # so the account ceiling — not the token allowance — is what bounds the bill.
+  # Raise them with `gcloud run services update --update-env-vars` for an
+  # immediate change, then mirror the new value here or the next deploy
+  # reverts it.
+  _FREE_DAILY_TOKENS: "500000"
+  _GLOBAL_DAILY_TOKENS: "3000000"
+  _MAX_USERS: "6"
 
 images:
   - "${_IMAGE}"

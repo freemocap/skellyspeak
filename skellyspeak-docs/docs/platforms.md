@@ -15,8 +15,13 @@ core, and the frontend is plain React that runs in any webview.
 
 The app reaches an AI provider one of three ways, chosen in Settings and
 resolved in exactly one place — `Settings::chat_provider` in
-`src-tauri/src/settings.rs`:
+`src-tauri/src/settings.rs`, with `stt_endpoint` and `tts_endpoint` beside it
+for the two paths that are not chat completions:
 
+- **`hosted`** — the project's own service, signed in with Google. The
+  **default on a fresh install**: chat, speech-to-text and spoken replies all
+  proxy through it, so the user needs no API key of any kind. See
+  [Hosted API](./hosted-api.md).
 - **`cloud`** — OpenRouter with the user's own API key.
 - **`custom`** — any OpenAI-compatible server they run (Ollama, LM Studio,
   vLLM). Their address, their model name, key optional. Chat and analysis go
@@ -24,9 +29,8 @@ resolved in exactly one place — `Settings::chat_provider` in
   OpenRouter, because local servers do not provide either. Small local models
   frequently cannot honour the strict `json_schema` output this app requires,
   so the analysis, coach and tokenization passes may fail where chat succeeds.
-- **`hosted`** — the project's own service. See [Hosted API](./hosted-api.md).
 
-The resolver never falls back between them. An unusable configuration returns
+The resolvers never fall back between them. An unusable configuration returns
 the reason, which the UI shows: a request the user asked to send to their own
 machine must not silently go to a paid cloud instead.
 

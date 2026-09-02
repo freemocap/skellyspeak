@@ -1,5 +1,5 @@
 import { Component, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, isTauri, takeStartupFaults } from './lib/tauri'
+import { getSettings, hostedAccount, isTauri, takeStartupFaults } from './lib/tauri'
 import { comboFromEvent } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
 import StoriesPage from './pages/StoriesPage'
@@ -8,6 +8,7 @@ import { LogsOverlay } from './components/LogsOverlay'
 import { UpdateBanner } from './components/UpdateBanner'
 import { openOverlay } from './lib/back'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
+import { HOSTED } from './lib/providers'
 
 type Page = 'guided' | 'stories'
 
@@ -63,6 +64,20 @@ export default function App() {
     () => (settingsOpen ? openOverlay(() => setSettingsOpen(false)) : undefined),
     [settingsOpen]
   )
+
+  // Hosted mode: check in at launch. This validates the stored session while
+  // there is still time to do something about it — an expired one otherwise
+  // first shows up as a failed reply mid-conversation — and it is what keeps
+  // the device record current rather than frozen at the last sign-in.
+  useEffect(() => {
+    if (!isTauri) return
+    void getSettings()
+      .then((s) => {
+        if (s.provider_mode !== HOSTED || !s.hosted_email) return
+        return hostedAccount().then(() => undefined)
+      })
+      .catch((e) => reportFault('Checking your hosted account', e))
+  }, [])
 
   // Settings shortcut (configurable, default ctrl+,).
   useEffect(() => {

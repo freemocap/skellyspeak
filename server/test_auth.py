@@ -86,3 +86,43 @@ def test_a_weak_signing_key_is_refused_at_startup(monkeypatch):
 
     monkeypatch.setenv("_TEST_KEY", "x" * 32)
     assert config._required_secret("_TEST_KEY", min_bytes=32) == "x" * 32
+
+
+class TestRedirectAssembly:
+    """`app_state` is caller-supplied and is interpolated into the app's own
+    redirect. Unencoded, a "&" or "#" in it becomes a parameter of its own."""
+
+    @staticmethod
+    def build(redirect: str, app_state: str, code: str) -> str:
+        """The assembly performed in main.auth_callback_google."""
+        from urllib.parse import quote
+
+        joiner = "&" if "?" in redirect else "?"
+        passthrough = f"&state={quote(str(app_state), safe='')}" if app_state else ""
+        return f"{redirect}{joiner}code={code}{passthrough}"
+
+    @pytest.mark.parametrize(
+        "hostile",
+        [
+            "x&code=attacker-code",
+            "x#fragment",
+            "x&redirect_uri=https://evil.example",
+            "x?a=b",
+            "../../etc/passwd",
+        ],
+    )
+    def test_app_state_cannot_inject_parameters(self, hostile):
+        from urllib.parse import parse_qs, urlparse
+
+        url = self.build("http://127.0.0.1:1420/callback", hostile, "real-code")
+        query = parse_qs(urlparse(url).query)
+        # Exactly the two parameters we intended, and `code` is still ours.
+        assert set(query) == {"code", "state"}
+        assert query["code"] == ["real-code"]
+        # The hostile value survives intact as data, having been decoded once.
+        assert query["state"] == [hostile]
+        assert "#" not in url
+
+    def test_an_absent_app_state_adds_no_parameter(self):
+        url = self.build("skellyspeak://auth", "", "real-code")
+        assert url == "skellyspeak://auth?code=real-code"

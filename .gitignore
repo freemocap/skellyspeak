@@ -30,6 +30,16 @@ src-tauri/gen/android/tauri.settings.gradle
 *.pfx
 keystore.properties
 
+# --- Python (the hosted API in server/) ---
+# Scoped deliberately. A blanket Python template once matched `lib/` and
+# silently untracked ten TypeScript source files under src/lib — only rules
+# that name Python artefacts belong here.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
 # --- Docs site (Docusaurus) ---
 skellyspeak-docs/build/
 skellyspeak-docs/.docusaurus/

@@ -1,6 +1,7 @@
 import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
   Graph,
+  HostedAccount,
   Level,
   ObserverDocuments,
   Reconciliation,
@@ -97,6 +98,21 @@ export function validateKey(
   key: string
 ): Promise<KeyStatus> {
   return invoke('validate_key', { provider, key })
+}
+
+/// Sign in to the hosted service. Opens the system browser and resolves once
+/// the redirect comes back — which can take as long as the user takes.
+export function hostedSignIn(): Promise<HostedAccount> {
+  return invoke<HostedAccount>('hosted_sign_in')
+}
+
+/// Identity and remaining allowance for the stored session.
+export function hostedAccount(): Promise<HostedAccount> {
+  return invoke<HostedAccount>('hosted_account')
+}
+
+export function hostedSignOut(): Promise<void> {
+  return invoke('hosted_sign_out')
 }
 
 export function getDiagnostics(): Promise<[string, number][]> {

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import type { Settings, Shortcuts } from '../types'
+import type { HostedAccount, Settings, Shortcuts } from '../types'
 import {
   getSettings,
+  hostedAccount,
+  hostedSignIn,
+  hostedSignOut,
   logInfo,
   saveSettings,
   resetSettings,
@@ -16,6 +19,7 @@ import { speechSupported } from '../lib/speech'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { canSelfUpdate, checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
+import { CUSTOM, HOSTED, usesCredential } from '../lib/providers'
 
 type KeyCheck = { state: 'idle' | 'checking' | 'valid' | 'invalid'; detail: string }
 
@@ -355,6 +359,8 @@ export function SettingsModal({
   const [mics, setMics] = useState<MediaDeviceInfo[]>([])
   const [openrouterCheck, setOpenrouterCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
   const [groqCheck, setGroqCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
+  const [account, setAccount] = useState<HostedAccount | null>(null)
+  const [signingIn, setSigningIn] = useState(false)
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
@@ -435,6 +441,55 @@ export function SettingsModal({
     }, 600)
     return () => clearTimeout(t)
   }, [settings?.groq_key])
+
+  // ── Hosted service ──────────────────────────────────────────────────────
+  // The session lives in the Rust settings; the webview never sees the token,
+  // only the address it belongs to and what allowance is left.
+  const mode = settings?.provider_mode ?? HOSTED
+  const hosted = mode === HOSTED
+  const signedIn = !!settings?.hosted_email
+
+  useEffect(() => {
+    if (!hosted || !signedIn) {
+      setAccount(null)
+      return
+    }
+    void hostedAccount()
+      .then(setAccount)
+      // An expired or revoked session must say so on screen, not leave a
+      // stale allowance sitting there looking fine.
+      .catch((e) => reportFault('Reading your hosted account', e))
+  }, [hosted, signedIn])
+
+  // Sign-in writes the session on the Rust side, so the copy held here is
+  // stale the moment it returns — re-read it rather than patching it locally.
+  const refreshFromBackend = useCallback(async () => {
+    const fresh = await getSettings()
+    setSettings(fresh)
+    setPersisted(fresh)
+  }, [])
+
+  const signIn = useCallback(async () => {
+    setSigningIn(true)
+    try {
+      setAccount(await hostedSignIn())
+      await refreshFromBackend()
+    } catch (e) {
+      reportFault('Signing in to the hosted service', e)
+    } finally {
+      setSigningIn(false)
+    }
+  }, [refreshFromBackend])
+
+  const signOut = useCallback(async () => {
+    try {
+      await hostedSignOut()
+      setAccount(null)
+      await refreshFromBackend()
+    } catch (e) {
+      reportFault('Signing out of the hosted service', e)
+    }
+  }, [refreshFromBackend])
 
   // ── Autosave ────────────────────────────────────────────────────────────
   // There is no Save button. Every edit is written after a short pause, so a
@@ -560,10 +615,17 @@ export function SettingsModal({
             value={settings.provider_mode}
             onChange={(e) => setSettings({ ...settings, provider_mode: e.target.value })}
           >
+            <option value="hosted">Free — sign in, no API key needed</option>
             <option value="cloud">Cloud — OpenRouter with your API key</option>
             <option value="custom">Your own server — Ollama, LM Studio, vLLM…</option>
           </select>
-          {settings.provider_mode === 'custom' && (
+          {hosted && (
+            <p className="field-note">
+              Chat, voice input and spoken replies all go through SkellySpeak's own
+              service, with a daily allowance. No API keys of your own required.
+            </p>
+          )}
+          {mode === CUSTOM && (
             <p className="field-note">
               Chat and analysis go to your server. Voice input still uses Groq, and cloud
               speech still uses OpenRouter, so those keys stay relevant if you use them.
@@ -574,11 +636,54 @@ export function SettingsModal({
         </div>
       ),
     },
+    hosted_account: {
+      section: 'keys',
+      label: L('hosted_account', 'SkellySpeak account'),
+      kw: 'sign in account google login free hosted allowance quota usage tokens',
+      hidden: !hosted,
+      node: (
+        <div className="form-row">
+          <label>SkellySpeak account</label>
+          {signedIn ? (
+            <>
+              <p className="field-note">
+                Signed in as <strong>{settings.hosted_email}</strong>
+              </p>
+              {account && (
+                <p className="field-note">
+                  {account.used_today.toLocaleString()} of{' '}
+                  {account.daily_limit.toLocaleString()} tokens used today · resets at{' '}
+                  {account.resets}
+                </p>
+              )}
+              <button type="button" className="ghost" onClick={() => void signOut()}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="primary"
+                disabled={signingIn}
+                onClick={() => void signIn()}
+              >
+                {signingIn ? 'Waiting for your browser…' : 'Sign in with Google'}
+              </button>
+              <p className="field-note">
+                Opens your browser — Google does not allow signing in inside an app
+                window. Free while SkellySpeak is in testing.
+              </p>
+            </>
+          )}
+        </div>
+      ),
+    },
     custom_base_url: {
       section: 'keys',
       label: L('custom_base_url', 'Server address'),
       kw: 'server address url base endpoint ollama lm studio localhost port',
-      hidden: settings.provider_mode !== 'custom',
+      hidden: mode !== CUSTOM,
       node: (
         <div className="form-row">
           <label>Server address</label>
@@ -600,7 +705,7 @@ export function SettingsModal({
       section: 'keys',
       label: L('custom_model', 'Model name'),
       kw: 'model name local llama qwen mistral gemma',
-      hidden: settings.provider_mode !== 'custom',
+      hidden: mode !== CUSTOM,
       node: (
         <div className="form-row">
           <label>Model name</label>
@@ -619,7 +724,7 @@ export function SettingsModal({
       section: 'keys',
       label: L('custom_api_key', 'Server API key (optional)'),
       kw: 'custom server api key optional local token',
-      hidden: settings.provider_mode !== 'custom',
+      hidden: mode !== CUSTOM,
       node: (
         <SecretField
           label="Server API key (optional)"
@@ -633,7 +738,11 @@ export function SettingsModal({
     },
     openrouter_key: {
       section: 'keys',
-      hidden: settings.provider_mode !== 'cloud',
+      // Visible for a custom server too: cloud speech goes to OpenRouter
+      // whichever provider handles chat, so hiding it here left the user told
+      // to add a key in Settings on a screen that would not show the field.
+      // Hosted mode proxies everything and needs no key at all.
+      hidden: !usesCredential(mode, 'openrouter'),
       label: L('openrouter_key', 'OpenRouter API key'),
       kw: 'openrouter api key credential token chat tutor',
       node: (
@@ -649,6 +758,7 @@ export function SettingsModal({
     },
     groq_key: {
       section: 'keys',
+      hidden: !usesCredential(mode, 'groq'),
       label: L('groq_key', 'Groq API key (speech-to-text)'),
       kw: 'groq api key credential speech transcription stt whisper voice',
       node: (

@@ -4,14 +4,38 @@ use std::path::Path;
 
 /// Where chat and analysis requests go.
 ///
+/// "hosted" — the project's own service. The user signs in with Google and
+///            holds no API key at all; requests are proxied and metered
+///            against a daily allowance. This is the default, because
+///            installing the app should be enough to start using it.
 /// "cloud"  — OpenRouter, with the user's own API key.
 /// "custom" — any OpenAI-compatible server the user runs (Ollama, LM Studio,
 ///            vLLM, ...). The address is theirs; the key is optional, because
 ///            most local servers do not use one.
+pub const PROVIDER_HOSTED: &str = "hosted";
 pub const PROVIDER_CLOUD: &str = "cloud";
 pub const PROVIDER_CUSTOM: &str = "custom";
 
 const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
+
+/// The hosted service. OpenAI-compatible, so it slots in as a `Provider`
+/// unchanged — the session token takes the place of an API key.
+pub const HOSTED_BASE_URL: &str = "https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app/v1";
+
+/// Speech-to-text, when the user brings their own key. Neither OpenRouter nor
+/// a local Ollama serves Whisper, so cloud and custom modes both come here.
+const GROQ_STT_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
+/// Cloud speech synthesis is an ordinary chat completion with an audio
+/// modality, so it targets a chat endpoint rather than a speech one.
+const OPENROUTER_TTS_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
+
+/// A bare endpoint and the credential for it — for the two paths that are not
+/// chat completions and so cannot use `Provider`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Endpoint {
+    pub url: String,
+    pub api_key: String,
+}
 
 /// Configurable keyboard shortcuts. Stored as normalized combo strings
 /// ("ctrl+m") — see lib/keyboard.ts for the normalization dialect.
@@ -53,9 +77,25 @@ impl Default for Shortcuts {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
-    /// One of PROVIDER_CLOUD or PROVIDER_CUSTOM.
+    /// One of PROVIDER_HOSTED, PROVIDER_CLOUD or PROVIDER_CUSTOM.
     #[serde(default = "default_provider_mode")]
     pub provider_mode: String,
+    /// Session token for the hosted service. Issued by signing in, never
+    /// typed, so — unlike the API keys — it never round-trips through the
+    /// webview: `masked()` blanks it and `save_settings` carries the stored
+    /// one forward regardless of what the UI sends.
+    #[serde(default)]
+    pub hosted_token: String,
+    /// Who is signed in, for display. Not a credential.
+    #[serde(default)]
+    pub hosted_email: String,
+    /// Anonymous per-installation id, generated on first run. Sent to the
+    /// hosted service so "how many machines does someone use" is answerable
+    /// without identifying the machine: it is a random UUID stored in this
+    /// file, not a hardware or advertising id, and reinstalling produces a
+    /// new one. Nothing derives from it and nothing else uses it.
+    #[serde(default)]
+    pub install_id: String,
     #[serde(default)]
     pub openrouter_key: String,
     /// Base URL of a user-run OpenAI-compatible server, including the version
@@ -116,7 +156,9 @@ pub struct Settings {
 }
 
 fn default_provider_mode() -> String {
-    PROVIDER_CLOUD.into()
+    // Install-and-go: a fresh install asks the user to sign in rather than
+    // demanding an API key they do not have.
+    PROVIDER_HOSTED.into()
 }
 
 fn default_tts_engine() -> String {
@@ -153,6 +195,9 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             provider_mode: default_provider_mode(),
+            hosted_token: String::new(),
+            hosted_email: String::new(),
+            install_id: String::new(),
             openrouter_key: String::new(),
             custom_base_url: String::new(),
             custom_api_key: String::new(),
@@ -190,6 +235,10 @@ pub fn mask(key: &str) -> String {
     format!("{head}••••••••{tail}")
 }
 
+fn unknown_mode(mode: &str) -> String {
+    format!("Unknown AI provider mode {mode:?}. Open Settings and choose one under AI provider.")
+}
+
 impl Settings {
     /// Endpoint and credentials for one chat or analysis call.
     ///
@@ -203,6 +252,13 @@ impl Settings {
     /// to their own server must not silently go to a paid cloud instead.
     pub fn chat_provider(&self, model: &str) -> Result<Provider, String> {
         match self.provider_mode.as_str() {
+            PROVIDER_HOSTED => Ok(Provider {
+                base_url: HOSTED_BASE_URL.into(),
+                // The proxy forwards the body untouched, so the caller's
+                // model choice is honoured exactly as in cloud mode.
+                api_key: self.hosted_session()?,
+                model: model.into(),
+            }),
             PROVIDER_CLOUD => {
                 if self.openrouter_key.trim().is_empty() {
                     return Err(
@@ -231,9 +287,58 @@ impl Settings {
                     model: custom_model.into(),
                 })
             }
-            other => Err(format!(
-                "Unknown AI provider mode {other:?}. Open Settings and choose one under AI provider."
-            )),
+            other => Err(unknown_mode(other)),
+        }
+    }
+
+    /// The hosted session token, or the reason there is not one.
+    fn hosted_session(&self) -> Result<String, String> {
+        let token = self.hosted_token.trim();
+        if token.is_empty() {
+            return Err("Sign in to use the free hosted service, or choose a different AI provider, in Settings.".into());
+        }
+        Ok(token.into())
+    }
+
+    /// Where speech-to-text goes. Whisper is served by neither OpenRouter nor
+    /// a local Ollama, so bring-your-own-key modes both use Groq directly.
+    pub fn stt_endpoint(&self) -> Result<Endpoint, String> {
+        match self.provider_mode.as_str() {
+            PROVIDER_HOSTED => Ok(Endpoint {
+                url: format!("{HOSTED_BASE_URL}/audio/transcriptions"),
+                api_key: self.hosted_session()?,
+            }),
+            PROVIDER_CLOUD | PROVIDER_CUSTOM => {
+                if self.groq_key.trim().is_empty() {
+                    return Err("Voice input needs a Groq API key. Add one in Settings, or switch your AI provider to the free hosted service.".into());
+                }
+                Ok(Endpoint {
+                    url: GROQ_STT_URL.into(),
+                    api_key: self.groq_key.trim().into(),
+                })
+            }
+            other => Err(unknown_mode(other)),
+        }
+    }
+
+    /// Where cloud speech synthesis goes. It is a chat completion carrying an
+    /// audio modality, so the hosted service proxies it like any other.
+    pub fn tts_endpoint(&self) -> Result<Endpoint, String> {
+        match self.provider_mode.as_str() {
+            PROVIDER_HOSTED => Ok(Endpoint {
+                url: format!("{HOSTED_BASE_URL}/chat/completions"),
+                api_key: self.hosted_session()?,
+            }),
+            PROVIDER_CLOUD | PROVIDER_CUSTOM => {
+                if self.openrouter_key.trim().is_empty() {
+                    return Err("Cloud speech needs an OpenRouter API key, whichever provider handles chat. Add one in Settings, switch your AI provider to the free hosted service, or set Speech engine to the OS voice.".into());
+                }
+                Ok(Endpoint {
+                    url: OPENROUTER_TTS_URL.into(),
+                    api_key: self.openrouter_key.trim().into(),
+                })
+            }
+            other => Err(unknown_mode(other)),
         }
     }
 
@@ -243,6 +348,13 @@ impl Settings {
         s.openrouter_key = mask(&self.openrouter_key);
         s.groq_key = mask(&self.groq_key);
         s.custom_api_key = mask(&self.custom_api_key);
+        // Blanked outright rather than masked: the user never typed this and
+        // has nothing to visually verify, so there is no reason to show any
+        // part of it. `hosted_email` is what identifies the session on screen.
+        s.hosted_token = String::new();
+        // Not a secret, but nothing in the webview needs it, and it is the one
+        // value that follows a person across sessions. It stays in Rust.
+        s.install_id = String::new();
         s
     }
 }
@@ -259,11 +371,20 @@ pub struct Loaded {
     pub fault: Option<String>,
 }
 
+/// A random per-installation id. Generated once, then persisted with the rest
+/// of the settings.
+fn new_install_id() -> String {
+    uuid::Uuid::new_v4().to_string()
+}
+
 pub fn load_or_create(dir: &Path) -> Loaded {
     let path = settings_path(dir);
     let Ok(raw) = std::fs::read_to_string(&path) else {
         // No file yet: a first run, not a fault. Failing to create one IS.
-        let settings = Settings::default();
+        let settings = Settings {
+            install_id: new_install_id(),
+            ..Settings::default()
+        };
         let fault = persist(dir, &settings)
             .err()
             .map(|e| format!("Could not create settings.json: {e}. Settings will not persist."));
@@ -271,10 +392,23 @@ pub fn load_or_create(dir: &Path) -> Loaded {
     };
 
     match serde_json::from_str::<Settings>(&raw) {
-        Ok(settings) => Loaded {
-            settings,
-            fault: None,
-        },
+        Ok(mut settings) => {
+            // A settings file written before this field existed has none, and
+            // one written by hand may have had it removed.
+            if settings.install_id.trim().is_empty() {
+                settings.install_id = new_install_id();
+                if let Err(e) = persist(dir, &settings) {
+                    return Loaded {
+                        settings,
+                        fault: Some(format!("Could not save settings.json: {e}.")),
+                    };
+                }
+            }
+            Loaded {
+                settings,
+                fault: None,
+            }
+        }
         Err(parse_err) => {
             // A corrupt settings file is never quietly replaced: that would
             // discard the user's API keys without a word. Move it aside, run
@@ -290,7 +424,10 @@ pub fn load_or_create(dir: &Path) -> Loaded {
                 }
                 Err(e) => fault.push_str(&format!(" It could not be moved aside either: {e}.")),
             }
-            let settings = Settings::default();
+            let settings = Settings {
+                install_id: new_install_id(),
+                ..Settings::default()
+            };
             if let Err(e) = persist(dir, &settings) {
                 fault.push_str(&format!(" Writing a fresh one also failed: {e}."));
             }
@@ -331,8 +468,92 @@ fn mask_shows_head_and_tail_only() {
 }
 
 #[test]
+fn a_fresh_install_asks_you_to_sign_in_rather_than_demanding_a_key() {
+    // Install-and-go: the default is the hosted service, and with no session
+    // the message points at sign-in, not at an API key the user does not have.
+    let s = Settings::default();
+    assert_eq!(s.provider_mode, PROVIDER_HOSTED);
+    let err = s.chat_provider("some/model").unwrap_err();
+    assert!(err.contains("Sign in"), "got {err:?}");
+    // Every path is refused, not just chat — a half-signed-in app is worse
+    // than one that plainly says it is signed out.
+    assert!(s.stt_endpoint().unwrap_err().contains("Sign in"));
+    assert!(s.tts_endpoint().unwrap_err().contains("Sign in"));
+}
+
+#[test]
+fn a_signed_in_session_routes_everything_through_the_proxy() {
+    let s = Settings {
+        hosted_token: "session-token-abc".into(),
+        ..Settings::default()
+    };
+    // Chat keeps the caller's model: the proxy forwards the body untouched.
+    let p = s.chat_provider("google/gemini-2.5-flash").unwrap();
+    assert_eq!(p.base_url, HOSTED_BASE_URL);
+    assert_eq!(p.api_key, "session-token-abc");
+    assert_eq!(p.model, "google/gemini-2.5-flash");
+
+    // Voice both ways, with no Groq or OpenRouter key stored anywhere. This is
+    // what makes hosted mode usable rather than chat-only.
+    let stt = s.stt_endpoint().unwrap();
+    assert_eq!(stt.url, format!("{HOSTED_BASE_URL}/audio/transcriptions"));
+    assert_eq!(stt.api_key, "session-token-abc");
+    let tts = s.tts_endpoint().unwrap();
+    assert_eq!(tts.url, format!("{HOSTED_BASE_URL}/chat/completions"));
+    assert_eq!(tts.api_key, "session-token-abc");
+    assert!(s.groq_key.is_empty() && s.openrouter_key.is_empty());
+}
+
+#[test]
+fn the_session_token_never_leaves_for_the_webview() {
+    let s = Settings {
+        hosted_token: "session-token-abc".into(),
+        hosted_email: "someone@example.com".into(),
+        install_id: "install-uuid".into(),
+        ..Settings::default()
+    };
+    let m = s.masked();
+    // Blanked outright, not masked: the user never typed it, so there is
+    // nothing for them to visually verify and no reason to show any of it.
+    assert_eq!(m.hosted_token, "");
+    assert!(!m.hosted_token.contains("session"));
+    // Nothing in the webview needs the install id either.
+    assert_eq!(m.install_id, "");
+    // The address stays — that is what identifies the session on screen.
+    assert_eq!(m.hosted_email, "someone@example.com");
+}
+
+#[test]
+fn voice_falls_to_the_users_own_keys_in_bring_your_own_key_modes() {
+    for mode in [PROVIDER_CLOUD, PROVIDER_CUSTOM] {
+        let mut s = Settings {
+            provider_mode: mode.into(),
+            ..Settings::default()
+        };
+        // Each says which key is missing, and neither ever borrows the other's.
+        assert!(s.stt_endpoint().unwrap_err().contains("Groq"), "{mode}");
+        assert!(s.tts_endpoint().unwrap_err().contains("OpenRouter"), "{mode}");
+
+        s.groq_key = "gsk_0123456789abcdef".into();
+        s.openrouter_key = "sk-or-v1-0123456789abcdef".into();
+        // Neither OpenRouter nor a local Ollama serves Whisper, so speech-to-text
+        // goes to Groq directly even when chat does not.
+        assert_eq!(s.stt_endpoint().unwrap().url, GROQ_STT_URL, "{mode}");
+        assert_eq!(s.stt_endpoint().unwrap().api_key, "gsk_0123456789abcdef");
+        assert_eq!(s.tts_endpoint().unwrap().url, OPENROUTER_TTS_URL, "{mode}");
+        assert_eq!(
+            s.tts_endpoint().unwrap().api_key,
+            "sk-or-v1-0123456789abcdef"
+        );
+    }
+}
+
+#[test]
 fn cloud_mode_needs_a_key_and_keeps_the_callers_model() {
-    let mut s = Settings::default();
+    let mut s = Settings {
+        provider_mode: PROVIDER_CLOUD.into(),
+        ..Settings::default()
+    };
     assert!(s.chat_provider("some/model").is_err(), "no key means no provider");
     s.openrouter_key = "sk-or-v1-0123456789abcdef".into();
     let p = s.chat_provider("some/model").unwrap();
@@ -370,6 +591,9 @@ fn an_unknown_mode_is_an_error_not_a_silent_default() {
     };
     // Never quietly route to a paid cloud when the user asked for something else.
     assert!(s.chat_provider("m").unwrap_err().contains("Unknown AI provider mode"));
+    // The voice paths refuse the same way rather than picking a provider.
+    assert!(s.stt_endpoint().unwrap_err().contains("Unknown AI provider mode"));
+    assert!(s.tts_endpoint().unwrap_err().contains("Unknown AI provider mode"));
 }
 
 #[test]
