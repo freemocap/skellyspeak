@@ -53,7 +53,10 @@ jobs:
           - name: Windows x64
             os: windows-latest
             rust-target: x86_64-pc-windows-msvc
-            args: ''
+            # Azure Artifact Signing runs DURING the build, not after: signing
+            # a finished installer would invalidate the updater signature
+            # already computed over it.
+            args: '--config src-tauri/tauri.windows-signing.conf.json'
           - name: macOS (Apple Silicon)
             os: macos-latest
             rust-target: aarch64-apple-darwin
@@ -102,13 +105,38 @@ jobs:
 
       - run: npm ci
 
+      # Prebuilt binary rather than `cargo install`, which would add minutes to
+      # every Windows build. Tauri invokes it through bundle.windows.signCommand.
+      - name: Install Azure Artifact Signing CLI
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          curl -sSLo "$RUNNER_TEMP/artifact-signing-cli.exe"             https://github.com/levminer/trusted-signing-cli/releases/download/0.11.0/artifact-signing-cli.exe
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
       - uses: tauri-apps/tauri-action@v0
+        id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Signs the updater artifacts. Without these the build fails, because
           # tauri.conf.json declares a pubkey and createUpdaterArtifacts.
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # ── Windows: Azure Artifact Signing, read by artifact-signing-cli ──
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          # Named AZURE_SIGNING_SECRET in this repo; the CLI reads it under the
+          # standard Azure name.
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SIGNING_SECRET }}
+          # ── macOS: Developer ID signing, then notarization ──
+          # The identity and team id are not secret — both are readable from
+          # any signed binary — so they are literals rather than secrets.
+          APPLE_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: 'Developer ID Application: FreeMoCap Foundation, Inc. (U8LBJLBYPR)'
+          APPLE_TEAM_ID: U8LBJLBYPR
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         with:
           # Writes latest.json — the feed the running app polls. It is served
           # from the newest PUBLISHED release, so a draft reaches nobody until
@@ -127,15 +155,23 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
-      # `tauri build` prints "A public key has been found, but no private key"
-      # and then EXITS 0. Without this check a missing or wrong signing key
-      # produces a green release whose installs can never update.
-      - name: Verify updater artifacts were signed
+      # `tauri build` EXITS 0 even when it fails: a missing signing key prints
+      # "A public key has been found, but no private key", and a broken sign
+      # command prints "failed to bundle project" — both with status 0. Neither
+      # can be caught by the exit code, so assert on the output instead.
+      - name: Verify the build produced signed artifacts
         shell: bash
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
         run: |
+          echo "tauri-action reported artifacts: ${ARTIFACTS:-<none>}"
+          if [ -z "$ARTIFACTS" ] || [ "$ARTIFACTS" = "[]" ]; then
+            echo "::error::tauri produced no artifacts — bundling or code signing failed. It exits 0 regardless, so this step is what catches it."
+            exit 1
+          fi
           sigs=$(find src-tauri/target -name '*.sig' 2>/dev/null)
           if [ -z "$sigs" ]; then
-            echo "::error::No updater .sig artifacts were produced. Check TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD — tauri exits 0 even when updater signing fails, so this step is what catches it."
+            echo "::error::No updater .sig artifacts. Check TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD."
             exit 1
           fi
           echo "signed updater artifacts:"
@@ -207,8 +243,7 @@ jobs:
           mkdir -p dist-apk
           cp "$src" "dist-apk/SkellySpeak_${{ needs.version.outputs.version }}_universal.apk"
 
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.version.outputs.tag }}
-          draft: true
-          files: dist-apk/*.apk
+      - name: Attach the APK to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ needs.version.outputs.tag }}" dist-apk/*.apk --clobber
