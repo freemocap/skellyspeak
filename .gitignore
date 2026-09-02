@@ -22,6 +22,14 @@ src-tauri/gen/android/tauri.settings.gradle
 # Built APKs
 .build-artifacts/
 
+# Signing material. Never committed, anywhere in the tree — a keystore in the
+# repository is a keystore in every clone of it.
+*.jks
+*.keystore
+*.p12
+*.pfx
+keystore.properties
+
 # --- Docs site (Docusaurus) ---
 skellyspeak-docs/build/
 skellyspeak-docs/.docusaurus/

@@ -283,19 +283,62 @@ jobs:
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
-      - name: Build APK
-        run: npx tauri android build --apk --debug
+      # The keystore is what makes a sideloaded APK upgradable: Android refuses
+      # to install over an app signed with a different key, and the debug key
+      # Android generates is per-machine.
+      - name: Write the release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not set. Release APKs and AABs must be signed with the upload key, not a per-machine debug key."
+            exit 1
+          fi
+          gen=src-tauri/gen/android
+          echo "$KEYSTORE_BASE64" | base64 -d > "$gen/upload-keystore.jks"
+          cat > "$gen/keystore.properties" <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      # Release, not debug: the debug build is unoptimised and unstripped, and
+      # ships every ABI's symbols. APK for sideloading, AAB for Play.
+      - name: Build APK and AAB
+        run: npx tauri android build --apk --aab
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
-      - name: Name the APK after the release
+      - name: Verify the APK is signed with the upload key
         run: |
-          src=src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
-          [ -f "$src" ] || { echo "::error::APK not found at $src"; exit 1; }
-          mkdir -p dist-apk
-          cp "$src" "dist-apk/SkellySpeak_${{ needs.version.outputs.version }}_universal.apk"
+          out=src-tauri/gen/android/app/build/outputs
+          apk=$(find "$out/apk" -name '*.apk' | head -1)
+          [ -n "$apk" ] || { echo "::error::no APK was produced"; exit 1; }
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort | tail -1)
+          [ -n "$apksigner" ] || { echo "::error::apksigner not found"; exit 1; }
+          # An unsigned release APK installs nowhere and can never be upgraded
+          # over, so a missing signature must fail the build, not ship.
+          "$apksigner" verify --print-certs "$apk" || {
+            echo "::error::the release APK is not validly signed"; exit 1; }
 
-      - name: Attach the APK to the release
+      - name: Collect the release artifacts
+        run: |
+          out=src-tauri/gen/android/app/build/outputs
+          v=${{ needs.version.outputs.version }}
+          mkdir -p dist-android
+          apk=$(find "$out/apk" -name '*.apk' | head -1)
+          aab=$(find "$out/bundle" -name '*.aab' | head -1)
+          [ -n "$apk" ] || { echo "::error::no APK found under $out/apk"; exit 1; }
+          [ -n "$aab" ] || { echo "::error::no AAB found under $out/bundle"; exit 1; }
+          cp "$apk" "dist-android/SkellySpeak_${v}_universal.apk"
+          cp "$aab" "dist-android/SkellySpeak_${v}.aab"
+          ls -lh dist-android
+
+      - name: Attach the Android artifacts to the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ needs.version.outputs.tag }}" dist-apk/*.apk --clobber
+        run: gh release upload "${{ needs.version.outputs.tag }}" dist-android/* --clobber

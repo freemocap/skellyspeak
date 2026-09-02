@@ -73,6 +73,10 @@ npm run android       # emulator / connected-device dev loop
 npm run android:apk   # sideloadable debug APK
 ```
 
+Release Android builds are made by CI, signed with the upload keystore. A
+local `tauri android build` produces an unsigned release, which installs
+nowhere — use the debug loop above for development.
+
 ## Updates
 
 Desktop builds check for a newer version on launch and offer it in a bar at
