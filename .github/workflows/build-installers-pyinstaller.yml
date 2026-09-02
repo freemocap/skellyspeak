@@ -1,0 +1,828 @@
+name: Build installers (Pyinstaller + Electron)
+
+on:
+  push:
+    branches:
+      - development
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Build variant'
+        type: choice
+        options: [cpu, cuda, both]
+        default: both
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # ═══════════════════════════════════════════════════════
+  # BUILD — runs on all platform/arch/variant combos
+  # ═══════════════════════════════════════════════════════
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ── Windows ──
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            variant: cpu
+            label: windows-x64-cpu
+            server-binary: freemocap_server.exe
+            electron-arch: x64
+            install-gpu: false
+
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            variant: cuda
+            label: windows-x64-cuda
+            server-binary: freemocap_server.exe
+            electron-arch: x64
+            install-gpu: true
+
+          # ── macOS Apple Silicon (CPU only — macOS has no NVIDIA CUDA; the CPU
+          #    onnxruntime backend is the only variant, so there is no separate GPU build) ──
+          - os: macos-latest
+            platform: macos
+            arch: arm64
+            variant: cpu
+            label: macos-arm64-apple-silicon
+            server-binary: freemocap_server
+            electron-arch: arm64
+            install-gpu: false
+
+          # ── Linux x64 CPU (fits on GitHub Releases) ──
+          - os: ubuntu-22.04
+            platform: linux
+            arch: x64
+            variant: cpu
+            label: linux-x64-cpu
+            server-binary: freemocap_server
+            electron-arch: x64
+            install-gpu: false
+
+          # ── Linux x64 CUDA (goes to R2 — too large for GitHub) ──
+          - os: ubuntu-22.04
+            platform: linux
+            arch: x64
+            variant: cuda
+            label: linux-x64-cuda
+            server-binary: freemocap_server
+            electron-arch: x64
+            install-gpu: true
+
+          # NOTE: Linux ARM64 is intentionally NOT built. mediapipe==0.10.33 (a hard
+          # dependency of skellytracker) publishes no aarch64-linux wheel, so the
+          # resolve is unsatisfiable there. Adding an aarch64 environment to
+          # pyproject's [tool.uv].environments breaks `uv sync` on ALL platforms
+          # (the universal lock must satisfy every declared environment). Don't
+          # re-add this target until mediapipe ships aarch64-linux wheels.
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Windows code-signing prereqs ──
+      - name: Validate code signing prerequisites
+        if: matrix.platform == 'windows'
+        run: |
+          $missingSecrets = @()
+
+          if (-not "${{ secrets.AZURE_TENANT_ID }}") { $missingSecrets += "AZURE_TENANT_ID" }
+          if (-not "${{ secrets.AZURE_CLIENT_ID }}") { $missingSecrets += "AZURE_CLIENT_ID" }
+          if (-not "${{ secrets.AZURE_CLIENT_SECRET }}") { $missingSecrets += "AZURE_CLIENT_SECRET" }
+          if (-not "${{ secrets.TRUSTED_SIGNING_ACCOUNT_NAME }}") { $missingSecrets += "TRUSTED_SIGNING_ACCOUNT_NAME" }
+          if (-not "${{ secrets.CERTIFICATE_PROFILE_NAME }}") { $missingSecrets += "CERTIFICATE_PROFILE_NAME" }
+
+          if ($missingSecrets.Count -gt 0) {
+            Write-Error "Missing required secrets for code signing: $($missingSecrets -join ', ')"
+            exit 1
+          }
+
+          Write-Output "All required code signing secrets are available"
+        shell: pwsh
+
+      # ── macOS code-signing prereqs ──
+      - name: Validate macOS code signing prerequisites
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          MISSING=()
+          [ -z "${{ secrets.MAC_CERTIFICATE_P12 }}" ] && MISSING+=("MAC_CERTIFICATE_P12")
+          [ -z "${{ secrets.MAC_CERTIFICATE_PASSWORD }}" ] && MISSING+=("MAC_CERTIFICATE_PASSWORD")
+          [ -z "${{ secrets.APPLE_ID }}" ] && MISSING+=("APPLE_ID")
+          [ -z "${{ secrets.APPLE_ID_PASSWORD }}" ] && MISSING+=("APPLE_ID_PASSWORD")
+          [ -z "${{ secrets.APPLE_TEAM_ID }}" ] && MISSING+=("APPLE_TEAM_ID")
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Missing required secrets for macOS code signing: ${MISSING[*]}"
+            exit 1
+          fi
+          echo "All required macOS code signing secrets are available"
+
+      # ── macOS certificate installation ──
+      - name: Install macOS signing certificate
+        if: matrix.platform == 'macos'
+        shell: bash
+        env:
+          MAC_CERTIFICATE_P12: ${{ secrets.MAC_CERTIFICATE_P12 }}
+          MAC_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+
+          # Create and configure a temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import the .p12 certificate
+          CERT_PATH="$RUNNER_TEMP/certificate.p12"
+          echo "$MAC_CERTIFICATE_P12" | base64 --decode > "$CERT_PATH"
+          security import "$CERT_PATH" \
+            -k "$KEYCHAIN_PATH" \
+            -P "$MAC_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          rm -f "$CERT_PATH"
+
+          # Allow codesign to access the keychain without UI prompt
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Add the temporary keychain to the search list (prepend it)
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+
+          # Verify the identity is available
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+          echo "macOS signing certificate installed successfully"
+
+      # ── Linux system dependencies ──
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-glx \
+            libglib2.0-0 \
+            libsm6 \
+            libxext6 \
+            libxrender1 \
+            libv4l-dev \
+            libfuse2 \
+            upx-ucl \
+            binutils
+
+      # ── macOS UPX for binary compression ──
+      - name: Install UPX (macOS)
+        if: matrix.platform == 'macos'
+        run: brew install upx
+
+      # ── Common setup ──
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv and enable cache
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
+        with:
+          enable-cache: false
+
+      - name: Create venv
+        run: uv venv
+
+      # ── Conditional dependency install ──
+      # CPU variant  (macOS + Windows/Linux CPU): uv sync --group cpu →
+      #               skellytracker[all-cpu] (onnxruntime CPU, zero NVIDIA packages).
+      # CUDA variant (Windows/Linux GPU only):     uv sync --group cuda →
+      #               skellytracker[all-cuda] (onnxruntime-gpu + NVIDIA CUDA stack).
+      - name: Install dependencies (CPU variant)
+        if: "!matrix.install-gpu"
+        shell: bash
+        run: |
+          echo "=== CPU BUILD — skellytracker[all-cpu] (onnxruntime CPU, zero NVIDIA packages) ==="
+          # Runs for the macOS, Windows-CPU and Linux-CPU jobs. Plain `uv sync` would use
+          # the tracker-default group, which pulls skellytracker[all-cuda] (onnxruntime-gpu
+          # + the ~1.5 GB NVIDIA CUDA stack) on Windows/Linux. Force the CPU group so these
+          # installers stay small, and macOS gets the CPU onnxruntime it needs.
+          uv sync --no-default-groups --group cpu
+
+      - name: Install dependencies (CUDA variant)
+        if: matrix.install-gpu
+        run: |
+          echo "=== CUDA BUILD — skellytracker[all-cuda] (onnxruntime-gpu + NVIDIA CUDA stack) ==="
+          # Runs only for the Windows-CUDA and Linux-CUDA jobs (install-gpu: true).
+          # Force the CUDA group explicitly — symmetric with the CPU step above.
+          uv sync --no-default-groups --group cuda
+
+      - name: Verify installation 1/3
+        run: uv pip show freemocap
+      - name: Verify installation 2/3
+        run: uv pip show pyinstaller
+      - name: Verify installation 3/3
+        run: uv pip show opencv-contrib-python
+
+      # ── Write build metadata and secrets into the Python package ──
+      - name: Write build info
+        shell: bash
+        run: |
+          SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-8)
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          cat > freemocap/build_info.py << EOF
+          """Build metadata and secrets populated by CI."""
+          BUILD_GIT_SHA: str = "${{ github.sha }}"
+          BUILD_GIT_SHA_SHORT: str = "${SHA_SHORT}"
+          BUILD_NUMBER: str = "${{ github.run_number }}"
+          BUILD_TIMESTAMP: str = "${TIMESTAMP}"
+          BUILD_TAG: str = "${{ github.ref_name }}"
+          SKELLYPINGS_SERVER_URL: str = "https://skellypings-401698866387.northamerica-northeast1.run.app"
+          SKELLYPINGS_SECRET: str = "${{ secrets.SKELLYPINGS_SECRET }}"
+          EOF
+
+          echo "--- build_info.py (secret redacted) ---"
+          sed 's/SKELLYPINGS_SECRET:.*/SKELLYPINGS_SECRET: str = "***"/' freemocap/build_info.py
+
+      # ── PyInstaller build ──
+      # FREEMOCAP_BUILD_VARIANT tells freemocap.spec whether to bundle the NVIDIA CUDA
+      # runtime. Only x64 Windows/Linux GPU builds install those packages; macOS (even
+      # the "gpu" matrix row uses CPU onnxruntime) and every CPU build must be 'cpu' so
+      # the spec skips NVIDIA collection instead of swallowing a "package not found".
+      - name: Build with PyInstaller
+        env:
+          FREEMOCAP_BUILD_VARIANT: ${{ (matrix.install-gpu && matrix.platform != 'macos') && 'cuda' || 'cpu' }}
+        run: |
+          uv pip install pyinstaller
+          uv run pyinstaller ./freemocap.spec --clean
+
+      # ── Move server BUNDLE into freemocap-ui/ ──
+      # PyInstaller runs in onedir mode (freemocap.spec ends in COLLECT), so the
+      # output is a *folder* `dist/freemocap_server/` holding the launcher next to
+      # an `_internal/` tree of DLLs/data — NOT a single file. Move the whole folder;
+      # electron bundles it via the "freemocap_server/**" glob in electron-builder.json
+      # and launches `freemocap_server/<exe>` (see electron/main/app-paths.ts).
+      - name: Move server bundle into freemocap-ui (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          Move-Item -Path ".\dist\freemocap_server" -Destination ".\freemocap-ui\freemocap_server"
+
+      - name: Move server bundle into freemocap-ui (macOS/Linux)
+        if: matrix.platform != 'windows'
+        run: |
+          mv "./dist/freemocap_server" "./freemocap-ui/freemocap_server"
+          chmod +x "./freemocap-ui/freemocap_server/${{ matrix.server-binary }}"
+
+      # ── Windows code signing (server binary) ──
+      - name: Sign freemocap_server.exe with Trusted Signing
+        if: matrix.platform == 'windows'
+        uses: azure/trusted-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: freemocap
+          certificate-profile-name: freemocap
+          files: ${{ github.workspace }}\freemocap-ui\freemocap_server\freemocap_server.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+
+      # ── macOS code signing (server bundle) ──
+      # An onedir bundle contains many Mach-O files (dylibs/.so under _internal/).
+      # They must be signed inside-out — nested libraries first, then the launcher —
+      # or notarization (and Gatekeeper on the standalone artifact) rejects it.
+      - name: Sign freemocap_server with codesign
+        if: matrix.platform == 'macos'
+        run: |
+          SERVER_DIR="./freemocap-ui/freemocap_server"
+          echo "Signing nested Mach-O libraries (inside-out)..."
+          find "$SERVER_DIR" -type f \( -name '*.dylib' -o -name '*.so' \) -print0 \
+            | while IFS= read -r -d '' lib; do
+                codesign --force --options runtime --timestamp \
+                  --sign "Developer ID Application" "$lib"
+              done
+          echo "Signing launcher executable..."
+          codesign --force --options runtime --timestamp \
+            --sign "Developer ID Application" "$SERVER_DIR/${{ matrix.server-binary }}"
+          codesign --verify --verbose "$SERVER_DIR/${{ matrix.server-binary }}"
+          echo "Server bundle signed and verified successfully"
+
+      # ── Upload server-only artifact (the whole onedir bundle) ──
+      - name: Upload server bundle artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-${{ matrix.label }}
+          path: |
+            freemocap-ui/freemocap_server/**
+          include-hidden-files: true
+
+      # ── Electron build ──
+
+      # ── Validate server binary exists and is executable ──
+      - name: Validate server binary present and executable
+        shell: bash
+        run: |
+          # onedir layout: freemocap-ui/freemocap_server/<launcher>[.exe] + _internal/
+          SERVER_EXE="./freemocap-ui/freemocap_server/${{ matrix.server-binary }}"
+          echo "Checking for server binary at $SERVER_EXE"
+          if [ ! -f "$SERVER_EXE" ]; then
+            echo "::error::Server binary not found: $SERVER_EXE"
+            ls -la ./freemocap-ui/freemocap_server || true
+            exit 1
+          fi
+          echo "Found server binary:"
+          ls -la "$SERVER_EXE"
+          # On Unix-like, ensure executable bit is set
+          if [ "${{ matrix.platform }}" != "windows" ]; then
+            if [ ! -x "$SERVER_EXE" ]; then
+              echo "Server binary is not executable, setting +x"
+              chmod +x "$SERVER_EXE" || true
+            fi
+          fi
+
+
+      - name: Install UI dependencies
+        run: |
+          cd freemocap-ui
+          npm install
+
+      - name: Build UI (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          cd freemocap-ui
+          npm run build -- --publish never
+
+      - name: Build UI (macOS)
+        if: matrix.platform == 'macos'
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "true"
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cd freemocap-ui
+          for attempt in 1 2 3; do
+            echo "=== Build + notarize attempt $attempt of 3 ==="
+            npm run build -- --${{ matrix.electron-arch }} --publish never && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "All 3 attempts failed"
+              exit 1
+            fi
+            echo "Build/notarize failed on attempt $attempt. Retrying in 30s..."
+            sleep 30
+          done
+
+      - name: Build UI (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cd freemocap-ui
+          npm run build -- --${{ matrix.electron-arch }} --publish never
+
+      # ── Architecture validation (Linux) ──
+      # Prevents ARM binaries from being mislabeled as x64 (or vice versa).
+      # Uses readelf to inspect the ELF header Machine field.
+      - name: Validate binary architecture (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          echo "=== Validating binary architecture ==="
+          for appimage in freemocap-ui/release/*/*.AppImage; do
+            [ -f "$appimage" ] || continue
+            BIN_ARCH=$(readelf -h "$appimage" | awk '/Machine:/{print $NF}')
+            case "${{ matrix.arch }}" in
+              x64)   EXPECTED="X86-64" ;;
+              arm64) EXPECTED="AArch64" ;;
+            esac
+            if [ "$BIN_ARCH" != "$EXPECTED" ]; then
+              echo "::error::ARCHITECTURE MISMATCH DETECTED!"
+              echo "::error::  File:     $appimage"
+              echo "::error::  Actual:   $BIN_ARCH"
+              echo "::error::  Expected: $EXPECTED"
+              echo "::error::"
+              echo "::error::  This build produced a binary for the WRONG architecture."
+              echo "::error::  Possible causes:"
+              echo "::error::    - Electron-builder ignored the --${{ matrix.electron-arch }} CLI flag"
+              echo "::error::    - electron-builder.json 'arch' array still contains both architectures"
+              echo "::error::    - Cross-compilation misconfiguration"
+              echo "::error::"
+              echo "::error::  Refusing to publish. Fix the build config and re-run."
+              exit 1
+            fi
+            echo "✓ Architecture OK: $(basename "$appimage") = $BIN_ARCH"
+          done
+          # Also validate .deb if present
+          for deb in freemocap-ui/release/*/*.deb; do
+            [ -f "$deb" ] || continue
+            # .deb contains a data.tar.* with the binary; check the ar archive header
+            DEB_ARCH=$(dpkg-deb --info "$deb" 2>/dev/null | awk '/Architecture:/{print $NF}')
+            if [ -n "$DEB_ARCH" ]; then
+              case "${{ matrix.arch }}" in
+                x64)   EXPECTED_DEB="amd64" ;;
+                arm64) EXPECTED_DEB="arm64" ;;
+              esac
+              if [ "$DEB_ARCH" != "$EXPECTED_DEB" ]; then
+                echo "::error::DEB ARCHITECTURE MISMATCH! $deb = $DEB_ARCH, expected $EXPECTED_DEB"
+                exit 1
+              fi
+              echo "✓ DEB architecture OK: $(basename "$deb") = $DEB_ARCH"
+            fi
+          done
+
+      # ── R2 upload for CUDA (oversized) builds ──
+      # CUDA builds bundle NVIDIA runtime libraries (~1.5 GB) and exceed
+      # GitHub's 2 GB file size limit. They go to Cloudflare R2 instead.
+      - name: Upload CUDA builds to Cloudflare R2
+        if: matrix.variant == 'cuda'
+        shell: bash
+        env:
+          # R2 credentials live in ORGANIZATION secrets named CLOUDFLARE_R2_*. The aws CLI
+          # authenticates from the AWS_* names (not R2_*), so map them here. The bucket name
+          # is public (it's in the r2.dev download URL), so it's a literal, not a secret.
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: ${{ secrets.CLOUDFLARE_R2_S3_ENDPOINT }}
+          R2_BUCKET: freemocap-releases
+        run: |
+          # Fail loudly (per the repo's no-fallbacks rule): a green build that silently
+          # skipped this upload is exactly how GPU builds went missing after alpha.11.
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$R2_ENDPOINT" ]; then
+            echo "::error::R2 credentials missing — cannot upload the Linux CUDA build."
+            echo "::error::Expected org secrets: CLOUDFLARE_R2_ACCESS_KEY_ID / CLOUDFLARE_R2_SECRET_ACCESS_KEY / CLOUDFLARE_R2_S3_ENDPOINT"
+            exit 1
+          fi
+
+          echo "=== Uploading CUDA builds to Cloudflare R2 ==="
+          pip install awscli
+
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "$GITHUB_REF" ]; then
+            # Not a tag push — use run number as version placeholder
+            VERSION="dev-${{ github.run_number }}"
+          fi
+
+          # Only the Linux CUDA app installer is oversized → R2. (Windows CUDA .exe is
+          # ~1.x GB and small enough for GitHub, so it's intentionally NOT matched here —
+          # this glob only picks up Linux .AppImage/.deb. macOS is CPU-only, so this step
+          # never runs there.)
+          for file in freemocap-ui/release/*/*.AppImage freemocap-ui/release/*/*.deb; do
+            [ -f "$file" ] || continue
+            ext="${file##*.}"
+            aws s3 cp "$file" \
+              "s3://${R2_BUCKET}/releases/v${VERSION}/freemocap_${VERSION}_${{ matrix.label }}.${ext}" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --no-progress
+            echo "R2: freemocap_${VERSION}_${{ matrix.label }}.${ext}"
+          done
+
+          # Upload auto-update metadata for the CUDA variant
+          for yml in freemocap-ui/release/*/latest-linux.yml; do
+            [ -f "$yml" ] || continue
+            aws s3 cp "$yml" \
+              "s3://${R2_BUCKET}/releases/v${VERSION}/latest-linux-${{ matrix.variant }}.yml" \
+              --endpoint-url "${R2_ENDPOINT}" \
+              --no-progress
+            echo "R2: latest-linux-${{ matrix.variant }}.yml"
+          done
+
+          echo "=== R2 upload complete ==="
+
+      # ── Windows installer signing ──
+      - name: Sign Electron installer with Trusted Signing
+        if: matrix.platform == 'windows'
+        uses: azure/trusted-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: freemocap
+          certificate-profile-name: freemocap
+          files-folder: ${{ github.workspace }}\freemocap-ui\release
+          files-folder-filter: "*.exe"
+          files-folder-recurse: true
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      # ── Upload final installer artifacts (uses label for human-readable names) ──
+      - name: Upload installer artifacts (Windows)
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/*/*.exe
+          include-hidden-files: true
+
+      - name: Upload installer artifacts (macOS)
+        if: matrix.platform == 'macos'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/*/*.dmg
+            freemocap-ui/release/*/*.zip
+          include-hidden-files: true
+
+      - name: Upload installer artifacts (Linux)
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/*/*.AppImage
+            freemocap-ui/release/*/*.deb
+          include-hidden-files: true
+
+      # ── Upload auto-update metadata (latest*.yml) ──
+      - name: Upload auto-update metadata (Windows)
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: update-metadata-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/**/latest.yml
+          include-hidden-files: true
+
+      - name: Upload auto-update metadata (macOS ARM)
+        if: matrix.platform == 'macos' && matrix.arch == 'arm64'
+        uses: actions/upload-artifact@v7
+        with:
+          name: update-metadata-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/**/latest-mac.yml
+          include-hidden-files: true
+
+      - name: Upload auto-update metadata (Linux)
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: update-metadata-${{ matrix.label }}
+          path: |
+            freemocap-ui/release/**/latest-linux.yml
+          include-hidden-files: true
+
+
+      # ── macOS keychain cleanup ──
+      - name: Clean up macOS keychain
+        if: matrix.platform == 'macos' && always()
+        shell: bash
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          if [ -f "$KEYCHAIN_PATH" ]; then
+            security delete-keychain "$KEYCHAIN_PATH"
+          fi
+
+  # ═══════════════════════════════════════════════════════
+  # RELEASE — only runs on tag pushes (e.g. v2.0.0)
+  #
+  # Downloads all build artifacts and renames them with
+  # human-readable platform/arch/variant labels for the
+  # GitHub Release page.
+  #
+  # CPU variants → GitHub Releases (fit under 2 GB limit)
+  # CUDA variants → Cloudflare R2 (uploaded during build)
+  # ═══════════════════════════════════════════════════════
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f | sort
+
+      - name: Prepare release assets
+        env:
+          # R2 credentials live in ORGANIZATION secrets named CLOUDFLARE_R2_*. The aws CLI
+          # authenticates from the AWS_* names (not R2_*), so map them here. The bucket name
+          # is public (it's in the r2.dev download URL), so it's a literal, not a secret.
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: ${{ secrets.CLOUDFLARE_R2_S3_ENDPOINT }}
+          R2_BUCKET: freemocap-releases
+        run: |
+          mkdir -p release-assets
+
+          # Extract version from tag (e.g. refs/tags/v2.0.0 → 2.0.0)
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "VERSION=$VERSION"
+
+          # ── ROUTING RULE (single source of truth; mirrored by isR2Hosted() in
+          #    freemocap-docs/src/components/download/downloads.ts) ──
+          # CUDA builds bundle the ~1.5-2 GB NVIDIA CUDA stack and exceed GitHub's 2 GB
+          # per-asset limit, so EVERY CUDA asset (app installer AND server zip) is hosted
+          # on Cloudflare R2. CPU/macOS builds go to the GitHub Release.
+          # CUDA *app installers* were already pushed to R2 by the build job; CUDA *server
+          # zips* are built and pushed here (on this Linux runner, where `zip` is reliable
+          # for >2 GB archives). The size guard below enforces that nothing left in
+          # release-assets/ (i.e. GitHub-bound) exceeds the limit.
+          # Fail loudly (per the repo's no-fallbacks rule): the Linux CUDA server bundle
+          # only exists on R2, so missing credentials must break the release, not skip it.
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$R2_ENDPOINT" ]; then
+            echo "::error::R2 credentials missing — cannot upload the Linux CUDA server bundle."
+            echo "::error::Expected org secrets: CLOUDFLARE_R2_ACCESS_KEY_ID / CLOUDFLARE_R2_SECRET_ACCESS_KEY / CLOUDFLARE_R2_S3_ENDPOINT"
+            exit 1
+          fi
+          pip install --quiet awscli
+          R2_READY=1
+
+          # ── Server bundles (onedir launcher + _internal/ → single .zip) ──
+          for dir in artifacts/server-*; do
+            [ -d "$dir" ] || continue
+            label=$(basename "$dir" | sed 's/^server-//')
+            if [ -z "$(ls -A "$dir" 2>/dev/null)" ]; then
+              echo "::warning::Empty server artifact in $dir — skipping"
+              continue
+            fi
+            asset="freemocap_server_${VERSION}_${label}.zip"
+            ( cd "$dir" && zip -qr "$OLDPWD/${asset}" . )
+            case "$label" in
+              linux-*-cuda)   # only the >2 GB build goes to R2; everything else → GitHub
+                if [ "$R2_READY" = 1 ]; then
+                  aws s3 cp "${asset}" "s3://${R2_BUCKET}/releases/v${VERSION}/${asset}" \
+                    --endpoint-url "${R2_ENDPOINT}" --no-progress
+                  echo "R2: ${asset}"
+                else
+                  echo "::warning::Skipping Linux CUDA server bundle ${asset} (no R2 credentials)"
+                fi
+                rm -f "${asset}"
+                ;;
+              *)
+                mv "${asset}" "release-assets/${asset}"
+                echo "GitHub: ${asset}"
+                ;;
+            esac
+          done
+
+          # ── App installers — only Linux CUDA goes to R2 (uploaded by the build job);
+          #    everything else, INCLUDING the smaller Windows CUDA .exe, → GitHub. ──
+          for dir in artifacts/installer-*; do
+            label=$(basename "$dir" | sed 's/^installer-//')
+
+            # Linux CUDA installer lives on R2 (uploaded during the build job) — skip here.
+            case "$label" in
+              linux-*-cuda) continue ;;
+            esac
+
+            find "$dir" -type f \( \
+              -name '*.exe' -o \
+              -name '*.dmg' -o \
+              -name '*.zip' -o \
+              -name '*.AppImage' -o \
+              -name '*.deb' \
+            \) | while read -r file; do
+              ext="${file##*.}"
+              cp "$file" "release-assets/freemocap_${VERSION}_${label}.${ext}"
+            done
+          done
+
+          # ── Collect R2 download links for the release notes ──
+          # ONLY the Linux CUDA build lives on R2 (it exceeds GitHub's 2 GB limit); it must
+          # be linked in the notes or it's invisible on the Releases page. Keys mirror the
+          # R2 uploads (installer from the build job, server zip from this job) under
+          # releases/v<ver>/. Must stay in sync with isR2Hosted() in the docs' downloads.ts.
+          R2_PUBLIC_BASE="https://pub-0a275a10417e425c94e48de393793129.r2.dev/releases/v${VERSION}"
+          : > r2-links.md
+          for dir in artifacts/installer-linux-*-cuda; do
+            [ -d "$dir" ] || continue
+            label=$(basename "$dir" | sed 's/^installer-//')
+            find "$dir" -type f \( -name '*.AppImage' -o -name '*.deb' \) | while read -r f; do
+              name="freemocap_${VERSION}_${label}.${f##*.}"
+              echo "- [\`${name}\`](${R2_PUBLIC_BASE}/${name})" >> r2-links.md
+            done
+          done
+          for dir in artifacts/server-linux-*-cuda; do
+            [ -d "$dir" ] || continue
+            label=$(basename "$dir" | sed 's/^server-//')
+            name="freemocap_server_${VERSION}_${label}.zip"
+            echo "- [\`${name}\`](${R2_PUBLIC_BASE}/${name})" >> r2-links.md
+          done
+          echo "=== R2 (Linux CUDA) links ==="; cat r2-links.md || true
+
+          echo "=== GitHub-bound release assets ==="
+          ls -lh release-assets/
+
+      - name: Prepare auto-update metadata
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+
+          # Copy latest.yml files from update-metadata artifacts and patch
+          # the file references to match the renamed release asset names.
+
+          # Windows: latest.yml
+          if [ -d "artifacts/update-metadata-windows-x64-cpu" ]; then
+            YML=$(find artifacts/update-metadata-windows-x64-cpu -name 'latest.yml' | head -1)
+            if [ -n "$YML" ]; then
+              # Replace the original artifact filename with the renamed one
+              sed -i "s|freemocap_.*_installer\.exe|freemocap_${VERSION}_windows-x64-cpu.exe|g" "$YML"
+              cp "$YML" "release-assets/latest.yml"
+              echo "Copied latest.yml for Windows (CPU)"
+            fi
+          fi
+
+          # macOS: latest-mac.yml (combine x64 and arm64 entries)
+          # electron-updater picks the right arch from a single latest-mac.yml
+          MAC_YML=""
+          for dir in artifacts/update-metadata-macos-*; do
+            found=$(find "$dir" -name 'latest-mac.yml' 2>/dev/null | head -1)
+            if [ -n "$found" ] && [ -z "$MAC_YML" ]; then
+              MAC_YML="$found"
+            fi
+          done
+          if [ -n "$MAC_YML" ]; then
+            # Patch filenames to match renamed assets (Apple Silicon only)
+            sed -i "s|freemocap_.*_installer\.zip|freemocap_${VERSION}_macos-arm64-apple-silicon.zip|g" "$MAC_YML"
+            cp "$MAC_YML" "release-assets/latest-mac.yml"
+            echo "Copied latest-mac.yml for macOS"
+          fi
+
+          # Linux CPU: latest-linux.yml
+          if [ -d "artifacts/update-metadata-linux-x64-cpu" ]; then
+            YML=$(find artifacts/update-metadata-linux-x64-cpu -name 'latest-linux.yml' | head -1)
+            if [ -n "$YML" ]; then
+              sed -i "s|freemocap_.*\.AppImage|freemocap_${VERSION}_linux-x64-cpu.AppImage|g" "$YML"
+              cp "$YML" "release-assets/latest-linux.yml"
+              echo "Copied latest-linux.yml for Linux (CPU)"
+            fi
+          fi
+
+          echo "=== Final release assets ==="
+          ls -lh release-assets/
+
+      # ── Size guard — the "double check" on our R2/GitHub routing ──
+      # GitHub caps release assets at 2 GiB. Everything oversized is supposed to be
+      # routed to R2 (all CUDA builds). This verifies that by measuring every file left
+      # in release-assets/ (i.e. everything about to be uploaded to GitHub) and failing
+      # loudly if any is over the limit — instead of a cryptic mid-upload failure. If this
+      # trips, route that build to R2: add it to the CUDA path here AND to isR2Hosted()
+      # in freemocap-docs/src/components/download/downloads.ts so the download link matches.
+      - name: Guard against oversized GitHub assets
+        run: |
+          MAX=$((2 * 1000 * 1000 * 1000))   # 2 GB — conservative margin under GitHub's 2 GiB cap
+          over=0
+          echo "=== GitHub-bound asset sizes ==="
+          for f in release-assets/*; do
+            [ -f "$f" ] || continue
+            size=$(stat -c%s "$f")
+            echo "  $((size / 1000000)) MB  $(basename "$f")"
+            if [ "$size" -gt "$MAX" ]; then
+              echo "::error::$(basename "$f") is $((size / 1000000)) MB — over GitHub's 2 GB asset limit."
+              echo "::error::Route this build to R2 (CUDA path in 'Prepare release assets' + isR2Hosted() in downloads.ts)."
+              over=1
+            fi
+          done
+          [ "$over" = 0 ] || { echo "::error::Refusing to publish oversized asset(s)."; exit 1; }
+          echo "OK — all GitHub-bound assets are under 2 GB."
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" &>/dev/null; then
+            echo "Release $TAG already exists — uploading new assets only"
+            gh release upload "$TAG" release-assets/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            echo "Creating new draft release for $TAG"
+            gh release create "$TAG" release-assets/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --draft \
+              --generate-notes \
+              --title "$TAG"
+          fi
+
+          # ── Append the download guide + R2 (GPU/CUDA) links to the notes ──
+          # GPU builds are on Cloudflare R2 (too big for GitHub) so they must be linked
+          # here; everyone also gets a pointer to the "which build?" picker.
+          EXTRA=$'\n\n''---'$'\n''**Not sure which build to download?** See the download guide: https://docs.freemocap.org/freemocap/download'
+          if [ -s r2-links.md ]; then
+            EXTRA="${EXTRA}"$'\n\n''## GPU (CUDA) builds — hosted on Cloudflare R2'$'\n''(Too large for GitHub'"'"'s 2 GB asset limit.)'$'\n\n'"$(cat r2-links.md)"
+          fi
+          BODY="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body 2>/dev/null || echo '')"
+          case "$BODY" in
+            *"docs.freemocap.org/freemocap/download"*) echo "Notes already contain the download guide/links" ;;
+            *) gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes "${BODY}${EXTRA}" ;;
+          esac

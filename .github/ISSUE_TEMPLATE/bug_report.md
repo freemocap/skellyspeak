@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: "[BUG]"
+labels: bug
 assignees: ''
 
 ---
@@ -18,21 +18,18 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
+A clear and concise description of what you expected to happen vs what actually happened.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Log**
+Please include the log information for the session where you encountered this error. Logs can be found in `[path_to_your_user_directory]/freemocap_data/logs_info_and_settings/logs` or copy and pasted from the terminal. Include as much context as possible so we can see upstream errors.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Environment Information:**
+ - OS: [e.g. Windows 11]
+ - Python Version: [e.g. 3.11]
+ - Freemocap Version: [e.g. 1.2.2, displayed on home screen of the GUI]
+ - Are you running `freemocap` in a virtual environment?: [yes/no -> IF `NO` - [Please do that and try again](https://freemocap.github.io/documentation/installation.html#detailed-installation-instructions)]
+ - Blender Version (If applicable): [e.g. 3.6]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
 
 **Additional context**
 Add any other context about the problem here.

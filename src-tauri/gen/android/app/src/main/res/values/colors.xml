@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SkellySpeak launcher background (mirrors --bg in src/styles.css) -->
+    <color name="ic_launcher_background">#0C1420</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
