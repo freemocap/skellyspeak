@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- SkellySpeak launcher background (mirrors --bg in src/styles.css) -->
+    <!-- SkellySpeak launcher background. Mirrors the "bg" custom property in
+         src/styles.css. Note: a double hyphen is illegal inside an XML
+         comment, so CSS variables are named here without their prefix. -->
     <color name="ic_launcher_background">#0C1420</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
