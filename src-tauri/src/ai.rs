@@ -53,6 +53,7 @@ pub static VALIDATION_RETRY: AtomicU64 = AtomicU64::new(0);
 pub static HTTP_429_RETRY: AtomicU64 = AtomicU64::new(0);
 pub static RETRIES_EXHAUSTED: AtomicU64 = AtomicU64::new(0);
 
+#[derive(Debug, Clone)]
 pub struct Provider {
     pub base_url: String,
     pub api_key: String,

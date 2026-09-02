@@ -1,5 +1,17 @@
+use crate::ai::Provider;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+
+/// Where chat and analysis requests go.
+///
+/// "cloud"  — OpenRouter, with the user's own API key.
+/// "custom" — any OpenAI-compatible server the user runs (Ollama, LM Studio,
+///            vLLM, ...). The address is theirs; the key is optional, because
+///            most local servers do not use one.
+pub const PROVIDER_CLOUD: &str = "cloud";
+pub const PROVIDER_CUSTOM: &str = "custom";
+
+const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
 
 /// Configurable keyboard shortcuts. Stored as normalized combo strings
 /// ("ctrl+m") — see lib/keyboard.ts for the normalization dialect.
@@ -41,8 +53,22 @@ impl Default for Shortcuts {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
+    /// One of PROVIDER_CLOUD or PROVIDER_CUSTOM.
+    #[serde(default = "default_provider_mode")]
+    pub provider_mode: String,
     #[serde(default)]
     pub openrouter_key: String,
+    /// Base URL of a user-run OpenAI-compatible server, including the version
+    /// path — e.g. "http://localhost:11434/v1" for Ollama.
+    #[serde(default)]
+    pub custom_base_url: String,
+    /// Optional: most local servers accept any key, or none.
+    #[serde(default)]
+    pub custom_api_key: String,
+    /// The model name as that server knows it. OpenRouter model ids mean
+    /// nothing to a local server, so this replaces them outright.
+    #[serde(default)]
+    pub custom_model: String,
     #[serde(default)]
     pub groq_key: String,
     #[serde(default = "default_model")]
@@ -89,6 +115,10 @@ pub struct Settings {
     pub prompt_overrides: std::collections::BTreeMap<String, String>,
 }
 
+fn default_provider_mode() -> String {
+    PROVIDER_CLOUD.into()
+}
+
 fn default_tts_engine() -> String {
     "cloud".into()
 }
@@ -122,7 +152,11 @@ fn default_native() -> String {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            provider_mode: default_provider_mode(),
             openrouter_key: String::new(),
+            custom_base_url: String::new(),
+            custom_api_key: String::new(),
+            custom_model: String::new(),
             groq_key: String::new(),
             openrouter_model: default_model(),
             target_language: default_target(),
@@ -157,11 +191,58 @@ pub fn mask(key: &str) -> String {
 }
 
 impl Settings {
+    /// Endpoint and credentials for one chat or analysis call.
+    ///
+    /// This is the ONLY place the app decides where AI requests go. `model` is
+    /// the caller's choice — worker or observer — and is honoured in cloud
+    /// mode; a custom server has its own model names, so there it is replaced
+    /// by the configured one.
+    ///
+    /// An unusable configuration returns the reason, which the UI shows. It
+    /// never falls back to another provider: a request the user asked to send
+    /// to their own server must not silently go to a paid cloud instead.
+    pub fn chat_provider(&self, model: &str) -> Result<Provider, String> {
+        match self.provider_mode.as_str() {
+            PROVIDER_CLOUD => {
+                if self.openrouter_key.trim().is_empty() {
+                    return Err(
+                        "No OpenRouter API key configured. Open Settings and add your key.".into(),
+                    );
+                }
+                Ok(Provider {
+                    base_url: OPENROUTER_BASE_URL.into(),
+                    api_key: self.openrouter_key.trim().into(),
+                    model: model.into(),
+                })
+            }
+            PROVIDER_CUSTOM => {
+                let url = self.custom_base_url.trim().trim_end_matches('/');
+                if url.is_empty() {
+                    return Err("No server address configured. Open Settings, and under AI provider enter your server's address (for example http://localhost:11434/v1).".into());
+                }
+                let custom_model = self.custom_model.trim();
+                if custom_model.is_empty() {
+                    return Err("No model configured for your server. Open Settings, and under AI provider enter the model name your server serves.".into());
+                }
+                Ok(Provider {
+                    base_url: url.into(),
+                    // Local servers usually want no key at all.
+                    api_key: self.custom_api_key.trim().into(),
+                    model: custom_model.into(),
+                })
+            }
+            other => Err(format!(
+                "Unknown AI provider mode {other:?}. Open Settings and choose one under AI provider."
+            )),
+        }
+    }
+
     /// IPC-safe copy: secrets replaced by their masked form.
     pub fn masked(&self) -> Settings {
         let mut s = self.clone();
         s.openrouter_key = mask(&self.openrouter_key);
         s.groq_key = mask(&self.groq_key);
+        s.custom_api_key = mask(&self.custom_api_key);
         s
     }
 }
@@ -247,6 +328,58 @@ fn mask_shows_head_and_tail_only() {
     assert!(m.ends_with("bcdef"));
     assert!(m.contains("••••••••"));
     assert!(!m.contains("v1-0123"));
+}
+
+#[test]
+fn cloud_mode_needs_a_key_and_keeps_the_callers_model() {
+    let mut s = Settings::default();
+    assert!(s.chat_provider("some/model").is_err(), "no key means no provider");
+    s.openrouter_key = "sk-or-v1-0123456789abcdef".into();
+    let p = s.chat_provider("some/model").unwrap();
+    assert_eq!(p.base_url, OPENROUTER_BASE_URL);
+    assert_eq!(p.model, "some/model");
+}
+
+#[test]
+fn custom_mode_uses_its_own_address_model_and_needs_no_openrouter_key() {
+    let mut s = Settings {
+        provider_mode: PROVIDER_CUSTOM.into(),
+        ..Settings::default()
+    };
+    // Address and model are both required, and each says which is missing.
+    assert!(s.chat_provider("some/model").unwrap_err().contains("address"));
+    s.custom_base_url = "http://localhost:11434/v1/".into();
+    assert!(s.chat_provider("some/model").unwrap_err().contains("model"));
+    s.custom_model = "llama3.2".into();
+
+    let p = s.chat_provider("some/model").unwrap();
+    // Trailing slash trimmed, or every request URL would double up.
+    assert_eq!(p.base_url, "http://localhost:11434/v1");
+    // A local server has never heard of the caller's OpenRouter model id.
+    assert_eq!(p.model, "llama3.2");
+    // Local servers commonly want no key at all.
+    assert_eq!(p.api_key, "");
+}
+
+#[test]
+fn an_unknown_mode_is_an_error_not_a_silent_default() {
+    let s = Settings {
+        provider_mode: "somethingelse".into(),
+        openrouter_key: "sk-or-v1-0123456789abcdef".into(),
+        ..Settings::default()
+    };
+    // Never quietly route to a paid cloud when the user asked for something else.
+    assert!(s.chat_provider("m").unwrap_err().contains("Unknown AI provider mode"));
+}
+
+#[test]
+fn the_custom_key_is_masked_like_every_other_secret() {
+    let s = Settings {
+        custom_api_key: "sk-local-0123456789abcdef".into(),
+        ..Settings::default()
+    };
+    assert_eq!(s.masked().custom_api_key, mask("sk-local-0123456789abcdef"));
+    assert!(!s.masked().custom_api_key.contains("0123456789"));
 }
 
 #[test]
