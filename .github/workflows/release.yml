@@ -25,7 +25,7 @@ jobs:
       version: ${{ steps.get.outputs.version }}
       tag: v${{ steps.get.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - id: get
         run: |
@@ -72,7 +72,7 @@ jobs:
             # deb only for now — AppImage tooling on arm64 needs its own pass.
             args: '--bundles deb'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - if: runner.os == 'Linux'
         run: |
@@ -86,7 +86,7 @@ jobs:
             libssl-dev \
             build-essential curl wget file patchelf
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -125,9 +125,9 @@ jobs:
     name: Android (APK)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
