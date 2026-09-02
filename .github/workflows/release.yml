@@ -2,7 +2,7 @@ name: Release
 
 # Cut a release by bumping the version and pushing the tag:
 #
-#   npm run set-version 0.2.0 -- --tag
+#   node scripts/set-version.mjs 0.2.0 --git-tag
 #   git commit -am "v0.2.0" && git push && git push origin v0.2.0
 #
 # Every job attaches its artifacts to the same DRAFT GitHub Release, so

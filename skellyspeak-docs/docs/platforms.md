@@ -19,7 +19,7 @@ is private and carries none, and Android's `versionName`/`versionCode` are
 derived from it at build time.
 
 ```powershell
-npm run set-version 0.2.0 -- --tag   # rewrites Cargo.toml + Cargo.lock, tags v0.2.0
+node scripts/set-version.mjs 0.2.0 --git-tag   # rewrites Cargo.toml + Cargo.lock, tags v0.2.0
 git commit -am "v0.2.0"
 git push && git push origin v0.2.0   # the tag is what triggers the release
 ```

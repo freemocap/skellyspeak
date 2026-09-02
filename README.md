@@ -100,7 +100,7 @@ npm run tauri build
 inherits it.
 
 ```powershell
-npm run set-version 0.2.0 -- --tag
+node scripts/set-version.mjs 0.2.0 --git-tag
 git commit -am "v0.2.0"
 git push && git push origin v0.2.0
 ```
