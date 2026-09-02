@@ -73,6 +73,11 @@ class Config:
     # Across all users, per UTC day. The kill switch: per-user limits cap what
     # one person can spend, not what a launch-day crowd can.
     global_daily_tokens: int
+    # How many accounts may exist at all. While the real cost of a
+    # conversation is still unmeasured, this is the lever that bounds
+    # exposure: a generous per-person allowance handed to a known-small
+    # number of people produces usage data without an open-ended bill.
+    max_users: int
 
     @property
     def google_redirect_uri(self) -> str:
@@ -95,4 +100,5 @@ def load() -> Config:
         ).rstrip("/"),
         free_daily_tokens=_required_int("FREE_DAILY_TOKENS"),
         global_daily_tokens=_required_int("GLOBAL_DAILY_TOKENS"),
+        max_users=_required_int("MAX_USERS"),
     )

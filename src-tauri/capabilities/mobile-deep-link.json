@@ -1,0 +1,15 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "mobile-deep-link",
+  "description": "Receives the sign-in redirect. Mobile only \u2014 desktop listens on a loopback port instead, and the deep-link plugin is not compiled for it.",
+  "platforms": [
+    "android",
+    "iOS"
+  ],
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "deep-link:default"
+  ]
+}

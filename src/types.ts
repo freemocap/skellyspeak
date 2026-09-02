@@ -6,9 +6,17 @@ export interface Shortcuts {
 }
 
 export interface Settings {
-  /// 'cloud' (OpenRouter with the user's key) or 'custom' (their own
+  /// 'hosted' (the project's service, signed in with Google), 'cloud'
+  /// (OpenRouter with the user's key) or 'custom' (their own
   /// OpenAI-compatible server). Mirrors settings.rs PROVIDER_* constants.
   provider_mode: string
+  /// Always empty here: the Rust side blanks the session token on its way out
+  /// and ignores whatever comes back. Sign in and out through the commands.
+  hosted_token: string
+  /// Who is signed in, for display. Empty means signed out.
+  hosted_email: string
+  /// Always empty here too — the anonymous installation id stays in Rust.
+  install_id: string
   openrouter_key: string
   custom_base_url: string
   custom_api_key: string
@@ -27,6 +35,17 @@ export interface Settings {
   tts_engine: string
   tts_voice: string
   shortcuts: Shortcuts
+}
+
+/// Identity and remaining allowance on the hosted service. Mirrors
+/// `GET /v1/me` and the `Account` struct in `hosted.rs`.
+export interface HostedAccount {
+  email: string
+  name: string
+  used_today: number
+  daily_limit: number
+  remaining: number
+  resets: string
 }
 
 export interface GuidedToken {

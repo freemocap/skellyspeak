@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from urllib.parse import quote
 
 import httpx
 import jwt as pyjwt
@@ -76,6 +77,9 @@ def auth_start(provider: str, redirect_uri: str, app_state: str = "") -> Redirec
             "app_state": app_state,
             "created_at": firestore.SERVER_TIMESTAMP,
             "expires_at": int(time.time()) + auth.LOGIN_CODE_TTL_SECONDS,
+            # Abandoned sign-ins are never read again and would otherwise sit
+            # in Firestore forever. A TTL policy on this field sweeps them.
+            "ttl": quota.ttl_after(1),
         }
     )
     return RedirectResponse(
@@ -133,20 +137,37 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
     except auth.AuthError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    quota.upsert_user(
-        db, user_id=identity.user_id, email=identity.email, name=identity.name
-    )
+    try:
+        quota.upsert_user(
+            db,
+            user_id=identity.user_id,
+            email=identity.email,
+            name=identity.name,
+            max_users=CFG.max_users,
+        )
+    except quota.SignupClosed as exc:
+        # 403 with a message a person can read. Not a 500, and emphatically not
+        # a sign-in that appears to succeed and then fails on every request.
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
 
     login_code = auth.new_login_code()
     db.collection(quota.LOGIN_CODES).document(login_code).set(
         {
             "user_id": identity.user_id,
             "expires_at": int(time.time()) + auth.LOGIN_CODE_TTL_SECONDS,
+            # Swept like auth_states: a code nobody exchanged is dead weight.
+            "ttl": quota.ttl_after(1),
         }
     )
     redirect = stored["redirect_uri"]
     joiner = "&" if "?" in redirect else "?"
-    passthrough = f"&state={stored['app_state']}" if stored.get("app_state") else ""
+    # Percent-encoded: app_state is caller-supplied, and a raw "&" or "#" in it
+    # would inject extra parameters into the app's own redirect.
+    passthrough = (
+        f"&state={quote(str(stored['app_state']), safe='')}"
+        if stored.get("app_state")
+        else ""
+    )
     return RedirectResponse(f"{redirect}{joiner}code={login_code}{passthrough}")
 
 
@@ -193,9 +214,31 @@ def current_user(
 # ── Account ─────────────────────────────────────────────────────────────────
 
 
+# What the app tells us about itself. Three values, none of which locate or
+# identify a person: a random per-installation UUID, the operating system, and
+# the app version. No IP address is recorded anywhere in this service.
+INSTALL_HEADER = "x-skellyspeak-install"
+PLATFORM_HEADER = "x-skellyspeak-platform"
+VERSION_HEADER = "x-skellyspeak-version"
+# Long enough for a UUID and a version string, short enough that a header
+# cannot be used to write arbitrary bulk into Firestore.
+MAX_CLIENT_FIELD = 64
+
+
 @app.get("/v1/me")
-def me(user_id: str = Depends(current_user)) -> dict[str, object]:
-    """Identity and remaining allowance, for the quota display in the app."""
+def me(request: Request, user_id: str = Depends(current_user)) -> dict[str, object]:
+    """Identity and remaining allowance, for the quota display in the app.
+
+    Doubles as the device check-in, so "which machines" stays current instead
+    of frozen at whenever the person last signed in.
+    """
+    quota.record_device(
+        db,
+        user_id,
+        install_id=request.headers.get(INSTALL_HEADER, "")[:MAX_CLIENT_FIELD],
+        platform=request.headers.get(PLATFORM_HEADER, "")[:MAX_CLIENT_FIELD],
+        app_version=request.headers.get(VERSION_HEADER, "")[:MAX_CLIENT_FIELD],
+    )
     balance = quota.read_balance(db, user_id, limit=CFG.free_daily_tokens)
     profile = db.collection(quota.USERS).document(user_id).get().to_dict() or {}
     return {

@@ -3,6 +3,7 @@ pub mod ai;
 mod bench;
 pub mod commands;
 pub mod graph;
+mod hosted;
 pub mod languages;
 pub mod observer;
 pub mod ontology;
@@ -40,6 +41,12 @@ pub fn run() {
             .plugin(tauri_plugin_updater::Builder::new().build())
             .plugin(tauri_plugin_process::init());
     }
+    // Mobile only: sign-in returns through a `skellyspeak://` deep link,
+    // because there is no loopback listener to come back to on a phone.
+    #[cfg(mobile)]
+    {
+        builder = builder.plugin(tauri_plugin_deep_link::init());
+    }
     builder
         .plugin(tauri_plugin_opener::init())
         .plugin(
@@ -76,11 +83,14 @@ pub fn run() {
             }
             let settings = loaded.settings;
             log::info!(
-                "settings loaded: target={}, native={}, model={}, observer_model={}, openrouter_key={}, groq_key={}",
+                "settings loaded: target={}, native={}, model={}, observer_model={}, provider={}, hosted_session={}, openrouter_key={}, groq_key={}",
                 settings.target_language,
                 settings.native_language,
                 settings.openrouter_model,
                 settings.observer_model.as_deref().unwrap_or("(same as tutor)"),
+                settings.provider_mode,
+                // Whether there is one, never any part of it.
+                if settings.hosted_token.is_empty() { "signed out" } else { "signed in" },
                 if settings.openrouter_key.is_empty() { "MISSING" } else { "set" },
                 if settings.groq_key.is_empty() { "MISSING" } else { "set" },
             );
@@ -114,6 +124,9 @@ pub fn run() {
             commands::take_startup_faults,
             commands::latest_github_release,
             commands::validate_key,
+            commands::hosted_sign_in,
+            commands::hosted_account,
+            commands::hosted_sign_out,
             commands::get_languages,
             commands::open_dev_window,
             commands::get_graph,

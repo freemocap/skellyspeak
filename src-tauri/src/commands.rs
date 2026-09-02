@@ -9,6 +9,7 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
 use crate::graph;
+use crate::hosted;
 use crate::ontology;
 use crate::ai::truncate_for_log;
 use crate::languages::{self, iso639, language_display, native_display, overlay};
@@ -23,7 +24,6 @@ use futures_util::StreamExt;
 use std::time::Duration;
 
 // STT (Groq Whisper) — central here so a provider/model switch is one edit.
-const GROQ_STT_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
 const GROQ_STT_MODEL: &str = "whisper-large-v3";
 /// Android WebView emits webm/opus; iOS emits mp4/aac — the upload type must
 /// follow the platform when the ladder reaches iOS.
@@ -33,7 +33,6 @@ const STT_UPLOAD_NAME: &str = "audio.webm";
 // TTS — cloud synthesis via OpenRouter (openai/gpt-audio-mini). Audio output
 // is streaming-only and ships raw PCM16 (24kHz mono LE); we wrap it in a WAV
 // container for the webview.
-const TTS_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
 const TTS_MODEL: &str = "openai/gpt-audio-mini";
 const TTS_SAMPLE_RATE: u32 = 24_000;
 
@@ -64,9 +63,7 @@ pub async fn speak_text(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if stored.openrouter_key.trim().is_empty() {
-        return Err("Cloud speech needs an OpenRouter API key, whichever provider handles chat. Add one in Settings, or switch Speech engine to the OS voice.".into());
-    }
+    let endpoint = stored.tts_endpoint()?;
     let v = voice
         .filter(|s| !s.trim().is_empty())
         .unwrap_or_else(|| "nova".into());
@@ -87,8 +84,8 @@ pub async fn speak_text(
         ],
     });
     let response = client
-        .post(TTS_URL)
-        .bearer_auth(&stored.openrouter_key)
+        .post(&endpoint.url)
+        .bearer_auth(&endpoint.api_key)
         .json(&payload)
         .send()
         .await
@@ -546,6 +543,13 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
     {
         settings.custom_api_key = stored.custom_api_key;
     }
+    // The session token is issued by signing in and is blanked on its way out
+    // to the webview, so whatever comes back is meaningless. Always keep what
+    // is stored; `hosted_sign_out` is the only way to clear it. The install id
+    // is withheld the same way and must survive a save untouched.
+    settings.hosted_token = stored.hosted_token.clone();
+    settings.hosted_email = stored.hosted_email.clone();
+    settings.install_id = stored.install_id.clone();
     info!(
         "[cmd] save_settings: target={} native={} model={}",
         settings.target_language,
@@ -1967,6 +1971,73 @@ pub fn get_plan(state: State<'_, AppState>) -> Result<ObserverDocuments, String>
     })
 }
 
+// ─── Hosted service (sign-in and allowance) ──────────────────────────────────
+
+/// Sign in to the hosted service and store the resulting session.
+///
+/// Opens the system browser and waits for the redirect to come back. Returns
+/// the account so the UI can show who signed in and what is left.
+#[tauri::command]
+pub async fn hosted_sign_in(
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<hosted::Account, String> {
+    let client_info = {
+        let guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
+        hosted::ClientInfo::new(&guard.install_id)
+    };
+    // `app` is the deep-link handle on mobile; desktop listens on loopback and
+    // has no use for it.
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    let session = hosted::sign_in(&app, &client_info).await?;
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    let session = {
+        let _ = &app;
+        hosted::sign_in(&client_info).await?
+    };
+
+    info!("[cmd] hosted_sign_in: signed in as {}", session.email);
+    let updated = {
+        let mut guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
+        guard.hosted_token = session.token.clone();
+        guard.hosted_email = session.email;
+        guard.clone()
+    };
+    // A session that is not on disk is gone at the next launch, and the user
+    // would have no way to know why they were signed out.
+    settings::persist(&state.config_dir, &updated)?;
+    hosted::account(&session.token, &client_info).await
+}
+
+/// Identity and remaining allowance for the stored session.
+#[tauri::command]
+pub async fn hosted_account(state: State<'_, AppState>) -> Result<hosted::Account, String> {
+    let (token, client_info) = {
+        let guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
+        (
+            guard.hosted_token.clone(),
+            hosted::ClientInfo::new(&guard.install_id),
+        )
+    };
+    if token.trim().is_empty() {
+        return Err("Not signed in to the hosted service.".into());
+    }
+    hosted::account(&token, &client_info).await
+}
+
+/// Forget the stored session. The only way the token is ever cleared.
+#[tauri::command]
+pub fn hosted_sign_out(state: State<'_, AppState>) -> Result<(), String> {
+    info!("[cmd] hosted_sign_out: clearing the stored session");
+    let updated = {
+        let mut guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
+        guard.hosted_token.clear();
+        guard.hosted_email.clear();
+        guard.clone()
+    };
+    settings::persist(&state.config_dir, &updated)
+}
+
 // ─── STT (Groq Whisper) ──────────────────────────────────────────────────────
 
 #[tauri::command]
@@ -1980,10 +2051,11 @@ pub async fn transcribe_audio(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if settings.groq_key.is_empty() {
-        warn!("[cmd] transcribe_audio rejected: no Groq key");
-        return Err("No Groq API key configured. Open Settings and add your key.".into());
-    }
+    // Where speech-to-text goes is decided in exactly one place, alongside the
+    // chat provider — hosted proxies it, the other modes use Groq directly.
+    let endpoint = settings.stt_endpoint().inspect_err(|e| {
+        warn!("[cmd] transcribe_audio rejected: {e}");
+    })?;
 
     let started = std::time::Instant::now();
     let audio = base64::engine::general_purpose::STANDARD
@@ -2015,8 +2087,8 @@ pub async fn transcribe_audio(
         .build()
         .map_err(|e| e.to_string())?;
     let response = client
-        .post(GROQ_STT_URL)
-        .bearer_auth(settings.groq_key.trim())
+        .post(&endpoint.url)
+        .bearer_auth(&endpoint.api_key)
         .multipart(form)
         .send()
         .await

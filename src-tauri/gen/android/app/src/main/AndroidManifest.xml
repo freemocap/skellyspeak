@@ -29,6 +29,17 @@
                 <!-- AndroidTV support -->
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+
+            <!-- Sign-in returns here. Google refuses OAuth in an embedded
+                 webview, so the system browser handles it and hands the code
+                 back through this scheme. The activity is singleTask above,
+                 which is what lets the running app receive it. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="skellyspeak" android:host="auth" />
+            </intent-filter>
         </activity>
 
         <provider
