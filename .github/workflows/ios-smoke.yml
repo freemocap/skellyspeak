@@ -1,0 +1,64 @@
+name: iOS smoke build
+
+# iOS is NOT part of the release yet, and cannot be until there is an Apple
+# Developer account ($99/yr) to sign with — an unsigned .ipa cannot be
+# installed on a device or uploaded to TestFlight.
+#
+# What this workflow does prove, for free, is that the app compiles and links
+# for iOS: it scaffolds src-tauri/gen/apple (which cannot be done from the
+# Windows dev machine — it needs Xcode) and builds for the simulator, where
+# code signing is not required.
+#
+# Manual trigger only, so a broken iOS toolchain never blocks a release.
+on:
+  workflow_dispatch:
+
+jobs:
+  simulator-build:
+    name: Build for iOS Simulator (unsigned)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ios
+
+      - run: npm ci
+
+      # The frontend must exist before the Xcode project references it.
+      - run: npm run build
+
+      - name: Scaffold the Xcode project
+        run: npx tauri ios init
+
+      - name: Build for the simulator
+        run: |
+          proj=$(ls -d src-tauri/gen/apple/*.xcodeproj | head -1)
+          [ -n "$proj" ] || { echo "::error::tauri ios init produced no .xcodeproj"; exit 1; }
+          scheme=$(xcodebuild -project "$proj" -list | awk '/Schemes:/{f=1;next} f&&NF{print $1; exit}')
+          echo "project=$proj scheme=$scheme"
+          xcodebuild build \
+            -project "$proj" \
+            -scheme "$scheme" \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+
+      # gen/apple is generated on a Mac and never committed from Windows —
+      # keep a copy so the scaffold can be inspected without a Mac to hand.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcode-project
+          path: src-tauri/gen/apple
+          retention-days: 7

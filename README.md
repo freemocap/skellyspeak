@@ -73,6 +73,24 @@ npm run android       # emulator / connected-device dev loop
 npm run android:apk   # sideloadable debug APK
 ```
 
+## Cutting a release
+
+`src-tauri/Cargo.toml` is the only place the version lives — everything else
+inherits it.
+
+```powershell
+npm run set-version 0.2.0 -- --tag
+git commit -am "v0.2.0"
+git push && git push origin v0.2.0
+```
+
+The tag triggers `.github/workflows/release.yml`, which builds Windows x64,
+macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64) and an Android APK,
+and attaches them all to a **draft** GitHub Release. Review the assets, then
+publish. Nothing is code-signed yet, and the APK is debug-signed — see
+[Platforms & Build](./skellyspeak-docs/docs/platforms.md) for what that costs
+to fix.
+
 See [Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the toolchain
 env vars and the machine-specific fixes that must survive a `gen/android`
 regeneration.
