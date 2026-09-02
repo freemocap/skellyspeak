@@ -1,0 +1,12 @@
+# `gcloud builds submit` uploads the build context. Without this it would
+# upload the whole repository — including old/, which is 17 GB of archived
+# earlier versions. Only server/ is needed to build the API image.
+*
+!server/
+!server/**
+
+# ...but not the local virtualenv, caches, or local secrets.
+server/.venv/
+server/__pycache__/
+server/.env
+server/.pytest_cache/

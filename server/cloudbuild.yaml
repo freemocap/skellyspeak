@@ -1,0 +1,51 @@
+# Build and deploy the SkellySpeak API to Cloud Run.
+#
+# Secrets are NOT passed as substitutions — they would be visible in build
+# logs and history. They are mounted from Secret Manager at run time, so the
+# only thing this file knows is their names.
+options:
+  logging: CLOUD_LOGGING_ONLY
+  # Required to expand ${PROJECT_ID} and ${BUILD_ID} inside _IMAGE. Triggers
+  # do this automatically; a manual `gcloud builds submit` does not, and
+  # without it the image name is passed through with the braces intact.
+  dynamic_substitutions: true
+
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build"
+    args: ["build", "-t", "${_IMAGE}", "-f", "server/Dockerfile", "server"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push"
+    args: ["push", "${_IMAGE}"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "Deploy"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "skellyspeak-api"
+      - "--image=${_IMAGE}"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      # Public: the app authenticates with its own session token, not IAM.
+      - "--allow-unauthenticated"
+      - "--set-env-vars=PUBLIC_BASE_URL=${_PUBLIC_BASE_URL},FREE_DAILY_TOKENS=${_FREE_DAILY_TOKENS},GLOBAL_DAILY_TOKENS=${_GLOBAL_DAILY_TOKENS}"
+      - "--set-secrets=GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,JWT_SIGNING_KEY=jwt-signing-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,GROQ_API_KEY=groq-api-key:latest"
+      - "--memory=512Mi"
+      - "--cpu=1"
+      - "--min-instances=0"
+      - "--max-instances=4"
+      # Streamed answers run long; the default 300s would cut them off.
+      - "--timeout=600"
+
+substitutions:
+  _REGION: "us-central1"
+  _IMAGE: "gcr.io/${PROJECT_ID}/skellyspeak-api:${BUILD_ID}"
+  _PUBLIC_BASE_URL: ""
+  _FREE_DAILY_TOKENS: "50000"
+  _GLOBAL_DAILY_TOKENS: "5000000"
+
+images:
+  - "${_IMAGE}"
