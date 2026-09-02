@@ -1,13 +1,13 @@
 {
   "name": "skellyspeak",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "set-version": "node scripts/set-version.mjs",
     "tauri": "tauri",
     "android": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-dev.ps1",
     "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-apk.ps1"

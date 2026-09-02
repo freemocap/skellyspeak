@@ -5,21 +5,69 @@ title: Platforms & Build
 
 # Platforms & Build
 
-Current reality: **Windows desktop dev + NSIS installer works.** Everything
-else is a plan with concrete first steps. The good news: the foundation is
-already mobile-shaped — `Cargo.toml` builds `staticlib` + `cdylib` + `rlib`
-(`src-tauri/Cargo.toml:9`), all heavy work lives in the Rust core, and the
-frontend is plain React that runs in any webview.
+Current reality: **Windows desktop dev works locally, and CI builds and
+publishes every desktop target plus Android on a version tag.** iOS is the one
+gap. The foundation is mobile-shaped — `Cargo.toml` builds `staticlib` +
+`cdylib` + `rlib` (`src-tauri/Cargo.toml:9`), all heavy work lives in the Rust
+core, and the frontend is plain React that runs in any webview.
+
+## Versioning
+
+`src-tauri/Cargo.toml` is the **single source of truth** for the app version.
+`tauri.conf.json` omits `version` so Tauri inherits it from there, `package.json`
+is private and carries none, and Android's `versionName`/`versionCode` are
+derived from it at build time.
+
+```powershell
+npm run set-version 0.2.0 -- --tag   # rewrites Cargo.toml + Cargo.lock, tags v0.2.0
+git commit -am "v0.2.0"
+git push && git push origin v0.2.0   # the tag is what triggers the release
+```
+
+The release workflow refuses to run if the tag and `Cargo.toml` disagree.
+
+## Releases (CI)
+
+`.github/workflows/release.yml` fires on any `v*` tag and attaches every
+artifact to a single **draft** GitHub Release — nothing ships until you review
+the assets and press Publish.
+
+| Job | Runner | Artifact |
+|---|---|---|
+| Windows x64 | `windows-latest` | NSIS installer + MSI |
+| macOS Apple Silicon | `macos-latest` | `.dmg` (aarch64) |
+| macOS Intel | `macos-latest` | `.dmg` (x86_64 cross-compiled) |
+| Linux x64 | `ubuntu-22.04` | `.deb`, AppImage, `.rpm` |
+| Linux arm64 | `ubuntu-22.04-arm` | `.deb` |
+| Android | `ubuntu-latest` | universal debug-signed `.apk` |
+
+Known gaps, deliberately deferred:
+
+- **Nothing is signed.** Windows SmartScreen and macOS Gatekeeper both warn on
+  first launch (macOS: right-click → Open). Fixing this needs a Windows
+  Authenticode certificate and an Apple Developer ID + notarization.
+- **The APK is debug-signed.** It sideloads fine, but Play Store upload needs a
+  release keystore held in repo secrets.
+- **arm64 Linux is `.deb` only** — AppImage tooling on aarch64 needs its own pass.
+
+The Android job cannot use the committed `gen/android` as-is: Tauri's
+`tauri.settings.gradle` hardcodes an absolute path into the local cargo
+registry, so it is gitignored and must be regenerated. CI therefore runs
+`tauri android init` and then `git checkout -- src-tauri/gen/android` to put
+back everything git tracks, since `init` rewrites the manifest, themes,
+`MainActivity.kt`, `BuildTask.kt` and the launcher icons from its templates.
 
 ## Target matrix
 
 | Platform | Status | Artifact | Notes |
 |---|---|---|---|
-| Windows 10/11 x64 | **Works** (dev + build) | NSIS installer + portable exe | Primary dev machine |
-| macOS (aarch64/x64) | Config exists, untested | `.app` / `.dmg` | `bundle.targets: "all"`; needs signing/notarization story |
-| Linux x64 | Config exists, untested | deb / AppImage / rpm | webkit2gtk dep |
-| Android | Not scaffolded | `.apk` / `.aab` | `tauri android init` pending; see below |
-| iOS | Not scaffolded | `.ipa` | Mac + Apple dev account required; see below |
+| Windows 10/11 x64 | **Built in CI** | NSIS installer + MSI | Primary dev machine; unsigned |
+| macOS aarch64 | **Built in CI** | `.dmg` | Unsigned — Gatekeeper warns |
+| macOS x86_64 | **Built in CI** | `.dmg` | Cross-compiled on `macos-latest`; unsigned |
+| Linux x86_64 | **Built in CI** | deb / AppImage / rpm | webkit2gtk-4.1 dep |
+| Linux aarch64 | **Built in CI** | deb | AppImage on arm64 still to do |
+| Android | **Built in CI** | universal `.apk` | Debug-signed; release keystore still to do |
+| iOS | Compiles, not shippable | — | Simulator smoke build only; needs Apple Developer account |
 | Browser (no Rust) | Intentionally non-functional | — | `App.tsx` shows a "run via tauri dev" notice |
 
 ## Desktop (today)
@@ -36,18 +84,10 @@ npm run tauri build    # → src-tauri/target/release/bundle/...
 - `tauri.conf.json`: window 1200×800 (min 900×620), `beforeBuildCommand` runs
   `tsc && vite build`, `frontendDist: ../dist`.
 - Release: `strip = true`, `lto = true`.
-- Icons: png 32/128/256 + `.ico` only. **Missing `.icns`** — macOS bundling
-  will want it (`tauri icon` regenerates the full set from one source).
+- Icons: png 32/128/256/512 + `.ico` + `.icns`, plus Android launcher icons at
+  every density and an adaptive icon (`mipmap-anydpi-v26`).
 - Capabilities: desktop `core:default` + `log:default`
   (`capabilities/default.json` — schema path is `gen/schemas/desktop-schema.json`).
-
-### Packaging hygiene to add soon
-1. Version stamping (app version currently duplicated in `package.json`,
-   `tauri.conf.json`, `Cargo.toml`).
-2. Per-platform CI (GitHub Actions matrix: `windows-latest`, `macos-latest`,
-   `ubuntu-22.04` with `webkit2gtk-4.1-dev`).
-3. macOS codesigning + notarization decision (unsigned builds trigger
-   Gatekeeper warnings).
 
 ## Mobile — the concrete path (Tauri v2)
 
@@ -84,10 +124,17 @@ key — debug key is auto-generated, release is not.
 
 ### iOS
 
+`.github/workflows/ios-smoke.yml` (manual trigger) scaffolds the Xcode project
+on a CI Mac and builds for the simulator unsigned, which is as far as this can
+go for free — an unsigned `.ipa` installs nowhere. It is deliberately kept out
+of the release workflow so a broken iOS toolchain never blocks a release.
+
+To actually ship:
+
 1. **Prereqs:** a Mac with Xcode, Apple Developer account (for device +
    TestFlight; simulator is free). Rust target `aarch64-apple-ios`.
-2. **Scaffold:** `npm run tauri ios init` → `src-tauri/gen/ios` (Xcode
-   project).
+2. **Scaffold:** `npm run tauri ios init` → `src-tauri/gen/apple` (Xcode
+   project). This cannot be done from the Windows dev machine.
 3. **Permissions:** `NSMicrophoneUsageDescription` in the generated
    `Info.plist`.
 4. **STT format risk (the big one):** WKWebView `MediaRecorder` support lags;

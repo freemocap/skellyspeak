@@ -1,7 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "SkellySpeak",
-  "version": "0.1.0",
   "identifier": "com.freemocap.skellyspeak",
   "build": {
     "beforeDevCommand": "npm run dev",

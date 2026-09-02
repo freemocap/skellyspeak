@@ -1,0 +1,186 @@
+name: Release
+
+# Cut a release by bumping the version and pushing the tag:
+#
+#   npm run set-version 0.2.0 -- --tag
+#   git commit -am "v0.2.0" && git push && git push origin v0.2.0
+#
+# Every job attaches its artifacts to the same DRAFT GitHub Release, so
+# nothing goes public until you review the assets and hit Publish.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # src-tauri/Cargo.toml is the single source of truth for the app version
+  # (tauri.conf.json omits `version` and inherits it). Read it once here so
+  # every downstream job agrees on the tag.
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get.outputs.version }}
+      tag: v${{ steps.get.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: get
+        run: |
+          version=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
+          [ -n "$version" ] || { echo "::error::no version in src-tauri/Cargo.toml"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "app version: $version"
+
+      # A tag that disagrees with Cargo.toml would ship mislabelled binaries.
+      - if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if [ "${{ github.ref_name }}" != "v${{ steps.get.outputs.version }}" ]; then
+            echo "::error::tag ${{ github.ref_name }} != v${{ steps.get.outputs.version }} from Cargo.toml"
+            exit 1
+          fi
+
+  desktop:
+    needs: version
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            args: ''
+          - name: macOS (Apple Silicon)
+            os: macos-latest
+            rust-target: aarch64-apple-darwin
+            args: '--target aarch64-apple-darwin'
+          - name: macOS (Intel)
+            os: macos-latest
+            rust-target: x86_64-apple-darwin
+            args: '--target x86_64-apple-darwin'
+          - name: Linux x64
+            os: ubuntu-22.04
+            rust-target: x86_64-unknown-linux-gnu
+            args: '--bundles deb,appimage,rpm'
+          - name: Linux arm64
+            os: ubuntu-22.04-arm
+            rust-target: aarch64-unknown-linux-gnu
+            # deb only for now — AppImage tooling on arm64 needs its own pass.
+            args: '--bundles deb'
+    steps:
+      - uses: actions/checkout@v4
+
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libgtk-3-dev \
+            libxdo-dev \
+            libssl-dev \
+            build-essential curl wget file patchelf
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.rust-target }}
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ needs.version.outputs.tag }}
+          releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
+          releaseBody: |
+            Desktop builds are **unsigned** — Windows SmartScreen and macOS
+            Gatekeeper will warn on first launch (on macOS: right-click → Open).
+            The Android APK is debug-signed and sideloadable.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  android:
+    # Runs after `desktop` purely so the draft release already exists.
+    needs: [version, desktop]
+    name: Android (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: nttld/setup-ndk@v1
+        id: ndk
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: android
+
+      - run: npm ci
+
+      # `tauri.settings.gradle` hardcodes an absolute path to the local cargo
+      # registry, so gen/android's generated files cannot be committed and must
+      # be produced here. `init` also rewrites tracked files from its templates
+      # — the manifest (RECORD_AUDIO, adjustResize, roundIcon), themes.xml,
+      # MainActivity.kt, BuildTask.kt and the launcher icons — so restore
+      # everything git tracks immediately afterwards.
+      - name: Scaffold gen/android, then restore our tracked customisations
+        run: |
+          npx tauri android init
+          git checkout -- src-tauri/gen/android
+          git status --porcelain src-tauri/gen/android
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      - name: Build APK
+        run: npx tauri android build --apk --debug
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      - name: Name the APK after the release
+        run: |
+          src=src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
+          [ -f "$src" ] || { echo "::error::APK not found at $src"; exit 1; }
+          mkdir -p dist-apk
+          cp "$src" "dist-apk/SkellySpeak_${{ needs.version.outputs.version }}_universal.apk"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          draft: true
+          files: dist-apk/*.apk
