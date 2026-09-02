@@ -6,7 +6,13 @@ export interface Shortcuts {
 }
 
 export interface Settings {
+  /// 'cloud' (OpenRouter with the user's key) or 'custom' (their own
+  /// OpenAI-compatible server). Mirrors settings.rs PROVIDER_* constants.
+  provider_mode: string
   openrouter_key: string
+  custom_base_url: string
+  custom_api_key: string
+  custom_model: string
   groq_key: string
   openrouter_model: string
   observer_model: string | null

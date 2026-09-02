@@ -10,7 +10,6 @@ use tauri::{AppHandle, Manager, State};
 
 use crate::graph;
 use crate::ontology;
-use crate::ai::Provider;
 use crate::ai::truncate_for_log;
 use crate::languages::{self, iso639, language_display, native_display, overlay};
 use crate::observer;
@@ -66,7 +65,7 @@ pub async fn speak_text(
         .unwrap_or_else(|p| p.into_inner())
         .clone();
     if stored.openrouter_key.trim().is_empty() {
-        return Err("No OpenRouter API key configured.".into());
+        return Err("Cloud speech needs an OpenRouter API key, whichever provider handles chat. Add one in Settings, or switch Speech engine to the OS voice.".into());
     }
     let v = voice
         .filter(|s| !s.trim().is_empty())
@@ -528,6 +527,7 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
     // key makes providers report "Missing Authentication header".
     settings.openrouter_key = settings.openrouter_key.trim().to_string();
     settings.groq_key = settings.groq_key.trim().to_string();
+    settings.custom_api_key = settings.custom_api_key.trim().to_string();
     // Masked values round-tripping from the UI mean "keep the stored key".
     let stored = state
         .settings
@@ -540,6 +540,11 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
     }
     if !stored.groq_key.is_empty() && settings.groq_key == settings::mask(&stored.groq_key) {
         settings.groq_key = stored.groq_key;
+    }
+    if !stored.custom_api_key.is_empty()
+        && settings.custom_api_key == settings::mask(&stored.custom_api_key)
+    {
+        settings.custom_api_key = stored.custom_api_key;
     }
     info!(
         "[cmd] save_settings: target={} native={} model={}",
@@ -801,10 +806,6 @@ pub async fn guided_turn(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if settings.openrouter_key.is_empty() {
-        warn!("[cmd] guided_turn rejected: no OpenRouter key");
-        return Err("No OpenRouter API key configured. Open Settings and add your key.".into());
-    }
     let started = std::time::Instant::now();
     // Every run fired by this turn shares a turn id, so the UI can group
     // them into "what happened when you sent that message".
@@ -922,7 +923,7 @@ pub async fn guided_turn(
         None
     } else {
         Some({
-        let provider = Provider::openrouter(&settings.openrouter_key, &settings.openrouter_model);
+        let provider = settings.chat_provider(&settings.openrouter_model)?;
         let channel = on_event.clone();
         let learner_msgs = vec![
             json!({"role": "system", "content": prompts::learner_tokens_prompt(&tln, &native, romanization_scheme)}),
@@ -959,7 +960,7 @@ pub async fn guided_turn(
         })
     };
 
-    let provider = Provider::openrouter(&settings.openrouter_key, &settings.openrouter_model);
+    let provider = settings.chat_provider(&settings.openrouter_model)?;
     let channel = on_event.clone();
     let full_reply = provider
         .chat_streaming(
@@ -1060,10 +1061,29 @@ pub async fn guided_turn(
                 let mechanics = state.recent_mechanics.lock().unwrap_or_else(|p| p.into_inner());
                 (plan.clone(), profile.clone(), mechanics.clone())
             };
-            let provider = Provider::openrouter(
-                &state.settings.lock().unwrap_or_else(|p| p.into_inner()).openrouter_key,
-                &observer_model,
-            );
+            let provider = {
+                let settings = state
+                    .settings
+                    .lock()
+                    .unwrap_or_else(|p| p.into_inner())
+                    .clone();
+                match settings.chat_provider(&observer_model) {
+                    Ok(provider) => provider,
+                    Err(e) => {
+                        // Background work has no caller to return to, so an
+                        // unusable provider is reported to the webview rather
+                        // than ending the task quietly.
+                        emit(
+                            &event_channel,
+                            GuidedEvent::Fault {
+                                context: "Observer".into(),
+                                message: format!("The teaching plan was not updated: {e}"),
+                            },
+                        );
+                        return;
+                    }
+                }
+            };
             // The observer USES its reasoning budget — no disable here.
             let result = observer::run_observer(
                 &provider,
@@ -1146,8 +1166,12 @@ pub async fn guided_turn(
     let analysis_channel = on_event.clone();
     let reply_for_analysis = reply.clone();
     let app_for_analysis = app.clone();
-    let worker_key = settings.openrouter_key.clone();
-    let worker_model = settings.openrouter_model.clone();
+    // Resolved once here, not rebuilt per task: the provider is a single
+    // decision and the spawned analysis passes all share it.
+    let worker_provider = settings.chat_provider(&settings.openrouter_model)?;
+    // Cloned before the analysis `async move` captures it — the coach spawn
+    // needs it later.
+    let coach_provider_source = worker_provider.clone();
     // Cloned before the analysis `async move` captures them — the coach
     // spawn needs them later.
     let coach_tln = tln.clone();
@@ -1160,7 +1184,7 @@ pub async fn guided_turn(
         // authoritative merged state, including per-section degradations —
         // so the slowest call never gates the fastest one.
         let tokens_task = {
-            let provider = Provider::openrouter(&worker_key, &worker_model);
+            let provider = worker_provider.clone();
             let channel = analysis_channel.clone();
             tokio::spawn(async move {
                 let result = provider
@@ -1200,7 +1224,7 @@ pub async fn guided_turn(
             })
         };
         let translation_task = {
-            let provider = Provider::openrouter(&worker_key, &worker_model);
+            let provider = worker_provider.clone();
             let channel = analysis_channel.clone();
             tokio::spawn(async move {
                 let result = provider
@@ -1230,7 +1254,7 @@ pub async fn guided_turn(
             })
         };
         let mechanics_task = {
-            let provider = Provider::openrouter(&worker_key, &worker_model);
+            let provider = worker_provider.clone();
             let channel = analysis_channel.clone();
             tokio::spawn(async move {
                 let result = provider
@@ -1260,7 +1284,7 @@ pub async fn guided_turn(
             })
         };
         let scaffolds_task = {
-            let provider = Provider::openrouter(&worker_key, &worker_model);
+            let provider = worker_provider.clone();
             let channel = analysis_channel.clone();
             tokio::spawn(async move {
                 let result = provider
@@ -1421,8 +1445,7 @@ pub async fn guided_turn(
     if !greeting {
         let app_for_coach = app.clone();
         let coach_channel = on_event.clone();
-        let coach_key = settings.openrouter_key.clone();
-        let coach_model = settings.openrouter_model.clone();
+        let coach_provider = coach_provider_source;
         let coach_transcript: Vec<String> = history
             .iter()
             .rev()
@@ -1440,7 +1463,7 @@ pub async fn guided_turn(
                 message.trim()
             )))
             .collect();
-        info!("[cmd] coach pass triggered (model={coach_model})");
+        info!("[cmd] coach pass triggered (model={})", coach_provider.model);
         tokio::spawn(async move {
             let started = std::time::Instant::now();
             let state = app_for_coach.state::<AppState>();
@@ -1450,7 +1473,7 @@ pub async fn guided_turn(
                 .unwrap_or_else(|p| p.into_inner())
                 .level_notes
                 .clone();
-            let provider = Provider::openrouter(&coach_key, &coach_model);
+            let provider = coach_provider.clone();
             let messages = vec![
                 json!({"role": "system", "content": prompts::coach_system_prompt(&coach_tln, &coach_native)}),
                 json!({"role": "user", "content": prompts::coach_user_message(
@@ -1583,9 +1606,6 @@ pub async fn coach_ask(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if stored.openrouter_key.trim().is_empty() {
-        return Err("No OpenRouter API key configured.".into());
-    }
     let tln = crate::languages::language_display(&stored.target_language);
     let native = crate::languages::native_display(&stored.native_language);
 
@@ -1618,7 +1638,7 @@ pub async fn coach_ask(
         "content": format!("PRIMARY CONVERSATION (recent lines):\n{context}\n\nYOUR MESSAGE:\n{question}")
     }));
 
-    let provider = Provider::openrouter(&stored.openrouter_key, &stored.openrouter_model);
+    let provider = stored.chat_provider(&stored.openrouter_model)?;
     let reply = provider
         .chat_streaming(
             RunContext::new(ontology::op::ANSWER, None),
@@ -1680,9 +1700,6 @@ pub async fn generate_scaffolds(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if stored.openrouter_key.trim().is_empty() {
-        return Err("No OpenRouter API key configured.".into());
-    }
     let tln = language_display(&stored.target_language);
     let native = native_display(&stored.native_language);
     let _cefr = match req.level.as_deref() {
@@ -1728,7 +1745,7 @@ pub async fn generate_scaffolds(
             transcript.join("\n")
         )}),
     ];
-    let provider = Provider::openrouter(&stored.openrouter_key, &stored.openrouter_model);
+    let provider = stored.chat_provider(&stored.openrouter_model)?;
     let out = provider
         .structured_validated::<ScaffoldsOut, _>(
             RunContext::new(ontology::op::SUGGEST, None),
@@ -1791,16 +1808,13 @@ pub async fn word_insight(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if stored.openrouter_key.trim().is_empty() {
-        return Err("No OpenRouter API key configured.".into());
-    }
     let tln = language_display(&stored.target_language);
     let native = native_display(&stored.native_language);
     let messages = vec![
         json!({"role": "system", "content": prompts::word_insight_system_prompt(&tln, &native)}),
         json!({"role": "user", "content": format!("WORD: {word}\n\nSENTENCE: {sentence}")}),
     ];
-    let provider = Provider::openrouter(&stored.openrouter_key, &stored.openrouter_model);
+    let provider = stored.chat_provider(&stored.openrouter_model)?;
     provider
         .structured_validated::<WordInsight, _>(
             RunContext::new(ontology::op::WORD_INSIGHT, None),
@@ -1876,9 +1890,6 @@ pub async fn generate_story(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clone();
-    if settings.openrouter_key.is_empty() {
-        return Err("No OpenRouter API key configured. Open Settings and add your key.".into());
-    }
     if !matches!(level.as_str(), "beginner" | "intermediate" | "advanced") {
         warn!("[cmd] generate_story rejected: unknown level {level}");
         return Err(format!("Unknown level: {level}"));
@@ -1906,7 +1917,7 @@ pub async fn generate_story(
         }),
     ];
 
-    let provider = Provider::openrouter(&settings.openrouter_key, &settings.openrouter_model);
+    let provider = settings.chat_provider(&settings.openrouter_model)?;
     provider
         .structured_validated::<StoryResponse, _>(
             RunContext::new(ontology::op::STORY, None),

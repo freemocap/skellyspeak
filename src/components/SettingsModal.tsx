@@ -307,6 +307,10 @@ interface RowDef {
   label: string
   kw: string
   node: ReactNode
+  /// Rows that do not apply to the current configuration — e.g. the custom
+  /// server fields while the provider is set to cloud. Hidden everywhere,
+  /// search included: offering a field that is ignored is worse than absent.
+  hidden?: boolean
 }
 
 const SHORTCUT_ROWS: { action: ShortcutAction; label: string }[] = [
@@ -545,8 +549,91 @@ export function SettingsModal({
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
+    provider_mode: {
+      section: 'keys',
+      label: L('provider_mode', 'AI provider'),
+      kw: 'provider endpoint server ollama lm studio local custom openrouter cloud url',
+      node: (
+        <div className="form-row">
+          <label>AI provider</label>
+          <select
+            value={settings.provider_mode}
+            onChange={(e) => setSettings({ ...settings, provider_mode: e.target.value })}
+          >
+            <option value="cloud">Cloud — OpenRouter with your API key</option>
+            <option value="custom">Your own server — Ollama, LM Studio, vLLM…</option>
+          </select>
+          {settings.provider_mode === 'custom' && (
+            <p className="field-note">
+              Chat and analysis go to your server. Voice input still uses Groq, and cloud
+              speech still uses OpenRouter, so those keys stay relevant if you use them.
+              Smaller local models often cannot honour the strict JSON schemas this app
+              requires, so some panels may fail where a hosted model succeeds.
+            </p>
+          )}
+        </div>
+      ),
+    },
+    custom_base_url: {
+      section: 'keys',
+      label: L('custom_base_url', 'Server address'),
+      kw: 'server address url base endpoint ollama lm studio localhost port',
+      hidden: settings.provider_mode !== 'custom',
+      node: (
+        <div className="form-row">
+          <label>Server address</label>
+          <input
+            className="field"
+            value={settings.custom_base_url}
+            placeholder="http://localhost:11434/v1"
+            spellCheck={false}
+            onChange={(e) => setSettings({ ...settings, custom_base_url: e.target.value })}
+          />
+          <p className="field-note">
+            Include the version path. Ollama is <code>http://localhost:11434/v1</code>,
+            LM Studio is <code>http://localhost:1234/v1</code>.
+          </p>
+        </div>
+      ),
+    },
+    custom_model: {
+      section: 'keys',
+      label: L('custom_model', 'Model name'),
+      kw: 'model name local llama qwen mistral gemma',
+      hidden: settings.provider_mode !== 'custom',
+      node: (
+        <div className="form-row">
+          <label>Model name</label>
+          <input
+            className="field"
+            value={settings.custom_model}
+            placeholder="llama3.2"
+            spellCheck={false}
+            onChange={(e) => setSettings({ ...settings, custom_model: e.target.value })}
+          />
+          <p className="field-note">The name your server uses, not an OpenRouter model id.</p>
+        </div>
+      ),
+    },
+    custom_api_key: {
+      section: 'keys',
+      label: L('custom_api_key', 'Server API key (optional)'),
+      kw: 'custom server api key optional local token',
+      hidden: settings.provider_mode !== 'custom',
+      node: (
+        <SecretField
+          label="Server API key (optional)"
+          value={settings.custom_api_key}
+          placeholder="usually not needed"
+          check={{ state: 'idle', detail: '' }}
+          onChange={(v) => setSettings({ ...settings, custom_api_key: v })}
+          onEditingChange={setEditingSecret}
+        />
+      ),
+    },
     openrouter_key: {
       section: 'keys',
+      hidden: settings.provider_mode !== 'cloud',
       label: L('openrouter_key', 'OpenRouter API key'),
       kw: 'openrouter api key credential token chat tutor',
       node: (
@@ -838,7 +925,7 @@ export function SettingsModal({
 
   const q = search.trim().toLowerCase()
   const searching = q.length > 0
-  const allRows = Object.entries(rows)
+  const allRows = Object.entries(rows).filter(([, r]) => !r.hidden)
   // On mobile every section is shown at once, in one vertical scroll with
   // headings. The section nav became a cramped horizontal strip on a phone —
   // scrolling past headings beats scrolling sideways to find a tab.
