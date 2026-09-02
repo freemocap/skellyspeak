@@ -105,16 +105,41 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signs the updater artifacts. Without these the build fails, because
+          # tauri.conf.json declares a pubkey and createUpdaterArtifacts.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
+          # Writes latest.json — the feed the running app polls. It is served
+          # from the newest PUBLISHED release, so a draft reaches nobody until
+          # you publish it.
+          includeUpdaterJson: true
           tagName: ${{ needs.version.outputs.tag }}
           releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
           releaseBody: |
             Desktop builds are **unsigned** — Windows SmartScreen and macOS
             Gatekeeper will warn on first launch (on macOS: right-click → Open).
             The Android APK is debug-signed and sideloadable.
+
+            Installed desktop copies offer this version automatically once the
+            release is published.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      # `tauri build` prints "A public key has been found, but no private key"
+      # and then EXITS 0. Without this check a missing or wrong signing key
+      # produces a green release whose installs can never update.
+      - name: Verify updater artifacts were signed
+        shell: bash
+        run: |
+          sigs=$(find src-tauri/target -name '*.sig' 2>/dev/null)
+          if [ -z "$sigs" ]; then
+            echo "::error::No updater .sig artifacts were produced. Check TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD — tauri exits 0 even when updater signing fails, so this step is what catches it."
+            exit 1
+          fi
+          echo "signed updater artifacts:"
+          echo "$sigs"
 
   android:
     # Ordered after `desktop` only so the draft release already exists.

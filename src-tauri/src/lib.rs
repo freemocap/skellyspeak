@@ -30,7 +30,18 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    #[allow(unused_mut)]
+    let mut builder = tauri::Builder::default();
+    // Desktop only: Tauri ships no updater for Android or iOS, where updates
+    // arrive through the store or a sideloaded package.
+    #[cfg(desktop)]
+    {
+        builder = builder
+            .plugin(tauri_plugin_updater::Builder::new().build())
+            .plugin(tauri_plugin_process::init());
+    }
+    builder
+        .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_log::Builder::new()
                 .targets([
@@ -101,6 +112,7 @@ pub fn run() {
             commands::save_settings,
             commands::reset_settings,
             commands::take_startup_faults,
+            commands::latest_github_release,
             commands::validate_key,
             commands::get_languages,
             commands::open_dev_window,

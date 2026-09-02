@@ -439,6 +439,65 @@ pub fn get_settings(state: State<'_, AppState>) -> Result<Settings, String> {
         .masked())
 }
 
+/// The repository whose releases are the update feed. Mobile has no in-place
+/// updater, so it asks GitHub directly what the newest published release is.
+const RELEASES_API: &str =
+    "https://api.github.com/repos/freemocap/skellyspeak/releases/latest";
+
+#[derive(Debug, Clone, Serialize)]
+pub struct LatestRelease {
+    /// Semver with no leading "v", e.g. "0.2.0".
+    pub version: String,
+    /// Human-facing release page.
+    pub url: String,
+    pub notes: String,
+}
+
+/// The newest PUBLISHED release on GitHub.
+///
+/// This runs in the core rather than the webview because `connect-src` does not
+/// allow the webview to reach api.github.com — and should not, since widening
+/// it for one call would widen it for every call.
+///
+/// Draft releases are excluded by the endpoint itself, which matches the
+/// desktop updater: an unpublished release reaches nobody.
+#[tauri::command]
+pub async fn latest_github_release() -> Result<LatestRelease, String> {
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(20))
+        .build()
+        .map_err(|e| format!("could not build http client: {e}"))?;
+    let response = client
+        .get(RELEASES_API)
+        // GitHub rejects requests without one.
+        .header("User-Agent", "SkellySpeak")
+        .header("Accept", "application/vnd.github+json")
+        .send()
+        .await
+        .map_err(|e| format!("could not reach GitHub: {e}"))?;
+    let status = response.status();
+    let body = response
+        .text()
+        .await
+        .map_err(|e| format!("could not read GitHub response: {e}"))?;
+    if !status.is_success() {
+        return Err(format!(
+            "GitHub returned {status}: {}",
+            truncate_for_log(&body, 200)
+        ));
+    }
+    let v: serde_json::Value = serde_json::from_str(&body)
+        .map_err(|e| format!("GitHub response was not JSON: {e}"))?;
+    let tag = v["tag_name"]
+        .as_str()
+        .ok_or("GitHub response had no tag_name")?;
+    Ok(LatestRelease {
+        version: tag.trim_start_matches('v').to_string(),
+        url: v["html_url"].as_str().unwrap_or("").to_string(),
+        notes: v["body"].as_str().unwrap_or("").to_string(),
+    })
+}
+
 /// Drain faults recorded before the webview existed, so the UI can show them.
 /// Anything that goes wrong during startup lands here rather than in a log
 /// file the user will never open.

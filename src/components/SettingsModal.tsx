@@ -14,6 +14,7 @@ import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
 import { displaySecret } from '../lib/secrets'
 import { speechSupported } from '../lib/speech'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { canSelfUpdate, checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
 
 type KeyCheck = { state: 'idle' | 'checking' | 'valid' | 'invalid'; detail: string }
@@ -25,7 +26,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts'
+type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates'
 
 function KeyBadge({ check }: { check: KeyCheck }) {
   if (check.state === 'idle') return null
@@ -45,6 +46,91 @@ function KeyBadge({ check }: { check: KeyCheck }) {
     <span className="key-badge invalid" title={check.detail}>
       ✕
     </span>
+  )
+}
+
+/// Manual "check for updates", alongside the eager check that runs at startup.
+/// Reports the outcome inline — including "you are up to date", which the
+/// startup check has no reason to say but a person who just clicked does.
+function UpdateCheckRow() {
+  const [state, setState] = useState<'idle' | 'checking' | 'current' | 'found' | 'installing'>(
+    'idle'
+  )
+  const [found, setFound] = useState<UpdateOffer | null>(null)
+  const selfUpdates = canSelfUpdate()
+
+  const check = useCallback(async () => {
+    setState('checking')
+    try {
+      const update = await checkForUpdate()
+      if (update) {
+        setFound(update)
+        setState('found')
+      } else {
+        setState('current')
+      }
+    } catch (e) {
+      reportFault('Checking for updates', e)
+      setState('idle')
+    }
+  }, [])
+
+  const act = useCallback(async () => {
+    if (!found) return
+    if (found.kind === 'download') {
+      await found.open().catch((e) => reportFault('Opening the release page', e))
+      return
+    }
+    setState('installing')
+    try {
+      await found.install()
+      await restartIntoUpdate()
+    } catch (e) {
+      reportFault('Installing update', e)
+      setState('found')
+    }
+  }, [found])
+
+  return (
+    <div className="form-row">
+      <label>Application updates</label>
+      <>
+        {!selfUpdates && (
+          <p className="field-note">
+            This platform installs updates through its package manager, so SkellySpeak checks
+            for a newer release and takes you to it — you install it yourself.
+          </p>
+        )}
+        <>
+          <div className="key-row">
+            <button
+              type="button"
+              className="btn"
+              disabled={state === 'checking' || state === 'installing'}
+              onClick={() => void check()}
+            >
+              {state === 'checking' ? 'Checking…' : 'Check for updates'}
+            </button>
+            {state === 'found' && found && (
+              <button type="button" className="btn primary" onClick={() => void act()}>
+                {found.kind === 'install'
+                  ? `Install ${found.version} & restart`
+                  : `Get ${found.version}`}
+              </button>
+            )}
+          </div>
+          {state === 'current' && (
+            <p className="field-note">You are running the newest version.</p>
+          )}
+          {state === 'found' && found && (
+            <p className="field-note">
+              {found.version} is available — you have {found.currentVersion}.
+            </p>
+          )}
+          {state === 'installing' && <p className="field-note">Downloading and installing…</p>}
+        </>
+      </>
+    </div>
   )
 }
 
@@ -203,6 +289,12 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
     labelKey: 'settings.section.shortcuts',
     icon: '⌨',
     descKey: 'settings.desc.shortcuts',
+  },
+  {
+    id: 'updates',
+    labelKey: 'settings.section.updates',
+    icon: '⬆',
+    descKey: 'settings.desc.updates',
   },
 ]
 
@@ -717,6 +809,12 @@ export function SettingsModal({
           </label>
         </div>
       ),
+    },
+    app_updates: {
+      section: 'updates',
+      label: L('app_updates', 'Application updates'),
+      kw: 'update updates upgrade version release install newer check',
+      node: <UpdateCheckRow />,
     },
   }
   for (const sr of SHORTCUT_ROWS) {
