@@ -73,6 +73,27 @@ npm run android       # emulator / connected-device dev loop
 npm run android:apk   # sideloadable debug APK
 ```
 
+## Updates
+
+Desktop builds check for a newer version on launch and offer it in a bar at
+the top of the window; Settings → Updates checks on demand. The feed is
+`latest.json` on the newest **published** GitHub release, so publishing a
+draft is what pushes it to existing installs.
+
+Android and iOS cannot install updates in place — the OS package manager owns
+that — so there the check offers to open the release and you install the
+package yourself.
+
+Building installers locally works without the updater signing key, but the
+updater artifacts are then skipped — and `tauri build` reports that as an
+error while still exiting 0. To produce a full, updatable bundle:
+
+```powershell
+$env:TAURI_SIGNING_PRIVATE_KEY = Get-Content ~/.tauri/skellyspeak.key -Raw
+$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "<key password>"
+npm run tauri build
+```
+
 ## Cutting a release
 
 `src-tauri/Cargo.toml` is the only place the version lives — everything else

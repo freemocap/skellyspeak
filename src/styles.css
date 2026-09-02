@@ -524,6 +524,15 @@ body {
 .btn.primary { background: var(--steel-deep); border-color: var(--steel-deep); color: #fff; }
 .btn:disabled { opacity: 0.5; cursor: default; }
 .btn.tiny { padding: 6px 10px; font-size: 10px; letter-spacing: 0.1em; }
+/* Update offer. Sits above the fault bar — it is an action, not a problem. */
+.update-bar {
+  flex: none; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--chrome); border-bottom: 1px solid var(--steel);
+  color: var(--ink-d); padding: 9px 14px; font-size: 13px;
+}
+.update-text { margin-right: auto; }
+.update-bar b { color: var(--steel); }
+
 /* Every failure in the app lands here, at the top of the window, above all
    other chrome. Nothing that goes wrong is allowed to stay in a log file. */
 .fault-bar {

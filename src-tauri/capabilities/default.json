@@ -8,6 +8,7 @@
   ],
   "permissions": [
     "core:default",
-    "log:default"
+    "log:default",
+    "opener:allow-open-url"
   ]
 }

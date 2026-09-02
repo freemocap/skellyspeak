@@ -26,6 +26,44 @@ git push && git push origin v0.2.0   # the tag is what triggers the release
 
 The release workflow refuses to run if the tag and `Cargo.toml` disagree.
 
+## In-app updates
+
+Desktop builds update themselves. On launch the app asks the update feed
+whether a newer version exists and, if so, offers it in a dismissible bar at
+the top of the window; Settings → Updates has a manual "Check for updates"
+that reports "you are running the newest version" as well as offering an
+install.
+
+- **Feed:** `latest.json`, attached to the newest **published** GitHub release
+  by `tauri-action`'s `includeUpdaterJson`. Draft releases do not serve assets
+  publicly, so publishing a release is what ships it to existing installs.
+- **Signing:** updates carry their own signature, separate from OS code
+  signing. `bundle.createUpdaterArtifacts` is on and `plugins.updater.pubkey`
+  holds the public half; CI signs with `TAURI_SIGNING_PRIVATE_KEY` and
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Without them the installers still build
+  but the updater artifacts are skipped, and **`tauri build` prints that as an
+  error yet exits 0** — so the release job asserts `.sig` files exist rather
+  than trusting the exit code.
+- **Coverage:** Windows (NSIS/MSI), macOS, and Linux **AppImage** update in
+  place. `.deb` and `.rpm` do not — those update through the package manager,
+  so the arm64 Linux build (deb only) has no in-app update path.
+- **Mobile checks but cannot install.** Neither Android nor iOS lets an app
+  rewrite itself, so there is no in-place updater. The app still asks GitHub
+  for the newest published release on launch (through the Rust core, because
+  `connect-src` does not let the webview reach api.github.com) and offers to
+  open it — the user installs the package themselves. Being told you are out
+  of date is the part that matters; only the remedy differs.
+- **Android upgrade paths:** Play Store handles it automatically once the app
+  is listed. Sideloaded APKs install over the top provided the signing key
+  matches and `versionCode` rose — Tauri derives that from the semver version
+  (`0.1.0` → `1000`), so it always does. Users who want automation can point
+  [Obtainium](https://github.com/ImranR98/Obtainium) at the repo's releases.
+  The debug signing key currently used by CI is per-machine, so a release
+  keystore is needed before sideloaded upgrades are reliable.
+- **iOS upgrade paths:** App Store or TestFlight only. Apple forbids apps
+  downloading and executing new code, so a self-updater is not merely
+  unsupported but grounds for rejection.
+
 ## Releases (CI)
 
 `.github/workflows/release.yml` fires on any `v*` tag and attaches every
