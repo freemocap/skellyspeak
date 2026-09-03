@@ -33,6 +33,30 @@ jobs:
       - run: cargo test --lib
         working-directory: src-tauri
 
+  # The Rust core also has to COMPILE on Linux, which the Windows job above
+  # cannot tell you. Native dependencies differ per platform: cpal links
+  # alsa-sys on Linux only, so a missing libasound2-dev breaks the Linux
+  # release build while every other platform stays green. That is exactly
+  # how v0.4.3 failed -- at release time, after Windows, macOS and Android
+  # had all succeeded. `cargo check` runs build scripts, which is where
+  # alsa-sys fails, so it catches this without a full build.
+  rust-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install the native libraries the core links against
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libxdo-dev libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libasound2-dev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: cargo check --lib
+        working-directory: src-tauri
+
   # The hosted API tests. They gate the deploy in deploy-server.yml too, but
   # running them here means a pull request shows the breakage before it lands
   # rather than after.
