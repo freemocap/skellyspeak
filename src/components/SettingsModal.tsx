@@ -671,7 +671,8 @@ export function SettingsModal({
                 <>
                   <p className="field-note">
                     ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} used
-                    today · resets at {account.resets} ({resetsAtLocalTime()} your time)
+                    today{account.custom_limit ? ' (custom limit)' : ''} · resets at{' '}
+                    {account.resets} ({resetsAtLocalTime()} your time)
                   </p>
                   {/* The dollar figure is the truth, but nobody plans an
                       afternoon in fractions of a cent. The estimate comes from

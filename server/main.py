@@ -271,7 +271,14 @@ def auth_exchange(payload: dict) -> dict[str, str | int]:
 
 def current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
-) -> str:
+) -> quota.Principal:
+    """The account behind this request, and what it may spend.
+
+    Returns a Principal rather than a bare id so the per-account limit rides
+    along with the identity. Resolving it separately would mean a second read
+    of the same document, and two places that could disagree about what an
+    account is allowed.
+    """
     if credentials is None:
         raise HTTPException(status_code=401, detail="Sign in to use the hosted service.")
     try:
@@ -281,10 +288,14 @@ def current_user(
     except auth.AuthError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     try:
-        quota.assert_session_valid(db, user_id, token_version=token_version)
+        return quota.load_principal(
+            db,
+            user_id,
+            token_version=token_version,
+            default_limit=CFG.free_daily_micros,
+        )
     except quota.SessionRevoked as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
-    return user_id
 
 
 # ── Account ─────────────────────────────────────────────────────────────────
@@ -308,12 +319,13 @@ FALLBACK_MICROS_PER_TURN = 2_000
 
 
 @app.get("/v1/me")
-def me(request: Request, user_id: str = Depends(current_user)) -> dict[str, object]:
+def me(request: Request, who: quota.Principal = Depends(current_user)) -> dict[str, object]:
     """Identity and remaining allowance, for the quota display in the app.
 
     Doubles as the device check-in, so "which machines" stays current instead
     of frozen at whenever the person last signed in.
     """
+    user_id = who.user_id
     quota.record_device(
         db,
         user_id,
@@ -321,7 +333,7 @@ def me(request: Request, user_id: str = Depends(current_user)) -> dict[str, obje
         platform=request.headers.get(PLATFORM_HEADER, "")[:MAX_CLIENT_FIELD],
         app_version=request.headers.get(VERSION_HEADER, "")[:MAX_CLIENT_FIELD],
     )
-    balance = quota.read_balance(db, user_id, limit=CFG.free_daily_micros)
+    balance = quota.read_balance(db, who.user_id, limit=who.daily_limit)
     profile = db.collection(quota.USERS).document(user_id).get().to_dict() or {}
 
     # Money is the truth, but nobody plans their afternoon in micro-dollars.
@@ -348,6 +360,9 @@ def me(request: Request, user_id: str = Depends(current_user)) -> dict[str, obje
             else 0
         ),
         "resets": "00:00 UTC",
+        # True when this account carries its own limit instead of the default,
+        # so an unusually large allowance is explained rather than puzzling.
+        "custom_limit": who.overridden,
     }
 
 
@@ -466,18 +481,19 @@ def _guard_request(parsed: dict) -> None:
 
 
 @app.post("/v1/chat/completions")
-async def chat_completions(request: Request, user_id: str = Depends(current_user)):
+async def chat_completions(request: Request, who: quota.Principal = Depends(current_user)):
     """Authenticated passthrough to OpenRouter, metered per user in money.
 
     The request body is forwarded as-is so the app's structured-output options
     reach the provider unchanged — this service does not reinterpret them. It
     does refuse models it will not pay for, and caps the completion length.
     """
+    user_id = who.user_id
     try:
         quota.check_allowed(
             db,
             user_id,
-            user_limit=CFG.free_daily_micros,
+            user_limit=who.daily_limit,
             global_limit=CFG.global_daily_micros,
         )
     except quota.QuotaExceeded as exc:
@@ -605,14 +621,15 @@ TRANSCRIPTION_MICROS = 1_000  # $0.001
 
 
 @app.post("/v1/audio/transcriptions")
-async def transcriptions(request: Request, user_id: str = Depends(current_user)):
+async def transcriptions(request: Request, who: quota.Principal = Depends(current_user)):
     """Authenticated passthrough to Groq Whisper, so hosted users need no
     second API key for voice input."""
+    user_id = who.user_id
     try:
         quota.check_allowed(
             db,
             user_id,
-            user_limit=CFG.free_daily_micros,
+            user_limit=who.daily_limit,
             global_limit=CFG.global_daily_micros,
         )
     except quota.QuotaExceeded as exc:

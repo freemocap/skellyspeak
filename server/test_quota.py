@@ -438,22 +438,98 @@ class TestSessionRevocation:
     all until their token expires on its own.
     """
 
+    def valid(self, db, version=0, default=500_000):
+        return quota.load_principal(
+            db, "google:1", token_version=version, default_limit=default
+        )
+
     def test_a_current_session_is_accepted(self, db):
         signup(db, 1, max_users=6)
-        quota.assert_session_valid(db, "google:1", token_version=0)
+        assert self.valid(db).user_id == "google:1"
 
     def test_a_deleted_account_cannot_keep_using_its_token(self, db):
         with pytest.raises(quota.SessionRevoked):
-            quota.assert_session_valid(db, "google:ghost", token_version=0)
+            quota.load_principal(
+                db, "google:ghost", token_version=0, default_limit=1
+            )
 
     def test_bumping_the_token_version_invalidates_older_sessions(self, db):
         signup(db, 1, max_users=6)
         db.store["users/google:1"]["token_version"] = 3
         with pytest.raises(quota.SessionRevoked):
-            quota.assert_session_valid(db, "google:1", token_version=0)
+            self.valid(db, version=0)
         # A session issued after the bump still works.
-        quota.assert_session_valid(db, "google:1", token_version=3)
+        assert self.valid(db, version=3).user_id == "google:1"
 
+
+class TestPerAccountLimits:
+    """One account can be raised without raising everyone's.
+
+    Changing FREE_DAILY_MICROS moves the limit for every user at once, which is
+    the wrong tool for "let the developer hammer it all day".
+    """
+
+    def principal(self, db, default=500_000):
+        return quota.load_principal(
+            db, "google:1", token_version=0, default_limit=default
+        )
+
+    def test_an_account_with_no_override_gets_the_service_default(self, db):
+        signup(db, 1, max_users=6)
+        who = self.principal(db, default=500_000)
+        assert who.daily_limit == 500_000
+        assert who.overridden is False
+
+    def test_an_override_replaces_the_default_for_that_account_only(self, db):
+        signup(db, 1, max_users=6)
+        signup(db, 2, max_users=6)
+        db.store["users/google:1"][quota.LIMIT_FIELD] = 10_000_000
+        assert self.principal(db).daily_limit == 10_000_000
+        assert self.principal(db).overridden is True
+        # The other account is untouched.
+        other = quota.load_principal(
+            db, "google:2", token_version=0, default_limit=500_000
+        )
+        assert other.daily_limit == 500_000
+        assert other.overridden is False
+
+    def test_the_override_is_what_the_ceiling_is_enforced_against(self, db):
+        signup(db, 1, max_users=6)
+        db.store["users/google:1"][quota.LIMIT_FIELD] = 2_000
+        quota.record_usage(db, "google:1", micros=1_500)
+        who = self.principal(db)
+        quota.check_allowed(db, "google:1", user_limit=who.daily_limit, global_limit=10**9)
+        quota.record_usage(db, "google:1", micros=600)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(
+                db, "google:1", user_limit=who.daily_limit, global_limit=10**9
+            )
+
+    def test_the_global_ceiling_still_applies_over_any_override(self, db):
+        # The whole point of the shared cap: a generous personal allowance must
+        # not be able to spend the service's whole day.
+        signup(db, 1, max_users=6)
+        db.store["users/google:1"][quota.LIMIT_FIELD] = 10**9
+        quota.record_usage(db, "google:1", micros=2_000_000)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(
+                db, "google:1", user_limit=10**9, global_limit=2_000_000
+            )
+
+    def test_a_zero_or_missing_override_falls_back_to_the_default(self, db):
+        signup(db, 1, max_users=6)
+        for value in (0, None):
+            db.store["users/google:1"][quota.LIMIT_FIELD] = value
+            assert self.principal(db, default=500_000).daily_limit == 500_000
+
+    def test_a_negative_override_is_a_bug_not_a_credit(self, db):
+        signup(db, 1, max_users=6)
+        db.store["users/google:1"][quota.LIMIT_FIELD] = -1
+        with pytest.raises(ValueError):
+            self.principal(db)
+
+
+class TestSignupVersion:
     def test_signup_reports_the_version_to_stamp_into_the_token(self, db):
         assert (
             quota.upsert_user(

@@ -140,14 +140,39 @@ def read_balance(db: firestore.Client, user_id: str, *, limit: int) -> Balance:
     )
 
 
-def assert_session_valid(db: firestore.Client, user_id: str, *, token_version: int) -> None:
-    """Refuse a session whose account is gone, or whose sessions were revoked.
+@dataclass(frozen=True)
+class Principal:
+    """Who is making this request, and what they are allowed to spend."""
 
-    Without this a session token is valid for its full 30 days no matter what
-    happens to the account behind it: deleting a user, or removing them from
-    the tester list, would change nothing until the token expired on its own.
-    Bumping `token_version` on the user document is the per-account revocation
-    lever, and deleting the document is the blunt one.
+    user_id: str
+    daily_limit: int
+    #: True when this account carries its own limit rather than the default.
+    overridden: bool
+
+
+#: A per-account daily limit, in micro-dollars, on the user document. Absent
+#: for everyone by default.
+#:
+#: This exists so one account can be raised — a developer who needs to exercise
+#: the thing all day — WITHOUT raising it for everyone, which is what changing
+#: FREE_DAILY_MICROS would do. It is a number, never "unlimited": the global
+#: ceiling is the backstop that makes the worst case arithmetic rather than
+#: trust, and an account with no limit at all would punch straight through the
+#: reasoning behind it.
+LIMIT_FIELD = "daily_limit_micros"
+
+
+def load_principal(
+    db: firestore.Client, user_id: str, *, token_version: int, default_limit: int
+) -> Principal:
+    """Validate the session and resolve what this account may spend.
+
+    One read does both jobs. Without the session half, a signed token is valid
+    for its full 30 days no matter what happens to the account behind it:
+    deleting a user, or removing them from the tester list, would change
+    nothing until it expired on its own. Bumping `token_version` on the user
+    document is the per-account revocation lever; deleting the document is the
+    blunt one.
     """
     snapshot = db.collection(USERS).document(user_id).get()
     if not snapshot.exists:
@@ -155,6 +180,12 @@ def assert_session_valid(db: firestore.Client, user_id: str, *, token_version: i
     current = int(snapshot.get("token_version") or 0)
     if token_version < current:
         raise SessionRevoked("This session was signed out remotely. Sign in again.")
+
+    override = snapshot.get(LIMIT_FIELD)
+    limit = int(override) if override else default_limit
+    if limit < 0:
+        raise ValueError(f"{LIMIT_FIELD} cannot be negative, got {override!r}")
+    return Principal(user_id=user_id, daily_limit=limit, overridden=bool(override))
 
 
 def check_allowed(
