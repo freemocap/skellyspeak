@@ -280,3 +280,32 @@ describe('steering the conversation', () => {
     )
   })
 })
+
+
+describe('a failure that names Settings', () => {
+  const SIGN_IN =
+    'Sign in to use the free hosted service, or choose a different AI provider, in Settings.'
+
+  it('offers a way straight there', async () => {
+    // Telling someone to go to Settings and making them find the gear is a
+    // dead end dressed as an instruction.
+    const onOpenSettings = vi.fn()
+    backend.rawInvoke.mockRejectedValue(new Error(SIGN_IN))
+    const user = userEvent.setup()
+    render(<GuidedPage onOpenSettings={onOpenSettings} />)
+
+    const button = await screen.findByRole('button', { name: 'Open Settings' })
+    await user.click(button)
+    expect(onOpenSettings).toHaveBeenCalled()
+    expect(screen.getByText(SIGN_IN)).toBeInTheDocument()
+  })
+
+  it('does not offer it for a failure Settings cannot fix', async () => {
+    backend.rawInvoke.mockRejectedValue(
+      new Error('The tutor hit a rate limit — give it a few seconds and try again.')
+    )
+    render(<GuidedPage onOpenSettings={vi.fn()} />)
+    await screen.findByText(/rate limit/)
+    expect(screen.queryByRole('button', { name: 'Open Settings' })).not.toBeInTheDocument()
+  })
+})

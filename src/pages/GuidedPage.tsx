@@ -39,6 +39,7 @@ import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { reportFault } from '../lib/faults'
+import { needsProviderSetup } from '../lib/providers'
 
 /// How much of the conversation each caller sends. The tutor needs the thread;
 /// a scaffold refresh and the coach only need the recent exchange.
@@ -99,10 +100,14 @@ export default function GuidedPage({
   settingsVersion = 0,
   historyOpen = false,
   onHistoryOpenChange,
+  onOpenSettings,
 }: {
   settingsVersion?: number
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
+  /// Open the Settings modal. It lands on the AI provider section, which is
+  /// where every "configure a provider" failure is asking the learner to go.
+  onOpenSettings?: () => void
 }) {
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
@@ -616,7 +621,18 @@ export default function GuidedPage({
               onToggleReveal={words.toggleReveal}
             />
           ))}
-          {error && <div className="err">{error}</div>}
+          {error && (
+            <div className="err">
+              <span>{error}</span>
+              {/* A message that says "go to Settings" should take you there,
+                  rather than making you find the gear yourself. */}
+              {onOpenSettings && needsProviderSetup(error) && (
+                <button type="button" className="err-action" onClick={onOpenSettings}>
+                  Open Settings
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Composer */}

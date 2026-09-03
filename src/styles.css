@@ -145,7 +145,15 @@ body {
 .err {
   align-self: center; color: #b34a4a; background: #fbeaea; border: 1px solid #e8c9c9;
   border-radius: 10px; padding: 8px 12px; font-size: 12.5px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
 }
+/* The way out of a failure that names Settings — same red, but clearly a
+   control rather than more prose. */
+.err-action {
+  flex: none; background: #b34a4a; border: 1px solid #a03f3f; border-radius: 6px;
+  color: #fff; cursor: pointer; font-size: 12px; padding: 4px 10px; white-space: nowrap;
+}
+.err-action:hover { background: #9d3f3f; }
 
 /* Composer */
 .composer { background: var(--paper2); padding: 4px 12px 11px; flex: 0 0 auto; min-height: 0; }
