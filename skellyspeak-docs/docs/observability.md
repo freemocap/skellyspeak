@@ -596,6 +596,43 @@ Conversations and runs persist across restarts, with an obvious reset.
 | `session.json` | The turn log — closes [R4](./status), the long-standing "resume where I left off" gap | Whole-session document |
 | `runs.jsonl` | Append-only run records | Capped by size + count, rotated (the log plugin's 2 MB / keep-one is the precedent) |
 
+### One conversation per language pairing — SHIPPED
+
+Everything belonging to a conversation lives in a directory named for its
+**pairing**: the language being learned and the language already spoken.
+
+```text
+<config>/settings.json                     ← global; holds which pairing is current
+<config>/conversations/es-ES__en/session.json
+                                /plan.json
+                                /profile.json
+                                /coach_thread.json
+<config>/conversations/ar__en/...
+```
+
+So a Spanish conversation and an Arabic one coexist, each with its own turns,
+coach thread and tutor memory. Switching to Arabic and back returns to the
+Spanish conversation where it was left, rather than starting over.
+
+**The dialect is not part of a pairing.** Levantine versus MSA, or Spain versus
+Mexico, is a setting applied to the conversation you are already in — it does
+not fork a new one. `src-tauri/src/conversation.rs` owns the layout, and the
+language ids are slugged before they reach a path because `settings.json` is a
+file a person can hand-edit.
+
+**Turns are stored exactly as the webview holds them.** The core never
+interprets a turn — it composes prompts from the history sent with each
+request — so a second definition of a turn in Rust would be a shape to keep in
+step for no gain.
+
+**The pairing is named explicitly on every load and save**, rather than read
+from settings at the time of the call. The webview knows which conversation the
+turns on screen belong to, and saying so is what stops a language switch racing
+an in-flight save and filing one conversation under another's name. The
+observer's output is pinned the same way, captured before its task starts:
+reading the pairing when it finishes would file its conclusions under whatever
+conversation the user had switched to while it was thinking.
+
 ### The privacy property changed on purpose
 
 Until now, **"conversation history lives only in memory"** was a documented
@@ -617,6 +654,13 @@ Not buried in Settings. A **Session** control on the main surface, offering:
 | New conversation | Fresh turn log; plan/profile retained (continuity is the point) |
 | Reset what the tutor knows about me | Plan + profile back to defaults |
 | Clear history & traces | Everything, archived |
+
+**New conversation** is shipped, as the `✚` control in the steer row above the
+composer. It archives this pairing's turn log and coach thread under
+timestamped names and opens a fresh one with a new greeting. The observer's
+plan and profile are deliberately kept: they are what the tutor has learned
+about this learner in this language, and that continuity is the entire reason
+the observer exists.
 
 Reset **archives, never destroys** — reusing the timestamped `.bak` pattern
 `save_settings` already applies on a language switch, consistent with the

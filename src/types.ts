@@ -37,6 +37,28 @@ export interface Settings {
   shortcuts: Shortcuts
 }
 
+/// The coach's private read on one learner message.
+export interface CoachFeedback {
+  comprehensibility: number
+  grammar: number
+  remark: string
+  used_target: string[]
+  used_native: string[]
+  corrections: { said: string; corrected: string; kind: string; explanation: string }[]
+}
+
+/// One exchange, as stored. This is the canonical turn shape: the live turn in
+/// GuidedPage is this plus `pendingText`, the streaming buffer, which is
+/// transient by definition and never written to disk.
+export interface StoredTurn {
+  id: number
+  user: string | null
+  assistant: GuidedTurnResult | null
+  analysisState: 'pending' | 'done' | 'failed' | null
+  coach?: CoachFeedback
+  coachError?: string
+}
+
 /// Identity and remaining allowance on the hosted service. Mirrors
 /// `GET /v1/me` and the `Account` struct in `hosted.rs`.
 export interface HostedAccount {

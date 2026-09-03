@@ -42,12 +42,18 @@ is private and carries none, and Android's `versionName`/`versionCode` are
 derived from it at build time.
 
 ```powershell
-node scripts/set-version.mjs 0.2.0 --git-tag   # rewrites Cargo.toml + Cargo.lock, tags v0.2.0
-git commit -am "v0.2.0"
-git push && git push origin v0.2.0   # the tag is what triggers the release
+node scripts/set-version.mjs 0.3.0   # rewrites Cargo.toml + Cargo.lock
+git commit -am "v0.3.0"
+git tag v0.3.0
+git push && git push origin v0.3.0   # the tag is what triggers the release
 ```
 
-The release workflow refuses to run if the tag and `Cargo.toml` disagree.
+**The order matters.** The release workflow reads the version out of
+`Cargo.toml` *as of the tagged commit* and refuses to build if it disagrees
+with the tag. A tag created before the bump is committed therefore names a
+commit still carrying the previous version, and the build stops at the
+`version` job. The script does not tag for this reason — at the moment it runs,
+the commit the tag needs to point at does not exist yet.
 
 ## In-app updates
 

@@ -84,10 +84,10 @@ Three ceilings. Two count tokens, in Firestore, keyed by UTC date:
   nothing about a launch-day crowd, and that bill lands on the project.
 
 The third counts *people*, and during closed testing it is the one that
-matters. Nobody yet knows what a conversation really costs — a turn fires the
-eight calls in `turn_plan.rs::TURN_STEPS` — so guessing a token allowance
-tight enough to be safe would only produce a service too crippled to learn
-anything from. Instead the allowance is generous and `MAX_USERS` is small:
+matters. The cost of a conversation was unmeasured when these numbers were
+chosen, so rather than guess a token allowance tight enough to be safe — and
+produce a service too crippled to learn anything from — the allowance was set
+generously and `MAX_USERS` set small:
 
 - **Total accounts** — `MAX_USERS`, enforced in `quota.upsert_user` inside a
   Firestore transaction, because the check and the increment must be one step.
@@ -218,11 +218,30 @@ gcloud run services update skellyspeak-api --region=us-central1 `
 **Mirror the new value back into `cloudbuild.yaml` afterwards, or the next
 deploy silently reverts it.**
 
-Both meters needed to set the real numbers already exist: `GET /v1/me` reports
-`used_today` per account, Firestore holds the daily totals under
-`users/{id}/usage/{date}` and `global_usage/{date}`, and the app's own run
-tracing records per-call token usage locally. After real use those give tokens
-per turn and cost per active user.
+### What a turn actually costs
+
+Measured 2 September 2026, on the first real hosted session: **roughly 7,000
+tokens per turn** of voice conversation (~25,000 across three to four turns,
+with the analysis panels live). That is one turn — the eight calls in
+`turn_plan.rs::TURN_STEPS` together, including speech-to-text and the spoken
+reply.
+
+So the numbers above mean:
+
+| | |
+|---|---|
+| 500,000 per user per day | **~70 turns** — a long session, not a teaser |
+| 3,000,000 globally per day | six people all at their limit |
+| Cost of that worst case | a few dollars a day at gemini-2.5-flash rates |
+
+The per-user figure is generous on purpose and costs nothing while `MAX_USERS`
+is 6. **It is the number to revisit before raising `MAX_USERS`**, because that
+is the moment it starts multiplying.
+
+Both meters stay available for re-measuring: `GET /v1/me` reports `used_today`
+per account, Firestore holds the daily totals under `users/{id}/usage/{date}`
+and `global_usage/{date}` alongside a request count, and the app's own run
+tracing records per-call token usage locally.
 
 The consent screen is the other half of the gate: an OAuth client in
 **Testing** admits only listed addresses, while one published to **Production**

@@ -9,6 +9,7 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
 use crate::graph;
+use crate::conversation;
 use crate::hosted;
 use crate::ontology;
 use crate::ai::truncate_for_log;
@@ -558,45 +559,55 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
     );
     // A failed save means the user's keys are NOT on disk — fail loudly.
     settings::persist(&state.config_dir, &settings)?;
-    // Language pair changed → the observer documents and coach thread were
-    // built for the OTHER pairing. Archive them (never silently mix
-    // languages) and start fresh for the new pairing. Archived files keep
-    // every old document recoverable.
+    // Language pairing changed → the observer documents and coach thread
+    // belong to the OTHER conversation. Save them where they came from and
+    // load whatever this pairing had, so switching away and back returns you
+    // to where you were. The dialect is deliberately NOT part of a pairing:
+    // moving between Levantine and MSA is a setting on one conversation.
     let pairing_changed = stored.target_language != settings.target_language
-        || stored.native_language != settings.native_language
-        || stored.target_dialect != settings.target_dialect;
+        || stored.native_language != settings.native_language;
     if pairing_changed {
-        let archive = |name: &str| {
-            let src = state.config_dir.join(name);
-            if src.exists() {
-                let stamp = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|t| t.as_secs())
-                    .unwrap_or(0);
-                let dst = state.config_dir.join(format!(
-                    "{name}.{old_target}.{stamp}.bak",
-                    old_target = stored.target_language
-                ));
-                if let Err(e) = std::fs::rename(&src, &dst) {
-                    warn!("[cmd] could not archive {name}: {e}");
-                } else {
-                    info!("[cmd] language change: archived {name} -> {}", dst.display());
-                }
+        info!(
+            "[cmd] pairing {}->{}: saving the old conversation, loading the new one",
+            conversation::pair_key(&stored.target_language, &stored.native_language),
+            conversation::pair_key(&settings.target_language, &settings.native_language),
+        );
+        let old_dir = conversation::pair_dir(
+            &state.config_dir,
+            &stored.target_language,
+            &stored.native_language,
+        )?;
+        {
+            let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner()).clone();
+            let profile = state.profile.lock().unwrap_or_else(|p| p.into_inner()).clone();
+            let faults = observer::persist_documents(&old_dir, &plan, &profile);
+            if let Some(first) = faults.into_iter().next() {
+                return Err(first);
             }
-        };
-        archive("plan.json");
-        archive("profile.json");
-        archive("coach_thread.json");
-        // Reset in-memory documents so the next turn starts clean.
-        *state.plan.lock().unwrap_or_else(|p| p.into_inner()) =
-            observer::TeachingPlan::default();
-        *state.profile.lock().unwrap_or_else(|p| p.into_inner()) =
-            observer::Profile::default();
-        state
-            .coach_thread
-            .lock()
-            .unwrap_or_else(|p| p.into_inner())
-            .clear();
+            let thread = state
+                .coach_thread
+                .lock()
+                .unwrap_or_else(|p| p.into_inner())
+                .clone();
+            persist_coach_thread(&old_dir, &thread);
+        }
+
+        let new_dir = conversation::pair_dir(
+            &state.config_dir,
+            &settings.target_language,
+            &settings.native_language,
+        )?;
+        // Anything unreadable in the incoming conversation must reach the
+        // screen, not be discovered later as missing context.
+        let mut faults: Vec<String> = Vec::new();
+        let (plan, profile) = observer::load_documents(&new_dir, &mut faults);
+        let thread = init_coach_thread(&new_dir, &mut faults);
+        *state.plan.lock().unwrap_or_else(|p| p.into_inner()) = plan;
+        *state.profile.lock().unwrap_or_else(|p| p.into_inner()) = profile;
+        *state.coach_thread.lock().unwrap_or_else(|p| p.into_inner()) = thread;
+        if let Some(first) = faults.into_iter().next() {
+            return Err(first);
+        }
     }
     *state.settings.lock().unwrap_or_else(|p| p.into_inner()) = settings;
     Ok(())
@@ -1042,6 +1053,14 @@ pub async fn guided_turn(
             .clone()
             .unwrap_or_else(crate::settings::default_observer_model);
         let tln_for_observer = tln.clone();
+        // Pinned to the pairing this turn belongs to, captured BEFORE the task
+        // starts. Reading it at the end instead would write the observer's
+        // conclusions into whatever conversation the user had switched to
+        // while it was thinking.
+        let observer_pairing = (
+            settings.target_language.clone(),
+            settings.native_language.clone(),
+        );
         info!("[cmd] observer pass triggered (model={observer_model})");
         tokio::spawn(async move {
             let obs_started = std::time::Instant::now();
@@ -1058,6 +1077,24 @@ pub async fn guided_turn(
                 }
             }
             let _running_guard = ClearRunning(&state.observer_running);
+
+            let docs = match conversation::pair_dir(
+                &state.config_dir,
+                &observer_pairing.0,
+                &observer_pairing.1,
+            ) {
+                Ok(dir) => dir,
+                Err(e) => {
+                    emit(
+                        &event_channel,
+                        GuidedEvent::Fault {
+                            context: "Saving teaching plan".into(),
+                            message: e,
+                        },
+                    );
+                    return;
+                }
+            };
 
             let (plan_snapshot, profile_snapshot, mechanics) = {
                 let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
@@ -1103,7 +1140,7 @@ pub async fn guided_turn(
             match result {
                 Ok(output) => {
                     for fault in
-                        observer::persist_documents(&state.config_dir, &output.plan, &output.profile)
+                        observer::persist_documents(&docs, &output.plan, &output.profile)
                     {
                         emit(
                             &event_channel,
@@ -1586,7 +1623,7 @@ pub fn coach_thread_clear(state: State<'_, AppState>) -> Result<(), String> {
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clear();
-    let dir = state.config_dir.clone();
+    let dir = docs_dir(&state)?;
     persist_coach_thread(&dir, &[]);
     Ok(())
 }
@@ -1969,6 +2006,81 @@ pub fn get_plan(state: State<'_, AppState>) -> Result<ObserverDocuments, String>
             .unwrap_or_else(|p| p.into_inner())
             .clone(),
     })
+}
+
+// ─── Conversation persistence ────────────────────────────────────────────────
+
+/// The directory holding the current pairing's documents.
+fn docs_dir(state: &AppState) -> Result<std::path::PathBuf, String> {
+    let (target, native) = {
+        let s = state.settings.lock().unwrap_or_else(|p| p.into_inner());
+        (s.target_language.clone(), s.native_language.clone())
+    };
+    conversation::pair_dir(&state.config_dir, &target, &native)
+}
+
+/// The stored turn log for one pairing, or an empty list.
+///
+/// The pairing is named by the caller rather than read from settings. The
+/// webview knows which conversation the turns on screen belong to, and saying
+/// so explicitly is what stops a language switch racing an in-flight save and
+/// filing one conversation under another's name.
+///
+/// Turns are stored exactly as the webview holds them; the core never
+/// interprets one, so there is no second definition of a turn to keep in step.
+#[tauri::command]
+pub fn load_conversation(
+    state: State<'_, AppState>,
+    target: String,
+    native: String,
+) -> Result<serde_json::Value, String> {
+    let dir = conversation::pair_dir(&state.config_dir, &target, &native)?;
+    let loaded = conversation::load_session(&dir);
+    // A conversation that could not be read is reported, not silently empty.
+    if let Some(fault) = loaded.fault {
+        return Err(fault);
+    }
+    info!(
+        "[cmd] load_conversation {}: {} turns",
+        conversation::pair_key(&target, &native),
+        loaded.turns.as_array().map(Vec::len).unwrap_or(0)
+    );
+    Ok(loaded.turns)
+}
+
+/// Write the turn log for the pairing the caller names.
+#[tauri::command]
+pub fn save_conversation(
+    state: State<'_, AppState>,
+    turns: serde_json::Value,
+    target: String,
+    native: String,
+) -> Result<(), String> {
+    if !turns.is_array() {
+        return Err("A conversation must be a list of turns.".into());
+    }
+    let dir = conversation::pair_dir(&state.config_dir, &target, &native)?;
+    conversation::save_session(&dir, &turns)
+}
+
+/// Start a fresh conversation for this pairing.
+///
+/// The turn log and coach thread are archived and cleared. The observer's plan
+/// and profile are deliberately kept: they are what the tutor has learned
+/// about this learner in this language, and continuity across conversations is
+/// the entire point of having them.
+#[tauri::command]
+pub fn new_conversation(state: State<'_, AppState>) -> Result<(), String> {
+    let dir = docs_dir(&state)?;
+    info!("[cmd] new_conversation: archiving the turn log and coach thread");
+    conversation::archive(&dir, conversation::SESSION_FILE)?;
+    conversation::archive(&dir, COACH_THREAD_FILE)?;
+    state
+        .coach_thread
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+        .clear();
+    Ok(())
 }
 
 // ─── Hosted service (sign-in and allowance) ──────────────────────────────────

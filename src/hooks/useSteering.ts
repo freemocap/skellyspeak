@@ -8,7 +8,7 @@ export const STEER_LEVELS = [
   { value: 'intermediate', label: 'Intermediate', cefr: 'B1' },
   { value: 'advanced', label: 'Advanced', cefr: 'C1' },
 ]
-export const STEER_TOPICS = [
+export const STEER_TOPICS: readonly string[] = [
   'Daily routines', 'Food & cooking', 'Travel stories', 'Work & studies',
   'Family & friends', 'Music & hobbies', 'Movies & series', 'Weekend plans',
   'Childhood memories', 'Weather & seasons', 'Sports & exercise', 'Technology',

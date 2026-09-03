@@ -2,6 +2,7 @@ pub mod ai;
 #[cfg(test)]
 mod bench;
 pub mod commands;
+pub mod conversation;
 pub mod graph;
 mod hosted;
 pub mod languages;
@@ -94,7 +95,24 @@ pub fn run() {
                 if settings.openrouter_key.is_empty() { "MISSING" } else { "set" },
                 if settings.groq_key.is_empty() { "MISSING" } else { "set" },
             );
-            let (plan, profile) = observer::load_documents(&config_dir, &mut startup_faults);
+            // Documents live under the current pairing, so switching language
+            // leaves the other conversation intact rather than archiving it.
+            let docs_dir = match conversation::pair_dir(
+                &config_dir,
+                &settings.target_language,
+                &settings.native_language,
+            ) {
+                Ok(dir) => dir,
+                Err(e) => {
+                    // Nothing can be remembered without it, so say so loudly
+                    // and fall back to no conversation rather than crashing.
+                    startup_faults.push(format!(
+                        "{e} Nothing from this conversation will be saved."
+                    ));
+                    config_dir.clone()
+                }
+            };
+            let (plan, profile) = observer::load_documents(&docs_dir, &mut startup_faults);
             log::info!(
                 "documents loaded: focus={:?} profile_about_len={}",
                 plan.session_focus,
@@ -103,7 +121,7 @@ pub fn run() {
             // Attach the trace bus: every AI run is recorded regardless, but
             // this is what lets the webview watch them live.
             trace::attach(app.handle().clone());
-            let coach_thread = commands::init_coach_thread(&config_dir, &mut startup_faults);
+            let coach_thread = commands::init_coach_thread(&docs_dir, &mut startup_faults);
             log::info!("coach thread loaded: {} messages", coach_thread.len());
             app.manage(AppState {
                 settings: Mutex::new(settings),
@@ -127,6 +145,9 @@ pub fn run() {
             commands::hosted_sign_in,
             commands::hosted_account,
             commands::hosted_sign_out,
+            commands::load_conversation,
+            commands::save_conversation,
+            commands::new_conversation,
             commands::get_languages,
             commands::open_dev_window,
             commands::get_graph,
