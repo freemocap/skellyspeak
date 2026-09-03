@@ -1,24 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type {
-  ChatSummary,
-  StoredTurn,
-  GuidedEvent,
-  GuidedTurnResult,
-  Profile,
-  Settings,
-  Scaffolds,
-  TeachingPlan,
-} from '../types'
+import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { DevPanel } from '../components/dev/DevPanel'
-import { GlossPopup, type PopupState } from '../components/GlossPopup'
+import { GlossPopup } from '../components/GlossPopup'
 import {
-  deleteConversation,
-  listConversations,
-  loadConversation,
-  newConversation,
-  openConversation,
-  saveConversation,
   getPlan,
   getSettings,
   isTauri,
@@ -43,23 +28,33 @@ import { WordInsightModal } from '../components/WordInsightModal'
 import { TurnView } from '../components/chat/TurnView'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
-import { STEER_LEVELS, STEER_TOPICS, useSteering, armGreeting, disarmGreeting } from '../hooks/useSteering'
+import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
 import { TopicField } from '../components/TopicField'
 import { ChatHistory } from '../components/ChatHistory'
-import { conversationTitle } from '../lib/conversation'
+import { chatHistory, latestAnswered, latestScaffolds, transcriptForCoach } from '../lib/turns'
+import { useConversation, type Turn } from './guided/useConversation'
+import { useScaffolds } from './guided/useScaffolds'
+import { useWordInspection } from './guided/useWordInspection'
 import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { reportFault } from '../lib/faults'
 
-/// A turn on screen: everything that gets stored, plus the streaming buffer
-/// for the reply still arriving. `StoredTurn` is the shape on disk.
-type Turn = StoredTurn & { pendingText: string }
+/// How much of the conversation each caller sends. The tutor needs the thread;
+/// a scaffold refresh and the coach only need the recent exchange.
+const REPLY_HISTORY_MESSAGES = 30
+const COACH_CONTEXT_TURNS = 8
 
-/// How long the conversation rests before it is written. Long enough that a
-/// streamed reply is one write rather than one per token, short enough that
-/// closing the app straight after a turn still catches it.
-const CONVERSATION_SAVE_DEBOUNCE_MS = 800
+/// The mobile surfaces, in swipe order. The dev panel is last deliberately:
+/// it is the deepest rung of the disclosure ladder, always reachable but never
+/// in the way.
+const MOBILE_SURFACES = ['chat', 'panel', 'dev'] as const
+type MobileSurface = (typeof MOBILE_SURFACES)[number]
+
+/// A horizontal swipe has to be clearly horizontal to claim the gesture, or it
+/// steals vertical chat scrolling and drag-to-reveal.
+const SWIPE_MIN_PX = 60
+const SWIPE_MAX_MS = 600
 
 
 function ScaffoldRow({
@@ -109,7 +104,6 @@ export default function GuidedPage({
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
 }) {
-  const [turns, setTurns] = useState<Turn[]>([])
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -124,31 +118,14 @@ export default function GuidedPage({
   const ttsEngine = settings?.tts_engine ?? 'cloud'
   const ttsReady = ttsAvailable(ttsEngine, osVoiceReady)
   const autoSpeak = settings?.auto_speak ?? false
-  const [wordPopup, setWordPopup] = useState<PopupState | null>(null)
-  const closePopup = useCallback(() => setWordPopup(null), [])
   const [planOpen, setPlanOpen] = useState(false)
   useEffect(
     () => (planOpen ? openOverlay(() => setPlanOpen(false)) : undefined),
     [planOpen]
   )
-  useEffect(
-    () => (wordPopup ? openOverlay(() => setWordPopup(null)) : undefined),
-    [wordPopup]
-  )
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const steer = useSteering()
-  const [revealed, setRevealed] = useState<Set<string>>(() => new Set())
-  const onReveal = useCallback((keys: string[]) => {
-    setRevealed((prev) => {
-      const next = new Set(prev)
-      for (const k of keys) next.add(k)
-      return next
-    })
-  }, [])
-  const [inspect, setInspect] = useState<{ turn: number; side: 'me' | 'bot'; index: number } | null>(
-    null
-  )
-
+  const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
 
@@ -174,9 +151,6 @@ export default function GuidedPage({
   )
 
   const streamRef = useRef<HTMLDivElement | null>(null)
-  const nextIdRef = useRef(1)
-  const turnsRef = useRef<Turn[]>([])
-  turnsRef.current = turns
   const breakRef = useRef<HTMLDivElement | null>(null)
 
   const settingsRef = useRef<Settings | null>(null)
@@ -185,176 +159,48 @@ export default function GuidedPage({
   const toggleMicRef = useRef<() => void>(() => {})
   const toggleBreakRef = useRef<() => void>(() => {})
 
-  // ── Conversation persistence ────────────────────────────────────────────
-  // Which chat the turns on screen belong to. Saves are addressed to THIS
-  // chat, not to whatever settings say right now, so a save landing after a
-  // language switch or a chat change still files the turns under the
-  // conversation they came from.
-  const turnsRefKey = useRef<{ target: string; native: string; id: string } | null>(null)
-  const [chats, setChats] = useState<ChatSummary[]>([])
   const setHistoryOpen = useCallback(
     (open: boolean) => onHistoryOpenChange?.(open),
     [onHistoryOpenChange]
   )
 
-  const refreshChats = useCallback(async (target: string, native: string) => {
-    try {
-      setChats(await listConversations(target, native))
-    } catch (e) {
-      reportFault('Loading your chat history', e)
-    }
-  }, [])
-
-  /// Put a conversation's turns on screen and mark it as the one saves belong
-  /// to. `load` decides which conversation — the open one, or a named one.
-  const showConversation = useCallback(
-    async (
-      target: string,
-      native: string,
-      load: () => Promise<{ id: string; turns: StoredTurn[] }>
-    ) => {
-      try {
-        const opened = await load()
-        turnsRefKey.current = { target, native, id: opened.id }
-        setTurns(opened.turns.map((t) => ({ ...t, pendingText: '' })))
-        // Ids must continue past what was restored or a new turn would collide
-        // with an old one and React would reconcile the wrong bubble.
-        nextIdRef.current = opened.turns.reduce((max, t) => Math.max(max, t.id), 0) + 1
-        void refreshChats(target, native)
-        return opened.turns.length
-      } catch (e) {
-        reportFault('Opening that conversation', e)
-        setTurns([])
-        return 0
-      }
-    },
-    [refreshChats]
-  )
-
-  const restoreConversation = useCallback(
-    (target: string, native: string) =>
-      showConversation(target, native, () => loadConversation(target, native)),
-    [showConversation]
-  )
-
-  // Written after a pause rather than on every keystroke of the stream, and
-  // never before a restore has run — saving an empty list first would erase
-  // the conversation we are about to load. Only settled turns are stored: one
-  // still streaming has no reply to keep.
-  useEffect(() => {
-    if (!isTauri) return
-    const key = turnsRefKey.current
-    if (!key || sending) return
-    const timer = setTimeout(() => {
-      const stored = turns
-        .filter((t) => t.assistant !== null)
-        .map(({ pendingText: _pendingText, ...rest }) => rest)
-      void saveConversation(
-        key.target,
-        key.native,
-        key.id,
-        stored,
-        // The title comes from here because this is the side that knows what a
-        // turn looks like; Rust only stores the string.
-        conversationTitle(stored)
-      )
-        .then(() => refreshChats(key.target, key.native))
-        .catch((e: unknown) => reportFault('Saving your conversation', e))
-    }, CONVERSATION_SAVE_DEBOUNCE_MS)
-    return () => clearTimeout(timer)
-  }, [turns, sending, refreshChats])
-
-  // Archive this conversation and open a clean one. What the tutor has
-  // learned about the learner is kept on purpose — that continuity is the
-  // whole reason the observer exists — and the old turns are archived rather
-  // than deleted, so nothing is destroyed by a misclick.
-  /// Everything that must be cleared when a different conversation takes the
-  /// screen. The turns themselves are set by whoever calls this.
-  const clearConversationView = useCallback(() => {
+  /// Everything tied to the conversation leaving the screen. The turns
+  /// themselves are set by whoever swapped them.
+  const resetView = useCallback(() => {
     setPinnedId(null)
-    setRevealed(new Set())
-    setFreshScaffolds(null)
-    setInspect(null)
-    setWordPopup(null)
+    clearWordsRef.current()
+    clearScaffoldsRef.current()
     setError(null)
     setSending(false)
     stopSpeaking()
     setThreadReload((v) => v + 1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const startNewConversation = useCallback(async () => {
-    const s = settingsRef.current
-    if (!s) return
-    setHistoryOpen(false)
-    let id: string
-    try {
-      id = await newConversation(s.target_language, s.native_language)
-    } catch (e) {
-      reportFault('Starting a new conversation', e)
-      return
-    }
-    turnsRefKey.current = { target: s.target_language, native: s.native_language, id }
-    setTurns([])
-    nextIdRef.current = 1
-    clearConversationView()
-    void refreshChats(s.target_language, s.native_language)
-    disarmGreeting()
-    armGreeting()
-    void requestTurn({ greeting: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearConversationView, refreshChats])
-
-  const openChat = useCallback(
-    async (id: string) => {
-      const s = settingsRef.current
-      if (!s || id === turnsRefKey.current?.id) {
-        setHistoryOpen(false)
-        return
-      }
-      setHistoryOpen(false)
-      clearConversationView()
-      const restored = await showConversation(s.target_language, s.native_language, () =>
-        openConversation(s.target_language, s.native_language, id)
-      )
-      // An empty chat reopened is still an empty chat: greet it so there is
-      // something to reply to, exactly as a new one would be.
-      if (restored === 0) {
-        disarmGreeting()
-        armGreeting()
-        void requestTurn({ greeting: true })
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    },
-    [clearConversationView, showConversation]
-  )
-
-  const removeChat = useCallback(
-    async (id: string) => {
-      const s = settingsRef.current
-      if (!s) return
-      try {
-        await deleteConversation(s.target_language, s.native_language, id)
-      } catch (e) {
-        reportFault('Deleting that conversation', e)
-        return
-      }
-      // Deleting the conversation you are looking at leaves nothing on screen,
-      // so open the newest of what is left, or start fresh if none remain.
-      if (id === turnsRefKey.current?.id) {
-        const left = await listConversations(s.target_language, s.native_language)
-        setChats(left)
-        if (left.length > 0) {
-          await openChat(left[0].id)
-        } else {
-          await startNewConversation()
-        }
-        return
-      }
-      void refreshChats(s.target_language, s.native_language)
-    },
-    [openChat, refreshChats, startNewConversation]
-  )
+  // `requestTurn` is defined below and closes over this hook's state, so the
+  // greeting is reached through a ref rather than by hoisting one into the
+  // other.
+  const greetRef = useRef<() => void>(() => {})
+  // Also assigned below: `resetView` runs above the scaffolds hook because
+  // `useConversation` needs it, so it clears the chips through a ref.
+  const clearScaffoldsRef = useRef<() => void>(() => {})
+  const clearWordsRef = useRef<() => void>(() => {})
+  const {
+    turns,
+    setTurns,
+    turnsRef,
+    nextIdRef,
+    chats,
+    currentChatId,
+    openChat,
+    startNew: startNewConversation,
+    removeChat,
+  } = useConversation({
+    settings,
+    sending,
+    setHistoryOpen,
+    greet: () => greetRef.current(),
+    resetView,
+  })
 
   useEffect(() => {
     logInfo('[guided] page mounted, isTauri =', isTauri)
@@ -385,9 +231,12 @@ export default function GuidedPage({
         const norm = normalizeDocs(docs.plan, docs.profile)
         setPlan(norm.plan)
         setProfile(norm.profile)
+        // Read from the NORMALIZED copy: the raw document crosses IPC and a
+        // missing array here would throw, defeating the normalization on the
+        // line above whose whole job is to make that safe.
         logInfo('[guided] plan loaded:', {
-          focus: docs.plan.session_focus,
-          errors: docs.plan.recurring_errors.length,
+          focus: norm.plan.session_focus,
+          errors: norm.plan.recurring_errors.length,
         })
       })
       .catch((e) => reportFault('Loading teaching plan', e))
@@ -430,15 +279,7 @@ export default function GuidedPage({
         },
       ])
 
-      const history = turnsRef.current
-        .filter((t) => t.assistant !== null)
-        .flatMap((t) => {
-          const items: { role: string; content: string }[] = []
-          if (t.user) items.push({ role: 'user', content: t.user })
-          items.push({ role: 'assistant', content: t.assistant!.reply })
-          return items
-        })
-        .slice(-30)
+      const history = chatHistory(turnsRef.current, REPLY_HISTORY_MESSAGES)
 
       let deltaCount = 0
       const updatePending = (fn: (t: Turn) => Turn) =>
@@ -469,7 +310,7 @@ export default function GuidedPage({
               break
             case 'analysis_section':
               // Turn scaffolds are the freshest suggestions — feed the chips.
-              if (event.scaffolds) setFreshScaffolds(event.scaffolds)
+              if (event.scaffolds) scaffolds.setFresh(event.scaffolds)
               updatePending((t) =>
                 t.assistant
                   ? {
@@ -508,14 +349,14 @@ export default function GuidedPage({
                 }
               )
               // End of turn = freshest suggestions for the NEXT message.
-              setFreshScaffolds(event.turn.scaffolds)
+              scaffolds.setFresh(event.turn.scaffolds)
               updatePending((t) => ({
                 ...t,
                 assistant: event.turn,
                 analysisState: 'done',
               }))
               break
-            case 'plan_updated':
+            case 'plan_updated': {
               logInfo('[guided] plan updated:', {
                 focus: event.plan.session_focus,
                 errors: event.plan.recurring_errors.length,
@@ -524,6 +365,7 @@ export default function GuidedPage({
               setPlan(norm.plan)
               setProfile(norm.profile)
               break
+            }
             case 'fault':
               reportFault(event.context, event.message)
               break
@@ -554,56 +396,6 @@ export default function GuidedPage({
     [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic]
   )
 
-  // The conversation on screen follows the pairing — on first load and on
-  // every switch. Each pairing keeps its turns, coach thread and tutor memory
-  // separately, so going to Arabic and back to Spanish returns to the Spanish
-  // conversation rather than starting over. The dialect is NOT part of a
-  // pairing: changing it is a setting applied to the conversation you are in.
-  //
-  // This is the only place that decides between restoring and greeting, and it
-  // runs only when the pairing actually changes — never on a settings autosave.
-  const langPair = settings ? `${settings.target_language}|${settings.native_language}` : null
-  const prevLangPair = useRef<string | null>(null)
-  useEffect(() => {
-    if (!langPair || !settings || !isTauri) return
-    const prev = prevLangPair.current
-    prevLangPair.current = langPair
-    if (prev === langPair) return
-    const switched = prev !== null
-    if (switched) {
-      logInfo('[guided] language pair changed:', prev, '->', langPair)
-      setPinnedId(null)
-      setRevealed(new Set())
-      setFreshScaffolds(null)
-      setInspect(null)
-      setWordPopup(null)
-      setError(null)
-      setSending(false)
-      stopSpeaking()
-      setThreadReload((v) => v + 1)
-    }
-    const { target_language: target, native_language: native } = settings
-    void (async () => {
-      const restored = await restoreConversation(target, native)
-      if (restored > 0) {
-        logInfo(`[guided] restored ${restored} turns — no greeting`)
-        // Consume the once-per-session greeting: a restored conversation is
-        // already open, and greeting over it would both duplicate the opening
-        // and make it look like nothing had been kept.
-        armGreeting()
-        return
-      }
-      // Empty conversation — open it properly. On a switch the greeting has
-      // usually already been spent on the previous pairing.
-      if (switched) disarmGreeting()
-      if (armGreeting()) {
-        logInfo('[guided] firing greeting turn')
-        void requestTurn({ greeting: true })
-      }
-    })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [langPair])
-
   async function send(text: string) {
     const message = text.trim()
     if (!message || sending) return
@@ -613,6 +405,9 @@ export default function GuidedPage({
   }
   sendRef.current = send
   toggleBreakRef.current = toggleBreak
+  // How `useConversation` opens an empty conversation. Assigned here because
+  // `requestTurn` is defined in this component and the hook runs above it.
+  greetRef.current = () => void requestTurn({ greeting: true })
 
   // Configurable keyboard shortcuts. Modifier combos work while typing;
   // the handler ignores repeat events and the shortcut-capture inputs.
@@ -632,7 +427,7 @@ export default function GuidedPage({
         toggleMicRef.current()
       } else if (combo === shortcuts.speak) {
         e.preventDefault()
-        const last = [...turnsRef.current].reverse().find((t) => t.assistant)
+        const last = latestAnswered(turnsRef.current)
         if (last?.assistant) speakReply(last.assistant.reply)
       } else if (combo === shortcuts.panel) {
         e.preventDefault()
@@ -643,7 +438,7 @@ export default function GuidedPage({
     return () => window.removeEventListener('keydown', onKey)
   }, [settings?.shortcuts, speakReply])
 
-  const latestAssistantId = [...turns].reverse().find((t) => t.assistant)?.id ?? null
+  const latestAssistantId = latestAnswered(turns)?.id ?? null
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
   const showRomanization =
@@ -685,155 +480,33 @@ export default function GuidedPage({
        settings.native_language.toUpperCase())
     : ''
 
-  const latestScaffolds: Scaffolds | undefined = [...turns]
-    .reverse()
-    .find(
-      (t) =>
-        t.assistant &&
-        (t.assistant.scaffolds.replies.length > 0 ||
-          t.assistant.scaffolds.frames.length > 0 ||
-          t.assistant.scaffolds.starters.length > 0)
-    )?.assistant?.scaffolds
+  const bestScaffolds = latestScaffolds(turns)
   const pinnedTurn =
     turns.find((t) => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
-  // Right-click on a word: pin the turn, open the breakdown, highlight the
-  // token in the word lists.
-  const onWordInspect = useCallback(
-    (turnId: number, side: 'me' | 'bot', index: number) => {
-      setPinnedId(turnId)
-      setInspect({ turn: turnId, side, index })
-      if (!breakOpen) toggleBreak()
-    },
-    [breakOpen, toggleBreak]
-  )
-
-  // Deep word insight (press-and-hold / analysis-pane click): a modal that
-  // hydrates lemma, morphology, grammatical role, and a usage note.
-  const [wordInsight, setWordInsight] = useState<{ word: string; sentence: string } | null>(
-    null
-  )
-  const closeInsight = useCallback(() => setWordInsight(null), [])
-  const onHoldWord = useCallback(
-    (word: string, sentence: string) => setWordInsight({ word, sentence }),
-    []
-  )
-
-  // Reveal toggling: drag adds; dblclick toggles the whole bubble
-  // (reveal-all ⇄ hide-all).
-  const onToggleReveal = useCallback((keys: string[]) => {
-    setRevealed((prev) => {
-      const next = new Set(prev)
-      const allOn = keys.every((k) => prev.has(k))
-      for (const k of keys) {
-        if (allOn) next.delete(k)
-        else next.add(k)
-      }
-      return next
-    })
-  }, [])
 
 
 
   // Fresh scaffolds: regenerated when steering changes, so suggestions track
   // level/topic instead of going stale. Turn analysis clears this override.
-  const [freshScaffolds, setFreshScaffolds] = useState<Scaffolds | null>(null)
-  const [scaffoldsLoading, setScaffoldsLoading] = useState(false)
-  const [scaffoldsError, setScaffoldsError] = useState<string | null>(null)
-  const { open: scaffoldsOpen, toggle: toggleScaffolds } = usePersistentToggle('skellyspeak_scaffolds', true)
-  const scaffoldsLoadingRef = useRef(false)
-  const regenerateScaffolds = useCallback(
-    async (level: string, topic: string) => {
-      if (!isTauri || scaffoldsLoadingRef.current) return
-      scaffoldsLoadingRef.current = true
-      setScaffoldsLoading(true)
-      setScaffoldsError(null)
-      try {
-        const history = turnsRef.current
-          .filter((t) => t.assistant !== null)
-          .flatMap((t) => {
-            const items: { role: string; content: string }[] = []
-            if (t.user) items.push({ role: 'user', content: t.user })
-            items.push({ role: 'assistant', content: t.assistant!.reply })
-            return items
-          })
-          .slice(-8)
-        const s = await invoke<Scaffolds>('generate_scaffolds', {
-          req: { history, level, topic: topic || null, dialect: settings?.target_dialect || null },
-        })
-        setFreshScaffolds(s)
-      } catch (e) {
-        setScaffoldsError(String(e).replace(/^Error:\s*/, ''))
-      } finally {
-        scaffoldsLoadingRef.current = false
-        setScaffoldsLoading(false)
-      }
-    },
-    []
-  )
-  // Steering change: regenerate scaffolds AND have the partner re-open the
-  // conversation aligned to the new level/topic. Skips until settings have
-  // loaded AND the greeting has fired — the greeting itself is the first
-  // steered message, so the first settle here must not double-send. The
-  // first-run guard is only consumed AFTER settings load; a guard consumed
-  // while settings were absent would let the settingsLoaded transition fire
-  // a spurious steering turn on top of the greeting.
-  const steerInitialized = useRef(false)
-  const lastSteer = useRef<string | null>(null)
-  const settingsLoaded = settings !== null
-  useEffect(() => {
-    if (!settingsLoaded) return
-    const key = `${steer.level}|${steer.topic}`
-    if (!steerInitialized.current) {
-      steerInitialized.current = true
-      lastSteer.current = key
-      return
-    }
-    // The effect also re-runs when `requestTurn` changes identity — and it
-    // does that whenever the language changes, because `speakReply` is one of
-    // its deps. That fired a steering turn straight after the post-switch
-    // greeting, which is the "it doubles the first message" bug. React to the
-    // VALUES, not to callback identity.
-    if (lastSteer.current === key) return
-    lastSteer.current = key
-    const t = setTimeout(() => {
-      void regenerateScaffolds(steer.level, steer.topic)
-      const change = [
-        steer.level ? `level: ${steer.level}` : null,
-        steer.topic ? `topic: ${steer.topic}` : null,
-      ]
-        .filter(Boolean)
-        .join(', ')
-      void requestTurn({ message: '', steering: change })
-    }, 300)
-    return () => clearTimeout(t)
-  }, [steer.level, steer.topic, regenerateScaffolds, requestTurn, settingsLoaded])
-
-  // Chips: fresh steer-driven scaffolds win; otherwise the newest turn that
-  // produced any (best-available across turns).
-  const chipsForUI: Scaffolds =
-    freshScaffolds ??
-    latestScaffolds ?? { replies: [], frames: [], starters: [] }
+  const scaffolds = useScaffolds({
+    turnsRef,
+    settingsRef,
+    settingsLoaded: settings !== null,
+    level: steer.level,
+    topic: steer.topic,
+    onSteered: (change) => void requestTurn({ message: '', steering: change }),
+  })
+  const chipsForUI = scaffolds.chipsFrom(bestScaffolds)
+  clearScaffoldsRef.current = () => scaffolds.setFresh(null)
+  clearWordsRef.current = words.clear
 
   // Context for the coach thread inside the unified panel.
-  const buildCoachContext = useCallback(() => {
-    return turnsRef.current
-      .slice(-8)
-      .flatMap((t) =>
-        [
-          t.user ? `LEARNER: ${t.user}` : null,
-          t.assistant ? `NATIVE: ${t.assistant.reply}` : null,
-        ].filter(Boolean) as string[]
-      )
-      .join('\n')
-  }, [])
+  const buildCoachContext = useCallback(
+    () => transcriptForCoach(turnsRef.current, COACH_CONTEXT_TURNS),
+    []
+  )
 
-  // Analysis highlight: scroll the inspected token into view.
-  useEffect(() => {
-    if (!inspect) return
-    const el = document.querySelector('.tok.inspected')
-    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [inspect])
 
   const mic = useMicRecorder({
     micDeviceId: settings?.microphone_device_id,
@@ -860,43 +533,29 @@ export default function GuidedPage({
   })
   toggleMicRef.current = mic.toggleMic
 
-  // Analysis highlight scroll.
-  useEffect(() => {
-    if (!inspect) return
-    const el = document.querySelector('.tok.inspected')
-    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [inspect])
-
   // Mobile mode: below the breakpoint the window switches to a tabbed
   // single-surface layout (Chat / Coach / Analysis) instead of stacking
   // everything into one unusable column. The breakpoint itself lives in
   // useIsMobile — Settings reads the same one.
   const isMobile = useIsMobile()
-  // Three surfaces on mobile, in this order. The dev panel is the last one
-  // deliberately: it is the deepest rung of the disclosure ladder, always
-  // reachable but never in the way.
-  const MOBILE_SURFACES = ['chat', 'panel', 'dev'] as const
-  type MobileSurface = (typeof MOBILE_SURFACES)[number]
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>('chat')
 
-  // Horizontal swipe walks the surfaces on mobile. Only claims gestures that
-  // are clearly horizontal (>|dx|, >2x|dy|, <600ms) so vertical chat
-  // scrolling and drag-to-reveal are untouched.
+  // Horizontal swipe walks the surfaces on mobile.
   const swipe = useRef<{ x: number; y: number; t: number } | null>(null)
   const onTouchStart = (e: React.TouchEvent) => {
     const t0 = e.touches[0]
     swipe.current = { x: t0.clientX, y: t0.clientY, t: Date.now() }
   }
   const onTouchEnd = (e: React.TouchEvent) => {
-    const s = swipe.current
+    const start = swipe.current
     swipe.current = null
-    if (!s) return
-    const dx = e.changedTouches[0].clientX - s.x
-    const dy = e.changedTouches[0].clientY - s.y
-    if (Date.now() - s.t > 600) return
-    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 2) return
-    const i = MOBILE_SURFACES.indexOf(mobileSurface)
-    const next = dx < 0 ? i + 1 : i - 1
+    if (!start) return
+    const dx = e.changedTouches[0].clientX - start.x
+    const dy = e.changedTouches[0].clientY - start.y
+    if (Date.now() - start.t > SWIPE_MAX_MS) return
+    // Clearly horizontal, or the gesture belongs to the scroller.
+    if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 2) return
+    const next = MOBILE_SURFACES.indexOf(mobileSurface) + (dx < 0 ? 1 : -1)
     if (next >= 0 && next < MOBILE_SURFACES.length) {
       setMobileSurface(MOBILE_SURFACES[next])
     }
@@ -910,7 +569,7 @@ export default function GuidedPage({
       <ChatHistory
         open={historyOpen}
         chats={chats}
-        currentId={turnsRefKey.current?.id ?? null}
+        currentId={currentChatId}
         languageName={targetLanguageName}
         onClose={() => setHistoryOpen(false)}
         onOpenChat={(id) => void openChat(id)}
@@ -943,18 +602,18 @@ export default function GuidedPage({
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={ttsReady}
               speaking={speaking}
-              revealed={revealed}
+              revealed={words.revealed}
               showRomanization={showRomanization}
               alwaysRomanize={alwaysRomanize}
               autoTranslate={settings?.auto_translate ?? false}
               rtl={rtl}
-              onReveal={onReveal}
+              onReveal={words.reveal}
               onBubbleTap={onBubbleTap}
               onSpeak={speakReply}
-              onPopup={setWordPopup}
-              onInspect={onWordInspect}
-              onHold={onHoldWord}
-              onToggleReveal={onToggleReveal}
+              onPopup={words.setPopup}
+              onInspect={words.inspectWord}
+              onHold={words.holdWord}
+              onToggleReveal={words.toggleReveal}
             />
           ))}
           {error && <div className="err">{error}</div>}
@@ -966,23 +625,23 @@ export default function GuidedPage({
             <div className="scaffold-block-head">
               <span className="scaffold-block-title">Suggestions · for your next message</span>
               <span className="scaffold-status">
-                {scaffoldsLoading
+                {scaffolds.loading
                   ? '⟳ writing…'
-                  : scaffoldsError
-                    ? `⚠ ${scaffoldsError}`
+                  : scaffolds.error
+                    ? `⚠ ${scaffolds.error}`
                     : ''}
               </span>
               <button
                 type="button"
                 className="scaffold-toggle"
-                onClick={toggleScaffolds}
-                aria-expanded={scaffoldsOpen}
-                title={scaffoldsOpen ? 'Hide suggestions' : 'Show suggestions'}
+                onClick={scaffolds.toggle}
+                aria-expanded={scaffolds.open}
+                title={scaffolds.open ? 'Hide suggestions' : 'Show suggestions'}
               >
-                {scaffoldsOpen ? '▾' : '▸'}
+                {scaffolds.open ? '▾' : '▸'}
               </button>
             </div>
-            {scaffoldsOpen && (
+            {scaffolds.open && (
               <div className="scaffold-groups">
                 <ScaffoldRow label="Say it" items={chipsForUI.replies} onPick={(s) => void send(s)} />
                 <ScaffoldRow label="Build it" items={chipsForUI.frames} onPick={(f) => setInput(f)} />
@@ -1135,7 +794,7 @@ export default function GuidedPage({
           targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0].toUpperCase()}
           nativeLangCode={(settings?.native_language ?? 'en').toUpperCase()}
           pinnedTurn={pinnedTurn}
-          inspect={inspect}
+          inspect={words.inspect}
           nativeLanguageName={nativeLanguageName}
           showRomanization={showRomanization}
           rtl={rtl}
@@ -1352,12 +1011,12 @@ export default function GuidedPage({
         </div>
       )}
 
-      {wordPopup && <GlossPopup popup={wordPopup} onClose={closePopup} />}
-      {wordInsight && (
+      {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
+      {words.insight && (
         <WordInsightModal
-          word={wordInsight.word}
-          sentence={wordInsight.sentence}
-          onClose={closeInsight}
+          word={words.insight.word}
+          sentence={words.insight.sentence}
+          onClose={words.closeInsight}
         />
       )}
     </div>

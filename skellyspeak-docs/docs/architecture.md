@@ -50,37 +50,48 @@ flowchart TB
 
 ## Module map (with sizes)
 
-| File | Lines | Role |
-|---|---|---|
-| `src-tauri/src/commands/` | 2492 | The IPC surface, one module per domain (see below) |
-| &nbsp;&nbsp;`commands/guided/` | 1280 | One turn, split by pass (below) |
-| &nbsp;&nbsp;&nbsp;&nbsp;`guided/types.rs` | 361 | Wire types, the `GuidedEvent` contract, `sanitize_reply` |
-| &nbsp;&nbsp;&nbsp;&nbsp;`guided/mod.rs` | 332 | The command: prompt assembly, streamed reply, then hand off |
-| &nbsp;&nbsp;&nbsp;&nbsp;`guided/analysis.rs` | 280 | Four calls about the reply, merged with per-section degradation |
-| &nbsp;&nbsp;&nbsp;&nbsp;`guided/observer_pass.rs` | 182 | Rewrites the plan and profile, never overlapping itself |
-| &nbsp;&nbsp;&nbsp;&nbsp;`guided/coach_pass.rs` | 125 | Private feedback on the learner's message |
-| &nbsp;&nbsp;`commands/coach.rs` | 240 | Per-message feedback and the private side-thread |
-| &nbsp;&nbsp;`commands/tts.rs` | 223 | Speech synthesis and the WAV container |
-| &nbsp;&nbsp;`commands/app_settings.rs` | 207 | Settings read/write, update-check feed |
-| &nbsp;&nbsp;`commands/conversations.rs` | 186 | Listing, opening, saving and removing chats |
-| &nbsp;&nbsp;`commands/stories.rs` · `scaffolds.rs` · `dev.rs` · `stt.rs` · `keys.rs` · `insight.rs` · `hosted_auth.rs` | 68–124 each | One domain apiece |
-| `src-tauri/src/ai.rs` | 507 | OpenAI-compatible client: streaming, schema-constrained structured output, corrective retries, `$defs` inlining |
-| `src-tauri/src/prompts.rs` | 362 | Prompt builders composed from shared blocks |
-| `src-tauri/src/observer.rs` | 308 | TeachingPlan/Profile documents, observer pass, `directives_block` |
-| `src-tauri/src/settings.rs` | 271 | Settings model, migrations, key masking, JSON persistence |
-| `src-tauri/src/bench.rs` | 233 | `#[ignore]`d model-bench harness (live provider calls) |
-| `src-tauri/src/languages.rs` | 163 | Language registry (en-US, fr-FR, es-ES, ar) + dialects + overlays |
-| `src-tauri/src/lib.rs` | 97 | Bootstrap, `AppState`, command registration, logging |
-| `src/pages/GuidedPage.tsx` | 1079 | The main surface |
-| `src/components/SettingsModal.tsx` | 638 | Settings UI (two-column tree + search) |
-| `src/lib/i18n.ts` | 365 | UI chrome strings per native language |
-| `src/components/chat/TurnView.tsx` | 306 | Memoized turn renderer + `TokenSpan` interrogation gestures |
-| `src/hooks/useMicRecorder.ts` | 188 | Mic lifecycle: permissions, capture, silence auto-stop, Whisper |
-| `src/components/panes/CoachAnalysisPanel.tsx` | 167 | The unified right panel (Coach / Analysis tabs) |
-| `src/pages/StoriesPage.tsx` | 165 | Story reader |
-| `src/components/panes/AnalysisContent.tsx` | 161 | Pinned-turn breakdown |
-| `src/types.ts` | 149 | TS mirror of the Rust wire types |
-| `src/lib/*` | ~530 | invoke wrapper, log bridge, speech, sentences, token spacing, keyboard, back-stack, normalize |
+| File | Role |
+|---|---|
+| `src-tauri/src/commands/` | The IPC surface, one module per domain |
+| &nbsp;&nbsp;`commands/guided/` | One turn, split by pass |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/types.rs` | Wire types, the `GuidedEvent` contract, `sanitize_reply` |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/mod.rs` | The command: prompt assembly, streamed reply, then hand off |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/analysis.rs` | Four calls about the reply, merged with per-section degradation |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/observer_pass.rs` | Rewrites the plan and profile, never overlapping itself |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/coach_pass.rs` | Private feedback on the learner's message |
+| &nbsp;&nbsp;`commands/coach.rs` | Per-message feedback and the private side-thread |
+| &nbsp;&nbsp;`commands/tts.rs` | Speech synthesis and the WAV container |
+| &nbsp;&nbsp;`commands/app_settings.rs` | Settings read/write, update-check feed |
+| &nbsp;&nbsp;`commands/conversations.rs` | Listing, opening, saving and removing chats |
+| &nbsp;&nbsp;`commands/stories.rs` · `scaffolds.rs` · `dev.rs` · `stt.rs` · `keys.rs` · `insight.rs` · `hosted_auth.rs` | One domain apiece |
+| `src-tauri/src/ai.rs` | OpenAI-compatible client: streaming, schema-constrained structured output, corrective retries, `$defs` inlining |
+| `src-tauri/src/settings.rs` | Settings model, provider resolution, key masking, JSON persistence |
+| `src-tauri/src/conversation.rs` | Where conversations live on disk, one directory per pairing |
+| `src-tauri/src/prompts.rs` | Prompt builders composed from shared blocks |
+| `src-tauri/src/observer.rs` | TeachingPlan/Profile documents, observer pass, `directives_block` |
+| `src-tauri/src/hosted.rs` | Sign-in to the hosted service: system browser, loopback and deep link |
+| `src-tauri/src/bench.rs` | `#[ignore]`d model-bench harness (live provider calls) |
+| `src-tauri/src/languages.rs` | Language registry (en-US, fr-FR, es-ES, ar) + dialects + overlays |
+| `src-tauri/src/lib.rs` | Bootstrap, `AppState`, command registration, logging |
+| `src/pages/GuidedPage.tsx` | The main surface: composition and layout |
+| &nbsp;&nbsp;`pages/guided/useConversation.ts` | Which conversation is on screen, and everything that changes it |
+| &nbsp;&nbsp;`pages/guided/useScaffolds.ts` | The suggestion chips and what refreshes them |
+| &nbsp;&nbsp;`pages/guided/useWordInspection.ts` | Tap, right-click and press-and-hold on a word |
+| `src/lib/turns.ts` | Reading a conversation: history for the backend, newest answered turn, best scaffolds |
+| `src/components/SettingsModal.tsx` | Settings UI (two-column tree + search) |
+| `src/lib/i18n.ts` | UI chrome strings per native language |
+| `src/components/chat/TurnView.tsx` | Memoized turn renderer + `TokenSpan` interrogation gestures |
+| `src/components/ChatHistory.tsx` | The chat history drawer |
+| `src/hooks/useMicRecorder.ts` | Mic lifecycle: permissions, capture, silence auto-stop, Whisper |
+| `src/components/panes/CoachAnalysisPanel.tsx` | The unified right panel (Coach / Analysis tabs) |
+| `src/pages/StoriesPage.tsx` | Story reader |
+| `src/components/panes/AnalysisContent.tsx` | Pinned-turn breakdown |
+| `src/types.ts` | TS mirror of the Rust wire types |
+| `src/lib/*` | invoke wrapper, log bridge, speech, sentences, token spacing, keyboard, back-stack, normalize, faults, conversation titles, provider rules |
+
+Roughly ordered by size. Exact line counts are deliberately not recorded here:
+they were wrong in eleven rows the last time anyone checked, several by a
+factor of three, and any number written down is stale by the next commit.
 
 ## IPC surface (complete)
 

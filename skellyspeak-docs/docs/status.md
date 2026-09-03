@@ -66,11 +66,23 @@ TS type now mirrors the Rust struct and the Settings modal exposes the
 observer model; saving no longer silently resets it.
 
 ### R3 · Testing/CI — **green**
-Unit tests exist (57 Rust + 57 vitest covering the pure functions that bit
-us, plus an `#[ignore]`d model-bench harness for LLM candidate evaluation)
+Tests: 67 Rust, 104 vitest (70 pure-function + 34 component tests driving real
+React with the IPC layer mocked), 39 server, plus an `#[ignore]`d model-bench
+harness for LLM candidate evaluation
 and `.github/workflows/ci.yml` runs frontend / Rust / docs jobs. All three
-job commands pass as of 2026-09-01 (A1). Still missing: a lint config for
-the frontend, and any test above the pure-function layer.
+job commands pass. Component tests now cover the layer where every recent
+frontend bug lived —
+conversation restore, the greeting decision, the steer row. Still missing: a
+lint config for the frontend, and end-to-end coverage against the real Rust.
+
+**On end-to-end testing.** Playwright drives real browsers, and this is a Tauri
+app: `isTauri` is false in a browser, so the app renders a "not Tauri" notice
+and nothing works. Driving it would mean injecting a fake IPC shim — testing
+the frontend against a mock backend, which is what the component tests already
+do, but with browser binaries and a dev server in CI. Real end-to-end means
+`tauri-driver` + WebdriverIO, which exercises the actual Rust but needs a built
+binary, a webdriver, and is Windows/Linux only. Worth adding when a bug appears
+that only the real IPC boundary could have caught; not before.
 
 ### R4 · Conversation history not persisted — **SHIPPED**
 Turns persist per language pairing under
@@ -339,6 +351,88 @@ Doc-side corrections applied in the same pass (no code change needed):
 - Ontology said 10 target languages and 9 natives; there are 4, symmetric.
 - README advertised a prompted-JSON fallback that the code explicitly
   refuses to have.
+
+## Audit 2026-09-03 — decomposition, tests, and what still needs a human
+
+Two structural passes and two full audits. Everything below is green:
+**67 Rust · 104 vitest · 39 server**, clippy clean on host *and* the Android
+target, both builds, every doc path resolving.
+
+### Behaviour that changed and has NOT been exercised in the running app
+
+This is the honest gap. Each of these is covered by an automated test and by
+nothing else — the app has not been launched since they landed. Anyone picking
+this up should spend ten minutes here before trusting it.
+
+| What changed | How to see it | Was |
+|---|---|---|
+| `sanitize_reply` keeps fenced replies | Any tutor reply the model wraps in ``` | Arrived **blank** — the old code kept the closing fence and stripped it to nothing |
+| Coach skips steering turns | Change level or topic mid-conversation | Fired a coach call on an empty message; the failure was shown to the learner |
+| Scaffolds carry the dialect | Practise Levantine, change topic, read the chips | `dialect` was always `null`: a `[]`-deps callback closed over the first render's settings |
+| Topic field applies on Enter | Type a custom topic, press Escape | Escape **committed** the draft it was cancelling (blur fires after `setDraft`) |
+| Conversation restore | Reopen the app; switch language and back | — |
+| Chat history drawer | `☰`, open an old chat, delete the open one | — |
+
+Anything that looks wrong in that list is a regression from this pass, not a
+long-standing bug.
+
+### Surfaces with no test coverage at all
+
+Ranked by size, which is roughly the risk order:
+
+| File | Lines | Note |
+|---|---|---|
+| `src/components/SettingsModal.tsx` | ~1145 | The largest untested thing in the app. Handles API keys, provider modes and hosted sign-in |
+| `src/pages/GuidedPage.tsx` | ~1024 | Has 10 tests covering the conversation lifecycle; **send, streaming, the analysis merge, word gestures and the mobile swipe are uncovered** |
+| `src/hooks/useMicRecorder.ts` | ~191 | Needs real media APIs to test |
+| `src/components/panes/CoachAnalysisPanel.tsx` | ~182 | |
+| `src/pages/StoriesPage.tsx` | ~166 | |
+
+### Complexity left in place deliberately
+
+Not bugs. Recorded so nobody "fixes" them without reading first.
+
+- **Seven refs are assigned during render in `GuidedPage`** (`settingsRef`,
+  `sendRef`, `greetRef`, `clearScaffoldsRef`, `clearWordsRef`, and two more).
+  This is the "latest ref" pattern, and it is how the extracted hooks reach
+  back into the component — `useConversation` needs to greet, and greeting
+  lives in `requestTurn`, which is defined below it. Moving these into effects
+  would make it *worse*: the hook's own effect runs before the assignment
+  would land. The real fix is extracting `requestTurn`, which is the next
+  structural step and was deliberately not taken in this pass.
+- **`requestTurn` is ~160 lines inline**, holding the streaming `Channel`
+  handler. It touches turns, scaffolds, plan, speech and error state, which is
+  why it is the hard one.
+- **Ten commands bypass `lib/tauri` and call `invoke` from
+  `@tauri-apps/api/core` directly** (`guided_turn`, `generate_scaffolds`,
+  `coach_ask`, `speak_text`, …). Not a correctness problem, but it means a
+  test has to mock two modules instead of one — this cost real time.
+
+### Testing shape
+
+Component tests run in the same `npm test` as the pure-function ones, using
+vitest + jsdom + Testing Library with `lib/tauri` mocked; per-file environments
+(`// @vitest-environment jsdom`) keep the pure tests in node and fast.
+
+**End-to-end is deliberately absent.** Playwright drives real browsers, and in
+a browser `isTauri` is false — the app renders a "not Tauri" notice and nothing
+works. Driving it means injecting a fake IPC shim, which is what the component
+tests already do, but with browser binaries and a dev server in CI. Real
+end-to-end means `tauri-driver` + WebdriverIO: it exercises the actual Rust,
+but needs a built binary, a webdriver, and is Windows/Linux only. Worth adding
+when a bug appears that only the real IPC boundary could have caught.
+
+### Two lessons worth keeping
+
+- **The type checker cannot see an unwired ref.** Extracting `useConversation`
+  left `greetRef` unassigned, so an empty conversation would silently never
+  greet. `tsc` was happy; no test covered it either, because the only greeting
+  test asserted it did *not* fire over a restored conversation. There is now
+  one asserting it *does* fire on an empty one.
+- **Verify mobile-only code compiles.** `#[cfg(mobile)]` blocks are invisible
+  to a desktop build. `cargo clippy --target aarch64-linux-android --lib`
+  caught an unused import that the host build could not see. The NDK
+  environment for it is in the build-and-deploy notes.
 
 ## Suggested order of battle (small bites)
 

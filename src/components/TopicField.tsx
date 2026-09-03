@@ -27,15 +27,25 @@ export function TopicField({ topics, value, onChange }: TopicFieldProps) {
   const [custom, setCustom] = useState(() => !!value && !isPreset)
   const [draft, setDraft] = useState(value)
   const inputRef = useRef<HTMLInputElement | null>(null)
+  // What has actually been applied. Tracked separately from `value` because
+  // the parent re-renders a beat later: comparing against the stale prop let
+  // one keypress apply the same topic twice.
+  const applied = useRef(value)
+  // Escape blurs the field, and blurring applies the draft — so the abandon
+  // has to say so, or Escape commits the very thing it is cancelling.
+  const abandoning = useRef(false)
 
   // A topic set from elsewhere — the dice, or a preset — replaces the draft.
   useEffect(() => {
+    applied.current = value
     setDraft(value)
   }, [value])
 
   const commit = () => {
     const next = draft.trim()
-    if (next !== value) onChange(next)
+    if (next === applied.current) return
+    applied.current = next
+    onChange(next)
   }
 
   if (custom) {
@@ -58,13 +68,20 @@ export function TopicField({ topics, value, onChange }: TopicFieldProps) {
             }
             if (e.key === 'Escape') {
               e.preventDefault()
+              abandoning.current = true
               setDraft(value)
               inputRef.current?.blur()
             }
           }}
           // Leaving the field applies it too: having typed a topic and clicked
           // away, the surprising outcome is the one where nothing happened.
-          onBlur={commit}
+          onBlur={() => {
+            if (abandoning.current) {
+              abandoning.current = false
+              return
+            }
+            commit()
+          }}
           aria-label="Custom conversation topic"
           title="Type a topic and press Enter — the tutor steers the conversation toward it"
         />
@@ -90,7 +107,10 @@ export function TopicField({ topics, value, onChange }: TopicFieldProps) {
             // Leaving a typed topic in place would keep steering the
             // conversation toward something the list no longer shows.
             setDraft('')
-            if (value !== '') onChange('')
+            if (applied.current !== '') {
+              applied.current = ''
+              onChange('')
+            }
           }}
         >
           ✕
