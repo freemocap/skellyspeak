@@ -50,8 +50,8 @@ substitutions:
   # Raise them with `gcloud run services update --update-env-vars` for an
   # immediate change, then mirror the new value here or the next deploy
   # reverts it.
-  _FREE_DAILY_TOKENS: "500000"
-  _GLOBAL_DAILY_TOKENS: "3000000"
+  _FREE_DAILY_TOKENS: "1000000"
+  _GLOBAL_DAILY_TOKENS: "10000000"
   _MAX_USERS: "6"
 
 images:
