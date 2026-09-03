@@ -56,9 +56,81 @@ jobs:
         working-directory: server
         run: uv run --group dev pytest -q
 
+  # Passing tests do not mean a container that starts. A deploy of an image
+  # that exits on boot costs a three-minute Cloud Build, fails at the Cloud Run
+  # health check, and reports only "the user-provided container failed to start
+  # and listen on the port" — with the real reason buried in Cloud Logging.
+  # Building and booting it here surfaces that in about a minute, before
+  # anything is pushed anywhere.
+  container:
+    name: Container starts and serves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build the image
+        run: docker build -t skellyspeak-api:ci server
+
+      - name: Boot it and check it serves
+        run: |
+          set -euo pipefail
+          # Deliberately fake values. The point is that the process starts,
+          # binds the port and answers — not that it can reach anything.
+          # FIRESTORE_EMULATOR_HOST keeps the Firestore client from demanding
+          # credentials at import; it is never actually connected to.
+          docker run -d --name api -p 8080:8080 \
+            -e GOOGLE_CLIENT_ID=ci -e GOOGLE_CLIENT_SECRET=ci \
+            -e JWT_SIGNING_KEY=0123456789012345678901234567890123456789 \
+            -e PUBLIC_BASE_URL=https://example.invalid \
+            -e OPENROUTER_API_KEY=ci -e GROQ_API_KEY=ci \
+            -e ALLOWED_MODELS=google/gemini-2.5-flash,openai/gpt-audio-mini \
+            -e MAX_COMPLETION_TOKENS=32768 \
+            -e FREE_DAILY_MICROS=500000 -e GLOBAL_DAILY_MICROS=2000000 \
+            -e MAX_USERS=6 \
+            -e GOOGLE_CLOUD_PROJECT=ci \
+            -e FIRESTORE_EMULATOR_HOST=127.0.0.1:9999 \
+            skellyspeak-api:ci
+
+          for attempt in $(seq 1 20); do
+            if curl -fsS --max-time 3 http://127.0.0.1:8080/health > /dev/null; then
+              echo "container is serving"
+              break
+            fi
+            if [ "$(docker inspect -f '{{.State.Status}}' api)" != "running" ]; then
+              echo "::error::The container exited during startup."
+              docker logs api
+              exit 1
+            fi
+            if [ "$attempt" = 20 ]; then
+              echo "::error::The container never answered on 8080."
+              docker logs api
+              exit 1
+            fi
+            sleep 2
+          done
+
+          # It must also be the unprivileged user, not root.
+          uid=$(docker exec api id -u)
+          if [ "$uid" = "0" ]; then
+            echo "::error::The container is running as root."
+            exit 1
+          fi
+          echo "running as uid $uid"
+
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8080/v1/me)
+          if [ "$code" != "401" ]; then
+            echo "::error::unauthenticated /v1/me returned $code, expected 401"
+            docker logs api
+            exit 1
+          fi
+          echo "unauthenticated /v1/me returned 401"
+
+      - if: always()
+        run: docker rm -f api || true
+
   deploy:
     name: Build and deploy to Cloud Run
-    needs: test
+    needs: [test, container]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
