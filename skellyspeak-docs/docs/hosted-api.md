@@ -55,6 +55,19 @@ Desktop binds a loopback listener on an ephemeral port *before* opening the
 browser, so the port named in the redirect is provably its own; Android
 receives a `skellyspeak://auth` deep link. Both live in `src-tauri/src/hosted.rs`.
 
+Two things about that are easy to get wrong and were:
+
+- **Open the browser through the plugin instance**, `app.opener().open_url(…)`,
+  never the crate-level `tauri_plugin_opener::open_url` free function. The free
+  function is desktop-only in effect — it spawns a helper program (`xdg-open`
+  and relatives), which does not exist on Android, where it fails with
+  `No such file or directory (os error 2)`. The instance dispatches to an
+  `ACTION_VIEW` intent on Android and to the same helper on desktop.
+- **Register the deep-link handler once**, not per attempt. Registering inside
+  each sign-in accumulated a handler every time the button was pressed, each
+  holding a sender whose receiver had already been dropped. One permanent
+  handler routes to whichever attempt is currently waiting.
+
 The session token is stored in `settings.json` beside the API keys, but unlike
 them it never round-trips through the webview: `Settings::masked` blanks it
 outright, and `save_settings` always carries the stored one forward whatever

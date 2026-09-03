@@ -42,18 +42,35 @@ is private and carries none, and Android's `versionName`/`versionCode` are
 derived from it at build time.
 
 ```powershell
-node scripts/set-version.mjs 0.3.0   # rewrites Cargo.toml + Cargo.lock
-git commit -am "v0.3.0"
-git tag v0.3.0
-git push && git push origin v0.3.0   # the tag is what triggers the release
+node scripts/release.mjs minor --dry-run   # see the plan, change nothing
+node scripts/release.mjs minor             # bump, commit, tag, push
 ```
 
-**The order matters.** The release workflow reads the version out of
-`Cargo.toml` *as of the tagged commit* and refuses to build if it disagrees
-with the tag. A tag created before the bump is committed therefore names a
-commit still carrying the previous version, and the build stops at the
-`version` job. The script does not tag for this reason — at the moment it runs,
-the commit the tag needs to point at does not exist yet.
+One command, taking `patch`, `minor`, `major`, or an explicit version
+(`1.0.0-rc.1`). It writes the version, updates `Cargo.lock`, commits, tags and
+pushes — in that order, because **the release workflow reads the version out of
+`Cargo.toml` as of the tagged commit** and refuses to build if it disagrees
+with the tag. A tag made before the bump is committed names a commit still
+carrying the old version, and the build stops at the `version` job.
+
+Most of the script is refusals, checked before anything is written:
+
+| It stops if | Because |
+|---|---|
+| the tree is dirty | a commit named `v1.2.3` should carry the bump and nothing else |
+| you are not on `main` | releases are cut from the default branch |
+| the remote is ahead | the push would fail, or race someone else's work |
+| the version would not increase | the updater compares versions to decide what to offer |
+| the tag already exists | a pushed tag cannot be moved — it prints the delete commands |
+
+After tagging it re-reads `Cargo.toml` *out of the tag* and aborts before
+pushing unless it matches. That is the same check the `version` job makes, done
+locally in milliseconds instead of costing a push that has to be undone on the
+remote.
+
+The version arithmetic lives in `scripts/version.mjs` and is unit-tested
+(`scripts/version.test.mjs`) — prerelease ordering and "1.10 is newer than 1.9"
+are exactly the kind of thing that looks obvious and is wrong.
 
 ## In-app updates
 
@@ -207,7 +224,8 @@ To actually ship:
    `Info.plist`.
 4. **STT format risk (the big one):** WKWebView `MediaRecorder` support lags;
    iOS typically yields `audio/mp4` (AAC). `transcribe_audio` hardcodes
-   filename `audio.webm` + mime `audio/webm` (`commands.rs:670-673`). Fix:
+   filename `audio.webm` + mime `audio/webm` (`STT_UPLOAD_NAME` / `STT_UPLOAD_MIME`
+   in `commands/stt.rs`). Fix:
    pass the blob's MIME type up from `GuidedPage.toggleMic` and set
    filename/mime accordingly (Groq accepts m4a/mp3/mp4/webm/wav/ogg).
 5. **Layout:** same narrow-viewport work; also safe-area insets.

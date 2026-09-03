@@ -39,7 +39,7 @@ Two controls above the composer, persisted in `localStorage`
 
 | Control | Values | What it does |
 |---|---|---|
-| **Level** | Absolute zero (PRE-A1) · Beginner (A2) · Intermediate (B1) · Advanced (C1) | Maps to the CEFR string injected into **every** prompt (`commands.rs::guided_turn`). PRE-A1 additionally switches `persona_block` into true-beginner survival mode. |
+| **Level** | Absolute zero (PRE-A1) · Beginner (A2) · Intermediate (B1) · Advanced (C1) | Maps to the CEFR string injected into **every** prompt (`commands/guided/mod.rs::guided_turn`). PRE-A1 additionally switches `persona_block` into true-beginner survival mode. |
 | **Topic** | 16 presets + free text + shuffle | Appended to the reply/mechanics/scaffolds directives as `TOPIC STEERING`, and surfaced to the coach. |
 
 Changing either one fires a **steering turn**: the partner acknowledges the

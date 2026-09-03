@@ -1,6 +1,6 @@
 import { Component, useEffect, useState, type ReactNode } from 'react'
 import { getSettings, hostedAccount, isTauri, takeStartupFaults } from './lib/tauri'
-import { comboFromEvent } from './lib/keyboard'
+import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
 import StoriesPage from './pages/StoriesPage'
 import { SettingsModal } from './components/SettingsModal'
@@ -9,6 +9,7 @@ import { UpdateBanner } from './components/UpdateBanner'
 import { openOverlay } from './lib/back'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 import { HOSTED } from './lib/providers'
+import type { Shortcuts } from './types'
 
 type Page = 'guided' | 'stories'
 
@@ -42,6 +43,9 @@ class PageBoundary extends Component<{ children: ReactNode }, { error: Error | n
 export default function App() {
   const [page, setPage] = useState<Page>('guided')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // Owned here because the control belongs beside the wordmark, while the
+  // conversations it lists belong to the Guided page.
+  const [historyOpen, setHistoryOpen] = useState(false)
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
   const [showNotTauri, setShowNotTauri] = useState(false)
@@ -65,30 +69,34 @@ export default function App() {
     [settingsOpen]
   )
 
-  // Hosted mode: check in at launch. This validates the stored session while
-  // there is still time to do something about it — an expired one otherwise
-  // first shows up as a failed reply mid-conversation — and it is what keeps
-  // the device record current rather than frozen at the last sign-in.
+  // Settings are read ONCE here and everything on this screen derives from
+  // that read. Three separate loads raced each other on mount, and two of them
+  // swallowed their failure, so a settings problem showed up as a shortcut
+  // that quietly did nothing.
+  const [shortcuts, setShortcuts] = useState<Shortcuts>(SHORTCUT_DEFAULTS)
   useEffect(() => {
-    if (!isTauri) return
+    if (!isTauri) {
+      setShowNotTauri(true)
+      return
+    }
     void getSettings()
-      .then((s) => {
-        if (s.provider_mode !== HOSTED || !s.hosted_email) return
-        return hostedAccount().then(() => undefined)
+      .then(async (s) => {
+        if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
+        localStorage.setItem('skellyspeak_target', s.target_language)
+        // Check in with the hosted service while there is still time to do
+        // something about an expired session — it otherwise first shows up as
+        // a failed reply mid-conversation — and to keep the device record
+        // current rather than frozen at the last sign-in.
+        if (s.provider_mode === HOSTED && s.hosted_email) {
+          await hostedAccount()
+        }
       })
-      .catch((e) => reportFault('Checking your hosted account', e))
+      .catch((e) => reportFault('Loading settings', e))
   }, [])
 
   // Settings shortcut (configurable, default ctrl+,).
   useEffect(() => {
     if (!isTauri) return
-    let shortcuts = { settings: 'ctrl+,' }
-    let alive = true
-    void getSettings()
-      .then((s) => {
-        if (alive && s.shortcuts?.settings) shortcuts = s.shortcuts
-      })
-      .catch(() => {})
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return
       if (comboFromEvent(e) === shortcuts.settings) {
@@ -97,27 +105,24 @@ export default function App() {
       }
     }
     window.addEventListener('keydown', onKey)
-    return () => {
-      alive = false
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isTauri) {
-      setShowNotTauri(true)
-      return
-    }
-    void import('./lib/tauri').then(({ getSettings }) =>
-      getSettings()
-        .then((s) => localStorage.setItem('skellyspeak_target', s.target_language))
-        .catch(() => {})
-    )
-  }, [])
+    return () => window.removeEventListener('keydown', onKey)
+  }, [shortcuts])
 
   return (
     <div className="app">
       <div className="topbar">
+        {page === 'guided' && (
+          <button
+            type="button"
+            className="hamburger"
+            aria-label="Chat history"
+            aria-expanded={historyOpen}
+            title="Chat history"
+            onClick={() => setHistoryOpen((v) => !v)}
+          >
+            ☰
+          </button>
+        )}
         <span className="wordmark">
           SKELLYSPEAK<b>·</b>
         </span>
@@ -189,7 +194,11 @@ export default function App() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <GuidedPage settingsVersion={settingsVersion} />
+                <GuidedPage
+                  settingsVersion={settingsVersion}
+                  historyOpen={historyOpen}
+                  onHistoryOpenChange={setHistoryOpen}
+                />
               </PageBoundary>
             </div>
             <div

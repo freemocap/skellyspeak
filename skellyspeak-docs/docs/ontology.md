@@ -6,7 +6,7 @@ title: Ontology
 # Ontology — the domain model, nailed down
 
 This is the single source of truth for SkellySpeak's data contracts as of v0.1.0.
-Rust types live in `commands.rs`, `observer.rs`, `settings.rs`; TypeScript
+Rust types live under `commands/`, plus `observer.rs` and `settings.rs`; TypeScript
 mirrors live in `src/types.ts`. Where the two have drifted, it is called out
 inline — **Rust is always the authority.** **Convention: wire format is snake_case JSON
 (serde). The frontend mirrors it verbatim — no translation layer.**
@@ -259,7 +259,7 @@ mirrored in `src/types.ts`. Field-by-field contract:
 
 | Concept | Values |
 |---|---|
-| Steer level (guided chat) | `zero` → PRE-A1 · `beginner` → A2 · `intermediate` → B1 · `advanced` → C1. Chosen in the steer row (`hooks/useSteering.ts`), mapped to CEFR in `commands.rs::guided_turn`, persisted in `localStorage.skellyspeak_level`. |
+| Steer level (guided chat) | `zero` → PRE-A1 · `beginner` → A2 · `intermediate` → B1 · `advanced` → C1. Chosen in the steer row (`hooks/useSteering.ts`), mapped to CEFR in `commands/guided/mod.rs::guided_turn`, persisted in `localStorage.skellyspeak_level`. |
 | `Level` (stories) | beginner · intermediate · advanced |
 | `AnalysisState` | pending · done · failed |
 | Topic steering | 16 presets + free text, `localStorage.skellyspeak_topic` |

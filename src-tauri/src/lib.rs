@@ -121,7 +121,14 @@ pub fn run() {
             // Attach the trace bus: every AI run is recorded regardless, but
             // this is what lets the webview watch them live.
             trace::attach(app.handle().clone());
-            let coach_thread = commands::init_coach_thread(&docs_dir, &mut startup_faults);
+            // The coach thread belongs to whichever chat is open in this pairing.
+            let chat_dir = conversation::ensure_current_chat(&docs_dir)
+                .and_then(|id| conversation::chat_dir(&docs_dir, &id))
+                .unwrap_or_else(|e| {
+                    startup_faults.push(format!("{e} This conversation will not be saved."));
+                    docs_dir.clone()
+                });
+            let coach_thread = commands::init_coach_thread(&chat_dir, &mut startup_faults);
             log::info!("coach thread loaded: {} messages", coach_thread.len());
             app.manage(AppState {
                 settings: Mutex::new(settings),
@@ -136,35 +143,38 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            commands::get_settings,
-            commands::save_settings,
-            commands::reset_settings,
-            commands::take_startup_faults,
-            commands::latest_github_release,
-            commands::validate_key,
-            commands::hosted_sign_in,
-            commands::hosted_account,
-            commands::hosted_sign_out,
-            commands::load_conversation,
-            commands::save_conversation,
-            commands::new_conversation,
-            commands::get_languages,
-            commands::open_dev_window,
-            commands::get_graph,
-            commands::get_reconciliation,
-            commands::get_runs,
-            commands::clear_runs,
-            commands::get_diagnostics,
-            commands::speak_text,
-            commands::generate_scaffolds,
-            commands::word_insight,
-            commands::get_coach_thread,
-            commands::coach_ask,
-            commands::coach_thread_clear,
-            commands::guided_turn,
-            commands::generate_story,
-            commands::transcribe_audio,
-            commands::get_plan,
+            commands::app_settings::get_settings,
+            commands::app_settings::latest_github_release,
+            commands::app_settings::reset_settings,
+            commands::app_settings::save_settings,
+            commands::app_settings::take_startup_faults,
+            commands::coach::coach_ask,
+            commands::coach::coach_thread_clear,
+            commands::coach::get_coach_thread,
+            commands::conversations::delete_conversation,
+            commands::conversations::get_plan,
+            commands::conversations::list_conversations,
+            commands::conversations::load_conversation,
+            commands::conversations::new_conversation,
+            commands::conversations::open_conversation,
+            commands::conversations::save_conversation,
+            commands::dev::clear_runs,
+            commands::dev::get_diagnostics,
+            commands::dev::get_graph,
+            commands::dev::get_languages,
+            commands::dev::get_reconciliation,
+            commands::dev::get_runs,
+            commands::dev::open_dev_window,
+            commands::guided::guided_turn,
+            commands::hosted_auth::hosted_account,
+            commands::hosted_auth::hosted_sign_in,
+            commands::hosted_auth::hosted_sign_out,
+            commands::insight::word_insight,
+            commands::keys::validate_key,
+            commands::scaffolds::generate_scaffolds,
+            commands::stories::generate_story,
+            commands::stt::transcribe_audio,
+            commands::tts::speak_text,
         ])
         .run(tauri::generate_context!())
         .expect("error while running SkellySpeak");

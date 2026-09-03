@@ -54,7 +54,7 @@ teaches the industry's sloppiest habit, and this vocabulary is curriculum.
 | | Instructions | Session / memory | Tools | Handoffs |
 |---|---|---|---|---|
 | **Chat** | `guided_reply_prompt` | conversation history | — | — |
-| **Coach** | `coach_system_prompt` | `coach_thread.json`, `plan.json`, `profile.json` | — | — |
+| **Coach** | `coach_system_prompt` | `coach.json`, `plan.json`, `profile.json` | — | — |
 | the 9 tools | ✅ | — | — | — |
 
 Neither agent has tools or handoffs *yet*, so both are strictly "agent-shaped"
@@ -71,7 +71,7 @@ honest first.
 | **Tool** | one transformation, no memory, no choice | tokenize, translate, tokenize_learner, explain, suggest, word_insight, story |
 | **Faculty** | perception or action — a capacity an agent *has* | transcribe (ears), synthesize (voice) |
 
-The orchestrator (`commands.rs::guided_turn`) is a **Runner**: deterministic
+The orchestrator (`commands/guided/mod.rs::guided_turn`) is a **Runner**: deterministic
 Rust that walks the graph. It is not an agent and is not called one.
 
 `Operation.mechanical` marks the four operations a dictionary lookup will
@@ -125,7 +125,7 @@ freely. Anything load-bearing must be derived or reconciled.
 ### The worked example (why this page exists)
 
 The first version of this graph was hand-keyed: written by reading
-`commands.rs` and transcribing what was there. It had tests — every operation
+`commands/guided/mod.rs` and transcribing what was there. It had tests — every operation
 has a node, every edge connects declared nodes, every node hydrates — and all
 of them passed, because they checked the graph against *itself*.
 
@@ -166,7 +166,7 @@ Step {
 ```
 
 `graph::turn_graph()` is **generated** from that table — nodes from the
-steps, edges from each step's `needs`. Nothing transcribes `commands.rs`.
+steps, edges from each step's `needs`. Nothing transcribes `commands/guided/mod.rs`.
 Change the plan and the picture changes with it; that is the whole point.
 
 Only the x/y positions are authored, in one `position()` match arm.
@@ -581,7 +581,7 @@ Conversations and runs persist across restarts, with an obvious reset.
    the order of 50–100 KB per turn. A hundred turns is 5–10 MB — at or past
    the `localStorage` cap, and it would fail by *silently* throwing on write.
 2. **Layer.** The Rust core owns everything durable (`settings.json`,
-   `plan.json`, `profile.json`, `coach_thread.json`). Conversation and trace
+   `plan.json`, `profile.json`, `coach.json`). Conversation and trace
    data belong beside them, under the same corrupt-file, archive-on-reset and
    fail-loudly-on-write-error handling that already exists.
 3. **Reach.** Runs originate in Rust. Routing them through the webview to be
@@ -596,56 +596,80 @@ Conversations and runs persist across restarts, with an obvious reset.
 | `session.json` | The turn log — closes [R4](./status), the long-standing "resume where I left off" gap | Whole-session document |
 | `runs.jsonl` | Append-only run records | Capped by size + count, rotated (the log plugin's 2 MB / keep-one is the precedent) |
 
-### One conversation per language pairing — SHIPPED
+### Conversations on disk — SHIPPED
 
-Everything belonging to a conversation lives in a directory named for its
-**pairing**: the language being learned and the language already spoken.
+Everything belonging to a conversation lives under its **pairing**: the
+language being learned and the language already spoken.
 
 ```text
-<config>/settings.json                     ← global; holds which pairing is current
-<config>/conversations/es-ES__en/session.json
-                                /plan.json
-                                /profile.json
-                                /coach_thread.json
+<config>/settings.json                        ← global; holds the current pairing
+<config>/conversations/es-ES__en/plan.json    ← what the tutor knows about you,
+                                /profile.json   shared by every chat
+                                /current.json ← which chat is open
+                                /chats/1788400000-a1b2/session.json
+                                                      /coach.json
 <config>/conversations/ar__en/...
 ```
 
-So a Spanish conversation and an Arabic one coexist, each with its own turns,
-coach thread and tutor memory. Switching to Arabic and back returns to the
-Spanish conversation where it was left, rather than starting over.
+Two levels, and the split is the design. **Chats** are conversations you can
+list, reopen and delete. **Plan and profile** sit above them, per pairing,
+because they are what the tutor has learned about this learner in this
+language — starting a new chat should not make it forget you. The **coach
+thread belongs to a chat**, because the coach discusses the conversation in
+front of it.
+
+So a Spanish conversation and an Arabic one coexist, each with their own chats
+and their own tutor memory, and switching between languages returns each where
+it was left.
 
 **The dialect is not part of a pairing.** Levantine versus MSA, or Spain versus
 Mexico, is a setting applied to the conversation you are already in — it does
-not fork a new one. `src-tauri/src/conversation.rs` owns the layout, and the
-language ids are slugged before they reach a path because `settings.json` is a
-file a person can hand-edit.
+not fork a new one. `src-tauri/src/conversation.rs` owns the layout, and both
+language ids and chat ids are slugged before they reach a path, because
+`settings.json` is a file a person can hand-edit.
+
+**Plain JSON, one document per file.** At this size — dozens of chats, each a
+few hundred KB at most, written by one process — a database buys nothing and
+costs inspectability: when something looks wrong you can open the file and read
+it. SQLite would start to earn its keep with thousands of conversations,
+cross-chat search, or concurrent writers, and none of those are true.
+
+**Deleting sets a `deleted_at` field.** Nothing is renamed and nothing is
+erased. Deleting a conversation is the one action a user can take by accident
+on something irreplaceable, so it stays recoverable by anyone who opens the
+file, and `list_chats` simply skips it. The single exception is a session file
+whose JSON will not parse: a flag cannot be added to a document that cannot be
+read, so it is moved to `session.json.bad` and reported on screen.
 
 **Turns are stored exactly as the webview holds them.** The core never
-interprets a turn — it composes prompts from the history sent with each
-request — so a second definition of a turn in Rust would be a shape to keep in
-step for no gain.
+interprets a turn — it composes prompts from the history sent with each request
+— so a second definition of a turn in Rust would be a shape to keep in step for
+no gain. The chat *title* comes from the webview for the same reason
+(`src/lib/conversation.ts`): it is derived from the first thing the learner
+said, preferring their message over the tutor's greeting, because greetings are
+near-identical across conversations and a list titled by them is a list of
+indistinguishable rows.
 
-**The pairing is named explicitly on every load and save**, rather than read
-from settings at the time of the call. The webview knows which conversation the
-turns on screen belong to, and saying so is what stops a language switch racing
-an in-flight save and filing one conversation under another's name. The
-observer's output is pinned the same way, captured before its task starts:
-reading the pairing when it finishes would file its conclusions under whatever
-conversation the user had switched to while it was thinking.
+**Every load and save names its pairing and chat id explicitly**, rather than
+reading settings at the time of the call. The webview knows which conversation
+the turns on screen belong to, and saying so is what stops a language switch —
+or a chat switch — racing an in-flight save and filing one conversation under
+another's name. The observer's output is pinned the same way, captured before
+its task starts: reading the pairing when it finishes would file its
+conclusions under whatever conversation the user had switched to while it was
+thinking.
 
-### The privacy property changed on purpose
+### Browsing them
 
-Until now, **"conversation history lives only in memory"** was a documented
-property of a no-login local app. Persisting runs persists the conversation —
-so this is a deliberate, visible change, not a side effect:
+The `☰` beside the wordmark opens a drawer listing this pairing's chats, newest
+first, with a derived title and how long ago it was touched. Clicking one opens
+it, along with its coach thread. `✚ New chat` starts a fresh one.
 
-- The stored data is inspectable **from inside the app** (it is, after all, an
-  observability feature) and deletable there too.
-- Nothing leaves the device that was not already leaving it — the same
-  OpenRouter and Groq calls, no new destinations.
-- Which is itself a teaching moment about where AI apps put your data.
+The list is scoped to the pairing on purpose. A Spanish conversation and an
+Arabic one are separate practice, and mixing them into one list would make the
+common case — "the Spanish chat from yesterday" — harder rather than easier.
 
-### Reset must be obvious
+## Reset must be obvious
 
 Not buried in Settings. A **Session** control on the main surface, offering:
 
@@ -655,12 +679,11 @@ Not buried in Settings. A **Session** control on the main surface, offering:
 | Reset what the tutor knows about me | Plan + profile back to defaults |
 | Clear history & traces | Everything, archived |
 
-**New conversation** is shipped, as the `✚` control in the steer row above the
-composer. It archives this pairing's turn log and coach thread under
-timestamped names and opens a fresh one with a new greeting. The observer's
-plan and profile are deliberately kept: they are what the tutor has learned
-about this learner in this language, and that continuity is the entire reason
-the observer exists.
+**New conversation** is shipped, in the chat history drawer and as the `✚` in
+the steer row. It opens a fresh chat; the previous one stays in the list. The
+observer's plan and profile are deliberately kept: they are what the tutor has
+learned about this learner in this language, and that continuity is the entire
+reason the observer exists.
 
 Reset **archives, never destroys** — reusing the timestamped `.bak` pattern
 `save_settings` already applies on a language switch, consistent with the

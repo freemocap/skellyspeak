@@ -104,14 +104,16 @@ npm run tauri build
 inherits it.
 
 ```powershell
-node scripts/set-version.mjs 0.3.0
-git commit -am "v0.3.0"
-git tag v0.3.0
-git push && git push origin v0.3.0
+node scripts/release.mjs minor --dry-run   # see the plan, change nothing
+node scripts/release.mjs minor             # bump, commit, tag, push
 ```
 
-Tag **after** committing: the release workflow reads the version from the
-tagged commit's `Cargo.toml` and refuses to build if it disagrees with the tag.
+Takes `patch`, `minor`, `major`, or an explicit version like `1.0.0-rc.1`.
+It refuses before touching anything if the tree is dirty, the branch is not
+`main`, the remote is ahead, the version would go backwards, or the tag already
+exists — and after tagging it checks that the tag really does contain the bump,
+because a tag naming the wrong commit is the one failure that has to be undone
+on the remote.
 
 The tag triggers `.github/workflows/release.yml`, which builds Windows x64,
 macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64) and an Android APK,
@@ -133,9 +135,12 @@ regeneration.
 - `src-tauri/src/languages.rs` — supported languages + per-variant overlays
 - `src-tauri/src/observer.rs` — the TeachingPlan / Profile documents and the
   background observer pass that rewrites them
-- `src-tauri/src/commands.rs` — the IPC surface (14 commands): `guided_turn`,
-  `coach_ask`, `generate_scaffolds`, `word_insight`, `speak_text`,
-  `transcribe_audio`, `generate_story`, settings
+- `src-tauri/src/commands/` — the IPC surface, 32 commands in one module per
+  domain: `guided` (a turn and the passes behind it), `coach`, `conversations`,
+  `app_settings`, `hosted_auth`, `stories`, `scaffolds`, `insight`, `tts`,
+  `stt`, `keys`, `dev`
+- `src-tauri/src/conversation.rs` — where conversations live on disk, one
+  directory per language pairing
 - `src/pages/GuidedPage.tsx`, `src/pages/StoriesPage.tsx` — the two surfaces
 
 ## Docs

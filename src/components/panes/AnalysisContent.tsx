@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import type { GuidedToken, GuidedTurnResult } from '../../types'
+import type { GuidedToken, StoredTurn } from '../../types'
 import { needsSpaceBetween } from '../../lib/token-spacing'
 
 export interface InspectTarget {
@@ -8,13 +8,13 @@ export interface InspectTarget {
   index: number
 }
 
+/// Just the parts of a turn this pane renders. Derived from the canonical
+/// `StoredTurn` rather than restated, so a change to a turn cannot leave this
+/// declaration quietly describing a shape that no longer exists.
+export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant'>
+
 interface AnalysisContentProps {
-  turn: {
-    id: number
-    user: string | null
-    analysisState: 'pending' | 'done' | 'failed' | null
-    assistant: GuidedTurnResult | null
-  }
+  turn: AnalysedTurn
   inspect: InspectTarget | null
   nativeLanguageName: string
   showRomanization: boolean

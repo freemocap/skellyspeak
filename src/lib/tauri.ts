@@ -2,14 +2,14 @@ import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
   Graph,
   HostedAccount,
-  Level,
   ObserverDocuments,
   Reconciliation,
   Run,
   RunStarted,
+  ChatSummary,
+  OpenedConversation,
   Settings,
   StoredTurn,
-  Story,
 } from '../types'
 
 export const isTauri =
@@ -116,28 +116,58 @@ export function hostedSignOut(): Promise<void> {
   return invoke('hosted_sign_out')
 }
 
-/// The stored conversation for one language pairing.
+/// Every chat for this pairing, most recently used first.
+export function listConversations(target: string, native: string): Promise<ChatSummary[]> {
+  return invoke<ChatSummary[]>('list_conversations', { target, native })
+}
+
+/// The chat currently open for this pairing, starting one if there is none.
 ///
 /// The pairing is named explicitly rather than inferred from settings: the
 /// webview knows which conversation the turns on screen belong to, and saying
 /// so is what stops a language switch racing an in-flight save and filing one
-/// conversation under another's name.
-export function loadConversation(target: string, native: string): Promise<StoredTurn[]> {
-  return invoke<StoredTurn[]>('load_conversation', { target, native })
+/// conversation under another's name. Saves name the chat id for the same
+/// reason.
+export function loadConversation(
+  target: string,
+  native: string
+): Promise<OpenedConversation> {
+  return invoke<OpenedConversation>('load_conversation', { target, native })
+}
+
+/// Switch to another chat. Its coach thread comes with it.
+export function openConversation(
+  target: string,
+  native: string,
+  id: string
+): Promise<OpenedConversation> {
+  return invoke<OpenedConversation>('open_conversation', { target, native, id })
 }
 
 export function saveConversation(
-  turns: StoredTurn[],
   target: string,
-  native: string
+  native: string,
+  id: string,
+  turns: StoredTurn[],
+  title: string
 ): Promise<void> {
-  return invoke('save_conversation', { turns, target, native })
+  return invoke('save_conversation', { target, native, id, turns, title })
 }
 
-/// Archive the current conversation and coach thread, and start fresh. What
-/// the tutor has learned about the learner is deliberately kept.
-export function newConversation(): Promise<void> {
-  return invoke('new_conversation')
+/// Start a fresh chat and make it the open one. What the tutor has learned
+/// about the learner is deliberately kept — it lives above the chats.
+export function newConversation(target: string, native: string): Promise<string> {
+  return invoke<string>('new_conversation', { target, native })
+}
+
+/// Take a chat out of the list. Its turns stay on disk, marked with the time
+/// they were removed.
+export function deleteConversation(
+  target: string,
+  native: string,
+  id: string
+): Promise<void> {
+  return invoke('delete_conversation', { target, native, id })
 }
 
 export function getDiagnostics(): Promise<[string, number][]> {
@@ -206,16 +236,7 @@ export function resetSettings(): Promise<Settings> {
   return invoke<Settings>('reset_settings')
 }
 
-export function generateStory(level: Level): Promise<Story> {
-  return invoke('generate_story', { level })
-}
 
-export function transcribeAudio(
-  audioBase64: string,
-  prompt?: string
-): Promise<string> {
-  return invoke('transcribe_audio', { audioBase64, prompt: prompt ?? null })
-}
 
 export function getPlan(): Promise<ObserverDocuments> {
   return invoke('get_plan')

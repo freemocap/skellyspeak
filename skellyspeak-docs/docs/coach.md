@@ -7,7 +7,7 @@ title: The Coach
 
 Status: **bite 1 SHIPPED** (per-message auto-feedback, Coach tab) and
 **bite 3 SHIPPED** — the coach is now an interactive thread: ask it questions
-directly from the Coach pane; the thread persists to `coach_thread.json`
+directly from the Coach pane; the thread persists to the open chat's `coach.json`
 (40-message cap, corrupt-file protection) and is **private forever** — the
 native-speaker agent never sees it (Cyrano principle). The Analysis pane has
 its own Q&A input (session-scoped, auto-context from the pinned turn).

@@ -1,8 +1,10 @@
 import { memo } from 'react'
+import type { CoachFeedback } from '../../types'
 
+/// The parts of a turn the coach feed renders.
 export interface TurnForCoach {
   user: string | null
-  coach?: { comprehensibility: number; grammar: number; remark: string; used_target: string[]; used_native: string[]; corrections: { said: string; corrected: string; kind: string; explanation: string }[] }
+  coach?: CoachFeedback
   coachError?: string
 }
 

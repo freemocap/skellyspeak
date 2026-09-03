@@ -37,6 +37,24 @@ export interface Settings {
   shortcuts: Shortcuts
 }
 
+/// One row in the chat history sidebar. Mirrors `ChatSummary` in
+/// `conversation.rs`.
+export interface ChatSummary {
+  id: string
+  /// Derived from the first thing said. Empty for a chat with no turns yet.
+  title: string
+  updated_at: number
+  turn_count: number
+}
+
+/// A conversation as opened: which one it is, and its turns.
+export interface OpenedConversation {
+  id: string
+  turns: StoredTurn[]
+}
+
+export type AnalysisState = 'pending' | 'done' | null
+
 /// The coach's private read on one learner message.
 export interface CoachFeedback {
   comprehensibility: number
@@ -54,7 +72,11 @@ export interface StoredTurn {
   id: number
   user: string | null
   assistant: GuidedTurnResult | null
-  analysisState: 'pending' | 'done' | 'failed' | null
+  /// null before analysis starts, 'pending' while it runs, 'done' when it
+  /// lands. There is no 'failed': the core always finishes with a result and
+  /// reports per-section problems in `assistant.errors`, which the analysis
+  /// pane renders.
+  analysisState: AnalysisState
   coach?: CoachFeedback
   coachError?: string
 }
@@ -151,7 +173,6 @@ export type GuidedEvent =
     }
   | CoachEvent
   | { type: 'analysis_done'; turn: GuidedTurnResult }
-  | { type: 'analysis_failed'; error: string }
   | { type: 'plan_updated'; plan: TeachingPlan; profile: Profile }
   // Background work started by this turn failed. Goes straight to the fault bar.
   | { type: 'fault'; context: string; message: string }
@@ -193,7 +214,6 @@ export interface ObserverDocuments {
   profile: Profile
 }
 
-export type AnalysisState = 'pending' | 'done' | 'failed'
 
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 

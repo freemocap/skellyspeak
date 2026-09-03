@@ -27,7 +27,7 @@ flowchart TB
 
     subgraph CORE["Rust core (src-tauri)"]
         direction TB
-        CMD["commands.rs — IPC surface (15 commands): settings · languages<br/>guided_turn · coach · scaffolds · word_insight · story · STT · TTS · plan"]
+        CMD["commands/ — IPC surface, 32 commands in 12 modules<br/>guided · coach · conversations · app_settings · hosted_auth<br/>stories · scaffolds · insight · tts · stt · keys · dev"]
         STATE["lib.rs — AppState: settings · plan · profile ·<br/>recent_mechanics · observer_running · coach_thread"]
         AI["ai.rs — Provider: SSE streaming + structured_validated ladder"]
         OBS["observer.rs — TeachingPlan + Profile · observer pass · directives_block"]
@@ -39,8 +39,8 @@ flowchart TB
         STATE --> CMD
     end
 
-    NET["OpenRouter (chat completions) · Groq Whisper (STT)"]
-    DISK[("OS config dir — settings.json · plan.json · profile.json<br/>coach_thread.json · *.bak archives")]
+    NET["OpenRouter (chat completions) · Groq Whisper (STT)<br/>or the hosted API, which proxies both"]
+    DISK[("OS config dir — settings.json<br/>conversations/&lt;pair&gt;/{plan,profile,current}.json<br/>conversations/&lt;pair&gt;/chats/&lt;id&gt;/{session,coach}.json")]
 
     LIB -->|"invoke() commands"| CMD
     CMD -.->|"Channel GuidedEvent (streamed events)"| LIB
@@ -52,7 +52,18 @@ flowchart TB
 
 | File | Lines | Role |
 |---|---|---|
-| `src-tauri/src/commands.rs` | 1807 | The whole IPC surface; guided-turn orchestration, coach, TTS, stories |
+| `src-tauri/src/commands/` | 2492 | The IPC surface, one module per domain (see below) |
+| &nbsp;&nbsp;`commands/guided/` | 1280 | One turn, split by pass (below) |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/types.rs` | 361 | Wire types, the `GuidedEvent` contract, `sanitize_reply` |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/mod.rs` | 332 | The command: prompt assembly, streamed reply, then hand off |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/analysis.rs` | 280 | Four calls about the reply, merged with per-section degradation |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/observer_pass.rs` | 182 | Rewrites the plan and profile, never overlapping itself |
+| &nbsp;&nbsp;&nbsp;&nbsp;`guided/coach_pass.rs` | 125 | Private feedback on the learner's message |
+| &nbsp;&nbsp;`commands/coach.rs` | 240 | Per-message feedback and the private side-thread |
+| &nbsp;&nbsp;`commands/tts.rs` | 223 | Speech synthesis and the WAV container |
+| &nbsp;&nbsp;`commands/app_settings.rs` | 207 | Settings read/write, update-check feed |
+| &nbsp;&nbsp;`commands/conversations.rs` | 186 | Listing, opening, saving and removing chats |
+| &nbsp;&nbsp;`commands/stories.rs` · `scaffolds.rs` · `dev.rs` · `stt.rs` · `keys.rs` · `insight.rs` · `hosted_auth.rs` | 68–124 each | One domain apiece |
 | `src-tauri/src/ai.rs` | 507 | OpenAI-compatible client: streaming, schema-constrained structured output, corrective retries, `$defs` inlining |
 | `src-tauri/src/prompts.rs` | 362 | Prompt builders composed from shared blocks |
 | `src-tauri/src/observer.rs` | 308 | TeachingPlan/Profile documents, observer pass, `directives_block` |
@@ -78,7 +89,9 @@ Fifteen commands, registered in `lib.rs::run()`:
 | Command | Payload | Notes |
 |---|---|---|
 | `get_settings` | → `Settings` | Key material is **masked** (`head6••••••••tail6`) — the webview never sees raw keys |
-| `save_settings` | `Settings` | Persists to `settings.json`. An unchanged mask means "keep the stored key". A change of target/native/dialect **archives** `plan.json`/`profile.json`/`coach_thread.json` and resets the in-memory documents |
+| `save_settings` | `Settings` | Persists to `settings.json`. An unchanged mask means "keep the stored key"; the hosted session token and install id are always taken from disk, never from the webview. A change of **target or native language** saves the outgoing pairing's documents and loads the incoming one's. The dialect is not part of a pairing and switches nothing |
+| `reset_settings` | → `Settings` | Restores defaults and clears the stored keys |
+| `take_startup_faults` | → `string[]` | Drains problems recorded before the webview existed, so a startup failure reaches the screen rather than a log file |
 | `validate_key` | `provider, key` → `KeyStatus` | Live provider check; resolves a masked value against the stored key server-side |
 | `get_languages` | → `LanguageInfo[]` | The language registry verbatim from `languages.rs`. Fetched once before first render (`main.tsx`); the webview keeps **no** language table of its own |
 | `get_diagnostics` | → `[(name, count)]` | The four `ai.rs` retry counters, for the logs overlay header |
@@ -90,8 +103,42 @@ Fifteen commands, registered in `lib.rs::run()`:
 | `generate_story` | `level` → `StoryResponse` | One structured call |
 | `get_plan` | → `{plan, profile}` | For the Plan drawer / initial load |
 | `get_coach_thread` | → `CoachChatMessage[]` | The persisted private coach thread |
-| `coach_ask` | question → reply | Appends to `coach_thread.json` (40-message cap) |
-| `coach_thread_clear` | — | Wipes the coach thread |
+| `coach_ask` | question → reply | Appends to the open chat's `coach.json` (40-message cap) |
+| `coach_thread_clear` | — | Wipes the coach thread for the open chat |
+
+### Conversations
+
+Each language pairing keeps its own chats; see [Observability](./observability#persistence)
+for the layout. Every call names the pairing (and, where it matters, the chat)
+explicitly rather than reading settings, so a language switch cannot race an
+in-flight save and file one conversation under another's name.
+
+| Command | Payload | Notes |
+|---|---|---|
+| `list_conversations` | `target, native` → `ChatSummary[]` | Most recently used first; deleted chats are omitted |
+| `load_conversation` | `target, native` → `{id, turns}` | The open chat, starting one if there is none |
+| `open_conversation` | `target, native, id` → `{id, turns}` | Switches chats, bringing that chat's coach thread with it |
+| `save_conversation` | `target, native, id, turns, title` | The title is derived by the webview, which is the side that knows what a turn looks like |
+| `new_conversation` | `target, native` → `id` | A fresh chat. Plan and profile are untouched — they sit above the chats |
+| `delete_conversation` | `target, native, id` | Sets `deleted_at` in the document; the turns stay on disk |
+
+### Hosted service
+
+| Command | Payload | Notes |
+|---|---|---|
+| `hosted_sign_in` | → `Account` | Opens the **system** browser and waits for the redirect; stores the session |
+| `hosted_account` | → `Account` | Identity and remaining daily allowance |
+| `hosted_sign_out` | — | The only thing that clears the stored session token |
+
+### Observability and shell
+
+| Command | Payload | Notes |
+|---|---|---|
+| `get_runs` / `clear_runs` | → `Run[]` / — | The recorded run ring, for the Runs view |
+| `get_graph` | → `Graph` | The execution graph generated from `turn_plan.rs` |
+| `get_reconciliation` | → `Reconciliation` | The declared graph diffed against recorded runs |
+| `open_dev_window` | — | Pops the observability panel into its own OS window |
+| `latest_github_release` | → `LatestRelease` | Update check feed, used where the updater plugin is unavailable |
 
 ### `GuidedEvent` (channel protocol, snake_case tagged)
 
@@ -108,7 +155,7 @@ Fifteen commands, registered in `lib.rs::run()`:
 
 ## The guided turn pipeline
 
-This is the heart of the app (`commands.rs::guided_turn`):
+This is the heart of the app (`commands/guided/mod.rs::guided_turn`):
 
 ```mermaid
 sequenceDiagram
@@ -295,18 +342,23 @@ Edge TTS (unofficial API, grey zone), Piper (offline neural, real machinery).
 
 | Data | Where | Written by |
 |---|---|---|
-| `settings.json` (keys, models, languages, mic) | `app_config_dir` (falls back to `%TEMP%/skellyspeak`) | `save_settings` |
-| `plan.json` (TeachingPlan) | `app_config_dir` | observer pass, every success |
-| `profile.json` (Profile) | `app_config_dir` | observer pass, every success |
-| Coach thread | `coach_thread.json` in `app_config_dir` (40-message cap) | `coach_ask`, `coach_thread_clear` |
-| Archived documents on language switch | `<name>.<old_target>.<unix>.bak` | `save_settings` |
+| `settings.json` (keys, models, languages, mic) | `app_config_dir` | `save_settings` |
+| `plan.json` (TeachingPlan) | `conversations/<pair>/` | observer pass, every success |
+| `profile.json` (Profile) | `conversations/<pair>/` | observer pass, every success |
+| Which chat is open | `conversations/<pair>/current.json` | `open_conversation`, `new_conversation` |
+| Turn log | `conversations/<pair>/chats/<id>/session.json` | `save_conversation` |
+| Coach thread | `conversations/<pair>/chats/<id>/coach.json` (40-message cap) | `coach_ask`, `coach_thread_clear` |
 | Steer level / topic | `localStorage.skellyspeak_level` / `skellyspeak_topic` | `hooks/useSteering.ts` |
 | Target language mirror | `localStorage.skellyspeak_target` | App on load/save |
 | Cached story | `localStorage.skellyspeak_story_<lang>_<level>` | StoriesPage |
 
-**Conversation history lives only in memory** — the chat resets on restart.
-Continuity across restarts is carried by `plan.json`, `profile.json` and
-`coach_thread.json` alone.
+**Conversations persist.** Each language pairing keeps its own chats, and each
+restores where it was left; the `☰` beside the wordmark lists them. What the
+tutor has learned about the learner (`plan.json`, `profile.json`) sits above the
+chats, per pairing, so starting a new conversation does not make it forget you.
+
+The config directory has **no fallback**. If it cannot be resolved the app
+refuses to start rather than writing somewhere the user will never find.
 
 ## Frontend state model
 
