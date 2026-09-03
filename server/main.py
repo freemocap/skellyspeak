@@ -353,6 +353,43 @@ def me(request: Request, user_id: str = Depends(current_user)) -> dict[str, obje
 
 # ── Proxy ───────────────────────────────────────────────────────────────────
 
+# Nothing may read a request body without a ceiling. `await request.body()`
+# buffers the whole thing in memory first, so a size check afterwards runs when
+# the damage is already done — on a 512Mi instance, after the process died.
+MAX_JSON_BYTES = 1 * 1024 * 1024
+MAX_AUDIO_BYTES = 25 * 1024 * 1024
+
+
+async def read_capped_body(request: Request, limit: int, what: str) -> bytes:
+    """The request body, or 413 before it is all in memory.
+
+    Content-Length is checked first because it is free and rejects the common
+    case immediately, and then the running total is checked as chunks arrive —
+    a missing or dishonest Content-Length must not be a way around the cap.
+    """
+    declared = request.headers.get("content-length")
+    if declared is not None:
+        try:
+            size = int(declared)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="Malformed Content-Length.") from exc
+        if size > limit:
+            raise HTTPException(
+                status_code=413,
+                detail=f"{what} is too large ({size // 1_048_576} MB). The limit is {limit // 1_048_576} MB.",
+            )
+
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > limit:
+            raise HTTPException(
+                status_code=413,
+                detail=f"{what} is too large. The limit is {limit // 1_048_576} MB.",
+            )
+    return bytes(body)
+
+
 
 def _usage_from(payload: dict) -> tuple[int | None, int]:
     """Cost in micro-dollars and total tokens, as OpenRouter reported them.
@@ -447,7 +484,7 @@ async def chat_completions(request: Request, user_id: str = Depends(current_user
         # 429 with a human message; the app shows it in the fault bar.
         return JSONResponse(status_code=429, content={"detail": str(exc)})
 
-    body = await request.body()
+    body = await read_capped_body(request, MAX_JSON_BYTES, "That request")
     try:
         parsed = json.loads(body)
     except json.JSONDecodeError as exc:
@@ -565,7 +602,6 @@ async def chat_completions(request: Request, user_id: str = Depends(current_user
 # user; it is set above what a short clip actually costs so voice input is
 # never the thing that quietly runs the budget down.
 TRANSCRIPTION_MICROS = 1_000  # $0.001
-MAX_AUDIO_BYTES = 25 * 1024 * 1024
 
 
 @app.post("/v1/audio/transcriptions")
@@ -589,41 +625,13 @@ async def transcriptions(request: Request, user_id: str = Depends(current_user))
             detail="Audio must be sent as multipart/form-data.",
         )
 
-    # Checked BEFORE reading the body. `await request.body()` buffers the whole
-    # upload into memory, so testing the length afterwards means a large upload
-    # has already been accepted — and on a 512Mi instance, has already killed
-    # the process.
-    declared = request.headers.get("content-length")
-    if declared is not None:
-        try:
-            if int(declared) > MAX_AUDIO_BYTES:
-                raise HTTPException(
-                    status_code=413,
-                    detail=(
-                        f"Recording is too large ({int(declared) // 1_048_576} MB). "
-                        "The limit is 25 MB."
-                    ),
-                )
-        except ValueError as exc:
-            raise HTTPException(status_code=400, detail="Malformed Content-Length.") from exc
-
-    body = bytearray()
-    async for chunk in request.stream():
-        body.extend(chunk)
-        # A missing or lying Content-Length must not be a way around the cap,
-        # so the running total is checked as it arrives and the connection is
-        # dropped the moment it is exceeded.
-        if len(body) > MAX_AUDIO_BYTES:
-            raise HTTPException(
-                status_code=413,
-                detail="Recording is too large. The limit is 25 MB.",
-            )
+    body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
 
     try:
         async with httpx.AsyncClient(timeout=180) as client:
             upstream = await client.post(
                 f"{CFG.groq_base_url}/audio/transcriptions",
-                content=bytes(body),
+                content=body,
                 headers={
                     "Authorization": f"Bearer {CFG.groq_key}",
                     "Content-Type": content_type,

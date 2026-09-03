@@ -62,6 +62,21 @@ class FakeDocRef:
         self._store[self.path] = current
 
 
+class FakeQuery:
+    """What `collection.select([])` returns: the documents, no fields."""
+
+    def __init__(self, store: dict, path: str):
+        self._store = store
+        self.path = path
+
+    def __iter__(self):
+        prefix = f"{self.path}/"
+        for key in list(self._store):
+            # Direct children only — `users/x` counts, `users/x/usage/d` does not.
+            if key.startswith(prefix) and "/" not in key[len(prefix):]:
+                yield FakeSnapshot(self._store[key])
+
+
 class FakeCollection:
     def __init__(self, store: dict, path: str):
         self._store = store
@@ -70,9 +85,22 @@ class FakeCollection:
     def document(self, doc_id: str) -> FakeDocRef:
         return FakeDocRef(self._store, f"{self.path}/{doc_id}")
 
+    def select(self, _fields) -> FakeQuery:
+        return FakeQuery(self._store, self.path)
+
 
 class FakeTransaction:
     """Writes apply immediately; ordering is what the tests care about."""
+
+    def get(self, ref_or_query):
+        """Firestore transactions can read a QUERY, not only a document.
+
+        That is what lets the account ceiling count the users collection
+        atomically instead of trusting a separate counter document.
+        """
+        if isinstance(ref_or_query, FakeQuery):
+            return iter(ref_or_query)
+        return ref_or_query.get()
 
     def set(self, ref: FakeDocRef, data: dict, merge: bool = False) -> None:
         ref.set(data, merge=merge)
@@ -107,7 +135,8 @@ def signup(db, n: int, *, max_users: int) -> None:
 
 
 def counted(db) -> int:
-    return db.store.get(f"{quota.META}/{quota.SIGNUPS}", {}).get("count", 0)
+    """How many accounts exist — the same thing the ceiling now counts."""
+    return sum(1 for k in db.store if k.startswith("users/") and k.count("/") == 1)
 
 
 class TestAccountCeiling:

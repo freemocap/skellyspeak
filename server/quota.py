@@ -38,11 +38,6 @@ LOGIN_CODES = "login_codes"
 # a bare string literal here is one typo away from writing to, and then
 # reading from, two different collections that both look right.
 AUTH_STATES = "auth_states"
-# Holds the running account total. A counter document, rather than counting
-# the users collection: a count query is neither atomic nor free, and the
-# number it returns is stale the moment two people sign in at once.
-META = "meta"
-SIGNUPS = "signups"
 DEVICES = "devices"
 
 # How long usage records live. Firestore deletes them itself, driven by a TTL
@@ -298,23 +293,30 @@ def upsert_user(
     Returns the account's current `token_version`, which is stamped into the
     session token so revocation can invalidate it later.
 
-    Transactional, because the check and the increment must be one step: two
-    people signing in at the same instant must not both read "5 accounts" and
-    both become the sixth.
+    The ceiling is checked by COUNTING the users collection, inside the
+    transaction. A separate counter document would be cheaper, and was what
+    this did first — but a counter is a second copy of a fact, and the two
+    drifted the moment an account was created outside this path. It then read
+    low, silently raising the ceiling, which is the failure that actually
+    happened rather than the one it was guarding against.
+
+    Firestore transactions can read a query, so counting is atomic here: two
+    people signing in at the same instant cannot both see "5 accounts" and both
+    become the sixth. It costs one read per existing account on a sign-in,
+    which at these numbers is nothing, and it cannot drift because there is
+    nothing to drift from.
 
     Someone who already has an account is never affected by the ceiling and
     never counted twice — lowering `max_users` below the current total locks
     out new sign-ups without evicting anybody.
     """
-    user_ref = db.collection(USERS).document(user_id)
-    counter_ref = db.collection(META).document(SIGNUPS)
-    version = 0
+    users = db.collection(USERS)
+    user_ref = users.document(user_id)
 
     @firestore.transactional
     def apply(transaction: firestore.Transaction) -> int:
         # Every read must precede every write inside a transaction.
         existing = user_ref.get(transaction=transaction)
-        counter = counter_ref.get(transaction=transaction)
 
         profile = {
             "email": email,
@@ -325,7 +327,9 @@ def upsert_user(
             transaction.set(user_ref, profile, merge=True)
             return int(existing.get("token_version") or 0)
 
-        count = int((counter.to_dict() or {}).get("count") or 0)
+        # `select([])` asks for document ids and no fields: the count is all
+        # that matters and the profiles are not worth transferring.
+        count = sum(1 for _ in transaction.get(users.select([])))
         if count >= max_users:
             raise SignupClosed(
                 "SkellySpeak's free hosted service is in closed testing and is "
@@ -337,8 +341,6 @@ def upsert_user(
             {**profile, "created_at": firestore.SERVER_TIMESTAMP, "token_version": 0},
             merge=True,
         )
-        transaction.set(counter_ref, {"count": count + 1}, merge=True)
         return 0
 
-    version = apply(db.transaction())
-    return int(version or 0)
+    return int(apply(db.transaction()) or 0)

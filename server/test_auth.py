@@ -14,11 +14,14 @@ class TestRedirectAllowlist:
     @pytest.mark.parametrize(
         "uri",
         [
+            # The loopback PORT is the only part that may vary: RFC 8252
+            # requires it to be ephemeral, so it cannot be pre-registered.
             "http://127.0.0.1/callback",
             "http://127.0.0.1:1420/callback",
-            "http://127.0.0.1:53127/auth/callback",
+            "http://127.0.0.1:53127/callback",
             "http://[::1]:8080/callback",
-            "skellyspeak://auth/callback",
+            "skellyspeak://auth",
+            "skellyspeak://auth/",
         ],
     )
     def test_accepts_this_app_on_this_device(self, uri):
@@ -37,6 +40,17 @@ class TestRedirectAllowlist:
             "javascript:alert(1)",
             "//evil.example",
             "",
+            # RFC 9700 wants exact matching, so a path the app never uses is
+            # refused even on the right host. Every extra accepted path is
+            # another place an authorization code could be delivered.
+            "http://127.0.0.1:53127/auth/callback",
+            "http://127.0.0.1:53127/",
+            "http://127.0.0.1:53127/callback/../evil",
+            "http://127.0.0.1:53127/callback?next=https://evil.example",
+            "http://127.0.0.1:53127/callback#fragment",
+            "skellyspeak://auth/callback",
+            "skellyspeak://evil",
+            "skellyspeak://auth/../evil",
         ],
     )
     def test_rejects_everything_else(self, uri):

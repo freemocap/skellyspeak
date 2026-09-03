@@ -172,6 +172,64 @@ foreach ($attempt in 1..6) {
 if (-not $actedAs) { Fail "Could not let $SaEmail act as $BuildSa." }
 Note "roles/iam.serviceAccountUser on $BuildSa"
 
+# ── The identity the SERVICE runs as ────────────────────────────────────────
+
+# Distinct from the deployer above, and from the project default.
+#
+# Cloud Run defaults to the compute service account, which in this project
+# holds roles/editor. A container can always mint a token for its own identity
+# from the metadata server, so with that default ANY code execution in the API
+# process — an RCE, an SSRF, a compromised dependency — becomes project Editor:
+# read every secret, delete Firestore, redeploy the service. The API proxies
+# attacker-influenced JSON to a third party and parses what comes back, which
+# is exactly the sort of process that should hold as little as possible.
+#
+# It needs two things and nothing else: read its secrets, and use Firestore.
+$RunSaName = "skellyspeak-run"
+$RunSaEmail = "$RunSaName@$Project.iam.gserviceaccount.com"
+$RunRoles = @("roles/datastore.user", "roles/secretmanager.secretAccessor")
+
+Step "Creating the runtime service account"
+if (gcloud iam service-accounts list --project=$Project --filter="email:$RunSaEmail" --format="value(email)") {
+    Note "$RunSaEmail already exists"
+} else {
+    gcloud iam service-accounts create $RunSaName `
+        --project=$Project `
+        --display-name="SkellySpeak API runtime" `
+        --description="What the Cloud Run service itself runs as. Least privilege: Firestore and its own secrets."
+    if ($LASTEXITCODE -ne 0) { Fail "Could not create the runtime service account." }
+    Note "created $RunSaEmail"
+}
+
+foreach ($attempt in 1..30) {
+    gcloud iam service-accounts describe $RunSaEmail --project=$Project 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { break }
+    Start-Sleep -Seconds 2
+}
+
+Step "Granting the runtime only what it needs"
+foreach ($role in $RunRoles) {
+    $granted = $false
+    foreach ($attempt in 1..6) {
+        gcloud projects add-iam-policy-binding $Project `
+            --member="serviceAccount:$RunSaEmail" --role=$role --condition=None --quiet 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0) { $granted = $true; break }
+        Start-Sleep -Seconds 5
+    }
+    if ($granted) { Note "$role" } else { Fail "Could not grant $role to $RunSaEmail." }
+}
+
+# Cloud Build performs the `gcloud run deploy --service-account=...`, so it is
+# Cloud Build's identity that must be allowed to act as the runtime account.
+Step "Letting the build deploy a service that runs as $RunSaName"
+gcloud iam service-accounts add-iam-policy-binding $RunSaEmail `
+    --project=$Project `
+    --role="roles/iam.serviceAccountUser" `
+    --member="serviceAccount:$BuildSa" `
+    --quiet | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "Could not let $BuildSa act as $RunSaEmail." }
+Note "roles/iam.serviceAccountUser for $BuildSa"
+
 # ── Workload Identity Federation ────────────────────────────────────────────
 
 Step "Creating the workload identity pool"
@@ -239,6 +297,20 @@ if ($buildPolicy -notmatch [regex]::Escape($SaEmail) -or $buildPolicy -notmatch 
     Fail "$SaEmail cannot act as $BuildSa. Re-run this script."
 }
 Note "can act as the build service account"
+
+$runActual = @(gcloud projects get-iam-policy $Project `
+    --flatten="bindings[].members" `
+    --filter="bindings.members:serviceAccount:$RunSaEmail" `
+    --format="value(bindings.role)")
+$runMissing = $RunRoles | Where-Object { $runActual -notcontains $_ }
+if ($runMissing) {
+    Fail ("The runtime account is missing: {0}`n  Re-run this script." -f ($runMissing -join ", "))
+}
+# The point of a least-privilege runtime is lost if it also holds editor.
+if ($runActual -contains "roles/editor" -or $runActual -contains "roles/owner") {
+    Fail "$RunSaEmail holds a broad role. Remove it; it needs only: $($RunRoles -join ', ')"
+}
+Note "runtime account holds exactly $($runActual.Count) role(s), none of them broad"
 
 # ── Hand the values to GitHub ───────────────────────────────────────────────
 

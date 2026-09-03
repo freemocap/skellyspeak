@@ -103,7 +103,9 @@ produce a service too crippled to learn anything from — the allowance was set
 generously and `MAX_USERS` set small:
 
 - **Total accounts** — `MAX_USERS`, enforced in `quota.upsert_user` inside a
-  Firestore transaction, because the check and the increment must be one step.
+  Firestore transaction, which can read a query — so the count is taken from
+the `users` collection itself rather than from a counter document that could
+drift away from it.
   A counter document holds the running total; counting the collection would be
   neither atomic nor free. Somebody who already has an account is never
   blocked by the ceiling and never counted twice, so lowering `MAX_USERS`
@@ -244,6 +246,23 @@ custodian of an indefinite record of when somebody practises a language.
 `auth_states` and `login_codes` live 24 hours; both are logically dead after
 two minutes, but abandoned sign-ins are never read again and would otherwise
 accumulate forever.
+
+## Seeing the numbers
+
+```bash
+cd server && uv run python stats.py
+```
+
+Signups, spend per person per day, devices. `--days 7` for a week, `--emails`
+to unmask addresses. Needs `gcloud auth application-default login` once.
+
+Or click: [Firestore console](https://console.cloud.google.com/firestore/databases/-default-/data?project=skellyspeak-api).
+`users` = who signed up. `global_usage/{date}` = everyone's spend that day.
+
+`ACCOUNTS` is the same number `MAX_USERS` is checked against — the ceiling
+counts the `users` collection inside the signup transaction, so there is no
+separate counter that can drift out of step with it.
+
 
 ## Turning the dials
 
