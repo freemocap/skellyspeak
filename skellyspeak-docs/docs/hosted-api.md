@@ -251,44 +251,70 @@ Everything meant to change once testing ends is a value, not a code change.
 
 | Dial | Env var | Closed-testing value |
 |---|---|---|
-| Per-user daily tokens | `FREE_DAILY_TOKENS` | 500,000 |
-| Global daily tokens | `GLOBAL_DAILY_TOKENS` | 3,000,000 |
+| Per-user daily spend | `FREE_DAILY_MICROS` | 500,000 (**$0.50**) |
+| Global daily spend | `GLOBAL_DAILY_MICROS` | 2,000,000 (**$2.00**) |
 | Maximum accounts | `MAX_USERS` | 6 |
+| Models this service pays for | `ALLOWED_MODELS` | `google/gemini-2.5-flash,openai/gpt-audio-mini` |
+| Ceiling on one completion | `MAX_COMPLETION_TOKENS` | 32,768 |
 
 They live in `server/cloudbuild.yaml`, but changing them needs no rebuild:
 
 ```powershell
 gcloud run services update skellyspeak-api --region=us-central1 `
-  --update-env-vars=MAX_USERS=25,FREE_DAILY_TOKENS=250000
+  --update-env-vars=MAX_USERS=25,FREE_DAILY_MICROS=250000
 ```
 
 **Mirror the new value back into `cloudbuild.yaml` afterwards, or the next
 deploy silently reverts it.**
 
-### What a turn actually costs
+### Why the limit is money, not tokens
 
-Measured 2 September 2026, on the first real hosted session: **roughly 7,000
-tokens per turn** of voice conversation (~25,000 across three to four turns,
-with the analysis panels live). That is one turn — the eight calls in
-`turn_plan.rs::TURN_STEPS` together, including speech-to-text and the spoken
-reply.
+It used to be tokens, and that was the wrong unit in both directions. The price
+of a token varies about a hundredfold across OpenRouter, and **the caller
+chooses the model** — so a token ceiling was denominated in something the
+person spending it controlled. 500,000 tokens is pennies on one model and tens
+of dollars on another.
 
-So the numbers above mean:
+OpenRouter reports `usage.cost` on every response, so the service now records
+what it was actually charged. Held as **micro-dollars** (1,000,000 = $1),
+because Firestore counters must be integers to increment atomically and float
+dollars accumulate drift.
 
-| | |
-|---|---|
-| 500,000 per user per day | **~70 turns** — a long session, not a teaser |
-| 3,000,000 globally per day | six people all at their limit |
-| Cost of that worst case | a few dollars a day at gemini-2.5-flash rates |
+Two guards keep that number meaningful:
 
-The per-user figure is generous on purpose and costs nothing while `MAX_USERS`
-is 6. **It is the number to revisit before raising `MAX_USERS`**, because that
-is the moment it starts multiplying.
+- **`ALLOWED_MODELS`** — the body is forwarded untouched so the app's
+  structured-output options reach the provider unchanged, which would otherwise
+  let a caller name any model on OpenRouter. Two are served: the worker model,
+  and the audio model behind spoken replies.
+- **A reservation.** The quota is checked before the upstream call and settled
+  after. In between, nothing held the money, so concurrent requests all read
+  the same balance and all decided there was room. An estimate is now charged
+  up front and corrected to the real figure afterwards.
 
-Both meters stay available for re-measuring: `GET /v1/me` reports `used_today`
-per account, Firestore holds the daily totals under `users/{id}/usage/{date}`
-and `global_usage/{date}` alongside a request count, and the app's own run
-tracing records per-call token usage locally.
+### What the user sees
+
+Dollars are the truth, but nobody plans an afternoon in fractions of a cent, so
+`GET /v1/me` also returns `estimated_turns_remaining` and
+`estimated_tokens_remaining`. Both are derived from **that account's own
+average cost per request so far**, not a constant — so they track whatever
+model and conversation length are actually in use, and a new account falls back
+to a deliberately pessimistic per-turn figure until it has history.
+
+For reference, measured 2 September 2026 on the first real hosted session:
+roughly **7,000 tokens per turn** of voice conversation — one turn being the
+eight calls in `turn_plan.rs::TURN_STEPS` together, speech-to-text and spoken
+reply included.
+
+So $0.50 per user per day across at most 6 accounts, under a $2.00 shared
+ceiling, means **the most this service can spend in a day is two dollars** — by
+arithmetic rather than by hope. The per-user figure is the one to revisit
+before raising `MAX_USERS`, because that is when it starts multiplying.
+
+Firestore holds the daily totals under `users/{id}/usage/{date}` and
+`global_usage/{date}` — `micros` alongside `tokens` and `requests`, so cost per
+turn stays measurable — and the app's own run tracing records per-call usage
+locally.
+
 
 The consent screen is the other half of the gate: an OAuth client in
 **Testing** admits only listed addresses, while one published to **Production**

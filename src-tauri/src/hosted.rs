@@ -29,13 +29,25 @@ use std::time::Duration;
 const SIGN_IN_TIMEOUT: Duration = Duration::from_secs(300);
 
 /// Who is signed in and what allowance is left. Mirrors `GET /v1/me`.
+///
+/// The allowance is money, not tokens: the service meters what OpenRouter
+/// actually charged, because the price of a token varies about a hundredfold
+/// across models. Tokens and turns come back as ESTIMATES derived from this
+/// account's own usage so far — they are the readable form of the number, not
+/// the number the limit is enforced against.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     pub email: String,
     pub name: String,
-    pub used_today: u64,
-    pub daily_limit: u64,
-    pub remaining: u64,
+    /// US dollars.
+    pub used_usd: f64,
+    pub limit_usd: f64,
+    pub remaining_usd: f64,
+    /// Reporting only.
+    pub tokens_today: u64,
+    pub requests_today: u64,
+    pub estimated_turns_remaining: u64,
+    pub estimated_tokens_remaining: u64,
     pub resets: String,
 }
 
@@ -81,11 +93,43 @@ fn service_url(path: &str) -> String {
     format!("{origin}{path}")
 }
 
+/// The PKCE pair for one sign-in attempt (RFC 7636).
+///
+/// The redirect that carries the login code back is NOT a private channel: on
+/// Android any app may register `skellyspeak://`, and on desktop the loopback
+/// port is reachable by anything on the machine. The verifier never leaves this
+/// process, so a code intercepted in transit cannot be exchanged for a session.
+/// RFC 8252 §8.1 requires this for native apps.
+struct Pkce {
+    verifier: String,
+    challenge: String,
+}
+
+impl Pkce {
+    fn new() -> Self {
+        use base64::Engine;
+        use sha2::{Digest, Sha256};
+        // 32 random bytes base64url-encoded is 43 characters — the minimum the
+        // RFC allows and 256 bits of entropy.
+        let mut raw = [0u8; 32];
+        getrandom::fill(&mut raw).expect("the OS must provide random bytes");
+        let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(raw);
+        let challenge = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(Sha256::digest(verifier.as_bytes()));
+        Self { verifier, challenge }
+    }
+}
+
 /// Where the browser is sent to begin sign-in.
-fn start_url(redirect_uri: &str) -> Result<String, String> {
+fn start_url(redirect_uri: &str, challenge: &str) -> Result<String, String> {
     reqwest::Url::parse_with_params(
         &service_url("/auth/start"),
-        &[("provider", "google"), ("redirect_uri", redirect_uri)],
+        &[
+            ("provider", "google"),
+            ("redirect_uri", redirect_uri),
+            ("code_challenge", challenge),
+            ("code_challenge_method", "S256"),
+        ],
     )
     .map(String::from)
     .map_err(|e| format!("could not build the sign-in URL: {e}"))
@@ -125,10 +169,14 @@ async fn detail_of(response: reqwest::Response) -> String {
 
 /// Trade the one-time code for a session token, then read the account back so
 /// the UI has an address to show for the session it just created.
-async fn exchange(code: &str, client_info: &ClientInfo) -> Result<Session, String> {
+async fn exchange(
+    code: &str,
+    verifier: &str,
+    client_info: &ClientInfo,
+) -> Result<Session, String> {
     let response = client()?
         .post(service_url("/auth/exchange"))
-        .json(&serde_json::json!({ "code": code }))
+        .json(&serde_json::json!({ "code": code, "code_verifier": verifier }))
         .send()
         .await
         .map_err(|e| format!("could not reach the sign-in service: {e}"))?;
@@ -194,7 +242,8 @@ pub async fn sign_in(
     // what the service's allowlist accepts.
     let redirect_uri = format!("http://127.0.0.1:{port}/callback");
 
-    open_in_browser(app, &start_url(&redirect_uri)?)?;
+    let pkce = Pkce::new();
+    open_in_browser(app, &start_url(&redirect_uri, &pkce.challenge)?)?;
 
     let accept = async {
         loop {
@@ -241,7 +290,7 @@ pub async fn sign_in(
     let code = tokio::time::timeout(SIGN_IN_TIMEOUT, accept)
         .await
         .map_err(|_| "Sign-in timed out. Try again.".to_string())??;
-    exchange(&code, client_info).await
+    exchange(&code, &pkce.verifier, client_info).await
 }
 
 /// The `code` parameter from a callback request target such as
@@ -333,7 +382,8 @@ pub async fn sign_in(
         });
     });
 
-    open_in_browser(app, &start_url("skellyspeak://auth")?)?;
+    let pkce = Pkce::new();
+    open_in_browser(app, &start_url("skellyspeak://auth", &pkce.challenge)?)?;
 
     let url = tokio::time::timeout(SIGN_IN_TIMEOUT, receiver)
         .await
@@ -343,7 +393,7 @@ pub async fn sign_in(
     let parsed = reqwest::Url::parse(&url)
         .map_err(|_| "The sign-in response was malformed.".to_string())?;
     let code = code_from_url(&parsed)?;
-    exchange(&code, client_info).await
+    exchange(&code, &pkce.verifier, client_info).await
 }
 
 #[cfg(test)]
@@ -360,7 +410,7 @@ mod tests {
 
     #[test]
     fn the_start_url_carries_an_encoded_redirect() {
-        let url = start_url("http://127.0.0.1:53127/callback").unwrap();
+        let url = start_url("http://127.0.0.1:53127/callback", "c".repeat(43).as_str()).unwrap();
         assert!(url.contains("provider=google"));
         // Encoded, or the service reads a truncated redirect and refuses it.
         assert!(url.contains("redirect_uri=http%3A%2F%2F127.0.0.1%3A53127%2Fcallback"));
@@ -385,5 +435,56 @@ mod tests {
             .contains("refused"));
         assert!(code_of("/callback").is_err());
         assert!(code_of("/callback?code=").is_err());
+    }
+}
+
+#[cfg(test)]
+mod pkce_tests {
+    use super::*;
+
+    #[test]
+    fn the_challenge_is_the_base64url_sha256_of_the_verifier() {
+        // RFC 7636 Appendix B, so this is checked against the spec rather than
+        // against itself.
+        use base64::Engine;
+        use sha2::{Digest, Sha256};
+        let verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+        let challenge = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(Sha256::digest(verifier.as_bytes()));
+        assert_eq!(challenge, "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM");
+    }
+
+    #[test]
+    fn a_generated_pair_satisfies_the_rfc_and_verifies() {
+        use base64::Engine;
+        use sha2::{Digest, Sha256};
+        let pkce = Pkce::new();
+        // RFC 7636 §4.1: 43-128 characters of unreserved ASCII.
+        assert!((43..=128).contains(&pkce.verifier.len()));
+        assert!(pkce
+            .verifier
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || "-._~".contains(c)));
+        assert_eq!(pkce.challenge.len(), 43);
+        let expected = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(Sha256::digest(pkce.verifier.as_bytes()));
+        assert_eq!(pkce.challenge, expected);
+    }
+
+    #[test]
+    fn every_attempt_gets_a_fresh_verifier() {
+        // Reusing one would make interception of a single code permanently
+        // useful rather than useless.
+        let a = Pkce::new();
+        let b = Pkce::new();
+        assert_ne!(a.verifier, b.verifier);
+        assert_ne!(a.challenge, b.challenge);
+    }
+
+    #[test]
+    fn the_start_url_carries_the_challenge_and_names_s256() {
+        let url = start_url("skellyspeak://auth", "abc").unwrap();
+        assert!(url.contains("code_challenge=abc"));
+        assert!(url.contains("code_challenge_method=S256"));
     }
 }

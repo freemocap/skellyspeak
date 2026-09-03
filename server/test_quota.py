@@ -216,8 +216,8 @@ class TestDeviceRecords:
 
 class TestUsageAccounting:
     def test_requests_are_counted_alongside_tokens(self, db):
-        quota.record_usage(db, "google:1", tokens=1200)
-        quota.record_usage(db, "google:1", tokens=800)
+        quota.record_usage(db, "google:1", micros=300, tokens=1200)
+        quota.record_usage(db, "google:1", micros=200, tokens=800)
         day = quota.utc_day()
         entry = db.store[f"users/google:1/{quota.USAGE}/{day}"]
         # 40,000 tokens over three turns and over thirty are different things,
@@ -229,16 +229,16 @@ class TestUsageAccounting:
     def test_a_zero_token_response_still_counts_as_a_request(self, db):
         # A provider that reports no usage still cost a call; dropping it would
         # quietly understate how much the service is being used.
-        quota.record_usage(db, "google:1", tokens=0)
+        quota.record_usage(db, "google:1", micros=0, tokens=0)
         day = quota.utc_day()
         assert db.store[f"users/google:1/{quota.USAGE}/{day}"]["requests"] == 1
 
     def test_negative_usage_is_a_bug_not_a_credit(self, db):
         with pytest.raises(ValueError):
-            quota.record_usage(db, "google:1", tokens=-5)
+            quota.record_usage(db, "google:1", micros=-5)
 
     def test_usage_carries_an_expiry_firestore_can_act_on(self, db):
-        quota.record_usage(db, "google:1", tokens=10)
+        quota.record_usage(db, "google:1", micros=10, tokens=40)
         ttl = db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["ttl"]
         # A Firestore TTL policy acts on a timestamp field, not the unix ints
         # used elsewhere for expiry logic.
@@ -259,16 +259,16 @@ class TestTheDailyResetActuallyRolls:
     def test_the_day_key_follows_the_clock_not_the_process(self, db, monkeypatch):
         # Computing the day once at import would freeze it for the lifetime of
         # a warm Cloud Run instance, and the counter would never roll over.
-        quota.record_usage(db, "google:1", tokens=500)
-        assert db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["tokens"] == 500
+        quota.record_usage(db, "google:1", micros=500, tokens=2_000)
+        assert db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["micros"] == 500
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
-        quota.record_usage(db, "google:1", tokens=7)
-        assert db.store[f"users/google:1/{quota.USAGE}/2099-01-02"]["tokens"] == 7
+        quota.record_usage(db, "google:1", micros=7, tokens=30)
+        assert db.store[f"users/google:1/{quota.USAGE}/2099-01-02"]["micros"] == 7
 
     def test_yesterdays_spend_is_not_read_today(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", tokens=999_999)
+        quota.record_usage(db, "google:1", micros=999_999)
         assert quota.read_balance(db, "google:1", limit=1_000).used == 999_999
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
@@ -278,7 +278,7 @@ class TestTheDailyResetActuallyRolls:
 
     def test_an_account_locked_out_yesterday_is_allowed_again_today(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", tokens=1_000)
+        quota.record_usage(db, "google:1", micros=1_000)
         with pytest.raises(quota.QuotaExceeded):
             quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
 
@@ -289,7 +289,7 @@ class TestTheDailyResetActuallyRolls:
 
     def test_the_shared_ceiling_rolls_over_too(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", tokens=10_000)
+        quota.record_usage(db, "google:1", micros=10_000)
         with pytest.raises(quota.QuotaExceeded):
             quota.check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
 
@@ -305,3 +305,137 @@ class TestTheDailyResetActuallyRolls:
         real = _dt.datetime(2099, 1, 2, 3, 0, tzinfo=_dt.timezone.utc)
         assert real.strftime("%Y-%m-%d") == "2099-01-02"
         assert quota.utc_day() == datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+class TestMoneyNotTokens:
+    """The limit is what we were charged, not how many tokens moved.
+
+    Token prices across OpenRouter span two orders of magnitude and the caller
+    picks the model, so a token budget is denominated in a unit the caller
+    controls. These pin the conversion and the rounding.
+    """
+
+    def test_a_dollar_is_a_million_micros(self):
+        assert quota.dollars_to_micros(1.0) == 1_000_000
+        assert quota.dollars_to_micros(0.5) == 500_000
+        assert quota.micros_to_dollars(250_000) == 0.25
+
+    def test_fractional_micros_round_up_never_down(self):
+        # Rounding down makes sub-micro requests free, and "free" a million
+        # times over is how a budget leaks.
+        assert quota.dollars_to_micros(0.0000004) == 1
+        assert quota.dollars_to_micros(0.00000001) == 1
+        assert quota.dollars_to_micros(0.0) == 0
+
+    def test_the_limit_is_enforced_against_money_not_tokens(self, db):
+        # A huge token count that cost little must NOT lock the account out.
+        quota.record_usage(db, "google:1", micros=10, tokens=5_000_000)
+        balance = quota.check_allowed(
+            db, "google:1", user_limit=1_000, global_limit=1_000_000
+        )
+        assert balance.used == 10
+        assert balance.tokens == 5_000_000
+
+    def test_tokens_are_reported_but_never_gate(self, db):
+        quota.record_usage(db, "google:1", micros=999, tokens=1)
+        balance = quota.read_balance(db, "google:1", limit=1_000)
+        assert not balance.exhausted
+        quota.record_usage(db, "google:1", micros=1, tokens=1)
+        assert quota.read_balance(db, "google:1", limit=1_000).exhausted
+
+
+class TestReservations:
+    """Between check and record there is a window where nothing holds the money.
+
+    Without a reservation, N concurrent requests all read the same balance, all
+    decide there is room, and all proceed — so one account can exceed its limit
+    by however many requests it can start at once.
+    """
+
+    def test_a_reservation_is_visible_to_the_next_check(self, db):
+        quota.reserve(db, "google:1", micros=800)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(db, "google:1", user_limit=800, global_limit=1_000_000)
+
+    def test_concurrent_requests_cannot_all_pass_the_same_check(self, db):
+        # Ten requests started back to back, none of them settled yet. The
+        # eleventh must be refused rather than reading a stale zero.
+        for _ in range(10):
+            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000_000)
+            quota.reserve(db, "google:1", micros=100)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000_000)
+
+    def test_settling_replaces_the_estimate_with_the_real_cost(self, db):
+        quota.reserve(db, "google:1", micros=2_000)
+        quota.settle(
+            db, "google:1", reserved_micros=2_000, actual_micros=350, tokens=1_400
+        )
+        balance = quota.read_balance(db, "google:1", limit=1_000_000)
+        assert balance.used == 350, "the over-estimate must be refunded"
+        assert balance.tokens == 1_400
+        assert balance.requests == 1, "reserve counted the request; settle must not again"
+
+    def test_an_under_estimate_charges_the_difference(self, db):
+        quota.reserve(db, "google:1", micros=100)
+        quota.settle(
+            db, "google:1", reserved_micros=100, actual_micros=9_000, tokens=50_000
+        )
+        assert quota.read_balance(db, "google:1", limit=1_000_000).used == 9_000
+
+    def test_a_failed_call_refunds_the_whole_reservation(self, db):
+        quota.reserve(db, "google:1", micros=2_000)
+        quota.settle(db, "google:1", reserved_micros=2_000, actual_micros=0, tokens=0)
+        balance = quota.read_balance(db, "google:1", limit=1_000_000)
+        assert balance.used == 0
+        assert balance.requests == 1, "the attempt is still worth counting"
+
+    def test_a_negative_reservation_is_a_bug(self, db):
+        with pytest.raises(ValueError):
+            quota.reserve(db, "google:1", micros=-1)
+
+    def test_settling_a_negative_cost_is_a_bug(self, db):
+        with pytest.raises(ValueError):
+            quota.settle(
+                db, "google:1", reserved_micros=0, actual_micros=-1, tokens=0
+            )
+
+
+class TestSessionRevocation:
+    """A signed JWT is good for 30 days no matter what happens to the account.
+
+    Deleting a user, or bumping their token version, has to take effect on the
+    next request — otherwise removing someone from the service does nothing at
+    all until their token expires on its own.
+    """
+
+    def test_a_current_session_is_accepted(self, db):
+        signup(db, 1, max_users=6)
+        quota.assert_session_valid(db, "google:1", token_version=0)
+
+    def test_a_deleted_account_cannot_keep_using_its_token(self, db):
+        with pytest.raises(quota.SessionRevoked):
+            quota.assert_session_valid(db, "google:ghost", token_version=0)
+
+    def test_bumping_the_token_version_invalidates_older_sessions(self, db):
+        signup(db, 1, max_users=6)
+        db.store["users/google:1"]["token_version"] = 3
+        with pytest.raises(quota.SessionRevoked):
+            quota.assert_session_valid(db, "google:1", token_version=0)
+        # A session issued after the bump still works.
+        quota.assert_session_valid(db, "google:1", token_version=3)
+
+    def test_signup_reports_the_version_to_stamp_into_the_token(self, db):
+        assert (
+            quota.upsert_user(
+                db, user_id="google:9", email="a@b.c", name="A", max_users=6
+            )
+            == 0
+        )
+        db.store["users/google:9"]["token_version"] = 5
+        assert (
+            quota.upsert_user(
+                db, user_id="google:9", email="a@b.c", name="A", max_users=6
+            )
+            == 5
+        ), "signing in again must not reset the revocation counter"

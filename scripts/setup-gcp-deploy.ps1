@@ -23,13 +23,22 @@ $SaName     = "github-deployer"
 # What a build submission needs, and nothing else. The build itself deploys to
 # Cloud Run as the Cloud Build service account, which already holds those
 # rights.
-#   builds.editor  - submit and watch builds
-#   objectAdmin    - upload the build context to the staging bucket
-#   logging.viewer - stream build logs (cloudbuild.yaml sets CLOUD_LOGGING_ONLY,
-#                    and without this the submit fails while streaming them)
+#   builds.editor        - submit and watch builds
+#   storage.admin        - the build context goes to the _cloudbuild staging
+#                          bucket, and submit reads and may create the BUCKET,
+#                          not only objects inside it. objectAdmin covers
+#                          objects alone and fails with "forbidden from
+#                          accessing the bucket".
+#   serviceUsageConsumer - serviceusage.services.use, which bills the API call
+#                          to this project. Without it submit refuses before it
+#                          uploads anything.
+#   logging.viewer       - stream build logs (cloudbuild.yaml sets
+#                          CLOUD_LOGGING_ONLY, and without this the submit
+#                          fails while streaming them)
 $Roles = @(
     "roles/cloudbuild.builds.editor",
-    "roles/storage.objectAdmin",
+    "roles/storage.admin",
+    "roles/serviceusage.serviceUsageConsumer",
     "roles/logging.viewer"
 )
 
@@ -131,6 +140,38 @@ foreach ($role in $Roles) {
     else { Fail "Could not grant $role to $SaEmail after 6 attempts. Nothing else will work without it." }
 }
 
+# ── Acting as the build's own service account ───────────────────────────────
+
+# `gcloud builds submit` starts a build that RUNS AS another identity — the
+# project's default compute service account, since cloudbuild.yaml names none.
+# Submitting a build that runs as an account you cannot impersonate is refused
+# with "caller does not have permission to act as service account", so this is
+# required on top of builds.editor.
+#
+# Granted on that one account rather than project-wide, which would let the
+# deployer impersonate every service account in the project.
+$BuildSa = "$projectNumber-compute@developer.gserviceaccount.com"
+
+Step "Letting the deployer start builds that run as $BuildSa"
+gcloud iam service-accounts describe $BuildSa --project=$Project 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Fail ("The default compute service account $BuildSa does not exist.`n" +
+          "  Builds run as it, so this project needs it, or cloudbuild.yaml must`n" +
+          "  name a different one with a serviceAccount: field.")
+}
+$actedAs = $false
+foreach ($attempt in 1..6) {
+    gcloud iam service-accounts add-iam-policy-binding $BuildSa `
+        --project=$Project `
+        --role="roles/iam.serviceAccountUser" `
+        --member="serviceAccount:$SaEmail" `
+        --quiet 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) { $actedAs = $true; break }
+    Start-Sleep -Seconds 5
+}
+if (-not $actedAs) { Fail "Could not let $SaEmail act as $BuildSa." }
+Note "roles/iam.serviceAccountUser on $BuildSa"
+
 # ── Workload Identity Federation ────────────────────────────────────────────
 
 Step "Creating the workload identity pool"
@@ -192,6 +233,12 @@ if ($wif -notmatch [regex]::Escape($principal)) {
     Fail "The workload identity binding is missing. Re-run this script."
 }
 Note "workload identity binding present"
+
+$buildPolicy = (gcloud iam service-accounts get-iam-policy $BuildSa --project=$Project --format=json | Out-String)
+if ($buildPolicy -notmatch [regex]::Escape($SaEmail) -or $buildPolicy -notmatch "iam.serviceAccountUser") {
+    Fail "$SaEmail cannot act as $BuildSa. Re-run this script."
+}
+Note "can act as the build service account"
 
 # ── Hand the values to GitHub ───────────────────────────────────────────────
 

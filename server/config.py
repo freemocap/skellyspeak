@@ -48,6 +48,19 @@ def _required_int(name: str) -> int:
         raise ConfigError(f"{name} must be an integer, got {raw!r}") from exc
 
 
+def _required_list(name: str) -> tuple[str, ...]:
+    """A comma-separated allowlist. Empty entries are dropped; empty is refused.
+
+    An allowlist that silently ends up empty is an allowlist that permits
+    nothing or — far worse, if a later reader treats empty as "unset" —
+    everything.
+    """
+    items = tuple(part.strip() for part in _required(name).split(",") if part.strip())
+    if not items:
+        raise ConfigError(f"{name} contains no entries.")
+    return items
+
+
 @dataclass(frozen=True)
 class Config:
     # ── Identity ────────────────────────────────────────────────────────────
@@ -67,16 +80,28 @@ class Config:
     groq_key: str
     groq_base_url: str
 
-    # ── Limits ──────────────────────────────────────────────────────────────
-    # Per user, per UTC day.
-    free_daily_tokens: int
+    # Which models this service will pay for. The request body is otherwise
+    # forwarded untouched, so without this the caller chooses what we are
+    # billed for — and prices across OpenRouter differ by two orders of
+    # magnitude. The app needs exactly one model to work; anything else is a
+    # misconfiguration, not a feature.
+    allowed_models: tuple[str, ...]
+    # Refuses a request that asks for more than this many completion tokens.
+    # One runaway generation should not be able to spend a whole day's budget.
+    max_completion_tokens: int
+
+    # ── Limits, in micro-dollars ────────────────────────────────────────────
+    # Money, not tokens. OpenRouter reports `usage.cost` per request, so this
+    # meters what was actually charged rather than a token count whose price
+    # the caller controls by choosing a model.
+    #
+    # Micro-dollars (1_000_000 = $1) because Firestore counters must be
+    # integers to increment atomically, and float dollars would drift.
+    free_daily_micros: int
     # Across all users, per UTC day. The kill switch: per-user limits cap what
     # one person can spend, not what a launch-day crowd can.
-    global_daily_tokens: int
-    # How many accounts may exist at all. While the real cost of a
-    # conversation is still unmeasured, this is the lever that bounds
-    # exposure: a generous per-person allowance handed to a known-small
-    # number of people produces usage data without an open-ended bill.
+    global_daily_micros: int
+    # How many accounts may exist at all.
     max_users: int
 
     @property
@@ -98,7 +123,9 @@ def load() -> Config:
         groq_base_url=os.environ.get(
             "GROQ_BASE_URL", "https://api.groq.com/openai/v1"
         ).rstrip("/"),
-        free_daily_tokens=_required_int("FREE_DAILY_TOKENS"),
-        global_daily_tokens=_required_int("GLOBAL_DAILY_TOKENS"),
+        allowed_models=_required_list("ALLOWED_MODELS"),
+        max_completion_tokens=_required_int("MAX_COMPLETION_TOKENS"),
+        free_daily_micros=_required_int("FREE_DAILY_MICROS"),
+        global_daily_micros=_required_int("GLOBAL_DAILY_MICROS"),
         max_users=_required_int("MAX_USERS"),
     )
