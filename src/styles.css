@@ -46,6 +46,15 @@ body {
   padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--chrome);
   flex: none;
 }
+/* The hamburger sits with the wordmark, where every chat app puts it. */
+.hamburger {
+  background: none; border: 1px solid transparent; border-radius: 6px;
+  color: var(--mut-d); cursor: pointer; padding: 4px 9px; font-size: 16px;
+  line-height: 1; margin-right: 10px;
+}
+.hamburger:hover { color: var(--ink-d); border-color: var(--line2); }
+.hamburger[aria-expanded='true'] { color: var(--ink-d); background: var(--inset); border-color: var(--line2); }
+
 .wordmark { font-weight: 700; font-size: 17px; letter-spacing: 0.02em; }
 .wordmark b { color: var(--steel); }
 .tabs { display: flex; gap: 4px; }
@@ -284,20 +293,6 @@ body {
 .break.collapsed { flex: 0 0 auto; min-width: 0; }
 .break.collapsed .break-scroll, .break.collapsed .focus-strip { display: none; }
 .break.collapsed .break-head { border-bottom: none; padding: 11px 18px; }
-.focus-toggle {
-  display: flex; align-items: center; gap: 8px; width: 100%;
-  padding: 7px 18px; border: none; border-bottom: 1px solid var(--line);
-  background: none; text-align: left; cursor: pointer; flex: none;
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--faint-d);
-}
-.focus-toggle:hover { color: var(--mut-d); }
-.focus-strip { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 18px 12px; border-bottom: 1px solid var(--line); }
-.focus-chip {
-  font-family: var(--mono); font-size: 10px; line-height: 1.6; color: var(--steel);
-  border: 1px solid var(--line2); border-radius: 6px; padding: 3px 8px; background: var(--inset);
-}
-.focus-chip.muted { color: var(--faint-d); border-style: dashed; }
 
 /* Plan drawer (learner-visible observer documents) */
 .plan-backdrop {
@@ -326,30 +321,6 @@ body {
 .plan-line { font-size: 13px; color: var(--mut-d); line-height: 1.55; margin: 4px 0 10px; }
 .plan-muted { font-size: 12.5px; color: var(--faint-d); font-style: italic; margin: 4px 0 10px; }
 .plan-dim { color: var(--faint-d); font-size: 11px; }
-
-/* Coach/Analysis vertical split panes */
-.subpanel {
-  display: flex; flex-direction: column;
-  min-height: 0; min-width: 0; overflow: hidden;
-  background: var(--bg);
-}
-.subpanel-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 7px 14px; border-bottom: 1px solid var(--line); flex: none;
-}
-.subpanel-head .k {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--steel);
-}
-.subpanel-toggle {
-  border: none; background: none; color: var(--mut-d);
-  cursor: pointer; font-size: 11px; padding: 2px 6px;
-}
-.subpanel-toggle:hover { color: var(--ink-d); }
-.subpanel.collapsed { flex: 0 0 auto; }
-.subpanel.collapsed .subpanel-head { border-bottom: none; }
-.split-bar { flex: none; height: 5px; cursor: row-resize; background: var(--line); }
-.split-bar:hover { background: var(--steel); }
 
 /* Coach pane: per-message feedback (scrolls) + thread (capped) + input */
 .break-scroll.coach-feed { flex: 1 1 0; min-height: 0; }
@@ -401,35 +372,6 @@ body {
   overflow-y: auto; overscroll-behavior: contain;
   padding: 14px 16px 20px;
 }
-.qa-thread {
-  display: flex; flex-direction: column; gap: 12px;
-  margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line);
-}
-.qa-pair {
-  border: 1px solid var(--line); border-radius: 9px;
-  background: var(--chrome); padding: 10px 12px;
-}
-.qa-q {
-  font-family: var(--mono); font-size: 11px; color: var(--amber);
-  margin-bottom: 6px;
-}
-.qa-a { font-size: 13px; color: var(--ink-d); line-height: 1.55; white-space: pre-wrap; }
-.qa-input-row {
-  display: flex; gap: 6px; align-items: center;
-  padding: 10px 16px; border-top: 1px solid var(--line); flex: none;
-}
-.qa-input {
-  flex: 1; min-width: 0;
-  background: var(--inset); border: 1px solid var(--line2); border-radius: 8px;
-  color: var(--ink-d); font-size: 13px; padding: 7px 10px; outline: none;
-}
-.qa-input:focus { border-color: var(--steel); }
-.qa-send {
-  flex: none; width: 30px; height: 30px; border-radius: 50%;
-  border: none; background: var(--steel-deep); color: #fff;
-  font-weight: 700; cursor: pointer;
-}
-.qa-send:disabled { opacity: 0.5; cursor: default; }
 .coach-feed { padding: 14px 16px 22px; }
 .coach-card {
   border: 1px solid var(--line); border-left: 3px solid var(--steel);
@@ -726,11 +668,6 @@ body {
 .graph-pick.active { color: var(--amber); border-color: var(--amber-deep); }
 .graph-pick.reset { margin-left: auto; color: var(--faint-d); border-style: dashed; }
 .graph-pick.reset:hover { color: var(--steel); border-color: var(--steel); }
-.graph-desc {
-  flex: none; padding: 8px 14px; color: var(--mut-d);
-  font-family: var(--sans); font-size: 11.5px; line-height: 1.5;
-  border-bottom: 1px solid var(--line);
-}
 .graph-body { flex: 1; min-height: 0; display: flex; }
 
 /* Panes, not tabs — every pipeline can be open at once. Two up by default;
@@ -957,7 +894,6 @@ body {
 .lg.fan_in::before { border-top: 2px dotted var(--line2); }
 .lg.conditional::before { border-top: 2px dashed var(--steel-deep); }
 .lg.background::before { border-top: 2px dotted var(--faint-d); }
-.graph-state > span { color: var(--mut-d); }
 
 /* D3: click a node, get its run. */
 .graph-detail {
@@ -966,17 +902,6 @@ body {
   border-radius: 6px; padding: 10px 12px; z-index: 5;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
-.graph-detail-head {
-  display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--mono); font-size: 11px; color: var(--ink-d);
-  margin-bottom: 6px;
-}
-.graph-detail-purpose {
-  margin: 0 0 8px; font-family: var(--sans); font-size: 11.5px;
-  line-height: 1.55; color: var(--mut-d);
-}
-.graph-detail-purpose.muted { color: var(--faint-d); font-style: italic; }
-.graph-detail-run { font-family: var(--mono); font-size: 10px; }
 
 /* The graph reporting on its own truthfulness. A diagram that cannot tell
    you when it is wrong is a claim, not an observation. */
@@ -1049,7 +974,6 @@ body {
   font-family: var(--sans); font-size: 13px; color: var(--ink-d);
 }
 .check-row input[type='checkbox'] { width: auto; accent-color: var(--steel-deep); }
-.shortcut-grid { display: flex; flex-direction: column; gap: 6px; }
 .shortcut-field { display: flex; align-items: center; gap: 10px; }
 .shortcut-label { flex: 1; font-size: 12.5px; color: var(--mut-d); }
 .shortcut-input {
@@ -1099,12 +1023,6 @@ body {
   text-transform: uppercase; color: var(--steel);
 }
 .insight-row .v { font-size: 13.5px; color: var(--ink-d); line-height: 1.5; }
-
-/* Settings: two-column shell (nav tree + content pane) */
-.settings-backdrop {
-  position: fixed; inset: 0; background: rgba(5, 9, 15, 0.72); z-index: 60;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
 .settings-modal {
   width: min(880px, 100%); height: min(660px, 100%);
   display: flex; background: var(--chrome);
@@ -1187,7 +1105,6 @@ body {
   .dev-surface { flex: 1 1 auto; min-height: 0; overflow: hidden; }
   /* The graph needs real estate; on a phone it gets the whole surface. */
   .graph-canvas { min-height: 240px; }
-  .graph-detail { bottom: 10px; }
   .msg { max-width: 94%; }
   /* iOS zooms any focused input under 16px — keep inputs at 16 on touch. */
   .field, .form-row input, .form-row select { font-size: 16px; }
@@ -1231,3 +1148,70 @@ button, input, select { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ── Chat history drawer ──────────────────────────────────────────────────
+   Overlays rather than reflows: the conversation keeps its width and position
+   while you browse, so opening the list does not shuffle the text you were
+   reading. */
+.drawer-scrim {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(6, 11, 18, 0.55);
+}
+.chat-history {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 41;
+  width: min(320px, 86vw);
+  display: flex; flex-direction: column;
+  background: var(--chrome); border-right: 1px solid var(--line);
+  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.35);
+}
+.chat-history-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 12px 12px 10px; border-bottom: 1px solid var(--line);
+}
+.chat-history-lang {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mut-d);
+}
+.chat-history-new {
+  background: var(--inset); border: 1px solid var(--line2); border-radius: 6px;
+  color: var(--ink-d); cursor: pointer; padding: 5px 10px; font-size: 12px;
+}
+.chat-history-new:hover { border-color: var(--steel); }
+.chat-history-empty { padding: 16px 14px; color: var(--faint-d); font-size: 13px; line-height: 1.5; }
+.chat-history-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+.chat-history-list li {
+  display: flex; align-items: stretch; gap: 2px;
+  border-radius: 6px; margin-bottom: 2px;
+}
+.chat-history-list li:hover { background: var(--chrome2); }
+.chat-history-list li.current { background: var(--inset); outline: 1px solid var(--line2); }
+.chat-history-item {
+  flex: 1; min-width: 0; text-align: left; background: none; border: none;
+  color: var(--ink-d); cursor: pointer; padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.chat-history-title {
+  font-size: 13px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.chat-history-title em { color: var(--faint-d); }
+.chat-history-meta { font-size: 11px; color: var(--faint-d); }
+.chat-history-delete {
+  background: none; border: none; color: var(--faint-d); cursor: pointer;
+  padding: 0 8px; font-size: 13px; opacity: 0; transition: opacity 120ms;
+}
+.chat-history-list li:hover .chat-history-delete,
+.chat-history-delete:focus-visible { opacity: 1; }
+.chat-history-delete:hover { color: var(--amber); }
+.chat-history-confirm { display: flex; align-items: center; gap: 4px; padding-right: 6px; }
+.chat-history-confirm button {
+  background: var(--inset); border: 1px solid var(--line2); border-radius: 5px;
+  color: var(--ink-d); cursor: pointer; font-size: 11px; padding: 3px 7px;
+}
+.chat-history-confirm button:first-child { color: var(--amber); border-color: var(--amber-deep); }
+
+/* A typed topic that has not been applied yet reads as pending, so it is
+   obvious that Enter still has to be pressed. */
+.steer-select.topic.unapplied { border-color: var(--amber-deep); }
+.steer-dice:disabled { opacity: 0.4; cursor: default; }
+.steer-dice:disabled:hover { border-color: var(--line2); }

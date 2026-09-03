@@ -19,6 +19,7 @@
 //! `validate_redirect_uri` in `server/auth.py`.
 
 use crate::settings::HOSTED_BASE_URL;
+use tauri_plugin_opener::OpenerExt;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
@@ -88,6 +89,20 @@ fn start_url(redirect_uri: &str) -> Result<String, String> {
     )
     .map(String::from)
     .map_err(|e| format!("could not build the sign-in URL: {e}"))
+}
+
+/// Send the system browser to `url`.
+///
+/// This goes through the plugin instance on the AppHandle, NOT the crate-level
+/// `open_url` free function. That free function is desktop-only in effect: it
+/// spawns a helper program (`xdg-open` and friends), which does not exist on
+/// Android, so it fails there with "No such file or directory (os error 2)".
+/// The plugin instance dispatches to an ACTION_VIEW intent on Android and to
+/// the same helper on desktop.
+fn open_in_browser(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|e| format!("could not open your browser to sign in: {e}"))
 }
 
 fn client() -> Result<reqwest::Client, String> {
@@ -160,7 +175,10 @@ pub async fn account(token: &str, client_info: &ClientInfo) -> Result<Account, S
 // ─── Desktop: loopback listener ──────────────────────────────────────────────
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub async fn sign_in(client_info: &ClientInfo) -> Result<Session, String> {
+pub async fn sign_in(
+    app: &tauri::AppHandle,
+    client_info: &ClientInfo,
+) -> Result<Session, String> {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
     // Bound before the browser opens, so the port named in the redirect is
@@ -176,8 +194,7 @@ pub async fn sign_in(client_info: &ClientInfo) -> Result<Session, String> {
     // what the service's allowlist accepts.
     let redirect_uri = format!("http://127.0.0.1:{port}/callback");
 
-    tauri_plugin_opener::open_url(start_url(&redirect_uri)?, None::<&str>)
-        .map_err(|e| format!("could not open your browser to sign in: {e}"))?;
+    open_in_browser(app, &start_url(&redirect_uri)?)?;
 
     let accept = async {
         loop {
@@ -271,6 +288,19 @@ fn landing_page(heading: &str, message: &str) -> String {
 
 // ─── Android: deep link ──────────────────────────────────────────────────────
 
+/// The sign-in attempt currently waiting for a redirect, if any.
+#[cfg(any(target_os = "android", target_os = "ios"))]
+fn awaiting_link() -> &'static std::sync::Mutex<Option<tokio::sync::oneshot::Sender<String>>> {
+    static SLOT: std::sync::OnceLock<
+        std::sync::Mutex<Option<tokio::sync::oneshot::Sender<String>>>,
+    > = std::sync::OnceLock::new();
+    SLOT.get_or_init(|| std::sync::Mutex::new(None))
+}
+
+/// Guards the one-time registration of the deep-link handler.
+#[cfg(any(target_os = "android", target_os = "ios"))]
+static DEEP_LINK_HANDLER: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+
 #[cfg(any(target_os = "android", target_os = "ios"))]
 pub async fn sign_in(
     app: &tauri::AppHandle,
@@ -279,21 +309,31 @@ pub async fn sign_in(
     use tauri_plugin_deep_link::DeepLinkExt;
 
     let (sender, receiver) = tokio::sync::oneshot::channel::<String>();
-    // The handler outlives this call and may fire more than once; the sender
-    // can only be used once, so it is taken out of the slot by whoever gets
-    // there first and every later delivery is a no-op.
-    let slot = std::sync::Mutex::new(Some(sender));
-    app.deep_link().on_open_url(move |event| {
-        let Some(url) = event.urls().first().cloned() else {
-            return;
-        };
-        if let Some(sender) = slot.lock().ok().and_then(|mut s| s.take()) {
-            let _ = sender.send(url.to_string());
-        }
+    // Hand this attempt's sender to the one permanent handler, displacing any
+    // left behind by an attempt that was abandoned or failed before the
+    // browser opened. A sign-in that never completed must not be able to
+    // swallow the redirect belonging to the next one.
+    *awaiting_link().lock().unwrap_or_else(|p| p.into_inner()) = Some(sender);
+
+    // Registered exactly once for the life of the process. Registering per
+    // attempt accumulated a handler every time someone pressed the button,
+    // each holding a sender whose receiver was already gone.
+    DEEP_LINK_HANDLER.get_or_init(|| {
+        app.deep_link().on_open_url(|event| {
+            let Some(url) = event.urls().first().cloned() else {
+                return;
+            };
+            if let Some(sender) = awaiting_link()
+                .lock()
+                .unwrap_or_else(|p| p.into_inner())
+                .take()
+            {
+                let _ = sender.send(url.to_string());
+            }
+        });
     });
 
-    tauri_plugin_opener::open_url(start_url("skellyspeak://auth")?, None::<&str>)
-        .map_err(|e| format!("could not open your browser to sign in: {e}"))?;
+    open_in_browser(app, &start_url("skellyspeak://auth")?)?;
 
     let url = tokio::time::timeout(SIGN_IN_TIMEOUT, receiver)
         .await

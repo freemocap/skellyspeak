@@ -16,18 +16,17 @@ pub const PROVIDER_HOSTED: &str = "hosted";
 pub const PROVIDER_CLOUD: &str = "cloud";
 pub const PROVIDER_CUSTOM: &str = "custom";
 
-const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
+/// The two providers the app talks to directly when the user brings their own
+/// key. Every URL for either of them is built from these, so the address of a
+/// provider is written down once.
+pub const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
+pub const GROQ_BASE_URL: &str = "https://api.groq.com/openai/v1";
 
 /// The hosted service. OpenAI-compatible, so it slots in as a `Provider`
 /// unchanged — the session token takes the place of an API key.
 pub const HOSTED_BASE_URL: &str = "https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app/v1";
 
-/// Speech-to-text, when the user brings their own key. Neither OpenRouter nor
-/// a local Ollama serves Whisper, so cloud and custom modes both come here.
-const GROQ_STT_URL: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
-/// Cloud speech synthesis is an ordinary chat completion with an audio
-/// modality, so it targets a chat endpoint rather than a speech one.
-const OPENROUTER_TTS_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
+
 
 /// A bare endpoint and the credential for it — for the two paths that are not
 /// chat completions and so cannot use `Provider`.
@@ -149,10 +148,6 @@ pub struct Settings {
     pub tts_voice: String,
     #[serde(default)]
     pub observer_model: Option<String>,
-    /// User-edited prompt overrides, keyed by prompt id. Absent/empty = the
-    /// built-in default from prompts.rs applies.
-    #[serde(default)]
-    pub prompt_overrides: std::collections::BTreeMap<String, String>,
 }
 
 fn default_provider_mode() -> String {
@@ -216,7 +211,6 @@ impl Default for Settings {
             tts_engine: default_tts_engine(),
             tts_voice: default_tts_voice(),
             observer_model: None,
-            prompt_overrides: std::collections::BTreeMap::new(),
         }
     }
 }
@@ -313,7 +307,9 @@ impl Settings {
                     return Err("Voice input needs a Groq API key. Add one in Settings, or switch your AI provider to the free hosted service.".into());
                 }
                 Ok(Endpoint {
-                    url: GROQ_STT_URL.into(),
+                    // Speech-to-text is served by neither OpenRouter nor a
+                    // local Ollama, so both bring-your-own-key modes use Groq.
+                    url: format!("{GROQ_BASE_URL}/audio/transcriptions"),
                     api_key: self.groq_key.trim().into(),
                 })
             }
@@ -334,7 +330,9 @@ impl Settings {
                     return Err("Cloud speech needs an OpenRouter API key, whichever provider handles chat. Add one in Settings, switch your AI provider to the free hosted service, or set Speech engine to the OS voice.".into());
                 }
                 Ok(Endpoint {
-                    url: OPENROUTER_TTS_URL.into(),
+                    // Cloud speech is an ordinary chat completion carrying an
+                    // audio modality, so it targets the chat endpoint.
+                    url: format!("{OPENROUTER_BASE_URL}/chat/completions"),
                     api_key: self.openrouter_key.trim().into(),
                 })
             }
@@ -538,9 +536,17 @@ fn voice_falls_to_the_users_own_keys_in_bring_your_own_key_modes() {
         s.openrouter_key = "sk-or-v1-0123456789abcdef".into();
         // Neither OpenRouter nor a local Ollama serves Whisper, so speech-to-text
         // goes to Groq directly even when chat does not.
-        assert_eq!(s.stt_endpoint().unwrap().url, GROQ_STT_URL, "{mode}");
+        assert_eq!(
+            s.stt_endpoint().unwrap().url,
+            format!("{GROQ_BASE_URL}/audio/transcriptions"),
+            "{mode}"
+        );
         assert_eq!(s.stt_endpoint().unwrap().api_key, "gsk_0123456789abcdef");
-        assert_eq!(s.tts_endpoint().unwrap().url, OPENROUTER_TTS_URL, "{mode}");
+        assert_eq!(
+            s.tts_endpoint().unwrap().url,
+            format!("{OPENROUTER_BASE_URL}/chat/completions"),
+            "{mode}"
+        );
         assert_eq!(
             s.tts_endpoint().unwrap().api_key,
             "sk-or-v1-0123456789abcdef"

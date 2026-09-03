@@ -8,10 +8,11 @@
 use crate::ontology;
 use crate::trace::RunContext;
 use crate::ai::{Provider, HTTP_429_RETRY, PARSE_RETRY, VALIDATION_RETRY};
-use crate::commands::{
-    CoachFeedback, LearnerTokensOut, MechanicsOut, ScaffoldsOut, StoryResponse, TokensOut,
-    TranslationOut,
+use crate::commands::coach::CoachFeedback;
+use crate::commands::guided::{
+    LearnerTokensOut, MechanicsOut, ScaffoldsOut, TokensOut, TranslationOut,
 };
+use crate::commands::stories::StoryResponse;
 use crate::observer::{self, ObserverOutput, Profile, TeachingPlan};
 use crate::prompts;
 use std::time::{Duration, Instant};

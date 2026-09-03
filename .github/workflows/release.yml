@@ -2,13 +2,12 @@ name: Release
 
 # Cut a release by bumping the version and pushing the tag:
 #
-#   node scripts/set-version.mjs 0.3.0
-#   git commit -am "v0.3.0"
-#   git tag v0.3.0
-#   git push && git push origin v0.3.0
+#   node scripts/release.mjs minor
 #
-# Tag AFTER committing: the `version` job below compares this tag against the
-# Cargo.toml of the commit it points at, and refuses to build when they differ.
+# That bumps the version, commits, tags and pushes in the order this workflow
+# requires. The `version` job below compares the tag against the Cargo.toml of
+# the commit it points at and refuses to build when they differ; the script
+# makes the same check locally first, so it should never get this far.
 #
 # Every job attaches its artifacts to the same DRAFT GitHub Release, so
 # nothing goes public until you review the assets and hit Publish.

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { invoke, isTauri } from '../../lib/tauri'
 import { CoachFeed } from './CoachFeed'
-import { AnalysisContent, type InspectTarget } from './AnalysisContent'
+import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { usePersistentToggle } from '../../hooks/useSteering'
 import { reportFault } from '../../lib/faults'
 
@@ -37,12 +37,7 @@ export function CoachAnalysisPanel({
   turns: CoachTurn[]
   targetLangCode: string
   nativeLangCode: string
-  pinnedTurn: {
-    id: number
-    user: string | null
-    analysisState: 'pending' | 'done' | 'failed' | null
-    assistant: Parameters<typeof AnalysisContent>[0]['turn']['assistant']
-  } | null
+  pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null
   nativeLanguageName: string
   showRomanization: boolean

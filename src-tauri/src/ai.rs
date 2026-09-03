@@ -238,19 +238,9 @@ fn apply_dialect(model: &str, payload: &mut Value) {
 impl Provider {
     pub fn openrouter(api_key: &str, model: &str) -> Self {
         Self {
-            base_url: "https://openrouter.ai/api/v1".into(),
+            base_url: crate::settings::OPENROUTER_BASE_URL.into(),
             api_key: api_key.trim().into(),
             model: model.into(),
-        }
-    }
-
-    /// Reserved for a future Groq TTS/text path.
-    #[allow(dead_code)]
-    pub fn groq(api_key: &str) -> Self {
-        Self {
-            base_url: "https://api.groq.com/openai/v1".into(),
-            api_key: api_key.trim().into(),
-            model: "whisper-large-v3-turbo".into(),
         }
     }
 

@@ -15,37 +15,38 @@ The core loop — greet → converse with a streamed tutor reply → async gramm
 analysis + private coaching → observer quietly steering via plan/profile —
 is **implemented and coherent**, with unusually mature LLM-error handling
 for a PoC (schema inlining, corrective retries, per-section degradation,
-non-overlapping observer, no silent fallback paths). The app is
-**single-user, single-pairing-at-a-time** across four symmetric languages,
-runs on Windows desktop and Android, and has unit tests plus a three-job CI
-workflow. What it still lacks: conversation persistence, onboarding, any
-vocabulary/SRS layer, iOS — and, most pressingly, any real observability
-into the eight model calls a single turn now makes.
+non-overlapping observer, no silent fallback paths). The app is single-user
+but **keeps a conversation per language pairing**, browsable and resumable;
+it runs signed on five desktop targets and Android, reaches its AI through
+one of three providers including a hosted service that needs no API key of
+the user's own, and carries run tracing, a generated execution graph and
+reconciliation for the eight model calls a turn makes. What it still lacks:
+onboarding, any vocabulary/SRS layer, iOS, and a Play Store listing.
 
 ## What works end-to-end
 
 | Capability | Evidence |
 |---|---|
-| Guided conversation with streaming replies | `commands.rs::guided_turn`, `GuidedPage.requestTurn` |
-| Async analysis (reply + LEARNER tokens/translation, mechanics, scaffolds) with per-section degradation | `commands.rs` analysis spawn |
-| **Language pair switching** — en-US ⇄ fr-FR ⇄ es-ES ⇄ ar, any native language, registry served to the UI over IPC (`get_languages`); documents archived on switch; full conversation reset + fresh greeting in the new language; **dialect = preset dropdown + free-text combobox** injected into every prompt; **Absolute zero level** (PRE-A1) with true-beginner survival mode | `languages.rs`, `commands.rs::save_settings`, `components/DialectField.tsx`, `prompts.rs::persona_block`, `GuidedPage` pair-change effect |
+| Guided conversation with streaming replies | `commands/guided/mod.rs::guided_turn`, `GuidedPage.requestTurn` |
+| Async analysis (reply + LEARNER tokens/translation, mechanics, scaffolds) with per-section degradation | `commands/guided/analysis.rs` |
+| **Language pair switching** — en-US ⇄ fr-FR ⇄ es-ES ⇄ ar, any native language, registry served to the UI over IPC (`get_languages`); documents archived on switch; full conversation reset + fresh greeting in the new language; **dialect = preset dropdown + free-text combobox** injected into every prompt; **Absolute zero level** (PRE-A1) with true-beginner survival mode | `languages.rs`, `commands/app_settings.rs::save_settings`, `components/DialectField.tsx`, `prompts.rs::persona_block`, `GuidedPage` pair-change effect |
 | **Arabic (Levantine)** — RTL script, ALA-LC romanization alongside glosses (skellysubs IP) — the scheme now comes from the language registry rather than hardcoded prompt text, and applies to learner tokens as well as tutor tokens; unvocalized typing convention; Whisper gets a target-language-only context hint (recent turns) because hint language leaks into transcripts; RTL token rendering via `row-reverse` lines (flex order overrides bidi) | `languages.rs` (direction + romanization fields), `GuidedToken.romanization`, `transcribe_audio(prompt)`, `.rtl-line`/`.wroman` UI |
 | **Unified right panel** — Coach / Analysis tabs (one pane, both views); coach thread persists inside the Coach tab; analysis Q&A chat removed | `components/panes/CoachAnalysisPanel.tsx` |
 | **Mobile mode = window mode** — window below 860px switches to tabbed single-surface layout (bottom nav: Chat ⇄ Coach/Analysis); desktop shrinks into it for testing | `GuidedPage` matchMedia effect, `.mobile-nav` |
-| **Voice I/O** — cloud TTS playback via OpenRouter gpt-audio-mini (cached, OS-voice fallback), mic with 20s-silence auto-stop, **live scrolling waveform**, optional auto-send; 🔊 replay; configurable shortcuts | `commands.rs::speak_text`, `components/WaveformStrip.tsx`, `lib/speech.ts`, `lib/keyboard.ts` |
+| **Voice I/O** — cloud TTS playback via OpenRouter gpt-audio-mini (cached, OS-voice fallback), mic with 20s-silence auto-stop, **live scrolling waveform**, optional auto-send; 🔊 replay; configurable shortcuts | `commands/tts.rs::speak_text`, `components/WaveformStrip.tsx`, `lib/speech.ts`, `lib/keyboard.ts` |
 | **Learner interrogation** — your own messages get tokenized + translated; click/drag/dblclick/right-click/press-and-hold on learner AND tutor words | `LearnerTokensOut`, `TokenSpan`, `word_insight` command, `WordInsightModal` |
-| **Interactive coach thread** — persisted private side-chat with the coach; analysis Q&A input | `coach_ask`, `coach_thread.json`, Coach pane input |
-| Observer pass, non-overlapping, plan/profile persisted + learner-visible drawer | `commands.rs:262-351`, `observer.rs` |
-| Anti-repetition (taught ledger + 20-card ring) | `observer.rs::directives_block`, `commands.rs:483-496` |
+| **Interactive coach thread** — persisted private side-chat with the coach, kept per chat | `coach_ask`, `chats/<id>/coach.json`, Coach pane input |
+| Observer pass, non-overlapping, plan/profile persisted + learner-visible drawer | `commands/guided/observer_pass.rs`, `observer.rs` |
+| Anti-repetition (taught ledger + 20-card ring) | `observer.rs::directives_block`, `commands/guided/analysis.rs` recent-mechanics ring |
 | Structured output: schema-constrained on every attempt, corrective retries, no degraded path | `ai.rs::structured_validated` |
-| Stories: generation, validation, tap-gloss, per-level cache | `commands.rs:558-619`, `StoriesPage.tsx` |
-| Voice input → Whisper STT → composer (not auto-send) | `GuidedPage.toggleMic`, `commands.rs::transcribe_audio` |
-| Steer row (level → CEFR in every prompt, topic → directives) + per-token tap-to-reveal help | `hooks/useSteering.ts`, `commands.rs::guided_turn`, `chat/TurnView.tsx` |
+| Stories: generation, validation, tap-gloss, per-level cache | `commands/stories.rs`, `StoriesPage.tsx` |
+| Voice input → Whisper STT → composer (not auto-send) | `GuidedPage.toggleMic`, `commands/stt.rs::transcribe_audio` |
+| Steer row (level → CEFR in every prompt, topic → directives) + per-token tap-to-reveal help | `hooks/useSteering.ts`, `commands/guided/mod.rs::guided_turn`, `chat/TurnView.tsx` |
 | **Run tracing** — every AI call produces one `Run` (operation, actor, turn lineage, model profile, timings, time-to-first-token, token usage, full attempt chain, outcome), streamed live on a trace bus | `ontology.rs`, `trace.rs`, `ai.rs` chokepoint, `components/RunsView.tsx` |
-| **Generated execution graph** — `turn_plan.rs` declares what a turn does and what each step actually depends on; `graph.rs` *generates* the picture from it. Structure derived, position authored. Live Graph view (lazy-loaded React Flow) lights nodes as runs land | `turn_plan.rs`, `graph.rs`, `commands.rs::get_graph`, `components/graph/AgentGraph.tsx` |
-| **Reconciliation** — the declared graph diffed against recorded runs: undeclared operations, unexercised nodes, and **contradicted edges** (a dependent that started before its dependency finished). Rendered as a fidelity banner and red edges | `trace::reconcile`, `commands.rs::get_reconciliation` |
+| **Generated execution graph** — `turn_plan.rs` declares what a turn does and what each step actually depends on; `graph.rs` *generates* the picture from it. Structure derived, position authored. Live Graph view (lazy-loaded React Flow) lights nodes as runs land | `turn_plan.rs`, `graph.rs`, `commands/dev.rs::get_graph`, `components/graph/AgentGraph.tsx` |
+| **Reconciliation** — the declared graph diffed against recorded runs: undeclared operations, unexercised nodes, and **contradicted edges** (a dependent that started before its dependency finished). Rendered as a fidelity banner and red edges | `trace::reconcile`, `commands/dev.rs::get_reconciliation` |
 | **Window capture for UI review** — screenshots the real Tauri window rather than a mocked browser view | `scripts/shot.ps1` |
-| **Observability panel in three shells** — resizable desktop dock (persisted height), pop-out OS window (built in Rust, label-routed), and a third mobile swipe surface (chat ⇄ coach ⇄ inside), all sharing one `DevPanel` | `components/dev/DevPanel.tsx`, `LogsOverlay.tsx`, `DevWindow.tsx`, `commands.rs::open_dev_window` |
+| **Observability panel in three shells** — resizable desktop dock (persisted height), pop-out OS window (built in Rust, label-routed), and a third mobile swipe surface (chat ⇄ coach ⇄ inside), all sharing one `DevPanel` | `components/dev/DevPanel.tsx`, `LogsOverlay.tsx`, `DevWindow.tsx`, `commands/dev.rs::open_dev_window` |
 | Logging across the IPC boundary (console + file + webview) | `lib.rs` log plugin, `lib/log.ts` |
 | Settings persistence incl. mic device selection | `settings.rs`, `SettingsModal.tsx` |
 
@@ -65,7 +66,7 @@ TS type now mirrors the Rust struct and the Settings modal exposes the
 observer model; saving no longer silently resets it.
 
 ### R3 · Testing/CI — **green**
-Unit tests exist (8 Rust + 12 vitest covering the pure functions that bit
+Unit tests exist (57 Rust + 57 vitest covering the pure functions that bit
 us, plus an `#[ignore]`d model-bench harness for LLM candidate evaluation)
 and `.github/workflows/ci.yml` runs frontend / Rust / docs jobs. All three
 job commands pass as of 2026-09-01 (A1). Still missing: a lint config for
@@ -73,11 +74,12 @@ the frontend, and any test above the pure-function layer.
 
 ### R4 · Conversation history not persisted — **SHIPPED**
 Turns persist per language pairing under
-`<config>/conversations/<target>__<native>/session.json`, alongside that
-pairing's plan, profile and coach thread. A Spanish conversation and an Arabic
-one are kept independently and each restores where it was left; a `✚` control
-in the steer row archives the current one and starts fresh, keeping what the
-tutor has learned. See [Observability](./observability#persistence).
+`<config>/conversations/<target>__<native>/chats/<id>/`, alongside that
+pairing's plan and profile. A Spanish conversation and an Arabic one are kept
+independently and each restores where it was left, and the `☰` beside the
+wordmark opens a drawer listing every past chat for the current language —
+click to reopen, `✚` for a new one. See
+[Observability](./observability#persistence).
 
 The original problem, for the record: Resolved by design in
 [Observability](./observability#persistence): `session.json` for the turn log
@@ -88,16 +90,17 @@ runs persists the conversation, so R4 and the trace store are one decision.
 
 ### R5 · README overstates key isolation — **FIXED**
 Keys no longer travel to the webview at all: `get_settings` returns masked
-values (`••••last4`), `save_settings` treats an unchanged mask as
+values (`head6••••••••tail6`), `save_settings` treats an unchanged mask as
 "keep stored key", and `validate_key` resolves masks server-side.
 
-### R6 · One language per install, documents not namespaced — **FIXED (archive + reset on switch)**
-On a target/native language change, `save_settings` archives
-`plan.json`, `profile.json`, and `coach_thread.json` with a timestamp and
-resets the in-memory documents; the GuidedPage detects the pair change and
-resets the conversation (turns, reveals, Q&A, coach thread) and fires a
-fresh greeting in the new language. Archived files keep every old document
-recoverable. Full multi-profile (instant switch-back) remains future work.
+### R6 · One language per install, documents not namespaced — **FIXED**
+
+Every language pairing has its own directory holding its chats, plan and
+profile. Switching saves the outgoing pairing's documents and loads the
+incoming one's, so both conversations survive intact and switching back returns
+to where you were — the instant switch-back that was future work here. Nothing
+is archived or reset on a switch, and the dialect is deliberately not part of a
+pairing: Levantine and MSA are a setting on one conversation.
 
 ### R7 · Observer cadence & architecture — **audited Aug 31, healthy**
 
@@ -215,10 +218,10 @@ Full audit findings; worked chunk by chunk, this table is the tracker.
 | H2 | GuidedPage duplication: empty-assistant literal ×2, normalizeDocs call sites ×3 → helpers. | ✅ `emptyAssistant()` + `normalizeDocs` moved to `lib/normalize.ts` |
 | H3 | App.tsx dead `settings` value + `localStorage.skellyspeak_target` second source of truth. | ✅ dead state removed |
 | H4 | GuidedPage ~990 lines → split components (optional refactor). | ⬜ |
-| H5 | Hardcoded constants scattered: mic 10s auto-stop, Whisper model, Groq endpoint, webm mime. | ✅ named constants (MIC_* in GuidedPage, GROQ_STT_*/TTS_* in commands.rs) |
+| H5 | Hardcoded constants scattered: mic 10s auto-stop, Whisper model, Groq endpoint, webm mime. | ✅ named constants (MIC_* in GuidedPage, GROQ_STT_* in `commands/stt.rs`, TTS_* in `commands/tts.rs`) |
 | H6 | `schema_dump` debug bin builds in all profiles — gate or delete. | ✅ moved to `examples/` |
 | H7 | `sanitize_reply` markers es/en-centric — fold into future-work ladder notes. | ✅ documented in Future Work dialect notes |
-| E1 | No unit tests for the pure functions that bit us: `inline_defs`, `normalizeDocs`, `token-spacing`, `groupSentences/splitSentences`. | ✅ 6 Rust tests (inline_defs regression, mask, migrate) + 12 vitest cases (`npm test`) |
+| E1 | No unit tests for the pure functions that bit us: `inline_defs`, `normalizeDocs`, `token-spacing`, `groupSentences/splitSentences`. | ✅ Covered, and grown well past it — see R3 |
 | E2 | No CI: clippy + tsc + docs build gate. | ✅ `.github/workflows/ci.yml` (clippy -D warnings, cargo test --lib, vitest + tsc + vite, docs build) |
 | D1 | status.md R-list drifted after the week's fixes — refresh at end of audit. | ✅ |
 

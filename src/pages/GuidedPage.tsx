@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type {
+  ChatSummary,
   StoredTurn,
   GuidedEvent,
   GuidedTurnResult,
@@ -12,8 +13,11 @@ import type {
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup, type PopupState } from '../components/GlossPopup'
 import {
+  deleteConversation,
+  listConversations,
   loadConversation,
   newConversation,
+  openConversation,
   saveConversation,
   getPlan,
   getSettings,
@@ -41,6 +45,8 @@ import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering, armGreeting, disarmGreeting } from '../hooks/useSteering'
 import { TopicField } from '../components/TopicField'
+import { ChatHistory } from '../components/ChatHistory'
+import { conversationTitle } from '../lib/conversation'
 import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -94,7 +100,15 @@ function emptyAssistant(reply: string): GuidedTurnResult {
   }
 }
 
-export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: number }) {
+export default function GuidedPage({
+  settingsVersion = 0,
+  historyOpen = false,
+  onHistoryOpenChange,
+}: {
+  settingsVersion?: number
+  historyOpen?: boolean
+  onHistoryOpenChange?: (open: boolean) => void
+}) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
@@ -172,28 +186,56 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
   const toggleBreakRef = useRef<() => void>(() => {})
 
   // ── Conversation persistence ────────────────────────────────────────────
-  // Which pairing the turns currently on screen belong to. Saves are addressed
-  // to THIS pairing, not to whatever settings say right now, so a save landing
-  // after a language switch still files the turns under the conversation they
-  // came from.
-  const turnsPairRef = useRef<{ target: string; native: string } | null>(null)
+  // Which chat the turns on screen belong to. Saves are addressed to THIS
+  // chat, not to whatever settings say right now, so a save landing after a
+  // language switch or a chat change still files the turns under the
+  // conversation they came from.
+  const turnsRefKey = useRef<{ target: string; native: string; id: string } | null>(null)
+  const [chats, setChats] = useState<ChatSummary[]>([])
+  const setHistoryOpen = useCallback(
+    (open: boolean) => onHistoryOpenChange?.(open),
+    [onHistoryOpenChange]
+  )
 
-  const restoreConversation = useCallback(async (target: string, native: string) => {
+  const refreshChats = useCallback(async (target: string, native: string) => {
     try {
-      const stored = await loadConversation(target, native)
-      turnsPairRef.current = { target, native }
-      setTurns(stored.map((t) => ({ ...t, pendingText: '' })))
-      // Ids must continue past what was restored or a new turn would collide
-      // with an old one and React would reconcile the wrong bubble.
-      nextIdRef.current = stored.reduce((max, t) => Math.max(max, t.id), 0) + 1
-      return stored.length
+      setChats(await listConversations(target, native))
     } catch (e) {
-      reportFault('Restoring your conversation', e)
-      turnsPairRef.current = { target, native }
-      setTurns([])
-      return 0
+      reportFault('Loading your chat history', e)
     }
   }, [])
+
+  /// Put a conversation's turns on screen and mark it as the one saves belong
+  /// to. `load` decides which conversation — the open one, or a named one.
+  const showConversation = useCallback(
+    async (
+      target: string,
+      native: string,
+      load: () => Promise<{ id: string; turns: StoredTurn[] }>
+    ) => {
+      try {
+        const opened = await load()
+        turnsRefKey.current = { target, native, id: opened.id }
+        setTurns(opened.turns.map((t) => ({ ...t, pendingText: '' })))
+        // Ids must continue past what was restored or a new turn would collide
+        // with an old one and React would reconcile the wrong bubble.
+        nextIdRef.current = opened.turns.reduce((max, t) => Math.max(max, t.id), 0) + 1
+        void refreshChats(target, native)
+        return opened.turns.length
+      } catch (e) {
+        reportFault('Opening that conversation', e)
+        setTurns([])
+        return 0
+      }
+    },
+    [refreshChats]
+  )
+
+  const restoreConversation = useCallback(
+    (target: string, native: string) =>
+      showConversation(target, native, () => loadConversation(target, native)),
+    [showConversation]
+  )
 
   // Written after a pause rather than on every keystroke of the stream, and
   // never before a restore has run — saving an empty list first would erase
@@ -201,32 +243,34 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
   // still streaming has no reply to keep.
   useEffect(() => {
     if (!isTauri) return
-    const pair = turnsPairRef.current
-    if (!pair || sending) return
+    const key = turnsRefKey.current
+    if (!key || sending) return
     const timer = setTimeout(() => {
       const stored = turns
         .filter((t) => t.assistant !== null)
         .map(({ pendingText: _pendingText, ...rest }) => rest)
-      void saveConversation(stored, pair.target, pair.native).catch((e: unknown) =>
-        reportFault('Saving your conversation', e)
+      void saveConversation(
+        key.target,
+        key.native,
+        key.id,
+        stored,
+        // The title comes from here because this is the side that knows what a
+        // turn looks like; Rust only stores the string.
+        conversationTitle(stored)
       )
+        .then(() => refreshChats(key.target, key.native))
+        .catch((e: unknown) => reportFault('Saving your conversation', e))
     }, CONVERSATION_SAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [turns, sending])
+  }, [turns, sending, refreshChats])
 
   // Archive this conversation and open a clean one. What the tutor has
   // learned about the learner is kept on purpose — that continuity is the
   // whole reason the observer exists — and the old turns are archived rather
   // than deleted, so nothing is destroyed by a misclick.
-  const startNewConversation = useCallback(async () => {
-    try {
-      await newConversation()
-    } catch (e) {
-      reportFault('Starting a new conversation', e)
-      return
-    }
-    setTurns([])
-    nextIdRef.current = 1
+  /// Everything that must be cleared when a different conversation takes the
+  /// screen. The turns themselves are set by whoever calls this.
+  const clearConversationView = useCallback(() => {
     setPinnedId(null)
     setRevealed(new Set())
     setFreshScaffolds(null)
@@ -236,11 +280,81 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
     setSending(false)
     stopSpeaking()
     setThreadReload((v) => v + 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const startNewConversation = useCallback(async () => {
+    const s = settingsRef.current
+    if (!s) return
+    setHistoryOpen(false)
+    let id: string
+    try {
+      id = await newConversation(s.target_language, s.native_language)
+    } catch (e) {
+      reportFault('Starting a new conversation', e)
+      return
+    }
+    turnsRefKey.current = { target: s.target_language, native: s.native_language, id }
+    setTurns([])
+    nextIdRef.current = 1
+    clearConversationView()
+    void refreshChats(s.target_language, s.native_language)
     disarmGreeting()
     armGreeting()
     void requestTurn({ greeting: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [clearConversationView, refreshChats])
+
+  const openChat = useCallback(
+    async (id: string) => {
+      const s = settingsRef.current
+      if (!s || id === turnsRefKey.current?.id) {
+        setHistoryOpen(false)
+        return
+      }
+      setHistoryOpen(false)
+      clearConversationView()
+      const restored = await showConversation(s.target_language, s.native_language, () =>
+        openConversation(s.target_language, s.native_language, id)
+      )
+      // An empty chat reopened is still an empty chat: greet it so there is
+      // something to reply to, exactly as a new one would be.
+      if (restored === 0) {
+        disarmGreeting()
+        armGreeting()
+        void requestTurn({ greeting: true })
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [clearConversationView, showConversation]
+  )
+
+  const removeChat = useCallback(
+    async (id: string) => {
+      const s = settingsRef.current
+      if (!s) return
+      try {
+        await deleteConversation(s.target_language, s.native_language, id)
+      } catch (e) {
+        reportFault('Deleting that conversation', e)
+        return
+      }
+      // Deleting the conversation you are looking at leaves nothing on screen,
+      // so open the newest of what is left, or start fresh if none remain.
+      if (id === turnsRefKey.current?.id) {
+        const left = await listConversations(s.target_language, s.native_language)
+        setChats(left)
+        if (left.length > 0) {
+          await openChat(left[0].id)
+        } else {
+          await startNewConversation()
+        }
+        return
+      }
+      void refreshChats(s.target_language, s.native_language)
+    },
+    [openChat, refreshChats, startNewConversation]
+  )
 
   useEffect(() => {
     logInfo('[guided] page mounted, isTauri =', isTauri)
@@ -399,19 +513,6 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
                 ...t,
                 assistant: event.turn,
                 analysisState: 'done',
-              }))
-              break
-            case 'analysis_failed':
-              logWarn('[guided] analysis failed (reply-only turn):', event.error)
-              updatePending((t) => ({
-                ...t,
-                analysisState: 'failed',
-                assistant: t.assistant
-                  ? {
-                      ...t.assistant,
-                      scaffolds: { replies: [], frames: [], starters: [] },
-                    }
-                  : t.assistant,
               }))
               break
             case 'plan_updated':
@@ -806,6 +907,16 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
       onTouchStart={isMobile ? onTouchStart : undefined}
       onTouchEnd={isMobile ? onTouchEnd : undefined}
     >
+      <ChatHistory
+        open={historyOpen}
+        chats={chats}
+        currentId={turnsRefKey.current?.id ?? null}
+        languageName={targetLanguageName}
+        onClose={() => setHistoryOpen(false)}
+        onOpenChat={(id) => void openChat(id)}
+        onNewChat={() => void startNewConversation()}
+        onDeleteChat={(id) => void removeChat(id)}
+      />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
