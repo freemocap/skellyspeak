@@ -1,4 +1,6 @@
 pub mod ai;
+#[cfg(desktop)]
+pub mod audio;
 #[cfg(test)]
 mod bench;
 pub mod commands;
@@ -28,6 +30,11 @@ pub struct AppState {
     /// Faults from before the webview existed. The UI drains this on mount so
     /// a startup problem reaches the screen instead of dying in a log file.
     pub startup_faults: Mutex<Vec<String>>,
+    /// The recording in progress, if any. Desktop records in the core because
+    /// WKWebView gives a packaged macOS build no `navigator.mediaDevices`;
+    /// mobile records in the webview and never fills this.
+    #[cfg(desktop)]
+    pub capture: Mutex<Option<audio::Capture>>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -139,6 +146,8 @@ pub fn run() {
                 observer_running: Mutex::new(false),
                 coach_thread: Mutex::new(coach_thread),
                 startup_faults: Mutex::new(startup_faults),
+                #[cfg(desktop)]
+                capture: Mutex::new(None),
             });
             Ok(())
         })
@@ -171,6 +180,12 @@ pub fn run() {
             commands::hosted_auth::hosted_sign_out,
             commands::insight::word_insight,
             commands::keys::validate_key,
+            commands::mic::mic_cancel,
+            commands::mic::mic_devices,
+            commands::mic::mic_native,
+            commands::mic::mic_start,
+            commands::mic::mic_stop,
+            commands::mic::mic_wave,
             commands::scaffolds::generate_scaffolds,
             commands::stories::generate_story,
             commands::stt::transcribe_audio,

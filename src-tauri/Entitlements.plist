@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Signed macOS builds run under the hardened runtime, which denies the
+	  microphone even when Info.plist declares NSMicrophoneUsageDescription:
+	  the usage string is what the system SHOWS, this entitlement is what lets
+	  it ask at all. Without it a Developer ID build records silence and never
+	  prompts, while the same code works unsigned and in development — see
+	  https://github.com/tauri-apps/tauri/issues/9928.
+	-->
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
+</dict>
+</plist>

@@ -30,6 +30,13 @@ uuid = { version = "1.26.0", features = ["v4"] }
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
+# Microphone capture. WKWebView refuses to treat Tauri's custom scheme as a
+# secure context, so `navigator.mediaDevices` does not exist in a packaged
+# macOS build and the browser recording API is unavailable there. Desktop
+# therefore captures in the core: cpal opens the input device, hound writes the
+# WAV that Whisper is sent. Mobile keeps the webview recorder, which works.
+cpal = "0.15"
+hound = "3.5"
 
 [target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
 tauri-plugin-deep-link = "2.4.10"

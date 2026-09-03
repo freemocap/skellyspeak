@@ -16,6 +16,8 @@ import { DialectField } from './DialectField'
 import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
 import { displaySecret } from '../lib/secrets'
 import { speechSupported } from '../lib/speech'
+import { invoke } from '@tauri-apps/api/core'
+import { mediaDevices } from '../lib/media'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { canSelfUpdate, checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
@@ -356,7 +358,10 @@ export function SettingsModal({
   // True while an API key box has focus. Autosave holds off until blur so a
   // half-typed key is never written over a good stored one.
   const [editingSecret, setEditingSecret] = useState(false)
-  const [mics, setMics] = useState<MediaDeviceInfo[]>([])
+  // Normalised, because the two recorders name devices differently: the
+  // browser has opaque deviceIds with separate labels, the core has names that
+  // are both. Either way `microphone_device_id` stores the id.
+  const [mics, setMics] = useState<{ id: string; label: string }[]>([])
   const [openrouterCheck, setOpenrouterCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
   const [groqCheck, setGroqCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
   const [account, setAccount] = useState<HostedAccount | null>(null)
@@ -392,10 +397,22 @@ export function SettingsModal({
 
   const listMics = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      if (await invoke<boolean>('mic_native')) {
+        // The core records on this platform, so it owns the device list too —
+        // asking the webview would offer devices that cannot be selected.
+        const names = await invoke<string[]>('mic_devices')
+        setMics(names.map((name) => ({ id: name, label: name })))
+        return
+      }
+      const media = mediaDevices()
+      const stream = await media.getUserMedia({ audio: true })
       stream.getTracks().forEach((t) => t.stop())
-      const devices = await navigator.mediaDevices.enumerateDevices()
-      setMics(devices.filter((d) => d.kind === 'audioinput'))
+      const devices = await media.enumerateDevices()
+      setMics(
+        devices
+          .filter((d) => d.kind === 'audioinput')
+          .map((d, i) => ({ id: d.deviceId, label: d.label || `Microphone ${i + 1}` }))
+      )
     } catch (e) {
       reportFault('Listing microphones', e)
     }
@@ -881,9 +898,9 @@ export function SettingsModal({
               }
             >
               <option value="">System default</option>
-              {mics.map((d, i) => (
-                <option key={d.deviceId} value={d.deviceId}>
-                  {d.label || `Microphone ${i + 1}`}
+              {mics.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
                 </option>
               ))}
             </select>

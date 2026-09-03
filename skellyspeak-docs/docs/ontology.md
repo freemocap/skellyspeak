@@ -47,7 +47,7 @@ Owned by: user, via Settings modal. Loaded at startup; cloned per command call.
 | `target_language` | string (BCP-47) | `"es-ES"` | One of the 4 codes in `languages.rs`: `en-US`, `fr-FR`, `es-ES`, `ar`. |
 | `target_dialect` | string | `""` | Regional variant id from the target's `dialects` list (e.g. `es-MX`, `ar-LE`), or free text. Injected into every prompt via `overlay()`. Empty = language default. |
 | `native_language` | string (ISO 639-1) | `"en"` | One of the same 4 languages' `base` codes: `en`, `fr`, `es`, `ar`. Also drives the UI chrome language (`lib/i18n.ts`). |
-| `microphone_device_id` | Option\<string\> | `None` | `MediaDeviceInfo.deviceId`; `None` = system default. |
+| `microphone_device_id` | Option\<string\> | `None` | On desktop a device name from `mic_devices`; on mobile a `MediaDeviceInfo.deviceId`. `None` = system default. |
 | `auto_speak` | bool | `false` | Speak each tutor reply via the configured TTS engine. |
 | `auto_send` | bool | `false` | Send speech transcriptions immediately instead of filling the composer. |
 | `always_romanize` | bool | `false` | Always show romanization under non-Latin tokens, not only when revealed. |

@@ -1,7 +1,23 @@
 import { useEffect, useRef } from 'react'
 
+/// Where the strip gets its samples.
+///
+/// It used to take an `AnalyserNode` directly, which tied it to the Web Audio
+/// API — and therefore to the browser recorder, which a packaged macOS build
+/// does not have. Both recorders can produce a list of numbers, so that is the
+/// contract, and neither one is privileged.
+export interface WaveSource {
+  /// Time-domain samples in -1..1, oldest first, since the last call.
+  /// Whatever is returned is consumed: the strip owns them afterwards.
+  read: () => number[]
+  /// How many samples a second `read` produces in total. The device picks the
+  /// rate, so this is reported rather than assumed — guessing puts a visible
+  /// drift in the time axis on anything that is not running at 48kHz.
+  samplesPerSecond: number
+}
+
 interface WaveformStripProps {
-  analyserNode: AnalyserNode | null
+  source: WaveSource | null
   height?: number
   timelineSeconds?: number
   waveColor?: string
@@ -11,9 +27,9 @@ interface WaveformStripProps {
 /// Compact scrolling oscilloscope for the composer — adapted from the
 /// mic-waveform-visualizer extract (ultraskelly-ui-og lineage): literal
 /// time-domain waveform, bounded history, red "now" line, elapsed timer.
-/// Draws only while `analyserNode` is present.
+/// Draws only while `source` is present.
 export function WaveformStrip({
-  analyserNode,
+  source,
   height = 44,
   timelineSeconds = 6,
   waveColor = '#6f9bff',
@@ -28,14 +44,12 @@ export function WaveformStrip({
   useEffect(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
-    if (!canvas || !container || !analyserNode) return
+    if (!canvas || !container || !source) return
 
     const ctx2d = canvas.getContext('2d')
     if (!ctx2d) return
 
-    analyserNode.fftSize = 2048
-    const bufferLength = analyserNode.frequencyBinCount
-    const dataArray = new Uint8Array(bufferLength)
+    const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 
     const resize = () => {
       if (!container) return
@@ -55,15 +69,12 @@ export function WaveformStrip({
       if (!container) return
       const width = container.clientWidth
 
-      analyserNode.getByteTimeDomainData(dataArray)
-      const step = Math.max(1, Math.floor(bufferLength / 100))
-      for (let i = 0; i < bufferLength; i += step) {
-        historyRef.current.push(((dataArray[i] ?? 128) - 128) / 128)
-      }
-      const samplesPerSecond = (60 * 100) / step
-      const maxSamples = Math.floor(timelineSeconds * samplesPerSecond)
-      if (historyRef.current.length > maxSamples) {
-        historyRef.current = historyRef.current.slice(-maxSamples)
+      const incoming = source.read()
+      if (incoming.length > 0) {
+        historyRef.current = historyRef.current.concat(incoming)
+        if (historyRef.current.length > maxSamples) {
+          historyRef.current = historyRef.current.slice(-maxSamples)
+        }
       }
 
       ctx2d.fillStyle = backgroundColor
@@ -118,7 +129,7 @@ export function WaveformStrip({
       window.removeEventListener('resize', resize)
       historyRef.current = []
     }
-  }, [analyserNode, height, timelineSeconds, waveColor, backgroundColor])
+  }, [source, height, timelineSeconds, waveColor, backgroundColor])
 
   return (
     <div ref={containerRef} className="wave-strip">
