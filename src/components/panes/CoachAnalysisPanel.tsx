@@ -4,8 +4,10 @@ import { CoachFeed } from './CoachFeed'
 import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { usePersistentToggle } from '../../hooks/useSteering'
 import { reportFault } from '../../lib/faults'
+import { Markdown } from '../../lib/markdown'
 
 interface CoachTurn {
+  id: number
   user: string | null
   coach?: {
     comprehensibility: number
@@ -130,7 +132,7 @@ export function CoachAnalysisPanel({
             <div className="coach-thread">
               {thread.map((m, i) => (
                 <div key={i} className={`coach-msg ${m.role}`}>
-                  {m.content}
+                  <Markdown text={m.content} />
                 </div>
               ))}
               {thinking && <div className="coach-msg coach">⟳ thinking…</div>}

@@ -133,6 +133,9 @@ export interface TurnViewProps {
   onInspect: (turnId: number, side: 'me' | 'bot', index: number) => void
   onHold: (word: string, sentence: string) => void
   onToggleReveal: (keys: string[]) => void
+  /// Edit this turn's message and try again — the tutor (and coach) regenerate
+  /// their response from the edited text. Omitted while a turn is in flight.
+  onEditUser?: (turn: TurnShape) => void
 }
 
 /// Memoized: during streaming, every delta re-renders only the turn that
@@ -154,6 +157,7 @@ export const TurnView = memo(function TurnView({
   onInspect,
   onHold,
   onToggleReveal,
+  onEditUser,
 }: TurnViewProps) {
   const assistant = turn.assistant
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false })
@@ -257,7 +261,7 @@ export const TurnView = memo(function TurnView({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {turn.user && (
         <div
-          className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}`}
+          className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''}`}
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:${i}`))
           }
@@ -265,6 +269,20 @@ export const TurnView = memo(function TurnView({
           {userEntries.length > 0
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
             : turn.user}
+          {onEditUser && (
+            <button
+              type="button"
+              className="edit-btn"
+              title="Edit this message and try again"
+              aria-label="Edit this message and try again"
+              onClick={(e) => {
+                e.stopPropagation()
+                onEditUser(turn)
+              }}
+            >
+              ✎
+            </button>
+          )}
         </div>
       )}
       {assistant && (

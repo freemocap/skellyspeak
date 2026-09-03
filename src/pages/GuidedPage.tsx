@@ -113,6 +113,10 @@ export default function GuidedPage({
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [input, setInput] = useState('')
+  // Set while the learner is retrying a past message: the composer is
+  // pre-filled with what they said, and sending it discards that turn and
+  // everything after it, then regenerates from the edited text.
+  const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
   const [settings, setSettings] = useState<Settings | null>(null)
   const [plan, setPlan] = useState<TeachingPlan | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -177,6 +181,7 @@ export default function GuidedPage({
     clearScaffoldsRef.current()
     setError(null)
     setSending(false)
+    setEditingTurnId(null)
     stopSpeaking()
     setThreadReload((v) => v + 1)
   }, [])
@@ -406,9 +411,48 @@ export default function GuidedPage({
     if (!message || sending) return
     setInput('')
     stopSpeaking() // new turn: silence any ongoing playback
+    if (editingTurnId !== null) {
+      const idx = turnsRef.current.findIndex((t) => t.id === editingTurnId)
+      if (idx !== -1) {
+        // Mutate the ref immediately, not just via setTurns: requestTurn reads
+        // turnsRef.current synchronously below to build history, before React
+        // has re-rendered with the truncated state.
+        const truncated = turnsRef.current.slice(0, idx)
+        turnsRef.current = truncated
+        setTurns(truncated)
+      }
+      setEditingTurnId(null)
+    }
     await requestTurn({ message })
   }
   sendRef.current = send
+
+  /// Start retrying a past message: everything from that turn onward gets
+  /// discarded once the learner actually sends a replacement, so the tutor
+  /// and coach regenerate against the edited line instead of the original.
+  const beginEditTurn = useCallback(
+    (turn: { id: number; user: string | null }) => {
+      if (sending) return
+      const idx = turnsRef.current.findIndex((t) => t.id === turn.id)
+      const laterTurns = idx === -1 ? 0 : turnsRef.current.length - idx - 1
+      if (
+        laterTurns > 0 &&
+        !window.confirm(
+          `Editing this message will discard the ${laterTurns} turn${laterTurns === 1 ? '' : 's'} after it. Continue?`
+        )
+      ) {
+        return
+      }
+      setEditingTurnId(turn.id)
+      setInput(turn.user ?? '')
+      stopSpeaking()
+    },
+    [sending, turnsRef]
+  )
+  const cancelEdit = useCallback(() => {
+    setEditingTurnId(null)
+    setInput('')
+  }, [])
   toggleBreakRef.current = toggleBreak
   // How `useConversation` opens an empty conversation. Assigned here because
   // `requestTurn` is defined in this component and the hook runs above it.
@@ -619,6 +663,7 @@ export default function GuidedPage({
               onInspect={words.inspectWord}
               onHold={words.holdWord}
               onToggleReveal={words.toggleReveal}
+              onEditUser={sending ? undefined : beginEditTurn}
             />
           ))}
           {error && (
@@ -637,6 +682,14 @@ export default function GuidedPage({
 
         {/* Composer */}
         <div className="composer">
+          {editingTurnId !== null && (
+            <div className="edit-banner">
+              <span>✎ Editing your message — send or record to try again</span>
+              <button type="button" onClick={cancelEdit}>
+                Cancel
+              </button>
+            </div>
+          )}
           <div className="scaffold-block">
             <div className="scaffold-block-head">
               <span className="scaffold-block-title">Suggestions · for your next message</span>
