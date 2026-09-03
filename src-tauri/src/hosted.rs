@@ -48,6 +48,10 @@ pub struct Account {
     pub requests_today: u64,
     pub estimated_turns_remaining: u64,
     pub estimated_tokens_remaining: u64,
+    /// This account carries its own daily limit rather than the service
+    /// default. Shown so an unusual allowance reads as deliberate.
+    #[serde(default)]
+    pub custom_limit: bool,
     pub resets: String,
 }
 

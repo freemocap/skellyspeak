@@ -8,6 +8,11 @@ the same Firestore collections the service writes.
     uv run python stats.py --days 7     # the last week
     uv run python stats.py --emails     # show addresses instead of masking them
 
+Two writes, both explicit and both needing --user:
+
+    uv run python stats.py --user me@x.com --set-limit-usd 5
+    uv run python stats.py --user me@x.com --reset-usage
+
 Authentication is your own gcloud login:
 
     gcloud auth application-default login
@@ -45,15 +50,93 @@ def days_back(count: int) -> list[str]:
     return [(today - timedelta(days=n)).strftime("%Y-%m-%d") for n in range(count)]
 
 
+def find_user(db: firestore.Client, needle: str) -> str:
+    """Resolve an email or a raw id to a user id, refusing anything ambiguous."""
+    if needle.startswith("google:"):
+        if not db.collection(quota.USERS).document(needle).get().exists:
+            raise SystemExit(f"No account with id {needle}")
+        return needle
+    matches = [
+        doc.id
+        for doc in db.collection(quota.USERS).stream()
+        if (doc.to_dict() or {}).get("email", "").lower() == needle.lower()
+    ]
+    if not matches:
+        raise SystemExit(f"No account with email {needle}")
+    if len(matches) > 1:
+        raise SystemExit(f"{needle} matches {len(matches)} accounts; use the id instead")
+    return matches[0]
+
+
+def apply_limit(db: firestore.Client, user_id: str, dollars: float) -> None:
+    """Give one account its own daily ceiling, or take it away with 0.
+
+    Deliberately a number rather than an "unlimited" switch. The global daily
+    cap is what makes the worst case arithmetic instead of trust, and an
+    account exempt from all limits would walk straight through the reasoning
+    behind it — it would still be stopped by the global ceiling, but only after
+    spending everyone else's allowance to get there.
+    """
+    ref = db.collection(quota.USERS).document(user_id)
+    if dollars <= 0:
+        ref.update({quota.LIMIT_FIELD: firestore.DELETE_FIELD})
+        print(f"\n{user_id}: custom limit removed; back to the service default\n")
+        return
+    micros = quota.dollars_to_micros(dollars)
+    ref.set({quota.LIMIT_FIELD: micros}, merge=True)
+    print(f"\n{user_id}: daily limit set to ${dollars:.2f}\n")
+    print("  The GLOBAL_DAILY_MICROS ceiling still applies on top of this, so")
+    print("  raise it too if this limit is meant to be reachable:")
+    print("    gcloud run services update skellyspeak-api --region=us-central1 \\")
+    print("      --update-env-vars=GLOBAL_DAILY_MICROS=<micros>")
+    print("  and mirror it into server/cloudbuild.yaml or the next deploy reverts it.\n")
+
+
+def clear_today(db: firestore.Client, user_id: str) -> None:
+    """Zero this account's spend for the current UTC day.
+
+    The per-user document only. The global counter is left alone on purpose:
+    the money was really spent, and quietly un-spending it in the shared total
+    would hide real cost from the one number that bounds the bill.
+    """
+    day = quota.utc_day()
+    db.collection(quota.USERS).document(user_id).collection(quota.USAGE).document(day).set(
+        {"micros": 0, "tokens": 0, "requests": 0, "day": day,
+         "ttl": quota.ttl_after(quota.USAGE_RETENTION_DAYS)},
+    )
+    print(f"\n{user_id}: usage for {day} reset to zero")
+    print("  (the global daily total is unchanged - that spend really happened)\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days", type=int, default=1, help="how many UTC days to report")
     parser.add_argument("--emails", action="store_true", help="show full email addresses")
+    parser.add_argument("--user", help="email or id, for the two write actions below")
+    parser.add_argument(
+        "--set-limit-usd",
+        type=float,
+        help="give this account its own daily limit in dollars (0 removes it)",
+    )
+    parser.add_argument(
+        "--reset-usage",
+        action="store_true",
+        help="zero today's spend for this account",
+    )
     args = parser.parse_args()
 
     db = firestore.Client()
     show = (lambda a: a or "(no address)") if args.emails else mask
     window = days_back(max(args.days, 1))
+
+    if (args.set_limit_usd is not None or args.reset_usage) and not args.user:
+        raise SystemExit("--set-limit-usd and --reset-usage need --user")
+    if args.user:
+        target = find_user(db, args.user)
+        if args.set_limit_usd is not None:
+            apply_limit(db, target, args.set_limit_usd)
+        if args.reset_usage:
+            clear_today(db, target)
 
     # ── Accounts ────────────────────────────────────────────────────────────
     # The same count MAX_USERS is checked against — there is no separate

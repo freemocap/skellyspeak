@@ -97,6 +97,8 @@ export interface HostedAccount {
   requests_today: number
   estimated_turns_remaining: number
   estimated_tokens_remaining: number
+  /// This account has its own daily limit instead of the service default.
+  custom_limit: boolean
   resets: string
 }
 
