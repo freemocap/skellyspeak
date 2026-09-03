@@ -109,6 +109,12 @@ jobs:
       - if: runner.os == 'Linux'
         run: |
           sudo apt-get update
+          # libasound2-dev is for cpal: the desktop microphone recorder in
+          # src-tauri/src/audio.rs links alsa-sys on Linux, and its build
+          # script fails outright without the ALSA headers. Nothing else in
+          # this build needs it, and its absence breaks only Linux — which is
+          # why a release can go green on Windows, macOS and Android and still
+          # fail here.
           sudo apt-get install -y \
             libwebkit2gtk-4.1-dev \
             libayatana-appindicator3-dev \
@@ -116,6 +122,7 @@ jobs:
             libgtk-3-dev \
             libxdo-dev \
             libssl-dev \
+            libasound2-dev \
             build-essential curl wget file patchelf
 
       - uses: actions/setup-node@v5
