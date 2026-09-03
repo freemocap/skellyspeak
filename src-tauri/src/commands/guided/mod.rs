@@ -322,7 +322,7 @@ pub async fn guided_turn(
             turn_id,
             tln,
             native,
-            transcript: coach_pass::transcript(&history, &trimmed),
+            transcript: coach_pass::transcript(&history),
             message: trimmed,
             topic,
         });

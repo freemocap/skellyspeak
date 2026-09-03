@@ -2,9 +2,6 @@
 //! mandatory rules) plus per-surface guidance — one source of truth for the
 //! rules, ported from the FreeLingo prompt library.
 
-
-
-
 pub fn persona_block(
     role: &str,
     target_language_name: &str,
@@ -79,7 +76,11 @@ pub fn no_information_rule() -> String {
          \x20 - a required number -> 0\n\
          Guessing is worse than an empty answer: these fields steer later \
          teaching, so a padded list actively misleads.\n\
-         NEVER use the sentinel for a field that copies or transforms text you          were given - a token's text, a translation of a message you can see, a          corrected phrase. Those always have a real answer, and a placeholder          there is rendered to the learner as if it were their language.
+         NEVER use the sentinel for a field that copies or transforms text \
+         you were given - a token's text, a translation of a message you can \
+         see, a corrected phrase. Those always have a real answer, and a \
+         placeholder there is rendered to the learner as if it were their \
+         language.\n\
          Where THIS prompt states an explicit requirement for a field - \
          'exactly two', 'at least one' - that requirement WINS over the \
          empty-answer option above.",
@@ -156,7 +157,7 @@ pub fn guided_tokens_prompt(
 fn romanization_line(scheme: Option<&str>) -> String {
     match scheme {
         Some(s) => format!(
-            "\n         ALSO give every token a romanization in {s} in its \
+            "\nALSO give every token a romanization in {s} in its \
              `romanization` field."
         ),
         None => String::new(),

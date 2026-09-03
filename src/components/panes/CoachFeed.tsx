@@ -49,9 +49,9 @@ function CoachEntry({
               <ScoreMeter label="Understood" value={turn.coach.comprehensibility} />
               <ScoreMeter label="Grammar" value={turn.coach.grammar} />
             </div>
-            <p className="coach-remark">
+            <div className="coach-remark">
               <Markdown text={turn.coach.remark} />
-            </p>
+            </div>
             {(turn.coach.used_target.length > 0 || turn.coach.used_native.length > 0) && (
               <div className="coach-split">
                 {turn.coach.used_target.length > 0 && (
@@ -75,9 +75,9 @@ function CoachEntry({
                 <s>{cor.said}</s> <span className="cor-arrow">→</span>{' '}
                 <b>{cor.corrected}</b> <span className="cor-kind">{cor.kind}</span>
               </div>
-              <p className="cor-why">
+              <div className="cor-why">
                 <Markdown text={cor.explanation} />
-              </p>
+              </div>
             </div>
           ))}
         </>

@@ -33,6 +33,20 @@ jobs:
       - run: cargo test --lib
         working-directory: src-tauri
 
+  # The hosted API tests. They gate the deploy in deploy-server.yml too, but
+  # running them here means a pull request shows the breakage before it lands
+  # rather than after.
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+      - run: uv run --group dev pytest -q
+        working-directory: server
+
   docs:
     runs-on: ubuntu-latest
     steps:
