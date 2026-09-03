@@ -22,4 +22,15 @@ RUN useradd --system --uid 10001 --no-create-home app \
     && chown -R app:app /app
 USER app
 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# The interpreter from the venv `uv sync` built, NOT `uv run`.
+#
+# `uv` is a build-time tool. Using it as the launcher makes it initialise a
+# cache under $HOME on every cold start — which for a --no-create-home system
+# user is a directory that does not exist and cannot be created, so the
+# container exits(2) before it ever binds the port:
+#
+#   failed to create directory `/home/app/.cache/uv`: Permission denied
+#
+# Calling uvicorn directly needs no cache, no writable home, and no resolver
+# work at startup.
+CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
