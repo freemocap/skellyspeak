@@ -114,10 +114,15 @@ if (dirty) {
   )
 }
 
-// Know about tags and commits that exist only on the remote.
+// Know about commits that exist only on the remote.
+//
+// `--no-tags` on purpose. Fetching tags fails outright when a local tag points
+// somewhere different from the remote's — which is what a rewritten history
+// leaves behind — and that is not a reason to refuse a release. Whether THIS
+// version's tag is taken is checked against the remote directly, below.
 console.log('  fetching…')
 try {
-  execFileSync('git', ['fetch', '--tags', '--quiet'], { stdio: 'inherit' })
+  execFileSync('git', ['fetch', '--no-tags', '--quiet'], { stdio: 'inherit' })
 } catch {
   die('could not reach the remote. A release has to be pushed, so this must work first.')
 }
