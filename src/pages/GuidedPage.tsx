@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type {
+  StoredTurn,
   GuidedEvent,
   GuidedTurnResult,
   Profile,
@@ -11,6 +12,9 @@ import type {
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup, type PopupState } from '../components/GlossPopup'
 import {
+  loadConversation,
+  newConversation,
+  saveConversation,
   getPlan,
   getSettings,
   isTauri,
@@ -36,20 +40,20 @@ import { TurnView } from '../components/chat/TurnView'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering, armGreeting, disarmGreeting } from '../hooks/useSteering'
+import { TopicField } from '../components/TopicField'
 import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { reportFault } from '../lib/faults'
 
-interface Turn {
-  id: number
-  user: string | null
-  assistant: GuidedTurnResult | null
-  pendingText: string
-  analysisState: 'pending' | 'done' | 'failed' | null
-  coach?: { comprehensibility: number; grammar: number; remark: string; used_target: string[]; used_native: string[]; corrections: { said: string; corrected: string; kind: string; explanation: string }[] }
-  coachError?: string
-}
+/// A turn on screen: everything that gets stored, plus the streaming buffer
+/// for the reply still arriving. `StoredTurn` is the shape on disk.
+type Turn = StoredTurn & { pendingText: string }
+
+/// How long the conversation rests before it is written. Long enough that a
+/// streamed reply is one write rather than one per token, short enough that
+/// closing the app straight after a turn still catches it.
+const CONVERSATION_SAVE_DEBOUNCE_MS = 800
 
 
 function ScaffoldRow({
@@ -167,6 +171,77 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
   const toggleMicRef = useRef<() => void>(() => {})
   const toggleBreakRef = useRef<() => void>(() => {})
 
+  // ── Conversation persistence ────────────────────────────────────────────
+  // Which pairing the turns currently on screen belong to. Saves are addressed
+  // to THIS pairing, not to whatever settings say right now, so a save landing
+  // after a language switch still files the turns under the conversation they
+  // came from.
+  const turnsPairRef = useRef<{ target: string; native: string } | null>(null)
+
+  const restoreConversation = useCallback(async (target: string, native: string) => {
+    try {
+      const stored = await loadConversation(target, native)
+      turnsPairRef.current = { target, native }
+      setTurns(stored.map((t) => ({ ...t, pendingText: '' })))
+      // Ids must continue past what was restored or a new turn would collide
+      // with an old one and React would reconcile the wrong bubble.
+      nextIdRef.current = stored.reduce((max, t) => Math.max(max, t.id), 0) + 1
+      return stored.length
+    } catch (e) {
+      reportFault('Restoring your conversation', e)
+      turnsPairRef.current = { target, native }
+      setTurns([])
+      return 0
+    }
+  }, [])
+
+  // Written after a pause rather than on every keystroke of the stream, and
+  // never before a restore has run — saving an empty list first would erase
+  // the conversation we are about to load. Only settled turns are stored: one
+  // still streaming has no reply to keep.
+  useEffect(() => {
+    if (!isTauri) return
+    const pair = turnsPairRef.current
+    if (!pair || sending) return
+    const timer = setTimeout(() => {
+      const stored = turns
+        .filter((t) => t.assistant !== null)
+        .map(({ pendingText: _pendingText, ...rest }) => rest)
+      void saveConversation(stored, pair.target, pair.native).catch((e: unknown) =>
+        reportFault('Saving your conversation', e)
+      )
+    }, CONVERSATION_SAVE_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [turns, sending])
+
+  // Archive this conversation and open a clean one. What the tutor has
+  // learned about the learner is kept on purpose — that continuity is the
+  // whole reason the observer exists — and the old turns are archived rather
+  // than deleted, so nothing is destroyed by a misclick.
+  const startNewConversation = useCallback(async () => {
+    try {
+      await newConversation()
+    } catch (e) {
+      reportFault('Starting a new conversation', e)
+      return
+    }
+    setTurns([])
+    nextIdRef.current = 1
+    setPinnedId(null)
+    setRevealed(new Set())
+    setFreshScaffolds(null)
+    setInspect(null)
+    setWordPopup(null)
+    setError(null)
+    setSending(false)
+    stopSpeaking()
+    setThreadReload((v) => v + 1)
+    disarmGreeting()
+    armGreeting()
+    void requestTurn({ greeting: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     logInfo('[guided] page mounted, isTauri =', isTauri)
     void loadVoices().then((v) => {
@@ -174,9 +249,11 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
       setOsVoiceReady(ready)
       logInfo(`[tts] OS voice engine ${ready ? 'available' : 'unavailable'}; ${v.length} voices`)
     })
-    // Greeting fires once settings are loaded — it must include the saved
-    // level/topic, so it waits for `settings`. A new session also clears the
-    // coach thread. Skips if a turn already exists (HMR remount safety).
+    // Settings only. This effect re-runs on `settingsVersion`, which the
+    // Settings modal bumps on every autosave mid-edit — so it must not touch
+    // the conversation. Restoring and greeting are keyed on the pairing
+    // instead, in the effect below, which fires only when the pairing really
+    // changes.
     void getSettings()
       .then((s) => {
         setSettings(s)
@@ -187,16 +264,6 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
           openrouterKey: s.openrouter_key ? 'set' : 'MISSING',
           groqKey: s.groq_key ? 'set' : 'MISSING',
         })
-        if (isTauri && armGreeting() && turnsRef.current.length === 0) {
-          logInfo('[guided] firing greeting turn')
-          void requestTurn({ greeting: true })
-          void invoke('coach_thread_clear').catch((e: unknown) =>
-            reportFault('Resetting coach history', e)
-          )
-          setThreadReload((v) => v + 1)
-          setRevealed(new Set())
-          setFreshScaffolds(null)
-        }
       })
       .catch((e) => reportFault('Loading settings', e))
     void getPlan()
@@ -386,29 +453,53 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
     [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic]
   )
 
-  // Language pair changed → full conversation reset aligned to the new
-  // pairing: turns, reveals, scaffolds, Q&A, and the coach thread are all
-  // pair-specific (Rust archives the old documents on save; the greeting
-  // fires fresh in the new language).
+  // The conversation on screen follows the pairing — on first load and on
+  // every switch. Each pairing keeps its turns, coach thread and tutor memory
+  // separately, so going to Arabic and back to Spanish returns to the Spanish
+  // conversation rather than starting over. The dialect is NOT part of a
+  // pairing: changing it is a setting applied to the conversation you are in.
+  //
+  // This is the only place that decides between restoring and greeting, and it
+  // runs only when the pairing actually changes — never on a settings autosave.
   const langPair = settings ? `${settings.target_language}|${settings.native_language}` : null
   const prevLangPair = useRef<string | null>(null)
   useEffect(() => {
-    if (!langPair) return
+    if (!langPair || !settings || !isTauri) return
     const prev = prevLangPair.current
     prevLangPair.current = langPair
-    if (prev === null || prev === langPair) return
-    logInfo('[guided] language pair changed:', prev, '->', langPair, '— resetting conversation')
-    setTurns([])
-    setPinnedId(null)
-    setRevealed(new Set())
-    setFreshScaffolds(null)
-    setInspect(null)
-    setWordPopup(null)
-    setError(null)
-    setSending(false)
-    stopSpeaking()
-    disarmGreeting()
-    void requestTurn({ greeting: true })
+    if (prev === langPair) return
+    const switched = prev !== null
+    if (switched) {
+      logInfo('[guided] language pair changed:', prev, '->', langPair)
+      setPinnedId(null)
+      setRevealed(new Set())
+      setFreshScaffolds(null)
+      setInspect(null)
+      setWordPopup(null)
+      setError(null)
+      setSending(false)
+      stopSpeaking()
+      setThreadReload((v) => v + 1)
+    }
+    const { target_language: target, native_language: native } = settings
+    void (async () => {
+      const restored = await restoreConversation(target, native)
+      if (restored > 0) {
+        logInfo(`[guided] restored ${restored} turns — no greeting`)
+        // Consume the once-per-session greeting: a restored conversation is
+        // already open, and greeting over it would both duplicate the opening
+        // and make it look like nothing had been kept.
+        armGreeting()
+        return
+      }
+      // Empty conversation — open it properly. On a switch the greeting has
+      // usually already been spent on the previous pairing.
+      if (switched) disarmGreeting()
+      if (armGreeting()) {
+        logInfo('[guided] firing greeting turn')
+        void requestTurn({ greeting: true })
+      }
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [langPair])
 
@@ -835,20 +926,7 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
                 </option>
               ))}
             </select>
-            <select
-              className="steer-select topic"
-              value={steer.topic}
-              onChange={(e) => steer.setTopic(e.target.value)}
-              aria-label="Conversation topic"
-              title="Topic steering — the tutor works the conversation toward this"
-            >
-              <option value="">Topic: anything</option>
-              {STEER_TOPICS.map((tp) => (
-                <option key={tp} value={tp}>
-                  {tp}
-                </option>
-              ))}
-            </select>
+            <TopicField topics={STEER_TOPICS} value={steer.topic} onChange={steer.setTopic} />
             <button
               type="button"
               className="steer-dice"
@@ -857,6 +935,15 @@ export default function GuidedPage({ settingsVersion = 0 }: { settingsVersion?: 
               onClick={steer.randomTopic}
             >
               🎲
+            </button>
+            <button
+              type="button"
+              className="steer-dice"
+              title="Start a new conversation — this one is archived, and the tutor keeps what it has learned about you"
+              aria-label="New conversation"
+              onClick={() => void startNewConversation()}
+            >
+              ✚
             </button>
           </div>
           <form

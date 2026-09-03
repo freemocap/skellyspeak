@@ -71,9 +71,15 @@ and `.github/workflows/ci.yml` runs frontend / Rust / docs jobs. All three
 job commands pass as of 2026-09-01 (A1). Still missing: a lint config for
 the frontend, and any test above the pure-function layer.
 
-### R4 · Conversation history not persisted — **designed, folded into Observability**
-Turns live only in React state. Continuity across restarts is carried solely
-by plan/profile. Resolved by design in
+### R4 · Conversation history not persisted — **SHIPPED**
+Turns persist per language pairing under
+`<config>/conversations/<target>__<native>/session.json`, alongside that
+pairing's plan, profile and coach thread. A Spanish conversation and an Arabic
+one are kept independently and each restores where it was left; a `✚` control
+in the steer row archives the current one and starts fresh, keeping what the
+tutor has learned. See [Observability](./observability#persistence).
+
+The original problem, for the record: Resolved by design in
 [Observability](./observability#persistence): `session.json` for the turn log
 and `runs.jsonl` for the trace, in the app config dir (**not** the webview's
 `localStorage` — capacity, layer and durability all argue against it), with

@@ -8,6 +8,7 @@ import type {
   Run,
   RunStarted,
   Settings,
+  StoredTurn,
   Story,
 } from '../types'
 
@@ -113,6 +114,30 @@ export function hostedAccount(): Promise<HostedAccount> {
 
 export function hostedSignOut(): Promise<void> {
   return invoke('hosted_sign_out')
+}
+
+/// The stored conversation for one language pairing.
+///
+/// The pairing is named explicitly rather than inferred from settings: the
+/// webview knows which conversation the turns on screen belong to, and saying
+/// so is what stops a language switch racing an in-flight save and filing one
+/// conversation under another's name.
+export function loadConversation(target: string, native: string): Promise<StoredTurn[]> {
+  return invoke<StoredTurn[]>('load_conversation', { target, native })
+}
+
+export function saveConversation(
+  turns: StoredTurn[],
+  target: string,
+  native: string
+): Promise<void> {
+  return invoke('save_conversation', { turns, target, native })
+}
+
+/// Archive the current conversation and coach thread, and start fresh. What
+/// the tutor has learned about the learner is deliberately kept.
+export function newConversation(): Promise<void> {
+  return invoke('new_conversation')
 }
 
 export function getDiagnostics(): Promise<[string, number][]> {

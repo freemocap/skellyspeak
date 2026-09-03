@@ -104,10 +104,14 @@ npm run tauri build
 inherits it.
 
 ```powershell
-node scripts/set-version.mjs 0.2.0 --git-tag
-git commit -am "v0.2.0"
-git push && git push origin v0.2.0
+node scripts/set-version.mjs 0.3.0
+git commit -am "v0.3.0"
+git tag v0.3.0
+git push && git push origin v0.3.0
 ```
+
+Tag **after** committing: the release workflow reads the version from the
+tagged commit's `Cargo.toml` and refuses to build if it disagrees with the tag.
 
 The tag triggers `.github/workflows/release.yml`, which builds Windows x64,
 macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64) and an Android APK,

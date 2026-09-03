@@ -153,6 +153,10 @@ body {
   padding: 4px 8px; cursor: pointer; outline: none; max-width: 170px;
 }
 .steer-select.topic { flex: 1; min-width: 0; }
+/* Custom topic: the text box takes the select's place and the return arrow
+   sits beside it, so the row keeps its shape when the mode changes. */
+.steer-topic-custom { display: flex; flex: 1; min-width: 0; gap: 6px; align-items: center; }
+.steer-topic-custom .steer-select.topic { flex: 1; }
 .steer-select:focus { border-color: var(--steel); }
 .steer-dice {
   flex: none; width: 28px; height: 28px; border-radius: 50%;
