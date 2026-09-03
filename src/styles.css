@@ -102,7 +102,7 @@ body {
 .line { min-width: 0; max-width: 100%; }
 .wu { max-width: 100%; }
 .wg { overflow-wrap: anywhere; }
-.chat-head, .break-head-k {
+.chat-head {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
 }
 .chat-head { color: var(--ink-mut); padding: 11px 18px 0; opacity: 0.75; }
@@ -291,7 +291,7 @@ body {
 .break-head .chev { font-size: 12px; color: var(--mut-d); }
 .break-head .head-right { display: inline-flex; align-items: baseline; gap: 8px; }
 .break.collapsed { flex: 0 0 auto; min-width: 0; }
-.break.collapsed .break-scroll, .break.collapsed .focus-strip { display: none; }
+.break.collapsed .break-scroll { display: none; }
 .break.collapsed .break-head { border-bottom: none; padding: 11px 18px; }
 
 /* Plan drawer (learner-visible observer documents) */
@@ -528,7 +528,7 @@ body {
   background: var(--bg); border-top: 1px solid var(--line);
 }
 /* Drag the top edge to resize; the height persists per device. Generous hit
-   area, hairline appearance — same trick as .split-bar. */
+   area, hairline appearance. */
 .logs-resize {
   flex: none; height: 7px; margin-top: -3px; cursor: ns-resize;
   background: linear-gradient(var(--line2), var(--line2)) center/100% 1px no-repeat;
@@ -894,14 +894,6 @@ body {
 .lg.fan_in::before { border-top: 2px dotted var(--line2); }
 .lg.conditional::before { border-top: 2px dashed var(--steel-deep); }
 .lg.background::before { border-top: 2px dotted var(--faint-d); }
-
-/* D3: click a node, get its run. */
-.graph-detail {
-  position: absolute; right: 10px; bottom: 54px; width: min(320px, calc(100% - 20px));
-  background: rgba(20, 32, 46, 0.98); border: 1px solid var(--line2);
-  border-radius: 6px; padding: 10px 12px; z-index: 5;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-}
 
 /* The graph reporting on its own truthfulness. A diagram that cannot tell
    you when it is wrong is a claim, not an observation. */

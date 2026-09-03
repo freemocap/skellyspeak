@@ -31,5 +31,10 @@ export default defineConfig({
     // `old/` is an archive of earlier incarnations kept for reference only;
     // its test files are not part of this app.
     exclude: ['**/node_modules/**', '**/dist/**', 'old/**'],
+    // Pure-function tests need no DOM; component tests do. Per-file
+    // environments keep the fast majority fast — opt in with
+    // `// @vitest-environment jsdom` at the top of a component test.
+    environment: 'node',
+    setupFiles: ['./src/test/setup.ts'],
   },
 })
