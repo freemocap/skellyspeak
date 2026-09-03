@@ -18,6 +18,7 @@ pub mod guided;
 pub mod hosted_auth;
 pub mod insight;
 pub mod keys;
+pub mod mic;
 pub mod scaffolds;
 pub mod stories;
 pub mod stt;

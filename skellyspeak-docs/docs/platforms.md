@@ -220,14 +220,16 @@ To actually ship:
    TestFlight; simulator is free). Rust target `aarch64-apple-ios`.
 2. **Scaffold:** `npm run tauri ios init` → `src-tauri/gen/apple` (Xcode
    project). This cannot be done from the Windows dev machine.
-3. **Permissions:** `NSMicrophoneUsageDescription` in the generated
-   `Info.plist`.
-4. **STT format risk (the big one):** WKWebView `MediaRecorder` support lags;
-   iOS typically yields `audio/mp4` (AAC). `transcribe_audio` hardcodes
-   filename `audio.webm` + mime `audio/webm` (`STT_UPLOAD_NAME` / `STT_UPLOAD_MIME`
-   in `commands/stt.rs`). Fix:
-   pass the blob's MIME type up from `GuidedPage.toggleMic` and set
-   filename/mime accordingly (Groq accepts m4a/mp3/mp4/webm/wav/ogg).
+3. **Permissions:** `NSMicrophoneUsageDescription` is in `src-tauri/Info.plist`,
+   which the bundler merges for iOS as well as macOS.
+4. **Recording:** iOS is a WKWebView, so it has no `navigator.mediaDevices`
+   for the same reason macOS does not, and `mic_native` is false there today
+   — the mobile branch is chosen by `cfg!(desktop)`, which iOS is not. Either
+   extend the core recorder to iOS (cpal supports it, and `AVAudioSession`
+   needs its category set before recording) or ship iOS without voice input.
+   This is the decision iOS cannot ship without. The upload format itself is
+   no longer a risk: `transcribe_audio` reads the container from the bytes,
+   and already recognises the MP4/AAC a WKWebView produces.
 5. **Layout:** same narrow-viewport work; also safe-area insets.
 6. **Keys on mobile:** settings.json lands in the app sandbox config dir —
    works, but review R12 (keychain) with mobile in mind.

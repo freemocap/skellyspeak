@@ -401,10 +401,17 @@ interface Turn {
   that has any, so the composer is never empty while a fresh analysis runs.
   A steering change regenerates them via `generate_scaffolds`; a failure
   surfaces as a visible ⚠ in the suggestion header.
-- Mic (`hooks/useMicRecorder.ts`): `MediaRecorder` → webm/opus → base64 →
-  `transcribe_audio`; manual toggle with an explicit ✕ cancel, auto-stop
-  after 20s of silence (WebAudio RMS), live waveform. The transcript fills
-  the composer unless `auto_send` is on.
+- Mic (`hooks/useMicRecorder.ts`): two recorders behind one interface, and
+  `mic_native` in the core says which — a compile-time fact there, not a probe.
+  **Desktop** records in the core (`audio.rs`: cpal → hound → WAV), because
+  `navigator.mediaDevices` exists only in a secure context and WKWebView will
+  not treat `tauri://localhost` as one, so a packaged macOS build has no
+  browser recorder at all. **Mobile** records in the webview
+  (`MediaRecorder` → webm/opus). Either way the audio reaches
+  `transcribe_audio` as base64, which reads the container from its own header
+  rather than being told. Manual toggle with an explicit ✕ cancel, auto-stop
+  after 20s of silence, live waveform fed by a `WaveSource` the two recorders
+  both satisfy. The transcript fills the composer unless `auto_send` is on.
 
 ## Build & run (developer view)
 

@@ -695,8 +695,8 @@ export default function GuidedPage({
               </div>
             )}
           </div>
-          {mic.recording && mic.recAnalyser && (
-            <WaveformStrip analyserNode={mic.recAnalyser} height={44} timelineSeconds={10} />
+          {mic.recording && mic.waveSource && (
+            <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
           <div className="steer-row">
             <select

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Merged into the generated Info.plist by the macOS bundler, which picks up
+	  any Info.plist sitting beside tauri.conf.json.
+
+	  macOS refuses microphone access outright to a process whose bundle does
+	  not declare why it wants it — the string below is what the system shows
+	  in its permission dialog, and without the key there is no dialog and no
+	  access. iOS uses the same key.
+	-->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SkellySpeak listens to your microphone so you can speak your side of the conversation and have it transcribed.</string>
+</dict>
+</plist>

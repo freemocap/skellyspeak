@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default capability for the main window and the popped-out observability window",
+  "description": "Default capability for the main window and the popped-out observability window. `opener:allow-open-url` enables the command but grants NO urls — the scope is what decides, and an empty scope rejects everything with \"not allowed to open url\". Only the updater opens anything from the webview, and only the release page, so that is the whole scope. Rust-side opens (the sign-in browser handoff in hosted.rs) do not pass through here at all.",
   "windows": [
     "main",
     "skellyspeak-dev"
@@ -9,6 +9,13 @@
   "permissions": [
     "core:default",
     "log:default",
-    "opener:allow-open-url"
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://github.com/freemocap/skellyspeak/releases/*"
+        }
+      ]
+    }
   ]
 }
