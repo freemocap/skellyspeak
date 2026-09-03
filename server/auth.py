@@ -46,10 +46,21 @@ SESSION_TTL_SECONDS = 30 * 24 * 60 * 60  # 30 days
 # enough that a leaked code is worthless by the time anyone finds it.
 LOGIN_CODE_TTL_SECONDS = 120
 
-# RFC 8252: native apps redirect either to a loopback address on an ephemeral
-# port, or to a private-use scheme. Both are allowed; nothing else is.
-_LOOPBACK = re.compile(r"^http://(127\.0\.0\.1|\[::1\])(:\d{1,5})?/[A-Za-z0-9._~/-]*$")
-_APP_SCHEME = re.compile(r"^skellyspeak://[A-Za-z0-9._~/-]*$")
+# RFC 9700 §2.1: redirect URIs are compared by EXACT string match, with one
+# carve-out — the port of a loopback URI in a native app, which RFC 8252
+# requires to be ephemeral and therefore cannot be known in advance.
+#
+# So everything except that port number is pinned to what the app actually
+# sends. Accepting any path under the loopback host, or any authority under the
+# private-use scheme, widens the set of places an authorization code can be
+# delivered to for no benefit: there is exactly one path on each platform.
+LOOPBACK_PATH = "/callback"
+APP_SCHEME_URI = "skellyspeak://auth"
+
+_LOOPBACK = re.compile(
+    r"^http://(127\.0\.0\.1|\[::1\])(:\d{1,5})?" + re.escape(LOOPBACK_PATH) + r"$"
+)
+_APP_SCHEME = re.compile(r"^" + re.escape(APP_SCHEME_URI) + r"/?$")
 
 
 class AuthError(Exception):

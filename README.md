@@ -143,6 +143,15 @@ regeneration.
   directory per language pairing
 - `src/pages/GuidedPage.tsx`, `src/pages/StoriesPage.tsx` — the two surfaces
 
+## Hosted service numbers
+
+```bash
+cd server && uv run python stats.py
+```
+
+Who signed up, spend per day, devices. Or click the [Firestore console](https://console.cloud.google.com/firestore/databases/-default-/data?project=skellyspeak-api).
+Details: [Hosted API](./skellyspeak-docs/docs/hosted-api.md).
+
 ## Docs
 
 Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusaurus):
@@ -154,6 +163,7 @@ Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusauru
 - [The Coach](./skellyspeak-docs/docs/coach.md) — the private side-channel tutor (the Cyrano principle)
 - [Platforms & Build](./skellyspeak-docs/docs/platforms.md) — Windows + Android today, iOS path
 - [Future Work](./skellyspeak-docs/docs/future-work.md) — replacing per-turn LLM glossing with dictionaries
+- [Hosted API](./skellyspeak-docs/docs/hosted-api.md) — sign-in, quota, deploying, and reading the usage numbers
 
 ```powershell
 cd skellyspeak-docs && npm install && npm start   # preview the docs site
