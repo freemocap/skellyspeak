@@ -35,9 +35,14 @@ pub(super) struct CoachPass {
     pub topic: Option<String>,
 }
 
-/// The recent exchange as the coach sees it, ending with the message under
-/// review.
-pub(super) fn transcript(history: &[super::ChatTurn], message: &str) -> Vec<String> {
+/// The exchange leading UP TO the message under review.
+///
+/// It deliberately stops short of that message. `prompts::coach_user_message`
+/// presents it separately, under "LEARNER'S LATEST MESSAGE (analyze this)", so
+/// appending it here as well put the same sentence twice in a row in one
+/// prompt. Models answered the duplication instead of the message — remarking
+/// that the learner had repeated themselves, which they had not.
+pub(super) fn transcript(history: &[super::ChatTurn]) -> Vec<String> {
     history
         .iter()
         .rev()
@@ -50,7 +55,6 @@ pub(super) fn transcript(history: &[super::ChatTurn], message: &str) -> Vec<Stri
                 t.content
             )
         })
-        .chain(std::iter::once(format!("LEARNER: {message}")))
         .collect()
 }
 
@@ -122,4 +126,66 @@ pub(super) fn spawn(pass: CoachPass) {
             }
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::commands::guided::ChatTurn;
+
+    fn turn(role: &str, content: &str) -> ChatTurn {
+        ChatTurn {
+            role: role.into(),
+            content: content.into(),
+        }
+    }
+
+    #[test]
+    fn the_message_under_review_is_not_repeated_in_the_transcript() {
+        // The prompt names the latest message in its own labelled block. A copy
+        // at the end of the transcript put it twice in a row, and the coach
+        // commented on the repetition instead of the language.
+        let history = vec![turn("assistant", "Hola, como estas?"), turn("user", "estoy bien")];
+        let lines = transcript(&history);
+        assert_eq!(
+            lines,
+            vec![
+                "NATIVE: Hola, como estas?".to_string(),
+                "LEARNER: estoy bien".to_string(),
+            ]
+        );
+        assert_eq!(
+            lines.iter().filter(|l| l.contains("estoy bien")).count(),
+            1,
+            "the learner's line must appear once"
+        );
+    }
+
+    #[test]
+    fn roles_are_relabelled_for_the_coach() {
+        // The coach's prompt talks about LEARNER and NATIVE, not user/assistant.
+        let lines = transcript(&[turn("user", "hola"), turn("assistant", "hola")]);
+        assert_eq!(lines[0], "LEARNER: hola");
+        assert_eq!(lines[1], "NATIVE: hola");
+    }
+
+    #[test]
+    fn only_the_most_recent_turns_are_kept_and_they_stay_in_order() {
+        let history: Vec<ChatTurn> = (0..COACH_TRANSCRIPT_TURNS + 5)
+            .map(|i| turn("user", &i.to_string()))
+            .collect();
+        let lines = transcript(&history);
+        assert_eq!(lines.len(), COACH_TRANSCRIPT_TURNS);
+        assert_eq!(lines[0], "LEARNER: 5", "oldest kept turn");
+        assert_eq!(
+            lines[lines.len() - 1],
+            format!("LEARNER: {}", COACH_TRANSCRIPT_TURNS + 4),
+            "newest turn stays last"
+        );
+    }
+
+    #[test]
+    fn a_first_message_has_no_transcript_rather_than_a_stub() {
+        assert!(transcript(&[]).is_empty());
+    }
 }

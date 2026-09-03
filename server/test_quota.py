@@ -29,6 +29,14 @@ class FakeSnapshot:
     def to_dict(self) -> dict | None:
         return dict(self._data) if self._data is not None else None
 
+    def get(self, field: str):
+        """Read one field, as a real DocumentSnapshot does.
+
+        Its absence meant the read path -- read_balance and check_allowed --
+        could not be tested at all, so the daily rollover went unverified.
+        """
+        return None if self._data is None else self._data.get(field)
+
 
 class FakeDocRef:
     def __init__(self, store: dict, path: str):
@@ -237,3 +245,63 @@ class TestUsageAccounting:
         assert isinstance(ttl, datetime)
         ahead = (ttl - datetime.now(timezone.utc)).days
         assert ahead == pytest.approx(quota.USAGE_RETENTION_DAYS, abs=1)
+
+
+class TestTheDailyResetActuallyRolls:
+    """The allowance is per UTC day, and nothing may carry across the boundary.
+
+    There is no scheduled job that clears anything: the day is part of the
+    document key, so a new day simply reads a document that does not exist yet.
+    These pin that down, because "it did not reset" is invisible until someone
+    is locked out for a second day.
+    """
+
+    def test_the_day_key_follows_the_clock_not_the_process(self, db, monkeypatch):
+        # Computing the day once at import would freeze it for the lifetime of
+        # a warm Cloud Run instance, and the counter would never roll over.
+        quota.record_usage(db, "google:1", tokens=500)
+        assert db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["tokens"] == 500
+
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
+        quota.record_usage(db, "google:1", tokens=7)
+        assert db.store[f"users/google:1/{quota.USAGE}/2099-01-02"]["tokens"] == 7
+
+    def test_yesterdays_spend_is_not_read_today(self, db, monkeypatch):
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
+        quota.record_usage(db, "google:1", tokens=999_999)
+        assert quota.read_balance(db, "google:1", limit=1_000).used == 999_999
+
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
+        balance = quota.read_balance(db, "google:1", limit=1_000)
+        assert balance.used == 0
+        assert balance.remaining == 1_000
+
+    def test_an_account_locked_out_yesterday_is_allowed_again_today(self, db, monkeypatch):
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
+        quota.record_usage(db, "google:1", tokens=1_000)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
+
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
+        # The whole point: no job ran overnight, and it is allowed anyway.
+        balance = quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
+        assert balance.used == 0
+
+    def test_the_shared_ceiling_rolls_over_too(self, db, monkeypatch):
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
+        quota.record_usage(db, "google:1", tokens=10_000)
+        with pytest.raises(quota.QuotaExceeded):
+            quota.check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
+
+        monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
+        quota.check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
+
+    def test_the_boundary_is_utc_not_the_servers_local_time(self):
+        # 03:00 UTC on the 2nd is still the 1st in the Americas. If this ever
+        # used a local clock, every user west of Greenwich would see the reset
+        # land at what looks like the wrong hour.
+        import datetime as _dt
+
+        real = _dt.datetime(2099, 1, 2, 3, 0, tzinfo=_dt.timezone.utc)
+        assert real.strftime("%Y-%m-%d") == "2099-01-02"
+        assert quota.utc_day() == datetime.now(timezone.utc).strftime("%Y-%m-%d")

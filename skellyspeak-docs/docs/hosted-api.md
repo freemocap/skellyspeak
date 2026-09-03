@@ -135,29 +135,63 @@ substitutions, which would put them in build logs and history.
 
 ## Deploying
 
-```powershell
-gcloud builds submit --config server/cloudbuild.yaml `
-  --substitutions=_PUBLIC_BASE_URL=https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app
+**Nothing here is run by hand.** Every push to `main` that touches `server/`
+builds, deploys and verifies itself through
+[`.github/workflows/deploy-server.yml`](https://github.com/freemocap/skellyspeak/blob/main/.github/workflows/deploy-server.yml).
+The workflow runs the server tests first, submits the Cloud Build job, then
+checks the live service: `/health` must answer, and an unauthenticated
+`/v1/me` must return 401. A 403 there means the service came back private and
+fails the run loudly, because that is a change nobody would otherwise notice
+until a user could not sign in.
+
+To redeploy without a code change — after rotating a secret, say:
+
+```bash
+gh workflow run "Deploy server"
 ```
 
-Three things about that command are not obvious:
+### One-time setup
 
-- **`.gcloudignore` is required.** The build context is the repository root, and
-  `old/` is 17 GB of archived earlier versions. The ignore file narrows the
+Authentication is Workload Identity Federation: GitHub mints a short-lived
+OIDC token per run and Google exchanges it for an access token. **No
+service-account key exists**, so there is no long-lived credential to leak or
+rotate. Run once, ever:
+
+```powershell
+.scriptssetup-gcp-deploy.ps1
+```
+
+It enables the APIs, creates the `github-deployer` service account, grants it
+the three roles a build submission needs, creates the identity pool and OIDC
+provider, and sets the two repository secrets. It is idempotent, so re-running
+it repairs a partial setup rather than duplicating anything.
+
+The security boundary is the provider's attribute condition,
+`assertion.repository == 'freemocap/skellyspeak'`. Without it any repository on
+GitHub could mint a token for this service account.
+
+### Things about this deploy that are not obvious
+
+- **`.gcloudignore` is required.** The build context is the repository root,
+  and `old/` is 17 GB of archived earlier versions. The ignore file narrows the
   upload to `server/` — nine files.
 - **`dynamic_substitutions: true`** is set in `cloudbuild.yaml`. Substitutions
   inside other substitutions are expanded automatically only for trigger-based
-  builds; a manual `gcloud builds submit` passes `${PROJECT_ID}` through with
+  builds; a plain `gcloud builds submit` passes `${PROJECT_ID}` through with
   the braces intact and the build fails on an invalid image name.
 - **`--allow-unauthenticated` does not work from Cloud Build.** Its service
   account cannot set IAM policy, so the deploy *warns* and reports success
-  while leaving the service private. The binding is applied once, directly,
-  and persists across deploys:
+  while leaving the service private. The binding is applied once, directly, and
+  persists across deploys — and the workflow's 401 check is what catches it if
+  it ever stops holding:
 
   ```powershell
   gcloud run services add-iam-policy-binding skellyspeak-api `
     --region=us-central1 --member=allUsers --role=roles/run.invoker
   ```
+- **Secrets are never build substitutions.** They are mounted from Secret
+  Manager at run time, so a build log never carries one.
+
 
 ## What is stored about a person
 

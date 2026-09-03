@@ -1,0 +1,127 @@
+name: Deploy server
+
+# The hosted API deploys itself. Any change to `server/` that lands on main is
+# built and rolled out to Cloud Run, and then checked — there is no step here
+# that a person is expected to run by hand.
+#
+# Authentication is Workload Identity Federation: GitHub mints a short-lived
+# OIDC token that Google exchanges for an access token. No service-account key
+# exists to leak or rotate. The one-time setup is `scripts/setup-gcp-deploy.ps1`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.gcloudignore'
+      - '.github/workflows/deploy-server.yml'
+  # Redeploy without a code change — after rotating a secret, for instance.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Required for Workload Identity Federation. Without it `auth` cannot mint
+  # the OIDC token and fails with a confusing "unable to get credentials".
+  id-token: write
+
+# One deploy at a time, and never cancel one midway: a half-applied Cloud Run
+# rollout is worse than a queued one.
+concurrency:
+  group: deploy-server
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT: skellyspeak-api
+  REGION: us-central1
+  SERVICE: skellyspeak-api
+  # The service's own public address. It is baked into the OAuth redirect the
+  # server builds, so it has to match what Google has registered.
+  PUBLIC_BASE_URL: https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app
+
+jobs:
+  # Deploying a server whose tests fail is how a broken sign-in reaches the
+  # people using it, so this gates the deploy rather than running beside it.
+  test:
+    name: Server tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+
+      - name: Run pytest
+        working-directory: server
+        run: uv run --group dev pytest -q
+
+  deploy:
+    name: Build and deploy to Cloud Run
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # Submitted from the repository root because cloudbuild.yaml addresses
+      # `server/Dockerfile`. `.gcloudignore` is what keeps that from uploading
+      # the whole repository as build context.
+      - name: Build and deploy
+        run: |
+          gcloud builds submit \
+            --project="$GCP_PROJECT" \
+            --config=server/cloudbuild.yaml \
+            --substitutions=_PUBLIC_BASE_URL="$PUBLIC_BASE_URL"
+
+      # A green build is not a working service. Cloud Run can accept a revision
+      # that then fails to start, and `--allow-unauthenticated` silently does
+      # nothing from Cloud Build, so both are checked here rather than
+      # discovered by a user who cannot sign in.
+      - name: Verify the new revision is serving
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS --max-time 20 "$PUBLIC_BASE_URL/health" > /tmp/health.txt; then
+              echo "health: $(cat /tmp/health.txt)"
+              break
+            fi
+            if [ "$attempt" = 5 ]; then
+              echo "::error::$PUBLIC_BASE_URL/health did not respond after the deploy."
+              exit 1
+            fi
+            echo "health check attempt $attempt failed; retrying in 10s"
+            sleep 10
+          done
+
+      - name: Verify the service is still public and still guarded
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$PUBLIC_BASE_URL/v1/me")
+          if [ "$code" = "403" ]; then
+            echo "::error::/v1/me returned 403 — the service is private. Re-apply the"
+            echo "::error::allUsers run.invoker binding; Cloud Build cannot set it."
+            exit 1
+          fi
+          if [ "$code" != "401" ]; then
+            echo "::error::/v1/me returned $code for an unauthenticated request; expected 401."
+            exit 1
+          fi
+          echo "unauthenticated /v1/me correctly returned 401"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Server deployed"
+            echo ""
+            echo "- Service: \`$SERVICE\` in \`$REGION\`"
+            echo "- URL: $PUBLIC_BASE_URL"
+            echo "- Commit: \`${GITHUB_SHA:0:7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

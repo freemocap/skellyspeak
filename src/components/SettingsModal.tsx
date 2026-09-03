@@ -18,6 +18,7 @@ import { displaySecret } from '../lib/secrets'
 import { speechSupported } from '../lib/speech'
 import { invoke } from '@tauri-apps/api/core'
 import { mediaDevices } from '../lib/media'
+import { resetsAtLocalTime } from '../lib/quota'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { canSelfUpdate, checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
@@ -670,7 +671,7 @@ export function SettingsModal({
                 <p className="field-note">
                   {account.used_today.toLocaleString()} of{' '}
                   {account.daily_limit.toLocaleString()} tokens used today · resets at{' '}
-                  {account.resets}
+                  {account.resets} ({resetsAtLocalTime()} your time)
                 </p>
               )}
               <button type="button" className="ghost" onClick={() => void signOut()}>
