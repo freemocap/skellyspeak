@@ -198,6 +198,7 @@ export default function App() {
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
+                  onOpenSettings={() => setSettingsOpen(true)}
                 />
               </PageBoundary>
             </div>
