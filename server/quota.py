@@ -1,19 +1,26 @@
 """Usage accounting, in Firestore.
 
-Two ceilings, and both matter:
+The unit is **money**, not tokens. OpenRouter reports `usage.cost` for every
+request, so this records what was actually charged. A token budget was
+misleading in both directions: the price of a token varies about a hundredfold
+across models, and the model is chosen by the caller.
+
+Money is held as **micro-dollars** (1_000_000 = $1) because Firestore counters
+must be integers to increment atomically, and float dollars accumulate drift.
+Token counts are still recorded, but as *reporting* — they are what make a cost
+figure interpretable, not what the limit is enforced against.
+
+Three ceilings, and all three matter:
 
 * **Per user, per day** — what any one person can spend.
 * **Globally, per day** — what everyone together can spend. Per-user limits do
   nothing about ten thousand sign-ups on launch day, and the bill for that
   lands on us, not them.
+* **How many accounts may exist** — the lever that bounds the other two.
 
 Counters are keyed by UTC date and increment transactionally, because two
 concurrent requests from the same account must not both read the same balance
 and both decide there is room.
-
-There is a third ceiling that is not about tokens at all: **how many accounts
-may exist**. While the real cost of a conversation is still unmeasured, that is
-the lever that actually bounds the bill.
 """
 
 from __future__ import annotations
@@ -27,6 +34,10 @@ USERS = "users"
 USAGE = "usage"
 GLOBAL_USAGE = "global_usage"
 LOGIN_CODES = "login_codes"
+# Sign-in round trips in progress. A constant like every other collection:
+# a bare string literal here is one typo away from writing to, and then
+# reading from, two different collections that both look right.
+AUTH_STATES = "auth_states"
 # Holds the running account total. A counter document, rather than counting
 # the users collection: a count query is neither atomic nor free, and the
 # number it returns is stale the moment two people sign in at once.
@@ -39,6 +50,20 @@ DEVICES = "devices"
 # enough to compare one month against another, short enough that we are not
 # the custodian of an indefinite record of when somebody practises a language.
 USAGE_RETENTION_DAYS = 90
+
+MICROS_PER_DOLLAR = 1_000_000
+
+
+def dollars_to_micros(dollars: float) -> int:
+    """Round UP. A fraction of a micro-dollar that rounded down would be free,
+    and "free" repeated a million times is how a budget leaks."""
+    micros = dollars * MICROS_PER_DOLLAR
+    whole = int(micros)
+    return whole + 1 if micros > whole else whole
+
+
+def micros_to_dollars(micros: int) -> float:
+    return micros / MICROS_PER_DOLLAR
 
 
 def ttl_after(days: int) -> datetime:
@@ -53,8 +78,13 @@ def utc_day() -> str:
 
 @dataclass(frozen=True)
 class Balance:
+    """What has been spent today, in micro-dollars."""
+
     used: int
     limit: int
+    # Reporting only — these do not gate anything.
+    tokens: int = 0
+    requests: int = 0
 
     @property
     def remaining(self) -> int:
@@ -63,6 +93,21 @@ class Balance:
     @property
     def exhausted(self) -> bool:
         return self.used >= self.limit
+
+    @property
+    def micros_per_request(self) -> int:
+        """What a request has cost this user today, on average.
+
+        Used to turn "you have $0.31 left" into "about 40 more replies", which
+        is the only form of that number anyone can act on. Derived from their
+        own usage rather than a guess baked into the code, so it tracks
+        whatever model and conversation length they are actually using.
+        """
+        return self.used // self.requests if self.requests > 0 else 0
+
+    @property
+    def tokens_per_request(self) -> int:
+        return self.tokens // self.requests if self.requests > 0 else 0
 
 
 class QuotaExceeded(Exception):
@@ -73,6 +118,10 @@ class SignupClosed(Exception):
     """The account ceiling is full. The message is shown to the user verbatim."""
 
 
+class SessionRevoked(Exception):
+    """The account behind this session is gone or its sessions were revoked."""
+
+
 def _usage_ref(db: firestore.Client, user_id: str, day: str):
     return db.collection(USERS).document(user_id).collection(USAGE).document(day)
 
@@ -81,11 +130,36 @@ def _global_ref(db: firestore.Client, day: str):
     return db.collection(GLOBAL_USAGE).document(day)
 
 
+def _read(snapshot, field: str) -> int:
+    return int(snapshot.get(field) or 0) if snapshot.exists else 0
+
+
 def read_balance(db: firestore.Client, user_id: str, *, limit: int) -> Balance:
     """What this user has spent today. Absent document means nothing yet."""
     snapshot = _usage_ref(db, user_id, utc_day()).get()
-    used = int(snapshot.get("tokens") or 0) if snapshot.exists else 0
-    return Balance(used=used, limit=limit)
+    return Balance(
+        used=_read(snapshot, "micros"),
+        limit=limit,
+        tokens=_read(snapshot, "tokens"),
+        requests=_read(snapshot, "requests"),
+    )
+
+
+def assert_session_valid(db: firestore.Client, user_id: str, *, token_version: int) -> None:
+    """Refuse a session whose account is gone, or whose sessions were revoked.
+
+    Without this a session token is valid for its full 30 days no matter what
+    happens to the account behind it: deleting a user, or removing them from
+    the tester list, would change nothing until the token expired on its own.
+    Bumping `token_version` on the user document is the per-account revocation
+    lever, and deleting the document is the blunt one.
+    """
+    snapshot = db.collection(USERS).document(user_id).get()
+    if not snapshot.exists:
+        raise SessionRevoked("This account no longer exists. Sign in again.")
+    current = int(snapshot.get("token_version") or 0)
+    if token_version < current:
+        raise SessionRevoked("This session was signed out remotely. Sign in again.")
 
 
 def check_allowed(
@@ -98,8 +172,7 @@ def check_allowed(
     """
     day = utc_day()
 
-    global_snapshot = _global_ref(db, day).get()
-    global_used = int(global_snapshot.get("tokens") or 0) if global_snapshot.exists else 0
+    global_used = _read(_global_ref(db, day).get(), "micros")
     if global_used >= global_limit:
         raise QuotaExceeded(
             "SkellySpeak has reached its shared daily limit. It resets at "
@@ -110,35 +183,79 @@ def check_allowed(
     balance = read_balance(db, user_id, limit=user_limit)
     if balance.exhausted:
         raise QuotaExceeded(
-            f"You have used your {user_limit:,} tokens for today. This resets "
-            "at 00:00 UTC. You can add your own API key in Settings to keep "
-            "going now."
+            f"You have used your ${micros_to_dollars(user_limit):.2f} of free "
+            "usage for today. It resets at 00:00 UTC. You can add your own API "
+            "key in Settings to keep going now."
         )
     return balance
 
 
-def record_usage(db: firestore.Client, user_id: str, *, tokens: int) -> None:
-    """Add spent tokens, and one request, to both counters.
-
-    `Increment` is applied server-side by Firestore, so concurrent requests
-    from the same account cannot lose an update by reading and writing back a
-    stale total.
-
-    The request tally is what makes the token figure interpretable: 40,000
-    tokens across three turns and across thirty are very different things, and
-    only the ratio says which happened.
-    """
-    if tokens < 0:
-        raise ValueError(f"token usage cannot be negative, got {tokens}")
-    day = utc_day()
+def _apply(db: firestore.Client, user_id: str, *, micros: int, tokens: int, requests: int) -> None:
     entry = {
+        "micros": firestore.Increment(micros),
         "tokens": firestore.Increment(tokens),
-        "requests": firestore.Increment(1),
-        "day": day,
+        "requests": firestore.Increment(requests),
+        "day": utc_day(),
         "ttl": ttl_after(USAGE_RETENTION_DAYS),
     }
+    day = utc_day()
     _usage_ref(db, user_id, day).set(entry, merge=True)
     _global_ref(db, day).set(entry, merge=True)
+
+
+def reserve(db: firestore.Client, user_id: str, *, micros: int) -> None:
+    """Charge an estimate BEFORE the upstream call.
+
+    `check_allowed` reads, and `record_usage` writes only once the answer comes
+    back. Between those two points nothing is holding the money, so twenty
+    concurrent requests all read the same balance, all decide there is room,
+    and all proceed. The account then blows through its limit by however many
+    requests it managed to start at once.
+
+    Reserving closes that window: the estimate lands immediately, so the next
+    check sees it. `settle` corrects it to the real figure afterwards.
+    """
+    if micros < 0:
+        raise ValueError(f"a reservation cannot be negative, got {micros}")
+    _apply(db, user_id, micros=micros, tokens=0, requests=1)
+
+
+def settle(
+    db: firestore.Client,
+    user_id: str,
+    *,
+    reserved_micros: int,
+    actual_micros: int,
+    tokens: int,
+) -> None:
+    """Replace a reservation with what the request actually cost.
+
+    The correction is signed: an over-estimate refunds, an under-estimate
+    charges the difference. The request itself was already counted by
+    `reserve`, so nothing is added to the tally here.
+    """
+    if actual_micros < 0:
+        raise ValueError(f"usage cannot be negative, got {actual_micros}")
+    if tokens < 0:
+        raise ValueError(f"token usage cannot be negative, got {tokens}")
+    _apply(
+        db,
+        user_id,
+        micros=actual_micros - reserved_micros,
+        tokens=tokens,
+        requests=0,
+    )
+
+
+def record_usage(
+    db: firestore.Client, user_id: str, *, micros: int, tokens: int = 0
+) -> None:
+    """Charge a request that was never reserved, counting it as one request."""
+    if micros < 0:
+        raise ValueError(f"usage cannot be negative, got {micros}")
+    if tokens < 0:
+        raise ValueError(f"token usage cannot be negative, got {tokens}")
+    _apply(db, user_id, micros=micros, tokens=tokens, requests=1)
 
 
 def record_device(
@@ -175,8 +292,11 @@ def record_device(
 
 def upsert_user(
     db: firestore.Client, *, user_id: str, email: str, name: str, max_users: int
-) -> None:
+) -> int:
     """Record who signed in, refusing new accounts past the ceiling.
+
+    Returns the account's current `token_version`, which is stamped into the
+    session token so revocation can invalidate it later.
 
     Transactional, because the check and the increment must be one step: two
     people signing in at the same instant must not both read "5 accounts" and
@@ -188,9 +308,10 @@ def upsert_user(
     """
     user_ref = db.collection(USERS).document(user_id)
     counter_ref = db.collection(META).document(SIGNUPS)
+    version = 0
 
     @firestore.transactional
-    def apply(transaction: firestore.Transaction) -> None:
+    def apply(transaction: firestore.Transaction) -> int:
         # Every read must precede every write inside a transaction.
         existing = user_ref.get(transaction=transaction)
         counter = counter_ref.get(transaction=transaction)
@@ -202,7 +323,7 @@ def upsert_user(
         }
         if existing.exists:
             transaction.set(user_ref, profile, merge=True)
-            return
+            return int(existing.get("token_version") or 0)
 
         count = int((counter.to_dict() or {}).get("count") or 0)
         if count >= max_users:
@@ -212,8 +333,12 @@ def upsert_user(
                 "key, or your own AI server — both are in Settings."
             )
         transaction.set(
-            user_ref, {**profile, "created_at": firestore.SERVER_TIMESTAMP}, merge=True
+            user_ref,
+            {**profile, "created_at": firestore.SERVER_TIMESTAMP, "token_version": 0},
+            merge=True,
         )
         transaction.set(counter_ref, {"count": count + 1}, merge=True)
+        return 0
 
-    apply(db.transaction())
+    version = apply(db.transaction())
+    return int(version or 0)

@@ -24,6 +24,8 @@ serde_json = "1"
 tauri = { version = "2", features = [] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "time", "sync"] }
 uuid = { version = "1.26.0", features = ["v4"] }
+sha2 = "0.11.0"
+getrandom = "0.4.3"
 
 # The updater is desktop-only: Tauri has no updater for Android or iOS, where
 # app updates come from the store or a sideloaded package instead.

@@ -49,7 +49,7 @@ class TestSessionTokens:
 
     def test_round_trips_the_user_id(self):
         token = auth.issue_session_token(user_id="google:123", signing_key=self.KEY)
-        assert auth.read_session_token(token, signing_key=self.KEY) == "google:123"
+        assert auth.read_session_token(token, signing_key=self.KEY) == ("google:123", 0)
 
     def test_rejects_a_token_signed_with_another_key(self):
         token = auth.issue_session_token(user_id="google:123", signing_key="a-different-key-also-long-enough-for-hs256-abcdef")
@@ -126,3 +126,94 @@ class TestRedirectAssembly:
     def test_an_absent_app_state_adds_no_parameter(self):
         url = self.build("skellyspeak://auth", "", "real-code")
         assert url == "skellyspeak://auth?code=real-code"
+
+
+class TestPKCE:
+    """The redirect carrying the login code is not a private channel.
+
+    On Android any app may register `skellyspeak://`, so an app that does can
+    receive the code. PKCE (RFC 7636) is what stops that code being worth
+    anything without the verifier, which never leaves the device that made it.
+    RFC 8252 §8.1 requires this for native apps.
+    """
+
+    def test_the_matching_verifier_is_accepted(self):
+        verifier = auth.new_code_verifier()
+        challenge = auth.s256_challenge(verifier)
+        auth.verify_code_verifier(verifier, challenge=challenge)  # no raise
+
+    def test_an_intercepted_code_is_useless_without_the_verifier(self):
+        # The attacker has the challenge (it went over the wire) and the code,
+        # and still cannot complete the exchange.
+        challenge = auth.s256_challenge(auth.new_code_verifier())
+        with pytest.raises(auth.AuthError):
+            auth.verify_code_verifier(auth.new_code_verifier(), challenge=challenge)
+
+    def test_the_challenge_is_not_the_verifier(self):
+        # Sending the challenge back as if it were the verifier must fail, or
+        # PKCE degrades to "echo the value you were given".
+        verifier = auth.new_code_verifier()
+        challenge = auth.s256_challenge(verifier)
+        with pytest.raises(auth.AuthError):
+            auth.verify_code_verifier(challenge, challenge=challenge)
+
+    def test_the_challenge_is_base64url_sha256_with_no_padding(self):
+        # RFC 7636 §4.2. Padding or standard base64 would not interoperate.
+        challenge = auth.s256_challenge("a" * 43)
+        assert "=" not in challenge
+        assert "+" not in challenge and "/" not in challenge
+        assert len(challenge) == 43
+
+    def test_a_known_vector_matches_the_rfc(self):
+        # RFC 7636 Appendix B.
+        verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+        assert auth.s256_challenge(verifier) == "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+
+    def test_only_s256_is_accepted(self):
+        challenge = auth.s256_challenge(auth.new_code_verifier())
+        auth.validate_challenge(challenge, "S256")  # no raise
+        # "plain" offers no protection against an attacker who can see the
+        # challenge, which is exactly the attacker this defends against.
+        with pytest.raises(auth.AuthError):
+            auth.validate_challenge(challenge, "plain")
+
+    def test_a_malformed_challenge_is_refused(self):
+        for bad in ["", "short", "!" * 43, "A" * 42, "A" * 44]:
+            with pytest.raises(auth.AuthError):
+                auth.validate_challenge(bad, "S256")
+
+    def test_a_verifier_outside_the_rfc_length_is_refused(self):
+        challenge = auth.s256_challenge("x" * 43)
+        for bad in ["x" * 42, "x" * 129, "", "has spaces in it" + "x" * 30]:
+            with pytest.raises(auth.AuthError):
+                auth.verify_code_verifier(bad, challenge=challenge)
+
+    def test_a_generated_verifier_satisfies_the_rfc_length(self):
+        for _ in range(20):
+            assert 43 <= len(auth.new_code_verifier()) <= 128
+
+
+class TestSessionRevocationClaim:
+    def test_the_token_carries_the_account_version(self):
+        token = auth.issue_session_token(
+            user_id="google:1", signing_key="k" * 32, token_version=7
+        )
+        assert auth.read_session_token(token, signing_key="k" * 32) == ("google:1", 7)
+
+    def test_a_token_without_a_version_reads_as_zero(self):
+        # Tokens minted before revocation existed carry no `tv`. They must read
+        # as version 0 — the version every account starts at — not crash.
+        import jwt as _jwt
+        import time as _time
+
+        legacy = _jwt.encode(
+            {
+                "sub": "google:1",
+                "iat": int(_time.time()),
+                "exp": int(_time.time()) + 60,
+                "iss": "skellyspeak-api",
+            },
+            "k" * 32,
+            algorithm="HS256",
+        )
+        assert auth.read_session_token(legacy, signing_key="k" * 32) == ("google:1", 0)

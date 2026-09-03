@@ -668,11 +668,20 @@ export function SettingsModal({
                 Signed in as <strong>{settings.hosted_email}</strong>
               </p>
               {account && (
-                <p className="field-note">
-                  {account.used_today.toLocaleString()} of{' '}
-                  {account.daily_limit.toLocaleString()} tokens used today · resets at{' '}
-                  {account.resets} ({resetsAtLocalTime()} your time)
-                </p>
+                <>
+                  <p className="field-note">
+                    ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} used
+                    today · resets at {account.resets} ({resetsAtLocalTime()} your time)
+                  </p>
+                  {/* The dollar figure is the truth, but nobody plans an
+                      afternoon in fractions of a cent. The estimate comes from
+                      this account's own average cost per turn so far. */}
+                  <p className="field-note">
+                    {account.requests_today > 0
+                      ? `About ${account.estimated_turns_remaining.toLocaleString()} more replies (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
+                      : 'No usage yet today'}
+                  </p>
+                </>
               )}
               <button type="button" className="ghost" onClick={() => void signOut()}>
                 Sign out

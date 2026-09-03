@@ -83,12 +83,20 @@ export interface StoredTurn {
 
 /// Identity and remaining allowance on the hosted service. Mirrors
 /// `GET /v1/me` and the `Account` struct in `hosted.rs`.
+/// Mirrors `GET /v1/me`. The allowance is money — the service meters what the
+/// provider actually charged, because a token's price varies about a
+/// hundredfold across models. Tokens and turns are ESTIMATES derived from this
+/// account's own usage, for readability, and gate nothing.
 export interface HostedAccount {
   email: string
   name: string
-  used_today: number
-  daily_limit: number
-  remaining: number
+  used_usd: number
+  limit_usd: number
+  remaining_usd: number
+  tokens_today: number
+  requests_today: number
+  estimated_turns_remaining: number
+  estimated_tokens_remaining: number
   resets: string
 }
 

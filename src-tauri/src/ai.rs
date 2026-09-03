@@ -380,11 +380,15 @@ impl Provider {
         }
     }
 
-    /// `run` gets time-to-first-token and, when the provider volunteers a
-    /// final usage chunk, token counts. We do NOT request usage via
-    /// `stream_options` — with `require_parameters: true` an unsupported
-    /// option would change provider routing, and a working reply path is
-    /// not worth a token count.
+    /// `run` gets time-to-first-token plus the token counts and cost from the
+    /// final usage chunk.
+    ///
+    /// Nothing has to ask for that chunk. OpenRouter returns full usage —
+    /// `total_tokens` and the authoritative `usage.cost` — on every response,
+    /// in the last SSE message for a stream; `stream_options.include_usage`
+    /// and `usage.include` are deprecated and have no effect. So a stream that
+    /// finishes WITHOUT usage means the upstream contract changed, and the
+    /// hosted service treats that as an error rather than a free request.
     async fn consume_stream(
         response: reqwest::Response,
         on_delta: &mut (dyn FnMut(&str) + Send),
