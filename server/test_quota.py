@@ -30,12 +30,19 @@ class FakeSnapshot:
         return dict(self._data) if self._data is not None else None
 
     def get(self, field: str):
-        """Read one field, as a real DocumentSnapshot does.
+        """Read one field, exactly as a real DocumentSnapshot does.
 
-        Its absence meant the read path -- read_balance and check_allowed --
-        could not be tested at all, so the daily rollover went unverified.
+        Firestore RAISES KeyError for a field the document does not carry; it
+        does not return None. A fake that returned None instead let production
+        code call `snapshot.get(...)` on fields added after the documents were
+        written -- token_version, daily_limit_micros, micros -- and every such
+        read 500'd against real data while the tests stayed green.
         """
-        return None if self._data is None else self._data.get(field)
+        if self._data is None:
+            raise KeyError(f"'{field}' is not contained in the data")
+        if field not in self._data:
+            raise KeyError(f"'{field}' is not contained in the data")
+        return self._data[field]
 
 
 class FakeDocRef:
@@ -544,3 +551,48 @@ class TestSignupVersion:
             )
             == 5
         ), "signing in again must not reset the revocation counter"
+
+
+class TestDocumentsWrittenBeforeTheFieldsExisted:
+    """Every collection here gained fields after documents already existed.
+
+    Firestore raises KeyError for a field a document does not carry, so reading
+    one that predates its own introduction is the case that broke production
+    while the suite stayed green: the first account has no `token_version`, and
+    every usage row from before the switch to money has no `micros`.
+    """
+
+    def test_an_account_without_a_token_version_still_loads(self, db):
+        # Exactly the shape of the oldest account: no token_version at all.
+        db.store["users/google:old"] = {"email": "a@b.c", "name": "A"}
+        who = quota.load_principal(
+            db, "google:old", token_version=0, default_limit=500_000
+        )
+        assert who.user_id == "google:old"
+        assert who.daily_limit == 500_000
+        assert who.overridden is False
+
+    def test_an_account_without_a_custom_limit_still_loads(self, db):
+        db.store["users/google:old"] = {"email": "a@b.c", "token_version": 0}
+        assert (
+            quota.load_principal(
+                db, "google:old", token_version=0, default_limit=7
+            ).daily_limit
+            == 7
+        )
+
+    def test_a_usage_row_from_before_the_switch_to_money_reads_as_zero_spend(self, db):
+        # Tokens were recorded, cost was not. It must read as no spend rather
+        # than raising -- these rows are still inside the 90-day window.
+        db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"] = {
+            "tokens": 505_454,
+            "requests": 450,
+        }
+        balance = quota.read_balance(db, "google:1", limit=500_000)
+        assert balance.used == 0
+        assert balance.tokens == 505_454
+        assert balance.requests == 450
+
+    def test_an_entirely_absent_usage_row_reads_as_nothing(self, db):
+        balance = quota.read_balance(db, "google:nobody", limit=500_000)
+        assert balance.used == 0 and balance.tokens == 0 and balance.requests == 0
