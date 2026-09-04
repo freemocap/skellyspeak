@@ -35,14 +35,43 @@ to gently recast, what not to re-teach.
 ## The steer row (the core UX primitive)
 
 Two controls above the composer, persisted in `localStorage`
-(`skellyspeak_level`, `skellyspeak_topic`), defined in `hooks/useSteering.ts`:
+(`skellyspeak_level`, `skellyspeak_topic`, `skellyspeak_persona`), defined in
+`hooks/useSteering.ts`. All three live inside the one collapsible panel above
+the composer, together with the reading and voice toggles — collapsed, its
+header still names the level and topic, because a setting that steers every
+reply must never be both hidden and unstated:
 
 | Control | Values | What it does |
 |---|---|---|
-| **Level** | Absolute zero (PRE-A1) · Beginner (A2) · Intermediate (B1) · Advanced (C1) | Maps to the CEFR string injected into **every** prompt (`commands/guided/mod.rs::guided_turn`). PRE-A1 additionally switches `persona_block` into true-beginner survival mode. |
-| **Topic** | 16 presets + free text + shuffle | Appended to the reply/mechanics/scaffolds directives as `TOPIC STEERING`, and surfaced to the coach. |
+| **Level** | Absolute zero (PRE-A1) · Beginner (A2) · Intermediate (B1) · Advanced (C1) | Maps to the CEFR string injected into **every** prompt (`commands/guided/mod.rs::guided_turn`). PRE-A1 additionally switches `prompts::partner::learner_block` into true-beginner survival mode. |
+| **Topic** | 16 presets + free text + shuffle | Its **own section of the reply prompt** (`prompts::partner::topic_section`), above the private staging notes and phrased as a requirement rather than a hint. Mechanics, scaffolds and the coach still receive it as a `TOPIC STEERING` directive, because for them it genuinely is one. |
+| **Persona** | Surprise me + 8 built-ins + anything the learner writes, served from the core by `list_personas` | Which person the learner is talking to (`personas.rs`). *Surprise me* is resolved from the **chat id**, so the partner is one consistent person for a whole conversation and somebody else in the next — custom personas are in that draw too. Changing it starts a new conversation, because the person you are mid-sentence with cannot become somebody else; the old one is archived, not lost. The ⚙ beside the picker opens the **persona panel**. |
 
-Changing either one fires a **steering turn**: the partner acknowledges the
+#### The persona panel
+
+`components/PersonaModal.tsx`, opened from the ⚙ beside the picker. The left
+pane lists every character; the right shows the one selected, including **the
+exact description sent to the model**, because that text is the whole
+difference between a conversation and an interview and reading a paraphrase of
+it would be worth nothing.
+
+Built-ins are readable but never editable — *Duplicate & edit* forks one into
+an unsaved copy — so there is always a working set to get back to. Custom
+personas live in `<config>/personas.json` and survive restarts; a file that
+cannot be read is moved to `personas.json.bad` and **reported**, never quietly
+replaced.
+
+The core validates every write (`personas::validate`), not just the editor:
+`personas.json` is a file a person can open. A description under 60 characters
+is refused with the reason — vague adjectives are exactly what produced the
+bland partner this replaces. The cap is 1200, because the sketch is sent on
+**every turn**.
+
+Deleting a persona a conversation is still steered to is safe:
+`personas::resolve` treats an id it cannot find as "pick someone", so a chat
+can never be left with no partner.
+
+Changing the level or topic fires a **steering turn**: the partner acknowledges the
 new setting and re-opens the conversation with a fitting question, and the
 scaffolds are regenerated (`generate_scaffolds`). The greeting is itself a
 steered message, so the first turn already respects level and topic.

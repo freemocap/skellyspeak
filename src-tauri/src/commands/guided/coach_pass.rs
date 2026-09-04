@@ -37,7 +37,7 @@ pub(super) struct CoachPass {
 
 /// The exchange leading UP TO the message under review.
 ///
-/// It deliberately stops short of that message. `prompts::coach_user_message`
+/// It deliberately stops short of that message. `prompts::coach::analysis_turn`
 /// presents it separately, under "LEARNER'S LATEST MESSAGE (analyze this)", so
 /// appending it here as well put the same sentence twice in a row in one
 /// prompt. Models answered the duplication instead of the message — remarking
@@ -83,8 +83,8 @@ pub(super) fn spawn(pass: CoachPass) {
             .clone();
 
         let messages = vec![
-            json!({"role": "system", "content": prompts::coach_system_prompt(&tln, &native)}),
-            json!({"role": "user", "content": prompts::coach_user_message(
+            json!({"role": "system", "content": prompts::coach::analysis_prompt(&tln, &native)}),
+            json!({"role": "user", "content": prompts::coach::analysis_turn(
                 &transcript.join("\n"),
                 &message,
                 &level_notes,

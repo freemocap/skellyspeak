@@ -53,8 +53,8 @@ teaches the industry's sloppiest habit, and this vocabulary is curriculum.
 
 | | Instructions | Session / memory | Tools | Handoffs |
 |---|---|---|---|---|
-| **Chat** | `guided_reply_prompt` | conversation history | — | — |
-| **Coach** | `coach_system_prompt` | `coach.json`, `plan.json`, `profile.json` | — | — |
+| **Chat** | `prompts::partner::reply_prompt` | conversation history | — | — |
+| **Coach** | `prompts::coach::analysis_prompt` | `coach.json`, `plan.json`, `profile.json` | — | — |
 | the 9 tools | ✅ | — | — | — |
 
 Neither agent has tools or handoffs *yet*, so both are strictly "agent-shaped"
@@ -261,7 +261,7 @@ modal, which is why they describe events rather than machinery.
 
 ### PromptRecord — provenance, not a string
 
-`prompts.rs` composes each prompt by `format!`-ing shared blocks together.
+`prompts/` composes each prompt by `format!`-ing shared blocks together.
 Today only the final string survives. Instead, a prompt is recorded as its
 **ordered, named blocks**:
 
@@ -269,11 +269,12 @@ Today only the final string survives. Instead, a prompt is recorded as its
 PromptRecord {
   agent: "partner.reply",
   blocks: [
-    { id: "persona",          source: "prompts.rs::persona_block",     text, overridden: false },
-    { id: "mandatory_rules",  source: "prompts.rs::mandatory_rules",   text, overridden: false },
-    { id: "always_respond",   source: "prompts.rs::always_respond_rule", text, overridden: false },
-    { id: "no_emoji",         source: "prompts.rs::no_emoji_rule",     text, overridden: false },
-    { id: "directives",       source: "observer::directives_block",    text, overridden: false },
+    { id: "character",        source: "prompts::partner::character_block", text, overridden: false },
+    { id: "learner",          source: "prompts::partner::learner_block",   text, overridden: false },
+    { id: "follow_learner",   source: "prompts::partner::follow_the_learner_rule", text, overridden: false },
+    { id: "always_respond",   source: "prompts::always_respond_rule",      text, overridden: false },
+    { id: "no_emoji",         source: "prompts::no_emoji_rule",            text, overridden: false },
+    { id: "directives",       source: "prompts::observer::directives_block", text, overridden: false },
   ]
 }
 ```

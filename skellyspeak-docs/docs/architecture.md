@@ -30,8 +30,8 @@ flowchart TB
         CMD["commands/ — IPC surface, 32 commands in 12 modules<br/>guided · coach · conversations · app_settings · hosted_auth<br/>stories · scaffolds · insight · tts · stt · keys · dev"]
         STATE["lib.rs — AppState: settings · plan · profile ·<br/>recent_mechanics · observer_running · coach_thread"]
         AI["ai.rs — Provider: SSE streaming + structured_validated ladder"]
-        OBS["observer.rs — TeachingPlan + Profile · observer pass · directives_block"]
-        SUP["prompts.rs · languages.rs · settings.rs"]
+        OBS["observer.rs — TeachingPlan + Profile · observer pass"]
+        SUP["prompts/ · languages.rs · settings.rs"]
         CMD --> AI
         CMD --> OBS
         AI --> OBS
@@ -40,7 +40,7 @@ flowchart TB
     end
 
     NET["OpenRouter (chat completions) · Groq Whisper (STT)<br/>or the hosted API, which proxies both"]
-    DISK[("OS config dir — settings.json<br/>conversations/&lt;pair&gt;/{plan,profile,current}.json<br/>conversations/&lt;pair&gt;/chats/&lt;id&gt;/{session,coach}.json")]
+    DISK[("OS config dir — settings.json, personas.json<br/>conversations/&lt;pair&gt;/{plan,profile,current}.json<br/>conversations/&lt;pair&gt;/chats/&lt;id&gt;/{session,coach}.json")]
 
     LIB -->|"invoke() commands"| CMD
     CMD -.->|"Channel GuidedEvent (streamed events)"| LIB
@@ -67,11 +67,11 @@ flowchart TB
 | `src-tauri/src/ai.rs` | OpenAI-compatible client: streaming, schema-constrained structured output, corrective retries, `$defs` inlining |
 | `src-tauri/src/settings.rs` | Settings model, provider resolution, key masking, JSON persistence |
 | `src-tauri/src/conversation.rs` | Where conversations live on disk, one directory per pairing |
-| `src-tauri/src/prompts.rs` | Prompt builders composed from shared blocks |
-| `src-tauri/src/observer.rs` | TeachingPlan/Profile documents, observer pass, `directives_block` |
+| `src-tauri/src/prompts/` | **Every string sent to a model**, one module per surface |
+| `src-tauri/src/observer.rs` | TeachingPlan/Profile documents and the observer pass (its words are in `prompts/observer.rs`) |
 | `src-tauri/src/hosted.rs` | Sign-in to the hosted service: system browser, loopback and deep link |
 | `src-tauri/src/bench.rs` | `#[ignore]`d model-bench harness (live provider calls) |
-| `src-tauri/src/languages.rs` | Language registry (en-US, fr-FR, es-ES, ar) + dialects + overlays |
+| `src-tauri/src/languages.rs` | Language registry (en-US, fr-FR, es-ES, ar) + dialects; overlay text is in `prompts/overlays.rs` |
 | `src-tauri/src/lib.rs` | Bootstrap, `AppState`, command registration, logging |
 | `src/pages/GuidedPage.tsx` | The main surface: composition and layout |
 | &nbsp;&nbsp;`pages/guided/useConversation.ts` | Which conversation is on screen, and everything that changes it |
@@ -105,6 +105,9 @@ Fifteen commands, registered in `lib.rs::run()`:
 | `take_startup_faults` | → `string[]` | Drains problems recorded before the webview existed, so a startup failure reaches the screen rather than a log file |
 | `validate_key` | `provider, key` → `KeyStatus` | Live provider check; resolves a masked value against the stored key server-side |
 | `get_languages` | → `LanguageInfo[]` | The language registry verbatim from `languages.rs`. Fetched once before first render (`main.tsx`); the webview keeps **no** language table of its own |
+| `list_personas` | → `{ personas, faults }` | Built-ins plus the learner's own, from `personas.rs`. The webview keeps **no** copy: the reply prompt is built from these. Faults travel with the data — an unreadable `personas.json` shows up as "my characters are gone", and the reason is owed |
+| `save_persona` | `id, label, sketch` → `Persona` | `id: ''` creates. Validates before anything reaches a prompt, and **refuses to touch a built-in** — the panel offers *Duplicate & edit* instead |
+| `delete_persona` | `id` | Custom only. A conversation still steered to it falls back to `surprise` on its next turn |
 | `get_diagnostics` | → `[(name, count)]` | The four `ai.rs` retry counters, for the logs overlay header |
 | `guided_turn` | `message, history, greeting, steering?, level?, topic?, on_event: Channel<GuidedEvent>` | Returns the reply string once pass 1 finishes; analysis, coach and observer arrive via the channel |
 | `generate_scaffolds` | `ScaffoldRequest` → `ScaffoldsOut` | Standalone scaffold regeneration after a steering change |
@@ -178,7 +181,7 @@ sequenceDiagram
     participant O as Observer
 
     FE->>C: message, history(≤30), greeting, steering?, level?, topic?, channel
-    C->>R: stream chat (temp 0.6, max 600 tok, reasoning OFF)
+    C->>R: stream chat (temp 0.95, max 600 tok, reasoning OFF)
     R-->>FE: reply_delta ×n
     R-->>C: full reply
     C->>C: sanitize_reply (strip fences / leaked notes)
@@ -217,14 +220,21 @@ Key properties:
 - **Anti-repetition.** `recent_mechanics` (ring buffer, last 20 card titles)
   plus the observer's `taught_ledger` are rendered into an "ALREADY TAUGHT —
   do NOT re-teach" block injected into the reply, mechanics, and scaffolds
-  prompts via `observer::directives_block`.
+  prompts via `prompts::observer::directives_block`.
 
 ## The three agent roles
 
 | Role | Model default | Reasoning | Temp | max_tokens | Output |
 |---|---|---|---|---|---|
-| Reply worker | `google/gemini-2.5-flash` | disabled (per-family dialect: `enabled:false`, or `effort:minimal` on OpenAI) | 0.6 | 600 | plain text, streamed |
+| Reply worker | `google/gemini-2.5-flash` | disabled (per-family dialect: `enabled:false`, or `effort:minimal` on OpenAI) | 0.95 (`REPLY_TEMPERATURE`) | 600 | plain text, streamed |
 | Analysis workers ×5 | same worker model | disabled | 0.1–0.6 | 6000 | schema-constrained JSON |
+
+The reply is the only call in the app where the *least likely* wording is
+usually the better one, and it is the only one turned up. At 0.6 the partner
+reliably reached for the safest sentence available, which across a
+conversation reads as a person with nothing to say. Every analysis pass stays
+low on purpose: tokenization, translation and the coach's corrections all want
+the boring answer.
 | Coach | same worker model | disabled | — | 6000 | schema-constrained JSON (`CoachFeedback`) |
 | Observer | `z-ai/glm-5.3-flash` | **enabled** (the whole point) | 0.4 | 8000 | schema-constrained JSON |
 
@@ -245,24 +255,132 @@ NEVER REPEAT YOURSELF rule in the reply prompt.
 
 ### Prompt composition
 
-`prompts.rs` builds every prompt from shared blocks so the rules have one
-source of truth:
+**Every string this app sends to a model lives under `src-tauri/src/prompts/`.**
+That is the whole rule. A prompt is content, not logic: it is edited far more
+often than the code around it, by someone reading for *voice* rather than for
+control flow, and it belongs somewhere you can read it all at once. Before
+this, prompt text was inlined at its call site across a dozen command modules,
+and tuning the partner's personality meant crawling the codebase to find the
+four places that contradicted each other — including a benchmark measuring
+prompts that had quietly drifted from production.
 
-- `persona_block` — role, target language, CEFR, native language.
-- `mandatory_rules` — scope lock (language practice only), content policy,
-  persona lock. "These override everything else."
-- `always_respond_rule` — always reply in the target language.
-- `no_emoji_rule` — TTS-forward: no pictographs ever.
-- Language `overlay()` — per-variant guidance (e.g. Peninsular Spanish +
-  vosotros, European Portuguese clitic placement, simplified characters +
-  pinyin-as-support for zh-CN).
-- `directives_block` — the observer's advisory plan (focus, recast queue with
-  budget, vocab recycle, avoid-list, interests, energy read, taught ledger).
+| Module | What it says |
+|---|---|
+| `partner.rs` | The conversation partner: who they are, how they talk, the eight built-in character sketches, and the openers |
+| `coach.rs` | The private coach — per-message analysis and the side-thread |
+| `analysis.rs` | Tokenizing, translating, grammar cards, scaffolds, word insight |
+| `observer.rs` | The teaching coordinator, plus `directives_block` |
+| `story.rs` | Reading practice, with `LEVEL_BANDS` for word-count and grammar bands |
+| `overlays.rs` | Per-language guidance (Peninsular Spanish + vosotros, unvocalized Levantine Arabic, …) |
+| `speech.rs` | Making a conversational audio model behave like a TTS engine |
+| `repair.rs` | What we say to a model that returned unusable JSON |
+| `mod.rs` | Shared blocks: `always_respond_rule`, `no_information_rule`, `no_emoji_rule`, `resolve_cefr` |
 
-Per-surface builders: `guided_reply_prompt`, `guided_tokens_prompt`,
-`guided_translation_prompt`, `guided_mechanics_prompt`,
-`guided_scaffolds_prompt`, `story_prompt` (+ `LEVEL_BANDS` for word-count and
-grammar bands, `resolve_cefr` mapping beginner/intermediate/advanced → A2/B1/C1).
+The command modules pass data in and nothing else. `prompts::tests::no_stray_prompts`
+walks the source and fails the build if a message's `"content"` is filled by a
+literal or an inline `format!` anywhere outside this directory — and
+`the_stray_prompt_guard_can_actually_fail` proves that check is not passing
+vacuously.
+
+Two modules keep their *facts* elsewhere and their *words* here, each with a
+test making the split safe:
+
+- `personas.rs` owns persona storage, ids and the draw; `partner::BUILTIN_PERSONAS`
+  owns the eight sketches.
+- `languages.rs` owns codes, names, script direction and dialect ids;
+  `overlays::for_code` owns the guidance. `every_language_has_an_overlay` fails
+  the build if a language is added without one.
+
+#### The teaching this is modelled on
+
+Both coach prompts (`coach.rs`) name their pedagogical lineage out loud —
+**Freire's *Pedagogy of the Oppressed*, hooks' *Teaching to Transgress*,
+Illich's *Tools for Conviviality*** — and that is a technique, not decoration.
+Adjectives do nothing to a model: "be warm and encouraging" produces the
+saccharine assistant voice everyone can already imitate. A *named book* is a
+whole posture, and pointing at one moves the register further in a clause than
+a paragraph of instructions does. Same reason the personas say "you smell of
+flour until the afternoon" instead of "cheerful and hard-working".
+
+What is borrowed, concretely: **Freire** — the learner is not an empty account
+to deposit grammar into. **hooks** — the material follows the student's own
+excitement, and the teacher is a person in the room rather than an authority
+performing one. **Illich** — a convivial tool serves the purpose its *user*
+brings to it, not the one its designer had in mind: this is a tool for talking
+to somebody, not a curriculum with a chat window attached.
+
+All three point the same way, and it is the same direction the partner's
+follow-rule points: **the plan, the topic and the level are conveniences for
+the app, never obligations for the person using it.** The observer writes for
+a person rather than a syllabus, and the coach drops any of it the moment it
+stops serving the learner.
+
+Two supporting rules come from the same place: *talk like a person, not a
+marketing project* (never introduce yourself, no "I'm here to help you on your
+language journey", not saccharine, no cheerleading), and *short unless asked
+for more*.
+
+#### Curiosity markers
+
+The coach wraps terms worth chasing in `[[double brackets]]`. `lib/markdown.tsx`
+renders them as inline buttons; pressing one sends that marker back to the
+coach thread verbatim, and `coach::thread_prompt` defines a bare marker as
+"tell me more about this". So the affordance is real — it opens a rabbit hole
+in the surface built for rabbit holes — and no prompt English is composed in
+TypeScript.
+
+Without an `onTerm` handler the markers render as their own words, never as
+visible brackets: a marker nobody can press should look like ordinary text
+rather than a broken button.
+
+#### The reply prompt, and why its order matters
+
+Built around a *character* rather than a role. "An encouraging and patient
+conversation partner" described a job and produced a job's prose: the same
+polite opener and the same closing question in every conversation, in every
+language.
+
+Sections, in order: `character_block` (who you are, and that the character is
+a starting point rather than a cage) → `learner_block` (who you are talking to,
+plus PRE-A1 survival mode) → `topic_section` → how you talk → how not to be
+boring → the private staging notes → **`follow_the_learner_rule`**.
+
+That last position is load-bearing. **This app does no content moderation.**
+It used to: a scope lock ("nothing unrelated to learning the language") and a
+content policy ("never discuss violent or otherwise inappropriate content"),
+stamped *"these override everything else"*. Between them they refused most of
+history and all of politics — a learner asking to talk about colonialism in
+Hawaii was told it was a sad story and the subject was changed — and because
+they claimed primacy, no amount of loosening the character above them could
+win. The API endpoint moderates properly, once, at the boundary; a second
+amateur filter in a prompt adds no safety and refuses the app's own user.
+
+It then refused a second time with no refusal rule left anywhere in the prompt
+— *"No sé mucho de Hawái"* — which turned out to be four separate mistakes
+wearing the same coat, all now fixed and pinned by tests:
+
+1. **The character read as a knowledge limit.** "You are a real person… you run
+   a hardware shop" plus "you are not an assistant" is enough for a model to
+   decide a shopkeeper would not know Hawaiian colonial history. The character
+   is a *voice*; it never caps what the model knows.
+2. **The rule handed it an excuse.** The follow-the-learner rule ended with "if
+   they ask you something you have no opinion about, say so briefly and ask
+   what they think" — almost word for word the reply the learner got. Written
+   as a valve for genuine blanks, used as a polite way out.
+3. **PRE-A1 read as a subject filter.** "Build every exchange from a tiny
+   survival core" reads as *keep it light*. It governs words, never subjects.
+4. **The observer had written the subject into `avoid`.** The plan on disk
+   genuinely contained "Discussions on complex socio-political topics (e.g.,
+   colonialism)", injected into the reply prompt every turn — the app had
+   taught itself to refuse.
+
+What occupies that slot now is the opposite instruction: **the learner leads,
+follow them anywhere**, plus an explicit ban on pleading ignorance and a line
+neutralising any subject that an older plan already put in `avoid`. It is the only section phrased as overriding what came
+before it, and `only_the_follow_rule_claims_to_override_everything` keeps it
+that way. The coach, the scaffolds and the observer carry the same rule from
+one layer down, so a hard subject cannot be steered away from by a background
+pass instead.
 
 ## Error handling: fail loudly, retry only the transient
 
@@ -285,7 +403,7 @@ error so the cause gets fixed).
   `GuidedTurnResult.errors` and rendered as visible error boxes in the
   breakdown pane — a failed tokenizer never silently pretends everything
   worked.
-- **Corrupt persisted state** (`settings.json`, `plan.json`, `profile.json`)
+- **Corrupt persisted state** (`settings.json`, `personas.json`, `plan.json`, `profile.json`)
   is moved aside to `<name>.bad` with an ERROR log — never silently reset
   (a silent reset would wipe API keys without a word). Failed writes return
   errors instead of being discarded.
@@ -310,7 +428,7 @@ Every AI prompt is addressable by id (`chat.reply`, `chat.tokens`,
 
 **Reality check:** `Settings.prompt_overrides` exists, persists, and
 round-trips — but **nothing reads it yet**. There is no prompt registry in
-`prompts.rs` (the builders are plain functions, not id-addressed), and no
+`prompts/` (the builders are plain functions, not id-addressed), and no
 Settings UI section. Both are unbuilt.
 
 The field is not, however, dead weight to delete: it is the configuration
@@ -354,6 +472,7 @@ Edge TTS (unofficial API, grey zone), Piper (offline neural, real machinery).
 | Data | Where | Written by |
 |---|---|---|
 | `settings.json` (keys, models, languages, mic) | `app_config_dir` | `save_settings` |
+| `personas.json` (the learner's own characters) | `app_config_dir` | `save_persona`, `delete_persona` |
 | `plan.json` (TeachingPlan) | `conversations/<pair>/` | observer pass, every success |
 | `profile.json` (Profile) | `conversations/<pair>/` | observer pass, every success |
 | Which chat is open | `conversations/<pair>/current.json` | `open_conversation`, `new_conversation` |

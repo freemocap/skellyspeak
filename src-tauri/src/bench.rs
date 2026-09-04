@@ -40,6 +40,12 @@ fn candidates() -> Vec<String> {
 }
 
 /// The greeting reply that historically triggered repetition loops.
+/// One learner message with a real mistake in it, used wherever a pass
+/// needs something to analyse. A named fixture rather than an inline
+/// literal, so the benchmark measures the prompts the app actually sends
+/// (see `prompts::tests::no_stray_prompts`).
+const SAMPLE_LEARNER_MESSAGE: &str = "Si, me gusta mucho viajar. ¿De dónde te gusta viajar tú?";
+
 const LOOP_BAIT_REPLY: &str = "¡Hola! ¿Qué tal estás hoy?";
 
 fn test_key() -> String {
@@ -90,10 +96,11 @@ async fn model_bench() {
         eprintln!("\n================ {} ================", model);
 
         // 1. Streaming greeting reply (TTFT + total).
-        let sys = prompts::guided_reply_prompt(tln, "A2", native, "");
+        let persona = crate::personas::resolve(None, "bench", &crate::personas::builtins());
+        let sys = prompts::partner::reply_prompt(&persona.sketch, tln, "A2", native, None, "");
         let messages = vec![
             serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": "[Session start] Greet the learner warmly and ask one simple opening question they can answer at their level."}),
+            serde_json::json!({"role": "user", "content": prompts::partner::greeting_turn(None)}),
         ];
         let start = Instant::now();
         let mut ttft: Option<u128> = None;
@@ -124,8 +131,8 @@ async fn model_bench() {
 
         // 2. Tokens — on the loop bait.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::guided_tokens_prompt(tln, native, None)}),
-            serde_json::json!({"role": "user", "content": format!("Tutor reply to tokenize:\n{}", reply_text)}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::tokens_prompt(tln, native, None)}),
+            serde_json::json!({"role": "user", "content": prompts::analysis::tokenize_reply_turn(&reply_text)}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -150,8 +157,8 @@ async fn model_bench() {
 
         // 3. Scaffolds — the wrapper-shape failure case.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::guided_scaffolds_prompt(tln, native, "")}),
-            serde_json::json!({"role": "user", "content": format!("Learner message:\nHola\n\nTutor reply:\n{}", reply_text)}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(tln, native, "")}),
+            serde_json::json!({"role": "user", "content": prompts::analysis::scaffolds_turn("Hola", &reply_text)}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -180,8 +187,8 @@ async fn model_bench() {
 
         // 4. Translation.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::guided_translation_prompt(tln, native)}),
-            serde_json::json!({"role": "user", "content": format!("Tutor reply to translate:\n{}", reply_text)}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::translation_prompt(tln, native)}),
+            serde_json::json!({"role": "user", "content": prompts::analysis::translate_reply_turn(&reply_text)}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -206,8 +213,8 @@ async fn model_bench() {
 
         // 5. Mechanics.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::guided_mechanics_prompt(tln, "A2", native, "")}),
-            serde_json::json!({"role": "user", "content": format!("Learner message (A2 level):\nHola\n\nTutor reply:\n{}", reply_text)}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::mechanics_prompt(tln, "A2", native, "")}),
+            serde_json::json!({"role": "user", "content": prompts::analysis::mechanics_turn("A2", "Hola", &reply_text)}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -231,10 +238,10 @@ async fn model_bench() {
         }
 
         // 6. Story (heaviest single output).
-        let sys = prompts::story_prompt(tln, "A2", native, "beginner", "");
+        let sys = prompts::story::story_prompt(tln, "A2", native, "beginner", "");
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": "Write a new story. Vary the topic."}),
+            serde_json::json!({"role": "user", "content": prompts::story::story_turn()}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -267,11 +274,10 @@ async fn model_bench() {
         }
 
         // 7. Learner tokens — the call that hit the old 6000-token cap.
-        let sys = prompts::learner_tokens_prompt(tln, native, None);
+        let sys = prompts::analysis::learner_tokens_prompt(tln, native, None);
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": "Learner message to analyze:
-Si, me gusta mucho viajar. Quiero ir a la playa con mi familia el proximo verano porque me encanta el mar."}),
+            serde_json::json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(SAMPLE_LEARNER_MESSAGE)}),
         ];
         let start = Instant::now();
         let before = snapshot();
@@ -295,10 +301,10 @@ Si, me gusta mucho viajar. Quiero ir a la playa con mi familia el proximo verano
         }
 
         // 8. Coach feedback — nested array of correction objects.
-        let sys = prompts::coach_system_prompt(tln, native);
+        let sys = prompts::coach::analysis_prompt(tln, native);
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": "Learner wrote: 'Si, me gusta mucho viajar. ¿De dónde te gusta viajar tú?'"}),
+            serde_json::json!({"role": "user", "content": prompts::coach::analysis_turn("", SAMPLE_LEARNER_MESSAGE, "", None)}),
         ];
         let start = Instant::now();
         let before = snapshot();

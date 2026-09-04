@@ -223,11 +223,27 @@ body {
 }
 .scaffold-toggle {
   border: 1px solid var(--paper-line); background: #fff; border-radius: 8px;
-  color: var(--ink-mut); cursor: pointer; font-size: 13px;
+  color: var(--ink-mut); cursor: pointer; font-size: 16px; line-height: 1;
   padding: 3px 12px; line-height: 1.1; flex: none;
   min-width: 44px; min-height: 26px;
 }
 .scaffold-toggle:hover { border-color: var(--amber-deep); color: var(--ink); }
+
+/* Collapsed, the header has to say what is folded away — otherwise the level
+   and topic become invisible settings that steer every reply. */
+.scaffold-block-summary {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em;
+  text-transform: none; color: var(--ink);
+}
+/* The partner picker gets its own line: the label plus a long character name
+   does not fit beside the level and topic on a phone. */
+.persona-row { padding-top: 0; }
+.persona-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-mut); flex: none;
+}
+.steer-select.persona { flex: 1; min-width: 0; max-width: none; }
+
 .scaffold-toggle:hover { color: var(--ink-d); }
 /* Bounded so a long chat and a full suggestion set cannot fight over the
    column: suggestions scroll inside their own box rather than pushing the
@@ -316,7 +332,7 @@ body {
 }
 .break-head .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--steel); }
 .break-head .live { font-family: var(--mono); font-size: 10px; color: var(--faint-d); }
-.break-head .chev { font-size: 12px; color: var(--mut-d); }
+.break-head .chev { font-size: 15px; color: var(--ink-d); }
 .break-head .head-right { display: inline-flex; align-items: baseline; gap: 8px; }
 .break.collapsed { flex: 0 0 auto; min-width: 0; }
 .break.collapsed .break-scroll { display: none; }
@@ -449,6 +465,17 @@ body {
 /* Lightweight Markdown (coach remarks + coach thread) */
 .md-p { margin: 0; }
 .md-p + .md-p { margin-top: 6px; }
+/* A rabbit hole the coach offered. Reads as part of the sentence — an
+   underline and a colour, not a chip — because a paragraph of buttons is a
+   toolbar, and this is meant to be prose you can fall into. */
+.md-term {
+  display: inline; padding: 0; border: none; background: none;
+  font: inherit; color: var(--steel); cursor: pointer;
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+.md-term:hover { color: var(--amber-deep); text-decoration-style: solid; }
+.md-term:focus-visible { outline: 1px solid var(--steel); outline-offset: 2px; }
 .md-list { margin: 4px 0; padding-left: 20px; }
 .md-list li { margin: 2px 0; }
 .md-code {
@@ -563,14 +590,64 @@ body {
 
 /* Logs overlay (floating debug console) — docked beside the topbar gear so
    it never overlaps content on any screen size. */
-.logs-fab {
-  position: fixed; right: 58px; top: calc(7px + env(safe-area-inset-top));
-  z-index: 55; width: 32px; height: 32px; border-radius: 8px;
-  border: 1px solid var(--line2); background: var(--chrome); color: var(--mut-d);
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.04em; cursor: pointer;
+/* "AI" lives in the topbar next to the gear, as an ordinary flex
+   sibling. It used to be position:fixed with its own hardcoded offsets, which
+   is why it never lined up with anything, and 9px of "dev" promised nothing
+   about what was behind it. */
+.inside-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: 1px solid var(--line2); border-radius: 6px;
+  color: var(--mut-d); cursor: pointer; padding: 6px 12px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+  white-space: nowrap;
 }
-.logs-fab:hover { color: var(--ink-d); border-color: var(--steel); }
-.logs-fab.open { color: var(--steel); border-color: var(--steel); }
+.inside-btn:hover { color: var(--ink-d); border-color: var(--steel); }
+.inside-btn.open { color: var(--steel); border-color: var(--steel); }
+
+.inside-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex: none;
+  background: var(--line2);
+}
+.inside-btn:hover .inside-dot { background: var(--steel); }
+
+/* While agents are running, the button says so: an amber ring travelling
+   around the border, plus a lit dot. Motion ONLY while something is actually
+   happening -- an idle animation is decoration, and after a while nobody sees
+   it. `trace:run_started` and `trace:run` are what turn it on and off. */
+.inside-btn.busy {
+  color: var(--amber-deep);
+  border-color: var(--amber);
+  animation: inside-glow 1.6s ease-in-out infinite;
+}
+.inside-btn.busy .inside-dot {
+  background: var(--amber);
+  animation: inside-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes inside-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 179, 87, 0.55); }
+  50% { box-shadow: 0 0 0 4px rgba(230, 179, 87, 0); }
+}
+@keyframes inside-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.72); }
+}
+
+/* Anyone who has asked not to see motion gets the colour change and nothing
+   else -- the state is still legible without it. */
+@media (prefers-reduced-motion: reduce) {
+  .inside-btn.busy,
+  .inside-btn.busy .inside-dot,
+  .mobile-nav-item.busy .mobile-nav-icon { animation: none; }
+}
+
+/* The mobile equivalent: the third swipe surface's tab carries the same
+   signal, because there is no topbar button down there. */
+.mobile-nav-item.busy { color: var(--amber-deep); }
+.mobile-nav-item.busy .mobile-nav-icon {
+  animation: inside-pulse 1.1s ease-in-out infinite;
+  display: inline-block;
+}
 /* A layout participant, NOT an overlay: it is the last flex child of .app,
    so opening it shrinks .content instead of covering the composer. Height
    comes from an inline style set by the resize drag. */
@@ -668,7 +745,7 @@ body {
   color: var(--mut-d);
 }
 .run-head:hover { background: rgba(111, 155, 255, 0.07); }
-.run-caret { color: var(--faint-d); width: 10px; flex: none; }
+.run-caret { color: var(--ink-d); font-size: 14px; width: 14px; flex: none; }
 .run-label { font-weight: 600; min-width: 84px; flex: none; }
 .run-agent { color: var(--faint-d); flex: 1; }
 .run-time { color: var(--ink-d); }
@@ -793,21 +870,21 @@ body {
   padding: 10px 12px 14px; font-family: var(--mono); font-size: 10px;
 }
 .ins-head { display: flex; align-items: baseline; gap: 8px; }
-.ins-head strong { font-size: 12px; }
+.ins-head strong { font-size: 13.5px; }
 .ins-kind {
-  font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--faint-d);
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mut-d);
 }
 .ins-purpose {
-  margin: 6px 0 10px; font-family: var(--sans); font-size: 11.5px;
-  line-height: 1.55; color: var(--mut-d);
+  margin: 6px 0 10px; font-family: var(--sans); font-size: 13px;
+  line-height: 1.6; color: var(--ink-d);
 }
 .ins-purpose.muted { color: var(--faint-d); font-style: italic; }
 .ins-grid {
   display: grid; grid-template-columns: 78px 1fr; gap: 3px 8px;
   align-items: baseline;
 }
-.ins-grid > span { color: var(--faint-d); }
+.ins-grid > span { color: var(--mut-d); }
 .ins-grid code { color: var(--ink-d); word-break: break-all; }
 .ins-outcome.ok { color: var(--mut-d); }
 .ins-outcome.retried_then_ok { color: var(--amber); }
@@ -824,8 +901,8 @@ body {
   text-transform: uppercase;
 }
 .ins-section-head:hover { color: var(--ink-d); }
-.ins-caret { color: var(--faint-d); }
-.ins-len { margin-left: auto; color: var(--faint-d); text-transform: none; letter-spacing: 0; }
+.ins-caret { color: var(--ink-d); font-size: 14px; }
+.ins-len { margin-left: auto; color: var(--mut-d); text-transform: none; letter-spacing: 0; }
 .ins-pre {
   margin: 0 0 8px; padding: 8px; max-height: 300px; overflow: auto;
   background: var(--inset); border: 1px solid var(--line); border-radius: 4px;
@@ -883,8 +960,8 @@ body {
 .gnode:hover { border-color: var(--accent); transform: translateY(-1px); }
 .gnode-label { font-size: 11.5px; font-weight: 600; letter-spacing: 0.01em; }
 .gnode-kind {
-  font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--faint-d);
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mut-d);
 }
 .gnode-stats { font-size: 9.5px; color: var(--mut-d); }
 
@@ -937,23 +1014,27 @@ body {
   font-family: var(--mono); font-size: 9px; color: var(--faint-d);
   display: flex; flex-direction: column; gap: 4px;
 }
-.graph-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.graph-legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 11px; color: var(--mut-d); line-height: 1.7;
+}
+.lg { white-space: nowrap; }
 .lg::before {
   content: ''; display: inline-block; width: 14px; height: 0;
   border-top-width: 2px; margin-right: 5px; vertical-align: middle;
 }
 .lg.hydrate::before { border-top: 2px solid var(--amber-deep); }
-.lg.fan_in::before { border-top: 2px dotted var(--line2); }
+.lg.fan_in::before { border-top: 2px dotted var(--mut-d); }
 .lg.conditional::before { border-top: 2px dashed var(--steel-deep); }
-.lg.background::before { border-top: 2px dotted var(--faint-d); }
+.lg.background::before { border-top: 2px dotted var(--mut-d); }
 
 /* The graph reporting on its own truthfulness. A diagram that cannot tell
    you when it is wrong is a claim, not an observation. */
 .graph-fidelity {
-  flex: none; padding: 5px 14px; font-family: var(--mono); font-size: 9.5px;
-  border-top: 1px solid var(--line); line-height: 1.5;
+  flex: none; padding: 7px 14px; font-family: var(--mono); font-size: 11px;
+  border-top: 1px solid var(--line); line-height: 1.6;
 }
-.graph-fidelity.ok { color: var(--faint-d); }
+.graph-fidelity.ok { color: var(--mut-d); }
 .graph-fidelity.bad { color: #e06c6c; background: rgba(224, 108, 108, 0.08); }
 
 /* Quick toggles: a second VIEW of the Settings record, not a copy of it. */
@@ -979,7 +1060,7 @@ body {
 }
 .coach-thread-head button {
   margin-left: auto; background: none; border: none; color: var(--mut-d);
-  cursor: pointer; font-size: 11px; padding: 0 4px;
+  cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px;
 }
 .coach-thread-head button:hover { color: var(--ink-d); }
 
@@ -1122,6 +1203,64 @@ body {
 .btn.danger { border-color: transparent; color: var(--faint-d); }
 .btn.danger:hover { color: #e06c6c; border-color: #e06c6c; }
 
+/* Persona control panel — the list on the left, one character on the right.
+   Wider than the settings modal because the sketch is the point: it is what
+   gets sent to the model verbatim, so it has to be readable and editable
+   without a scrollbar for anything under a paragraph. */
+.persona-modal { width: min(720px, 100%); }
+.persona-panes { display: flex; gap: 16px; align-items: stretch; }
+.persona-list {
+  flex: 0 0 210px; display: flex; flex-direction: column; gap: 3px;
+  max-height: 46vh; overflow-y: auto; padding-right: 4px;
+}
+.persona-item {
+  display: flex; align-items: center; gap: 6px; text-align: left;
+  border: 1px solid transparent; border-radius: 8px; background: none;
+  color: var(--mut-d); cursor: pointer; padding: 7px 9px; font-size: 12.5px;
+  line-height: 1.3;
+}
+.persona-item:hover { border-color: var(--line); color: var(--ink-hi, #fff); }
+.persona-item.on { background: var(--inset); border-color: var(--steel); color: var(--steel); }
+.persona-item-label { flex: 1; min-width: 0; }
+.persona-item-tag {
+  flex: none; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--faint-d);
+  border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px;
+}
+.persona-item.new { color: var(--steel); margin-top: 4px; }
+.persona-detail { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.persona-detail-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 10px; font-size: 15px;
+}
+.persona-sketch-read {
+  margin: 0; font-size: 13px; line-height: 1.6; color: var(--mut-d);
+  background: var(--inset); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; white-space: pre-wrap;
+}
+.persona-field { display: block; margin-bottom: 12px; }
+.persona-field > span {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--mut-d); margin-bottom: 5px;
+}
+.persona-count { letter-spacing: 0.06em; color: var(--faint-d); }
+.persona-count.bad { color: #e06c6c; }
+.persona-sketch {
+  width: 100%; resize: vertical; min-height: 150px;
+  font-family: inherit; font-size: 13px; line-height: 1.55;
+}
+.persona-hint { margin: 0; font-size: 11.5px; line-height: 1.45; color: var(--faint-d); }
+.persona-error { margin: 8px 0 0; font-size: 12px; line-height: 1.45; color: #e06c6c; }
+.persona-open { font-size: 14px; }
+
+/* On a phone the two panes become one column: the list first, then whoever is
+   selected, both scrolling with the modal rather than inside it. */
+@media (max-width: 620px) {
+  .persona-panes { flex-direction: column; gap: 12px; }
+  .persona-list { flex: none; max-height: 30vh; padding-right: 0; }
+}
+
 /* Mobile mode: the window snapping below the breakpoint IS mobile mode —
    a tabbed single-surface layout (bottom nav switches Chat ⇄ Coach/Analysis)
    instead of one unusable stacked column. */
@@ -1259,3 +1398,42 @@ button, input, select { touch-action: manipulation; }
 .steer-select.topic.unapplied { border-color: var(--amber-deep); }
 .steer-dice:disabled { opacity: 0.4; cursor: default; }
 .steer-dice:disabled:hover { border-color: var(--line2); }
+
+/* ── Pipeline gate ────────────────────────────────────────────────────────
+   Pause and step hold REAL work: the next operation stops before its model
+   call. Styled to look like a control that does something, because it does. */
+.gate-bar {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11px; color: var(--mut-d);
+}
+.gate-bar.paused { background: rgba(230, 179, 87, 0.1); border-bottom-color: var(--amber); }
+.gate-btn {
+  border: 1px solid var(--line2); border-radius: 5px; background: var(--chrome);
+  color: var(--ink-d); cursor: pointer; padding: 4px 10px;
+  font-family: var(--mono); font-size: 11px; line-height: 1.2;
+}
+.gate-btn:hover { border-color: var(--amber-deep); color: var(--ink); }
+.gate-bar.paused .gate-btn { border-color: var(--amber-deep); }
+.gate-state { color: var(--amber-deep); }
+.gate-state b { color: var(--ink-d); }
+
+/* Outside the panel that sets it: a paused pipeline that only announced
+   itself where you paused it is a bug report waiting to happen. */
+.paused-banner {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; background: rgba(230, 179, 87, 0.16);
+  border-bottom: 1px solid var(--amber);
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-d);
+}
+.paused-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--amber-deep);
+  animation: inside-pulse 1.1s ease-in-out infinite;
+}
+.paused-resume {
+  margin-left: auto; flex: none; border: 1px solid var(--amber-deep); border-radius: 5px;
+  background: none; color: var(--amber-deep); cursor: pointer; padding: 3px 12px;
+  font-family: var(--mono); font-size: 11px;
+}
+.paused-resume:hover { background: var(--amber); color: var(--paper, #fff); }
+@media (prefers-reduced-motion: reduce) { .paused-dot { animation: none; } }

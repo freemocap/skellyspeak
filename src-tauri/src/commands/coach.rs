@@ -181,14 +181,10 @@ pub async fn coach_ask(
         (plan.clone(), profile.clone())
     };
 
+    let (plan_json, profile_json) = prompts::observer::documents_json(&plan, &profile);
     let mut messages = vec![json!({
         "role": "system",
-        "content": format!(
-            "{}\n\nCURRENT TEACHING PLAN:\n{}\n\nLEARNER PROFILE:\n{}",
-            prompts::coach_thread_system_prompt(&tln, &native),
-            serde_json::to_string_pretty(&plan).unwrap_or_default(),
-            serde_json::to_string_pretty(&profile).unwrap_or_default(),
-        ),
+        "content": prompts::coach::thread_system(&tln, &native, &plan_json, &profile_json),
     })];
     for m in thread.iter().rev().take(COACH_THREAD_CAP).rev() {
         let role = if m.role == "user" { "user" } else { "assistant" };
@@ -196,7 +192,7 @@ pub async fn coach_ask(
     }
     messages.push(json!({
         "role": "user",
-        "content": format!("PRIMARY CONVERSATION (recent lines):\n{context}\n\nYOUR MESSAGE:\n{question}")
+        "content": prompts::coach::thread_turn(&context, &question)
     }));
 
     let provider = stored.chat_provider(&stored.openrouter_model)?;

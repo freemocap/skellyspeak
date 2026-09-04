@@ -78,7 +78,7 @@ pub async fn generate_story(
     let native = native_display(&settings.native_language);
     let cefr = prompts::resolve_cefr(&level);
 
-    let system = prompts::story_prompt(
+    let system = prompts::story::story_prompt(
         &tln,
         cefr,
         &native,
@@ -87,10 +87,7 @@ pub async fn generate_story(
     );
     let messages = vec![
         json!({"role": "system", "content": system}),
-        json!({
-            "role": "user",
-            "content": "Write a new story. Vary the topic — do not repeat common everyday scenarios you have used recently."
-        }),
+        json!({"role": "user", "content": prompts::story::story_turn()}),
     ];
 
     let provider = settings.chat_provider(&settings.openrouter_model)?;

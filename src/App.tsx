@@ -6,7 +6,10 @@ import StoriesPage from './pages/StoriesPage'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
 import { UpdateBanner } from './components/UpdateBanner'
+import { PausedBanner } from './components/PausedBanner'
 import { openOverlay } from './lib/back'
+import { useAiActivity } from './hooks/useAiActivity'
+import { useIsMobile } from './hooks/useIsMobile'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 import { HOSTED } from './lib/providers'
 import type { Shortcuts } from './types'
@@ -43,6 +46,12 @@ class PageBoundary extends Component<{ children: ReactNode }, { error: Error | n
 export default function App() {
   const [page, setPage] = useState<Page>('guided')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // Owned here rather than inside LogsOverlay so its button can sit in the
+  // topbar beside the gear. As a fixed-position element of its own it never
+  // lined up with anything.
+  const [devOpen, setDevOpen] = useState(false)
+  const aiBusy = useAiActivity()
+  const isMobile = useIsMobile()
   // Owned here because the control belongs beside the wordmark, while the
   // conversations it lists belong to the Guided page.
   const [historyOpen, setHistoryOpen] = useState(false)
@@ -142,6 +151,21 @@ export default function App() {
             Stories
           </button>
         </div>
+        {/* Mobile reaches the same panel by swiping to its third surface, so
+            the topbar button is desktop-only. */}
+        {!isMobile && (
+          <button
+            type="button"
+            className={`inside-btn ${devOpen ? 'open' : ''} ${aiBusy ? 'busy' : ''}`}
+            onClick={() => setDevOpen((v) => !v)}
+            aria-label="AI"
+            aria-expanded={devOpen}
+            title="AI — the live agent graph, every model call, and the logs"
+          >
+            <span className="inside-dot" aria-hidden="true" />
+            AI
+          </button>
+        )}
         <button
           type="button"
           className="gear"
@@ -154,6 +178,11 @@ export default function App() {
       </div>
 
       <UpdateBanner />
+
+      {/* A paused pipeline is indistinguishable from a hung app unless something
+          says so. This is that something, and it is deliberately outside the
+          panel that can set it. */}
+      <PausedBanner />
 
       {faults.length > 0 && (
         <div className="fault-bar" role="alert">
@@ -214,7 +243,7 @@ export default function App() {
         )}
       </div>
 
-      <LogsOverlay />
+      <LogsOverlay open={devOpen} onOpenChange={setDevOpen} />
 
       {settingsOpen && (
         <SettingsModal

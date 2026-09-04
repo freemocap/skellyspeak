@@ -19,6 +19,8 @@ pub mod hosted_auth;
 pub mod insight;
 pub mod keys;
 pub mod mic;
+pub mod personas;
+pub mod pipeline;
 pub mod scaffolds;
 pub mod stories;
 pub mod stt;

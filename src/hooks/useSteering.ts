@@ -15,11 +15,20 @@ export const STEER_TOPICS: readonly string[] = [
   'Pets & animals', 'Hometown', 'Dreams & goals', 'Shopping & markets',
 ]
 
+/// The id meaning "somebody different each conversation". Must match
+/// `personas::SURPRISE` in the core, which resolves it from the chat id.
+export const SURPRISE_PERSONA = 'surprise'
+
 interface Steering {
   level: string
   topic: string
+  /// Which character the partner is. The list of real ids comes from the core
+  /// (`list_personas`) — this only ever holds the chosen id, so a persona
+  /// added in Rust needs no change here.
+  persona: string
   setLevel: (v: string) => void
   setTopic: (v: string) => void
+  setPersona: (v: string) => void
   randomTopic: () => void
 }
 
@@ -30,6 +39,9 @@ export function useSteering(): Steering {
   const [topic, setTopicState] = useState<string>(
     () => localStorage.getItem('skellyspeak_topic') ?? ''
   )
+  const [persona, setPersonaState] = useState<string>(
+    () => localStorage.getItem('skellyspeak_persona') ?? SURPRISE_PERSONA
+  )
   const setLevel = useCallback((v: string) => {
     setLevelState(v)
     localStorage.setItem('skellyspeak_level', v)
@@ -38,10 +50,14 @@ export function useSteering(): Steering {
     setTopicState(v)
     localStorage.setItem('skellyspeak_topic', v)
   }, [])
+  const setPersona = useCallback((v: string) => {
+    setPersonaState(v)
+    localStorage.setItem('skellyspeak_persona', v)
+  }, [])
   const randomTopic = useCallback(() => {
     setTopic(STEER_TOPICS[Math.floor(Math.random() * STEER_TOPICS.length)])
   }, [setTopic])
-  return { level, topic, setLevel, setTopic, randomTopic }
+  return { level, topic, persona, setLevel, setTopic, setPersona, randomTopic }
 }
 
 export function usePersistentToggle(key: string, defaultOpen: boolean) {

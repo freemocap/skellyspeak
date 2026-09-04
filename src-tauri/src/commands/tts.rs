@@ -57,8 +57,8 @@ pub async fn speak_text(
         "messages": [
             // gpt-audio models are conversational — without this they answer
             // or continue after the requested phrase. Engine framing, not chat.
-            {"role": "system", "content": "You are a text-to-speech engine. Read the user's text aloud EXACTLY as written: verbatim, no additions, no replies, no commentary, no follow-up questions. If the text is in another language, speak it in that language."},
-            {"role": "user", "content": format!("Say exactly, with no additions:\n{text}")}
+            {"role": "system", "content": crate::prompts::speech::tts_engine_prompt()},
+            {"role": "user", "content": crate::prompts::speech::tts_turn(&text)}
         ],
     });
     let response = client

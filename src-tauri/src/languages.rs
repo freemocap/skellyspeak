@@ -27,10 +27,6 @@ pub struct Language {
     /// Romanization scheme for non-Latin scripts (ALA-LC, PINYIN, ...), or
     /// None for Latin-script languages.
     pub romanization: Option<&'static str>,
-    /// Target-language guidance injected into every prompt when this
-    /// language is the target. `{dialect}` interpolates the selected
-    /// dialect's guidance; the default dialect fills it when none chosen.
-    pub overlay: &'static str,
     /// Regional variants of this language. The first entry is the default.
     pub dialects: &'static [(&'static str, &'static str)],
 }
@@ -46,7 +42,6 @@ pub const LANGUAGES: &[Language] = &[
             ("en-US", "Standard American"),
         ],
         romanization: None,
-        overlay: "Language-specific guidance:\n- Use American English spelling, vocabulary, and idiom consistently (color, organize, elevator).\n- Pay close attention to word order, verb tenses, and preposition usage.\n- Avoid British-only vocabulary unless explicitly comparing variants.\n- Keep register natural: contractions (I'm, don't) are fine and expected in casual conversation.{dialect}",
     },
     Language {
         code: "fr-FR",
@@ -59,7 +54,6 @@ pub const LANGUAGES: &[Language] = &[
             ("fr-CA", "Québécois (Canada)"),
         ],
         romanization: None,
-        overlay: "Language-specific guidance:\n- Use standard French as spoken in France consistently.\n- Pay close attention to accents (é, è, ê, ç), elision (j'ai, l'ami), gender, and number agreement.\n- Use tu or vous consistently according to the context and learner level.\n- Avoid Canadian/Belgian/Swiss regionalisms unless explicitly comparing them.\n- Natural French phrasing: contractions (au, du, aux) and liaison where appropriate.{dialect}",
     },
     Language {
         code: "es-ES",
@@ -73,7 +67,6 @@ pub const LANGUAGES: &[Language] = &[
             ("es-AR", "Rioplatense (Argentina)"),
         ],
         romanization: None,
-        overlay: "Language-specific guidance:\n- Use Peninsular Spanish from Spain consistently.\n- Prefer Spain usage, including vosotros for informal plural address when appropriate.\n- Avoid voseo and Latin American-only vocabulary unless explicitly comparing variants.\n- Pay close attention to accents, gender, number agreement, and natural Spain Spanish phrasing.{dialect}",
     },
     Language {
         code: "ar",
@@ -87,7 +80,6 @@ pub const LANGUAGES: &[Language] = &[
             ("ar-MSA", "Modern Standard Arabic"),
         ],
         romanization: Some("ALA-LC"),
-        overlay: "Language-specific guidance:\n- Use Levantine Arabic (Lebanon/Syria/Jordan/Palestine) as understood across the region.\n- Write in Arabic script with natural spelling; do not write in Latin characters.\n- Modern Standard Arabic vocabulary is acceptable when no Levantine equivalent exists, but keep grammar and phrasing Levantine.\n- Pay attention to root-and-pattern morphology: forms I-X change meaning systematically.\n- gender and number agreement are mandatory; the dual form exists alongside singular and plural.\n- Do not vocalize with full diacritics (tashkeel); write as natives type, unvocalized.{dialect}",
     },
 ];
 
@@ -156,9 +148,13 @@ pub fn iso639(code: &str) -> String {
     code.split('-').next().unwrap_or(code).to_lowercase()
 }
 
-/// Target-language guidance injected into every prompt when this language
-/// is the target. The `{dialect}` placeholder in the overlay interpolates
-/// the selected dialect's guidance line.
+/// Target-language guidance injected into every prompt when this language is
+/// the target.
+///
+/// The words are in `prompts::overlays`, with every other string this app
+/// sends to a model; this function pairs them with the registry and fills the
+/// `{dialect}` placeholder. `prompts::tests::every_language_has_an_overlay`
+/// fails the build if a language here has no guidance there.
 pub fn overlay(code: &str, dialect: Option<&str>) -> String {
     let Some(lang) = LANGUAGES.iter().find(|l| l.code == code) else {
         return String::new()
@@ -170,16 +166,9 @@ pub fn overlay(code: &str, dialect: Option<&str>) -> String {
     // verbatim — so a custom variety steers the prompt exactly like a preset.
     let dialect_line = dialect
         .filter(|d| !d.trim().is_empty())
-        .map(|d| {
-            format!(
-                "- DIALECT: use the {label} variety of {name} - vocabulary, \
-                 pronunciation, and phrasing specific to that region.",
-                label = dialect_display(code, d),
-                name = lang.name
-            )
-        })
+        .map(|d| crate::prompts::overlays::dialect_line(&dialect_display(code, d), lang.name))
         .unwrap_or_default();
-    lang.overlay.replace("{dialect}", &dialect_line)
+    crate::prompts::overlays::for_code(code).replace("{dialect}", &dialect_line)
 }
 
 /// Romanization scheme for a language code ("ALA-LC"), or None for

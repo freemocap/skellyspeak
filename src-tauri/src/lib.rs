@@ -1,4 +1,5 @@
 pub mod ai;
+pub mod gate;
 #[cfg(desktop)]
 pub mod audio;
 #[cfg(test)]
@@ -9,6 +10,7 @@ pub mod graph;
 mod hosted;
 pub mod languages;
 pub mod observer;
+pub mod personas;
 pub mod ontology;
 pub mod prompts;
 mod settings;
@@ -128,6 +130,8 @@ pub fn run() {
             // Attach the trace bus: every AI run is recorded regardless, but
             // this is what lets the webview watch them live.
             trace::attach(app.handle().clone());
+            // The pipeline gate, so pause/step state reaches every window.
+            gate::attach(app.handle().clone());
             // The coach thread belongs to whichever chat is open in this pairing.
             let chat_dir = conversation::ensure_current_chat(&docs_dir)
                 .and_then(|id| conversation::chat_dir(&docs_dir, &id))
@@ -180,6 +184,13 @@ pub fn run() {
             commands::hosted_auth::hosted_sign_out,
             commands::insight::word_insight,
             commands::keys::validate_key,
+            commands::personas::delete_persona,
+            commands::personas::list_personas,
+            commands::personas::save_persona,
+            commands::pipeline::gate_pause,
+            commands::pipeline::gate_resume,
+            commands::pipeline::gate_status,
+            commands::pipeline::gate_step,
             commands::mic::mic_cancel,
             commands::mic::mic_devices,
             commands::mic::mic_native,

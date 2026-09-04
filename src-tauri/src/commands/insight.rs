@@ -50,8 +50,8 @@ pub async fn word_insight(
     let tln = language_display(&stored.target_language);
     let native = native_display(&stored.native_language);
     let messages = vec![
-        json!({"role": "system", "content": prompts::word_insight_system_prompt(&tln, &native)}),
-        json!({"role": "user", "content": format!("WORD: {word}\n\nSENTENCE: {sentence}")}),
+        json!({"role": "system", "content": prompts::analysis::word_insight_prompt(&tln, &native)}),
+        json!({"role": "user", "content": prompts::analysis::word_insight_turn(&word, &sentence)}),
     ];
     let provider = stored.chat_provider(&stored.openrouter_model)?;
     provider

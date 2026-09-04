@@ -28,15 +28,19 @@ function storedHeight(): number {
   return Math.min(MAX_VH, Math.max(MIN_VH, raw))
 }
 
-export function LogsOverlay() {
-  const [open, setOpen] = useState(false)
+interface LogsOverlayProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
   const [poppedOut, setPoppedOut] = useState(false)
   const [heightVh, setHeightVh] = useState<number>(storedHeight)
   const isMobile = useIsMobile()
   const dragging = useRef(false)
 
   // Android back closes the panel instead of exiting the app.
-  useEffect(() => (open ? openOverlay(() => setOpen(false)) : undefined), [open])
+  useEffect(() => (open ? openOverlay(() => onOpenChange(false)) : undefined), [open, onOpenChange])
 
   // Drag the top edge. Pointer events (not mouse) so a trackpad, a pen and a
   // touch screen all behave the same.
@@ -66,25 +70,16 @@ export function LogsOverlay() {
     void openDevWindow()
       .then(() => {
         setPoppedOut(true)
-        setOpen(false)
+        onOpenChange(false)
       })
       .catch((e: unknown) => reportFault('Observability window', e))
-  }, [])
+  }, [onOpenChange])
 
   // On mobile the panel is a swipe surface inside GuidedPage, not an overlay.
   if (isMobile) return null
 
   return (
     <>
-      <button
-        type="button"
-        className={`logs-fab ${open ? 'open' : ''}`}
-        onClick={() => setOpen((o) => !o)}
-        title="Observability: graph, runs, logs"
-        aria-label="Toggle observability panel"
-      >
-        {open ? '▾' : 'dev'}
-      </button>
       {open && (
         <div className="logs-panel" style={{ height: `${heightVh}dvh` }}>
           <div
