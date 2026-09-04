@@ -370,7 +370,11 @@ def upsert_user(
         }
         if existing.exists:
             transaction.set(user_ref, profile, merge=True)
-            return int(existing.get("token_version") or 0)
+            # `_field`, not `existing.get(...)`: this runs on every sign-in,
+            # including for accounts created before token_version existed, and
+            # a DocumentSnapshot raises KeyError rather than returning None for
+            # a field it does not carry.
+            return int(_field(existing, "token_version") or 0)
 
         # `select([])` asks for document ids and no fields: the count is all
         # that matters and the profiles are not worth transferring.
