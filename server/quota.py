@@ -125,8 +125,22 @@ def _global_ref(db: firestore.Client, day: str):
     return db.collection(GLOBAL_USAGE).document(day)
 
 
+def _field(snapshot, name: str):
+    """One field, or None when the document does not carry it.
+
+    NOT `snapshot.get(name)`: a Firestore DocumentSnapshot RAISES KeyError for
+    a field that is absent rather than returning None. Every document here
+    gains fields over time — `token_version` and `daily_limit_micros` were
+    added after accounts already existed, and `micros` after usage rows did —
+    so reading a field that predates its own introduction is the normal case,
+    not an error.
+    """
+    data = snapshot.to_dict() if snapshot.exists else None
+    return (data or {}).get(name)
+
+
 def _read(snapshot, field: str) -> int:
-    return int(snapshot.get(field) or 0) if snapshot.exists else 0
+    return int(_field(snapshot, field) or 0)
 
 
 def read_balance(db: firestore.Client, user_id: str, *, limit: int) -> Balance:
@@ -177,11 +191,11 @@ def load_principal(
     snapshot = db.collection(USERS).document(user_id).get()
     if not snapshot.exists:
         raise SessionRevoked("This account no longer exists. Sign in again.")
-    current = int(snapshot.get("token_version") or 0)
+    current = int(_field(snapshot, "token_version") or 0)
     if token_version < current:
         raise SessionRevoked("This session was signed out remotely. Sign in again.")
 
-    override = snapshot.get(LIMIT_FIELD)
+    override = _field(snapshot, LIMIT_FIELD)
     limit = int(override) if override else default_limit
     if limit < 0:
         raise ValueError(f"{LIMIT_FIELD} cannot be negative, got {override!r}")
