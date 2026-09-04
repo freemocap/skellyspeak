@@ -225,7 +225,7 @@ StoryToken = `{ text: string, gloss: string | null }` (no POS, no `notable`).
 
 **Levels:** `beginner` (A1–A2, 40–70 words, present tense) · `intermediate`
 (B1–B2, 80–130 words, common past/future) · `advanced` (C1–C2, 140–200
-words, idiomatic). `resolve_cefr` maps them to A2/B1/C1 for the persona.
+words, idiomatic). `resolve_cefr` maps them to A2/B1/C1 for `prompts::partner::learner_block`.
 Validation: at least some tokens must carry glosses. Cached per
 `skellyspeak_story_<target>_<level>` in localStorage; restored on mount
 (beginner only).

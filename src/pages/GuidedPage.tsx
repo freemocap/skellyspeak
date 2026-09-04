@@ -29,6 +29,7 @@ import { TurnView } from '../components/chat/TurnView'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
+import { PersonaField } from '../components/PersonaField'
 import { TopicField } from '../components/TopicField'
 import { ChatHistory } from '../components/ChatHistory'
 import { chatHistory, latestAnswered, latestScaffolds, transcriptForCoach } from '../lib/turns'
@@ -38,6 +39,7 @@ import { useWordInspection } from './guided/useWordInspection'
 import { useMicRecorder } from '../hooks/useMicRecorder'
 import { usePersistentToggle } from '../hooks/useSteering'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useAiActivity } from '../hooks/useAiActivity'
 import { reportFault } from '../lib/faults'
 import { needsProviderSetup } from '../lib/providers'
 
@@ -201,6 +203,7 @@ export default function GuidedPage({
     nextIdRef,
     chats,
     currentChatId,
+    chatIdRef,
     openChat,
     startNew: startNewConversation,
     removeChat,
@@ -274,6 +277,7 @@ export default function GuidedPage({
         message: body.message ?? '',
         level: steer.level,
         topic: steer.topic || '(any)',
+        persona: steer.persona,
       })
       const pendingId = nextIdRef.current++
       const userText = body.greeting ? null : (body.message ?? '')
@@ -388,6 +392,13 @@ export default function GuidedPage({
           steering: body.steering ?? null,
           level: steer.level,
           topic: steer.topic || null,
+          persona: steer.persona,
+          // The seed "surprise me" resolves from, so the partner is one person
+          // for the whole of this conversation and someone else in the next.
+          // Read from the ref, not from `currentChatId`: the greeting turn is
+          // fired from inside the effect that opens the chat, and this callback
+          // still holds the null from the render before it existed.
+          chatId: chatIdRef.current?.id ?? '',
           onEvent: channel,
         })
         // Command resolved = reply pass done. Re-asserted here in case the
@@ -403,7 +414,7 @@ export default function GuidedPage({
         setSending(false)
       }
     },
-    [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic]
+    [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic, steer.persona, chatIdRef]
   )
 
   async function send(text: string) {
@@ -587,6 +598,7 @@ export default function GuidedPage({
   // everything into one unusable column. The breakpoint itself lives in
   // useIsMobile — Settings reads the same one.
   const isMobile = useIsMobile()
+  const aiBusy = useAiActivity()
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>('chat')
 
   // Horizontal swipe walks the surfaces on mobile.
@@ -690,9 +702,22 @@ export default function GuidedPage({
               </button>
             </div>
           )}
+          {/* Everything that is not the transcript or the composer folds
+              away together: suggestions, the reading and voice toggles, and
+              the level/topic/partner controls. Three separate strips above a
+              phone keyboard left almost no room for the conversation. */}
           <div className="scaffold-block">
             <div className="scaffold-block-head">
-              <span className="scaffold-block-title">Suggestions · for your next message</span>
+              <span className="scaffold-block-title">
+                Suggestions &amp; settings
+                {!scaffolds.open && (
+                  <span className="scaffold-block-summary">
+                    {' · '}
+                    {STEER_LEVELS.find((l) => l.value === steer.level)?.label ?? steer.level}
+                    {steer.topic ? ` · ${steer.topic}` : ' · any topic'}
+                  </span>
+                )}
+              </span>
               <span className="scaffold-status">
                 {scaffolds.loading
                   ? '⟳ writing…'
@@ -705,7 +730,7 @@ export default function GuidedPage({
                 className="scaffold-toggle"
                 onClick={scaffolds.toggle}
                 aria-expanded={scaffolds.open}
-                title={scaffolds.open ? 'Hide suggestions' : 'Show suggestions'}
+                title={scaffolds.open ? 'Hide suggestions and settings' : 'Show suggestions and settings'}
               >
                 {scaffolds.open ? '▾' : '▸'}
               </button>
@@ -745,46 +770,56 @@ export default function GuidedPage({
                     </button>
                   ))}
                 </div>
+                <div className="steer-row">
+                  <select
+                    className="steer-select"
+                    value={steer.level}
+                    onChange={(e) => steer.setLevel(e.target.value)}
+                    aria-label="Learner level"
+                    title="Learner level — steers every prompt"
+                  >
+                    {STEER_LEVELS.map((l) => (
+                      <option key={l.value} value={l.value}>
+                        {l.label}
+                      </option>
+                    ))}
+                  </select>
+                  <TopicField topics={STEER_TOPICS} value={steer.topic} onChange={steer.setTopic} />
+                  <button
+                    type="button"
+                    className="steer-dice"
+                    title="Random topic"
+                    aria-label="Random topic"
+                    onClick={steer.randomTopic}
+                  >
+                    🎲
+                  </button>
+                  <button
+                    type="button"
+                    className="steer-dice"
+                    title="Start a new conversation — this one is archived, and the tutor keeps what it has learned about you"
+                    aria-label="New conversation"
+                    onClick={() => void startNewConversation()}
+                  >
+                    ✚
+                  </button>
+                </div>
+                {/* Changing who you are talking to starts a fresh conversation:
+                    the person you were mid-sentence with cannot turn into
+                    somebody else. The old chat is archived, not lost. */}
+                <PersonaField
+                  value={steer.persona}
+                  onChange={(id) => {
+                    steer.setPersona(id)
+                    void startNewConversation()
+                  }}
+                />
               </div>
             )}
           </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
-          <div className="steer-row">
-            <select
-              className="steer-select"
-              value={steer.level}
-              onChange={(e) => steer.setLevel(e.target.value)}
-              aria-label="Learner level"
-              title="Learner level — steers every prompt"
-            >
-              {STEER_LEVELS.map((l) => (
-                <option key={l.value} value={l.value}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-            <TopicField topics={STEER_TOPICS} value={steer.topic} onChange={steer.setTopic} />
-            <button
-              type="button"
-              className="steer-dice"
-              title="Random topic"
-              aria-label="Random topic"
-              onClick={steer.randomTopic}
-            >
-              🎲
-            </button>
-            <button
-              type="button"
-              className="steer-dice"
-              title="Start a new conversation — this one is archived, and the tutor keeps what it has learned about you"
-              aria-label="New conversation"
-              onClick={() => void startNewConversation()}
-            >
-              ✚
-            </button>
-          </div>
           <form
             className="crow"
             onSubmit={(e) => {
@@ -889,16 +924,20 @@ export default function GuidedPage({
             [
               ['chat', '💬', 'Chat'],
               ['panel', '🎓', 'Coach'],
-              ['dev', '💭', 'Inside'],
+              ['dev', '💭', 'AI'],
             ] as [MobileSurface, string, string][]
           ).map(([id, icon, label]) => (
             <button
               key={id}
               type="button"
-              className={`mobile-nav-item ${mobileSurface === id ? 'active' : ''}`}
+              className={`mobile-nav-item ${mobileSurface === id ? 'active' : ''} ${
+                id === 'dev' && aiBusy ? 'busy' : ''
+              }`}
               onClick={() => setMobileSurface(id)}
             >
-              {icon} {label}
+              {/* Wrapped so the icon alone can pulse while agents are running
+                  — the phone has no topbar button to carry that signal. */}
+              <span className="mobile-nav-icon">{icon}</span> {label}
             </button>
           ))}
         </nav>

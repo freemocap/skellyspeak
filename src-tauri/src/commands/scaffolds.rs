@@ -5,7 +5,6 @@ use serde_json::json;
 use tauri::{State};
 use crate::ontology;
 use crate::languages::{language_display, native_display, overlay};
-use crate::observer;
 use crate::prompts;
 use crate::trace::{RunContext};
 use crate::AppState;
@@ -40,17 +39,10 @@ pub async fn generate_scaffolds(
         Some("advanced") => "C1",
         _ => "A2",
     };
-    let topic_directive = match req.topic.as_deref() {
-        Some(t) if !t.trim().is_empty() => format!(
-            "\n- TOPIC STEERING: the learner chose the topic \"{t}\". Steer the \
-             conversation toward it when natural; if the conversation stalls, \
-             offer one question about it."
-        ),
-        _ => String::new(),
-    };
+    let topic_directive = prompts::partner::topic_directive(req.topic.as_deref());
     let plan_directives = {
         let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
-        observer::directives_block(&plan, &[])
+        prompts::observer::directives_block(&plan, &[])
     };
     let dialect_overlay =
         overlay(&stored.target_language, req.dialect.as_deref());
@@ -72,11 +64,8 @@ pub async fn generate_scaffolds(
         })
         .collect();
     let messages = vec![
-        json!({"role": "system", "content": prompts::guided_scaffolds_prompt(&tln, &native, &directives)}),
-        json!({"role": "user", "content": format!(
-            "CONVERSATION SO FAR:\n{}\n\nWrite scaffolds for the learner's NEXT message.",
-            transcript.join("\n")
-        )}),
+        json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, &native, &directives)}),
+        json!({"role": "user", "content": prompts::analysis::scaffolds_from_transcript_turn(&transcript.join("\n"))}),
     ];
     let provider = stored.chat_provider(&stored.openrouter_model)?;
     let out = provider

@@ -9,6 +9,7 @@ use serde_json::json;
 use std::path::Path;
 
 use crate::ai::{MaxTokens, Provider};
+use crate::prompts::observer as prompts;
 
 // ─── Documents ───────────────────────────────────────────────────────────────
 
@@ -195,59 +196,10 @@ pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) -> 
     faults
 }
 
-// ─── Prompts ─────────────────────────────────────────────────────────────────
-
-/// Compact advisory block injected into the fast worker prompts.
-pub fn directives_block(plan: &TeachingPlan, recent_mechanics: &[String]) -> String {
-    let mut lines = vec!["TEACHING PLAN (advisory — steer gently, keep the conversation natural):".to_string()];
-    if !plan.session_focus.is_empty() {
-        lines.push(format!("- Practice focus: {}", plan.session_focus.join("; ")));
-    }
-    if !plan.recurring_errors.is_empty() {
-        let errors: Vec<String> = plan
-            .recurring_errors
-            .iter()
-            .map(|e| format!("\"{}\" → \"{}\" (×{})", e.error, e.correction, e.seen_count))
-            .collect();
-        lines.push(format!(
-            "- Recast at most {} error(s) this reply, highest value first: {}",
-            plan.correction_budget,
-            errors.join("; ")
-        ));
-    } else {
-        lines.push("- No errors to recast right now.".to_string());
-    }
-    if !plan.vocab_recycle.is_empty() {
-        lines.push(format!("- Recycle vocabulary: {}", plan.vocab_recycle.join(", ")));
-    }
-    if !plan.avoid.is_empty() {
-        lines.push(format!("- Avoid: {}", plan.avoid.join("; ")));
-    }
-    if !plan.learner_interests.is_empty() {
-        lines.push(format!(
-            "- Learner interests you can ask about: {}",
-            plan.learner_interests.join(", ")
-        ));
-    }
-    if !plan.energy_read.is_empty() {
-        lines.push(format!("- Learner energy: {}", plan.energy_read));
-    }
-    // Anti-repetition: everything already covered by an analysis card, from
-    // both the observer's ledger and the cards fired in recent turns.
-    let mut taught: Vec<String> = plan.taught_ledger.iter().map(|t| t.mechanic.clone()).collect();
-    for m in recent_mechanics {
-        if !taught.contains(m) {
-            taught.push(m.clone());
-        }
-    }
-    if !taught.is_empty() {
-        lines.push(format!(
-            "- ALREADY TAUGHT (do NOT re-teach; pick something new unless the learner clearly needs review): {}",
-            taught.join(" | ")
-        ));
-    }
-    lines.join("\n")
-}
+// ─── The observer pass ───────────────────────────────────────────────────────
+//
+// The words it says live in `prompts::observer`; what it reads, writes and
+// costs lives here.
 
 /// Cheap failure budget. Both documents are a few hundred tokens; 4k is
 /// generous. The point is not to constrain the output but to make a runaway
@@ -267,76 +219,6 @@ const OBSERVER_MAX_TOKENS: MaxTokens = MaxTokens(4_000);
 /// A schema this app depends on must be boring to serve. Two flat documents
 /// are; one nested wrapper is not. Running them concurrently makes the split
 /// free in wall time.
-fn shared_context(
-    transcript: &str,
-    plan: &TeachingPlan,
-    profile: &Profile,
-    recent_mechanics: &[String],
-) -> String {
-    format!(
-        "CONVERSATION TRANSCRIPT:
-{transcript}
-
-         RECENTLY TAUGHT (do not re-teach): {mechanics}
-
-         CURRENT TEACHING PLAN:
-{plan}
-
-         CURRENT PROFILE:
-{profile}",
-        transcript = transcript,
-        mechanics = if recent_mechanics.is_empty() {
-            "(none)".to_string()
-        } else {
-            recent_mechanics.join("; ")
-        },
-        plan = serde_json::to_string_pretty(plan).unwrap_or_default(),
-        profile = serde_json::to_string_pretty(profile).unwrap_or_default(),
-    )
-}
-
-fn observer_role(target_language_name: &str) -> String {
-    format!(
-        "You are the teaching coordinator for an immersive {tln} tutoring session.
-         You NEVER talk to the learner. Your job is to keep one small document
-         accurate so the fast tutor-workers can teach better.
-
-         Rules:
-         - ADVISORY ONLY: workers steer gently. Keep the conversation natural —
-           never lecture-y, never a lesson plan.
-         - Be concrete: cite actual words the learner said, not generic advice.
-         - Keep it SMALL: this is injected into fast worker prompts.
-         - Full replacement: emit the complete document, not diffs.
-         - The learner can see it. Write it respectfully and usefully.",
-        tln = target_language_name,
-    )
-}
-
-pub fn plan_system_prompt(target_language_name: &str) -> String {
-    format!(
-        "{role}
-
-         Rewrite the TEACHING PLAN from the latest evidence: what to practice next
-         (1-3 items max), the recurring-error recast queue (with seen counts),
-         vocabulary worth recycling, what to avoid (overload guard), learner
-         interests worth asking about, a one-phrase energy read, the correction
-         budget (1-2), and the taught-ledger (mechanics already covered — workers
-         must not re-teach them).",
-        role = observer_role(target_language_name),
-    )
-}
-
-pub fn profile_system_prompt(target_language_name: &str) -> String {
-    format!(
-        "{role}
-
-         Rewrite the learner PROFILE — durable facts that persist across sessions:
-         a 2-3 sentence 'about', level notes with evidence, strengths, weaknesses,
-         durable interests, and the long-term error history.",
-        role = observer_role(target_language_name),
-    )
-}
-
 /// Run one observer pass: both documents, concurrently, each on its own flat
 /// schema. A failure in one does not cost the other.
 pub async fn run_observer(
@@ -348,19 +230,16 @@ pub async fn run_observer(
     profile: &Profile,
     recent_mechanics: &[String],
 ) -> Result<ObserverOutput, String> {
-    let context = shared_context(transcript, plan, profile, recent_mechanics);
+    let (plan_json, profile_json) = prompts::documents_json(plan, profile);
+    let context = prompts::shared_context(transcript, &plan_json, &profile_json, recent_mechanics);
 
     let plan_msgs = vec![
-        json!({"role": "system", "content": plan_system_prompt(target_language_name)}),
-        json!({"role": "user", "content": format!("{context}
-
-Rewrite the teaching plan now.")}),
+        json!({"role": "system", "content": prompts::plan_prompt(target_language_name)}),
+        json!({"role": "user", "content": prompts::plan_turn(&context)}),
     ];
     let profile_msgs = vec![
-        json!({"role": "system", "content": profile_system_prompt(target_language_name)}),
-        json!({"role": "user", "content": format!("{context}
-
-Rewrite the learner profile now.")}),
+        json!({"role": "system", "content": prompts::profile_prompt(target_language_name)}),
+        json!({"role": "user", "content": prompts::profile_turn(&context)}),
     ];
 
     // Reasoning OFF: summarising a short transcript into a small document is

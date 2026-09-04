@@ -85,6 +85,42 @@ export function languageFor(code: string): LanguageInfo | null {
   return languages().find((l) => l.code === code || l.base === base) ?? null
 }
 
+/// One character, as the core defines it.
+export interface Persona {
+  id: string
+  label: string
+  /// The description that goes into the reply prompt, verbatim.
+  sketch: string
+  /// Ships with the app: readable in the editor, but never editable or
+  /// deletable, so there is always a working set to get back to.
+  builtin: boolean
+}
+
+/// The list plus anything that went wrong reading it. Faults travel with the
+/// data rather than being logged: a personas file that could not be read shows
+/// up to the learner as "my characters are gone", and they are owed the reason.
+export interface PersonaList {
+  personas: Persona[]
+  faults: string[]
+}
+
+/// The characters the learner can be paired with. Asked for rather than
+/// hardcoded: the personas live in Rust because the prompt is built from them,
+/// and a copy here would drift the first time one is added.
+export function listPersonas(): Promise<PersonaList> {
+  return invoke<PersonaList>('list_personas')
+}
+
+/// Create (`id: ''`) or update one of the learner's own characters. Refuses to
+/// touch a built-in.
+export function savePersona(id: string, label: string, sketch: string): Promise<Persona> {
+  return invoke<Persona>('save_persona', { id, label, sketch })
+}
+
+export function deletePersona(id: string): Promise<void> {
+  return invoke<void>('delete_persona', { id })
+}
+
 export function getSettings(): Promise<Settings> {
   return invoke<Settings>('get_settings')
 }
@@ -208,6 +244,49 @@ export async function subscribeRunStarts(
 ): Promise<() => void> {
   const { listen } = await import('@tauri-apps/api/event')
   return listen<RunStarted>('trace:run_started', (e) => onStart(e.payload))
+}
+
+/// An operation stopped at the pipeline gate, waiting to be let through.
+export interface HeldOperation {
+  id: number
+  operation: string
+  turn_id: number | null
+}
+
+/// Whether the agent pipeline is paused, and what is queued behind it.
+export interface GateStatus {
+  paused: boolean
+  /// Operations still allowed through while paused — spent by stepping.
+  budget: number
+  waiting: HeldOperation[]
+}
+
+/// Pause the pipeline. This holds REAL work: the next operation stops before
+/// its model call, so the conversation genuinely stops advancing.
+export function gatePause(): Promise<GateStatus> {
+  return invoke('gate_pause')
+}
+
+export function gateResume(): Promise<GateStatus> {
+  return invoke('gate_resume')
+}
+
+/// Let `count` operations through, then stop again.
+export function gateStep(count = 1): Promise<GateStatus> {
+  return invoke('gate_step', { count })
+}
+
+export function gateStatus(): Promise<GateStatus> {
+  return invoke('gate_status')
+}
+
+/// Live gate state. Fires when it is paused, resumed, stepped, and whenever an
+/// operation arrives at or leaves the queue.
+export async function subscribeGate(
+  onChange: (status: GateStatus) => void
+): Promise<() => void> {
+  const { listen } = await import('@tauri-apps/api/event')
+  return listen<GateStatus>('trace:gate', (e) => onChange(e.payload))
 }
 
 /// The trace bus. Every agent execution lands here the moment it finishes,

@@ -257,6 +257,12 @@ export function useConversation({
     nextIdRef,
     chats,
     currentChatId: openKey.current?.id ?? null,
+    // The same value, read at call time rather than at render time. The
+    // greeting turn is fired from inside the effect that opens the chat, so a
+    // callback that closed over `currentChatId` would still be holding the
+    // null from the render before the chat existed — and the partner picked
+    // for a whole conversation is seeded from this id.
+    chatIdRef: openKey,
     openChat,
     startNew,
     removeChat,

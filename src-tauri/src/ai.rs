@@ -260,6 +260,10 @@ impl Provider {
         temperature: f64,
         on_delta: &mut (dyn FnMut(&str) + Send),
     ) -> Result<String, String> {
+        // Before the recorder starts: a held operation has not begun, and
+        // timing it from the moment it arrived at the gate would report a
+        // pause as a slow model.
+        crate::gate::wait(ctx.operation, ctx.turn_id).await;
         let mut run = RunRecorder::start(ctx, &self.model);
         run.profile(Some(temperature), false, Some(REPLY_MAX_TOKENS), true, None);
         run.set_prompt(messages);
@@ -285,7 +289,7 @@ impl Provider {
             //
             // Repetition is handled where it actually occurs — across turns,
             // not within one completion — by the NEVER REPEAT YOURSELF rule in
-            // `prompts::guided_reply_prompt`.
+            // `prompts::partner::reply_prompt`.
             "reasoning": reasoning_off(&self.model),
             // Route ONLY to providers that actually honor request parameters
             // (json_schema, reasoning, ...). Without this, OpenRouter
@@ -525,6 +529,7 @@ impl Provider {
         T: DeserializeOwned + JsonSchema,
         F: Fn(&T) -> Option<String>,
     {
+        crate::gate::wait(ctx.operation, ctx.turn_id).await;
         let cap = max_tokens.map(|m| m.0).unwrap_or(if allow_reasoning {
             REASONING_MAX_TOKENS
         } else {
@@ -631,11 +636,7 @@ impl Provider {
                         attempts.push(json!({"role": "assistant", "content": raw}));
                         attempts.push(json!({
                             "role": "user",
-                            "content": format!(
-                                "Validation error: {}. Return the COMPLETE \
-                                 corrected JSON object, with every list populated.",
-                                last_error
-                            )
+                            "content": crate::prompts::repair::invalid_content(&last_error)
                         }));
                         continue;
                     }
@@ -660,10 +661,7 @@ impl Provider {
                     attempts.push(json!({"role": "assistant", "content": raw}));
                     attempts.push(json!({
                         "role": "user",
-                        "content": format!(
-                            "That was not valid JSON ({e}). Respond with ONLY the \
-                             JSON object matching the schema."
-                        )
+                        "content": crate::prompts::repair::unparseable(&e.to_string())
                     }));
                 }
             }

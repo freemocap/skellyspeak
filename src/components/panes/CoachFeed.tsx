@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react'
 import type { CoachFeedback } from '../../types'
-import { Markdown } from '../../lib/markdown'
+import { Markdown, type TermHandler } from '../../lib/markdown'
 
 /// The parts of a turn the coach feed renders.
 export interface TurnForCoach {
@@ -32,10 +32,12 @@ function CoachEntry({
   turn,
   targetLangCode,
   nativeLangCode,
+  onTerm,
 }: {
   turn: TurnForCoach
   targetLangCode: string
   nativeLangCode: string
+  onTerm?: TermHandler
 }) {
   return (
     <div className="coach-entry">
@@ -50,7 +52,7 @@ function CoachEntry({
               <ScoreMeter label="Grammar" value={turn.coach.grammar} />
             </div>
             <div className="coach-remark">
-              <Markdown text={turn.coach.remark} />
+              <Markdown text={turn.coach.remark} onTerm={onTerm} />
             </div>
             {(turn.coach.used_target.length > 0 || turn.coach.used_native.length > 0) && (
               <div className="coach-split">
@@ -94,10 +96,13 @@ export const CoachFeed = memo(function CoachFeed({
   turns,
   targetLangCode,
   nativeLangCode,
+  onTerm,
 }: {
   turns: TurnForCoach[]
   targetLangCode: string
   nativeLangCode: string
+  /// Pressing a curiosity marker in a remark asks the coach about that term.
+  onTerm?: TermHandler
 }) {
   const coached = turns.filter((t) => t.user !== null && (t.coach || t.coachError))
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -123,6 +128,7 @@ export const CoachFeed = memo(function CoachFeed({
           turn={turn}
           targetLangCode={targetLangCode}
           nativeLangCode={nativeLangCode}
+          onTerm={onTerm}
         />
       ))}
     </div>

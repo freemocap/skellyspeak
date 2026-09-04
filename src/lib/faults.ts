@@ -7,6 +7,7 @@
 /// lesser code path, no `catch { log }`.
 
 import { logError } from './log'
+import { createStore, useStore } from './store'
 
 export interface Fault {
   id: number
@@ -16,13 +17,9 @@ export interface Fault {
 }
 
 let nextId = 1
-let faults: Fault[] = []
-const listeners = new Set<(f: Fault[]) => void>()
-
-function emit(): void {
-  const snapshot = faults
-  listeners.forEach((fn) => fn(snapshot))
-}
+// The same observable primitive the pipeline gate uses. This module grew its
+// own by hand first; a second copy for the gate is what made it worth sharing.
+const store = createStore<Fault[]>([])
 
 function describe(e: unknown): string {
   if (e instanceof Error) return e.message
@@ -39,24 +36,26 @@ function describe(e: unknown): string {
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
   logError(`[fault] ${context}: ${message}`)
-  faults = [...faults, { id: nextId++, context, message }]
-  emit()
+  store.set([...store.get(), { id: nextId++, context, message }])
 }
 
+/// Subscribe a component to the fault list.
+export function useFaults(): Fault[] {
+  return useStore(store)
+}
+
+/// For callers outside React. Fires immediately with the current list, as it
+/// always has.
 export function subscribeFaults(fn: (f: Fault[]) => void): () => void {
-  listeners.add(fn)
-  fn(faults)
-  return () => {
-    listeners.delete(fn)
-  }
+  const unsubscribe = store.subscribe(() => fn(store.get()))
+  fn(store.get())
+  return unsubscribe
 }
 
 export function dismissFault(id: number): void {
-  faults = faults.filter((f) => f.id !== id)
-  emit()
+  store.set(store.get().filter((f) => f.id !== id))
 }
 
 export function dismissAllFaults(): void {
-  faults = []
-  emit()
+  store.set([])
 }

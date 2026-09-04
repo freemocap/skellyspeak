@@ -16,7 +16,6 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, State};
 
 use crate::languages::{self, language_display, native_display, overlay};
-use crate::observer;
 use crate::ontology;
 use crate::prompts;
 use crate::trace::{self, RunContext};
@@ -32,6 +31,16 @@ use types::Section;
 /// How much history each pass is given. The reply needs the conversation; the
 /// analysis calls need only the turn in front of them.
 const REPLY_HISTORY_TURNS: usize = 30;
+
+/// How much room the conversational reply gets.
+///
+/// This is the only call in the app where the *least likely* wording is
+/// usually the better one. At 0.6 the partner reliably reached for the safest
+/// sentence available, which across a whole conversation reads as a person
+/// with nothing to say. Every other pass in this file stays low on purpose —
+/// tokenization, translation and the coach's corrections all want the boring
+/// answer, and they keep it.
+const REPLY_TEMPERATURE: f64 = 0.95;
 
 /// The learner's message as the passes refer to it. Greeting and steering
 /// turns have no real message, so they carry a placeholder that reads sensibly
@@ -60,6 +69,11 @@ pub async fn guided_turn(
     steering: Option<String>,
     level: Option<String>,
     topic: Option<String>,
+    // Which character the learner is talking to, and the conversation this
+    // turn belongs to. `chat_id` is what makes "surprise me" resolve to one
+    // person per conversation instead of a new one every turn.
+    persona: Option<String>,
+    chat_id: String,
     on_event: Channel<GuidedEvent>,
 ) -> Result<String, String> {
     let settings = state
@@ -91,65 +105,75 @@ pub async fn guided_turn(
         _ => "A2",
     }
     .to_string();
-    // Topic steering: appended to reply/mechanics/scaffolds directives and
-    // surfaced to the coach.
-    let topic_directive = match topic.as_deref() {
-        Some(t) if !t.trim().is_empty() => format!(
-            "\n- TOPIC STEERING: the learner chose the topic \"{t}\". Steer the \
-             conversation toward it when natural; if the conversation stalls, \
-             offer one question about it."
-        ),
-        _ => String::new(),
-    };
+    // The topic the learner picked. The REPLY takes it as its own prompt
+    // section (`prompts::partner::topic_section`) rather than as one more line at
+    // bottom of the staging notes — buried behind the whole teaching plan it
+    // was routinely ignored, which is exactly the "I changed the topic and it
+    // never came up" complaint. Mechanics and scaffolds still take it as a
+    // directive, because for them it genuinely is a hint.
+    let topic = topic.filter(|t| !t.trim().is_empty());
+    let topic_directive = prompts::partner::topic_directive(topic.as_deref());
+
+    // Who the learner is talking to. `chat_id` is the seed for "surprise me",
+    // so the partner is one consistent person for a whole conversation and
+    // somebody else in the next one.
+    let mut persona_faults = Vec::new();
+    let available = crate::personas::all(&state.config_dir, &mut persona_faults);
+    // A personas file that could not be read reaches the screen rather than a
+    // log: the learner's own characters are missing from this conversation and
+    // they have to be told why.
+    for fault in persona_faults {
+        emit(&on_event, GuidedEvent::Fault { context: "Personas".into(), message: fault });
+    }
+    let persona = crate::personas::resolve(persona.as_deref(), &chat_id, &available);
+    info!("[cmd] guided_turn partner: {} ({})", persona.label, persona.id);
 
     // ── Pass 1: conversational reply (streamed to the UI) ───────────────────
-    let directives = {
+    // The reply gets the overlay and the plan; the topic line is appended for
+    // the mechanics and scaffolds passes only, because the reply already
+    // carries the topic as a section of its own and stating it twice is how a
+    // prompt argues with itself.
+    let reply_directives = {
         let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
         let recent = state
             .recent_mechanics
             .lock()
             .unwrap_or_else(|p| p.into_inner());
         format!(
-            "{}{}{}",
+            "{}{}",
             target_overlay,
-            observer::directives_block(&plan, &recent),
-            topic_directive
+            prompts::observer::directives_block(&plan, &recent)
         )
     };
-    let reply_system = prompts::guided_reply_prompt(&tln, &cefr, &native, &directives);
+    let directives = format!("{reply_directives}{topic_directive}");
+    let reply_system = prompts::partner::reply_prompt(
+        &persona.sketch,
+        &tln,
+        &cefr,
+        &native,
+        topic.as_deref(),
+        &reply_directives,
+    );
     let mut reply_messages = vec![json!({"role": "system", "content": reply_system})];
     for turn in history.iter().rev().take(REPLY_HISTORY_TURNS).rev() {
         reply_messages.push(json!({"role": turn.role, "content": turn.content}));
     }
     if greeting {
-        // The greeting must respect the learner's saved level and topic —
-        // it is the FIRST message of a steered conversation, not a generic
-        // hello that the steering pass then has to correct.
-        let topic_line = match topic.as_deref() {
-            Some(t) if !t.trim().is_empty() => format!(
-                " The conversation topic is {t}: work the greeting and your \
-                 opening question around that topic."
-            ),
-            _ => String::new(),
-        };
+        // The FIRST message sets whether this conversation is worth having, and
+        // "greet the learner warmly and ask one simple opening question" is
+        // precisely what produced "hello, how are you?" at the top of every
+        // single chat. So the opener has to arrive mid-life: this person was
+        // doing something before the learner turned up, and they lead with it.
         reply_messages.push(json!({
             "role": "user",
-            "content": format!(
-                "[Session start] Greet the learner warmly and ask one simple \
-                 opening question they can answer at their level.{topic_line}"
-            )
+            "content": prompts::partner::greeting_turn(topic.as_deref())
         }));
     } else if let Some(change) = steering.as_deref().filter(|s| !s.trim().is_empty()) {
         // Learner changed practice settings mid-conversation: the partner
         // re-opens the exchange aligned to the new level/topic.
         reply_messages.push(json!({
             "role": "user",
-            "content": format!(
-                "[The learner just adjusted their practice settings: {change}. \
-                 Acknowledge the change naturally in one short sentence and \
-                 re-open the conversation with a fresh question or prompt that \
-                 fits the new setting. Do not mention UI or settings mechanics.]"
-            )
+            "content": prompts::partner::steering_turn(change)
         }));
     } else {
         if message.trim().is_empty() {
@@ -182,8 +206,8 @@ pub async fn guided_turn(
         let provider = settings.chat_provider(&settings.openrouter_model)?;
         let channel = on_event.clone();
         let learner_msgs = vec![
-            json!({"role": "system", "content": prompts::learner_tokens_prompt(&tln, &native, romanization_scheme)}),
-            json!({"role": "user", "content": format!("Learner message to analyze:\n{learner_message}")}),
+            json!({"role": "system", "content": prompts::analysis::learner_tokens_prompt(&tln, &native, romanization_scheme)}),
+            json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(&learner_message)}),
         ];
         Some(tokio::spawn(async move {
             let result = provider
@@ -221,7 +245,7 @@ pub async fn guided_turn(
         .chat_streaming(
             RunContext::new(ontology::op::REPLY, Some(turn_id)),
             &reply_messages,
-            0.6,
+            REPLY_TEMPERATURE,
             &mut |delta| {
                 emit(
                     &channel,
@@ -294,20 +318,20 @@ pub async fn guided_turn(
         turn_id,
         reply: reply.clone(),
         tokens_msgs: vec![
-            json!({"role": "system", "content": prompts::guided_tokens_prompt(&tln, &native, romanization_scheme)}),
-            json!({"role": "user", "content": format!("Tutor reply to tokenize:\n{reply}")}),
+            json!({"role": "system", "content": prompts::analysis::tokens_prompt(&tln, &native, romanization_scheme)}),
+            json!({"role": "user", "content": prompts::analysis::tokenize_reply_turn(&reply)}),
         ],
         translation_msgs: vec![
-            json!({"role": "system", "content": prompts::guided_translation_prompt(&tln, &native)}),
-            json!({"role": "user", "content": format!("Tutor reply to translate:\n{reply}")}),
+            json!({"role": "system", "content": prompts::analysis::translation_prompt(&tln, &native)}),
+            json!({"role": "user", "content": prompts::analysis::translate_reply_turn(&reply)}),
         ],
         mechanics_msgs: vec![
-            json!({"role": "system", "content": prompts::guided_mechanics_prompt(&tln, &cefr, &native, &directives)}),
-            json!({"role": "user", "content": format!("Learner message ({cefr} level):\n{learner_message}\n\nTutor reply:\n{reply}")}),
+            json!({"role": "system", "content": prompts::analysis::mechanics_prompt(&tln, &cefr, &native, &directives)}),
+            json!({"role": "user", "content": prompts::analysis::mechanics_turn(&cefr, &learner_message, &reply)}),
         ],
         scaffolds_msgs: vec![
-            json!({"role": "system", "content": prompts::guided_scaffolds_prompt(&tln, &native, &directives)}),
-            json!({"role": "user", "content": format!("Learner message:\n{learner_message}\n\nTutor reply:\n{reply}")}),
+            json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, &native, &directives)}),
+            json!({"role": "user", "content": prompts::analysis::scaffolds_turn(&learner_message, &reply)}),
         ],
         learner_tokens: learner_tokens_task,
     });

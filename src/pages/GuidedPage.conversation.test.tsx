@@ -6,7 +6,7 @@
 // unsaved turns, saving one conversation under another's name — and none of it
 // is reachable from a pure-function test.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Settings, StoredTurn } from '../types'
 
@@ -23,7 +23,21 @@ const backend = vi.hoisted(() => ({
   newConversation: vi.fn(),
   deleteConversation: vi.fn(),
   getPlan: vi.fn(),
+  // The chrome watches the trace buses to know when agents are running.
+  // Unsubscribes, so the hook can tear down cleanly.
+  subscribeRunStarts: vi.fn(async () => () => {}),
+  subscribeRuns: vi.fn(async () => () => {}),
   saveSettings: vi.fn(),
+  // The partner picker asks the core who the learner can talk to. `faults`
+  // travels with the list: an unreadable personas file must reach the screen.
+  listPersonas: vi.fn(
+    async (): Promise<{
+      personas: { id: string; label: string; sketch: string; builtin: boolean }[]
+      faults: string[]
+    }> => ({ personas: [], faults: [] })
+  ),
+  savePersona: vi.fn(),
+  deletePersona: vi.fn(),
   languages: vi.fn(),
   languageFor: vi.fn(),
 }))
@@ -196,6 +210,187 @@ describe('opening the app', () => {
     await waitFor(() => {
       expect(backend.listConversations).toHaveBeenCalledWith('es-ES', 'en')
     })
+  })
+})
+
+const BAKER = {
+  id: 'baker',
+  label: 'The night-shift baker',
+  sketch: "You bake bread overnight and your neighbour's dog howls when you sleep.",
+  builtin: true,
+}
+
+describe('who the learner is talking to', () => {
+  it('sends the chosen partner and the conversation it belongs to', async () => {
+    // Both halves matter. Without the partner the core has no character to
+    // build the prompt from; without the chat id "surprise me" would resolve
+    // to a different person on every single turn, which is worse than always
+    // being the same one.
+    backend.loadConversation.mockResolvedValue({ id: 'chat-7', turns: [] })
+    render(<GuidedPage />)
+    await waitFor(() => {
+      const call = backend.rawInvoke.mock.calls.find((c) => c[0] === 'guided_turn')
+      expect(call).toBeTruthy()
+      const body = call![1] as { persona: string; chatId: string }
+      expect(body.persona).toBe('surprise')
+      expect(body.chatId).toBe('chat-7')
+    })
+  })
+
+  it('offers the partners the core actually has, not a list of its own', async () => {
+    backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
+    render(<GuidedPage />)
+    const picker = await screen.findByLabelText('Persona:')
+    await waitFor(() =>
+      expect(screen.getByRole('option', { name: 'The night-shift baker' })).toBeInTheDocument()
+    )
+    // "Surprise me" is not one of the core's personas — it is the absence of a
+    // choice, and the picker supplies it.
+    expect(picker).toHaveValue('surprise')
+  })
+
+  it('starts a new conversation when the partner changes', async () => {
+    // You cannot be mid-sentence with someone and have them become somebody
+    // else. The old chat is archived, not lost.
+    backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
+    backend.newConversation.mockResolvedValue({ id: 'chat-2', turns: [] })
+    render(<GuidedPage />)
+    const picker = await screen.findByLabelText('Persona:')
+    await waitFor(() =>
+      expect(screen.getByRole('option', { name: 'The night-shift baker' })).toBeInTheDocument()
+    )
+
+    fireEvent.change(picker, { target: { value: 'baker' } })
+
+    await waitFor(() => expect(backend.newConversation).toHaveBeenCalled())
+    expect(localStorage.getItem('skellyspeak_persona')).toBe('baker')
+  })
+
+  it('falls back to surprise when the stored partner has been deleted', async () => {
+    // The core treats an id it cannot find as "pick someone". The picker has
+    // to say the same thing rather than showing an empty select.
+    localStorage.setItem('skellyspeak_persona', 'deleted-one')
+    backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
+    render(<GuidedPage />)
+    const picker = await screen.findByLabelText('Persona:')
+    await waitFor(() => expect(picker).toHaveValue('surprise'))
+  })
+
+  it('surfaces an unreadable personas file instead of losing it quietly', async () => {
+    // Hand-written characters. "They are just gone" with no reason is the
+    // failure this guards.
+    backend.listPersonas.mockResolvedValue({
+      personas: [BAKER],
+      faults: ['Your saved personas could not be read. Nothing was deleted.'],
+    })
+    render(<GuidedPage />)
+    // The fault bar itself lives in App; what this pins is that the fault
+    // leaves the persona code at all rather than being logged and forgotten.
+    const { subscribeFaults } = await import('../lib/faults')
+    const seen: { message: string }[] = []
+    subscribeFaults((f) => seen.push(...f))
+    await waitFor(() =>
+      expect(seen.some((f) => f.message.includes('could not be read'))).toBe(true)
+    )
+  })
+})
+
+describe('the persona panel', () => {
+  beforeEach(() => {
+    backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
+  })
+
+  async function openPanel() {
+    render(<GuidedPage />)
+    fireEvent.click(await screen.findByLabelText('Open the persona panel'))
+    return screen.findByRole('dialog', { name: 'Personas' })
+  }
+
+  it('shows the description that is actually sent to the model', async () => {
+    // Not a paraphrase: the sketch in the panel is the text the reply prompt
+    // is built from, which is the only reason reading it is worth anything.
+    await openPanel()
+    expect(await screen.findByText(/You bake bread overnight/)).toBeInTheDocument()
+  })
+
+  it('refuses to let a built-in be edited, and offers a copy instead', async () => {
+    await openPanel()
+    await screen.findByText(/You bake bread overnight/)
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Duplicate/ }))
+
+    // The fork arrives in the editor unsaved, carrying the original's words.
+    const name = screen.getByPlaceholderText('My uncle Kiko') as HTMLInputElement
+    expect(name.value).toBe('The night-shift baker (mine)')
+  })
+
+  it('saves a persona the learner wrote and puts it in the picker', async () => {
+    backend.savePersona.mockImplementation(async (_id: string, label: string, sketch: string) => {
+      // A save changes what the core has, so the next list includes it.
+      backend.listPersonas.mockResolvedValue({
+        personas: [BAKER, { id: 'my-uncle', label, sketch, builtin: false }],
+        faults: [],
+      })
+      return { id: 'my-uncle', label, sketch, builtin: false }
+    })
+    await openPanel()
+    fireEvent.click(screen.getByRole('button', { name: /Write your own/ }))
+    fireEvent.change(screen.getByPlaceholderText('My uncle Kiko'), {
+      target: { value: 'My uncle' },
+    })
+    fireEvent.change(screen.getByRole('textbox', { name: /Who they are/ }), {
+      target: { value: 'You drive a taxi and are convinced the radio is lying to you.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save persona' }))
+
+    await waitFor(() => expect(backend.savePersona).toHaveBeenCalled())
+    // Persisted through the core, not held in the component: it is in the
+    // PICKER because the list was re-read, which is what makes it survive a
+    // reload. Scoped to the select — the panel's own list uses the option role
+    // too, and finding it only there would prove nothing about the picker.
+    await waitFor(() =>
+      expect(
+        within(screen.getByLabelText('Persona:')).getByRole('option', { name: /My uncle/ })
+      ).toBeInTheDocument()
+    )
+  })
+
+  it('says what is wrong with a description too thin to be a person', async () => {
+    // The core rejects it. The message belongs next to the field, not in the
+    // fault bar at the top of the app.
+    backend.savePersona.mockRejectedValue(new Error('The description is too short to be a person'))
+    await openPanel()
+    fireEvent.click(screen.getByRole('button', { name: /Write your own/ }))
+    fireEvent.change(screen.getByPlaceholderText('My uncle Kiko'), { target: { value: 'X' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save persona' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/too short to be a person/)
+  })
+})
+
+describe('the suggestions panel', () => {
+  it('folds the practice settings away with the suggestions', async () => {
+    // One collapsible, not three strips stacked above a phone keyboard. The
+    // level and topic controls live inside it now, so collapsing has to take
+    // them with it.
+    render(<GuidedPage />)
+    const toggle = await screen.findByTitle('Hide suggestions and settings')
+    expect(screen.getByLabelText('Learner level')).toBeInTheDocument()
+
+    fireEvent.click(toggle)
+
+    await waitFor(() => expect(screen.queryByLabelText('Learner level')).not.toBeInTheDocument())
+    expect(screen.queryByLabelText('Talking to')).not.toBeInTheDocument()
+  })
+
+  it('says what is folded away, so the steering is never invisible', async () => {
+    // Level and topic steer every reply. Hidden AND unstated, they become
+    // settings that silently change the conversation.
+    render(<GuidedPage />)
+    fireEvent.click(await screen.findByTitle('Hide suggestions and settings'))
+    await waitFor(() => expect(screen.getByText(/Beginner/)).toBeInTheDocument())
+    expect(screen.getByText(/any topic/)).toBeInTheDocument()
   })
 })
 

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { Markdown } from './markdown'
 
 function html(text: string): string {
@@ -88,5 +88,53 @@ describe('not trusting model output', () => {
     expect(html('used_target and used_native')).toBe(
       '<p class="md-p">used_target and used_native</p>'
     )
+  })
+})
+
+describe('curiosity markers', () => {
+  it('turns a [[bracketed term]] into something you can press', () => {
+    // The prompt is only allowed to ask the coach for these because pressing
+    // one really does ask about that term. A marker that did nothing would be
+    // decoration dressed as an affordance.
+    const asked = vi.fn()
+    render(<Markdown text="Watch out for the [[subjunctive]] here." onTerm={asked} />)
+    const term = screen.getByRole('button', { name: 'subjunctive' })
+    fireEvent.click(term)
+    expect(asked).toHaveBeenCalledWith('subjunctive')
+  })
+
+  it('renders a marker as plain words when nothing can be asked', () => {
+    // A button nobody can press should look like text, and the reader should
+    // never see the raw brackets either way.
+    const out = html('Watch out for the [[subjunctive]] here.')
+    expect(out).toBe('<p class="md-p">Watch out for the subjunctive here.</p>')
+    expect(out).not.toContain('[[')
+  })
+
+  it('handles several markers in one line, and markup around them', () => {
+    const asked = vi.fn()
+    render(
+      <Markdown
+        text="**Two** rabbit holes: [[el voseo]] and [[the Real Academia]]."
+        onTerm={asked}
+      />
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'el voseo' }))
+    fireEvent.click(screen.getByRole('button', { name: 'the Real Academia' }))
+    expect(asked.mock.calls.map((c) => c[0])).toEqual(['el voseo', 'the Real Academia'])
+  })
+
+  it('works inside bullets, where the coach usually lists them', () => {
+    const asked = vi.fn()
+    render(<Markdown text={'- one thing\n- and [[the other]]'} onTerm={asked} />)
+    fireEvent.click(screen.getByRole('button', { name: 'the other' }))
+    expect(asked).toHaveBeenCalledWith('the other')
+  })
+
+  it('leaves an unclosed or empty marker as the text it is', () => {
+    // Model output. A half-written marker must not swallow the rest of the
+    // sentence, and it must not become a button with no name.
+    expect(html('An [[unclosed marker and more text')).toContain('[[unclosed marker')
+    expect(html('An empty [[]] marker')).toContain('[[]]')
   })
 })

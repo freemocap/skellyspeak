@@ -26,12 +26,15 @@ import { reportFault } from '../../lib/faults'
 const nodeTypes = { skellyspeak: SkellySpeakNode }
 
 const EDGE_STYLE: Record<EdgeKind, { stroke: string; dash?: string; width: number }> = {
-  sequential: { stroke: 'var(--line2)', width: 1.5 },
-  fan_out: { stroke: 'var(--line2)', width: 1.5 },
-  hydrate: { stroke: 'var(--amber-deep)', width: 1.5 },
-  fan_in: { stroke: 'var(--line)', dash: '2 4', width: 1 },
-  conditional: { stroke: 'var(--steel-deep)', dash: '5 4', width: 1.5 },
-  background: { stroke: 'var(--faint-d)', dash: '1 5', width: 1.5 },
+  // Widths and inks chosen so every edge is traceable across a pane. The
+  // faintest greys in the palette (--line, --faint-d) read as smudges at these
+  // lengths, so the dashed kinds sit a step darker and no thinner than 1.5.
+  sequential: { stroke: 'var(--mut-d)', width: 1.5 },
+  fan_out: { stroke: 'var(--mut-d)', width: 1.5 },
+  hydrate: { stroke: 'var(--amber-deep)', width: 2 },
+  fan_in: { stroke: 'var(--mut-d)', dash: '3 4', width: 1.5 },
+  conditional: { stroke: 'var(--steel-deep)', dash: '5 4', width: 1.75 },
+  background: { stroke: 'var(--mut-d)', dash: '2 5', width: 1.5 },
 }
 
 type Positions = Record<string, { x: number; y: number }>

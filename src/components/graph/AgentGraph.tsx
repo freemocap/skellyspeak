@@ -11,6 +11,7 @@ import { logDebug } from '../../lib/log'
 import { GraphPane } from './GraphPane'
 import { NodeInspector } from './NodeInspector'
 import { useDragSize } from '../../lib/useDragSize'
+import { GateControls } from './GateControls'
 import type { Graph, GraphNode, Reconciliation, Run } from '../../types'
 import { reportFault } from '../../lib/faults'
 
@@ -25,6 +26,9 @@ import { reportFault } from '../../lib/faults'
 
 const OPEN_KEY = 'skellyspeak_graph_open'
 const WIDE_KEY = 'skellyspeak_graph_wide'
+// Which pane fills the view. Persisted like the others so a deliberate choice
+// survives, with `null` meaning "show them tiled".
+const MAX_KEY = 'skellyspeak_graph_max'
 
 /// Nothing stored yet is normal and yields `whenUnset`. Stored-but-unreadable
 /// is a fault: it is reported, not quietly swapped for a default.
@@ -58,7 +62,11 @@ export function AgentGraph() {
   const [pickedRunId, setPickedRunId] = useState<number | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   // One pane fills the whole area — VS Code's "maximize editor group".
-  const [maxId, setMaxId] = useState<string | null>(null)
+  // '' is stored for a deliberate "tiled", which is why absence is tested
+  // against null below rather than falsiness.
+  const [maxId, setMaxId] = useState<string | null>(
+    () => localStorage.getItem(MAX_KEY) || null
+  )
 
   // Every boundary in this view is draggable.
   const inspector = useDragSize('skellyspeak_graph_inspector_w', 330, {
@@ -76,6 +84,13 @@ export function AgentGraph() {
       // Default: the turn pipeline only. The rest are one click away.
       setOpenIds(loadIds(OPEN_KEY, gs.length ? [gs[0].id] : []))
       setWideIds(loadIds(WIDE_KEY, []))
+      // One turn of conversation, filling the view, on first open. That is the
+      // pipeline anyone opening this came to look at; a tiled row of small
+      // panes made the interesting one no bigger than the rest. Only when
+      // nothing was ever chosen — a stored '' means tiled on purpose.
+      if (localStorage.getItem(MAX_KEY) === null && gs.length > 0) {
+        setMaxId(gs[0].id)
+      }
     })
     void getRuns().then(setRuns)
     void getReconciliation().then(setRecon)
@@ -175,6 +190,7 @@ export function AgentGraph() {
 
   return (
     <div className="graph-view">
+      <GateControls />
       <div className="graph-tabs">
         {graphs.map((g) => (
           <button
@@ -217,7 +233,13 @@ export function AgentGraph() {
               maximized={maxId === g.id}
               onPick={onPick}
               onToggleWide={() => toggleWide(g.id)}
-              onToggleMax={() => setMaxId((m) => (m === g.id ? null : g.id))}
+              onToggleMax={() =>
+                setMaxId((m) => {
+                  const next = m === g.id ? null : g.id
+                  localStorage.setItem(MAX_KEY, next ?? '')
+                  return next
+                })
+              }
               onClose={() => toggleOpen(g.id)}
               onDragStart={() => setDragId(g.id)}
               onDropOn={() => dropOn(g.id)}
@@ -279,10 +301,21 @@ export function AgentGraph() {
       )}
       <div className="graph-foot">
         <div className="graph-legend">
-          <span className="lg hydrate">hydrate — lands on your screen immediately</span>
-          <span className="lg fan_in">reconcile — never blocks</span>
-          <span className="lg conditional">conditional</span>
-          <span className="lg background">background</span>
+          <span className="lg hydrate" title="Each of these appears the moment it is ready.">
+            hydrate — shows up the moment it is ready
+          </span>
+          <span
+            className="lg fan_in"
+            title="analysis_done merges the finished sections into one authoritative state. You have already seen each one arrive, so this step never makes you wait."
+          >
+            reconcile — merges the results, never makes you wait
+          </span>
+          <span className="lg conditional" title="Only runs when the turn calls for it.">
+            conditional — only when needed
+          </span>
+          <span className="lg background" title="Runs after the reply, out of your way.">
+            background — after the reply
+          </span>
         </div>
       </div>
     </div>

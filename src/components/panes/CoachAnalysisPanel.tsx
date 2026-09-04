@@ -87,6 +87,19 @@ export function CoachAnalysisPanel({
     [thinking, buildCoachContext]
   )
 
+  /// Pressing a `[[curiosity marker]]` the coach wrote asks it about that
+  /// term. The marker goes back verbatim rather than wrapped in a question:
+  /// the coach's own prompt defines what a bare marker means, so no prompt
+  /// English is composed here. Opens the thread, because an answer arriving in
+  /// a collapsed panel is an answer nobody sees.
+  const askAboutTerm = useCallback(
+    (term: string) => {
+      if (!threadOpen) toggleThread()
+      void coachAsk(`[[${term}]]`)
+    },
+    [coachAsk, threadOpen, toggleThread]
+  )
+
   const coachClear = useCallback(() => {
     void invoke('coach_thread_clear').catch((e: unknown) => reportFault('Clearing coach history', e))
     setThread([])
@@ -116,6 +129,7 @@ export function CoachAnalysisPanel({
             turns={turns}
             targetLangCode={targetLangCode}
             nativeLangCode={nativeLangCode}
+            onTerm={askAboutTerm}
           />
           <div className="coach-thread-head">
             <span>your thread{thread.length > 0 ? ` · ${thread.length}` : ''}</span>
@@ -132,7 +146,7 @@ export function CoachAnalysisPanel({
             <div className="coach-thread">
               {thread.map((m, i) => (
                 <div key={i} className={`coach-msg ${m.role}`}>
-                  <Markdown text={m.content} />
+                  <Markdown text={m.content} onTerm={askAboutTerm} />
                 </div>
               ))}
               {thinking && <div className="coach-msg coach">⟳ thinking…</div>}
