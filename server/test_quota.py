@@ -596,3 +596,27 @@ class TestDocumentsWrittenBeforeTheFieldsExisted:
     def test_an_entirely_absent_usage_row_reads_as_nothing(self, db):
         balance = quota.read_balance(db, "google:nobody", limit=500_000)
         assert balance.used == 0 and balance.tokens == 0 and balance.requests == 0
+
+    def test_an_account_created_before_token_versions_can_sign_in_again(self, db):
+        """The sign-in path, against the oldest account shape.
+
+        `upsert_user` runs on every Google callback, so an account written
+        before `token_version` existed hit a KeyError there and could not sign
+        in at all — while the same account's EXISTING session kept working,
+        because that path reads the field somewhere else.
+        """
+        db.store["users/google:ancient"] = {"email": "old@example.com", "name": "Old"}
+        version = quota.upsert_user(
+            db,
+            user_id="google:ancient",
+            email="old@example.com",
+            name="Old",
+            max_users=6,
+        )
+        assert version == 0
+        # And the ceiling did not count them twice on the way through.
+        assert counted(db) == 1
+
+    def test_a_usage_row_missing_micros_does_not_break_the_ceiling_check(self, db):
+        db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"] = {"tokens": 10}
+        quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000)
