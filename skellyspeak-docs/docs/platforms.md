@@ -6,8 +6,8 @@ title: Platforms & Build
 # Platforms & Build
 
 Current reality: **Windows desktop dev works locally, and CI builds and
-publishes every desktop target plus Android on a version tag.** iOS is the one
-gap. The foundation is mobile-shaped — `Cargo.toml` builds `staticlib` +
+publishes every desktop target plus Android and a signed iOS .ipa on a version
+tag.** The foundation is mobile-shaped — `Cargo.toml` builds `staticlib` +
 `cdylib` + `rlib` (`src-tauri/Cargo.toml:9`), all heavy work lives in the Rust
 core, and the frontend is plain React that runs in any webview.
 
@@ -124,7 +124,8 @@ the assets and press Publish.
 | macOS Intel | `macos-latest` | `.dmg` (x86_64 cross-compiled) |
 | Linux x64 | `ubuntu-22.04` | `.deb`, AppImage, `.rpm` |
 | Linux arm64 | `ubuntu-22.04-arm` | `.deb` |
-| Android | `ubuntu-latest` | universal debug-signed `.apk` |
+| Android | `ubuntu-latest` | universal release-signed `.apk` + `.aab` |
+| iOS | `macos-latest` | signed `.ipa` (TestFlight or ad hoc) |
 
 Known gaps, deliberately deferred:
 
@@ -152,7 +153,7 @@ back everything git tracks, since `init` rewrites the manifest, themes,
 | Linux x86_64 | **Built in CI** | deb / AppImage / rpm | webkit2gtk-4.1 dep |
 | Linux aarch64 | **Built in CI** | deb | AppImage on arm64 still to do |
 | Android | **Built in CI** | universal `.apk` + `.aab` | Release-signed with the upload key |
-| iOS | Compiles, not shippable | — | Simulator smoke build only; needs Apple Developer account |
+| iOS | **Built & signed in CI** | `.ipa` | Voice via the core recorder; TestFlight or ad hoc |
 | Browser (no Rust) | Intentionally non-functional | — | `App.tsx` shows a "run via tauri dev" notice |
 
 ## Desktop (today)
@@ -207,32 +208,34 @@ apps, or just tap the APK). For live dev on a connected phone:
 `npx tauri android dev`. Release APK (`--release`, ~smaller) needs a signing
 key — debug key is auto-generated, release is not.
 
-### iOS
+### iOS — **built & signed in CI** (voice in via the core recorder)
 
-`.github/workflows/ios-smoke.yml` (manual trigger) scaffolds the Xcode project
-on a CI Mac and builds for the simulator unsigned, which is as far as this can
-go for free — an unsigned `.ipa` installs nowhere. It is deliberately kept out
-of the release workflow so a broken iOS toolchain never blocks a release.
+iOS cannot be built on Windows at all — Tauri's `ios` subcommand does not even
+exist in the Windows CLI, and Xcode does the signing. Everything happens on a
+`macos-latest` runner.
 
-To actually ship:
-
-1. **Prereqs:** a Mac with Xcode, Apple Developer account (for device +
-   TestFlight; simulator is free). Rust target `aarch64-apple-ios`.
-2. **Scaffold:** `npm run tauri ios init` → `src-tauri/gen/apple` (Xcode
-   project). This cannot be done from the Windows dev machine.
-3. **Permissions:** `NSMicrophoneUsageDescription` is in `src-tauri/Info.plist`,
-   which the bundler merges for iOS as well as macOS.
-4. **Recording:** iOS is a WKWebView, so it has no `navigator.mediaDevices`
-   for the same reason macOS does not, and `mic_native` is false there today
-   — the mobile branch is chosen by `cfg!(desktop)`, which iOS is not. Either
-   extend the core recorder to iOS (cpal supports it, and `AVAudioSession`
-   needs its category set before recording) or ship iOS without voice input.
-   This is the decision iOS cannot ship without. The upload format itself is
-   no longer a risk: `transcribe_audio` reads the container from the bytes,
-   and already recognises the MP4/AAC a WKWebView produces.
-5. **Layout:** same narrow-viewport work; also safe-area insets.
-6. **Keys on mobile:** settings.json lands in the app sandbox config dir —
-   works, but review R12 (keychain) with mobile in mind.
+- **Scaffold + build:** `.github/workflows/ios-distribute.yml` runs
+  `npx tauri ios init` (→ `src-tauri/gen/apple`, gitignored), imports the
+  signing identity + provisioning profile, and archives/exports a **signed
+  `.ipa`** via `xcodebuild archive` + `-exportArchive`. It fires on a `v*`
+  tag and on demand (`workflow_dispatch` — choose `app-store-connect` for
+  TestFlight or `ad-hoc` for direct device install).
+- **Signing:** needs an **Apple Distribution** certificate (NOT the
+  "Developer ID Application" cert used for macOS) and a provisioning profile
+  for `com.freemocap.skellyspeak`. Both live in repo secrets
+  (`IOS_CERTIFICATE_P12`, `IOS_CERTIFICATE_PASSWORD`,
+  `IOS_PROVISION_PROFILE`); the workflow extracts the profile name at runtime,
+  so there is no extra variable to keep in sync.
+- **Voice input:** iOS is a WKWebView, so it has no `navigator.mediaDevices`
+  for the same reason macOS does not — and Android is now the *only* platform
+  that records in the webview. Desktop and iOS both record in the core with
+  cpal (`mic_native` returns true on iOS). On iOS the recorder first configures
+  `AVAudioSession` (category playAndRecord, mode measurement, activated) via
+  `objc2-av-foundation`, then captures with the same cpal + hound WAV path as
+  desktop. `NSMicrophoneUsageDescription` is already in `src-tauri/Info.plist`.
+- **Layout:** same narrow-viewport work; also safe-area insets.
+- **Keys on mobile:** settings.json lands in the app sandbox config dir —
+  works, but review R12 (keychain) with mobile in mind.
 
 ### Shared mobile concerns
 - **Streaming:** SSE via reqwest works on both, but verify streaming

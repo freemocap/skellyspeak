@@ -19,6 +19,11 @@ src-tauri/gen/android/app/src/main/jniLibs/
 src-tauri/gen/android/app/src/main/java/**/generated/
 src-tauri/gen/android/tauri.settings.gradle
 
+# Tauri regenerates gen/apple on `tauri ios init` — it needs Xcode, so it
+# is produced on the CI Mac and never committed from Windows (the `ios`
+# subcommand does not even exist in the Windows CLI).
+src-tauri/gen/apple/
+
 # Built APKs
 .build-artifacts/
 
