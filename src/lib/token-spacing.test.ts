@@ -15,4 +15,10 @@ describe('needsSpaceBetween', () => {
   it('space between words', () => {
     expect(needsSpaceBetween('Hola', 'mundo')).toBe(true)
   })
+
+  it('no space before CJK punctuation', () => {
+    expect(needsSpaceBetween('你好', '。')).toBe(false)
+    expect(needsSpaceBetween('吗', '？')).toBe(false)
+    expect(needsSpaceBetween('我', '，')).toBe(false)
+  })
 })

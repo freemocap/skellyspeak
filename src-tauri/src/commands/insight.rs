@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tauri::{State};
 use crate::ontology;
-use crate::languages::{language_display, native_display};
+use crate::languages::{inflects, language_display, native_display};
 use crate::prompts;
 use crate::trace::{RunContext};
 use crate::AppState;
@@ -50,7 +50,7 @@ pub async fn word_insight(
     let tln = language_display(&stored.target_language);
     let native = native_display(&stored.native_language);
     let messages = vec![
-        json!({"role": "system", "content": prompts::analysis::word_insight_prompt(&tln, &native)}),
+        json!({"role": "system", "content": prompts::analysis::word_insight_prompt(&tln, &native, inflects(&stored.target_language))}),
         json!({"role": "user", "content": prompts::analysis::word_insight_turn(&word, &sentence)}),
     ];
     let provider = stored.chat_provider(&stored.openrouter_model)?;

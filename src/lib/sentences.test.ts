@@ -39,6 +39,13 @@ describe('groupSentences', () => {
     const s = groupSentences(['Hola', 'mundo'].map(t))
     expect(s).toHaveLength(1)
   })
+
+  it('splits on CJK terminators (。！？)', () => {
+    const s = groupSentences(['你好', '吗？', '我', '很好。'].map(t))
+    expect(s).toHaveLength(2)
+    expect(s[0].map((x) => x.text)).toEqual(['你好', '吗？'])
+    expect(s[1].map((x) => x.text)).toEqual(['我', '很好。'])
+  })
 })
 
 describe('splitSentences', () => {
@@ -50,5 +57,9 @@ describe('splitSentences', () => {
     expect(splitSentences('Bueno…')).toEqual(['Bueno…'])
     expect(splitSentences('Hola mundo')).toEqual(['Hola mundo'])
     expect(splitSentences('')).toEqual([])
+  })
+
+  it('splits CJK text on 。！？', () => {
+    expect(splitSentences('你好吗？我很好。')).toEqual(['你好吗？', '我很好。'])
   })
 })

@@ -27,6 +27,14 @@ pub struct Language {
     /// Romanization scheme for non-Latin scripts (ALA-LC, PINYIN, ...), or
     /// None for Latin-script languages.
     pub romanization: Option<&'static str>,
+    /// Whether words are separated by spaces. False means the script needs
+    /// word segmentation (Chinese/Japanese) and the tokenization prompts must
+    /// say so.
+    pub word_delimited: bool,
+    /// Whether words inflect (conjugation/declension). False for isolating
+    /// languages (Mandarin); the word-insight prompt describes particles and
+    /// measure words instead of tense/person/number/gender.
+    pub inflects: bool,
     /// Regional variants of this language. The first entry is the default.
     pub dialects: &'static [(&'static str, &'static str)],
 }
@@ -42,6 +50,8 @@ pub const LANGUAGES: &[Language] = &[
             ("en-US", "Standard American"),
         ],
         romanization: None,
+        word_delimited: true,
+        inflects: true,
     },
     Language {
         code: "fr-FR",
@@ -54,6 +64,8 @@ pub const LANGUAGES: &[Language] = &[
             ("fr-CA", "Québécois (Canada)"),
         ],
         romanization: None,
+        word_delimited: true,
+        inflects: true,
     },
     Language {
         code: "es-ES",
@@ -67,6 +79,8 @@ pub const LANGUAGES: &[Language] = &[
             ("es-AR", "Rioplatense (Argentina)"),
         ],
         romanization: None,
+        word_delimited: true,
+        inflects: true,
     },
     Language {
         code: "ar",
@@ -80,6 +94,23 @@ pub const LANGUAGES: &[Language] = &[
             ("ar-MSA", "Modern Standard Arabic"),
         ],
         romanization: Some("ALA-LC"),
+        word_delimited: true,
+        inflects: true,
+    },
+    Language {
+        code: "zh-CN",
+        base: "zh",
+        name: "Chinese (Mandarin)",
+        endonym: "中文",
+        direction: "ltr",
+        dialects: &[
+            ("zh-CN", "Simplified (Mainland)"),
+            ("zh-TW", "Traditional (Taiwan)"),
+            ("zh-SG", "Singapore (Simplified)"),
+        ],
+        romanization: Some("PINYIN"),
+        word_delimited: false,
+        inflects: false,
     },
 ];
 
@@ -179,6 +210,28 @@ pub fn romanization(code: &str) -> Option<&'static str> {
         .iter()
         .find(|l| l.code == code || l.base == code.split('-').next().unwrap_or(code))
         .and_then(|l| l.romanization)
+}
+
+/// Whether this language separates words with spaces. False for scripts that
+/// need segmentation (Mandarin); the tokenization prompts add a segmentation
+/// instruction. Unknown codes default to true (space-delimited).
+pub fn word_delimited(code: &str) -> bool {
+    LANGUAGES
+        .iter()
+        .find(|l| l.code == code || l.base == code.split('-').next().unwrap_or(code))
+        .map(|l| l.word_delimited)
+        .unwrap_or(true)
+}
+
+/// Whether words change form (conjugation/declension). False for isolating
+/// languages (Mandarin); the word-insight prompt describes particles instead.
+/// Unknown codes default to true (inflecting).
+pub fn inflects(code: &str) -> bool {
+    LANGUAGES
+        .iter()
+        .find(|l| l.code == code || l.base == code.split('-').next().unwrap_or(code))
+        .map(|l| l.inflects)
+        .unwrap_or(true)
 }
 
 /// Dialects for a language code: (id, display label). Empty for unknown.

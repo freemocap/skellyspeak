@@ -22,6 +22,7 @@ pub fn for_code(code: &str) -> &'static str {
         "fr-FR" => FR_FR,
         "es-ES" => ES_ES,
         "ar" => AR,
+        "zh-CN" => ZH_CN,
         _ => "",
     }
 }
@@ -61,3 +62,11 @@ const AR: &str = "Language-specific guidance:\n\
     - Pay attention to root-and-pattern morphology: forms I-X change meaning systematically.\n\
     - gender and number agreement are mandatory; the dual form exists alongside singular and plural.\n\
     - Do not vocalize with full diacritics (tashkeel); write as natives type, unvocalized.{dialect}";
+
+const ZH_CN: &str = "Language-specific guidance:\n\
+    - Use the selected variety's standard characters: Simplified for Mainland/Singapore, Traditional for Taiwan.\n\
+    - Write naturally with no spaces between characters; never split words with spaces.\n\
+    - Chinese has no inflection: no tense, gender, number, or agreement. Use aspect particles (了, 着, 过), measure words (量词), and structural particles (的, 地, 得) correctly.\n\
+    - Pay close attention to word order, topic-comment structure, and 把/被 constructions.\n\
+    - Keep register natural: use 你 by default and 您 for formal address when appropriate.\n\
+    - Never write pinyin or romanization inside the reply.{dialect}";
