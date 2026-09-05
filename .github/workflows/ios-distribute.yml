@@ -137,6 +137,7 @@ jobs:
             -configuration Release \
             -archivePath "$RUNNER_TEMP/SkellySpeak.xcarchive" \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
 
