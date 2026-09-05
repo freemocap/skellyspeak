@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_geolibre_tmp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/_tauri_src_tmp" vcs="Git" />
   </component>
 </project>
