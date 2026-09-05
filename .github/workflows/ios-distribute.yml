@@ -69,34 +69,6 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
-      # The generated scheme maps its Archive action to Debug, so `xcodebuild
-      # archive -configuration Release` still builds in Debug — and Tauri's
-      # "Build Rust Code" phase then runs in dev mode and panics looking for a
-      # dev-server address file that only `tauri ios dev` creates. Force the
-      # Archive action to Release so the Rust core builds for distribution.
-      - name: Force the Archive action to use Release
-        run: |
-          scheme=$(find src-tauri/gen/apple -name '*.xcscheme' | head -1)
-          [ -n "$scheme" ] || { echo "::error::no .xcscheme generated"; exit 1; }
-          echo "scheme file: $scheme"
-          python3 - "$scheme" <<'PY'
-          import re, sys
-          path = sys.argv[1]
-          s = open(path, encoding="utf-8").read()
-          patched, n = re.subn(
-              r'(<ArchiveAction\b(?:(?!>).)*?buildConfiguration\s*=\s*)"Debug"',
-              r'\1"Release"',
-              s,
-              flags=re.S,
-          )
-          if n:
-              open(path, "w", encoding="utf-8").write(patched)
-              print(f"patched ArchiveAction -> Release ({n} match)")
-          else:
-              print("ArchiveAction was not Debug; nothing patched")
-          PY
-          grep -n 'ArchiveAction' -A 3 "$scheme"
-
       # ── Signing identity + provisioning profile ──────────────────────────
       # iOS needs an "Apple Distribution" certificate (NOT the "Developer ID
       # Application" cert used for macOS) plus a provisioning profile tied to
@@ -162,7 +134,7 @@ jobs:
             -project "$proj" \
             -scheme "$scheme" \
             -sdk iphoneos \
-            -configuration Release \
+            -configuration release \
             -archivePath "$RUNNER_TEMP/SkellySpeak.xcarchive" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
