@@ -1,32 +1,18 @@
 name: iOS distribute
 
-# Builds a SIGNED iOS .ipa for distribution to testers.
+# Builds a SIGNED iOS .ipa for TestFlight / App Store Connect distribution.
 #
 # iOS cannot be built on Windows or Linux — Tauri's `ios` subcommand only
 # exists on macOS, and Xcode does the signing. This workflow runs on a macOS
-# runner and produces the .ipa that is then handed to testers:
-#
-#   - TestFlight (default, method "app-store-connect"): upload the .ipa to
-#     App Store Connect and add testers there. Not the App Store — a beta
-#     track. This is the recommended route for friends and testers.
-#   - Ad hoc (method "ad-hoc"): install directly on devices whose UDIDs are
-#     listed in the provisioning profile (max 100 devices/year).
-#
-# Deliberately NOT folded into release.yml yet: iOS signing is new and needs
-# its own failure surface while it stabilises. Once proven it can be promoted
-# into the release workflow. It still fires on a v* tag so a normal release
-# carries the .ipa alongside the desktop and Android artifacts.
+# runner and produces the .ipa via `tauri ios build`, the canonical command:
+# it starts the internal JSON-RPC "options" server that the Xcode "Build Rust
+# Code" phase connects to (a raw xcodebuild invocation cannot), imports the
+# signing identity + provisioning profile, and exports the signed .ipa in one
+# shot. The .ipa lands at src-tauri/gen/apple/build/arm64/SkellySpeak.ipa.
 
 on:
   workflow_dispatch:
     inputs:
-      export_method:
-        description: "How the .ipa is provisioned"
-        type: choice
-        default: "app-store-connect"
-        options:
-          - app-store-connect
-          - ad-hoc
       release_tag:
         description: "Optional tag to attach the .ipa to (e.g. v0.4.7). Leave empty to skip."
         type: string
@@ -39,7 +25,7 @@ permissions:
 
 jobs:
   build-ipa:
-    name: Build iOS .ipa (${{ github.event_name == 'workflow_dispatch' && inputs.export_method || 'app-store-connect' }})
+    name: Build iOS .ipa
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
@@ -51,7 +37,7 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+          targets: aarch64-apple-ios
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -65,120 +51,35 @@ jobs:
 
       # gen/apple is gitignored — it is generated on a Mac (Xcode) and never
       # committed from Windows, exactly like the Android scaffold is regenerated
-      # on CI. `init` also rewrites tracked files if any exist; there are none.
+      # on CI.
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
-      # ── Signing identity + provisioning profile ──────────────────────────
-      # iOS needs an "Apple Distribution" certificate (NOT the "Developer ID
-      # Application" cert used for macOS) plus a provisioning profile tied to
-      # the bundle id. Both come from secrets; their absence must fail loudly
-      # rather than produce an unsigned .ipa that installs nowhere.
-      - name: Import the signing certificate and provisioning profile
+      # Build + sign + export the .ipa in one step. Manual signing is driven by
+      # Tauri's own env vars (IOS_CERTIFICATE / IOS_CERTIFICATE_PASSWORD /
+      # IOS_MOBILE_PROVISION) — the repo secrets use friendlier names, so map
+      # them here. CI=true is already set by GitHub, which Tauri maps to --ci.
+      - name: Build the signed .ipa
         env:
-          IOS_CERTIFICATE_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE_P12 }}
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          IOS_PROVISION_PROFILE: ${{ secrets.IOS_PROVISION_PROFILE }}
+          IOS_MOBILE_PROVISION: ${{ secrets.IOS_PROVISION_PROFILE }}
+          APPLE_DEVELOPMENT_TEAM: U8LBJLBYPR
         run: |
           set -euo pipefail
-          [ -n "$IOS_CERTIFICATE_P12" ] || { echo "::error::IOS_CERTIFICATE_P12 is not set"; exit 1; }
-          [ -n "$IOS_CERTIFICATE_PASSWORD" ] || { echo "::error::IOS_CERTIFICATE_PASSWORD is not set"; exit 1; }
-          [ -n "$IOS_PROVISION_PROFILE" ] || { echo "::error::IOS_PROVISION_PROFILE is not set"; exit 1; }
+          [ -n "$IOS_CERTIFICATE" ] || { echo "::error::IOS_CERTIFICATE_P12 secret is not set"; exit 1; }
+          [ -n "$IOS_CERTIFICATE_PASSWORD" ] || { echo "::error::IOS_CERTIFICATE_PASSWORD secret is not set"; exit 1; }
+          [ -n "$IOS_MOBILE_PROVISION" ] || { echo "::error::IOS_PROVISION_PROFILE secret is not set"; exit 1; }
+          npx tauri ios build --export-method app-store-connect
 
-          # A throwaway keychain so the runner's default login keychain is not
-          # polluted, and so codesign never needs to prompt for a password.
-          KEYCHAIN_PW=$(openssl rand -base64 24)
-          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
-          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN"
-          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
-
-          echo "$IOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
-          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -T /usr/bin/security
-          # Allow codesign to use the key without a GUI prompt. Without this
-          # xcodebuild fails with "errSecInternalComponent" / "user interaction
-          # is not allowed" on headless runners.
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PW" "$KEYCHAIN"
-          # Point codesign's search list at the temp keychain, which holds the
-          # signing identity imported above.
-          security list-keychains -d user -s "$KEYCHAIN"
-
-          # Install the provisioning profile under its UUID (the filename
-          # Xcode actually looks for), and surface its Name for the export.
-          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          mkdir -p "$PROFILE_DIR"
-          echo "$IOS_PROVISION_PROFILE" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
-          security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" > "$RUNNER_TEMP/profile.plist"
-          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$RUNNER_TEMP/profile.plist")
-          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$RUNNER_TEMP/profile.plist")
-          cp "$RUNNER_TEMP/profile.mobileprovision" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
-          echo "provisioning profile: $PROFILE_NAME ($PROFILE_UUID)"
-          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
-
-      - name: Archive and export the .ipa
-        env:
-          EXPORT_METHOD: ${{ github.event_name == 'workflow_dispatch' && inputs.export_method || 'app-store-connect' }}
-          DEVELOPMENT_TEAM: U8LBJLBYPR
-          BUNDLE_ID: com.freemocap.skellyspeak
-        run: |
-          set -euo pipefail
-          # Tauri's "Build Rust Code" phase reads a dev-server address file and
-          # panics if it is missing, even for a release build. That file only
-          # exists during a live tauri dev session, so provide a harmless dummy
-          # (its value is ignored when the frontend is bundled from dist).
-          printf '127.0.0.1:1420' > "${TMPDIR}com.freemocap.skellyspeak-server-addr"
-          proj=$(ls -d src-tauri/gen/apple/*.xcodeproj | head -1)
-          [ -n "$proj" ] || { echo "::error::tauri ios init produced no .xcodeproj"; exit 1; }
-          scheme=$(xcodebuild -project "$proj" -list | awk '/Schemes:/{f=1;next} f&&NF{print $1; exit}')
-          echo "project=$proj scheme=$scheme method=$EXPORT_METHOD"
-
-          # Manual signing: the cert and profile are the ones just installed,
-          # so there is nothing for Xcode to "resolve" — and no dependence on
-          # the runner being logged into a developer account.
-          xcodebuild archive \
-            -project "$proj" \
-            -scheme "$scheme" \
-            -sdk iphoneos \
-            -configuration release \
-            -archivePath "$RUNNER_TEMP/SkellySpeak.xcarchive" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
-
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key><string>$EXPORT_METHOD</string>
-            <key>teamID</key><string>$DEVELOPMENT_TEAM</string>
-            <key>signingStyle</key><string>manual</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>$BUNDLE_ID</key><string>$PROFILE_NAME</string>
-            </dict>
-            <key>compileBitcode</key><false/>
-          </dict>
-          </plist>
-          EOF
-
-          xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/SkellySpeak.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-            -exportPath "$RUNNER_TEMP/ipa"
-
-          ipa=$(find "$RUNNER_TEMP/ipa" -name '*.ipa' | head -1)
-          [ -n "$ipa" ] || { echo "::error::no .ipa was produced"; exit 1; }
-          echo "built: $ipa"
-          ls -lh "$RUNNER_TEMP/ipa"
-
-      # A green archive that produced an unsigned or wrong-team .ipa is the
-      # exact failure this step exists to catch: xcodebuild can exit 0 while
-      # codesign silently picked a different identity.
+      # A green build that produced an unsigned or wrong-team .ipa must not
+      # ship: assert the signature explicitly.
       - name: Verify the .ipa is signed for the right team
         run: |
-          ipa=$(find "$RUNNER_TEMP/ipa" -name '*.ipa' | head -1)
+          ipa=$(find src-tauri/gen/apple/build -name '*.ipa' | head -1)
+          [ -n "$ipa" ] || { echo "::error::no .ipa produced"; exit 1; }
+          echo "built: $ipa"
+          ls -lh "$ipa"
           unzip -q "$ipa" -d "$RUNNER_TEMP/ipa-unzipped"
           app=$(find "$RUNNER_TEMP/ipa-unzipped/Payload" -name '*.app' | head -1)
           codesign -dv --verbose=2 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
@@ -188,7 +89,7 @@ jobs:
 
       - name: Collect the .ipa
         run: |
-          ipa=$(find "$RUNNER_TEMP/ipa" -name '*.ipa' | head -1)
+          ipa=$(find src-tauri/gen/apple/build -name '*.ipa' | head -1)
           v=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
           mkdir -p dist-ios
           cp "$ipa" "dist-ios/SkellySpeak_${v}.ipa"
@@ -225,13 +126,6 @@ jobs:
 # step that needs an App Store Connect app record:
 #
 #   1. In App Store Connect create the app (bundle id com.freemocap.skellyspeak).
-#   2. Upload the .ipa. Easiest is Apple's Transporter app (drag the .ipa in),
-#      or from a Mac CLI:
-#        xcrun altool --upload-app -f SkellySpeak_x.y.z.ipa -t ios -u APPLE_ID -p APP_SPECIFIC_PASSWORD
-#      (altool is deprecated but still works; fastlane "deliver" is the modern
-#      scriptable route.)
+#   2. Upload the .ipa. Easiest is Apple's Transporter app (drag the .ipa in).
 #   3. In TestFlight add Internal testers (team, no review) or External
 #      testers (up to 10,000, one-time beta review, public link).
-#
-# Ad hoc instead: install via Apple Configurator/Finder with each device's
-# UDID listed in the "ad-hoc" provisioning profile.

@@ -42,18 +42,12 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
+      # Use tauri ios build (not raw xcodebuild): it starts the JSON-RPC
+      # options server that the Xcode Build Rust Code phase connects to.
+      # Raw xcodebuild would panic on that missing server. The simulator
+      # target needs no code signing.
       - name: Build for the simulator
-        run: |
-          proj=$(ls -d src-tauri/gen/apple/*.xcodeproj | head -1)
-          [ -n "$proj" ] || { echo "::error::tauri ios init produced no .xcodeproj"; exit 1; }
-          scheme=$(xcodebuild -project "$proj" -list | awk '/Schemes:/{f=1;next} f&&NF{print $1; exit}')
-          echo "project=$proj scheme=$scheme"
-          xcodebuild build \
-            -project "$proj" \
-            -scheme "$scheme" \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
+        run: npx tauri ios build --target aarch64-sim
 
       # gen/apple is generated on a Mac and never committed from Windows —
       # keep a copy so the scaffold can be inspected without a Mac to hand.
