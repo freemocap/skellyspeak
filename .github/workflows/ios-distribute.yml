@@ -28,28 +28,27 @@ on:
     tags: ['v*']
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-ipa:
     name: Build iOS .ipa
     runs-on: macos-latest
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
           cache: npm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
         with:
+          toolchain: stable
           targets: aarch64-apple-ios
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-          key: ios
 
       - run: npm ci
 
@@ -62,6 +61,9 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
+      - name: Check iOS Rust code before loading signing credentials
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml --target aarch64-apple-ios --lib --features tauri/custom-protocol
+
       # Stage signing assets ourselves: temp keychain (full non-interactive
       # recipe, mirrors tauri-macos-sign/src/keychain.rs) + profile installed
       # under its UUID for both Xcode profile locations.
@@ -72,6 +74,7 @@ jobs:
           IOS_MOBILE_PROVISION: ${{ secrets.IOS_PROVISION_PROFILE }}
         run: |
           set -euo pipefail
+          umask 077
           [ -n "$IOS_CERTIFICATE" ] || { echo "::error::IOS_CERTIFICATE_P12 secret is not set"; exit 1; }
           [ -n "$IOS_CERTIFICATE_PASSWORD" ] || { echo "::error::IOS_CERTIFICATE_PASSWORD secret is not set"; exit 1; }
           [ -n "$IOS_MOBILE_PROVISION" ] || { echo "::error::IOS_PROVISION_PROFILE secret is not set"; exit 1; }
@@ -80,13 +83,40 @@ jobs:
           P12="$RUNNER_TEMP/certificate.p12"
           printf '%s' "$IOS_MOBILE_PROVISION" | base64 -D > "$PROFILE"
           printf '%s' "$IOS_CERTIFICATE" | base64 -D > "$P12"
-          head -c 16 "$PROFILE" | xxd
+          security cms -D -i "$PROFILE" > "$RUNNER_TEMP/ios-profile.plist"
+          python3 - <<'PY'
+          import datetime
+          import os
+          import pathlib
+          import plistlib
 
+          profile_path: pathlib.Path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "ios-profile.plist"
+          profile: dict[str, object] = plistlib.loads(data=profile_path.read_bytes())
+          entitlements: object = profile["Entitlements"]
+          if not isinstance(entitlements, dict):
+              raise TypeError("Profile entitlements must be a dictionary")
+          if profile["TeamIdentifier"] != ["U8LBJLBYPR"]:
+              raise ValueError("Provisioning profile belongs to another team")
+          if entitlements["application-identifier"] != "U8LBJLBYPR.com.freemocap.skellyspeak":
+              raise ValueError("Provisioning profile belongs to another application")
+          if entitlements.get("get-task-allow") is not False:
+              raise ValueError("Distribution profile must disable debugger access")
+          if "ProvisionedDevices" in profile or profile.get("ProvisionsAllDevices", False):
+              raise ValueError("An App Store distribution profile is required")
+          expires: object = profile["ExpirationDate"]
+          if not isinstance(expires, datetime.datetime):
+              raise TypeError("Profile expiration must be a datetime")
+          if expires <= datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None):
+              raise ValueError("Provisioning profile has expired")
+          PY
           PROFILE_UUID=$(security cms -D -i "$PROFILE" | plutil -extract UUID raw -o - -)
+          [[ "$PROFILE_UUID" =~ ^[0-9A-Fa-f-]{36}$ ]] || { echo "::error::invalid profile UUID"; exit 1; }
+          printf '%s' "$PROFILE_UUID" > "$RUNNER_TEMP/ios-profile-uuid"
           echo "profile UUID: $PROFILE_UUID"
 
           KEYCHAIN="$RUNNER_TEMP/skellyspeak-ios.keychain-db"
           KEYCHAIN_PASS=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASS"
           security create-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN"
           security set-keychain-settings -t 3600 -u "$KEYCHAIN"
           security unlock-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN"
@@ -95,6 +125,7 @@ jobs:
             -k "$KEYCHAIN"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
             -k "$KEYCHAIN_PASS" "$KEYCHAIN"
+          rm "$P12"
           # append (not replace) the runner's existing keychain search list
           security list-keychain -d user -s \
             $(security list-keychain -d user | tr -d '"' | tr '\n' ' ') "$KEYCHAIN"
@@ -111,6 +142,7 @@ jobs:
           mkdir -p "$PP" "$XP"
           cp "$PROFILE" "$PP/$PROFILE_UUID.mobileprovision"
           cp "$PROFILE" "$XP/$PROFILE_UUID.mobileprovision"
+          rm "$PROFILE"
 
           # expose to the following steps
           {
@@ -216,14 +248,24 @@ jobs:
       # ship: assert the signature explicitly.
       - name: Verify the .ipa is signed for the right team
         run: |
+          set -euo pipefail
           ipa=$(find src-tauri/gen/apple/build -name '*.ipa' | head -1)
           [ -n "$ipa" ] || { echo "::error::no .ipa produced"; exit 1; }
           echo "built: $ipa"
           ls -lh "$ipa"
           unzip -q "$ipa" -d "$RUNNER_TEMP/ipa-unzipped"
           app=$(find "$RUNNER_TEMP/ipa-unzipped/Payload" -name '*.app' | head -1)
+          [ -n "$app" ] || { echo "::error::no app in .ipa"; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$app"
+          BUNDLE_ID=$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")
+          [ "$BUNDLE_ID" = com.freemocap.skellyspeak ] || { echo "::error::unexpected bundle identifier"; exit 1; }
+          MICROPHONE_USAGE=$(plutil -extract NSMicrophoneUsageDescription raw -o - "$app/Info.plist")
+          [ -n "$MICROPHONE_USAGE" ] || { echo "::error::microphone usage description missing"; exit 1; }
+          codesign -d --entitlements :- "$app" > "$RUNNER_TEMP/ios-entitlements.plist"
+          DEBUG_ALLOWED=$(plutil -extract get-task-allow raw -o - "$RUNNER_TEMP/ios-entitlements.plist")
+          [ "$DEBUG_ALLOWED" = false ] || { echo "::error::distribution app allows debugging"; exit 1; }
           codesign -dv --verbose=2 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
-          grep -q 'TeamIdentifier=U8LBJLBYPR' "$RUNNER_TEMP/codesign.txt" || {
+          grep -qx 'TeamIdentifier=U8LBJLBYPR' "$RUNNER_TEMP/codesign.txt" || {
             echo "::error::the .ipa was not signed by team U8LBJLBYPR"; exit 1; }
           echo "signature verified: team U8LBJLBYPR"
 
@@ -235,30 +277,60 @@ jobs:
           cp "$ipa" "dist-ios/SkellySpeak_${v}.ipa"
           ls -lh dist-ios
 
-      - uses: actions/upload-artifact@v4
+      - name: Remove signing credentials
+        if: always()
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/skellyspeak-ios.keychain-db"
+          if [ -f "$KEYCHAIN" ]; then
+            security delete-keychain "$KEYCHAIN"
+          fi
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/profile.mobileprovision" "$RUNNER_TEMP/ios-profile.plist"
+          if [ -f "$RUNNER_TEMP/ios-profile-uuid" ]; then
+            PROFILE_UUID=$(cat "$RUNNER_TEMP/ios-profile-uuid")
+            [[ "$PROFILE_UUID" =~ ^[0-9A-Fa-f-]{36}$ ]] || { echo "::error::invalid profile UUID"; exit 1; }
+            rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision" \
+              "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/$PROFILE_UUID.mobileprovision" \
+              "$RUNNER_TEMP/ios-profile-uuid"
+          fi
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ios-ipa
           path: dist-ios/*.ipa
           retention-days: 14
+          if-no-files-found: error
 
-      # On a tag, attach the .ipa to the release draft (created by release.yml,
-      # or here if this workflow is run on its own). Manual runs attach only
-      # when release_tag was supplied.
+  attach-release:
+    name: Attach verified IPA to release
+    needs: build-ipa
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
+    steps:
+      - name: Download this run's verified IPA
+        run: gh run download "$GITHUB_RUN_ID" --name ios-ipa --dir dist-ios
+
       - name: Attach the .ipa to a release
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
         run: |
           set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]] || { echo "::error::invalid release tag"; exit 1; }
+          TAG_SHA=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
+          [ "$TAG_SHA" = "$GITHUB_SHA" ] || { echo "::error::release tag does not match the built commit"; exit 1; }
           if ! gh release view "$TAG" --json id >/dev/null 2>err.txt; then
             if grep -qi "release not found" err.txt; then
-              gh release create "$TAG" --draft --title "SkellySpeak $TAG" --notes 'iOS build attached.'
+              gh release create "$TAG" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'iOS build attached.'
             else
               cat err.txt; exit 1
             fi
           fi
-          gh release upload "$TAG" dist-ios/*.ipa --clobber
+          gh release upload "$TAG" dist-ios/*.ipa
           echo "attached the .ipa to release $TAG"
 
 # ── Uploading to TestFlight (done by hand today) ─────────────────────────────

@@ -50,6 +50,7 @@ hound = "3.5"
 # of AVAudioSession; its 0.3 line matches the objc2 0.6.x framework crates the
 # rest of the tree already resolves (objc2-foundation 0.3.2 etc.).
 [target.'cfg(target_os = "ios")'.dependencies]
+block2 = "0.6"
 objc2 = "0.6"
 objc2-foundation = "0.3"
 objc2-avf-audio = "0.3"
