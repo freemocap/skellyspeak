@@ -61,6 +61,7 @@
       "icons/icon.ico"
     ],
     "iOS": {
+      "minimumSystemVersion": "15.0",
       "frameworks": [
         "AVFoundation",
         "AudioToolbox"
