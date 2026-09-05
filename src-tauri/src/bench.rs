@@ -131,7 +131,7 @@ async fn model_bench() {
 
         // 2. Tokens — on the loop bait.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::analysis::tokens_prompt(tln, native, None)}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::tokens_prompt(tln, native, None, true)}),
             serde_json::json!({"role": "user", "content": prompts::analysis::tokenize_reply_turn(&reply_text)}),
         ];
         let start = Instant::now();
@@ -274,7 +274,7 @@ async fn model_bench() {
         }
 
         // 7. Learner tokens — the call that hit the old 6000-token cap.
-        let sys = prompts::analysis::learner_tokens_prompt(tln, native, None);
+        let sys = prompts::analysis::learner_tokens_prompt(tln, native, None, true);
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),
             serde_json::json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(SAMPLE_LEARNER_MESSAGE)}),

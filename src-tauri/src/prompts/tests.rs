@@ -303,11 +303,11 @@ fn the_coach_writes_in_the_learners_own_language() {
 fn structured_prompts_all_say_how_to_answer_with_nothing() {
     // Every schema is strict, so "required" must not come to mean "invented".
     for p in [
-        analysis::tokens_prompt("Spanish", "English", None),
+        analysis::tokens_prompt("Spanish", "English", None, true),
         analysis::translation_prompt("Spanish", "English"),
         analysis::mechanics_prompt("Spanish", "A2", "English", ""),
         analysis::scaffolds_prompt("Spanish", "English", ""),
-        analysis::learner_tokens_prompt("Spanish", "English", None),
+        analysis::learner_tokens_prompt("Spanish", "English", None, true),
         story::story_prompt("Spanish", "A2", "English", "beginner", ""),
     ] {
         assert!(p.contains(NOT_APPLICABLE), "a strict schema with no escape hatch");
@@ -316,10 +316,31 @@ fn structured_prompts_all_say_how_to_answer_with_nothing() {
 
 #[test]
 fn romanization_rides_with_the_language_not_the_prompt() {
-    let latin = analysis::tokens_prompt("Spanish", "English", None);
-    let arabic = analysis::tokens_prompt("Arabic", "English", Some("ALA-LC"));
+    let latin = analysis::tokens_prompt("Spanish", "English", None, true);
+    let arabic = analysis::tokens_prompt("Arabic", "English", Some("ALA-LC"), true);
     assert!(!latin.contains("romanization"));
     assert!(arabic.contains("ALA-LC"));
+}
+
+#[test]
+fn mandarin_segmentation_and_pinyin_ride_with_the_language() {
+    let mandarin =
+        analysis::tokens_prompt("Chinese (Mandarin)", "English", Some("PINYIN"), false);
+    assert!(mandarin.contains("PINYIN"));
+    assert!(mandarin.contains("segment"));
+    assert!(mandarin.contains("single characters"));
+    let latin = analysis::tokens_prompt("Spanish", "English", None, true);
+    assert!(!latin.contains("segment"));
+}
+
+#[test]
+fn word_insight_describes_particles_for_isolating_languages() {
+    let inflecting = analysis::word_insight_prompt("Spanish", "English", true);
+    let isolating =
+        analysis::word_insight_prompt("Chinese (Mandarin)", "English", false);
+    assert!(inflecting.contains("conjugation/declension"));
+    assert!(!isolating.contains("conjugation/declension"));
+    assert!(isolating.contains("measure words"));
 }
 
 #[test]

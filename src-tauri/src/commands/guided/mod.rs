@@ -97,6 +97,7 @@ pub async fn guided_turn(
     // Non-Latin targets get a romanization alongside every gloss; the scheme
     // is the language's, not the prompt's.
     let romanization_scheme = languages::romanization(&target);
+    let word_delimited = languages::word_delimited(&target);
     // Learner-selected level (steer row) maps to CEFR for every prompt.
     let cefr = match level.as_deref() {
         Some("zero") => "PRE-A1",
@@ -206,7 +207,7 @@ pub async fn guided_turn(
         let provider = settings.chat_provider(&settings.openrouter_model)?;
         let channel = on_event.clone();
         let learner_msgs = vec![
-            json!({"role": "system", "content": prompts::analysis::learner_tokens_prompt(&tln, &native, romanization_scheme)}),
+            json!({"role": "system", "content": prompts::analysis::learner_tokens_prompt(&tln, &native, romanization_scheme, word_delimited)}),
             json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(&learner_message)}),
         ];
         Some(tokio::spawn(async move {
@@ -318,7 +319,7 @@ pub async fn guided_turn(
         turn_id,
         reply: reply.clone(),
         tokens_msgs: vec![
-            json!({"role": "system", "content": prompts::analysis::tokens_prompt(&tln, &native, romanization_scheme)}),
+            json!({"role": "system", "content": prompts::analysis::tokens_prompt(&tln, &native, romanization_scheme, word_delimited)}),
             json!({"role": "user", "content": prompts::analysis::tokenize_reply_turn(&reply)}),
         ],
         translation_msgs: vec![

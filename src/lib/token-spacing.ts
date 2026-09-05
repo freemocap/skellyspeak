@@ -4,8 +4,8 @@
  * tokens ("hoy", "."). Join with spaces except where punctuation dictates.
  */
 
-const NO_SPACE_BEFORE = /^[.!?,;:…»"')\]]/
-const NO_SPACE_AFTER = /[¿¡«"(\[]$/
+const NO_SPACE_BEFORE = /^[.!?,;:…»"')\]，。！？；：、」』）】》〉]/
+const NO_SPACE_AFTER = /[¿¡«"(\[「『（【《〈]$/
 
 export function needsSpaceBetween(prev: string, next: string): boolean {
   if (!prev || !next) return false

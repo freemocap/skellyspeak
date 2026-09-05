@@ -18,6 +18,7 @@ pub fn tokens_prompt(
     target_language_name: &str,
     native_language_name: &str,
     romanization_scheme: Option<&str>,
+    word_delimited: bool,
 ) -> String {
     format!(
         "You tokenize {tln} text for a learner glossary.\n\
@@ -28,11 +29,12 @@ pub fn tokens_prompt(
          ADP, CCONJ, SCONJ, AUX, PART, INTJ, NUM, PROPN, PUNCT). Mark at most 3\n\
          tokens as notable — forms a learner should notice (inflections,\n\
          constructions, word order). Copy each token's text EXACTLY from the\n\
-         reply and never skip words.{roman}\n\
+         reply and never skip words.{segment}{roman}\n\
          {nothing}\n\
          Respond with the structured tokenization you have been configured to produce.",
         tln = target_language_name,
         native = native_language_name,
+        segment = segmentation_line(word_delimited),
         roman = romanization_line(romanization_scheme),
         nothing = no_information_rule(),
     )
@@ -48,6 +50,20 @@ fn romanization_line(scheme: Option<&str>) -> String {
              `romanization` field."
         ),
         None => String::new(),
+    }
+}
+
+/// The word-segmentation instruction for scripts without spaces, or nothing
+/// for space-delimited targets. The fact lives in the language registry
+/// (`languages::word_delimited`), the words live here.
+fn segmentation_line(word_delimited: bool) -> String {
+    if word_delimited {
+        String::new()
+    } else {
+        "\nThe text has no spaces between words — segment it into words, never\n\
+         single characters. Each token is one meaningful word (词), with\n\
+         punctuation attached to the preceding word."
+            .to_string()
     }
 }
 
@@ -128,6 +144,7 @@ pub fn learner_tokens_prompt(
     target_language_name: &str,
     native_language_name: &str,
     romanization_scheme: Option<&str>,
+    word_delimited: bool,
 ) -> String {
     format!(
         "Analyze the LEARNER'S latest message in {tln}. The learner is a student:\n\
@@ -136,27 +153,45 @@ pub fn learner_tokens_prompt(
          1. tokenize: split the message word by word (punctuation attached to\n\
             the preceding word), in order, never skipping words. Give each token\n\
             a short {native} gloss IN CONTEXT - what the learner MEANT, including\n\
-            for their mistakes. Mark at most 3 tokens as notable.{roman}\n\
+            for their mistakes. Mark at most 3 tokens as notable.{segment}{roman}\n\
          2. translation: a natural {native} translation of what the learner\n\
             actually communicated (not a word-for-word rendering).\n\n\
          {nothing}\n\
          Respond with the structured analysis you have been configured to produce.",
         tln = target_language_name,
         native = native_language_name,
+        segment = segmentation_line(word_delimited),
         roman = romanization_line(romanization_scheme),
         nothing = no_information_rule(),
     )
 }
 
-pub fn word_insight_prompt(target_language_name: &str, native_language_name: &str) -> String {
+pub fn word_insight_prompt(
+    target_language_name: &str,
+    native_language_name: &str,
+    inflects: bool,
+) -> String {
+    let (lemma, form) = if inflects {
+        (
+            "the dictionary form of the word",
+            "conjugation/declension details for this usage - tense, mood,\n\
+             person, number, gender as applicable",
+        )
+    } else {
+        (
+            "the word itself — this language has no inflected forms",
+            "how the word is built for this usage - aspect particles\n\
+             (了, 着, 过), measure words (量词), or structural particles\n\
+             (的, 地, 得), as applicable",
+        )
+    };
     format!(
         "You are a {tln} morphology and grammar analyzer for language learners.\n\
          Given a WORD and the SENTENCE it appears in, analyze the word AS USED\n\
          in that sentence and return:\n\
-         - lemma: the dictionary form of the word\n\
+         - lemma: {lemma}\n\
          - pos: part of speech (noun, verb, adjective, ...)\n\
-         - form: conjugation/declension details for this usage - tense, mood,\n\
-           person, number, gender as applicable\n\
+         - form: {form}\n\
          - role: the word's grammatical role in this sentence (subject,\n\
            direct object, ...)\n\
          - usage: one practical note for the learner, in {native} - what to\n\

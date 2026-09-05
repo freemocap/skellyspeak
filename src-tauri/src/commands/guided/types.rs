@@ -144,7 +144,7 @@ pub fn sanitize_reply(raw: &str) -> String {
         };
     }
     // Defensive: cut off any leaked translation/notes block.
-    for marker in ["\n---", "\n***", "\n**English", "\n**Traducción"] {
+    for marker in ["\n---", "\n***", "\n**English", "\n**Traducción", "\n**中文", "\n中文："] {
         if let Some(pos) = text.find(marker) {
             text.truncate(pos);
         }
@@ -266,6 +266,12 @@ mod sanitize_tests {
     fn a_leaked_translation_block_is_cut_off() {
         assert_eq!(sanitize_reply("Hola.\n---\nEnglish: Hello."), "Hola.");
         assert_eq!(sanitize_reply("Hola.\n**English**: Hello."), "Hola.");
+    }
+
+    #[test]
+    fn a_leaked_chinese_translation_block_is_cut_off() {
+        assert_eq!(sanitize_reply("你好。\n中文：Hello."), "你好。");
+        assert_eq!(sanitize_reply("你好。\n**中文**：Hello."), "你好。");
     }
 
     #[test]
