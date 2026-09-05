@@ -122,6 +122,11 @@ jobs:
           BUNDLE_ID: com.freemocap.skellyspeak
         run: |
           set -euo pipefail
+          # Tauri's "Build Rust Code" phase reads a dev-server address file and
+          # panics if it is missing, even for a release build. That file only
+          # exists during a live tauri dev session, so provide a harmless dummy
+          # (its value is ignored when the frontend is bundled from dist).
+          printf '127.0.0.1:1420' > "${TMPDIR}com.freemocap.skellyspeak-server-addr"
           proj=$(ls -d src-tauri/gen/apple/*.xcodeproj | head -1)
           [ -n "$proj" ] || { echo "::error::tauri ios init produced no .xcodeproj"; exit 1; }
           scheme=$(xcodebuild -project "$proj" -list | awk '/Schemes:/{f=1;next} f&&NF{print $1; exit}')
