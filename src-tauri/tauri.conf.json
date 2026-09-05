@@ -60,6 +60,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "iOS": {
+      "frameworks": [
+        "AVFoundation",
+        "AudioToolbox"
+      ]
+    },
     "macOS": {
       "entitlements": "Entitlements.plist"
     }
