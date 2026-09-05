@@ -32,13 +32,27 @@ getrandom = "0.4.3"
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
-# Microphone capture. WKWebView refuses to treat Tauri's custom scheme as a
-# secure context, so `navigator.mediaDevices` does not exist in a packaged
-# macOS build and the browser recording API is unavailable there. Desktop
-# therefore captures in the core: cpal opens the input device, hound writes the
-# WAV that Whisper is sent. Mobile keeps the webview recorder, which works.
+
+# Microphone capture, in the core. WKWebView refuses to treat Tauri's custom
+# scheme as a secure context, so `navigator.mediaDevices` does not exist in a
+# packaged macOS build — and iOS has the same problem. So EVERY platform except
+# Android captures in the core: cpal opens the input device, hound writes the
+# WAV that Whisper is sent. Android alone keeps the webview recorder, which
+# works there. On iOS, cpal's coreaudio host needs the app to configure
+# AVAudioSession first — see src/audio.rs.
+[target.'cfg(not(target_os = "android"))'.dependencies]
 cpal = "0.15"
 hound = "3.5"
+
+# AVAudioSession configuration on iOS: the recorder needs the session category
+# set to playAndRecord and activated before cpal can capture anything.
+# objc2-avf-audio (NOT the objc2-av-foundation umbrella) is the canonical home
+# of AVAudioSession; its 0.3 line matches the objc2 0.6.x framework crates the
+# rest of the tree already resolves (objc2-foundation 0.3.2 etc.).
+[target.'cfg(target_os = "ios")'.dependencies]
+objc2 = "0.6"
+objc2-foundation = "0.3"
+objc2-avf-audio = "0.3"
 
 [target.'cfg(any(target_os = "android", target_os = "ios"))'.dependencies]
 tauri-plugin-deep-link = "2.4.10"

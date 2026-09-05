@@ -1,13 +1,13 @@
 name: iOS smoke build
 
-# iOS is NOT part of the release yet, and cannot be until there is an Apple
-# Developer account ($99/yr) to sign with — an unsigned .ipa cannot be
-# installed on a device or uploaded to TestFlight.
+# A cheap, free smoke build: proves the app compiles and links for iOS.
+# It scaffolds src-tauri/gen/apple (which cannot be done from the Windows dev
+# machine — it needs Xcode) and builds for the simulator, where code signing is
+# not required.
 #
-# What this workflow does prove, for free, is that the app compiles and links
-# for iOS: it scaffolds src-tauri/gen/apple (which cannot be done from the
-# Windows dev machine — it needs Xcode) and builds for the simulator, where
-# code signing is not required.
+# The real, signed .ipa is built by ios-distribute.yml. This workflow stays
+# separate so a signed-build problem never blocks a quick "does it still
+# compile for iOS?" check.
 #
 # Manual trigger only, so a broken iOS toolchain never blocks a release.
 on:

@@ -152,6 +152,13 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
     let thread_buffers = buffers.clone();
     let wanted = device_name.map(str::to_string);
     let thread = std::thread::spawn(move || {
+        // iOS must configure AVAudioSession before cpal can capture anything;
+        // a failure here is reported at the moment the user pressed record.
+        #[cfg(target_os = "ios")]
+        if let Err(e) = ios_session::prepare() {
+            let _ = ready_tx.send(Err(e));
+            return;
+        }
         let built = (|| -> Result<(cpal::Stream, u32, String), String> {
             let device = open(wanted.as_deref())?;
             let label = device.name().unwrap_or_else(|_| "microphone".into());
@@ -240,6 +247,9 @@ impl Capture {
         if let Some(t) = self.thread.take() {
             let _ = t.join();
         }
+        // Hand the microphone back once the stream is dropped.
+        #[cfg(target_os = "ios")]
+        ios_session::teardown();
     }
 
     /// Stop recording and return the WAV.
@@ -298,6 +308,103 @@ fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
             .map_err(|e| format!("The recording could not be encoded: {e}"))?;
     }
     Ok(cursor.into_inner())
+}
+
+/// iOS AVAudioSession configuration.
+///
+/// cpal's coreaudio host opens the raw audio unit but does NOT configure the
+/// session: it links only the C API (coreaudio-rs/coreaudio-sys), so it cannot
+/// reach the Objective-C AVAudioSession. Without this, iOS records silence and
+/// never shows the microphone permission prompt. The category must allow
+/// recording and the session must be active before any capture starts.
+///
+/// Method names are objc2 0.6's camelCase-preserving codegen (NOT the old
+/// snake_case): setCategory:withOptions:error: becomes
+/// setCategory_withOptions_error, and the error methods are `unsafe fn`
+/// returning Result<(), Retained<NSError>>.
+#[cfg(target_os = "ios")]
+mod ios_session {
+    use std::sync::mpsc;
+
+    use objc2::block::Block;
+    use objc2::runtime::Bool;
+    use objc2_avf_audio::{
+        AVAudioSession, AVAudioSessionCategory, AVAudioSessionCategoryOptions,
+        AVAudioSessionMode, AVAudioSessionRecordPermission, AVAudioSessionSetActiveOptions,
+    };
+    use objc2_foundation::NSError;
+
+    fn nserror_to_string(err: &NSError) -> String {
+        err.localizedDescription().to_string()
+    }
+
+    /// Ask for (and await) microphone permission.
+    ///
+    /// The completion handler runs on the main thread, so this must not be
+    /// called from the main thread or `recv()` deadlocks. It isn't: `prepare`
+    /// runs on the capture thread spawned in `audio::start`.
+    fn request_record_permission(session: &AVAudioSession) -> Result<bool, String> {
+        match session.recordPermission() {
+            AVAudioSessionRecordPermission::Granted => return Ok(true),
+            AVAudioSessionRecordPermission::Denied => return Ok(false),
+            AVAudioSessionRecordPermission::Undetermined => {}
+        }
+        let (tx, rx) = mpsc::channel::<bool>();
+        let handler = Block::new(move |granted: Bool| {
+            let _ = tx.send(granted.as_bool());
+        });
+        // Low-confidence detail: if the compiler says this method doesn't exist,
+        // try `requestRecordPermission` or `requestRecordPermission_response`.
+        // If it complains about the block's lifetime, add `.copy()` after
+        // `Block::new(...)` to heap-allocate it so AVAudioSession can retain
+        // it across the async callback.
+        unsafe { session.requestRecordPermission_completionHandler(&handler) };
+        rx.recv()
+            .map_err(|e| format!("microphone permission prompt never returned: {e}"))
+    }
+
+    /// Configure and activate the session so cpal can capture the microphone.
+    pub fn prepare() -> Result<(), String> {
+        let session = AVAudioSession::sharedInstance();
+        if !request_record_permission(&session)? {
+            return Err(
+                "Microphone access is denied. Allow SkellySpeak in iOS Settings → Privacy & Security → Microphone, then try again."
+                    .into(),
+            );
+        }
+        unsafe {
+            // playAndRecord: the app also plays TTS audio, and this category
+            // lets both directions run. defaultToSpeaker keeps playback on the
+            // speaker rather than the earpiece.
+            session
+                .setCategory_withOptions_error(
+                    AVAudioSessionCategory::PlayAndRecord,
+                    AVAudioSessionCategoryOptions::DefaultToSpeaker,
+                )
+                .map_err(|e| format!("setCategory failed: {}", nserror_to_string(&e)))?;
+            // measurement disables Apple's automatic gain control and signal
+            // processing — flat, unprocessed audio is what speech-to-text wants.
+            session
+                .setMode_error(AVAudioSessionMode::Measurement)
+                .map_err(|e| format!("setMode failed: {}", nserror_to_string(&e)))?;
+            session
+                .setActive_withOptions_error(true, AVAudioSessionSetActiveOptions::empty())
+                .map_err(|e| format!("setActive failed: {}", nserror_to_string(&e)))?;
+        }
+        Ok(())
+    }
+
+    /// Deactivate the session once recording is done so other apps can take
+    /// the microphone back. Best-effort: teardown must never fail a stop.
+    pub fn teardown() {
+        let session = AVAudioSession::sharedInstance();
+        unsafe {
+            let _ = session.setActive_withOptions_error(
+                false,
+                AVAudioSessionSetActiveOptions::NotifyOthersOnDeactivation,
+            );
+        }
+    }
 }
 
 #[cfg(test)]

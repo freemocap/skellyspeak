@@ -1,6 +1,10 @@
 pub mod ai;
 pub mod gate;
-#[cfg(desktop)]
+// The core records wherever the webview cannot: desktop AND iOS. WKWebView
+// gives no `navigator.mediaDevices` under Tauri's custom scheme on macOS, and
+// iOS has the same problem — only Android's webview offers the recorder, so
+// only Android records in the webview.
+#[cfg(any(desktop, target_os = "ios"))]
 pub mod audio;
 #[cfg(test)]
 mod bench;
@@ -32,10 +36,10 @@ pub struct AppState {
     /// Faults from before the webview existed. The UI drains this on mount so
     /// a startup problem reaches the screen instead of dying in a log file.
     pub startup_faults: Mutex<Vec<String>>,
-    /// The recording in progress, if any. Desktop records in the core because
-    /// WKWebView gives a packaged macOS build no `navigator.mediaDevices`;
-    /// mobile records in the webview and never fills this.
-    #[cfg(desktop)]
+    /// The recording in progress, if any. Desktop and iOS record in the core
+    /// because WKWebView gives a packaged build no `navigator.mediaDevices`;
+    /// Android records in the webview and never fills this.
+    #[cfg(any(desktop, target_os = "ios"))]
     pub capture: Mutex<Option<audio::Capture>>,
 }
 
@@ -150,7 +154,7 @@ pub fn run() {
                 observer_running: Mutex::new(false),
                 coach_thread: Mutex::new(coach_thread),
                 startup_faults: Mutex::new(startup_faults),
-                #[cfg(desktop)]
+                #[cfg(any(desktop, target_os = "ios"))]
                 capture: Mutex::new(None),
             });
             Ok(())

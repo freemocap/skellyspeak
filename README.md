@@ -4,8 +4,8 @@
 
 # SkellySpeak
 
-A standalone, no-necessary-login, multilingual language tutor. Tauri v2 — Windows
-desktop and Android today.
+A standalone, no-necessary-login, multilingual language tutor. Tauri v2 — desktop
+(Windows/macOS/Linux), Android, and iOS (built & signed in CI).
 
 Two surfaces:
 
@@ -77,6 +77,17 @@ Release Android builds are made by CI, signed with the upload keystore. A
 local `tauri android build` produces an unsigned release, which installs
 nowhere — use the debug loop above for development.
 
+## iOS
+
+iOS cannot be built on Windows — Tauri's `ios` subcommand only exists on
+macOS, and Xcode does the signing. `.github/workflows/ios-distribute.yml` runs
+on a macOS runner: it scaffolds the Xcode project, signs with an Apple
+Distribution certificate + provisioning profile, and exports a signed `.ipa`
+for TestFlight or ad hoc install. Voice input works on iOS through the same
+core (cpal) recorder as desktop — see
+[Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the AVAudioSession
+detail and the three secrets to set.
+
 ## Updates
 
 Desktop builds check for a newer version on launch and offer it in a bar at
@@ -115,12 +126,11 @@ exists — and after tagging it checks that the tag really does contain the bump
 because a tag naming the wrong commit is the one failure that has to be undone
 on the remote.
 
-The tag triggers `.github/workflows/release.yml`, which builds Windows x64,
-macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64) and an Android APK,
-and attaches them all to a **draft** GitHub Release. Review the assets, then
-publish. Nothing is code-signed yet, and the APK is debug-signed — see
-[Platforms & Build](./skellyspeak-docs/docs/platforms.md) for what that costs
-to fix.
+The tag triggers `.github/workflows/release.yml` (desktop + Android) and
+`.github/workflows/ios-distribute.yml` (iOS), which together build Windows x64,
+macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64), an Android APK/AAB and
+a signed iOS `.ipa`, and attach them all to a **draft** GitHub Release. Review
+the assets, then publish.
 
 See [Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the toolchain
 env vars and the machine-specific fixes that must survive a `gen/android`
@@ -161,7 +171,7 @@ Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusauru
 - [Ontology](./skellyspeak-docs/docs/ontology.md) — every domain entity, field-by-field
 - [Status](./skellyspeak-docs/docs/status.md) — what works, known issues, order of battle
 - [The Coach](./skellyspeak-docs/docs/coach.md) — the private side-channel tutor (the Cyrano principle)
-- [Platforms & Build](./skellyspeak-docs/docs/platforms.md) — Windows + Android today, iOS path
+- [Platforms & Build](./skellyspeak-docs/docs/platforms.md) — desktop + Android + iOS build matrix
 - [Future Work](./skellyspeak-docs/docs/future-work.md) — replacing per-turn LLM glossing with dictionaries
 - [Hosted API](./skellyspeak-docs/docs/hosted-api.md) — sign-in, quota, deploying, and reading the usage numbers
 
