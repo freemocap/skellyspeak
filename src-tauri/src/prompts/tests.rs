@@ -181,6 +181,24 @@ fn a_true_beginner_still_gets_the_survival_core() {
 }
 
 #[test]
+fn a_true_beginner_gets_a_hard_sentence_length_cap() {
+    // "Keep sentences short where possible" let PRE-A1 replies drift back to
+    // full complex sentences. The cap must be a hard, named limit, and it must
+    // not bleed into the higher levels.
+    let zero = partner::reply_prompt(
+        &personas::resolve(Some("nurse"), "", &personas::builtins()).sketch,
+        "Spanish",
+        "PRE-A1",
+        "English",
+        None,
+        "",
+    );
+    assert!(zero.contains("FIVE WORDS IS THE ABSOLUTE MAXIMUM"));
+    assert!(zero.contains("3 to 5 words"));
+    assert!(!reply(None).contains("FIVE WORDS IS THE ABSOLUTE MAXIMUM"));
+}
+
+#[test]
 fn the_opener_is_not_a_greeting() {
     // "Greet the learner warmly and ask one simple opening question" is what
     // produced "hello, how are you?" at the top of every chat.

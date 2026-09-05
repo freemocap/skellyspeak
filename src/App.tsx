@@ -1,5 +1,6 @@
 import { Component, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, hostedAccount, isTauri, takeStartupFaults } from './lib/tauri'
+import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } from './lib/tauri'
+import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
 import StoriesPage from './pages/StoriesPage'
@@ -41,6 +42,14 @@ class PageBoundary extends Component<{ children: ReactNode }, { error: Error | n
     }
     return this.props.children
   }
+}
+
+/// Mirror the native language onto the document: UI strings come from
+/// `uiLangFromNative` (lib/i18n) and text direction from the registry, so an
+/// Arabic native gets a right-to-left UI rather than just Arabic words.
+function applyUiLanguage(native: string) {
+  document.documentElement.dir = languageFor(native)?.direction ?? 'ltr'
+  document.documentElement.lang = uiLangFromNative(native)
 }
 
 export default function App() {
@@ -92,6 +101,7 @@ export default function App() {
       .then(async (s) => {
         if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
         localStorage.setItem('skellyspeak_target', s.target_language)
+        applyUiLanguage(s.native_language)
         // Check in with the hosted service while there is still time to do
         // something about an expired session — it otherwise first shows up as
         // a failed reply mid-conversation — and to keep the device record
@@ -253,6 +263,7 @@ export default function App() {
           // gesture's, via openOverlay).
           onSettingsChanged={(s) => {
             localStorage.setItem('skellyspeak_target', s.target_language)
+            applyUiLanguage(s.native_language)
             setSettingsVersion((v) => v + 1)
           }}
         />
