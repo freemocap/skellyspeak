@@ -55,6 +55,30 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
+      # TEMP DIAGNOSTIC — decode IOS_PROVISION_PROFILE and print exactly what
+      # it contains (type, bundle id, team, expiry, embedded cert). Remove this
+      # step once the .ipa builds green.
+      - name: Inspect provisioning profile (diagnostic)
+        env:
+          IOS_MOBILE_PROVISION: ${{ secrets.IOS_PROVISION_PROFILE }}
+        run: |
+          set -euo pipefail
+          PROFILE="$RUNNER_TEMP/profile.mobileprovision"
+          echo "=== secret length (chars) ==="
+          printf '%s' "$IOS_MOBILE_PROVISION" | wc -c
+          echo "=== first 40 chars of secret (check for wrapping/whitespace) ==="
+          printf '%s' "$IOS_MOBILE_PROVISION" | head -c 40; echo
+          echo "=== base64 decode ==="
+          printf '%s' "$IOS_MOBILE_PROVISION" | base64 -D > "$PROFILE" 2>"$RUNNER_TEMP/b64.err" || { echo "base64 decode FAILED:"; cat "$RUNNER_TEMP/b64.err"; }
+          echo "=== decoded byte size ==="
+          wc -c "$PROFILE"
+          echo "=== first 64 bytes (0x30 0x82 = PKCS#7 CMS = real .mobileprovision; '<plist' = XML) ==="
+          head -c 64 "$PROFILE" | xxd
+          echo "=== provisioning profile contents (security cms -D) ==="
+          security cms -D -i "$PROFILE" || echo "security cms -D FAILED - this is not a valid .mobileprovision"
+          echo "=== codesigning identities in the keychain ==="
+          security find-identity -v -p codesigning || true
+
       # Build + sign + export the .ipa in one step. Manual signing is driven by
       # Tauri's own env vars (IOS_CERTIFICATE / IOS_CERTIFICATE_PASSWORD /
       # IOS_MOBILE_PROVISION) — the repo secrets use friendlier names, so map
