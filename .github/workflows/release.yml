@@ -29,7 +29,7 @@ jobs:
       version: ${{ steps.get.outputs.version }}
       tag: v${{ steps.get.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - id: get
         run: |
@@ -54,7 +54,7 @@ jobs:
     needs: version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Ensure the draft release exists
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,7 +104,7 @@ jobs:
             # deb only for now — AppImage tooling on arm64 needs its own pass.
             args: '--bundles deb'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - if: runner.os == 'Linux'
         run: |
@@ -249,7 +249,7 @@ jobs:
     name: Android (APK)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:

@@ -18,7 +18,7 @@ jobs:
     name: Build for iOS Simulator (unsigned)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
