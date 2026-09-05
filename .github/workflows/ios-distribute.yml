@@ -91,7 +91,7 @@ jobs:
           import plistlib
 
           profile_path: pathlib.Path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "ios-profile.plist"
-          profile: dict[str, object] = plistlib.loads(data=profile_path.read_bytes())
+          profile: dict[str, object] = plistlib.loads(profile_path.read_bytes())
           entitlements: object = profile["Entitlements"]
           if not isinstance(entitlements, dict):
               raise TypeError("Profile entitlements must be a dictionary")
