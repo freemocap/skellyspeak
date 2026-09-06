@@ -226,6 +226,12 @@ exist in the Windows CLI, and Xcode does the signing. Everything happens on a
   (`IOS_CERTIFICATE_P12`, `IOS_CERTIFICATE_PASSWORD`,
   `IOS_PROVISION_PROFILE`); the workflow extracts the profile name at runtime,
   so there is no extra variable to keep in sync.
+- **Build numbers:** CI keeps the user-facing version from `Cargo.toml`, but
+  stamps `CFBundleVersion` as `GITHUB_RUN_NUMBER.GITHUB_RUN_ATTEMPT`. App Store
+  Connect never accepts the same build number twice; including the attempt makes
+  a re-run produce a fresh, increasing number as well. If an upload fails with
+  `ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE`, build a new workflow artifact
+  instead of uploading the rejected `.ipa` again.
 - **Voice input:** iOS is a WKWebView, so it has no `navigator.mediaDevices`
   for the same reason macOS does not — and Android is now the *only* platform
   that records in the webview. Desktop and iOS both record in the core with
