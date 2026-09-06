@@ -61,6 +61,26 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
+      # App Store Connect permanently consumes each CFBundleVersion. Keep the
+      # user-facing version from Cargo.toml, but give every workflow attempt a
+      # fresh, monotonically increasing iOS build number. Include the attempt so
+      # re-running a workflow cannot reproduce an already-uploaded IPA.
+      - name: Stamp a unique iOS build number
+        run: |
+          set -euo pipefail
+          BUILD_NUMBER="$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT"
+          python3 - "$BUILD_NUMBER" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          path = pathlib.Path("src-tauri/tauri.conf.json")
+          config = json.loads(path.read_text())
+          config["bundle"]["iOS"]["bundleVersion"] = sys.argv[1]
+          path.write_text(json.dumps(config, indent=2) + "\n")
+          PY
+          echo "CFBundleVersion: $BUILD_NUMBER"
+
       - name: Check iOS Rust code before loading signing credentials
         run: cargo check --locked --manifest-path src-tauri/Cargo.toml --target aarch64-apple-ios --lib --features tauri/custom-protocol
 
@@ -259,6 +279,10 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           BUNDLE_ID=$(plutil -extract CFBundleIdentifier raw -o - "$app/Info.plist")
           [ "$BUNDLE_ID" = com.freemocap.skellyspeak ] || { echo "::error::unexpected bundle identifier"; exit 1; }
+          BUILD_NUMBER=$(plutil -extract CFBundleVersion raw -o - "$app/Info.plist")
+          EXPECTED_BUILD_NUMBER="$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT"
+          [ "$BUILD_NUMBER" = "$EXPECTED_BUILD_NUMBER" ] || {
+            echo "::error::unexpected build number '$BUILD_NUMBER' (expected '$EXPECTED_BUILD_NUMBER')"; exit 1; }
           MICROPHONE_USAGE=$(plutil -extract NSMicrophoneUsageDescription raw -o - "$app/Info.plist")
           [ -n "$MICROPHONE_USAGE" ] || { echo "::error::microphone usage description missing"; exit 1; }
           codesign -d --entitlements :- "$app" > "$RUNNER_TEMP/ios-entitlements.plist"
@@ -267,7 +291,7 @@ jobs:
           codesign -dv --verbose=2 "$app" 2>&1 | tee "$RUNNER_TEMP/codesign.txt"
           grep -qx 'TeamIdentifier=U8LBJLBYPR' "$RUNNER_TEMP/codesign.txt" || {
             echo "::error::the .ipa was not signed by team U8LBJLBYPR"; exit 1; }
-          echo "signature verified: team U8LBJLBYPR"
+          echo "signature verified: team U8LBJLBYPR, build $BUILD_NUMBER"
 
       - name: Collect the .ipa
         run: |
@@ -339,5 +363,7 @@ jobs:
 #
 #   1. In App Store Connect create the app (bundle id com.freemocap.skellyspeak).
 #   2. Upload the .ipa. Easiest is Apple's Transporter app (drag the .ipa in).
+#      Each CI attempt has a unique build number, so use a newly built artifact
+#      instead of retrying an IPA that App Store Connect has already consumed.
 #   3. In TestFlight add Internal testers (team, no review) or External
 #      testers (up to 10,000, one-time beta review, public link).
