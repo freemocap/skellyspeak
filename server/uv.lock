@@ -861,6 +861,7 @@ name = "skellyspeak-api"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "fastapi" },
     { name = "google-cloud-firestore" },
     { name = "httpx" },
@@ -876,6 +877,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "google-cloud-firestore", specifier = ">=2.19" },
     { name = "httpx", specifier = ">=0.27" },

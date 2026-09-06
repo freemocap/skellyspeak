@@ -1,17 +1,16 @@
 """Who is using the hosted service, and what it is costing.
 
-Read-only. It opens nothing, changes nothing, and touches no secrets — it reads
-the same Firestore collections the service writes.
+Reports Firestore account usage. Writes require an explicit per-user limit command.
 
     cd server
     uv run python stats.py              # today
     uv run python stats.py --days 7     # the last week
     uv run python stats.py --emails     # show addresses instead of masking them
 
-Two writes, both explicit and both needing --user:
+Changing a daily limit requires --user:
 
     uv run python stats.py --user me@x.com --set-limit-usd 5
-    uv run python stats.py --user me@x.com --reset-usage
+
 
 Authentication is your own gcloud login:
 
@@ -26,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timedelta, timezone
+import math
 
 from google.cloud import firestore
 
@@ -77,6 +77,8 @@ def apply_limit(db: firestore.Client, user_id: str, dollars: float) -> None:
     behind it — it would still be stopped by the global ceiling, but only after
     spending everyone else's allowance to get there.
     """
+    if not math.isfinite(dollars) or dollars < 0:
+        raise ValueError('Daily limit must be finite and nonnegative.')
     ref = db.collection(quota.USERS).document(user_id)
     if dollars <= 0:
         ref.update({quota.LIMIT_FIELD: firestore.DELETE_FIELD})
@@ -92,36 +94,15 @@ def apply_limit(db: firestore.Client, user_id: str, dollars: float) -> None:
     print("  and mirror it into server/cloudbuild.yaml or the next deploy reverts it.\n")
 
 
-def clear_today(db: firestore.Client, user_id: str) -> None:
-    """Zero this account's spend for the current UTC day.
-
-    The per-user document only. The global counter is left alone on purpose:
-    the money was really spent, and quietly un-spending it in the shared total
-    would hide real cost from the one number that bounds the bill.
-    """
-    day = quota.utc_day()
-    db.collection(quota.USERS).document(user_id).collection(quota.USAGE).document(day).set(
-        {"micros": 0, "tokens": 0, "requests": 0, "day": day,
-         "ttl": quota.ttl_after(quota.USAGE_RETENTION_DAYS)},
-    )
-    print(f"\n{user_id}: usage for {day} reset to zero")
-    print("  (the global daily total is unchanged - that spend really happened)\n")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days", type=int, default=1, help="how many UTC days to report")
     parser.add_argument("--emails", action="store_true", help="show full email addresses")
-    parser.add_argument("--user", help="email or id, for the two write actions below")
+    parser.add_argument("--user", help="email or id, required when changing a limit")
     parser.add_argument(
         "--set-limit-usd",
         type=float,
         help="give this account its own daily limit in dollars (0 removes it)",
-    )
-    parser.add_argument(
-        "--reset-usage",
-        action="store_true",
-        help="zero today's spend for this account",
     )
     args = parser.parse_args()
 
@@ -129,14 +110,12 @@ def main() -> None:
     show = (lambda a: a or "(no address)") if args.emails else mask
     window = days_back(max(args.days, 1))
 
-    if (args.set_limit_usd is not None or args.reset_usage) and not args.user:
-        raise SystemExit("--set-limit-usd and --reset-usage need --user")
+    if (args.set_limit_usd is not None) and not args.user:
+        raise SystemExit("--set-limit-usd needs --user")
     if args.user:
         target = find_user(db, args.user)
         if args.set_limit_usd is not None:
             apply_limit(db, target, args.set_limit_usd)
-        if args.reset_usage:
-            clear_today(db, target)
 
     # ── Accounts ────────────────────────────────────────────────────────────
     # The same count MAX_USERS is checked against — there is no separate
@@ -216,9 +195,8 @@ def main() -> None:
     print()
     print(f"  {len(window)}-day total   {money(global_total)}")
     if total_micros != global_total:
-        # The per-user documents and the global counter are written in the same
-        # call, so a mismatch means one of the writes failed.
-        print(f"  ! per-user sum is {money(total_micros)}: the two counters disagree")
+        # This report reads sequentially; active requests can change totals between reads.
+        raise RuntimeError(f"Per-user total {money(total_micros)} differs from global total {money(global_total)}. Recheck while requests are idle; investigate if the mismatch persists.")
     print()
 
     # ── Sign-in flows left half-finished ────────────────────────────────────
@@ -227,7 +205,7 @@ def main() -> None:
     if pending or codes:
         print(
             f"IN FLIGHT  {pending} sign-in states, {codes} unredeemed codes "
-            "(both expire in 2 minutes and are swept by TTL)"
+            "(states expire in 5 minutes; codes in 2 minutes; TTL sweeps abandoned records)"
         )
         print()
 

@@ -1,15 +1,5 @@
-/// Update checking, on every platform.
-///
-/// Both platforms check; they differ in what they can DO about it.
-///
-///  - Desktop swaps its own binary, via Tauri's updater against `latest.json`
-///    on the newest published GitHub release. `kind: 'install'`.
-///  - Mobile cannot: neither Android nor iOS lets an app rewrite itself, so
-///    the check asks GitHub for the newest release and offers to open it.
-///    The user installs the APK themselves. `kind: 'download'`.
-///
-/// Either way an out-of-date install is TOLD it is out of date, which is the
-/// part that matters. Only the remedy differs.
+/// Desktop installs signed updates; Android links to releases.
+/// iOS updates are delivered by TestFlight or the App Store.
 
 import { invoke, isTauri } from './tauri'
 import { isNewer } from './semver'
@@ -36,17 +26,15 @@ export interface DownloadableUpdate extends Common {
 
 export type UpdateOffer = InstallableUpdate | DownloadableUpdate
 
-/// True where the app can install an update itself. False on mobile, where the
-/// OS package manager owns installation.
-export function canSelfUpdate(): boolean {
-  if (!isTauri) return false
-  const platform = (navigator as { userAgentData?: { platform?: string } }).userAgentData?.platform
-  const ua = navigator.userAgent
-  return !(
-    /Android/i.test(ua) ||
-    /iPhone|iPad|iPod/i.test(ua) ||
-    /Android/i.test(platform ?? '')
-  )
+export type UpdateChannel = 'install' | 'download' | 'app-store'
+
+export async function getUpdateChannel(): Promise<UpdateChannel> {
+  if (!isTauri) throw new Error('Update checks need the desktop or mobile app.')
+  const channel = await invoke<string>('get_update_channel')
+  if (channel !== 'install' && channel !== 'download' && channel !== 'app-store') {
+    throw new Error(`Unknown update channel: ${channel}`)
+  }
+  return channel
 }
 
 interface LatestRelease {
@@ -55,12 +43,13 @@ interface LatestRelease {
   notes: string
 }
 
-/// Ask what is available. Resolves to null when this build is already current.
+/// Returns an update offer, or null when current or managed by the App Store.
 /// Throws on any failure — an unreachable server is a real problem, and an app
 /// that looks current because it never managed to ask is the worst outcome.
 export async function checkForUpdate(): Promise<UpdateOffer | null> {
-  if (!isTauri) throw new Error('Update checks need the desktop or mobile app.')
-  return canSelfUpdate() ? checkDesktop() : checkMobile()
+  const channel = await getUpdateChannel()
+  if (channel === 'app-store') return null
+  return channel === 'install' ? checkDesktop() : checkMobile()
 }
 
 async function checkDesktop(): Promise<InstallableUpdate | null> {
@@ -118,6 +107,9 @@ async function checkMobile(): Promise<DownloadableUpdate | null> {
 /// Restart into the freshly installed version. Desktop only — nothing else
 /// stages an update in place.
 export async function restartIntoUpdate(): Promise<void> {
+  if (await getUpdateChannel() !== 'install') {
+    throw new Error('Only desktop builds can restart into an installed update.')
+  }
   const { relaunch } = await import('@tauri-apps/plugin-process')
   await relaunch()
 }

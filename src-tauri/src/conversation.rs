@@ -4,8 +4,7 @@
 //! speak — gets a directory, and inside it a numbered chat per conversation:
 //!
 //! ```text
-//! <config>/conversations/es-ES__en/plan.json      ← what the tutor knows about
-//! <config>/conversations/es-ES__en/profile.json     you, shared by every chat
+//! <config>/conversations/es-ES__en/memory.json    ← plan and profile shared by every chat
 //! <config>/conversations/es-ES__en/current.json    ← which chat is open
 //! <config>/conversations/es-ES__en/chats/1788400000-a1b2/session.json
 //!                                                 /coach.json
@@ -127,27 +126,34 @@ pub struct ChatSummary {
 }
 
 /// Which chat is open for this pairing, if the pointer names one that exists.
-pub fn current_chat(pair: &Path) -> Option<String> {
-    let raw = std::fs::read_to_string(pair.join(CURRENT_FILE)).ok()?;
-    let doc: Value = serde_json::from_str(&raw).ok()?;
-    let id = doc.get("chat_id")?.as_str()?.trim().to_string();
-    if id.is_empty() || !pair.join(CHATS).join(slug(&id)).exists() {
-        // A pointer to a chat that is gone is not an error worth stopping for;
-        // the caller opens or creates another.
-        return None;
+pub fn current_chat(pair: &Path) -> Result<Option<String>, String> {
+    let path = pair.join(CURRENT_FILE);
+    let Some(raw) = crate::persistence::read(&path)? else { return Ok(None); };
+    let doc: Value = serde_json::from_str(&raw)
+        .map_err(|error| format!("{} is invalid: {error}", path.display()))?;
+    let id = doc.get("chat_id").and_then(Value::as_str)
+        .filter(|id| !id.trim().is_empty())
+        .ok_or_else(|| format!("{} needs a nonempty chat_id.", path.display()))?;
+    if !pair.join(CHATS).join(slug(id)).try_exists().map_err(|error| error.to_string())? {
+        return Ok(None);
     }
-    Some(id)
+    let session = pair.join(CHATS).join(slug(id)).join(SESSION_FILE);
+    if let Some(raw) = crate::persistence::read(&session)? {
+        let doc: Value = serde_json::from_str(&raw).map_err(|error| format!("{} is invalid: {error}", session.display()))?;
+        if doc.get("deleted_at").is_some() { return Ok(None); }
+    }
+    Ok(Some(id.to_string()))
 }
 
 pub fn set_current_chat(pair: &Path, id: &str) -> Result<(), String> {
     let doc = serde_json::json!({ "chat_id": id });
-    std::fs::write(pair.join(CURRENT_FILE), doc.to_string())
+    crate::persistence::write(&pair.join(CURRENT_FILE), doc.to_string().as_bytes())
         .map_err(|e| format!("could not record which conversation is open: {e}"))
 }
 
 /// The open chat, starting one if there is none.
 pub fn ensure_current_chat(pair: &Path) -> Result<String, String> {
-    if let Some(id) = current_chat(pair) {
+    if let Some(id) = current_chat(pair)? {
         return Ok(id);
     }
     let id = unique_chat_id(pair)?;
@@ -156,53 +162,36 @@ pub fn ensure_current_chat(pair: &Path) -> Result<String, String> {
     Ok(id)
 }
 
-/// Every chat in this pairing, most recently used first. Deleted ones are
-/// filtered out; their files remain.
-///
-/// A chat whose document cannot be read is listed rather than hidden — it is
-/// still something the user made, and silently dropping it from the list is how
-/// people conclude the app lost their work.
-pub fn list_chats(pair: &Path) -> Vec<ChatSummary> {
-    let Ok(entries) = std::fs::read_dir(pair.join(CHATS)) else {
-        return Vec::new();
+/// List live chats, refusing unreadable files rather than concealing stored history.
+pub fn list_chats(pair: &Path) -> Result<Vec<ChatSummary>, String> {
+    let directory = pair.join(CHATS);
+    let entries = match std::fs::read_dir(&directory) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => return Err(format!("Cannot list {}: {error}", directory.display())),
     };
-    let mut chats: Vec<ChatSummary> = entries
-        .filter_map(|e| e.ok())
-        .filter(|e| e.path().is_dir())
-        .filter_map(|e| {
-            let id = e.file_name().to_string_lossy().to_string();
-            let doc = std::fs::read_to_string(e.path().join(SESSION_FILE))
-                .ok()
-                .and_then(|raw| serde_json::from_str::<Value>(&raw).ok());
-            // Deleted chats keep their files but leave the list.
-            if doc.as_ref().and_then(|d| d.get("deleted_at")).is_some() {
-                return None;
-            }
-            let turn_count = doc
-                .as_ref()
-                .and_then(|d| d.get("turns"))
-                .and_then(Value::as_array)
-                .map(Vec::len)
-                .unwrap_or(0);
-            Some(ChatSummary {
-                title: doc
-                    .as_ref()
-                    .and_then(|d| d.get("title"))
-                    .and_then(Value::as_str)
-                    .unwrap_or("")
-                    .to_string(),
-                updated_at: doc
-                    .as_ref()
-                    .and_then(|d| d.get("updated_at"))
-                    .and_then(Value::as_u64)
-                    .unwrap_or(0),
-                turn_count,
-                id,
-            })
-        })
-        .collect();
+    let mut chats = Vec::new();
+    for entry in entries {
+        let entry = entry.map_err(|error| format!("Cannot read chat directory: {error}"))?;
+        if !entry.file_type().map_err(|error| error.to_string())?.is_dir() { continue; }
+        let path = entry.path().join(SESSION_FILE);
+        let doc = match crate::persistence::read(&path)? {
+            Some(raw) => serde_json::from_str::<Value>(&raw)
+                .map_err(|error| format!("{} is unreadable: {error}", path.display()))?,
+            None => serde_json::json!({"turns": [], "title": "", "updated_at": 0}),
+        };
+        if doc.get("deleted_at").is_some() { continue; }
+        let turns = doc.get("turns").and_then(Value::as_array)
+            .ok_or_else(|| format!("{} needs a turn list.", path.display()))?;
+        chats.push(ChatSummary {
+            id: entry.file_name().into_string().map_err(|_| "Chat directory name is not valid UTF-8")?,
+            title: doc.get("title").and_then(Value::as_str).unwrap_or("").to_string(),
+            updated_at: doc.get("updated_at").and_then(Value::as_u64).unwrap_or(0),
+            turn_count: turns.len(),
+        });
+    }
     chats.sort_by(|a, b| b.updated_at.cmp(&a.updated_at).then(b.id.cmp(&a.id)));
-    chats
+    Ok(chats)
 }
 
 /// The stored turn log, plus any fault the user must be told about.
@@ -223,17 +212,15 @@ fn empty() -> Value {
 
 pub fn load_session(chat: &Path) -> LoadedSession {
     let path = chat.join(SESSION_FILE);
-    let Ok(raw) = std::fs::read_to_string(&path) else {
-        // No file yet simply means no conversation yet.
-        return LoadedSession {
-            turns: empty(),
-            fault: None,
-        };
+    let raw = match crate::persistence::read(&path) {
+        Ok(Some(raw)) => raw,
+        Ok(None) => return LoadedSession { turns: empty(), fault: None },
+        Err(error) => return LoadedSession { turns: empty(), fault: Some(error) },
     };
 
     match serde_json::from_str::<Value>(&raw) {
         Ok(doc) => {
-            let turns = doc.get("turns").cloned().unwrap_or_else(empty);
+            let turns = doc.get("turns").cloned().unwrap_or(Value::Null);
             if turns.is_array() {
                 LoadedSession { turns, fault: None }
             } else {
@@ -248,19 +235,7 @@ pub fn load_session(chat: &Path) -> LoadedSession {
             }
         }
         Err(e) => {
-            // Never quietly replaced: that would discard someone's conversation
-            // without a word. Move it aside and say so.
-            let bad = chat.join(format!("{SESSION_FILE}.bad"));
-            let mut fault = format!(
-                "This conversation could not be read ({e}), so it opens empty. Nothing was \
-                 deleted."
-            );
-            match std::fs::rename(&path, &bad) {
-                Ok(()) => {
-                    fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display()))
-                }
-                Err(e) => fault.push_str(&format!(" It could not be moved aside either: {e}.")),
-            }
+            let fault = format!("{} could not be read: {e}. Repair the file before continuing.", path.display());
             LoadedSession {
                 turns: empty(),
                 fault: Some(fault),
@@ -272,6 +247,10 @@ pub fn load_session(chat: &Path) -> LoadedSession {
 /// Write the turn log. Errors are returned, never swallowed: a failed save
 /// means the conversation is not on disk and the user must know.
 pub fn save_session(chat: &Path, turns: &Value, title: &str) -> Result<(), String> {
+    if let Some(raw) = crate::persistence::read(&chat.join(SESSION_FILE))? {
+        let stored: Value = serde_json::from_str(&raw).map_err(|error| format!("Cannot overwrite an unreadable conversation: {error}"))?;
+        if stored.get("deleted_at").is_some() { return Err("Cannot save a deleted conversation.".into()); }
+    }
     let doc = serde_json::json!({
         "turns": turns,
         "title": title,
@@ -279,7 +258,7 @@ pub fn save_session(chat: &Path, turns: &Value, title: &str) -> Result<(), Strin
     });
     let raw =
         serde_json::to_string(&doc).map_err(|e| format!("conversation serialization failed: {e}"))?;
-    std::fs::write(chat.join(SESSION_FILE), raw)
+    crate::persistence::write(&chat.join(SESSION_FILE), raw.as_bytes())
         .map_err(|e| format!("conversation write failed: {e}"))
 }
 
@@ -296,17 +275,16 @@ pub fn delete_chat(pair: &Path, id: &str) -> Result<(), String> {
         return Ok(());
     }
     let path = dir.join(SESSION_FILE);
-    let mut doc = std::fs::read_to_string(&path)
-        .ok()
-        .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())
-        .unwrap_or_else(|| serde_json::json!({ "turns": [], "title": "" }));
-    // An unreadable document is replaced by a marker rather than left listed
-    // forever: the user asked for it to go, and there was nothing to preserve.
+    let mut doc = match crate::persistence::read(&path)? {
+        Some(raw) => serde_json::from_str::<Value>(&raw)
+            .map_err(|error| format!("Cannot delete unreadable conversation {}: {error}", path.display()))?,
+        None => serde_json::json!({ "turns": [], "title": "" }),
+    };
     if !doc.is_object() {
-        doc = serde_json::json!({ "turns": [], "title": "" });
+        return Err(format!("{} must contain a conversation object.", path.display()));
     }
     doc["deleted_at"] = serde_json::json!(now_secs());
-    std::fs::write(&path, doc.to_string())
+    crate::persistence::write(&path, doc.to_string().as_bytes())
         .map_err(|e| format!("could not remove that conversation: {e}. It was left where it was."))
 }
 
@@ -366,12 +344,12 @@ mod tests {
     #[test]
     fn the_open_chat_is_remembered_and_created_on_demand() {
         let pair = scratch("current");
-        assert!(current_chat(&pair).is_none());
+        assert!(current_chat(&pair).unwrap().is_none());
 
         let id = ensure_current_chat(&pair).unwrap();
         // Stable across calls — asking again must not start a second chat.
         assert_eq!(ensure_current_chat(&pair).unwrap(), id);
-        assert_eq!(current_chat(&pair).as_deref(), Some(id.as_str()));
+        assert_eq!(current_chat(&pair).unwrap().as_deref(), Some(id.as_str()));
 
         std::fs::remove_dir_all(&pair).ok();
     }
@@ -381,7 +359,7 @@ mod tests {
         let pair = scratch("dangling");
         set_current_chat(&pair, "1788400000-dead").unwrap();
         // Not an error: the caller simply gets a fresh chat rather than a crash.
-        assert!(current_chat(&pair).is_none());
+        assert!(current_chat(&pair).unwrap().is_none());
         assert!(ensure_current_chat(&pair).is_ok());
         std::fs::remove_dir_all(&pair).ok();
     }
@@ -406,7 +384,7 @@ mod tests {
             )
             .unwrap();
         }
-        let listed = list_chats(&pair);
+        let listed = list_chats(&pair).unwrap();
         assert_eq!(
             listed.iter().map(|c| c.title.as_str()).collect::<Vec<_>>(),
             ["Talking about the weather", "Weekend plans", "Ordering coffee"],
@@ -417,14 +395,13 @@ mod tests {
     }
 
     #[test]
-    fn an_unreadable_chat_is_still_listed() {
+    fn an_unreadable_chat_blocks_listing_without_destroying_history() {
         // Hiding it is how someone concludes the app lost their work.
         let pair = scratch("unreadable");
         let dir = chat_dir(&pair, "1788400000-aaaa").unwrap();
         std::fs::write(dir.join(SESSION_FILE), "{not json").unwrap();
-        let listed = list_chats(&pair);
-        assert_eq!(listed.len(), 1);
-        assert_eq!(listed[0].turn_count, 0);
+        assert!(list_chats(&pair).is_err());
+        assert!(dir.join(SESSION_FILE).exists());
         std::fs::remove_dir_all(&pair).ok();
     }
 
@@ -436,13 +413,15 @@ mod tests {
         let turns = serde_json::json!([{ "id": 1, "user": "hola" }]);
         save_session(&chat, &turns, "Saying hello").unwrap();
         assert_eq!(load_session(&chat).turns, turns);
-        assert_eq!(list_chats(&pair)[0].title, "Saying hello");
+        assert_eq!(list_chats(&pair).unwrap()[0].title, "Saying hello");
 
         std::fs::write(chat.join(SESSION_FILE), "{not json").unwrap();
         let loaded = load_session(&chat);
         assert_eq!(loaded.turns, empty());
-        assert!(loaded.fault.unwrap().contains("Nothing was deleted"));
-        assert!(chat.join(format!("{SESSION_FILE}.bad")).exists());
+        assert!(loaded.fault.unwrap().contains("Repair the file"));
+        assert!(chat.join(SESSION_FILE).exists());
+        assert!(load_session(&chat).fault.is_some());
+        assert!(save_session(&chat, &turns, "Must not overwrite").is_err());
 
         std::fs::remove_dir_all(&pair).ok();
     }
@@ -453,10 +432,10 @@ mod tests {
         let chat = chat_dir(&pair, "1788400000-aaaa").unwrap();
         let turns = serde_json::json!([{ "id": 1, "user": "hola" }]);
         save_session(&chat, &turns, "Coffee").unwrap();
-        assert_eq!(list_chats(&pair).len(), 1);
+        assert_eq!(list_chats(&pair).unwrap().len(), 1);
 
         delete_chat(&pair, "1788400000-aaaa").unwrap();
-        assert!(list_chats(&pair).is_empty(), "gone from the list");
+        assert!(list_chats(&pair).unwrap().is_empty(), "gone from the list");
 
         // Recoverable by anyone who opens the file: the turns are untouched and
         // the only change is a dated marker. No renamed files, nothing erased.
@@ -481,7 +460,7 @@ mod tests {
         delete_chat(&pair, &id).unwrap();
         // The pointer still names a directory that exists, so the caller has to
         // notice the chat is gone from the list rather than trusting the pointer.
-        assert!(list_chats(&pair).is_empty());
+        assert!(list_chats(&pair).unwrap().is_empty());
         std::fs::remove_dir_all(&pair).ok();
     }
 
@@ -498,10 +477,11 @@ mod tests {
         save_session(&es_chat, &serde_json::json!([{ "user": "hola" }]), "Spanish").unwrap();
         save_session(&ar_chat, &serde_json::json!([{ "user": "marhaba" }]), "Arabic").unwrap();
 
-        assert_eq!(list_chats(&es).len(), 1);
-        assert_eq!(list_chats(&es)[0].title, "Spanish");
-        assert_eq!(list_chats(&ar)[0].title, "Arabic");
+        assert_eq!(list_chats(&es).unwrap().len(), 1);
+        assert_eq!(list_chats(&es).unwrap()[0].title, "Spanish");
+        assert_eq!(list_chats(&ar).unwrap()[0].title, "Arabic");
 
         std::fs::remove_dir_all(&root).ok();
     }
 }
+

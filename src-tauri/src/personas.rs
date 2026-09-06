@@ -86,14 +86,13 @@ fn path(config_dir: &Path) -> PathBuf {
 
 /// The learner's own characters, and any fault worth telling them about.
 ///
-/// A file that cannot be read is moved aside and reported rather than quietly
-/// replaced: these are written by hand and losing them without a word is how
-/// someone concludes the app ate their work.
+/// Invalid files remain intact and block edits until repaired.
 pub fn load_custom(config_dir: &Path, faults: &mut Vec<String>) -> Vec<Persona> {
     let p = path(config_dir);
-    let Ok(raw) = std::fs::read_to_string(&p) else {
-        // No file yet simply means no custom personas yet.
-        return Vec::new();
+    let raw = match crate::persistence::read(&p) {
+        Ok(Some(raw)) => raw,
+        Ok(None) => return Vec::new(),
+        Err(error) => { faults.push(error); return Vec::new(); }
     };
     match serde_json::from_str::<Vec<Persona>>(&raw) {
         Ok(list) => list
@@ -105,15 +104,7 @@ pub fn load_custom(config_dir: &Path, faults: &mut Vec<String>) -> Vec<Persona> 
             .map(|c| Persona { builtin: false, ..c })
             .collect(),
         Err(e) => {
-            let bad = p.with_extension("json.bad");
-            let mut fault = format!(
-                "Your saved personas could not be read ({e}), so only the \
-                 built-in ones are available. Nothing was deleted."
-            );
-            match std::fs::rename(&p, &bad) {
-                Ok(()) => fault.push_str(&format!(" The file is kept at {}.", bad.display())),
-                Err(e) => fault.push_str(&format!(" It could not be moved aside either: {e}.")),
-            }
+            let fault = format!("{} could not be read: {e}. Repair the file before editing personas.", p.display());
             faults.push(fault);
             Vec::new()
         }
@@ -126,7 +117,7 @@ pub fn load_custom(config_dir: &Path, faults: &mut Vec<String>) -> Vec<Persona> 
 pub fn save_custom(config_dir: &Path, custom: &[Persona]) -> Result<(), String> {
     let raw = serde_json::to_string_pretty(custom)
         .map_err(|e| format!("could not serialize your personas: {e}"))?;
-    std::fs::write(path(config_dir), raw)
+    crate::persistence::write(&path(config_dir), raw.as_bytes())
         .map_err(|e| format!("could not save your personas: {e}"))
 }
 
@@ -377,8 +368,11 @@ mod tests {
         let mut faults = Vec::new();
         assert!(load_custom(&dir, &mut faults).is_empty());
         assert_eq!(faults.len(), 1);
-        assert!(faults[0].contains("Nothing was deleted"));
-        assert!(dir.join("personas.json.bad").exists());
+        assert!(faults[0].contains("Repair the file"));
+        assert!(dir.join("personas.json").exists());
+        let mut repeated_faults = Vec::new();
+        load_custom(&dir, &mut repeated_faults);
+        assert!(!repeated_faults.is_empty());
         std::fs::remove_dir_all(&dir).ok();
     }
 
@@ -456,3 +450,4 @@ mod tests {
         .is_ok());
     }
 }
+

@@ -100,7 +100,7 @@ async fn model_bench() {
         let sys = prompts::partner::reply_prompt(&persona.sketch, tln, "A2", native, None, "");
         let messages = vec![
             serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": prompts::partner::greeting_turn(None)}),
+            serde_json::json!({"role": "user", "content": prompts::partner::greeting_turn()}),
         ];
         let start = Instant::now();
         let mut ttft: Option<u128> = None;

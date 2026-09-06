@@ -1,3 +1,4 @@
+import { invoke as nativeInvoke } from '@tauri-apps/api/core'
 import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
   Graph,
@@ -17,26 +18,17 @@ export const isTauri =
   ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
 
 function summarize(args?: Record<string, unknown>): string {
-  if (!args) return '{}'
-  try {
-    const json = JSON.stringify(args, (_k, v) =>
-      typeof v === 'string' && v.length > 120 ? `${v.slice(0, 120)}…(${v.length}ch)` : v
-    )
-    return json.length > 400 ? `${json.slice(0, 400)}…` : json
-  } catch {
-    return '<unserializable>'
-  }
+  return args ? Object.keys(args).join(', ') : ''
 }
 
 export async function invoke<T>(
   cmd: string,
   args?: Record<string, unknown>
 ): Promise<T> {
-  const { invoke } = await import('@tauri-apps/api/core')
   const started = performance.now()
   logDebug(`[ipc] ${cmd} →`, summarize(args))
   try {
-    const result = await invoke<T>(cmd, args)
+    const result = await nativeInvoke<T>(cmd, args)
     logDebug(`[ipc] ${cmd} ✓ ${(performance.now() - started).toFixed(0)}ms`)
     return result
   } catch (e) {

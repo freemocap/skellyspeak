@@ -101,7 +101,7 @@ pub const AGENTS: &[Agent] = &[
         id: agent::COACH,
         label: "Coach",
         purpose: "Your private tutor. Reads everything, corrects you honestly, answers your questions, and quietly keeps track of how you are doing. The chat partner never sees any of it.",
-        memory: "Its own thread with you (coach_thread.json), plus the teaching plan and your profile (plan.json, profile.json) — all of which survive restarts.",
+        memory: "Its own thread with you (coach.json), plus the teaching plan and your profile (memory.json) — all of which survive restarts.",
         operations: &[op::REVIEW, op::ANSWER, op::REFLECT],
     },
 ];

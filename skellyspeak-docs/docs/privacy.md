@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-**Effective 2 September 2026.** SkellySpeak is made by the FreeMoCap
+**Effective 5 September 2026.** SkellySpeak is made by the FreeMoCap
 Foundation. This policy describes what the app and its optional hosted service
 collect, and what they do not.
 
@@ -17,19 +17,18 @@ them sends anything to us at all**:
 | How you use it | What reaches FreeMoCap |
 |---|---|
 | **Your own API key** (OpenRouter) | Nothing. The app talks to OpenRouter directly. |
-| **Your own AI server** (Ollama, LM Studio) | Nothing. Chat never leaves your machine. |
-| **The free hosted service** | Your Google account, and the counts described below. |
+| **Your own AI server** (Ollama, LM Studio) | Chat goes to the server you choose; speech can still use external providers. |
+| **The free hosted service** | Your Google identity, request content in transit, and the operational records described below. |
 
 Everything in the rest of this policy applies **only** to the free hosted
-service, and only once you have chosen to sign in. If you never sign in, we
-never receive anything.
+service. Starting sign-in also creates short-lived authorization records, even if you do not finish signing in.
 
 We do not sell your data, we do not share it for advertising, and there are no
 analytics or tracking SDKs in the app.
 
 ## What the hosted service stores
 
-This is the complete list.
+The application stores the following records; hosting infrastructure also produces operational logs.
 
 **Your account**, from signing in with Google:
 
@@ -42,6 +41,8 @@ This is the complete list.
 
 - Number of AI tokens used, per day
 - Number of requests made, per day
+- Cost and reserved allowance in micro-dollars
+- Per-request reservation IDs, provider generation IDs, settlement status and timestamps
 
 **Your installations**, so we know which platforms to keep supporting:
 
@@ -58,7 +59,7 @@ Reinstalling the app produces a new one.
 
 Stated explicitly, because these are the things people reasonably worry about:
 
-- **No IP addresses.** We do not record or log them.
+- **No IP addresses in account or usage records.** Google Cloud operational request logs can contain network metadata, including IP addresses and request URLs.
 - **No location or country.**
 - **No device or machine names.**
 - **No hardware or advertising identifiers.**
@@ -68,15 +69,17 @@ Stated explicitly, because these are the things people reasonably worry about:
   never issues us a long-lived token for your account. We read your identifier
   and email once and discard the rest.
 
+Google Cloud describes its [automatic request logging](https://docs.cloud.google.com/run/docs/logging). Firestore describes its [asynchronous TTL deletion](https://firebase.google.com/docs/firestore/ttl).
+
 ## Who else is involved
 
 Using the hosted service means your conversation text and voice recordings are
 sent onward to the companies that actually run the AI models. They receive that
 content and handle it under their own policies:
 
-- **Google** — sign-in only. Google never receives your conversations.
+- **Google** — sign-in, Google Cloud hosting, and Gemini model inference when selected through OpenRouter.
   [Privacy policy](https://policies.google.com/privacy)
-- **OpenRouter** — the tutor's replies and the language analysis.
+- **OpenRouter and its model providers** — replies, language analysis and cloud speech generation.
   [Privacy policy](https://openrouter.ai/privacy)
 - **Groq** — speech-to-text, if you use the microphone.
   [Privacy policy](https://groq.com/privacy-policy/)
@@ -86,10 +89,10 @@ server. Both are in Settings and neither routes through FreeMoCap.
 
 ## How long it is kept
 
-- **Usage and installation records: 90 days.** Deleted automatically after
-  that.
-- **Sign-in state: 24 hours.** The short-lived values created while signing in
-  are expired within minutes and swept within a day.
+- **Usage, completed reservations and installation records:** eligible for automatic deletion after 90 days. Deletion is asynchronous.
+- **Unresolved billing reservations:** kept until investigated and reconciled, then eligible for deletion after 90 days.
+- **Sign-in records:** invalid within minutes and eligible for automatic deletion after one day. Eligibility is not an exact deletion deadline.
+- **Hosting logs:** retained under the Google Cloud project's logging retention settings.
 - **Your account record** is kept until you ask us to delete it.
 
 ## Your choices
@@ -100,7 +103,7 @@ device immediately.
 
 **Delete your data** — email [info@freemocap.org](mailto:info@freemocap.org) from the address you signed in
 with, and we will delete your account record and everything associated with it.
-Usage and installation records expire on their own within 90 days regardless.
+Usage and installation records become eligible for automatic deletion after 90 days.
 
 **See what we hold** — ask at the same address and we will send it to you.
 

@@ -76,11 +76,14 @@ pub async fn guided_turn(
     chat_id: String,
     on_event: Channel<GuidedEvent>,
 ) -> Result<String, String> {
-    let settings = state
-        .settings
-        .lock()
-        .unwrap_or_else(|p| p.into_inner())
-        .clone();
+    let (epoch, settings, plan_snapshot, recent_snapshot, level_notes) = {
+        let epoch = state.context_epoch.lock().expect("context lock poisoned");
+        (*epoch,
+         state.settings.lock().expect("settings lock poisoned").clone(),
+         state.plan.lock().expect("plan lock poisoned").clone(),
+         state.recent_mechanics.lock().expect("mechanics lock poisoned").clone(),
+         state.profile.lock().expect("profile lock poisoned").level_notes.clone())
+    };
     let started = std::time::Instant::now();
     // Every run fired by this turn shares a turn id, so the UI can group
     // them into "what happened when you sent that message".
@@ -99,13 +102,7 @@ pub async fn guided_turn(
     let romanization_scheme = languages::romanization(&target);
     let word_delimited = languages::word_delimited(&target);
     // Learner-selected level (steer row) maps to CEFR for every prompt.
-    let cefr = match level.as_deref() {
-        Some("zero") => "PRE-A1",
-        Some("intermediate") => "B1",
-        Some("advanced") => "C1",
-        _ => "A2",
-    }
-    .to_string();
+    let cefr = prompts::resolve_cefr(level.as_deref().unwrap_or("beginner")).to_string();
     // The topic the learner picked. The REPLY takes it as its own prompt
     // section (`prompts::partner::topic_section`) rather than as one more line at
     // bottom of the staging notes — buried behind the whole teaching plan it
@@ -123,9 +120,7 @@ pub async fn guided_turn(
     // A personas file that could not be read reaches the screen rather than a
     // log: the learner's own characters are missing from this conversation and
     // they have to be told why.
-    for fault in persona_faults {
-        emit(&on_event, GuidedEvent::Fault { context: "Personas".into(), message: fault });
-    }
+    if !persona_faults.is_empty() { return Err(persona_faults.join("\n")); }
     let persona = crate::personas::resolve(persona.as_deref(), &chat_id, &available);
     info!("[cmd] guided_turn partner: {} ({})", persona.label, persona.id);
 
@@ -134,19 +129,8 @@ pub async fn guided_turn(
     // the mechanics and scaffolds passes only, because the reply already
     // carries the topic as a section of its own and stating it twice is how a
     // prompt argues with itself.
-    let reply_directives = {
-        let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
-        let recent = state
-            .recent_mechanics
-            .lock()
-            .unwrap_or_else(|p| p.into_inner());
-        format!(
-            "{}{}",
-            target_overlay,
-            prompts::observer::directives_block(&plan, &recent)
-        )
-    };
-    let directives = format!("{reply_directives}{topic_directive}");
+    let reply_directives = format!("{}{}", target_overlay, prompts::observer::directives_block(&plan_snapshot, &recent_snapshot));
+    let directives = format!("{target_overlay}{topic_directive}");
     let reply_system = prompts::partner::reply_prompt(
         &persona.sketch,
         &tln,
@@ -167,7 +151,7 @@ pub async fn guided_turn(
         // doing something before the learner turned up, and they lead with it.
         reply_messages.push(json!({
             "role": "user",
-            "content": prompts::partner::greeting_turn(topic.as_deref())
+            "content": prompts::partner::greeting_turn()
         }));
     } else if let Some(change) = steering.as_deref().filter(|s| !s.trim().is_empty()) {
         // Learner changed practice settings mid-conversation: the partner
@@ -258,6 +242,7 @@ pub async fn guided_turn(
         )
         .await
         .map_err(|e| {
+            if let Some(task) = &learner_tokens_task { task.abort(); }
             let msg = format!("reply failed: {e}");
             if msg.contains("429") {
                 "The tutor hit a rate limit — give it a few seconds and try again.".into()
@@ -267,6 +252,7 @@ pub async fn guided_turn(
         })?;
     let reply = sanitize_reply(&full_reply);
     if reply.is_empty() {
+        if let Some(task) = &learner_tokens_task { task.abort(); }
         return Err("The tutor returned an empty reply. Please try again.".into());
     }
     info!(
@@ -284,7 +270,19 @@ pub async fn guided_turn(
     // Everything below runs in the background and lands via the channel.
 
     // ── Observer pass: rewrites the plan and profile on its own cadence ─────
-    if observer_pass::try_claim_slot(&state) {
+    let observer_due = {
+        let context = state.context_epoch.lock().expect("context lock poisoned");
+        if *context != epoch {
+            if let Some(task) = learner_tokens_task { task.abort(); }
+            return Err("Conversation changed while the reply was being generated.".into());
+        }
+        let mut turns = state.observer_turns.lock().expect("observer cadence lock poisoned");
+        if has_learner_message { *turns += 1; }
+        has_learner_message && (*turns - 1) % 4 == 0
+    };
+    let observer_model = settings.observer_model.clone().unwrap_or_else(crate::settings::default_observer_model);
+    let observer_provider = settings.chat_provider(&observer_model)?;
+    if observer_due && observer_pass::try_claim_slot(&state) {
         let transcript: Vec<String> = history
             .iter()
             .map(|t| format!("{}: {}", if t.role == "user" { "L" } else { "T" }, t.content))
@@ -292,15 +290,13 @@ pub async fn guided_turn(
             .chain(std::iter::once(format!("T: {reply}")))
             .collect();
         observer_pass::spawn(observer_pass::ObserverPass {
+            epoch,
             app: app.clone(),
             channel: on_event.clone(),
             turn_id,
             tln: tln.clone(),
             transcript,
-            model: settings
-                .observer_model
-                .clone()
-                .unwrap_or_else(crate::settings::default_observer_model),
+            provider: observer_provider,
             pairing: (
                 settings.target_language.clone(),
                 settings.native_language.clone(),
@@ -313,6 +309,7 @@ pub async fn guided_turn(
     // decision and every analysis call shares it.
     let worker_provider = settings.chat_provider(&settings.openrouter_model)?;
     analysis::spawn(analysis::AnalysisPass {
+        epoch,
         app: app.clone(),
         channel: on_event.clone(),
         provider: worker_provider.clone(),
@@ -349,9 +346,11 @@ pub async fn guided_turn(
             native,
             transcript: coach_pass::transcript(&history),
             message: trimmed,
+            level_notes,
             topic,
         });
     }
 
     Ok(reply)
 }
+

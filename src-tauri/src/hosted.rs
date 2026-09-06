@@ -46,7 +46,7 @@ pub struct Account {
     /// Reporting only.
     pub tokens_today: u64,
     pub requests_today: u64,
-    pub estimated_turns_remaining: u64,
+    pub estimated_requests_remaining: u64,
     pub estimated_tokens_remaining: u64,
     /// This account carries its own daily limit rather than the service
     /// default. Shown so an unusual allowance reads as deliberate.
@@ -133,6 +133,7 @@ fn start_url(redirect_uri: &str, challenge: &str) -> Result<String, String> {
             ("redirect_uri", redirect_uri),
             ("code_challenge", challenge),
             ("code_challenge_method", "S256"),
+            ("app_state", challenge),
         ],
     )
     .map(String::from)
@@ -257,10 +258,11 @@ pub async fn sign_in(
                 .map_err(|e| format!("the sign-in listener failed: {e}"))?;
 
             let mut buffer = [0u8; 2048];
-            let read = stream
-                .read(&mut buffer)
-                .await
-                .map_err(|e| format!("could not read the sign-in response: {e}"))?;
+            let read = match tokio::time::timeout(Duration::from_secs(3), stream.read(&mut buffer)).await {
+                Ok(Ok(read)) => read,
+                Ok(Err(error)) => return Err(format!("could not read the sign-in response: {error}")),
+                Err(_) => continue,
+            };
             let request = String::from_utf8_lossy(&buffer[..read]).to_string();
 
             // Browsers ask for /favicon.ico alongside the real request; that is
@@ -272,12 +274,15 @@ pub async fn sign_in(
             else {
                 continue;
             };
-            if !target.starts_with("/callback") {
+            if !request.starts_with("GET ") || target.split('?').next() != Some("/callback") {
                 let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n").await;
                 continue;
             }
 
-            let outcome = code_from_query(target);
+            let callback = reqwest::Url::parse(&format!("http://127.0.0.1:{port}{target}"))
+                .map_err(|_| "Malformed sign-in callback".to_string())?;
+            if !matches_state(&callback, &pkce.challenge) { continue; }
+            let outcome = code_from_url(&callback);
             let page = match &outcome {
                 Ok(_) => landing_page(
                     "Signed in",
@@ -299,14 +304,9 @@ pub async fn sign_in(
 
 /// The `code` parameter from a callback request target such as
 /// `/callback?code=abc&state=xyz`.
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
-fn code_from_query(target: &str) -> Result<String, String> {
-    // Parsed against a fixed base: only the query matters, and this rejects a
-    // malformed target rather than guessing at it.
-    let url = reqwest::Url::parse("http://127.0.0.1")
-        .and_then(|base| base.join(target))
-        .map_err(|_| "The sign-in response was malformed.".to_string())?;
-    code_from_url(&url)
+fn matches_state(url: &reqwest::Url, expected: &str) -> bool {
+    let states: Vec<_> = url.query_pairs().filter(|(key, _)| key == "state").collect();
+    states.len() == 1 && states[0].1 == expected
 }
 
 /// The `code` a callback carries, or the reason there isn't one. Shared by
@@ -316,15 +316,18 @@ fn code_from_url(url: &reqwest::Url) -> Result<String, String> {
     if let Some((_, reason)) = url.query_pairs().find(|(k, _)| k == "error") {
         return Err(format!("Sign-in was refused: {reason}"));
     }
-    url.query_pairs()
-        .find(|(k, _)| k == "code")
-        .map(|(_, v)| v.into_owned())
-        .filter(|c| !c.is_empty())
-        .ok_or_else(|| "The sign-in response carried no code.".to_string())
+    let codes: Vec<_> = url.query_pairs().filter(|(key, _)| key == "code").collect();
+    if codes.len() != 1 || codes[0].1.is_empty() {
+        return Err("The sign-in response must carry exactly one nonempty code.".into());
+    }
+    Ok(codes[0].1.to_string())
 }
 
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 fn landing_page(heading: &str, message: &str) -> String {
+    let escape = |value: &str| value.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;").replace('\'', "&#39;");
+    let heading = escape(heading);
+    let message = escape(message);
     let body = format!(
         "<!doctype html><meta charset=\"utf-8\"><title>SkellySpeak</title>\
          <style>body{{background:#0c1420;color:#e8eef6;font:16px/1.6 system-ui,sans-serif;\
@@ -343,9 +346,9 @@ fn landing_page(heading: &str, message: &str) -> String {
 
 /// The sign-in attempt currently waiting for a redirect, if any.
 #[cfg(any(target_os = "android", target_os = "ios"))]
-fn awaiting_link() -> &'static std::sync::Mutex<Option<tokio::sync::oneshot::Sender<String>>> {
+fn awaiting_link() -> &'static std::sync::Mutex<Option<(String, tokio::sync::oneshot::Sender<String>)>> {
     static SLOT: std::sync::OnceLock<
-        std::sync::Mutex<Option<tokio::sync::oneshot::Sender<String>>>,
+        std::sync::Mutex<Option<(String, tokio::sync::oneshot::Sender<String>)>>,
     > = std::sync::OnceLock::new();
     SLOT.get_or_init(|| std::sync::Mutex::new(None))
 }
@@ -362,11 +365,12 @@ pub async fn sign_in(
     use tauri_plugin_deep_link::DeepLinkExt;
 
     let (sender, receiver) = tokio::sync::oneshot::channel::<String>();
+    let pkce = Pkce::new();
     // Hand this attempt's sender to the one permanent handler, displacing any
     // left behind by an attempt that was abandoned or failed before the
     // browser opened. A sign-in that never completed must not be able to
     // swallow the redirect belonging to the next one.
-    *awaiting_link().lock().unwrap_or_else(|p| p.into_inner()) = Some(sender);
+    *awaiting_link().lock().unwrap_or_else(|p| p.into_inner()) = Some((pkce.challenge.clone(), sender));
 
     // Registered exactly once for the life of the process. Registering per
     // attempt accumulated a handler every time someone pressed the button,
@@ -376,17 +380,17 @@ pub async fn sign_in(
             let Some(url) = event.urls().first().cloned() else {
                 return;
             };
-            if let Some(sender) = awaiting_link()
-                .lock()
-                .unwrap_or_else(|p| p.into_inner())
-                .take()
-            {
+            let mut pending = awaiting_link().lock().expect("sign-in lock poisoned");
+            let Some((state, _)) = pending.as_ref() else { return; };
+            if url.scheme() != "skellyspeak" || url.host_str() != Some("auth")
+                || !matches!(url.path(), "" | "/") || !url.username().is_empty()
+                || url.password().is_some() || url.port().is_some() || !matches_state(&url, state) { return; }
+            if let Some((_, sender)) = pending.take() {
                 let _ = sender.send(url.to_string());
             }
         });
     });
 
-    let pkce = Pkce::new();
     open_in_browser(app, &start_url("skellyspeak://auth", &pkce.challenge)?)?;
 
     let url = tokio::time::timeout(SIGN_IN_TIMEOUT, receiver)
@@ -403,6 +407,24 @@ pub async fn sign_in(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn callback_state_must_match_exactly_once() {
+        for query in ["state=wrong", "code=abc", "state=expected&state=expected"] {
+            let url = reqwest::Url::parse(&format!("skellyspeak://auth?{query}")).unwrap();
+            assert!(!matches_state(&url, "expected"));
+        }
+        assert!(matches_state(&reqwest::Url::parse("skellyspeak://auth?state=expected&code=abc").unwrap(), "expected"));
+        assert!(code_of("/callback?code=one&code=two").is_err());
+    }
+
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    #[test]
+    fn callback_error_is_escaped_in_the_landing_page() {
+        let page = landing_page("Failed", "<script>alert('x')</script>");
+        assert!(!page.contains("<script>"));
+        assert!(page.contains("&lt;script&gt;"));
+    }
 
     #[test]
     fn sign_in_urls_sit_beside_the_ai_base_not_under_it() {
@@ -492,3 +514,4 @@ mod pkce_tests {
         assert!(url.contains("code_challenge_method=S256"));
     }
 }
+

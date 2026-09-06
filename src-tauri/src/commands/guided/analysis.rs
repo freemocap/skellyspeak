@@ -27,6 +27,7 @@ const RECENT_MECHANICS_CAP: usize = 20;
 /// Everything the analysis pass needs, gathered by the caller before the reply
 /// even finishes so the pass can start the moment it does.
 pub(super) struct AnalysisPass {
+    pub epoch: u64,
     pub app: AppHandle,
     pub channel: Channel<GuidedEvent>,
     pub provider: Provider,
@@ -98,6 +99,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let AnalysisPass {
+            epoch,
             app,
             channel,
             provider,
@@ -250,6 +252,8 @@ pub(super) fn spawn(pass: AnalysisPass) {
         // Record taught mechanics so future analyses never repeat them.
         {
             let state = app.state::<AppState>();
+            let context = state.context_epoch.lock().expect("context lock poisoned");
+            if *context != epoch { return; }
             let mut recent = state
                 .recent_mechanics
                 .lock()

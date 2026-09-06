@@ -1,356 +1,166 @@
 ---
-sidebar_position: 7
+sidebar_position: 8
 title: Hosted API
 ---
 
 # Hosted API
 
-`server/` is a FastAPI service on Cloud Run that lets someone use SkellySpeak
-without holding any API keys of their own: they sign in with Google, and their
-requests are proxied to OpenRouter and Groq through the project's accounts,
-metered against a daily allowance.
+The hosted service runs FastAPI on Cloud Run in `skellyspeak-api`, region
+`us-central1`. It authenticates accounts and meters chat, speech generation,
+and microphone transcription. Bring-your-own-key and custom-server requests
+are routed by the Rust core without passing through this service.
 
-It is one of three ways the app can reach an AI provider, and the **default on
-a fresh install**. The choice lives in Settings and is resolved in exactly one
-place, `Settings::chat_provider` in `src-tauri/src/settings.rs`, with
-`stt_endpoint` and `tts_endpoint` beside it for voice.
+## Request ownership
 
-| Mode | Endpoint | Credentials | Who pays |
-|---|---|---|---|
-| `hosted` | this service | a session token | the project |
-| `cloud` | OpenRouter | the user's own key | the user |
-| `custom` | any OpenAI-compatible server | optional, theirs | nobody — it is their machine |
-
-Hosted mode covers **all three** AI paths — chat, speech-to-text and spoken
-replies. Anything less would ship a mode whose microphone and speaker are
-visibly broken, since a hosted user holds no Groq or OpenRouter key.
+| Module | Responsibility |
+|---|---|
+| `server/main.py` | HTTP authentication, upstream calls, cancellation handling, responses |
+| `server/contracts.py` | Allowed text/audio request shapes and price reservations |
+| `server/audio_input.py` | Bounded audio decoding and duration-based transcription pricing |
+| `server/budget.py` | Atomic admission and idempotent dated settlement |
+| `server/transactions.py` | Local transaction serialization and bounded retries for contention |
+| `server/auth.py`, `server/auth_store.py` | JWT/PKCE validation and atomic one-time code consumption |
+| `server/quota.py` | Account admission, session revocation, device records and usage reporting |
+| `server/reconcile.py` | Inspect unresolved charges and verify provider receipts |
 
 ## Endpoints
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/health` | Liveness. |
-| GET | `/auth/start` | Redirects the **system browser** to Google. |
-| GET | `/auth/callback/google` | Google returns here; hands the app a one-time code. |
-| POST | `/auth/exchange` | Trades the one-time code for a session token. |
-| GET | `/v1/me` | Identity plus remaining allowance, for the quota display. |
-| POST | `/v1/chat/completions` | Authenticated passthrough to OpenRouter, streaming. |
-| POST | `/v1/audio/transcriptions` | Authenticated passthrough to Groq Whisper. |
+| GET | `/health` | Liveness; startup checks configuration and the audio decoder |
+| GET | `/auth/start` | Begin Google sign-in in the system browser |
+| GET | `/auth/callback/google` | Validate identity and issue a one-time app code |
+| POST | `/auth/exchange` | Exchange that code with its PKCE verifier |
+| GET | `/v1/me` | Identity and daily allowance |
+| POST | `/v1/chat/completions` | Validated, metered OpenRouter chat and speech |
+| POST | `/v1/audio/transcriptions` | Validated, metered Groq transcription |
 
-## Sign-in
+## Authentication
 
-The app never holds an OAuth client secret. It opens the system browser at
-`/auth/start`; this service performs the provider exchange and returns a
-one-time code to the app's own redirect; the app trades that code for a
-session token over HTTPS.
+Desktop sign-in uses a bound loopback listener; mobile uses a
+`skellyspeak://auth` deep link. Redirect targets are validated, and PKCE binds
+the one-time code to the initiating app. Firestore validates and consumes
+state/code documents transactionally, so concurrent exchanges have one winner.
+States expire after five minutes and exchange codes after two minutes.
 
-Three properties are load-bearing:
+Session JWTs last 30 days. Each authenticated request checks the account's
+`token_version`, so deleting an account or increasing that version revokes
+access. The runtime needs a signing key of at least 32 bytes. The native app
+stores its session and provider keys in the platform credential vault.
 
-**The system browser, not the webview.** Google refuses OAuth from embedded
-webviews (`disallowed_useragent`), and the app's UI *is* an embedded webview.
-The app opens the real browser through `tauri-plugin-opener` and waits.
+Sign-in-start throttling is process-local: 20 attempts/minute per instance.
+Instance replacement and distributed traffic can exceed one instance's rate;
+this is not a global denial-of-service or infrastructure-spend limit.
 
-Coming back in works differently per platform, because the two share nothing.
-Desktop binds a loopback listener on an ephemeral port *before* opening the
-browser, so the port named in the redirect is provably its own; Android
-receives a `skellyspeak://auth` deep link. Both live in `src-tauri/src/hosted.rs`.
+## Spending admission and settlement
 
-Two things about that are easy to get wrong and were:
+Money is stored in integer micro-dollars: 1,000,000 equals one US dollar.
+Every paid request atomically reserves its conservative maximum against both
+`users/{id}/usage/{UTC-date}` and `global_usage/{UTC-date}` before contacting a
+provider. It also creates `users/{id}/reservations/{request-id}`.
 
-- **Open the browser through the plugin instance**, `app.opener().open_url(…)`,
-  never the crate-level `tauri_plugin_opener::open_url` free function. The free
-  function is desktop-only in effect — it spawns a helper program (`xdg-open`
-  and relatives), which does not exist on Android, where it fails with
-  `No such file or directory (os error 2)`. The instance dispatches to an
-  `ACTION_VIEW` intent on Android and to the same helper on desktop.
-- **Register the deep-link handler once**, not per attempt. Registering inside
-  each sign-in accumulated a handler every time the button was pressed, each
-  holding a sender whose receiver had already been dropped. One permanent
-  handler routes to whichever attempt is currently waiting.
+Settlement corrects both totals in the original UTC bucket. Repeating an
+identical completed settlement has no effect; conflicting settlements fail.
+Missing or incomplete usage retains the full reservation for investigation.
+A reported charge above its reservation is recorded and blocks further
+admissions for that UTC day. Cancellation cannot release an unverified charge.
 
-The session token is stored in `settings.json` beside the API keys, but unlike
-them it never round-trips through the webview: `Settings::masked` blanks it
-outright, and `save_settings` always carries the stored one forward whatever
-the UI sends. `hosted_sign_out` is the only thing that clears it.
+The service accepts only the configured, priced model contracts:
 
-**The session token never travels in a URL.** The redirect carries a one-time
-code with a 120-second life, exchanged over POST. URLs reach browser history,
-server logs and referrer headers; a code that is already spent does not matter
-if it leaks.
+- `google/gemini-2.5-flash`: text-only input, disabled/minimal reasoning,
+  strict structured output, and bounded output tokens.
+- `openai/gpt-audio-mini`: streamed PCM16 speech, a supported voice, at most
+  2,000 output tokens. Input audio is not accepted on this endpoint.
+- `whisper-large-v3`: JSON transcription of a decoded recording up to 120
+  seconds; price includes the provider's ten-second billing minimum.
 
-**`redirect_uri` is allowlisted** to loopback and `skellyspeak://` only
-(RFC 8252). Without that the endpoint is an open redirect, which here means
-handing an attacker a way to receive other people's sign-in codes. Hosts that
-merely *look* like loopback — `127.0.0.1.evil.example`,
-`127.0.0.1@evil.example` — are rejected, and there are tests for each.
+Alternative model lists, caller-controlled routing, multimodal chat inputs,
+unknown fields and unbounded token limits are rejected. OpenRouter receives
+`require_parameters` and per-token price ceilings. Reservations depend on the
+provider honoring its token limits and pricing; they are not a guarantee
+against provider billing errors or every cloud infrastructure charge.
+OpenRouter documents the routing controls in its
+[provider-selection reference](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-Session tokens are HS256 JWTs valid for 30 days. The signing key must be at
-least 32 bytes (RFC 7518 §3.2); a shorter one means forgeable sessions, so the
-service refuses to start rather than accept it.
+Audio is decoded using a restricted ffmpeg input protocol, bounded duration,
+allocation/probe limits and a timeout. Two decodes/transcriptions can occupy an
+instance concurrently. Cloud Run admits eight requests per instance, with a
+maximum of four instances; these settings bound concurrency, not total bills.
 
-## Quota
+`/v1/me` reports `estimated_requests_remaining`, not conversation turns. A turn
+can make several model calls, and this estimate uses average request cost.
+Pending reservations can temporarily reduce the displayed allowance.
 
-Three ceilings. Two count tokens, in Firestore, keyed by UTC date:
+## Reconciliation and retention
 
-- **Per user per day** — what one person can spend.
-- **Globally per day** — what everyone together can spend. Per-user limits do
-  nothing about a launch-day crowd, and that bill lands on the project.
-
-The third counts *people*, and during closed testing it is the one that
-matters. The cost of a conversation was unmeasured when these numbers were
-chosen, so rather than guess a token allowance tight enough to be safe — and
-produce a service too crippled to learn anything from — the allowance was set
-generously and `MAX_USERS` set small:
-
-- **Total accounts** — `MAX_USERS`, enforced in `quota.upsert_user` inside a
-  Firestore transaction, which can read a query — so the count is taken from
-the `users` collection itself rather than from a counter document that could
-drift away from it.
-  A counter document holds the running total; counting the collection would be
-  neither atomic nor free. Somebody who already has an account is never
-  blocked by the ceiling and never counted twice, so lowering `MAX_USERS`
-  locks out newcomers without evicting anyone. A refused sign-in returns 403
-  with a message that points at the other two provider modes.
-
-Counters increment with `firestore.Increment`, applied server-side, so
-concurrent requests from one account cannot lose an update by reading a stale
-total. Allowance is checked *before* the upstream call, so an exhausted
-account costs nothing.
-
-Whisper bills by audio duration rather than tokens, so a transcription charges
-a flat token equivalent — one currency in front of the user beats two meters
-they have to reason about.
-
-## GCP resources
-
-Project `skellyspeak-api` (number `195823556545`), region `us-central1`.
-
-| Resource | Detail |
-|---|---|
-| Cloud Run | `skellyspeak-api`, public, min 0 / max 4 instances, 600s timeout |
-| Firestore | Native mode, `us-central1` |
-| Secret Manager | `google-client-id`, `google-client-secret`, `jwt-signing-key`, `openrouter-api-key`, `groq-api-key` |
-| Runtime identity | the default compute service account, with `secretmanager.secretAccessor` and `datastore.user` |
-
-Secrets are mounted from Secret Manager at run time. They are never build
-substitutions, which would put them in build logs and history.
-
-## Deploying
-
-**Nothing here is run by hand.** Every push to `main` that touches `server/`
-builds, deploys and verifies itself through
-[`.github/workflows/deploy-server.yml`](https://github.com/freemocap/skellyspeak/blob/main/.github/workflows/deploy-server.yml).
-The workflow runs the server tests first, submits the Cloud Build job, then
-checks the live service: `/health` must answer, and an unauthenticated
-`/v1/me` must return 401. A 403 there means the service came back private and
-fails the run loudly, because that is a change nobody would otherwise notice
-until a user could not sign in.
-
-To redeploy without a code change — after rotating a secret, say:
-
-```bash
-gh workflow run "Deploy server"
-```
-
-### One-time setup
-
-Authentication is Workload Identity Federation: GitHub mints a short-lived
-OIDC token per run and Google exchanges it for an access token. **No
-service-account key exists**, so there is no long-lived credential to leak or
-rotate. Run once, ever:
+Run these from `server/` with application-default credentials for the intended
+project. Receipt settlement also requires `OPENROUTER_API_KEY` in the environment.
+Do not put the key in a command argument or a committed file.
 
 ```powershell
-.scriptssetup-gcp-deploy.ps1
+uv run python reconcile.py list
+uv run python reconcile.py settle --user 'google:ACCOUNT_ID' --request 'REQUEST_ID'
 ```
 
-It enables the APIs, creates the `github-deployer` service account, grants it
-the three roles a build submission needs, creates the identity pool and OIDC
-provider, and sets the two repository secrets. It is idempotent, so re-running
-it repairs a partial setup rather than duplicating anything.
+The settle command verifies the stored generation ID against OpenRouter's
+receipt and uses its reported total cost and token counts. Requests without a
+provider generation ID stay reserved until their billing can be investigated.
+Do not clear daily totals to free allowance: outstanding reservations depend on
+them. Reconcile promptly; daily usage rows become eligible for TTL after 90 days.
 
-The security boundary is the provider's attribute condition,
-`assertion.repository == 'freemocap/skellyspeak'`. Without it any repository on
-GitHub could mint a token for this service account.
+Completed reservations, usage and device rows use the `ttl` timestamp field
+with 90-day retention. Pending/unknown reservations have no TTL. Sign-in
+records become eligible for deletion after one day; logical expiry applies
+independently of Firestore's asynchronous deletion schedule.
 
-### Things about this deploy that are not obvious
+`stats.py` reports usage and can set a per-user daily limit. Its zero-dollar
+argument removes the override. It cannot reset the ledger. A report mismatch
+fails and should be rechecked while requests are idle, since report reads are
+not one atomic snapshot.
 
-- **`.gcloudignore` is required.** The build context is the repository root,
-  and `old/` is 17 GB of archived earlier versions. The ignore file narrows the
-  upload to `server/` — nine files.
-- **`dynamic_substitutions: true`** is set in `cloudbuild.yaml`. Substitutions
-  inside other substitutions are expanded automatically only for trigger-based
-  builds; a plain `gcloud builds submit` passes `${PROJECT_ID}` through with
-  the braces intact and the build fails on an invalid image name.
-- **`--allow-unauthenticated` does not work from Cloud Build.** Its service
-  account cannot set IAM policy, so the deploy *warns* and reports success
-  while leaving the service private. The binding is applied once, directly, and
-  persists across deploys — and the workflow's 401 check is what catches it if
-  it ever stops holding:
+## Deployment and IAM
 
-  ```powershell
-  gcloud run services add-iam-policy-binding skellyspeak-api `
-    --region=us-central1 --member=allUsers --role=roles/run.invoker
-  ```
-- **Secrets are never build substitutions.** They are mounted from Secret
-  Manager at run time, so a build log never carries one.
+`server/cloudbuild.yaml` builds an image and deploys it using
+`skellyspeak-build@skellyspeak-api.iam.gserviceaccount.com`. The runtime identity
+is `skellyspeak-run@skellyspeak-api.iam.gserviceaccount.com`:
 
+- Runtime: Firestore data access and access to five named application secrets.
+- Builder: artifact writes to `gcr.io`, reads from the build staging bucket,
+  logs, service usage, deployment of the existing Cloud Run service, and
+  permission to run it as the runtime identity.
+- GitHub deployer: submit builds, read build logs, use the staging bucket and
+  select the build identity. Federation is restricted to this repository's
+  numeric owner/repository IDs and the deployment workflow on `main`.
 
-## What is stored about a person
+`scripts/setup-gcp-deploy.ps1 -Phase Grants` establishes scoped grants. Verify a
+candidate build before running `-Phase Prune` to remove broad project grants.
+The default compute builder retains scoped build access during rollout; it
+has no Editor, runtime-secret or Firestore-data grant.
 
-The complete list. It is short deliberately, and each line below is enforced by
-a test in `server/test_quota.py` that enumerates the stored fields — growing
-this set is a privacy decision and a Play Store Data Safety change, not a
-detail to adjust in passing. The user-facing version is the
-[Privacy Policy](./privacy.md).
-
-| Collection | Fields |
-|---|---|
-| `users/{id}` | Google subject id, email, display name, first and last seen |
-| `users/{id}/usage/{date}` | tokens, request count |
-| `users/{id}/devices/{install_id}` | platform, app version, first and last seen |
-| `global_usage/{date}` | tokens, request count |
-
-**Not stored, anywhere:** IP addresses, location or country, device or machine
-names, hardware or advertising identifiers, and the content of any
-conversation. Prompts and replies pass through the proxy and are never written
-down.
-
-**No Google credentials are held.** The OAuth request asks for
-`access_type=online`, so Google never issues a refresh token; the ID token is
-verified, read for the subject and email, and dropped. The only long-lived
-credential in existence is the session token this service signs itself, and
-rotating `jwt-signing-key` invalidates every one of them at once.
-
-The `install_id` is a random UUID the app generates on first run and keeps in
-its own settings file. It is not a hardware or advertising id and a reinstall
-produces a new one. It answers how many machines someone uses, which operating
-systems to keep supporting, and which app versions are still in the wild —
-which is what actually decides where effort goes.
-
-### Retention
-
-Firestore deletes this itself, driven by TTL policies on a `ttl` timestamp
-field. They are set once per collection and are not part of a deploy:
+The GitHub workflow gates deployment on server tests, independent-process
+Firestore emulator tests and container startup checks. Cloud Build checks that
+the intended image's ready revision receives all traffic; GitHub checks public
+health and unauthenticated rejection. Container base images and Python
+packages are pinned by digests/lockfile. Secret values are runtime bindings,
+never build substitutions.
 
 ```powershell
-gcloud firestore fields ttls update ttl --collection-group=usage --enable-ttl
-gcloud firestore fields ttls update ttl --collection-group=devices --enable-ttl
-gcloud firestore fields ttls update ttl --collection-group=global_usage --enable-ttl
-gcloud firestore fields ttls update ttl --collection-group=auth_states --enable-ttl
-gcloud firestore fields ttls update ttl --collection-group=login_codes --enable-ttl
+gcloud builds submit --project=skellyspeak-api --config=server/cloudbuild-check.yaml --gcs-source-staging-dir=gs://skellyspeak-api_cloudbuild/source
 ```
 
-Usage and device records live 90 days (`quota.USAGE_RETENTION_DAYS`) — long
-enough to compare one month against another, short enough that we are not the
-custodian of an indefinite record of when somebody practises a language.
-`auth_states` and `login_codes` live 24 hours; both are logically dead after
-two minutes, but abandoned sign-ins are never read again and would otherwise
-accumulate forever.
+This builds/tests/pushes a candidate without changing serving traffic.
+Changes to the allowance response require coordinated native-client and server
+releases. Keep the working revision serving until that release is ready.
 
-## Seeing the numbers
-
-```bash
-cd server && uv run python stats.py
-```
-
-Signups, spend per person per day, devices. `--days 7` for a week, `--emails`
-to unmask addresses. Needs `gcloud auth application-default login` once.
-
-Or click: [Firestore console](https://console.cloud.google.com/firestore/databases/-default-/data?project=skellyspeak-api).
-`users` = who signed up. `global_usage/{date}` = everyone's spend that day.
-
-`ACCOUNTS` is the same number `MAX_USERS` is checked against — the ceiling
-counts the `users` collection inside the signup transaction, so there is no
-separate counter that can drift out of step with it.
-
-
-## Turning the dials
-
-Everything meant to change once testing ends is a value, not a code change.
-
-| Dial | Env var | Closed-testing value |
-|---|---|---|
-| Per-user daily spend | `FREE_DAILY_MICROS` | 500,000 (**$0.50**) |
-| Global daily spend | `GLOBAL_DAILY_MICROS` | 2,000,000 (**$2.00**) |
-| Maximum accounts | `MAX_USERS` | 6 |
-| Models this service pays for | `ALLOWED_MODELS` | `google/gemini-2.5-flash,openai/gpt-audio-mini` |
-| Ceiling on one completion | `MAX_COMPLETION_TOKENS` | 32,768 |
-
-They live in `server/cloudbuild.yaml`, but changing them needs no rebuild:
-
-```powershell
-gcloud run services update skellyspeak-api --region=us-central1 `
-  --update-env-vars=MAX_USERS=25,FREE_DAILY_MICROS=250000
-```
-
-**Mirror the new value back into `cloudbuild.yaml` afterwards, or the next
-deploy silently reverts it.**
-
-### Why the limit is money, not tokens
-
-It used to be tokens, and that was the wrong unit in both directions. The price
-of a token varies about a hundredfold across OpenRouter, and **the caller
-chooses the model** — so a token ceiling was denominated in something the
-person spending it controlled. 500,000 tokens is pennies on one model and tens
-of dollars on another.
-
-OpenRouter reports `usage.cost` on every response, so the service now records
-what it was actually charged. Held as **micro-dollars** (1,000,000 = $1),
-because Firestore counters must be integers to increment atomically and float
-dollars accumulate drift.
-
-Two guards keep that number meaningful:
-
-- **`ALLOWED_MODELS`** — the body is forwarded untouched so the app's
-  structured-output options reach the provider unchanged, which would otherwise
-  let a caller name any model on OpenRouter. Two are served: the worker model,
-  and the audio model behind spoken replies.
-- **A reservation.** The quota is checked before the upstream call and settled
-  after. In between, nothing held the money, so concurrent requests all read
-  the same balance and all decided there was room. An estimate is now charged
-  up front and corrected to the real figure afterwards.
-
-### What the user sees
-
-Dollars are the truth, but nobody plans an afternoon in fractions of a cent, so
-`GET /v1/me` also returns `estimated_turns_remaining` and
-`estimated_tokens_remaining`. Both are derived from **that account's own
-average cost per request so far**, not a constant — so they track whatever
-model and conversation length are actually in use, and a new account falls back
-to a deliberately pessimistic per-turn figure until it has history.
-
-For reference, measured 2 September 2026 on the first real hosted session:
-roughly **7,000 tokens per turn** of voice conversation — one turn being the
-eight calls in `turn_plan.rs::TURN_STEPS` together, speech-to-text and spoken
-reply included.
-
-So $0.50 per user per day across at most 6 accounts, under a $2.00 shared
-ceiling, means **the most this service can spend in a day is two dollars** — by
-arithmetic rather than by hope. The per-user figure is the one to revisit
-before raising `MAX_USERS`, because that is when it starts multiplying.
-
-Firestore holds the daily totals under `users/{id}/usage/{date}` and
-`global_usage/{date}` — `micros` alongside `tokens` and `requests`, so cost per
-turn stays measurable — and the app's own run tracing records per-call usage
-locally.
-
-
-The consent screen is the other half of the gate: an OAuth client in
-**Testing** admits only listed addresses, while one published to **Production**
-admits anyone — at which point `MAX_USERS` is the only limit, which is why the
-service must be deployed with it *before* the screen is published. Publishing
-needs no Google verification review, because the only scopes requested are
-`openid email profile`, all non-sensitive — but uploading an app logo does
-trigger review, so the logo field is deliberately left empty.
-
-## Local development
+## Local checks
 
 ```powershell
 cd server
-uv sync
-uv run pytest          # 39 tests, on the security-critical paths
+uv sync --frozen --group dev
+uv run --frozen pytest -q
 ```
 
-`config.py` requires every setting and raises at import if one is missing. A
-service that boots healthy and then fails auth for every request is far worse
-to diagnose than one that refuses to boot.
+Install ffmpeg to exercise real decoding. Emulator integration additionally
+requires Java, the Firestore emulator on `127.0.0.1:8787`, and
+`SKELLYSPEAK_FIRESTORE_TEST=1`. Tests use isolated project namespaces and refuse
+non-loopback emulator targets.

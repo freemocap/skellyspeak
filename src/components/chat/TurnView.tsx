@@ -107,8 +107,7 @@ function TokenSpan({
         {tok.text}
       </span>
       {revealed && tok.gloss && <span className="wg">{tok.gloss}</span>}
-      {/* `alwaysRomanize` must bypass `revealed` — gating both on reveal is
-          what made the "always show romanization" setting do nothing. */}
+      {/* Always-visible romanization does not depend on revealing the gloss. */}
       {(revealed || alwaysRomanize) && showRomanization && tok.romanization && (
         <span className="wroman">{tok.romanization}</span>
       )}
@@ -128,7 +127,7 @@ export interface TurnViewProps {
   rtl: boolean
   onReveal: (keys: string[]) => void
   onBubbleTap: (id: number) => void
-  onSpeak: (text: string) => void
+  onSpeak: (text: string, turnId: number) => void
   onPopup: React.Dispatch<React.SetStateAction<PopupState | null>>
   onInspect: (turnId: number, side: 'me' | 'bot', index: number) => void
   onHold: (word: string, sentence: string) => void
@@ -322,7 +321,7 @@ export const TurnView = memo(function TurnView({
               aria-label={speaking ? 'Stop playback' : 'Speak reply'}
               onClick={(e) => {
                 e.stopPropagation()
-                onSpeak(assistant.reply)
+                onSpeak(assistant.reply, turn.id)
               }}
             >
               {speaking ? '⏹' : '🔊'}

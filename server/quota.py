@@ -30,6 +30,8 @@ from datetime import datetime, timedelta, timezone
 
 from google.cloud import firestore
 
+import transactions
+
 USERS = "users"
 USAGE = "usage"
 GLOBAL_USAGE = "global_usage"
@@ -117,15 +119,15 @@ class SessionRevoked(Exception):
     """The account behind this session is gone or its sessions were revoked."""
 
 
-def _usage_ref(db: firestore.Client, user_id: str, day: str):
+def _usage_ref(db: firestore.Client, user_id: str, day: str) -> firestore.DocumentReference:
     return db.collection(USERS).document(user_id).collection(USAGE).document(day)
 
 
-def _global_ref(db: firestore.Client, day: str):
+def _global_ref(db: firestore.Client, day: str) -> firestore.DocumentReference:
     return db.collection(GLOBAL_USAGE).document(day)
 
 
-def _field(snapshot, name: str):
+def _field(snapshot: firestore.DocumentSnapshot, name: str) -> object:
     """One field, or None when the document does not carry it.
 
     NOT `snapshot.get(name)`: a Firestore DocumentSnapshot RAISES KeyError for
@@ -139,7 +141,7 @@ def _field(snapshot, name: str):
     return (data or {}).get(name)
 
 
-def _read(snapshot, field: str) -> int:
+def _read(snapshot: firestore.DocumentSnapshot, field: str) -> int:
     return int(_field(snapshot, field) or 0)
 
 
@@ -196,106 +198,10 @@ def load_principal(
         raise SessionRevoked("This session was signed out remotely. Sign in again.")
 
     override = _field(snapshot, LIMIT_FIELD)
-    limit = int(override) if override else default_limit
+    limit = int(override) if override is not None else default_limit
     if limit < 0:
         raise ValueError(f"{LIMIT_FIELD} cannot be negative, got {override!r}")
-    return Principal(user_id=user_id, daily_limit=limit, overridden=bool(override))
-
-
-def check_allowed(
-    db: firestore.Client, user_id: str, *, user_limit: int, global_limit: int
-) -> Balance:
-    """Raise if this request should not proceed; otherwise report the balance.
-
-    Checked before the upstream call rather than after, so an exhausted
-    account costs nothing.
-    """
-    day = utc_day()
-
-    global_used = _read(_global_ref(db, day).get(), "micros")
-    if global_used >= global_limit:
-        raise QuotaExceeded(
-            "SkellySpeak has reached its shared daily limit. It resets at "
-            "00:00 UTC. You can use your own API key in Settings in the "
-            "meantime."
-        )
-
-    balance = read_balance(db, user_id, limit=user_limit)
-    if balance.exhausted:
-        raise QuotaExceeded(
-            f"You have used your ${micros_to_dollars(user_limit):.2f} of free "
-            "usage for today. It resets at 00:00 UTC. You can add your own API "
-            "key in Settings to keep going now."
-        )
-    return balance
-
-
-def _apply(db: firestore.Client, user_id: str, *, micros: int, tokens: int, requests: int) -> None:
-    entry = {
-        "micros": firestore.Increment(micros),
-        "tokens": firestore.Increment(tokens),
-        "requests": firestore.Increment(requests),
-        "day": utc_day(),
-        "ttl": ttl_after(USAGE_RETENTION_DAYS),
-    }
-    day = utc_day()
-    _usage_ref(db, user_id, day).set(entry, merge=True)
-    _global_ref(db, day).set(entry, merge=True)
-
-
-def reserve(db: firestore.Client, user_id: str, *, micros: int) -> None:
-    """Charge an estimate BEFORE the upstream call.
-
-    `check_allowed` reads, and `record_usage` writes only once the answer comes
-    back. Between those two points nothing is holding the money, so twenty
-    concurrent requests all read the same balance, all decide there is room,
-    and all proceed. The account then blows through its limit by however many
-    requests it managed to start at once.
-
-    Reserving closes that window: the estimate lands immediately, so the next
-    check sees it. `settle` corrects it to the real figure afterwards.
-    """
-    if micros < 0:
-        raise ValueError(f"a reservation cannot be negative, got {micros}")
-    _apply(db, user_id, micros=micros, tokens=0, requests=1)
-
-
-def settle(
-    db: firestore.Client,
-    user_id: str,
-    *,
-    reserved_micros: int,
-    actual_micros: int,
-    tokens: int,
-) -> None:
-    """Replace a reservation with what the request actually cost.
-
-    The correction is signed: an over-estimate refunds, an under-estimate
-    charges the difference. The request itself was already counted by
-    `reserve`, so nothing is added to the tally here.
-    """
-    if actual_micros < 0:
-        raise ValueError(f"usage cannot be negative, got {actual_micros}")
-    if tokens < 0:
-        raise ValueError(f"token usage cannot be negative, got {tokens}")
-    _apply(
-        db,
-        user_id,
-        micros=actual_micros - reserved_micros,
-        tokens=tokens,
-        requests=0,
-    )
-
-
-def record_usage(
-    db: firestore.Client, user_id: str, *, micros: int, tokens: int = 0
-) -> None:
-    """Charge a request that was never reserved, counting it as one request."""
-    if micros < 0:
-        raise ValueError(f"usage cannot be negative, got {micros}")
-    if tokens < 0:
-        raise ValueError(f"token usage cannot be negative, got {tokens}")
-    _apply(db, user_id, micros=micros, tokens=tokens, requests=1)
+    return Principal(user_id=user_id, daily_limit=limit, overridden=override is not None)
 
 
 def record_device(
@@ -392,4 +298,5 @@ def upsert_user(
         )
         return 0
 
-    return int(apply(db.transaction()) or 0)
+    return transactions.run(db, apply)
+

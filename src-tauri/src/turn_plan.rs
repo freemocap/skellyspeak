@@ -1,34 +1,5 @@
-//! The turn plan — **the** declaration of what a conversational turn does.
-//!
-//! This table is the single source of truth for three facts that the graph
-//! view asserts and the Runner must honour:
-//!
-//!   1. which operations a turn fires,
-//!   2. what each one actually *depends on*, and
-//!   3. whether it hydrates the screen on its own.
-//!
-//! `graph.rs` generates the turn graph from this table — it does not
-//! transcribe `commands.rs` by hand. That transcription is how the first
-//! version of the graph came to claim `tokenize_learner` depended on the
-//! reply, when it only ever needed the learner's own message: a false edge
-//! that both lied in the picture and hid ~700ms of available latency.
-//!
-//! # Derived / reconciled / attested
-//!
-//! Observability artifacts must be *derived*, not *maintained* — anything
-//! maintained independently is a claim, and claims rot. Three strengths:
-//!
-//! - **Derived** — one artifact; execution and view read the same structure.
-//!   Cannot drift by construction. *(this table → the graph's nodes, edges
-//!   and hydration)*
-//! - **Reconciled** — runtime observation is diffed against the declaration
-//!   and disagreement is surfaced. Can still be wrong, but it says so.
-//!   *(`trace::reconcile` → the graph view's fidelity banner)*
-//! - **Attested** — a human wrote it; only internal consistency is checked.
-//!   *(node layout, and prose)*
-//!
-//! The line: **structure derived, position authored.** Layout being wrong is
-//! visible and harmless; a false edge is neither.
+//! Expected turn operations and dependencies for the graph and trace reconciliation.
+//! Execution is orchestrated by commands::guided; this table describes its contract.
 
 use serde::Serialize;
 

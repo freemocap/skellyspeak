@@ -90,8 +90,32 @@ impl Default for TeachingPlan {
 
 impl TeachingPlan {
     pub fn validate(&self) -> Option<String> {
-        None // the plan is advisory; an empty plan is a valid plan
+        if self.session_focus.len() > 3 || self.correction_budget > 2
+            || self.recurring_errors.len() > 10 || self.taught_ledger.len() > 20
+            || self.energy_read.chars().count() > 160 {
+            return Some("Plan limits: 3 focuses, 2 recasts, 10 errors, 20 taught mechanics, 160 energy characters".into());
+        }
+        for list in [&self.session_focus, &self.vocab_recycle, &self.avoid, &self.learner_interests] {
+            if let Some(error) = validate_list(list) { return Some(error); }
+        }
+        for error in &self.recurring_errors {
+            if let Some(problem) = validate_error(error) { return Some(problem); }
+        }
+        if self.taught_ledger.iter().any(|m| m.mechanic.trim().is_empty() || m.mechanic.chars().count() > 256) {
+            return Some("Taught mechanics must contain 1–256 characters".into());
+        }
+        None
     }
+}
+
+fn validate_list(values: &[String]) -> Option<String> {
+    (values.len() > 10 || values.iter().any(|v| v.trim().is_empty() || v.chars().count() > 256))
+        .then(|| "Observation lists allow at most 10 nonempty entries, each at most 256 characters".into())
+}
+
+fn validate_error(error: &RecurringError) -> Option<String> {
+    ([&error.error, &error.correction].iter().any(|v| v.trim().is_empty() || v.chars().count() > 256))
+        .then(|| "Error evidence and corrections must contain 1–256 characters".into())
 }
 
 /// Durable, cross-session knowledge about the learner.
@@ -121,6 +145,18 @@ pub struct Profile {
     pub sessions: u32,
 }
 
+impl Profile {
+    pub fn validate(&self) -> Option<String> {
+        if self.about.chars().count() > 1200 || self.level_notes.chars().count() > 1200 || self.long_term_errors.len() > 10 {
+            return Some("Profile prose is limited to 1200 characters per field and 10 error records".into());
+        }
+        for list in [&self.strengths, &self.weaknesses, &self.interests] {
+            if let Some(error) = validate_list(list) { return Some(error); }
+        }
+        self.long_term_errors.iter().find_map(validate_error)
+    }
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct ObserverOutput {
@@ -132,36 +168,28 @@ pub struct ObserverOutput {
 
 impl ObserverOutput {
     pub fn validate(&self) -> Option<String> {
-        None
+        self.plan.validate().or_else(|| self.profile.validate())
     }
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
 
-/// Load one document. A missing file is a first run. An unreadable one is a
-/// fault: it is moved aside, the caller starts from defaults, and the reason
-/// is pushed onto `faults` so it reaches the screen.
+/// Missing documents use defaults. Invalid files remain intact and block loading.
 fn load_document<T: serde::de::DeserializeOwned + Default>(
     dir: &Path,
     name: &str,
     faults: &mut Vec<String>,
 ) -> T {
     let path = dir.join(name);
-    let Ok(raw) = std::fs::read_to_string(&path) else {
-        return T::default(); // first run — nothing to load
+    let raw = match crate::persistence::read(&path) {
+        Ok(Some(raw)) => raw,
+        Ok(None) => return T::default(),
+        Err(error) => { faults.push(error); return T::default(); }
     };
     match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
-            let bad = dir.join(format!("{name}.bad"));
-            let mut fault =
-                format!("{name} could not be read ({e}), so it starts empty.");
-            match std::fs::rename(&path, &bad) {
-                Ok(()) => fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display())),
-                Err(rename_err) => {
-                    fault.push_str(&format!(" It could not be moved aside either: {rename_err}."))
-                }
-            }
+            let fault = format!("{} could not be read: {e}. Repair the file before continuing.", path.display());
             log::error!("{fault}");
             faults.push(fault);
             T::default()
@@ -170,30 +198,39 @@ fn load_document<T: serde::de::DeserializeOwned + Default>(
 }
 
 pub fn load_documents(dir: &Path, faults: &mut Vec<String>) -> (TeachingPlan, Profile) {
-    (
-        load_document(dir, "plan.json", faults),
-        load_document(dir, "profile.json", faults),
-    )
+    let result = match crate::persistence::read(&dir.join("memory.json")) {
+        Ok(Some(raw)) => serde_json::from_str::<ObserverOutput>(&raw)
+            .map_err(|error| format!("memory.json is invalid: {error}. Repair the file before continuing.")),
+        Ok(None) => {
+            let plan = load_document(dir, "plan.json", faults);
+            let profile = load_document(dir, "profile.json", faults);
+            Ok(ObserverOutput { plan, profile })
+        }
+        Err(error) => Err(error),
+    };
+    match result {
+        Ok(output) => {
+            if let Some(error) = output.validate() { faults.push(format!("Invalid tutor memory: {error}")); }
+            (output.plan, output.profile)
+        }
+        Err(error) => {
+            faults.push(error);
+            (TeachingPlan::default(), Profile::default())
+        }
+    }
 }
 
-/// Write both documents. Returns every failure so the caller can surface them:
-/// a lost write means the tutor forgets what it learned this session.
+/// Plan and profile commit together in one atomic file replacement.
 pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) -> Vec<String> {
-    let mut faults = Vec::new();
-    let mut write = |name: &str, raw: Result<String, serde_json::Error>| match raw {
-        Ok(raw) => {
-            if let Err(e) = std::fs::write(dir.join(name), raw) {
-                faults.push(format!("Could not save {name}: {e}. This session's progress is not stored."));
-            }
-        }
-        Err(e) => faults.push(format!("Could not serialize {name}: {e}.")),
-    };
-    write("plan.json", serde_json::to_string_pretty(plan));
-    write("profile.json", serde_json::to_string_pretty(profile));
-    for f in &faults {
-        log::error!("{f}");
+    let output = ObserverOutput { plan: plan.clone(), profile: profile.clone() };
+    if let Some(error) = output.validate() { return vec![format!("Invalid tutor memory: {error}")]; }
+    let result = serde_json::to_vec_pretty(&output)
+        .map_err(|error| format!("Cannot serialize tutor memory: {error}"))
+        .and_then(|raw| crate::persistence::write(&dir.join("memory.json"), &raw));
+    match result {
+        Ok(()) => Vec::new(),
+        Err(error) => vec![error],
     }
-    faults
 }
 
 // ─── The observer pass ───────────────────────────────────────────────────────
@@ -206,21 +243,7 @@ pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) -> 
 /// CHEAP — it dies in ~10s instead of burning 32k tokens over two minutes.
 const OBSERVER_MAX_TOKENS: MaxTokens = MaxTokens(4_000);
 
-/// The observer runs as **two separate structured calls**, one per document,
-/// concurrently.
-///
-/// A single call returning `{plan, profile}` nests two objects that each
-/// contain arrays of objects, and the bench shows providers cannot serve that
-/// shape reliably: they either return the nested document as a JSON *string*
-/// or generate until they blow the token cap (123s on gemini-2.5-flash, 73s
-/// on gemini-3.1-flash-lite, non-deterministically — the same model and
-/// prompt finished in 2.1s on another run).
-///
-/// A schema this app depends on must be boring to serve. Two flat documents
-/// are; one nested wrapper is not. Running them concurrently makes the split
-/// free in wall time.
-/// Run one observer pass: both documents, concurrently, each on its own flat
-/// schema. A failure in one does not cost the other.
+/// Generate plan and profile concurrently. Both must validate before either is applied.
 pub async fn run_observer(
     provider: &Provider,
     ctx: crate::trace::RunContext,
@@ -242,9 +265,7 @@ pub async fn run_observer(
         json!({"role": "user", "content": prompts::profile_turn(&context)}),
     ];
 
-    // Reasoning OFF: summarising a short transcript into a small document is
-    // not a reasoning-hard task, and with it on the model burned 123s and blew
-    // the token cap thinking about it.
+    // Each document uses a small token budget with reasoning disabled.
     let (plan_out, profile_out) = tokio::join!(
         provider.structured_validated::<TeachingPlan, _>(
             ctx,
@@ -262,7 +283,7 @@ pub async fn run_observer(
             "Profile",
             false,
             Some(OBSERVER_MAX_TOKENS),
-            |_: &Profile| None,
+            Profile::validate,
         ),
     );
 
@@ -270,4 +291,31 @@ pub async fn run_observer(
         plan: plan_out.map_err(|e| format!("observer plan failed: {e}"))?,
         profile: profile_out.map_err(|e| format!("observer profile failed: {e}"))?,
     })
+}
+
+#[cfg(test)]
+mod persistence_tests {
+    use super::*;
+
+    #[test]
+    fn tutor_memory_round_trips_and_corruption_remains_a_fault() {
+        let directory = tempfile::tempdir().unwrap();
+        let mut plan = TeachingPlan::default();
+        plan.session_focus = vec!["Questions".into()];
+        let mut profile = Profile::default();
+        profile.about = "Practises Spanish".into();
+        assert!(persist_documents(directory.path(), &plan, &profile).is_empty());
+        let mut faults = Vec::new();
+        let (loaded_plan, loaded_profile) = load_documents(directory.path(), &mut faults);
+        assert!(faults.is_empty());
+        assert_eq!(loaded_plan.session_focus, plan.session_focus);
+        assert_eq!(loaded_profile.about, profile.about);
+        std::fs::write(directory.path().join("memory.json"), "{invalid").unwrap();
+        for _ in 0..2 {
+            let mut faults = Vec::new();
+            load_documents(directory.path(), &mut faults);
+            assert!(!faults.is_empty());
+        }
+        assert_eq!(std::fs::read_to_string(directory.path().join("memory.json")).unwrap(), "{invalid");
+    }
 }

@@ -15,28 +15,50 @@ Design rules, matching the app:
 
 from __future__ import annotations
 
+import asyncio
+import io
+import math
+import wave
+from collections.abc import AsyncIterator
 import json
 import logging
 import time
+from threading import Lock
+from functools import partial
 from collections import deque
+from contextlib import asynccontextmanager
 from urllib.parse import quote
 
 import httpx
+import anyio
 import jwt as pyjwt
 from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from google.cloud import firestore
 
+import audio_input
+import budget
+import contracts
 import auth
+import auth_store
 import config
 import quota
+import streaming
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("skellyspeak-api")
 
 CFG = config.load()
-app = FastAPI(title="SkellySpeak API")
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    await asyncio.to_thread(audio_input.verify_decoder)
+    yield
+
+
+app = FastAPI(title="SkellySpeak API", lifespan=lifespan)
 db = firestore.Client()
 bearer = HTTPBearer(auto_error=False)
 _google_jwks = pyjwt.PyJWKClient(auth.GOOGLE_JWKS_URL)
@@ -62,9 +84,15 @@ def health() -> dict[str, str]:
 # sized to the actual threat (a script, not a botnet), not a guarantee.
 AUTH_START_MAX_PER_MINUTE = 20
 _auth_start_hits: deque[float] = deque()
+_auth_start_lock = Lock()
 
 
 def _throttle_auth_start() -> None:
+    with _auth_start_lock:
+        _check_auth_start_rate()
+
+
+def _check_auth_start_rate() -> None:
     now = time.monotonic()
     while _auth_start_hits and now - _auth_start_hits[0] > 60:
         _auth_start_hits.popleft()
@@ -98,6 +126,8 @@ def auth_start(
     must not be enough to obtain a session.
     """
     _throttle_auth_start()
+    if len(app_state) > 128:
+        raise HTTPException(status_code=400, detail="Sign-in state is too long.")
     if provider != "google":
         raise HTTPException(
             status_code=400,
@@ -118,7 +148,7 @@ def auth_start(
             "app_state": app_state,
             "code_challenge": challenge,
             "created_at": firestore.SERVER_TIMESTAMP,
-            "expires_at": int(time.time()) + auth.LOGIN_CODE_TTL_SECONDS,
+            "expires_at": int(time.time()) + auth.AUTH_STATE_TTL_SECONDS,
             # Abandoned sign-ins are never read again and would otherwise sit
             # in Firestore forever. A TTL policy on this field sweeps them.
             "ttl": quota.ttl_after(1),
@@ -134,7 +164,7 @@ def auth_start(
 
 
 @app.get("/auth/callback/google")
-async def auth_callback_google(code: str = "", state: str = "", error: str = ""):
+async def auth_callback_google(code: str = "", state: str = "", error: str = "") -> RedirectResponse:
     """Where Google returns. Exchanges the code, then hands the app a one-time
     code through its own redirect — never the session token itself."""
     if error:
@@ -142,17 +172,14 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
     if not code or not state:
         raise HTTPException(status_code=400, detail="Sign-in response was incomplete.")
 
-    state_ref = db.collection(quota.AUTH_STATES).document(state)
-    snapshot = state_ref.get()
-    if not snapshot.exists:
-        raise HTTPException(
-            status_code=400,
-            detail="This sign-in link has already been used or has expired. Try again.",
-        )
-    stored = snapshot.to_dict() or {}
-    state_ref.delete()  # single use
-    if int(stored.get("expires_at", 0)) < int(time.time()):
-        raise HTTPException(status_code=400, detail="Sign-in took too long. Try again.")
+    def validate_state(stored: dict[str, object]) -> None:
+        auth.validate_redirect_uri(str(stored["redirect_uri"]))
+
+    try:
+        stored = await asyncio.to_thread(auth_store.consume, db, collection=quota.AUTH_STATES,
+                                         code=state, validate=validate_state)
+    except auth.AuthError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     async with httpx.AsyncClient(timeout=20) as client:
         token_response = await client.post(
@@ -175,14 +202,14 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
     if not id_token:
         raise HTTPException(status_code=502, detail="Google returned no identity token.")
     try:
-        identity = auth.parse_google_id_token(
+        identity = await asyncio.to_thread(auth.parse_google_id_token,
             id_token, client_id=CFG.google_client_id, jwks_client=_google_jwks
         )
     except auth.AuthError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     try:
-        token_version = quota.upsert_user(
+        token_version = await asyncio.to_thread(quota.upsert_user,
             db,
             user_id=identity.user_id,
             email=identity.email,
@@ -195,7 +222,7 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
         raise HTTPException(status_code=403, detail=str(exc)) from exc
 
     login_code = auth.new_login_code()
-    db.collection(quota.LOGIN_CODES).document(login_code).set(
+    await asyncio.to_thread(db.collection(quota.LOGIN_CODES).document(login_code).set,
         {
             "user_id": identity.user_id,
             "token_version": token_version,
@@ -220,54 +247,30 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
 
 
 @app.post("/auth/exchange")
-def auth_exchange(payload: dict) -> dict[str, str | int]:
-    """Trade the one-time code for a session token, over HTTPS.
-
-    The verifier is what proves this is the client that began the sign-in. An
-    app that intercepted the redirect has the code but not the verifier, and
-    gets nothing here.
-    """
-    login_code = str(payload.get("code", "")).strip()
-    verifier = str(payload.get("code_verifier", "")).strip()
-    if not login_code:
-        raise HTTPException(status_code=400, detail="No sign-in code supplied.")
-    if not verifier:
-        raise HTTPException(status_code=400, detail="No code_verifier supplied.")
-
-    ref = db.collection(quota.LOGIN_CODES).document(login_code)
-    snapshot = ref.get()
-    if not snapshot.exists:
-        raise HTTPException(
-            status_code=400, detail="This sign-in code is not valid. Sign in again."
-        )
-    stored = snapshot.to_dict() or {}
-    ref.delete()  # single use
-    if int(stored.get("expires_at", 0)) < int(time.time()):
-        raise HTTPException(status_code=400, detail="Sign-in code expired. Sign in again.")
-
-    challenge = str(stored.get("code_challenge", ""))
-    if not challenge:
-        # Should be unreachable: /auth/start requires a challenge. If it ever
-        # happens, refuse rather than quietly downgrade to no PKCE at all.
-        raise HTTPException(
-            status_code=400,
-            detail="This sign-in is missing its security challenge. Sign in again.",
-        )
+async def auth_exchange(request: Request) -> dict[str, str | int]:
+    body = await read_capped_body(request, 4096, "Sign-in request")
     try:
-        auth.verify_code_verifier(verifier, challenge=challenge)
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeError, RecursionError) as exc:
+        raise HTTPException(status_code=400, detail="Malformed sign-in request.") from exc
+    if not isinstance(payload, dict) or set(payload) != {"code", "code_verifier"}:
+        raise HTTPException(status_code=400, detail="code and code_verifier are required.")
+    if not all(isinstance(value, str) for value in payload.values()):
+        raise HTTPException(status_code=400, detail="Sign-in fields must be strings.")
+
+    def validate_code(stored: dict[str, object]) -> None:
+        auth.verify_code_verifier(payload["code_verifier"], challenge=str(stored["code_challenge"]))
+
+    try:
+        stored = await asyncio.to_thread(auth_store.consume, db, collection=quota.LOGIN_CODES,
+                                         code=payload["code"], validate=validate_code)
     except auth.AuthError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-    user_id = str(stored["user_id"])
     return {
-        "token": auth.issue_session_token(
-            user_id=user_id,
-            signing_key=CFG.jwt_signing_key,
-            token_version=int(stored.get("token_version") or 0),
-        ),
+        "token": auth.issue_session_token(user_id=str(stored["user_id"]), signing_key=CFG.jwt_signing_key,
+                                          token_version=int(stored["token_version"])),
         "expires_in": auth.SESSION_TTL_SECONDS,
     }
-
 
 def current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
@@ -315,7 +318,7 @@ MAX_CLIENT_FIELD = 64
 # account has any history of its own to average. Deliberately pessimistic: an
 # estimate that promises more than it delivers is worse than one that surprises
 # you upward.
-FALLBACK_MICROS_PER_TURN = 2_000
+FALLBACK_MICROS_PER_REQUEST = 2_000
 
 
 @app.get("/v1/me")
@@ -339,7 +342,7 @@ def me(request: Request, who: quota.Principal = Depends(current_user)) -> dict[s
     # Money is the truth, but nobody plans their afternoon in micro-dollars.
     # The estimates come from this account's own average so far, so they track
     # whatever model and conversation length are actually in use.
-    per_turn = balance.micros_per_request or FALLBACK_MICROS_PER_TURN
+    per_request = balance.micros_per_request or FALLBACK_MICROS_PER_REQUEST
     return {
         "user_id": user_id,
         "email": profile.get("email", ""),
@@ -353,9 +356,9 @@ def me(request: Request, who: quota.Principal = Depends(current_user)) -> dict[s
         # Reporting, not limits.
         "tokens_today": balance.tokens,
         "requests_today": balance.requests,
-        "estimated_turns_remaining": balance.remaining // per_turn,
+        "estimated_requests_remaining": balance.remaining // per_request,
         "estimated_tokens_remaining": (
-            (balance.remaining // per_turn) * balance.tokens_per_request
+            (balance.remaining // per_request) * balance.tokens_per_request
             if balance.tokens_per_request
             else 0
         ),
@@ -388,6 +391,8 @@ async def read_capped_body(request: Request, limit: int, what: str) -> bytes:
             size = int(declared)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail="Malformed Content-Length.") from exc
+        if size < 0:
+            raise HTTPException(status_code=400, detail="Content-Length cannot be negative.")
         if size > limit:
             raise HTTPException(
                 status_code=413,
@@ -396,273 +401,166 @@ async def read_capped_body(request: Request, limit: int, what: str) -> bytes:
 
     body = bytearray()
     async for chunk in request.stream():
-        body.extend(chunk)
-        if len(body) > limit:
+        if len(body) + len(chunk) > limit:
             raise HTTPException(
                 status_code=413,
                 detail=f"{what} is too large. The limit is {limit // 1_048_576} MB.",
             )
+        body.extend(chunk)
     return bytes(body)
 
 
 
-def _usage_from(payload: dict) -> tuple[int | None, int]:
-    """Cost in micro-dollars and total tokens, as OpenRouter reported them.
-
-    Cost is `None` when the response carried no usage at all. That is not a
-    free request — it is a request whose cost is unknown, and the caller must
-    treat it as such.
-    """
-    usage = payload.get("usage") or {}
-    if not usage:
+def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
+    usage = payload.get("usage")
+    if usage is None:
         return None, 0
-    tokens = int(usage.get("total_tokens") or 0)
+    if not isinstance(usage, dict):
+        raise ValueError("Provider usage must be an object.")
+    tokens = usage.get("total_tokens", 0)
     cost = usage.get("cost")
+    if type(tokens) is not int or tokens < 0:
+        raise ValueError("Provider token count must be a nonnegative integer.")
     if cost is None:
         return None, tokens
-    return quota.dollars_to_micros(float(cost)), tokens
+    if type(cost) not in (int, float) or not math.isfinite(cost) or cost < 0:
+        raise ValueError("Provider cost must be finite and nonnegative.")
+    return quota.dollars_to_micros(cost), tokens
 
 
-# What an unmetered request is charged. OpenRouter returns usage on every
-# response, so a missing figure means something changed upstream. Charging zero
-# would make every request free with no signal that anything was wrong; this
-# charges a deliberate over-estimate and logs loudly.
-UNKNOWN_COST_MICROS = 20_000  # $0.02
+def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
+    try:
+        return budget.reserve(db, user_id=who.user_id, micros=micros,
+                              user_limit=who.daily_limit, global_limit=CFG.global_daily_micros)
+    except quota.QuotaExceeded as exc:
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
 
 
-def _settle(user_id: str, *, reserved: int, cost_micros: int | None, tokens: int, where: str) -> None:
-    """Replace the reservation with the real cost, or with a loud estimate."""
-    if cost_micros is None:
-        log.error(
-            "%s returned no usage for %s — charging the $%.2f unknown-cost rate. "
-            "OpenRouter reports usage on every response, so this means the "
-            "upstream contract changed and metering is no longer accurate.",
-            where,
-            user_id,
-            quota.micros_to_dollars(UNKNOWN_COST_MICROS),
-        )
-        cost_micros = UNKNOWN_COST_MICROS
-    quota.settle(
-        db,
-        user_id,
-        reserved_micros=reserved,
-        actual_micros=cost_micros,
-        tokens=tokens,
-    )
-
-
-def _guard_request(parsed: dict) -> None:
-    """Refuse a request we are not willing to pay for.
-
-    The body is otherwise forwarded untouched, which is what lets the app's
-    structured-output options through unchanged — and would also let the caller
-    pick any model on OpenRouter. Prices there span two orders of magnitude, so
-    without this the daily limit is denominated in a unit the caller controls.
-    """
-    model = str(parsed.get("model") or "")
-    if model not in CFG.allowed_models:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"The hosted service does not serve {model or '(no model)'!r}. "
-                f"It serves: {', '.join(CFG.allowed_models)}. Choose a different "
-                "AI provider in Settings to use another model."
-            ),
-        )
-    requested = parsed.get("max_tokens")
-    if requested is not None and int(requested) > CFG.max_completion_tokens:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"max_tokens of {int(requested):,} is above the hosted limit of "
-                f"{CFG.max_completion_tokens:,}."
-            ),
-        )
+async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str) -> None:
+    with anyio.CancelScope(shield=True):
+        await anyio.to_thread.run_sync(partial(
+            budget.settle, db, reservation=reservation,
+            actual_micros=reservation.micros if cost is None else cost,
+            tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id,
+        ))
+    if cost is None:
+        raise RuntimeError(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
 
 
 @app.post("/v1/chat/completions")
-async def chat_completions(request: Request, who: quota.Principal = Depends(current_user)):
-    """Authenticated passthrough to OpenRouter, metered per user in money.
-
-    The request body is forwarded as-is so the app's structured-output options
-    reach the provider unchanged — this service does not reinterpret them. It
-    does refuse models it will not pay for, and caps the completion length.
-    """
-    user_id = who.user_id
-    try:
-        quota.check_allowed(
-            db,
-            user_id,
-            user_limit=who.daily_limit,
-            global_limit=CFG.global_daily_micros,
-        )
-    except quota.QuotaExceeded as exc:
-        # 429 with a human message; the app shows it in the fault bar.
-        return JSONResponse(status_code=429, content={"detail": str(exc)})
-
+async def chat_completions(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
     body = await read_capped_body(request, MAX_JSON_BYTES, "That request")
     try:
         parsed = json.loads(body)
-    except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail=f"Malformed request body: {exc}") from exc
+    except (json.JSONDecodeError, UnicodeError, RecursionError) as exc:
+        raise HTTPException(status_code=400, detail="Malformed JSON request.") from exc
     if not isinstance(parsed, dict):
-        raise HTTPException(status_code=400, detail="Request body must be a JSON object.")
-    _guard_request(parsed)
-    streaming = bool(parsed.get("stream"))
+        raise HTTPException(status_code=400, detail="Request body must be an object.")
+    contract = contracts.chat_request(parsed, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
+    reservation = await asyncio.to_thread(_reserve, who, contract.reserve_micros)
+    url = f"{CFG.openrouter_base_url}/chat/completions"
+    headers = {"Authorization": f"Bearer {CFG.openrouter_key}", "X-Title": "SkellySpeak"}
 
-    # Charged before the call and corrected after. Between the check above and
-    # the settle below there is otherwise nothing holding the money, and
-    # concurrent requests would all pass the same check.
-    reserved = FALLBACK_MICROS_PER_TURN
-    quota.reserve(db, user_id, micros=reserved)
-
-    upstream_url = f"{CFG.openrouter_base_url}/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {CFG.openrouter_key}",
-        "Content-Type": "application/json",
-        # OpenRouter attribution for the shared account.
-        "HTTP-Referer": "https://github.com/freemocap/skellyspeak",
-        "X-Title": "SkellySpeak",
-    }
-
-    if not streaming:
-        try:
-            async with httpx.AsyncClient(timeout=180) as client:
-                upstream = await client.post(upstream_url, content=body, headers=headers)
-        except httpx.HTTPError as exc:
-            # The reservation must not be left standing for a call that never
-            # happened.
-            quota.settle(db, user_id, reserved_micros=reserved, actual_micros=0, tokens=0)
-            raise HTTPException(status_code=502, detail=f"Could not reach the AI provider: {exc}") from exc
-        if upstream.status_code == 200:
-            payload = upstream.json()
-            cost_micros, tokens = _usage_from(payload)
-            _settle(
-                user_id,
-                reserved=reserved,
-                cost_micros=cost_micros,
-                tokens=tokens,
-                where="openrouter",
-            )
-            return JSONResponse(content=payload)
-        # Nothing was generated, so nothing is owed.
-        quota.settle(db, user_id, reserved_micros=reserved, actual_micros=0, tokens=0)
-        log.error("upstream %s", upstream.status_code)
-        return JSONResponse(
-            status_code=upstream.status_code,
-            content={"detail": f"The AI provider returned {upstream.status_code}."},
-        )
-
-    async def relay():
-        """Stream through untouched, reading the usage total on the way past.
-
-        OpenRouter reports usage in the final chunk, so metering happens as the
-        bytes flow rather than by buffering the whole response.
-        """
-        cost_micros: int | None = None
+    if not contract.payload.get("stream", False):
+        cost: int | None = None
         tokens = 0
-        started = False
+        provider_id = ""
         try:
             async with httpx.AsyncClient(timeout=180) as client:
-                async with client.stream(
-                    "POST", upstream_url, content=body, headers=headers
-                ) as upstream:
-                    if upstream.status_code != 200:
-                        await upstream.aread()
-                        log.error("upstream stream %s", upstream.status_code)
-                        yield (
-                            "data: "
-                            + json.dumps(
-                                {"error": f"The AI provider returned {upstream.status_code}."}
-                            )
-                            + "\n\n"
-                        ).encode()
-                        return
-                    started = True
-                    async for line in upstream.aiter_lines():
-                        if line.startswith("data: "):
-                            chunk = line[6:].strip()
-                            if chunk and chunk != "[DONE]":
-                                try:
-                                    chunk_cost, chunk_tokens = _usage_from(json.loads(chunk))
-                                except json.JSONDecodeError:
-                                    chunk_cost, chunk_tokens = None, 0
-                                if chunk_cost is not None:
-                                    cost_micros = chunk_cost
-                                if chunk_tokens:
-                                    tokens = chunk_tokens
-                        yield (line + "\n").encode()
+                upstream = await client.post(url, json=contract.payload, headers=headers)
+            if not upstream.is_success:
+                cost = 0 if 400 <= upstream.status_code < 500 else None
+                raise HTTPException(status_code=502, detail=f"AI provider returned {upstream.status_code}.")
+            payload = upstream.json()
+            if not isinstance(payload, dict) or payload.get("error"):
+                raise HTTPException(status_code=502, detail="AI provider returned an invalid response.")
+            provider_id = str(payload.get("id", ""))
+            cost, tokens = _usage_from(payload)
+            return JSONResponse(content=payload)
         finally:
-            # `finally`, not a trailing statement: when the client disconnects
-            # the generator is closed with GeneratorExit and anything after the
-            # `async with` never runs. That is how a cancelled answer used to
-            # cost the provider real money and this service nothing.
-            if started:
-                _settle(
-                    user_id,
-                    reserved=reserved,
-                    cost_micros=cost_micros,
-                    tokens=tokens,
-                    where="openrouter stream",
-                )
-            else:
-                quota.settle(
-                    db, user_id, reserved_micros=reserved, actual_micros=0, tokens=0
-                )
+            # Settlement is shielded from disconnect cancellation.
+            await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+
+    async def relay() -> AsyncIterator[bytes]:
+        cost: int | None = None
+        tokens = 0
+        provider_id = ""
+        completed = False
+        settled = False
+        try:
+            async with httpx.AsyncClient(timeout=180) as client:
+                async with client.stream("POST", url, json=contract.payload, headers=headers) as upstream:
+                    if not upstream.is_success:
+                        cost = 0 if 400 <= upstream.status_code < 500 else None
+                        raise RuntimeError(f"AI provider returned {upstream.status_code}.")
+                    async for payload in streaming.events(upstream.aiter_bytes()):
+                        if payload is None:
+                            completed = True
+                            settled = True
+                            await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+                            yield b"data: [DONE]\n\n"
+                            return
+                        provider_id = str(payload.get("id", provider_id))
+                        chunk_cost, chunk_tokens = _usage_from(payload)
+                        if chunk_cost is not None:
+                            cost = chunk_cost
+                        tokens = max(tokens, chunk_tokens)
+                        yield ("data: " + json.dumps(payload, ensure_ascii=False) + "\n\n").encode("utf-8")
+            if not completed:
+                raise RuntimeError("AI provider stream ended without a completion marker.")
+        except Exception as exc:
+            if not settled:
+                settled = True
+                try:
+                    await _settle(reservation, cost=cost if cost == 0 else None, tokens=tokens, provider_id=provider_id)
+                except Exception as settlement_error:
+                    exc = RuntimeError(f"{exc}; {settlement_error}")
+            log.exception("Chat stream failed for reservation %s", reservation.request_id)
+            yield ("data: " + json.dumps({"error": {"message": str(exc)}}) + "\n\n").encode()
+        finally:
+            if not settled:
+                await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
 
     return StreamingResponse(relay(), media_type="text/event-stream")
 
 
-# Whisper bills by audio duration, not tokens, and Groq does not report a cost
-# figure. A flat charge per transcription keeps one currency in front of the
-# user; it is set above what a short clip actually costs so voice input is
-# never the thing that quietly runs the budget down.
-TRANSCRIPTION_MICROS = 1_000  # $0.001
+_audio_slots = asyncio.Semaphore(2)
 
 
 @app.post("/v1/audio/transcriptions")
-async def transcriptions(request: Request, who: quota.Principal = Depends(current_user)):
-    """Authenticated passthrough to Groq Whisper, so hosted users need no
-    second API key for voice input."""
-    user_id = who.user_id
-    try:
-        quota.check_allowed(
-            db,
-            user_id,
-            user_limit=who.daily_limit,
-            global_limit=CFG.global_daily_micros,
-        )
-    except quota.QuotaExceeded as exc:
-        return JSONResponse(status_code=429, content={"detail": str(exc)})
+async def transcriptions(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
+    if _audio_slots.locked():
+        raise HTTPException(status_code=429, detail="Transcription is busy. Try again shortly.")
+    async with _audio_slots:
+        content_type = request.headers.get("content-type", "")
+        if not content_type.startswith("multipart/form-data"):
+            raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
+        body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
+        audio = await asyncio.to_thread(audio_input.decode_upload, body, content_type=content_type)
+        reservation = await asyncio.to_thread(_reserve, who, audio.cost_micros)
+        output = io.BytesIO()
+        with wave.open(output, "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(audio_input.SAMPLE_RATE)
+            wav.writeframes(audio.pcm)
+        cost: int | None = None
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                upstream = await client.post(
+                    f"{CFG.groq_base_url}/audio/transcriptions",
+                    headers={"Authorization": f"Bearer {CFG.groq_key}"}, data=audio.fields,
+                    files={"file": ("audio.wav", output.getvalue(), "audio/wav")},
+                )
+            if not upstream.is_success:
+                cost = 0 if 400 <= upstream.status_code < 500 else None
+                raise HTTPException(status_code=502, detail=f"Transcription provider returned {upstream.status_code}.")
+            cost = audio.cost_micros
+            payload = upstream.json()
+            if not isinstance(payload, dict) or not isinstance(payload.get("text"), str):
+                raise HTTPException(status_code=502, detail="Transcription provider returned invalid text.")
+            return JSONResponse(content=payload)
+        finally:
+            await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
 
-    content_type = request.headers.get("content-type", "")
-    if not content_type.startswith("multipart/form-data"):
-        raise HTTPException(
-            status_code=400,
-            detail="Audio must be sent as multipart/form-data.",
-        )
 
-    body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
-
-    try:
-        async with httpx.AsyncClient(timeout=180) as client:
-            upstream = await client.post(
-                f"{CFG.groq_base_url}/audio/transcriptions",
-                content=body,
-                headers={
-                    "Authorization": f"Bearer {CFG.groq_key}",
-                    "Content-Type": content_type,
-                },
-            )
-    except httpx.HTTPError as exc:
-        raise HTTPException(
-            status_code=502, detail=f"Could not reach the transcription service: {exc}"
-        ) from exc
-    if upstream.status_code != 200:
-        log.error("groq %s", upstream.status_code)
-        return JSONResponse(
-            status_code=upstream.status_code,
-            content={"detail": f"Transcription failed ({upstream.status_code})."},
-        )
-    quota.record_usage(db, user_id, micros=TRANSCRIPTION_MICROS)
-    return JSONResponse(content=upstream.json())

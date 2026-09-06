@@ -244,11 +244,11 @@ impl Provider {
         }
     }
 
-    fn client(&self) -> reqwest::Client {
+    fn client(&self) -> Result<reqwest::Client, String> {
         reqwest::Client::builder()
             .timeout(Duration::from_secs(180))
             .build()
-            .unwrap_or_default()
+            .map_err(|error| format!("Could not create the AI HTTP client: {error}"))
     }
 
     /// Consume an SSE chat stream, forwarding each text delta to `on_delta`
@@ -307,7 +307,7 @@ impl Provider {
             temperature
         );
         let response = self
-            .client()
+            .client()?
             .post(&url)
             .bearer_auth(&self.api_key)
             .json(&payload)
@@ -336,7 +336,7 @@ impl Provider {
             );
             tokio::time::sleep(Duration::from_secs(3)).await;
             match self
-                .client()
+                .client()?
                 .post(&url)
                 .bearer_auth(&self.api_key)
                 .json(&payload)
@@ -398,39 +398,31 @@ impl Provider {
         on_delta: &mut (dyn FnMut(&str) + Send),
         run: &mut RunRecorder,
     ) -> Result<String, String> {
-        let started = std::time::Instant::now();
         let mut stream = response.bytes_stream();
-        let mut buffer = String::new();
+        let mut decoder = crate::sse::Decoder::default();
         let mut full = String::new();
         while let Some(chunk) = stream.next().await {
             let bytes = chunk.map_err(|e| format!("stream error: {e}"))?;
-            buffer.push_str(&String::from_utf8_lossy(&bytes));
-            while let Some(pos) = buffer.find('\n') {
-                let line: String = buffer.drain(..=pos).collect();
-                let line = line.trim();
-                if let Some(data) = line.strip_prefix("data: ") {
-                    let data = data.trim();
-                    if data == "[DONE]" {
+            for event in decoder.push(&bytes)? {
+                match event {
+                    crate::sse::Event::Done => {
+                        decoder.finish()?;
                         return Ok(full);
                     }
-                    if let Ok(value) = serde_json::from_str::<Value>(data) {
+                    crate::sse::Event::Data(value) => {
                         run.set_usage(Usage::from_response(&value));
                         if let Some(delta) = value["choices"][0]["delta"]["content"].as_str() {
-                            if !delta.is_empty() {
-                                debug!("[ai] delta: {delta:?}");
-                                run.mark_first_token();
-                                full.push_str(delta);
-                                on_delta(delta);
-                            }
+                            run.mark_first_token();
+                            full.push_str(delta);
+                            on_delta(delta);
                         }
                     }
                 }
             }
         }
-        info!("[ai] stream complete: {} chars in {:.1}s", full.len(), started.elapsed().as_secs_f32());
+        decoder.finish()?;
         Ok(full)
     }
-
     /// Returns the message content plus whatever usage the provider
     /// reported. The raw body is deliberately not returned — nothing used
     /// it, and holding response bodies around invites logging them.
@@ -442,7 +434,7 @@ impl Provider {
         let started = std::time::Instant::now();
         let url = format!("{}/chat/completions", self.base_url);
         let mut response = self
-            .client()
+            .client()?
             .post(&url)
             .bearer_auth(&self.api_key)
             .json(payload)
@@ -461,7 +453,7 @@ impl Provider {
             );
             tokio::time::sleep(Duration::from_secs(3)).await;
             response = self
-                .client()
+                .client()?
                 .post(&url)
                 .bearer_auth(&self.api_key)
                 .json(payload)
@@ -862,3 +854,4 @@ fn inline_defs_keeps_unrelated_content() {
     assert_eq!(out["properties"]["y"]["type"], "number");
 }
 }
+

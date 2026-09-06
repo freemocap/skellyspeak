@@ -1,178 +1,187 @@
-// Speech playback. Two engines, chosen in Settings:
-//   "cloud" — synthesized by the Rust core (OpenRouter gpt-audio-mini) and
-//             played through an <audio> element. Needs a key and a network.
-//   "os"    — the webview's own Web Speech API. No network, no keys, no cost,
-//             and only available where the webview implements it.
-// Neither engine substitutes for the other: whichever is configured either
-// speaks or throws.
-
+// Playback through the selected cloud or OS engine, with one active utterance.
 import { invoke } from './tauri'
-import { logInfo } from './log'
+
+export interface SpeechProgress {
+  utteranceId: string
+}
 
 let cachedVoices: SpeechSynthesisVoice[] = []
+let speakToken = 0
+let currentAudio: HTMLAudioElement | null = null
+let finishPlayback: (() => void) | null = null
+let speakingState = false
+let progress: SpeechProgress | null = null
+const speakingListeners = new Set<(value: boolean) => void>()
+const progressListeners = new Set<(value: SpeechProgress | null) => void>()
 
 export function speechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
 }
 
-/// Can replies be read aloud with this engine on this platform?
-///
-/// The cloud engine is synthesized by the Rust core and played through an
-/// <audio> element, so it needs nothing from the webview's speech API. Only
-/// the OS engine does, and only some webviews provide it.
 export function ttsAvailable(engine: string, osVoiceReady: boolean): boolean {
-  return engine === 'cloud' || osVoiceReady
+  return engine === 'cloud' || (engine === 'os' && osVoiceReady)
 }
 
-// Voices populate asynchronously and some engines never fire voiceschanged,
-// so the timeout bounds the wait.
 export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
+  if (!speechSupported()) return Promise.resolve([])
+  const existing = window.speechSynthesis.getVoices()
+  if (existing.length) { cachedVoices = existing; return Promise.resolve(existing) }
   return new Promise((resolve) => {
-    if (!speechSupported()) return resolve([])
-    const existing = window.speechSynthesis.getVoices()
-    if (existing.length) {
-      cachedVoices = existing
-      return resolve(existing)
-    }
     const collect = () => {
+      clearTimeout(timer)
+      window.speechSynthesis.removeEventListener('voiceschanged', collect)
       cachedVoices = window.speechSynthesis.getVoices()
       resolve(cachedVoices)
     }
-    window.speechSynthesis.addEventListener('voiceschanged', collect, { once: true })
-    setTimeout(collect, 1500)
+    const timer = setTimeout(collect, 1500)
+    window.speechSynthesis.addEventListener('voiceschanged', collect)
   })
 }
 
-function pickVoice(lang: string): SpeechSynthesisVoice | null {
-  const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices()
-  if (!voices.length) return null
-  const primary = lang.toLowerCase()
-  const base = primary.split('-')[0]
-  return (
-    voices.find((v) => v.lang.toLowerCase() === primary) ??
-    voices.find((v) => v.lang.toLowerCase().replace('_', '-') === primary) ??
-    voices.find((v) => v.lang.toLowerCase().startsWith(base)) ??
-    null
-  )
+function setSpeaking(value: boolean): void {
+  if (speakingState === value) return
+  speakingState = value
+  speakingListeners.forEach((listener) => listener(value))
 }
 
-/// Speak `text` in `lang` (BCP-47, e.g. "es-ES"). Cancels any utterance in
-/// progress — one voice at a time. Returns false when unsupported/empty.
-export function speak(text: string, lang: string): boolean {
-  if (!speechSupported() || !text.trim()) return false
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
-  u.lang = lang
-  const voice = pickVoice(lang)
-  if (voice) u.voice = voice
-  u.rate = 0.95 // a touch slower — this is a learner tool
-  u.onstart = () => setSpeakingState(true)
-  u.onend = () => setSpeakingState(false)
-  u.onerror = () => setSpeakingState(false)
-  window.speechSynthesis.speak(u)
-  return true
+function setProgress(value: SpeechProgress | null): void {
+  if (progress?.utteranceId === value?.utteranceId) return
+  progress = value
+  progressListeners.forEach((listener) => listener(value))
 }
 
-/// Generation counter for speech requests. Cloud synthesis is a fetch, so
-/// two clicks (or auto-speak racing a manual click) put two requests in
-/// flight; `stopSpeaking` can only stop audio that is already playing, and
-/// both would then play ON TOP of each other. Bumping this invalidates
-/// anything still in flight.
-let speakToken = 0
+export function subscribeSpeaking(listener: (value: boolean) => void): () => void {
+  speakingListeners.add(listener)
+  return () => { speakingListeners.delete(listener) }
+}
+
+export function subscribeSpeechProgress(listener: (value: SpeechProgress | null) => void): () => void {
+  progressListeners.add(listener)
+  return () => { progressListeners.delete(listener) }
+}
+
+export function isSpeaking(): boolean { return speakingState }
+
+export function setPlaybackRate(rate: number): void {
+  if (!Number.isFinite(rate) || rate < 0.5 || rate > 1.5) throw new Error('Voice speed must be between 0.5× and 1.5×.')
+  if (currentAudio) currentAudio.playbackRate = rate
+}
 
 export function stopSpeaking(): void {
   speakToken += 1
-  setSpeakingState(false)
+  finishPlayback?.()
+  finishPlayback = null
   if (speechSupported()) window.speechSynthesis.cancel()
-  if (currentAudio) {
-    currentAudio.pause()
-    currentAudio.currentTime = 0
-    currentAudio = null
-  }
+  if (currentAudio) { currentAudio.pause(); currentAudio = null }
+  setSpeaking(false)
+  setProgress(null)
 }
 
-// Speaking-state ring so any UI can show a live '⏹ stop' affordance.
-let speakingState = false
-const speakingListeners = new Set<(v: boolean) => void>()
-
-function setSpeakingState(v: boolean): void {
-  if (speakingState === v) return
-  speakingState = v
-  speakingListeners.forEach((fn) => fn(v))
-}
-
-export function subscribeSpeaking(fn: (v: boolean) => void): () => void {
-  speakingListeners.add(fn)
-  return () => {
-    speakingListeners.delete(fn)
-  }
-}
-
-export function isSpeaking(): boolean {
-  return speakingState
-}
-
-// ── Cloud TTS (OpenRouter gpt-audio-mini, synthesized in the Rust core) ─────
-
-let currentAudio: HTMLAudioElement | null = null
-const audioCache = new Map<string, string>() // voice|text → blob URL
-
-interface TtsAudio {
-  audio_base64: string
-  mime: string
-}
+interface TtsAudio { audio_base64: string; mime: string }
+interface CachedAudio { url: string; bytes: number }
+const audioCache = new Map<string, CachedAudio>()
+const pendingAudio = new Map<string, Promise<string>>()
+const MAX_CACHE_BYTES = 24 * 1024 * 1024
+let cacheBytes = 0
 
 async function cloudTts(text: string, voice: string): Promise<string> {
-  const key = `${voice}|${text}`
-  const hit = audioCache.get(key)
-  if (hit) return hit
-  const res = await invoke<TtsAudio>('speak_text', { text, voice })
-  const bytes = Uint8Array.from(atob(res.audio_base64), (ch) => ch.charCodeAt(0))
-  const url = URL.createObjectURL(new Blob([bytes], { type: res.mime }))
-  audioCache.set(key, url)
+  const key = JSON.stringify([voice, text])
+  const cached = audioCache.get(key)
+  if (cached) {
+    audioCache.delete(key)
+    audioCache.set(key, cached)
+    return cached.url
+  }
+  const pending = pendingAudio.get(key)
+  if (pending) return pending
+  const request = synthesize(text, voice, key)
+  pendingAudio.set(key, request)
+  try { return await request }
+  finally { pendingAudio.delete(key) }
+}
+
+async function synthesize(text: string, voice: string, key: string): Promise<string> {
+  const result = await invoke<TtsAudio>('speak_text', { text, voice })
+  const bytes = Uint8Array.from(atob(result.audio_base64), (character) => character.charCodeAt(0))
+  if (bytes.length > MAX_CACHE_BYTES) throw new Error('Synthesized speech exceeds the playback size limit.')
+  while (cacheBytes + bytes.length > MAX_CACHE_BYTES && audioCache.size) {
+    const [oldKey, old] = audioCache.entries().next().value!
+    audioCache.delete(oldKey)
+    URL.revokeObjectURL(old.url)
+    cacheBytes -= old.bytes
+  }
+  const url = URL.createObjectURL(new Blob([bytes], { type: result.mime }))
+  audioCache.set(key, { url, bytes: bytes.length })
+  cacheBytes += bytes.length
   return url
 }
 
-/// Speak via the configured engine. The chosen engine is the ONLY one tried:
-/// if it cannot speak, this throws and the caller puts the reason on screen.
-/// Returns false only when the request was superseded by a newer one.
+/** Resolves on completion or cancellation; synthesis and playback errors reject. */
 export async function speakSmart(
-  text: string,
-  lang: string,
-  engine: string,
-  voice: string
+  text: string, language: string, engine: string, voice: string, rate: number, utteranceId: string
 ): Promise<boolean> {
   if (!text.trim()) throw new Error('Nothing to speak.')
-  stopSpeaking() // also invalidates any request still in flight
+  stopSpeaking()
+  setPlaybackRate(rate)
   const token = speakToken
-
-  if (engine === 'cloud') {
-    const url = await cloudTts(text, voice)
-    // A newer request (or a stop) superseded this one while fetching.
-    if (token !== speakToken) return false
-    const audio = new Audio(url)
-    currentAudio = audio
-    audio.onended = () => setSpeakingState(false)
-    audio.onerror = () => setSpeakingState(false)
-    audio.onpause = () => setSpeakingState(false)
-    setSpeakingState(true)
-    await audio.play()
-    logInfo(`[tts] cloud voice "${voice}" — ${text.length} chars`)
-    return true
+  setSpeaking(true)
+  setProgress({ utteranceId })
+  try {
+    if (engine === 'cloud') {
+      const url = await cloudTts(text, voice)
+      if (token !== speakToken) return false
+      const audio = new Audio(url)
+      audio.playbackRate = rate
+      audio.preservesPitch = true
+      currentAudio = audio
+      return await new Promise<boolean>((resolve, reject) => {
+        let finished = false
+        const finish = (success: boolean, error: Error | null) => {
+          if (finished) return
+          finished = true
+          audio.onended = audio.onerror = audio.onpause = null
+          audio.pause()
+          if (currentAudio === audio) currentAudio = null
+          if (token === speakToken) { finishPlayback = null; setSpeaking(false); setProgress(null) }
+          if (error) reject(error)
+          else resolve(success)
+        }
+        finishPlayback = () => finish(false, null)
+        audio.onended = () => finish(true, null)
+        audio.onerror = () => finish(false, new Error('The synthesized audio could not be played.'))
+        audio.onpause = () => finish(false, null)
+        void audio.play()
+          .catch((error: unknown) => finish(false, error instanceof Error ? error : new Error(String(error))))
+      })
+    }
+    if (engine !== 'os') throw new Error('Unknown speech engine. Choose Cloud or OS voice in Settings.')
+    if (!speechSupported()) throw new Error('OS speech is unavailable on this platform. Choose Cloud in Settings.')
+    const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices()
+    const selected = voices.find((candidate) => candidate.lang.toLowerCase().replace('_', '-') === language.toLowerCase())
+      ?? voices.find((candidate) => candidate.lang.toLowerCase().split('-')[0] === language.toLowerCase().split('-')[0])
+    if (!selected) throw new Error(`No installed OS voice can speak ${language}.`)
+    return await new Promise<boolean>((resolve, reject) => {
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = language
+      utterance.voice = selected
+      utterance.rate = rate
+      let finished = false
+      const finish = (success: boolean, error: Error | null) => {
+        if (finished) return
+        finished = true
+        utterance.onend = utterance.onerror = null
+        if (token === speakToken) { finishPlayback = null; setSpeaking(false); setProgress(null) }
+        if (error) reject(error)
+        else resolve(success)
+      }
+      finishPlayback = () => finish(false, null)
+      utterance.onend = () => finish(true, null)
+      utterance.onerror = (event) => finish(false, new Error(`OS speech failed: ${event.error}`))
+      window.speechSynthesis.speak(utterance)
+    })
+  } catch (error) {
+    if (token === speakToken) { stopSpeaking(); throw error }
+    return false
   }
-
-  if (engine !== 'os') {
-    throw new Error(`Unknown speech engine "${engine}". Choose Cloud or OS voice in Settings.`)
-  }
-  if (!speechSupported()) {
-    throw new Error(
-      'The OS voice engine is not available on this platform. ' +
-        'Set Speech engine to "Cloud" in Settings.'
-    )
-  }
-  if (token !== speakToken) return false
-  if (!speak(text, lang)) {
-    throw new Error(`No installed OS voice can speak ${lang}.`)
-  }
-  return true
 }
+

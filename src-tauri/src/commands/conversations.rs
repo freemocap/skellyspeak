@@ -65,7 +65,7 @@ pub fn list_conversations(
     native: String,
 ) -> Result<Vec<conversation::ChatSummary>, String> {
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
-    Ok(conversation::list_chats(&pair))
+    conversation::list_chats(&pair)
 }
 
 /// The chat currently open for this pairing, starting one if there is none.
@@ -102,14 +102,14 @@ pub fn open_conversation(
     native: String,
     id: String,
 ) -> Result<OpenedConversation, String> {
+    let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let chat = conversation::chat_dir(&pair, &id)?;
-    conversation::set_current_chat(&pair, &id)?;
-    info!("[cmd] open_conversation {id}");
+
 
     let mut faults: Vec<String> = Vec::new();
     let thread = init_coach_thread(&chat, &mut faults);
-    *state.coach_thread.lock().unwrap_or_else(|p| p.into_inner()) = thread;
+
 
     let loaded = conversation::load_session(&chat);
     if let Some(fault) = loaded.fault {
@@ -118,6 +118,10 @@ pub fn open_conversation(
     if let Some(first) = faults.into_iter().next() {
         return Err(first);
     }
+    conversation::set_current_chat(&pair, &id)?;
+    *state.coach_thread.lock().expect("coach lock poisoned") = thread;
+    *epoch += 1;
+    *state.observer_turns.lock().expect("observer cadence lock poisoned") = 0;
     Ok(OpenedConversation {
         id,
         turns: loaded.turns,
@@ -137,6 +141,7 @@ pub fn save_conversation(
     turns: serde_json::Value,
     title: String,
 ) -> Result<(), String> {
+    let _context = state.context_epoch.lock().expect("context lock poisoned");
     if !turns.is_array() {
         return Err("A conversation must be a list of turns.".into());
     }
@@ -157,6 +162,7 @@ pub fn new_conversation(
     target: String,
     native: String,
 ) -> Result<String, String> {
+    let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let id = conversation::unique_chat_id(&pair)?;
     conversation::chat_dir(&pair, &id)?;
@@ -167,7 +173,9 @@ pub fn new_conversation(
         .lock()
         .unwrap_or_else(|p| p.into_inner())
         .clear();
+    *epoch += 1;
     info!("[cmd] new_conversation {id}");
+    *state.observer_turns.lock().expect("observer cadence lock poisoned") = 0;
     Ok(id)
 }
 
@@ -180,7 +188,9 @@ pub fn delete_conversation(
     native: String,
     id: String,
 ) -> Result<(), String> {
+    let _context = state.context_epoch.lock().expect("context lock poisoned");
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     info!("[cmd] delete_conversation {id}");
     conversation::delete_chat(&pair, &id)
 }
+

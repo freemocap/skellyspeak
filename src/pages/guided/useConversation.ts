@@ -39,8 +39,7 @@ interface Options {
 /// Which conversation is on screen, and everything that changes it.
 ///
 /// The turns themselves live here because every operation — restoring,
-/// switching chats, starting a new one, saving — is about them, and splitting
-/// the state from the operations is what let saves race switches before.
+/// switching chats, starting a new one, saving — shares the same ownership key.
 export function useConversation({
   settings,
   sending,
@@ -60,10 +59,21 @@ export function useConversation({
   // language switch or a chat change still files the turns under the
   // conversation they came from.
   const openKey = useRef<{ target: string; native: string; id: string } | null>(null)
+  const generation = useRef(0)
+  const saves = useRef<Promise<void>>(Promise.resolve())
+  const persist = useCallback((key: NonNullable<typeof openKey.current>, snapshot: Turn[]) => {
+    const stored = snapshot.filter((turn) => turn.assistant !== null)
+      .map(({ pendingText: _pendingText, ...rest }) => rest)
+    const write = saves.current.then(() => saveConversation(
+      key.target, key.native, key.id, stored, conversationTitle(stored)
+    ))
+    // Keep the queue usable after a reported failure; callers still receive the rejection.
+    saves.current = write.catch(() => {})
+    return write
+  }, [])
 
   // Callbacks from the page, read through refs so an unstable one from the
-  // caller cannot churn this hook's effects. Identity churn here is what once
-  // fired a second greeting on top of the first.
+  // caller cannot churn this hook's effects or trigger additional greetings.
   const greetRef = useRef(greet)
   greetRef.current = greet
   const resetViewRef = useRef(resetView)
@@ -73,7 +83,8 @@ export function useConversation({
 
   const refreshChats = useCallback(async (target: string, native: string) => {
     try {
-      setChats(await listConversations(target, native))
+      const listed = await listConversations(target, native)
+      if (openKey.current?.target === target && openKey.current.native === native) setChats(listed)
     } catch (e) {
       reportFault('Loading your chat history', e)
     }
@@ -87,8 +98,16 @@ export function useConversation({
       native: string,
       load: () => Promise<{ id: string; turns: StoredTurn[] }>
     ) => {
+      const ticket = ++generation.current
+      const previous = openKey.current
+      const snapshot = turnsRef.current
+      openKey.current = null
       try {
+        if (previous) await persist(previous, snapshot)
+        await saves.current
+        if (ticket !== generation.current) return null
         const opened = await load()
+        if (ticket !== generation.current) return null
         openKey.current = { target, native, id: opened.id }
         setTurns(opened.turns.map((t) => ({ ...t, pendingText: '' })))
         // Ids must continue past what was restored or a new turn would collide
@@ -97,12 +116,12 @@ export function useConversation({
         void refreshChats(target, native)
         return opened.turns.length
       } catch (e) {
+        if (ticket !== generation.current) return null
         reportFault('Opening that conversation', e)
-        setTurns([])
-        return 0
+        return null
       }
     },
-    [refreshChats]
+    [refreshChats, persist]
   )
 
   // Written after a pause rather than on every keystroke of the stream, and
@@ -114,23 +133,13 @@ export function useConversation({
     const key = openKey.current
     if (!key || sending) return
     const timer = setTimeout(() => {
-      const stored = turns
-        .filter((t) => t.assistant !== null)
-        .map(({ pendingText: _pendingText, ...rest }) => rest)
-      void saveConversation(
-        key.target,
-        key.native,
-        key.id,
-        stored,
-        // The title comes from here because this is the side that knows what a
-        // turn looks like; Rust only stores the string.
-        conversationTitle(stored)
-      )
+      if (openKey.current !== key) return
+      void persist(key, turns)
         .then(() => refreshChats(key.target, key.native))
         .catch((e: unknown) => reportFault('Saving your conversation', e))
     }, SAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [turns, sending, refreshChats])
+  }, [turns, sending, refreshChats, persist])
 
   /// Open a clean conversation. The previous one stays in the list, and what
   /// the tutor has learned about the learner is untouched — that continuity is
@@ -138,10 +147,18 @@ export function useConversation({
   const startNew = useCallback(async () => {
     const s = settingsRef.current
     if (!s) return
+    const ticket = ++generation.current
+    const previous = openKey.current
+    const snapshot = turnsRef.current
+    openKey.current = null
     setHistoryOpen(false)
     let id: string
     try {
+      if (previous) await persist(previous, snapshot)
+      await saves.current
+      if (ticket !== generation.current) return
       id = await newConversation(s.target_language, s.native_language)
+      if (ticket !== generation.current) return
     } catch (e) {
       reportFault('Starting a new conversation', e)
       return
@@ -154,7 +171,7 @@ export function useConversation({
     disarmGreeting()
     armGreeting()
     greetRef.current()
-  }, [refreshChats, setHistoryOpen])
+  }, [refreshChats, setHistoryOpen, persist])
 
   const openChat = useCallback(
     async (id: string) => {
@@ -183,27 +200,35 @@ export function useConversation({
     async (id: string) => {
       const s = settingsRef.current
       if (!s) return
+      const key = openKey.current
+      const deletingCurrent = key?.id === id && key.target === s.target_language && key.native === s.native_language
+      const ticket = deletingCurrent ? ++generation.current : generation.current
+      if (deletingCurrent) {
+        openKey.current = null
+        resetViewRef.current()
+      }
       try {
+        if (deletingCurrent) await persist(key, turnsRef.current)
+        await saves.current
         await deleteConversation(s.target_language, s.native_language, id)
-      } catch (e) {
-        reportFault('Deleting that conversation', e)
-        return
-      }
-      // Deleting the conversation you are looking at leaves nothing on screen,
-      // so open the newest of what is left, or start fresh if none remain.
-      if (id === openKey.current?.id) {
-        const left = await listConversations(s.target_language, s.native_language)
-        setChats(left)
-        if (left.length > 0) {
-          await openChat(left[0].id)
-        } else {
-          await startNew()
+        // Deleting the conversation you are looking at leaves nothing on screen,
+        // so open the newest of what is left, or start fresh if none remain.
+        if (deletingCurrent && ticket === generation.current) {
+          const left = await listConversations(s.target_language, s.native_language)
+          setChats(left)
+          if (left.length > 0) {
+            await openChat(left[0].id)
+          } else {
+            await startNew()
+          }
+          return
         }
-        return
+        void refreshChats(s.target_language, s.native_language)
+        } catch (e) {
+        reportFault('Deleting that conversation', e)
       }
-      void refreshChats(s.target_language, s.native_language)
     },
-    [openChat, refreshChats, startNew]
+    [openChat, refreshChats, startNew, persist]
   )
 
   // The conversation on screen follows the pairing — on first load and on
@@ -218,6 +243,14 @@ export function useConversation({
   // reload over turns that had not been written yet.
   const pairing = settings ? `${settings.target_language}|${settings.native_language}` : null
   const previousPairing = useRef<string | null>(null)
+  useEffect(() => () => {
+    const previous = openKey.current
+    if (previous) void persist(previous, turnsRef.current)
+      .catch((error: unknown) => reportFault('Saving your conversation', error))
+    openKey.current = null
+    previousPairing.current = null
+    generation.current += 1
+  }, [persist])
   useEffect(() => {
     if (!pairing || !settings || !isTauri) return
     const previous = previousPairing.current
@@ -231,6 +264,7 @@ export function useConversation({
     const { target_language: target, native_language: native } = settings
     void (async () => {
       const restored = await show(target, native, () => loadConversation(target, native))
+      if (restored === null) return
       if (restored > 0) {
         logInfo(`[guided] restored ${restored} turns — no greeting`)
         // Consume the once-per-session greeting: a restored conversation is

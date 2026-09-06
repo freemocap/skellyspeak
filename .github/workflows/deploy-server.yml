@@ -15,14 +15,12 @@ on:
       - 'server/**'
       - '.gcloudignore'
       - '.github/workflows/deploy-server.yml'
+      - 'scripts/setup-gcp-deploy.ps1'
   # Redeploy without a code change — after rotating a secret, for instance.
   workflow_dispatch:
 
 permissions:
   contents: read
-  # Required for Workload Identity Federation. Without it `auth` cannot mint
-  # the OIDC token and fails with a confusing "unable to get credentials".
-  id-token: write
 
 # One deploy at a time, and never cancel one midway: a half-applied Cloud Run
 # rollout is worse than a queued one.
@@ -54,7 +52,38 @@ jobs:
 
       - name: Run pytest
         working-directory: server
-        run: uv run --group dev pytest -q
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          uv run --frozen --group dev pytest -q
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: cloud-firestore-emulator
+
+      - name: Exercise concurrent Firestore transactions
+        working-directory: server
+        env:
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8787
+          SKELLYSPEAK_FIRESTORE_TEST: '1'
+        run: |
+          set -euo pipefail
+          gcloud beta emulators firestore start --host-port=127.0.0.1:8787 --project=skellyspeak-ci > /tmp/firestore.log 2>&1 &
+          emulator_pid=$!
+          trap 'kill "$emulator_pid"; cat /tmp/firestore.log' EXIT
+          for attempt in $(seq 1 40); do
+            if python -c 'import socket; socket.create_connection(("127.0.0.1", 8787), timeout=1).close()'; then
+              break
+            fi
+            if [ "$attempt" = 40 ]; then exit 1; fi
+            sleep 0.5
+          done
+          uv run --frozen --group dev pytest test_firestore.py -q
 
   # Passing tests do not mean a container that starts. A deploy of an image
   # that exits on boot costs a three-minute Cloud Build, fails at the Cloud Run
@@ -130,7 +159,11 @@ jobs:
 
   deploy:
     name: Build and deploy to Cloud Run
+    permissions:
+      contents: read
+      id-token: write
     needs: [test, container]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -151,6 +184,7 @@ jobs:
           gcloud builds submit \
             --project="$GCP_PROJECT" \
             --config=server/cloudbuild.yaml \
+            --gcs-source-staging-dir="gs://${GCP_PROJECT}_cloudbuild/source" \
             --substitutions=_PUBLIC_BASE_URL="$PUBLIC_BASE_URL"
 
       # A green build is not a working service. Cloud Run can accept a revision

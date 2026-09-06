@@ -20,7 +20,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { mediaDevices } from '../lib/media'
 import { resetsAtLocalTime } from '../lib/quota'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { canSelfUpdate, checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
+import { getUpdateChannel, checkForUpdate, restartIntoUpdate, type UpdateChannel, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
 import { CUSTOM, HOSTED, usesCredential } from '../lib/providers'
 
@@ -64,7 +64,12 @@ function UpdateCheckRow() {
     'idle'
   )
   const [found, setFound] = useState<UpdateOffer | null>(null)
-  const selfUpdates = canSelfUpdate()
+  const [channel, setChannel] = useState<UpdateChannel | null>(null)
+  useEffect(() => {
+    void getUpdateChannel()
+      .then(setChannel)
+      .catch((error) => reportFault('Loading update settings', error))
+  }, [])
 
   const check = useCallback(async () => {
     setState('checking')
@@ -98,11 +103,20 @@ function UpdateCheckRow() {
     }
   }, [found])
 
+  if (channel === 'app-store') {
+    return (
+      <div className="form-row">
+        <label>Application updates</label>
+        <p className="field-note">Updates are managed through TestFlight or the App Store.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="form-row">
       <label>Application updates</label>
       <>
-        {!selfUpdates && (
+        {channel === 'download' && (
           <p className="field-note">
             This platform installs updates through its package manager, so SkellySpeak checks
             for a newer release and takes you to it — you install it yourself.
@@ -113,7 +127,7 @@ function UpdateCheckRow() {
             <button
               type="button"
               className="btn"
-              disabled={state === 'checking' || state === 'installing'}
+              disabled={channel === null || state === 'checking' || state === 'installing'}
               onClick={() => void check()}
             >
               {state === 'checking' ? 'Checking…' : 'Check for updates'}
@@ -679,7 +693,7 @@ export function SettingsModal({
                       this account's own average cost per turn so far. */}
                   <p className="field-note">
                     {account.requests_today > 0
-                      ? `About ${account.estimated_turns_remaining.toLocaleString()} more replies (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
+                      ? `About ${account.estimated_requests_remaining.toLocaleString()} more AI requests (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
                       : 'No usage yet today'}
                   </p>
                 </>
@@ -967,6 +981,17 @@ export function SettingsModal({
         </div>
       ),
     },
+    tts_rate: {
+      section: 'voice', label: L('tts_rate', 'Voice playback speed'), kw: 'speed slow beginner audio rate',
+      node: <div className="form-row">
+        <label htmlFor="settings-voice-speed">Voice playback speed</label>
+        <select id="settings-voice-speed" value={settings.tts_rate}
+          onChange={(event) => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>
+          {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
+        </select>
+        <p className="field-note">Slower playback can make unfamiliar speech easier to follow. OS speed changes apply on replay.</p>
+      </div>,
+    },
     auto_speak: {
       section: 'voice',
       label: L('auto_speak', 'Auto-speak tutor replies'),
@@ -979,7 +1004,7 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>Auto-speak tutor replies (OS voice, free &amp; offline)</span>
+            <span>Auto-speak tutor replies using the selected speech engine</span>
           </label>
         </div>
       ),
@@ -1171,3 +1196,4 @@ export function SettingsModal({
     </div>
   )
 }
+
