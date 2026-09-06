@@ -97,7 +97,7 @@ async fn model_bench() {
 
         // 1. Streaming greeting reply (TTFT + total).
         let persona = crate::personas::resolve(None, "bench", &crate::personas::builtins());
-        let sys = prompts::partner::reply_prompt(&persona.sketch, tln, "A2", native, None, "");
+        let sys = prompts::partner::reply_prompt(&persona.sketch, None, tln, "A2", native, None, "");
         let messages = vec![
             serde_json::json!({"role": "system", "content": sys}),
             serde_json::json!({"role": "user", "content": prompts::partner::greeting_turn()}),
@@ -157,7 +157,7 @@ async fn model_bench() {
 
         // 3. Scaffolds — the wrapper-shape failure case.
         let msgs = vec![
-            serde_json::json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(tln, native, "")}),
+            serde_json::json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(tln, "A2", native, "")}),
             serde_json::json!({"role": "user", "content": prompts::analysis::scaffolds_turn("Hola", &reply_text)}),
         ];
         let start = Instant::now();
@@ -344,6 +344,7 @@ L: Si, me gusta mucho viajar.";
             &plan,
             &profile,
             &[],
+            &crate::lesson::LessonChoices::default().directives(),
         )
         .await;
         let ms = start.elapsed().as_millis();

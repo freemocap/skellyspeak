@@ -73,7 +73,43 @@ installed clients. The update public key lives in `tauri.conf.json`, while CI
 provides the private signing key. Windows and macOS also require their OS-level
 signing credentials.
 
+### macOS development bundle
+
+`tauri dev` launches a bare executable. For tools that discover macOS `.app`
+bundles, including Computer Use, package that executable after the dev build
+finishes. Keep `npm run tauri dev` running, then use a second terminal:
+
+```sh
+npm run macos:dev-bundle
+open src-tauri/target/debug/bundle/macos/SkellySpeak.app
+```
+
+Computer Use can open the same `.app` by its absolute path. This command
+packages the existing default-target debug executable; it does not compile it.
+Run it after `tauri dev`, not after `tauri build --debug`, to retain the Vite
+connection at `http://localhost:1420` and frontend hot reload.
+
+The bundle runs a separate process with the same app identifier, credentials,
+and conversation storage. Use only the bundled window for interactions while
+testing, leaving the original dev window idle. Rust changes rebuild the original
+dev executable, but do not update the bundle's copy: quit the bundled app,
+wait for the dev rebuild to finish, rerun `npm run macos:dev-bundle`, and reopen
+the `.app`. Keep the dev session running to serve the frontend.
+
+The explicit `tauri.dev-bundle.conf.json` overlay disables updater artifacts for
+this local bundle, and the command skips code signing. Distribution builds use
+the normal signing and updater configuration.
+
+Keep the bundled process running for frontend-only changes and batch Rust
+rebuilds. An unsigned/ad-hoc development executable does not provide a stable
+certificate-backed code identity across rebuilds, so macOS may ask again for
+Keychain access even after Always Allow. This is separate from Computer Use app
+approval. Stable development signing is the appropriate way to preserve code
+identity across builds; do not broaden credential access to all applications.
+See Apple's [code identity and Keychain guidance](https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/AboutCS/AboutCS.html).
+
 ## Android
+
 
 The Android scaffold is in `src-tauri/gen/android`. Android uses the webview
 recorder and declares microphone permission in its manifest.

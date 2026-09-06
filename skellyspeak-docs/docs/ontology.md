@@ -6,7 +6,7 @@ title: Ontology
 # Domain model
 
 The persisted entities are settings, language pairings, conversations, tutor
-memory, custom personas and the private coach thread. Model-call traces describe
+memory, explicit lesson choices, custom personas and the private coach thread. Model-call traces describe
 execution. Type definitions live in Rust and `src/types.ts`; the graph is built
 from `src-tauri/src/ontology.rs` and `turn_plan.rs`.
 
@@ -50,9 +50,10 @@ language, level or current topic.
 
 ## Persona and coach
 
+The explicit `__none__` selection disables fictional characterization. Reroll selects a partner other than the current saved character. Both controls start another conversation.
+
 A persona has an ID, label and character sketch. Built-ins cannot be edited;
-custom personas are validated and stored in `personas.json`. Selection is stable
-within a conversation, including the deterministic surprise selection.
+custom personas are validated and stored in `personas.json`. A `ConversationPartner` is the per-chat instance: the copied persona, a nullable first introduction and an origin (`new_chat` or `recovered_history`). Surprise selection happens once at initialization; catalog changes never alter an existing snapshot.
 
 The coach's feedback and interactive thread are private to the learner. The
 partner does not receive that thread. Each chat's `coach.json` retains up to
@@ -77,3 +78,43 @@ allowance. A reservation identifies one admitted provider request, its UTC date,
 reserved cost, settlement state and provider generation ID. Token/request counts
 are reporting fields; money controls admission. See [Hosted API](./hosted-api)
 for settlement and retention rules.
+
+## Learner-owned lesson choices
+
+`LessonChoices` contains a goal (up to 600 characters), up to 10 preferences or
+memory corrections (256 characters each), and a nullable correction budget
+(0–2 recasts per partner reply; null uses the inferred budget). It does not change
+automatic per-message feedback. Clearing the goal returns focus to inference.
+
+`LessonState` stores these choices, an increasing revision, and the most recent
+20 explicit changes in the pairing's `lesson.json`. Each change has its source,
+reason, timestamp, and before/after choices. Missing `lesson.json` means no
+explicit choices yet; malformed files are errors. Existing inferred memory is
+preserved. Coach messages can carry a proposed complete choice document and the
+revision it was proposed against; old messages have no proposal metadata.
+
+The observability descriptions distinguish saved conversation history, private coach messages, explicit learner choices, and shared inferred directives. The partner consumes choices and directives, but not the private coach thread. Runtime trace turns identify executions; captured request context links supported calls to persisted chat and message IDs. Each run also records an app version and session identity.
+
+A persona is a reusable template. Its saved conversation instance fixes the sketch, and its first reply supplies the permanent identity reference. No-persona instances retain an empty sketch and no fictional identity reference. Legacy recovery preserves the earliest assistant introduction and records that the original template is unknown.
+
+## Captured instructions and outcomes
+
+A request context is a snapshot, not a live settings lookup. It distinguishes
+selected practice difficulty from inferred proficiency and records lesson revision,
+partner identity, trigger and history counts. Each attempt retains structured
+messages, effective parameters, bounded output and explicit truncation. Named
+reply/suggestion blocks provide source provenance; other calls retain system
+messages without that breakdown. Length diagnostics, model outcome and reply
+application status are separate facts. The bounded trace archive and explicit
+audit exports are independent of conversation storage and deletion.
+
+The partner and learner remain distinct speakers. The saved introduction is
+quoted in reply prompts with `role: assistant`; it describes the partner, not
+the learner. Prompt instructions require explicit learner self-identification
+before addressing the learner by name. No automatic learner-name extraction or
+identity-verification model runs.
+
+A topic note is generated explanatory content, not evidence of a learner error.
+It consists of native-language guidance, a target-language example, and its
+translation. It is transient UI content; the model call is retained under the
+existing explanation operation with trigger `lesson_topic_note`.

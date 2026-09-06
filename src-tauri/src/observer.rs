@@ -313,6 +313,7 @@ pub fn persist_documents(dir: &Path, plan: &TeachingPlan, profile: &Profile) -> 
 const OBSERVER_MAX_TOKENS: MaxTokens = MaxTokens(4_000);
 
 /// Generate plan and profile concurrently. Both must validate before either is applied.
+#[allow(clippy::too_many_arguments)]
 pub async fn run_observer(
     provider: &Provider,
     ctx: crate::trace::RunContext,
@@ -321,9 +322,10 @@ pub async fn run_observer(
     plan: &TeachingPlan,
     profile: &Profile,
     recent_mechanics: &[String],
+    learner_directives: &str,
 ) -> Result<ObserverOutput, String> {
     let (plan_json, profile_json) = prompts::documents_json(plan, profile);
-    let context = prompts::shared_context(transcript, &plan_json, &profile_json, recent_mechanics);
+    let context = format!("{}\n{}", prompts::shared_context(transcript, &plan_json, &profile_json, recent_mechanics), learner_directives);
 
     let plan_msgs = vec![
         json!({"role": "system", "content": prompts::plan_prompt(target_language_name)}),
@@ -337,7 +339,7 @@ pub async fn run_observer(
     // Each document uses a small token budget with reasoning disabled.
     let (plan_out, profile_out) = tokio::join!(
         provider.structured_validated::<TeachingPlan, _>(
-            ctx,
+            ctx.clone(),
             &plan_msgs,
             0.4,
             "TeachingPlan",

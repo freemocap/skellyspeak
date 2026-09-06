@@ -12,10 +12,12 @@ Two surfaces:
 
 - **Guided** — the conversation. A streamed tutor reply you can interrogate
   word by word (tap for a gloss, hold for a run, double-click for a full
-  lemma/POS/usage card — on your own messages too), a **Coach** tab that
-  privately grades and corrects what you wrote, an **Analysis** tab with
-  explainer cards and reply scaffolds, a level/topic steer row, and voice
-  in *and* out.
+  lemma/POS/usage card — on your own messages too), message-level **Coach feedback** badges with scores, corrections and editing,
+  a **Lesson** panel showing your goal, preferences and coaching observations,
+  and an **Analysis** tab for detailed breakdowns. Talk to the coach below the
+  lesson: explicit requests update it; suggestions wait for you to apply them.
+  Suggestions and settings fold independently beneath compact headings attached to their respective content. Persona controls fit in one row; the gear opens character details.
+  Voice works in *and* out.
 - **Stories** — level-matched short stories (beginner / intermediate /
   advanced) with tap-to-translate word glosses.
 
@@ -23,6 +25,14 @@ Supported languages are symmetric: English (US), French, Spanish, Arabic, and
 Chinese (Mandarin) can each be the language you're learning or your own
 language, with regional dialect selection where applicable. The canonical
 registry is `src-tauri/src/languages.rs`.
+
+Lesson choices open in a centered, dismissible editor and save automatically as you type. Closing waits for pending changes to save; errors keep the editor and unsaved text open. The coach conversation has a distinct background beneath the lesson and analysis.
+
+Each chat saves its character description and first introduction. Reopening restores that partner; editing or deleting persona templates affects future chats only. The persona gear shows the saved snapshot separately from the template library. Older chats recover their earliest saved introduction, with the unknown original template clearly labeled.
+
+Choose **No persona** or switch personas **Off** for conversation without a fictional character. Switch **On** to use Surprise me, or reroll to choose a different partner. Changing these controls starts a new conversation and preserves the previous chat.
+
+The coach conversation starts as a compact dock with its message box visible. Drag its top border to resize it, or use the heading toggle to collapse the thread while keeping the composer available. Its height and collapsed state persist on this device across reloads. The divider also supports the Up/Down arrow keys and Enter.
 
 ## Architecture
 
@@ -57,6 +67,12 @@ cd skellyspeak
 npm install
 npm run tauri dev     # first run compiles the Rust core (~2-5 min)
 ```
+
+For macOS Computer Use, keep that dev session running and run
+`npm run macos:dev-bundle` in another terminal after compilation finishes.
+Open `src-tauri/target/debug/bundle/macos/SkellySpeak.app` to use the dev app
+as a discoverable macOS bundle. See the [development bundle workflow](./skellyspeak-docs/docs/platforms.md#macos-development-bundle)
+for hot reload and rebuild instructions.
 
 On first launch, open Settings (⚙), choose the language you're learning and your
 native language, then either sign into the hosted service, supply your own
@@ -180,3 +196,35 @@ Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusauru
 ```powershell
 cd skellyspeak-docs && npm install && npm start   # preview the docs site
 ```
+
+Collapsed Suggestions shows up to two compact reply badges (one on narrow screens). Tap a badge to send the full suggestion; expand the section for all replies, frames and starters.
+
+The **AI** panel opens directly on the live pipeline. A compact strip shows recorded and running model calls; select a call or graph node for its timing, model, response preview, and expandable prompts and raw responses. **How it works** explains the context; **Debug** expands execution controls, logs and the advanced comparison workspace without replacing the main graph. Filter retained activity by chat and exchange. The full-height request reader shows captured inputs, every attempt, effective parameters and prompt-block comparisons. Traces survive restarts within local retention limits and can be exported for an audit; see [Observability](skellyspeak-docs/docs/observability.md).
+
+Selected graph nodes have a labeled outline and highlighted connections, synchronized with the selected call. Execution states include text labels. Shared text colors and keyboard focus indicators support readable dark and light surfaces.
+
+Mobile keeps the interactive graph with a readable starting zoom, pan/zoom controls and a navigation map. Node details open over the graph with a dedicated close control.
+
+The voice composer keeps Record/Stop and Send in the same positions while recording. **Discard** appears to their left. Stop transcribes into the draft, or sends the transcription when **Auto-send voice** is enabled.
+
+Use **+** in the conversation header to start a new chat directly; the previous conversation remains in history.
+
+Reply instructions explicitly separate the partner's identity from the learner's.
+The saved introduction is labeled as an assistant message; the partner is told
+to use a learner name only after the learner identifies themselves. The AI
+request reader exposes this as the `participants` prompt block. These are model
+instructions, not a guarantee that every generated reply follows them.
+
+The lesson panel leads with the actual goal or suggested practice topics, each
+with a short explanation, target-language example and translation. Compact
+**Try an example** and **Why this?** links prepare a coach question without
+sending it. **Preferences & coach memory** groups correction settings,
+preferences, observations, learner memory and change history behind one disclosure.
+Topic notes load through a read-only model call at the selected practice level;
+errors are shown with Retry. Notes are held while the topic view remains mounted.
+
+When retrying a message, the original attempt's corrections and coach remark
+stay available in a collapsible, scrollable reference above the composer,
+including during voice recording. The conversation remains accessible and the
+full feedback modal is still available. Sending or cancelling the edit removes
+the reference.

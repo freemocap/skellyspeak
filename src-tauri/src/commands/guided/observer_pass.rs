@@ -14,6 +14,7 @@ use crate::AppState;
 use super::types::{emit, GuidedEvent};
 
 pub(super) struct ObserverPass {
+    pub context: crate::instruction::Context,
     pub epoch: u64,
     pub app: AppHandle,
     pub channel: Channel<GuidedEvent>,
@@ -62,6 +63,7 @@ pub(super) fn spawn(pass: ObserverPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let ObserverPass {
+            mut context,
             epoch,
             app,
             channel,
@@ -88,6 +90,13 @@ pub(super) fn spawn(pass: ObserverPass) {
             }
         };
 
+        let lesson = match crate::lesson::load(&docs) {
+            Ok(lesson) => lesson,
+            Err(error) => {
+                emit(&channel, GuidedEvent::Fault { context: "Lesson choices".into(), message: error });
+                return;
+            }
+        };
         let (plan_snapshot, profile_snapshot, mechanics) = {
             let context = state.context_epoch.lock().expect("context lock poisoned");
             if *context != epoch { return; }
@@ -100,15 +109,19 @@ pub(super) fn spawn(pass: ObserverPass) {
             (plan.clone(), profile.clone(), mechanics.clone())
         };
 
+        context.lesson_revision = lesson.revision;
+        context.inferred_level_notes = profile_snapshot.level_notes.clone();
+        let observer_directives = format!("{}\n{}", lesson.choices.directives(), context.difficulty.coaching_context());
         // Observer documents use the captured provider and conversation context.
         let result = observer::run_observer(
             &provider,
-            RunContext::new(ontology::op::REFLECT, Some(turn_id)),
+            RunContext::new(ontology::op::REFLECT, Some(turn_id)).with_context(&context),
             &tln,
             &transcript.join("\n"),
             &plan_snapshot,
             &profile_snapshot,
             &mechanics,
+            &observer_directives,
         )
         .await;
 
@@ -116,6 +129,17 @@ pub(super) fn spawn(pass: ObserverPass) {
             Ok(output) => {
                 let context = state.context_epoch.lock().expect("context lock poisoned");
                 if *context != epoch { return; }
+                match crate::lesson::load(&docs) {
+                    Ok(current) if current.revision == lesson.revision => {}
+                    Ok(_) => {
+                        emit(&channel, GuidedEvent::Fault { context: "Observer".into(), message: "Lesson choices changed during observation. Your choices are saved; observations will refresh on a later turn.".into() });
+                        return;
+                    }
+                    Err(error) => {
+                        emit(&channel, GuidedEvent::Fault { context: "Lesson choices".into(), message: error });
+                        return;
+                    }
+                }
                 let faults = observer::persist_documents(&docs, &output.plan, &output.profile);
                 let failed = !faults.is_empty();
                 for fault in faults {
