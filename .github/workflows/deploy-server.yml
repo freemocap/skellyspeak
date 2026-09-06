@@ -43,7 +43,7 @@ jobs:
     name: Server tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -95,7 +95,7 @@ jobs:
     name: Container starts and serves
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Build the image
         run: docker build -t skellyspeak-api:ci server
@@ -166,7 +166,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - id: auth
         uses: google-github-actions/auth@v2

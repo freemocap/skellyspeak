@@ -29,7 +29,7 @@ jobs:
       version: ${{ steps.get.outputs.version }}
       tag: v${{ steps.get.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - id: get
         run: |
@@ -110,7 +110,7 @@ jobs:
             # deb only for now — AppImage tooling on arm64 needs its own pass.
             args: '--bundles deb'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - if: runner.os == 'Linux'
         run: |
@@ -258,7 +258,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
