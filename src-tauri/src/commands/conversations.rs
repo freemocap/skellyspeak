@@ -48,6 +48,14 @@ pub(super) fn pair_and_chat(
     Ok((pair, chat, id))
 }
 
+fn require_current_pair(state: &AppState, target: &str, native: &str) -> Result<(), String> {
+    let settings = state.settings.lock().expect("settings lock poisoned");
+    if settings.target_language != target || settings.native_language != native {
+        return Err("The language pair changed before this conversation could open.".into());
+    }
+    Ok(())
+}
+
 /// What the webview needs to show a conversation: which one it is, and its
 /// turns. Turns are stored exactly as the webview holds them — the core never
 /// interprets one, so there is no second definition of a turn to keep in step.
@@ -75,6 +83,8 @@ pub fn load_conversation(
     target: String,
     native: String,
 ) -> Result<OpenedConversation, String> {
+    let _context = state.context_epoch.lock().expect("context lock poisoned");
+    require_current_pair(&state, &target, &native)?;
     let (_pair, chat, id) = pair_and_chat(&state, &target, &native)?;
     let loaded = conversation::load_session(&chat);
     // A conversation that could not be read is reported, not silently empty.
@@ -103,6 +113,7 @@ pub fn open_conversation(
     id: String,
 ) -> Result<OpenedConversation, String> {
     let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
+    require_current_pair(&state, &target, &native)?;
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let chat = conversation::chat_dir(&pair, &id)?;
 
@@ -163,6 +174,7 @@ pub fn new_conversation(
     native: String,
 ) -> Result<String, String> {
     let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
+    require_current_pair(&state, &target, &native)?;
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let id = conversation::unique_chat_id(&pair)?;
     conversation::chat_dir(&pair, &id)?;

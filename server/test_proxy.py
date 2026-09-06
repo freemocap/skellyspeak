@@ -41,6 +41,18 @@ def request(*, stream: bool) -> dict[str, object]:
 
 
 @pytest.mark.asyncio
+async def test_account_response_contract(proxy: httpx.AsyncClient) -> None:
+    response = await proxy.get("/v1/me")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["estimated_turns_remaining"] == 250
+    assert isinstance(body["estimated_turns_remaining"], int)
+    assert body["remaining_usd"] == 0.5
+    assert body["requests_today"] == 0
+    assert body["estimated_tokens_remaining"] == 0
+
+
+@pytest.mark.asyncio
 async def test_rejected_routing_never_reserves(proxy: httpx.AsyncClient, ledger: FakeDb) -> None:
     payload = request(stream=False)
     payload["models"] = ["unpriced/model"]

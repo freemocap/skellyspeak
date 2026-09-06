@@ -87,8 +87,9 @@ allocation/probe limits and a timeout. Two decodes/transcriptions can occupy an
 instance concurrently. Cloud Run admits eight requests per instance, with a
 maximum of four instances; these settings bound concurrency, not total bills.
 
-`/v1/me` reports `estimated_requests_remaining`, not conversation turns. A turn
-can make several model calls, and this estimate uses average request cost.
+`/v1/me` reports `estimated_turns_remaining`. This wire field counts individual
+AI requests; the client presents it as `estimated_requests_remaining`. A conversation
+turn can make several model calls, and this estimate uses average request cost.
 Pending reservations can temporarily reduce the displayed allowance.
 
 ## Reconciliation and retention

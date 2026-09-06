@@ -46,6 +46,8 @@ pub struct Account {
     /// Reporting only.
     pub tokens_today: u64,
     pub requests_today: u64,
+    /// The API calls this estimate "turns"; each unit is one AI request.
+    #[serde(rename(deserialize = "estimated_turns_remaining"))]
     pub estimated_requests_remaining: u64,
     pub estimated_tokens_remaining: u64,
     /// This account carries its own daily limit rather than the service
@@ -53,6 +55,25 @@ pub struct Account {
     #[serde(default)]
     pub custom_limit: bool,
     pub resets: String,
+}
+
+#[test]
+fn account_decodes_service_contract_and_exposes_request_estimate_to_ui() {
+    let mut body = serde_json::json!({
+        "email": "learner@example.com", "name": "Learner",
+        "used_usd": 0.1, "limit_usd": 0.5, "remaining_usd": 0.4,
+        "tokens_today": 100, "requests_today": 2,
+        "estimated_turns_remaining": 8, "estimated_tokens_remaining": 400,
+        "custom_limit": false, "resets": "00:00 UTC"
+    });
+    let account: Account = serde_json::from_value(body.clone()).unwrap();
+    assert_eq!(account.estimated_requests_remaining, 8);
+    let ui = serde_json::to_value(account).unwrap();
+    assert_eq!(ui["estimated_requests_remaining"], 8);
+    assert!(ui.get("estimated_turns_remaining").is_none());
+    body.as_object_mut().unwrap().remove("estimated_turns_remaining");
+    assert!(serde_json::from_value::<Account>(body).unwrap_err().to_string()
+        .contains("estimated_turns_remaining"));
 }
 
 /// A session token and the address it belongs to.
@@ -219,10 +240,10 @@ pub async fn account(token: &str, client_info: &ClientInfo) -> Result<Account, S
     if !response.status().is_success() {
         return Err(detail_of(response).await);
     }
-    response
-        .json::<Account>()
-        .await
-        .map_err(|e| format!("the hosted service sent an unreadable account: {e}"))
+    let raw = response.bytes().await
+        .map_err(|error| format!("could not read the hosted account response: {error}"))?;
+    serde_json::from_slice::<Account>(&raw)
+        .map_err(|error| format!("the hosted service sent an unreadable account: {error}"))
 }
 
 // ─── Desktop: loopback listener ──────────────────────────────────────────────

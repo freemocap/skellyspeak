@@ -54,7 +54,7 @@ teaches the industry's sloppiest habit, and this vocabulary is curriculum.
 | | Instructions | Session / memory | Tools | Handoffs |
 |---|---|---|---|---|
 | **Chat** | `prompts::partner::reply_prompt` | conversation history | — | — |
-| **Coach** | `prompts::coach::analysis_prompt` | `coach.json`, `plan.json`, `profile.json` | — | — |
+| **Coach** | `prompts::coach::analysis_prompt` | `coach.json`, `memory.json` | — | — |
 | the 9 tools | ✅ | — | — | — |
 
 Neither agent has tools or handoffs *yet*, so both are strictly "agent-shaped"
@@ -582,7 +582,7 @@ Conversations and runs persist across restarts, with an obvious reset.
    the order of 50–100 KB per turn. A hundred turns is 5–10 MB — at or past
    the `localStorage` cap, and it would fail by *silently* throwing on write.
 2. **Layer.** The Rust core owns everything durable (`settings.json`,
-   `plan.json`, `profile.json`, `coach.json`). Conversation and trace
+   `memory.json`, `coach.json`). Conversation and trace
    data belong beside them, under the same corrupt-file, archive-on-reset and
    fail-loudly-on-write-error handling that already exists.
 3. **Reach.** Runs originate in Rust. Routing them through the webview to be
@@ -604,8 +604,7 @@ language being learned and the language already spoken.
 
 ```text
 <config>/settings.json                        ← global; holds the current pairing
-<config>/conversations/es-ES__en/plan.json    ← what the tutor knows about you,
-                                /profile.json   shared by every chat
+<config>/conversations/es-ES__en/memory.json  ← plan and profile shared by every chat
                                 /current.json ← which chat is open
                                 /chats/1788400000-a1b2/session.json
                                                       /coach.json
@@ -640,7 +639,7 @@ erased. Deleting a conversation is the one action a user can take by accident
 on something irreplaceable, so it stays recoverable by anyone who opens the
 file, and `list_chats` simply skips it. The single exception is a session file
 whose JSON will not parse: a flag cannot be added to a document that cannot be
-read, so it is moved to `session.json.bad` and reported on screen.
+read; it remains in place and blocks loading until repaired.
 
 **Turns are stored exactly as the webview holds them.** The core never
 interprets a turn — it composes prompts from the history sent with each request

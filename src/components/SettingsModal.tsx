@@ -981,17 +981,6 @@ export function SettingsModal({
         </div>
       ),
     },
-    tts_rate: {
-      section: 'voice', label: L('tts_rate', 'Voice playback speed'), kw: 'speed slow beginner audio rate',
-      node: <div className="form-row">
-        <label htmlFor="settings-voice-speed">Voice playback speed</label>
-        <select id="settings-voice-speed" value={settings.tts_rate}
-          onChange={(event) => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>
-          {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
-        </select>
-        <p className="field-note">Slower playback can make unfamiliar speech easier to follow. OS speed changes apply on replay.</p>
-      </div>,
-    },
     auto_speak: {
       section: 'voice',
       label: L('auto_speak', 'Auto-speak tutor replies'),

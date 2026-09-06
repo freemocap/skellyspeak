@@ -54,6 +54,7 @@ pub async fn speak_text(
         "modalities": ["text", "audio"],
         "audio": {"voice": v, "format": "pcm16"},
         "stream": true,
+        "max_tokens": 2000,
         "messages": [
             // gpt-audio models are conversational — without this they answer
             // or continue after the requested phrase. Engine framing, not chat.
@@ -87,7 +88,10 @@ pub async fn speak_text(
                 crate::sse::Event::Done => break 'sse,
                 crate::sse::Event::Data(value) => {
                     if let Some(delta) = value["choices"][0]["delta"]["audio"].as_object() {
-                        if let Some(data) = delta.get("data").and_then(|v| v.as_str()) { b64.push_str(data); }
+                        if let Some(data) = delta.get("data").and_then(|v| v.as_str()) {
+                            if b64.len() + data.len() > 32 * 1024 * 1024 { return Err("Speech audio exceeds the playback size limit.".into()); }
+                            b64.push_str(data);
+                        }
                         if let Some(text) = delta.get("transcript").and_then(|v| v.as_str()) { transcript.push_str(text); }
                     }
                 }
@@ -206,4 +210,3 @@ mod wav_tests {
         assert_eq!(u32::from_le_bytes([w[40], w[41], w[42], w[43]]), 0);
     }
 }
-

@@ -5,10 +5,9 @@ title: Overview
 
 # SkellySpeak — Overview
 
-**SkellySpeak is a standalone, no-login, multilingual language tutor.** A desktop
-(Tauri v2) app today, with mobile ambitions. No accounts, no server, no
-database: everything is local except the AI calls, which go to OpenRouter
-(chat) and Groq (speech-to-text) with keys the user supplies themselves.
+**SkellySpeak is a multilingual language tutor for desktop and mobile.**
+Use Google sign-in for the hosted service, your own provider keys, or your
+own AI server. Conversation files stay on your device.
 
 **Status: working Proof of Concept (v0.1.0).** The guided-conversation loop is
 end-to-end functional on Windows desktop and on Android (debug APK sideloads
@@ -58,8 +57,7 @@ it would be worth nothing.
 Built-ins are readable but never editable — *Duplicate & edit* forks one into
 an unsaved copy — so there is always a working set to get back to. Custom
 personas live in `<config>/personas.json` and survive restarts; a file that
-cannot be read is moved to `personas.json.bad` and **reported**, never quietly
-replaced.
+cannot be read remains intact and blocks edits until repaired.
 
 The core validates every write (`personas::validate`), not just the editor:
 `personas.json` is a file a person can open. A description under 60 characters

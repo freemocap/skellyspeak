@@ -174,10 +174,7 @@ fn default_model() -> String {
     "google/gemini-2.5-flash".into()
 }
 
-/// The observer's model. Reasoning stays ENABLED (that is where its value
-/// comes from) but it does not need a frontier model to do it: the job is
-/// summarising a short transcript into two small documents. Successful passes
-/// on the worker model run 19-22s, well inside the 180s client timeout.
+/// The observer uses the worker model with its own bounded output budget.
 pub fn default_observer_model() -> String {
     default_model()
 }
@@ -420,10 +417,13 @@ pub fn persist(dir: &Path, settings: &Settings) -> Result<(), String> {
     let object = public.as_object_mut().ok_or("Settings must serialize as an object")?;
     for name in ["openrouter_key", "groq_key", "custom_api_key", "hosted_token"] { object.remove(name); }
     let raw = serde_json::to_vec_pretty(&public).map_err(|e| format!("settings serialization failed: {e}"))?;
-    crate::credentials::write(dir, &secrets)?;
+    let credentials_changed = secrets != previous;
+    if credentials_changed { crate::credentials::write(dir, &secrets)?; }
     if let Err(error) = crate::persistence::write(&settings_path(dir), &raw) {
-        crate::credentials::write(dir, &previous)
-            .map_err(|rollback| format!("{error}; credential rollback also failed: {rollback}"))?;
+        if credentials_changed {
+            crate::credentials::write(dir, &previous)
+                .map_err(|rollback| format!("{error}; credential rollback also failed: {rollback}"))?;
+        }
         return Err(error);
     }
     Ok(())
@@ -627,4 +627,3 @@ fn a_masked_round_trip_keeps_the_stored_key() {
 }
 
 }
-

@@ -32,7 +32,7 @@ pub extern "system" fn Java_com_freemocap_skellyspeak_MainActivity_initializeCre
     }
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Secrets {
     pub openrouter_key: String,
     pub groq_key: String,

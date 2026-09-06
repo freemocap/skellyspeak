@@ -240,8 +240,7 @@ exist in the Windows CLI, and Xcode does the signing. Everything happens on a
   `objc2-av-foundation`, then captures with the same cpal + hound WAV path as
   desktop. `NSMicrophoneUsageDescription` is already in `src-tauri/Info.plist`.
 - **Layout:** same narrow-viewport work; also safe-area insets.
-- **Keys on mobile:** settings.json lands in the app sandbox config dir —
-  works, but review R12 (keychain) with mobile in mind.
+- **Keys on mobile:** provider keys and sessions use the platform credential vault; verify migration and persistence on each native platform.
 
 ### Shared mobile concerns
 - **Streaming:** SSE via reqwest works on both, but verify streaming

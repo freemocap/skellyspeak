@@ -356,7 +356,7 @@ def me(request: Request, who: quota.Principal = Depends(current_user)) -> dict[s
         # Reporting, not limits.
         "tokens_today": balance.tokens,
         "requests_today": balance.requests,
-        "estimated_requests_remaining": balance.remaining // per_request,
+        "estimated_turns_remaining": balance.remaining // per_request,
         "estimated_tokens_remaining": (
             (balance.remaining // per_request) * balance.tokens_per_request
             if balance.tokens_per_request
