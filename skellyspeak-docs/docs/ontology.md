@@ -103,8 +103,8 @@ A request context is a snapshot, not a live settings lookup. It distinguishes
 selected practice difficulty from inferred proficiency and records lesson revision,
 partner identity, trigger and history counts. Each attempt retains structured
 messages, effective parameters, bounded output and explicit truncation. Named
-reply/suggestion blocks provide source provenance; other calls retain system
-messages without that breakdown. Length diagnostics, model outcome and reply
+reply/suggestion blocks and standalone topic-note blocks provide source
+provenance; other calls retain system messages without that breakdown. Length diagnostics, model outcome and reply
 application status are separate facts. The bounded trace archive and explicit
 audit exports are independent of conversation storage and deletion.
 
@@ -118,3 +118,10 @@ A topic note is generated explanatory content, not evidence of a learner error.
 It consists of native-language guidance, a target-language example, and its
 translation. It is transient UI content; the model call is retained under the
 existing explanation operation with trigger `lesson_topic_note`.
+
+## Proposed progression model
+
+The [skill-map design](./skill-progression-design) proposes stable language-neutral
+skills, learner identities and an auditable evidence ledger. These entities are
+not persisted today. The current inferred `Profile` is teaching memory, not a
+switchable user identity, and existing grammar grades are not skill awards.

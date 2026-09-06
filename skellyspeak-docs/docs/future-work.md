@@ -8,6 +8,20 @@ title: Future Work
 This page contains unimplemented design work. Current behavior belongs in
 [Status](./status) and [Architecture](./architecture).
 
+## Language-independent skill progression
+
+The [Skill Map & Progression proposal](./skill-progression-design) records the
+research basis, product principles, proposed entities and delivery gates. It is
+the design reference for this direction; none of its XP or skill-completion
+features are implemented yet.
+
+The proposed first milestone is a small shared capability catalog and a
+reviewable desktop/mobile interface prototype with labeled demonstration data.
+Then evaluate real attempts without awards before enabling persistent progress.
+One capability graph serves all languages; Spanish, Arabic and Mandarin are
+initial evaluation samples, not separately authored curricula. Profile switching
+and delayed-review scheduling follow after the evidence and ownership model works.
+
 ## Local mechanical analysis
 
 The current guided pipeline uses model calls for tokenization, glosses, POS
@@ -43,7 +57,8 @@ a source.
 
 English, French, Spanish, Arabic, and Mandarin are already available for the
 model-backed product. This order applies only to the planned local dictionary
-layer.
+layer. These lexical resources are independent of the shared capability graph;
+they do not define language-specific progression rules.
 
 ### Success criteria
 

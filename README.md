@@ -228,3 +228,10 @@ stay available in a collapsible, scrollable reference above the composer,
 including during voice recording. The conversation remains accessible and the
 full feedback modal is still available. Sending or cancelling the edit removes
 the reference.
+
+## Proposed direction: a shared skill map
+
+The [Skill Map & Progression design](skellyspeak-docs/docs/skill-progression-design.md) proposes one capability graph
+across languages, learner-owned goals, inspectable evidence and playful progress
+markers. It includes the research basis and staged implementation plan. Skill
+levels, XP and profile switching are not implemented yet.
