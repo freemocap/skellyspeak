@@ -2,10 +2,8 @@ import { useEffect, useRef } from 'react'
 
 /// Where the strip gets its samples.
 ///
-/// It used to take an `AnalyserNode` directly, which tied it to the Web Audio
-/// API — and therefore to the browser recorder, which a packaged macOS build
-/// does not have. Both recorders can produce a list of numbers, so that is the
-/// contract, and neither one is privileged.
+/// Browser and native recorders both provide normalized sample arrays through
+/// this source-neutral contract.
 export interface WaveSource {
   /// Time-domain samples in -1..1, oldest first, since the last call.
   /// Whatever is returned is consumed: the strip owns them afterwards.

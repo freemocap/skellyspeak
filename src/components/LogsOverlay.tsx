@@ -23,8 +23,7 @@ const DEFAULT_VH = 40
 function storedHeight(): number {
   const raw = Number(localStorage.getItem(HEIGHT_KEY))
   if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_VH
-  // Clamp rather than discard: a height saved under an older, taller ceiling
-  // should come back as tall as still allowed, not snap to the default.
+  // Persisted heights are clamped to the layout's usable range.
   return Math.min(MAX_VH, Math.max(MIN_VH, raw))
 }
 

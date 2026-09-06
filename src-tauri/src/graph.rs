@@ -8,7 +8,7 @@
 //! # The rule
 //!
 //! **One declaration. The Runner executes it; the UI renders it.** A graph
-//! drawn by hand in React would drift from `commands.rs` within a week — the
+//! drawn by hand in React would drift from the guided runner within a week — the
 //! exact failure this repo has already hit twice (docs drifting from code, a
 //! duplicated language table). So the picture is generated from this file,
 //! and `trace` logs an ERROR if a run arrives for a node that is not declared
@@ -132,7 +132,7 @@ fn e(from: &'static str, to: &'static str, kind: EdgeKind) -> Edge {
 }
 
 /// The graph one conversational turn walks — **generated** from
-/// `turn_plan::TURN_STEPS`, never transcribed from `commands.rs`.
+/// `turn_plan::TURN_STEPS`, never transcribed from the guided runner.
 ///
 /// Nodes come from the steps; edges come from each step's declared `needs`.
 /// Changing the plan changes this picture automatically, which is the whole

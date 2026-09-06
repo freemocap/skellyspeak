@@ -12,9 +12,8 @@ export default defineConfig({
     strictPort: true,
     host: process.env.TAURI_DEV_HOST || false,
     watch: {
-      // Building the docs site or the Rust core while `tauri dev` is running
-      // used to trip a full page reload — which wipes the conversation,
-      // since turns live only in memory. None of these feed the app bundle.
+      // These directories do not feed the frontend bundle. Ignoring them
+      // prevents unrelated builds from reloading the active webview.
       ignored: [
         '**/skellyspeak-docs/**',
         '**/old/**',

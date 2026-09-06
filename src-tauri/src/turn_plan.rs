@@ -38,7 +38,7 @@ pub struct Step {
 ///
 /// **`tokenize_learner` needs only `LearnerMessage`.** It can and does start
 /// before the reply exists. Anything that changes this table changes the
-/// graph automatically; anything that changes `commands.rs` without changing
+/// graph automatically; anything that changes the guided runner without changing
 /// this table gets caught by reconciliation.
 pub const TURN_STEPS: &[Step] = &[
     Step {

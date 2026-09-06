@@ -100,7 +100,6 @@ export default function App() {
     void getSettings()
       .then(async (s) => {
         if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
-        localStorage.setItem('skellyspeak_target', s.target_language)
         applyUiLanguage(s.native_language)
         // Check in with the hosted service while there is still time to do
         // something about an expired session — it otherwise first shows up as
@@ -246,7 +245,7 @@ export default function App() {
               aria-hidden={page !== 'stories'}
             >
               <PageBoundary>
-                <StoriesPage />
+                <StoriesPage settingsVersion={settingsVersion} />
               </PageBoundary>
             </div>
           </>
@@ -262,7 +261,6 @@ export default function App() {
           // closing is the Close button's job (and the Android back
           // gesture's, via openOverlay).
           onSettingsChanged={(s) => {
-            localStorage.setItem('skellyspeak_target', s.target_language)
             applyUiLanguage(s.native_language)
             setSettingsVersion((v) => v + 1)
           }}

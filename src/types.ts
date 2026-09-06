@@ -217,7 +217,6 @@ export interface Profile {
   weaknesses: string[]
   interests: string[]
   long_term_errors: RecurringError[]
-  sessions: number
 }
 
 export interface ObserverDocuments {

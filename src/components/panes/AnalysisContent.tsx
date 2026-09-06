@@ -8,9 +8,8 @@ export interface InspectTarget {
   index: number
 }
 
-/// Just the parts of a turn this pane renders. Derived from the canonical
-/// `StoredTurn` rather than restated, so a change to a turn cannot leave this
-/// declaration quietly describing a shape that no longer exists.
+/// Just the parts of a turn this pane renders. Deriving from `StoredTurn` keeps
+/// this view synchronized with the canonical shape.
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant'>
 
 interface AnalysisContentProps {

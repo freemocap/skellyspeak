@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   # src-tauri/Cargo.toml is the single source of truth for the app version
@@ -40,9 +40,12 @@ jobs:
 
       # A tag that disagrees with Cargo.toml would ship mislabelled binaries.
       - if: startsWith(github.ref, 'refs/tags/')
+        env:
+          ACTUAL_TAG: ${{ github.ref_name }}
+          EXPECTED_TAG: v${{ steps.get.outputs.version }}
         run: |
-          if [ "${{ github.ref_name }}" != "v${{ steps.get.outputs.version }}" ]; then
-            echo "::error::tag ${{ github.ref_name }} != v${{ steps.get.outputs.version }} from Cargo.toml"
+          if [ "$ACTUAL_TAG" != "$EXPECTED_TAG" ]; then
+            echo "::error::tag $ACTUAL_TAG != $EXPECTED_TAG from Cargo.toml"
             exit 1
           fi
 
@@ -53,8 +56,9 @@ jobs:
   release-draft:
     needs: version
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v5
       - name: Ensure the draft release exists
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,7 +67,7 @@ jobs:
           if gh release view "$TAG" --json id >/dev/null 2>stderr.txt; then
             echo "release $TAG already exists"
           elif grep -qi "release not found" stderr.txt; then
-            gh release create "$TAG"               --draft               --title "SkellySpeak $TAG"               --notes 'Desktop builds are signed; the Android APK is debug-signed and sideloadable.'
+            gh release create "$TAG" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'Release artifacts are attached by the desktop, Android, and iOS build jobs.'
             echo "created draft release $TAG"
           else
             # Anything other than "not found" is a real failure, not an absence.
@@ -75,6 +79,8 @@ jobs:
     needs: [version, release-draft]
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -210,9 +216,10 @@ jobs:
           tagName: ${{ needs.version.outputs.tag }}
           releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
           releaseBody: |
-            Desktop builds are **unsigned** — Windows SmartScreen and macOS
-            Gatekeeper will warn on first launch (on macOS: right-click → Open).
-            The Android APK is debug-signed and sideloadable.
+            Windows artifacts use Azure Artifact Signing, macOS artifacts use
+            Developer ID signing and notarization, and Android artifacts use
+            the configured upload key. Each build job verifies its required
+            output before attaching it.
 
             Installed desktop copies offer this version automatically once the
             release is published.
@@ -248,6 +255,8 @@ jobs:
     needs: [version, release-draft]
     name: Android (APK)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
 

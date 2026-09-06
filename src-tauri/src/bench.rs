@@ -273,7 +273,7 @@ async fn model_bench() {
             Err(e) => eprintln!("story        FAIL ({}ms): {}", ms, &e[..e.len().min(160)]),
         }
 
-        // 7. Learner tokens — the call that hit the old 6000-token cap.
+        // 7. Learner tokens — exercises the configured structured-output cap.
         let sys = prompts::analysis::learner_tokens_prompt(tln, native, None, true);
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),

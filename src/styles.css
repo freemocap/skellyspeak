@@ -590,10 +590,8 @@ body {
 
 /* Logs overlay (floating debug console) — docked beside the topbar gear so
    it never overlaps content on any screen size. */
-/* "AI" lives in the topbar next to the gear, as an ordinary flex
-   sibling. It used to be position:fixed with its own hardcoded offsets, which
-   is why it never lined up with anything, and 9px of "dev" promised nothing
-   about what was behind it. */
+/* "AI" is an ordinary topbar flex item beside the gear, so it remains aligned
+   and never overlaps content at narrow widths. */
 .inside-btn {
   display: inline-flex; align-items: center; gap: 7px;
   background: none; border: 1px solid var(--line2); border-radius: 6px;

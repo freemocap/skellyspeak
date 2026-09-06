@@ -187,7 +187,7 @@ fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bo
         // Plan and profile belong to the pairing; the coach thread belongs to
         // the chat that was open inside it.
         let (old_pair, old_chat, _) = pair_and_chat(
-            &state,
+            state,
             &stored.target_language,
             &stored.native_language,
         )?;
@@ -207,7 +207,7 @@ fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bo
         }
 
         let (new_pair, new_chat, _) = pair_and_chat(
-            &state,
+            state,
             &settings.target_language,
             &settings.native_language,
         )?;

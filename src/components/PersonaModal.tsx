@@ -34,11 +34,9 @@ const BLANK = {
 
 /// The persona control panel.
 ///
-/// Shows who you are talking to and lets you write your own. The template is
-/// deliberately opinionated: the whole reason the old partner was boring is
-/// that "encouraging and patient" is not a person, so the placeholder asks for
-/// a job, a mood and a grievance, and the core refuses a description too short
-/// to be any of those.
+/// Shows who you are talking to and lets you write your own. The template asks
+/// for concrete character details, and the core refuses descriptions too short
+/// to establish a distinct person.
 export function PersonaModal({
   personas,
   selectedId,
