@@ -3,7 +3,10 @@ sidebar_position: 5
 title: Status
 ---
 
-# Status — where SkellySpeak actually stands
+# Status notes
+
+> This page preserves the dated development inventory below. For the current
+> implementation, see [Architecture](./architecture) and [Hosted API](./hosted-api).
 
 Honest inventory, last reconciled against the code **2026-09-01**. Frame:
 **what works, what's rough, what doesn't exist.** Every claim is checkable

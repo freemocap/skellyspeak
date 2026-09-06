@@ -43,8 +43,9 @@ export function useSteering(): Steering {
     () => localStorage.getItem('skellyspeak_persona') ?? SURPRISE_PERSONA
   )
   const setLevel = useCallback((v: string) => {
-    setLevelState(v)
+    if (!STEER_LEVELS.some((level) => level.value === v)) throw new Error(`Unknown challenge level: ${v}`)
     localStorage.setItem('skellyspeak_level', v)
+    setLevelState(v)
   }, [])
   const setTopic = useCallback((v: string) => {
     setTopicState(v)

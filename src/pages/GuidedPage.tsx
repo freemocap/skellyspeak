@@ -279,7 +279,10 @@ export default function GuidedPage({
   const requestTurn = useCallback(
     async (body: { message?: string; greeting?: boolean; steering?: string }) => {
       const owner = chatIdRef.current
-      if (!owner) return
+      if (!owner) {
+        setError('No conversation is open. Open a chat from history or start a new one.')
+        return
+      }
       const isCurrent = () => chatIdRef.current === owner
       let earlySections: Partial<GuidedTurnResult> = {}
       setSending(true)
@@ -658,26 +661,7 @@ export default function GuidedPage({
       <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Conversation · {targetLanguageName}</span>
-          <label className="speech-speed" title={ttsEngine === 'cloud'
-            ? 'Adjust playback speed while keeping the natural pitch.'
-            : 'Speed changes apply on replay.'}>
-            Voice speed
-            <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1}
-              disabled={!settings || savingSpeechRate}
-              onChange={(event) => {
-                if (!settings) return
-                const rate = Number(event.target.value)
-                const updated = { ...settings, tts_rate: rate }
-                setSavingSpeechRate(true)
-                void saveSettings(updated).then(() => {
-                  setSettings(updated)
-                  setPlaybackRate(rate)
-                }).catch((error: unknown) => reportFault('Saving voice speed', error))
-                  .finally(() => setSavingSpeechRate(false))
-              }}>
-              {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
-            </select>
-          </label>
+
           <button
             type="button"
             className="plan-toggle"
@@ -806,6 +790,26 @@ export default function GuidedPage({
                       {settings?.[key] ? '☑' : '☐'} {label}
                     </button>
                   ))}
+                  <label className="speech-speed" title={ttsEngine === 'cloud'
+                    ? 'Adjust playback speed while keeping the natural pitch.'
+                    : 'Speed changes apply on replay.'}>
+                    Voice speed
+                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1}
+                      disabled={!settings || savingSpeechRate}
+                      onChange={(event) => {
+                        if (!settings) return
+                        const rate = Number(event.target.value)
+                        const updated = { ...settings, tts_rate: rate }
+                        setSavingSpeechRate(true)
+                        void saveSettings(updated).then(() => {
+                          setSettings(updated)
+                          setPlaybackRate(rate)
+                        }).catch((error: unknown) => reportFault('Saving voice speed', error))
+                          .finally(() => setSavingSpeechRate(false))
+                      }}>
+                      {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
+                    </select>
+                  </label>
                 </div>
                 <div className="steer-row">
                   <select
@@ -815,6 +819,9 @@ export default function GuidedPage({
                     aria-label="Learner level"
                     title="Learner level — steers every prompt"
                   >
+                    {!STEER_LEVELS.some((level) => level.value === steer.level) && (
+                      <option value={steer.level} disabled>Unrecognized saved level — choose a level</option>
+                    )}
                     {STEER_LEVELS.map((l) => (
                       <option key={l.value} value={l.value}>
                         {l.label}

@@ -94,3 +94,24 @@ def test_independent_server_processes_share_one_ceiling() -> None:
         results = list(pool.map(process_admission, [db.project] * 12, range(12)))
     assert sum(results) == 6
     assert db.collection(quota.GLOBAL_USAGE).document(quota.utc_day()).get().to_dict()['micros'] == 600
+
+
+def process_signup(project: str, index: int) -> bool:
+    if os.environ.get('FIRESTORE_EMULATOR_HOST') != '127.0.0.1:8787':
+        raise RuntimeError('Only the local emulator is permitted')
+    db = firestore.Client(project=project)
+    try:
+        quota.upsert_user(db, user_id=f'google:{index}', email=f'test{index}@example.invalid',
+                          name='Emulator test', max_users=3)
+        return True
+    except quota.SignupClosed:
+        return False
+    finally:
+        db.close()
+
+
+def test_independent_processes_cannot_overfill_account_slots() -> None:
+    db = database()
+    with ProcessPoolExecutor(max_workers=4) as pool:
+        assert sum(pool.map(process_signup, [db.project] * 12, range(12))) == 3
+    assert len(list(db.collection(quota.USERS).stream())) == 3

@@ -95,8 +95,8 @@ impl TeachingPlan {
             || self.energy_read.chars().count() > 160 {
             return Some("Plan limits: 3 focuses, 2 recasts, 10 errors, 20 taught mechanics, 160 energy characters".into());
         }
-        for list in [&self.session_focus, &self.vocab_recycle, &self.avoid, &self.learner_interests] {
-            if let Some(error) = validate_list(list) { return Some(error); }
+        for (name, list) in [("session_focus", &self.session_focus), ("vocab_recycle", &self.vocab_recycle), ("avoid", &self.avoid), ("learner_interests", &self.learner_interests)] {
+            if let Some(error) = validate_list(name, list) { return Some(error); }
         }
         for error in &self.recurring_errors {
             if let Some(problem) = validate_error(error) { return Some(problem); }
@@ -108,9 +108,20 @@ impl TeachingPlan {
     }
 }
 
-fn validate_list(values: &[String]) -> Option<String> {
-    (values.len() > 10 || values.iter().any(|v| v.trim().is_empty() || v.chars().count() > 256))
-        .then(|| "Observation lists allow at most 10 nonempty entries, each at most 256 characters".into())
+fn validate_list(name: &str, values: &[String]) -> Option<String> {
+    if values.len() > 10 {
+        return Some(format!("{name} has {} entries; keep at most 10, selecting the most relevant.", values.len()));
+    }
+    for (index, value) in values.iter().enumerate() {
+        if value.trim().is_empty() {
+            return Some(format!("{name}[{index}] is blank; remove it. Use [] when there is no evidence."));
+        }
+        let length = value.chars().count();
+        if length > 256 {
+            return Some(format!("{name}[{index}] has {length} characters; rewrite this entry in at most 256 characters."));
+        }
+    }
+    None
 }
 
 fn validate_error(error: &RecurringError) -> Option<String> {
@@ -150,8 +161,8 @@ impl Profile {
         if self.about.chars().count() > 1200 || self.level_notes.chars().count() > 1200 || self.long_term_errors.len() > 10 {
             return Some("Profile prose is limited to 1200 characters per field and 10 error records".into());
         }
-        for list in [&self.strengths, &self.weaknesses, &self.interests] {
-            if let Some(error) = validate_list(list) { return Some(error); }
+        for (name, list) in [("strengths", &self.strengths), ("weaknesses", &self.weaknesses), ("interests", &self.interests)] {
+            if let Some(error) = validate_list(name, list) { return Some(error); }
         }
         self.long_term_errors.iter().find_map(validate_error)
     }
@@ -169,6 +180,43 @@ pub struct ObserverOutput {
 impl ObserverOutput {
     pub fn validate(&self) -> Option<String> {
         self.plan.validate().or_else(|| self.profile.validate())
+    }
+
+    /// Bound active prompt memory; the complete source is archived before saving.
+    fn bound_memory(&mut self) {
+        fn text(value: &mut String, limit: usize) {
+            if let Some((offset, _)) = value.char_indices().nth(limit) {
+                value.truncate(offset);
+            }
+        }
+        fn list(values: &mut Vec<String>, limit: usize) {
+            values.truncate(limit);
+            for value in values { text(value, 256); }
+        }
+        fn errors(values: &mut Vec<RecurringError>) {
+            values.sort_by_key(|error| std::cmp::Reverse(error.seen_count));
+            values.truncate(10);
+            for error in values {
+                text(&mut error.error, 256);
+                text(&mut error.correction, 256);
+            }
+        }
+        list(&mut self.plan.session_focus, 3);
+        list(&mut self.plan.vocab_recycle, 10);
+        list(&mut self.plan.avoid, 10);
+        list(&mut self.plan.learner_interests, 10);
+        text(&mut self.plan.energy_read, 160);
+        self.plan.correction_budget = self.plan.correction_budget.min(2);
+        errors(&mut self.plan.recurring_errors);
+        self.plan.taught_ledger.sort_by_key(|mechanic| std::cmp::Reverse(mechanic.last_seen_turn));
+        self.plan.taught_ledger.truncate(20);
+        for mechanic in &mut self.plan.taught_ledger { text(&mut mechanic.mechanic, 256); }
+        text(&mut self.profile.about, 1200);
+        text(&mut self.profile.level_notes, 1200);
+        list(&mut self.profile.strengths, 10);
+        list(&mut self.profile.weaknesses, 10);
+        list(&mut self.profile.interests, 10);
+        errors(&mut self.profile.long_term_errors);
     }
 }
 
@@ -209,8 +257,32 @@ pub fn load_documents(dir: &Path, faults: &mut Vec<String>) -> (TeachingPlan, Pr
         Err(error) => Err(error),
     };
     match result {
-        Ok(output) => {
-            if let Some(error) = output.validate() { faults.push(format!("Invalid tutor memory: {error}")); }
+        Ok(mut output) => {
+            if output.validate().is_some() && faults.is_empty() {
+                let original = output.clone();
+                output.bound_memory();
+                if let Some(error) = output.validate() {
+                    faults.push(format!("Invalid tutor memory: {error}"));
+                    return (original.plan, original.profile);
+                }
+                let migration = (|| -> Result<(), String> {
+                    let raw = match crate::persistence::read(&dir.join("memory.json"))? {
+                        Some(raw) => raw.into_bytes(),
+                        None => serde_json::to_vec_pretty(&original)
+                            .map_err(|error| format!("Cannot archive tutor memory: {error}"))?,
+                    };
+                    let archive = dir.join(format!("memory-archive-{}.json", uuid::Uuid::new_v4()));
+                    crate::persistence::write(&archive, &raw)?;
+                    let failures = persist_documents(dir, &output.plan, &output.profile);
+                    if !failures.is_empty() { return Err(failures.join("; ")); }
+                    log::info!("Tutor memory bounded for prompts; complete source archived at {}", archive.display());
+                    Ok(())
+                })();
+                if let Err(error) = migration {
+                    faults.push(format!("Cannot migrate tutor memory: {error}"));
+                    return (original.plan, original.profile);
+                }
+            }
             (output.plan, output.profile)
         }
         Err(error) => {
@@ -296,6 +368,92 @@ pub async fn run_observer(
 #[cfg(test)]
 mod persistence_tests {
     use super::*;
+
+    #[test]
+    fn list_feedback_identifies_the_exact_correction() {
+        assert_eq!(validate_list("avoid", &[" ".into()]).unwrap(),
+            "avoid[0] is blank; remove it. Use [] when there is no evidence.");
+        assert!(validate_list("vocab_recycle", &vec!["word".into(); 11]).unwrap()
+            .contains("vocab_recycle has 11 entries"));
+        assert!(validate_list("interests", &["🙂".repeat(257)]).unwrap()
+            .contains("interests[0] has 257 characters"));
+        assert!(validate_list("avoid", &[]).is_none());
+        assert!(validate_list("interests", &["🙂".repeat(256)]).is_none());
+    }
+
+    #[test]
+    fn oversized_saved_memory_is_archived_and_migrated_once() {
+        for combined in [false, true] {
+            let directory = tempfile::tempdir().unwrap();
+            let mut output = ObserverOutput { plan: TeachingPlan::default(), profile: Profile::default() };
+            output.plan.session_focus = vec!["質問".repeat(200); 5];
+            output.plan.energy_read = "🙂".repeat(200);
+            output.plan.correction_budget = 5;
+            output.plan.taught_ledger = (0..30).map(|turn| TaughtMechanic {
+                mechanic: format!("Mechanic {turn}"), last_seen_turn: turn,
+            }).collect();
+            output.plan.recurring_errors = (0..15).map(|count| RecurringError {
+                error: "Error".repeat(100), correction: "Correction".into(), seen_count: count,
+            }).collect();
+            output.profile.about = "語".repeat(1300);
+            output.profile.level_notes = "🙂".repeat(1300);
+            output.profile.interests = vec!["Interest".repeat(100); 15];
+            output.profile.strengths = output.profile.interests.clone();
+            output.profile.weaknesses = output.profile.interests.clone();
+            output.profile.long_term_errors = output.plan.recurring_errors.clone();
+            output.plan.vocab_recycle = output.profile.interests.clone();
+            output.plan.avoid = output.profile.interests.clone();
+            output.plan.learner_interests = output.profile.interests.clone();
+            output.profile.sessions = 42;
+            assert!(output.validate().is_some());
+            assert!(!persist_documents(directory.path(), &output.plan, &output.profile).is_empty());
+            let original = serde_json::to_vec_pretty(&output).unwrap();
+            if combined {
+                std::fs::write(directory.path().join("memory.json"), &original).unwrap();
+            } else {
+                std::fs::write(directory.path().join("plan.json"), serde_json::to_vec(&output.plan).unwrap()).unwrap();
+                std::fs::write(directory.path().join("profile.json"), serde_json::to_vec(&output.profile).unwrap()).unwrap();
+            }
+            for _ in 0..2 {
+                let mut faults = Vec::new();
+                let (plan, profile) = load_documents(directory.path(), &mut faults);
+                assert!(faults.is_empty(), "{faults:?}");
+                assert!(plan.validate().is_none());
+                assert!(profile.validate().is_none());
+                assert_eq!(plan.session_focus.len(), 3);
+                assert_eq!(plan.energy_read, "🙂".repeat(160));
+                assert_eq!(plan.taught_ledger[0].last_seen_turn, 29);
+                assert_eq!(plan.recurring_errors[0].seen_count, 14);
+                assert_eq!(profile.sessions, 42);
+            }
+            let archives: Vec<_> = std::fs::read_dir(directory.path()).unwrap()
+                .map(|entry| entry.unwrap().path())
+                .filter(|path| path.file_name().unwrap().to_str().unwrap().starts_with("memory-archive-"))
+                .collect();
+            assert_eq!(archives.len(), 1);
+            assert_eq!(std::fs::read(&archives[0]).unwrap(), original);
+        }
+    }
+
+    #[test]
+    fn invalid_memory_preserves_the_source_and_missing_memory_uses_defaults() {
+        let directory = tempfile::tempdir().unwrap();
+        let mut output = ObserverOutput { plan: TeachingPlan::default(), profile: Profile::default() };
+        output.plan.session_focus = vec![String::new()];
+        let path = directory.path().join("memory.json");
+        let raw = serde_json::to_vec(&output).unwrap();
+        std::fs::write(&path, &raw).unwrap();
+        let mut faults = Vec::new();
+        load_documents(directory.path(), &mut faults);
+        assert!(!faults.is_empty());
+        assert_eq!(std::fs::read(&path).unwrap(), raw);
+
+        let missing = directory.path().join("missing");
+        let mut faults = Vec::new();
+        load_documents(&missing.join("child"), &mut faults);
+        assert!(faults.is_empty());
+        assert!(!missing.exists());
+    }
 
     #[test]
     fn tutor_memory_round_trips_and_corruption_remains_a_fault() {
