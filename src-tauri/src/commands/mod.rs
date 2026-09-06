@@ -1,9 +1,8 @@
 //! The IPC surface, one module per domain.
 //!
 //! Everything the webview can call lives under here. The split is by what a
-//! command is *about* rather than by when it was written: a change to how
-//! conversations are stored touches one file, and the turn pipeline no longer
-//! shares a file with speech synthesis.
+//! command is *about*: conversation storage and speech synthesis live in their
+//! own modules, while the guided module owns turn execution.
 //!
 //! Commands are registered from `lib.rs` by their full path
 //! (`commands::guided::guided_turn`), because `#[tauri::command]` generates a

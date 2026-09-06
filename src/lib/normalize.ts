@@ -40,7 +40,6 @@ export function normalizeDocs(plan: TeachingPlan, profile: Profile) {
       weaknesses: dropSentinels(profile?.weaknesses),
       interests: dropSentinels(profile?.interests),
       long_term_errors: profile?.long_term_errors ?? [],
-      sessions: profile?.sessions ?? 0,
     },
   }
 }

@@ -1076,9 +1076,7 @@ export default function GuidedPage({
 
               {profile && (
                 <>
-                  <p className="sect-k" style={{ marginTop: 26 }}>
-                    Profile · {profile.sessions} session{profile.sessions === 1 ? '' : 's'}
-                  </p>
+                  <p className="sect-k" style={{ marginTop: 26 }}>Profile</p>
                   {profile.about && <p className="plan-line">{profile.about}</p>}
                   {profile.level_notes && (
                     <>

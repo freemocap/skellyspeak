@@ -156,7 +156,6 @@ beforeEach(() => {
       weaknesses: [],
       interests: [],
       long_term_errors: [],
-      sessions: 0,
     },
   })
   backend.listConversations.mockResolvedValue([])

@@ -9,7 +9,7 @@
 //! Measured against that, SkellySpeak has **two agents** — Chat and Coach — and
 //! everything else is either a *tool* (a single transformation the Runner
 //! invokes) or a *faculty* (perception or action: ears and voice). The
-//! orchestrator in `commands.rs::guided_turn` is a **Runner**: deterministic
+//! orchestrator in `commands::guided::guided_turn` is a **Runner**: deterministic
 //! Rust that walks the graph. It is not an agent and must not be called one.
 //!
 //! This vocabulary is curriculum, not bookkeeping. SkellySpeak is autogogical —

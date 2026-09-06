@@ -318,8 +318,8 @@ fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
 /// never shows the microphone permission prompt. The category must allow
 /// recording and the session must be active before any capture starts.
 ///
-/// Method names are objc2 0.6's camelCase-preserving codegen (NOT the old
-/// snake_case): setCategory:withOptions:error: becomes
+/// objc2 0.6 preserves the framework's camelCase method names:
+/// setCategory:withOptions:error: becomes
 /// setCategory_withOptions_error, and the error methods are `unsafe fn`
 /// returning Result<(), Retained<NSError>>.
 #[cfg(target_os = "ios")]

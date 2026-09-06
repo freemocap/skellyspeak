@@ -231,9 +231,8 @@ mod sanitize_tests {
 
     #[test]
     fn a_fenced_reply_keeps_what_is_inside_the_fence() {
-        // This used to come back EMPTY: the old code took the LAST line, which
-        // is the closing fence, then stripped it to nothing. The learner saw a
-        // blank tutor message and it looked like the model had failed.
+        // The closing fence is syntax, not the reply. The content inside it is
+        // the complete learner-visible result.
         assert_eq!(sanitize_reply("```\nHola, ¿cómo estás?\n```"), "Hola, ¿cómo estás?");
         assert_eq!(sanitize_reply("```text\nHola, ¿cómo estás?\n```"), "Hola, ¿cómo estás?");
     }

@@ -1,18 +1,16 @@
 //! Per-language guidance: orthography, agreement, register, and the dialect
 //! line.
 //!
-//! This text used to be a field on the `Language` struct in `languages.rs`,
-//! which was tidy right up until the point of tuning it — the registry is a
-//! table of codes, names and script directions, and the prose was hiding in
-//! the middle of it. So the registry keeps the *facts* about a language and
-//! this file keeps the *words*, keyed by the same code.
+//! The language registry owns codes and script facts. This module owns the
+//! prompt prose, keyed by the same codes, so it can be reviewed with the other
+//! prompts.
 //!
 //! The split is only safe because it is checked: `every_language_has_an_overlay`
 //! in `tests.rs` fails the build if a language is added to the registry without
 //! one, which is the one way this could go wrong quietly.
 //!
 //! `{dialect}` is filled by `languages::overlay` with the chosen variety, or
-//! removed when none is chosen.
+//! replaced with an empty string when none is chosen.
 
 /// Guidance for a target language, by BCP-47 code. Unknown codes get nothing —
 /// a language the app does not know is not one it can be steered in.

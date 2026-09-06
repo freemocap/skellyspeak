@@ -9,10 +9,9 @@
 /// (ALA-LC for Arabic); the AI returns a romanized form alongside the
 /// native script and the UI displays both. Latin-script languages use None.
 ///
-/// Ladder (docs/future-work.md): a language only enters the registry once
-/// its interaction quirks are handled (space-delimited text, accented input,
-/// RTL, segmentation). Current rungs: en-US, fr-FR, es-ES, ar-Levantine.
-/// Next: Mandarin (segmentation + tones).
+/// A language enters the registry once its interaction quirks are handled:
+/// space-delimited text, accented input, RTL, segmentation, and romanization.
+/// Current languages are English, French, Spanish, Arabic, and Mandarin.
 pub struct Language {
     /// BCP-47 code — used as `target_language` in settings.
     pub code: &'static str,

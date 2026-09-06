@@ -151,9 +151,6 @@ pub struct Profile {
     /// Long-term error history worth watching across sessions.
     #[serde(default)]
     pub long_term_errors: Vec<RecurringError>,
-    /// How many sessions completed.
-    #[serde(default)]
-    pub sessions: u32,
 }
 
 impl Profile {
@@ -404,7 +401,6 @@ mod persistence_tests {
             output.plan.vocab_recycle = output.profile.interests.clone();
             output.plan.avoid = output.profile.interests.clone();
             output.plan.learner_interests = output.profile.interests.clone();
-            output.profile.sessions = 42;
             assert!(output.validate().is_some());
             assert!(!persist_documents(directory.path(), &output.plan, &output.profile).is_empty());
             let original = serde_json::to_vec_pretty(&output).unwrap();
@@ -424,7 +420,6 @@ mod persistence_tests {
                 assert_eq!(plan.energy_read, "🙂".repeat(160));
                 assert_eq!(plan.taught_ledger[0].last_seen_turn, 29);
                 assert_eq!(plan.recurring_errors[0].seen_count, 14);
-                assert_eq!(profile.sessions, 42);
             }
             let archives: Vec<_> = std::fs::read_dir(directory.path()).unwrap()
                 .map(|entry| entry.unwrap().path())

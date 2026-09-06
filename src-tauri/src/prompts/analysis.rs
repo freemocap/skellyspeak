@@ -6,11 +6,9 @@
 //! unlike the partner they run at a low temperature and are told to say
 //! nothing rather than pad (`super::no_information_rule`).
 //!
-//! Both halves of each call live here: the system prompt AND the user turn
-//! that frames the data. The framings are one line each and were previously
-//! inlined at their call sites, which is exactly how "Tutor reply to tokenize"
-//! and "Learner message to analyze" ended up phrased differently in the app
-//! and in the benchmark.
+//! Both halves of each call live here: the system prompt and the user turn that
+//! frames the data. Centralizing both keeps production and benchmark requests
+//! identical.
 
 use super::{contrast_language, no_information_rule};
 

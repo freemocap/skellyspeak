@@ -3,91 +3,70 @@ sidebar_position: 7
 title: Future Work
 ---
 
-# Future Work — the mechanical analysis layer & language ladder
+# Future work
 
-Status: **specified, not started.** The current implementation does every
-analysis task (tokenization, glossing, POS tagging, translation) with LLM
-calls, because that was the fastest path to a working loop. This page specs
-the end-state: **AI is constrained to the work that actually needs it.**
+This page contains unimplemented design work. Current behavior belongs in
+[Status](./status) and [Architecture](./architecture).
 
-## Principle
+## Local mechanical analysis
 
-AI is for **generation and judgment** — conversation, teaching explanations,
-pedagogical planning, story writing. Everything that is *reference data or
-deterministic text processing* must not cross the LLM boundary: tokenization,
-lemma lookup, dictionary glosses, POS tags, frequency ranking. Those are
-solved problems with free, embeddable, licensed data. Using an LLM for them
-buys latency (10–160s turns observed), cost, stochastic inconsistency (the
-same word glossed three different ways across turns — bad pedagogy), and an
-entire failure class (repetition loops, schema drift) that simply stops
-existing when the call stops existing.
+The current guided pipeline uses model calls for tokenization, glosses, POS
+tags, translation, and grammar cards. The target design moves deterministic
+reference work onto the device:
 
-AI's remaining per-turn role after migration: the **reply** (1 call) and the
-**observer** (1 call), plus occasional small residue-glossing calls. AI may
-also spot-check dictionary output offline in batch — never per keystroke.
-
-## Target architecture (the analysis layer)
-
-```
-reply text ──► tokenize ──► lemmatize ──► dictionary lookup ──► frequency rank ──► analysis pane
-                                │                 │                            (instant, offline)
-                                ▼                 ▼
-                     unknown/irregular      multiword + OOV residue
-                     morphology flags       ──► ONE small AI gloss call (only when residue exists)
+```text
+reply
+  -> language-aware tokenization
+  -> lemmatization/morphology
+  -> dictionary and phrase lookup
+  -> frequency metadata
+  -> batched model call only for unresolved residue
 ```
 
-- **Tokenize:** Unicode segmentation; trivial for space-delimited languages.
-- **Lemmatize:** inflection→lemma map or finite-state morphology
-  (Apertium analyzers; wiktextract form tables).
-- **Gloss:** wordform/lemma → top senses, from **wiktextract** Wiktionary
-  dumps (CC BY-SA — attribution required in-app), **FreeDict**, or
-  **Open Multilingual WordNet**. Phrase dictionary for multiword
-  expressions (longest-match first).
-- **Frequency rank:** open top-50k lists; "new word" flag = not in top N.
-- **Residue → AI:** idioms and OOV tokens get one batched call per turn,
-  *only when leftovers exist*. Many turns will need zero.
-- **Grammar cards:** stay AI for the long tail; a curated static card pack
-  keyed by detected morphology (top ~50 constructions) is a later refinement.
+Conversation generation, pedagogical judgment, grammar explanations, coaching,
+and teaching-plan updates remain model work.
 
-## Language ladder
+Candidate data sources include wiktextract/Wiktionary, FreeDict, Open
+Multilingual WordNet, Apertium, and language-specific dictionaries. Licensing,
+attribution, update size, and offline packaging must be decided before choosing
+a source.
 
-Support is added rung by rung; each rung proves techniques the next one
-reuses. `TARGET_LANGUAGES` is trimmed to the current rung — a language may
-only appear in the UI once its mechanical layer exists.
+### Migration order
 
-1. **Spanish (es-ES)** — easiest case: space-delimited, richest open data.
-2. **Arabic** — adds RTL rendering and root-based morphology (no vowelization
-   in text); hardest display + lemmatization twist.
-3. **Mandarin Chinese** — segmentation becomes the whole problem
-   (jieba-style; CC-CEDICT for lookup). No inflection, tones in glosses.
-4. **Everything else** (fr, it, pt, de, en, ja) — interpolation of the three
-   techniques above; Japanese reuses the Mandarin segmentation work
-   (lindera/JMdict).
+1. Define a language-neutral token/lemma/gloss contract and measure current
+   model output as the comparison baseline.
+2. Implement Spanish wordform lookup and longest-match phrase lookup.
+3. Batch unresolved forms into one residue request.
+4. Add offline quality tests and attribution UI.
+5. Add Arabic morphology/RTL cases and Mandarin segmentation/tone cases.
+6. Extend the same contract to English and French.
 
-## Per-language text dialects (ladder notes)
+English, French, Spanish, Arabic, and Mandarin are already available for the
+model-backed product. This order applies only to the planned local dictionary
+layer.
 
-Several "pure code" text helpers are currently **Spanish/European-centric**
-and must be extended per rung, not assumed universal:
+### Success criteria
 
-- Sentence splitting + reply sanitization markers use
-  `[.!?…]` / es+en leaked-note markers (`sentences.ts`, `sanitize_reply`).
-- Token join spacing (`token-spacing.ts`) is space-delimited-logic; Arabic
-  adds RTL (use logical CSS properties + `dir` attributes), Chinese/Japanese
-  need **no spaces between tokens** and CJK-aware segmentation.
-- Keyboard/voice input hints (`lang`, STT language codes) come from the
-  language table already — keep that as the single source.
+- At least 90% of ordinary tokens resolve without a network request.
+- Identical word/context inputs produce stable glosses across conversations.
+- Unresolved forms are batched rather than requested individually.
+- The analysis pane hydrates immediately from local data.
+- Dictionary attribution and licensing obligations are visible and testable.
 
-## Migration bites
+## Prompt provenance and workbench
 
-1. Bundle `wordform → {lemma, POS, glosses, freq}` for es-ES; replace the
-   TokensOut call with local lookup; mark OOV tokens.
-2. Residue glossing call (only when leftovers exist).
-3. Offline spot-check pipeline for dictionary quality (batch, not per-turn).
-4. Arabic rung; then Mandarin rung; then interpolation.
+Run tracing currently records the final prompt text and model output. A proposed
+workbench would represent prompt composition as named, ordered blocks so a
+developer could inspect provenance and safely experiment with overrides.
 
-## Success metrics
+This requires an explicit registry, validation rules, secret/content handling,
+and a durable format. There is no `prompt_overrides` setting or `PromptRecord`
+contract in the current implementation.
 
-- Analysis pane renders with **zero network calls** for ~90%+ of tokens.
-- Per-turn AI calls: 2 (reply + observer), residue call only when needed.
-- Gloss consistency: identical token → identical gloss across sessions.
-- OOV rate on normal conversation < 5%.
+## Product work
+
+- Dedicated first-run onboarding.
+- Vocabulary collection, review, and spaced repetition.
+- Packaged-app end-to-end tests against the real Tauri IPC boundary.
+- Physical-device acceptance coverage for microphone, credential vault,
+  sign-in, playback, installation, and updates.

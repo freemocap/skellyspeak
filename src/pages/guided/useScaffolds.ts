@@ -95,10 +95,8 @@ export function useScaffolds({
       lastSteer.current = key
       return
     }
-    // React to the VALUES, not to callback identity. This effect used to
-    // re-run whenever `requestTurn` was rebuilt — which happens on a language
-    // change — and fired a steering turn straight after the post-switch
-    // greeting. That was the "it doubles the first message" bug.
+    // React to values, not callback identity, so rebuilding `requestTurn`
+    // cannot trigger an unrelated steering turn.
     if (lastSteer.current === key) return
     lastSteer.current = key
     const timer = setTimeout(() => {

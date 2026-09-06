@@ -14,9 +14,8 @@ import { createStore, useStore } from './store'
 ///
 /// Two components need this: the controls in the graph view, and the banner at
 /// the top of the app that stops a paused pipeline from reading as a hung one.
-/// They each used to fetch the status and open their own event subscription,
-/// which is two IPC calls, two listeners, and two versions of one fact that
-/// could disagree.
+/// One shared store owns the IPC read and event subscription, so both
+/// components render the same authoritative state.
 ///
 /// The core is the authority. Every mutation here returns the new status from
 /// Rust and stores THAT, rather than guessing what the state became — the gate

@@ -5,7 +5,7 @@ import { isTauri, loadLanguages } from './lib/tauri'
 import './styles.css'
 
 // The popped-out observability window runs the same bundle as the main one
-// and is told apart by its WINDOW LABEL (set in commands.rs). Routing on the
+// and is told apart by its WINDOW LABEL (set by the Rust dev command). Routing on the
 // label rather than a URL query avoids putting '?' inside the PathBuf that
 // WebviewUrl::App wants.
 const DEV_WINDOW_LABEL = 'skellyspeak-dev'

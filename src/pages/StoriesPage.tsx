@@ -1,23 +1,69 @@
 import { useCallback, useEffect, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import type { Level, Story } from '../types'
-import { isTauri, logInfo } from '../lib/tauri'
+import { getSettings, isTauri, logInfo } from '../lib/tauri'
 import { needsSpaceBetween } from '../lib/token-spacing'
 import { GlossPopup, popupAnchor, type PopupState } from '../components/GlossPopup'
 import { openOverlay } from '../lib/back'
 import { reportFault } from '../lib/faults'
 
 const STORAGE_PREFIX = 'skellyspeak_story_'
+const STORAGE_LEVEL = 'skellyspeak_story_level'
 const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced']
 
-export default function StoriesPage() {
+interface StoriesPageProps {
+  settingsVersion: number
+}
+
+function isLevel(value: string): value is Level {
+  return LEVELS.some((level: Level): boolean => level === value)
+}
+
+function parseCachedStory(raw: string): Story {
+  const value: unknown = JSON.parse(raw)
+  if (typeof value !== 'object' || value === null) {
+    throw new Error('The saved story is not an object.')
+  }
+  const candidate = value as { title?: unknown; paragraphs?: unknown }
+  if (typeof candidate.title !== 'string' || !Array.isArray(candidate.paragraphs)) {
+    throw new Error('The saved story has an invalid title or paragraph list.')
+  }
+  for (const paragraph of candidate.paragraphs) {
+    if (typeof paragraph !== 'object' || paragraph === null) {
+      throw new Error('The saved story contains an invalid paragraph.')
+    }
+    const tokens = (paragraph as { tokens?: unknown }).tokens
+    if (!Array.isArray(tokens)) {
+      throw new Error('The saved story contains a paragraph without tokens.')
+    }
+    for (const token of tokens) {
+      if (typeof token !== 'object' || token === null) {
+        throw new Error('The saved story contains an invalid token.')
+      }
+      const candidateToken = token as { text?: unknown; gloss?: unknown }
+      if (
+        typeof candidateToken.text !== 'string'
+        || (candidateToken.gloss !== null && typeof candidateToken.gloss !== 'string')
+      ) {
+        throw new Error('The saved story contains invalid token text or gloss data.')
+      }
+    }
+  }
+  return value as Story
+}
+
+export default function StoriesPage({ settingsVersion }: StoriesPageProps) {
   const [level, setLevel] = useState<Level>('beginner')
   const [story, setStory] = useState<import('../types').Story | null>(null)
+  const [targetLanguage, setTargetLanguage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [popup, setPopup] = useState<PopupState | null>(null)
 
   const generate = useCallback(async (target: Level) => {
+    if (targetLanguage === null) {
+      throw new Error('Cannot generate a story before settings have loaded.')
+    }
     setLoading(true)
     setError(null)
     setPopup(null)
@@ -34,33 +80,39 @@ export default function StoriesPage() {
         'tokens'
       )
       setStory(data)
-      try {
-        const lang = localStorage.getItem('skellyspeak_target') ?? 'es-ES'
-        localStorage.setItem(`${STORAGE_PREFIX}${lang}_${target}`, JSON.stringify(data))
-      } catch {
-        /* ignore */
-      }
+      localStorage.setItem(`${STORAGE_PREFIX}${targetLanguage}_${target}`, JSON.stringify(data))
     } catch (e) {
       reportFault('Story generation', e)
       setError(String(e).replace(/^Error:\s*/, ''))
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [targetLanguage])
 
-  // Restore cached story on mount.
+  // Restore the selected level and the current language's matching story.
   useEffect(() => {
-    try {
-      const lang = localStorage.getItem('skellyspeak_target') ?? 'es-ES'
-      const raw = localStorage.getItem(`${STORAGE_PREFIX}${lang}_beginner`)
-      if (raw) {
-        setStory(JSON.parse(raw))
-        logInfo('[stories] restored cached story')
-      }
-    } catch {
-      /* ignore malformed cache */
-    }
-  }, [])
+    if (!isTauri) return
+    void getSettings()
+      .then((settings) => {
+        const savedLevel = localStorage.getItem(STORAGE_LEVEL)
+        if (savedLevel !== null && !isLevel(savedLevel)) {
+          throw new Error(`The saved story level is invalid: ${savedLevel}`)
+        }
+        const restoredLevel: Level = savedLevel ?? 'beginner'
+        const raw = localStorage.getItem(
+          `${STORAGE_PREFIX}${settings.target_language}_${restoredLevel}`
+        )
+        setTargetLanguage(settings.target_language)
+        setLevel(restoredLevel)
+        setStory(raw === null ? null : parseCachedStory(raw))
+        setError(null)
+        if (raw !== null) logInfo('[stories] restored cached story')
+      })
+      .catch((cause: unknown) => {
+        reportFault('Restoring saved story', cause)
+        setError(String(cause).replace(/^Error:\s*/, ''))
+      })
+  }, [settingsVersion])
 
   const closePopup = useCallback(() => setPopup(null), [])
   // Android back closes the popup instead of exiting the app.
@@ -91,10 +143,16 @@ export default function StoriesPage() {
             <button
               key={lvl}
               type="button"
-              disabled={loading || !isTauri}
+              disabled={loading || !isTauri || targetLanguage === null}
               onClick={() => {
-                setLevel(lvl)
-                void generate(lvl)
+                try {
+                  localStorage.setItem(STORAGE_LEVEL, lvl)
+                  setLevel(lvl)
+                  void generate(lvl)
+                } catch (cause: unknown) {
+                  reportFault('Saving story level', cause)
+                  setError(String(cause).replace(/^Error:\s*/, ''))
+                }
               }}
               className={`chip ${level === lvl ? 'active' : ''}`}
             >
@@ -105,7 +163,7 @@ export default function StoriesPage() {
         <button
           type="button"
           className="btn"
-          disabled={loading || !isTauri}
+          disabled={loading || !isTauri || targetLanguage === null}
           onClick={() => void generate(level)}
         >
           New story
@@ -128,7 +186,7 @@ export default function StoriesPage() {
         {!loading && !error && !story && (
           <div style={{ textAlign: 'center' }}>
             <p className="center-note">Pick a level and get a short story written for it.</p>
-            <button type="button" className="btn primary" disabled={!isTauri} onClick={() => void generate(level)}>
+            <button type="button" className="btn primary" disabled={!isTauri || targetLanguage === null} onClick={() => void generate(level)}>
               New story
             </button>
           </div>

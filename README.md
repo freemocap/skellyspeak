@@ -4,8 +4,9 @@
 
 # SkellySpeak
 
-A standalone, no-necessary-login, multilingual language tutor. Tauri v2 — desktop
-(Windows/macOS/Linux), Android, and iOS (built & signed in CI).
+A standalone multilingual language tutor that does not require an account.
+Tauri v2 targets
+desktop (Windows/macOS/Linux), Android, and iOS, with release workflows for each.
 
 Two surfaces:
 
@@ -18,9 +19,10 @@ Two surfaces:
 - **Stories** — level-matched short stories (beginner / intermediate /
   advanced) with tap-to-translate word glosses.
 
-Four languages, symmetric: English, French, Spanish, Arabic — any of them as
-the language you're learning, any of them as your own, with regional dialect
-selection on top.
+Supported languages are symmetric: English (US), French, Spanish, Arabic, and
+Chinese (Mandarin) can each be the language you're learning or your own
+language, with regional dialect selection where applicable. The canonical
+registry is `src-tauri/src/languages.rs`.
 
 ## Architecture
 
@@ -56,14 +58,14 @@ npm install
 npm run tauri dev     # first run compiles the Rust core (~2-5 min)
 ```
 
-On first launch: open Settings (⚙) → paste your OpenRouter key (required) and
-Groq key (only needed for voice input) → pick the language you're learning and
-your native language.
+On first launch, open Settings (⚙), choose the language you're learning and your
+native language, then either sign into the hosted service, supply your own
+OpenRouter/Groq keys, or configure an OpenAI-compatible chat server.
 
 ## Build an installer
 
 ```powershell
-npm run tauri build   # NSIS installer + portable exe under src-tauri/target/release/bundle
+npm run tauri build   # platform bundles under src-tauri/target/release/bundle
 ```
 
 ## Android
@@ -83,8 +85,8 @@ iOS cannot be built on Windows — Tauri's `ios` subcommand only exists on
 macOS, and Xcode does the signing. `.github/workflows/ios-distribute.yml` runs
 on a macOS runner: it scaffolds the Xcode project, signs with an Apple
 Distribution certificate + provisioning profile, and exports a signed `.ipa`
-for TestFlight or ad hoc install. Voice input works on iOS through the same
-core (cpal) recorder as desktop — see
+for TestFlight or ad hoc install. Voice input is implemented through the same
+core (cpal) recorder as desktop and requires physical-device verification — see
 [Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the AVAudioSession
 detail and the three secrets to set.
 
@@ -139,13 +141,13 @@ regeneration.
 ## Layout
 
 - `src-tauri/src/ai.rs` — provider client (streaming, schema-constrained
-  structured output, fallback ladder, `$defs` inlining)
-- `src-tauri/src/prompts.rs` — shared persona/mandatory-rules blocks,
+  structured output, bounded corrective retries, `$defs` inlining)
+- `src-tauri/src/prompts/` — shared persona/mandatory-rules blocks,
   guided + story prompts (ported from the FreeLingo prompt library)
 - `src-tauri/src/languages.rs` — supported languages + per-variant overlays
 - `src-tauri/src/observer.rs` — the TeachingPlan / Profile documents and the
   background observer pass that rewrites them
-- `src-tauri/src/commands/` — the IPC surface, 32 commands in one module per
+- `src-tauri/src/commands/` — the IPC surface, with one module per
   domain: `guided` (a turn and the passes behind it), `coach`, `conversations`,
   `app_settings`, `hosted_auth`, `stories`, `scaffolds`, `insight`, `tts`,
   `stt`, `keys`, `dev`

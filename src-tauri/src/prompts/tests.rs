@@ -203,10 +203,8 @@ fn every_language_has_an_overlay() {
 #[test]
 fn no_stray_prompts() {
     // Every string this app sends to a model lives under `prompts/`. This walks
-    // the source and fails if prompt text reappears at a call site, because
-    // that is exactly how the partner's voice drifted out of sync with itself
-    // the first time: four files each holding a piece of it, and a benchmark
-    // measuring a fifth.
+    // the source and fails if prompt text appears at a call site. Production
+    // and benchmark requests must use the same prompt constructors.
     //
     // The rule is mechanical: whatever fills a message's `"content"` must be a
     // variable or a `prompts::` call — never a literal, and never a `format!`
@@ -246,7 +244,7 @@ fn content_value(line: &str) -> Option<&str> {
 
 #[test]
 fn the_stray_prompt_guard_can_actually_fail() {
-    // Both shapes the old code used, and the shapes that replaced them.
+    // The guard recognizes both supported content-expression shapes.
     assert!(content_value(r#"json!({"role": "user", "content": "Write a story"})"#).is_some());
     assert!(content_value(r#"    "content": format!("Learner message:\n{m}")"#).is_some());
     assert!(content_value(r#"json!({"role": "user", "content": prompts::story::story_turn()})"#).is_none());

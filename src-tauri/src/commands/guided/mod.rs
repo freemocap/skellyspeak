@@ -278,7 +278,7 @@ pub async fn guided_turn(
         }
         let mut turns = state.observer_turns.lock().expect("observer cadence lock poisoned");
         if has_learner_message { *turns += 1; }
-        has_learner_message && (*turns - 1) % 4 == 0
+        has_learner_message && (*turns - 1).is_multiple_of(4)
     };
     let observer_model = settings.observer_model.clone().unwrap_or_else(crate::settings::default_observer_model);
     let observer_provider = settings.chat_provider(&observer_model)?;
@@ -353,4 +353,3 @@ pub async fn guided_turn(
 
     Ok(reply)
 }
-
