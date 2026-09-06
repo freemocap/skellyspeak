@@ -14,8 +14,9 @@ use super::guided::{ChatTurn, Scaffolds, ScaffoldsOut};
 
 #[derive(Debug, Deserialize)]
 pub struct ScaffoldRequest {
+    chat_id: String,
     history: Vec<ChatTurn>,
-    level: Option<String>,
+    level: crate::prompts::difficulty::Difficulty,
     topic: Option<String>,
     dialect: Option<String>,
 }
@@ -27,27 +28,28 @@ pub async fn generate_scaffolds(
     state: State<'_, AppState>,
     req: ScaffoldRequest,
 ) -> Result<Scaffolds, String> {
-    let stored = state
-        .settings
-        .lock()
-        .unwrap_or_else(|p| p.into_inner())
-        .clone();
+    let (epoch, stored, lesson, plan_directives, partner, inferred_level_notes) = {
+        let epoch = state.context_epoch.lock().expect("context lock poisoned");
+        let stored = state.settings.lock().expect("settings lock poisoned").clone();
+        let pair = crate::conversation::pair_dir(&state.config_dir, &stored.target_language, &stored.native_language)?;
+        if crate::conversation::current_chat(&pair)?.as_deref() != Some(req.chat_id.as_str()) { return Err("The conversation changed before refreshing suggestions.".into()); }
+        let chat = crate::conversation::chat_dir(&pair, &req.chat_id)?;
+        let lesson = crate::lesson::load(&pair)?;
+        let plan = state.plan.lock().expect("plan lock poisoned");
+        let plan_directives = prompts::observer::directives_block(&plan, &[]);
+        let partner = serde_json::to_value(crate::conversation_partner::load(&chat)?).map_err(|e| e.to_string())?;
+        let inferred_level_notes = state.profile.lock().expect("profile lock poisoned").level_notes.clone();
+        (*epoch, stored, lesson, plan_directives, partner, inferred_level_notes)
+    };
     let tln = language_display(&stored.target_language);
     let native = native_display(&stored.native_language);
-    let _cefr = match req.level.as_deref() {
-        Some("intermediate") => "B1",
-        Some("advanced") => "C1",
-        _ => "A2",
-    };
+    let cefr = req.level.cefr();
     let topic_directive = prompts::partner::topic_directive(req.topic.as_deref());
-    let plan_directives = {
-        let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
-        prompts::observer::directives_block(&plan, &[])
-    };
     let dialect_overlay =
         overlay(&stored.target_language, req.dialect.as_deref());
+    let choices = lesson.choices.directives();
     let directives = format!(
-        "{dialect_overlay}{plan_directives}{topic_directive}"
+        "{dialect_overlay}{plan_directives}{topic_directive}{choices}"
     );
     let transcript: Vec<String> = req
         .history
@@ -64,13 +66,20 @@ pub async fn generate_scaffolds(
         })
         .collect();
     let messages = vec![
-        json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, &native, &directives)}),
+        json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, cefr, &native, &directives)}),
         json!({"role": "user", "content": prompts::analysis::scaffolds_from_transcript_turn(&transcript.join("\n"))}),
     ];
+    let context = crate::instruction::Context {
+        chat_id: req.chat_id, message_id: None, replaces_message_id: None, trigger: "suggestion_refresh".into(),
+        target: stored.target_language.clone(), native: stored.native_language.clone(), dialect: stored.target_dialect.clone(), provider_mode: stored.provider_mode.clone(),
+        difficulty: req.level, inferred_level_notes,
+        topic: req.topic.clone(), lesson_revision: lesson.revision,
+        partner, history_messages: transcript.len(), history_available: req.history.len(),
+    };
     let provider = stored.chat_provider(&stored.openrouter_model)?;
     let out = provider
         .structured_validated::<ScaffoldsOut, _>(
-            RunContext::new(ontology::op::SUGGEST, None),
+            RunContext::new(ontology::op::SUGGEST, None).with_context(&context).with_blocks(prompts::analysis::scaffolds_blocks(&tln, cefr, &native, &directives)),
             &messages,
             0.6,
             "ScaffoldsOut",
@@ -85,6 +94,7 @@ pub async fn generate_scaffolds(
             },
         )
         .await?;
+    if *state.context_epoch.lock().expect("context lock poisoned") != epoch { return Err("The conversation changed while refreshing suggestions.".into()); }
     Ok(Scaffolds {
         replies: out.replies,
         frames: out.frames,

@@ -82,17 +82,16 @@ pub fn get_reconciliation() -> trace::Reconciliation {
     trace::reconcile()
 }
 
-/// Every AI run still in memory, oldest first. The observability substrate:
-/// one record per agent execution, with per-attempt detail.
+/// Retained AI runs across process sessions, oldest first.
 #[tauri::command]
-pub fn get_runs() -> Vec<trace::Run> {
-    trace::snapshot()
+pub fn get_runs() -> Vec<serde_json::Value> {
+    trace::retained()
 }
 
-/// Drop the in-memory run history.
+/// Clear retained and current-process run history.
 #[tauri::command]
 pub fn clear_runs() -> Result<(), String> {
-    trace::clear();
+    trace::clear()?;
     info!("[cmd] run history cleared");
     Ok(())
 }
@@ -103,4 +102,20 @@ pub fn get_diagnostics() -> Vec<(String, u64)> {
         .iter()
         .map(|(k, v)| (k.to_string(), *v))
         .collect()
+}
+
+#[tauri::command]
+pub fn get_trace_retention() -> serde_json::Value { trace::retention() }
+
+#[tauri::command]
+pub fn export_runs(state: tauri::State<'_, crate::AppState>, ids: Vec<u64>) -> Result<String, String> {
+    if ids.is_empty() { return Err("Select recorded activity to export.".into()); }
+    let records: Vec<serde_json::Value> = trace::retained().into_iter().filter(|r| r["id"].as_u64().is_some_and(|id| ids.contains(&id))).collect();
+    if ids.iter().any(|id| !records.iter().any(|r| r["id"].as_u64() == Some(*id))) { return Err("Some selected traces are no longer retained. Refresh the activity list.".into()); }
+    let directory = state.config_dir.join("trace-exports");
+    std::fs::create_dir_all(&directory).map_err(|e| format!("Could not create trace export directory: {e}"))?;
+    let path = directory.join(format!("ai-audit-{}.json", uuid::Uuid::new_v4()));
+    let payload = serde_json::json!({"format_version": 1, "retention": trace::retention(), "runs": records});
+    crate::persistence::write(&path, &serde_json::to_vec_pretty(&payload).map_err(|e| e.to_string())?)?;
+    Ok(path.to_string_lossy().into_owned())
 }

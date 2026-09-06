@@ -31,6 +31,8 @@ pub const PERSONAS_FILE: &str = "personas.json";
 /// The id meaning "somebody different each conversation" — resolved from the
 /// chat id, so it is stable inside one conversation and different in the next.
 pub const SURPRISE: &str = "surprise";
+/// Explicitly disable fictional characterization.
+pub const NONE: &str = "__none__";
 
 /// The longest a sketch may be. Not arbitrary: the sketch goes into every
 /// reply prompt of every turn, so an essay here is paid for on every message.
@@ -207,6 +209,9 @@ pub fn validate(label: &str, sketch: &str) -> Result<(), String> {
 ///
 /// Custom personas are in the draw. Someone who wrote one wants to meet them.
 pub fn resolve(id: Option<&str>, seed: &str, available: &[Persona]) -> Persona {
+    if id == Some(NONE) {
+        return Persona { id: NONE.into(), label: "No persona".into(), sketch: String::new(), builtin: true };
+    }
     if let Some(chosen) = id
         .map(str::trim)
         .filter(|s| !s.is_empty() && *s != SURPRISE)
@@ -235,6 +240,16 @@ fn hash(s: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn no_persona_disables_character_instructions() {
+        let partner = resolve(Some(NONE), "chat", &builtins());
+        assert_eq!(partner.id, NONE);
+        assert!(partner.sketch.is_empty());
+        let prompt = crate::prompts::partner::character_block(&partner.sketch, None, "Spanish");
+        assert!(prompt.contains("No fictional persona"));
+        assert!(!prompt.contains("Give a consistent name"));
+    }
 
     fn scratch(name: &str) -> PathBuf {
         let dir = std::env::temp_dir().join(format!(

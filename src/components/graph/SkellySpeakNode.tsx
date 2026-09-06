@@ -9,6 +9,7 @@ export interface NodeData extends Record<string, unknown> {
   node: GraphNode
   state: RunState
   run: Run | null
+  selected: boolean
   onPick: (n: GraphNode, r: Run | null) => void
 }
 
@@ -17,7 +18,7 @@ function ms(n: number): string {
 }
 
 export function SkellySpeakNode({ data }: NodeProps) {
-  const { node, state, run, onPick } = data as NodeData
+  const { node, state, run, selected, onPick } = data as NodeData
   const accent = run ? actorColor(run.actor) : 'var(--mut-d)'
   // Nodes are draggable AND clickable, so a drag would otherwise also open
   // the inspector on release. Only treat it as a click if the pointer
@@ -27,7 +28,8 @@ export function SkellySpeakNode({ data }: NodeProps) {
   return (
     <button
       type="button"
-      className={`gnode k-${node.kind} s-${state}`}
+      className={`gnode k-${node.kind} s-${state} ${selected ? 'is-selected' : ''}`}
+      aria-pressed={selected}
       onPointerDown={(e) => {
         down.current = { x: e.clientX, y: e.clientY }
       }}
@@ -44,8 +46,10 @@ export function SkellySpeakNode({ data }: NodeProps) {
           silently dropped their edges — React Flow had nothing to anchor to,
           so "Your message" sat unconnected and its edges were never drawn. */}
       <Handle type="target" position={Position.Left} />
+      {selected && <span className="gnode-selection">✓ Selected</span>}
       <span className="gnode-label">{node.label}</span>
-      <span className="gnode-kind">{node.kind.replace('_', ' ')}</span>
+      <span className="gnode-kind">{state === 'running' ? '● Running' : state === 'failed' ? '✕ Failed' : state === 'retried_then_ok' ? '↻ Retried · done' : state === 'ok' ? '✓ Completed' : node.kind.replace('_', ' ')}</span>
+      {run?.length_checks.some((check) => check.status === 'violation') && <span className="gnode-check">⚠ Length limits exceeded</span>}
       {/* Real numbers on the face — honesty as the aesthetic. */}
       {run && (
         <span className="gnode-stats">

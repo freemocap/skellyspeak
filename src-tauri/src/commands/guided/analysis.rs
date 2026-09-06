@@ -27,6 +27,7 @@ const RECENT_MECHANICS_CAP: usize = 20;
 /// Everything the analysis pass needs, gathered by the caller before the reply
 /// even finishes so the pass can start the moment it does.
 pub(super) struct AnalysisPass {
+    pub context: crate::instruction::Context,
     pub epoch: u64,
     pub app: AppHandle,
     pub channel: Channel<GuidedEvent>,
@@ -37,6 +38,7 @@ pub(super) struct AnalysisPass {
     pub translation_msgs: Vec<serde_json::Value>,
     pub mechanics_msgs: Vec<serde_json::Value>,
     pub scaffolds_msgs: Vec<serde_json::Value>,
+    pub scaffolds_blocks: Vec<crate::instruction::Block>,
     /// Already in flight: it depends only on the learner's message, so it was
     /// started alongside the reply rather than after it.
     pub learner_tokens: Option<JoinHandle<Result<LearnerTokensOut, String>>>,
@@ -99,6 +101,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let AnalysisPass {
+            context,
             epoch,
             app,
             channel,
@@ -109,13 +112,14 @@ pub(super) fn spawn(pass: AnalysisPass) {
             translation_msgs,
             mechanics_msgs,
             scaffolds_msgs,
+            scaffolds_blocks,
             learner_tokens,
         } = pass;
 
         let tokens_task = spawn_section::<TokensOut, _, _>(
             provider.clone(),
             channel.clone(),
-            RunContext::new(ontology::op::TOKENIZE, Some(turn_id)),
+            RunContext::new(ontology::op::TOKENIZE, Some(turn_id)).with_context(&context),
             tokens_msgs,
             0.1,
             "TokensOut",
@@ -146,7 +150,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
         let translation_task = spawn_section::<TranslationOut, _, _>(
             provider.clone(),
             channel.clone(),
-            RunContext::new(ontology::op::TRANSLATE, Some(turn_id)),
+            RunContext::new(ontology::op::TRANSLATE, Some(turn_id)).with_context(&context),
             translation_msgs,
             0.2,
             "TranslationOut",
@@ -162,7 +166,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
         let mechanics_task = spawn_section::<MechanicsOut, _, _>(
             provider.clone(),
             channel.clone(),
-            RunContext::new(ontology::op::EXPLAIN, Some(turn_id)),
+            RunContext::new(ontology::op::EXPLAIN, Some(turn_id)).with_context(&context),
             mechanics_msgs,
             0.4,
             "MechanicsOut",
@@ -179,7 +183,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
         let scaffolds_task = spawn_section::<ScaffoldsOut, _, _>(
             provider,
             channel.clone(),
-            RunContext::new(ontology::op::SUGGEST, Some(turn_id)),
+            RunContext::new(ontology::op::SUGGEST, Some(turn_id)).with_context(&context).with_blocks(scaffolds_blocks),
             scaffolds_msgs,
             0.6,
             "ScaffoldsOut",

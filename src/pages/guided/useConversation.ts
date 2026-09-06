@@ -25,6 +25,7 @@ const SAVE_DEBOUNCE_MS = 800
 
 interface Options {
   /// Null until settings have loaded. The pairing comes from here.
+  persona: string
   settings: Settings | null
   /// A turn in flight; saving waits for it to settle.
   sending: boolean
@@ -42,12 +43,14 @@ interface Options {
 /// switching chats, starting a new one, saving — shares the same ownership key.
 export function useConversation({
   settings,
+  persona,
   sending,
   setHistoryOpen,
   greet,
   resetView,
 }: Options) {
   const [turns, setTurns] = useState<Turn[]>([])
+  const [openingFailed, setOpeningFailed] = useState(false)
   const [chats, setChats] = useState<ChatSummary[]>([])
 
   const turnsRef = useRef<Turn[]>([])
@@ -78,6 +81,8 @@ export function useConversation({
   greetRef.current = greet
   const resetViewRef = useRef(resetView)
   resetViewRef.current = resetView
+  const personaRef = useRef(persona)
+  personaRef.current = persona
   const settingsRef = useRef<Settings | null>(settings)
   settingsRef.current = settings
 
@@ -108,8 +113,11 @@ export function useConversation({
         if (ticket !== generation.current) return null
         const opened = await load()
         if (ticket !== generation.current) return null
+        setOpeningFailed(false)
         openKey.current = { target, native, id: opened.id }
-        setTurns(opened.turns.map((t) => ({ ...t, pendingText: '' })))
+        const restored = opened.turns.map((t) => ({ ...t, pendingText: '' }))
+        turnsRef.current = restored
+        setTurns(restored)
         // Ids must continue past what was restored or a new turn would collide
         // with an old one and React would reconcile the wrong bubble.
         nextIdRef.current = opened.turns.reduce((max, t) => Math.max(max, t.id), 0) + 1
@@ -117,6 +125,7 @@ export function useConversation({
         return opened.turns.length
       } catch (e) {
         if (ticket !== generation.current) return null
+        setOpeningFailed(true)
         reportFault('Opening that conversation', e)
         return null
       }
@@ -144,7 +153,7 @@ export function useConversation({
   /// Open a clean conversation. The previous one stays in the list, and what
   /// the tutor has learned about the learner is untouched — that continuity is
   /// the whole reason the observer exists.
-  const startNew = useCallback(async () => {
+  const startNew = useCallback(async (selection: string) => {
     const s = settingsRef.current
     if (!s) return
     const ticket = ++generation.current
@@ -157,13 +166,17 @@ export function useConversation({
       if (previous) await persist(previous, snapshot)
       await saves.current
       if (ticket !== generation.current) return
-      id = await newConversation(s.target_language, s.native_language)
+      id = await newConversation(s.target_language, s.native_language, selection)
       if (ticket !== generation.current) return
     } catch (e) {
+      if (ticket === generation.current) openKey.current = previous
+      setOpeningFailed(true)
       reportFault('Starting a new conversation', e)
       return
     }
+    setOpeningFailed(false)
     openKey.current = { target: s.target_language, native: s.native_language, id }
+    turnsRef.current = []
     setTurns([])
     nextIdRef.current = 1
     resetViewRef.current()
@@ -183,7 +196,7 @@ export function useConversation({
       setHistoryOpen(false)
       resetViewRef.current()
       const restored = await show(s.target_language, s.native_language, () =>
-        openConversation(s.target_language, s.native_language, id)
+        openConversation(s.target_language, s.native_language, id, personaRef.current)
       )
       // An empty chat reopened is still an empty chat: greet it so there is
       // something to reply to, exactly as a new one would be.
@@ -219,7 +232,7 @@ export function useConversation({
           if (left.length > 0) {
             await openChat(left[0].id)
           } else {
-            await startNew()
+            await startNew(personaRef.current)
           }
           return
         }
@@ -263,7 +276,7 @@ export function useConversation({
     }
     const { target_language: target, native_language: native } = settings
     void (async () => {
-      const restored = await show(target, native, () => loadConversation(target, native))
+      const restored = await show(target, native, () => loadConversation(target, native, personaRef.current))
       if (restored === null) return
       if (restored > 0) {
         logInfo(`[guided] restored ${restored} turns — no greeting`)
@@ -285,11 +298,18 @@ export function useConversation({
   }, [pairing])
 
   return {
+    flush: async (): Promise<void> => {
+      const key = openKey.current
+      if (!key) throw new Error('No conversation is open.')
+      await persist(key, turnsRef.current)
+      if (openKey.current !== key) throw new Error('The conversation changed while saving coach context.')
+    },
     turns,
     setTurns,
     turnsRef,
     nextIdRef,
     chats,
+    openingFailed,
     currentChatId: openKey.current?.id ?? null,
     // The same value, read at call time rather than at render time. The
     // greeting turn is fired from inside the effect that opens the chat, so a

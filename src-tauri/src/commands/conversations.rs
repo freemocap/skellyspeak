@@ -57,8 +57,8 @@ fn require_current_pair(state: &AppState, target: &str, native: &str) -> Result<
 }
 
 /// What the webview needs to show a conversation: which one it is, and its
-/// turns. Turns are stored exactly as the webview holds them — the core never
-/// interprets one, so there is no second definition of a turn to keep in step.
+/// turns. The core preserves the webview turn shape; partner recovery reads
+/// only the earliest assistant reply from conversations without a snapshot.
 #[derive(Debug, Serialize)]
 pub struct OpenedConversation {
     pub id: String,
@@ -82,6 +82,7 @@ pub fn load_conversation(
     state: State<'_, AppState>,
     target: String,
     native: String,
+    persona_id: String,
 ) -> Result<OpenedConversation, String> {
     let _context = state.context_epoch.lock().expect("context lock poisoned");
     require_current_pair(&state, &target, &native)?;
@@ -91,6 +92,7 @@ pub fn load_conversation(
     if let Some(fault) = loaded.fault {
         return Err(fault);
     }
+    crate::conversation_partner::ensure(&state.config_dir, &chat, &id, &persona_id, &loaded.turns)?;
     info!(
         "[cmd] load_conversation {} chat={id}: {} turns",
         conversation::pair_key(&target, &native),
@@ -111,6 +113,7 @@ pub fn open_conversation(
     target: String,
     native: String,
     id: String,
+    persona_id: String,
 ) -> Result<OpenedConversation, String> {
     let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     require_current_pair(&state, &target, &native)?;
@@ -129,6 +132,7 @@ pub fn open_conversation(
     if let Some(first) = faults.into_iter().next() {
         return Err(first);
     }
+    crate::conversation_partner::ensure(&state.config_dir, &chat, &id, &persona_id, &loaded.turns)?;
     conversation::set_current_chat(&pair, &id)?;
     *state.coach_thread.lock().expect("coach lock poisoned") = thread;
     *epoch += 1;
@@ -158,7 +162,8 @@ pub fn save_conversation(
     }
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let chat = conversation::chat_dir(&pair, &id)?;
-    conversation::save_session(&chat, &turns, &title)
+    conversation::save_session(&chat, &turns, &title)?;
+    crate::trace::chat_saved(&id, &turns)
 }
 
 /// Start a fresh chat for this pairing and make it the open one.
@@ -172,12 +177,14 @@ pub fn new_conversation(
     state: State<'_, AppState>,
     target: String,
     native: String,
+    persona_id: String,
 ) -> Result<String, String> {
     let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     require_current_pair(&state, &target, &native)?;
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let id = conversation::unique_chat_id(&pair)?;
-    conversation::chat_dir(&pair, &id)?;
+    let chat = conversation::chat_dir(&pair, &id)?;
+    crate::conversation_partner::ensure(&state.config_dir, &chat, &id, &persona_id, &serde_json::json!([]))?;
     conversation::set_current_chat(&pair, &id)?;
     // A new conversation starts with a coach that has not heard anything yet.
     state

@@ -3,26 +3,17 @@ import '@xyflow/react/dist/style.css'
 import {
   getGraph,
   getReconciliation,
-  getRuns,
-  subscribeRunStarts,
-  subscribeRuns,
 } from '../../lib/tauri'
-import { logDebug } from '../../lib/log'
+import { useIsMobile } from '../../hooks/useIsMobile'
+import { openOverlay } from '../../lib/back'
 import { GraphPane } from './GraphPane'
 import { NodeInspector } from './NodeInspector'
 import { useDragSize } from '../../lib/useDragSize'
-import { GateControls } from './GateControls'
-import type { Graph, GraphNode, Reconciliation, Run } from '../../types'
+import type { Graph, GraphNode, Reconciliation, Run, RunStarted } from '../../types'
 import { reportFault } from '../../lib/faults'
 
-// D2 of the disclosure ladder: the live system, rendered from the graph Rust
-// declares. The frontend holds NO graph of its own.
-//
-// Panes, not tabs. Every pipeline can be open at once, each closable,
-// widenable and reorderable by dragging its header — comparing "what a turn
-// does" against "what asking the coach does" is impossible if you can only
-// see one at a time. The inspector is shared: one selection, whichever pane
-// it came from.
+// Explore shows one automatically arranged pipeline for the selected activity.
+// Debug retains a configurable comparison workspace. Rust declares the graphs.
 
 const OPEN_KEY = 'skellyspeak_graph_open'
 const WIDE_KEY = 'skellyspeak_graph_wide'
@@ -51,14 +42,19 @@ function save(key: string, ids: string[]) {
   }
 }
 
-export function AgentGraph() {
+export function AgentGraph({ runs, activeRuns, mode }: { runs: Run[]; activeRuns: RunStarted[]; mode: 'explore' | 'debug' }) {
+  const mobile = useIsMobile()
   const [graphs, setGraphs] = useState<Graph[]>([])
-  const [runs, setRuns] = useState<Run[]>([])
-  const [active, setActive] = useState<Set<string>>(new Set())
+  const interaction = runs[0]?.turn_id ?? (runs[0] ? `call:${runs[0].id}` : activeRuns[0]?.turn_id ?? null)
+  const operation = runs[0]?.operation ?? activeRuns[0]?.operation
+  const active = useMemo(() => new Set(activeRuns.map((run) => run.operation)), [activeRuns])
+  const [error, setError] = useState<string | null>(null)
+  const [pipeline, setPipeline] = useState('turn')
   const [recon, setRecon] = useState<Reconciliation | null>(null)
   const [openIds, setOpenIds] = useState<string[]>([])
   const [wideIds, setWideIds] = useState<string[]>([])
   const [pickedNode, setPickedNode] = useState<string | null>(null)
+  const detailOpen = pickedNode !== null
   const [pickedRunId, setPickedRunId] = useState<number | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   // One pane fills the whole area — VS Code's "maximize editor group".
@@ -91,38 +87,20 @@ export function AgentGraph() {
       if (localStorage.getItem(MAX_KEY) === null && gs.length > 0) {
         setMaxId(gs[0].id)
       }
-    })
-    void getRuns().then(setRuns)
-    void getReconciliation().then(setRecon)
-
-    const unsubs: (() => void)[] = []
-    let alive = true
-    const keep = (u: () => void) => (alive ? unsubs.push(u) : u())
-
-    void subscribeRunStarts((start) => {
-      // The completion bus proves itself via the run list; the START channel
-      // otherwise leaves no trace at all, so a failure there would look
-      // exactly like "nothing is running".
-      logDebug(`[trace] started: ${start.operation} (${start.model})`)
-      setActive((prev) => new Set(prev).add(start.operation))
-    }).then(keep)
-
-    void subscribeRuns((run) => {
-      setRuns((prev) => [...prev, run])
-      setActive((prev) => {
-        const next = new Set(prev)
-        next.delete(run.operation)
-        return next
-      })
-      void getReconciliation().then(setRecon)
-    }).then(keep)
-
-    return () => {
-      alive = false
-      unsubs.forEach((u) => u())
-    }
+    }).catch((e: unknown) => setError(String(e)))
+    void getReconciliation().then(setRecon).catch((e: unknown) => setError(String(e)))
   }, [])
 
+  useEffect(() => { void getReconciliation().then(setRecon).catch((e: unknown) => setError(String(e))) }, [runs])
+  useEffect(() => {
+    if (mode !== 'explore' || !operation) return
+    const match = graphs.find((graph) => graph.nodes.some((node) => node.operation === operation))
+    if (match) setPipeline(match.id)
+  }, [interaction, graphs, mode, operation])
+  useEffect(() => {
+    if (!mobile || !detailOpen) return
+    return openOverlay(() => { setPickedNode(null); setPickedRunId(null) })
+  }, [mobile, detailOpen])
   const onPick = useCallback((node: GraphNode, run: Run | null) => {
     setPickedNode(node.id)
     setPickedRunId(run?.id ?? null)
@@ -186,30 +164,51 @@ export function AgentGraph() {
     return { node, run }
   }, [graphs, pickedNode, pickedRunId, runs, latest])
 
+  if (error) return <p role="alert" className="activity-error">{error}</p>
   if (graphs.length === 0) return <div className="logs-line">— loading graph —</div>
 
   return (
-    <div className="graph-view">
-      <GateControls />
-      <div className="graph-tabs">
+    <div className={`graph-view ${mode === 'explore' ? 'graph-explore' : ''}`} onTouchStart={(event) => event.stopPropagation()} onTouchEnd={(event) => event.stopPropagation()}>
+      {mode === 'explore' ? <div className="pipeline-picker"><label>Pipeline <select value={pipeline} onChange={(event) => { setPipeline(event.target.value); setPickedNode(null); setPickedRunId(null) }}>
+        {graphs.map((graph) => <option key={graph.id} value={graph.id}>{graph.label}</option>)}
+      </select></label><span>Drag to explore · select a node</span><details className="pipeline-about"><summary>About this pipeline</summary><div><p>{graphs.find((graph) => graph.id === pipeline)?.description}</p><p>Inputs: {graphs.find((graph) => graph.id === pipeline)?.shared_state.join(', ')}</p></div></details></div> : <div className="graph-tabs">
         {graphs.map((g) => (
           <button
             key={g.id}
             type="button"
             className={`graph-pick ${openIds.includes(g.id) ? 'active' : ''}`}
-            onClick={() => toggleOpen(g.id)}
+            onClick={() => { toggleOpen(g.id); setMaxId(null); localStorage.setItem(MAX_KEY, '') }}
             title={openIds.includes(g.id) ? 'Close this pipeline' : 'Open this pipeline'}
           >
             {openIds.includes(g.id) ? '●' : '○'} {g.label}
           </button>
         ))}
-      </div>
+      </div>}
 
-      <div className="graph-body">
+      {mode === 'explore' && <div className="activity-ribbon" aria-label="Calls in selected activity">
+        {[...runs, ...activeRuns].sort((a, b) => a.started_at_ms - b.started_at_ms || a.id - b.id).map((call) => {
+          const graph = graphs.find((item) => item.nodes.some((node) => node.operation === call.operation))
+          const node = graph?.nodes.find((item) => item.operation === call.operation)
+          const run = runs.find((item) => item.id === call.id) ?? null
+          return <button key={call.id} type="button" aria-pressed={node?.id === pickedNode && (run ? inspected.run?.id === run.id : pickedRunId === null)} className={`activity-call ${run?.outcome ?? 'running'}`} onClick={() => {
+            if (!graph || !node) throw new Error(`No declared graph for ${call.operation}`)
+            setPipeline(graph.id)
+            onPick(node, run)
+          }} title={`${call.label} · ${call.model}`}>
+            <span className="call-indicator" />
+            <strong>{node?.label ?? call.label}</strong>
+            <span>{run?.length_checks.some((check) => check.status === 'violation') && '⚠ Length · '}{run ? `${(run.duration_ms / 1000).toFixed(1)}s${run.outcome === 'failed' ? ' · failed' : run.outcome === 'retried_then_ok' ? ' · retried' : ''}` : 'running'}</span>
+            <small>{call.model}</small>
+          </button>
+        })}
+        {!runs.length && !activeRuns.length && <span className="activity-empty">Send a message to watch these connections come alive. Every node is already explorable.</span>}
+      </div>}
+
+      <div className="graph-body" onKeyDown={(event) => { if (event.key === 'Escape') { setPickedNode(null); setPickedRunId(null) } }}>
         <div
-          className={`gpanes ${maxId ? 'maximized' : ''}`}
+          className={`gpanes ${mode === 'explore' || maxId ? 'maximized' : ''}`}
           style={
-            maxId
+            mode === 'explore' || maxId
               ? undefined
               : {
                   gridTemplateColumns: `${colSplit.size}fr ${100 - colSplit.size}fr`,
@@ -217,20 +216,22 @@ export function AgentGraph() {
                 }
           }
         >
-          {openGraphs.length === 0 && (
+          {mode === 'debug' && openGraphs.length === 0 && (
             <div className="logs-line" style={{ padding: 16 }}>
               — no pipelines open; pick one above —
             </div>
           )}
-          {(maxId ? openGraphs.filter((g) => g.id === maxId) : openGraphs).map((g) => (
+          {(mode === 'explore' ? graphs.filter((g) => g.id === pipeline) : maxId ? openGraphs.filter((g) => g.id === maxId) : openGraphs).map((g) => (
             <GraphPane
               key={g.id}
               graph={g}
+              mode={mode}
               latest={latest}
+              selectedNode={pickedNode}
               active={active}
-              recon={recon}
+              recon={mode === 'debug' ? recon : null}
               wide={wideIds.includes(g.id)}
-              maximized={maxId === g.id}
+              maximized={mode === 'explore' || maxId === g.id}
               onPick={onPick}
               onToggleWide={() => toggleWide(g.id)}
               onToggleMax={() =>
@@ -243,11 +244,11 @@ export function AgentGraph() {
               onClose={() => toggleOpen(g.id)}
               onDragStart={() => setDragId(g.id)}
               onDropOn={() => dropOn(g.id)}
-              onResizeHeight={maxId ? undefined : paneH.onPointerDown}
+              onResizeHeight={mode === 'explore' || maxId ? undefined : paneH.onPointerDown}
             />
           ))}
           {/* Splitter between the two pane columns. */}
-          {!maxId && openGraphs.length > 1 && (
+          {mode === 'debug' && !maxId && openGraphs.length > 1 && (
             <div
               className="gcol-split"
               style={{ left: `${colSplit.size}%` }}
@@ -257,6 +258,8 @@ export function AgentGraph() {
             />
           )}
         </div>
+        {pickedNode && <>
+        <button autoFocus className="ins-close" type="button" onClick={() => { setPickedNode(null); setPickedRunId(null) }}>Close details</button>
         <div
           className="ins-split"
           onPointerDown={inspector.onPointerDown}
@@ -271,18 +274,21 @@ export function AgentGraph() {
           activeOps={active}
           onPickRun={(r) => {
             setPickedRunId(r.id)
-            setPickedNode(r.operation)
+            const node = graphs.flatMap((graph) => graph.nodes).find((item) => item.operation === r.operation)
+            if (!node) throw new Error(`No declared node for ${r.operation}`)
+            setPickedNode(node.id)
           }}
         />
+        </>}
       </div>
 
       {/* The picture reporting on its own truthfulness. A diagram that
           cannot tell you when it is wrong is a claim, not an observation. */}
-      {recon && (
+      {mode === 'debug' && recon && (
         <div className={`graph-fidelity ${recon.consistent ? 'ok' : 'bad'}`}>
           {recon.consistent ? (
             <span>
-              ✓ consistent with {recon.turns_observed} observed turn
+              App-session check: ✓ consistent with {recon.turns_observed} observed turn
               {recon.turns_observed === 1 ? '' : 's'}
               {recon.unobserved_operations.length > 0 &&
                 ` · ${recon.unobserved_operations.length} declared but not yet exercised`}
@@ -299,7 +305,7 @@ export function AgentGraph() {
           )}
         </div>
       )}
-      <div className="graph-foot">
+      {mode === 'debug' && <div className="graph-foot">
         <div className="graph-legend">
           <span className="lg hydrate" title="Each of these appears the moment it is ready.">
             hydrate — shows up the moment it is ready
@@ -317,7 +323,7 @@ export function AgentGraph() {
             background — after the reply
           </span>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

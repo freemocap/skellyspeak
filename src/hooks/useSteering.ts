@@ -22,9 +22,7 @@ export const SURPRISE_PERSONA = 'surprise'
 interface Steering {
   level: string
   topic: string
-  /// Which character the partner is. The list of real ids comes from the core
-  /// (`list_personas`) — this only ever holds the chosen id, so a persona
-  /// added in Rust needs no change here.
+  /// Template preference for future chats. Each existing chat owns its saved partner.
   persona: string
   setLevel: (v: string) => void
   setTopic: (v: string) => void

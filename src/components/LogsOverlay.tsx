@@ -90,7 +90,7 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
           />
           <div className="logs-window-bar">
             <span className="logs-window-title">
-              observability
+              AI activity
               {poppedOut && <em> · also open in its own window</em>}
             </span>
             <button

@@ -30,6 +30,15 @@ pub fn list_personas(state: State<'_, AppState>) -> PersonaList {
     PersonaList { personas, faults }
 }
 
+#[tauri::command]
+pub fn get_conversation_partner(state: State<'_, AppState>, chat_id: String) -> Result<crate::conversation_partner::ConversationPartner, String> {
+    let _context = state.context_epoch.lock().expect("context lock poisoned");
+    let settings = state.settings.lock().expect("settings lock poisoned");
+    let pair = crate::conversation::pair_dir(&state.config_dir, &settings.target_language, &settings.native_language)?;
+    let chat = crate::conversation::chat_dir(&pair, &chat_id)?;
+    crate::conversation_partner::load(&chat)
+}
+
 /// Create or update one of the learner's own characters.
 ///
 /// `id` empty means "new". An id naming a built-in is refused rather than
@@ -44,7 +53,7 @@ pub fn save_persona(
 ) -> Result<Persona, String> {
     personas::validate(&label, &sketch)?;
     let id = id.trim().to_string();
-    if personas::is_builtin(&id) {
+    if personas::is_builtin(&id) || id == personas::NONE || id == personas::SURPRISE {
         return Err(
             "That one ships with the app and cannot be changed. Use \"Duplicate\" to make \
              your own version of it."
@@ -88,12 +97,10 @@ pub fn save_persona(
 
 /// Remove one of the learner's own characters.
 ///
-/// A conversation still steered to it falls back to `surprise` on its next
-/// turn — `personas::resolve` treats an id it cannot find as "pick someone",
-/// so a deleted persona cannot leave a chat with no partner.
+/// Saved conversation snapshots are independent of this template library.
 #[tauri::command]
 pub fn delete_persona(state: State<'_, AppState>, id: String) -> Result<(), String> {
-    if personas::is_builtin(&id) {
+    if personas::is_builtin(&id) || id == personas::NONE || id == personas::SURPRISE {
         return Err("That one ships with the app and cannot be deleted.".into());
     }
     let mut faults = Vec::new();
@@ -110,4 +117,16 @@ pub fn delete_persona(state: State<'_, AppState>, id: String) -> Result<(), Stri
     personas::save_custom(&state.config_dir, &custom)?;
     info!("[cmd] persona deleted: {id}");
     Ok(())
+}
+
+/// Choose a different partner from the one currently resolved for this chat.
+#[tauri::command]
+pub fn reroll_persona(state: State<'_, AppState>, chat_id: String) -> Result<Persona, String> {
+    let mut faults = Vec::new();
+    let available = personas::all(&state.config_dir, &mut faults);
+    if !faults.is_empty() { return Err(faults.join("\n")); }
+    let current = get_conversation_partner(state, chat_id)?.persona;
+    let candidates: Vec<Persona> = available.into_iter().filter(|p| p.id != current.id).collect();
+    if candidates.is_empty() { return Err("No other persona is available.".into()); }
+    Ok(personas::resolve(None, &uuid::Uuid::new_v4().to_string(), &candidates))
 }

@@ -17,6 +17,7 @@ const STEER_SETTLE_MS = 300
 const EMPTY: Scaffolds = { replies: [], frames: [], starters: [] }
 
 interface Options {
+  chatIdRef: React.RefObject<{ id: string } | null>
   turnsRef: React.RefObject<Turn[]>
   settingsRef: React.RefObject<Settings | null>
   /// Whether settings have loaded. The first steer settle must not fire before
@@ -30,10 +31,11 @@ interface Options {
 
 /// The suggestion chips, and what refreshes them.
 ///
-/// Two things produce scaffolds: every turn's analysis pass, and an explicit
-/// regeneration when the learner changes their level or topic. This owns the
-/// second, plus which set the chips currently show.
+/// Turn analysis produces suggestions. Steering requests a fresh partner reply
+/// before those suggestions are generated; it must not race a standalone
+/// refresh based on the previous exchange.
 export function useScaffolds({
+  chatIdRef,
   turnsRef,
   settingsRef,
   settingsLoaded,
@@ -59,8 +61,11 @@ export function useScaffolds({
       setLoading(true)
       setError(null)
       try {
+        const owner = chatIdRef.current
+        if (!owner) throw new Error('No conversation is open.')
         const s = await invoke<Scaffolds>('generate_scaffolds', {
           req: {
+            chat_id: owner.id,
             history: chatHistory(turnsRef.current ?? [], SCAFFOLD_HISTORY_MESSAGES),
             level: forLevel,
             topic: forTopic || null,
@@ -70,6 +75,7 @@ export function useScaffolds({
             dialect: settingsRef.current?.target_dialect || null,
           },
         })
+        if (chatIdRef.current !== owner) throw new Error('The conversation changed while refreshing suggestions.')
         setFresh(s)
       } catch (e) {
         setError(String(e).replace(/^Error:\s*/, ''))
@@ -78,11 +84,11 @@ export function useScaffolds({
         setLoading(false)
       }
     },
-    [turnsRef, settingsRef]
+    [turnsRef, settingsRef, chatIdRef]
   )
 
-  // A steer change regenerates the chips AND has the partner re-open the
-  // conversation aligned to the new level/topic. It waits for settings, then
+  // A steer change has the partner re-open the conversation. Its analysis
+  // generates suggestions from the new reply, never from the old exchange. It waits for settings, then
   // records the starting values without acting: the greeting is itself the
   // first steered message, so the first settle must not double-send.
   const initialised = useRef(false)
@@ -100,7 +106,7 @@ export function useScaffolds({
     if (lastSteer.current === key) return
     lastSteer.current = key
     const timer = setTimeout(() => {
-      void regenerate(level, topic)
+      setFresh(EMPTY)
       const change = [level ? `level: ${level}` : null, topic ? `topic: ${topic}` : null]
         .filter(Boolean)
         .join(', ')
