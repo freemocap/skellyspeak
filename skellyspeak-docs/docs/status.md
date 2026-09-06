@@ -27,8 +27,10 @@ the number.
   bounded retries, and surfaced errors.
 - Microphone input, cloud or OS speech playback, playback-rate control, caching,
   and cancellation.
-- Run tracing, a generated execution graph, trace reconciliation, and
-  pause/resume/step controls in the developer panel.
+- Bounded local traces across restarts, per-attempt requests and effective
+  parameters, reply/suggestion prompt blocks, request comparison and scoped export.
+- A generated execution graph, reconciliation, and pause/resume/step controls.
+- Topic explanations/examples and an edit-time reference to original coach feedback.
 - Desktop update checks and CI workflows for desktop, Android, iOS, server, and
   documentation builds.
 
@@ -45,8 +47,10 @@ the number.
   those claims.
 - Model traces contain prompt and output text and are intended for local
   diagnostics; they are not anonymized telemetry.
-- The prompt provenance/workbench ideas in [Observability](./observability) are
-  proposed work, not current configuration features.
+- Prompt editing/overrides, complete operation provenance and semantic skill
+  evaluation remain proposed work; see [Observability](./observability).
+- No skill catalog, XP, automatic skill completion or learner-profile switcher
+  exists yet. The [progression design](./skill-progression-design) is a proposal.
 
 ## Verification
 

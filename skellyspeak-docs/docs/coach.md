@@ -29,6 +29,11 @@ from completing. A badge attached to each learner message opens a feedback
 dialog with scores, corrections, an editing action and an Ask the coach action.
 Pending, failed and unavailable feedback have distinct labels.
 
+Editing opens a collapsible reference above the composer with the original
+attempt's corrections and coach remark. It remains available during recording;
+sending or cancelling the edit removes it. The full feedback dialog remains
+available separately.
+
 ## Interactive thread
 
 The coach conversation sits below the Lesson and Analysis tabs. The coach sees
@@ -72,3 +77,16 @@ not claim to have changed those selectors. Corrections to inferred memory are
 stored as explicit preferences with higher priority; both sources stay visible.
 
 The coach conversation starts as a compact dock with its message box visible. Drag its top border to resize it, or use the heading toggle to collapse the thread while keeping the composer available. Its height and collapsed state persist on this device across reloads. The divider also supports the Up/Down arrow keys and Enter.
+
+## Lesson presentation and future progression
+
+The lesson shows the actual goal or suggested topics first. Each topic requests
+a short explanation, example and translation through a read-only model call;
+errors expose Retry. Small follow-up actions prepare coach questions without
+sending them. Preferences, correction settings, observations, memory and change
+history are grouped behind one disclosure.
+
+Topic explanations are generated guidance, not evidence that a learner has
+acquired a skill or made a particular error. Grades do not currently award XP.
+The [skill progression proposal](./skill-progression-design) describes a shared
+capability map and auditable evidence as future work.

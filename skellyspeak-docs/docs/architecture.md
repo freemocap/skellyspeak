@@ -169,3 +169,10 @@ practice difficulty and lesson revision in a standalone explanation trace, rejec
 results after a context change, and does not mutate observer memory or the coach
 thread. The frontend retains the request while that topic view is mounted;
 changing chat, level or topic creates a fresh view.
+
+## Proposed product extension
+
+The [skill progression design](./skill-progression-design) keeps skill definitions
+and award rules language-independent. It proposes Rust-owned evidence and
+progress projections with a separate learner-facing skill map. These are future
+contracts; the existing execution graph continues to describe the AI pipeline.

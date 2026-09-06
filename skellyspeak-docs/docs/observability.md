@@ -42,9 +42,9 @@ structured messages, response and effective parameters after provider adaptation
 Headers and credentials are excluded. Messages and prompt blocks each have a
 24,000-character budget; truncation is explicit.
 
-Guided calls, standalone suggestions and interactive coach calls capture chat
+Guided calls, standalone suggestions, lesson-topic notes and interactive coach calls capture chat
 ownership, trigger, selected difficulty, inferred proficiency notes, lesson
-revision, partner snapshot and history counts. Replies and suggestions render
+revision, partner snapshot and history counts. Replies, suggestions and standalone lesson-topic notes render
 from named prompt blocks; recording checks that those blocks match the outgoing
 system message. Other calls expose their actual system messages without that
 fine-grained source breakdown. Context describes the operation's inputs; actual
