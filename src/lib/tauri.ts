@@ -91,6 +91,12 @@ export interface Persona {
 /// The list plus anything that went wrong reading it. Faults travel with the
 /// data rather than being logged: a personas file that could not be read shows
 /// up to the learner as "my characters are gone", and they are owed the reason.
+export interface ConversationPartner {
+  persona: Persona
+  introduction: string | null
+  origin: 'new_chat' | 'recovered_history'
+}
+
 export interface PersonaList {
   personas: Persona[]
   faults: string[]
@@ -158,18 +164,20 @@ export function listConversations(target: string, native: string): Promise<ChatS
 /// reason.
 export function loadConversation(
   target: string,
-  native: string
+  native: string,
+  personaId: string
 ): Promise<OpenedConversation> {
-  return invoke<OpenedConversation>('load_conversation', { target, native })
+  return invoke<OpenedConversation>('load_conversation', { target, native, personaId })
 }
 
 /// Switch to another chat. Its coach thread comes with it.
 export function openConversation(
   target: string,
   native: string,
-  id: string
+  id: string,
+  personaId: string
 ): Promise<OpenedConversation> {
-  return invoke<OpenedConversation>('open_conversation', { target, native, id })
+  return invoke<OpenedConversation>('open_conversation', { target, native, id, personaId })
 }
 
 export function saveConversation(
@@ -184,8 +192,8 @@ export function saveConversation(
 
 /// Start a fresh chat and make it the open one. What the tutor has learned
 /// about the learner is deliberately kept — it lives above the chats.
-export function newConversation(target: string, native: string): Promise<string> {
-  return invoke<string>('new_conversation', { target, native })
+export function newConversation(target: string, native: string, personaId: string): Promise<string> {
+  return invoke<string>('new_conversation', { target, native, personaId })
 }
 
 /// Take a chat out of the list. Its turns stay on disk, marked with the time
@@ -220,7 +228,7 @@ export function getReconciliation(): Promise<Reconciliation> {
   return invoke('get_reconciliation')
 }
 
-/// Every AI run still in memory, oldest first.
+/// Retained AI runs across application restarts, oldest first.
 export function getRuns(): Promise<Run[]> {
   return invoke('get_runs')
 }

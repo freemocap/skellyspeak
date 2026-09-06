@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chatHistory, latestAnswered, latestScaffolds, transcriptForCoach } from './turns'
+import { chatHistory, latestAnswered, latestScaffolds } from './turns'
 import type { GuidedTurnResult, Scaffolds, StoredTurn } from '../types'
 
 const scaffolds = (over: Partial<Scaffolds> = {}): Scaffolds => ({
@@ -108,20 +108,5 @@ describe('latestScaffolds', () => {
   it('is null when no turn produced any', () => {
     expect(latestScaffolds([turn(1, 'a', 'A', scaffolds())])).toBeNull()
     expect(latestScaffolds([])).toBeNull()
-  })
-})
-
-describe('transcriptForCoach', () => {
-  it('labels each side and keeps the most recent exchange', () => {
-    const turns = [turn(1, 'Hola', 'Buenos días'), turn(2, '¿Qué tal?', 'Muy bien')]
-    expect(transcriptForCoach(turns, 8)).toBe(
-      'LEARNER: Hola\nNATIVE: Buenos días\nLEARNER: ¿Qué tal?\nNATIVE: Muy bien'
-    )
-  })
-
-  it('includes a turn still in flight, which the history deliberately omits', () => {
-    // The coach is asked about the message on screen right now, so unlike the
-    // tutor history it must see the learner's newest line even unanswered.
-    expect(transcriptForCoach([turn(1, 'espera', null)], 8)).toBe('LEARNER: espera')
   })
 })

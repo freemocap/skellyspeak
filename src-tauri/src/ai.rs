@@ -299,6 +299,7 @@ impl Provider {
             "provider": {"require_parameters": true},
         });
         apply_dialect(&self.model, &mut payload);
+        run.capture_request(&payload, if self.base_url == crate::settings::OPENROUTER_BASE_URL { "OpenRouter direct" } else { "Configured endpoint" })?;
         let url = format!("{}/chat/completions", self.base_url);
         info!(
             "[ai] streaming request: model={} messages={} temp={:.2}",
@@ -321,7 +322,7 @@ impl Provider {
             Ok(r) => r,
             Err(e) => {
                 run.attempt(AttemptKind::Failed, Some(e.clone()), None);
-                run.finish_failed(&e);
+                run.finish_failed(&e)?;
                 return Err(e);
             }
         };
@@ -347,7 +348,7 @@ impl Provider {
                 Err(e) => {
                     let msg = format!("request failed after 429 backoff: {e}");
                     run.attempt(AttemptKind::Failed, Some(msg.clone()), None);
-                    run.finish_failed(&msg);
+                    run.finish_failed(&msg)?;
                     return Err(msg);
                 }
             }
@@ -364,7 +365,7 @@ impl Provider {
             error!("[ai] streaming request REJECTED: {status} {}", truncate_for_log(&body, 800));
             let msg = format!("API error {status}: {}", truncate_for_log(&body, 800));
             run.attempt(AttemptKind::Failed, Some(msg.clone()), None);
-            run.finish_failed(&msg);
+            run.finish_failed(&msg)?;
             return Err(msg);
         }
 
@@ -373,12 +374,12 @@ impl Provider {
             Ok(full) => {
                 run.set_output(&full);
                 run.attempt(AttemptKind::Ok, None, None);
-                run.finish_ok();
+                run.finish_ok()?;
                 Ok(full)
             }
             Err(e) => {
                 run.attempt(AttemptKind::Failed, Some(e.clone()), None);
-                run.finish_failed(&e);
+                run.finish_failed(&e)?;
                 Err(e)
             }
         }
@@ -533,7 +534,7 @@ impl Provider {
             Ok(v) => v,
             Err(e) => {
                 let msg = format!("schema generation failed: {e}");
-                run.finish_failed(&msg);
+                run.finish_failed(&msg)?;
                 return Err(msg);
             }
         };
@@ -581,6 +582,7 @@ impl Provider {
             // conversation, and the stored prompt should be the one that
             // actually produced the stored output.
             run.set_prompt(&attempts);
+            run.capture_request(&payload, if self.base_url == crate::settings::OPENROUTER_BASE_URL { "OpenRouter direct" } else { "Configured endpoint" })?;
             info!(
                 "[ai] structured attempt {attempt} ({name}): messages={}",
                 attempts.len()
@@ -592,7 +594,7 @@ impl Provider {
                 Ok(v) => v,
                 Err(e) => {
                     run.attempt(AttemptKind::Failed, Some(e.clone()), None);
-                    run.finish_failed(&e);
+                    run.finish_failed(&e)?;
                     return Err(e);
                 }
             };
@@ -608,7 +610,7 @@ impl Provider {
                 );
                 error!("[ai] {msg}");
                 run.attempt(AttemptKind::Failed, Some(msg.clone()), usage);
-                run.finish_failed(&msg);
+                run.finish_failed(&msg)?;
                 return Err(msg);
             }
             debug!("[ai] structured attempt {attempt} raw content: {}", truncate_for_log(&raw, 600));
@@ -634,7 +636,7 @@ impl Provider {
                     }
                     info!("[ai] structured attempt {attempt} OK");
                     run.attempt(AttemptKind::Ok, None, usage);
-                    run.finish_ok();
+                    run.finish_ok()?;
                     return Ok(value);
                 }
                 Err(e) => {
@@ -663,7 +665,7 @@ impl Provider {
             "[ai] structured output ({name}) failed after all attempts: {last_error}"
         );
         let msg = format!("structured output failed after retries: {last_error}");
-        run.finish_failed(&msg);
+        run.finish_failed(&msg)?;
         Err(msg)
     }
 }

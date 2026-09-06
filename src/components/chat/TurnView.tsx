@@ -1,5 +1,6 @@
 import { Fragment, memo, useMemo, useRef, useState } from 'react'
-import type { GuidedToken, GuidedTurnResult } from '../../types'
+import { MessageFeedback } from './MessageFeedback'
+import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
 import { popupAnchor, type PopupState } from '../GlossPopup'
 import { groupSentences, splitSentences } from '../../lib/sentences'
 import { needsSpaceBetween } from '../../lib/token-spacing'
@@ -9,6 +10,8 @@ export interface TurnShape {
   user: string | null
   assistant: GuidedTurnResult | null
   pendingText: string
+  coach?: CoachFeedback
+  coachError?: string
 }
 
 /// One token entry: the token plus which sentence it belongs to (for
@@ -117,6 +120,10 @@ function TokenSpan({
 
 export interface TurnViewProps {
   turn: TurnShape
+  reviewing: boolean
+  targetLangCode: string
+  nativeLangCode: string
+  onAskCoach: (question: string) => void
   focused: boolean
   ttsReady: boolean
   speaking: boolean
@@ -141,6 +148,10 @@ export interface TurnViewProps {
 /// changed — not the whole conversation.
 export const TurnView = memo(function TurnView({
   turn,
+  reviewing,
+  targetLangCode,
+  nativeLangCode,
+  onAskCoach,
   focused,
   ttsReady,
   speaking,
@@ -284,6 +295,7 @@ export const TurnView = memo(function TurnView({
           )}
         </div>
       )}
+      {turn.user && <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach} />}
       {assistant && (
         <div
           role="button"

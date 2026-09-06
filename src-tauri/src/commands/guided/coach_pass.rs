@@ -23,6 +23,7 @@ use super::types::{emit, GuidedEvent};
 const COACH_TRANSCRIPT_TURNS: usize = 12;
 
 pub(super) struct CoachPass {
+    pub context: crate::instruction::Context,
     pub app: AppHandle,
     pub channel: Channel<GuidedEvent>,
     pub provider: Provider,
@@ -64,6 +65,7 @@ pub(super) fn spawn(pass: CoachPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let CoachPass {
+            mut context,
             app: _app,
             channel,
             provider,
@@ -76,8 +78,9 @@ pub(super) fn spawn(pass: CoachPass) {
             topic,
         } = pass;
 
+        context.history_messages = transcript.len();
         let messages = vec![
-            json!({"role": "system", "content": prompts::coach::analysis_prompt(&tln, &native)}),
+            json!({"role": "system", "content": prompts::coach::feedback_system(&tln, &native, context.difficulty)}),
             json!({"role": "user", "content": prompts::coach::analysis_turn(
                 &transcript.join("\n"),
                 &message,
@@ -88,7 +91,7 @@ pub(super) fn spawn(pass: CoachPass) {
 
         let result = provider
             .structured_validated::<CoachFeedback, _>(
-                RunContext::new(ontology::op::REVIEW, Some(turn_id)),
+                RunContext::new(ontology::op::REVIEW, Some(turn_id)).with_context(&context),
                 &messages,
                 0.3,
                 "CoachFeedback",

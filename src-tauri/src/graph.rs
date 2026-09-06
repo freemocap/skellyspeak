@@ -111,7 +111,9 @@ const TURN_STATE: &[&str] = &[
     "level → CEFR",
     "topic",
     "dialect overlay",
-    "plan directives",
+    "persona (or no persona)",
+    "explicit lesson choices (lesson.json)",
+    "inferred plan directives",
     "profile",
 ];
 
@@ -167,7 +169,7 @@ pub fn turn_graph() -> Graph {
 
     let mut nodes = vec![
         n(INPUT, "Your message", NodeKind::Input, None,
-          "What you sent, plus the level and topic you steered with.", 40.0, 145.0),
+          "Your message, or an explicit greeting/settings-change trigger, plus the selected practice context.", 40.0, 145.0),
         n(UI, "Your screen", NodeKind::Input, None,
           "Everything lands here the moment it is ready — nothing waits for anything else.",
           880.0, 100.0),
@@ -232,7 +234,7 @@ pub fn turn_graph() -> Graph {
 pub fn standalone_graphs() -> Vec<Graph> {
     use ontology::op;
     vec![
-        small("coach_thread", "Asking the coach", "Your private side-conversation. The chat partner never sees it.", op::ANSWER, &["your question", "conversation so far", "plan", "profile", "coach thread"]),
+        small("coach_thread", "Asking the coach", "Reads your question and saved context. Explicit requests save revised lesson choices; suggestions wait for Apply. Saved choices inform subsequent partner requests. The observer cannot overwrite them.", op::ANSWER, &["your question", "saved conversation", "plan", "profile", "lesson choices", "coach thread"]),
         small("story", "Generating a story", "One level-matched story, tokenized for tap-to-translate.", op::STORY, &["level", "target language"]),
         small("word_insight", "Inspecting a word", "One word, explained in depth.", op::WORD_INSIGHT, &["word", "sentence it appeared in"]),
         small("hear", "Hearing you", "Your voice becomes text. Perception — a faculty, not an agent.", op::TRANSCRIBE, &["audio", "target-language hint"]),

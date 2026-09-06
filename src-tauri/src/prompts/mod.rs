@@ -30,8 +30,10 @@
 pub mod analysis;
 pub mod coach;
 pub mod observer;
+pub mod lesson;
 pub mod overlays;
 pub mod partner;
+pub mod difficulty;
 pub mod repair;
 pub mod speech;
 pub mod story;

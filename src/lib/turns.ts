@@ -49,16 +49,3 @@ export function latestScaffolds(turns: StoredTurn[]): Scaffolds | null {
   }
   return null
 }
-
-/// The recent exchange as plain text, for the coach thread's context.
-export function transcriptForCoach(turns: StoredTurn[], limit: number): string {
-  return turns
-    .slice(-limit)
-    .flatMap((t) =>
-      [
-        t.user ? `LEARNER: ${t.user}` : null,
-        t.assistant ? `NATIVE: ${t.assistant.reply}` : null,
-      ].filter((line): line is string => line !== null)
-    )
-    .join('\n')
-}

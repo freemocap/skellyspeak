@@ -1,198 +1,104 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { listen } from '@tauri-apps/api/event'
 import { invoke, isTauri } from '../../lib/tauri'
-import { CoachFeed } from './CoachFeed'
+import type { CoachMessage, LessonChoices, LessonState, Profile, TeachingPlan } from '../../types'
 import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
-import { usePersistentToggle } from '../../hooks/useSteering'
-import { reportFault } from '../../lib/faults'
+import { LessonContent, ChoiceSummary } from './LessonContent'
+import type { LessonSaveResult } from './LessonEditor'
+import { CoachDock } from './CoachDock'
 import { Markdown } from '../../lib/markdown'
 
-interface CoachTurn {
-  id: number
-  user: string | null
-  coach?: {
-    comprehensibility: number
-    grammar: number
-    remark: string
-    used_target: string[]
-    used_native: string[]
-    corrections: { said: string; corrected: string; kind: string; explanation: string }[]
-  }
-  coachError?: string
-}
-
-/// The unified right panel: tabs for Coach (feedback + private thread) and
-/// Analysis (pinned-turn breakdown). One pane, two views; the coach thread
-/// is persistent, the analysis pane is the same breakdown the learner
-/// already knows.
-export function CoachAnalysisPanel({
-  turns,
-  targetLangCode,
-  nativeLangCode,
-  pinnedTurn,
-  inspect,
-  nativeLanguageName,
-  showRomanization,
-  rtl,
-  threadReload,
-  buildCoachContext,
-}: {
-  turns: CoachTurn[]
-  targetLangCode: string
-  nativeLangCode: string
-  pinnedTurn: AnalysedTurn | null
-  inspect: InspectTarget | null
-  nativeLanguageName: string
-  showRomanization: boolean
-  rtl: boolean
-  threadReload: number
-  buildCoachContext: () => string
+export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conversationBusy, plan, profile, observationStatus, tab, onTab, draftQuestion, onDraftConsumed, pinnedTurn, inspect, nativeLanguageName, showRomanization, rtl }: {
+  prepareContext: () => Promise<void>; conversationBusy: boolean
+  level: string; topic: string; chatId: string; plan: TeachingPlan | null; profile: Profile | null
+  observationStatus: string; tab: 'lesson' | 'analysis'; onTab: (tab: 'lesson' | 'analysis') => void
+  draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
+  inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
-  const [tab, setTab] = useState<'coach' | 'analysis'>('coach')
-  // The thread competes for height with the per-message coach feed; collapse
-  // it and the feedback stays readable on a short pane.
-  const { open: threadOpen, toggle: toggleThread } = usePersistentToggle(
-    'skellyspeak_coach_thread',
-    true
-  )
-  const [thread, setThread] = useState<{ role: string; content: string }[]>([])
-  const [inputValue, setInputValue] = useState('')
-  const [thinking, setThinking] = useState(false)
-
-  useEffect(() => {
-    if (!isTauri) return
-    void invoke<{ role: string; content: string }[]>('get_coach_thread')
-      .then(setThread)
-      .catch((e: unknown) => reportFault('Coach history', e))
-  }, [threadReload])
-
-  const coachAsk = useCallback(
-    async (question: string) => {
-      const q = question.trim()
-      if (!q || thinking) return
-      setThinking(true)
-      setThread((t) => [...t, { role: 'user', content: q }])
-      try {
-        const res = await invoke<{ reply: string }>('coach_ask', {
-          question: q,
-          context: buildCoachContext(),
-        })
-        setThread((t) => [...t, { role: 'coach', content: res.reply }])
-      } catch (e) {
-        reportFault('Coach', e)
-        setThread((t) => [...t, { role: 'coach', content: `⚠ ${String(e)}` }])
-      } finally {
-        setThinking(false)
-      }
-    },
-    [thinking, buildCoachContext]
-  )
-
-  /// Pressing a `[[curiosity marker]]` the coach wrote asks it about that
-  /// term. The marker goes back verbatim rather than wrapped in a question:
-  /// the coach's own prompt defines what a bare marker means, so no prompt
-  /// English is composed here. Opens the thread, because an answer arriving in
-  /// a collapsed panel is an answer nobody sees.
-  const askAboutTerm = useCallback(
-    (term: string) => {
-      if (!threadOpen) toggleThread()
-      void coachAsk(`[[${term}]]`)
-    },
-    [coachAsk, threadOpen, toggleThread]
-  )
-
-  const coachClear = useCallback(() => {
-    void invoke('coach_thread_clear').catch((e: unknown) => reportFault('Clearing coach history', e))
-    setThread([])
+  const [lesson, setLesson] = useState<LessonState | null>(null)
+  const [thread, setThread] = useState<CoachMessage[]>([])
+  const [input, setInput] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const alive = useRef(true)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const threadRef = useRef<HTMLDivElement>(null)
+  const refresh = useCallback(async () => {
+    const current = await invoke<LessonState>('get_lesson')
+    if (alive.current) setLesson((previous) => previous && previous.revision > current.revision ? previous : current)
   }, [])
-
-  return (
-    <>
-      <div className="panel-tabs">
-        <button
-          type="button"
-          className={`panel-tab ${tab === 'coach' ? 'active' : ''}`}
-          onClick={() => setTab('coach')}
-        >
-          Coach
-        </button>
-        <button
-          type="button"
-          className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`}
-          onClick={() => setTab('analysis')}
-        >
-          Analysis
-        </button>
-      </div>
-      {tab === 'coach' && (
-        <>
-          <CoachFeed
-            turns={turns}
-            targetLangCode={targetLangCode}
-            nativeLangCode={nativeLangCode}
-            onTerm={askAboutTerm}
-          />
-          <div className="coach-thread-head">
-            <span>your thread{thread.length > 0 ? ` · ${thread.length}` : ''}</span>
-            <button
-              type="button"
-              onClick={toggleThread}
-              aria-expanded={threadOpen}
-              title={threadOpen ? 'Hide the thread' : 'Show the thread'}
-            >
-              {threadOpen ? '▾' : '▸'}
-            </button>
-          </div>
-          {threadOpen && (
-            <div className="coach-thread">
-              {thread.map((m, i) => (
-                <div key={i} className={`coach-msg ${m.role}`}>
-                  <Markdown text={m.content} onTerm={askAboutTerm} />
-                </div>
-              ))}
-              {thinking && <div className="coach-msg coach">⟳ thinking…</div>}
-            </div>
-          )}
-          <form
-            className="coach-input-row"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void coachAsk(inputValue)
-              setInputValue('')
-            }}
-          >
-            <input
-              className="coach-input"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask the coach…"
-              disabled={!isTauri}
-            />
-            <button type="submit" className="coach-send" disabled={!inputValue.trim() || thinking}>
-              ↑
-            </button>
-            <button type="button" className="coach-clear" title="Clear coach thread" onClick={coachClear}>
-              ⌫
-            </button>
-          </form>
-        </>
-      )}
-      {tab === 'analysis' && (
-        <div className="analysis-scroll">
-          {pinnedTurn ? (
-            <AnalysisContent
-              turn={pinnedTurn as never}
-              inspect={inspect}
-              nativeLanguageName={nativeLanguageName}
-              showRomanization={showRomanization}
-              rtl={rtl}
-            />
-          ) : (
-            <p className="center-note">
-              The breakdown of the tutor&apos;s latest reply lands here.
-            </p>
-          )}
-        </div>
-      )}
-    </>
-  )
+  useEffect(() => {
+    alive.current = true
+    if (!isTauri) return
+    void refresh().catch((e: unknown) => { if (alive.current) setError(String(e)) })
+    void invoke<CoachMessage[]>('get_coach_thread').then((messages) => { if (alive.current) setThread(messages) }).catch((e: unknown) => { if (alive.current) setError(String(e)) })
+    const subscription = listen('lesson-changed', () => { void refresh().catch((e: unknown) => { if (alive.current) setError(String(e)) }) })
+    void subscription.catch((e: unknown) => { if (alive.current) setError(String(e)) })
+    return () => { alive.current = false; void subscription.then((unlisten) => unlisten(), () => {}) }
+  }, [refresh])
+  useEffect(() => {
+    if (!draftQuestion) return
+    setInput(draftQuestion); inputRef.current?.focus(); onDraftConsumed()
+  }, [draftQuestion, onDraftConsumed])
+  useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
+  const recover = async (failure: unknown): Promise<void> => {
+    if (alive.current) setError(String(failure))
+    try { await refresh() } catch (e) { if (alive.current) setError(`${String(failure)}\nCannot refresh lesson: ${String(e)}`) }
+  }
+  const save = async (choices: LessonChoices, revision: number): Promise<LessonSaveResult> => {
+    setBusy(true); setError(null)
+    try {
+      const saved = await invoke<LessonState>('save_lesson', { chatId, expectedRevision: revision, choices })
+      if (alive.current) setLesson((previous) => previous && previous.revision > saved.revision ? previous : saved)
+      return { lesson: saved }
+    } catch (e) { await recover(e); return { error: String(e) } }
+    finally { if (alive.current) setBusy(false) }
+  }
+  const ask = async (): Promise<void> => {
+    const question = input.trim()
+    if (!question || busy || conversationBusy || !lesson) return
+    setBusy(true); setError(null)
+    try {
+      await prepareContext()
+      if (!alive.current) return
+      const result = await invoke<{ reply: string; proposal: LessonChoices | null; lesson: LessonState }>('coach_ask', { question, chatId, level, topic, expectedRevision: lesson.revision })
+      if (!alive.current) return
+      setThread((messages) => [...messages, { role: 'user', content: question, proposal: null, lesson_revision: null }, { role: 'coach', content: result.reply, proposal: result.proposal, lesson_revision: result.lesson.revision }])
+      setLesson((previous) => previous && previous.revision > result.lesson.revision ? previous : result.lesson); setInput('')
+    } catch (e) { await recover(e) }
+    finally { if (alive.current) setBusy(false) }
+  }
+  const clearThread = async (): Promise<void> => {
+    if (busy || conversationBusy) return
+    setBusy(true); setError(null)
+    try {
+      await invoke('coach_thread_clear')
+      if (alive.current) setThread([])
+    } catch (e) { if (alive.current) setError(String(e)) }
+    finally { if (alive.current) setBusy(false) }
+  }
+  const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
+  return <>
+    <div className="panel-tabs" role="tablist" aria-label="Learning panel">
+      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
+      <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
+    </div>
+    {tab === 'lesson' ? <>{lesson ? <LessonContent chatId={chatId} level={level} lesson={lesson} plan={plan} profile={profile} busy={busy || conversationBusy} observationStatus={observationStatus} onSave={save} onAsk={draft} /> : <p className="center-note">Loading lesson choices…</p>}</> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a partner reply to see its breakdown.</p>}</div>}
+    <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled={busy || conversationBusy || thread.length === 0} onClick={() => { void clearThread() }}>Clear thread</button>}>
+    <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">
+      {thread.length === 0 && <p className="lesson-meta">Ask why we’re practising something, request a change, or ask about a message. Explicit requests update your lesson; suggestions wait for you.</p>}
+      {thread.map((message, i) => {
+        const applied = lesson?.changes.some((change) => change.revision === (message.lesson_revision ?? -2) + 1 && JSON.stringify(change.after) === JSON.stringify(message.proposal)) ?? false
+        return <div key={i} className={`coach-msg ${message.role}`}><Markdown text={message.content} onTerm={(term) => draft(`[[${term}]]`)} />
+        {message.proposal && <div className="lesson-proposal"><strong>{applied ? 'Suggestion applied' : 'Suggested change · not applied'}</strong><ChoiceSummary choices={message.proposal} /><button className="lesson-action" type="button" disabled={busy || applied || !lesson || message.lesson_revision !== lesson.revision} onClick={() => { if (message.proposal && message.lesson_revision !== null) void save(message.proposal, message.lesson_revision) }}>Apply suggestion</button>{lesson && !applied && message.lesson_revision !== lesson.revision && <p className="lesson-meta">The lesson has changed since this suggestion. Ask the coach for a fresh proposal.</p>}</div>}
+      </div>})}
+      {busy && <p role="status" className="lesson-meta">Working…</p>}
+    </div>
+    {error && <div className="turn-errors" role="alert">{error}</div>}
+    <form className="coach-input-row" onSubmit={(e) => { e.preventDefault(); void ask() }}>
+      <textarea ref={inputRef} className="coach-input" rows={2} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about the lesson, or tell the coach what to change…" aria-label="Message your coach" disabled={!isTauri || busy} />
+      <button type="submit" className="coach-send" aria-label="Send to coach" disabled={!lesson || !input.trim() || busy || conversationBusy}>↑</button>
+    </form>
+    </CoachDock>
+  </>
 }

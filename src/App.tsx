@@ -169,7 +169,7 @@ export default function App() {
             onClick={() => setDevOpen((v) => !v)}
             aria-label="AI"
             aria-expanded={devOpen}
-            title="AI — the live agent graph, every model call, and the logs"
+            title="AI — understand recent activity, inspect a pipeline, or open debugging tools"
           >
             <span className="inside-dot" aria-hidden="true" />
             AI

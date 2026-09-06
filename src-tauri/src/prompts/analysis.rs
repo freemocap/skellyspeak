@@ -109,13 +109,14 @@ pub fn mechanics_prompt(
     )
 }
 
-pub fn scaffolds_prompt(
+pub fn scaffolds_blocks(
     target_language_name: &str,
+    cefr_level: &str,
     native_language_name: &str,
     directives: &str,
-) -> String {
-    format!(
-        "You prepare scaffolds for a {tln} learner's NEXT message. Given the \
+) -> Vec<crate::instruction::Block> {
+    let task = format!(
+        "Apply these limits to EACH suggestion individually, not to the JSON envelope. Each reply suggestion is one sentence.\nYou prepare scaffolds for a {tln} learner's NEXT message. Given the \
          conversation so far, write:\n\
          - replies: exactly 2 complete sentences in {tln} the learner could\n\
            plausibly send next\n\
@@ -135,8 +136,15 @@ pub fn scaffolds_prompt(
         native = native_language_name,
         directives = directives,
         nothing = no_information_rule(),
-    )
+    );
+    vec![crate::instruction::Block::new("difficulty", "difficulty.rs + selected practice setting", crate::prompts::difficulty::Difficulty::from_cefr(cefr_level).policy()),
+         crate::instruction::Block::new("suggestion_task", "prompts/analysis.rs + captured language and teaching context", task)]
 }
+
+pub fn scaffolds_prompt(target_language_name: &str, cefr_level: &str, native_language_name: &str, directives: &str) -> String {
+    crate::instruction::render(&scaffolds_blocks(target_language_name, cefr_level, native_language_name, directives))
+}
+
 
 pub fn learner_tokens_prompt(
     target_language_name: &str,

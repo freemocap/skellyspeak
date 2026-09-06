@@ -11,7 +11,6 @@ import {
   languages,
   saveSettings,
 } from '../lib/tauri'
-import { openOverlay } from '../lib/back'
 import {
   isSpeaking,
   loadVoices,
@@ -28,6 +27,7 @@ import { comboFromEvent } from '../lib/keyboard'
 import { normalizeDocs } from '../lib/normalize'
 import { WaveformStrip } from '../components/WaveformStrip'
 import { WordInsightModal } from '../components/WordInsightModal'
+import { EditFeedback } from '../components/chat/EditFeedback'
 import { TurnView } from '../components/chat/TurnView'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
@@ -35,7 +35,7 @@ import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
 import { PersonaField } from '../components/PersonaField'
 import { TopicField } from '../components/TopicField'
 import { ChatHistory } from '../components/ChatHistory'
-import { chatHistory, latestAnswered, latestScaffolds, transcriptForCoach } from '../lib/turns'
+import { chatHistory, latestAnswered, latestScaffolds } from '../lib/turns'
 import { useConversation, type Turn } from './guided/useConversation'
 import { useScaffolds } from './guided/useScaffolds'
 import { useWordInspection } from './guided/useWordInspection'
@@ -49,7 +49,6 @@ import { needsProviderSetup } from '../lib/providers'
 /// How much of the conversation each caller sends. The tutor needs the thread;
 /// a scaffold refresh and the coach only need the recent exchange.
 const REPLY_HISTORY_MESSAGES = 30
-const COACH_CONTEXT_TURNS = 8
 
 /// The mobile surfaces, in swipe order. The dev panel is last deliberately:
 /// it is the deepest rung of the disclosure ladder, always reachable but never
@@ -132,13 +131,14 @@ export default function GuidedPage({
   const ttsEngine = settings?.tts_engine ?? 'cloud'
   const ttsReady = ttsAvailable(ttsEngine, osVoiceReady)
   const autoSpeak = settings?.auto_speak ?? false
-  const [planOpen, setPlanOpen] = useState(false)
-  useEffect(
-    () => (planOpen ? openOverlay(() => setPlanOpen(false)) : undefined),
-    [planOpen]
-  )
+  const [panelTab, setPanelTab] = useState<'lesson' | 'analysis'>('lesson')
+  const [coachDraft, setCoachDraft] = useState('')
+  const [reviewing, setReviewing] = useState<Set<number>>(new Set())
+  const [observationStatus, setObservationStatus] = useState('May lag behind the latest lesson choices.')
+  const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const steer = useSteering()
+  const setupPanel = usePersistentToggle('skellyspeak_chat_settings', true)
   const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
@@ -187,6 +187,9 @@ export default function GuidedPage({
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
     setPinnedId(null)
+    setCoachDraft('')
+    setReviewing(new Set())
+    setObservationStatus('May lag behind the latest lesson choices.')
     clearWordsRef.current()
     clearScaffoldsRef.current()
     setError(null)
@@ -211,12 +214,15 @@ export default function GuidedPage({
     nextIdRef,
     chats,
     currentChatId,
+    openingFailed,
     chatIdRef,
     openChat,
     startNew: startNewConversation,
     removeChat,
+    flush,
   } = useConversation({
     settings,
+    persona: steer.persona,
     sending,
     setHistoryOpen,
     greet: () => greetRef.current(),
@@ -272,12 +278,14 @@ export default function GuidedPage({
   const onBubbleTap = useCallback(
     (id: number) => {
       setPinnedId(id)
+      setMobileSurface('panel')
+      setPanelTab('analysis')
       if (!breakOpen) toggleBreak()
     },
     [breakOpen, toggleBreak]
   )
   const requestTurn = useCallback(
-    async (body: { message?: string; greeting?: boolean; steering?: string }) => {
+    async (body: { message?: string; greeting?: boolean; steering?: string; replacesMessageId?: number }) => {
       const owner = chatIdRef.current
       if (!owner) {
         setError('No conversation is open. Open a chat from history or start a new one.')
@@ -292,10 +300,10 @@ export default function GuidedPage({
         message: body.message ?? '',
         level: steer.level,
         topic: steer.topic || '(any)',
-        persona: steer.persona,
       })
       const pendingId = nextIdRef.current++
       const userText = body.greeting ? null : (body.message ?? '')
+      if (userText) setReviewing((ids) => new Set([...ids, pendingId]))
       const turnStarted = performance.now()
       setTurns((prev) => [
         ...prev,
@@ -336,7 +344,7 @@ export default function GuidedPage({
                 pendingText: '',
               }))
               setSending(false)
-              onBubbleTap(pendingId)
+              setPinnedId(pendingId)
               break
             case 'analysis_section':
               if (event.user_tokens) earlySections = { ...earlySections, user_tokens: event.user_tokens }
@@ -361,6 +369,7 @@ export default function GuidedPage({
               )
               break
             case 'coach_done':
+              setReviewing((ids) => { const next = new Set(ids); next.delete(pendingId); return next })
               logInfo(
                 '[coach] feedback:', event.feedback.corrections.length, 'corrections,',
                 'comp', event.feedback.comprehensibility, '/ grammar', event.feedback.grammar
@@ -368,6 +377,7 @@ export default function GuidedPage({
               updatePending((t) => ({ ...t, coach: event.feedback }))
               break
             case 'coach_failed':
+              setReviewing((ids) => { const next = new Set(ids); next.delete(pendingId); return next })
               logWarn('[coach] failed:', event.error)
               updatePending((t) => ({ ...t, coachError: event.error }))
               break
@@ -389,6 +399,7 @@ export default function GuidedPage({
               }))
               break
             case 'plan_updated': {
+              setObservationStatus('Refreshed after a conversation turn. Your explicit choices still take priority.')
               logInfo('[guided] plan updated:', {
                 focus: event.plan.session_focus,
                 errors: event.plan.recurring_errors.length,
@@ -406,13 +417,14 @@ export default function GuidedPage({
         await invoke<string>('guided_turn', {
           message: body.message ?? '',
           history,
+          messageId: pendingId,
+          historyAvailable: chatHistory(turnsRef.current, Number.MAX_SAFE_INTEGER).length,
+          replacesMessageId: body.replacesMessageId ?? null,
           greeting: body.greeting ?? false,
           steering: body.steering ?? null,
           level: steer.level,
           topic: steer.topic || null,
-          persona: steer.persona,
-          // The seed "surprise me" resolves from, so the partner is one person
-          // for the whole of this conversation and someone else in the next.
+            // The core reads the character saved for this conversation.
           // Read from the ref, not from `currentChatId`: the greeting turn is
           // fired from inside the effect that opens the chat, and this callback
           // still holds the null from the render before it existed.
@@ -434,7 +446,7 @@ export default function GuidedPage({
         setSending(false)
       }
     },
-    [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic, steer.persona, chatIdRef]
+    [autoSpeak, onBubbleTap, speakReply, steer.level, steer.topic, chatIdRef]
   )
 
   async function send(text: string) {
@@ -442,6 +454,7 @@ export default function GuidedPage({
     if (!message || sending) return
     setInput('')
     stopSpeaking() // new turn: silence any ongoing playback
+    const replacesMessageId = editingTurnId ?? undefined
     if (editingTurnId !== null) {
       const idx = turnsRef.current.findIndex((t) => t.id === editingTurnId)
       if (idx !== -1) {
@@ -454,7 +467,7 @@ export default function GuidedPage({
       }
       setEditingTurnId(null)
     }
-    await requestTurn({ message })
+    await requestTurn({ message, replacesMessageId })
   }
   sendRef.current = send
 
@@ -518,6 +531,7 @@ export default function GuidedPage({
     return () => window.removeEventListener('keydown', onKey)
   }, [settings?.shortcuts, speakReply])
 
+  const editingTurn = turns.find((turn) => turn.id === editingTurnId)
   const latestAssistantId = latestAnswered(turns)?.id ?? null
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
@@ -570,6 +584,7 @@ export default function GuidedPage({
   // Fresh scaffolds: regenerated when steering changes, so suggestions track
   // level/topic instead of going stale. Turn analysis clears this override.
   const scaffolds = useScaffolds({
+    chatIdRef,
     turnsRef,
     settingsRef,
     settingsLoaded: settings !== null,
@@ -580,13 +595,6 @@ export default function GuidedPage({
   const chipsForUI = scaffolds.chipsFrom(bestScaffolds)
   clearScaffoldsRef.current = () => scaffolds.setFresh(null)
   clearWordsRef.current = words.clear
-
-  // Context for the coach thread inside the unified panel.
-  const buildCoachContext = useCallback(
-    () => transcriptForCoach(turnsRef.current, COACH_CONTEXT_TURNS),
-    []
-  )
-
 
   const mic = useMicRecorder({
     micDeviceId: settings?.microphone_device_id,
@@ -614,12 +622,14 @@ export default function GuidedPage({
   toggleMicRef.current = mic.toggleMic
 
   // Mobile mode: below the breakpoint the window switches to a tabbed
-  // single-surface layout (Chat / Coach / Analysis) instead of stacking
+  // single-surface layout (Chat / Lesson / AI) instead of stacking
   // everything into one unusable column. The breakpoint itself lives in
   // useIsMobile — Settings reads the same one.
   const isMobile = useIsMobile()
   const aiBusy = useAiActivity()
   const [mobileSurface, setMobileSurface] = useState<MobileSurface>('chat')
+
+  useEffect(() => { if (words.inspect) { setPanelTab('analysis'); setMobileSurface('panel') } }, [words.inspect])
 
   // Horizontal swipe walks the surfaces on mobile.
   const swipe = useRef<{ x: number; y: number; t: number } | null>(null)
@@ -654,22 +664,28 @@ export default function GuidedPage({
         languageName={targetLanguageName}
         onClose={() => setHistoryOpen(false)}
         onOpenChat={(id) => void openChat(id)}
-        onNewChat={() => void startNewConversation()}
+        onNewChat={() => void startNewConversation(steer.persona)}
         onDeleteChat={(id) => void removeChat(id)}
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Conversation · {targetLanguageName}</span>
+          <span className="chat-heading-label">Conversation · {targetLanguageName}</span>
+          <div className="chat-heading-actions">
 
           <button
             type="button"
             className="plan-toggle"
-            onClick={() => setPlanOpen(true)}
-            title="Teaching plan & profile"
+            onClick={() => { setPanelTab('lesson'); setMobileSurface('panel'); if (!breakOpen) toggleBreak() }}
+            title="Show lesson and coach"
           >
-            Plan {plan?.session_focus.length ? `· ${plan.session_focus.length}` : ''}
+            Lesson & coach
           </button>
+          <button type="button" className="new-chat" aria-label="New chat"
+            title="Start a new chat — this conversation stays in history"
+            disabled={!settings || sending}
+            onClick={() => void startNewConversation(steer.persona)}>+</button>
+          </div>
         </div>
         <div className="stream" ref={streamRef}>
           {turns.length === 0 && !error && !sending && (
@@ -681,6 +697,10 @@ export default function GuidedPage({
             <TurnView
               key={turn.id}
               turn={turn}
+              reviewing={reviewing.has(turn.id)}
+              targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
+              nativeLangCode={settings?.native_language ?? 'en'}
+              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileSurface('panel'); if (!breakOpen) toggleBreak() }}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={ttsReady}
               speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
@@ -723,44 +743,84 @@ export default function GuidedPage({
               </button>
             </div>
           )}
-          {/* Everything that is not the transcript or the composer folds
-              away together: suggestions, the reading and voice toggles, and
-              the level/topic/partner controls. Three separate strips above a
-              phone keyboard left almost no room for the conversation. */}
+          {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
+          {/* Suggestions and conversation settings fold independently above the composer. */}
           <div className="scaffold-block">
-            <div className="scaffold-block-head">
-              <span className="scaffold-block-title">
-                Suggestions &amp; settings
-                {!scaffolds.open && (
-                  <span className="scaffold-block-summary">
-                    {' · '}
-                    {STEER_LEVELS.find((l) => l.value === steer.level)?.label ?? steer.level}
-                    {steer.topic ? ` · ${steer.topic}` : ' · any topic'}
-                  </span>
-                )}
-              </span>
-              <span className="scaffold-status">
-                {scaffolds.loading
-                  ? '⟳ writing…'
-                  : scaffolds.error
-                    ? `⚠ ${scaffolds.error}`
-                    : ''}
-              </span>
-              <button
-                type="button"
-                className="scaffold-toggle"
-                onClick={scaffolds.toggle}
-                aria-expanded={scaffolds.open}
-                title={scaffolds.open ? 'Hide suggestions and settings' : 'Show suggestions and settings'}
-              >
-                {scaffolds.open ? '▾' : '▸'}
+            <div className="chat-section-heading">
+              <button type="button" className="chat-panel-toggle" onClick={scaffolds.toggle}
+                aria-expanded={scaffolds.open} aria-controls="chat-suggestions" title={scaffolds.open ? 'Hide suggestions' : 'Show suggestions'}>
+                {scaffolds.open ? '▾' : '▸'} Suggestions
               </button>
+              {!scaffolds.open && chipsForUI.replies.length > 0 && <div className="suggestion-preview" role="group" aria-label="Quick suggested replies">
+                {chipsForUI.replies.slice(0, 2).map((reply, index) => <button key={index} type="button" className="scaf suggestion-preview-badge"
+                  title={reply} aria-label={`Send suggested reply: ${reply}`} disabled={sending || !isTauri} onClick={() => { void send(reply) }}>
+                  {reply}
+                </button>)}
+              </div>}
+              {(scaffolds.loading || scaffolds.error) && <span className="scaffold-status">{scaffolds.error ? `⚠ ${scaffolds.error}` : '⟳ writing…'}</span>}
             </div>
             {scaffolds.open && (
-              <div className="scaffold-groups">
+              <div id="chat-suggestions" className="scaffold-groups">
                 <ScaffoldRow label="Say it" items={chipsForUI.replies} onPick={(s) => void send(s)} />
                 <ScaffoldRow label="Build it" items={chipsForUI.frames} onPick={(f) => setInput(f)} />
                 <ScaffoldRow label="Start it" items={chipsForUI.starters} onPick={(s) => setInput(`${s} `)} />
+
+              </div>
+            )}
+          </div>
+          <div className="scaffold-block chat-settings-block">
+            <div className="chat-section-heading">
+              <button type="button" className="chat-panel-toggle" onClick={setupPanel.toggle}
+                aria-expanded={setupPanel.open} aria-controls="chat-settings" title={setupPanel.open ? 'Hide chat settings' : 'Show chat settings'}>
+                {setupPanel.open ? '▾' : '▸'} Settings &amp; voice
+              </button>
+              {!setupPanel.open && <span className="chat-panel-summary">
+                {STEER_LEVELS.find((l) => l.value === steer.level)?.label ?? steer.level}
+                {steer.topic ? ` · ${steer.topic}` : ' · any topic'}
+              </span>}
+            </div>
+            {setupPanel.open && <div id="chat-settings" className="scaffold-groups">
+                <fieldset className="conversation-controls" disabled={sending}>
+                <div className="steer-row">
+                  <select
+                    className="steer-select"
+                    value={steer.level}
+                    onChange={(e) => steer.setLevel(e.target.value)}
+                    aria-label="Learner level"
+                    title="Learner level — steers every prompt"
+                  >
+                    {!STEER_LEVELS.some((level) => level.value === steer.level) && (
+                      <option value={steer.level} disabled>Unrecognized saved level — choose a level</option>
+                    )}
+                    {STEER_LEVELS.map((l) => (
+                      <option key={l.value} value={l.value}>
+                        {l.label}
+                      </option>
+                    ))}
+                  </select>
+                  <TopicField topics={STEER_TOPICS} value={steer.topic} onChange={steer.setTopic} />
+                  <button
+                    type="button"
+                    className="steer-dice"
+                    title="Random topic"
+                    aria-label="Random topic"
+                    onClick={steer.randomTopic}
+                  >
+                    🎲
+                  </button>
+                </div>
+                {/* Changing who you are talking to starts a fresh conversation:
+                    the person you were mid-sentence with cannot turn into
+                    somebody else. The old chat is archived, not lost. */}
+                {(currentChatId || openingFailed) && <PersonaField
+                  chatId={currentChatId}
+                  onChange={(id) => {
+                    steer.setPersona(id)
+                    void startNewConversation(id)
+                  }}
+                />}
+                </fieldset>
+
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
                 <div className="quick-toggles" role="group" aria-label="Reading and voice options">
@@ -811,55 +871,9 @@ export default function GuidedPage({
                     </select>
                   </label>
                 </div>
-                <div className="steer-row">
-                  <select
-                    className="steer-select"
-                    value={steer.level}
-                    onChange={(e) => steer.setLevel(e.target.value)}
-                    aria-label="Learner level"
-                    title="Learner level — steers every prompt"
-                  >
-                    {!STEER_LEVELS.some((level) => level.value === steer.level) && (
-                      <option value={steer.level} disabled>Unrecognized saved level — choose a level</option>
-                    )}
-                    {STEER_LEVELS.map((l) => (
-                      <option key={l.value} value={l.value}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </select>
-                  <TopicField topics={STEER_TOPICS} value={steer.topic} onChange={steer.setTopic} />
-                  <button
-                    type="button"
-                    className="steer-dice"
-                    title="Random topic"
-                    aria-label="Random topic"
-                    onClick={steer.randomTopic}
-                  >
-                    🎲
-                  </button>
-                  <button
-                    type="button"
-                    className="steer-dice"
-                    title="Start a new conversation — this one is archived, and the tutor keeps what it has learned about you"
-                    aria-label="New conversation"
-                    onClick={() => void startNewConversation()}
-                  >
-                    ✚
-                  </button>
-                </div>
-                {/* Changing who you are talking to starts a fresh conversation:
-                    the person you were mid-sentence with cannot turn into
-                    somebody else. The old chat is archived, not lost. */}
-                <PersonaField
-                  value={steer.persona}
-                  onChange={(id) => {
-                    steer.setPersona(id)
-                    void startNewConversation()
-                  }}
-                />
+
               </div>
-            )}
+            }
           </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
@@ -882,27 +896,28 @@ export default function GuidedPage({
               autoCorrect="off"
               spellCheck={false}
             />
-            <button
-              type="button"
-              className={`mic ${mic.recording ? 'recording' : ''}`}
-              onClick={mic.toggleMic}
-              disabled={!isTauri || sending}
-              title={mic.recording ? 'Stop recording' : 'Record audio'}
-              aria-label={mic.recording ? 'Stop recording' : 'Record audio'}
-            >
-              ●
-            </button>
             {mic.recording && (
               <button
                 type="button"
                 className="mic-cancel"
                 onClick={mic.cancel}
-                title="Cancel recording (discard)"
-                aria-label="Cancel recording"
+                title="Discard recording without transcribing"
+                aria-label="Discard recording"
               >
-                ✕
+                Discard
               </button>
             )}
+            <button
+              type="button"
+              className={`mic ${mic.recording ? 'recording' : ''}`}
+              onClick={mic.toggleMic}
+              disabled={!isTauri || sending}
+              title={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
+              aria-label={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
+            >
+              {mic.recording ? '■' : '●'}
+            </button>
+
             <button
               type="submit"
               className="send"
@@ -918,7 +933,7 @@ export default function GuidedPage({
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section
         className={`break ${breakOpen ? '' : 'collapsed'} ${
-          isMobile && mobileSurface === 'chat' ? 'mobile-hidden' : ''
+          isMobile && mobileSurface !== 'panel' ? 'mobile-hidden' : ''
         }`}
         ref={breakRef}
       >
@@ -927,28 +942,37 @@ export default function GuidedPage({
           className="break-head"
           onClick={toggleBreak}
           aria-expanded={breakOpen}
-          title={breakOpen ? 'Collapse breakdown' : 'Expand breakdown'}
+          title={breakOpen ? 'Collapse learning panel' : 'Expand learning panel'}
         >
-          <span className="k">Breakdown · latest turn</span>
+          <span className="k">Your lesson & coach</span>
           <span className="head-right">
-            <span className="live">● live</span>
+            <span className="live">Learner-led</span>
             <span className="chev">{breakOpen ? '▾' : '▸'}</span>
           </span>
         </button>
 
-        {/* Unified right panel: Coach + Analysis tabs (see panes/) */}
-        <CoachAnalysisPanel
-          turns={turns}
-          targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0].toUpperCase()}
-          nativeLangCode={(settings?.native_language ?? 'en').toUpperCase()}
+        {/* Lesson choices and private coaching share the learning panel. */}
+        {currentChatId && <CoachAnalysisPanel
+          key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
+          chatId={currentChatId}
+          level={steer.level}
+          topic={steer.topic}
+          prepareContext={flush}
+          conversationBusy={sending}
+          plan={plan}
+          profile={profile}
+          tab={panelTab}
+          onTab={setPanelTab}
+          observationStatus={observationStatus}
+          draftQuestion={coachDraft}
+          onDraftConsumed={consumeCoachDraft}
           pinnedTurn={pinnedTurn}
           inspect={words.inspect}
           nativeLanguageName={nativeLanguageName}
           showRomanization={showRomanization}
           rtl={rtl}
-          threadReload={threadReload}
-          buildCoachContext={buildCoachContext}
-        />
+        />}
+
       </section>
 
       {/* The dev surface: the same DevPanel as the desktop dock and the
@@ -967,7 +991,7 @@ export default function GuidedPage({
           {(
             [
               ['chat', '💬', 'Chat'],
-              ['panel', '🎓', 'Coach'],
+              ['panel', '🎓', 'Lesson'],
               ['dev', '💭', 'AI'],
             ] as [MobileSurface, string, string][]
           ).map(([id, icon, label]) => (
@@ -985,180 +1009,6 @@ export default function GuidedPage({
             </button>
           ))}
         </nav>
-      )}
-
-      {/* ── Plan & Profile drawer (fully observable) ──────────────────── */}
-      {planOpen && (
-        <div className="plan-backdrop" onClick={() => setPlanOpen(false)}>
-          <div className="plan-drawer" onClick={(e) => e.stopPropagation()}>
-            <div className="plan-head">
-              <span className="k">Teaching plan · profile</span>
-              <button type="button" className="popup-x" onClick={() => setPlanOpen(false)} aria-label="Close">
-                ✕
-              </button>
-            </div>
-            <div className="plan-body">
-              {plan && (
-                <>
-                  <p className="sect-k">Session focus</p>
-                  {plan.session_focus.length > 0 ? (
-                    <div className="feats">
-                      {plan.session_focus.map((f) => (
-                        <span key={f} className="feat">
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="plan-muted">Warming up — keep chatting and this fills in.</p>
-                  )}
-
-                  <p className="sect-k">Recast queue (correction budget: {plan.correction_budget}/reply)</p>
-                  {plan.recurring_errors.length > 0 ? (
-                    <ul className="plan-list">
-                      {plan.recurring_errors.map((e, i) => (
-                        <li key={i}>
-                          <s>{e.error}</s> → <b>{e.correction}</b> <span className="plan-dim">×{e.seen_count}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="plan-muted">No recurring errors yet.</p>
-                  )}
-
-                  {plan.vocab_recycle.length > 0 && (
-                    <>
-                      <p className="sect-k">Vocabulary to recycle</p>
-                      <div className="feats">
-                        {plan.vocab_recycle.map((v) => (
-                          <span key={v} className="feat">
-                            {v}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {plan.avoid.length > 0 && (
-                    <>
-                      <p className="sect-k">Avoid (overload guard)</p>
-                      <div className="feats">
-                        {plan.avoid.map((a) => (
-                          <span key={a} className="feat">
-                            {a}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {plan.energy_read && (
-                    <>
-                      <p className="sect-k">Learner energy</p>
-                      <p className="plan-line">{plan.energy_read}</p>
-                    </>
-                  )}
-
-                  {plan.taught_ledger.length > 0 && (
-                    <>
-                      <p className="sect-k">Taught so far</p>
-                      <ul className="plan-list">
-                        {plan.taught_ledger.map((t, i) => (
-                          <li key={i}>
-                            {t.mechanic} <span className="plan-dim">(turn {t.last_seen_turn})</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </>
-              )}
-
-              {profile && (
-                <>
-                  <p className="sect-k" style={{ marginTop: 26 }}>Profile</p>
-                  {profile.about && <p className="plan-line">{profile.about}</p>}
-                  {profile.level_notes && (
-                    <>
-                      <p className="sect-k">Level read</p>
-                      <p className="plan-line">{profile.level_notes}</p>
-                    </>
-                  )}
-                  {profile.strengths.length > 0 && (
-                    <>
-                      <p className="sect-k">Strengths</p>
-                      <div className="feats">
-                        {profile.strengths.map((s) => (
-                          <span key={s} className="feat">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  {profile.weaknesses.length > 0 && (
-                    <>
-                      <p className="sect-k">Working on</p>
-                      <div className="feats">
-                        {profile.weaknesses.map((w) => (
-                          <span key={w} className="feat">
-                            {w}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  {profile.interests.length > 0 && (
-                    <>
-                      <p className="sect-k">Interests</p>
-                      <div className="feats">
-                        {profile.interests.map((s) => (
-                          <span key={s} className="feat">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  {profile.long_term_errors.length > 0 && (
-                    <>
-                      <p className="sect-k">Long-term errors</p>
-                      <ul className="plan-list">
-                        {profile.long_term_errors.map((e, i) => (
-                          <li key={i}>
-                            <s>{e.error}</s> → <b>{e.correction}</b> <span className="plan-dim">×{e.seen_count}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </>
-              )}
-              {plan && (
-                <div className="modal-actions">
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => {
-                      setPlan(null)
-                      setProfile(null)
-                      void getPlan()
-                        .then((docs) => {
-                          const norm = normalizeDocs(docs.plan, docs.profile)
-                          setPlan(norm.plan)
-                          setProfile(norm.profile)
-                          logInfo('[guided] plan refreshed')
-                        })
-                        .catch((e) => reportFault('Refreshing teaching plan', e))
-                    }}
-                  >
-                    ↻ Refresh
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       )}
 
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}

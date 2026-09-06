@@ -3,6 +3,7 @@ import {
   deletePersona,
   savePersona,
   type Persona,
+  type ConversationPartner,
 } from '../lib/tauri'
 import { openOverlay } from '../lib/back'
 import { reportFault } from '../lib/faults'
@@ -15,6 +16,7 @@ const MIN_SKETCH = 60
 const MAX_SKETCH = 1200
 
 interface PersonaModalProps {
+  partner: ConversationPartner
   personas: Persona[]
   /// Which one the picker currently has selected. `surprise` opens the editor
   /// on nothing in particular, since there is no single person to show.
@@ -38,6 +40,7 @@ const BLANK = {
 /// for concrete character details, and the core refuses descriptions too short
 /// to establish a distinct person.
 export function PersonaModal({
+  partner,
   personas,
   selectedId,
   onClose,
@@ -133,10 +136,19 @@ export function PersonaModal({
       >
         <h2>Personas</h2>
         <p className="sub">
-          Who you practise with. The description below is sent to the model as-is on every
-          message — that is the whole difference between a conversation and an interview.
+          Each chat keeps its own character. Editing these templates affects future chats.
         </p>
 
+        <details className="saved-partner" open>
+          <summary>This chat: {partner.persona.label}</summary>
+          <p>{partner.origin === 'recovered_history'
+            ? 'Recovered from the earliest saved reply. The original template is unknown.'
+            : 'Saved character snapshot · fixed for this conversation.'}</p>
+          <details><summary>Saved character description</summary><p>{partner.persona.sketch}</p></details>
+          {partner.introduction
+            ? <blockquote>{partner.introduction}</blockquote>
+            : <p>Identity is saved when the first reply finishes. Reopen this panel to refresh.</p>}
+        </details>
         <div className="persona-panes">
           <div className="persona-list" role="listbox" aria-label="Personas">
             {personas.map((p) => (

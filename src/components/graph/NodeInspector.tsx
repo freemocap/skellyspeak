@@ -1,52 +1,11 @@
-import { useState } from 'react'
-import { actorColor, actorLabel } from '../../lib/actor'
-import type { Attempt, GraphNode, Run } from '../../types'
+import { RunDetails } from '../dev/RunDetails'
+import { actorColor } from '../../lib/actor'
+import type { GraphNode, Run } from '../../types'
 
 // The inspector sits BESIDE the graph, not behind a tab. Switching back and
 // forth between "the shape" and "what happened" makes it much harder to hold
 // the turn in your head, so both are on screen at once: the run list is the
 // timeline, the graph is the map, and selecting in either drives the other.
-
-function ms(n: number): string {
-  return n < 1000 ? `${n}ms` : `${(n / 1000).toFixed(1)}s`
-}
-
-function attemptLabel(a: Attempt): string {
-  switch (a.kind) {
-    case 'rate_limited':
-      return 'rate limited'
-    case 'unparseable':
-      return 'unparseable JSON'
-    case 'invalid':
-      return 'failed validation'
-    case 'failed':
-      return 'request failed'
-    default:
-      return 'ok'
-  }
-}
-
-function Section({
-  title,
-  body,
-  defaultOpen = false,
-}: {
-  title: string
-  body: string
-  defaultOpen?: boolean
-}) {
-  const [open, setOpen] = useState(defaultOpen)
-  return (
-    <div className="ins-section">
-      <button type="button" className="ins-section-head" onClick={() => setOpen((o) => !o)}>
-        <span className="ins-caret">{open ? '▾' : '▸'}</span>
-        {title}
-        <span className="ins-len">{body.length.toLocaleString()} chars</span>
-      </button>
-      {open && <pre className="ins-pre">{body}</pre>}
-    </div>
-  )
-}
 
 export function NodeInspector({
   width,
@@ -79,65 +38,11 @@ export function NodeInspector({
           <p className="ins-purpose">{node.purpose}</p>
 
           {run ? (
-            <>
-              <div className="ins-grid">
-                <span>actor</span>
-                <code>{actorLabel(run.actor)}</code>
-                <span>model</span>
-                <code>{run.model}</code>
-                <span>reasoning</span>
-                <code>{run.reasoning ? 'on' : 'off'}</code>
-                {run.temperature !== null && (
-                  <>
-                    <span>temperature</span>
-                    <code>{run.temperature}</code>
-                  </>
-                )}
-                {run.schema && (
-                  <>
-                    <span>schema</span>
-                    <code>{run.schema}</code>
-                  </>
-                )}
-                <span>duration</span>
-                <code>
-                  {ms(run.duration_ms)}
-                  {run.first_token_ms !== null &&
-                    ` · first token ${ms(run.first_token_ms)}`}
-                </code>
-                {run.usage && (
-                  <>
-                    <span>usage</span>
-                    <code>
-                      {run.usage.prompt_tokens ?? '?'} in / {run.usage.completion_tokens ?? '?'} out
-                      {run.usage.cost !== null && ` · $${run.usage.cost.toFixed(5)}`}
-                    </code>
-                  </>
-                )}
-                <span>outcome</span>
-                <code className={`ins-outcome ${run.outcome}`}>{run.outcome}</code>
-              </div>
-
-              <div className="ins-attempts">
-                {run.attempts.map((a) => (
-                  <div key={a.index} className={`run-attempt ${a.kind}`}>
-                    <span className="run-attempt-n">#{a.index + 1}</span>
-                    <span className="run-attempt-kind">{attemptLabel(a)}</span>
-                    <span className="run-attempt-ms">{ms(a.duration_ms)}</span>
-                    {a.error && <span className="run-attempt-err">{a.error}</span>}
-                  </div>
-                ))}
-              </div>
-
-              {/* The actual content — what it was asked, and what came back. */}
-              {run.prompt && <Section title="what it was asked" body={run.prompt} />}
-              {run.output && <Section title="what came back" body={run.output} defaultOpen />}
-              {run.error && <div className="run-error">{run.error}</div>}
-            </>
+            <RunDetails run={run} />
           ) : (
             <p className="ins-purpose muted">
               {node.operation
-                ? 'Has not run yet this session.'
+                ? 'No completed run recorded for the selected activity.'
                 : 'Not an operation — it marks where work enters or lands.'}
             </p>
           )}
@@ -149,13 +54,14 @@ export function NodeInspector({
         </p>
       )}
 
-      <div className="ins-runs-head">recent runs</div>
+      <div className="ins-runs-head">selected activity</div>
       <div className="ins-runs">
         {recent.length === 0 && <div className="logs-line">— nothing yet —</div>}
         {recent.map((r) => (
           <button
             key={r.id}
             type="button"
+            aria-pressed={run?.id === r.id}
             className={`ins-run ${r.outcome} ${run?.id === r.id ? 'sel' : ''} ${
               activeOps.has(r.operation) ? 'live' : ''
             }`}
@@ -165,7 +71,7 @@ export function NodeInspector({
             <span className="ins-run-op" style={{ color: actorColor(r.actor) }}>
               {r.label}
             </span>
-            <span className="ins-run-ms">{ms(r.duration_ms)}</span>
+            <span className="ins-run-ms">{(r.duration_ms / 1000).toFixed(1)}s</span>
             {r.attempts.length > 1 && (
               <span className="ins-run-retry">×{r.attempts.length}</span>
             )}

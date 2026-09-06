@@ -3,6 +3,7 @@ import {
   Background,
   BackgroundVariant,
   Controls,
+  MiniMap,
   ReactFlow,
   useNodesInitialized,
   useNodesState,
@@ -12,6 +13,7 @@ import {
 } from '@xyflow/react'
 import { SkellySpeakNode, type NodeData, type RunState } from './SkellySpeakNode'
 import type { EdgeKind, Graph, GraphNode, Reconciliation, Run } from '../../types'
+import { useIsMobile } from '../../hooks/useIsMobile'
 import { reportFault } from '../../lib/faults'
 
 // One pipeline, in its own pane. Several can be open at once — see
@@ -60,14 +62,15 @@ export function loadPositions(graphId: string): Positions {
 // node moves, the camera chases, and the whole canvas appears to flash.
 function FitControl({ graphId }: { graphId: string }) {
   const initialized = useNodesInitialized()
+  const mobile = useIsMobile()
   const { fitView } = useReactFlow()
   const fitted = useRef<string | null>(null)
 
   useEffect(() => {
     if (!initialized || fitted.current === graphId) return
     fitted.current = graphId
-    void fitView({ padding: 0.08, duration: 200 })
-  }, [initialized, fitView, graphId])
+    void fitView({ padding: 0.08, minZoom: mobile ? 0.9 : 0.85, duration: 200 })
+  }, [initialized, fitView, graphId, mobile])
 
   useEffect(() => {
     if (!initialized) return
@@ -76,21 +79,23 @@ function FitControl({ graphId }: { graphId: string }) {
     let frame = 0
     const ro = new ResizeObserver(() => {
       cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => void fitView({ padding: 0.08 }))
+      frame = requestAnimationFrame(() => void fitView({ padding: 0.08, minZoom: mobile ? 0.9 : 0.85 }))
     })
     ro.observe(pane)
     return () => {
       cancelAnimationFrame(frame)
       ro.disconnect()
     }
-  }, [initialized, fitView, graphId])
+  }, [initialized, fitView, graphId, mobile])
 
   return null
 }
 
 export function GraphPane({
   graph,
+  mode,
   latest,
+  selectedNode,
   active,
   recon,
   wide,
@@ -104,7 +109,9 @@ export function GraphPane({
   onResizeHeight,
 }: {
   graph: Graph
+  mode: 'explore' | 'debug'
   latest: Map<string, Run>
+  selectedNode: string | null
   active: Set<string>
   recon: Reconciliation | null
   wide: boolean
@@ -120,34 +127,24 @@ export function GraphPane({
 }) {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([])
 
-  // Build once per graph. Position overrides are applied here, not on every
-  // render, so React Flow keeps ownership afterwards.
+  // Preserve measured nodes and dragged positions while recorded state changes.
   useEffect(() => {
-    const saved = loadPositions(graph.id)
-    setNodes(
-      graph.nodes.map((n) => ({
-        id: n.id,
+    const saved = mode === 'debug' ? loadPositions(graph.id) : {}
+    setNodes((previous) => graph.nodes.map((node) => {
+      const existing = previous.find((item) => item.id === node.id)
+      const run = node.operation ? latest.get(node.operation) ?? null : null
+      const state: RunState = node.operation && active.has(node.operation) ? 'running' : run?.outcome ?? 'idle'
+      const data: NodeData = { node, state, run, selected: node.id === selectedNode, onPick }
+      return {
+        ...existing,
+        id: node.id,
         type: 'skellyspeak',
-        position: saved[n.id] ?? { x: n.x, y: n.y },
-        data: { node: n, state: 'idle', run: null, onPick } satisfies NodeData,
-        draggable: true,
-      }))
-    )
-  }, [graph.id, graph.nodes, setNodes, onPick])
-
-  // Patch only `data` as runs land — identities and measurements survive.
-  useEffect(() => {
-    setNodes((ns) =>
-      ns.map((n) => {
-        const d = n.data as NodeData
-        const op = d.node.operation
-        const run = op ? (latest.get(op) ?? null) : null
-        const state: RunState = op && active.has(op) ? 'running' : (run?.outcome ?? 'idle')
-        if (d.state === state && (d.run?.id ?? null) === (run?.id ?? null)) return n
-        return { ...n, data: { ...d, state, run } }
-      })
-    )
-  }, [latest, active, setNodes])
+        position: existing?.position ?? saved[node.id] ?? { x: node.x, y: node.y },
+        data,
+        draggable: mode === 'debug',
+      }
+    }))
+  }, [graph.id, graph.nodes, latest, active, selectedNode, setNodes, onPick, mode])
 
   const persist = useCallback(
     (_e: unknown, node: FlowNode) => {
@@ -177,8 +174,9 @@ export function GraphPane({
       graph.edges.map((e, i) => {
         const st = EDGE_STYLE[e.kind]
         // Motion means work. An idle graph is completely still.
-        const hot = active.has(e.from) || active.has(e.to)
+        const hot = graph.nodes.some((node) => (node.id === e.from || node.id === e.to) && node.operation !== null && active.has(node.operation))
         const verdict = recon?.edges.find((v) => v.from === e.from && v.to === e.to)
+        const connected = e.from === selectedNode || e.to === selectedNode
         const contradicted = verdict?.verdict === 'contradicted'
         return {
           id: `${e.from}->${e.to}-${i}`,
@@ -187,13 +185,13 @@ export function GraphPane({
           animated: hot,
           label: contradicted ? '✕ contradicted' : e.condition ? '?' : undefined,
           style: {
-            stroke: contradicted ? '#e06c6c' : st.stroke,
-            strokeWidth: contradicted ? 2.5 : st.width,
+            stroke: contradicted ? '#e06c6c' : connected ? 'var(--ink-d)' : st.stroke,
+            strokeWidth: connected ? 3 : contradicted ? 2.5 : st.width,
             strokeDasharray: contradicted ? undefined : st.dash,
           },
         }
       }),
-    [graph.edges, active, recon]
+    [graph.edges, graph.nodes, active, recon, selectedNode]
   )
 
   return (
@@ -202,7 +200,7 @@ export function GraphPane({
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDropOn}
     >
-      <header className="gpane-head" draggable onDragStart={onDragStart}>
+      {mode === 'debug' && <header className="gpane-head" draggable onDragStart={onDragStart}>
         <span className="gpane-title">{graph.label}</span>
         <button type="button" className="gpane-btn" onClick={resetLayout} title="Reset node positions">
           ⟲
@@ -228,8 +226,8 @@ export function GraphPane({
         <button type="button" className="gpane-btn close" onClick={onClose} title="Close pane">
           ✕
         </button>
-      </header>
-      <p className="gpane-desc">{graph.description}</p>
+      </header>}
+      {mode === 'debug' && <details className="gpane-description"><summary>About this pipeline</summary><p>{graph.description}</p><p>Inputs: {graph.shared_state.join(", ")}</p></details>}
       <div className="graph-canvas" id={`gcanvas-${graph.id}`}>
         <ReactFlow
           nodes={nodes}
@@ -246,6 +244,7 @@ export function GraphPane({
           <FitControl graphId={graph.id} />
           <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="var(--line)" />
           <Controls showInteractive={false} />
+          <MiniMap style={{ width: 110, height: 65 }} pannable zoomable nodeColor="var(--steel)" maskColor="rgba(7, 14, 22, 0.65)" />
         </ReactFlow>
       </div>
       {onResizeHeight && (

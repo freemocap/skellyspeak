@@ -93,15 +93,15 @@ pub const AGENTS: &[Agent] = &[
     Agent {
         id: agent::CHAT,
         label: "Chat",
-        purpose: "Your conversation partner. Speaks only the language you are learning, and never learns the coach exists.",
-        memory: "The conversation so far (last 30 turns). In memory only — it resets when the app closes.",
+        purpose: "Your conversation partner. Uses the target language, conversation history, explicit lesson choices and inferred teaching directives. It does not read the private coach thread.",
+        memory: "Recent conversation history is supplied to each request. Conversations are saved on this device and restored after restart; the model has no independent persistent memory.",
         operations: &[op::REPLY],
     },
     Agent {
         id: agent::COACH,
         label: "Coach",
-        purpose: "Your private tutor. Reads everything, corrects you honestly, answers your questions, and quietly keeps track of how you are doing. The chat partner never sees any of it.",
-        memory: "Its own thread with you (coach.json), plus the teaching plan and your profile (memory.json) — all of which survive restarts.",
+        purpose: "Your private tutor. Reviews learner messages, answers lesson questions, and infers teaching notes. Explicit choices and teaching directives inform the partner; private coach messages stay separate.",
+        memory: "The saved private coach thread, inferred plan and learner profile (memory.json), and explicit choices with revision history (lesson.json). These survive restarts.",
         operations: &[op::REVIEW, op::ANSWER, op::REFLECT],
     },
 ];
@@ -117,7 +117,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::REVIEW,
-        label: "Review",
+        label: "Message feedback",
         purpose: "Reads what you just wrote and grades it privately — corrections, scores, and an honest remark.",
         actor: Actor::Agent(agent::COACH),
         faculty: None,
@@ -125,15 +125,15 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::ANSWER,
-        label: "Answer",
-        purpose: "Answers a question you asked the coach directly, in your private thread.",
+        label: "Coach answer",
+        purpose: "Answers privately, applies explicit lesson requests, or proposes changes for the learner to accept.",
         actor: Actor::Agent(agent::COACH),
         faculty: None,
         mechanical: false,
     },
     Operation {
         id: op::REFLECT,
-        label: "Reflect",
+        label: "Teaching observations",
         purpose: "Thinks slowly in the background about how the session is going, then rewrites the teaching plan and your profile. The only operation allowed to reason at length.",
         actor: Actor::Agent(agent::COACH),
         faculty: None,
@@ -141,7 +141,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::TOKENIZE,
-        label: "Tokenize reply",
+        label: "Reply word meanings",
         purpose: "Splits the tutor's reply into words and gives each one a meaning in context.",
         actor: Actor::Runner,
         faculty: None,
@@ -149,7 +149,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::TRANSLATE,
-        label: "Translate reply",
+        label: "Reply translation",
         purpose: "Translates the tutor's reply into your own language.",
         actor: Actor::Runner,
         faculty: None,
@@ -157,7 +157,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::TOKENIZE_LEARNER,
-        label: "Tokenize your message",
+        label: "Your word meanings",
         purpose: "Does the same word-by-word work on the message YOU wrote, so you can inspect your own sentence.",
         actor: Actor::Runner,
         faculty: None,
@@ -165,7 +165,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::EXPLAIN,
-        label: "Explain",
+        label: "Grammar explanation",
         purpose: "Writes one or two short grammar cards about something worth noticing.",
         actor: Actor::Runner,
         faculty: None,
@@ -173,7 +173,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::SUGGEST,
-        label: "Suggest",
+        label: "Reply suggestions",
         purpose: "Prepares things you could say next: full replies, fill-in-the-blank frames, and short openers.",
         actor: Actor::Runner,
         faculty: None,
@@ -197,7 +197,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::TRANSCRIBE,
-        label: "Hear",
+        label: "Voice transcription",
         purpose: "Turns your recorded voice into text. A speech model, not a chat model — it gets no prompt.",
         actor: Actor::Runner,
         faculty: Some(Faculty::Perception),
@@ -205,7 +205,7 @@ pub const OPERATIONS: &[Operation] = &[
     },
     Operation {
         id: op::SYNTHESIZE,
-        label: "Speak",
+        label: "Read aloud",
         purpose: "Reads a reply aloud. A speech model, not a chat model.",
         actor: Actor::Runner,
         faculty: Some(Faculty::Action),

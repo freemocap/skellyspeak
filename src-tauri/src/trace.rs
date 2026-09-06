@@ -2,8 +2,8 @@
 //!
 //! One `Run` = one execution of one agent. Every AI call in the app produces
 //! exactly one, built at the single chokepoint in `ai.rs` that every call
-//! already passes through. Runs go two places: a bounded in-memory ring (so
-//! the UI can ask for history) and the trace bus (so the UI can watch live).
+//! already passes through. Runs are retained in a bounded local archive, a
+//! process-local ring for reconciliation, and the live trace bus.
 //!
 //! Design rules, from `skellyspeak-docs/docs/observability.md`:
 //!
@@ -29,8 +29,7 @@ use std::sync::{Mutex, OnceLock};
 use crate::graph;
 use crate::ontology::{self, Actor};
 
-/// How many runs stay in memory. Bite 3 adds `runs.jsonl` on disk; until
-/// then this is the whole history.
+/// How many current-process runs remain available for reconciliation.
 const RING_CAPACITY: usize = 300;
 
 /// Event names on the trace bus. The webview listens for both.
@@ -43,10 +42,10 @@ const RING_CAPACITY: usize = 300;
 pub const TRACE_EVENT: &str = "trace:run";
 pub const TRACE_STARTED_EVENT: &str = "trace:run_started";
 
-/// Announced the moment an operation begins. Deliberately small: identity
-/// and nothing else.
+/// Announced when an operation begins, including its conversation ownership.
 #[derive(Debug, Clone, Serialize)]
 pub struct RunStarted {
+    pub context: Option<crate::instruction::Context>,
     pub id: u64,
     pub turn_id: Option<u64>,
     pub operation: String,
@@ -69,10 +68,26 @@ fn ring() -> &'static Mutex<VecDeque<Run>> {
 /// Runs are recorded whether or not this has happened — an unattached bus
 /// means "no UI is listening" (unit tests, the bench harness), not a
 /// degraded path.
-pub fn attach(app: tauri::AppHandle) {
-    if EMITTER.set(app).is_err() {
-        log::warn!("[trace] bus already attached - ignoring second attach");
+static ARCHIVE: OnceLock<Mutex<crate::trace_archive::Archive>> = OnceLock::new();
+
+pub fn attach(app: tauri::AppHandle, config: &std::path::Path) -> Result<(), String> {
+    let archive = crate::trace_archive::Archive::open(config)?;
+    let runs = archive.runs();
+    NEXT_RUN_ID.store(runs.iter().filter_map(|r| r["id"].as_u64()).max().unwrap_or(0) + 1, Ordering::Relaxed);
+    NEXT_TURN_ID.store(runs.iter().filter_map(|r| r["turn_id"].as_u64()).max().unwrap_or(0) + 1, Ordering::Relaxed);
+    ARCHIVE.set(Mutex::new(archive)).map_err(|_| "AI trace archive already attached".to_string())?;
+    EMITTER.set(app).map_err(|_| "AI trace bus already attached".to_string())?;
+    Ok(())
+}
+
+pub fn retained() -> Vec<serde_json::Value> {
+    match ARCHIVE.get() {
+        Some(archive) => archive.lock().expect("trace archive lock poisoned").runs(),
+        None => snapshot().iter().map(|r| serde_json::to_value(r).expect("trace serializes")).collect(),
     }
+}
+pub fn retention() -> serde_json::Value {
+    serde_json::json!({"session_id": session_id(), "evicted": ARCHIVE.get().map(|a| a.lock().expect("trace archive lock poisoned").evicted()).unwrap_or(0), "max_runs": 300, "max_bytes": 8 * 1024 * 1024})
 }
 
 /// A fresh turn id, grouping every run fired by one conversational turn.
@@ -147,6 +162,9 @@ impl Usage {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Attempt {
+    pub request: Option<crate::instruction::Request>,
+    pub response: Option<String>,
+    pub response_truncated: bool,
     pub index: u32,
     pub kind: AttemptKind,
     pub duration_ms: u64,
@@ -158,6 +176,11 @@ pub struct Attempt {
 /// One execution of one agent.
 #[derive(Debug, Clone, Serialize)]
 pub struct Run {
+    pub session_id: String,
+    pub app_version: String,
+    pub context: Option<crate::instruction::Context>,
+    pub length_checks: Vec<crate::prompts::difficulty::LengthCheck>,
+    pub application_status: String,
     pub id: u64,
     /// Groups every run fired by one conversational turn. `None` for
     /// out-of-turn work (a story, a word insight, a coach question).
@@ -226,6 +249,11 @@ pub fn render_messages(messages: &[serde_json::Value]) -> String {
 ")
 }
 
+fn session_id() -> &'static str {
+    static SESSION: OnceLock<String> = OnceLock::new();
+    SESSION.get_or_init(|| uuid::Uuid::new_v4().to_string())
+}
+
 fn now_ms() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -234,8 +262,10 @@ fn now_ms() -> u64 {
 }
 
 /// Identity for a run, handed to `ai.rs` by the call site.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct RunContext {
+    pub context: Option<crate::instruction::Context>,
+    pub blocks: Vec<crate::instruction::Block>,
     /// An id from `ontology::op::*` — never a hand-spelled string.
     pub operation: &'static str,
     pub turn_id: Option<u64>,
@@ -243,12 +273,18 @@ pub struct RunContext {
 
 impl RunContext {
     pub fn new(operation: &'static str, turn_id: Option<u64>) -> Self {
-        Self { operation, turn_id }
+        Self { operation, turn_id, context: None, blocks: Vec::new() }
     }
+    pub fn with_context(mut self, context: &crate::instruction::Context) -> Self { self.context = Some(context.clone()); self }
+    pub fn with_blocks(mut self, blocks: Vec<crate::instruction::Block>) -> Self { self.blocks = blocks; self }
+
 }
 
 /// Accumulates one run as it happens. `finish_*` records it.
 pub struct RunRecorder {
+    request: Option<crate::instruction::Request>,
+    blocks: Vec<crate::instruction::Block>,
+    response_truncated: bool,
     run: Run,
     current_usage: Option<Usage>,
     started: std::time::Instant,
@@ -285,6 +321,7 @@ impl RunRecorder {
             let _ = app.emit(
                 TRACE_STARTED_EVENT,
                 &RunStarted {
+                    context: ctx.context.clone(),
                     id,
                     turn_id: ctx.turn_id,
                     operation: ctx.operation.to_string(),
@@ -296,8 +333,16 @@ impl RunRecorder {
             );
         }
         Self {
+            request: None,
+            blocks: ctx.blocks,
+            response_truncated: false,
             current_usage: None,
             run: Run {
+                session_id: session_id().into(),
+                app_version: env!("CARGO_PKG_VERSION").into(),
+                context: ctx.context,
+                length_checks: Vec::new(),
+                application_status: "not_reported".into(),
                 id,
                 turn_id: ctx.turn_id,
                 operation: ctx.operation.to_string(),
@@ -342,14 +387,26 @@ impl RunRecorder {
         self.run.schema = schema.map(str::to_string);
     }
 
+    pub fn capture_request(&mut self, payload: &serde_json::Value, route: &str) -> Result<(), String> {
+        if !self.blocks.is_empty() && payload["messages"][0]["content"].as_str() != Some(crate::instruction::render(&self.blocks).as_str()) {
+            return Err("Recorded prompt blocks do not match the outbound system message.".into());
+        }
+        let capture = crate::instruction::Request::capture(payload, route, &self.blocks);
+        self.run.temperature = payload.get("temperature").and_then(|v| v.as_f64());
+        self.run.max_tokens = payload.get("max_tokens").and_then(|v| v.as_u64());
+        self.request = Some(capture);
+        self.run.output = None;
+        self.response_truncated = false;
+        Ok(())
+    }
+
     pub fn mark_first_token(&mut self) {
         if self.run.first_token_ms.is_none() {
             self.run.first_token_ms = Some(self.started.elapsed().as_millis() as u64);
         }
     }
 
-    /// Record what this call was asked. Called once, with the messages as
-    /// sent — never with anything carrying credentials.
+    /// Record the latest attempt message preview, without credentials.
     pub fn set_prompt(&mut self, messages: &[serde_json::Value]) {
         self.run.prompt = Some(clip(&render_messages(messages), PROMPT_CAP));
     }
@@ -357,7 +414,17 @@ impl RunRecorder {
     /// Record what came back, raw. Overwritten per attempt so the stored
     /// output is the one that actually counted.
     pub fn set_output(&mut self, raw: &str) {
+        self.response_truncated = raw.chars().count() > OUTPUT_CAP;
         self.run.output = Some(clip(raw, OUTPUT_CAP));
+        if let Some(context) = &self.run.context {
+            if self.run.operation == crate::ontology::op::REPLY {
+                self.run.length_checks = vec![crate::prompts::difficulty::check(raw, context.difficulty, &context.target)];
+            } else if self.run.operation == crate::ontology::op::SUGGEST {
+                if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {
+                    self.run.length_checks = ["replies", "frames", "starters"].iter().flat_map(|key| value[*key].as_array().into_iter().flatten()).filter_map(|v| v.as_str()).map(|text| crate::prompts::difficulty::check(text, context.difficulty, &context.target)).collect();
+                }
+            }
+        }
     }
 
     pub fn set_usage(&mut self, usage: Option<Usage>) {
@@ -382,6 +449,9 @@ impl RunRecorder {
         }
         let index = self.run.attempts.len() as u32;
         self.run.attempts.push(Attempt {
+            request: self.request.clone(),
+            response: self.run.output.clone(),
+            response_truncated: self.response_truncated,
             index,
             kind,
             duration_ms: self.attempt_started.elapsed().as_millis() as u64,
@@ -391,7 +461,7 @@ impl RunRecorder {
         self.attempt_started = std::time::Instant::now();
     }
 
-    pub fn finish_ok(mut self) {
+    pub fn finish_ok(mut self) -> Result<(), String> {
         let corrected = self
             .run
             .attempts
@@ -402,22 +472,25 @@ impl RunRecorder {
         } else {
             Outcome::Ok
         };
-        self.commit();
+        self.commit()
     }
 
-    pub fn finish_failed(mut self, error: &str) {
+    pub fn finish_failed(mut self, error: &str) -> Result<(), String> {
         self.run.outcome = Outcome::Failed;
         self.run.error = Some(error.to_string());
-        self.commit();
+        self.commit()
     }
 
-    fn commit(mut self) {
+    fn commit(mut self) -> Result<(), String> {
         self.run.duration_ms = self.started.elapsed().as_millis() as u64;
-        record(self.run);
+        record(self.run)
     }
 }
 
-fn record(run: Run) {
+fn record(run: Run) -> Result<(), String> {
+    if let Some(archive) = ARCHIVE.get() {
+        archive.lock().expect("trace archive lock poisoned").put(serde_json::to_value(&run).map_err(|e| e.to_string())?)?;
+    }
     log::debug!(
         "[trace] run {} {} ({:?}) {}ms attempts={} outcome={:?}",
         run.id,
@@ -434,10 +507,12 @@ fn record(run: Run) {
         }
     }
     let mut ring = ring().lock().unwrap_or_else(|p| p.into_inner());
-    if ring.len() == RING_CAPACITY {
-        ring.pop_front();
+    if let Some(index) = ring.iter().position(|r| r.id == run.id) { ring[index] = run; }
+    else {
+        if ring.len() == RING_CAPACITY { ring.pop_front(); }
+        ring.push_back(run);
     }
-    ring.push_back(run);
+    Ok(())
 }
 
 /// Every run still in memory, oldest first.
@@ -450,9 +525,28 @@ pub fn snapshot() -> Vec<Run> {
         .collect()
 }
 
-/// Drop the in-memory history. The reset affordance in bite 3 will do more.
-pub fn clear() {
+/// Clear retained and current-process traces. Explicit exports are separate files.
+pub fn clear() -> Result<(), String> {
+    if let Some(archive) = ARCHIVE.get() { archive.lock().expect("trace archive lock poisoned").clear()?; }
     ring().lock().unwrap_or_else(|p| p.into_inner()).clear();
+    Ok(())
+}
+
+pub fn application(turn: u64, operation: &str, status: &str) -> Result<(), String> {
+    let updates: Vec<Run> = snapshot().into_iter().filter(|r| r.turn_id == Some(turn) && r.operation == operation).collect();
+    for mut run in updates { run.application_status = status.into(); record(run)?; }
+    Ok(())
+}
+pub fn chat_saved(chat: &str, turns: &serde_json::Value) -> Result<(), String> {
+    for mut run in snapshot() {
+        if run.operation != crate::ontology::op::REPLY || run.application_status == "conversation_saved" { continue; }
+        if let Some(context) = &run.context {
+            if context.chat_id == chat && turns.as_array().expect("stored turns").iter().any(|t| t["id"].as_u64() == context.message_id) {
+                run.application_status = "conversation_saved".into(); record(run)?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// How a declared edge held up against what actually ran.
@@ -583,8 +677,41 @@ mod tests {
 
     fn guard() -> std::sync::MutexGuard<'static, ()> {
         let g = TEST_LOCK.lock().unwrap_or_else(|p| p.into_inner());
-        clear();
+        clear().unwrap();
         g
+    }
+
+    #[test]
+    fn attempts_preserve_requests_responses_and_effective_parameters() {
+        let _g = guard();
+        let mut recorder = RunRecorder::start(RunContext::new(op::EXPLAIN, None), "test/model");
+        let prompt = "fixture system";
+        let repair = "fixture repair";
+        let first = serde_json::json!({"messages":[{"role":"system","content":prompt}],"temperature":0.9,"authorization":"never record headers"});
+        recorder.capture_request(&first, "test").unwrap();
+        recorder.set_output("invalid response");
+        recorder.attempt(AttemptKind::Invalid, Some("Bad structure".into()), None);
+        let second = serde_json::json!({"messages":[{"role":"system","content":prompt},{"role":"user","content":repair}]});
+        recorder.capture_request(&second, "test").unwrap();
+        recorder.set_output("valid response");
+        recorder.attempt(AttemptKind::Ok, None, None);
+        recorder.finish_ok().unwrap();
+        let run = snapshot().pop().unwrap();
+        assert!(run.temperature.is_none());
+        assert_eq!(run.attempts[0].response.as_deref(), Some("invalid response"));
+        assert_eq!(run.attempts[1].response.as_deref(), Some("valid response"));
+        assert_eq!(run.attempts[0].request.as_ref().unwrap().messages.len(), 1);
+        assert_eq!(run.attempts[1].request.as_ref().unwrap().messages.len(), 2);
+        assert!(run.attempts[0].request.as_ref().unwrap().parameters.get("authorization").is_none());
+        assert_eq!(run.application_status, "not_reported");
+    }
+    #[test]
+    fn provenance_cannot_disagree_with_actual_messages() {
+        let _g = guard();
+        let blocks = vec![crate::instruction::Block::new("difficulty", "test", "correct".into())];
+        let mut recorder = RunRecorder::start(RunContext::new(op::REPLY, None).with_blocks(blocks), "test/model");
+        let unexpected = "mismatched fixture";
+        assert!(recorder.capture_request(&serde_json::json!({"messages":[{"role":"system","content":unexpected}]}), "test").is_err());
     }
 
     #[test]
@@ -594,12 +721,12 @@ mod tests {
             RunRecorder::start(RunContext::new(op::TOKENIZE, Some(7)), "test/model");
         r.profile(Some(0.1), false, Some(6000), false, Some("TokensOut"));
         r.attempt(AttemptKind::Ok, None, None);
-        r.finish_ok();
+        r.finish_ok().unwrap();
 
         let run = snapshot().into_iter().last().expect("run recorded");
         assert_eq!(run.operation, op::TOKENIZE);
         assert_eq!(run.actor, Actor::Runner);
-        assert_eq!(run.label, "Tokenize reply");
+        assert_eq!(run.label, "Reply word meanings");
         assert_eq!(run.outcome, Outcome::Ok);
         assert_eq!(run.attempts.len(), 1);
         assert_eq!(run.schema.as_deref(), Some("TokensOut"));
@@ -615,7 +742,7 @@ mod tests {
             None,
         );
         r.attempt(AttemptKind::Ok, None, None);
-        r.finish_ok();
+        r.finish_ok().unwrap();
 
         let run = snapshot().into_iter().last().expect("run recorded");
         // The retry is legible, not just counted — that is the whole point.
@@ -631,7 +758,7 @@ mod tests {
     fn a_failed_run_carries_the_providers_own_error() {
         let _g = guard();
         let r = RunRecorder::start(RunContext::new(op::REFLECT, None), "test/model");
-        r.finish_failed("API error 402: insufficient credits");
+        r.finish_failed("API error 402: insufficient credits").unwrap();
         let run = snapshot().into_iter().last().expect("run recorded");
         assert_eq!(run.outcome, Outcome::Failed);
         assert_eq!(
@@ -660,7 +787,7 @@ mod tests {
         recorder.attempt(AttemptKind::Invalid, Some("invalid output".into()), None);
         recorder.set_usage(Some(Usage { total_tokens: Some(90), cost: Some(0.03), ..Usage::default() }));
         recorder.attempt(AttemptKind::Ok, None, None);
-        recorder.finish_ok();
+        recorder.finish_ok().unwrap();
         let run = snapshot().pop().unwrap();
         let usage = run.usage.unwrap();
         assert_eq!(usage.total_tokens, Some(160));
