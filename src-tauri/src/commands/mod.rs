@@ -11,6 +11,7 @@
 
 pub mod app_settings;
 pub mod coach;
+pub mod lesson;
 pub mod conversations;
 pub mod dev;
 pub mod guided;

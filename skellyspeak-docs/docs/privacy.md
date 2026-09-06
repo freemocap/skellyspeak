@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-**Effective 5 September 2026.** SkellySpeak is made by the FreeMoCap
+**Effective 6 September 2026.** SkellySpeak is made by the FreeMoCap
 Foundation. This policy describes what the app and its optional hosted service
 collect, and what they do not.
 
@@ -20,8 +20,8 @@ them sends anything to us at all**:
 | **Your own AI server** (Ollama, LM Studio) | Chat goes to the server you choose; speech can still use external providers. |
 | **The free hosted service** | Your Google identity, request content in transit, and the operational records described below. |
 
-Everything in the rest of this policy applies **only** to the free hosted
-service. Starting sign-in also creates short-lived authorization records, even if you do not finish signing in.
+The hosted-service sections below apply **only** to the free hosted
+service. The local-data sections apply to all provider modes. Starting sign-in also creates short-lived authorization records, even if you do not finish signing in.
 
 We do not sell your data, we do not share it for advertising, and there are no
 analytics or tracking SDKs in the app.
@@ -123,3 +123,42 @@ the effective date above and note the change in the app's release notes.
 FreeMoCap Foundation — [info@freemocap.org](mailto:info@freemocap.org)
 
 Source code: [github.com/freemocap/skellyspeak](https://github.com/freemocap/skellyspeak)
+
+## Local lesson choices
+
+Learning goals, explicit preferences and memory corrections are stored locally
+per language pair, separately from inferred tutor memory. The app retains the
+most recent 20 explicit changes with their timestamps and before/after values.
+The current choices are included in relevant model requests through your chosen
+provider route; they are not confined to the private coach thread. Conversation
+partners do not receive the coach thread itself. Clearing current choices does
+not remove their entries from the local change history.
+
+## Local conversation partners
+
+Each chat stores a copy of its persona template and its first partner reply in
+`partner.json`, alongside its transcript. That reply remains an identity reference
+in future reply prompts, including after it falls outside recent conversation
+history. These prompts follow the same selected provider route as other chat
+requests. Existing chats without a snapshot recover their earliest assistant
+reply locally; this does not add a model call.
+
+## Local AI diagnostic traces
+
+The app automatically retains model-call traces locally in `ai-traces.json`, up
+to 300 runs and 8 MiB. They can contain conversation messages, responses, persona
+snapshots, lesson choices and inferred learner notes, as well as model parameters
+and timing. Text capture is bounded and truncation is marked. Request headers,
+credentials and raw audio are not recorded by this trace archive. These traces
+are not anonymized and are not automatically uploaded.
+
+Older records are evicted at the retention limits. **AI → Debug → Clear retained
+traces** clears this archive. Deleting a chat does not delete its diagnostic
+traces. **Export selected** creates a separate JSON file in the app configuration
+directory's `trace-exports` folder and displays its path. Exports remain until
+you delete those files yourself, including after clearing retained traces.
+
+Visible lesson topics can request a short generated explanation and example.
+These calls send the topic, language and selected practice difficulty through
+the configured provider. They do not send conversation history or update learner
+memory; their requests and outputs follow local AI trace retention.

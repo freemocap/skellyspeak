@@ -67,22 +67,30 @@ pub async fn guided_turn(
     // sends a re-opening message aligned to the new level/topic instead of
     // answering a learner message.
     steering: Option<String>,
-    level: Option<String>,
+    level: crate::prompts::difficulty::Difficulty,
     topic: Option<String>,
-    // Which character the learner is talking to, and the conversation this
-    // turn belongs to. `chat_id` is what makes "surprise me" resolve to one
-    // person per conversation instead of a new one every turn.
-    persona: Option<String>,
+    // The chat owns its saved character; turns never select a template.
     chat_id: String,
+    message_id: u64,
+    history_available: usize,
+    replaces_message_id: Option<u64>,
     on_event: Channel<GuidedEvent>,
 ) -> Result<String, String> {
-    let (epoch, settings, plan_snapshot, recent_snapshot, level_notes) = {
+    let (epoch, settings, plan_snapshot, recent_snapshot, level_notes, lesson, chat, partner) = {
         let epoch = state.context_epoch.lock().expect("context lock poisoned");
+        let settings = state.settings.lock().expect("settings lock poisoned").clone();
+        let pair = crate::conversation::pair_dir(&state.config_dir, &settings.target_language, &settings.native_language)?;
+        if crate::conversation::current_chat(&pair)?.as_deref() != Some(chat_id.as_str()) {
+            return Err("The conversation changed before this turn started.".into());
+        }
+        let chat = crate::conversation::chat_dir(&pair, &chat_id)?;
+        let partner = crate::conversation_partner::load(&chat)?;
+        let lesson = crate::lesson::load(&pair)?;
         (*epoch,
-         state.settings.lock().expect("settings lock poisoned").clone(),
+         settings,
          state.plan.lock().expect("plan lock poisoned").clone(),
          state.recent_mechanics.lock().expect("mechanics lock poisoned").clone(),
-         state.profile.lock().expect("profile lock poisoned").level_notes.clone())
+         state.profile.lock().expect("profile lock poisoned").level_notes.clone(), lesson, chat, partner)
     };
     let started = std::time::Instant::now();
     // Every run fired by this turn shares a turn id, so the UI can group
@@ -102,7 +110,7 @@ pub async fn guided_turn(
     let romanization_scheme = languages::romanization(&target);
     let word_delimited = languages::word_delimited(&target);
     // Learner-selected level (steer row) maps to CEFR for every prompt.
-    let cefr = prompts::resolve_cefr(level.as_deref().unwrap_or("beginner")).to_string();
+    let cefr = level.cefr().to_string();
     // The topic the learner picked. The REPLY takes it as its own prompt
     // section (`prompts::partner::topic_section`) rather than as one more line at
     // bottom of the staging notes — buried behind the whole teaching plan it
@@ -112,33 +120,40 @@ pub async fn guided_turn(
     let topic = topic.filter(|t| !t.trim().is_empty());
     let topic_directive = prompts::partner::topic_directive(topic.as_deref());
 
-    // Who the learner is talking to. `chat_id` is the seed for "surprise me",
-    // so the partner is one consistent person for a whole conversation and
-    // somebody else in the next one.
-    let mut persona_faults = Vec::new();
-    let available = crate::personas::all(&state.config_dir, &mut persona_faults);
-    // A personas file that could not be read reaches the screen rather than a
-    // log: the learner's own characters are missing from this conversation and
-    // they have to be told why.
-    if !persona_faults.is_empty() { return Err(persona_faults.join("\n")); }
-    let persona = crate::personas::resolve(persona.as_deref(), &chat_id, &available);
-    info!("[cmd] guided_turn partner: {} ({})", persona.label, persona.id);
+    let request_context = crate::instruction::Context {
+        chat_id: chat_id.clone(), message_id: Some(message_id), replaces_message_id,
+        trigger: if greeting { "greeting" } else if steering.is_some() { "steering" } else if replaces_message_id.is_some() { "edit_resend" } else { "learner_message" }.into(),
+        target: target.clone(), native: settings.native_language.clone(), dialect: settings.target_dialect.clone(), provider_mode: settings.provider_mode.clone(),
+        difficulty: level, inferred_level_notes: level_notes.clone(), topic: topic.clone(),
+        lesson_revision: lesson.revision, partner: serde_json::to_value(&partner).map_err(|e| e.to_string())?,
+        history_messages: history.len().min(REPLY_HISTORY_TURNS), history_available,
+    };
+    info!("[cmd] guided_turn saved partner: {} ({})", partner.persona.label, partner.persona.id);
 
     // ── Pass 1: conversational reply (streamed to the UI) ───────────────────
     // The reply gets the overlay and the plan; the topic line is appended for
     // the mechanics and scaffolds passes only, because the reply already
     // carries the topic as a section of its own and stating it twice is how a
     // prompt argues with itself.
-    let reply_directives = format!("{}{}", target_overlay, prompts::observer::directives_block(&plan_snapshot, &recent_snapshot));
-    let directives = format!("{target_overlay}{topic_directive}");
-    let reply_system = prompts::partner::reply_prompt(
-        &persona.sketch,
+    let learner_directives = lesson.choices.directives();
+    let reply_directives = format!("{}{}{}", target_overlay, prompts::observer::directives_block(&plan_snapshot, &recent_snapshot), learner_directives);
+    let directives = format!("{target_overlay}{topic_directive}{learner_directives}");
+    let mut reply_blocks = prompts::partner::reply_blocks(
+        &partner.persona.sketch,
+        partner.introduction.as_deref(),
         &tln,
         &cefr,
         &native,
         topic.as_deref(),
         &reply_directives,
     );
+    reply_blocks.pop();
+    reply_blocks.extend([
+        crate::instruction::Block::new("dialect", "languages.rs + captured settings", target_overlay.clone()),
+        crate::instruction::Block::new("observations", "captured teaching plan and recent mechanics", prompts::observer::directives_block(&plan_snapshot, &recent_snapshot)),
+        crate::instruction::Block::new("lesson_choices", "lesson.json at captured revision", learner_directives.clone()),
+    ]);
+    let reply_system = crate::instruction::render(&reply_blocks);
     let mut reply_messages = vec![json!({"role": "system", "content": reply_system})];
     for turn in history.iter().rev().take(REPLY_HISTORY_TURNS).rev() {
         reply_messages.push(json!({"role": turn.role, "content": turn.content}));
@@ -194,10 +209,11 @@ pub async fn guided_turn(
             json!({"role": "system", "content": prompts::analysis::learner_tokens_prompt(&tln, &native, romanization_scheme, word_delimited)}),
             json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(&learner_message)}),
         ];
+        let token_context = request_context.clone();
         Some(tokio::spawn(async move {
             let result = provider
                 .structured_validated::<LearnerTokensOut, _>(
-                    RunContext::new(ontology::op::TOKENIZE_LEARNER, Some(turn_id)),
+                    RunContext::new(ontology::op::TOKENIZE_LEARNER, Some(turn_id)).with_context(&token_context),
                     &learner_msgs,
                     0.1,
                     "LearnerTokensOut",
@@ -228,7 +244,7 @@ pub async fn guided_turn(
     let channel = on_event.clone();
     let full_reply = provider
         .chat_streaming(
-            RunContext::new(ontology::op::REPLY, Some(turn_id)),
+            RunContext::new(ontology::op::REPLY, Some(turn_id)).with_context(&request_context).with_blocks(reply_blocks),
             &reply_messages,
             REPLY_TEMPERATURE,
             &mut |delta| {
@@ -255,6 +271,20 @@ pub async fn guided_turn(
         if let Some(task) = &learner_tokens_task { task.abort(); }
         return Err("The tutor returned an empty reply. Please try again.".into());
     }
+    let identity_result = {
+        let current_epoch = state.context_epoch.lock().expect("context lock poisoned");
+        if *current_epoch != epoch {
+            Err("The conversation context changed while the reply was being generated.".to_string())
+        } else if partner.introduction.is_none() {
+            crate::conversation_partner::establish(&chat, &reply)
+        } else { Ok(()) }
+    };
+    if let Err(error) = identity_result {
+        trace::application(turn_id, ontology::op::REPLY, "rejected_context_or_identity")?;
+        if let Some(task) = &learner_tokens_task { task.abort(); }
+        return Err(error);
+    }
+    trace::application(turn_id, ontology::op::REPLY, "reply_ready")?;
     info!(
         "[cmd] guided_turn reply ready in {:.1}s: reply_len={}",
         started.elapsed().as_secs_f32(),
@@ -290,6 +320,7 @@ pub async fn guided_turn(
             .chain(std::iter::once(format!("T: {reply}")))
             .collect();
         observer_pass::spawn(observer_pass::ObserverPass {
+            context: request_context.clone(),
             epoch,
             app: app.clone(),
             channel: on_event.clone(),
@@ -309,6 +340,7 @@ pub async fn guided_turn(
     // decision and every analysis call shares it.
     let worker_provider = settings.chat_provider(&settings.openrouter_model)?;
     analysis::spawn(analysis::AnalysisPass {
+        context: request_context.clone(),
         epoch,
         app: app.clone(),
         channel: on_event.clone(),
@@ -327,8 +359,9 @@ pub async fn guided_turn(
             json!({"role": "system", "content": prompts::analysis::mechanics_prompt(&tln, &cefr, &native, &directives)}),
             json!({"role": "user", "content": prompts::analysis::mechanics_turn(&cefr, &learner_message, &reply)}),
         ],
+        scaffolds_blocks: prompts::analysis::scaffolds_blocks(&tln, &cefr, &native, &directives),
         scaffolds_msgs: vec![
-            json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, &native, &directives)}),
+            json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, &cefr, &native, &directives)}),
             json!({"role": "user", "content": prompts::analysis::scaffolds_turn(&learner_message, &reply)}),
         ],
         learner_tokens: learner_tokens_task,
@@ -338,6 +371,7 @@ pub async fn guided_turn(
     if has_learner_message {
         let trimmed = message.trim().to_string();
         coach_pass::spawn(coach_pass::CoachPass {
+            context: request_context.clone(),
             app,
             channel: on_event.clone(),
             provider: worker_provider,

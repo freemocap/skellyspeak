@@ -13,16 +13,20 @@ pub mod audio;
 mod bench;
 pub mod commands;
 pub mod conversation;
+pub mod conversation_partner;
 pub mod graph;
 mod hosted;
 pub mod languages;
 pub mod observer;
+pub mod lesson;
 pub mod personas;
 pub mod ontology;
 pub mod prompts;
 mod settings;
 pub mod turn_plan;
 pub mod trace;
+pub mod instruction;
+mod trace_archive;
 
 use std::sync::Mutex;
 use tauri::Manager;
@@ -129,7 +133,7 @@ pub fn run() {
             );
             // Attach the trace bus: every AI run is recorded regardless, but
             // this is what lets the webview watch them live.
-            trace::attach(app.handle().clone());
+            trace::attach(app.handle().clone(), &config_dir).map_err(std::io::Error::other)?;
             // The pipeline gate, so pause/step state reaches every window.
             gate::attach(app.handle().clone());
             // The coach thread belongs to whichever chat is open in this pairing.
@@ -163,6 +167,11 @@ pub fn run() {
             commands::app_settings::save_settings,
             commands::app_settings::take_startup_faults,
             commands::coach::coach_ask,
+            commands::lesson::get_lesson,
+            commands::lesson::lesson_topic_note,
+            commands::lesson::save_lesson,
+            commands::personas::get_conversation_partner,
+            commands::personas::reroll_persona,
             commands::coach::coach_thread_clear,
             commands::coach::get_coach_thread,
             commands::conversations::delete_conversation,
@@ -178,6 +187,8 @@ pub fn run() {
             commands::dev::get_languages,
             commands::dev::get_reconciliation,
             commands::dev::get_runs,
+            commands::dev::get_trace_retention,
+            commands::dev::export_runs,
             commands::dev::open_dev_window,
             commands::guided::guided_turn,
             commands::hosted_auth::hosted_account,

@@ -224,6 +224,34 @@ export interface ObserverDocuments {
   profile: Profile
 }
 
+export interface LessonChoices {
+  goal: string
+  preferences: string[]
+  correction_budget: number | null
+}
+
+export interface LessonChange {
+  revision: number
+  at_ms: number
+  source: string
+  reason: string
+  before: LessonChoices
+  after: LessonChoices
+}
+
+export interface LessonState {
+  revision: number
+  choices: LessonChoices
+  changes: LessonChange[]
+}
+
+export interface CoachMessage {
+  role: string
+  content: string
+  proposal: LessonChoices | null
+  lesson_revision: number | null
+}
+
 
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 
@@ -253,7 +281,21 @@ export interface Usage {
   cost: number | null
 }
 
+export interface RequestContext {
+  chat_id: string; message_id: number | null; replaces_message_id: number | null; trigger: string
+  target: string; native: string; dialect: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced'
+  inferred_level_notes: string; topic: string | null; lesson_revision: number; partner: unknown; history_messages: number; history_available: number
+}
+export interface PromptBlock { id: string; source: string; content: string }
+export interface RecordedRequest {
+  messages: { role: string; content: string; truncated: boolean }[]
+  parameters: Record<string, unknown>; route: string; blocks: PromptBlock[]; truncated: boolean
+}
+export interface LengthCheck { status: string; sentences: number; words: number | null; violations: string[]; method: string }
 export interface Attempt {
+  request: RecordedRequest | null
+  response: string | null
+  response_truncated: boolean
   index: number
   kind: AttemptKind
   duration_ms: number
@@ -263,6 +305,11 @@ export interface Attempt {
 }
 
 export interface Run {
+  session_id: string
+  app_version: string
+  context: RequestContext | null
+  length_checks: LengthCheck[]
+  application_status: string
   id: number
   /** Groups every run fired by one conversational turn. */
   turn_id: number | null
@@ -355,6 +402,7 @@ export interface Reconciliation {
 /** Announced when an operation begins — see trace.rs. A completed `Run`
  *  arrives far too late to show that something is working right now. */
 export interface RunStarted {
+  context: RequestContext | null
   id: number
   turn_id: number | null
   operation: string
@@ -363,4 +411,3 @@ export interface RunStarted {
   model: string
   started_at_ms: number
 }
-

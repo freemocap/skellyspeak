@@ -4,7 +4,8 @@
 use serde::{Deserialize, Serialize};
 use log::info;
 use serde_json::json;
-use tauri::{State};
+use tauri::{Emitter, State};
+use crate::lesson::{self, LessonChoices, LessonState};
 use crate::ontology;
 use crate::prompts;
 use crate::trace::{RunContext};
@@ -30,6 +31,36 @@ pub struct CoachCorrection {
 #[derive(Debug, Serialize)]
 pub struct CoachReply {
     pub reply: String,
+    pub proposal: Option<LessonChoices>,
+    pub lesson: LessonState,
+}
+
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+enum LessonAction { Answer, Apply, Propose }
+
+#[derive(Debug, Deserialize, schemars::JsonSchema)]
+struct CoachDecision {
+    reply: String,
+    action: LessonAction,
+    request_quote: Option<String>,
+    choices: Option<LessonChoices>,
+}
+
+impl CoachDecision {
+    fn validate(&self, question: &str) -> Option<String> {
+        if self.reply.trim().is_empty() { return Some("Reply must not be empty".into()); }
+        match self.action {
+            LessonAction::Answer if self.choices.is_some() => return Some("Answer must have null choices".into()),
+            LessonAction::Apply | LessonAction::Propose if self.choices.is_none() => return Some("Lesson change requires complete choices".into()),
+            _ => {}
+        }
+        if matches!(self.action, LessonAction::Apply)
+            && !self.request_quote.as_ref().is_some_and(|q| !q.trim().is_empty() && question.contains(q)) {
+            return Some("Apply requires a verbatim quote of the latest learner request".into());
+        }
+        self.choices.as_ref().and_then(LessonChoices::validate)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
@@ -74,11 +105,33 @@ pub struct CoachChatMessage {
     /// "user" (learner) or "coach".
     pub role: String,
     pub content: String,
+    /// Added to persisted coach messages; historical messages have no proposal.
+    #[serde(default)]
+    pub proposal: Option<LessonChoices>,
+    #[serde(default)]
+    pub lesson_revision: Option<u64>,
 }
 
 /// The coach thread belongs to one chat: it discusses that conversation.
 use crate::conversation::COACH_FILE as COACH_THREAD_FILE;
 const COACH_THREAD_CAP: usize = 40;
+
+#[derive(Deserialize, Serialize)]
+struct ContextReply { reply: String }
+
+#[derive(Deserialize, Serialize)]
+struct ContextTurn {
+    user: Option<String>,
+    assistant: Option<ContextReply>,
+    coach: Option<CoachFeedback>,
+}
+
+fn conversation_context(turns: serde_json::Value) -> Result<String, String> {
+    let turns: Vec<ContextTurn> = serde_json::from_value(turns)
+        .map_err(|e| format!("Cannot read coach conversation context: {e}"))?;
+    serde_json::to_string(&turns.iter().rev().take(8).rev().collect::<Vec<_>>())
+        .map_err(|e| format!("Cannot serialize coach context: {e}"))
+}
 
 pub fn init_coach_thread(dir: &Path, faults: &mut Vec<String>) -> Vec<CoachChatMessage> {
     let path = dir.join(COACH_THREAD_FILE);
@@ -130,19 +183,29 @@ pub fn coach_thread_clear(state: State<'_, AppState>) -> Result<(), String> {
 /// sees any of it (Cyrano principle).
 #[tauri::command]
 pub async fn coach_ask(
+    app: tauri::AppHandle,
     state: State<'_, AppState>,
     question: String,
-    context: String,
+    chat_id: String,
+    expected_revision: u64,
+    level: crate::prompts::difficulty::Difficulty,
+    topic: String,
 ) -> Result<CoachReply, String> {
     let _request = state.coach_request.try_lock().map_err(|_| "The coach is already answering a question.")?;
-    let (epoch, stored, coach_dir, mut thread, plan, profile) = {
+    let (epoch, stored, pair, coach_dir, mut thread, plan, profile, lesson, context) = {
         let epoch = state.context_epoch.lock().expect("context lock poisoned");
         let stored = state.settings.lock().expect("settings lock poisoned").clone();
-        let (_, coach_dir, _) = pair_and_chat(&state, &stored.target_language, &stored.native_language)?;
+        let (pair, coach_dir, current) = pair_and_chat(&state, &stored.target_language, &stored.native_language)?;
+        if current != chat_id { return Err("The conversation changed before the coach request.".into()); }
+        let lesson = lesson::load(&pair)?;
+        if lesson.revision != expected_revision { return Err("The lesson changed. Review it before asking again.".into()); }
+        let loaded = crate::conversation::load_session(&coach_dir);
+        if let Some(error) = loaded.fault { return Err(error); }
+        let context = conversation_context(loaded.turns)?;
         let thread = state.coach_thread.lock().expect("coach lock poisoned").clone();
         let plan = state.plan.lock().expect("plan lock poisoned").clone();
         let profile = state.profile.lock().expect("profile lock poisoned").clone();
-        (*epoch, stored, coach_dir, thread, plan, profile)
+        (*epoch, stored, pair, coach_dir, thread, plan, profile, lesson, context)
     };
     let question = question.trim().to_string();
     if question.is_empty() {
@@ -152,10 +215,17 @@ pub async fn coach_ask(
     let tln = crate::languages::language_display(&stored.target_language);
     let native = crate::languages::native_display(&stored.native_language);
 
+    let request_context = crate::instruction::Context {
+        chat_id: chat_id.clone(), message_id: None, replaces_message_id: None, trigger: "coach_question".into(),
+        target: stored.target_language.clone(), native: stored.native_language.clone(), dialect: stored.target_dialect.clone(), provider_mode: stored.provider_mode.clone(),
+        difficulty: level, inferred_level_notes: profile.level_notes.clone(), topic: Some(topic.clone()), lesson_revision: lesson.revision,
+        partner: serde_json::to_value(crate::conversation_partner::load(&coach_dir)?).map_err(|e| e.to_string())?, history_messages: thread.len().min(COACH_THREAD_CAP), history_available: thread.len(),
+    };
+    let choices = format!("{}\n{}\nSelected practice topic: {}", lesson.choices.directives(), level.coaching_context(), topic);
     let (plan_json, profile_json) = prompts::observer::documents_json(&plan, &profile);
     let mut messages = vec![json!({
         "role": "system",
-        "content": prompts::coach::thread_system(&tln, &native, &plan_json, &profile_json),
+        "content": prompts::coach::thread_system(&tln, &native, &plan_json, &profile_json, &choices),
     })];
     for m in thread.iter().rev().take(COACH_THREAD_CAP).rev() {
         let role = if m.role == "user" { "user" } else { "assistant" };
@@ -167,16 +237,19 @@ pub async fn coach_ask(
     }));
 
     let provider = stored.chat_provider(&stored.openrouter_model)?;
-    let reply = provider
-        .chat_streaming(
-            RunContext::new(ontology::op::ANSWER, None),
+    let decision = provider
+        .structured_validated::<CoachDecision, _>(
+            RunContext::new(ontology::op::ANSWER, None).with_context(&request_context),
             &messages,
             0.5,
-            &mut |_| {},
+            "CoachDecision",
+            false,
+            Some(crate::ai::MaxTokens(3000)),
+            |decision| decision.validate(&question),
         )
         .await
         .map_err(|e| format!("coach ask failed: {e}"))?;
-    let reply = sanitize_reply(&reply);
+    let reply = sanitize_reply(&decision.reply);
     if reply.trim().is_empty() { return Err("The coach returned an empty answer.".into()); }
     info!(
         "[cmd] coach ask answered in {:.1}s: {} chars",
@@ -184,25 +257,68 @@ pub async fn coach_ask(
         reply.len()
     );
 
+    let mut current_lesson = lesson;
+    let proposal = if matches!(decision.action, LessonAction::Propose) { decision.choices.clone() } else { None };
     {
         let context = state.context_epoch.lock().expect("context lock poisoned");
         if *context != epoch { return Err("Conversation changed while the coach was answering.".into()); }
+        if lesson::load(&pair)?.revision != expected_revision {
+            return Err("The lesson changed while the coach was answering. Please ask again.".into());
+        }
+        if matches!(decision.action, LessonAction::Apply) {
+            current_lesson = lesson::save(&pair, expected_revision,
+                decision.choices.expect("validated lesson choices"), "coach · your request",
+                decision.request_quote.as_deref().expect("validated request quote"))?;
+            app.emit("lesson-changed", ()).map_err(|e| format!("Lesson saved but refresh failed: {e}"))?;
+        }
         thread.push(CoachChatMessage {
             role: "user".into(),
             content: question.clone(),
+            proposal: None,
+            lesson_revision: None,
         });
         thread.push(CoachChatMessage {
             role: "coach".into(),
             content: reply.clone(),
+            proposal: proposal.clone(),
+            lesson_revision: Some(current_lesson.revision),
         });
         let len = thread.len();
         if len > COACH_THREAD_CAP {
             thread.drain(0..len - COACH_THREAD_CAP);
         }
         let dir = coach_dir.clone();
-        persist_coach_thread(&dir, &thread)?;
+        persist_coach_thread(&dir, &thread).map_err(|e| format!("Coach history could not be saved; lesson is at revision {}: {e}", current_lesson.revision))?;
         *state.coach_thread.lock().expect("coach lock poisoned") = thread;
     }
-    Ok(CoachReply { reply })
+    Ok(CoachReply { reply, proposal, lesson: current_lesson })
 }
 
+#[cfg(test)]
+mod lesson_tests {
+    use super::*;
+
+    #[test]
+    fn context_keeps_recent_messages_without_full_token_analysis() {
+        let turns = (0..12).map(|i| json!({"user": format!("Message {i}"), "assistant": {"reply": format!("Reply {i}"), "tokens": ["not coach context"]}})).collect::<Vec<_>>();
+        let context = conversation_context(json!(turns)).unwrap();
+        let rows: serde_json::Value = serde_json::from_str(&context).unwrap();
+        assert_eq!(rows.as_array().unwrap().len(), 8);
+        assert_eq!(rows[0]["user"], "Message 4");
+        assert_eq!(rows[7]["assistant"]["reply"], "Reply 11");
+        assert!(!context.contains("tokens"));
+        assert!(conversation_context(json!([{"assistant": {"reply": 42}}])).is_err());
+    }
+
+    #[test]
+    fn applying_requires_current_request_evidence_and_valid_choices() {
+        let mut decision = CoachDecision { reply: "Changed".into(), action: LessonAction::Apply,
+            request_quote: Some("Practise travel".into()), choices: Some(LessonChoices::default()) };
+        assert!(decision.validate("What is the past tense?").is_some());
+        assert!(decision.validate("Practise travel please").is_none());
+        decision.action = LessonAction::Propose;
+        assert!(decision.validate("What should I practise?").is_none());
+        decision.action = LessonAction::Answer;
+        assert!(decision.validate("Hi").is_some());
+    }
+}

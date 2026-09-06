@@ -55,13 +55,18 @@ layer.
 
 ## Prompt provenance and workbench
 
-Run tracing currently records the final prompt text and model output. A proposed
-workbench would represent prompt composition as named, ordered blocks so a
-developer could inspect provenance and safely experiment with overrides.
+The [September instruction-flow audit](./ai-instruction-audit-2026-09-06)
+records historical evidence of the zero-level failure. Captured context, shared
+practice policy, per-attempt requests, durable traces, scoped exports and the
+request comparison reader are now described in [Observability](./observability).
+Remaining work includes:
 
-This requires an explicit registry, validation rules, secret/content handling,
-and a durable format. There is no `prompt_overrides` setting or `PromptRecord`
-contract in the current implementation.
+- Fine-grained prompt-block provenance for every model operation.
+- Preparation, skipped-work, cancellation and speech/transcription coverage.
+- Active-operation snapshots when an inspector opens mid-call.
+- Application acknowledgements beyond reply readiness and conversation saving.
+- Semantic difficulty evaluation beyond mechanical length checks.
+- Prompt editing and overrides; no prompt-override setting currently exists.
 
 ## Product work
 
@@ -70,3 +75,15 @@ contract in the current implementation.
 - Packaged-app end-to-end tests against the real Tauri IPC boundary.
 - Physical-device acceptance coverage for microphone, credential vault,
   sign-in, playback, installation, and updates.
+
+## Proposed UX follow-up
+
+The [September 2026 UX audit](./ux-audit-2026-09-06) proposes these candidates for prioritization; they are not shipped behavior:
+
+- Explicit microphone starting/transcribing/error states and duplicate-start prevention.
+- Revision-safe restore of explicit lesson choices.
+- Keyboard resizing parity for AI dock and graph splitters, with verified focus return.
+- Contextual discovery of configured shortcuts.
+- User-facing conversation and lesson export with explicit data scope.
+
+Response-to-context provenance belongs to the prompt-provenance workbench above.

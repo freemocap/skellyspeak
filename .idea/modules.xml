@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api.iml" />
     </modules>
   </component>
 </project>
