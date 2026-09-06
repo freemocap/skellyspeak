@@ -68,7 +68,12 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: server/uv.lock
-      - run: uv run --group dev pytest -q
+      - name: Install audio decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
+          ffmpeg -version
+      - run: uv run --frozen --group dev pytest -q
         working-directory: server
 
   docs:
