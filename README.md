@@ -38,7 +38,7 @@ Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
 └─ Groq Whisper STT · OpenRouter TTS
 ```
 
-- **API keys** are stored locally in the OS config dir and used only by the
+- **API keys** are stored in the platform credential vault and used only by the
   Rust core. The webview only ever receives them masked (`sk-or-••••••••cdef`),
   and a masked value round-tripping back means "keep the stored key".
 - Structured output uses the native `json_schema` response format on every
@@ -46,7 +46,7 @@ Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
   no degraded fallback path** — anything else fails loudly with the
   provider's actual error, so a bad model gets replaced rather than papered
   over.
-- No accounts, no server, no Docker. Everything is local except the AI calls.
+- Choose the hosted service with Google sign-in, your own provider keys, or your own AI server. Conversation files stay on the device.
 
 ## Run
 

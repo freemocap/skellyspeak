@@ -7,13 +7,13 @@
 use log::{error, info};
 use serde_json::json;
 use tauri::ipc::Channel;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 use crate::ai::Provider;
 use crate::ontology;
 use crate::prompts;
 use crate::trace::RunContext;
-use crate::AppState;
+
 
 use super::super::coach::CoachFeedback;
 use super::types::{emit, GuidedEvent};
@@ -31,6 +31,7 @@ pub(super) struct CoachPass {
     pub native: String,
     /// What the learner just said — never empty; the caller checks.
     pub message: String,
+    pub level_notes: String,
     pub transcript: Vec<String>,
     pub topic: Option<String>,
 }
@@ -63,24 +64,17 @@ pub(super) fn spawn(pass: CoachPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let CoachPass {
-            app,
+            app: _app,
             channel,
             provider,
             turn_id,
             tln,
             native,
             message,
+            level_notes,
             transcript,
             topic,
         } = pass;
-
-        let level_notes = app
-            .state::<AppState>()
-            .profile
-            .lock()
-            .unwrap_or_else(|p| p.into_inner())
-            .level_notes
-            .clone();
 
         let messages = vec![
             json!({"role": "system", "content": prompts::coach::analysis_prompt(&tln, &native)}),
@@ -189,3 +183,4 @@ mod tests {
         assert!(transcript(&[]).is_empty());
     }
 }
+

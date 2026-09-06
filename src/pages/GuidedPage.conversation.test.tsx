@@ -6,7 +6,7 @@
 // unsaved turns, saving one conversation under another's name — and none of it
 // is reachable from a pure-function test.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Settings, StoredTurn } from '../types'
 
@@ -68,6 +68,8 @@ vi.mock('../lib/speech', () => ({
   ttsAvailable: () => false,
   stopSpeaking: vi.fn(),
   subscribeSpeaking: () => () => {},
+  subscribeSpeechProgress: () => () => {},
+  setPlaybackRate: vi.fn(),
 }))
 vi.mock('../hooks/useMicRecorder', () => ({
   // Matches the real hook's shape: { recording, recAnalyser, toggleMic, cancel }.
@@ -83,6 +85,7 @@ vi.mock('../components/dev/DevPanel', () => ({ DevPanel: () => null }))
 vi.mock('../components/panes/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => null }))
 
 import GuidedPage from './GuidedPage'
+import { useConversation } from './guided/useConversation'
 import { armGreeting, disarmGreeting } from '../hooks/useSteering'
 
 const SETTINGS: Settings = {
@@ -107,6 +110,7 @@ const SETTINGS: Settings = {
   auto_translate: false,
   tts_engine: 'cloud',
   tts_voice: 'nova',
+  tts_rate: 1,
   shortcuts: { mic: 'ctrl+m', speak: 'ctrl+l', panel: 'ctrl+b', settings: 'ctrl+,' },
 }
 
@@ -163,6 +167,15 @@ beforeEach(() => {
 })
 
 describe('opening the app', () => {
+  it('saves the selected voice speed without reopening the conversation', async () => {
+    backend.saveSettings.mockResolvedValue(undefined)
+    backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
+    render(<GuidedPage />)
+    await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledTimes(1))
+    fireEvent.change(screen.getByLabelText('Voice playback speed'), { target: { value: '0.5' } })
+    await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ tts_rate: 0.5 })))
+    expect(backend.loadConversation).toHaveBeenCalledTimes(1)
+  })
   it('puts a stored conversation back on screen', async () => {
     backend.loadConversation.mockResolvedValue({
       id: 'chat-1',
@@ -502,5 +515,43 @@ describe('a failure that names Settings', () => {
     render(<GuidedPage onOpenSettings={vi.fn()} />)
     await screen.findByText(/rate limit/)
     expect(screen.queryByRole('button', { name: 'Open Settings' })).not.toBeInTheDocument()
+  })
+})
+
+describe('conversation ownership under delayed operations', () => {
+  it('flushes before deletion and never saves the deleted chat afterward', async () => {
+    backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Keep this history')] })
+    backend.newConversation.mockResolvedValue('chat-2')
+    const { result } = renderHook(() => useConversation({ settings: SETTINGS, sending: false,
+      setHistoryOpen: vi.fn(), greet: vi.fn(), resetView: vi.fn() }))
+    await waitFor(() => expect(result.current.currentChatId).toBe('chat-1'))
+    let finishSave!: () => void
+    backend.saveConversation.mockImplementationOnce(() => new Promise<void>((resolve) => { finishSave = resolve }))
+    let removal!: Promise<void>
+    act(() => { removal = result.current.removeChat('chat-1') })
+    await waitFor(() => expect(backend.saveConversation).toHaveBeenCalled())
+    expect(backend.deleteConversation).not.toHaveBeenCalled()
+    await act(async () => { finishSave(); await removal })
+    expect(backend.deleteConversation).toHaveBeenCalledWith('es-ES', 'en', 'chat-1')
+    expect(result.current.currentChatId).toBe('chat-2')
+    const deletedAt = backend.deleteConversation.mock.invocationCallOrder[0]
+    backend.saveConversation.mock.calls.forEach((args, index) => {
+      if (args[2] === 'chat-1') expect(backend.saveConversation.mock.invocationCallOrder[index]).toBeLessThan(deletedAt)
+    })
+  })
+
+  it('ignores a late load from another language pair', async () => {
+    let finishSpanish!: (value: { id: string; turns: StoredTurn[] }) => void
+    backend.loadConversation.mockImplementation((target: string) => target === 'es-ES'
+      ? new Promise((resolve) => { finishSpanish = resolve })
+      : Promise.resolve({ id: 'arabic', turns: [turn(9, 'Arabic conversation')] }))
+    const { result, rerender } = renderHook(({ settings }) => useConversation({ settings, sending: false,
+      setHistoryOpen: vi.fn(), greet: vi.fn(), resetView: vi.fn() }), { initialProps: { settings: SETTINGS } })
+    await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledWith('es-ES', 'en'))
+    rerender({ settings: { ...SETTINGS, target_language: 'ar' } })
+    await waitFor(() => expect(result.current.currentChatId).toBe('arabic'))
+    await act(async () => { finishSpanish({ id: 'spanish', turns: [turn(1, 'Spanish conversation')] }) })
+    expect(result.current.currentChatId).toBe('arabic')
+    expect(result.current.turns[0].user).toBe('Arabic conversation')
   })
 })

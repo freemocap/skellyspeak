@@ -45,6 +45,7 @@ SESSION_TTL_SECONDS = 30 * 24 * 60 * 60  # 30 days
 # Long enough to cover the browser handing control back to the app, short
 # enough that a leaked code is worthless by the time anyone finds it.
 LOGIN_CODE_TTL_SECONDS = 120
+AUTH_STATE_TTL_SECONDS = 300
 
 # RFC 9700 §2.1: redirect URIs are compared by EXACT string match, with one
 # carve-out — the port of a loopback URI in a native app, which RFC 8252

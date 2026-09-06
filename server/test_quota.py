@@ -16,6 +16,7 @@ import pytest
 from google.cloud import firestore
 
 import quota
+import budget
 
 
 class FakeSnapshot:
@@ -120,7 +121,7 @@ class FakeDb:
     def collection(self, name: str) -> FakeCollection:
         return FakeCollection(self.store, name)
 
-    def transaction(self) -> FakeTransaction:
+    def transaction(self, *, max_attempts: int = 5) -> FakeTransaction:
         return FakeTransaction()
 
 
@@ -144,6 +145,24 @@ def signup(db, n: int, *, max_users: int) -> None:
 def counted(db) -> int:
     """How many accounts exist — the same thing the ceiling now counts."""
     return sum(1 for k in db.store if k.startswith("users/") and k.count("/") == 1)
+
+
+def record_usage(db: FakeDb, user_id: str, *, micros: int, tokens: int = 0) -> None:
+    if micros < 0:
+        raise ValueError("Usage cannot be negative")
+    reservation = budget.reserve(db, user_id=user_id, micros=max(1, micros),
+                                 user_limit=10**12, global_limit=10**12)
+    budget.settle(db, reservation=reservation, actual_micros=micros, tokens=tokens,
+                  status="settled", provider_id="test-provider")
+
+
+def check_allowed(db: FakeDb, user_id: str, *, user_limit: int, global_limit: int) -> quota.Balance:
+    balance = quota.read_balance(db, user_id, limit=user_limit)
+    reservation = budget.reserve(db, user_id=user_id, micros=1,
+                                 user_limit=user_limit, global_limit=global_limit)
+    budget.settle(db, reservation=reservation, actual_micros=0, tokens=0,
+                  status="settled", provider_id="test-provider")
+    return balance
 
 
 class TestAccountCeiling:
@@ -252,8 +271,8 @@ class TestDeviceRecords:
 
 class TestUsageAccounting:
     def test_requests_are_counted_alongside_tokens(self, db):
-        quota.record_usage(db, "google:1", micros=300, tokens=1200)
-        quota.record_usage(db, "google:1", micros=200, tokens=800)
+        record_usage(db, "google:1", micros=300, tokens=1200)
+        record_usage(db, "google:1", micros=200, tokens=800)
         day = quota.utc_day()
         entry = db.store[f"users/google:1/{quota.USAGE}/{day}"]
         # 40,000 tokens over three turns and over thirty are different things,
@@ -265,16 +284,16 @@ class TestUsageAccounting:
     def test_a_zero_token_response_still_counts_as_a_request(self, db):
         # A provider that reports no usage still cost a call; dropping it would
         # quietly understate how much the service is being used.
-        quota.record_usage(db, "google:1", micros=0, tokens=0)
+        record_usage(db, "google:1", micros=0, tokens=0)
         day = quota.utc_day()
         assert db.store[f"users/google:1/{quota.USAGE}/{day}"]["requests"] == 1
 
     def test_negative_usage_is_a_bug_not_a_credit(self, db):
         with pytest.raises(ValueError):
-            quota.record_usage(db, "google:1", micros=-5)
+            record_usage(db, "google:1", micros=-5)
 
     def test_usage_carries_an_expiry_firestore_can_act_on(self, db):
-        quota.record_usage(db, "google:1", micros=10, tokens=40)
+        record_usage(db, "google:1", micros=10, tokens=40)
         ttl = db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["ttl"]
         # A Firestore TTL policy acts on a timestamp field, not the unix ints
         # used elsewhere for expiry logic.
@@ -295,16 +314,16 @@ class TestTheDailyResetActuallyRolls:
     def test_the_day_key_follows_the_clock_not_the_process(self, db, monkeypatch):
         # Computing the day once at import would freeze it for the lifetime of
         # a warm Cloud Run instance, and the counter would never roll over.
-        quota.record_usage(db, "google:1", micros=500, tokens=2_000)
+        record_usage(db, "google:1", micros=500, tokens=2_000)
         assert db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"]["micros"] == 500
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
-        quota.record_usage(db, "google:1", micros=7, tokens=30)
+        record_usage(db, "google:1", micros=7, tokens=30)
         assert db.store[f"users/google:1/{quota.USAGE}/2099-01-02"]["micros"] == 7
 
     def test_yesterdays_spend_is_not_read_today(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", micros=999_999)
+        record_usage(db, "google:1", micros=999_999)
         assert quota.read_balance(db, "google:1", limit=1_000).used == 999_999
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
@@ -314,23 +333,23 @@ class TestTheDailyResetActuallyRolls:
 
     def test_an_account_locked_out_yesterday_is_allowed_again_today(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", micros=1_000)
+        record_usage(db, "google:1", micros=1_000)
         with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
+            check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
         # The whole point: no job ran overnight, and it is allowed anyway.
-        balance = quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
+        balance = check_allowed(db, "google:1", user_limit=1_000, global_limit=10_000)
         assert balance.used == 0
 
     def test_the_shared_ceiling_rolls_over_too(self, db, monkeypatch):
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-        quota.record_usage(db, "google:1", micros=10_000)
+        record_usage(db, "google:1", micros=10_000)
         with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
+            check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
 
         monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
-        quota.check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
+        check_allowed(db, "google:2", user_limit=1_000, global_limit=10_000)
 
     def test_the_boundary_is_utc_not_the_servers_local_time(self):
         # 03:00 UTC on the 2nd is still the 1st in the Americas. If this ever
@@ -365,76 +384,19 @@ class TestMoneyNotTokens:
 
     def test_the_limit_is_enforced_against_money_not_tokens(self, db):
         # A huge token count that cost little must NOT lock the account out.
-        quota.record_usage(db, "google:1", micros=10, tokens=5_000_000)
-        balance = quota.check_allowed(
+        record_usage(db, "google:1", micros=10, tokens=5_000_000)
+        balance = check_allowed(
             db, "google:1", user_limit=1_000, global_limit=1_000_000
         )
         assert balance.used == 10
         assert balance.tokens == 5_000_000
 
     def test_tokens_are_reported_but_never_gate(self, db):
-        quota.record_usage(db, "google:1", micros=999, tokens=1)
+        record_usage(db, "google:1", micros=999, tokens=1)
         balance = quota.read_balance(db, "google:1", limit=1_000)
         assert not balance.exhausted
-        quota.record_usage(db, "google:1", micros=1, tokens=1)
+        record_usage(db, "google:1", micros=1, tokens=1)
         assert quota.read_balance(db, "google:1", limit=1_000).exhausted
-
-
-class TestReservations:
-    """Between check and record there is a window where nothing holds the money.
-
-    Without a reservation, N concurrent requests all read the same balance, all
-    decide there is room, and all proceed — so one account can exceed its limit
-    by however many requests it can start at once.
-    """
-
-    def test_a_reservation_is_visible_to_the_next_check(self, db):
-        quota.reserve(db, "google:1", micros=800)
-        with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(db, "google:1", user_limit=800, global_limit=1_000_000)
-
-    def test_concurrent_requests_cannot_all_pass_the_same_check(self, db):
-        # Ten requests started back to back, none of them settled yet. The
-        # eleventh must be refused rather than reading a stale zero.
-        for _ in range(10):
-            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000_000)
-            quota.reserve(db, "google:1", micros=100)
-        with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000_000)
-
-    def test_settling_replaces_the_estimate_with_the_real_cost(self, db):
-        quota.reserve(db, "google:1", micros=2_000)
-        quota.settle(
-            db, "google:1", reserved_micros=2_000, actual_micros=350, tokens=1_400
-        )
-        balance = quota.read_balance(db, "google:1", limit=1_000_000)
-        assert balance.used == 350, "the over-estimate must be refunded"
-        assert balance.tokens == 1_400
-        assert balance.requests == 1, "reserve counted the request; settle must not again"
-
-    def test_an_under_estimate_charges_the_difference(self, db):
-        quota.reserve(db, "google:1", micros=100)
-        quota.settle(
-            db, "google:1", reserved_micros=100, actual_micros=9_000, tokens=50_000
-        )
-        assert quota.read_balance(db, "google:1", limit=1_000_000).used == 9_000
-
-    def test_a_failed_call_refunds_the_whole_reservation(self, db):
-        quota.reserve(db, "google:1", micros=2_000)
-        quota.settle(db, "google:1", reserved_micros=2_000, actual_micros=0, tokens=0)
-        balance = quota.read_balance(db, "google:1", limit=1_000_000)
-        assert balance.used == 0
-        assert balance.requests == 1, "the attempt is still worth counting"
-
-    def test_a_negative_reservation_is_a_bug(self, db):
-        with pytest.raises(ValueError):
-            quota.reserve(db, "google:1", micros=-1)
-
-    def test_settling_a_negative_cost_is_a_bug(self, db):
-        with pytest.raises(ValueError):
-            quota.settle(
-                db, "google:1", reserved_micros=0, actual_micros=-1, tokens=0
-            )
 
 
 class TestSessionRevocation:
@@ -503,12 +465,12 @@ class TestPerAccountLimits:
     def test_the_override_is_what_the_ceiling_is_enforced_against(self, db):
         signup(db, 1, max_users=6)
         db.store["users/google:1"][quota.LIMIT_FIELD] = 2_000
-        quota.record_usage(db, "google:1", micros=1_500)
+        record_usage(db, "google:1", micros=1_500)
         who = self.principal(db)
-        quota.check_allowed(db, "google:1", user_limit=who.daily_limit, global_limit=10**9)
-        quota.record_usage(db, "google:1", micros=600)
+        check_allowed(db, "google:1", user_limit=who.daily_limit, global_limit=10**9)
+        record_usage(db, "google:1", micros=600)
         with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(
+            check_allowed(
                 db, "google:1", user_limit=who.daily_limit, global_limit=10**9
             )
 
@@ -517,15 +479,15 @@ class TestPerAccountLimits:
         # not be able to spend the service's whole day.
         signup(db, 1, max_users=6)
         db.store["users/google:1"][quota.LIMIT_FIELD] = 10**9
-        quota.record_usage(db, "google:1", micros=2_000_000)
+        record_usage(db, "google:1", micros=2_000_000)
         with pytest.raises(quota.QuotaExceeded):
-            quota.check_allowed(
+            check_allowed(
                 db, "google:1", user_limit=10**9, global_limit=2_000_000
             )
 
-    def test_a_zero_or_missing_override_falls_back_to_the_default(self, db):
+    def test_only_a_missing_override_uses_the_default(self, db):
         signup(db, 1, max_users=6)
-        for value in (0, None):
+        for value in (None,):
             db.store["users/google:1"][quota.LIMIT_FIELD] = value
             assert self.principal(db, default=500_000).daily_limit == 500_000
 
@@ -619,4 +581,5 @@ class TestDocumentsWrittenBeforeTheFieldsExisted:
 
     def test_a_usage_row_missing_micros_does_not_break_the_ceiling_check(self, db):
         db.store[f"users/google:1/{quota.USAGE}/{quota.utc_day()}"] = {"tokens": 10}
-        quota.check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000)
+        check_allowed(db, "google:1", user_limit=1_000, global_limit=1_000)
+

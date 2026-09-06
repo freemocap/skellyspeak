@@ -15,6 +15,18 @@ use super::conversations::pair_and_chat;
 
 // ─── Settings ────────────────────────────────────────────────────────────────
 
+/// Update delivery is determined by the native build target.
+#[tauri::command]
+pub fn get_update_channel() -> &'static str {
+    if cfg!(target_os = "ios") {
+        "app-store"
+    } else if cfg!(target_os = "android") {
+        "download"
+    } else {
+        "install"
+    }
+}
+
 #[tauri::command]
 pub fn get_settings(state: State<'_, AppState>) -> Result<Settings, String> {
     info!("[cmd] get_settings");
@@ -105,13 +117,20 @@ pub fn take_startup_faults(state: State<'_, AppState>) -> Vec<String> {
 pub fn reset_settings(state: State<'_, AppState>) -> Result<Settings, String> {
     info!("[cmd] reset_settings: restoring defaults, clearing API keys");
     let fresh = Settings::default();
-    settings::persist(&state.config_dir, &fresh)?;
-    *state.settings.lock().unwrap_or_else(|p| p.into_inner()) = fresh.clone();
+    apply_settings(&state, fresh.clone(), false)?;
     Ok(fresh.masked())
 }
 
 #[tauri::command]
-pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Result<(), String> {
+pub fn save_settings(state: State<'_, AppState>, settings: Settings) -> Result<(), String> {
+    apply_settings(&state, settings, true)
+}
+
+fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bool) -> Result<(), String> {
+    if !settings.tts_rate.is_finite() || !(0.5..=1.5).contains(&settings.tts_rate) {
+        return Err("Voice playback speed must be between 0.5 and 1.5.".into());
+    }
+    let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     // Phone clipboards love appending whitespace to pasted keys — a dirty
     // key makes providers report "Missing Authentication header".
     settings.openrouter_key = settings.openrouter_key.trim().to_string();
@@ -125,22 +144,24 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
         .clone();
     if !stored.openrouter_key.is_empty() && settings.openrouter_key == settings::mask(&stored.openrouter_key)
     {
-        settings.openrouter_key = stored.openrouter_key;
+        settings.openrouter_key = stored.openrouter_key.clone();
     }
     if !stored.groq_key.is_empty() && settings.groq_key == settings::mask(&stored.groq_key) {
-        settings.groq_key = stored.groq_key;
+        settings.groq_key = stored.groq_key.clone();
     }
     if !stored.custom_api_key.is_empty()
         && settings.custom_api_key == settings::mask(&stored.custom_api_key)
     {
-        settings.custom_api_key = stored.custom_api_key;
+        settings.custom_api_key = stored.custom_api_key.clone();
     }
     // The session token is issued by signing in and is blanked on its way out
     // to the webview, so whatever comes back is meaningless. Always keep what
     // is stored; `hosted_sign_out` is the only way to clear it. The install id
     // is withheld the same way and must survive a save untouched.
-    settings.hosted_token = stored.hosted_token.clone();
-    settings.hosted_email = stored.hosted_email.clone();
+    if preserve_session {
+        settings.hosted_token = stored.hosted_token.clone();
+        settings.hosted_email = stored.hosted_email.clone();
+    }
     settings.install_id = stored.install_id.clone();
     info!(
         "[cmd] save_settings: target={} native={} model={}",
@@ -149,7 +170,7 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
         settings.openrouter_model
     );
     // A failed save means the user's keys are NOT on disk — fail loudly.
-    settings::persist(&state.config_dir, &settings)?;
+
     // Language pairing changed → the observer documents and coach thread
     // belong to the OTHER conversation. Save them where they came from and
     // load whatever this pairing had, so switching away and back returns you
@@ -182,7 +203,7 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
                 .lock()
                 .unwrap_or_else(|p| p.into_inner())
                 .clone();
-            persist_coach_thread(&old_chat, &thread);
+            persist_coach_thread(&old_chat, &thread)?;
         }
 
         let (new_pair, new_chat, _) = pair_and_chat(
@@ -195,13 +216,26 @@ pub fn save_settings(state: State<'_, AppState>, mut settings: Settings) -> Resu
         let mut faults: Vec<String> = Vec::new();
         let (plan, profile) = observer::load_documents(&new_pair, &mut faults);
         let thread = init_coach_thread(&new_chat, &mut faults);
-        *state.plan.lock().unwrap_or_else(|p| p.into_inner()) = plan;
-        *state.profile.lock().unwrap_or_else(|p| p.into_inner()) = profile;
-        *state.coach_thread.lock().unwrap_or_else(|p| p.into_inner()) = thread;
         if let Some(first) = faults.into_iter().next() {
             return Err(first);
         }
+        settings::persist(&state.config_dir, &settings)?;
+        *state.plan.lock().expect("plan lock poisoned") = plan;
+        *state.profile.lock().expect("profile lock poisoned") = profile;
+        *state.coach_thread.lock().expect("coach lock poisoned") = thread;
+        state.recent_mechanics.lock().expect("mechanics lock poisoned").clear();
+    }
+    if !pairing_changed { settings::persist(&state.config_dir, &settings)?; }
+    let context_changed = pairing_changed || stored.target_dialect != settings.target_dialect
+        || stored.provider_mode != settings.provider_mode || stored.openrouter_model != settings.openrouter_model
+        || stored.observer_model != settings.observer_model || stored.custom_base_url != settings.custom_base_url
+        || stored.custom_model != settings.custom_model || stored.openrouter_key != settings.openrouter_key
+        || stored.custom_api_key != settings.custom_api_key || stored.hosted_token != settings.hosted_token;
+    if context_changed {
+        *epoch += 1;
+        *state.observer_turns.lock().expect("observer cadence lock poisoned") = 0;
     }
     *state.settings.lock().unwrap_or_else(|p| p.into_inner()) = settings;
     Ok(())
 }
+

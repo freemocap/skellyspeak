@@ -26,6 +26,22 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-uti
 uuid = { version = "1.26.0", features = ["v4"] }
 sha2 = "0.11.0"
 getrandom = "0.4.3"
+tempfile = "3"
+keyring-core = "1"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-native-keyring-store = "1"
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+apple-native-keyring-store = { version = "1", features = ["keychain", "protected"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus-secret-service-keyring-store = { version = "1", features = ["rt-async-io-crypto-rust"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-native-keyring-store = "1"
+jni = "0.21"
+ndk-context = "0.1"
 
 # The updater is desktop-only: Tauri has no updater for Android or iOS, where
 # app updates come from the store or a sideloaded package instead.

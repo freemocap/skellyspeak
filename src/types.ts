@@ -34,6 +34,7 @@ export interface Settings {
   auto_translate: boolean
   tts_engine: string
   tts_voice: string
+  tts_rate: number
   shortcuts: Shortcuts
 }
 
@@ -95,7 +96,7 @@ export interface HostedAccount {
   remaining_usd: number
   tokens_today: number
   requests_today: number
-  estimated_turns_remaining: number
+  estimated_requests_remaining: number
   estimated_tokens_remaining: number
   /// This account has its own daily limit instead of the service default.
   custom_limit: boolean
@@ -363,3 +364,4 @@ export interface RunStarted {
   model: string
   started_at_ms: number
 }
+

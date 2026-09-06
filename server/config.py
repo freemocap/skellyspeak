@@ -43,9 +43,12 @@ def _required_secret(name: str, *, min_bytes: int) -> str:
 def _required_int(name: str) -> int:
     raw = _required(name)
     try:
-        return int(raw)
+        value = int(raw)
     except ValueError as exc:
         raise ConfigError(f"{name} must be an integer, got {raw!r}") from exc
+    if value <= 0:
+        raise ConfigError(f"{name} must be positive.")
+    return value
 
 
 def _required_list(name: str) -> tuple[str, ...]:

@@ -146,6 +146,9 @@ pub struct Settings {
     /// Cloud voice name (OpenAI audio voices: alloy, nova, shimmer, ...).
     #[serde(default = "default_tts_voice")]
     pub tts_voice: String,
+    /// Playback multiplier, from half speed to one and a half speed.
+    #[serde(default = "default_tts_rate")]
+    pub tts_rate: f64,
     #[serde(default)]
     pub observer_model: Option<String>,
 }
@@ -162,6 +165,7 @@ fn default_tts_engine() -> String {
 fn default_tts_voice() -> String {
     "nova".into()
 }
+fn default_tts_rate() -> f64 { 1.0 }
 
 fn default_model() -> String {
     // Worker default: gemini-2.5-flash — 6/6 on the model bench (all analysis
@@ -210,6 +214,7 @@ impl Default for Settings {
             shortcuts: Shortcuts::default(),
             tts_engine: default_tts_engine(),
             tts_voice: default_tts_voice(),
+            tts_rate: default_tts_rate(),
             observer_model: None,
         }
     }
@@ -361,9 +366,7 @@ fn settings_path(dir: &Path) -> std::path::PathBuf {
     dir.join("settings.json")
 }
 
-/// Settings as loaded, plus any fault the user must be told about. A fault
-/// means the stored settings could not be honoured: the app runs on defaults
-/// and the message is pushed to the webview. It is never left in a log file.
+/// Loading faults block startup so unavailable preferences cannot be overwritten.
 pub struct Loaded {
     pub settings: Settings,
     pub fault: Option<String>,
@@ -376,79 +379,55 @@ fn new_install_id() -> String {
 }
 
 pub fn load_or_create(dir: &Path) -> Loaded {
-    let path = settings_path(dir);
-    let Ok(raw) = std::fs::read_to_string(&path) else {
-        // No file yet: a first run, not a fault. Failing to create one IS.
-        let settings = Settings {
-            install_id: new_install_id(),
-            ..Settings::default()
-        };
-        let fault = persist(dir, &settings)
-            .err()
-            .map(|e| format!("Could not create settings.json: {e}. Settings will not persist."));
-        return Loaded { settings, fault };
-    };
-
-    match serde_json::from_str::<Settings>(&raw) {
-        Ok(mut settings) => {
-            // A settings file written before this field existed has none, and
-            // one written by hand may have had it removed.
-            if settings.install_id.trim().is_empty() {
-                settings.install_id = new_install_id();
-                if let Err(e) = persist(dir, &settings) {
-                    return Loaded {
-                        settings,
-                        fault: Some(format!("Could not save settings.json: {e}.")),
-                    };
-                }
-            }
-            Loaded {
-                settings,
-                fault: None,
-            }
-        }
-        Err(parse_err) => {
-            // A corrupt settings file is never quietly replaced: that would
-            // discard the user's API keys without a word. Move it aside, run
-            // on defaults, and report all of it to the screen.
-            let bad = dir.join("settings.json.bad");
-            let mut fault = format!(
-                "settings.json could not be read ({parse_err}). Your API keys were NOT loaded \
-                 — re-enter them in Settings."
-            );
-            match std::fs::rename(&path, &bad) {
-                Ok(()) => {
-                    fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display()))
-                }
-                Err(e) => fault.push_str(&format!(" It could not be moved aside either: {e}.")),
-            }
-            let settings = Settings {
-                install_id: new_install_id(),
-                ..Settings::default()
-            };
-            if let Err(e) = persist(dir, &settings) {
-                fault.push_str(&format!(" Writing a fresh one also failed: {e}."));
-            }
-            log::error!("{fault}");
-            Loaded {
-                settings,
-                fault: Some(fault),
-            }
-        }
+    match load(dir) {
+        Ok(settings) => Loaded { settings, fault: None },
+        Err(error) => Loaded { settings: Settings::default(), fault: Some(error) },
     }
 }
 
-/// Persist settings. Returns an error instead of swallowing IO failures —
-/// a failed save means the user's keys are NOT on disk and they must know.
-pub fn persist(dir: &Path, settings: &Settings) -> Result<(), String> {
-    let path = settings_path(dir);
-    serde_json::to_string_pretty(settings)
-        .map_err(|e| format!("settings serialization failed: {e}"))
-        .and_then(|raw| {
-            std::fs::write(path, raw).map_err(|e| format!("settings write failed: {e}"))
-        })
+fn load(dir: &Path) -> Result<Settings, String> {
+    let Some(raw) = crate::persistence::read(&settings_path(dir))? else {
+        let settings = Settings { install_id: new_install_id(), ..Settings::default() };
+        persist(dir, &settings)?;
+        return Ok(settings);
+    };
+    let mut settings: Settings = serde_json::from_str(&raw)
+        .map_err(|e| format!("settings.json is invalid; the file has been preserved: {e}"))?;
+    let inline_credentials = !settings.openrouter_key.is_empty() || !settings.groq_key.is_empty()
+        || !settings.custom_api_key.is_empty() || !settings.hosted_token.is_empty();
+    if !inline_credentials {
+        if let Some(secrets) = crate::credentials::read(dir)? {
+            settings.openrouter_key = secrets.openrouter_key;
+            settings.groq_key = secrets.groq_key;
+            settings.custom_api_key = secrets.custom_api_key;
+            settings.hosted_token = secrets.hosted_token;
+        }
+    }
+    let missing_id = settings.install_id.is_empty();
+    if missing_id { settings.install_id = new_install_id(); }
+    if inline_credentials || missing_id { persist(dir, &settings)?; }
+    Ok(settings)
 }
 
+/// Store credentials in the platform vault and atomically replace public preferences.
+pub fn persist(dir: &Path, settings: &Settings) -> Result<(), String> {
+    let previous = crate::credentials::read(dir)?.unwrap_or_default();
+    let secrets = crate::credentials::Secrets {
+        openrouter_key: settings.openrouter_key.clone(), groq_key: settings.groq_key.clone(),
+        custom_api_key: settings.custom_api_key.clone(), hosted_token: settings.hosted_token.clone(),
+    };
+    let mut public = serde_json::to_value(settings).map_err(|e| format!("settings serialization failed: {e}"))?;
+    let object = public.as_object_mut().ok_or("Settings must serialize as an object")?;
+    for name in ["openrouter_key", "groq_key", "custom_api_key", "hosted_token"] { object.remove(name); }
+    let raw = serde_json::to_vec_pretty(&public).map_err(|e| format!("settings serialization failed: {e}"))?;
+    crate::credentials::write(dir, &secrets)?;
+    if let Err(error) = crate::persistence::write(&settings_path(dir), &raw) {
+        crate::credentials::write(dir, &previous)
+            .map_err(|rollback| format!("{error}; credential rollback also failed: {rollback}"))?;
+        return Err(error);
+    }
+    Ok(())
+}
 #[cfg(test)]
 mod tests {
 use super::*;
@@ -648,3 +627,4 @@ fn a_masked_round_trip_keeps_the_stored_key() {
 }
 
 }
+

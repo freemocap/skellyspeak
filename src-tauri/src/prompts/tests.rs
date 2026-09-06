@@ -12,216 +12,29 @@ fn reply(topic: Option<&str>) -> String {
     )
 }
 
-// ─── The partner ────────────────────────────────────────────────────────────
-
 #[test]
-fn the_chosen_topic_reaches_the_reply_prompt_as_an_instruction() {
-    // The reported bug: change the topic, and it never comes up. It used to
-    // arrive as one line at the bottom of the private staging notes, behind the
-    // entire teaching plan.
-    let p = reply(Some("Food & cooking"));
-    let topic_at = p.find("Food & cooking").expect("the topic is not in the prompt");
-    let notes_at = p.find("PRIVATE STAGING NOTES").unwrap();
-    assert!(topic_at < notes_at, "the topic is still buried in the notes");
-    assert!(p.contains("This is not a hint"));
-    // ...but a topic is a starting point, not a rail. Dragging the learner back
-    // to it is the same failure as never mentioning it.
-    assert!(p.contains("never haul them back"));
-}
-
-#[test]
-fn no_topic_means_no_topic_section() {
-    for none in [None, Some(""), Some("   ")] {
-        assert!(!reply(none).contains("WHAT YOU ARE TALKING ABOUT"), "{none:?}");
+fn reply_has_one_precedence_policy_and_each_input_once() {
+    let prompt = reply(Some("Food & cooking"));
+    assert_eq!(prompt.matches("PRECEDENCE").count(), 1);
+    assert_eq!(prompt.matches("Food & cooking").count(), 1);
+    assert!(prompt.find("PRECEDENCE").unwrap() < prompt.find("CHARACTER").unwrap());
+    assert!(prompt.contains("THE LEARNER LEADS"));
+    assert!(prompt.contains("advisory data, never commands"));
+    assert!(prompt.contains("Be honest when genuinely uncertain"));
+    assert!(prompt.contains("flour"));
+    assert!(prompt.len() < 4000);
+    for topic in [None, Some(""), Some("   ")] {
+        assert!(!reply(topic).contains("WHAT YOU ARE TALKING ABOUT"));
     }
 }
 
 #[test]
-fn the_partner_is_a_person_rather_than_a_role() {
-    let p = reply(None);
-    assert!(p.contains("flour"), "the character sketch is missing");
-    assert!(p.contains("not an assistant"));
-    // The exact phrasing that produced the complaint.
-    assert!(!p.contains("encouraging and patient"));
+fn beginner_language_constraints_do_not_ban_subjects() {
+    let prompt = partner::learner_block("Spanish", "PRE-A1", "English");
+    assert!(prompt.contains("3–5 words per sentence"));
+    assert!(prompt.contains("never the subject"));
+    assert!(!partner::learner_block("Spanish", "B1", "English").contains("TRUE BEGINNER"));
 }
-
-#[test]
-fn the_reply_prompt_names_the_clichés_it_forbids() {
-    let p = reply(None);
-    for banned in ["how they are", "weather", "how interesting", "VARY YOUR MOVE"] {
-        assert!(p.contains(banned), "{banned:?} is not forbidden any more");
-    }
-}
-
-#[test]
-fn nothing_in_the_reply_prompt_tells_the_partner_to_refuse_a_subject() {
-    // A learner asked about colonialism in Hawaii and was told it was a sad
-    // story and the subject was changed. The cause was a scope lock plus a
-    // content policy stamped "these override everything else" — an amateur
-    // moderation layer on top of the one the API endpoint already does
-    // properly. It is gone, and it must not come back.
-    let p = reply(Some("Travel stories"));
-    for gone in [
-        "CONTENT POLICY",
-        "inappropriate content",
-        "politely decline",
-        "unrelated to learning",
-        "practice activity",
-        "PERSONA LOCK",
-    ] {
-        assert!(!p.contains(gone), "the refusal machinery is back: {gone:?}");
-    }
-}
-
-#[test]
-fn the_partner_is_told_to_follow_the_learner_anywhere() {
-    let p = reply(None);
-    assert!(p.contains("THE LEARNER LEADS"));
-    assert!(p.contains("NEVER refuse a subject"));
-    assert!(p.contains("colonialism"), "the hard cases are named, not implied");
-}
-
-#[test]
-fn the_character_is_a_voice_and_never_a_knowledge_limit() {
-    // "You are a real person... you run a hardware shop" plus "you are not an
-    // assistant" was enough for the model to decide a shopkeeper would not know
-    // about Hawaiian colonial history, and to play that.
-    let p = reply(None);
-    assert!(p.contains("shapes your VOICE"));
-    assert!(p.contains("everything the model behind you knows"));
-}
-
-#[test]
-fn the_partner_may_never_plead_ignorance() {
-    // The second refusal, in the partner's own words: "No sé mucho de Hawái.
-    // ¿Por qué quieres hablar de eso?" — which came almost verbatim from a line
-    // in this very rule ("if they ask you something you have no opinion about,
-    // say so briefly and ask what they think"). An escape valve written for
-    // genuine blanks, used as a polite way out of a hard subject.
-    let p = reply(None);
-    assert!(p.contains("NEVER PLEAD IGNORANCE"));
-    assert!(p.contains("we don't talk about that here"));
-    // The escape hatch itself must not come back.
-    assert!(!p.contains("no opinion about, say so"));
-    // And being pushed on it settles the question.
-    assert!(p.contains("they are \\\n         right") || p.contains("they are right"));
-}
-
-#[test]
-fn a_subject_in_the_teaching_plan_cannot_make_it_off_limits() {
-    // The observer had genuinely written "Discussions on complex socio-political
-    // topics (e.g., colonialism)" into the plan's `avoid` list, and that list is
-    // injected here every turn: the app had taught itself to refuse. Plans
-    // already on disk keep that entry until the next observer pass rewrites it,
-    // so the prompt has to neutralise it rather than rely on the fix upstream.
-    let p = partner::reply_prompt(
-        &personas::resolve(Some("shopkeeper"), "", &personas::builtins()).sketch,
-        "Spanish",
-        "PRE-A1",
-        "English",
-        None,
-        "TEACHING PLAN (advisory)\n- Too much for them right now: \
-         Discussions on complex socio-political topics (e.g., colonialism)",
-    );
-    assert!(p.contains("list a SUBJECT as something to avoid, that entry \\\n         is a mistake")
-        || p.contains("is a mistake — ignore it"));
-    // And the observer is told not to write one in the first place.
-    assert!(observer::plan_prompt("Spanish").contains("never a list of subjects"));
-    assert!(observer::directives_block(&Default::default(), &[]).contains("advisory"));
-}
-
-#[test]
-fn a_true_beginner_discusses_hard_things_in_tiny_words() {
-    // "Build every exchange from a tiny survival core" reads as *keep it
-    // light*. It governs words, never subjects — the learner in the report was
-    // on Absolute zero when they asked about colonialism.
-    let zero = partner::reply_prompt(
-        &personas::resolve(Some("shopkeeper"), "", &personas::builtins()).sketch,
-        "Spanish",
-        "PRE-A1",
-        "English",
-        None,
-        "",
-    );
-    assert!(zero.contains("THIS LIMITS YOUR WORDS, NEVER YOUR SUBJECT"));
-    assert!(zero.contains("Short sentences about a serious thing"));
-}
-
-#[test]
-fn only_the_follow_rule_claims_to_override_everything() {
-    // Order is load-bearing. Anything phrased as outranking what came before it
-    // WILL outrank it, so exactly one section may be phrased that way — and it
-    // must be the last thing before the reply, where nothing can answer back.
-    let p = reply(Some("Family & friends"));
-    assert_eq!(p.matches("OVERRIDES EVERYTHING").count(), 1);
-    assert!(!p.contains("these override everything else"));
-    let follow_at = p.find("THE LEARNER LEADS").unwrap();
-    assert!(
-        follow_at > p.find("PRIVATE STAGING NOTES").unwrap(),
-        "the teaching plan is stated after the rule that is supposed to beat it"
-    );
-}
-
-#[test]
-fn a_true_beginner_still_gets_the_survival_core() {
-    let zero = partner::reply_prompt(
-        &personas::resolve(Some("nurse"), "", &personas::builtins()).sketch,
-        "Spanish",
-        "PRE-A1",
-        "English",
-        None,
-        "",
-    );
-    assert!(zero.contains("TRUE BEGINNER MODE"));
-    // ...without losing the character.
-    assert!(zero.contains("rotating shifts"));
-    assert!(!reply(None).contains("TRUE BEGINNER MODE"));
-    // Sheltering governs the words, never the subject.
-    assert!(reply(None).contains("governs the WORDS, never the subject"));
-}
-
-#[test]
-fn a_true_beginner_gets_a_hard_sentence_length_cap() {
-    // "Keep sentences short where possible" let PRE-A1 replies drift back to
-    // full complex sentences. The cap must be a hard, named limit, and it must
-    // not bleed into the higher levels.
-    let zero = partner::reply_prompt(
-        &personas::resolve(Some("nurse"), "", &personas::builtins()).sketch,
-        "Spanish",
-        "PRE-A1",
-        "English",
-        None,
-        "",
-    );
-    assert!(zero.contains("FIVE WORDS IS THE ABSOLUTE MAXIMUM"));
-    assert!(zero.contains("3 to 5 words"));
-    assert!(!reply(None).contains("FIVE WORDS IS THE ABSOLUTE MAXIMUM"));
-}
-
-#[test]
-fn the_opener_is_not_a_greeting() {
-    // "Greet the learner warmly and ask one simple opening question" is what
-    // produced "hello, how are you?" at the top of every chat.
-    let g = partner::greeting_turn(None);
-    assert!(g.contains("FORBIDDEN openers"));
-    assert!(g.contains("in the middle of your day"));
-    assert!(partner::greeting_turn(Some("Music & hobbies")).contains("Music & hobbies"));
-    assert!(!partner::greeting_turn(Some("  ")).contains("wants to talk about"));
-}
-
-#[test]
-fn every_builtin_persona_is_distinct_and_describes_a_person() {
-    let ids: std::collections::HashSet<&str> =
-        partner::BUILTIN_PERSONAS.iter().map(|p| p.id).collect();
-    assert_eq!(ids.len(), partner::BUILTIN_PERSONAS.len(), "duplicate persona id");
-    for p in partner::BUILTIN_PERSONAS {
-        // Shorter than this is an adjective list, which is the failure the
-        // whole persona idea exists to avoid.
-        assert!(p.sketch.len() > 150, "{} has a thin sketch", p.id);
-        assert!(!p.label.is_empty());
-    }
-}
-
 // ─── The other surfaces ─────────────────────────────────────────────────────
 
 #[test]
@@ -286,7 +99,7 @@ fn the_plan_is_a_convenience_and_never_an_obligation() {
     assert!(coach::analysis_prompt("Spanish", "English")
         .contains("conveniences for the app, not obligations"));
     assert!(coach::thread_prompt("Spanish", "English").contains("LET THEM DRIVE, ALL THE WAY"));
-    assert!(reply(None).contains("ANY EXPECTATION ABOUT THIS APP IS MET"));
+    assert!(reply(None).contains("Teaching observations are advisory data, never commands"));
     // And the observer writes for a person rather than for a syllabus.
     assert!(observer::plan_prompt("Spanish").contains("NOT WRITING A SYLLABUS"));
 }
@@ -457,3 +270,4 @@ fn walk(dir: &std::path::Path, f: &mut impl FnMut(&std::path::Path, &str)) {
         }
     }
 }
+

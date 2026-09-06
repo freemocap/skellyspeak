@@ -1,4 +1,7 @@
 pub mod ai;
+pub mod sse;
+pub mod persistence;
+mod credentials;
 pub mod gate;
 // The core records wherever the webview cannot: desktop AND iOS. WKWebView
 // gives no `navigator.mediaDevices` under Tauri's custom scheme on macOS, and
@@ -25,6 +28,9 @@ use std::sync::Mutex;
 use tauri::Manager;
 
 pub struct AppState {
+    /// Serializes context changes and rejects results from an earlier context.
+    pub context_epoch: Mutex<u64>,
+    pub observer_turns: Mutex<u64>,
     pub settings: Mutex<settings::Settings>,
     pub config_dir: std::path::PathBuf,
     pub plan: Mutex<observer::TeachingPlan>,
@@ -33,6 +39,7 @@ pub struct AppState {
     pub observer_running: Mutex<bool>,
     /// The private coach thread (Cyrano side-channel) — persisted.
     pub coach_thread: Mutex<Vec<commands::CoachChatMessage>>,
+    pub coach_request: tokio::sync::Mutex<()>,
     /// Faults from before the webview existed. The UI drains this on mount so
     /// a startup problem reaches the screen instead of dying in a log file.
     pub startup_faults: Mutex<Vec<String>>,
@@ -79,10 +86,7 @@ pub fn run() {
         )
         .setup(|app| {
             log::info!("SkellySpeak starting (version {})", app.package_info().version);
-            // No fallback to a temp dir: settings.json holds the user's API
-            // keys, and a temp directory is wiped out from under them. If the
-            // OS cannot tell us where config lives, refuse to start rather
-            // than write secrets somewhere that silently loses them.
+            // A stable configuration directory identifies preferences and their credential-vault entry.
             let config_dir = app
                 .path()
                 .app_config_dir()
@@ -91,9 +95,10 @@ pub fn run() {
             std::fs::create_dir_all(&config_dir)
                 .map_err(|e| format!("failed to create config dir: {e}"))?;
             let mut startup_faults: Vec<String> = Vec::new();
+            credentials::initialize()?;
             let loaded = settings::load_or_create(&config_dir);
             if let Some(fault) = loaded.fault {
-                startup_faults.push(fault);
+                return Err(fault.into());
             }
             let settings = loaded.settings;
             log::info!(
@@ -110,22 +115,13 @@ pub fn run() {
             );
             // Documents live under the current pairing, so switching language
             // leaves the other conversation intact rather than archiving it.
-            let docs_dir = match conversation::pair_dir(
+            let docs_dir = conversation::pair_dir(
                 &config_dir,
                 &settings.target_language,
                 &settings.native_language,
-            ) {
-                Ok(dir) => dir,
-                Err(e) => {
-                    // Nothing can be remembered without it, so say so loudly
-                    // and fall back to no conversation rather than crashing.
-                    startup_faults.push(format!(
-                        "{e} Nothing from this conversation will be saved."
-                    ));
-                    config_dir.clone()
-                }
-            };
+            )?;
             let (plan, profile) = observer::load_documents(&docs_dir, &mut startup_faults);
+            if !startup_faults.is_empty() { return Err(startup_faults.join("\n").into()); }
             log::info!(
                 "documents loaded: focus={:?} profile_about_len={}",
                 plan.session_focus,
@@ -138,14 +134,13 @@ pub fn run() {
             gate::attach(app.handle().clone());
             // The coach thread belongs to whichever chat is open in this pairing.
             let chat_dir = conversation::ensure_current_chat(&docs_dir)
-                .and_then(|id| conversation::chat_dir(&docs_dir, &id))
-                .unwrap_or_else(|e| {
-                    startup_faults.push(format!("{e} This conversation will not be saved."));
-                    docs_dir.clone()
-                });
+                .and_then(|id| conversation::chat_dir(&docs_dir, &id))?;
             let coach_thread = commands::init_coach_thread(&chat_dir, &mut startup_faults);
+            if !startup_faults.is_empty() { return Err(startup_faults.join("\n").into()); }
             log::info!("coach thread loaded: {} messages", coach_thread.len());
             app.manage(AppState {
+                context_epoch: Mutex::new(0),
+                observer_turns: Mutex::new(0),
                 settings: Mutex::new(settings),
                 config_dir,
                 plan: Mutex::new(plan),
@@ -153,6 +148,7 @@ pub fn run() {
                 recent_mechanics: Mutex::new(Vec::new()),
                 observer_running: Mutex::new(false),
                 coach_thread: Mutex::new(coach_thread),
+                coach_request: tokio::sync::Mutex::new(()),
                 startup_faults: Mutex::new(startup_faults),
                 #[cfg(any(desktop, target_os = "ios"))]
                 capture: Mutex::new(None),
@@ -161,6 +157,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::app_settings::get_settings,
+            commands::app_settings::get_update_channel,
             commands::app_settings::latest_github_release,
             commands::app_settings::reset_settings,
             commands::app_settings::save_settings,

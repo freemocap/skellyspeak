@@ -14,12 +14,13 @@ use crate::AppState;
 use super::types::{emit, GuidedEvent};
 
 pub(super) struct ObserverPass {
+    pub epoch: u64,
     pub app: AppHandle,
     pub channel: Channel<GuidedEvent>,
     pub turn_id: u64,
     pub tln: String,
     pub transcript: Vec<String>,
-    pub model: String,
+    pub provider: crate::ai::Provider,
     /// The pairing this turn belongs to, captured BEFORE the task starts.
     /// Reading it at the end would file the observer's conclusions under
     /// whatever conversation the learner had switched to while it was thinking.
@@ -57,16 +58,17 @@ impl Drop for ClearRunning<'_> {
 
 /// Caller must have claimed the slot with `try_claim_slot` first.
 pub(super) fn spawn(pass: ObserverPass) {
-    info!("[cmd] observer pass triggered (model={})", pass.model);
+    info!("[cmd] observer pass triggered (model={})", pass.provider.model);
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let ObserverPass {
+            epoch,
             app,
             channel,
             turn_id,
             tln,
             transcript,
-            model,
+            provider,
             pairing,
         } = pass;
         let state = app.state::<AppState>();
@@ -87,6 +89,8 @@ pub(super) fn spawn(pass: ObserverPass) {
         };
 
         let (plan_snapshot, profile_snapshot, mechanics) = {
+            let context = state.context_epoch.lock().expect("context lock poisoned");
+            if *context != epoch { return; }
             let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
             let profile = state.profile.lock().unwrap_or_else(|p| p.into_inner());
             let mechanics = state
@@ -96,31 +100,7 @@ pub(super) fn spawn(pass: ObserverPass) {
             (plan.clone(), profile.clone(), mechanics.clone())
         };
 
-        let provider = {
-            let settings = state
-                .settings
-                .lock()
-                .unwrap_or_else(|p| p.into_inner())
-                .clone();
-            match settings.chat_provider(&model) {
-                Ok(provider) => provider,
-                Err(e) => {
-                    // Background work has no caller to return to, so an
-                    // unusable provider is reported to the webview rather than
-                    // ending the task quietly.
-                    emit(
-                        &channel,
-                        GuidedEvent::Fault {
-                            context: "Observer".into(),
-                            message: format!("The teaching plan was not updated: {e}"),
-                        },
-                    );
-                    return;
-                }
-            }
-        };
-
-        // The observer USES its reasoning budget — no disable here.
+        // Observer documents use the captured provider and conversation context.
         let result = observer::run_observer(
             &provider,
             RunContext::new(ontology::op::REFLECT, Some(turn_id)),
@@ -134,7 +114,11 @@ pub(super) fn spawn(pass: ObserverPass) {
 
         match result {
             Ok(output) => {
-                for fault in observer::persist_documents(&docs, &output.plan, &output.profile) {
+                let context = state.context_epoch.lock().expect("context lock poisoned");
+                if *context != epoch { return; }
+                let faults = observer::persist_documents(&docs, &output.plan, &output.profile);
+                let failed = !faults.is_empty();
+                for fault in faults {
                     emit(
                         &channel,
                         GuidedEvent::Fault {
@@ -143,6 +127,7 @@ pub(super) fn spawn(pass: ObserverPass) {
                         },
                     );
                 }
+                if failed { return; }
                 *state.plan.lock().unwrap_or_else(|p| p.into_inner()) = output.plan.clone();
                 *state.profile.lock().unwrap_or_else(|p| p.into_inner()) = output.profile.clone();
                 info!(

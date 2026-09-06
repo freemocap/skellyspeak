@@ -250,6 +250,7 @@ impl RunContext {
 /// Accumulates one run as it happens. `finish_*` records it.
 pub struct RunRecorder {
     run: Run,
+    current_usage: Option<Usage>,
     started: std::time::Instant,
     attempt_started: std::time::Instant,
 }
@@ -295,6 +296,7 @@ impl RunRecorder {
             );
         }
         Self {
+            current_usage: None,
             run: Run {
                 id,
                 turn_id: ctx.turn_id,
@@ -360,12 +362,24 @@ impl RunRecorder {
 
     pub fn set_usage(&mut self, usage: Option<Usage>) {
         if let Some(u) = usage {
-            self.run.usage = Some(u);
+            self.current_usage = Some(u);
         }
     }
 
     /// Close out one attempt. `error` is `None` when the attempt succeeded.
     pub fn attempt(&mut self, kind: AttemptKind, error: Option<String>, usage: Option<Usage>) {
+        let usage = usage.or(self.current_usage.take());
+        self.current_usage = None;
+        if let Some(u) = &usage {
+            let total = self.run.usage.get_or_insert_with(Usage::default);
+            fn add(a: Option<u64>, b: Option<u64>) -> Option<u64> {
+                match (a, b) { (None, None) => None, _ => Some(a.unwrap_or(0) + b.unwrap_or(0)) }
+            }
+            total.prompt_tokens = add(total.prompt_tokens, u.prompt_tokens);
+            total.completion_tokens = add(total.completion_tokens, u.completion_tokens);
+            total.total_tokens = add(total.total_tokens, u.total_tokens);
+            if let Some(cost) = u.cost { total.cost = Some(total.cost.unwrap_or(0.0) + cost); }
+        }
         let index = self.run.attempts.len() as u32;
         self.run.attempts.push(Attempt {
             index,
@@ -636,5 +650,21 @@ mod tests {
         assert_eq!(u.total_tokens, Some(160));
         assert!(Usage::from_response(&serde_json::json!({})).is_none());
         assert!(Usage::from_response(&serde_json::json!({"usage": {}})).is_none());
+    }
+
+    #[test]
+    fn retry_usage_includes_failed_and_successful_attempts_once() {
+        let _g = guard();
+        let mut recorder = RunRecorder::start(RunContext::new(op::EXPLAIN, None), "test/model");
+        recorder.set_usage(Some(Usage { total_tokens: Some(70), cost: Some(0.02), ..Usage::default() }));
+        recorder.attempt(AttemptKind::Invalid, Some("invalid output".into()), None);
+        recorder.set_usage(Some(Usage { total_tokens: Some(90), cost: Some(0.03), ..Usage::default() }));
+        recorder.attempt(AttemptKind::Ok, None, None);
+        recorder.finish_ok();
+        let run = snapshot().pop().unwrap();
+        let usage = run.usage.unwrap();
+        assert_eq!(usage.total_tokens, Some(160));
+        assert!((usage.cost.unwrap() - 0.05).abs() < 1e-12);
+        assert_eq!(run.attempts[0].usage.as_ref().unwrap().total_tokens, Some(70));
     }
 }

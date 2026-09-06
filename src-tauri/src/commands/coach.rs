@@ -82,22 +82,15 @@ const COACH_THREAD_CAP: usize = 40;
 
 pub fn init_coach_thread(dir: &Path, faults: &mut Vec<String>) -> Vec<CoachChatMessage> {
     let path = dir.join(COACH_THREAD_FILE);
-    let Ok(raw) = std::fs::read_to_string(&path) else {
-        return Vec::new(); // first run
+    let raw = match crate::persistence::read(&path) {
+        Ok(Some(raw)) => raw,
+        Ok(None) => return Vec::new(),
+        Err(error) => { faults.push(error); return Vec::new(); }
     };
     match serde_json::from_str(&raw) {
         Ok(v) => v,
         Err(e) => {
-            let bad = dir.join(format!("{COACH_THREAD_FILE}.bad"));
-            let mut fault = format!(
-                "The coach history could not be read ({e}), so it starts empty."
-            );
-            match std::fs::rename(&path, &bad) {
-                Ok(()) => fault.push_str(&format!(" The unreadable file is kept at {}.", bad.display())),
-                Err(rename_err) => {
-                    fault.push_str(&format!(" It could not be moved aside either: {rename_err}."))
-                }
-            }
+            let fault = format!("{} could not be read: {e}. Repair the file before continuing.", path.display());
             log::error!("{fault}");
             faults.push(fault);
             Vec::new()
@@ -105,17 +98,10 @@ pub fn init_coach_thread(dir: &Path, faults: &mut Vec<String>) -> Vec<CoachChatM
     }
 }
 
-pub(super) fn persist_coach_thread(dir: &Path, thread: &[CoachChatMessage]) {
-    match serde_json::to_string_pretty(thread) {
-        Ok(raw) => {
-            if let Err(e) = std::fs::write(dir.join(COACH_THREAD_FILE), raw) {
-                log::error!("FAILED to persist coach thread: {e}");
-            }
-        }
-        Err(e) => log::error!("coach thread serialization failed: {e}"),
-    }
+pub(super) fn persist_coach_thread(dir: &Path, thread: &[CoachChatMessage]) -> Result<(), String> {
+    let raw = serde_json::to_vec_pretty(thread).map_err(|e| format!("coach serialization failed: {e}"))?;
+    crate::persistence::write(&dir.join(COACH_THREAD_FILE), &raw)
 }
-
 #[tauri::command]
 pub fn get_coach_thread(state: State<'_, AppState>) -> Result<Vec<CoachChatMessage>, String> {
     Ok(state
@@ -127,17 +113,15 @@ pub fn get_coach_thread(state: State<'_, AppState>) -> Result<Vec<CoachChatMessa
 
 #[tauri::command]
 pub fn coach_thread_clear(state: State<'_, AppState>) -> Result<(), String> {
-    state
-        .coach_thread
-        .lock()
-        .unwrap_or_else(|p| p.into_inner())
-        .clear();
+    let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
     let (target, native) = {
         let st = state.settings.lock().unwrap_or_else(|p| p.into_inner());
         (st.target_language.clone(), st.native_language.clone())
     };
     let (_pair, dir, _id) = pair_and_chat(&state, &target, &native)?;
-    persist_coach_thread(&dir, &[]);
+    persist_coach_thread(&dir, &[])?;
+    state.coach_thread.lock().expect("coach lock poisoned").clear();
+    *epoch += 1;
     Ok(())
 }
 
@@ -150,36 +134,23 @@ pub async fn coach_ask(
     question: String,
     context: String,
 ) -> Result<CoachReply, String> {
+    let _request = state.coach_request.try_lock().map_err(|_| "The coach is already answering a question.")?;
+    let (epoch, stored, coach_dir, mut thread, plan, profile) = {
+        let epoch = state.context_epoch.lock().expect("context lock poisoned");
+        let stored = state.settings.lock().expect("settings lock poisoned").clone();
+        let (_, coach_dir, _) = pair_and_chat(&state, &stored.target_language, &stored.native_language)?;
+        let thread = state.coach_thread.lock().expect("coach lock poisoned").clone();
+        let plan = state.plan.lock().expect("plan lock poisoned").clone();
+        let profile = state.profile.lock().expect("profile lock poisoned").clone();
+        (*epoch, stored, coach_dir, thread, plan, profile)
+    };
     let question = question.trim().to_string();
     if question.is_empty() {
         return Err("empty question".into());
     }
     let started = std::time::Instant::now();
-    let stored = state
-        .settings
-        .lock()
-        .unwrap_or_else(|p| p.into_inner())
-        .clone();
     let tln = crate::languages::language_display(&stored.target_language);
     let native = crate::languages::native_display(&stored.native_language);
-    // The coach thread belongs to the chat that is open, resolved before the
-    // reply is awaited so it lands in the conversation it was asked about.
-    let (_pair, coach_dir, _id) = pair_and_chat(
-        &state,
-        &stored.target_language,
-        &stored.native_language,
-    )?;
-
-    let thread = state
-        .coach_thread
-        .lock()
-        .unwrap_or_else(|p| p.into_inner())
-        .clone();
-    let (plan, profile) = {
-        let plan = state.plan.lock().unwrap_or_else(|p| p.into_inner());
-        let profile = state.profile.lock().unwrap_or_else(|p| p.into_inner());
-        (plan.clone(), profile.clone())
-    };
 
     let (plan_json, profile_json) = prompts::observer::documents_json(&plan, &profile);
     let mut messages = vec![json!({
@@ -206,6 +177,7 @@ pub async fn coach_ask(
         .await
         .map_err(|e| format!("coach ask failed: {e}"))?;
     let reply = sanitize_reply(&reply);
+    if reply.trim().is_empty() { return Err("The coach returned an empty answer.".into()); }
     info!(
         "[cmd] coach ask answered in {:.1}s: {} chars",
         started.elapsed().as_secs_f32(),
@@ -213,10 +185,8 @@ pub async fn coach_ask(
     );
 
     {
-        let mut thread = state
-            .coach_thread
-            .lock()
-            .unwrap_or_else(|p| p.into_inner());
+        let context = state.context_epoch.lock().expect("context lock poisoned");
+        if *context != epoch { return Err("Conversation changed while the coach was answering.".into()); }
         thread.push(CoachChatMessage {
             role: "user".into(),
             content: question.clone(),
@@ -230,7 +200,9 @@ pub async fn coach_ask(
             thread.drain(0..len - COACH_THREAD_CAP);
         }
         let dir = coach_dir.clone();
-        persist_coach_thread(&dir, &thread);
+        persist_coach_thread(&dir, &thread)?;
+        *state.coach_thread.lock().expect("coach lock poisoned") = thread;
     }
     Ok(CoachReply { reply })
 }
+

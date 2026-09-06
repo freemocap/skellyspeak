@@ -17,25 +17,29 @@ pub async fn hosted_sign_in(
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<hosted::Account, String> {
-    let client_info = {
+    let (request_epoch, client_info) = {
+        let epoch = state.context_epoch.lock().expect("context lock poisoned");
         let guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
-        hosted::ClientInfo::new(&guard.install_id)
+        (*epoch, hosted::ClientInfo::new(&guard.install_id))
     };
     // Both platforms need the handle: it opens the system browser, and on
     // mobile it also receives the deep link coming back.
     let session = hosted::sign_in(&app, &client_info).await?;
+    let account = hosted::account(&session.token, &client_info).await?;
 
     info!("[cmd] hosted_sign_in: signed in as {}", session.email);
-    let updated = {
-        let mut guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
-        guard.hosted_token = session.token.clone();
-        guard.hosted_email = session.email;
-        guard.clone()
-    };
-    // A session that is not on disk is gone at the next launch, and the user
-    // would have no way to know why they were signed out.
-    settings::persist(&state.config_dir, &updated)?;
-    hosted::account(&session.token, &client_info).await
+    {
+        let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
+        if *epoch != request_epoch { return Err("Settings or sign-in changed while authentication was in progress. Please sign in again.".into()); }
+        let mut guard = state.settings.lock().expect("settings lock poisoned");
+        let mut updated = guard.clone();
+        updated.hosted_token = session.token.clone();
+        updated.hosted_email = session.email;
+        settings::persist(&state.config_dir, &updated)?;
+        *guard = updated;
+        *epoch += 1;
+    }
+    Ok(account)
 }
 
 /// Identity and remaining allowance for the stored session.
@@ -58,11 +62,13 @@ pub async fn hosted_account(state: State<'_, AppState>) -> Result<hosted::Accoun
 #[tauri::command]
 pub fn hosted_sign_out(state: State<'_, AppState>) -> Result<(), String> {
     info!("[cmd] hosted_sign_out: clearing the stored session");
-    let updated = {
-        let mut guard = state.settings.lock().unwrap_or_else(|p| p.into_inner());
-        guard.hosted_token.clear();
-        guard.hosted_email.clear();
-        guard.clone()
-    };
-    settings::persist(&state.config_dir, &updated)
+    let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
+    let mut guard = state.settings.lock().expect("settings lock poisoned");
+    let mut updated = guard.clone();
+    updated.hosted_token.clear();
+    updated.hosted_email.clear();
+    settings::persist(&state.config_dir, &updated)?;
+    *guard = updated;
+    *epoch += 1;
+    Ok(())
 }

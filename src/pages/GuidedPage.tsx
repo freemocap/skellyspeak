@@ -20,6 +20,9 @@ import {
   ttsAvailable,
   stopSpeaking,
   subscribeSpeaking,
+  subscribeSpeechProgress,
+  setPlaybackRate,
+  type SpeechProgress,
 } from '../lib/speech'
 import { comboFromEvent } from '../lib/keyboard'
 import { normalizeDocs } from '../lib/normalize'
@@ -143,11 +146,15 @@ export default function GuidedPage({
   // Speaking state drives the 🔊/⏹ affordance on every bubble.
   const [speaking, setSpeaking] = useState(false)
   useEffect(() => subscribeSpeaking(setSpeaking), [])
+  const [speechProgress, setSpeechProgress] = useState<SpeechProgress | null>(null)
+  const [savingSpeechRate, setSavingSpeechRate] = useState(false)
+  useEffect(() => subscribeSpeechProgress(setSpeechProgress), [])
+  useEffect(() => () => stopSpeaking(), [])
 
   const speakReply = useCallback(
-    (text: string) => {
+    (text: string, turnId: number) => {
       // Toggle: if audio is playing, this click stops it.
-      if (isSpeaking()) {
+      if (isSpeaking() && speechProgress?.utteranceId === String(turnId)) {
         stopSpeaking()
         return
       }
@@ -156,9 +163,10 @@ export default function GuidedPage({
       const voice = settings?.tts_voice || 'nova'
       // Any failure to speak reaches the screen. A log line alone would leave
       // a dead button with no explanation.
-      void speakSmart(text, lang, engine, voice).catch((e) => reportFault('Speech', e))
+      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId))
+        .catch((e) => reportFault('Speech', e))
     },
-    [settings?.target_language, settings?.tts_engine, settings?.tts_voice]
+    [settings?.target_language, settings?.tts_engine, settings?.tts_voice, settings?.tts_rate, speechProgress?.utteranceId]
   )
 
   const streamRef = useRef<HTMLDivElement | null>(null)
@@ -270,6 +278,10 @@ export default function GuidedPage({
   )
   const requestTurn = useCallback(
     async (body: { message?: string; greeting?: boolean; steering?: string }) => {
+      const owner = chatIdRef.current
+      if (!owner) return
+      const isCurrent = () => chatIdRef.current === owner
+      let earlySections: Partial<GuidedTurnResult> = {}
       setSending(true)
       setError(null)
       logInfo('[guided] turn start:', {
@@ -297,11 +309,12 @@ export default function GuidedPage({
 
       let deltaCount = 0
       const updatePending = (fn: (t: Turn) => Turn) =>
-        setTurns((prev) => prev.map((t) => (t.id === pendingId ? fn(t) : t)))
+        setTurns((prev) => isCurrent() ? prev.map((t) => (t.id === pendingId ? fn(t) : t)) : prev)
 
       try {
         const channel = new Channel<GuidedEvent>()
         channel.onmessage = (event) => {
+          if (!isCurrent()) return
           switch (event.type) {
             case 'reply_delta':
               deltaCount++
@@ -312,10 +325,10 @@ export default function GuidedPage({
                 `[guided] reply done in ${(performance.now() - turnStarted).toFixed(0)}ms` +
                   ` (${deltaCount} deltas, ${event.reply.length} chars)`
               )
-              if (autoSpeak) speakReply(event.reply)
+              if (autoSpeak) speakReply(event.reply, pendingId)
               updatePending((t) => ({
                 ...t,
-                assistant: emptyAssistant(event.reply),
+                assistant: { ...emptyAssistant(event.reply), ...earlySections },
                 analysisState: 'pending',
                 pendingText: '',
               }))
@@ -323,8 +336,10 @@ export default function GuidedPage({
               onBubbleTap(pendingId)
               break
             case 'analysis_section':
+              if (event.user_tokens) earlySections = { ...earlySections, user_tokens: event.user_tokens }
+              if (event.user_translation) earlySections = { ...earlySections, user_translation: event.user_translation }
               // Turn scaffolds are the freshest suggestions — feed the chips.
-              if (event.scaffolds) scaffolds.setFresh(event.scaffolds)
+              if (event.scaffolds && turnsRef.current.at(-1)?.id === pendingId) scaffolds.setFresh(event.scaffolds)
               updatePending((t) =>
                 t.assistant
                   ? {
@@ -363,7 +378,7 @@ export default function GuidedPage({
                 }
               )
               // End of turn = freshest suggestions for the NEXT message.
-              scaffolds.setFresh(event.turn.scaffolds)
+              if (turnsRef.current.at(-1)?.id === pendingId) scaffolds.setFresh(event.turn.scaffolds)
               updatePending((t) => ({
                 ...t,
                 assistant: event.turn,
@@ -398,9 +413,10 @@ export default function GuidedPage({
           // Read from the ref, not from `currentChatId`: the greeting turn is
           // fired from inside the effect that opens the chat, and this callback
           // still holds the null from the render before it existed.
-          chatId: chatIdRef.current?.id ?? '',
+          chatId: owner.id,
           onEvent: channel,
         })
+        if (!isCurrent()) return
         // Command resolved = reply pass done. Re-asserted here in case the
         // reply_done event and this resolution raced.
         setSending(false)
@@ -408,6 +424,7 @@ export default function GuidedPage({
           t.assistant ? t : { ...t, assistant: emptyAssistant(t.pendingText), analysisState: 'pending', pendingText: '' }
         )
       } catch (e) {
+        if (!isCurrent()) return
         logError('[guided] turn failed:', e)
         setTurns((prev) => prev.filter((t) => t.id !== pendingId))
         setError(String(e).replace(/^Error:\s*/, ''))
@@ -488,7 +505,7 @@ export default function GuidedPage({
       } else if (combo === shortcuts.speak) {
         e.preventDefault()
         const last = latestAnswered(turnsRef.current)
-        if (last?.assistant) speakReply(last.assistant.reply)
+        if (last?.assistant) speakReply(last.assistant.reply, last.id)
       } else if (combo === shortcuts.panel) {
         e.preventDefault()
         toggleBreakRef.current()
@@ -641,6 +658,26 @@ export default function GuidedPage({
       <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Conversation · {targetLanguageName}</span>
+          <label className="speech-speed" title={ttsEngine === 'cloud'
+            ? 'Adjust playback speed while keeping the natural pitch.'
+            : 'Speed changes apply on replay.'}>
+            Voice speed
+            <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1}
+              disabled={!settings || savingSpeechRate}
+              onChange={(event) => {
+                if (!settings) return
+                const rate = Number(event.target.value)
+                const updated = { ...settings, tts_rate: rate }
+                setSavingSpeechRate(true)
+                void saveSettings(updated).then(() => {
+                  setSettings(updated)
+                  setPlaybackRate(rate)
+                }).catch((error: unknown) => reportFault('Saving voice speed', error))
+                  .finally(() => setSavingSpeechRate(false))
+              }}>
+              {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
+            </select>
+          </label>
           <button
             type="button"
             className="plan-toggle"
@@ -662,7 +699,7 @@ export default function GuidedPage({
               turn={turn}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={ttsReady}
-              speaking={speaking}
+              speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
               revealed={words.revealed}
               showRomanization={showRomanization}
               alwaysRomanize={alwaysRomanize}

@@ -1,7 +1,7 @@
 //! Speech synthesis, and the WAV container the webview plays.
 
 use futures_util::StreamExt;
-use log::{debug, error};
+use log::debug;
 use serde_json::json;
 use tauri::{State};
 use crate::ai::truncate_for_log;
@@ -75,36 +75,26 @@ pub async fn speak_text(
     }
 
     // Stream SSE; accumulate base64 PCM16 chunks, then wrap in a WAV header.
-    // Also accumulate the audio transcript — spoken content is compared
-    // against the request afterwards, and any extra speech logs loudly.
+    // Reject audio whose transcript does not match the requested text.
     let mut stream = response.bytes_stream();
-    let mut sse_buffer = String::new();
+    let mut decoder = crate::sse::Decoder::default();
     let mut b64 = String::new();
     let mut transcript = String::new();
     'sse: while let Some(chunk) = stream.next().await {
         let bytes = chunk.map_err(|e| format!("tts stream: {e}"))?;
-        sse_buffer.push_str(&String::from_utf8_lossy(&bytes));
-        while let Some(pos) = sse_buffer.find('\n') {
-            let line: String = sse_buffer.drain(..=pos).collect();
-            let line = line.trim();
-            if let Some(data) = line.strip_prefix("data: ") {
-                let data = data.trim();
-                if data == "[DONE]" {
-                    break 'sse;
-                }
-                if let Ok(v) = serde_json::from_str::<serde_json::Value>(data) {
-                    if let Some(delta) = v["choices"][0]["delta"]["audio"].as_object() {
-                        if let Some(d) = delta.get("data").and_then(|x| x.as_str()) {
-                            b64.push_str(d);
-                        }
-                        if let Some(t) = delta.get("transcript").and_then(|x| x.as_str()) {
-                            transcript.push_str(t);
-                        }
+        for event in decoder.push(&bytes)? {
+            match event {
+                crate::sse::Event::Done => break 'sse,
+                crate::sse::Event::Data(value) => {
+                    if let Some(delta) = value["choices"][0]["delta"]["audio"].as_object() {
+                        if let Some(data) = delta.get("data").and_then(|v| v.as_str()) { b64.push_str(data); }
+                        if let Some(text) = delta.get("transcript").and_then(|v| v.as_str()) { transcript.push_str(text); }
                     }
                 }
             }
         }
     }
+    decoder.finish()?;
     use base64::Engine;
     let pcm = base64::engine::general_purpose::STANDARD
         .decode(b64.as_bytes())
@@ -114,9 +104,7 @@ pub async fn speak_text(
     }
     let wav = wav_container(&pcm, TTS_SAMPLE_RATE);
 
-    // Loud verification: the transcript is what the model ACTUALLY spoke.
-    // Extra or mismatched speech gets logged at ERROR — the audio still
-    // returns (audible diagnosis beats silence), but the problem is visible.
+    // Verify spoken content before making the audio playable.
     let norm = |s: &str| -> String {
         let mut out = String::new();
         let mut space = true;
@@ -136,10 +124,7 @@ pub async fn speak_text(
     let asked = norm(&text);
     let spoken = norm(&transcript);
     if spoken != asked {
-        error!(
-            "[tts] SPEECH MISMATCH — requested {:?} but model spoke {:?} (audio returned for diagnosis)",
-            asked, spoken
-        );
+        return Err("Speech transcript does not match the requested text.".into());
     } else {
         debug!("[tts] transcript matches request");
     }
@@ -221,3 +206,4 @@ mod wav_tests {
         assert_eq!(u32::from_le_bytes([w[40], w[41], w[42], w[43]]), 0);
     }
 }
+

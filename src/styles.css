@@ -1437,3 +1437,7 @@ button, input, select { touch-action: manipulation; }
 }
 .paused-resume:hover { background: var(--amber); color: var(--paper, #fff); }
 @media (prefers-reduced-motion: reduce) { .paused-dot { animation: none; } }
+
+.chat-head { flex-wrap: wrap; gap: 0.5rem; }
+.speech-speed { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; }
+.speech-speed select { padding: 0.2rem 0.3rem; font: inherit; }
