@@ -1,5 +1,5 @@
 // Playback through the selected cloud or OS engine, with one active utterance.
-import { invoke } from './tauri'
+import { invoke, type ConversationPartner } from './tauri'
 
 export interface SpeechProgress {
   utteranceId: string
@@ -84,8 +84,8 @@ const pendingAudio = new Map<string, Promise<string>>()
 const MAX_CACHE_BYTES = 24 * 1024 * 1024
 let cacheBytes = 0
 
-async function cloudTts(text: string, voice: string): Promise<string> {
-  const key = JSON.stringify([voice, text])
+async function cloudTts(text: string, voice: string, chatId: string | null): Promise<string> {
+  const key = JSON.stringify([chatId, voice, text])
   const cached = audioCache.get(key)
   if (cached) {
     audioCache.delete(key)
@@ -94,14 +94,14 @@ async function cloudTts(text: string, voice: string): Promise<string> {
   }
   const pending = pendingAudio.get(key)
   if (pending) return pending
-  const request = synthesize(text, voice, key)
+  const request = synthesize(text, voice, key, chatId)
   pendingAudio.set(key, request)
   try { return await request }
   finally { pendingAudio.delete(key) }
 }
 
-async function synthesize(text: string, voice: string, key: string): Promise<string> {
-  const result = await invoke<TtsAudio>('speak_text', { text, voice })
+async function synthesize(text: string, voice: string, key: string, chatId: string | null): Promise<string> {
+  const result = await invoke<TtsAudio>('speak_text', { text, voice, chatId })
   const bytes = Uint8Array.from(atob(result.audio_base64), (character) => character.charCodeAt(0))
   if (bytes.length > MAX_CACHE_BYTES) throw new Error('Synthesized speech exceeds the playback size limit.')
   while (cacheBytes + bytes.length > MAX_CACHE_BYTES && audioCache.size) {
@@ -118,7 +118,7 @@ async function synthesize(text: string, voice: string, key: string): Promise<str
 
 /** Resolves on completion or cancellation; synthesis and playback errors reject. */
 export async function speakSmart(
-  text: string, language: string, engine: string, voice: string, rate: number, utteranceId: string
+  text: string, language: string, engine: string, voice: string, rate: number, utteranceId: string, chatId: string | null
 ): Promise<boolean> {
   if (!text.trim()) throw new Error('Nothing to speak.')
   stopSpeaking()
@@ -128,7 +128,7 @@ export async function speakSmart(
   setProgress({ utteranceId })
   try {
     if (engine === 'cloud') {
-      const url = await cloudTts(text, voice)
+      const url = await cloudTts(text, voice, chatId)
       if (token !== speakToken) return false
       const audio = new Audio(url)
       audio.playbackRate = rate
@@ -157,8 +157,13 @@ export async function speakSmart(
     if (engine !== 'os') throw new Error('Unknown speech engine. Choose Cloud or OS voice in Settings.')
     if (!speechSupported()) throw new Error('OS speech is unavailable on this platform. Choose Cloud in Settings.')
     const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices()
-    const selected = voices.find((candidate) => candidate.lang.toLowerCase().replace('_', '-') === language.toLowerCase())
-      ?? voices.find((candidate) => candidate.lang.toLowerCase().split('-')[0] === language.toLowerCase().split('-')[0])
+    const partner = chatId ? await invoke<ConversationPartner>('get_conversation_partner', { chatId }) : null
+    if (token !== speakToken) return false
+    const exact = voices.filter(candidate => candidate.lang.toLowerCase().replace('_', '-') === language.toLowerCase())
+    const candidates = (exact.length ? exact : voices.filter(candidate => candidate.lang.toLowerCase().split(/[-_]/)[0] === language.toLowerCase().split('-')[0])).sort((a, b) => a.voiceURI.localeCompare(b.voiceURI))
+    const identity = partner && partner.persona.id !== '__none__' ? partner.persona.id : ''
+    const hash = Array.from(identity).reduce((value, character) => (value * 31 + character.codePointAt(0)!) >>> 0, 0)
+    const selected = candidates[hash % candidates.length]
     if (!selected) throw new Error(`No installed OS voice can speak ${language}.`)
     return await new Promise<boolean>((resolve, reject) => {
       const utterance = new SpeechSynthesisUtterance(text)

@@ -16,7 +16,7 @@ Two surfaces:
   a **Lesson** panel showing your goal, preferences and coaching observations,
   and an **Analysis** tab for detailed breakdowns. Talk to the coach below the
   lesson: explicit requests update it; suggestions wait for you to apply them.
-  Suggestions and settings fold independently beneath compact headings attached to their respective content. Persona controls fit in one row; the gear opens character details.
+  Settings fold beside the composer; reply ideas expand inside practice cards. Persona controls fit in one row; the gear opens character details.
   Voice works in *and* out.
   Partner prompts require an easy question, choice, or concrete invitation to
   respond on every turn, within the selected difficulty and lesson context.
@@ -203,7 +203,7 @@ Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusauru
 cd skellyspeak-docs && npm install && npm start   # preview the docs site
 ```
 
-Collapsed Suggestions shows up to two compact reply badges (one on narrow screens). Tap a badge to send the full suggestion; expand the section for all replies, frames and starters.
+Reply ideas, frames and starters live inside expanded practice cards. Choosing one inserts it into the draft, preserving existing text and recording assistance; it does not send automatically.
 
 The **AI** panel opens directly on the live pipeline. A compact strip shows recorded and running model calls; select a call or graph node for its timing, model, response preview, and expandable prompts and raw responses. **How it works** explains the context; **Debug** expands execution controls, logs and the advanced comparison workspace without replacing the main graph. Filter retained activity by chat and exchange. The full-height request reader shows captured inputs, every attempt, effective parameters and prompt-block comparisons. Traces survive restarts within local retention limits and can be exported for an audit; see [Observability](skellyspeak-docs/docs/observability.md).
 
@@ -221,7 +221,7 @@ to use a learner name only after the learner identifies themselves. The AI
 request reader exposes this as the `participants` prompt block. These are model
 instructions, not a guarantee that every generated reply follows them.
 
-The lesson panel leads with the actual goal or suggested practice topics, each
+The lesson panel starts with practice cards, followed by the goal or suggested lesson topics, each
 with a short explanation, target-language example and translation. Compact
 **Try an example** and **Why this?** links prepare a coach question without
 sending it. **Preferences & coach memory** groups correction settings,
@@ -287,12 +287,21 @@ storage (including layout preferences). **Reset settings** only restores prefere
 Cloud accounts, billing/usage records and exports saved outside app storage remain.
 The reset cannot be undone.
 
-The practice board shows one skill card per domain. Selecting a card highlights
-its map arm; selecting an arm selects and expands its card. This selection does
-not change the saved lesson focus. List/Grid is a remembered display preference;
-grid uses two columns for the seven cards. New preferences start in list mode.
-The active-focus domain shows its focused skill; other domains show their catalog
-entry skill.
+The practice board initially shows the focus skill and two areas with less recorded
+practice. All areas shows one card per domain. Selecting a card or map arm shares
+the selected skill with Skills without changing saved practice focus. Selecting an
+area outside the suggested set exposes it. List/Grid remains a saved preference.
+Cards and the full map use the same domain palette, neutral selection, skill overview
+and evidence records. Explore actions carry the skill into the map; returning to
+conversation preserves its mounted draft and history. The XP strip opens a progress
+summary before the explicit Explore skills action.
+
+On phones, lesson content follows chat in one scroll, with a demand-loaded selected
+hint by the composer. Navigation jumps to Chat or Lesson; AI is separate. Word
+inspection has keyboard access; Analysis is an explicit message action. Learner
+and partner reveal states are independent. Shared detail dialogs support outside
+click, Escape and the overlay back stack. Native keyboard/layout validation remains
+pending.
 
 Newly completed skill reviews show a short XP animation labeled with the credited
 phrase and skill. Existing history loads without replaying rewards. The chat

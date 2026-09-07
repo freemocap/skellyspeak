@@ -168,3 +168,10 @@ mistaken for evidence or a new award.
 Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
 
 Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
+
+
+Browsing selection is target-scoped and separate from saved practice focus. Map-entry
+requests carry skill identity without awarding credit or persisting focus. Reward detail
+resolves current records; excluded/incomplete evidence shows no current credit. XP
+deltas, stored credit and unassisted successes remain distinct. Chat and Skills share
+the domain palette and skill/evidence presentation.

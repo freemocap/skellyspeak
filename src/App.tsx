@@ -1,3 +1,5 @@
+import { ProgressSummary } from './components/panes/ProgressSummary'
+import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
@@ -55,8 +57,13 @@ function applyUiLanguage(native: string) {
   document.documentElement.lang = uiLangFromNative(native)
 }
 
-export default function App() {
+export default function App() { return <SkillNavigationProvider><Application /></SkillNavigationProvider> }
+
+function Application() {
+  const navigation = useSkillNavigation()
   const [page, setPage] = useState<Page>('guided')
+  useEffect(() => { if (navigation.state.mapRequest) { setSkillsOpened(true); setPage('skills') } }, [navigation.state.mapRequest])
+  const [progressOpen, setProgressOpen] = useState(false)
   const [skillsOpened, setSkillsOpened] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // Owned here rather than inside LogsOverlay so its button can sit in the
@@ -232,13 +239,14 @@ export default function App() {
       )}
 
       {isTauri && <div className="learner-profile-bar">
-        <button onClick={() => { setSkillsOpened(true); setPage('skills') }} aria-label="Open language profile">
+        <button onClick={() => setProgressOpen(true)} aria-label="Open language profile">
           <span>◈ My language profile</span>
           {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {treeNode(evidence.snapshot.profile.active_focus).label}</span></>}
           {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
         </button>
         {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}
       </div>}
+      {progressOpen && evidence.snapshot && <ProgressSummary snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
       <div className="content">
         {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
           <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage evidence={evidence} onPractice={() => setPage('guided')} /></Suspense></PageBoundary>

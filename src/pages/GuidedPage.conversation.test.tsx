@@ -1,3 +1,4 @@
+import { SkillNavigationProvider } from '../hooks/useSkillNavigation'
 // @vitest-environment jsdom
 //
 // The conversation lifecycle: which chat is on screen, when a greeting fires,
@@ -6,7 +7,7 @@
 // unsaved turns, saving one conversation under another's name — and none of it
 // is reachable from a pure-function test.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render as testingRender, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Settings, StoredTurn } from '../types'
 
@@ -80,7 +81,7 @@ vi.mock('../components/panes/CoachAnalysisPanel', async () => {
   const { PracticeContext } = await import('../components/panes/PracticeContext')
   return { CoachAnalysisPanel: () => {
     const practice = useContext(PracticeContext)
-    return <div>{practice?.suggestions.replies.map(reply => <button key={reply} onClick={() => practice.useExample(reply)}>{reply}</button>)}</div>
+    return <div>{practice?.suggestions.replies.map(reply => <button key={reply} onClick={() => practice.useExample(reply, 'suggestion')}>{reply}</button>)}</div>
   } }
 })
 
@@ -188,8 +189,8 @@ describe('opening the app', () => {
       await userEvent.click(word)
       expect(view.container.querySelector('[data-gloss-popup]')).toBeNull()
       expect(view.container.querySelector('section.chat')).not.toHaveClass('mobile-hidden')
-      fireEvent.click(word.closest('.msg.bot')!)
-      expect(view.container.querySelector('section.chat')).toHaveClass('mobile-hidden')
+      fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
+      expect(view.container.querySelector('section.chat')).not.toHaveClass('mobile-hidden')
     } finally {
       view.unmount()
       media.mockRestore()
@@ -685,3 +686,5 @@ it('captures card suggestion use in the evaluation input', async () => {
     inputEvidence: { modality: 'text', suggestion: true, scaffold: false, revision: false },
   })))
 })
+
+function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: SkillNavigationProvider }) }

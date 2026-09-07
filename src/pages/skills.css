@@ -1,45 +1,45 @@
 .skills-page {
-  --tree-ink: #e2e9e2;
-  --tree-muted: #b0bcb5;
-  --tree-line: #46524b;
+  --tree-ink: var(--ink-d);
+  --tree-muted: var(--mut-d);
+  --tree-line: var(--line2);
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   min-width: 0;
   color: var(--tree-ink);
-  background: #131916;
-  font-family: var(--mono);
+  background: var(--bg);
+  font-family: var(--sans);
 }
 .tree-header, .tree-toolbar, .tree-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; flex: none; }
 .tree-header { border-bottom: 1px solid var(--tree-line); }
 .tree-header h1 { margin: 0; font-size: 14px; letter-spacing: .1em; }
 .tree-header h1 span { color: #96a49b; }
-.tree-fixture { font-size: 10px; color: #e3bc71; }
+.tree-fixture { font-size: 10px; color: var(--ink-d); }
 .tree-toolbar { padding-block: 7px; border-bottom: 1px solid var(--tree-line); flex-wrap: wrap; }
 .tree-layouts { display: flex; gap: 3px; }
 .skills-page button, .skills-page select { font: inherit; }
 .tree-layouts button, .tree-relations button, .tree-set-focus { background: #1b241e; color: var(--tree-ink); border: 1px solid #647267; padding: 7px 10px; font-size: 11px; cursor: pointer; border-radius: 2px; }
-.tree-layouts button[aria-pressed=true] { color: #131916; background: #d4dfd1; border-color: #d4dfd1; }
+.tree-layouts button[aria-pressed=true] { color: var(--bg); background: #d4dfd1; border-color: #d4dfd1; }
 .tree-jump { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--tree-muted); }
 .tree-jump select { min-width: 0; max-width: 250px; padding: 6px; background: #1b241e; color: var(--tree-ink); border: 1px solid #647267; border-radius: 2px; font-size: 11px; }
 .tree-workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 280px; }
-.tree-canvas { position: relative; min-width: 0; min-height: 0; background: #131916; }
+.tree-canvas { position: relative; min-width: 0; min-height: 0; background: var(--bg); }
 .tree-coordinate { position: absolute; left: 14px; top: 12px; z-index: 4; pointer-events: none; color: #b0bcb5; font-size: 10px; line-height: 1.7; }
-.tree-legend { position: absolute; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; max-width: calc(100% - 65px); font-size: 9px; color: #c1cbc4; background: #131916ed; padding: 5px; pointer-events: none; }
+.tree-legend { position: absolute; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; max-width: calc(100% - 65px); font-size: 9px; color: #c1cbc4; background: var(--bg); padding: 5px; pointer-events: none; }
 .tree-node { width: 154px; min-height: 74px; display: flex; flex-direction: column; justify-content: center; text-align: start; gap: 8px; padding: 10px; color: var(--tree-ink); background: #1a231e; border: 1px solid var(--node-color); border-radius: 2px; cursor: pointer; box-shadow: 3px 3px 0 #0a100c; }
 .tree-node.root { width: 160px; min-height: 94px; border: 2px solid #bfcdbf; background: #26312a; }
 .tree-node.level { width: 150px; border-top: 4px solid var(--node-color); }
 .tree-node-code { display: flex; justify-content: space-between; gap: 3px; color: var(--node-color); font-size: 9px; letter-spacing: .02em; }
 .tree-node strong { font-size: 14px; line-height: 1.2; font-weight: 600; }
 .tree-node-status { font-size: 10px; color: #c7d3cb; }
-.tree-node.selected { outline: 2px solid #fff2bc; outline-offset: 5px; box-shadow: 0 0 0 5px #131916; background: #344036; }
+.tree-node.selected { outline: 2px solid #f4f6f8; outline-offset: 5px; box-shadow: 0 0 0 5px var(--bg); background: #263645; }
 .tree-node:hover { background: #303d32; }
-.tree-node .react-flow__handle { width: 5px; height: 5px; background: var(--node-color); border: 1px solid #131916; }
+.tree-node .react-flow__handle { width: 5px; height: 5px; background: var(--node-color); border: 1px solid var(--bg); }
 .tree-canvas .react-flow__controls { box-shadow: none; border: 1px solid #647267; }
 .tree-canvas .react-flow__controls-button { background: #253127; color: #edf2ea; fill: currentColor; border-bottom: 1px solid #647267; width: 30px; height: 30px; }
 .tree-canvas .react-flow__controls-button:hover { background: #455648; }
-.tree-inspector { min-height: 0; overflow: auto; border-inline-start: 1px solid var(--tree-line); background: #1b231e; }
+.tree-inspector { min-height: 0; overflow: auto; border-inline-start: 1px solid var(--tree-line); background: var(--chrome); }
 .tree-inspector-body { padding: 16px; }
 .tree-inspector-id { display: flex; justify-content: space-between; color: var(--node-color); font-size: 10px; }
 .tree-inspector h2 { font-size: 20px; line-height: 1.25; margin: 12px 0; }
@@ -53,18 +53,11 @@
 .tree-relations button { text-align: start; border-color: #46594a; font-size: 10px; }
 .tree-set-focus { width: 100%; margin-top: 12px; border-color: var(--node-color); }
 .tree-set-focus:disabled { color: var(--node-color); cursor: default; }
-.tree-evidence { border-left: 2px solid var(--node-color); padding-left: 10px; }
-.tree-evidence>div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 9px; color: var(--tree-muted); }
-.tree-evidence b { color: var(--node-color); font-weight: 500; }
-.tree-evidence blockquote { margin: 15px 0 0; font-size: 15px; }
-.tree-evidence dl { font-size: 10px; line-height: 1.5; }
-.tree-evidence dt { color: var(--tree-muted); margin-top: 7px; }
-.tree-evidence dd { margin: 0; overflow-wrap: anywhere; }
 .tree-method { margin-top: 16px; }
-.skills-page summary { cursor: pointer; font-size: 11px; color: #e3bc71; }
+.skills-page summary { cursor: pointer; font-size: 11px; color: var(--ink-d); }
 .tree-footer { border-top: 1px solid var(--tree-line); font-size: 9px; color: var(--tree-muted); flex-wrap: wrap; padding-block: 7px; }
 .tree-inspector-toggle { display: none; }
-.skills-page button:focus-visible, .skills-page summary:focus-visible, .skills-page select:focus-visible { outline: 3px solid #fff2bc; outline-offset: 3px; }
+.skills-page button:focus-visible, .skills-page summary:focus-visible, .skills-page select:focus-visible { outline: 3px solid #f4f6f8; outline-offset: 3px; }
 @media (max-width: 860px) {
   .tree-header { padding: 9px 10px; flex-wrap: wrap; gap: 5px; }
   .tree-header h1 { font-size: 12px; }
@@ -90,15 +83,13 @@
 .tree-refresh { background: #253127; color: #e2e9e2; border: 1px solid #647267; padding: 6px 9px; font: inherit; font-size: 11px; cursor: pointer; }
 .tree-evaluation-status { padding: 6px 14px; font-size: 10px; color: #c4d0c6; border-bottom: 1px solid var(--tree-line); }
 .tree-failures { padding: 8px 14px; max-height: 140px; overflow: auto; font-size: 11px; }
-.tree-evidence-filter { display: flex; align-items: center; gap: 6px; font-size: 10px; margin-bottom: 12px; }
-.tree-evidence + .tree-evidence { margin-top: 20px; }
-.tree-inspector .tree-assistance { font-size: 10px; color: #e3bc71; }
+.tree-inspector .tree-assistance { font-size: 10px; color: var(--ink-d); }
 .tree-node.domain { border-top: 4px solid var(--node-color); }
 .tree-focus-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 7px 14px; border-bottom: 1px solid var(--tree-line); font-size: 11px; color: #c4d0c6; }
-.tree-focus-strip button { border: 0; background: transparent; color: #e3bc71; cursor: pointer; padding: 4px 0; text-align: start; }
+.tree-focus-strip button { border: 0; background: transparent; color: var(--ink-d); cursor: pointer; padding: 4px 0; text-align: start; }
 .tree-list { height: 100%; overflow-y: auto; padding: 8px 10px 48px; box-sizing: border-box; }
 .tree-list button { display: flex; flex-direction: column; gap: 6px; width: 100%; min-height: 58px; padding: 9px 12px; margin-bottom: 6px; text-align: start; border: 1px solid var(--node-color); border-inline-start-width: 4px; background: #1b241e; color: #e2e9e2; font-size: 12px; cursor: pointer; }
-.tree-list button[aria-pressed=true] { outline: 2px solid #fff2bc; outline-offset: 1px; background: #344036; }
+.tree-list button[aria-pressed=true] { outline: 2px solid #f4f6f8; outline-offset: 1px; background: #263645; }
 .tree-list small { color: #c4d0c6; font-size: 10px; }
 @media (max-width: 860px) { .tree-inspector.expanded { max-height: 50%; } .tree-toolbar { gap: 5px; } .tree-focus-strip { padding: 5px 10px; } }
 @media (max-width: 860px) {
@@ -113,20 +104,20 @@
 .tree-canvas { display: flex; flex-direction: column; }
 .tree-canvas > .react-flow { flex: 1; min-height: 0; }
 .tree-navigation, .tree-detail-actions { display: flex; align-items: center; gap: 5px; padding: 7px; }
-.tree-navigation { flex: none; flex-wrap: wrap; border-bottom: 1px solid var(--tree-line); background: #1b231e; }
+.tree-navigation { flex: none; flex-wrap: wrap; border-bottom: 1px solid var(--tree-line); background: var(--chrome); }
 .tree-navigation button, .tree-detail-actions button { padding: 6px 8px; border: 1px solid #647267; background: #253127; color: var(--tree-ink); font-size: 11px; cursor: pointer; }
 .tree-navigation button:disabled, .tree-detail-actions button:disabled { opacity: .45; cursor: default; }
 .tree-navigation nav { display: flex; align-items: center; flex: 1; min-width: 0; overflow-x: auto; }
 .tree-navigation nav button { border: 0; white-space: nowrap; background: transparent; color: #c1cbc4; }
 .tree-navigation nav button + button::before { content: '/'; margin-inline-end: 10px; color: #82998c; }
-.tree-navigation nav button[aria-current] { color: #fff2bc; }
+.tree-navigation nav button[aria-current] { color: #f4f6f8; }
 .tree-detail-actions { padding: 0 0 12px; }
 .tree-detail-actions button:last-child { margin-inline-start: auto; font-size: 18px; }
 .tree-node, .tree-node.root { width: calc(230px * var(--node-scale)); height: calc(88px * var(--node-scale)); min-height: 0; padding: calc(9px * var(--node-scale)); gap: calc(4px * var(--node-scale)); box-sizing: border-box; }
 .tree-node strong { font-size: calc(15px * var(--node-scale)); }
 .tree-node-code { font-size: calc(9px * var(--node-scale)); }
 .tree-node-status { font-size: calc(10px * var(--node-scale)); }
-.tree-canvas .react-flow__minimap { width: 130px; height: 90px; bottom: 27px; background: #1b231e; border: 1px solid #647267; }
+.tree-canvas .react-flow__minimap { width: 130px; height: 90px; bottom: 27px; background: var(--chrome); border: 1px solid #647267; }
 @media (max-width: 860px) {
   .tree-navigation button, .tree-detail-actions button { min-height: 36px; }
   .tree-navigation nav { flex-basis: 100%; }

@@ -1,3 +1,6 @@
+import { SkillEvidenceRecord } from '../components/panes/SkillEvidenceRecord'
+import { SkillOverview } from '../components/panes/SkillOverview'
+import { useSkillNavigation } from '../hooks/useSkillNavigation'
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Background, BackgroundVariant, Controls, MiniMap, Handle, Position, ReactFlow, useNodesState, type Node, type NodeProps, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -6,7 +9,7 @@ import { useUiDirection } from '../hooks/useUiDirection'
 import { useSkillEvidence } from '../hooks/useSkillEvidence'
 import { isTauri } from '../lib/tauri'
 import { skillDemo } from '../lib/skillDemo'
-import type { ProfileChoices, SkillProgress, SkillRecord, SkillSnapshot } from '../lib/skills'
+import type { ProfileChoices, SkillProgress, SkillSnapshot } from '../lib/skills'
 import { ancestry, displayedTree, mapAnchor, descendants, evidenceLabel, nodeScale, nodePosition, skillTree, treeNode, type TreeLayout, type TreeNode } from './skillTree'
 import { TreeCamera, type CameraRequest } from './TreeCamera'
 import './skills.css'
@@ -30,9 +33,6 @@ function ports(node: TreeNode, layout: TreeLayout, visible: TreeNode[]) {
 export function marks(progress: SkillProgress): string {
   return progress.star ? `★ ${progress.successes} successes` : `${'✓'.repeat(progress.successes)}${'○'.repeat(3 - progress.successes)} ${progress.successes}/3`
 }
-function assistance(record: SkillRecord): string {
-  return [record.input.suggestion && 'Suggested wording', record.input.scaffold && 'Scaffold used', record.input.revision && 'Revision'].filter(Boolean).join(' · ') || 'No in-app assistance recorded'
-}
 
 export default function SkillsPage({ evidence, onPractice }: { evidence: ReturnType<typeof useSkillEvidence>; onPractice: () => void }) {
   if (isTauri && evidence.error) return <div className="tree-load" role="alert">Profile: {evidence.error}<button onClick={evidence.refresh}>Retry</button></div>
@@ -40,7 +40,9 @@ export default function SkillsPage({ evidence, onPractice }: { evidence: ReturnT
   return <SkillTreeView snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.refresh} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
 }
 export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, onPractice }: { snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void }) {
-  const [selected, setSelected] = useState('experience')
+  const navigation = useSkillNavigation()
+  const selected = navigation.state.selected?.target === snapshot.target ? navigation.state.selected.skillId : 'experience'
+  const setSelected = useCallback((skillId: string) => navigation.select({ target: snapshot.target, skillId }), [navigation.select, snapshot.target])
   const [camera, setCamera] = useState<CameraRequest>({ sequence: 0, target: 'experience', action: 'whole' })
   const [layoutChoice, setLayoutChoice] = useState<'horizontal' | 'radial' | 'down'>('horizontal')
   const direction = useUiDirection()
@@ -60,11 +62,15 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
   const examples = snapshot.records.filter((r) => r.catalog_version === snapshot.catalog_version).flatMap((record) => (record.assessment?.judgments ?? []).filter((j) => relevant.has(j.skill_id) && j.outcome !== 'not_observed').map((judgment) => ({ record, judgment })))
   const failures = snapshot.records.filter((r) => r.status === 'failed')
   const legacy = snapshot.records.filter((r) => r.catalog_version !== snapshot.catalog_version)
-  const restore = useCallback((id: string) => { setSelected(id); setDetailOpen(id !== 'experience'); setShowAll(false) }, [])
+  const restore = useCallback((id: string) => { setSelected(id); setDetailOpen(id !== 'experience'); setShowAll(false) }, [setSelected])
   const pick = useCallback((id: string) => {
     setSelected(id); setDetailOpen(true); setShowAll(false)
     setCamera((v) => ({ sequence: v.sequence + 1, target: mapAnchor(id).id, action: 'focus' }))
-  }, [])
+  }, [setSelected])
+  useEffect(() => {
+    const request = navigation.state.mapRequest
+    if (request?.location.target === snapshot.target) { setDetailOpen(true); setCamera({ sequence: request.sequence, target: mapAnchor(request.location.skillId).id, action: 'focus' }) }
+  }, [navigation.state.mapRequest, snapshot.target])
   const wholeTree = () => {
     setSelected('experience'); setDetailOpen(false)
     setCamera((v) => ({ sequence: v.sequence + 1, target: 'experience', action: 'whole' }))
@@ -83,7 +89,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
   useEffect(() => {
     setNodes((previous) => visible.map((node) => ({ ...previous.find((n) => n.id === node.id), id: node.id, type: 'skill', position: nodePosition(node, layout, visible), data: { item: node, status: status(node), picked: mapAnchor(selected).id === node.id, focus: mapAnchor(focus).id === node.id, onPick: pick, ...ports(node, layout, visible) }, draggable: false })))
   }, [layout, selected, focus, pick, setNodes, visible, status])
-  const edges = useMemo<Edge[]>(() => visible.filter((node) => node.parent !== null).map((node) => ({ id: `${node.parent}-${node.id}`, source: node.parent!, target: node.id, type: layout === 'radial' ? 'straight' : 'smoothstep', style: { stroke: selected === node.id || selected === node.parent ? '#fff2bc' : node.color, strokeWidth: selected === node.id || selected === node.parent ? 3 : 2, vectorEffect: 'non-scaling-stroke' } })), [layout, selected, visible])
+  const edges = useMemo<Edge[]>(() => visible.filter((node) => node.parent !== null).map((node) => ({ id: `${node.parent}-${node.id}`, source: node.parent!, target: node.id, type: layout === 'radial' ? 'straight' : 'smoothstep', style: { stroke: selected === node.id || selected === node.parent ? '#f4f6f8' : node.color, strokeWidth: selected === node.id || selected === node.parent ? 3 : 2, vectorEffect: 'non-scaling-stroke' } })), [layout, selected, visible])
   const update = async (choices: ProfileChoices, practice: boolean) => {
     setMutationError(null)
     try { await save(choices); if (practice) onPractice() } catch (error) { setMutationError(String(error)) }
@@ -112,17 +118,14 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
         <button className="tree-inspector-toggle" aria-expanded={detailOpen} onClick={() => setDetailOpen((v) => !v)}><span>{item.label}</span><span>{detailOpen ? '−' : '+'}</span></button>
         <div className="tree-inspector-body">
           <div className="tree-detail-actions"><button disabled={!canBack} onClick={back}>← Back</button><button onClick={wholeTree}>Whole tree</button><button aria-label="Close node details" onClick={() => setDetailOpen(false)}>×</button></div>
-          <div className="tree-inspector-id">{item.code}<span>SELECTED</span></div><h2>{item.label}</h2><p>{item.description}</p>
+          <SkillOverview node={item} snapshot={snapshot} />
           <dl className="tree-stats"><div><dt>Successes</dt><dd>{progress.reduce((n, s) => n + s.successes, 0)}</dd></div><div><dt>Assisted</dt><dd>{progress.reduce((n, s) => n + s.assisted, 0)}</dd></div><div><dt>XP</dt><dd>{progress.reduce((n, s) => n + s.xp, 0)}</dd></div></dl>
           {item.kind === 'skill' ? <><p>{status(item)}</p><button className="tree-set-focus" disabled={saving} onClick={selectFocus}>{demonstration ? 'Preview focus' : 'Practise this in conversation'}</button><p>{profile.branches.find((b) => b.skill_id === selected)?.available ? 'Available in the recommended path.' : 'Extension: build three successes in its parent, or choose it now.'}</p><details><summary>Assessment criterion</summary><p>{item.criterion}</p></details></> : item.kind === 'domain' && <button className="tree-set-focus" onClick={() => pick(item.id)}>Zoom to this area</button>}
           <section className="tree-inspector-section"><h3>CONNECTIONS</h3><div className="tree-relations">{item.parent && <button onClick={() => inspect(item.parent!)}>↑ {treeNode(item.parent).label}</button>}{skillTree.filter((n) => n.parent === selected).map((n) => <button key={n.id} onClick={() => inspect(n.id)}>{n.code} / {n.label} · {status(n)}</button>)}</div></section>
           <section className="tree-inspector-section"><h3>EVIDENCE / {examples.length}</h3>
-            {(showAll ? examples : examples.slice(0, 12)).map(({ record, judgment }) => <article className="tree-evidence" key={`${record.attempt_id}-${judgment.skill_id}`}>
-              <div>{evidenceLabel(judgment.skill_id, record.catalog_version)} <b>{judgment.outcome.replaceAll('_', ' ')}</b></div>
-              {judgment.quotes.map((q, i) => <blockquote key={i} lang={record.target}>{q}</blockquote>)}<p>{judgment.rationale}</p><p className="tree-assistance">{assistance(record)} · external assistance unknown</p>
-              <details><summary>Source record</summary><dl><dt>Message</dt><dd>{record.source}</dd><dt>Conversation / message</dt><dd>{record.chat_id} / {record.message_id}</dd><dt>Attempt</dt><dd>{record.attempt_id}</dd><dt>Trace turn / session</dt><dd>{record.turn_id} / {record.session_id}</dd><dt>Model / routing</dt><dd>{record.model} / {record.provider_mode}</dd><dt>Catalog / prompt</dt><dd>{record.catalog_version} / {record.prompt_version}</dd><dt>Captured / modality</dt><dd>{new Date(record.at_secs * 1000).toLocaleString()} / {record.input.modality}</dd></dl></details>
+            {(showAll ? examples : examples.slice(0, 12)).map(({ record, judgment }) => <SkillEvidenceRecord key={`${record.attempt_id}-${judgment.skill_id}`} record={record} judgment={judgment} snapshot={snapshot}>
               {!demonstration && <button className="tree-refresh" disabled={saving} onClick={() => void update({ ...profile.choices, excluded_attempts: profile.choices.excluded_attempts.includes(record.attempt_id) ? profile.choices.excluded_attempts.filter((id) => id !== record.attempt_id) : [...profile.choices.excluded_attempts, record.attempt_id] }, false)}>{profile.choices.excluded_attempts.includes(record.attempt_id) ? 'Excluded · restore attempt' : 'Exclude attempt from progress'}</button>}
-            </article>)}
+            </SkillEvidenceRecord>)}
             {examples.length > 12 && <button className="tree-refresh" onClick={() => setShowAll((v) => !v)}>{showAll ? 'Show recent' : 'Show all evidence'}</button>}
             {!examples.length && <p>No direct evidence yet. An unobserved skill is not a failure.</p>}
           </section>

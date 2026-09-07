@@ -253,3 +253,25 @@ Skill assessment instructions require explanations in the learner’s native lan
 Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
 
 Chat translation controls reveal already-hydrated analysis without another model request. Tokenization, translation, mechanics and scaffolds emit independent sections; skill review and coach feedback remain detached. Expanded card explanations start independently of conversation busy state and hydrate on completion.
+
+
+## Shared frontend navigation and detail resources
+
+SkillNavigationProvider owns target-scoped browsing selection and explicit map-entry
+requests. Saved practice focus remains a Rust profile choice. A sequence identifies
+repeated selections; GuidedPage and SkillsPage share the selection owner. The
+conversation remains mounted during map navigation.
+
+SkillOverview and SkillEvidenceRecord render definitions and credit status in both
+surfaces. DetailDialog owns native-dialog focus restoration, dismissal and back
+registration. Reward inspection resolves selected identities against the current
+snapshot rather than storing an evidence object.
+
+TopicNotesProvider scopes a bounded request cache to the guided settings context.
+Disclosures mount explanation content on demand. Equivalent card and dialog requests
+share observable request state, including errors and explicit retries; replies continue streaming independently. Settings scope changes
+replace the resource. Skill evidence hides prior-settings snapshots until the current
+read completes. The retired Suggestions toggle and standalone frontend regeneration
+path are removed; steering still produces a reply whose analysis hydrates suggestions.
+
+Skill snapshot event bursts coalesce while a read is active and always request a trailing refresh. Successful reads clear earlier refresh errors. In-flight topic notes are retained until completion; inactive completed notes are pruned to the cache limit.

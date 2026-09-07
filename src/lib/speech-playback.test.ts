@@ -31,7 +31,7 @@ afterEach(() => { stopSpeaking(); vi.unstubAllGlobals() })
 it('slows cloud audio without changing pitch and clears on completion', async () => {
   const events: (SpeechProgress | null)[] = []
   const unsubscribe = subscribeSpeechProgress((event) => events.push(event))
-  const played = speakSmart('hola mundo', 'es', 'cloud', 'nova', 0.5, 'turn-1')
+  const played = speakSmart('hola mundo', 'es', 'cloud', 'nova', 0.5, 'turn-1', null)
   await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
   const audio = AudioPlayer.latest!
   expect(audio.playbackRate).toBe(0.5)
@@ -49,7 +49,7 @@ it('slows cloud audio without changing pitch and clears on completion', async ()
 it('does not play a synthesis response that arrives after stop', async () => {
   let deliver!: (value: { audio_base64: string; mime: string }) => void
   backend.invoke.mockImplementation(() => new Promise((resolve) => { deliver = resolve }))
-  const played = speakSmart('late response', 'en', 'cloud', 'nova', 1, 'turn-2')
+  const played = speakSmart('late response', 'en', 'cloud', 'nova', 1, 'turn-2', null)
   stopSpeaking()
   deliver({ audio_base64: 'AAAAAA==', mime: 'audio/wav' })
   expect(await played).toBe(false)
@@ -57,7 +57,7 @@ it('does not play a synthesis response that arrives after stop', async () => {
 })
 
 it('surfaces media playback errors and clears the active state', async () => {
-  const played = speakSmart('playback failure', 'en', 'cloud', 'nova', 1, 'turn-3')
+  const played = speakSmart('playback failure', 'en', 'cloud', 'nova', 1, 'turn-3', null)
   const rejected = expect(played).rejects.toThrow('could not be played')
   await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
   AudioPlayer.latest!.onerror?.()
@@ -68,8 +68,8 @@ it('surfaces media playback errors and clears the active state', async () => {
 it('shares an in-flight synthesis and caches replay without another request', async () => {
   let deliver!: (value: { audio_base64: string; mime: string }) => void
   backend.invoke.mockImplementation(() => new Promise((resolve) => { deliver = resolve }))
-  const first = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 1, 'first')
-  const second = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 0.5, 'second')
+  const first = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 1, 'first', null)
+  const second = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 0.5, 'second', null)
   expect(backend.invoke).toHaveBeenCalledTimes(1)
   deliver({ audio_base64: 'AAAAAA==', mime: 'audio/wav' })
   expect(await first).toBe(false)
@@ -77,7 +77,7 @@ it('shares an in-flight synthesis and caches replay without another request', as
   AudioPlayer.latest!.onended?.()
   expect(await second).toBe(true)
   AudioPlayer.latest = undefined
-  const replay = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 0.8, 'replay')
+  const replay = speakSmart('shared synthesis', 'en', 'cloud', 'nova', 0.8, 'replay', null)
   await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
   expect(backend.invoke).toHaveBeenCalledTimes(1)
   AudioPlayer.latest!.onended?.()
@@ -88,7 +88,7 @@ it('passes speed to the OS voice and clears state when it finishes', async () =>
   const synth = { getVoices: () => [{ lang: 'en-US' }], cancel: vi.fn(), speak: vi.fn() }
   vi.stubGlobal('speechSynthesis', synth)
   vi.stubGlobal('SpeechSynthesisUtterance', class { constructor(public text: string) {} })
-  const played = speakSmart('OS voice test', 'en', 'os', 'nova', 0.65, 'os')
+  const played = speakSmart('OS voice test', 'en', 'os', 'nova', 0.65, 'os', null)
   expect(synth.speak).toHaveBeenCalledTimes(1)
   const utterance = synth.speak.mock.calls[0][0] as SpeechSynthesisUtterance
   expect(utterance.rate).toBe(0.65)

@@ -1,3 +1,4 @@
+import { Disclosure } from '../Disclosure'
 import { useState } from 'react'
 import { TopicExplanation } from './TopicExplanation'
 import { LessonEditor, type LessonSaveResult } from './LessonEditor'
@@ -25,13 +26,13 @@ export function LessonContent({ chatId, level, lesson, plan, profile, busy, obse
     <section className="lesson-focus">
       {focus.map((topic, index) => <section className="lesson-topic" key={`${chatId}:${level}:${topic}`}>
         <div className="lesson-topic-title"><span className="lesson-topic-index">{String(index + 1).padStart(2, '0')}</span><h2>{topic}</h2></div>
-        <details className="lesson-topic-details"><summary>Explore this focus</summary>
+        <Disclosure className="lesson-topic-details" label="Explore this focus">
         <TopicExplanation chatId={chatId} topic={topic} level={level} busy={busy} />
         <div className="lesson-topic-tools">
           <button type="button" className="lesson-inline-action" disabled={busy} onClick={() => onAsk(`Help me practise ${topic}. Give me a short example at my selected practice level.`)}>Try an example</button>
           <button type="button" className="lesson-inline-action" disabled={busy} onClick={() => onAsk(`Why are we practising ${topic}? Explain what in my conversation supports this focus.`)}>Why this?</button>
         </div>
-        </details>
+        </Disclosure>
       </section>)}
       {!focus.length && <p className="lesson-empty">{plan ? 'Choose something you want to practise.' : 'Finding a starting point…'}</p>}
       <div className="lesson-focus-footer"><span>{lesson.choices.goal ? 'Your goal' : 'Coach-suggested'}</span><button type="button" className="lesson-action" disabled={busy} onClick={() => setEditing(true)}>Edit choices</button></div>
