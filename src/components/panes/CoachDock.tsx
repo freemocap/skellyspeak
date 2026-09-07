@@ -7,7 +7,7 @@ type Layout = { height: number; collapsed: boolean }
 
 function readLayout(): Layout {
   const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === null) return { height: DEFAULT_HEIGHT, collapsed: false }
+  if (stored === null) return { height: DEFAULT_HEIGHT, collapsed: true }
   const layout: unknown = JSON.parse(stored)
   if (typeof layout !== 'object' || layout === null || !('height' in layout) ||
       typeof layout.height !== 'number' || !Number.isFinite(layout.height) || layout.height < MIN_HEIGHT ||
@@ -30,7 +30,7 @@ export function CoachDock({ children, actions }: { children: ReactNode; actions:
     setLayout((previous) => ({ height: bounded === MIN_HEIGHT ? previous.height : bounded, collapsed: bounded === MIN_HEIGHT }))
   }
   return <section ref={dock} className={`coach-dock ${layout.collapsed ? 'is-collapsed' : ''}`}
-    style={{ height: layout.collapsed ? MIN_HEIGHT : layout.height }} aria-label="Coach panel">
+    style={{ height: layout.collapsed ? MIN_HEIGHT : layout.height }} aria-label="Coach panel" onFocusCapture={event => { if (event.target instanceof HTMLTextAreaElement) setLayout(previous => ({ ...previous, collapsed: false })) }}>
     <div className="coach-resizer" role="separator" tabIndex={0} aria-label="Resize coach panel"
       aria-orientation="horizontal" aria-valuemin={MIN_HEIGHT} aria-valuenow={layout.collapsed ? MIN_HEIGHT : layout.height}
       aria-valuetext={layout.collapsed ? 'Collapsed' : `${layout.height} pixels`}

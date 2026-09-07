@@ -194,19 +194,16 @@ export function PersonaModal({
                     rows={9}
                     value={draft.sketch}
                     placeholder={
-                      'Write it as "you". Give them a job, a mood, and something that is ' +
-                      'annoying them today.\n\n' +
-                      'You drive a taxi and are convinced the radio is lying to you. You ' +
-                      'argue with the football on television. Your back hurts from a chair ' +
-                      'you refuse to replace, and you will tell anyone about it.'
+                      'Write as "you". Include an outlook, a formative experience, and a favorite book or film with what it meant to them.\n\n' +
+                      'You repair bicycles. Your favorite book is The Hobbit: you like seeing ordinary people surprise themselves. You listen before offering advice. These details shape your manner; you rarely bring them up unless asked.' 
                     }
                     onChange={(e) => setDraft({ ...draft, sketch: e.target.value })}
                   />
                 </label>
                 <p className="persona-hint">
-                  Be specific. Adjectives like “warm” or “curious” are what produced the
-                  bland partner this replaces — a job, an opinion and a grievance produce
-                  sentences.
+                  Describe what shaped their outlook, not just their job. Explain what a favorite
+                  book or film means to them. Backstory should guide their manner without becoming
+                  the topic of every reply.
                 </p>
                 {error && (
                   <p className="persona-error" role="alert">

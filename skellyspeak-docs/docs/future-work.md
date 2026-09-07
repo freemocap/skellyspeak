@@ -100,3 +100,21 @@ The [September 2026 UX audit](./ux-audit-2026-09-06) proposes these candidates f
 - User-facing conversation and lesson export with explicit data scope.
 
 Response-to-context provenance belongs to the prompt-provenance workbench above.
+
+## Conversation UI migration: next slices
+
+The practice board, compact conversation header, folded setup defaults and initial
+verified XP notifications have moved into the app. Full visual/device validation
+and the remaining conversation redesign are still pending.
+
+- Simplify the chat header and composer around the prototype while preserving
+  microphone, playback, word assistance, message editing and cancellation. Keep
+  advanced controls behind deliberate disclosures.
+- Validate the shipped reward paths on desktop and phone, including long quotes,
+  offscreen messages, reduced motion and several simultaneous skill credits.
+- Reuse the board's card and explanation interactions throughout Skills, retaining
+  readable branch detail and selection across surfaces.
+- Supply hints grounded in the actual conversation as well as skill and difficulty.
+
+Validate the chat and reward sequence together in the real app before further
+expansion of the board. Native layout and animation verification remains required.

@@ -1,4 +1,8 @@
-import { Fragment, memo, useMemo, useRef, useState } from 'react'
+import { RewardDetail } from './RewardBadge'
+import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
+import { PracticeContext } from '../panes/PracticeContext'
+import { messageEvidence, type MessageEvidence } from '../../lib/message-evidence'
+import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
 import { popupAnchor, type PopupState } from '../GlossPopup'
@@ -169,6 +173,20 @@ export const TurnView = memo(function TurnView({
   onToggleReveal,
   onEditUser,
 }: TurnViewProps) {
+  const { snapshot } = useContext(SkillEvidenceContext)
+  const practice = useContext(PracticeContext)
+  const evidence = messageEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
+  const [rewardDetail, setRewardDetail] = useState<MessageEvidence[] | null>(null)
+  const [showUserTranslation, setShowUserTranslation] = useState(false)
+  const [showPartnerTranslation, setShowPartnerTranslation] = useState(false)
+  const source = turn.user ?? ''
+  const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
+  const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
+    const end = boundaries[index + 1]
+    const matches = evidence.filter(item => item.start < end && item.end > start)
+    const text = source.slice(start, end)
+    return matches.length ? <button key={start} className="message-evidence evidence-phrase" style={{ color: matches[0].color, borderColor: matches[0].color }} data-reward-evidence={matches[0].id} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button> : text
+  })
   const assistant = turn.assistant
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false })
 
@@ -232,9 +250,14 @@ export const TurnView = memo(function TurnView({
     side: 'me' | 'bot',
     translation: string | null,
     rawText: string
-  ) => (
+  ) => {
+    let cursor = 0
+    return (
     <span className={rtl ? 'line rtl-line' : 'line'}>
       {entries.map(({ tok, si }, gi) => {
+        const start = rawText.indexOf(tok.text, cursor)
+        cursor = start < 0 ? rawText.length : start + tok.text.length
+        const matches = side === 'me' && start >= 0 ? evidence.filter(item => item.start < cursor && item.end > start) : []
         const key = `${turnId}:${gi}`
         const isRevealed = revealed.has(key)
         const prev = gi > 0 ? entries[gi - 1].tok.text : ''
@@ -242,6 +265,7 @@ export const TurnView = memo(function TurnView({
         return (
           <Fragment key={`${side}-${gi}`}>
             {space}
+          <span className={matches.length ? 'message-evidence' : undefined} style={matches.length ? { color: matches[0].color, borderColor: matches[0].color } : undefined} data-reward-evidence={matches[0]?.id}>
           <TokenSpan
             key={`${side}-${gi}`}
             tok={tok}
@@ -249,7 +273,7 @@ export const TurnView = memo(function TurnView({
             hasTranslation={!!translation}
             showRomanization={showRomanization}
             alwaysRomanize={alwaysRomanize}
-            onTap={(e) => tokenTap(tok, si, translation, e)}
+            onTap={(e) => { if (matches.length) setRewardDetail(matches); else tokenTap(tok, si, translation, e) }}
             onDragStart={() => beginDrag(turnId, gi)}
             onDragOver={() => dragOver(turnId, gi)}
             onInspect={(e) => {
@@ -261,16 +285,20 @@ export const TurnView = memo(function TurnView({
               onHold(tok.text, sents[si] ?? rawText)
             }}
           />
+          </span>
           </Fragment>
         )
       })}
     </span>
   )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {rewardDetail && <RewardDetail evidence={rewardDetail} onClose={() => setRewardDetail(null)} />}
       {turn.user && (
         <div
+          data-reward-message={turn.id}
           className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''}`}
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:${i}`))
@@ -278,7 +306,8 @@ export const TurnView = memo(function TurnView({
         >
           {userEntries.length > 0
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
-            : turn.user}
+            : plainEvidence}
+          {assistant?.user_translation && <><button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!showUserTranslation) }}>文/A</button>{showUserTranslation && <div className="trans">{assistant.user_translation}</div>}</>}
           {onEditUser && (
             <button
               type="button"
@@ -322,7 +351,8 @@ export const TurnView = memo(function TurnView({
           )}
           {/* Auto-translate shows the reply's translation without a tap; the
               per-sentence tap still works on top of it. */}
-          {autoTranslate && assistant.translation && (
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={autoTranslate || showPartnerTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!showPartnerTranslation) }}>文/A</button>}
+          {(autoTranslate || showPartnerTranslation) && assistant.translation && (
             <div className="trans">{assistant.translation}</div>
           )}
           {ttsReady && (

@@ -97,11 +97,20 @@ zero, a one-word or yes/no answer should be possible. The invitation shares the
 existing length and complexity limits; personal detail is shortened to make room.
 The learner's subject and lesson context still guide the exchange.
 
-Lesson leads with live practice progress: the language's total XP and the three
-latest message reviews in this conversation. Each review shows credited XP,
-supporting quotes, the skill judgment and its explanation, and progress toward
-a star. Pending and failed reviews remain visible. Topic explanations expand
-under the current goal, leaving more room for the conversation's evidence.
+Lesson leads with skill cards and a compact jewel-toned map at the upper-left edge of the lesson panel, in its own row above the controls.
+The map starts collapsed; click it to expand the seven-domain overview, then
+collapse it again without losing the selected branch. Cards stay in stable catalog
+order, with the current practice focus first in its branch. Browsing a domain
+does not change the saved practice focus. Selecting a branch highlights and expands its matching card. Cards expand with a level-appropriate explanation, example
+and translation from the lesson service. Double-click or the explicit explanation
+button opens a dialog showing the skill criterion and reviewed replies from this
+conversation, including their credited XP. Escape, Close and backdrop clicks
+dismiss the dialog and restore focus.
+
+Recent message reviews and topic explanations sit behind disclosures. Review
+failures remain visible even when the reviews are collapsed. Chat and lesson
+content retain separate scrolling regions. Topic help uses the selected skill,
+language and difficulty; it does not yet use the current conversation transcript.
 Credit is derived from saved evidence: repeated wording earns credit once per
 skill, and unassisted evidence takes precedence over assisted wording. Edits or
 exclusions can reassign or remove credit; the total includes other conversations.
@@ -249,3 +258,35 @@ and progress, settings, saved credentials, app-managed logs/caches and webview
 storage (including layout preferences). **Reset settings** only restores preferences.
 Cloud accounts, billing/usage records and exports saved outside app storage remain.
 The reset cannot be undone.
+
+The practice board shows one skill card per domain. Selecting a card highlights
+its map arm; selecting an arm selects and expands its card. This selection does
+not change the saved lesson focus. List/Grid is a remembered display preference;
+grid uses two columns for the seven cards. New preferences start in list mode.
+The active-focus domain shows its focused skill; other domains show their catalog
+entry skill.
+
+New review credits animate from the learner message through visible skill and map
+targets toward the language XP total. The label includes the supporting quote and
+skill. Hidden or offscreen destinations are skipped; the animation never opens a
+panel or scrolls the conversation. Reduced motion shows a stationary notification.
+History loads, failed reviews, replaced messages and profile-choice changes do
+not trigger rewards. Assisted-to-unassisted upgrades display the net skill XP gain.
+
+The conversation header now presents language and difficulty together. Settings
+and voice controls default to folded for new users; saved preferences still apply.
+Word help, message editing, voice, suggestions and cancellation remain available.
+
+Credited phrases in learner replies are underlined in their domain color. Tap for the recorded reason and message-level skill XP. The map reserves space above lesson controls; selecting an arm expands its skill card.
+
+Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
+
+XP flights and phrase details share a domain-colored reward badge with the skill, credited XP and source phrase. Selecting a highlighted phrase opens that badge with its explanation; outside click or Escape closes it without awarding XP again.
+
+Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
+
+Coach chat sends with Enter; Shift+Enter inserts a newline, and IME composition Enter does not send. Partner prompts treat persona details as optional background and require contextually natural invitations, rather than preference questions mechanically built from incidental words.
+
+Persona backstory stays mostly unspoken. Built-in sketches include formative books and the outlook each character takes from them; the editor encourages the same approach. These details guide manner, not recurring topics, quotations or imitation. Existing chats retain their saved sketches; revised built-ins apply to new chats.
+
+Both chat bubbles offer a compact full-message translation control when their translation arrives. Learner translations stay hidden until requested; partner auto-translation remains an explicit setting. Tokenizer instructions map each gloss to its source token independently, allowing multiword glosses rather than aligning translated sentence positions.

@@ -20,8 +20,9 @@ Two surfaces:
   Voice works in *and* out.
   Partner prompts require an easy question, choice, or concrete invitation to
   respond on every turn, within the selected difficulty and lesson context.
-  Lesson shows live skill reviews, credited XP, the learner's supporting words,
-  and progress toward stars. Topic explanations expand below recent practice.
+  Lesson leads with stable skill cards and a compact jewel-toned map at the upper-left edge of the lesson panel, in its own row above the controls. Expand the map to browse its seven domains. Click a card
+  for a practice explanation and example; double-click for reviewed replies and
+  XP attribution. Recent message reviews and lesson details expand on request.
   On mobile, tapping a word shows its gloss without leaving Chat; tapping the
   surrounding partner message opens Analysis.
 - **Skill tree** — your language profile, meaning-domain practice paths and inspectable progress.
@@ -285,3 +286,29 @@ and progress, settings, saved credentials, app-managed logs/caches and webview
 storage (including layout preferences). **Reset settings** only restores preferences.
 Cloud accounts, billing/usage records and exports saved outside app storage remain.
 The reset cannot be undone.
+
+The practice board shows one skill card per domain. Selecting a card highlights
+its map arm; selecting an arm selects and expands its card. This selection does
+not change the saved lesson focus. List/Grid is a remembered display preference;
+grid uses two columns for the seven cards. New preferences start in list mode.
+The active-focus domain shows its focused skill; other domains show their catalog
+entry skill.
+
+Newly completed skill reviews show a short XP animation labeled with the credited
+phrase and skill. Existing history loads without replaying rewards. The chat
+header is compact; Settings & voice starts folded for new users while preserving
+saved disclosure preferences.
+
+Credited phrases in learner replies are underlined in their domain color. Tap for the recorded reason and message-level skill XP. The map reserves space above lesson controls; selecting an arm expands its skill card.
+
+Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
+
+XP flights and phrase details share a domain-colored reward badge with the skill, credited XP and source phrase. Selecting a highlighted phrase opens that badge with its explanation; outside click or Escape closes it without awarding XP again.
+
+Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
+
+Coach chat sends with Enter; Shift+Enter inserts a newline, and IME composition Enter does not send. Partner prompts treat persona details as optional background and require contextually natural invitations, rather than preference questions mechanically built from incidental words.
+
+Persona backstory stays mostly unspoken. Built-in sketches include formative books and the outlook each character takes from them; the editor encourages the same approach. These details guide manner, not recurring topics, quotations or imitation. Existing chats retain their saved sketches; revised built-ins apply to new chats.
+
+Both chat bubbles offer a compact full-message translation control when their translation arrives. Learner translations stay hidden until requested; partner auto-translation remains an explicit setting. Tokenizer instructions map each gloss to its source token independently, allowing multiword glosses rather than aligning translated sentence positions.

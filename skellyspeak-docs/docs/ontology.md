@@ -159,3 +159,12 @@ archives, lesson/coach state, preferences and credentials together. It is a
 device-local lifecycle operation, not a hosted account deletion. A durable reset
 request is completed before normal startup so old workers cannot restore erased
 state. The resulting profile starts from the built-in defaults.
+
+Browsing a skill domain is presentation state, distinct from the persisted active
+practice focus. Skill explanations describe a criterion; reviewed replies show
+past assessment evidence. The UI labels these separately so an example is not
+mistaken for evidence or a new award.
+
+Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
+
+Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.

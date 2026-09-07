@@ -226,3 +226,30 @@ vault entry, config contents, app cache/log directories and webview browsing dat
 The marker remains until every cleanup step succeeds; errors abort startup and
 interrupted resets retry on the next launch. This prevents old asynchronous work
 from repopulating the fresh profile.
+
+### Conversation practice board
+
+`SkillPracticeBoard.tsx` renders catalog domains and stable skill cards from the
+shared skill snapshot. Branch selection is transient UI state and does not write
+profile choices. `SkillDetailDialog` exposes current-catalog review evidence from
+the current conversation. `TopicExplanation` calls the existing Rust-owned
+`lesson_topic_note` operation on expansion, using the selected skill criterion and
+practice difficulty. It does not introduce frontend prompts or reward arithmetic.
+Recent review details remain available in a disclosure below the board.
+
+Skill-assessment validation rejects unknown and duplicate IDs separately. Duplicate
+feedback identifies the skill and requests one combined judgment, preserving the
+sparse-output contract on retries. Invalid reviews are not converted into rewards.
+
+`SkillRewards` observes the shared evidence snapshots. The first snapshot for a
+chat/language establishes a silent baseline. `skill-rewards.ts` identifies newly
+completed attempts and bounds visual rewards by positive Rust-reported per-skill
+XP differences. It does not calculate persistent rewards or write profile state.
+Rewards are queued transiently and cleared on ownership changes; retracted credits
+are removed from the queue. Visible DOM anchors determine animation destinations.
+
+Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
+
+Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
+
+Chat translation controls reveal already-hydrated analysis without another model request. Tokenization, translation, mechanics and scaffolds emit independent sections; skill review and coach feedback remain detached. Expanded card explanations start independently of conversation busy state and hydrate on completion.

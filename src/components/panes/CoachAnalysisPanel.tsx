@@ -96,7 +96,12 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
     </div>
     {error && <div className="turn-errors" role="alert">{error}</div>}
     <form className="coach-input-row" onSubmit={(e) => { e.preventDefault(); void ask() }}>
-      <textarea ref={inputRef} className="coach-input" rows={2} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about the lesson, or tell the coach what to change…" aria-label="Message your coach" disabled={!isTauri || busy} />
+      <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
+        if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+          event.preventDefault()
+          event.currentTarget.form?.requestSubmit()
+        }
+      }} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask about the lesson, or tell the coach what to change…" aria-label="Message your coach" disabled={!isTauri || busy} />
       <button type="submit" className="coach-send" aria-label="Send to coach" disabled={!lesson || !input.trim() || busy || conversationBusy}>↑</button>
     </form>
     </CoachDock>
