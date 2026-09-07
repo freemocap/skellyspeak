@@ -147,7 +147,7 @@ pub fn reply_blocks(
         Block::new("difficulty", "difficulty.rs + selected practice setting", learner_block(target_language_name, cefr_level, native_language_name)),
         Block::new("character", "conversation partner snapshot + prompts/partner.rs", character_block(sketch, introduction, target_language_name)),
         Block::new("topic", "selected topic + prompts/partner.rs", topic_section(topic)),
-        Block::new("conversation_style", "prompts/partner.rs", format!("HOW YOU TALK\n{}\n{}\nFollow the practice difficulty limits; at most one question, and not every turn. Vary your conversational move: offer a detail, an opinion, a reaction, or a question. Avoid stock fillers, generic praise, repeated questions, and repeated introductions. Correct by naturally recasting, without explanations or translations in the reply. Return only the conversational reply.", always_respond_rule(target_language_name), no_emoji_rule())),
+        Block::new("conversation_style", "prompts/partner.rs", format!("HOW YOU TALK\n{}\n{}\nEvery reply must include one clear, easy invitation to respond: a short question, a choice, or a concrete request. Never end with only a factual statement or reaction. Respond to what the learner said, then invite a related next step within the lesson context; at most one question. Vary the invitation; avoid an interview or repeated generic 'And you?'. At PRE-A1, make a one-word or yes/no answer possible. Shorten or omit personal detail to fit the invitation within ALL practice difficulty limits. Avoid stock fillers, generic praise, and repeated introductions. Correct by naturally recasting, without explanations or translations. Return only the conversational reply.", always_respond_rule(target_language_name), no_emoji_rule())),
         Block::new("staging", "captured teaching context", directives.into()),
     ]
 }
@@ -168,13 +168,13 @@ pub fn topic_section(topic: Option<&str>) -> String {
 
 pub fn greeting_turn() -> String {
     "[Session start.] Lead with something specific happening in your character's day, \
-     connected to the selected subject when present. The selected difficulty limits apply to this opening; one tiny detail is enough. Add a small question only if it fits those limits. \
+     connected to the selected subject when present. Include one easy invitation to respond within the selected difficulty limits; shorten or omit the detail to make room. \
      Avoid a generic greeting, weather report, or offer to help.".into()
 }
 
 pub fn steering_turn(change: &str) -> String {
     format!("[Practice preference changed: {change}.] This is a settings change, not a learner utterance or an answer to your previous question. \
-        Set aside any unanswered question from the previous topic. Open the selected topic with a short statement and, if useful, a fresh question. Do not answer your own previous message or imply the learner said it. Do not mention interface mechanics.")
+        Set aside any unanswered question from the previous topic. Open the selected topic with one easy invitation to respond within the selected difficulty limits; add a short statement only if it fits. Do not answer your own previous message or imply the learner said it. Do not mention interface mechanics.")
 }
 
 pub fn topic_directive(topic: Option<&str>) -> String {
@@ -183,4 +183,3 @@ pub fn topic_directive(topic: Option<&str>) -> String {
         None => String::new(),
     }
 }
-

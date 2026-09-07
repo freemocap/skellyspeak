@@ -33,6 +33,7 @@ describe('lesson coaching', () => {
       throw new Error(command)
     })
     mount()
+    fireEvent.click(await screen.findByText('Explore this focus'))
     expect(await screen.findByText('Describe one place you visit.')).toBeVisible()
     expect(screen.getByText('Voy a Madrid.')).toBeVisible()
     expect(screen.getByText('I go to Madrid.')).toBeVisible()

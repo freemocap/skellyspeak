@@ -161,6 +161,31 @@ beforeEach(() => {
 })
 
 describe('opening the app', () => {
+  it('keeps mobile word glosses on Chat while allowing message selection to open Analysis', async () => {
+    const media = vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+      matches: true, media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }))
+    const stored = turn(1, 'Hola')
+    stored.assistant!.tokens = [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null }]
+    backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [stored] })
+    const view = render(<GuidedPage />)
+    try {
+      const word = await screen.findByText('Hola', { selector: '.w' })
+      await userEvent.click(word)
+      expect(screen.getByText('Hello', { selector: '.popup-card span' })).toBeInTheDocument()
+      expect(view.container.querySelector('section.chat')).not.toHaveClass('mobile-hidden')
+      await userEvent.click(word)
+      expect(view.container.querySelector('[data-gloss-popup]')).toBeNull()
+      expect(view.container.querySelector('section.chat')).not.toHaveClass('mobile-hidden')
+      fireEvent.click(word.closest('.msg.bot')!)
+      expect(view.container.querySelector('section.chat')).toHaveClass('mobile-hidden')
+    } finally {
+      view.unmount()
+      media.mockRestore()
+    }
+  })
   it('saves the selected voice speed without reopening the conversation', async () => {
     backend.saveSettings.mockResolvedValue(undefined)
     backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
