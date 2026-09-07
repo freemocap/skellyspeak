@@ -136,20 +136,6 @@ export interface GuidedTurnResult {
   errors: string[]
 }
 
-export interface StoryToken {
-  text: string
-  gloss: string | null
-}
-
-export interface StoryParagraph {
-  tokens: StoryToken[]
-}
-
-export interface Story {
-  title: string
-  paragraphs: StoryParagraph[]
-}
-
 export interface CoachCorrection {
   said: string
   corrected: string

@@ -20,7 +20,6 @@
 //! | [`coach`] | The private coach — the per-message analysis and the side-thread |
 //! | [`analysis`] | Tokenizing, translating, grammar cards, scaffolds, word insight |
 //! | [`observer`] | The teaching coordinator that maintains the plan and profile |
-//! | [`story`] | Reading practice |
 //! | [`overlays`] | Per-language guidance (orthography, dialect, register) |
 //! | [`repair`] | What we say to a model that returned unusable JSON |
 //! | [`speech`] | Making a conversational audio model behave like a TTS engine |
@@ -36,7 +35,7 @@ pub mod partner;
 pub mod difficulty;
 pub mod repair;
 pub mod speech;
-pub mod story;
+pub mod skills;
 
 #[cfg(test)]
 mod tests;

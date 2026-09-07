@@ -12,7 +12,6 @@ use crate::commands::coach::CoachFeedback;
 use crate::commands::guided::{
     LearnerTokensOut, MechanicsOut, ScaffoldsOut, TokensOut, TranslationOut,
 };
-use crate::commands::stories::StoryResponse;
 use crate::observer::{self, ObserverOutput, Profile, TeachingPlan};
 use crate::prompts;
 use std::time::{Duration, Instant};
@@ -237,43 +236,7 @@ async fn model_bench() {
             Err(e) => eprintln!("mechanics    FAIL ({}ms): {}", ms, &e[..e.len().min(160)]),
         }
 
-        // 6. Story (heaviest single output).
-        let sys = prompts::story::story_prompt(tln, "A2", native, "beginner", "");
-        let msgs = vec![
-            serde_json::json!({"role": "system", "content": sys}),
-            serde_json::json!({"role": "user", "content": prompts::story::story_turn()}),
-        ];
-        let start = Instant::now();
-        let before = snapshot();
-        let res = provider
-            .structured_validated::<StoryResponse, _>(
-                RunContext::new(ontology::op::STORY, None),
-                &msgs,
-                0.7,
-                "StoryResponse",
-                false,
-                None,
-                |st: &StoryResponse| {
-                    let glossed = st
-                        .paragraphs
-                        .iter()
-                        .flat_map(|p| p.tokens.iter())
-                        .filter(|t| t.gloss.is_some())
-                        .count();
-                    if glossed == 0 { Some("no glosses".into()) } else { None }
-                },
-            )
-            .await;
-        let ms = start.elapsed().as_millis();
-        match &res {
-            Ok(s) => {
-                let n: usize = s.paragraphs.iter().map(|p| p.tokens.len()).sum();
-                eprintln!("story        OK  total={}ms retries={} tokens={}", ms, retry_delta(before), n);
-            }
-            Err(e) => eprintln!("story        FAIL ({}ms): {}", ms, &e[..e.len().min(160)]),
-        }
-
-        // 7. Learner tokens — exercises the configured structured-output cap.
+        // 6. Learner tokens — exercises the configured structured-output cap.
         let sys = prompts::analysis::learner_tokens_prompt(tln, native, None, true);
         let msgs = vec![
             serde_json::json!({"role": "system", "content": sys}),

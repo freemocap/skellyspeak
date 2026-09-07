@@ -8,6 +8,7 @@
 mod analysis;
 mod coach_pass;
 mod observer_pass;
+mod skill_pass;
 mod types;
 
 use log::info;
@@ -74,9 +75,10 @@ pub async fn guided_turn(
     message_id: u64,
     history_available: usize,
     replaces_message_id: Option<u64>,
+    mut input_evidence: crate::skills::InputEvidence,
     on_event: Channel<GuidedEvent>,
 ) -> Result<String, String> {
-    let (epoch, settings, plan_snapshot, recent_snapshot, level_notes, lesson, chat, partner) = {
+    let (epoch, settings, plan_snapshot, recent_snapshot, level_notes, lesson, chat, partner, skill_block) = {
         let epoch = state.context_epoch.lock().expect("context lock poisoned");
         let settings = state.settings.lock().expect("settings lock poisoned").clone();
         let pair = crate::conversation::pair_dir(&state.config_dir, &settings.target_language, &settings.native_language)?;
@@ -86,11 +88,14 @@ pub async fn guided_turn(
         let chat = crate::conversation::chat_dir(&pair, &chat_id)?;
         let partner = crate::conversation_partner::load(&chat)?;
         let lesson = crate::lesson::load(&pair)?;
+        let evidence = crate::skills::snapshot(&state.config_dir, &settings.target_language)?;
+        let profile = crate::skills::progress::project(&evidence, crate::skills::progress::load(&state.config_dir, &settings.target_language)?)?;
+        let skill_block = prompts::skills::practice(&evidence, &profile)?;
         (*epoch,
          settings,
          state.plan.lock().expect("plan lock poisoned").clone(),
          state.recent_mechanics.lock().expect("mechanics lock poisoned").clone(),
-         state.profile.lock().expect("profile lock poisoned").level_notes.clone(), lesson, chat, partner)
+         state.profile.lock().expect("profile lock poisoned").level_notes.clone(), lesson, chat, partner, skill_block)
     };
     let started = std::time::Instant::now();
     // Every run fired by this turn shares a turn id, so the UI can group
@@ -137,7 +142,7 @@ pub async fn guided_turn(
     // prompt argues with itself.
     let learner_directives = lesson.choices.directives();
     let reply_directives = format!("{}{}{}", target_overlay, prompts::observer::directives_block(&plan_snapshot, &recent_snapshot), learner_directives);
-    let directives = format!("{target_overlay}{topic_directive}{learner_directives}");
+    let directives = format!("{target_overlay}{topic_directive}{learner_directives}\n{}", skill_block.content);
     let mut reply_blocks = prompts::partner::reply_blocks(
         &partner.persona.sketch,
         partner.introduction.as_deref(),
@@ -153,6 +158,7 @@ pub async fn guided_turn(
         crate::instruction::Block::new("observations", "captured teaching plan and recent mechanics", prompts::observer::directives_block(&plan_snapshot, &recent_snapshot)),
         crate::instruction::Block::new("lesson_choices", "lesson.json at captured revision", learner_directives.clone()),
     ]);
+    reply_blocks.push(skill_block.clone());
     let reply_system = crate::instruction::render(&reply_blocks);
     let mut reply_messages = vec![json!({"role": "system", "content": reply_system})];
     for turn in history.iter().rev().take(REPLY_HISTORY_TURNS).rev() {
@@ -320,6 +326,7 @@ pub async fn guided_turn(
             .chain(std::iter::once(format!("T: {reply}")))
             .collect();
         observer_pass::spawn(observer_pass::ObserverPass {
+            skill_block: skill_block.clone(),
             context: request_context.clone(),
             epoch,
             app: app.clone(),
@@ -370,7 +377,16 @@ pub async fn guided_turn(
     // ── Coach pass: private feedback on what the learner said ───────────────
     if has_learner_message {
         let trimmed = message.trim().to_string();
+        input_evidence.revision |= replaces_message_id.is_some();
+        skill_pass::spawn(skill_pass::SkillPass {
+            app: app.clone(), channel: on_event.clone(), chat,
+            context: request_context.clone(), provider: worker_provider.clone(), turn_id,
+            message: trimmed.clone(), input: input_evidence,
+            transcript: coach_pass::transcript(&history),
+            reply: reply.clone(),
+        });
         coach_pass::spawn(coach_pass::CoachPass {
+            skill_block,
             context: request_context.clone(),
             app,
             channel: on_event.clone(),

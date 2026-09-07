@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
+import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
 import {
@@ -117,6 +118,7 @@ export default function GuidedPage({
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [input, setInput] = useState('')
+  const inputEvidence = useRef<InputEvidence>(unreportedInput())
   // Set while the learner is retrying a past message: the composer is
   // pre-filled with what they said, and sending it discards that turn and
   // everything after it, then regenerates from the edited text.
@@ -285,7 +287,7 @@ export default function GuidedPage({
     [breakOpen, toggleBreak]
   )
   const requestTurn = useCallback(
-    async (body: { message?: string; greeting?: boolean; steering?: string; replacesMessageId?: number }) => {
+    async (body: { message?: string; greeting?: boolean; steering?: string; replacesMessageId?: number; inputEvidence?: InputEvidence }) => {
       const owner = chatIdRef.current
       if (!owner) {
         setError('No conversation is open. Open a chat from history or start a new one.')
@@ -420,6 +422,7 @@ export default function GuidedPage({
           messageId: pendingId,
           historyAvailable: chatHistory(turnsRef.current, Number.MAX_SAFE_INTEGER).length,
           replacesMessageId: body.replacesMessageId ?? null,
+          inputEvidence: body.inputEvidence ?? unreportedInput(),
           greeting: body.greeting ?? false,
           steering: body.steering ?? null,
           level: steer.level,
@@ -452,6 +455,8 @@ export default function GuidedPage({
   async function send(text: string) {
     const message = text.trim()
     if (!message || sending) return
+    const provenance = { ...inputEvidence.current, revision: editingTurnId !== null }
+    inputEvidence.current = unreportedInput()
     setInput('')
     stopSpeaking() // new turn: silence any ongoing playback
     const replacesMessageId = editingTurnId ?? undefined
@@ -467,7 +472,7 @@ export default function GuidedPage({
       }
       setEditingTurnId(null)
     }
-    await requestTurn({ message, replacesMessageId })
+    await requestTurn({ message, replacesMessageId, inputEvidence: provenance })
   }
   sendRef.current = send
 
@@ -488,12 +493,14 @@ export default function GuidedPage({
         return
       }
       setEditingTurnId(turn.id)
+      inputEvidence.current = { ...unreportedInput(), revision: true }
       setInput(turn.user ?? '')
       stopSpeaking()
     },
     [sending, turnsRef]
   )
   const cancelEdit = useCallback(() => {
+    inputEvidence.current = unreportedInput()
     setEditingTurnId(null)
     setInput('')
   }, [])
@@ -600,6 +607,7 @@ export default function GuidedPage({
     micDeviceId: settings?.microphone_device_id,
     onTranscribe: (text: string) => {
       if (text) {
+        inputEvidence.current.modality = 'speech_transcript'
         if (settingsRef.current?.auto_send) {
           logInfo('[mic] auto-send enabled — sending transcription')
           void sendRef.current(text)
@@ -753,7 +761,7 @@ export default function GuidedPage({
               </button>
               {!scaffolds.open && chipsForUI.replies.length > 0 && <div className="suggestion-preview" role="group" aria-label="Quick suggested replies">
                 {chipsForUI.replies.slice(0, 2).map((reply, index) => <button key={index} type="button" className="scaf suggestion-preview-badge"
-                  title={reply} aria-label={`Send suggested reply: ${reply}`} disabled={sending || !isTauri} onClick={() => { void send(reply) }}>
+                  title={reply} aria-label={`Send suggested reply: ${reply}`} disabled={sending || !isTauri} onClick={() => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; void send(reply) }}>
                   {reply}
                 </button>)}
               </div>}
@@ -761,9 +769,9 @@ export default function GuidedPage({
             </div>
             {scaffolds.open && (
               <div id="chat-suggestions" className="scaffold-groups">
-                <ScaffoldRow label="Say it" items={chipsForUI.replies} onPick={(s) => void send(s)} />
-                <ScaffoldRow label="Build it" items={chipsForUI.frames} onPick={(f) => setInput(f)} />
-                <ScaffoldRow label="Start it" items={chipsForUI.starters} onPick={(s) => setInput(`${s} `)} />
+                <ScaffoldRow label="Say it" items={chipsForUI.replies} onPick={(s) => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; void send(s) }} />
+                <ScaffoldRow label="Build it" items={chipsForUI.frames} onPick={(f) => { inputEvidence.current = { ...unreportedInput(), scaffold: true }; setInput(f) }} />
+                <ScaffoldRow label="Start it" items={chipsForUI.starters} onPick={(s) => { inputEvidence.current = { ...unreportedInput(), scaffold: true }; setInput(`${s} `) }} />
 
               </div>
             )}

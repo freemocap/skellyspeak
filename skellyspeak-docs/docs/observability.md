@@ -122,3 +122,29 @@ The [September 2026 instruction-flow audit](./ai-instruction-audit-2026-09-06)
 is historical evidence from a local behavioral investigation. It maps setup and
 per-operation instruction coverage and proposes extensions to this framework;
 its original gap list predates the provenance and durable traces described above.
+
+## Skill-assessment audits
+
+The guided graph declares `assess_skills` as a detached operation after the reply,
+for learner messages only. It uses named policy/rubric prompt blocks and the
+existing per-attempt request/response traces. Application status distinguishes
+recorded evidence, failed assessment and a superseded result.
+
+Skill tree → a node → Source record exposes the exact message and quotes, recorded
+assistance, model/routing, catalog/prompt versions and trace turn/session IDs.
+Use those identifiers and the `assess_skills` operation in AI diagnostics to
+inspect the composed request and retries. Text/transcript evidence does not
+establish independent mastery, listening, pronunciation, retention or transfer.
+
+The tree shows current saved source versions. Its ledger is separate from the
+bounded trace archive, so an older assessment may remain after its detailed
+request trace has been evicted. Read or validation failures are surfaced; native
+mode never replaces missing evidence with demonstration records.
+
+The named `skill_practice` block in partner/feedback traces records the active
+criterion, local target-language ownership and profile choice revision. Sparse
+assessment responses omit unobserved skills. XP is derived separately in Rust;
+`evidence_recorded_no_awards` means the model result was recorded without directly
+writing a reward balance. The profile projection subsequently derives totals.
+Previous rubric evidence remains inspectable in the profile even if its request
+trace has been evicted. Exclusion choices do not rewrite the recorded model output.

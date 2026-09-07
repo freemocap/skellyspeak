@@ -10,7 +10,7 @@ desktop (Windows/macOS/Linux), Android, and iOS, with release workflows for each
 
 Two surfaces:
 
-- **Guided** — the conversation. A streamed tutor reply you can interrogate
+- **Guided conversation** — the conversation. A streamed tutor reply you can interrogate
   word by word (tap for a gloss, hold for a run, double-click for a full
   lemma/POS/usage card — on your own messages too), message-level **Coach feedback** badges with scores, corrections and editing,
   a **Lesson** panel showing your goal, preferences and coaching observations,
@@ -18,8 +18,7 @@ Two surfaces:
   lesson: explicit requests update it; suggestions wait for you to apply them.
   Suggestions and settings fold independently beneath compact headings attached to their respective content. Persona controls fit in one row; the gear opens character details.
   Voice works in *and* out.
-- **Stories** — level-matched short stories (beginner / intermediate /
-  advanced) with tap-to-translate word glosses.
+- **Skill tree** — your language profile, meaning-domain practice paths and inspectable progress.
 
 Supported languages are symmetric: English (US), French, Spanish, Arabic, and
 Chinese (Mandarin) can each be the language you're learning or your own
@@ -41,8 +40,8 @@ Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
 ├─ OpenAI-compatible client     ├─ Guided conversation (streamed reply,
 │  (OpenRouter; SSE streaming   │   then analysis + coach hydrating in
 │  + json_schema structured     │   asynchronously, section by section)
-│  output, corrective retries)  ├─ Stories reader (tokenized text,
-├─ Observer (reasoning model,   │   tap-for-gloss popover, level chips)
+│  output, corrective retries)  ├─ Skill tree (meaning domains,
+├─ Observer (reasoning model,   │   profile, evidence and progress)
 │  rewrites plan + profile)     └─ Two-layer design: paper conversation /
 ├─ Coach (private side-channel)     dark analysis (Habla·ES tokens)
 ├─ Settings + document persistence
@@ -159,17 +158,17 @@ regeneration.
 - `src-tauri/src/ai.rs` — provider client (streaming, schema-constrained
   structured output, bounded corrective retries, `$defs` inlining)
 - `src-tauri/src/prompts/` — shared persona/mandatory-rules blocks,
-  guided + story prompts (ported from the FreeLingo prompt library)
+  guided practice prompts (ported from the FreeLingo prompt library)
 - `src-tauri/src/languages.rs` — supported languages + per-variant overlays
 - `src-tauri/src/observer.rs` — the TeachingPlan / Profile documents and the
   background observer pass that rewrites them
 - `src-tauri/src/commands/` — the IPC surface, with one module per
   domain: `guided` (a turn and the passes behind it), `coach`, `conversations`,
-  `app_settings`, `hosted_auth`, `stories`, `scaffolds`, `insight`, `tts`,
+  `app_settings`, `hosted_auth`, `skills`, `scaffolds`, `insight`, `tts`,
   `stt`, `keys`, `dev`
 - `src-tauri/src/conversation.rs` — where conversations live on disk, one
   directory per language pairing
-- `src/pages/GuidedPage.tsx`, `src/pages/StoriesPage.tsx` — the two surfaces
+- `src/pages/GuidedPage.tsx`, `src/pages/SkillsPage.tsx` — the two surfaces
 
 ## Hosted service numbers
 
@@ -229,9 +228,54 @@ including during voice recording. The conversation remains accessible and the
 full feedback modal is still available. Sending or cancelling the edit removes
 the reference.
 
-## Proposed direction: a shared skill map
+## Skill tree and language profile
 
-The [Skill Map & Progression design](skellyspeak-docs/docs/skill-progression-design.md) proposes one capability graph
-across languages, learner-owned goals, inspectable evidence and playful progress
-markers. It includes the research basis and staged implementation plan. Skill
-levels, XP and profile switching are not implemented yet.
+**Guided conversation** and **Skill tree** are the two top-level tabs. Open
+**My language profile** above the conversation to see the current target's XP,
+stars, focus and evidence. Stories and its dedicated generation machinery have
+been retired; any old browser story cache is left untouched but is no longer read.
+
+The shared tree organizes concrete meaning relationships: entities/reference,
+properties/comparison, events/participants, time/event structure, space/movement,
+negation/questions/possibility, and connections between ideas. It compares the
+functions languages express without requiring the same grammatical constructions.
+The map shows three levels: experience, meaning domains, and core skills.
+Extension skills remain accessible through their parent’s details and saved focus.
+Selecting a branch smoothly zooms toward it; Back restores the previous viewport,
+and Whole tree, breadcrumbs and a minimap keep navigation grounded. Closing
+details leaves the viewport unchanged. Horizontal layout follows application
+direction; radial/top-down views and an optional mobile list are available.
+
+New guided learner turns receive a background worker assessment, using the normal
+provider route and metering. Exact quotes, outcomes, recorded assistance and
+request provenance are inspectable. Unobserved skills are not failures.
+One/two successes earn checks; three earn a star. Distinct successful wording earns
+10 XP per skill without recorded in-app assistance, or 2 assisted practice XP.
+Assisted practice does not advance stars; external assistance is unknown.
+These are practice milestones, not certified proficiency.
+
+**Practise this in conversation** saves a focus and returns to chat. It steers
+subsequent partner, suggestion, feedback and lesson-planning requests, subject to
+your explicit lesson choices and difficulty. **Follow recommendations** releases
+a pinned focus. Progress never changes conversation difficulty. The local learner
+has separate progress for each target language, shared across native-language
+contexts. Profile switching is not implemented.
+
+Only current saved source versions and current-catalog judgments contribute.
+Duplicate wording counts once per skill. Editing, deleting, truncating or excluding
+an attempt recomputes totals. Previous rubric judgments stay inspectable but earn
+no new-skill credit. Historical conversations are not automatically re-evaluated.
+Browser-only mode uses labeled sample data; the native app never substitutes it
+for a failed load. The evaluator still needs cross-language semantic calibration.
+
+See [Meaning Domains & Skill Progression](skellyspeak-docs/docs/skill-progression-design.md).
+
+### Factory reset
+
+Settings → **Clear all data…** opens a destructive-action confirmation. Type
+`DELETE` and choose **Erase all data and close**. Reopen SkellySpeak to complete
+the reset. It removes local conversations, lesson/coach memory, skill evidence
+and progress, settings, saved credentials, app-managed logs/caches and webview
+storage (including layout preferences). **Reset settings** only restores preferences.
+Cloud accounts, billing/usage records and exports saved outside app storage remain.
+The reset cannot be undone.

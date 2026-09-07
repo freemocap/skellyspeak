@@ -76,6 +76,7 @@ pub mod agent {
 pub mod op {
     pub const REPLY: &str = "reply";
     pub const REVIEW: &str = "review";
+    pub const ASSESS_SKILLS: &str = "assess_skills";
     pub const ANSWER: &str = "answer";
     pub const REFLECT: &str = "reflect";
     pub const TOKENIZE: &str = "tokenize";
@@ -84,7 +85,6 @@ pub mod op {
     pub const EXPLAIN: &str = "explain";
     pub const SUGGEST: &str = "suggest";
     pub const WORD_INSIGHT: &str = "word_insight";
-    pub const STORY: &str = "story";
     pub const TRANSCRIBE: &str = "transcribe";
     pub const SYNTHESIZE: &str = "synthesize";
 }
@@ -107,6 +107,14 @@ pub const AGENTS: &[Agent] = &[
 ];
 
 pub const OPERATIONS: &[Operation] = &[
+    Operation {
+        id: op::ASSESS_SKILLS,
+        label: "Skill evidence",
+        purpose: "Assesses the current learner message against shared skill rubrics, recording quotes and uncertainty without awarding XP.",
+        actor: Actor::Runner,
+        faculty: None,
+        mechanical: false,
+    },
     Operation {
         id: op::REPLY,
         label: "Reply",
@@ -188,14 +196,6 @@ pub const OPERATIONS: &[Operation] = &[
         mechanical: true,
     },
     Operation {
-        id: op::STORY,
-        label: "Story",
-        purpose: "Writes one short story matched to the level you picked.",
-        actor: Actor::Runner,
-        faculty: None,
-        mechanical: false,
-    },
-    Operation {
         id: op::TRANSCRIBE,
         label: "Voice transcription",
         purpose: "Turns your recorded voice into text. A speech model, not a chat model — it gets no prompt.",
@@ -228,6 +228,7 @@ mod tests {
     const ALL_OPS: &[&str] = &[
         op::REPLY,
         op::REVIEW,
+        op::ASSESS_SKILLS,
         op::ANSWER,
         op::REFLECT,
         op::TOKENIZE,
@@ -236,7 +237,6 @@ mod tests {
         op::EXPLAIN,
         op::SUGGEST,
         op::WORD_INSIGHT,
-        op::STORY,
         op::TRANSCRIBE,
         op::SYNTHESIZE,
     ];

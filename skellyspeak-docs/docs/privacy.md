@@ -162,3 +162,43 @@ Visible lesson topics can request a short generated explanation and example.
 These calls send the topic, language and selected practice difficulty through
 the configured provider. They do not send conversation history or update learner
 memory; their requests and outputs follow local AI trace retention.
+
+## Skill assessment evidence
+
+After each new learner message receives a reply, a separate worker-model request
+assesses the message against the shared skill rubrics. It sends the message,
+recent preceding conversation context, partner reply, target/native language and
+recorded input provenance (text or speech transcript; suggestion, scaffold and
+revision flags) through the configured provider route. It does not send raw audio
+for this assessment. Assistance outside the app is unknown.
+
+`skill-evidence.json` inside each chat stores source text, quoted spans, outcomes,
+rationales, assistance flags, model/prompt/catalog versions, timestamps and
+trace/message/attempt identifiers. These records use one local learner identity
+and are aggregated by target language across native-language contexts. Rust derives practice XP and marks from live current-catalog evidence; these are
+not certificates or inferred mastery.
+
+The active tree excludes superseded records and messages absent or changed in
+the saved conversation. Soft-deleted chats are excluded; their raw evidence files
+remain alongside the retained conversation. Records are retained with that chat;
+clearing diagnostic traces does not clear this separate evidence ledger. The
+assessment requests also follow ordinary diagnostic-trace retention. Historical
+conversations are not automatically sent for assessment.
+
+The target-language profile stores pinned focus and excluded attempt identifiers
+at `learners/local/<target>.json`. It is local and distinct from provider login
+and partner persona. Saved/recommended focus and its criterion are included in
+subsequent practice prompts. Excluding an attempt affects progress but retains
+its source and model judgment; removing its exclusion restores eligible credit.
+Previous catalog records are retained for inspection without awarding current
+skills. Stories generation is retired; old browser story cache entries are left
+untouched and are no longer read or sent by that feature.
+
+### Erasing local data
+
+Settings → **Clear all data…** requires typing `DELETE`. The app closes and
+finishes erasing its local data on the next launch, including credentials,
+conversations, lesson memory, learner progress, traces, app-managed exports,
+logs, caches and webview storage. This is irreversible. It signs out this device;
+it does not delete the hosted account, server-side billing/usage records, or
+exports copied outside application storage.

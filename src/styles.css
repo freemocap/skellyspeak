@@ -28,7 +28,7 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body, #root { margin: 0; height: 100%; overscroll-behavior: none; }
-.stream, .break-scroll, .logs-body, .lesson-content, .stories-wrap, .modal {
+.stream, .break-scroll, .logs-body, .lesson-content, .modal {
   overscroll-behavior: contain;
 }
 body {
@@ -58,6 +58,11 @@ body {
 .wordmark { font-weight: 700; font-size: 17px; letter-spacing: 0.02em; }
 .wordmark b { color: var(--steel); }
 .tabs { display: flex; gap: 4px; }
+@media (max-width: 480px) {
+  .topbar { flex-wrap: wrap; gap: 6px; padding-inline: 10px; }
+  .topbar .tabs { order: 3; width: 100%; }
+  .topbar .tab { flex: 1; }
+}
 .tab {
   font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
   padding: 6px 14px; border: 1px solid transparent; border-radius: 6px;
@@ -489,13 +494,6 @@ body {
 .exp-vs { font-size: 12.5px; color: var(--mut-d); margin-top: 9px; line-height: 1.5; }
 .exp-vs span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint-d); display: block; margin-bottom: 2px; }
 
-/* ── Stories ───────────────────────────────────────────────────────────── */
-.stories-wrap {
-  flex: 1; min-height: 0; overflow-y: auto;
-  width: min(760px, 100%); margin: 0 auto; padding: 20px 24px;
-}
-.stories-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.level-chips { display: flex; gap: 6px; }
 .chip {
   font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
   border: 1px solid var(--line2); background: none; color: var(--mut-d);
@@ -504,12 +502,6 @@ body {
 .chip:hover { color: var(--ink-d); }
 .chip.active { border-color: var(--amber-deep); color: var(--amber); background: rgba(199, 138, 47, 0.08); }
 .chip:disabled { opacity: 0.5; cursor: default; }
-.tap-hint { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint-d); margin-top: 8px; }
-.story-canvas { margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--chrome); padding: 26px 28px; }
-.story-title { font-family: var(--serif); font-size: 24px; margin: 0 0 14px; }
-.story-p { font-family: var(--serif); font-size: 17.5px; line-height: 2.05; color: var(--ink-d); }
-.story-word { cursor: pointer; border-bottom: 2px dotted transparent; border-radius: 2px; }
-.story-word:hover { border-bottom-color: var(--amber-deep); }
 .center-note { text-align: center; color: var(--mut-d); font-family: var(--mono); font-size: 13px; padding: 40px 0; }
 .btn {
   font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
@@ -1159,7 +1151,7 @@ body {
   font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--steel); margin: 2px 0 4px;
 }
-.modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.modal-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 /* Settings autosave: destructive action far left, status in the middle, the
    only remaining button on the right. No Save — edits write themselves. */
 .save-status {
@@ -1710,3 +1702,20 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .edit-feedback .coach-card { order: 1; background: transparent; padding: 3px 0; }
 .edit-feedback .coach-scores, .edit-feedback .coach-split { display: none; }
 .edit-feedback .coach-remark { font-size: 12px; }
+
+.learner-profile-bar { flex: none; border-bottom: 1px solid var(--line2); background: #1c2925; color: #e2e9e2; }
+.learner-profile-bar > button { width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 5px 14px; border: 0; background: transparent; color: inherit; font: 11px var(--mono); text-align: start; padding: 8px 14px; cursor: pointer; }
+.learner-profile-bar b { color: #80c6a4; }
+.learner-profile-bar .profile-focus { color: #e3bc71; }
+.learner-profile-bar > span { display: block; padding: 6px 14px; }
+.learner-profile-bar button:focus-visible { outline: 2px solid #fff2bc; outline-offset: -3px; }
+@media (max-width: 600px) { .topbar { flex-wrap: wrap; } .topbar .tabs { order: 5; flex-basis: 100%; } .topbar .tabs .tab { flex: 1; padding: 8px; font-size: 10px; } .learner-profile-bar > button { padding: 6px 10px; font-size: 10px; gap: 4px 10px; } }
+
+.factory-reset-dialog { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); box-sizing: border-box; overflow-y: auto; border: 1px solid #c97973; border-radius: 10px; padding: 22px; background: #17212d; color: #edf1f5; }
+.factory-reset-dialog::backdrop { background: #000b; }
+.factory-reset-dialog h2 { margin: 0 0 16px; font-size: 20px; }
+.factory-reset-dialog p { font-size: 14px; line-height: 1.5; }
+.factory-reset-dialog label { display: block; margin: 18px 0 8px; }
+.factory-reset-dialog input { width: 100%; box-sizing: border-box; padding: 10px; background: #0c1420; color: #fff; border: 1px solid #8da1b9; border-radius: 4px; }
+.factory-reset-dialog .modal-actions { flex-wrap: wrap; padding-bottom: 0; }
+.factory-reset-dialog [role=alert] { color: #ffb8b1; }

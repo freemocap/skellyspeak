@@ -140,7 +140,6 @@ fn structured_prompts_all_say_how_to_answer_with_nothing() {
         analysis::mechanics_prompt("Spanish", "A2", "English", ""),
         analysis::scaffolds_prompt("Spanish", "A2", "English", ""),
         analysis::learner_tokens_prompt("Spanish", "English", None, true),
-        story::story_prompt("Spanish", "A2", "English", "beginner", ""),
     ] {
         assert!(p.contains(NOT_APPLICABLE), "a strict schema with no escape hatch");
     }
@@ -175,13 +174,6 @@ fn word_insight_describes_particles_for_isolating_languages() {
     assert!(isolating.contains("measure words"));
 }
 
-#[test]
-fn the_story_prompt_scales_with_the_level() {
-    assert!(story::story_prompt("Spanish", "A2", "English", "beginner", "").contains("40-70 words"));
-    assert!(story::story_prompt("Spanish", "C1", "English", "advanced", "").contains("140-200 words"));
-    // An unknown level is the gentlest one, not a panic.
-    assert!(story::story_prompt("Spanish", "A2", "English", "???", "").contains("40-70 words"));
-}
 
 #[test]
 fn every_language_has_an_overlay() {
@@ -248,7 +240,7 @@ fn the_stray_prompt_guard_can_actually_fail() {
     // The guard recognizes both supported content-expression shapes.
     assert!(content_value(r#"json!({"role": "user", "content": "Write a story"})"#).is_some());
     assert!(content_value(r#"    "content": format!("Learner message:\n{m}")"#).is_some());
-    assert!(content_value(r#"json!({"role": "user", "content": prompts::story::story_turn()})"#).is_none());
+    assert!(content_value(r#"json!({"role": "user", "content": prompts::analysis::analyze_learner_turn(message)})"#).is_none());
     assert!(content_value(r#"    "content": reply_system,"#).is_none());
     // Not a message at all: reading a field off a response body.
     assert!(content_value(r#"let text = obj.get("content").and_then(Value::as_str);"#).is_none());

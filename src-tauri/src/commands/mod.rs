@@ -22,7 +22,7 @@ pub mod mic;
 pub mod personas;
 pub mod pipeline;
 pub mod scaffolds;
-pub mod stories;
+pub mod skills;
 pub mod stt;
 pub mod tts;
 

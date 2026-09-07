@@ -249,7 +249,7 @@ pub fn render_messages(messages: &[serde_json::Value]) -> String {
 ")
 }
 
-fn session_id() -> &'static str {
+pub(crate) fn session_id() -> &'static str {
     static SESSION: OnceLock<String> = OnceLock::new();
     SESSION.get_or_init(|| uuid::Uuid::new_v4().to_string())
 }

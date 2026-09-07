@@ -636,7 +636,23 @@ it('keeps the edited attempt’s corrections visible while recording and removes
   expect(within(reference).getByText('Soy goes with yo.')).toBeVisible()
   microphone.recording = false
   rerender(<GuidedPage />)
-  fireEvent.click(screen.getByRole('button', { name: 'Cancel', exact: true }))
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
   expect(screen.queryByRole('region', { name: 'Coach feedback while editing' })).not.toBeInTheDocument()
   confirm.mockRestore()
+})
+
+it.each(['suggestion', 'scaffold'] as const)('captures %s use in the evaluation input', async (kind) => {
+  const greeting = turn(1, '')
+  greeting.user = null
+  greeting.assistant!.scaffolds = { replies: ['Me gusta el café.'], frames: ['Me gusta ___.'], starters: [] }
+  backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [greeting] })
+  render(<GuidedPage />)
+  fireEvent.click(await screen.findByRole('button', { name: kind === 'suggestion' ? 'Me gusta el café.' : 'Me gusta ___.' }))
+  if (kind === 'scaffold') {
+    fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Me gusta el té.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  }
+  await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({
+    inputEvidence: { modality: 'text', suggestion: kind === 'suggestion', scaffold: kind === 'scaffold', revision: false },
+  })))
 })

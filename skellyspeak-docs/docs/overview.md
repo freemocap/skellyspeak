@@ -35,7 +35,7 @@ to gently recast, what not to re-teach.
 | Surface | What it is | Where |
 |---|---|---|
 | **Guided** | The conversation: streamed tutor reply + a right-hand panel with Lesson and Analysis tabs (per-word glosses, POS, romanization, explainer cards, reply scaffolds), tap-to-reveal glossing in the bubbles, voice in/out, learner-visible teaching plan. | `src/pages/GuidedPage.tsx` |
-| **Stories** | Level-matched short stories (beginner / intermediate / advanced) with tap-to-translate word glosses. | `src/pages/StoriesPage.tsx` |
+| **Skill tree** | Meaning-domain graph, local language profile, evidence and practice progression. | `src/pages/SkillsPage.tsx` |
 
 ## Lesson and conversation setup
 
@@ -180,9 +180,54 @@ including during voice recording. The conversation remains accessible and the
 full feedback modal is still available. Sending or cancelling the edit removes
 the reference.
 
-## Proposed direction: a shared skill map
+## Skill tree and language profile
 
-The [Skill Map & Progression design](./skill-progression-design) proposes one capability graph
-across languages, learner-owned goals, inspectable evidence and playful progress
-markers. It includes the research basis and staged implementation plan. Skill
-levels, XP and profile switching are not implemented yet.
+**Guided conversation** and **Skill tree** are the two top-level tabs. Open
+**My language profile** above the conversation to see the current target's XP,
+stars, focus and evidence. Stories and its dedicated generation machinery have
+been retired; any old browser story cache is left untouched but is no longer read.
+
+The shared tree organizes concrete meaning relationships: entities/reference,
+properties/comparison, events/participants, time/event structure, space/movement,
+negation/questions/possibility, and connections between ideas. It compares the
+functions languages express without requiring the same grammatical constructions.
+The map shows three levels: experience, meaning domains, and core skills.
+Extension skills remain accessible through their parent’s details and saved focus.
+Selecting a branch smoothly zooms toward it; Back restores the previous viewport,
+and Whole tree, breadcrumbs and a minimap keep navigation grounded. Closing
+details leaves the viewport unchanged. Horizontal layout follows application
+direction; radial/top-down views and an optional mobile list are available.
+
+New guided learner turns receive a background worker assessment, using the normal
+provider route and metering. Exact quotes, outcomes, recorded assistance and
+request provenance are inspectable. Unobserved skills are not failures.
+One/two successes earn checks; three earn a star. Distinct successful wording earns
+10 XP per skill without recorded in-app assistance, or 2 assisted practice XP.
+Assisted practice does not advance stars; external assistance is unknown.
+These are practice milestones, not certified proficiency.
+
+**Practise this in conversation** saves a focus and returns to chat. It steers
+subsequent partner, suggestion, feedback and lesson-planning requests, subject to
+your explicit lesson choices and difficulty. **Follow recommendations** releases
+a pinned focus. Progress never changes conversation difficulty. The local learner
+has separate progress for each target language, shared across native-language
+contexts. Profile switching is not implemented.
+
+Only current saved source versions and current-catalog judgments contribute.
+Duplicate wording counts once per skill. Editing, deleting, truncating or excluding
+an attempt recomputes totals. Previous rubric judgments stay inspectable but earn
+no new-skill credit. Historical conversations are not automatically re-evaluated.
+Browser-only mode uses labeled sample data; the native app never substitutes it
+for a failed load. The evaluator still needs cross-language semantic calibration.
+
+See [Meaning Domains & Skill Progression](./skill-progression-design).
+
+### Factory reset
+
+Settings → **Clear all data…** opens a destructive-action confirmation. Type
+`DELETE` and choose **Erase all data and close**. Reopen SkellySpeak to complete
+the reset. It removes local conversations, lesson/coach memory, skill evidence
+and progress, settings, saved credentials, app-managed logs/caches and webview
+storage (including layout preferences). **Reset settings** only restores preferences.
+Cloud accounts, billing/usage records and exports saved outside app storage remain.
+The reset cannot be undone.

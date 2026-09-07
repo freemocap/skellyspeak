@@ -14,6 +14,7 @@ use crate::AppState;
 use super::types::{emit, GuidedEvent};
 
 pub(super) struct ObserverPass {
+    pub skill_block: crate::instruction::Block,
     pub context: crate::instruction::Context,
     pub epoch: u64,
     pub app: AppHandle,
@@ -63,6 +64,7 @@ pub(super) fn spawn(pass: ObserverPass) {
     tokio::spawn(async move {
         let started = std::time::Instant::now();
         let ObserverPass {
+            skill_block,
             mut context,
             epoch,
             app,
@@ -111,7 +113,7 @@ pub(super) fn spawn(pass: ObserverPass) {
 
         context.lesson_revision = lesson.revision;
         context.inferred_level_notes = profile_snapshot.level_notes.clone();
-        let observer_directives = format!("{}\n{}", lesson.choices.directives(), context.difficulty.coaching_context());
+        let observer_directives = format!("{}\n{}\n{}", lesson.choices.directives(), context.difficulty.coaching_context(), skill_block.content);
         // Observer documents use the captured provider and conversation context.
         let result = observer::run_observer(
             &provider,

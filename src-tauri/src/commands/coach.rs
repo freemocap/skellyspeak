@@ -192,7 +192,7 @@ pub async fn coach_ask(
     topic: String,
 ) -> Result<CoachReply, String> {
     let _request = state.coach_request.try_lock().map_err(|_| "The coach is already answering a question.")?;
-    let (epoch, stored, pair, coach_dir, mut thread, plan, profile, lesson, context) = {
+    let (epoch, stored, pair, coach_dir, mut thread, plan, profile, lesson, context, skill_context) = {
         let epoch = state.context_epoch.lock().expect("context lock poisoned");
         let stored = state.settings.lock().expect("settings lock poisoned").clone();
         let (pair, coach_dir, current) = pair_and_chat(&state, &stored.target_language, &stored.native_language)?;
@@ -205,7 +205,10 @@ pub async fn coach_ask(
         let thread = state.coach_thread.lock().expect("coach lock poisoned").clone();
         let plan = state.plan.lock().expect("plan lock poisoned").clone();
         let profile = state.profile.lock().expect("profile lock poisoned").clone();
-        (*epoch, stored, pair, coach_dir, thread, plan, profile, lesson, context)
+        let evidence = crate::skills::snapshot(&state.config_dir, &stored.target_language)?;
+        let skill_profile = crate::skills::progress::project(&evidence, crate::skills::progress::load(&state.config_dir, &stored.target_language)?)?;
+        let skill_context = prompts::skills::practice(&evidence, &skill_profile)?.content;
+        (*epoch, stored, pair, coach_dir, thread, plan, profile, lesson, context, skill_context)
     };
     let question = question.trim().to_string();
     if question.is_empty() {
@@ -221,7 +224,7 @@ pub async fn coach_ask(
         difficulty: level, inferred_level_notes: profile.level_notes.clone(), topic: Some(topic.clone()), lesson_revision: lesson.revision,
         partner: serde_json::to_value(crate::conversation_partner::load(&coach_dir)?).map_err(|e| e.to_string())?, history_messages: thread.len().min(COACH_THREAD_CAP), history_available: thread.len(),
     };
-    let choices = format!("{}\n{}\nSelected practice topic: {}", lesson.choices.directives(), level.coaching_context(), topic);
+    let choices = format!("{}\n{}\nSelected practice topic: {}", lesson.choices.directives(), level.coaching_context(), topic) + "\n" + &skill_context;
     let (plan_json, profile_json) = prompts::observer::documents_json(&plan, &profile);
     let mut messages = vec![json!({
         "role": "system",
