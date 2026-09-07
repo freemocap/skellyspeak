@@ -73,6 +73,13 @@ pub fn read(dir: &Path) -> Result<Option<Secrets>, String> {
     }
 }
 
+pub fn clear(dir: &Path) -> Result<(), String> {
+    match entry(dir)?.delete_credential() {
+        Ok(()) | Err(Error::NoEntry) => Ok(()),
+        Err(error) => Err(format!("Could not erase application credentials: {error}")),
+    }
+}
+
 pub fn write(dir: &Path, secrets: &Secrets) -> Result<(), String> {
     let raw = serde_json::to_string(secrets).map_err(|e| format!("Credential serialization failed: {e}"))?;
     entry(dir)?.set_password(&raw).map_err(|e| format!("Could not store application credentials: {e}"))

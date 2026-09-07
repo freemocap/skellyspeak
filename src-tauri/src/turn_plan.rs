@@ -112,6 +112,14 @@ pub const TURN_STEPS: &[Step] = &[
             "skipped while a previous reflection is still thinking — the plan is never more than one turn stale",
         ),
     },
+    Step {
+        op: op::ASSESS_SKILLS,
+        needs: &[Input::LearnerMessage, Input::Reply],
+        hydrates: true,
+        joins: false,
+        background: true,
+        condition: Some("learner messages only; starts after reply, writes evidence without awards"),
+    },
 ];
 
 pub fn step(op_id: &str) -> Option<&'static Step> {
