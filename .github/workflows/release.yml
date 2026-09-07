@@ -62,12 +62,13 @@ jobs:
       - name: Ensure the draft release exists
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.version.outputs.tag }}
         run: |
-          if gh release view "$TAG" --json id >/dev/null 2>stderr.txt; then
+          if gh release view "$TAG" --repo "$GH_REPO" --json id >/dev/null 2>stderr.txt; then
             echo "release $TAG already exists"
           elif grep -qi "release not found" stderr.txt; then
-            gh release create "$TAG" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'Release artifacts are attached by the desktop, Android, and iOS build jobs.'
+            gh release create "$TAG" --repo "$GH_REPO" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'Release artifacts are attached by the desktop, Android, and iOS build jobs.'
             echo "created draft release $TAG"
           else
             # Anything other than "not found" is a real failure, not an absence.
