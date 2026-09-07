@@ -1,10 +1,8 @@
 import { useIsMobile } from '../../hooks/useIsMobile'
-import { Disclosure } from '../Disclosure'
 import { useContext, useState, type CSSProperties } from 'react'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { PracticeContext } from '../panes/PracticeContext'
 import { domainColors, skillDomain } from '../../lib/skill-domains'
-import { TopicExplanation } from '../panes/TopicExplanation'
 
 export function ConversationMap() {
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -40,13 +38,4 @@ export function ConversationMap() {
     })}</div>}
 
   </aside>
-}
-
-export function PracticeHint({ level, busy }: { level: string; busy: boolean }) {
-  const { snapshot } = useContext(SkillEvidenceContext)
-  const practice = useContext(PracticeContext)
-  if (!snapshot || !practice?.chatId) return null
-  const selected = snapshot.catalog.find(node => node.id === practice.selected && node.kind !== 'root') ?? snapshot.catalog.find(node => node.id === snapshot.profile.active_focus)
-  if (!selected) throw new Error('Missing selected practice skill')
-  return <Disclosure className="mobile-practice-hint" key={selected.id} label={`${selected.label} · Hint`}><p>{selected.criterion}</p><TopicExplanation chatId={practice.chatId} level={level} topic={`${selected.label}: ${selected.criterion}`} busy={busy} /></Disclosure>
 }

@@ -1793,11 +1793,11 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
   .mobile-conversation { display: block; overflow-y: auto; overscroll-behavior: contain; }
   .mobile-conversation .chat { display: flex; flex: none; overflow: visible; min-height: 65dvh; }
   .mobile-conversation .stream { flex: none; overflow: visible; }
+  /* Dock below the conversation, then above the lesson as it scrolls. */
+  .mobile-conversation .mobile-composer { position: sticky; top: 0; bottom: 0; z-index: 2; min-height: 0; }
   .mobile-conversation .break { flex: none; overflow: visible; min-height: 0; }
   .mobile-conversation .lesson-content { flex: none; overflow: visible; }
   .mobile-conversation .coach-dock { max-height: 50dvh; }
-  .mobile-practice-hint { padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--line2); border-radius: 7px; background: var(--chrome); color: var(--ink-d); }
-  .mobile-practice-hint summary { cursor: pointer; }
 }
 
 .skill-evidence-record { border-top: 1px solid var(--line2); padding: 16px 0; overflow-wrap: anywhere; font: 14px/1.55 var(--sans); }
