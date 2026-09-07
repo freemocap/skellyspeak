@@ -22,6 +22,7 @@ interface MicRecorderOptions {
 
 interface MicRecorder {
   recording: boolean
+  transcribing: boolean
   waveSource: WaveSource | null
   toggleMic: () => void
   cancel: () => void
@@ -46,6 +47,8 @@ interface MicRecorder {
 /// Neither is a fallback for the other: if the chosen recorder fails, the
 /// failure is reported and nothing else is tried.
 export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRecorderOptions): MicRecorder {
+  const [transcribing, setTranscribing] = useState(false)
+  const transcriptionPending = useRef(false)
   const [recording, setRecording] = useState(false)
   const [waveSource, setWaveSource] = useState<WaveSource | null>(null)
 
@@ -76,7 +79,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
     } catch (e) {
       reportFault('Transcription', e)
       onTranscribeRef.current('')
-    }
+    } finally { transcriptionPending.current = false; setTranscribing(false) }
   }, [])
 
   // ── Desktop: the core records ────────────────────────────────────────────
@@ -130,12 +133,14 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
         logInfo('[mic] recording cancelled')
         return
       }
+      transcriptionPending.current = true
+      setTranscribing(true)
       void invoke<string>('mic_stop')
         .then((audioBase64) => {
           logDebug('[mic] core capture finished:', audioBase64.length, 'base64 chars')
           return transcribe(audioBase64)
         })
-        .catch((e: unknown) => reportFault('Microphone', e))
+        .catch((e: unknown) => { transcriptionPending.current = false; setTranscribing(false); reportFault('Microphone', e) })
     }
   }, [transcribe])
 
@@ -198,6 +203,8 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
     }
 
     recorder.onstop = () => {
+      transcriptionPending.current = true
+      setTranscribing(true)
       const blob = new Blob(chunks, { type: recorder.mimeType })
       logInfo('[mic] recording finished:', blob.size, 'bytes,', recorder.mimeType)
       void blob
@@ -208,7 +215,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
           for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
           return transcribe(btoa(binary))
         })
-        .catch((e: unknown) => reportFault('Microphone', e))
+        .catch((e: unknown) => { transcriptionPending.current = false; setTranscribing(false); reportFault('Microphone', e) })
     }
 
     stopRef.current = (abort: boolean) => {
@@ -226,6 +233,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
   }, [transcribe])
 
   const toggleMic = useCallback(async () => {
+    if (transcriptionPending.current) return
     if (stopRef.current) {
       logInfo('[mic] stop requested by user')
       stopRef.current(false)
@@ -247,5 +255,5 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
     stopRef.current?.(true)
   }, [])
 
-  return { recording, waveSource, toggleMic, cancel }
+  return { recording, transcribing, waveSource, toggleMic, cancel }
 }

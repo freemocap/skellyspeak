@@ -1,59 +1,41 @@
-// Android back button = webview history back (wry routes it there when
-// history exists). Standard SPA overlay pattern: pushing a history entry
-// per overlay makes BACK close the topmost overlay instead of exiting the
-// app. With no overlays open there are no entries, so back exits normally.
-
+// Each transient layer owns one history entry. UI closes serialize with browser
+// popstate so replacing a popover with a dialog cannot consume the new dialog.
 const entries = new Map<number, () => void>()
+const pending: number[] = []
 let nextKey = 1
 let current: number | null = null
-let suppress = 0
+let closing = false
 let armed = false
 
-function arm() {
+function push(key: number): void {
+  current = key
+  history.pushState({ skellyspeak: key }, '')
+}
+function arm(): void {
   if (armed) return
   armed = true
-  window.addEventListener('popstate', (e) => {
-    const target = (e.state as { skellyspeak?: number } | null)?.skellyspeak ?? null
+  window.addEventListener('popstate', event => {
     const left = current
-    current = target
-    if (suppress > 0) {
-      // This pop is the echo of a UI-initiated close — already handled.
-      suppress -= 1
-      return
+    current = (event.state as { skellyspeak?: number } | null)?.skellyspeak ?? null
+    if (closing) closing = false
+    else if (left !== null) {
+      const close = entries.get(left)
+      entries.delete(left)
+      close?.()
     }
-    if (left !== null) {
-      const closer = entries.get(left)
-      if (closer) {
-        entries.delete(left)
-        closer()
-      }
-    }
+    // A parent may have unmounted while a child was on top.
+    if (current !== null && !entries.has(current)) { closing = true; history.back(); return }
+    for (const key of pending.splice(0)) if (entries.has(key)) push(key)
   })
 }
-
-/// Register an overlay. Returns the UI-close function (idempotent): call it
-/// when the overlay closes through its own UI. The back button will also
-/// close the overlay by invoking the same closer.
 export function openOverlay(closer: () => void): () => void {
   arm()
   const key = nextKey++
   entries.set(key, closer)
-  current = key
-  history.pushState({ skellyspeak: key }, '')
-  return () => uiClose(key)
-}
-
-function uiClose(key: number) {
-  const closer = entries.get(key)
-  if (!closer) return
-  if (current === key) {
-    // Topmost: consume our history entry; the echo popstate is suppressed.
-    entries.delete(key)
-    suppress += 1
-    current = null
-    history.back()
-  } else {
-    // Mid-stack (rare): its entry becomes a lazy no-op shell.
-    entries.delete(key)
+  if (closing) pending.push(key)
+  else push(key)
+  return () => {
+    if (!entries.delete(key)) return
+    if (current === key && !closing) { closing = true; history.back() }
   }
 }

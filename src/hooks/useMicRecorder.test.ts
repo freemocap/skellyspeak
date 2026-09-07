@@ -165,3 +165,19 @@ describe('the waveform the strip reads', () => {
     expect(result.current.waveSource?.read()).toEqual([])
   })
 })
+
+it('keeps transcription busy until text arrives and prevents another recording meanwhile', async () => {
+  let finish: (text: string) => void = () => { throw new Error('Transcription not started') }
+  const pending = new Promise<string>(resolve => { finish = resolve })
+  coreRecords({ transcribe_audio: pending })
+  const { result, onTranscribe } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  await act(async () => { await result.current.toggleMic() })
+  expect(result.current.transcribing).toBe(true)
+  expect(result.current.recording).toBe(false)
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke.mock.calls.filter(([command]) => command === 'mic_start')).toHaveLength(1)
+  await act(async () => { finish('hola'); await pending })
+  expect(result.current.transcribing).toBe(false)
+  expect(onTranscribe).toHaveBeenCalledWith('hola')
+})

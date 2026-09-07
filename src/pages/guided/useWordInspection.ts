@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { PopupState } from '../../components/GlossPopup'
-import { openOverlay } from '../../lib/back'
 
 /// Which token in which bubble the breakdown is highlighting.
 export interface InspectTarget {
@@ -36,10 +35,6 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
   // Press-and-hold: the modal with lemma, morphology, role and usage.
   const [insight, setInsight] = useState<{ word: string; sentence: string } | null>(null)
   const closeInsight = useCallback(() => setInsight(null), [])
-
-  // Both overlays join the back stack, so Android's back gesture closes them
-  // instead of leaving the app.
-  useEffect(() => (popup ? openOverlay(() => setPopup(null)) : undefined), [popup])
 
   /// Drag across words adds them.
   const reveal = useCallback((keys: string[]) => {
@@ -91,6 +86,7 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
   const clear = useCallback(() => {
     setRevealed(new Set())
     setInspect(null)
+    setInsight(null)
     setPopup(null)
   }, [])
 
