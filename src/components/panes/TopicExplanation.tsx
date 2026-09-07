@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect, useMemo, useSyncExternalStore } from 'react'
-import { PracticeContext } from './PracticeContext'
+import { DraftAssistanceContext } from './PracticeContext'
 import { TopicNotesContext } from './TopicNotesProvider'
 
 export function TopicExplanation({ chatId, topic, level, busy }: { chatId: string; topic: string; level: string; busy: boolean }) {
-  const practice = useContext(PracticeContext)
+  const practice = useContext(DraftAssistanceContext)
   const resource = useContext(TopicNotesContext)
   if (!resource) throw new Error('Topic explanations require their resource provider')
   const request = useMemo(() => ({ chatId, topic, level }), [chatId, topic, level])

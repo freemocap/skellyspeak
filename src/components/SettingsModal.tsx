@@ -964,11 +964,11 @@ export function SettingsModal({
     },
     tts_voice: {
       section: 'voice',
-      label: L('tts_voice', 'Cloud voice'),
+      label: 'Cloud voice without a persona',
       kw: 'cloud voice actor narrator openai alloy nova',
       node: (
         <div className="form-row">
-          <label>Cloud voice</label>
+          <label>Cloud voice without a persona</label>
           <select
             value={settings.tts_voice}
             onChange={(e) => setSettings({ ...settings, tts_voice: e.target.value })}
@@ -979,6 +979,7 @@ export function SettingsModal({
               </option>
             ))}
           </select>
+          <p className="field-note">Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</p>
         </div>
       ),
     },

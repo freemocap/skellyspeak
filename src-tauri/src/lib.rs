@@ -65,6 +65,12 @@ pub fn run() {
     #[cfg(desktop)]
     {
         builder = builder
+            .plugin(tauri_plugin_single_instance::init(|app, _arguments, _directory| {
+                let window = app.get_webview_window("main").expect("Primary application window is missing");
+                window.unminimize().expect("Could not restore the application window");
+                window.show().expect("Could not show the application window");
+                window.set_focus().expect("Could not focus the application window");
+            }))
             .plugin(tauri_plugin_updater::Builder::new().build())
             .plugin(tauri_plugin_process::init());
     }

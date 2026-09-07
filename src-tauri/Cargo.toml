@@ -48,6 +48,7 @@ ndk-context = "0.1"
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
+tauri-plugin-single-instance = "2"
 
 # Microphone capture, in the core. WKWebView refuses to treat Tauri's custom
 # scheme as a secure context, so `navigator.mediaDevices` does not exist in a

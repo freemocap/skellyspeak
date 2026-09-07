@@ -27,3 +27,13 @@ it('keeps shared secondary text readable on its dark and paper surfaces', () => 
   }
   expect(contrast('#ffffff', color('steel-deep'))).toBeGreaterThanOrEqual(4.5)
 })
+
+it('keeps domain evidence text and XP badge text readable without using domain colors as small dark-surface text', async () => {
+  const { domainColors } = await import('./skill-domains')
+  for (const domain of ['reference', 'properties', 'events', 'time', 'space', 'operators', 'connections']) {
+    const palette = domainColors(domain)
+    expect(contrast(palette.ink, color('paper')), `${domain} on paper`).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(palette.ink, color('user-bg')), `${domain} on user bubble`).toBeGreaterThanOrEqual(4.5)
+    expect(contrast('#ffffff', palette.ink), `${domain} XP badge`).toBeGreaterThanOrEqual(4.5)
+  }
+})

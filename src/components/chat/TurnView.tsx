@@ -1,7 +1,9 @@
-import { RewardDetail } from './RewardBadge'
+import { RewardInspectionContext } from './RewardInspectionContext'
+import { domainColors } from '../../lib/skill-domains'
+import { ActivityIndicator } from '../ActivityIndicator'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { PracticeContext } from '../panes/PracticeContext'
-import { messageEvidence, type MessageEvidence } from '../../lib/message-evidence'
+import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../lib/message-evidence'
 import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
@@ -178,20 +180,33 @@ export const TurnView = memo(function TurnView({
 }: TurnViewProps) {
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
-  const evidence = messageEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
-  const [selectedEvidence, setSelectedEvidence] = useState<string[]>([])
-  const currentEvidence = evidence.filter(item => selectedEvidence.includes(item.id))
-  const rewardDetail = currentEvidence.length ? currentEvidence : null
-  const setRewardDetail = (items: MessageEvidence[] | null): void => setSelectedEvidence(items?.map(item => item.id) ?? [])
+  const selectEvidence = useMemo(createMessageEvidenceSelector, [])
+  const evidence = selectEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
+  const inspection = useContext(RewardInspectionContext)
+  const [dismissedCredits, setDismissedCredits] = useState<Set<string>>(() => new Set())
+  const setRewardDetail = (items: MessageEvidence[]): void => {
+    if (!inspection) throw new Error('XP inspection provider is missing')
+    inspection.open(items, turn.id, turn.user ?? '')
+  }
   const [showUserTranslation, setShowUserTranslation] = useState(false)
   const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
+  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].filter(item => !dismissedCredits.has(item.id)).map(item => <button key={item.id} className="inline-xp-badge" style={{ color: domainColors(item.domainId).ink }} title={`${item.xp} XP · ${item.label}`} aria-label={`Collect ${item.xp} XP · ${item.label}`} onClick={event => {
+    event.stopPropagation()
+    setRewardDetail([item])
+    const button = event.currentTarget
+    const dismiss = () => setDismissedCredits(previous => new Set([...previous, item.id]))
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { dismiss(); return }
+    button.disabled = true
+    const animation = button.animate([{ transform: 'translateY(0) scale(1)', opacity: 1 }, { transform: 'translateY(-7px) scale(1.55)', opacity: 1, offset: .35 }, { transform: 'translateY(-20px) scale(.65)', opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' })
+    animation.onfinish = dismiss
+  }}>+{item.xp}</button>)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <button key={start} className="message-evidence evidence-phrase" style={{ color: matches[0].color, borderColor: matches[0].color }} data-reward-evidence={matches[0].id} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button> : text
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : text
   })
   const assistant = turn.assistant
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
@@ -231,13 +246,14 @@ export const TurnView = memo(function TurnView({
     tok: GuidedToken,
     si: number,
     translation: string | null,
-    e: React.MouseEvent<HTMLSpanElement>
+    e: React.MouseEvent<HTMLSpanElement>,
+    actions: PopupState['actions']
   ) => {
     if (dragRef.current.moved) return // drag ended on this span — no popup
     const pos = popupAnchor(e.currentTarget)
     const show = (text: string) =>
       onPopup((prev) =>
-        prev && prev.text === text ? null : { text, romanization: tok.romanization, ...pos }
+        prev && prev.text === text ? null : { text, romanization: tok.romanization, actions, ...pos }
       )
     if (tok.gloss) {
       show(tok.gloss)
@@ -264,6 +280,7 @@ export const TurnView = memo(function TurnView({
         const start = rawText.indexOf(tok.text, cursor)
         cursor = start < 0 ? rawText.length : start + tok.text.length
         const matches = side === 'me' && start >= 0 ? evidence.filter(item => item.start < cursor && item.end > start) : []
+        const endingCredits = matches.filter(item => item.end <= cursor)
         const key = `${turnId}:${side}:${gi}`
         const isRevealed = revealed.has(key)
         const prev = gi > 0 ? entries[gi - 1].tok.text : ''
@@ -271,7 +288,7 @@ export const TurnView = memo(function TurnView({
         return (
           <Fragment key={`${side}-${gi}`}>
             {space}
-          <span className={matches.length ? 'message-evidence' : undefined} style={matches.length ? { color: matches[0].color, borderColor: matches[0].color } : undefined} data-reward-evidence={matches[0]?.id}>
+          <span className={matches.length ? 'message-evidence' : undefined} style={evidenceStyle(matches)} data-reward-evidence={matches.length ? JSON.stringify([...new Set(matches.map(item => item.id))]) : undefined}>
           <TokenSpan
             key={`${side}-${gi}`}
             tok={tok}
@@ -279,7 +296,7 @@ export const TurnView = memo(function TurnView({
             hasTranslation={!!translation}
             showRomanization={showRomanization}
             alwaysRomanize={alwaysRomanize}
-            onTap={(e) => { if (matches.length) setRewardDetail(matches); else tokenTap(tok, si, translation, e) }}
+            onTap={(e) => { if (matches.length) { e.stopPropagation(); setRewardDetail(matches) } else tokenTap(tok, si, translation, e, [{ label: 'Explain this word', run: () => onHold(tok.text, rawText) }]) }}
             onDragStart={() => beginDrag(turnId, side, gi)}
             onDragOver={() => dragOver(turnId, side, gi)}
             onInspect={(e) => {
@@ -292,6 +309,7 @@ export const TurnView = memo(function TurnView({
             }}
           />
           </span>
+          {creditMarkers(endingCredits)}
           </Fragment>
         )
       })}
@@ -301,7 +319,6 @@ export const TurnView = memo(function TurnView({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {rewardDetail && <RewardDetail evidence={rewardDetail} onClose={() => setRewardDetail(null)} />}
       {turn.user && (
         <div
           data-reward-message={turn.id}
@@ -373,7 +390,7 @@ export const TurnView = memo(function TurnView({
         </div>
       )}
       {assistant === null && (
-        <div className="msg bot pending">{turn.pendingText || '…'}</div>
+        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator label={turn.pendingText ? "Replying…" : "Thinking…"} /></div>
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { skillIndex } from '../lib/skill-index'
 import { SkillNavigationProvider } from '../hooks/useSkillNavigation'
 // @vitest-environment jsdom
 import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'
@@ -6,7 +7,7 @@ import { useState, type ComponentType, type ReactNode } from 'react'
 import { SkillTreeView } from './SkillsPage'
 import { unreportedInput, type SkillRecord, type SkillSnapshot } from '../lib/skills'
 import { skillDemo } from '../lib/skillDemo'
-import { nodePosition, skillTree, displayedTree, type TreeLayout } from './skillTree'
+import { nodePosition, type TreeLayout } from './skillTree'
 
 // Canvas geometry is checked in the browser; these tests exercise the same
 // node buttons and inspector without jsdom's missing layout engine.
@@ -42,6 +43,7 @@ function fixture(): SkillSnapshot {
 describe('meaning-domain profile', () => {
   it('keeps every depth in the same scene while inspecting a branch', () => {
     render(<SkillTreeView snapshot={fixture()} demonstration={false} {...handlers()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Map' }))
     const nodes = () => document.querySelectorAll('.tree-node')
     const original = Array.from(nodes())
     expect(original).toHaveLength(displayedTree.length)
@@ -54,13 +56,13 @@ describe('meaning-domain profile', () => {
     expect(skillTree.filter((n) => n.parent === null)).toHaveLength(1)
     expect(skillTree.filter((n) => n.kind === 'domain').map((n) => n.id)).toEqual(['reference', 'properties', 'events', 'time', 'space', 'operators', 'connections'])
     for (const n of skillTree) {
-      const right = nodePosition(n, 'right')
-      const left = nodePosition(n, 'left')
+      const right = nodePosition(n, 'right', skillTree)
+      const left = nodePosition(n, 'left', skillTree)
       expect(left.x).toBe(right.x === 0 ? 0 : -right.x)
       expect(left.y).toBe(right.y)
     }
     for (const layout of ['right', 'left', 'down', 'radial'] as TreeLayout[]) {
-      const points = skillTree.map((n) => nodePosition(n, layout))
+      const points = skillTree.map((n) => nodePosition(n, layout, skillTree))
       expect(new Set(points.map((p) => `${p.x},${p.y}`)).size).toBe(skillTree.length)
       for (let i = 0; i < points.length; i++) for (let j = i + 1; j < points.length; j++) {
         expect(Math.abs(points[i].x - points[j].x) >= 180 || Math.abs(points[i].y - points[j].y) >= 70).toBe(true)
@@ -105,6 +107,7 @@ describe('meaning-domain profile', () => {
     try {
       document.documentElement.dir = 'rtl'
       render(<SkillTreeView snapshot={skillDemo} demonstration={true} {...handlers()} />)
+      fireEvent.click(screen.getByRole('button', { name: 'Map' }))
       expect(screen.getByRole('button', { name: 'Right-left' })).toHaveAttribute('aria-pressed', 'true')
       fireEvent.change(screen.getByRole('combobox', { name: 'Inspect' }), { target: { value: 'past_reference' } })
       await act(async () => { document.documentElement.dir = 'ltr' })
@@ -118,3 +121,5 @@ describe('meaning-domain profile', () => {
 })
 
 function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: SkillNavigationProvider }) }
+
+const { nodes: skillTree, displayed: displayedTree } = skillIndex(skillDemo).catalog

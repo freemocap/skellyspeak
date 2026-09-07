@@ -1,4 +1,3 @@
-import { domainColors } from '../lib/skill-domains'
 import catalog from '../../src-tauri/src/skills/catalog.json'
 import legacy from '../../src-tauri/src/skills/catalog-v1.json'
 import second from '../../src-tauri/src/skills/catalog-v2.json'
@@ -8,46 +7,14 @@ export type TreeNode = {
   kind: 'root' | 'domain' | 'skill'
   color: string; description: string; criterion: string
 }
-export const skillTree: TreeNode[] = (catalog as TreeNode[]).map(node => {
-  let domain = node
-  while (domain.kind === 'skill') {
-    const parent = catalog.find(item => item.id === domain.parent)
-    if (!parent) throw new Error(`Missing parent for ${domain.id}`)
-    domain = parent as TreeNode
-  }
-  return { ...node, color: domain.kind === 'domain' ? domainColors(domain.id).bright : '#e8eef7' }
-})
-export function treeNode(id: string): TreeNode {
-  const node = skillTree.find((item) => item.id === id)
-  if (!node) throw new Error(`Unknown skill-tree node: ${id}`)
-  return node
-}
 export function evidenceLabel(id: string, version: number): string {
   const definitions = version === 1 ? legacy : version === 2 ? second : version === 3 ? catalog : null
   const item = definitions?.find((node) => node.id === id)
   if (!item) throw new Error(`Unknown evidence rubric: ${version}/${id}`)
   return item.label
 }
-export function descendants(id: string): string[] {
-  return [id, ...skillTree.filter((node) => node.parent === id).flatMap((node) => descendants(node.id))]
-}
-export function nodeDepth(node: TreeNode): number {
-  return node.parent === null ? 0 : 1 + nodeDepth(treeNode(node.parent))
-}
-export const displayedTree = skillTree.filter((node) => nodeDepth(node) < 3)
-export function mapAnchor(id: string): TreeNode {
-  const node = treeNode(id)
-  return nodeDepth(node) < 3 ? node : mapAnchor(node.parent!)
-}
-export function nodeScale(node: TreeNode): number {
-  return Math.pow(0.76, nodeDepth(node)) * 1.3
-}
-export function ancestry(id: string): TreeNode[] {
-  const node = treeNode(id)
-  return [...(node.parent ? ancestry(node.parent) : []), node]
-}
 /** Ordered leaf spans keep variable-width branches separate in every layout. */
-export function nodePosition(node: TreeNode, layout: TreeLayout, visible: TreeNode[] = skillTree): { x: number; y: number } {
+export function nodePosition(node: TreeNode, layout: TreeLayout, visible: TreeNode[]): { x: number; y: number } {
   let leaf = 0
   const positions = new Map<string, { depth: number; breadth: number }>()
   const walk = (id: string, depth: number): number => {

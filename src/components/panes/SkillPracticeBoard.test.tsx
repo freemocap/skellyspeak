@@ -1,6 +1,6 @@
 import { SkillNavigationProvider } from '../../hooks/useSkillNavigation'
 import { useState } from 'react'
-import { PracticeContext } from './PracticeContext'
+import { PracticeContext, DraftAssistanceContext } from './PracticeContext'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { ConversationMap } from '../chat/ConversationMap'
 // @vitest-environment jsdom
@@ -11,7 +11,7 @@ import { skillDemo } from '../../lib/skillDemo'
 
 function Board() {
   const [selected, select] = useState<string | null>(null)
-  return <SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected, select, useExample: () => {}, suggestions: { replies: [], frames: [], starters: [] }, suggestionsError: null }}><ConversationMap /><SkillPracticeBoard snapshot={skillDemo} chatId="chat" level="zero" busy={false} /></PracticeContext></SkillEvidenceContext>
+  return <SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected, select }}><DraftAssistanceContext value={{ useExample: () => {}, suggestions: { replies: [], frames: [], starters: [] }, suggestionsError: null }}><ConversationMap /><SkillPracticeBoard snapshot={skillDemo} chatId="chat" level="zero" busy={false} /></DraftAssistanceContext></PracticeContext></SkillEvidenceContext>
 }
 
 beforeEach(() => localStorage.clear())
@@ -44,28 +44,27 @@ it('expands stable cards and opens the same explanation by double click or expli
 
 it('browses all seven domains without changing saved practice focus', () => {
   render(<Board />)
-  expect(within(screen.getByLabelText('Conversation skill map')).queryByRole('button', { name: /Time & event structure/ })).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Expand skill map' }))
   const branch = within(screen.getByLabelText('Conversation skill map')).getByRole('button', { name: /Time & event structure/ })
   fireEvent.click(branch)
   expect(branch).toHaveAttribute('aria-pressed', 'true')
   expect(screen.getByRole('button', { name: /Refer to past events.*XP/ })).toHaveAttribute('aria-expanded', 'true')
-  expect(screen.getByText(/· Browsing/)).toBeVisible()
   expect(skillDemo.profile.active_focus).toBe('referent')
   fireEvent.click(screen.getByRole('button', { name: 'Collapse skill map' }))
   expect(within(screen.getByLabelText('Conversation skill map')).queryByRole('button', { name: /Time & event structure/ })).toBeNull()
-  expect(screen.getByText(/· Browsing/)).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Expand skill map' }))
+  expect(within(screen.getByLabelText('Conversation skill map')).getByRole('button', { name: /Time & event structure/ })).toHaveAttribute('aria-pressed', 'true')
 })
 
  it('links all seven cards to their map arms and remembers grid layout without changing selection', () => {
   const view = render(<Board />)
+  fireEvent.click(screen.getByLabelText('Card display options'))
   fireEvent.click(screen.getByRole('button', { name: 'All areas' }))
   expect(view.container.querySelectorAll('.practice-card')).toHaveLength(7)
   const card = screen.getByRole('button', { name: /Refer to past events.*XP/ })
   fireEvent.click(card)
   expect(card).toHaveAttribute('aria-pressed', 'true')
   expect(card.closest('article')).toHaveClass('is-selected')
-  fireEvent.click(screen.getByRole('button', { name: 'Expand skill map' }))
+  expect(view.container.querySelector('.practice-card')).toBe(card.closest('article'))
   const map = within(screen.getByLabelText('Conversation skill map'))
   expect(map.getByRole('button', { name: /Time & event structure/ })).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(map.getByRole('button', { name: /Entities & reference/ }))
@@ -76,6 +75,7 @@ it('browses all seven domains without changing saved practice focus', () => {
   expect(skillDemo.profile.active_focus).toBe('referent')
   view.unmount()
   render(<Board />)
+  fireEvent.click(screen.getByLabelText('Card display options'))
   expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute('aria-pressed', 'true')
 })
 

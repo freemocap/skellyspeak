@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useNodesInitialized, useUpdateNodeInternals, useReactFlow, useStore, type Viewport } from '@xyflow/react'
-import { descendants, treeNode, displayedTree, type TreeLayout } from './skillTree'
+import type { TreeLayout } from './skillTree'
+import type { SkillCatalog } from '../lib/skill-index'
 
 export type CameraRequest = { sequence: number; target: string; action: 'focus' | 'whole' | 'back' }
 /** Navigation changes the viewport only; every node remains in the same scene. */
-export function TreeCamera({ request, layout, onRestore, onCanBackChange }: { request: CameraRequest; layout: TreeLayout; onRestore: (id: string) => void; onCanBackChange: (available: boolean) => void }) {
+export function TreeCamera({ catalog, request, layout, onRestore, onCanBackChange }: { catalog: SkillCatalog; request: CameraRequest; layout: TreeLayout; onRestore: (id: string) => void; onCanBackChange: (available: boolean) => void }) {
+  const { descendants, node: treeNode, displayed: displayedTree } = catalog
   const initialized = useNodesInitialized()
   const updateNodeInternals = useUpdateNodeInternals()
   const { fitView, getViewport, setViewport } = useReactFlow()
@@ -14,7 +16,7 @@ export function TreeCamera({ request, layout, onRestore, onCanBackChange }: { re
   const previous = useRef<{ layout: TreeLayout; sequence: number; selected: string } | null>(null)
   useEffect(() => {
     if (width > 0 && height > 0) updateNodeInternals(displayedTree.map((node) => node.id))
-  }, [width, height, layout, updateNodeInternals])
+  }, [width, height, layout, updateNodeInternals, displayedTree])
   useEffect(() => {
     if (!initialized || width <= 0 || height <= 0) return
     // Wait for the inspector's resize to settle before computing the viewport.
@@ -25,7 +27,9 @@ export function TreeCamera({ request, layout, onRestore, onCanBackChange }: { re
         history.current = []
         onCanBackChange(false)
         previous.current = { layout, sequence: request.sequence, selected: request.target }
-        void fitView({ padding: 0.16, duration: last ? duration : 0, minZoom: 0.08, maxZoom: 1 })
+        const node = treeNode(request.target)
+        const branch = new Set([...descendants(node.id), ...(node.parent ? [node.parent] : [])])
+        void fitView({ nodes: displayedTree.filter(item => branch.has(item.id)).map(item => ({ id: item.id })), padding: 0.16, duration: last ? duration : 0, minZoom: 0.08, maxZoom: request.target === 'experience' ? 1 : 2.6 })
         return
       }
       if (last.sequence === request.sequence) return
@@ -54,6 +58,6 @@ export function TreeCamera({ request, layout, onRestore, onCanBackChange }: { re
       }
     })
     return () => cancelAnimationFrame(frame)
-  }, [initialized, width, height, layout, request, fitView, getViewport, setViewport, onRestore, onCanBackChange])
+  }, [initialized, width, height, layout, request, fitView, getViewport, setViewport, onRestore, onCanBackChange, descendants, treeNode, displayedTree])
   return null
 }

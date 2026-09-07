@@ -1,11 +1,13 @@
+import { RewardPresentationProvider } from '../components/chat/RewardPresentation'
+import { ActivityIndicator } from '../components/ActivityIndicator'
 import { TopicNotesProvider } from '../components/panes/TopicNotesProvider'
 import { useSkillNavigation } from '../hooks/useSkillNavigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
-import { PracticeContext } from '../components/panes/PracticeContext'
-import { ConversationMap, PracticeHint } from '../components/chat/ConversationMap'
+import { PracticeContext, DraftAssistanceContext } from '../components/panes/PracticeContext'
+import { PracticeHint } from '../components/chat/ConversationMap'
 import { SkillRewards } from '../components/chat/SkillRewards'
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
@@ -35,6 +37,8 @@ import { WaveformStrip } from '../components/WaveformStrip'
 import { WordInsightModal } from '../components/WordInsightModal'
 import { EditFeedback } from '../components/chat/EditFeedback'
 import { TurnView } from '../components/chat/TurnView'
+import { DetailDialog } from '../components/DetailDialog'
+import { AnalysisContent } from '../components/panes/AnalysisContent'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
@@ -73,11 +77,13 @@ function emptyAssistant(reply: string): GuidedTurnResult {
 }
 
 export default function GuidedPage({
+  active,
   settingsVersion = 0,
   historyOpen = false,
   onHistoryOpenChange,
   onOpenSettings,
 }: {
+  active: boolean
   settingsVersion?: number
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
@@ -85,6 +91,8 @@ export default function GuidedPage({
   /// where every "configure a provider" failure is asking the learner to go.
   onOpenSettings?: () => void
 }) {
+  const workspace = useRef<HTMLDivElement>(null)
+  const composer = useRef<HTMLDivElement>(null)
   const navigation = useSkillNavigation()
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
@@ -124,6 +132,7 @@ export default function GuidedPage({
   const [savingSpeechRate, setSavingSpeechRate] = useState(false)
   useEffect(() => subscribeSpeechProgress(setSpeechProgress), [])
   useEffect(() => () => stopSpeaking(), [])
+  useEffect(() => { stopSpeaking() }, [settingsVersion, active])
 
   const speakReply = useCallback(
     (text: string, turnId: number) => {
@@ -137,10 +146,10 @@ export default function GuidedPage({
       const voice = settings?.tts_voice || 'nova'
       // Any failure to speak reaches the screen. A log line alone would leave
       // a dead button with no explanation.
-      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId), chatIdRef.current?.id ?? null)
+      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId), chatIdRef.current?.id ?? null, `${settingsVersion}:${settings?.native_language}:${settings?.target_language}`)
         .catch((e) => reportFault('Speech', e))
     },
-    [settings?.target_language, settings?.tts_engine, settings?.tts_voice, settings?.tts_rate, speechProgress?.utteranceId]
+    [settingsVersion, settings?.native_language, settings?.target_language, settings?.tts_engine, settings?.tts_voice, settings?.tts_rate, speechProgress?.utteranceId]
   )
 
   const streamRef = useRef<HTMLDivElement | null>(null)
@@ -249,14 +258,18 @@ export default function GuidedPage({
     if (el) el.scrollTop = el.scrollHeight
   }, [turns])
 
+  const isMobile = useIsMobile()
+  const [analysisOpen, setAnalysisOpen] = useState(false)
+  useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
+
   const onBubbleTap = useCallback(
     (id: number) => {
       setPinnedId(id)
-      setMobileLocation('panel')
+      if (isMobile) { setAnalysisOpen(true); return }
       setPanelTab('analysis')
       if (!breakOpen) toggleBreak()
     },
-    [breakOpen, toggleBreak]
+    [breakOpen, toggleBreak, isMobile]
   )
   const requestTurn = useCallback(
     async (body: { message?: string; greeting?: boolean; steering?: string; replacesMessageId?: number; inputEvidence?: InputEvidence }) => {
@@ -599,18 +612,19 @@ export default function GuidedPage({
   toggleMicRef.current = mic.toggleMic
 
   // Chat and lesson share one mobile scroll; AI remains a separate surface.
-  const isMobile = useIsMobile()
   const aiBusy = useAiActivity()
   const [mobileSurface, setMobileLocation] = useState<MobileLocation>('chat')
 
-  useEffect(() => { if (words.inspect) { setPanelTab('analysis'); setMobileLocation('panel') } }, [words.inspect])
+  useEffect(() => { if (words.inspect) { if (isMobile) setAnalysisOpen(true); else setPanelTab('analysis') } }, [words.inspect, isMobile])
 
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
   return (
-    <TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) }, suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
+    <RewardPresentationProvider workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
+    <div className="guided-workspace">
     <div
+      ref={workspace}
       className={`split ${isMobile ? "mobile-conversation" : ""}`}
     >
       <ChatHistory
@@ -643,7 +657,7 @@ export default function GuidedPage({
             onClick={() => void startNewConversation(steer.persona)}>+</button>
           </div>
         </div>
-        <SkillRewards chatId={currentChatId} />
+        <SkillRewards chatId={currentChatId} active={active} workspace={workspace} />
         <div className="stream" ref={streamRef}>
           {turns.length === 0 && !error && !sending && (
             <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
@@ -651,8 +665,7 @@ export default function GuidedPage({
             </p>
           )}
           {turns.map((turn) => (
-            <TurnView
-              key={turn.id}
+            <Fragment key={turn.id}><TurnView
               turn={turn}
               reviewing={reviewing.has(turn.id)}
               targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
@@ -675,6 +688,8 @@ export default function GuidedPage({
               onToggleReveal={words.toggleReveal}
               onEditUser={sending ? undefined : beginEditTurn}
             />
+            {turn.analysisState === 'pending' && <ActivityIndicator label="Analysing reply…" />}
+            </Fragment>
           ))}
           {error && (
             <div className="err">
@@ -691,7 +706,7 @@ export default function GuidedPage({
         </div>
 
         {/* Composer */}
-        <div className="composer">
+        <div className="composer" ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
               <span>✎ Editing your message — send or record to try again</span>
@@ -809,6 +824,9 @@ export default function GuidedPage({
               </div>
             }
           </div>
+          <div className="composer-activity" aria-live="polite">
+            {mic.transcribing ? <ActivityIndicator label="Transcribing audio…" /> : sending ? <ActivityIndicator label="Partner is replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="AI is analysing…" /> : null}
+          </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
@@ -845,7 +863,7 @@ export default function GuidedPage({
               type="button"
               className={`mic ${mic.recording ? 'recording' : ''}`}
               onClick={mic.toggleMic}
-              disabled={!isTauri || sending}
+              disabled={!isTauri || sending || mic.transcribing}
               title={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
               aria-label={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
             >
@@ -871,20 +889,7 @@ export default function GuidedPage({
         }`}
         ref={breakRef}
       >
-        <ConversationMap />
-        <button
-          type="button"
-          className="break-head"
-          onClick={toggleBreak}
-          aria-expanded={breakOpen}
-          title={breakOpen ? 'Collapse learning panel' : 'Expand learning panel'}
-        >
-          <span className="k">Your lesson & coach</span>
-          <span className="head-right">
-            <span className="live">Learner-led</span>
-            <span className="chev">{breakOpen ? '▾' : '▸'}</span>
-          </span>
-        </button>
+        {!breakOpen && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open lesson &amp; coach ▸</button>}
 
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
@@ -896,8 +901,8 @@ export default function GuidedPage({
           conversationBusy={sending}
           plan={plan}
           profile={profile}
-          tab={panelTab}
-          onTab={setPanelTab}
+          tab={isMobile ? 'lesson' : panelTab}
+          onTab={tab => { if (isMobile && tab === 'analysis') setAnalysisOpen(true); else setPanelTab(tab) }}
           observationStatus={observationStatus}
           draftQuestion={coachDraft}
           onDraftConsumed={consumeCoachDraft}
@@ -920,6 +925,7 @@ export default function GuidedPage({
         </section>
       )}
 
+    </div>
       {/* Mobile navigation jumps within practice or opens diagnostics */}
       {isMobile && (
         <nav className="mobile-nav">
@@ -936,7 +942,7 @@ export default function GuidedPage({
               className={`mobile-nav-item ${mobileSurface === id ? 'active' : ''} ${
                 id === 'dev' && aiBusy ? 'busy' : ''
               }`}
-              onClick={() => { setMobileLocation(id); if (id === 'panel') { if (!breakOpen) toggleBreak(); breakRef.current?.scrollIntoView({ block: 'start' }) } else if (id === 'chat') streamRef.current?.scrollIntoView({ block: 'end' }) }}
+              onClick={() => { setMobileLocation(id); if (id === 'panel') { if (!breakOpen) toggleBreak(); breakRef.current?.scrollIntoView({ block: 'start' }) } else if (id === 'chat') composer.current?.scrollIntoView({ block: 'end' }) }}
             >
               {/* Wrapped so the icon alone can pulse while agents are running
                   — the phone has no topbar button to carry that signal. */}
@@ -946,6 +952,10 @@ export default function GuidedPage({
         </nav>
       )}
 
+      {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
+        <h2>Message analysis</h2>
+        {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>Select Analysis on a conversation reply to inspect that message.</p>}
+      </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
       {words.insight && (
         <WordInsightModal
@@ -955,6 +965,6 @@ export default function GuidedPage({
         />
       )}
     </div>
-    </PracticeContext></TopicNotesProvider>
+    </DraftAssistanceContext></PracticeContext></TopicNotesProvider></RewardPresentationProvider>
   )
 }

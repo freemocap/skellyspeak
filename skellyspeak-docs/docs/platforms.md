@@ -75,38 +75,43 @@ signing credentials.
 
 ### macOS development bundle
 
-`tauri dev` launches a bare executable. For tools that discover macOS `.app`
-bundles, including Computer Use, package that executable after the dev build
-finishes. Keep `npm run tauri dev` running, then use a second terminal:
+For native development testing, run one app process against the shared storage.
+The desktop single-instance plugin is registered before credential initialization;
+a second launch raises the existing main window. An older build without the guard
+must be quit before using this behavior.
+
+Build and package the development executable without launching a second bare app:
 
 ```sh
+npm run dev
+# In a second terminal:
+cargo build --manifest-path src-tauri/Cargo.toml --bin skellyspeak
 npm run macos:dev-bundle
-open src-tauri/target/debug/bundle/macos/SkellySpeak.app
 ```
 
-Computer Use can open the same `.app` by its absolute path. This command
-packages the existing default-target debug executable; it does not compile it.
-Run it after `tauri dev`, not after `tauri build --debug`, to retain the Vite
-connection at `http://localhost:1420` and frontend hot reload.
+Keep Vite running. The debug bundle uses `http://localhost:1420` for frontend hot
+reload. Quit the app before replacing its executable after Rust changes. Open
+`src-tauri/target/debug/bundle/macos/SkellySpeak.app` for native inspection.
 
-The bundle runs a separate process with the same app identifier, credentials,
-and conversation storage. Use only the bundled window for interactions while
-testing, leaving the original dev window idle. Rust changes rebuild the original
-dev executable, but do not update the bundle's copy: quit the bundled app,
-wait for the dev rebuild to finish, rerun `npm run macos:dev-bundle`, and reopen
-the `.app`. Keep the dev session running to serve the frontend.
+The default development bundle skips signing. Its hash-based code identity changes
+when rebuilt, which can invalidate remembered Keychain approvals. Once a persistent
+code-signing certificate is available in the login keychain, sign each rebuilt
+bundle with the same identity before opening it:
 
-The explicit `tauri.dev-bundle.conf.json` overlay disables updater artifacts for
-this local bundle, and the command skips code signing. Distribution builds use
-the normal signing and updater configuration.
+```sh
+security find-identity -v -p codesigning
+SKELLYSPEAK_SIGNING_IDENTITY="certificate name or identity hash" npm run macos:dev-sign
+```
 
-Keep the bundled process running for frontend-only changes and batch Rust
-rebuilds. An unsigned/ad-hoc development executable does not provide a stable
-certificate-backed code identity across rebuilds, so macOS may ask again for
-Keychain access even after Always Allow. This is separate from Computer Use app
-approval. Stable development signing is the appropriate way to preserve code
-identity across builds; do not broaden credential access to all applications.
-See Apple's [code identity and Keychain guidance](https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/AboutCS/AboutCS.html).
+The signing helper requires a certificate, rejects ad-hoc `-`, signs the existing
+bundle and verifies its signature. It never creates certificates, changes keychain
+ACLs or disables protection. Certificate creation/import and any macOS password
+prompts require the developer. Approve the consistently signed app when macOS asks;
+subsequent builds must retain the same identifier and signing identity. Signing is
+not notarization or release validation. The development overlay disables updater
+artifacts only; release builds retain normal signing and updater configuration.
+See Apple's [code identity and Keychain guidance](https://developer.apple.com/library/technotes/tn2206/).
+
 
 ## Android
 

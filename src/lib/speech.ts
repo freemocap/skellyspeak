@@ -84,8 +84,8 @@ const pendingAudio = new Map<string, Promise<string>>()
 const MAX_CACHE_BYTES = 24 * 1024 * 1024
 let cacheBytes = 0
 
-async function cloudTts(text: string, voice: string, chatId: string | null): Promise<string> {
-  const key = JSON.stringify([chatId, voice, text])
+async function cloudTts(text: string, voice: string, chatId: string | null, scope: string): Promise<string> {
+  const key = JSON.stringify([scope, chatId, voice, text])
   const cached = audioCache.get(key)
   if (cached) {
     audioCache.delete(key)
@@ -118,7 +118,7 @@ async function synthesize(text: string, voice: string, key: string, chatId: stri
 
 /** Resolves on completion or cancellation; synthesis and playback errors reject. */
 export async function speakSmart(
-  text: string, language: string, engine: string, voice: string, rate: number, utteranceId: string, chatId: string | null
+  text: string, language: string, engine: string, voice: string, rate: number, utteranceId: string, chatId: string | null, scope: string
 ): Promise<boolean> {
   if (!text.trim()) throw new Error('Nothing to speak.')
   stopSpeaking()
@@ -128,7 +128,7 @@ export async function speakSmart(
   setProgress({ utteranceId })
   try {
     if (engine === 'cloud') {
-      const url = await cloudTts(text, voice, chatId)
+      const url = await cloudTts(text, voice, chatId, JSON.stringify([language, scope]))
       if (token !== speakToken) return false
       const audio = new Audio(url)
       audio.playbackRate = rate

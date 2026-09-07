@@ -1,4 +1,7 @@
-import { skillTree } from '../pages/skillTree'
+import catalog from '../../src-tauri/src/skills/catalog.json'
+import { createSkillCatalog } from './skill-index'
+import type { TreeNode } from '../pages/skillTree'
+const skillTree = createSkillCatalog(catalog as TreeNode[]).nodes
 import type { SkillSnapshot } from './skills'
 /** Browser-only fixture. Native mode never substitutes this for a failed load. */
 export const skillDemo: SkillSnapshot = {
