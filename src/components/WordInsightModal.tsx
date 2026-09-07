@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { invoke } from '../lib/tauri'
-import { openOverlay } from '../lib/back'
+import { DetailDialog } from './DetailDialog'
 import { reportFault } from '../lib/faults'
 
 export interface WordInsight {
@@ -35,9 +35,10 @@ export function WordInsightModal({
   const [insight, setInsight] = useState<WordInsight | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => openOverlay(onClose), [onClose])
   useEffect(() => {
     let alive = true
+    setInsight(null)
+    setError(null)
     void invoke<WordInsight>('word_insight', { word, sentence })
       .then((w) => {
         if (alive) setInsight(w)
@@ -52,23 +53,8 @@ export function WordInsightModal({
   }, [word, sentence])
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="insight-modal"
-        onClick={(e) => e.stopPropagation()}
-        onFocusCapture={(e) => {
-          const t = e.target as HTMLElement
-          if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
-            t.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
-          }
-        }}
-      >
-        <div className="insight-head">
-          <span className="insight-word">{word}</span>
-          <button type="button" className="popup-x" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
+    <DetailDialog title={`Word: ${word}`} onClose={onClose}>
+      <h2>{word}</h2>
         <p className="insight-sentence">{sentence}</p>
         {!insight && !error && <p className="center-note" style={{ padding: '20px 0' }}>⟳ Analyzing…</p>}
         {error && <div className="turn-errors">⚠ {error}</div>}
@@ -81,7 +67,6 @@ export function WordInsightModal({
             <InsightRow k="Usage" v={insight.usage} />
           </div>
         )}
-      </div>
-    </div>
+    </DetailDialog>
   )
 }

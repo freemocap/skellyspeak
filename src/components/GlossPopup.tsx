@@ -1,6 +1,8 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
+import { useOverlayLayer } from '../hooks/useOverlayLayer'
 
 export interface PopupState {
+  actions: { label: string; run: () => void }[]
   text: string
   /// Romanized form of the word, when the target uses a non-Latin script.
   romanization?: string | null
@@ -18,18 +20,11 @@ export function popupAnchor(el: Element): { x: number; y: number } {
 }
 
 export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
-  useEffect(() => {
-    function onDocMouseDown(e: MouseEvent) {
-      const target = e.target as HTMLElement
-      if (target.closest('[data-gloss-popup]') || target.closest('[data-gloss-trigger]')) return
-      onClose()
-    }
-    document.addEventListener('mousedown', onDocMouseDown)
-    return () => document.removeEventListener('mousedown', onDocMouseDown)
-  }, [onClose])
+  const host = useRef<HTMLDivElement>(null)
+  useOverlayLayer(host, onClose, true)
 
   return (
-    <div data-gloss-popup="1" className="popup" style={{ left: popup.x, top: popup.y }}>
+    <div ref={host} role="dialog" aria-label="Word help" data-gloss-popup="1" className="popup" style={{ left: popup.x, top: popup.y }}>
       <div className="popup-card">
         <span>
           {popup.text}
@@ -41,6 +36,7 @@ export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () 
           ✕
         </button>
       </div>
+      <div className="popup-actions">{popup.actions.map(action => <button className="lesson-action" key={action.label} onClick={() => { onClose(); action.run() }}>{action.label}</button>)}</div>
     </div>
   )
 }
