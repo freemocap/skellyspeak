@@ -3,7 +3,7 @@
 
 use serde::{Serialize};
 use log::{info};
-use tauri::{State};
+use tauri::{AppHandle, Emitter, State};
 use crate::conversation;
 use crate::observer;
 use crate::AppState;
@@ -149,6 +149,7 @@ pub fn open_conversation(
 /// thing said, and the webview is the side that knows what a turn looks like.
 #[tauri::command]
 pub fn save_conversation(
+    app: AppHandle,
     state: State<'_, AppState>,
     target: String,
     native: String,
@@ -163,7 +164,8 @@ pub fn save_conversation(
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     let chat = conversation::chat_dir(&pair, &id)?;
     conversation::save_session(&chat, &turns, &title)?;
-    crate::trace::chat_saved(&id, &turns)
+    crate::trace::chat_saved(&id, &turns)?;
+    app.emit("skills:changed", &target).map_err(|e| e.to_string())
 }
 
 /// Start a fresh chat for this pairing and make it the open one.
@@ -202,6 +204,7 @@ pub fn new_conversation(
 /// removed, so an accidental delete is recoverable by opening the file.
 #[tauri::command]
 pub fn delete_conversation(
+    app: AppHandle,
     state: State<'_, AppState>,
     target: String,
     native: String,
@@ -210,6 +213,6 @@ pub fn delete_conversation(
     let _context = state.context_epoch.lock().expect("context lock poisoned");
     let pair = conversation::pair_dir(&state.config_dir, &target, &native)?;
     info!("[cmd] delete_conversation {id}");
-    conversation::delete_chat(&pair, &id)
+    conversation::delete_chat(&pair, &id)?;
+    app.emit("skills:changed", &target).map_err(|e| e.to_string())
 }
-

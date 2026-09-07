@@ -8,19 +8,17 @@ title: Future Work
 This page contains unimplemented design work. Current behavior belongs in
 [Status](./status) and [Architecture](./architecture).
 
-## Language-independent skill progression
+## Meaning-domain progression
 
-The [Skill Map & Progression proposal](./skill-progression-design) records the
-research basis, product principles, proposed entities and delivery gates. It is
-the design reference for this direction; none of its XP or skill-completion
-features are implemented yet.
+The [meaning-domain design](./skill-progression-design) defines the implemented
+catalog, local profile, evidence-derived XP/checks/stars and saved practice focus.
+The two product surfaces are Guided conversation and Skill tree; Stories is retired.
 
-The proposed first milestone is a small shared capability catalog and a
-reviewable desktop/mobile interface prototype with labeled demonstration data.
-Then evaluate real attempts without awards before enabling persistent progress.
-One capability graph serves all languages; Spanish, Arabic and Mandarin are
-initial evaluation samples, not separately authored curricula. Profile switching
-and delayed-review scheduling follow after the evidence and ownership model works.
+Next, calibrate the actual rubrics against reviewed multilingual examples,
+including grammatical partials, uncertainty, assistance, revisions and false
+positives. These samples validate a shared catalog, not separate curricula.
+Profile switching, delayed review, richer audio evidence and alternative analysis
+views remain future work. Avoid fixed branching factors or node-count targets.
 
 ## Local mechanical analysis
 

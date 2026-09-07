@@ -25,8 +25,10 @@ pub mod prompts;
 mod settings;
 pub mod turn_plan;
 pub mod trace;
+pub mod skills;
 pub mod instruction;
 mod trace_archive;
+mod factory_reset;
 
 use std::sync::Mutex;
 use tauri::Manager;
@@ -74,32 +76,31 @@ pub fn run() {
     }
     builder
         .plugin(tauri_plugin_opener::init())
-        .plugin(
-            tauri_plugin_log::Builder::new()
-                .targets([
-                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
-                    tauri_plugin_log::Target::new(
-                        tauri_plugin_log::TargetKind::LogDir { file_name: Some("skellyspeak".into()) },
-                    ),
-                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview),
-                ])
-                .level(log::LevelFilter::Debug)
-                .max_file_size(2_000_000)
-                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
-                .build(),
-        )
         .setup(|app| {
-            log::info!("SkellySpeak starting (version {})", app.package_info().version);
             // A stable configuration directory identifies preferences and their credential-vault entry.
             let config_dir = app
                 .path()
                 .app_config_dir()
                 .map_err(|e| format!("could not resolve the app config dir: {e}"))?;
-            log::info!("config dir: {}", config_dir.display());
             std::fs::create_dir_all(&config_dir)
                 .map_err(|e| format!("failed to create config dir: {e}"))?;
             let mut startup_faults: Vec<String> = Vec::new();
             credentials::initialize()?;
+            factory_reset::complete(app.handle(), &config_dir)?;
+            app.handle().plugin(
+                tauri_plugin_log::Builder::new()
+                    .targets([
+                        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
+                        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir { file_name: Some("skellyspeak".into()) }),
+                        tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview),
+                    ])
+                    .level(log::LevelFilter::Debug)
+                    .max_file_size(2_000_000)
+                    .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
+                    .build(),
+            )?;
+            log::info!("SkellySpeak starting (version {})", app.package_info().version);
+            log::info!("config dir: {}", config_dir.display());
             let loaded = settings::load_or_create(&config_dir);
             if let Some(fault) = loaded.fault {
                 return Err(fault.into());
@@ -164,6 +165,7 @@ pub fn run() {
             commands::app_settings::get_update_channel,
             commands::app_settings::latest_github_release,
             commands::app_settings::reset_settings,
+            factory_reset::factory_reset,
             commands::app_settings::save_settings,
             commands::app_settings::take_startup_faults,
             commands::coach::coach_ask,
@@ -191,6 +193,8 @@ pub fn run() {
             commands::dev::export_runs,
             commands::dev::open_dev_window,
             commands::guided::guided_turn,
+            commands::skills::get_skill_evidence,
+            commands::skills::save_skill_profile,
             commands::hosted_auth::hosted_account,
             commands::hosted_auth::hosted_sign_in,
             commands::hosted_auth::hosted_sign_out,
@@ -210,7 +214,6 @@ pub fn run() {
             commands::mic::mic_stop,
             commands::mic::mic_wave,
             commands::scaffolds::generate_scaffolds,
-            commands::stories::generate_story,
             commands::stt::transcribe_audio,
             commands::tts::speak_text,
         ])

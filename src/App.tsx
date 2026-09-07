@@ -1,9 +1,10 @@
-import { Component, useEffect, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
-import StoriesPage from './pages/StoriesPage'
+import { useSkillEvidence } from './hooks/useSkillEvidence'
+import { treeNode } from './pages/skillTree'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
 import { UpdateBanner } from './components/UpdateBanner'
@@ -15,7 +16,8 @@ import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Faul
 import { HOSTED } from './lib/providers'
 import type { Shortcuts } from './types'
 
-type Page = 'guided' | 'stories'
+type Page = 'guided' | 'skills'
+const SkillsPage = lazy(() => import('./pages/SkillsPage'))
 
 // Keeps a render crash from blanking the whole app.
 class PageBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -54,6 +56,7 @@ function applyUiLanguage(native: string) {
 
 export default function App() {
   const [page, setPage] = useState<Page>('guided')
+  const [skillsOpened, setSkillsOpened] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // Owned here rather than inside LogsOverlay so its button can sit in the
   // topbar beside the gear. As a fixed-position element of its own it never
@@ -66,7 +69,8 @@ export default function App() {
   const [historyOpen, setHistoryOpen] = useState(false)
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
-  const [showNotTauri, setShowNotTauri] = useState(false)
+  const evidence = useSkillEvidence(true, settingsVersion)
+  const [showNotTauri, setShowNotTauri] = useState(!isTauri)
   // Everything that has gone wrong anywhere in the app, shown at the very top
   // of the window until dismissed. This is the only destination for a failure.
   const [faults, setFaults] = useState<Fault[]>([])
@@ -144,21 +148,9 @@ export default function App() {
         <span className="wordmark">
           SKELLYSPEAK<b>·</b>
         </span>
-        <div className="tabs">
-          <button
-            type="button"
-            className={`tab ${page === 'guided' ? 'active' : ''}`}
-            onClick={() => setPage('guided')}
-          >
-            Guided
-          </button>
-          <button
-            type="button"
-            className={`tab ${page === 'stories' ? 'active' : ''}`}
-            onClick={() => setPage('stories')}
-          >
-            Stories
-          </button>
+        <div className="tabs" aria-label="Main navigation">
+          <button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button>
+          <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={() => { setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
         </div>
         {/* Mobile reaches the same panel by swiping to its third surface, so
             the topbar button is desktop-only. */}
@@ -186,7 +178,7 @@ export default function App() {
         </button>
       </div>
 
-      <UpdateBanner />
+      {isTauri && <UpdateBanner />}
 
       {/* A paused pipeline is indistinguishable from a hung app unless something
           says so. This is that something, and it is deliberately outside the
@@ -216,8 +208,19 @@ export default function App() {
         </div>
       )}
 
+      {isTauri && <div className="learner-profile-bar">
+        <button onClick={() => { setSkillsOpened(true); setPage('skills') }} aria-label="Open language profile">
+          <span>◈ My language profile</span>
+          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {treeNode(evidence.snapshot.profile.active_focus).label}</span></>}
+          {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
+        </button>
+        {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}
+      </div>}
       <div className="content">
-        {showNotTauri ? (
+        {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
+          <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage evidence={evidence} onPractice={() => setPage('guided')} /></Suspense></PageBoundary>
+        </div>}
+        {showNotTauri ? (page !== 'skills' &&
           <div className="not-tauri">
             This is the SkellySpeak desktop app UI. Run it with{' '}
             <b>npm run tauri dev</b> from the repo root — the interface
@@ -225,7 +228,7 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* Both pages stay MOUNTED — unmounting GuidedPage on tab switch
+            {/* GuidedPage stays MOUNTED — unmounting it on tab switch
                 destroyed the conversation. Hidden via CSS, not unmounted. */}
             <div
               className={`page-holder ${page === 'guided' ? '' : 'hidden'}`}
@@ -238,14 +241,6 @@ export default function App() {
                   onHistoryOpenChange={setHistoryOpen}
                   onOpenSettings={() => setSettingsOpen(true)}
                 />
-              </PageBoundary>
-            </div>
-            <div
-              className={`page-holder ${page === 'stories' ? '' : 'hidden'}`}
-              aria-hidden={page !== 'stories'}
-            >
-              <PageBoundary>
-                <StoriesPage settingsVersion={settingsVersion} />
               </PageBoundary>
             </div>
           </>

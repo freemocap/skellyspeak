@@ -11,7 +11,7 @@ the number.
 
 ## Implemented
 
-- Guided, streamed conversation and generated stories.
+- Guided, streamed conversation and the meaning-domain Skill tree.
 - English, French, Spanish, Arabic, and Mandarin as symmetric target/native
   languages, including RTL, segmentation, dialect, and romanization metadata
   from `src-tauri/src/languages.rs`.
@@ -47,10 +47,13 @@ the number.
   those claims.
 - Model traces contain prompt and output text and are intended for local
   diagnostics; they are not anonymized telemetry.
-- Prompt editing/overrides, complete operation provenance and semantic skill
-  evaluation remain proposed work; see [Observability](./observability).
-- No skill catalog, XP, automatic skill completion or learner-profile switcher
-  exists yet. The [progression design](./skill-progression-design) is a proposal.
+- Prompt editing/overrides and complete operation provenance remain proposed
+  work; see [Observability](./observability).
+- The Skill tree displays a local target-language profile with evidence-derived
+  XP, checks/stars and saved practice focus. Previous rubric evidence remains
+  inspectable without new-skill credit. The evaluator is not calibrated as a
+  proficiency assessment. Browser mode uses labeled fixtures; profile switching
+  remains future work. See the [progression design](./skill-progression-design).
 
 ## Verification
 

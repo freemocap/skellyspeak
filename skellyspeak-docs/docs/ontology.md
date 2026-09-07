@@ -119,9 +119,33 @@ It consists of native-language guidance, a target-language example, and its
 translation. It is transient UI content; the model call is retained under the
 existing explanation operation with trigger `lesson_topic_note`.
 
-## Proposed progression model
+## Meaning-domain skills and progression
 
-The [skill-map design](./skill-progression-design) proposes stable language-neutral
-skills, learner identities and an auditable evidence ledger. These entities are
-not persisted today. The current inferred `Profile` is teaching memory, not a
-switchable user identity, and existing grammar grades are not skill awards.
+The learner tree describes grammatical meaning relationships, not agents,
+communication modes or fixed beginner/intermediate/advanced branches. Its root
+records participation; domains group assessable skills and extensions. Catalog
+IDs/version define rubrics independently of the target language's constructions.
+
+`assess_skills` is a detached Runner operation. Its sparse judgments and exact
+quotes are evidence, not direct mutations of XP. `EvidenceRecord` links one
+assessment to learner/target/native context, chat/message, source, assistance,
+model and trace identifiers. Historical records retain their original catalog.
+
+The local learner profile owns a target language, pinned focus and excluded
+attempts. Rust derives success marks, assisted practice XP, stars and a recommended
+focus from current-catalog live evidence. One/two successes earn checks and three
+a star. These are game milestones, not CEFR levels. Inspection and practice focus
+are separate; profile progress never changes conversation difficulty.
+
+See [Meaning Domains & Skill Progression](./skill-progression-design) for exact
+qualification, deduplication, exclusion and deletion rules. Profile switching is
+future work. The inferred observer `Profile` remains teaching memory, not this
+learner identity or its progress account.
+
+### Local factory reset
+
+A confirmed factory reset removes the local learner, evidence ledger, conversation
+archives, lesson/coach state, preferences and credentials together. It is a
+device-local lifecycle operation, not a hosted account deletion. A durable reset
+request is completed before normal startup so old workers cannot restore erased
+state. The resulting profile starts from the built-in defaults.

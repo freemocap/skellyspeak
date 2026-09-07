@@ -163,6 +163,7 @@ pub fn turn_graph() -> Graph {
             op::SUGGEST => (660.0, 0.0),
             op::REVIEW => (660.0, 90.0),
             op::REFLECT => (660.0, 180.0),
+            op::ASSESS_SKILLS => (660.0, 270.0),
             _ => (660.0, 270.0),
         }
     }
@@ -235,7 +236,6 @@ pub fn standalone_graphs() -> Vec<Graph> {
     use ontology::op;
     vec![
         small("coach_thread", "Asking the coach", "Reads your question and saved context. Explicit requests save revised lesson choices; suggestions wait for Apply. Saved choices inform subsequent partner requests. The observer cannot overwrite them.", op::ANSWER, &["your question", "saved conversation", "plan", "profile", "lesson choices", "coach thread"]),
-        small("story", "Generating a story", "One level-matched story, tokenized for tap-to-translate.", op::STORY, &["level", "target language"]),
         small("word_insight", "Inspecting a word", "One word, explained in depth.", op::WORD_INSIGHT, &["word", "sentence it appeared in"]),
         small("hear", "Hearing you", "Your voice becomes text. Perception — a faculty, not an agent.", op::TRANSCRIBE, &["audio", "target-language hint"]),
         small("speak", "Speaking", "A reply becomes audio. Action — a faculty, not an agent.", op::SYNTHESIZE, &["text", "voice"]),

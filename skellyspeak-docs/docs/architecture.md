@@ -134,7 +134,7 @@ Topic and level changes issue a synthetic steering turn, explicitly identified a
 
 The coach dock’s height and collapsed state are presentation preferences stored in device localStorage under `skellyspeak_coach_layout`. They do not affect lesson choices or conversation context.
 
-AI activity is loaded through one panel-owned snapshot/event subscription with run-ID deduplication. The graph and call strip share the selected execution scope; node inspection shows response previews and expandable raw run details. Whole-session graph mode is explicitly distinguished from a single interaction. Trace lineage currently has execution-turn IDs, not saved-chat IDs. AI render failures are contained within the panel.
+AI activity is loaded through one panel-owned snapshot/event subscription with run-ID deduplication. The graph and call strip share the selected execution scope; node inspection shows response previews and expandable raw run details. Whole-session graph mode is explicitly distinguished from a single interaction. Captured trace context includes saved-chat/message IDs alongside execution-turn IDs. AI render failures are contained within the panel.
 
 Conversation switching synchronizes the history reference before invoking an opening greeting, so a new or reopened empty chat cannot inherit messages from the conversation that was previously displayed. Reply requests contain one system message, up to the most recent 30 conversation messages, and the current learner message or explicit opening trigger.
 
@@ -170,9 +170,48 @@ results after a context change, and does not mutate observer memory or the coach
 thread. The frontend retains the request while that topic view is mounted;
 changing chat, level or topic creates a fresh view.
 
-## Proposed product extension
+## Skill evidence and profile
 
-The [skill progression design](./skill-progression-design) keeps skill definitions
-and award rules language-independent. It proposes Rust-owned evidence and
-progress projections with a separate learner-facing skill map. These are future
-contracts; the existing execution graph continues to describe the AI pipeline.
+`skills/catalog.json` is the shared meaning-domain catalog. `catalog-v1.json` and
+`catalog-v2.json` validate historical assessments; old rubrics are not remapped.
+`skills.rs` owns per-chat `skill-evidence.json`, source matching and validation.
+`skills/progress.rs` owns deterministic progress and revision-checked choices at
+`learners/local/<target>.json`. One local learner aggregates current target-language
+evidence across native-language pairings. Profile switching is not implemented.
+
+`assess_skills` runs after a successful reply to a real learner message. Its sparse
+judgments refer to supplied rubrics; omission means unobserved. Rust rejects
+unknown/duplicate IDs and non-source quotes. Validation is structural, not proof
+of semantic correctness. Ledger access is context-locked and writes are atomic.
+Repeated identical requests reuse their active assessment. Superseded attempts
+cannot be revived by late responses. Current source ID/text matching excludes
+edited, truncated and soft-deleted sources; interrupted evaluations show failure.
+
+The projection counts distinct successful wording per skill, ignoring case and
+whitespace. Recorded assistance earns practice XP, not success marks. Current
+catalog evidence alone contributes; exclusion choices are reversible. The rules,
+recommendations and lifecycle are specified in the [progression design](./skill-progression-design).
+
+`get_skill_evidence` returns catalog, records and derived profile. `save_skill_profile`
+checks target ownership and revision. `skills:changed` follows ledger, conversation
+save/deletion and profile changes. React uses one app-owned subscription for the
+profile entry and tree. Native failures remain visible; only browser demonstration
+mode uses fixture data.
+
+A captured `skill_practice` block steers subsequent partner and feedback calls;
+suggestions, coach chat and observation also receive that focus. Explicit lesson
+choices and practice difficulty retain precedence. Saving a focus does not trigger
+an extra model call, overwrite lesson choices or change an in-flight request.
+Observation retains its ordinary cadence. The learner tree is distinct from the
+execution graph. Stories' frontend, IPC, prompts, operation and benchmark case are
+retired; shared glossing and speech remain part of Guided conversation.
+
+### Factory reset lifecycle
+
+`factory_reset` validates explicit confirmation and syncs a pending-reset marker,
+then closes the process. On next launch, before loading settings, starting file
+logging, attaching traces or starting workers, the core clears its credential
+vault entry, config contents, app cache/log directories and webview browsing data.
+The marker remains until every cleanup step succeeds; errors abort startup and
+interrupted resets retry on the next launch. This prevents old asynchronous work
+from repopulating the fresh profile.
