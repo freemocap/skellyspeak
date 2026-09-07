@@ -24,6 +24,10 @@ on:
         description: "Optional tag to attach the .ipa to (e.g. v0.4.7). Leave empty to skip."
         type: string
         default: ""
+      upload_testflight:
+        description: "Upload this build to App Store Connect and wait for processing."
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 
@@ -357,13 +361,72 @@ jobs:
           gh release upload "$TAG" dist-ios/*.ipa
           echo "attached the .ipa to release $TAG"
 
-# ── Uploading to TestFlight (done by hand today) ─────────────────────────────
-# The .ipa is built and signed; getting it onto testers' devices is a separate
-# step that needs an App Store Connect app record:
-#
-#   1. In App Store Connect create the app (bundle id com.freemocap.skellyspeak).
-#   2. Upload the .ipa. Easiest is Apple's Transporter app (drag the .ipa in).
-#      Each CI attempt has a unique build number, so use a newly built artifact
-#      instead of retrying an IPA that App Store Connect has already consumed.
-#   3. In TestFlight add Internal testers (team, no review) or External
-#      testers (up to 10,000, one-time beta review, public link).
+  testflight:
+    name: Upload and process TestFlight build
+    needs: build-ipa
+    if: github.event_name == 'push' || inputs.upload_testflight
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Validate App Store Connect configuration
+        env:
+          APPSTORE_ISSUER_ID: ${{ vars.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ vars.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          ENCRYPTION_DECLARATION: ${{ vars.APPSTORE_USES_NON_EXEMPT_ENCRYPTION }}
+        run: |
+          set -euo pipefail
+          [ -n "$APPSTORE_ISSUER_ID" ] || { echo "::error::Set APPSTORE_ISSUER_ID repository variable"; exit 1; }
+          [[ "$APPSTORE_API_KEY_ID" =~ ^[A-Za-z0-9]{10}$ ]] || { echo "::error::Set APPSTORE_API_KEY_ID to the 10-character API key ID"; exit 1; }
+          [ -n "$APPSTORE_API_PRIVATE_KEY" ] || { echo "::error::Set APPSTORE_API_PRIVATE_KEY repository secret to the .p8 contents"; exit 1; }
+          [[ "$ENCRYPTION_DECLARATION" = true || "$ENCRYPTION_DECLARATION" = false ]] || {
+            echo "::error::Set APPSTORE_USES_NON_EXEMPT_ENCRYPTION to the app's reviewed true/false export-compliance declaration"; exit 1; }
+
+      - name: Download this run's verified IPA
+        run: gh run download "$GITHUB_RUN_ID" --name ios-ipa --dir dist-ios
+
+      - name: Resolve the IPA
+        id: ipa
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(dist-ios/*.ipa)
+          [ "${#files[@]}" -eq 1 ] || { echo "::error::Expected exactly one verified IPA"; exit 1; }
+          echo "path=${files[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to App Store Connect and wait for processing
+        uses: Apple-Actions/upload-testflight-build@1ad58030672057aa084b4e96beb6f7a8c627f9e6 # v5
+        with:
+          app-path: ${{ steps.ipa.outputs.path }}
+          app-type: ios
+          issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          backend: appstore-api
+          wait-for-processing: 'true'
+          uses-non-exempt-encryption: ${{ vars.APPSTORE_USES_NON_EXEMPT_ENCRYPTION }}
+
+      - name: Remove App Store Connect private key
+        if: always()
+        env:
+          APPSTORE_API_KEY_ID: ${{ vars.APPSTORE_API_KEY_ID }}
+        run: |
+          set -euo pipefail
+          if [[ "$APPSTORE_API_KEY_ID" =~ ^[A-Za-z0-9]{10}$ ]]; then
+            rm -f "$HOME/private_keys/AuthKey_${APPSTORE_API_KEY_ID}.p8"
+          fi
+
+      - name: Record TestFlight handoff
+        run: |
+          {
+            echo "### TestFlight upload processed"
+            echo "The signed IPA from this run was uploaded and processed by App Store Connect."
+            echo "Internal tester groups with automatic distribution receive eligible builds."
+            echo "External testing, export-compliance review, and tester device installation remain controlled by Apple."
+          } >> "$GITHUB_STEP_SUMMARY"
