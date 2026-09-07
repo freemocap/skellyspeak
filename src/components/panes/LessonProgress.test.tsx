@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { LessonProgress } from './LessonProgress'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
@@ -13,7 +13,7 @@ const record: SkillRecord = {
   catalog_version: 3, prompt_version: 'test', status: 'pending', error: null, assessment: null,
 }
 function ui(snapshot: SkillSnapshot | null, error: string | null = null) {
-  return <SkillEvidenceContext value={{ snapshot, error }}><LessonProgress chatId="chat" busy={false} /></SkillEvidenceContext>
+  return <SkillEvidenceContext value={{ snapshot, error }}><LessonProgress chatId="chat" busy={false} level="zero" /></SkillEvidenceContext>
 }
 it('updates pending evidence into credited XP with its source, rationale and skill milestone', () => {
   const snapshot = structuredClone(skillDemo)
@@ -22,10 +22,11 @@ it('updates pending evidence into credited XP with its source, rationale and ski
   expect(screen.getByRole('status')).toHaveTextContent('Reviewing your words')
   const completed: SkillSnapshot = { ...snapshot, records: [{ ...record, status: 'complete', assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese libro'], rationale: 'You identified a specific book.' }] } }], profile: { ...snapshot.profile, xp: 10, credits: [{ attempt_id: 'a', skill_id: 'referent', xp: 10 }], skills: snapshot.profile.skills.map((skill) => skill.skill_id === 'referent' ? { ...skill, xp: 10, successes: 1, checked: true } : skill) } }
   view.rerender(ui(completed))
+  fireEvent.click(screen.getByText('Recent message reviews'))
   expect(screen.getByText('10 XP credited')).toBeVisible()
   expect(screen.getByText('Ese libro.')).toBeVisible()
   expect(screen.getByText('You identified a specific book.')).toBeVisible()
-  expect(screen.getByText('1/3 successes to a star')).toBeVisible()
+  expect(screen.getAllByText('1/3 successes to a star').length).toBeGreaterThan(0)
   view.rerender(ui({ ...completed, profile: { ...completed.profile, credits: [] } }))
   expect(screen.getByText('0 XP credited')).toBeVisible()
   expect(screen.getByText(/already credited/)).toBeVisible()

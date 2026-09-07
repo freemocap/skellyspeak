@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, path::Path};
 
 pub const CATALOG_VERSION: u32 = 3;
-pub const PROMPT_VERSION: &str = "skill-evidence-4";
+pub const PROMPT_VERSION: &str = "skill-evidence-5";
 pub const FILE: &str = "skill-evidence.json";
 pub const LEARNER: &str = "local";
 
@@ -59,8 +59,11 @@ impl Assessment {
         let expected: HashSet<&str> = definitions.iter().filter(|s| s.kind == "skill").map(|s| s.id.as_str()).collect();
         let mut seen = HashSet::new();
         for judgment in &self.judgments {
-            if !expected.contains(judgment.skill_id.as_str()) || !seen.insert(judgment.skill_id.as_str()) {
-                return Some("Return each catalog skill exactly once, with no unknown or duplicate IDs.".into());
+            if !expected.contains(judgment.skill_id.as_str()) {
+                return Some(format!("Unknown skill_id {:?}. Use only IDs from the supplied rubrics. Omit unobserved skills.", judgment.skill_id));
+            }
+            if !seen.insert(judgment.skill_id.as_str()) {
+                return Some(format!("Duplicate skill_id {:?}. Return one judgment for this skill, combining its relevant quotes (at most four) and choosing one outcome for the whole attempt. Omit unobserved skills; do not return the entire catalog.", judgment.skill_id));
             }
             if judgment.rationale.trim().is_empty() || judgment.rationale.chars().count() > 500 {
                 return Some("Each rationale must contain 1–500 characters.".into());
@@ -246,7 +249,10 @@ mod tests {
             assert!(missing.validate(source, &definitions).is_none());
             let mut duplicate = assessment(source);
             duplicate.judgments[0].skill_id = duplicate.judgments[1].skill_id.clone();
-            assert!(duplicate.validate(source, &definitions).is_some());
+            let error = duplicate.validate(source, &definitions).unwrap();
+            assert!(error.contains("Duplicate skill_id"));
+            assert!(error.contains("combining its relevant quotes"));
+            assert!(error.contains("Omit unobserved skills"));
             let mut unsupported = assessment(source);
             unsupported.judgments[1].outcome = Outcome::Demonstrated;
             assert!(unsupported.validate(source, &definitions).is_some());

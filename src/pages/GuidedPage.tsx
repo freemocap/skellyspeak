@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
+import { PracticeContext } from '../components/panes/PracticeContext'
+import { ConversationMap } from '../components/chat/ConversationMap'
+import { SkillRewards } from '../components/chat/SkillRewards'
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
 import {
@@ -63,30 +66,6 @@ const SWIPE_MIN_PX = 60
 const SWIPE_MAX_MS = 600
 
 
-function ScaffoldRow({
-  label,
-  items,
-  onPick,
-}: {
-  label: string
-  items?: string[]
-  onPick: (s: string) => void
-}) {
-  if (!items || items.length === 0) return null
-  return (
-    <div className="scaffold-row">
-      <span className="scaffold-label">{label}</span>
-      <div className="scaffold-chips">
-        {items.map((s) => (
-          <button key={s} type="button" className="scaf" onClick={() => onPick(s)}>
-            {s}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 /// A turn whose reply is known but analysis hasn't landed yet.
 function emptyAssistant(reply: string): GuidedTurnResult {
   return {
@@ -114,6 +93,7 @@ export default function GuidedPage({
   /// where every "configure a provider" failure is asking the learner to go.
   onOpenSettings?: () => void
 }) {
+  const [selectedPractice, setSelectedPractice] = useState<string | null>(null)
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -140,7 +120,7 @@ export default function GuidedPage({
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const steer = useSteering()
-  const setupPanel = usePersistentToggle('skellyspeak_chat_settings', true)
+  const setupPanel = usePersistentToggle('skellyspeak_chat_settings', false)
   const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
@@ -165,7 +145,7 @@ export default function GuidedPage({
       const voice = settings?.tts_voice || 'nova'
       // Any failure to speak reaches the screen. A log line alone would leave
       // a dead button with no explanation.
-      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId))
+      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId), chatIdRef.current?.id ?? null)
         .catch((e) => reportFault('Speech', e))
     },
     [settings?.target_language, settings?.tts_engine, settings?.tts_voice, settings?.tts_rate, speechProgress?.utteranceId]
@@ -188,6 +168,7 @@ export default function GuidedPage({
   /// Everything tied to the conversation leaving the screen. The turns
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
+    setSelectedPractice(null)
     setPinnedId(null)
     setCoachDraft('')
     setReviewing(new Set())
@@ -660,6 +641,7 @@ export default function GuidedPage({
     }
   }
   return (
+    <PracticeContext value={{ chatId: currentChatId, selected: selectedPractice, select: setSelectedPractice, suggestions: chipsForUI, suggestionsError: scaffolds.error, useExample: text => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; setInput(text) } }}>
     <div
       className="split"
       onTouchStart={isMobile ? onTouchStart : undefined}
@@ -678,7 +660,7 @@ export default function GuidedPage({
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="chat-heading-label">Conversation · {targetLanguageName}</span>
+          <div className="conversation-title"><span className="chat-heading-label">{targetLanguageName}</span><small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
           <div className="chat-heading-actions">
 
           <button
@@ -695,6 +677,7 @@ export default function GuidedPage({
             onClick={() => void startNewConversation(steer.persona)}>+</button>
           </div>
         </div>
+        <SkillRewards chatId={currentChatId} />
         <div className="stream" ref={streamRef}>
           {turns.length === 0 && !error && !sending && (
             <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
@@ -752,30 +735,6 @@ export default function GuidedPage({
             </div>
           )}
           {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
-          {/* Suggestions and conversation settings fold independently above the composer. */}
-          <div className="scaffold-block">
-            <div className="chat-section-heading">
-              <button type="button" className="chat-panel-toggle" onClick={scaffolds.toggle}
-                aria-expanded={scaffolds.open} aria-controls="chat-suggestions" title={scaffolds.open ? 'Hide suggestions' : 'Show suggestions'}>
-                {scaffolds.open ? '▾' : '▸'} Suggestions
-              </button>
-              {!scaffolds.open && chipsForUI.replies.length > 0 && <div className="suggestion-preview" role="group" aria-label="Quick suggested replies">
-                {chipsForUI.replies.slice(0, 2).map((reply, index) => <button key={index} type="button" className="scaf suggestion-preview-badge"
-                  title={reply} aria-label={`Send suggested reply: ${reply}`} disabled={sending || !isTauri} onClick={() => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; void send(reply) }}>
-                  {reply}
-                </button>)}
-              </div>}
-              {(scaffolds.loading || scaffolds.error) && <span className="scaffold-status">{scaffolds.error ? `⚠ ${scaffolds.error}` : '⟳ writing…'}</span>}
-            </div>
-            {scaffolds.open && (
-              <div id="chat-suggestions" className="scaffold-groups">
-                <ScaffoldRow label="Say it" items={chipsForUI.replies} onPick={(s) => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; void send(s) }} />
-                <ScaffoldRow label="Build it" items={chipsForUI.frames} onPick={(f) => { inputEvidence.current = { ...unreportedInput(), scaffold: true }; setInput(f) }} />
-                <ScaffoldRow label="Start it" items={chipsForUI.starters} onPick={(s) => { inputEvidence.current = { ...unreportedInput(), scaffold: true }; setInput(`${s} `) }} />
-
-              </div>
-            )}
-          </div>
           <div className="scaffold-block chat-settings-block">
             <div className="chat-section-heading">
               <button type="button" className="chat-panel-toggle" onClick={setupPanel.toggle}
@@ -945,6 +904,7 @@ export default function GuidedPage({
         }`}
         ref={breakRef}
       >
+        <ConversationMap level={steer.level} busy={sending} mobile={isMobile} />
         <button
           type="button"
           className="break-head"
@@ -1028,5 +988,6 @@ export default function GuidedPage({
         />
       )}
     </div>
+    </PracticeContext>
   )
 }

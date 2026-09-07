@@ -75,7 +75,14 @@ const microphone = vi.hoisted(() => ({ recording: false, waveSource: null, toggl
 vi.mock('../hooks/useMicRecorder', () => ({ useMicRecorder: () => microphone }))
 // Heavy panes that pull in the graph view; not what these tests are about.
 vi.mock('../components/dev/DevPanel', () => ({ DevPanel: () => null }))
-vi.mock('../components/panes/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => <div /> }))
+vi.mock('../components/panes/CoachAnalysisPanel', async () => {
+  const { useContext } = await import('react')
+  const { PracticeContext } = await import('../components/panes/PracticeContext')
+  return { CoachAnalysisPanel: () => {
+    const practice = useContext(PracticeContext)
+    return <div>{practice?.suggestions.replies.map(reply => <button key={reply} onClick={() => practice.useExample(reply)}>{reply}</button>)}</div>
+  } }
+})
 
 import GuidedPage from './GuidedPage'
 import { useConversation } from './guided/useConversation'
@@ -127,6 +134,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   microphone.recording = false
   localStorage.clear()
+  // Exercise existing users' saved expanded controls in these lifecycle tests.
+  localStorage.setItem('skellyspeak_chat_settings', 'open')
   // The greeting fires once per session; each test starts fresh.
   disarmGreeting()
   backend.invoke.mockImplementation(async (command: string) => command === 'get_conversation_partner'
@@ -401,21 +410,19 @@ describe('the persona panel', () => {
 })
 
 describe('the suggestions panel', () => {
-  it('folds suggestions independently from settings', async () => {
+  it('starts settings folded for a new user', async () => {
+    localStorage.removeItem('skellyspeak_chat_settings')
     render(<GuidedPage />)
-    const toggle = await screen.findByTitle('Hide suggestions')
+    expect(await screen.findByTitle('Show chat settings')).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByLabelText('Learner level')).toBeNull()
+  })
+  it('keeps settings available without a duplicate suggestions panel', async () => {
+    render(<GuidedPage />)
     expect(await screen.findByLabelText('Learner level')).toBeInTheDocument()
-
-    fireEvent.click(toggle)
-
-    expect(screen.getByLabelText('Learner level')).toBeInTheDocument()
-    expect(screen.getByTitle('Show suggestions')).toBeInTheDocument()
+    expect(screen.queryByTitle('Hide suggestions')).toBeNull()
     fireEvent.click(screen.getByTitle('Hide chat settings'))
-    expect(screen.queryByLabelText('Learner level')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByTitle('Show suggestions'))
+    expect(screen.queryByLabelText('Learner level')).toBeNull()
     expect(screen.getByTitle('Show chat settings')).toBeInTheDocument()
-    expect(localStorage.getItem('skellyspeak_chat_settings')).toBe('closed')
-    expect(localStorage.getItem('skellyspeak_scaffolds')).toBe('open')
   })
 
   it('says what is folded away, so the steering is never invisible', async () => {
@@ -666,18 +673,15 @@ it('keeps the edited attempt’s corrections visible while recording and removes
   confirm.mockRestore()
 })
 
-it.each(['suggestion', 'scaffold'] as const)('captures %s use in the evaluation input', async (kind) => {
+it('captures card suggestion use in the evaluation input', async () => {
   const greeting = turn(1, '')
   greeting.user = null
   greeting.assistant!.scaffolds = { replies: ['Me gusta el café.'], frames: ['Me gusta ___.'], starters: [] }
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [greeting] })
   render(<GuidedPage />)
-  fireEvent.click(await screen.findByRole('button', { name: kind === 'suggestion' ? 'Me gusta el café.' : 'Me gusta ___.' }))
-  if (kind === 'scaffold') {
-    fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Me gusta el té.' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-  }
+  fireEvent.click(await screen.findByRole('button', { name: 'Me gusta el café.' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({
-    inputEvidence: { modality: 'text', suggestion: kind === 'suggestion', scaffold: kind === 'scaffold', revision: false },
+    inputEvidence: { modality: 'text', suggestion: true, scaffold: false, revision: false },
   })))
 })

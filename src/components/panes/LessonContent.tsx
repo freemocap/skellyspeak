@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { invoke } from '../../lib/tauri'
+import { useState } from 'react'
+import { TopicExplanation } from './TopicExplanation'
 import { LessonEditor, type LessonSaveResult } from './LessonEditor'
 import { LessonProgress } from './LessonProgress'
 import type { LessonChoices, LessonState, Profile, TeachingPlan } from '../../types'
@@ -12,21 +12,6 @@ export function ChoiceSummary({ choices }: { choices: LessonChoices }) {
 function Notes({ label, items }: { label: string; items: string[] }) {
   return <section><h4>{label}</h4>{items.length ? <ul>{items.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p className="lesson-meta">Nothing recorded yet.</p>}</section>
 }
-interface TopicNote { explanation: string; example: string; translation: string }
-function TopicExplanation({ chatId, topic, level, busy }: { chatId: string; topic: string; level: string; busy: boolean }) {
-  const [note, setNote] = useState<TopicNote | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [attempt, setAttempt] = useState(0)
-  const request = useRef<Promise<TopicNote> | null>(null)
-  useEffect(() => {
-    if (busy) return
-    let alive = true
-    request.current ??= invoke<TopicNote>('lesson_topic_note', { chatId, topic, level })
-    void request.current.then((result) => { if (alive) setNote(result) }).catch((failure: unknown) => { if (alive) setError(String(failure)) })
-    return () => { alive = false }
-  }, [chatId, topic, level, busy, attempt])
-  return <div className="lesson-topic-note">{note ? <><p>{note.explanation}</p><p className="lesson-example" dir="auto">{note.example}</p><p className="lesson-example-translation" dir="auto">{note.translation}</p></> : error ? <p role="alert">{error} <button className="lesson-inline-action" onClick={() => { request.current = null; setError(null); setAttempt((n) => n + 1) }}>Retry</button></p> : <p className="lesson-meta" role="status">{busy ? 'Waiting for this turn…' : 'Loading explanation…'}</p>}</div>
-}
 export function LessonContent({ chatId, level, lesson, plan, profile, busy, observationStatus, onSave, onAsk }: {
   chatId: string; level: string; lesson: LessonState; plan: TeachingPlan | null; profile: Profile | null
   busy: boolean; observationStatus: string
@@ -36,7 +21,7 @@ export function LessonContent({ chatId, level, lesson, plan, profile, busy, obse
   const [editing, setEditing] = useState(false)
   const focus = lesson.choices.goal ? [lesson.choices.goal] : plan?.session_focus ?? []
   return <div className="lesson-content">
-    <LessonProgress chatId={chatId} busy={busy} />
+    <LessonProgress chatId={chatId} busy={busy} level={level} />
     <section className="lesson-focus">
       {focus.map((topic, index) => <section className="lesson-topic" key={`${chatId}:${level}:${topic}`}>
         <div className="lesson-topic-title"><span className="lesson-topic-index">{String(index + 1).padStart(2, '0')}</span><h2>{topic}</h2></div>

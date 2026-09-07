@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from '
 import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
+import { isReloadShortcut } from './lib/reload'
 import GuidedPage from './pages/GuidedPage'
 import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
 import { treeNode } from './pages/skillTree'
@@ -130,6 +131,19 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [shortcuts])
 
+  // Desktop webviews do not consistently supply a browser-style refresh
+  // command. Own the familiar shortcut at the app shell so it works on every
+  // screen, including when a field has focus.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!isReloadShortcut(event)) return
+      event.preventDefault()
+      window.location.reload()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <div className="app">
       <div className="topbar">
@@ -167,6 +181,15 @@ export default function App() {
             AI
           </button>
         )}
+        <button
+          type="button"
+          className="gear"
+          onClick={() => window.location.reload()}
+          aria-label="Reload app"
+          title="Reload app (⌘/Ctrl+R)"
+        >
+          ↻
+        </button>
         <button
           type="button"
           className="gear"
@@ -211,7 +234,7 @@ export default function App() {
       {isTauri && <div className="learner-profile-bar">
         <button onClick={() => { setSkillsOpened(true); setPage('skills') }} aria-label="Open language profile">
           <span>◈ My language profile</span>
-          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {treeNode(evidence.snapshot.profile.active_focus).label}</span></>}
+          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {treeNode(evidence.snapshot.profile.active_focus).label}</span></>}
           {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
         </button>
         {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}

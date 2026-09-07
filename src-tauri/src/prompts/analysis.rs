@@ -22,7 +22,7 @@ pub fn tokens_prompt(
         "You tokenize {tln} text for a learner glossary.\n\
          Given a tutor reply, split it into word tokens in order (punctuation\n\
          attached to the preceding word) and give each token a short {native}\n\
-         gloss in context. Punctuation-only tokens get a null gloss. Tag each\n\
+         gloss in context. Translate THIS source token, never the word at the same position in a translated sentence. One source token may need several gloss words. For Spanish to English: Soy = I am, Carmen = Carmen, Hoy = today; never shift am onto Carmen. Check each text/gloss pair independently. Preserve names as names. Punctuation-only tokens get a null gloss. Tag each\n\
          token with a Universal part of speech (NOUN, VERB, ADJ, ADV, PRON, DET,\n\
          ADP, CCONJ, SCONJ, AUX, PART, INTJ, NUM, PROPN, PUNCT). Mark at most 3\n\
          tokens as notable — forms a learner should notice (inflections,\n\
@@ -159,7 +159,7 @@ pub fn learner_tokens_prompt(
          1. tokenize: split the message word by word (punctuation attached to\n\
             the preceding word), in order, never skipping words. Give each token\n\
             a short {native} gloss IN CONTEXT - what the learner MEANT, including\n\
-            for their mistakes. Mark at most 3 tokens as notable.{segment}{roman}\n\
+            for their mistakes. Each gloss belongs to its own source token, not the same-position word in the sentence translation. A gloss can contain multiple words: Spanish Soy = I am, Carmen = Carmen, Hoy = today. Never shift am onto Carmen. Check every text/gloss pair independently; preserve names as names. Mark at most 3 tokens as notable.{segment}{roman}\n\
          2. translation: a natural {native} translation of what the learner\n\
             actually communicated (not a word-for-word rendering).\n\n\
          {nothing}\n\
