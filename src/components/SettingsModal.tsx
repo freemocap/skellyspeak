@@ -12,6 +12,7 @@ import {
   languages,
 } from '../lib/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../lib/keyboard'
+import { FactoryReset } from './FactoryReset'
 import { DialectField } from './DialectField'
 import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
 import { displaySecret } from '../lib/secrets'
@@ -1173,8 +1174,9 @@ export function SettingsModal({
           </div>
           <div className="modal-actions">
             <button type="button" className="btn danger" onClick={() => void resetAll()}>
-              Reset all
+              Reset settings
             </button>
+            <FactoryReset />
             <SaveStatus state={saveState} />
             <button type="button" className="btn" onClick={onClose}>
               Close
