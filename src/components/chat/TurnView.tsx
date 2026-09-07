@@ -100,6 +100,9 @@ function TokenSpan({
         className={`w ${tok.notable ? 'notice' : ''}${tappable ? ' tap' : ''}${
           revealed ? ' revealed' : ''
         }${holding ? ' holding' : ''}`}
+        role={tappable ? 'button' : undefined}
+        tabIndex={tappable ? 0 : undefined}
+        onKeyDown={event => { if (tappable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}
         data-gloss-trigger={tappable || undefined}
         onClick={tappable ? clickTap : undefined}
         onPointerDown={startHold}
@@ -176,9 +179,12 @@ export const TurnView = memo(function TurnView({
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
   const evidence = messageEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
-  const [rewardDetail, setRewardDetail] = useState<MessageEvidence[] | null>(null)
+  const [selectedEvidence, setSelectedEvidence] = useState<string[]>([])
+  const currentEvidence = evidence.filter(item => selectedEvidence.includes(item.id))
+  const rewardDetail = currentEvidence.length ? currentEvidence : null
+  const setRewardDetail = (items: MessageEvidence[] | null): void => setSelectedEvidence(items?.map(item => item.id) ?? [])
   const [showUserTranslation, setShowUserTranslation] = useState(false)
-  const [showPartnerTranslation, setShowPartnerTranslation] = useState(false)
+  const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
@@ -188,7 +194,7 @@ export const TurnView = memo(function TurnView({
     return matches.length ? <button key={start} className="message-evidence evidence-phrase" style={{ color: matches[0].color, borderColor: matches[0].color }} data-reward-evidence={matches[0].id} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button> : text
   })
   const assistant = turn.assistant
-  const dragRef = useRef({ active: false, start: -1, last: -1, moved: false })
+  const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
 
   const replyEntries = useMemo(
     () => (assistant && assistant.tokens.length > 0 ? tokenEntries(assistant.tokens) : []),
@@ -202,23 +208,23 @@ export const TurnView = memo(function TurnView({
     [assistant]
   )
 
-  const beginDrag = (turnId: number, gi: number) => {
-    dragRef.current = { active: true, start: gi, last: gi, moved: false }
+  const beginDrag = (turnId: number, side: 'me' | 'bot', gi: number) => {
+    dragRef.current = { active: true, start: gi, last: gi, moved: false, side, turnId }
     const up = () => {
       // Drag ending: the drag-start word gets its gloss revealed too.
       const d = dragRef.current
-      if (d.moved && d.start >= 0) onReveal([`${turnId}:${d.start}`])
+      if (d.moved && d.start >= 0) onReveal([`${turnId}:${side}:${d.start}`])
       d.active = false
       window.removeEventListener('mouseup', up)
     }
     window.addEventListener('mouseup', up)
   }
-  const dragOver = (turnId: number, gi: number) => {
+  const dragOver = (turnId: number, side: 'me' | 'bot', gi: number) => {
     const d = dragRef.current
-    if (!d.active || gi === d.last) return
+    if (!d.active || d.side !== side || d.turnId !== turnId || gi === d.last) return
     d.last = gi
     d.moved = true
-    onReveal([`${turnId}:${gi}`])
+    onReveal([`${turnId}:${side}:${gi}`])
   }
 
   const tokenTap = (
@@ -258,7 +264,7 @@ export const TurnView = memo(function TurnView({
         const start = rawText.indexOf(tok.text, cursor)
         cursor = start < 0 ? rawText.length : start + tok.text.length
         const matches = side === 'me' && start >= 0 ? evidence.filter(item => item.start < cursor && item.end > start) : []
-        const key = `${turnId}:${gi}`
+        const key = `${turnId}:${side}:${gi}`
         const isRevealed = revealed.has(key)
         const prev = gi > 0 ? entries[gi - 1].tok.text : ''
         const space = gi > 0 && needsSpaceBetween(prev, tok.text) ? ' ' : ''
@@ -274,8 +280,8 @@ export const TurnView = memo(function TurnView({
             showRomanization={showRomanization}
             alwaysRomanize={alwaysRomanize}
             onTap={(e) => { if (matches.length) setRewardDetail(matches); else tokenTap(tok, si, translation, e) }}
-            onDragStart={() => beginDrag(turnId, gi)}
-            onDragOver={() => dragOver(turnId, gi)}
+            onDragStart={() => beginDrag(turnId, side, gi)}
+            onDragOver={() => dragOver(turnId, side, gi)}
             onInspect={(e) => {
               e.preventDefault()
               onInspect(turnId, side, gi)
@@ -301,7 +307,7 @@ export const TurnView = memo(function TurnView({
           data-reward-message={turn.id}
           className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''}`}
           onDoubleClick={() =>
-            assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:${i}`))
+            assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
           }
         >
           {userEntries.length > 0
@@ -327,15 +333,9 @@ export const TurnView = memo(function TurnView({
       {turn.user && <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach} />}
       {assistant && (
         <div
-          role="button"
-          tabIndex={0}
-          onClick={bubbleTap}
           onDoubleClick={() =>
-            assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:${i}`))
+            assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))
           }
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') bubbleTap()
-          }}
           className={`msg bot ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
         >
           {assistant.tokens.length > 0 ? (
@@ -351,10 +351,11 @@ export const TurnView = memo(function TurnView({
           )}
           {/* Auto-translate shows the reply's translation without a tap; the
               per-sentence tap still works on top of it. */}
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={autoTranslate || showPartnerTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!showPartnerTranslation) }}>文/A</button>}
-          {(autoTranslate || showPartnerTranslation) && assistant.translation && (
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation ?? autoTranslate} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation ?? autoTranslate)) }}>文/A</button>}
+          {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
             <div className="trans">{assistant.translation}</div>
           )}
+          <button type="button" className="message-translate" onClick={bubbleTap}>Analysis</button>
           {ttsReady && (
             <button
               type="button"

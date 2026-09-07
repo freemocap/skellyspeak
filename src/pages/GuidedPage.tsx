@@ -1,9 +1,11 @@
+import { TopicNotesProvider } from '../components/panes/TopicNotesProvider'
+import { useSkillNavigation } from '../hooks/useSkillNavigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { PracticeContext } from '../components/panes/PracticeContext'
-import { ConversationMap } from '../components/chat/ConversationMap'
+import { ConversationMap, PracticeHint } from '../components/chat/ConversationMap'
 import { SkillRewards } from '../components/chat/SkillRewards'
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
@@ -54,17 +56,7 @@ import { needsProviderSetup } from '../lib/providers'
 /// a scaffold refresh and the coach only need the recent exchange.
 const REPLY_HISTORY_MESSAGES = 30
 
-/// The mobile surfaces, in swipe order. The dev panel is last deliberately:
-/// it is the deepest rung of the disclosure ladder, always reachable but never
-/// in the way.
-const MOBILE_SURFACES = ['chat', 'panel', 'dev'] as const
-type MobileSurface = (typeof MOBILE_SURFACES)[number]
-
-/// A horizontal swipe has to be clearly horizontal to claim the gesture, or it
-/// steals vertical chat scrolling and drag-to-reveal.
-const SWIPE_MIN_PX = 60
-const SWIPE_MAX_MS = 600
-
+type MobileLocation = 'chat' | 'panel' | 'dev'
 
 /// A turn whose reply is known but analysis hasn't landed yet.
 function emptyAssistant(reply: string): GuidedTurnResult {
@@ -93,7 +85,7 @@ export default function GuidedPage({
   /// where every "configure a provider" failure is asking the learner to go.
   onOpenSettings?: () => void
 }) {
-  const [selectedPractice, setSelectedPractice] = useState<string | null>(null)
+  const navigation = useSkillNavigation()
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -168,7 +160,6 @@ export default function GuidedPage({
   /// Everything tied to the conversation leaving the screen. The turns
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
-    setSelectedPractice(null)
     setPinnedId(null)
     setCoachDraft('')
     setReviewing(new Set())
@@ -261,7 +252,7 @@ export default function GuidedPage({
   const onBubbleTap = useCallback(
     (id: number) => {
       setPinnedId(id)
-      setMobileSurface('panel')
+      setMobileLocation('panel')
       setPanelTab('analysis')
       if (!breakOpen) toggleBreak()
     },
@@ -572,9 +563,6 @@ export default function GuidedPage({
   // Fresh scaffolds: regenerated when steering changes, so suggestions track
   // level/topic instead of going stale. Turn analysis clears this override.
   const scaffolds = useScaffolds({
-    chatIdRef,
-    turnsRef,
-    settingsRef,
     settingsLoaded: settings !== null,
     level: steer.level,
     topic: steer.topic,
@@ -610,42 +598,20 @@ export default function GuidedPage({
   })
   toggleMicRef.current = mic.toggleMic
 
-  // Mobile mode: below the breakpoint the window switches to a tabbed
-  // single-surface layout (Chat / Lesson / AI) instead of stacking
-  // everything into one unusable column. The breakpoint itself lives in
-  // useIsMobile — Settings reads the same one.
+  // Chat and lesson share one mobile scroll; AI remains a separate surface.
   const isMobile = useIsMobile()
   const aiBusy = useAiActivity()
-  const [mobileSurface, setMobileSurface] = useState<MobileSurface>('chat')
+  const [mobileSurface, setMobileLocation] = useState<MobileLocation>('chat')
 
-  useEffect(() => { if (words.inspect) { setPanelTab('analysis'); setMobileSurface('panel') } }, [words.inspect])
+  useEffect(() => { if (words.inspect) { setPanelTab('analysis'); setMobileLocation('panel') } }, [words.inspect])
 
-  // Horizontal swipe walks the surfaces on mobile.
-  const swipe = useRef<{ x: number; y: number; t: number } | null>(null)
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t0 = e.touches[0]
-    swipe.current = { x: t0.clientX, y: t0.clientY, t: Date.now() }
-  }
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const start = swipe.current
-    swipe.current = null
-    if (!start) return
-    const dx = e.changedTouches[0].clientX - start.x
-    const dy = e.changedTouches[0].clientY - start.y
-    if (Date.now() - start.t > SWIPE_MAX_MS) return
-    // Clearly horizontal, or the gesture belongs to the scroller.
-    if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 2) return
-    const next = MOBILE_SURFACES.indexOf(mobileSurface) + (dx < 0 ? 1 : -1)
-    if (next >= 0 && next < MOBILE_SURFACES.length) {
-      setMobileSurface(MOBILE_SURFACES[next])
-    }
-  }
+  useEffect(() => {
+    if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
+  }, [isMobile, mobileSurface, panelTab])
   return (
-    <PracticeContext value={{ chatId: currentChatId, selected: selectedPractice, select: setSelectedPractice, suggestions: chipsForUI, suggestionsError: scaffolds.error, useExample: text => { inputEvidence.current = { ...unreportedInput(), suggestion: true }; setInput(text) } }}>
+    <TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) }, suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
     <div
-      className="split"
-      onTouchStart={isMobile ? onTouchStart : undefined}
-      onTouchEnd={isMobile ? onTouchEnd : undefined}
+      className={`split ${isMobile ? "mobile-conversation" : ""}`}
     >
       <ChatHistory
         open={historyOpen}
@@ -658,7 +624,7 @@ export default function GuidedPage({
         onDeleteChat={(id) => void removeChat(id)}
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className={`chat ${isMobile && mobileSurface !== 'chat' ? 'mobile-hidden' : ''}`}>
+      <section className={`chat ${isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="conversation-title"><span className="chat-heading-label">{targetLanguageName}</span><small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
           <div className="chat-heading-actions">
@@ -666,7 +632,7 @@ export default function GuidedPage({
           <button
             type="button"
             className="plan-toggle"
-            onClick={() => { setPanelTab('lesson'); setMobileSurface('panel'); if (!breakOpen) toggleBreak() }}
+            onClick={() => { setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
             title="Show lesson and coach"
           >
             Lesson & coach
@@ -691,7 +657,7 @@ export default function GuidedPage({
               reviewing={reviewing.has(turn.id)}
               targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
               nativeLangCode={settings?.native_language ?? 'en'}
-              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileSurface('panel'); if (!breakOpen) toggleBreak() }}
+              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={ttsReady}
               speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
@@ -734,6 +700,7 @@ export default function GuidedPage({
               </button>
             </div>
           )}
+          {isMobile && <PracticeHint level={steer.level} busy={sending} />}
           {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
           <div className="scaffold-block chat-settings-block">
             <div className="chat-section-heading">
@@ -900,11 +867,11 @@ export default function GuidedPage({
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section
         className={`break ${breakOpen ? '' : 'collapsed'} ${
-          isMobile && mobileSurface !== 'panel' ? 'mobile-hidden' : ''
+          isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''
         }`}
         ref={breakRef}
       >
-        <ConversationMap level={steer.level} busy={sending} mobile={isMobile} />
+        <ConversationMap />
         <button
           type="button"
           className="break-head"
@@ -944,7 +911,7 @@ export default function GuidedPage({
       </section>
 
       {/* The dev surface: the same DevPanel as the desktop dock and the
-          popped-out window, here as the third swipe surface. */}
+          popped-out window, here as the separate diagnostic surface. */}
       {isMobile && (
         <section
           className={`dev-surface ${mobileSurface !== 'dev' ? 'mobile-hidden' : ''}`}
@@ -953,7 +920,7 @@ export default function GuidedPage({
         </section>
       )}
 
-      {/* Mobile bottom navigation: switch surfaces instead of stacking them */}
+      {/* Mobile navigation jumps within practice or opens diagnostics */}
       {isMobile && (
         <nav className="mobile-nav">
           {(
@@ -961,7 +928,7 @@ export default function GuidedPage({
               ['chat', '💬', 'Chat'],
               ['panel', '🎓', 'Lesson'],
               ['dev', '💭', 'AI'],
-            ] as [MobileSurface, string, string][]
+            ] as [MobileLocation, string, string][]
           ).map(([id, icon, label]) => (
             <button
               key={id}
@@ -969,7 +936,7 @@ export default function GuidedPage({
               className={`mobile-nav-item ${mobileSurface === id ? 'active' : ''} ${
                 id === 'dev' && aiBusy ? 'busy' : ''
               }`}
-              onClick={() => setMobileSurface(id)}
+              onClick={() => { setMobileLocation(id); if (id === 'panel') { if (!breakOpen) toggleBreak(); breakRef.current?.scrollIntoView({ block: 'start' }) } else if (id === 'chat') streamRef.current?.scrollIntoView({ block: 'end' }) }}
             >
               {/* Wrapped so the icon alone can pulse while agents are running
                   — the phone has no topbar button to carry that signal. */}
@@ -988,6 +955,6 @@ export default function GuidedPage({
         />
       )}
     </div>
-    </PracticeContext>
+    </PracticeContext></TopicNotesProvider>
   )
 }

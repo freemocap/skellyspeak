@@ -1,6 +1,7 @@
+import { TopicNotesProvider } from './TopicNotesProvider'
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render as testingRender, screen, waitFor } from '@testing-library/react'
 import { CoachAnalysisPanel } from './CoachAnalysisPanel'
 import type { LessonChoices, LessonState } from '../../types'
 
@@ -94,3 +95,5 @@ describe('lesson coaching', () => {
     expect(backend.invoke).toHaveBeenCalledWith('save_lesson', { chatId: 'chat-1', expectedRevision: 0, choices: { goal: 'Tell stories', preferences: [], correction_budget: null } })
   })
 })
+
+function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: ({ children }) => <TopicNotesProvider scope="test">{children}</TopicNotesProvider> }) }

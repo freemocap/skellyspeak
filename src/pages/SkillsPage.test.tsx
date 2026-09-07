@@ -1,5 +1,6 @@
+import { SkillNavigationProvider } from '../hooks/useSkillNavigation'
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useState, type ComponentType, type ReactNode } from 'react'
 import { SkillTreeView } from './SkillsPage'
@@ -115,3 +116,5 @@ describe('meaning-domain profile', () => {
     } finally { await act(async () => { document.documentElement.dir = original }) }
   })
 })
+
+function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: SkillNavigationProvider }) }

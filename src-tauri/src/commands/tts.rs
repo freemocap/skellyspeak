@@ -28,6 +28,7 @@ pub async fn speak_text(
     state: State<'_, AppState>,
     text: String,
     voice: Option<String>,
+    chat_id: Option<String>,
 ) -> Result<TtsAudio, String> {
     let text = text.trim().to_string();
     if text.is_empty() {
@@ -42,9 +43,21 @@ pub async fn speak_text(
         .unwrap_or_else(|p| p.into_inner())
         .clone();
     let endpoint = stored.tts_endpoint()?;
-    let v = voice
+    let default_voice = voice
         .filter(|s| !s.trim().is_empty())
         .unwrap_or_else(|| "nova".into());
+    let partner = if let Some(id) = chat_id {
+        let pair = crate::conversation::pair_dir(&state.config_dir, &stored.target_language, &stored.native_language)?;
+        let chat = crate::conversation::chat_dir(&pair, &id)?;
+        Some(crate::conversation_partner::load(&chat)?)
+    } else { None };
+    let v = partner.as_ref().map_or(default_voice.as_str(), |p| persona_voice(&p.persona.id, &default_voice));
+    let mut instruction = crate::prompts::speech::tts_engine_prompt().to_string();
+    if let Some(partner) = &partner {
+        if partner.persona.id != crate::personas::NONE {
+            instruction.push_str(&crate::prompts::speech::persona_delivery(&partner.persona.sketch, partner.introduction.as_deref()));
+        }
+    }
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(120))
         .build()
@@ -58,7 +71,7 @@ pub async fn speak_text(
         "messages": [
             // gpt-audio models are conversational — without this they answer
             // or continue after the requested phrase. Engine framing, not chat.
-            {"role": "system", "content": crate::prompts::speech::tts_engine_prompt()},
+            {"role": "system", "content": instruction},
             {"role": "user", "content": crate::prompts::speech::tts_turn(&text)}
         ],
     });
@@ -208,5 +221,32 @@ mod wav_tests {
         let w = wav_container(&[], 24_000);
         assert_eq!(w.len(), 44);
         assert_eq!(u32::from_le_bytes([w[40], w[41], w[42], w[43]]), 0);
+    }
+}
+
+/// Stable casting, independent of the learner's current persona preference.
+fn persona_voice<'a>(id: &str, default_voice: &'a str) -> &'a str {
+    match id {
+        crate::personas::NONE => default_voice,
+        "baker" => "coral", "driver" => "echo", "teacher" => "sage",
+        "nurse" => "nova", "student" => "shimmer", "shopkeeper" => "onyx",
+        "cook" => "fable", "sailor" => "ash",
+        _ => {
+            let voices = ["alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer", "verse"];
+            let hash = id.bytes().fold(0usize, |value, byte| value.wrapping_mul(31).wrapping_add(byte as usize));
+            voices[hash % voices.len()]
+        }
+    }
+}
+
+#[cfg(test)]
+mod casting_tests {
+    use super::persona_voice;
+    #[test]
+    fn builtins_have_distinct_stable_casts_and_no_persona_uses_settings() {
+        let voices: std::collections::HashSet<_> = crate::personas::builtins().iter().map(|p| persona_voice(&p.id, "nova")).collect();
+        assert_eq!(voices.len(), crate::personas::builtins().len());
+        assert_eq!(persona_voice("__none__", "alloy"), "alloy");
+        assert_eq!(persona_voice("custom", "nova"), persona_voice("custom", "alloy"));
     }
 }

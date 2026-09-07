@@ -101,20 +101,32 @@ The [September 2026 UX audit](./ux-audit-2026-09-06) proposes these candidates f
 
 Response-to-context provenance belongs to the prompt-provenance workbench above.
 
-## Conversation UI migration: next slices
+## Frontend coherence migration
 
-The practice board, compact conversation header, folded setup defaults and initial
-verified XP notifications have moved into the app. Full visual/device validation
-and the remaining conversation redesign are still pending.
+The first integrated migration is implemented: shared target-scoped selection,
+contextual map entry, XP summary, skill overview/evidence components, neutral selection,
+shared domain palette, three suggested areas with All areas, demand-loaded shared
+explanations, independent message reveal keys, and one mobile chat/lesson scroll.
+Retired map styles, duplicate detail hosts and the obsolete Suggestions toggle/frontend
+regeneration path were removed. This is not completion of the full source audit.
 
-- Simplify the chat header and composer around the prototype while preserving
-  microphone, playback, word assistance, message editing and cancellation. Keep
-  advanced controls behind deliberate disclosures.
-- Validate the shipped reward paths on desktop and phone, including long quotes,
-  offscreen messages, reduced motion and several simultaneous skill credits.
-- Reuse the board's card and explanation interactions throughout Skills, retaining
-  readable branch detail and selection across surfaces.
-- Supply hints grounded in the actual conversation as well as skill and difficulty.
+Remaining work:
 
-Validate the chat and reward sequence together in the real app before further
-expansion of the board. Native layout and animation verification remains required.
+- Verify native desktop and phone layouts, keyboard-open viewport, RTL, large text,
+  touch targets and overlay/back navigation. Native inspection was unavailable during
+  initial implementation; unit tests do not establish these results.
+- Replace global reward-anchor scans with scoped, clipping-aware anchors and test
+  scroll, route changes, simultaneous credits and reduced motion in the real app.
+- Define repeated/overlapping quote selection and show net XP change versus stored
+  credit clearly in detail views.
+- Finish unifying Skills inspector controls and feedback/gloss overlay hosts, preserving
+  history, exclusions, profile controls and explicit word assistance.
+- Index evidence selectors and profile long histories. Snapshot event bursts now coalesce
+  with a trailing refresh, and shared cache retries propagate across mounted views;
+  measure these behaviors under native long-session load.
+- Add conversation-grounded hints only with explicitly captured context. Current topic
+  notes are generic skill/difficulty explanations.
+- Clarify persona voice overrides and validate audio cache ownership on language changes.
+- Complete the remaining CSS/control/accessibility census against the implementation audit.
+
+Preserve the Rust execution pipeline, saved conversation state and progress rules.

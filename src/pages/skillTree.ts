@@ -1,3 +1,4 @@
+import { domainColors } from '../lib/skill-domains'
 import catalog from '../../src-tauri/src/skills/catalog.json'
 import legacy from '../../src-tauri/src/skills/catalog-v1.json'
 import second from '../../src-tauri/src/skills/catalog-v2.json'
@@ -7,7 +8,15 @@ export type TreeNode = {
   kind: 'root' | 'domain' | 'skill'
   color: string; description: string; criterion: string
 }
-export const skillTree = catalog as TreeNode[]
+export const skillTree: TreeNode[] = (catalog as TreeNode[]).map(node => {
+  let domain = node
+  while (domain.kind === 'skill') {
+    const parent = catalog.find(item => item.id === domain.parent)
+    if (!parent) throw new Error(`Missing parent for ${domain.id}`)
+    domain = parent as TreeNode
+  }
+  return { ...node, color: domain.kind === 'domain' ? domainColors(domain.id).bright : '#e8eef7' }
+})
 export function treeNode(id: string): TreeNode {
   const node = skillTree.find((item) => item.id === id)
   if (!node) throw new Error(`Unknown skill-tree node: ${id}`)
