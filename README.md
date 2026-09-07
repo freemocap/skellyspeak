@@ -217,11 +217,10 @@ The seven-domain map heads the lesson panel, with branch selectors and star prog
 show progress toward unassisted milestones; XP includes assisted practice too.
 Domain colors identify the same areas in cards, message evidence and Skills.
 Selection is a neutral outline. On phones, lesson content follows the conversation
-in one scroll, with the selected hint beside the composer and Chat/Lesson jump
-controls. The coach starts as a compact input and send button, with a resize handle above. Focusing its composer expands the thread and its controls.
+in one scroll, with Chat/Lesson jump controls. Practice hints stay in the lesson cards. The chat input stays at the bottom of the visible chat area on mobile, then docks at the top as you scroll into the lesson section so recording and sending remain accessible. The coach starts as a compact input and send button, with a resize handle above. Focusing its composer expands the thread and its controls.
 Coach Enter sends, Shift+Enter adds a newline, and composition Enter does not send.
 
-Explanations load only when disclosed. The card, phone hint and detail share an
+Explanations load only when disclosed. The card and detail share an
 in-flight request and bounded cache, scoped to settings/language pair, chat, level
 and topic. Retry refreshes every mounted subscriber. These are general skill hints,
 not claims about the latest sentence. Reply ideas, frames and starters come from
@@ -330,3 +329,5 @@ New XP flags pop above visible credited wording, shrink into the visible matchin
 Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
 Credited phrases have skill-colored +N superscripts. Clicking one opens its XP card and pops away the marker for the mounted conversation; it does not award XP again. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm, which flashes on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation directly. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.
+
+Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](skellyspeak-docs/docs/platforms.md#automatic-testflight-uploads).

@@ -7,7 +7,6 @@ import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { PracticeContext, DraftAssistanceContext } from '../components/panes/PracticeContext'
-import { PracticeHint } from '../components/chat/ConversationMap'
 import { SkillRewards } from '../components/chat/SkillRewards'
 import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
@@ -620,92 +619,7 @@ export default function GuidedPage({
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
-  return (
-    <RewardPresentationProvider workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
-    <div className="guided-workspace">
-    <div
-      ref={workspace}
-      className={`split ${isMobile ? "mobile-conversation" : ""}`}
-    >
-      <ChatHistory
-        open={historyOpen}
-        chats={chats}
-        currentId={currentChatId}
-        languageName={targetLanguageName}
-        onClose={() => setHistoryOpen(false)}
-        onOpenChat={(id) => void openChat(id)}
-        onNewChat={() => void startNewConversation(steer.persona)}
-        onDeleteChat={(id) => void removeChat(id)}
-      />
-      {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className={`chat ${isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>
-        <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="conversation-title"><span className="chat-heading-label">{targetLanguageName}</span><small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
-          <div className="chat-heading-actions">
-
-          <button
-            type="button"
-            className="plan-toggle"
-            onClick={() => { setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
-            title="Show lesson and coach"
-          >
-            Lesson & coach
-          </button>
-          <button type="button" className="new-chat" aria-label="New chat"
-            title="Start a new chat — this conversation stays in history"
-            disabled={!settings || sending}
-            onClick={() => void startNewConversation(steer.persona)}>+</button>
-          </div>
-        </div>
-        <SkillRewards chatId={currentChatId} active={active} workspace={workspace} />
-        <div className="stream" ref={streamRef}>
-          {turns.length === 0 && !error && !sending && (
-            <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
-              Say hello to start the conversation.
-            </p>
-          )}
-          {turns.map((turn) => (
-            <Fragment key={turn.id}><TurnView
-              turn={turn}
-              reviewing={reviewing.has(turn.id)}
-              targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
-              nativeLangCode={settings?.native_language ?? 'en'}
-              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
-              focused={(pinnedId ?? latestAssistantId) === turn.id}
-              ttsReady={ttsReady}
-              speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
-              revealed={words.revealed}
-              showRomanization={showRomanization}
-              alwaysRomanize={alwaysRomanize}
-              autoTranslate={settings?.auto_translate ?? false}
-              rtl={rtl}
-              onReveal={words.reveal}
-              onBubbleTap={onBubbleTap}
-              onSpeak={speakReply}
-              onPopup={words.setPopup}
-              onInspect={words.inspectWord}
-              onHold={words.holdWord}
-              onToggleReveal={words.toggleReveal}
-              onEditUser={sending ? undefined : beginEditTurn}
-            />
-            {turn.analysisState === 'pending' && <ActivityIndicator label="Analysing reply…" />}
-            </Fragment>
-          ))}
-          {error && (
-            <div className="err">
-              <span>{error}</span>
-              {/* A message that says "go to Settings" should take you there,
-                  rather than making you find the gear yourself. */}
-              {onOpenSettings && needsProviderSetup(error) && (
-                <button type="button" className="err-action" onClick={onOpenSettings}>
-                  Open Settings
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Composer */}
+  const chatComposer = (
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
@@ -715,7 +629,6 @@ export default function GuidedPage({
               </button>
             </div>
           )}
-          {isMobile && <PracticeHint level={steer.level} busy={sending} />}
           {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
           <div className="scaffold-block chat-settings-block">
             <div className="chat-section-heading">
@@ -880,7 +793,97 @@ export default function GuidedPage({
             </button>
           </form>
         </div>
+  )
+
+  return (
+    <RewardPresentationProvider workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
+    <div className="guided-workspace">
+    <div
+      ref={workspace}
+      className={`split ${isMobile ? "mobile-conversation" : ""}`}
+    >
+      <ChatHistory
+        open={historyOpen}
+        chats={chats}
+        currentId={currentChatId}
+        languageName={targetLanguageName}
+        onClose={() => setHistoryOpen(false)}
+        onOpenChat={(id) => void openChat(id)}
+        onNewChat={() => void startNewConversation(steer.persona)}
+        onDeleteChat={(id) => void removeChat(id)}
+      />
+      {/* ── Chat half (paper) ─────────────────────────────────────────── */}
+      <section className={`chat ${isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>
+        <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="conversation-title"><span className="chat-heading-label">{targetLanguageName}</span><small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
+          <div className="chat-heading-actions">
+
+          <button
+            type="button"
+            className="plan-toggle"
+            onClick={() => { setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
+            title="Show lesson and coach"
+          >
+            Lesson & coach
+          </button>
+          <button type="button" className="new-chat" aria-label="New chat"
+            title="Start a new chat — this conversation stays in history"
+            disabled={!settings || sending}
+            onClick={() => void startNewConversation(steer.persona)}>+</button>
+          </div>
+        </div>
+        <SkillRewards chatId={currentChatId} active={active} workspace={workspace} />
+        <div className="stream" ref={streamRef}>
+          {turns.length === 0 && !error && !sending && (
+            <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
+              Say hello to start the conversation.
+            </p>
+          )}
+          {turns.map((turn) => (
+            <Fragment key={turn.id}><TurnView
+              turn={turn}
+              reviewing={reviewing.has(turn.id)}
+              targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
+              nativeLangCode={settings?.native_language ?? 'en'}
+              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
+              focused={(pinnedId ?? latestAssistantId) === turn.id}
+              ttsReady={ttsReady}
+              speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
+              revealed={words.revealed}
+              showRomanization={showRomanization}
+              alwaysRomanize={alwaysRomanize}
+              autoTranslate={settings?.auto_translate ?? false}
+              rtl={rtl}
+              onReveal={words.reveal}
+              onBubbleTap={onBubbleTap}
+              onSpeak={speakReply}
+              onPopup={words.setPopup}
+              onInspect={words.inspectWord}
+              onHold={words.holdWord}
+              onToggleReveal={words.toggleReveal}
+              onEditUser={sending ? undefined : beginEditTurn}
+            />
+            {turn.analysisState === 'pending' && <ActivityIndicator label="Analysing reply…" />}
+            </Fragment>
+          ))}
+          {error && (
+            <div className="err">
+              <span>{error}</span>
+              {/* A message that says "go to Settings" should take you there,
+                  rather than making you find the gear yourself. */}
+              {onOpenSettings && needsProviderSetup(error) && (
+                <button type="button" className="err-action" onClick={onOpenSettings}>
+                  Open Settings
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {!isMobile && chatComposer}
       </section>
+
+      {isMobile && <div className={`chat mobile-composer ${mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>{chatComposer}</div>}
 
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section

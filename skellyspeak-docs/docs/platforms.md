@@ -140,6 +140,51 @@ credentials, stages an ephemeral keychain/profile, builds the IPA, verifies its
 bundle/team/entitlements/signature, uploads the artifact, and cleans up signing
 material.
 
+### Automatic TestFlight uploads
+
+Pushing a `v*` tag also runs the independent **Upload and process TestFlight
+build** job against that run's verified IPA. It uses a commit-pinned
+`Apple-Actions/upload-testflight-build` action and waits for App Store Connect
+processing. Manual workflow runs upload only when **upload_testflight** is
+selected. The existing signing credentials are separate from upload credentials.
+
+One-time repository configuration:
+
+| Kind | Name | Value |
+| --- | --- | --- |
+| Variable | `APPSTORE_ISSUER_ID` | App Store Connect team API issuer ID |
+| Variable | `APPSTORE_API_KEY_ID` | Team API key ID |
+| Secret | `APPSTORE_API_PRIVATE_KEY` | Complete downloaded `AuthKey_*.p8` contents |
+| Variable | `APPSTORE_USES_NON_EXEMPT_ENCRYPTION` | Reviewed export-compliance declaration: `true` or `false` |
+
+Create the team API key in App Store Connect → Users and Access → Integrations,
+with the App Manager role as specified by the upload action. Add its private key
+directly to GitHub Actions secrets; do not commit it or paste it into logs.
+The workflow fails clearly if required configuration is missing. It does not
+guess the encryption declaration.
+
+In App Store Connect → SkellySpeak → TestFlight, check whether the device's group
+is under **Internal Testing** or **External Testing**. For internal testers,
+enable **automatic distribution** on the group. External testers require the
+appropriate beta-review and group-distribution setup; this workflow does not
+submit external beta reviews or add builds to external groups. Apple processing,
+agreements, export-compliance requirements, and beta review can delay availability.
+Uploading does not publish a public App Store release. Device installation is
+controlled by TestFlight; enable automatic updates there if desired.
+
+The marketing version still comes from Cargo.toml. Each full workflow attempt
+uses a fresh `run_number.run_attempt` build number. If an upload job fails after
+Apple accepted the binary, check App Store Connect before retrying: rerunning only
+that job reuses the same IPA. Rerun the complete workflow to produce a fresh build
+number; do not repeatedly upload a consumed build.
+
+Local workflow validation does not prove signing, upload, Apple processing, or
+device delivery. Verify the first configured tag run and its TestFlight build.
+
+References: [upload action](https://github.com/Apple-Actions/upload-testflight-build),
+[Apple internal tester setup](https://developer.apple.com/help/app-store-connect/test-a-beta-version/add-internal-testers/),
+[Apple build uploads](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/).
+
 iOS microphone capture runs in the Rust core through cpal. Before capture,
 `src-tauri/src/audio.rs` configures `AVAudioSession`; the app's microphone
 usage description is in `src-tauri/Info.plist`.
