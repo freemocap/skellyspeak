@@ -3,7 +3,7 @@ import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } f
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import GuidedPage from './pages/GuidedPage'
-import { useSkillEvidence } from './hooks/useSkillEvidence'
+import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
 import { treeNode } from './pages/skillTree'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
@@ -235,12 +235,12 @@ export default function App() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <GuidedPage
+                <SkillEvidenceContext value={evidence}><GuidedPage
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
                   onOpenSettings={() => setSettingsOpen(true)}
-                />
+                /></SkillEvidenceContext>
               </PageBoundary>
             </div>
           </>

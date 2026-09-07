@@ -38,6 +38,16 @@ chat.
 
 ## Tutor memory
 
+Partner replies are prompted to include one easy response invitation within the
+selected difficulty limits and lesson context, including on greetings and topic
+changes. This requirement does not change inferred proficiency or lesson ownership.
+
+Skill progress exposes derived XP credits identifying the attempt and skill that
+own each reward. Credits sum to the language XP total and are recomputed from
+eligible saved evidence, not stored as additional awards. Lesson displays these
+credits with source quotes and assessment rationales; stars remain practice
+milestones rather than proficiency claims.
+
 `TeachingPlan` describes immediate practice focus, recurring errors, vocabulary
 to recycle, interests, correction budget and a taught ledger. `Profile` holds
 longer-term learner notes, strengths, weaknesses, interests and error patterns.

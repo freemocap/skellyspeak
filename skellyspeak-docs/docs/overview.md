@@ -91,8 +91,26 @@ steered message, so the first turn already respects level and topic.
 
 ### Help is on-demand, not dialed
 
+Partner prompts require every reply, including openings and topic changes, to
+offer one easy question, choice, or concrete invitation to respond. At Absolute
+zero, a one-word or yes/no answer should be possible. The invitation shares the
+existing length and complexity limits; personal detail is shortened to make room.
+The learner's subject and lesson context still guide the exchange.
+
+Lesson leads with live practice progress: the language's total XP and the three
+latest message reviews in this conversation. Each review shows credited XP,
+supporting quotes, the skill judgment and its explanation, and progress toward
+a star. Pending and failed reviews remain visible. Topic explanations expand
+under the current goal, leaving more room for the conversation's evidence.
+Credit is derived from saved evidence: repeated wording earns credit once per
+skill, and unassisted evidence takes precedence over assisted wording. Edits or
+exclusions can reassign or remove credit; the total includes other conversations.
+
 There is no global assist slider. Help is revealed per word and per
 sentence, in place:
+
+On mobile, tapping a word keeps Chat visible while showing its gloss. Tap the
+surrounding partner message to open Analysis.
 
 | Gesture | Result |
 |---|---|

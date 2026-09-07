@@ -36,6 +36,26 @@ fn beginner_language_constraints_do_not_ban_subjects() {
     assert!(prompt.contains("Keep the subject"));
     assert!(!partner::learner_block("Spanish", "B1", "English").contains("PRACTICE DIFFICULTY — PRE-A1"));
 }
+
+#[test]
+fn partner_invites_replies_at_every_difficulty_without_relaxing_limits() {
+    for level in [difficulty::Difficulty::Zero, difficulty::Difficulty::Beginner,
+        difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced] {
+        let prompt = partner::reply_prompt("", None, "Spanish", level.cefr(), "English", Some("Food"), "Practice preferences");
+        assert!(prompt.contains("Every reply must include one clear, easy invitation to respond"));
+        assert!(prompt.contains(&level.policy()));
+        assert!(prompt.contains("ALL practice difficulty limits"));
+        assert!(prompt.contains("THE LEARNER LEADS"));
+        for conflict in ["A question is optional", "and not every turn", "do not pack in a biography or a question"] {
+            assert!(!prompt.contains(conflict));
+        }
+    }
+    for opening in [partner::greeting_turn(), partner::steering_turn("Food")] {
+        assert!(opening.contains("one easy invitation to respond within the selected difficulty limits"));
+    }
+    assert_eq!(difficulty::check("Soy Carmen. ¿Y tú?", difficulty::Difficulty::Zero, "es-ES").status, "within_measured_limits");
+    assert_eq!(difficulty::check("Tengo pan. ¿Quieres pan?", difficulty::Difficulty::Zero, "es-ES").status, "within_measured_limits");
+}
 // ─── The other surfaces ─────────────────────────────────────────────────────
 
 #[test]

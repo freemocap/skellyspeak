@@ -144,8 +144,19 @@ Opening a nonempty chat without `partner.json` recovers its earliest saved assis
 
 ## Instruction auditing
 
+The skill profile includes per-attempt, per-skill XP credits derived in Rust
+alongside its totals. For each normalized wording, the earliest unassisted
+demonstration owns credit; otherwise the earliest assisted demonstration does.
+Ties use turn and attempt identifiers. Excluded, superseded and historical
+criteria do not earn current credit. Lesson consumes the app's shared skill
+snapshot subscription to show live reviews and attribution without recalculating
+rewards in React.
+
 `prompts/difficulty.rs` owns the selected practice policy shared by replies and
 suggestions. Coach and observer paths distinguish it from inferred proficiency.
+The partner's conversation-style block requires one easy response invitation on
+every turn, including greetings and preference changes, within that same difficulty
+budget. This is a prompt requirement, not a runtime guarantee of model adherence.
 `instruction.rs` records chat/message ownership, captured settings, lesson revision,
 partner snapshot and history selection. Named reply/suggestion blocks are rendered
 and checked against the actual outbound system message. `ai.rs` captures each

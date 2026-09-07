@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../lib/tauri'
 import { LessonEditor, type LessonSaveResult } from './LessonEditor'
+import { LessonProgress } from './LessonProgress'
 import type { LessonChoices, LessonState, Profile, TeachingPlan } from '../../types'
 
 export function ChoiceSummary({ choices }: { choices: LessonChoices }) {
@@ -35,14 +36,17 @@ export function LessonContent({ chatId, level, lesson, plan, profile, busy, obse
   const [editing, setEditing] = useState(false)
   const focus = lesson.choices.goal ? [lesson.choices.goal] : plan?.session_focus ?? []
   return <div className="lesson-content">
+    <LessonProgress chatId={chatId} busy={busy} />
     <section className="lesson-focus">
       {focus.map((topic, index) => <section className="lesson-topic" key={`${chatId}:${level}:${topic}`}>
         <div className="lesson-topic-title"><span className="lesson-topic-index">{String(index + 1).padStart(2, '0')}</span><h2>{topic}</h2></div>
+        <details className="lesson-topic-details"><summary>Explore this focus</summary>
         <TopicExplanation chatId={chatId} topic={topic} level={level} busy={busy} />
         <div className="lesson-topic-tools">
           <button type="button" className="lesson-inline-action" disabled={busy} onClick={() => onAsk(`Help me practise ${topic}. Give me a short example at my selected practice level.`)}>Try an example</button>
           <button type="button" className="lesson-inline-action" disabled={busy} onClick={() => onAsk(`Why are we practising ${topic}? Explain what in my conversation supports this focus.`)}>Why this?</button>
         </div>
+        </details>
       </section>)}
       {!focus.length && <p className="lesson-empty">{plan ? 'Choose something you want to practise.' : 'Finding a starting point…'}</p>}
       <div className="lesson-focus-footer"><span>{lesson.choices.goal ? 'Your goal' : 'Coach-suggested'}</span><button type="button" className="lesson-action" disabled={busy} onClick={() => setEditing(true)}>Edit choices</button></div>

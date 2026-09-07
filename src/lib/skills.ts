@@ -68,6 +68,7 @@ export interface SkillProgress {
   star: boolean
 }
 export interface LearnerProfile {
+  credits: { attempt_id: string; skill_id: string; xp: number }[]
   rules_version: number
   choices: ProfileChoices
   xp: number

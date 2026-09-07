@@ -18,6 +18,12 @@ Two surfaces:
   lesson: explicit requests update it; suggestions wait for you to apply them.
   Suggestions and settings fold independently beneath compact headings attached to their respective content. Persona controls fit in one row; the gear opens character details.
   Voice works in *and* out.
+  Partner prompts require an easy question, choice, or concrete invitation to
+  respond on every turn, within the selected difficulty and lesson context.
+  Lesson shows live skill reviews, credited XP, the learner's supporting words,
+  and progress toward stars. Topic explanations expand below recent practice.
+  On mobile, tapping a word shows its gloss without leaving Chat; tapping the
+  surrounding partner message opens Analysis.
 - **Skill tree** — your language profile, meaning-domain practice paths and inspectable progress.
 
 Supported languages are symmetric: English (US), French, Spanish, Arabic, and

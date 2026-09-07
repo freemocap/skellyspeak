@@ -91,7 +91,7 @@ function TokenSpan({
     onTap(e)
   }
   return (
-    <span className="wu">
+    <span className="wu" onClick={(e) => e.stopPropagation()}>
       <span
         className={`w ${tok.notable ? 'notice' : ''}${tappable ? ' tap' : ''}${
           revealed ? ' revealed' : ''

@@ -330,6 +330,9 @@ mod tests {
         let choices = progress::Choices::initial("es-ES");
         let one = progress::project(&view, choices.clone()).unwrap();
         assert_eq!(one.xp, 10);
+        assert_eq!(one.credits.len(), 1);
+        assert_eq!(one.credits[0].attempt_id, first.attempt_id);
+        assert_eq!(one.credits[0].xp, 10);
         assert_eq!(one.skills.iter().find(|s| s.skill_id == "referent").unwrap().successes, 1);
         for source in ["That book.", "That person."] {
             let mut next = first.clone();
@@ -348,9 +351,40 @@ mod tests {
         view.records.iter_mut().for_each(|r| r.input.suggestion = true);
         let supported = progress::project(&view, choices.clone()).unwrap();
         assert_eq!(supported.xp, 6);
+        assert_eq!(supported.credits.iter().map(|c| c.xp).sum::<usize>(), supported.xp);
         assert!(!supported.skills.iter().any(|s| s.star));
         view.records.clear();
         assert_eq!(progress::project(&view, choices).unwrap().xp, 0);
+    }
+    #[test]
+    fn credit_ownership_prefers_unassisted_and_is_order_independent() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut view = snapshot(dir.path(), "es-ES").unwrap();
+        let mut assisted = record("That cup.");
+        assisted.attempt_id = "assisted".into();
+        assisted.status = Status::Complete;
+        assisted.input.suggestion = true;
+        assisted.assessment = Some(assessment(&assisted.source));
+        let mut direct = assisted.clone();
+        direct.attempt_id = "direct".into();
+        direct.input.suggestion = false;
+        let mut duplicate = direct.clone();
+        duplicate.attempt_id = "duplicate".into();
+        duplicate.at_secs += 1;
+        view.records = vec![duplicate, assisted, direct];
+        let choices = progress::Choices::initial("es-ES");
+        let projected = progress::project(&view, choices.clone()).unwrap();
+        assert_eq!(projected.xp, 10);
+        assert_eq!(projected.credits.len(), 1);
+        assert_eq!(projected.credits[0].attempt_id, "direct");
+        view.records.reverse();
+        assert_eq!(progress::project(&view, choices.clone()).unwrap().credits[0].attempt_id, "direct");
+        let mut excluded = choices;
+        excluded.excluded_attempts = vec!["direct".into(), "duplicate".into()];
+        let projected = progress::project(&view, excluded).unwrap();
+        assert_eq!(projected.xp, 2);
+        assert_eq!(projected.credits[0].attempt_id, "assisted");
+        assert_eq!(projected.credits[0].xp, 2);
     }
     #[test]
     fn historical_rubrics_remain_readable_without_new_skill_credit() {

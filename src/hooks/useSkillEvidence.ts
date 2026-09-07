@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { isTauri } from '../lib/tauri'
 import { getSkillEvidence, saveSkillProfile, subscribeSkillEvidence, type ProfileChoices, type SkillSnapshot } from '../lib/skills'
+
+export const SkillEvidenceContext = createContext<{ snapshot: SkillSnapshot | null; error: string | null }>({ snapshot: null, error: null })
 
 export function useSkillEvidence(active: boolean, settingsVersion: number) {
   const [snapshot, setSnapshot] = useState<SkillSnapshot | null>(null)
