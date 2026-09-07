@@ -20,11 +20,29 @@ it('never paints stale, failed, excluded or uncredited evidence', () => {
   expect(messageEvidence(snapshot, 'other', 1, 'Ese café.')).toEqual([])
   expect(messageEvidence(snapshot, 'chat', 1, 'Otro café.')).toEqual([])
   snapshot.records[0].status = 'failed'
-  expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
+  expect(messageEvidence(structuredClone(snapshot), 'chat', 1, 'Ese café.')).toEqual([])
   snapshot.records[0].status = 'complete'
   snapshot.profile.choices.excluded_attempts = ['a']
-  expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
+  expect(messageEvidence(structuredClone(snapshot), 'chat', 1, 'Ese café.')).toEqual([])
   snapshot.profile.choices.excluded_attempts = []
   snapshot.profile.credits = []
-  expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
+  expect(messageEvidence(structuredClone(snapshot), 'chat', 1, 'Ese café.')).toEqual([])
+})
+
+it('marks every possible occurrence without inventing which one the review meant', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].source = 'Ese café. Ese café.'
+  const spans = messageEvidence(snapshot, 'chat', 1, snapshot.records[0].source)
+  expect(spans.map(item => item.start)).toEqual([0, 10])
+  expect(spans.every(item => item.ambiguous)).toBe(true)
+  expect(new Set(spans.map(item => item.id)).size).toBe(1)
+})
+
+it('retains distinct quotes under one credit and removes duplicate quote entries', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].assessment!.judgments[0].quotes = ['Ese', 'café', 'Ese']
+  const spans = messageEvidence(structuredClone(snapshot), 'chat', 1, 'Ese café.')
+  expect(spans.map(item => item.quote)).toEqual(['Ese', 'café'])
+  expect(spans.every(item => !item.ambiguous)).toBe(true)
+  expect(new Set(spans.map(item => item.id)).size).toBe(1)
 })

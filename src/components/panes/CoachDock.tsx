@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 const STORAGE_KEY = 'skellyspeak_coach_layout'
-const MIN_HEIGHT = 112
+const MIN_HEIGHT = 64
 const DEFAULT_HEIGHT = 160
 type Layout = { height: number; collapsed: boolean }
 

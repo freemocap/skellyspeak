@@ -275,3 +275,7 @@ read completes. The retired Suggestions toggle and standalone frontend regenerat
 path are removed; steering still produces a reply whose analysis hydrates suggestions.
 
 Skill snapshot event bursts coalesce while a read is active and always request a trailing refresh. Successful reads clear earlier refresh errors. In-flight topic notes are retained until completion; inactive completed notes are pruned to the cache limit.
+
+### XP presentation lifecycle
+
+The React reward presentation controller owns opening, hovering, and departing cards. Selections store message/credit identities and resolve evidence against the current snapshot; removed evidence closes the card. Web Animations moves the card from its captured phrase position to the conversation header area and then to a currently visible domain anchor. A compact indicator represents an offscreen map destination. Route, chat, and target changes clear presentations. This transient state does not write credits, alter scoring, or issue model requests.

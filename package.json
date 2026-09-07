@@ -10,7 +10,8 @@
     "tauri": "tauri",
     "macos:dev-bundle": "tauri bundle --debug --bundles app --no-sign --config src-tauri/tauri.dev-bundle.conf.json",
     "android": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-dev.ps1",
-    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-apk.ps1"
+    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-apk.ps1",
+    "macos:dev-sign": "node scripts/macos-dev-sign.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",

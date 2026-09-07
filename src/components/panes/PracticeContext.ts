@@ -6,6 +6,9 @@ export const PracticeContext = createContext<{
   selectionVersion: number
   selected: string | null
   select: (id: string) => void
+} | null>(null)
+
+export const DraftAssistanceContext = createContext<{
   useExample: (text: string, source: 'suggestion' | 'scaffold') => void
   suggestions: Scaffolds
   suggestionsError: string | null

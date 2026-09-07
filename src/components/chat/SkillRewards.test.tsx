@@ -10,7 +10,7 @@ it('silently loads history, announces new credit, and clears it on chat changes'
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList)
   vi.useFakeTimers()
   const snapshot = structuredClone(skillDemo)
-  const ui = (value: SkillSnapshot, chatId = 'chat') => <SkillEvidenceContext value={{ snapshot: value, error: null }}><SkillRewards chatId={chatId} /></SkillEvidenceContext>
+  const ui = (value: SkillSnapshot, chatId = 'chat') => <SkillEvidenceContext value={{ snapshot: value, error: null }}><SkillRewards chatId={chatId} active={true} workspace={{ current: null }} /></SkillEvidenceContext>
   const view = render(ui(snapshot))
   try {
     expect(screen.getByRole('status')).toBeEmptyDOMElement()

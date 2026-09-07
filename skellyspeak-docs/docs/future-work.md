@@ -117,8 +117,6 @@ Remaining work:
   initial implementation; unit tests do not establish these results.
 - Replace global reward-anchor scans with scoped, clipping-aware anchors and test
   scroll, route changes, simultaneous credits and reduced motion in the real app.
-- Define repeated/overlapping quote selection and show net XP change versus stored
-  credit clearly in detail views.
 - Finish unifying Skills inspector controls and feedback/gloss overlay hosts, preserving
   history, exclusions, profile controls and explicit word assistance.
 - Index evidence selectors and profile long histories. Snapshot event bursts now coalesce

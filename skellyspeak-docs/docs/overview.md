@@ -99,8 +99,7 @@ The learner's subject and lesson context still guide the exchange.
 
 Lesson leads with skill cards and a compact jewel-toned map at the upper-left edge of the lesson panel, in its own row above the controls.
 The map starts collapsed; click it to expand the seven-domain overview, then
-collapse it again without losing the selected branch. Cards stay in stable catalog
-order, with the current practice focus first in its branch. Browsing a domain
+collapse it again without losing the selected branch. Cards preserve domain identity, with the current practice focus first in its branch. Browsing a domain
 does not change the saved practice focus. Selecting a branch highlights and expands its matching card. Cards expand with a level-appropriate explanation, example
 and translation from the lesson service. Double-click or the explicit explanation
 button opens a dialog showing the skill criterion and reviewed replies from this
@@ -171,131 +170,128 @@ down in [Ontology](./ontology).
 - [Observability](./observability) — the agent ontology, and the app rendering its own inner workings for developer and learner alike.
 - [Future Work](./future-work) — the mechanical analysis layer (dictionaries instead of LLMs) and the language ladder.
 
-Changing the topic keeps the chat and asks the partner to open the new subject without treating its previous reply as learner input. Suggestions come from that new reply’s analysis, rather than a parallel request using the old exchange.
+## Conversation and practice
 
-The coach conversation starts as a compact dock with its message box visible. Drag its top border to resize it, or use the heading toggle to collapse the thread while keeping the composer available. Its height and collapsed state persist on this device across reloads. The divider also supports the Up/Down arrow keys and Enter.
+The practice board starts with the saved or recommended focus and two core skills
+with less recorded XP. **All areas** offers one skill per domain; **List/Grid** is a
+saved layout preference. Browsing a card or map arm selects that skill across the
+application without changing saved focus. A card expands in place; its explicit
+detail action or double-click opens the explanation and reviewed replies.
 
-Reply ideas, frames and starters expand inside practice cards. Choosing one inserts it into the draft without sending, preserving existing text and recording assistance.
+The seven-domain map heads the lesson panel, with branch selectors and star progress. It starts expanded on desktop and collapsed on phones; its toggle can collapse it to a slim row on either layout. Lesson/Analysis tabs sit above the map. Cards follow directly below it; a small card display menu holds All areas and List/Grid. The selected skill moves to the first card, with other cards retaining their relative order. Its arms
+show progress toward unassisted milestones; XP includes assisted practice too.
+Domain colors identify the same areas in cards, message evidence and Skills.
+Selection is a neutral outline. On phones, lesson content follows the conversation
+in one scroll, with the selected hint beside the composer and Chat/Lesson jump
+controls. The coach starts as a compact input and send button, with a resize handle above. Focusing its composer expands the thread and its controls.
+Coach Enter sends, Shift+Enter adds a newline, and composition Enter does not send.
 
-The **AI** panel opens directly on the live pipeline. A compact strip shows recorded and running model calls; select a call or graph node for its timing, model, response preview, and expandable prompts and raw responses. **How it works** explains the context; **Debug** expands execution controls, logs and the advanced comparison workspace without replacing the main graph. Filter retained activity by chat and exchange. The full-height request reader shows captured inputs, every attempt, effective parameters and prompt-block comparisons. Traces survive restarts within local retention limits and can be exported for an audit; see [Observability](./observability).
+Explanations load only when disclosed. The card, phone hint and detail share an
+in-flight request and bounded cache, scoped to settings/language pair, chat, level
+and topic. Retry refreshes every mounted subscriber. These are general skill hints,
+not claims about the latest sentence. Reply ideas, frames and starters come from
+the partner reply's analysis; they are general conversation options. Inserting help
+appends to the current draft and records assistance without sending automatically.
 
-Selected graph nodes have a labeled outline and highlighted connections, synchronized with the selected call. Execution states include text labels. Shared text colors and keyboard focus indicators support readable dark and light surfaces.
+Word help offers its gloss and an explicit **Explain this word** action. Credited
+words also offer **XP details**. Punctuation can reveal a sentence translation;
+each message has its own full-translation button once that data arrives. Learner
+translations begin hidden; partner auto-translation can be collapsed locally.
+**Analysis** is a separate message action. On phones it opens a dismissible message dialog over the conversation; Close, tapping outside, Escape, or Back returns to the same chat position. Desktop analysis stays in the learning panel. Audio and translation controls do not
+navigate. Learner and partner token reveals have separate identities.
 
-Mobile keeps the interactive graph with a readable starting zoom, pan/zoom controls and a navigation map. Node details open over the graph with a dedicated close control.
+Credited phrases carry domain-colored underlines. Overlapping domains share an
+underline; repeated wording is marked at each possible occurrence and explained as
+ambiguous. XP details retain all quotes for a skill with one stored-credit total.
+New-credit badges show only the net increase: an assisted-to-direct replacement can
+show +8 while the record has 10 XP. Animations use visible anchors inside the active
+conversation, account for clipping, and stop moving when the layout scrolls or
+resizes. Reduced motion uses a static badge. History never replays as new rewards.
 
-The voice composer keeps Record/Stop and Send in the same positions while recording. **Discard** appears to their left. Stop transcribes into the draft, or sends the transcription when **Auto-send voice** is enabled.
+Feedback, XP and skill details use the same dialog host; word help uses the same
+layer lifecycle. Outside click, Escape and the overlay back stack dismiss them.
+Changing surfaces closes transient learner overlays. Understanding/grammar feedback
+describes the message separately from skill XP. Editing retains a collapsible copy
+of the original feedback until the edit is sent or cancelled.
 
-Use **+** in the conversation header to start a new chat directly; the previous conversation remains in history.
+**Preferences & coach memory** discloses lesson choices, observations and learner
+memory. Changing topic keeps the conversation and gets new suggestions from the
+new reply. **+** starts a separate chat while retaining the current one in history.
+Record/Stop and Send stay in place during voice capture; Discard appears alongside.
+Stop transcribes to the draft unless Auto-send voice is enabled.
 
-Reply instructions explicitly separate the partner's identity from the learner's.
-The saved introduction is labeled as an assistant message; the partner is told
-to use a learner name only after the learner identifies themselves. The AI
-request reader exposes this as the `participants` prompt block. These are model
-instructions, not a guarantee that every generated reply follows them.
+## Skills and language profile
 
-The lesson panel starts with practice cards, followed by the goal or suggested lesson topics, each
-with a short explanation, target-language example and translation. Compact
-**Try an example** and **Why this?** links prepare a coach question without
-sending it. **Preferences & coach memory** groups correction settings,
-preferences, observations, learner memory and change history behind one disclosure.
-Topic notes load through a read-only model call at the selected practice level;
-errors are shown with Retry. Notes are held while the topic view remains mounted.
+**My language profile** opens a summary of XP, stars and focus. **Skill tree** starts
+with expandable domain cards. **Map** opens the graph with horizontal, radial and
+top-down layouts, breadcrumbs, Back and Whole tree. Horizontal direction follows
+the application. All skills, including extensions, are reachable from domain cards,
+related skills and Inspect. A selection opens the shared detail beside the map or
+cards; **Open full details** opens a dialog. Exploration keeps the conversation
+mounted, preserving draft and position. Only **Practise this in conversation** saves
+a new focus; **Follow recommendations** releases it.
 
-When retrying a message, the original attempt's corrections and coach remark
-stay available in a collapsible, scrollable reference above the composer,
-including during voice recording. The conversation remains accessible and the
-full feedback modal is still available. Sending or cancelling the edit removes
-the reference.
-
-## Skill tree and language profile
-
-**Guided conversation** and **Skill tree** are the two top-level tabs. Open
-**My language profile** above the conversation to see the current target's XP,
-stars, focus and evidence. Stories and its dedicated generation machinery have
-been retired; any old browser story cache is left untouched but is no longer read.
-
-The shared tree organizes concrete meaning relationships: entities/reference,
-properties/comparison, events/participants, time/event structure, space/movement,
-negation/questions/possibility, and connections between ideas. It compares the
-functions languages express without requiring the same grammatical constructions.
-The map shows three levels: experience, meaning domains, and core skills.
-Extension skills remain accessible through their parent’s details and saved focus.
-Selecting a branch smoothly zooms toward it; Back restores the previous viewport,
-and Whole tree, breadcrumbs and a minimap keep navigation grounded. Closing
-details leaves the viewport unchanged. Horizontal layout follows application
-direction; radial/top-down views and an optional mobile list are available.
-
-New guided learner turns receive a background worker assessment, using the normal
-provider route and metering. Exact quotes, outcomes, recorded assistance and
-request provenance are inspectable. Unobserved skills are not failures.
-One/two successes earn checks; three earn a star. Distinct successful wording earns
-10 XP per skill without recorded in-app assistance, or 2 assisted practice XP.
-Assisted practice does not advance stars; external assistance is unknown.
-These are practice milestones, not certified proficiency.
-
-**Practise this in conversation** saves a focus and returns to chat. It steers
-subsequent partner, suggestion, feedback and lesson-planning requests, subject to
-your explicit lesson choices and difficulty. **Follow recommendations** releases
-a pinned focus. Progress never changes conversation difficulty. The local learner
-has separate progress for each target language, shared across native-language
-contexts. Profile switching is not implemented.
+The shared catalog covers entities/reference, properties/comparison,
+events/participants, time/event structure, space/movement,
+negation/questions/possibility and connections between ideas. New learner messages
+receive independent background assessments through the existing provider routing.
+Distinct successful wording earns 10 XP per skill without recorded in-app help,
+or 2 XP with suggestions, scaffolds or revision. Three unassisted successes earn
+a star. External assistance is unknown. These milestones are not certified
+proficiency and never change conversation difficulty.
 
 Only current saved source versions and current-catalog judgments contribute.
-Duplicate wording counts once per skill. Editing, deleting, truncating or excluding
-an attempt recomputes totals. Previous rubric judgments stay inspectable but earn
-no new-skill credit. Historical conversations are not automatically re-evaluated.
-Browser-only mode uses labeled sample data; the native app never substitutes it
-for a failed load. The evaluator still needs cross-language semantic calibration.
+Editing, deleting, truncating or excluding attempts recomputes totals. Excluded,
+superseded, pending, failed and historical evidence remains explicitly classified;
+it cannot display current credit through a different UI filter. Source records,
+exclusion/restore controls, assessment activity and old-rubric evidence remain
+available through disclosure. Progress is separate per target language and shared
+across native-language contexts. Browser Skills uses clearly labeled sample data;
+the native app does not substitute sample data on a failed load.
 
-See [Meaning Domains & Skill Progression](./skill-progression-design).
+Skill assessment prompts require native-language explanations of the quoted
+construction, linguistic function and specific criterion. A topic paraphrase is
+insufficient. Existing saved explanations are not rewritten. Semantic calibration
+across languages and uncertain-phrase coaching markers remain separate planned
+work; missing XP is never treated as proof of a mistake.
 
-### Factory reset
+## Personas and voice
 
-Settings → **Clear all data…** opens a destructive-action confirmation. Type
-`DELETE` and choose **Erase all data and close**. Reopen SkellySpeak to complete
-the reset. It removes local conversations, lesson/coach memory, skill evidence
-and progress, settings, saved credentials, app-managed logs/caches and webview
-storage (including layout preferences). **Reset settings** only restores preferences.
-Cloud accounts, billing/usage records and exports saved outside app storage remain.
-The reset cannot be undone.
+Persona backstory guides manner and stays mostly unspoken. Built-in sketches
+include formative books; existing chats retain their saved sketch. Prompts ask for
+natural conversational openings within the current difficulty and lesson choices,
+and distinguish partner identity from learner identity. These instructions do not
+guarantee every generated reply's quality.
 
-The practice board initially shows the focus skill and two areas with less recorded
-practice. All areas shows one card per domain. Selecting a card or map arm shares
-the selected skill with Skills without changing saved practice focus. Selecting an
-area outside the suggested set exposes it. List/Grid remains a saved preference.
-Cards and the full map use the same domain palette, neutral selection, skill overview
-and evidence records. Explore actions carry the skill into the map; returning to
-conversation preserves its mounted draft and history. The XP strip opens a progress
-summary before the explicit Explore skills action.
+Saved personas have stable cloud voice casts. Custom personas are cast by ID;
+explicit age, gender and manner guide delivery. **Cloud voice without a persona**
+applies only to no-persona chats. OS voices are selected by target language and
+stable identity; their metadata does not reliably describe age or gender. Audio
+cache ownership includes settings scope, language pair, chat, requested voice and
+text. Changing settings or leaving conversation cancels current playback.
 
-On phones, lesson content follows chat in one scroll, with a demand-loaded selected
-hint by the composer. Navigation jumps to Chat or Lesson; AI is separate. Word
-inspection has keyboard access; Analysis is an explicit message action. Learner
-and partner reveal states are independent. Shared detail dialogs support outside
-click, Escape and the overlay back stack. Native keyboard/layout validation remains
-pending.
+## AI inspection
 
-New review credits animate from the learner message through visible skill and map
-targets toward the language XP total. The label includes the supporting quote and
-skill. Hidden or offscreen destinations are skipped; the animation never opens a
-panel or scrolls the conversation. Reduced motion shows a stationary notification.
-History loads, failed reviews, replaced messages and profile-choice changes do
-not trigger rewards. Assisted-to-unassisted upgrades display the net skill XP gain.
+The **AI** panel exposes the live execution graph, recorded and running calls,
+timing, models and responses. Prompts, attempts and provenance are available through
+the request reader. **How it works** provides context; **Debug** discloses controls,
+logs and comparisons. Reply streaming and independently hydrated analysis, skill
+review and coach work retain their existing Rust owners. Topic explanations are
+tracked requests; cloud speech uses its specialized audio path and playback status,
+not identical Runner telemetry.
 
-The conversation header now presents language and difficulty together. Settings
-and voice controls default to folded for new users; saved preferences still apply.
-Word help, message editing, voice, suggestions and cancellation remain available.
+## Factory reset
 
-Credited phrases in learner replies are underlined in their domain color. Tap for the recorded reason and message-level skill XP. The map reserves space above lesson controls; selecting an arm expands its skill card.
+Settings → **Clear all data…** requires typing `DELETE` and choosing **Erase all data
+and close**. Reopening completes removal of local conversations, lesson/coach
+memory, evidence, progress, settings, credentials, app-managed logs/caches and
+webview preferences. **Reset settings** only resets preferences. Cloud accounts,
+billing/usage records and external exports remain. Factory reset cannot be undone.
 
-Skill assessment instructions require explanations in the learner’s native language that identify the quoted construction, its linguistic function, and its relationship to the specific rubric. Topic summaries alone do not support credit. Prompt version `skill-evidence-5` applies to new assessments; saved explanations are not rewritten. Map selection uses a neutral outline independent of domain colors.
+The conversation partner continues the existing exchange after its opening, without repeating greetings or introductions on ordinary replies or practice preference changes.
 
-XP flights and phrase details share a domain-colored reward badge with the skill, credited XP and source phrase. Selecting a highlighted phrase opens that badge with its explanation; outside click or Escape closes it without awarding XP again.
+New XP flags pop above visible credited wording, shrink into the visible matching map arm, and briefly brighten that arm on arrival. With the map collapsed, flags fade at the phrase; offscreen evidence is announced without an invented animation origin. Reduced motion keeps the flag stationary.
 
-Speech uses the saved conversation persona. Built-in characters have distinct cloud voice casts; custom characters receive a stable cast by ID. Explicit age, gender and manner in the saved character guide cloud delivery, without inferring gender from occupation. No-persona chats use the configured voice. OS playback selects a stable installed voice per persona within the target language; OS voices expose no reliable age/gender metadata. Audio caching separates chats.
+Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
-Coach chat sends with Enter; Shift+Enter inserts a newline, and IME composition Enter does not send. Partner prompts treat persona details as optional background and require contextually natural invitations, rather than preference questions mechanically built from incidental words.
-
-Persona backstory stays mostly unspoken. Built-in sketches include formative books and the outlook each character takes from them; the editor encourages the same approach. These details guide manner, not recurring topics, quotations or imitation. Existing chats retain their saved sketches; revised built-ins apply to new chats.
-
-Both chat bubbles offer a compact full-message translation control when their translation arrives. Learner translations stay hidden until requested; partner auto-translation remains an explicit setting. Tokenizer instructions map each gloss to its source token independently, allowing multiword glosses rather than aligning translated sentence positions.
+Credited phrases have skill-colored +N superscripts. Clicking one opens its XP card and pops away the marker for the mounted conversation; it does not award XP again. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm, which flashes on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation directly. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.

@@ -1,3 +1,4 @@
+import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
@@ -7,7 +8,7 @@ import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import { isReloadShortcut } from './lib/reload'
 import GuidedPage from './pages/GuidedPage'
 import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
-import { treeNode } from './pages/skillTree'
+import { skillIndex } from './lib/skill-index'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
 import { UpdateBanner } from './components/UpdateBanner'
@@ -241,7 +242,7 @@ function Application() {
       {isTauri && <div className="learner-profile-bar">
         <button onClick={() => setProgressOpen(true)} aria-label="Open language profile">
           <span>◈ My language profile</span>
-          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {treeNode(evidence.snapshot.profile.active_focus).label}</span></>}
+          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {skillIndex(evidence.snapshot).catalog.node(evidence.snapshot.profile.active_focus).label}</span></>}
           {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
         </button>
         {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}
@@ -266,12 +267,12 @@ function Application() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <SkillEvidenceContext value={evidence}><GuidedPage
+                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'}
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
                   onOpenSettings={() => setSettingsOpen(true)}
-                /></SkillEvidenceContext>
+                /></SkillEvidenceContext></ActiveSurfaceContext>
               </PageBoundary>
             </div>
           </>

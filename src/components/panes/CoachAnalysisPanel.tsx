@@ -1,3 +1,4 @@
+import { ConversationMap } from '../chat/ConversationMap'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { invoke, isTauri } from '../../lib/tauri'
@@ -83,6 +84,7 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
       <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
       <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
     </div>
+    <ConversationMap />
     {tab === 'lesson' ? <>{lesson ? <LessonContent chatId={chatId} level={level} lesson={lesson} plan={plan} profile={profile} busy={busy || conversationBusy} observationStatus={observationStatus} onSave={save} onAsk={draft} /> : <p className="center-note">Loading lesson choices…</p>}</> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a partner reply to see its breakdown.</p>}</div>}
     <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled={busy || conversationBusy || thread.length === 0} onClick={() => { void clearThread() }}>Clear thread</button>}>
     <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">

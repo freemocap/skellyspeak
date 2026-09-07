@@ -175,3 +175,7 @@ requests carry skill identity without awarding credit or persisting focus. Rewar
 resolves current records; excluded/incomplete evidence shows no current credit. XP
 deltas, stored credit and unassisted successes remain distinct. Chat and Skills share
 the domain palette and skill/evidence presentation.
+
+### XP presentation lifecycle
+
+The React reward presentation controller owns opening, hovering, and departing cards. Selections store message/credit identities and resolve evidence against the current snapshot; removed evidence closes the card. Web Animations moves the card from its captured phrase position to the conversation header area and then to a currently visible domain anchor. A compact indicator represents an offscreen map destination. Route, chat, and target changes clear presentations. This transient state does not write credits, alter scoring, or issue model requests.
