@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { invoke, isTauri, listPersonas, type Persona, type ConversationPartner } from '../lib/tauri'
 import { reportFault } from '../lib/faults'
+import { personaLabel } from '../lib/personaLabel'
 import { PersonaModal } from './PersonaModal'
 
 /// Matches `personas::SURPRISE` in the core, which resolves it from the chat id.
@@ -24,7 +25,7 @@ export function PersonaField({ chatId, onChange }: PersonaFieldProps) {
   const [personas, setPersonas] = useState<Persona[] | null>(null)
   const [rolling, setRolling] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState<'details' | 'custom' | null>(null)
   const [saved, setSaved] = useState<{ chatId: string; partner: ConversationPartner } | null>(null)
   const partner = saved?.chatId === chatId ? saved.partner : null
   useEffect(() => {
@@ -61,23 +62,24 @@ export function PersonaField({ chatId, onChange }: PersonaFieldProps) {
       <div className="steer-row persona-row">
       <label className="persona-toggle"><input type="checkbox" checked={selected !== NONE} disabled={rolling} onChange={(event) => onChange(event.target.checked ? SURPRISE : NONE)} /> Persona</label>
 
-      {(selected !== NONE || !chatId) && <>
+      <>
         <select
           id="persona-select"
           aria-label="Partner:"
           className="steer-select persona"
           disabled={rolling}
           value={partner ? '__current__' : '__choose__'}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => { if (e.target.value === '__custom__') setOpen('custom'); else onChange(e.target.value) }}
           title="Who you are practising with. Changing this starts a new conversation — the current one is archived."
         >
-          {partner ? <option value="__current__">{partner.persona.label} · this chat</option>
-            : <option value="__choose__" disabled>Choose a partner · new chat</option>}
-          <option value={NONE}>No persona · new chat</option>
-          <option value={SURPRISE}>Surprise me · new chat</option>
+          {partner ? <option value="__current__">{personaLabel(partner.persona)} (current conversation)</option>
+            : <option value="__choose__" disabled>Choose a partner (new conversation)</option>}
+          <option value={NONE}>No persona (new conversation)</option>
+          <option value={SURPRISE}>Surprise me (new conversation)</option>
+          <option value="__custom__">Custom persona…</option>
           {personas.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.label}
+              {personaLabel(p)}
               {p.builtin ? '' : ' (yours)'}
             </option>
           ))}
@@ -91,22 +93,23 @@ export function PersonaField({ chatId, onChange }: PersonaFieldProps) {
           type="button"
           className="steer-dice persona-open"
           disabled={!partner}
-          onClick={() => setOpen(true)}
+          onClick={() => setOpen('details')}
           title="Read who you are talking to, or write your own persona"
           aria-label="Open the persona panel"
         >
-          ⚙
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m16 3 5 5L8 21H3v-5Z" /><path d="m14 5 5 5M3 16l5 5" /></svg>
         </button>
-      </>}
+      </>
       </div>
       {error && <p role="alert">{error}</p>}
 
       {open && partner && (
         <PersonaModal
+          startCreating={open === 'custom'}
           personas={personas}
           selectedId={selected}
           partner={partner}
-          onClose={() => setOpen(false)}
+          onClose={() => setOpen(null)}
           onChanged={refresh}
           onUse={onChange}
         />

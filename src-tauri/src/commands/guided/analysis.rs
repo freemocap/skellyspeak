@@ -17,7 +17,7 @@ use crate::trace::RunContext;
 use crate::AppState;
 
 use super::types::{
-    emit, GuidedEvent, GuidedTurnResult, LearnerTokensOut, MechanicsOut, Scaffolds, ScaffoldsOut,
+    emit, GuidedEvent, GuidedTurnResult, LearnerTokensOut, MechanicsOut, ScaffoldsOut,
     Section, TokensOut, TranslationOut,
 };
 
@@ -180,6 +180,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
             },
         );
 
+        let assisted_reply = reply.clone();
         let scaffolds_task = spawn_section::<ScaffoldsOut, _, _>(
             provider,
             channel.clone(),
@@ -187,16 +188,9 @@ pub(super) fn spawn(pass: AnalysisPass) {
             scaffolds_msgs,
             0.6,
             "ScaffoldsOut",
-            |sc: &ScaffoldsOut| {
-                (sc.replies.is_empty() || sc.frames.is_empty() || sc.starters.is_empty())
-                    .then(|| "all three scaffold lists must be populated".into())
-            },
+            move |sc: &ScaffoldsOut| sc.validate().or_else(|| (sc.coach_help.partner.text != assisted_reply).then(|| "Coach help must annotate the exact current partner reply.".into())),
             |sc: &ScaffoldsOut| Section {
-                scaffolds: Some(Scaffolds {
-                    replies: sc.replies.clone(),
-                    frames: sc.frames.clone(),
-                    starters: sc.starters.clone(),
-                }),
+                scaffolds: Some(sc.scaffolds()),
                 ..Section::default()
             },
         );
@@ -226,11 +220,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
             .map(|m| m.mechanics)
             .unwrap_or_default();
         let scaffolds = degrade(scaffolds_out, "scaffolds", &mut failures)
-            .map(|sc| Scaffolds {
-                replies: sc.replies,
-                frames: sc.frames,
-                starters: sc.starters,
-            })
+            .map(|sc| sc.scaffolds())
             .unwrap_or_default();
         let (user_tokens, user_translation) = match degrade(learner_out, "your words", &mut failures)
         {

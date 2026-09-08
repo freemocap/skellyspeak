@@ -9,7 +9,7 @@ const reply = (text: string): GuidedTurnResult => ({
   user_tokens: [],
   user_translation: null,
   mechanics: [],
-  scaffolds: { replies: [], frames: [], starters: [] },
+  scaffolds: { replies: [], frames: [], starters: [], coach_help: null },
   errors: [],
 })
 

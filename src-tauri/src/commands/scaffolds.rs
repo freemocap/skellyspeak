@@ -1,4 +1,4 @@
-//! Standalone scaffold regeneration, driven by the steer row.
+//! Learner-requested advice regeneration with the previous advice as context.
 
 use serde::{Deserialize};
 use serde_json::json;
@@ -8,9 +8,9 @@ use crate::languages::{language_display, native_display, overlay};
 use crate::prompts;
 use crate::trace::{RunContext};
 use crate::AppState;
-use super::guided::{ChatTurn, Scaffolds, ScaffoldsOut};
+use super::guided::{ChatTurn, CoachHelp, Scaffolds, ScaffoldsOut};
 
-// ─── Standalone scaffold generation (steer-row driven) ───────────────────────
+// ─── Advice refresh ────────────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
 pub struct ScaffoldRequest {
@@ -19,10 +19,10 @@ pub struct ScaffoldRequest {
     level: crate::prompts::difficulty::Difficulty,
     topic: Option<String>,
     dialect: Option<String>,
+    previous_advice: CoachHelp,
 }
 
-/// Regenerate next-message scaffolds on demand — the steer row calls this
-/// when the learner changes level or topic, so suggestions never go stale.
+/// Regenerate advice for the current exchange, explicitly avoiding prior replies.
 #[tauri::command]
 pub async fn generate_scaffolds(
     state: State<'_, AppState>,
@@ -65,10 +65,7 @@ pub async fn generate_scaffolds(
             )
         })
         .collect();
-    let messages = vec![
-        json!({"role": "system", "content": prompts::analysis::scaffolds_prompt(&tln, cefr, &native, &directives)}),
-        json!({"role": "user", "content": prompts::analysis::scaffolds_from_transcript_turn(&transcript.join("\n"))}),
-    ];
+    let messages = refresh_messages(&prompts::analysis::scaffolds_prompt(&tln, cefr, &native, &directives), &transcript.join("\n"), &req.previous_advice)?;
     let context = crate::instruction::Context {
         chat_id: req.chat_id, message_id: None, replaces_message_id: None, trigger: "suggestion_refresh".into(),
         target: stored.target_language.clone(), native: stored.native_language.clone(), dialect: stored.target_dialect.clone(), provider_mode: stored.provider_mode.clone(),
@@ -85,19 +82,43 @@ pub async fn generate_scaffolds(
             "ScaffoldsOut",
             false,
             None,
-            |sc: &ScaffoldsOut| {
-                if sc.replies.is_empty() || sc.frames.is_empty() || sc.starters.is_empty() {
-                    Some("all three scaffold lists must be populated".into())
-                } else {
-                    None
+            |sc: &ScaffoldsOut| sc.validate().or_else(|| {
+                if sc.coach_help.partner.text != req.previous_advice.partner.text {
+                    return Some("Refresh advice for the same exact partner message.".into());
                 }
-            },
+                sc.replies.iter().any(|reply| req.previous_advice.replies.iter().any(|previous| previous.text.trim().to_lowercase() == reply.trim().to_lowercase()))
+                    .then(|| "The learner requested different advice. Do not repeat a previous suggested reply.".into())
+            }),
         )
         .await?;
     if *state.context_epoch.lock().expect("context lock poisoned") != epoch { return Err("The conversation changed while refreshing suggestions.".into()); }
-    Ok(Scaffolds {
-        replies: out.replies,
-        frames: out.frames,
-        starters: out.starters,
-    })
+    Ok(out.scaffolds())
+}
+
+fn refresh_messages(system: &str, transcript: &str, previous: &CoachHelp) -> Result<Vec<serde_json::Value>, String> {
+    Ok(vec![
+        json!({"role": "system", "content": system}),
+        json!({"role": "user", "content": prompts::analysis::scaffolds_from_transcript_turn(transcript)}),
+        json!({"role": "assistant", "content": serde_json::to_string(previous).map_err(|e| e.to_string())?}),
+        json!({"role": "user", "content": prompts::analysis::scaffolds_refresh_request()}),
+    ])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn refresh_attaches_previous_advice_before_requesting_different_replies() {
+        let previous: CoachHelp = serde_json::from_value(json!({
+            "explanation": "They greeted you.",
+            "partner": { "text": "Hola", "translation": "Hello", "romanization": null, "pronunciation": "OH-lah" },
+            "replies": [{ "text": "Hola", "translation": "Hello", "romanization": null, "pronunciation": "OH-lah" }]
+        })).unwrap();
+        let messages = refresh_messages("system", "NATIVE: Hola", &previous).unwrap();
+        assert_eq!(messages[2]["role"], "assistant");
+        let attached: serde_json::Value = serde_json::from_str(messages[2]["content"].as_str().unwrap()).unwrap();
+        assert_eq!(attached, serde_json::to_value(previous).unwrap());
+        assert_eq!(messages[3]["role"], "user");
+        assert!(messages[3]["content"].as_str().unwrap().contains("requested different advice"));
+    }
 }

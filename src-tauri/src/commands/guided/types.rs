@@ -51,6 +51,8 @@ pub struct Mechanic {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct Scaffolds {
+    /// Preloaded assistance for this exchange; absent until generated.
+    pub coach_help: Option<CoachHelp>,
     /// Complete sentences the learner could plausibly send next.
     #[serde(default)]
     pub replies: Vec<String>,
@@ -88,12 +90,52 @@ pub struct MechanicsOut {
 /// providers cannot emit empty lists (the validate closure sense-checks).
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct ScaffoldsOut {
+    pub coach_help: CoachHelp,
     #[schemars(length(min = 1))]
     pub replies: Vec<String>,
     #[schemars(length(min = 1))]
     pub frames: Vec<String>,
     #[schemars(length(min = 1))]
     pub starters: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+pub struct AssistedPhrase {
+    pub text: String,
+    pub translation: String,
+    pub romanization: Option<String>,
+    pub pronunciation: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+pub struct CoachHelp {
+    pub explanation: String,
+    pub partner: AssistedPhrase,
+    #[schemars(length(min = 2, max = 2))]
+    pub replies: Vec<AssistedPhrase>,
+}
+
+impl ScaffoldsOut {
+    pub fn validate(&self) -> Option<String> {
+        if self.replies.len() != 2 || self.frames.len() != 2 || self.starters.len() != 2 {
+            return Some("Each scaffold list must contain exactly two items.".into());
+        }
+        if self.coach_help.explanation.trim().is_empty()
+            || self.coach_help.replies.iter().map(|phrase| &phrase.text).ne(self.replies.iter()) {
+            return Some("Coach help must explain the exchange and annotate exactly the suggested replies.".into());
+        }
+        for phrase in std::iter::once(&self.coach_help.partner).chain(self.coach_help.replies.iter()) {
+            if phrase.text.trim().is_empty() || phrase.translation.trim().is_empty() || phrase.pronunciation.trim().is_empty()
+                || phrase.romanization.as_ref().is_some_and(|text| text.trim().is_empty()) {
+                return Some("Every assisted phrase needs text, translation, and pronunciation; romanization must be null or nonblank.".into());
+            }
+        }
+        None
+    }
+
+    pub fn scaffolds(&self) -> Scaffolds {
+        Scaffolds { replies: self.replies.clone(), frames: self.frames.clone(), starters: self.starters.clone(), coach_help: Some(self.coach_help.clone()) }
+    }
 }
 
 /// Tokenization + translation of the LEARNER's own message — the "did I say
@@ -362,5 +404,43 @@ mod wire_tests {
         assert_eq!(value["type"], "analysis_done");
         assert_eq!(value["turn"]["errors"][0], "tokens: boom");
         assert_eq!(value["turn"]["reply"], "Hola");
+    }
+}
+
+#[cfg(test)]
+mod coach_help_tests {
+    use super::*;
+
+    fn output() -> ScaffoldsOut {
+        let phrase = AssistedPhrase { text: "你好。".into(), translation: "Hello.".into(), romanization: Some("Nǐ hǎo.".into()), pronunciation: "nee how".into() };
+        ScaffoldsOut {
+            replies: vec!["你好。".into(), "谢谢。".into()], frames: vec!["我叫___。".into(), "我是___。".into()], starters: vec!["你好".into(), "谢谢".into()],
+            coach_help: CoachHelp { explanation: "They greeted you.".into(), partner: phrase.clone(), replies: vec![phrase, AssistedPhrase { text: "谢谢。".into(), translation: "Thank you.".into(), romanization: Some("Xièxie.".into()), pronunciation: "shyeh shyeh".into() }] },
+        }
+    }
+
+    #[test]
+    fn assisted_replies_must_match_insertable_suggestions() {
+        let mut out = output();
+        assert!(out.validate().is_none());
+        out.coach_help.replies[0].text = "Different phrase".into();
+        assert!(out.validate().is_some());
+    }
+
+    #[test]
+    fn pronunciation_is_required_and_survives_persistence() {
+        let mut out = output();
+        let stored = serde_json::to_string(&out.scaffolds()).unwrap();
+        let restored: Scaffolds = serde_json::from_str(&stored).unwrap();
+        assert_eq!(restored.coach_help.unwrap().replies[0].pronunciation, "nee how");
+        out.coach_help.partner.pronunciation.clear();
+        assert!(out.validate().is_some());
+    }
+
+    #[test]
+    fn records_without_generated_help_do_not_invent_advice() {
+        let saved: Scaffolds = serde_json::from_str(r#"{"replies":["Hello"],"frames":[],"starters":[]}"#).unwrap();
+        assert!(saved.coach_help.is_none());
+        assert_eq!(saved.replies, vec!["Hello"]);
     }
 }
