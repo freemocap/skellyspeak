@@ -4261,7 +4261,7 @@ version = "0.11.0"
 dependencies = [
  "android-native-keyring-store",
  "apple-native-keyring-store",
- "base64 0.22.1",
+ "base64 0.23.1",
  "block2",
  "cpal",
  "futures-util",
