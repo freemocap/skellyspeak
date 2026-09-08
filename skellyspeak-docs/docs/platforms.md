@@ -35,7 +35,9 @@ node scripts/release.mjs minor
 ```
 
 The release script accepts `patch`, `minor`, `major`, or an explicit
-semantic version. It performs Git writes, so agents must not run it. A `v*`
+semantic version. It updates the application lockfile entry with Cargo, allowing
+registry access when the local index lacks locked dependency versions.
+It performs Git writes, so agents must not run it. A `v*`
 tag triggers the release workflows, which collect artifacts in a draft GitHub
 release. The **Release** workflow publishes it automatically and marks it as
 latest after the reusable CI checks, version validation, draft creation, every desktop matrix build,

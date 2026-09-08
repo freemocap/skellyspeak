@@ -169,7 +169,7 @@ if (dryRun) {
 writeFileSync(CARGO, withVersion(readFileSync(CARGO, 'utf8'), nextVersion))
 console.log(`  wrote ${CARGO}`)
 
-execFileSync('cargo', ['update', '--offline', '--package', 'skellyspeak'], {
+execFileSync('cargo', ['update', '--package', 'skellyspeak'], {
   cwd: 'src-tauri',
   stdio: 'inherit',
 })
