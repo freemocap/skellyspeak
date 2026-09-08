@@ -27,15 +27,20 @@ pub fn tokens_prompt(
          ADP, CCONJ, SCONJ, AUX, PART, INTJ, NUM, PROPN, PUNCT). Mark at most 3\n\
          tokens as notable — forms a learner should notice (inflections,\n\
          constructions, word order). Copy each token's text EXACTLY from the\n\
-         reply and never skip words.{segment}{roman}\n\
+         reply and never skip words.{segment}{roman}{pronunciation}\n\
          {nothing}\n\
          Respond with the structured tokenization you have been configured to produce.",
         tln = target_language_name,
         native = native_language_name,
         segment = segmentation_line(word_delimited),
         roman = romanization_line(romanization_scheme),
+        pronunciation = token_pronunciation_line(native_language_name),
         nothing = no_information_rule(),
     )
+}
+
+fn token_pronunciation_line(native: &str) -> String {
+    format!("\nGive each token a pronunciation: an approximate sounds-like guide readable by a {native} speaker, not IPA alone. It must describe this exact source token, including names, never its translated gloss or a neighboring word. Use null for punctuation-only tokens. Keep the token text unchanged.")
 }
 
 /// The romanization instruction, or nothing for Latin-script targets. The
@@ -160,7 +165,7 @@ pub fn learner_tokens_prompt(
          1. tokenize: split the message word by word (punctuation attached to\n\
             the preceding word), in order, never skipping words. Give each token\n\
             a short {native} gloss IN CONTEXT - what the learner MEANT, including\n\
-            for their mistakes. Each gloss belongs to its own source token, not the same-position word in the sentence translation. A gloss can contain multiple words: Spanish Soy = I am, Carmen = Carmen, Hoy = today. Never shift am onto Carmen. Check every text/gloss pair independently; preserve names as names. Mark at most 3 tokens as notable.{segment}{roman}\n\
+            for their mistakes. Each gloss belongs to its own source token, not the same-position word in the sentence translation. A gloss can contain multiple words: Spanish Soy = I am, Carmen = Carmen, Hoy = today. Never shift am onto Carmen. Check every text/gloss pair independently; preserve names as names. Mark at most 3 tokens as notable.{segment}{roman}{pronunciation}\n\
          2. translation: a natural {native} translation of what the learner\n\
             actually communicated (not a word-for-word rendering).\n\n\
          {nothing}\n\
@@ -169,6 +174,7 @@ pub fn learner_tokens_prompt(
         native = native_language_name,
         segment = segmentation_line(word_delimited),
         roman = romanization_line(romanization_scheme),
+        pronunciation = token_pronunciation_line(native_language_name),
         nothing = no_information_rule(),
     )
 }

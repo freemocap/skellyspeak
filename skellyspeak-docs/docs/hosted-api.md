@@ -52,6 +52,21 @@ Sign-in-start throttling is process-local: 20 attempts/minute per instance.
 Instance replacement and distributed traffic can exceed one instance's rate;
 this is not a global denial-of-service or infrastructure-spend limit.
 
+Every instance also rejects traffic above 240 attempts per rolling minute before
+application database access. Shared Firestore transactions count accepted auth
+steps (500/day), authenticated account requests (2,000/account/day and
+10,000/service/day). These counters include later failures and never refund.
+Signed, purpose-bound OAuth state and exchange codes reject fabricated values
+before database lookup; one-time consumption and PKCE still apply. Sign-ins
+already in progress during this deployment must be restarted. Installation IDs
+must be canonical UUIDs, with at most ten device records per account. Daily
+admission records use a two-day TTL; expiry is enforced by UTC bucket selection,
+not by waiting for Firestore deletion.
+
+These controls bound admitted work, not the cost of all rejected traffic. A
+public endpoint still needs edge abuse controls; Cloud Run instance counts and
+billing alerts are not hard monetary caps.
+
 ## Spending admission and settlement
 
 Money is stored in integer micro-dollars: 1,000,000 equals one US dollar.
@@ -63,7 +78,7 @@ Settlement corrects both totals in the original UTC bucket. Repeating an
 identical completed settlement has no effect; conflicting settlements fail.
 Missing or incomplete usage retains the full reservation for investigation.
 A reported charge above its reservation is recorded and blocks further
-admissions for that UTC day. Cancellation cannot release an unverified charge.
+admissions through the persistent `service_controls/spending` document, including after midnight. An operator must investigate before clearing that control; it has no TTL. Cancellation and provider HTTP errors cannot release an unverified charge.
 
 The service accepts only the configured, priced model contracts:
 
@@ -82,7 +97,7 @@ against provider billing errors or every cloud infrastructure charge.
 OpenRouter documents the routing controls in its
 [provider-selection reference](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-Audio is decoded using a restricted ffmpeg input protocol, bounded duration,
+Audio reserves its maximum transcription charge before reading or decoding the upload. Locally rejected audio releases that model reservation, but not its request-admission count. Upload reading has a 30-second deadline. Audio is decoded using a restricted ffmpeg input protocol, bounded duration,
 allocation/probe limits and a timeout. Two decodes/transcriptions can occupy an
 instance concurrently. Cloud Run admits eight requests per instance, with a
 maximum of four instances; these settings bound concurrency, not total bills.

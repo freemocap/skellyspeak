@@ -11,6 +11,7 @@ let currentAudio: HTMLAudioElement | null = null
 let finishPlayback: (() => void) | null = null
 let speakingState = false
 let progress: SpeechProgress | null = null
+let playbackAllowed = true
 const speakingListeners = new Set<(value: boolean) => void>()
 const progressListeners = new Set<(value: SpeechProgress | null) => void>()
 
@@ -61,6 +62,23 @@ export function subscribeSpeechProgress(listener: (value: SpeechProgress | null)
 }
 
 export function isSpeaking(): boolean { return speakingState }
+
+/** Lifecycle suspension cancels playback; returning never resumes an utterance. */
+export function setPlaybackAllowed(allowed: boolean): void {
+  playbackAllowed = allowed
+  if (!allowed) stopSpeaking()
+}
+
+function playbackIsAllowed(): boolean {
+  return playbackAllowed && document.visibilityState !== 'hidden'
+}
+
+function canContinue(token: number): boolean {
+  if (token !== speakToken) return false
+  if (playbackIsAllowed()) return true
+  stopSpeaking()
+  return false
+}
 
 export function setPlaybackRate(rate: number): void {
   if (!Number.isFinite(rate) || rate < 0.5 || rate > 1.5) throw new Error('Voice speed must be between 0.5× and 1.5×.')
@@ -122,6 +140,7 @@ export async function speakSmart(
 ): Promise<boolean> {
   if (!text.trim()) throw new Error('Nothing to speak.')
   stopSpeaking()
+  if (!playbackIsAllowed()) return false
   setPlaybackRate(rate)
   const token = speakToken
   setSpeaking(true)
@@ -129,7 +148,7 @@ export async function speakSmart(
   try {
     if (engine === 'cloud') {
       const url = await cloudTts(text, voice, chatId, JSON.stringify([language, scope]))
-      if (token !== speakToken) return false
+      if (!canContinue(token)) return false
       const audio = new Audio(url)
       audio.playbackRate = rate
       audio.preservesPitch = true
@@ -158,7 +177,7 @@ export async function speakSmart(
     if (!speechSupported()) throw new Error('OS speech is unavailable on this platform. Choose Cloud in Settings.')
     const voices = cachedVoices.length ? cachedVoices : window.speechSynthesis.getVoices()
     const partner = chatId ? await invoke<ConversationPartner>('get_conversation_partner', { chatId }) : null
-    if (token !== speakToken) return false
+    if (!canContinue(token)) return false
     const exact = voices.filter(candidate => candidate.lang.toLowerCase().replace('_', '-') === language.toLowerCase())
     const candidates = (exact.length ? exact : voices.filter(candidate => candidate.lang.toLowerCase().split(/[-_]/)[0] === language.toLowerCase().split('-')[0])).sort((a, b) => a.voiceURI.localeCompare(b.voiceURI))
     const identity = partner && partner.persona.id !== '__none__' ? partner.persona.id : ''
@@ -189,4 +208,3 @@ export async function speakSmart(
     return false
   }
 }
-

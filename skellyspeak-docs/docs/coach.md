@@ -20,8 +20,12 @@ After each learner message, the guided pipeline asks the coach for a validated
 | `remark` | Brief feedback, primarily in the learner's native language |
 | `used_target` / `used_native` | Verbatim portions of the learner message split by language |
 | `corrections` | Up to three corrected phrases with kind and explanation |
-| `comprehensibility` | 1–5 score for whether a native speaker would understand |
+| `conversation` | 1–5 contextual and social fit, independent of grammaticality |
 | `grammar` | 1–5 grammatical-correctness score |
+
+Conversational fit includes coherent responses, clear topic changes, disagreement, boundaries, and endings; it does not require agreement or cheerfulness. Scores are fallible model judgments supported by the remark. Historical feedback retains its original data; it has no conversational-fit score.
+
+The partner handles understanding separately. Its reaction icon opens an explanation of how it interpreted the learner and why it responded that way. Confusion takes priority over positive reactions, including when the partner misread a clear message. The modal offers edit-and-resend and dismisses on outside click.
 
 Greeting and steering turns have no learner message, so they skip feedback.
 Coach failures are surfaced without preventing independent analysis sections

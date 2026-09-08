@@ -411,8 +411,8 @@ details[open] > .dl-toggle .dl-arrow {
 
 .dl-card-recommended {
   border-width: 4px;
-  border-color: rgba(125, 184, 183, 0.4);
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(125, 184, 183, 0.08) 100%);
+  border-color: #e850c8;
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(232, 80, 200, 0.08) 100%);
   padding: 1.5rem 1.75rem;
 }
 
@@ -561,3 +561,5 @@ details[open] > .dl-toggle .dl-arrow {
   .dl-os-row { width: 100%; }
   .dl-os-select { flex: 1; min-width: 0; }
 }
+
+.dl-card-recommended:hover { border-color: #ff79e1; }

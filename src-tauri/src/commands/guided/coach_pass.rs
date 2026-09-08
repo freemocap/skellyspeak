@@ -33,6 +33,7 @@ pub(super) struct CoachPass {
     pub native: String,
     /// What the learner just said — never empty; the caller checks.
     pub message: String,
+    pub reply: String,
     pub level_notes: String,
     pub transcript: Vec<String>,
     pub topic: Option<String>,
@@ -75,6 +76,7 @@ pub(super) fn spawn(pass: CoachPass) {
             tln,
             native,
             message,
+            reply,
             level_notes,
             transcript,
             topic,
@@ -90,6 +92,7 @@ pub(super) fn spawn(pass: CoachPass) {
                 &level_notes,
                 topic.as_deref(),
             )}),
+            json!({"role": "user", "content": serde_json::to_string(&json!({"partner_reply_to_latest_message": reply})).expect("reply serializes")}),
         ];
 
         let result = provider
@@ -107,16 +110,14 @@ pub(super) fn spawn(pass: CoachPass) {
         match result {
             Ok(feedback) => {
                 info!(
-                    "[cmd] coach done in {:.1}s: corrections={} comp={} grammar={}",
+                    "[cmd] coach done in {:.1}s: corrections={}",
                     started.elapsed().as_secs_f32(),
                     feedback.corrections.len(),
-                    feedback.comprehensibility,
-                    feedback.grammar,
                 );
                 emit(&channel, GuidedEvent::CoachDone { feedback });
             }
             Err(e) => {
-                error!("[cmd] coach FAILED after retries: {e}");
+                error!("[cmd] coach FAILED after retries");
                 emit(
                     &channel,
                     GuidedEvent::CoachFailed {
@@ -189,4 +190,3 @@ mod tests {
         assert!(transcript(&[]).is_empty());
     }
 }
-

@@ -156,6 +156,7 @@ pub fn turn_graph() -> Graph {
     fn position(op_id: &str) -> (f32, f32) {
         match op_id {
             op::REPLY => (250.0, 60.0),
+            op::REACTION => (470.0, 270.0),
             op::TOKENIZE_LEARNER => (250.0, 230.0),
             op::TOKENIZE => (470.0, 0.0),
             op::TRANSLATE => (470.0, 90.0),

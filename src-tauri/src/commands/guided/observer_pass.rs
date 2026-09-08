@@ -157,9 +157,9 @@ pub(super) fn spawn(pass: ObserverPass) {
                 *state.plan.lock().unwrap_or_else(|p| p.into_inner()) = output.plan.clone();
                 *state.profile.lock().unwrap_or_else(|p| p.into_inner()) = output.profile.clone();
                 info!(
-                    "[cmd] observer pass done in {:.1}s: focus={:?} errors={} ledger={}",
+                    "[cmd] observer pass done in {:.1}s: focus_count={} errors={} ledger={}",
                     started.elapsed().as_secs_f32(),
-                    output.plan.session_focus,
+                    output.plan.session_focus.len(),
                     output.plan.recurring_errors.len(),
                     output.plan.taught_ledger.len(),
                 );
@@ -173,7 +173,7 @@ pub(super) fn spawn(pass: ObserverPass) {
             }
             Err(e) => {
                 log::error!(
-                    "[cmd] observer pass failed after {:.1}s: {e}",
+                    "[cmd] observer pass failed after {:.1}s",
                     started.elapsed().as_secs_f32()
                 );
                 emit(

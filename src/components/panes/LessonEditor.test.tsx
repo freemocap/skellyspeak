@@ -16,7 +16,7 @@ it('autosaves and flushes the latest edit on backdrop dismissal using the saved 
   fireEvent.change(screen.getByLabelText('Your learning goal'), { target: { value: 'Travel' } })
   await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
   fireEvent.change(screen.getByLabelText('Your learning goal'), { target: { value: 'Travel stories' } })
-  fireEvent.click(screen.getByRole('dialog'))
+  fireEvent.click(screen.getByRole('dialog'), { clientX: -10, clientY: -10 })
   await waitFor(() => expect(close).toHaveBeenCalledOnce())
   expect(save).toHaveBeenLastCalledWith({ ...initial.choices, goal: 'Travel stories' }, 1)
 })

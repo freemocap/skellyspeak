@@ -11,4 +11,4 @@ RUN useradd --system --uid 10001 --no-create-home app \
     && chown -R app:app /app
 USER app
 # Launch the installed environment without resolving packages or creating a cache.
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]

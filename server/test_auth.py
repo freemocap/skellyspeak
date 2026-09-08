@@ -85,7 +85,7 @@ class TestSessionTokens:
 
 
 def test_codes_are_unguessable_and_unique():
-    codes = {auth.new_login_code() for _ in range(200)}
+    codes = {auth.issue_code(purpose="login", signing_key="test-signing-key") for _ in range(200)}
     assert len(codes) == 200
     assert all(len(c) >= 32 for c in codes)
 

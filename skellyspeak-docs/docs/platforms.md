@@ -38,10 +38,20 @@ The release script accepts `patch`, `minor`, `major`, or an explicit
 semantic version. It performs Git writes, so agents must not run it. A `v*`
 tag triggers the release workflows, which collect artifacts in a draft GitHub
 release. The **Release** workflow publishes it automatically and marks it as
-latest after version validation, draft creation, every desktop matrix build,
+latest after the reusable CI checks, version validation, draft creation, every desktop matrix build,
 and the Android build succeed. Failed, cancelled, or skipped dependencies prevent
 publication. The separate iOS distribution workflow does not gate publication
 and can attach its verified IPA after the release is published.
+
+Workflow actions use immutable commit IDs. Checkouts do not persist GitHub
+credentials, and build/test jobs have read-only repository permissions unless
+they upload release artifacts. Pages deployment permissions belong only to its
+deployment job. The Windows signing CLI download must match its pinned SHA-256
+digest before execution; desktop matrix jobs receive only their platform's
+signing credentials, plus the updater signing key.
+
+The frontend CI job installs both root and docs dependencies because the root
+Vitest suite includes the docs download-selection tests.
 
 ## CI release matrix
 
@@ -95,7 +105,7 @@ npm run macos:dev-bundle
 
 Keep Vite running. The debug bundle uses `http://localhost:1420` for frontend hot
 reload. Quit the app before replacing its executable after Rust changes. Open
-`src-tauri/target/debug/bundle/macos/SkellySpeak.app` for native inspection.
+`src-tauri/target/debug/bundle/macos/SkellySpeak Dev.app` for native inspection.
 
 The default development bundle skips signing. Its hash-based code identity changes
 when rebuilt, which can invalidate remembered Keychain approvals. Once a persistent
@@ -199,9 +209,7 @@ device.
 
 ## Mobile updates
 
-Tauri's desktop updater is not compiled on Android or iOS. Mobile builds still
-check the latest published GitHub release and can open its page, but installation
-is owned by the platform package/store mechanism.
+Tauri's desktop updater is not compiled on Android or iOS. Android checks the latest published GitHub release and opens `https://docs.freemocap.org/skellyspeak/download` for installation. The webview opener scope permits that exact page. iOS uses its store distribution channel rather than the desktop updater.
 
 ## Documentation site
 
@@ -218,8 +226,7 @@ Device detection checks Android and iOS before desktop signatures, including
 iPads using a desktop user agent. Desktop processor detection uses browser
 client hints when available; macOS and Windows user-agent strings alone do not
 establish the processor. Visitors can manually choose any system and processor.
-The page recommends EXE, DMG, AppImage, ARM64 DEB, or universal APK when a matching
-asset exists, and lists other installer formats. IPAs, AABs and updater files
+The page highlights exactly one suggested installer in magenta when the selected system has an available download, preferring EXE over MSI on Windows. Titles distinguish formats. When processor detection is unavailable, the suggestion prefers Apple Silicon on macOS and x64 on Windows/Linux, explicitly asks the visitor to confirm the processor, and keeps other available architectures selectable. A known processor is never replaced by another architecture. IPAs, AABs and updater files
 remain on GitHub rather than being offered as direct installation choices.
 
 ```powershell
@@ -235,3 +242,27 @@ CI configuration is evidence of intended behavior, not proof that current
 repository secrets, Apple/Google accounts, stores, devices, or live cloud
 resources are correctly configured. Record those results only after exercising
 the corresponding environment.
+
+Android applies system-bar and display-cutout insets to the native WebView container and zeroes those handled insets before forwarding them to web content, avoiding duplicate padding. Keyboard insets remain available to the window/WebView with `adjustResize`. Verify status-bar clearance, landscape cutouts, and keyboard opening/closing on a device when changing this layout.
+
+### Security controls in development and release builds
+
+Desktop debug builds use a separate `.dev` application and credential identity,
+and do not offer release updater installation. The macOS development bundle is
+named `SkellySpeak Dev.app`. Enter credentials once in that development profile;
+use `npm run macos:dev-bundle` followed by `npm run macos:dev-sign` with
+`SKELLYSPEAK_SIGNING_IDENTITY` set to a stable certificate. Ad-hoc or unsigned
+rebuilds may still trigger Keychain approval; clicking Always Allow cannot make
+an unstable code identity stable. No existing Keychain entries are deleted.
+
+Android excludes private app data from cloud backup and device transfer. Native
+restore behavior and stable signing across rebuilds still require device checks.
+
+Release runs share one concurrency group and refuse to overwrite a published
+release. APK verification compares the signer certificate with the configured
+upload keystore. Updater signatures are cryptographically verified against the app public key;
+publication refuses an equal or newer stable release already on GitHub. Independent
+desktop native signer/notarization verification remains a follow-up. Dependabot monitors Actions, Rust, Python,
+frontend and docs dependency manifests.
+
+Both iOS workflows run `tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'` immediately after `tauri ios init`, applying the source logo to the generated Xcode asset catalog on every scaffold. The paper-color background is used for iOS icons; `scripts/ios-icons.swift` then rewrites the PNGs as opaque RGB so no alpha channel remains. This follows [Tauri’s app-icon setup](https://tauri.app/distribute/app-store/). Generated Xcode projects remain untracked; an installed-device icon still requires an iOS build and installation to verify.

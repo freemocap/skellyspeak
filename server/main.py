@@ -20,6 +20,7 @@ import io
 import math
 import wave
 from collections.abc import AsyncIterator
+from collections.abc import Awaitable, Callable
 import json
 import logging
 import time
@@ -38,6 +39,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from google.cloud import firestore
 
 import audio_input
+import admission
 import budget
 import contracts
 import auth
@@ -47,6 +49,8 @@ import quota
 import streaming
 
 logging.basicConfig(level=logging.INFO)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 log = logging.getLogger("skellyspeak-api")
 
 CFG = config.load()
@@ -59,9 +63,22 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="SkellySpeak API", lifespan=lifespan)
+ingress: admission.Ingress = admission.Ingress()
 db = firestore.Client()
 bearer = HTTPBearer(auto_error=False)
 _google_jwks = pyjwt.PyJWKClient(auth.GOOGLE_JWKS_URL)
+
+
+@app.middleware("http")
+async def bound_ingress(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    try:
+        ingress.take()
+    except HTTPException as error:
+        return JSONResponse(status_code=error.status_code, content={"detail": error.detail}, headers=error.headers)
+    response: Response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
 
 
 # ── Health ──────────────────────────────────────────────────────────────────
@@ -139,7 +156,8 @@ def auth_start(
     except auth.AuthError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    state = auth.new_state()
+    admission.take(db, lane="auth", subject="public")
+    state = auth.issue_code(purpose="state", signing_key=CFG.jwt_signing_key)
     # The provider echoes `state` back untouched; we stash what it means so the
     # callback knows where to return the user and can prove it started here.
     db.collection(quota.AUTH_STATES).document(state).set(
@@ -176,6 +194,8 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
         auth.validate_redirect_uri(str(stored["redirect_uri"]))
 
     try:
+        auth.verify_issued_code(state, purpose="state", signing_key=CFG.jwt_signing_key)
+        await asyncio.to_thread(admission.take, db, lane="auth", subject="public")
         stored = await asyncio.to_thread(auth_store.consume, db, collection=quota.AUTH_STATES,
                                          code=state, validate=validate_state)
     except auth.AuthError as exc:
@@ -221,7 +241,7 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
         # a sign-in that appears to succeed and then fails on every request.
         raise HTTPException(status_code=403, detail=str(exc)) from exc
 
-    login_code = auth.new_login_code()
+    login_code = auth.issue_code(purpose="login", signing_key=CFG.jwt_signing_key)
     await asyncio.to_thread(db.collection(quota.LOGIN_CODES).document(login_code).set,
         {
             "user_id": identity.user_id,
@@ -262,6 +282,8 @@ async def auth_exchange(request: Request) -> dict[str, str | int]:
         auth.verify_code_verifier(payload["code_verifier"], challenge=str(stored["code_challenge"]))
 
     try:
+        auth.verify_issued_code(payload["code"], purpose="login", signing_key=CFG.jwt_signing_key)
+        await asyncio.to_thread(admission.take, db, lane="auth", subject="public")
         stored = await asyncio.to_thread(auth_store.consume, db, collection=quota.LOGIN_CODES,
                                          code=payload["code"], validate=validate_code)
     except auth.AuthError as exc:
@@ -291,6 +313,7 @@ def current_user(
     except auth.AuthError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
     try:
+        admission.take(db, lane="account", subject=user_id)
         return quota.load_principal(
             db,
             user_id,
@@ -400,13 +423,17 @@ async def read_capped_body(request: Request, limit: int, what: str) -> bytes:
             )
 
     body = bytearray()
-    async for chunk in request.stream():
-        if len(body) + len(chunk) > limit:
-            raise HTTPException(
-                status_code=413,
-                detail=f"{what} is too large. The limit is {limit // 1_048_576} MB.",
-            )
-        body.extend(chunk)
+    try:
+        async with asyncio.timeout(30):
+            async for chunk in request.stream():
+                if len(body) + len(chunk) > limit:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"{what} is too large. The limit is {limit // 1_048_576} MB.",
+                    )
+                body.extend(chunk)
+    except TimeoutError as error:
+        raise HTTPException(status_code=408, detail="Upload timed out.") from error
     return bytes(body)
 
 
@@ -466,10 +493,9 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         tokens = 0
         provider_id = ""
         try:
-            async with httpx.AsyncClient(timeout=180) as client:
+            async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
                 upstream = await client.post(url, json=contract.payload, headers=headers)
             if not upstream.is_success:
-                cost = 0 if 400 <= upstream.status_code < 500 else None
                 raise HTTPException(status_code=502, detail=f"AI provider returned {upstream.status_code}.")
             payload = upstream.json()
             if not isinstance(payload, dict) or payload.get("error"):
@@ -488,10 +514,9 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         completed = False
         settled = False
         try:
-            async with httpx.AsyncClient(timeout=180) as client:
+            async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
                 async with client.stream("POST", url, json=contract.payload, headers=headers) as upstream:
                     if not upstream.is_success:
-                        cost = 0 if 400 <= upstream.status_code < 500 else None
                         raise RuntimeError(f"AI provider returned {upstream.status_code}.")
                     async for payload in streaming.events(upstream.aiter_bytes()):
                         if payload is None:
@@ -512,11 +537,11 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
             if not settled:
                 settled = True
                 try:
-                    await _settle(reservation, cost=cost if cost == 0 else None, tokens=tokens, provider_id=provider_id)
+                    await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
                 except Exception as settlement_error:
                     exc = RuntimeError(f"{exc}; {settlement_error}")
-            log.exception("Chat stream failed for reservation %s", reservation.request_id)
-            yield ("data: " + json.dumps({"error": {"message": str(exc)}}) + "\n\n").encode()
+            log.error("Chat stream failed for reservation %s (%s)", reservation.request_id, type(exc).__name__)
+            yield ("data: " + json.dumps({"error": {"message": "Chat stream failed. The reservation remains charged unless usage was verified."}}) + "\n\n").encode()
         finally:
             if not settled:
                 await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
@@ -535,25 +560,27 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
         content_type = request.headers.get("content-type", "")
         if not content_type.startswith("multipart/form-data"):
             raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
-        body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
-        audio = await asyncio.to_thread(audio_input.decode_upload, body, content_type=content_type)
-        reservation = await asyncio.to_thread(_reserve, who, audio.cost_micros)
-        output = io.BytesIO()
-        with wave.open(output, "wb") as wav:
-            wav.setnchannels(1)
-            wav.setsampwidth(2)
-            wav.setframerate(audio_input.SAMPLE_RATE)
-            wav.writeframes(audio.pcm)
-        cost: int | None = None
+        reservation = await asyncio.to_thread(_reserve, who, audio_input.MAX_COST_MICROS)
+        cost: int | None = 0
         try:
-            async with httpx.AsyncClient(timeout=60) as client:
+            body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
+            audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, body, content_type=content_type))
+            if audio.cost_micros > reservation.micros:
+                raise RuntimeError("Decoded audio exceeds its reserved cost.")
+            output = io.BytesIO()
+            with wave.open(output, "wb") as wav:
+                wav.setnchannels(1)
+                wav.setsampwidth(2)
+                wav.setframerate(audio_input.SAMPLE_RATE)
+                wav.writeframes(audio.pcm)
+            cost = None
+            async with asyncio.timeout(60), httpx.AsyncClient(timeout=60) as client:
                 upstream = await client.post(
                     f"{CFG.groq_base_url}/audio/transcriptions",
                     headers={"Authorization": f"Bearer {CFG.groq_key}"}, data=audio.fields,
                     files={"file": ("audio.wav", output.getvalue(), "audio/wav")},
                 )
             if not upstream.is_success:
-                cost = 0 if 400 <= upstream.status_code < 500 else None
                 raise HTTPException(status_code=502, detail=f"Transcription provider returned {upstream.status_code}.")
             cost = audio.cost_micros
             payload = upstream.json()
@@ -562,5 +589,4 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
             return JSONResponse(content=payload)
         finally:
             await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
-
 

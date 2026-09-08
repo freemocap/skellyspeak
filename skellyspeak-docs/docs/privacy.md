@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-**Effective 6 September 2026.** SkellySpeak is made by the FreeMoCap
+**Effective 8 September 2026.** SkellySpeak is made by the FreeMoCap
 Foundation. This policy describes what the app and its optional hosted service
 collect, and what they do not.
 
@@ -49,6 +49,7 @@ The application stores the following records; hosting infrastructure also produc
 
 - Number of AI tokens used, per day
 - Number of requests made, per day
+- Daily auth-step and per-account admission counters for abuse prevention
 - Cost and reserved allowance in micro-dollars
 - Per-request reservation IDs, provider generation IDs, settlement status and timestamps
 
@@ -210,3 +211,21 @@ conversations, lesson memory, learner progress, traces, app-managed exports,
 logs, caches and webview storage. This is irreversible. It signs out this device;
 it does not delete the hosted account, server-side billing/usage records, or
 exports copied outside application storage.
+
+## Operational logging and device backups
+
+Ordinary application logs record events, timings, counts and HTTP status codes;
+they do not intentionally copy transcripts, prompts, model output, teaching-plan
+text, account email or raw provider HTTP error bodies. The local AI trace archive
+above remains a separate, content-bearing feature. Older log files are not
+retroactively erased by an upgrade.
+
+The hosted container disables Uvicorn access logs and HTTP-client informational
+logging. Google Cloud request logs remain controlled by the project logging
+configuration and may contain URLs and IP addresses; disable or exclude sensitive
+auth request logs at the platform layer as well.
+
+Android declares app backup disabled and excludes app data from cloud backup and
+device transfer. This policy requires verification on supported physical devices.
+Desktop debug builds use a separate application identity, storage and Keychain
+entry; they do not import the installed release's private data.

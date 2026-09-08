@@ -7,6 +7,7 @@
 
 mod analysis;
 mod coach_pass;
+mod reaction;
 mod observer_pass;
 mod skill_pass;
 mod types;
@@ -133,7 +134,7 @@ pub async fn guided_turn(
         lesson_revision: lesson.revision, partner: serde_json::to_value(&partner).map_err(|e| e.to_string())?,
         history_messages: history.len().min(REPLY_HISTORY_TURNS), history_available,
     };
-    info!("[cmd] guided_turn saved partner: {} ({})", partner.persona.label, partner.persona.id);
+    info!("[cmd] guided_turn saved partner");
 
     // ── Pass 1: conversational reply (streamed to the UI) ───────────────────
     // The reply gets the overlay and the plan; the topic line is appended for
@@ -152,13 +153,15 @@ pub async fn guided_turn(
         topic.as_deref(),
         &reply_directives,
     );
-    reply_blocks.pop();
-    reply_blocks.extend([
-        crate::instruction::Block::new("dialect", "languages.rs + captured settings", target_overlay.clone()),
-        crate::instruction::Block::new("observations", "captured teaching plan and recent mechanics", prompts::observer::directives_block(&plan_snapshot, &recent_snapshot)),
-        crate::instruction::Block::new("lesson_choices", "lesson.json at captured revision", learner_directives.clone()),
-    ]);
-    reply_blocks.push(skill_block.clone());
+    reply_blocks.retain(|block| block.id != "staging");
+    reply_blocks.push(crate::instruction::Block::new("dialect", "languages.rs + captured settings", target_overlay.clone()));
+    {
+        reply_blocks.extend([
+            crate::instruction::Block::new("observations", "captured teaching plan and recent mechanics", prompts::observer::directives_block(&plan_snapshot, &recent_snapshot)),
+            crate::instruction::Block::new("lesson_choices", "lesson.json at captured revision", learner_directives.clone()),
+        ]);
+        reply_blocks.push(skill_block.clone());
+    }
     let reply_system = crate::instruction::render(&reply_blocks);
     let mut reply_messages = vec![json!({"role": "system", "content": reply_system})];
     for turn in history.iter().rev().take(REPLY_HISTORY_TURNS).rev() {
@@ -250,7 +253,7 @@ pub async fn guided_turn(
     let channel = on_event.clone();
     let full_reply = provider
         .chat_streaming(
-            RunContext::new(ontology::op::REPLY, Some(turn_id)).with_context(&request_context).with_blocks(reply_blocks),
+            RunContext::new(ontology::op::REPLY, Some(turn_id)).with_context(&request_context).with_blocks(reply_blocks.clone()),
             &reply_messages,
             REPLY_TEMPERATURE,
             &mut |delta| {
@@ -376,6 +379,10 @@ pub async fn guided_turn(
 
     // ── Coach pass: private feedback on what the learner said ───────────────
     if has_learner_message {
+        reaction::spawn(reaction::ReactionPass {
+            app: app.clone(), provider, context: request_context.clone(), turn_id,
+            channel: on_event.clone(), messages: reply_messages, blocks: reply_blocks, reply: reply.clone(), native: native.clone(),
+        });
         let trimmed = message.trim().to_string();
         input_evidence.revision |= replaces_message_id.is_some();
         skill_pass::spawn(skill_pass::SkillPass {
@@ -396,6 +403,7 @@ pub async fn guided_turn(
             native,
             transcript: coach_pass::transcript(&history),
             message: trimmed,
+            reply: reply.clone(),
             level_notes,
             topic,
         });

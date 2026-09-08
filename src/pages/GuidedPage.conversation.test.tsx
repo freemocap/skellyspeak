@@ -9,7 +9,7 @@ import { SkillNavigationProvider } from '../hooks/useSkillNavigation'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render as testingRender, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { Settings, StoredTurn } from '../types'
+import type { GuidedEvent, Settings, StoredTurn } from '../types'
 
 // ── The whole backend is one module, so it is one mock ──────────────────────
 // `vi.hoisted` because vi.mock factories are lifted above ordinary consts.
@@ -109,6 +109,8 @@ const SETTINGS: Settings = {
   auto_send: false,
   always_romanize: false,
   auto_translate: false,
+  always_pronunciation: false,
+  fast_mode: true, reward_sounds: 'follow_tts',
   tts_engine: 'cloud',
   tts_voice: 'nova',
   tts_rate: 1,
@@ -171,22 +173,22 @@ beforeEach(() => {
 })
 
 describe('opening the app', () => {
-  it('opens mobile Analysis in a dismissible dialog without leaving the conversation', async () => {
+  it.each([true, false])('opens Analysis in a dialog without leaving the conversation (mobile=%s)', async (mobile) => {
     HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
     HTMLDialogElement.prototype.close = function (): void { this.open = false }
     const media = vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
-      matches: true, media: query, onchange: null,
+      matches: mobile, media: query, onchange: null,
       addListener: vi.fn(), removeListener: vi.fn(),
       addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
     }))
     const stored = turn(1, 'Hola')
-    stored.assistant!.tokens = [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null }]
+    stored.assistant!.tokens = [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }]
     backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [stored] })
-    const view = render(<GuidedPage active={true} />)
+    const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     try {
       const word = await screen.findByText('Hola', { selector: '.w' })
       await userEvent.click(word)
-      expect(screen.getByText('Hello', { selector: '.popup-card span' })).toBeInTheDocument()
+      expect(screen.getByText('Hello', { selector: '.wg' })).toBeInTheDocument()
       expect(view.container.querySelector('section.chat')).not.toHaveClass('mobile-hidden')
       await userEvent.click(word)
       expect(view.container.querySelector('[data-gloss-popup]')).toBeNull()
@@ -208,7 +210,7 @@ describe('opening the app', () => {
   it('saves the selected voice speed without reopening the conversation', async () => {
     backend.saveSettings.mockResolvedValue(undefined)
     backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledTimes(1))
     const speed = screen.getByLabelText('Voice playback speed')
     expect(screen.getByRole('group', { name: 'Reading and voice options' })).toContainElement(speed)
@@ -221,7 +223,7 @@ describe('opening the app', () => {
       id: 'chat-1',
       turns: [turn(1, 'Hola, quiero practicar')],
     })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => {
       expect(screen.getByText('Hola, quiero practicar')).toBeInTheDocument()
     })
@@ -231,7 +233,7 @@ describe('opening the app', () => {
     // Greeting on top of restored turns both duplicates the opening and makes
     // it look like nothing was kept.
     backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalled())
     // A greeting would consume the once-per-session flag; it must still be there.
     await new Promise((r) => setTimeout(r, 50))
@@ -243,7 +245,7 @@ describe('opening the app', () => {
     // it fires, which is how a refactor that left the greet callback unwired
     // slipped past the type checker.
     backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => {
       const call = backend.rawInvoke.mock.calls.find((c) => c[0] === 'guided_turn')
       expect(call, 'no guided_turn was issued for the empty conversation').toBeTruthy()
@@ -252,14 +254,14 @@ describe('opening the app', () => {
   })
 
   it('asks for the conversation belonging to the current pairing', async () => {
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => {
       expect(backend.loadConversation).toHaveBeenCalledWith('es-ES', 'en', 'surprise')
     })
   })
 
   it('loads the chat list so the drawer has something to show', async () => {
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => {
       expect(backend.listConversations).toHaveBeenCalledWith('es-ES', 'en')
     })
@@ -276,7 +278,7 @@ const BAKER = {
 describe('who the learner is talking to', () => {
   it('selects a template only when opening a chat and sends only chat ownership with each turn', async () => {
     backend.loadConversation.mockResolvedValue({ id: 'chat-7', turns: [] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => {
       const call = backend.rawInvoke.mock.calls.find((c) => c[0] === 'guided_turn')
       expect(call).toBeTruthy()
@@ -289,7 +291,7 @@ describe('who the learner is talking to', () => {
 
   it('offers the partners the core actually has, not a list of its own', async () => {
     backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     const picker = await screen.findByLabelText('Partner:')
     await waitFor(() =>
       expect(screen.getByRole('option', { name: 'Night-shift baker' })).toBeInTheDocument()
@@ -304,7 +306,7 @@ describe('who the learner is talking to', () => {
     // else. The old chat is archived, not lost.
     backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
     backend.newConversation.mockResolvedValue('chat-2')
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     const picker = await screen.findByLabelText('Partner:')
     await waitFor(() =>
       expect(screen.getByRole('option', { name: 'Night-shift baker' })).toBeInTheDocument()
@@ -320,7 +322,7 @@ describe('who the learner is talking to', () => {
     // The current chat owns its identity even if the future-chat preference is stale.
     localStorage.setItem('skellyspeak_persona', 'deleted-one')
     backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     const picker = await screen.findByLabelText('Partner:')
     await waitFor(() => expect(picker).toHaveValue('__current__'))
   })
@@ -332,7 +334,7 @@ describe('who the learner is talking to', () => {
       personas: [BAKER],
       faults: ['Your saved personas could not be read. Nothing was deleted.'],
     })
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     // The fault bar itself lives in App; what this pins is that the fault
     // leaves the persona code at all rather than being logged and forgotten.
     const { subscribeFaults } = await import('../lib/faults')
@@ -350,7 +352,7 @@ describe('the persona panel', () => {
   })
 
   async function openPanel() {
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     fireEvent.click(await screen.findByLabelText('Open the persona panel'))
     return screen.findByRole('dialog', { name: 'Personas' })
   }
@@ -422,12 +424,12 @@ describe('the persona panel', () => {
 describe('the suggestions panel', () => {
   it('starts settings folded for a new user', async () => {
     localStorage.removeItem('skellyspeak_chat_settings')
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     expect(await screen.findByTitle('Show chat settings')).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByLabelText('Learner level')).toBeNull()
   })
   it('keeps settings available without a duplicate suggestions panel', async () => {
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     expect(await screen.findByLabelText('Learner level')).toBeInTheDocument()
     expect(screen.queryByTitle('Hide suggestions')).toBeNull()
     fireEvent.click(screen.getByTitle('Hide chat settings'))
@@ -438,7 +440,7 @@ describe('the suggestions panel', () => {
   it('says what is folded away, so the steering is never invisible', async () => {
     // Level and topic steer every reply. Hidden AND unstated, they become
     // settings that silently change the conversation.
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     fireEvent.click(await screen.findByTitle('Hide chat settings'))
     expect(screen.queryByLabelText('Learner level')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Current conversation settings')).toHaveTextContent(/Beginner/)
@@ -455,22 +457,22 @@ describe('a settings edit', () => {
   it('does not reload the conversation', async () => {
     // `settingsVersion` bumps on EVERY autosave keystroke in the Settings
     // modal. Reloading here would drop turns that had not been saved yet.
-    const view = render(<GuidedPage active={true} settingsVersion={0} />)
+    const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={0} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledTimes(1))
 
-    view.rerender(<GuidedPage active={true} settingsVersion={1} />)
-    view.rerender(<GuidedPage active={true} settingsVersion={2} />)
+    view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={1} />)
+    view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={2} />)
     await new Promise((r) => setTimeout(r, 50))
 
     expect(backend.loadConversation).toHaveBeenCalledTimes(1)
   })
 
   it('reloads the conversation when the language actually changes', async () => {
-    const view = render(<GuidedPage active={true} settingsVersion={0} />)
+    const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={0} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledWith('es-ES', 'en', 'surprise'))
 
     backend.getSettings.mockResolvedValue({ ...SETTINGS, target_language: 'ar' })
-    view.rerender(<GuidedPage active={true} settingsVersion={1} />)
+    view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={1} />)
 
     await waitFor(() => {
       expect(backend.loadConversation).toHaveBeenCalledWith('ar', 'en', 'surprise')
@@ -479,11 +481,11 @@ describe('a settings edit', () => {
 
   it('treats a dialect change as the same conversation', async () => {
     // Levantine and MSA are a setting on one conversation, not two.
-    const view = render(<GuidedPage active={true} settingsVersion={0} />)
+    const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={0} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalledTimes(1))
 
     backend.getSettings.mockResolvedValue({ ...SETTINGS, target_dialect: 'ar-LE' })
-    view.rerender(<GuidedPage active={true} settingsVersion={1} />)
+    view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} settingsVersion={1} />)
     await new Promise((r) => setTimeout(r, 50))
 
     expect(backend.loadConversation).toHaveBeenCalledTimes(1)
@@ -493,7 +495,7 @@ describe('a settings edit', () => {
 describe('when the backend refuses', () => {
   it('surfaces a failure to restore instead of showing an empty chat', async () => {
     backend.loadConversation.mockRejectedValue(new Error('session.json is unreadable'))
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalled())
     // reportFault puts it on the fault bar; the point is that it is not
     // swallowed into a silently blank conversation.
@@ -509,7 +511,7 @@ describe('steering the conversation', () => {
   it('opens the selected topic without generating suggestions from the old exchange', async () => {
     // A steering turn owns the reply and its suggestions as one pipeline.
     const user = userEvent.setup()
-    render(<GuidedPage active={true} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
     await waitFor(() => expect(backend.loadConversation).toHaveBeenCalled())
 
     // Changing the topic must not generate suggestions from the old history.
@@ -538,7 +540,7 @@ describe('a failure that names Settings', () => {
     const onOpenSettings = vi.fn()
     backend.rawInvoke.mockRejectedValue(new Error(SIGN_IN))
     const user = userEvent.setup()
-    render(<GuidedPage active={true} onOpenSettings={onOpenSettings} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} onOpenSettings={onOpenSettings} />)
 
     const button = await screen.findByRole('button', { name: 'Open Settings' })
     await user.click(button)
@@ -550,7 +552,7 @@ describe('a failure that names Settings', () => {
     backend.rawInvoke.mockRejectedValue(
       new Error('The tutor hit a rate limit — give it a few seconds and try again.')
     )
-    render(<GuidedPage active={true} onOpenSettings={vi.fn()} />)
+    render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} onOpenSettings={vi.fn()} />)
     await screen.findByText(/rate limit/)
     expect(screen.queryByRole('button', { name: 'Open Settings' })).not.toBeInTheDocument()
   })
@@ -596,13 +598,13 @@ describe('conversation ownership under delayed operations', () => {
 
 it('keeps the primary recording control immediately before Send when Discard appears', async () => {
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
-  const { rerender } = render(<GuidedPage active={true} />)
+  const { rerender } = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   const record = await screen.findByRole('button', { name: 'Record audio' })
   const send = screen.getByRole('button', { name: 'Send' })
   expect(record.nextElementSibling).toBe(send)
   fireEvent.click(record)
   microphone.recording = true
-  rerender(<GuidedPage active={true} />)
+  rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   const stop = screen.getByRole('button', { name: /Stop and (send|transcribe) recording/ })
   expect(stop).toBe(record)
   expect(stop.nextElementSibling).toBe(send)
@@ -628,11 +630,30 @@ it.each(['new', 'reopened'] as const)('does not send another chat’s history in
   expect(seenHistory).toEqual([[]])
 })
 
+it('keeps a freshly streamed opening in the first learner request before analysis finishes', async () => {
+  backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [] })
+  backend.rawInvoke.mockImplementation(() => new Promise<string>(() => {}))
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
+  await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({ greeting: true })))
+  const opening = backend.rawInvoke.mock.calls.find(call => call[0] === 'guided_turn')![1] as {
+    onEvent: { onmessage: (event: GuidedEvent) => void }
+  }
+  act(() => opening.onEvent.onmessage({ type: 'reply_done', reply: 'Soy Elia. Estoy cansada. ¿Tú bien?' }))
+  await screen.findByText('Soy Elia. Estoy cansada. ¿Tú bien?')
+  fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Estoy bien. ¿Por qué estás cansada?' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({
+    greeting: false,
+    message: 'Estoy bien. ¿Por qué estás cansada?',
+    history: [{ role: 'assistant', content: 'Soy Elia. Estoy cansada. ¿Tú bien?' }],
+  })))
+})
+
 it('sends the established partner introduction as assistant history alongside the learner message', async () => {
   const greeting: StoredTurn = { ...turn(1, ''), user: null }
   greeting.assistant!.reply = 'Soy Carmen. Vivo cerca de Valencia.'
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [greeting] })
-  render(<GuidedPage active={true} />)
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   await screen.findByText('Soy Carmen. Vivo cerca de Valencia.')
   fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Soy Juan. ¿Y tus geranios?' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
@@ -642,11 +663,34 @@ it('sends the established partner introduction as assistant history alongside th
   })))
 })
 
+it('keeps partner reactions separate from coach grades and saves both with the originating turn', async () => {
+  backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [turn(1, 'Hola')] })
+  backend.rawInvoke.mockImplementation(() => new Promise<string>(() => {}))
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
+  const composer = await screen.findByPlaceholderText(/Write in/)
+  fireEvent.change(composer, { target: { value: '¿Por qué estás cansada?' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({ message: '¿Por qué estás cansada?' })))
+  const request = backend.rawInvoke.mock.calls.find(call => call[0] === 'guided_turn')![1] as { onEvent: { onmessage: (event: GuidedEvent) => void } }
+  const reaction = { kind: 'understood' as const, interpretation: 'You asked why I am tired.', explanation: 'I described my work.' }
+  const feedback = { conversation: 5, grammar: 5, remark: 'A relevant question.', used_target: [], used_native: [], corrections: [] }
+  act(() => {
+    request.onEvent.onmessage({ type: 'reply_done', reply: 'Trabajo mucho.' })
+    request.onEvent.onmessage({ type: 'coach_done', feedback })
+    request.onEvent.onmessage({ type: 'reaction_done', reaction })
+  })
+  expect(await screen.findByRole('button', { name: 'Partner understood' })).toBeVisible()
+  expect(screen.getByText('Grammar 5/5 · Conversation 5/5')).toBeVisible()
+  await waitFor(() => expect(backend.saveConversation).toHaveBeenCalledWith('es-ES', 'en', 'chat-1', expect.arrayContaining([
+    expect.objectContaining({ user: '¿Por qué estás cansada?', reaction, coach: feedback }),
+  ]), expect.any(String)), { timeout: 2500 })
+})
+
 it('keeps template selection reachable when a chat cannot initialize', async () => {
   backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
   backend.loadConversation.mockRejectedValue(new Error('The selected persona no longer exists.'))
   backend.newConversation.mockResolvedValue('replacement-chat')
-  render(<GuidedPage active={true} />)
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   const picker = await screen.findByLabelText('Partner:')
   expect(picker).toHaveValue('__choose__')
   fireEvent.change(picker, { target: { value: 'baker' } })
@@ -658,7 +702,7 @@ it('shows recovered identity separately from the template library', async () => 
   backend.listPersonas.mockResolvedValue({ personas: [BAKER], faults: [] })
   backend.invoke.mockImplementation(async (command: string) => command === 'get_conversation_partner'
     ? { persona: { id: '__legacy__', label: 'Partner from saved conversation', sketch: 'Preserve the saved identity.', builtin: false }, introduction: 'Soy Carmen. Vivo en Valencia.', origin: 'recovered_history' } : '')
-  render(<GuidedPage active={true} />)
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   fireEvent.click(await screen.findByLabelText('Open the persona panel'))
   expect(await screen.findByText('Soy Carmen. Vivo en Valencia.')).toBeInTheDocument()
   expect(screen.getByText(/Recovered from the earliest saved reply/)).toBeInTheDocument()
@@ -671,19 +715,19 @@ it('keeps the edited attempt’s corrections visible while recording and removes
   const latest: StoredTurn = { ...turn(2, 'Hola'), coach: { comprehensibility: 5, grammar: 5, remark: 'Latest attempt feedback.', used_target: [], used_native: [], corrections: [] } }
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [original, latest] })
   const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
-  const { rerender } = render(<GuidedPage active={true} />)
+  const { rerender } = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   const edits = await screen.findAllByRole('button', { name: 'Edit this message and try again' })
   fireEvent.click(edits[0])
   let reference = screen.getByRole('region', { name: 'Coach feedback while editing' })
   expect(within(reference).getByText('Yo soy')).toBeVisible()
   expect(within(reference).queryByText('Latest attempt feedback.')).not.toBeInTheDocument()
   microphone.recording = true
-  rerender(<GuidedPage active={true} />)
+  rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   expect(screen.getByRole('button', { name: /Stop and (send|transcribe) recording/ })).toBeVisible()
   reference = screen.getByRole('region', { name: 'Coach feedback while editing' })
   expect(within(reference).getByText('Soy goes with yo.')).toBeVisible()
   microphone.recording = false
-  rerender(<GuidedPage active={true} />)
+  rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
   expect(screen.queryByRole('region', { name: 'Coach feedback while editing' })).not.toBeInTheDocument()
   confirm.mockRestore()
@@ -694,7 +738,7 @@ it('captures card suggestion use in the evaluation input', async () => {
   greeting.user = null
   greeting.assistant!.scaffolds = { replies: ['Me gusta el café.'], frames: ['Me gusta ___.'], starters: [], coach_help: null }
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [greeting] })
-  render(<GuidedPage active={true} />)
+  render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active={true} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Me gusta el café.' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(backend.rawInvoke).toHaveBeenCalledWith('guided_turn', expect.objectContaining({
@@ -703,3 +747,28 @@ it('captures card suggestion use in the evaluation input', async () => {
 })
 
 function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: SkillNavigationProvider }) }
+
+
+it.each(['Google sign-in', 'API key save'])('recovers a blocked greeting after %s without losing the draft', async (source) => {
+  const error = 'Sign in to use the free hosted service, or choose a different AI provider, in Settings.'
+  backend.rawInvoke.mockRejectedValueOnce(new Error(error))
+  const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={0} />)
+  await screen.findByText(error)
+  fireEvent.change(screen.getByPlaceholderText('Write in Español…'), { target: { value: 'My unfinished reply' } })
+  backend.getSettings.mockResolvedValue(source === 'Google sign-in' ? { ...SETTINGS, hosted_email: 'signed-in@example.com' } : { ...SETTINGS, provider_mode: 'cloud', openrouter_key: 'saved-key' })
+  view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={1} />)
+  await waitFor(() => expect(backend.rawInvoke.mock.calls.filter(call => call[0] === 'guided_turn')).toHaveLength(2))
+  expect(screen.queryByText(error)).not.toBeInTheDocument()
+  expect(screen.getByPlaceholderText('Write in Español…')).toHaveValue('My unfinished reply')
+  expect(backend.loadConversation).toHaveBeenCalledTimes(1)
+})
+
+it('keeps an unresolved provider failure visible after the settings refresh retries', async () => {
+  const error = 'Add an API key in Settings.'
+  backend.rawInvoke.mockRejectedValue(new Error(error))
+  const view = render(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={0} />)
+  await screen.findByText(error)
+  view.rerender(<GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={1} />)
+  await waitFor(() => expect(backend.rawInvoke.mock.calls.filter(call => call[0] === 'guided_turn')).toHaveLength(2))
+  expect(await screen.findByText(error)).toBeInTheDocument()
+})

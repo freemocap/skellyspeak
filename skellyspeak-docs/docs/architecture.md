@@ -80,6 +80,9 @@ session or settings context.
 ```
 
 Credentials live in the native vault, addressed by the configuration directory.
+Startup reads them once into Rust-owned settings. Preference saves compare
+against that in-memory state and access the vault only when credentials change;
+failed vault writes leave preferences and in-memory settings unchanged.
 Inline credentials migrate to the vault during loading. Existing separate
 `plan.json` and `profile.json` documents are read when `memory.json` is absent;
 subsequent saves write the combined memory document. Source documents remain
@@ -281,3 +284,30 @@ Skill snapshot event bursts coalesce while a read is active and always request a
 The React reward presentation controller owns opening, hovering, and departing cards. Selections store message/credit identities and resolve evidence against the current snapshot; removed evidence closes the card. Web Animations moves the card from its captured phrase position to the conversation header area and then to a currently visible domain anchor. A compact indicator represents an offscreen map destination. Route, chat, and target changes clear presentations. This transient state does not write credits, alter scoring, or issue model requests.
 
 Explicit advice refresh uses `generate_scaffolds` with required `previous_advice`. The previous advice is supplied as an assistant message followed by the learner’s request for different advice. Validation rejects repeated reply text and a changed partner message. The UI guards duplicate refreshes and discards results after the active turn, chat, or settings change; accepted results replace the turn scaffolds and are saved through the conversation queue.
+
+Desktop debug builds use `com.freemocap.skellyspeak.dev` for application storage
+and credential-service identity. Release storage is not migrated or read by a
+debug build. Ordinary logs contain operational metadata; content-bearing AI
+traces retain their separate inspection and deletion contract.
+
+The Rust-owned `Settings.always_pronunciation` preference defaults to false and controls automatic display of saved `AssistedPhrase.pronunciation` in partner replies and composer Coach advice. The shared pronunciation presentation also supports a one-way reveal button. Mobile Chat/Lesson selection belongs to the app shell so secondary Skill Tree navigation cannot hide the way back to practice.
+
+`Settings.fast_mode` is persisted by Rust and defaults to true. New credit detection sends each reward directly into the shared card presentation stack; animation does not gate model processing or later rewards. Automatic arrivals are staggered by 460–560 ms; in Fast mode each card holds for 500 ms after opening before departing; manually inspected cards remain until dismissed. Presentation does not change earned credit.
+
+XP arrival detection compares credit amounts by attempt and skill, bounded by net skill XP gains; it does not require the review to become complete in the same snapshot. Point-icon clicks inspect one credit without dismissing other icons. Card sizing uses the visible viewport independently of the message stream’s available height.
+
+Chat token annotations include native-readable approximate pronunciation for the exact source token, alongside its contextual gloss and optional romanization. Both learner and partner token analysis produce this field. Saved tokens predating this field deserialize with no pronunciation; the UI does not infer alignment from sentence-level Coach advice.
+
+Linguistic progress is owned by `(learner_id, target_language)`. Conversation evidence is stored under its target/native pair and aggregated across native-language contexts only for the same target. Saved profile choices live under the target key; the projection rejects mixed-language or mixed-learner records. The frontend hides snapshots from a different selected target and ignores obsolete settings-scope responses. Reward transitions never compare XP across targets. The practice dashboard derives descriptive domain totals and distinct contributing-message counts from the current credit ledger, with source-record provenance; it introduces no global linguistic score or inferred proficiency measure.
+
+The explicit difficulty enum includes `fluent`, with a C2-style practice policy above Advanced. It uses the same reply blocks, teaching context, diagnostics, evaluation, and credit rules as other levels. Difficulty denotes requested expression, not measured ability; complex topics are not excluded at simpler levels. Provider safeguards retain authority.
+
+`get_practice_overview` is a read-only aggregation of independent target-language snapshots for every supported language. The profile computes global retained-activity counts and an explicitly additive global XP total, then exposes language-specific tabs. Zero-experience languages are included; no global total is fed back into any language’s scoring or unlocks.
+
+A completed opening is an assistant history message even though its turn has no learner text. `reply_done` makes it available to subsequent requests before annotation finishes; pending annotation does not exclude the reply from conversation history. The provider payload preserves these message roles and contents.
+
+`reaction` is a detached Chat operation declared in the turn plan. After a learner reply, it reuses the captured partner provider and full reply-request context plus the completed assistant message, then requests a structured `PartnerReaction` self-report in the native language. Its original partner blocks plus the reaction instructions are rendered into one system message and recorded together; the outbound provenance check must match that exact composition. A final application trigger is explicitly distinguished from learner dialogue. It never consumes private coach grades. Reaction success/failure events attach to the originating turn and persist with that conversation; stale events cannot cross chat ownership. The coach independently sees the learner message, prior dialogue, and partner reply and returns `grammar` and `conversation` scores. Historical `comprehensibility` remains historical data rather than being converted to a different construct. Reactions do not award XP or change ability estimates.
+
+`playback-lifecycle.ts` installs window focus, visibility, page-hide/unload, and Tauri focus/close/suspend/resume handlers before rendering. Independent blockers gate `speakSmart`; suspension cancels HTML audio and OS speech, clears UI playback state, and invalidates the request token so late synthesis or voice-identity results cannot play. Resume clears its blocker without replaying audio. Native mobile event delivery still requires device verification.
+
+Rust settings persist `reward_sounds` as `yes`, `no`, or `follow_tts`; the default follows `auto_speak`. `reward-sounds.ts` synthesizes bounded Web Audio motifs without model calls or audio downloads. Automatic XP cues are attached to new-card settlement, manual inspection pops to XP-icon clicks, and partner cues only to newly received confused/understood results. Visible-source glow and audio share scheduling; offscreen or inactive sources stay silent. App lifecycle cancellation stops scheduled oscillators and highlights alongside TTS. Historical inspection never replays earning sounds.

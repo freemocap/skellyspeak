@@ -59,6 +59,9 @@ pub struct Profile {
 /// attempts cannot block later unassisted evidence for the same wording.
 pub fn project(snapshot: &Snapshot, choices: Choices) -> Result<Profile, String> {
     choices.validate(&snapshot.target)?;
+    if snapshot.learner_id != super::LEARNER || snapshot.records.iter().any(|record| record.target != snapshot.target || record.learner_id != snapshot.learner_id) {
+        return Err("Progress evidence belongs to another language or learner.".into());
+    }
     let mut skills = vec![];
     let mut credits = vec![];
     let mut records: Vec<_> = snapshot.records.iter().collect();

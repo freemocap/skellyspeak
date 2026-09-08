@@ -14,6 +14,7 @@ from fastapi import HTTPException
 MAX_SECONDS = 120
 SAMPLE_RATE = 16_000
 MICROS_PER_HOUR = 111_000
+MAX_COST_MICROS: int = math.ceil(MAX_SECONDS * MICROS_PER_HOUR / 3600)
 
 
 def verify_decoder() -> None:

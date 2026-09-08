@@ -25,7 +25,7 @@ function InstallSteps({ installer }: { installer: Installer }) {
 function DownloadCard({ installer, primary }: { installer: Installer; primary: boolean }) {
   return <a href={installer.asset.browser_download_url} className={`dl-card${primary ? ' dl-card-recommended' : ''}`}>
     <div className="dl-card-info">
-      <div className="dl-card-name">{OS_LABELS[installer.os]} {installer.format === 'AppImage' ? 'AppImage' : 'Installer'}
+      <div className="dl-card-name">{OS_LABELS[installer.os]} {installer.format === 'MSI' ? 'MSI package' : installer.format === 'EXE' ? 'EXE setup' : `${installer.format} installer`}
         {primary && <span className="dl-badge dl-badge-rec">recommended</span>}
       </div>
       <div className="dl-card-meta">{architectureLabel(installer.arch, installer.os)} · {installer.format}</div>
@@ -129,6 +129,7 @@ export default function DownloadPage() {
             {state.status === 'ready' && <>
               {system.os === 'ios' ? <div className="dl-section-details-content"><p>iPhone testing is limited to known parties at this time. Install through your TestFlight invitation. The release IPA is not a direct-install download.</p><Link to="/docs/platforms#ios">iOS distribution details →</Link></div>
                 : <>
+                  {recommended && system.arch === 'unknown' && recommended.arch !== 'universal' && <p className="dl-no-detect">Suggested download for {architectureLabel(recommended.arch, system.os)}. Confirm your processor using the selector above before downloading.</p>}
                   {recommended && <div className="dl-downloads"><DownloadCard installer={recommended} primary /></div>}
                   {!recommended && <p className="dl-no-detect">{matching.length ? 'Choose your processor above, or select the matching installer below.' : system.os === 'unknown' ? 'Could not detect your OS. Select your system above or see all downloads below.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
                   {alternatives.length > 0 && <>

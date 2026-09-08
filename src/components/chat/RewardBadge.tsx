@@ -1,5 +1,5 @@
 import { useSkillNavigation } from '../../hooks/useSkillNavigation'
-import { useContext, useRef } from 'react'
+import { useContext, useRef, type RefObject } from 'react'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { domainColors } from '../../lib/skill-domains'
 import type { MessageEvidence } from '../../lib/message-evidence'
@@ -12,9 +12,13 @@ export function RewardBadge({ domainId, label, xp, quote, creditKind }: { domain
   </div>
 }
 
-export function RewardDetail({ evidence, onClose, interactive }: { evidence: MessageEvidence[]; onClose: () => void; interactive: boolean }) {
+function InspectionLayer({ host, onClose }: { host: RefObject<HTMLElement | null>; onClose: () => void }) {
+  useOverlayLayer(host, onClose, true)
+  return null
+}
+
+export function RewardDetail({ evidence, onClose, interactive, automatic }: { automatic: boolean; evidence: MessageEvidence[]; onClose: () => void; interactive: boolean }) {
   const host = useRef<HTMLElement>(null)
-  useOverlayLayer(host, onClose, interactive)
   const navigation = useSkillNavigation()
   const { snapshot } = useContext(SkillEvidenceContext)
   const groups = new Map<string, MessageEvidence[]>()
@@ -23,7 +27,7 @@ export function RewardDetail({ evidence, onClose, interactive }: { evidence: Mes
     if (!group.some(existing => existing.quote === item.quote)) group.push(item)
     groups.set(item.id, group)
   }
-  return <section ref={host} className="reward-inspection-card" role="dialog" aria-label="XP details" inert={!interactive}><button className="reward-inspection-close" aria-label="Close XP details" onClick={onClose}>×</button>
+  return <section ref={host} className="reward-inspection-card" role="dialog" aria-label="XP details" inert={!interactive}>{!automatic && interactive && <InspectionLayer host={host} onClose={onClose} />}<button className="reward-inspection-close" aria-label="Close XP details" onClick={onClose}>×</button>
     {[...groups.values()].map(group => {
       const item = group[0]
       return <section key={item.id}><RewardBadge {...item} creditKind="stored" />

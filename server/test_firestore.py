@@ -10,6 +10,9 @@ from threading import Barrier
 import pytest
 from google.cloud import firestore
 
+from fastapi import HTTPException
+
+import admission
 import auth
 import auth_store
 import budget
@@ -115,3 +118,23 @@ def test_independent_processes_cannot_overfill_account_slots() -> None:
     with ProcessPoolExecutor(max_workers=4) as pool:
         assert sum(pool.map(process_signup, [db.project] * 12, range(12))) == 3
     assert len(list(db.collection(quota.USERS).stream())) == 3
+
+
+def process_request_admission(project: str, index: int) -> bool:
+    db: firestore.Client = firestore.Client(project=project)
+    try:
+        admission.take(db, lane="account", subject=f"request-{index}")
+        return True
+    except HTTPException as error:
+        assert error.status_code == 429
+        return False
+    finally:
+        db.close()
+
+
+def test_independent_processes_share_request_limit() -> None:
+    db: firestore.Client = database()
+    db.collection(admission.ADMISSION).document(quota.utc_day()).set(
+        {"account_requests": admission.GLOBAL_REQUESTS_PER_DAY - 3})
+    with ProcessPoolExecutor(max_workers=4) as pool:
+        assert sum(pool.map(process_request_admission, [db.project] * 12, range(12))) == 3

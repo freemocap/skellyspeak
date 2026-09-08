@@ -1,3 +1,4 @@
+import { configureRewardSounds } from '../lib/reward-sounds'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { HostedAccount, Settings, Shortcuts } from '../types'
 import {
@@ -91,7 +92,7 @@ function UpdateCheckRow() {
   const act = useCallback(async () => {
     if (!found) return
     if (found.kind === 'download') {
-      await found.open().catch((e) => reportFault('Opening the release page', e))
+      await found.open().catch((e) => reportFault('Opening the download page', e))
       return
     }
     setState('installing')
@@ -120,7 +121,7 @@ function UpdateCheckRow() {
         {channel === 'download' && (
           <p className="field-note">
             This platform installs updates through its package manager, so SkellySpeak checks
-            for a newer release and takes you to it — you install it yourself.
+            for a newer release and opens the docs download page — you install it yourself.
           </p>
         )}
         <>
@@ -367,6 +368,7 @@ export function SettingsModal({
   onSettingsChanged: (s: Settings) => void
 }) {
   const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
   // The last state known to be on disk. Autosave fires whenever `settings`
   // drifts from this, and this catches up once the write lands.
   const [persisted, setPersisted] = useState<Settings | null>(null)
@@ -397,13 +399,7 @@ export function SettingsModal({
       .then((s) => {
         setSettings(s)
         setPersisted(s)
-        logInfo('[settings] loaded', {
-          target: s.target_language,
-          native: s.native_language,
-          model: s.openrouter_model,
-          openrouterKey: s.openrouter_key ? 'set' : 'MISSING',
-          groqKey: s.groq_key ? 'set' : 'MISSING',
-        })
+        logInfo('[settings] loaded')
       })
       .catch((e) => {
         reportFault('Loading settings', e)
@@ -500,7 +496,8 @@ export function SettingsModal({
     const fresh = await getSettings()
     setSettings(fresh)
     setPersisted(fresh)
-  }, [])
+    onSettingsChanged(fresh)
+  }, [onSettingsChanged])
 
   const signIn = useCallback(async () => {
     setSigningIn(true)
@@ -537,11 +534,7 @@ export function SettingsModal({
     setSaveState('pending')
     const timer = setTimeout(() => {
       setSaveState('saving')
-      logInfo('[settings] autosaving', {
-        target: settings.target_language,
-        native: settings.native_language,
-        model: settings.openrouter_model,
-      })
+      logInfo('[settings] autosaving')
       saveSettings(settings)
         .then(() => {
           logInfo('[settings] autosaved ✓')
@@ -559,11 +552,10 @@ export function SettingsModal({
     return () => clearTimeout(timer)
   }, [settings, dirty, editingSecret, onSettingsChanged])
 
-  // Escape closes. Safe now that everything autosaves — and with backdrop
-  // click-to-dismiss gone, this is the only keyboard way out.
+  // Escape closes Settings unless a nested dialog or shortcut capture owns it.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return
       // ShortcutField binds Escape to "reset this shortcut to its default";
       // while it is recording, Escape belongs to it, not to the modal.
       const active = document.activeElement as HTMLElement | null
@@ -574,8 +566,10 @@ export function SettingsModal({
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  // Closing the modal inside the debounce window must not drop the pending
-  // edit: an unwritten API key is a lost one. Flush it on unmount.
+  // Closing flushes pending edits before refreshing the app from persisted
+  // settings, including credentials written by native authentication.
+  const settingsChangedRef = useRef(onSettingsChanged)
+  settingsChangedRef.current = onSettingsChanged
   const pendingWrite = useRef<Settings | null>(null)
   useEffect(() => {
     pendingWrite.current = dirty || editingSecret ? settings : null
@@ -583,9 +577,10 @@ export function SettingsModal({
   useEffect(
     () => () => {
       const outstanding = pendingWrite.current
-      if (!outstanding) return
-      logInfo('[settings] flushing a pending edit on close')
-      void saveSettings(outstanding).catch((e) => reportFault('Saving settings', e))
+      const saved = outstanding ? saveSettings(outstanding) : Promise.resolve()
+      void saved.then(() => getSettings())
+        .then(fresh => settingsChangedRef.current(fresh))
+        .catch(error => reportFault('Applying settings on close', error))
     },
     []
   )
@@ -619,8 +614,8 @@ export function SettingsModal({
 
   if (!settings) {
     return (
-      <div className="modal-backdrop">
-        <div className="settings-modal">
+      <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+        <div className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
           <p className="center-note">Loading…</p>
         </div>
       </div>
@@ -1034,6 +1029,33 @@ export function SettingsModal({
         </div>
       ),
     },
+    reward_sounds: {
+      section: 'voice', label: 'Play reward sounds', kw: 'sound audio beeps xp rewards reaction confusion mute tts',
+      node: <div className="form-row"><label>Play reward sounds
+        <select aria-label="Play reward sounds" value={settings.reward_sounds} onChange={event => setSettings({ ...settings, reward_sounds: event.target.value as Settings['reward_sounds'] })}>
+          <option value="yes">Yes</option><option value="no">No</option><option value="follow_tts">Follow TTS</option>
+        </select></label><p className="hint">Quiet XP and reaction beeps. Follow TTS uses Read aloud.</p></div>,
+    },
+    fast_mode: {
+      section: 'voice',
+      label: 'Fast mode',
+      kw: 'xp reward cards fast mode animation dismiss progress',
+      node: <div className="form-row check-row"><label className="check-label">
+        <input type="checkbox" checked={settings.fast_mode}
+          onChange={event => setSettings({ ...settings, fast_mode: event.target.checked })} />
+        <span>Fast mode — automatically dismiss new XP cards after their arrival animation</span>
+      </label></div>,
+    },
+    always_pronunciation: {
+      section: 'voice',
+      label: 'Always show pronunciation',
+      kw: 'pronunciation phonetic reading coach reply',
+      node: <div className="form-row check-row"><label className="check-label">
+        <input type="checkbox" checked={settings.always_pronunciation}
+          onChange={event => setSettings({ ...settings, always_pronunciation: event.target.checked })} />
+        <span>Always show saved pronunciation in replies and coach advice</span>
+      </label></div>,
+    },
     auto_translate: {
       section: 'voice',
       label: L('auto_translate', 'Always show translation'),
@@ -1106,12 +1128,9 @@ export function SettingsModal({
   })
 
   return (
-    // No click-to-dismiss on the backdrop: the click that refocuses the app
-    // after copying a key from another window lands here, and must not throw
-    // the open settings away. Closing is deliberate — Close, Escape, or back.
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
       <div
-        className="settings-modal"
+        className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings"
         onFocusCapture={(e) => {
           const t = e.target as HTMLElement
           if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
