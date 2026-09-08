@@ -22,7 +22,7 @@ function Journey() {
   const map = inMap || !!navigation.state.mapRequest
   return <TopicNotesProvider scope="es:en"><SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}>
     <PracticeContext value={{ chatId: 'chat', selected: navigation.state.selected?.skillId ?? null, selectionVersion: navigation.state.sequence, select: skillId => navigation.select({ target: skillDemo.target, skillId }) }}>
-      <DraftAssistanceContext value={{ suggestions: { replies: [], frames: [], starters: [] }, suggestionsError: null, useExample: text => setDraft(value => `${value} ${text}`) }}>
+      <DraftAssistanceContext value={{ suggestions: { replies: [], frames: [], starters: [], coach_help: null }, suggestionsError: null, useExample: text => setDraft(value => `${value} ${text}`) }}>
         <input aria-label="Draft" value={draft} onChange={event => setDraft(event.target.value)} />
         {!map && <><ConversationMap /><SkillPracticeBoard snapshot={skillDemo} chatId="chat" level="zero" busy={false} /></>}
         {map && <SkillTreeView snapshot={skillDemo} demonstration={true} refresh={() => undefined} save={async () => { throw new Error('Browsing must not save') }} saving={false} onPractice={() => setInMap(false)} />}

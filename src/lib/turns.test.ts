@@ -5,7 +5,7 @@ import type { GuidedTurnResult, Scaffolds, StoredTurn } from '../types'
 const scaffolds = (over: Partial<Scaffolds> = {}): Scaffolds => ({
   replies: [],
   frames: [],
-  starters: [],
+  starters: [], coach_help: null,
   ...over,
 })
 
@@ -90,7 +90,7 @@ describe('latestScaffolds', () => {
   it('takes the newest turn that actually produced suggestions', () => {
     const turns = [
       turn(1, 'a', 'A', scaffolds({ replies: ['old'] })),
-      turn(2, 'b', 'B', scaffolds({ starters: ['new'] })),
+      turn(2, 'b', 'B', scaffolds({ starters: ['new'], coach_help: null })),
     ]
     expect(latestScaffolds(turns)?.starters).toEqual(['new'])
   })
