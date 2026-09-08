@@ -12,7 +12,7 @@ it('starts over evidence, survives the initial resize notification, and flashes 
   let notify: ResizeObserverCallback = () => {}
   vi.stubGlobal('ResizeObserver', class { constructor(callback: ResizeObserverCallback) { notify = callback } observe() {} disconnect() {} })
   const scope = document.createElement('div')
-  scope.innerHTML = '<div data-reward-domain="reference"></div>'
+  scope.innerHTML = '<div data-reward-domain="reference"></div><button data-reward-domain="reference"><progress /></button><div data-reward-domain="time"></div>'
   document.body.append(scope)
   const view = render(<RewardFlight workspace={{ current: scope }} reward={{ id: 'a:referent', messageId: 1, skillId: 'referent', domainId: 'reference', label: 'Referent', quote: 'this cup', xp: 10 }} />)
   try {
@@ -23,6 +23,7 @@ it('starts over evidence, survives the initial resize notification, and flashes 
     expect(animation.cancel).not.toHaveBeenCalled()
     expect(animate.mock.calls[0][0].at(-1).transform).toContain('scale(.1)')
     animation.onfinish!()
-    expect(animate).toHaveBeenCalledTimes(2)
+    expect(animate).toHaveBeenCalledTimes(3)
+    expect(animate.mock.contexts.slice(1)).toEqual(Array.from(scope.querySelectorAll('[data-reward-domain="reference"]')))
   } finally { view.unmount(); scope.remove(); media.mockRestore(); HTMLElement.prototype.animate = original; vi.unstubAllGlobals() }
 })
