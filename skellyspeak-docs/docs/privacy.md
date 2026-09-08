@@ -26,6 +26,14 @@ service. The local-data sections apply to all provider modes. Starting sign-in a
 We do not sell your data, we do not share it for advertising, and there are no
 analytics or tracking SDKs in the app.
 
+## Download website
+
+The download page reads browser-provided operating-system and processor
+information locally to recommend an installer. It does not save these selections
+or send them to the SkellySpeak service. It requests public release metadata
+from GitHub, and download links open GitHub-hosted release assets. These requests
+send ordinary network metadata to GitHub, including your IP address.
+
 ## What the hosted service stores
 
 The application stores the following records; hosting infrastructure also produces operational logs.

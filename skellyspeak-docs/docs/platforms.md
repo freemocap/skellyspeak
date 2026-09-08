@@ -205,6 +205,19 @@ is owned by the platform package/store mechanism.
 `https://docs.freemocap.org/skellyspeak/`. The deployment workflow publishes
 GitHub Pages when docs change or after a release.
 
+The `/download` page fetches GitHub's latest published, non-prerelease release
+at visit time. Installer links and sizes come from its actual assets; missing
+platform builds are reported rather than replaced with guessed URLs. API
+failures show an error, retry control, and release-history link.
+
+Device detection checks Android and iOS before desktop signatures, including
+iPads using a desktop user agent. Desktop processor detection uses browser
+client hints when available; macOS and Windows user-agent strings alone do not
+establish the processor. Visitors can manually choose any system and processor.
+The page recommends EXE, DMG, AppImage, ARM64 DEB, or universal APK when a matching
+asset exists, and lists other installer formats. IPAs, AABs and updater files
+remain on GitHub rather than being offered as direct installation choices.
+
 ```powershell
 cd skellyspeak-docs
 npm install

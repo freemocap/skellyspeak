@@ -9,10 +9,21 @@ title: Overview
 Use Google sign-in for the hosted service, your own provider keys, or your
 own AI server. Conversation files stay on your device.
 
-**Status: working proof of concept.** The guided-conversation loop is
+**Status: pre-alpha, in active development.** You’re welcome to try it, but expect
+things to break. Hosted login is limited to known parties at this time. Use the
+hosted login or enter your own OpenRouter and Groq API keys
+(G-R-O-Q, not G-R-O-K) in Settings. The guided-conversation loop is
 implemented across the Tauri desktop/mobile codebase. See [Status](./status)
 for current capabilities and verification boundaries; the application version
 comes from `src-tauri/Cargo.toml`.
+
+Start with the [download page](/download). It detects your operating system,
+lets you select or correct the processor, and recommends a matching installer
+from the latest published GitHub release. Other formats and installation steps
+are on the same page, using FreeMoCap’s compact download rows with collapsible
+system help and other platforms. Revisit the page on an Android phone to download
+the APK. iPhone testing is limited to known parties at this time and uses the
+TestFlight setup described under [Platforms](./platforms#ios).
 
 For local macOS UI automation, run the app in dev mode and use
 `npm run macos:dev-bundle` to package its executable for Computer Use.
@@ -36,6 +47,8 @@ to gently recast, what not to re-teach.
 |---|---|---|
 | **Guided** | The conversation: streamed tutor reply + a right-hand panel with Lesson and Analysis tabs (per-word glosses, POS, romanization, explainer cards, reply scaffolds), tap-to-reveal glossing in the bubbles, voice in/out, learner-visible teaching plan. | `src/pages/GuidedPage.tsx` |
 | **Skill tree** | Meaning-domain graph, local language profile, evidence and practice progression. | `src/pages/SkillsPage.tsx` |
+
+Choose the language you are learning from the **Learning** dropdown at the upper right beside your language profile. On Guided conversation, **My native language** is also available at the bottom. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
 
 ## Lesson and conversation setup
 
@@ -291,7 +304,7 @@ The conversation partner continues the existing exchange after its opening, with
 
 New XP flags pop above visible credited wording, shrink into the visible matching map arm, and briefly brighten that arm on arrival. With the map collapsed, flags fade at the phrase; offscreen evidence is announced without an invented animation origin. Reduced motion keeps the flag stationary.
 
-Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The same compact indicators are used on phones; reduced motion retains labels without spinning.
+Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The large, red-outlined **Record** button fills red and reads **Stop** while recording. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
 Credited phrases have skill-colored +N superscripts. Clicking one opens its XP card and pops away the marker for the mounted conversation; it does not award XP again. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm, which flashes on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation directly. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.
 

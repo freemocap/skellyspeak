@@ -27,6 +27,8 @@ Two surfaces:
   surrounding partner message opens Analysis.
 - **Skill tree** — your language profile, meaning-domain practice paths and inspectable progress.
 
+Choose the language you are learning from the **Learning** dropdown at the upper right beside your language profile. On Guided conversation, **My native language** is also available at the bottom. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
+
 Supported languages are symmetric: English (US), French, Spanish, Arabic, and
 Chinese (Mandarin) can each be the language you're learning or your own
 language, with regional dialect selection where applicable. The canonical
@@ -67,6 +69,18 @@ Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
 - Choose the hosted service with Google sign-in, your own provider keys, or your own AI server. Conversation files stay on the device.
 
 ## Run
+
+**Pre-alpha:** SkellySpeak is a new project in active development. You’re welcome
+to try it, but expect things to break. Hosted login is limited to known parties
+at this time. Use the hosted login or enter your own OpenRouter and Groq API keys
+(G-R-O-Q, not G-R-O-K) in Settings.
+
+For installers, use the [download page](https://docs.freemocap.org/skellyspeak/download).
+It detects your operating system, lets you select or correct the processor,
+and recommends a matching installer from the latest published GitHub release.
+The page uses FreeMoCap’s compact download rows, with other platforms and system help collapsed below.
+Revisit the download page on an Android phone to download the APK. iPhone testing
+is limited to known parties at this time and uses TestFlight invitations.
 
 ```powershell
 cd skellyspeak
@@ -326,7 +340,7 @@ The conversation partner continues the existing exchange after its opening, with
 
 New XP flags pop above visible credited wording, shrink into the visible matching map arm, and briefly brighten that arm on arrival. With the map collapsed, flags fade at the phrase; offscreen evidence is announced without an invented animation origin. Reduced motion keeps the flag stationary.
 
-Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The same compact indicators are used on phones; reduced motion retains labels without spinning.
+Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The large, red-outlined **Record** button fills red and reads **Stop** while recording. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
 Credited phrases have skill-colored +N superscripts. Clicking one opens its XP card and pops away the marker for the mounted conversation; it does not award XP again. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm, which flashes on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation directly. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.
 
