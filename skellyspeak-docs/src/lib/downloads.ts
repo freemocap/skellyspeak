@@ -90,11 +90,15 @@ export function installers(release: Release): Installer[] {
   });
 }
 
+export function matchingInstallers(available: Installer[], system: System): Installer[] {
+  return available.filter(item => (system.os === 'unknown' || item.os === system.os) && (system.arch === 'unknown' || item.arch === 'universal' || item.arch === system.arch));
+}
+
 export function recommend(available: Installer[], system: System): Installer | null {
   const formats: Installer['format'][] = ['EXE', 'DMG', 'AppImage', 'DEB', 'RPM', 'MSI', 'APK'];
-  const preferredArch = system.arch === 'unknown' ? (system.os === 'macos' ? 'arm64' : 'x64') : system.arch;
-  return available.filter(item => item.os === system.os && (system.arch === 'unknown' || item.arch === 'universal' || item.arch === system.arch))
-    .sort((a, b) => Number(b.arch === preferredArch) - Number(a.arch === preferredArch) || formats.indexOf(a.format) - formats.indexOf(b.format))[0] ?? null;
+  return matchingInstallers(available, system)
+    .filter(item => system.os !== 'unknown' && (system.arch !== 'unknown' || item.arch === 'universal'))
+    .sort((a, b) => formats.indexOf(a.format) - formats.indexOf(b.format))[0] ?? null;
 }
 
 export function architectureLabel(arch: Installer['arch'], os: OperatingSystem): string {

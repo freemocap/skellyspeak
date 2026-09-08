@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
 import Layout from '@theme/Layout';
-import { architectureLabel, detectSystem, hintedArchitecture, installers, OS_LABELS, parseRelease, recommend, RELEASE_API, RELEASES_URL } from '../lib/downloads';
+import { architectureLabel, detectSystem, hintedArchitecture, installers, matchingInstallers, OS_LABELS, parseRelease, recommend, RELEASE_API, RELEASES_URL } from '../lib/downloads';
 import type { Architecture, ClientHints, Installer, OperatingSystem, Release, System } from '../lib/downloads';
 import './download.css';
 
@@ -51,7 +51,11 @@ export default function DownloadPage() {
     const hints = (navigator as HintNavigator).userAgentData;
     if (hints && ['windows', 'macos', 'linux'].includes(detected.os)) {
       void hints.getHighEntropyValues(['architecture', 'bitness']).then(values => {
-        if (active && !manuallySelected.current) setSystem({ ...detected, arch: hintedArchitecture(values) });
+        if (active && !manuallySelected.current) {
+          const arch = hintedArchitecture(values);
+          setSystem({ ...detected, arch });
+          setDetection(arch === 'unknown' ? 'Your browser does not report your processor. Compare the labeled downloads below.' : `Detected ${OS_LABELS[detected.os]} · ${architectureLabel(arch, detected.os)}.`);
+        }
       }).catch((error: unknown) => {
         if (active && !manuallySelected.current) setDetection(`Processor detection failed: ${String(error)}. Choose your processor below.`);
       });
@@ -74,7 +78,8 @@ export default function DownloadPage() {
 
   const available = state.status === 'ready' ? installers(state.release) : [];
   const recommended = recommend(available, system);
-  const matching = available.filter(item => item.os === system.os && (system.arch === 'unknown' || item.arch === system.arch || item.arch === 'universal'));
+  const matching = matchingInstallers(available, system);
+  const needsProcessor = ['macos', 'windows', 'linux'].includes(system.os) && system.arch === 'unknown';
   const alternatives = matching.filter(item => item !== recommended);
   const choices: { value: string; label: string }[] = [
     { value: 'windows:x64', label: 'Windows (x64)' },
@@ -109,7 +114,7 @@ export default function DownloadPage() {
               <p className="dl-section-lead">Conversation practice, voice recording, and a private language coach.</p>
               <div className="dl-title-controls">
                 <div className="dl-version-row">Version: {state.status === 'ready' ? <a href={state.release.html_url}>{state.release.tag_name} · latest</a> : '—'}</div>
-                <label className="dl-os-row" htmlFor="dl-os-select">System OS:
+                <label className="dl-os-row" htmlFor="dl-os-select">System:
                   <select id="dl-os-select" className="dl-os-select" value={selected} title={detection} onChange={event => {
                     const [os, arch] = event.target.value.split(':') as [OperatingSystem, Architecture];
                     manuallySelected.current = true;
@@ -129,9 +134,9 @@ export default function DownloadPage() {
             {state.status === 'ready' && <>
               {system.os === 'ios' ? <div className="dl-section-details-content"><p>iPhone testing is limited to known parties at this time. Install through your TestFlight invitation. The release IPA is not a direct-install download.</p><Link to="/docs/platforms#ios">iOS distribution details →</Link></div>
                 : <>
-                  {recommended && system.arch === 'unknown' && recommended.arch !== 'universal' && <p className="dl-no-detect">Suggested download for {architectureLabel(recommended.arch, system.os)}. Confirm your processor using the selector above before downloading.</p>}
+                  {needsProcessor && <div className="dl-no-detect" role="status"><p>Your browser does not report your processor. These downloads cover the possible processors for your system; none is recommended until you choose yours.</p>{system.os === 'macos' && <p>Open Apple menu → <strong>About This Mac</strong>. Choose <strong>Mac (Intel)</strong> for an Intel processor, or <strong>Mac (Apple Silicon)</strong> for an Apple M-series chip.</p>}</div>}
                   {recommended && <div className="dl-downloads"><DownloadCard installer={recommended} primary /></div>}
-                  {!recommended && <p className="dl-no-detect">{matching.length ? 'Choose your processor above, or select the matching installer below.' : system.os === 'unknown' ? 'Could not detect your OS. Select your system above or see all downloads below.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
+                  {!recommended && !needsProcessor && <p className="dl-no-detect">{system.os === 'unknown' ? 'Could not detect your OS. All available downloads are shown below with their system and processor labels.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
                   {alternatives.length > 0 && <>
                     {recommended && <div className="dl-alt-format-label">Also available for your system:</div>}
                     <div className="dl-downloads">{alternatives.map(installer => <DownloadCard key={installer.asset.name} installer={installer} primary={false} />)}</div>
