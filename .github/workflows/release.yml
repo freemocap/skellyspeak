@@ -9,8 +9,8 @@ name: Release
 # the commit it points at and refuses to build when they differ; the script
 # makes the same check locally first, so it should never get this far.
 #
-# Every job attaches its artifacts to the same DRAFT GitHub Release, so
-# nothing goes public until you review the assets and hit Publish.
+# Build jobs attach artifacts to the same draft GitHub Release. The final
+# job publishes it as latest only after every job in this workflow succeeds.
 on:
   push:
     tags: ['v*']
@@ -212,7 +212,7 @@ jobs:
         with:
           # Writes latest.json — the feed the running app polls. It is served
           # from the newest PUBLISHED release, so a draft reaches nobody until
-          # you publish it.
+          # the final job publishes it.
           includeUpdaterJson: true
           tagName: ${{ needs.version.outputs.tag }}
           releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
@@ -363,3 +363,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "${{ needs.version.outputs.tag }}" dist-android/* --clobber
+
+  publish-release:
+    name: Publish release as latest
+    needs: [version, release-draft, desktop, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the completed release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: gh release edit "$TAG" --repo "$GH_REPO" --draft=false --latest
