@@ -1,3 +1,4 @@
+import { DetailDialog } from '../DetailDialog'
 import { ConversationMap } from '../chat/ConversationMap'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
@@ -19,6 +20,7 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
   const [lesson, setLesson] = useState<LessonState | null>(null)
   const [thread, setThread] = useState<CoachMessage[]>([])
   const [input, setInput] = useState('')
+  const [coachOpen, setCoachOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const alive = useRef(true)
@@ -39,8 +41,9 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
   }, [refresh])
   useEffect(() => {
     if (!draftQuestion) return
-    setInput(draftQuestion); inputRef.current?.focus(); onDraftConsumed()
+    setCoachOpen(true); setInput(draftQuestion); inputRef.current?.focus(); onDraftConsumed()
   }, [draftQuestion, onDraftConsumed])
+  useEffect(() => { if (coachOpen) inputRef.current?.focus() }, [coachOpen])
   useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
   const recover = async (failure: unknown): Promise<void> => {
     if (alive.current) setError(String(failure))
@@ -79,14 +82,7 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
     finally { if (alive.current) setBusy(false) }
   }
   const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
-  return <>
-    <div className="panel-tabs" role="tablist" aria-label="Learning panel">
-      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
-      <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
-    </div>
-    <ConversationMap />
-    {tab === 'lesson' ? <>{lesson ? <LessonContent chatId={chatId} level={level} lesson={lesson} plan={plan} profile={profile} busy={busy || conversationBusy} observationStatus={observationStatus} onSave={save} onAsk={draft} /> : <p className="center-note">Loading lesson choices…</p>}</> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a partner reply to see its breakdown.</p>}</div>}
-    <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled={busy || conversationBusy || thread.length === 0} onClick={() => { void clearThread() }}>Clear thread</button>}>
+  const coachDock = <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled={busy || conversationBusy || thread.length === 0} onClick={() => { void clearThread() }}>Clear thread</button>}>
     <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">
       {thread.length === 0 && <p className="lesson-meta">Ask why we’re practising something, request a change, or ask about a message. Explicit requests update your lesson; suggestions wait for you.</p>}
       {thread.map((message, i) => {
@@ -107,5 +103,13 @@ export function CoachAnalysisPanel({ level, topic, chatId, prepareContext, conve
       <button type="submit" className="coach-send" aria-label="Send to coach" disabled={!lesson || !input.trim() || busy || conversationBusy}>↑</button>
     </form>
     </CoachDock>
+  return <>
+    <div className="panel-tabs" role="tablist" aria-label="Learning panel">
+      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
+      <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
+    </div>
+    <ConversationMap />
+    {tab === 'lesson' ? <>{lesson ? <LessonContent chatId={chatId} level={level} lesson={lesson} plan={plan} profile={profile} busy={busy || conversationBusy} observationStatus={observationStatus} onSave={save} onAsk={draft} /> : <p className="center-note">Loading lesson choices…</p>}</> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a partner reply to see its breakdown.</p>}</div>}
+    {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
   </>
 }

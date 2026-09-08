@@ -1,3 +1,7 @@
+import { playRewardSound } from '../../lib/reward-sounds'
+import { animateRewardTrails } from '../../lib/reward-trails'
+import { RewardProgress } from './RewardProgress'
+import { useIsMobile } from '../../hooks/useIsMobile'
 import { createPortal } from 'react-dom'
 import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { RewardInspectionContext } from './RewardInspectionContext'
@@ -8,52 +12,114 @@ import { rewardAnchor, visibleRewardRect } from '../../lib/reward-anchors'
 import { domainColors } from '../../lib/skill-domains'
 import { pulseRewardDomain } from '../../lib/reward-pulse'
 
-type Presentation = { key: number; ids: string[]; messageId: number; source: string; phase: 'opening' | 'hovering' | 'departing'; origin: DOMRect | null }
+type Presentation = { key: number; ids: string[]; messageId: number; source: string; phase: 'waiting' | 'opening' | 'hovering' | 'departing'; origin: DOMRect | null; automatic: boolean; startAt: number; gains: Record<string, number> }
 
-export function RewardPresentationProvider({ children, workspace, chatId, active }: { children: ReactNode; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; active: boolean }) {
+export function RewardPresentationProvider({ children, workspace, chatId, active, fastMode }: { fastMode: boolean; children: ReactNode; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; active: boolean }) {
+  const isMobile = useIsMobile()
+  const [receipt, setReceipt] = useState<{ key: number; evidence: MessageEvidence[] } | null>(null)
+  const presented = useRef(new Set<string>())
+  const closeReceipt = useCallback(() => setReceipt(null), [])
   const [cards, setCards] = useState<Presentation[]>([])
   const sequence = useRef(0)
+  const nextArrival = useRef(0)
   const { snapshot } = useContext(SkillEvidenceContext)
-  useEffect(() => { setCards([]) }, [chatId, active, snapshot?.target])
-  const open = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => {
+  useEffect(() => { setCards([]); setReceipt(null); presented.current.clear(); nextArrival.current = 0 }, [chatId, active, snapshot?.target])
+  const current = useRef({ cards, isMobile, snapshot, chatId })
+  current.current = { cards, isMobile, snapshot, chatId }
+  const present = useCallback((evidence: MessageEvidence[], messageId: number, source: string, automatic: boolean) => {
     if (!evidence.length || !workspace.current) throw new Error('XP presentation needs evidence and a mounted workspace')
     const origin = rewardAnchor(workspace.current, 'evidence', evidence[0].id)
-    const next: Presentation = { key: ++sequence.current, ids: evidence.map(item => item.id), messageId, source, phase: 'opening', origin }
-    setCards(previous => [...previous.map(card => ({ ...card, phase: 'departing' as const })), next])
+    const now = performance.now()
+    const startAt = automatic ? Math.max(now, nextArrival.current) : now
+    if (automatic) nextArrival.current = startAt + 460 + Math.random() * 100
+    const next: Presentation = { key: ++sequence.current, ids: [...new Set(evidence.map(item => item.id))], messageId, source, phase: startAt > now ? 'waiting' : 'opening', origin, automatic, startAt, gains: Object.fromEntries(evidence.map(item => [item.id, item.xp])) }
+    setCards(previous => [...previous.filter(card => !card.ids.every(id => next.ids.includes(id))), next])
   }, [workspace])
-  const dismiss = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key ? { ...card, phase: 'departing' } : card)), [])
+  const arrive = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, true), [present])
+  const dismiss = useCallback((key: number) => {
+    const { cards, isMobile, snapshot, chatId } = current.current
+    const card = cards.find(item => item.key === key)
+    if (!card || card.phase === 'departing') return
+    if (isMobile && snapshot) {
+      const evidence = createMessageEvidenceSelector()(snapshot, chatId, card.messageId, card.source)
+        .filter(item => card.ids.includes(item.id) && !presented.current.has(item.id))
+        .map(item => ({ ...item, xp: Math.min(item.xp, card.gains[item.id]) }))
+      if (evidence.length) {
+        evidence.forEach(item => presented.current.add(item.id))
+        setReceipt(previous => ({ key, evidence: [...(previous?.evidence ?? []), ...evidence] }))
+      }
+    }
+    setCards(previous => previous.map(card => card.key === key ? { ...card, phase: 'departing' } : card))
+  }, [])
+  const open = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => {
+    const ids = new Set(evidence.map(item => item.id))
+    const existing = current.current.cards.find(card => card.messageId === messageId && card.source === source && card.ids.length === ids.size && card.ids.every(id => ids.has(id)))
+    if (existing) { dismiss(existing.key); return }
+    present(evidence, messageId, source, false)
+  }, [dismiss, present])
+  const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
   const settled = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'opening' ? { ...card, phase: 'hovering' } : card)), [])
   const remove = useCallback((key: number) => setCards(previous => previous.filter(card => card.key !== key)), [])
-  return <RewardInspectionContext value={{ open, presenting: cards.length > 0 }}>{children}{active && cards.map(card => <FloatingReward key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} settled={settled} remove={remove} />)}</RewardInspectionContext>
+  return <RewardInspectionContext value={{ open, arrive }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward depth={card.automatic ? Math.min(index, 5) : 0} fast={card.automatic && fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
 }
 
-function FloatingReward({ card, workspace, chatId, dismiss, settled, remove }: { card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
+function FloatingReward({ card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
   const { snapshot } = useContext(SkillEvidenceContext)
   const selector = useRef(createMessageEvidenceSelector())
   const evidence = selector.current(snapshot, chatId, card.messageId, card.source).filter(item => card.ids.includes(item.id))
   const host = useRef<HTMLDivElement>(null)
   const dock = useRef<HTMLButtonElement>(null)
+  const sounded = useRef(false)
+  useEffect(() => {
+    if (!card.automatic || card.phase !== 'hovering' || sounded.current || !host.current) return
+    sounded.current = true
+    const xp = Object.values(card.gains).reduce((sum, value) => sum + value, 0)
+    if (xp > 0) playRewardSound({ kind: 'xp', xp }, host.current)
+  }, [card.automatic, card.phase, card.gains])
   const animation = useRef<Animation | null>(null)
+  const trailCleanups = useRef(new Set<() => void>())
+  useEffect(() => {
+    const cleanups = trailCleanups.current
+    return () => { for (const stop of cleanups) stop() }
+  }, [])
   const [compactTarget, setCompactTarget] = useState(false)
   const first = evidence[0]
   const domainId = first?.domainId
+  useEffect(() => {
+    if (card.phase !== 'waiting') return
+    const timer = window.setTimeout(() => begin(card.key), Math.max(0, card.startAt - performance.now()))
+    return () => window.clearTimeout(timer)
+  }, [card.phase, card.key, card.startAt, begin])
+  useEffect(() => {
+    if (!fast || card.phase !== 'hovering') return
+    const timer = window.setTimeout(() => dismiss(card.key), 500)
+    return () => window.clearTimeout(timer)
+  }, [fast, card.phase, card.key, dismiss])
   useEffect(() => { if (!first) remove(card.key) }, [first, card.key, remove])
   useLayoutEffect(() => {
     if (!first || !host.current || !workspace.current) return
     const element = host.current
     const scope = workspace.current
     const place = () => {
-      const stream = scope.querySelector('.stream')
-      if (!stream) throw new Error('XP presentation needs the conversation stream')
-      const rect = stream.getBoundingClientRect()
+      const surface = scope.querySelector(scope.classList.contains('mobile-lesson') ? '.break' : '.stream')
+      if (!surface) throw new Error('XP presentation needs the active practice surface')
+      const rect = surface.getBoundingClientRect()
       const viewport = window.visualViewport
-      const top = Math.max(scope.getBoundingClientRect().top + 4, (viewport?.offsetTop ?? 0) + 8)
-      const composer = scope.querySelector('.composer')?.getBoundingClientRect()
-      const available = Math.min(rect.bottom, composer?.top ?? rect.bottom, (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)) - top - 8
-      element.style.width = `${Math.max(1, Math.min(300, rect.width - 24))}px`
-      element.style.left = `${rect.left + 12}px`
-      element.style.top = `${top}px`
-      element.style.maxHeight = `${Math.max(1, Math.min(260, available))}px`
+      const viewportTop = viewport?.offsetTop ?? 0
+      const viewportLeft = viewport?.offsetLeft ?? 0
+      const viewportHeight = viewport?.height ?? window.innerHeight
+      const viewportWidth = viewport?.width ?? window.innerWidth
+      // Cards are overlays. The visible viewport bounds their size even when
+      // the keyboard or composer leaves almost no room in the message stream.
+      const height = Math.max(1, Math.min(260, viewportHeight - 16 - depth * 9))
+      const width = Math.max(1, Math.min(300, rect.width - 24, viewportWidth - 16 - depth * 3))
+      const top = Math.min(Math.max(scope.getBoundingClientRect().top + 4, viewportTop + 8), viewportTop + viewportHeight - height - 8 - depth * 9)
+      const left = Math.max(viewportLeft + 8, Math.min(rect.left + 12 + depth * 3, viewportLeft + viewportWidth - width - 8))
+      element.style.width = `${width}px`
+      element.style.left = `${left}px`
+      element.style.top = `${top + depth * 9}px`
+      element.style.zIndex = String(card.automatic ? 1105 - depth : 1106)
+      element.style.maxHeight = `${height}px`
       const branch = rewardAnchor(scope, 'domain', first.domainId)
       setCompactTarget(!branch)
     }
@@ -61,7 +127,7 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove }: {
     window.addEventListener('resize', place)
     window.visualViewport?.addEventListener('resize', place)
     return () => { window.removeEventListener('resize', place); window.visualViewport?.removeEventListener('resize', place) }
-  }, [first?.domainId, workspace])
+  }, [first?.domainId, workspace, depth, card.phase, card.automatic])
   useLayoutEffect(() => {
     if (!domainId || !host.current || !workspace.current) return
     const element = host.current
@@ -73,18 +139,25 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove }: {
       const rect = element.getBoundingClientRect()
       const x = card.origin ? card.origin.left + card.origin.width / 2 - rect.left - rect.width / 2 : 0
       const y = card.origin ? card.origin.top - rect.top : 12
-      animation.current = element.animate([{ transform: `translate(${x}px, ${y}px) scale(.18)`, opacity: 0 }, { transform: 'translate(0, -4px) scale(1.03)', opacity: 1, offset: .8 }, { transform: 'none', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.2,.8,.2,1)' })
+      const frames: Keyframe[] = [{ transform: `translate(${x}px, ${y}px) scale(.18)`, opacity: 0 }, { transform: 'translate(0, -4px) scale(1.03)', opacity: 1, offset: .8 }, { transform: 'none', opacity: 1 }]
+      const timing = { duration: 440, easing: 'cubic-bezier(.2,.8,.2,1)' }
+      animateRewardTrails(element, frames, timing, trailCleanups.current)
+      animation.current = element.animate(frames, timing)
       animation.current.onfinish = () => settled(card.key)
     } else {
       if (reduced) { remove(card.key); return }
       const scope = workspace.current
       const arm = Array.from(scope.querySelectorAll('[data-reward-domain]')).find(node => node.getAttribute('data-reward-domain') === domainId && visibleRewardRect(node, scope))
-      const destination = arm ?? dock.current
+      const receiptTarget = document.querySelector(`[data-mobile-reward-domain="${domainId}"]`)
+      const destination = receiptTarget ?? arm ?? dock.current
       const target = destination?.getBoundingClientRect()
       const rect = element.getBoundingClientRect()
       const x = target ? target.left + target.width / 2 - rect.left - rect.width / 2 : 0
       const y = target ? target.top + target.height / 2 - rect.top - rect.height / 2 : -20
-      animation.current = element.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${x * .45}px, ${y - 30}px) scale(.65)`, opacity: .95, offset: .55 }, { transform: `translate(${x}px, ${y}px) scale(.03)`, opacity: 0 }], { duration: 650, easing: 'ease-in', fill: 'forwards' })
+      const frames: Keyframe[] = [{ transform: 'none', opacity: 1 }, { transform: `translate(${x * .45}px, ${y - 30}px) scale(.65)`, opacity: .95, offset: .55 }, { transform: `translate(${x}px, ${y}px) scale(.03)`, opacity: 0 }]
+      const timing: KeyframeAnimationOptions = { duration: 560, easing: 'cubic-bezier(.42,0,.75,.35)', fill: 'forwards' }
+      animateRewardTrails(element, frames, timing, trailCleanups.current)
+      animation.current = element.animate(frames, timing)
       animation.current.onfinish = () => {
         if (!destination?.isConnected) { remove(card.key); return }
         const pulses = arm ? pulseRewardDomain(scope, domainId) : [destination.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2)' }, { filter: 'brightness(1)' }], { duration: 800 })]
@@ -94,9 +167,9 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove }: {
     }
     return () => { animation.current?.cancel() }
   }, [card.phase, card.key, domainId, workspace, settled, remove])
-  if (!first) return null
+  if (!first || card.phase === 'waiting') return null
   return createPortal(<>
     {compactTarget && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={`${first.label} skill map`} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
-    <div ref={host} className={`floating-reward ${card.phase}`}><RewardDetail evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
+    <div ref={host} className={`floating-reward ${card.phase}`}><RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
   </>, document.body)
 }

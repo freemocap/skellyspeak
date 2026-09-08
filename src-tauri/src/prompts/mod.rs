@@ -95,13 +95,14 @@ pub fn no_emoji_rule() -> &'static str {
      \"face with tears of joy\"). Plain text only."
 }
 
-/// CEFR band for a level the learner picked in the steer row.
+/// Practice-policy band for the selected difficulty, not measured proficiency.
 pub fn resolve_cefr(level: &str) -> &'static str {
     match level {
         "zero" => "PRE-A1",
         "beginner" => "A2",
         "intermediate" => "B1",
         "advanced" => "C1",
+        "fluent" => "C2",
         _ => "A2",
     }
 }
@@ -111,3 +112,5 @@ pub fn resolve_cefr(level: &str) -> &'static str {
 pub fn contrast_language(native_language_name: &str) -> String {
     native_language_name.to_string()
 }
+
+pub mod reaction;

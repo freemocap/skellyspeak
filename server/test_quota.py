@@ -221,7 +221,7 @@ class TestAccountCeiling:
 class TestDeviceRecords:
     """What we keep about a person, and — more importantly — what we do not."""
 
-    def record(self, db, install="install-a", platform="windows", version="0.2.0"):
+    def record(self, db, install="00000000-0000-4000-8000-000000000001", platform="windows", version="0.2.0"):
         quota.record_device(
             db,
             "google:1",
@@ -230,7 +230,7 @@ class TestDeviceRecords:
             app_version=version,
         )
 
-    def device(self, db, install="install-a") -> dict:
+    def device(self, db, install="00000000-0000-4000-8000-000000000001") -> dict:
         return db.store[f"users/google:1/{quota.DEVICES}/{install}"]
 
     def test_it_keeps_only_the_installation_platform_and_version(self, db):
@@ -251,10 +251,10 @@ class TestDeviceRecords:
         assert not any(quota.DEVICES in path for path in db.store)
 
     def test_several_machines_are_tracked_separately(self, db):
-        self.record(db, install="laptop", platform="macos")
-        self.record(db, install="phone", platform="android")
-        assert self.device(db, "laptop")["platform"] == "macos"
-        assert self.device(db, "phone")["platform"] == "android"
+        self.record(db, install="00000000-0000-4000-8000-000000000002", platform="macos")
+        self.record(db, install="00000000-0000-4000-8000-000000000003", platform="android")
+        assert self.device(db, "00000000-0000-4000-8000-000000000002")["platform"] == "macos"
+        assert self.device(db, "00000000-0000-4000-8000-000000000003")["platform"] == "android"
 
     def test_first_seen_stays_put_while_last_seen_moves(self, db):
         self.record(db)

@@ -239,7 +239,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
             warn!(
                 "[cmd] guided analysis partially degraded in {:.1}s: {}",
                 started.elapsed().as_secs_f32(),
-                failures.join("; "),
+                failures.len(),
             );
         }
 

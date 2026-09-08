@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { isSpeaking, setPlaybackRate, speakSmart, stopSpeaking, subscribeSpeechProgress, type SpeechProgress } from './speech'
+import { isSpeaking, setPlaybackAllowed, setPlaybackRate, speakSmart, stopSpeaking, subscribeSpeechProgress, type SpeechProgress } from './speech'
+import { installPlaybackLifecycle } from './playback-lifecycle'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('./tauri', () => ({ invoke: backend.invoke }))
@@ -26,7 +27,91 @@ beforeEach(() => {
   URL.createObjectURL = vi.fn(() => 'blob:test-audio')
   URL.revokeObjectURL = vi.fn()
 })
-afterEach(() => { stopSpeaking(); vi.unstubAllGlobals() })
+afterEach(() => { stopSpeaking(); setPlaybackAllowed(true); vi.restoreAllMocks(); vi.unstubAllGlobals() })
+
+it.each(['blur', 'pagehide', 'beforeunload'])('cancels cloud playback on %s and blocks background auto-play', async eventName => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const lifecycle = installPlaybackLifecycle()
+  try {
+    const played = speakSmart(`leaving app ${eventName}`, 'en', 'cloud', 'nova', 1, 'leaving', null, 'lifecycle')
+    await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
+    const audio = AudioPlayer.latest!
+    window.dispatchEvent(new Event(eventName))
+    expect(await played).toBe(false)
+    expect(audio.pause).toHaveBeenCalled()
+    expect(isSpeaking()).toBe(false)
+    const requests = backend.invoke.mock.calls.length
+    expect(await speakSmart('new reply in background', 'en', 'cloud', 'nova', 1, 'background', null, 'lifecycle')).toBe(false)
+    expect(backend.invoke).toHaveBeenCalledTimes(requests)
+    window.dispatchEvent(new Event('pageshow'))
+    window.dispatchEvent(new Event('focus'))
+    expect(audio.play).toHaveBeenCalledTimes(1)
+    expect(isSpeaking()).toBe(false)
+  } finally { lifecycle.dispose() }
+})
+
+it('invalidates pending synthesis when hidden, even if it completes after returning', async () => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
+  const lifecycle = installPlaybackLifecycle()
+  let deliver!: (value: { audio_base64: string; mime: string }) => void
+  backend.invoke.mockImplementation(() => new Promise(resolve => { deliver = resolve }))
+  try {
+    const played = speakSmart('hidden synthesis', 'en', 'cloud', 'nova', 1, 'hidden', null, 'lifecycle')
+    visibility.mockReturnValue('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    visibility.mockReturnValue('visible')
+    document.dispatchEvent(new Event('visibilitychange'))
+    window.dispatchEvent(new Event('focus'))
+    deliver({ audio_base64: 'AAAAAA==', mime: 'audio/wav' })
+    expect(await played).toBe(false)
+    expect(AudioPlayer.latest).toBeUndefined()
+    expect(isSpeaking()).toBe(false)
+  } finally { lifecycle.dispose() }
+})
+
+it('cancels OS speech on native suspension and never resumes the old utterance', async () => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const synth = { getVoices: () => [{ lang: 'en-US' }], cancel: vi.fn(), speak: vi.fn() }
+  vi.stubGlobal('speechSynthesis', synth)
+  vi.stubGlobal('SpeechSynthesisUtterance', class { constructor(public text: string) {} })
+  const lifecycle = installPlaybackLifecycle()
+  try {
+    const played = speakSmart('native background', 'en', 'os', 'nova', 1, 'os', null, 'lifecycle')
+    expect(synth.speak).toHaveBeenCalledTimes(1)
+    const cancellations = synth.cancel.mock.calls.length
+    lifecycle.suspend()
+    expect(await played).toBe(false)
+    expect(synth.cancel.mock.calls.length).toBeGreaterThan(cancellations)
+    lifecycle.focus(true)
+    expect(await speakSmart('still suspended', 'en', 'os', 'nova', 1, 'os', null, 'lifecycle')).toBe(false)
+    lifecycle.resume()
+    expect(synth.speak).toHaveBeenCalledTimes(1)
+    expect(isSpeaking()).toBe(false)
+    const fresh = speakSmart('fresh playback', 'en', 'os', 'nova', 1, 'os-new', null, 'lifecycle')
+    expect(synth.speak).toHaveBeenCalledTimes(2)
+    stopSpeaking()
+    expect(await fresh).toBe(false)
+  } finally { lifecycle.dispose() }
+})
+
+it('does not start OS speech when a partner lookup completes after native close', async () => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const synth = { getVoices: () => [{ lang: 'en-US' }], cancel: vi.fn(), speak: vi.fn() }
+  vi.stubGlobal('speechSynthesis', synth)
+  vi.stubGlobal('SpeechSynthesisUtterance', class { constructor(public text: string) {} })
+  const lifecycle = installPlaybackLifecycle()
+  let deliver!: (value: { persona: { id: string } }) => void
+  backend.invoke.mockImplementation(() => new Promise(resolve => { deliver = resolve }))
+  try {
+    const played = speakSmart('late OS lookup', 'en', 'os', 'nova', 1, 'os', 'chat', 'lifecycle')
+    lifecycle.close()
+    deliver({ persona: { id: '__none__' } })
+    expect(await played).toBe(false)
+    expect(synth.speak).not.toHaveBeenCalled()
+    expect(isSpeaking()).toBe(false)
+  } finally { lifecycle.dispose() }
+})
 
 it('slows cloud audio without changing pitch and clears on completion', async () => {
   const events: (SpeechProgress | null)[] = []

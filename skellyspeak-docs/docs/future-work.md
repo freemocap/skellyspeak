@@ -81,6 +81,14 @@ Remaining work includes:
 - Semantic difficulty evaluation beyond mechanical length checks.
 - Prompt editing and overrides; no prompt-override setting currently exists.
 
+## Security follow-up
+
+- Protect main and release tags; enable hosted repository secret scanning and push protection. Verify deployed cloud IAM and retention.
+- Verify stable macOS development signing and Android backup/restore on physical devices.
+- Resolve the upstream GTK/glib vulnerability, Rust maintenance advisories, and the docs image-size advisory when compatible fixes exist.
+- Configure and verify dedicated provider spending limits and cloud edge abuse controls; billing alerts are not hard caps.
+- Independently verify desktop native signer identity and notarization before publication.
+
 ## Product work
 
 - Dedicated first-run onboarding.

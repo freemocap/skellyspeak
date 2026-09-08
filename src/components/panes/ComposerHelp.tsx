@@ -1,14 +1,9 @@
-import type { AssistedPhrase, CoachHelp } from '../../types'
+import type { CoachHelp } from '../../types'
+import { Pronunciation } from '../Pronunciation'
 import { useRef, useState } from 'react'
 
-function Pronunciation({ phrase }: { phrase: AssistedPhrase }) {
-  return <>
-    {phrase.romanization && <p className="help-romanization" dir="ltr">{phrase.romanization}</p>}
-    <details className="help-pronunciation"><summary>Pronunciation</summary><p dir="auto">{phrase.pronunciation}</p></details>
-  </>
-}
-
-export function ComposerHelp({ help, pending, busy, errors, onUse, onRefresh }: {
+export function ComposerHelp({ alwaysPronunciation, help, pending, busy, errors, onUse, onRefresh }: {
+  alwaysPronunciation: boolean
   help: CoachHelp | null; pending: boolean; busy: boolean; errors: string[]
   onUse: (text: string, source: 'suggestion') => void
   onRefresh: () => Promise<void>
@@ -29,15 +24,18 @@ export function ComposerHelp({ help, pending, busy, errors, onUse, onRefresh }: 
     {refreshError && <p role="alert">{refreshError}</p>}
     {help ? <>
       <div className="help-meaning">
+        <p className="help-original" dir="auto">{help.partner.text}</p>
         <p dir="auto">{help.partner.translation}</p>
-        <p className="help-explanation" dir="auto">{help.explanation}</p>
-        <Pronunciation phrase={help.partner} />
+        {help.partner.romanization && <p className="help-romanization" dir="ltr">{help.partner.romanization}</p>}
+        <Pronunciation key={help.partner.pronunciation} text={help.partner.pronunciation} alwaysShow={alwaysPronunciation} />
       </div>
+      <p className="help-explanation" dir="auto">{help.explanation}</p>
       <div className="help-replies">
         {help.replies.map(phrase => <div className="help-reply" key={phrase.text}>
           <button type="button" disabled={busy} dir="auto" onClick={() => onUse(phrase.text, 'suggestion')}>{phrase.text}<span aria-hidden="true"> ↗</span></button>
           <p className="help-translation" dir="auto">{phrase.translation}</p>
-          <Pronunciation phrase={phrase} />
+          {phrase.romanization && <p className="help-romanization" dir="ltr">{phrase.romanization}</p>}
+          <Pronunciation key={phrase.pronunciation} text={phrase.pronunciation} alwaysShow={alwaysPronunciation} />
         </div>)}
       </div>
     </> : pending ? <p role="status">Loading…</p> : <p role={errors.length ? 'alert' : undefined}>{errors.length ? errors.join(' · ') : 'No saved advice for this message.'}</p>}

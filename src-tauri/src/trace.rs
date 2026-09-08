@@ -715,6 +715,21 @@ mod tests {
     }
 
     #[test]
+    fn partner_reaction_passes_the_outbound_provenance_check() {
+        let _g = guard();
+        let blocks = crate::prompts::partner::reply_blocks("", None, "Spanish", "A2", "English", None, "");
+        let system = crate::instruction::render(&blocks);
+        let learner = "¿Por qué estás cansada?";
+        let original = vec![serde_json::json!({"role":"system","content":system}), serde_json::json!({"role":"user","content":learner})];
+        let (messages, blocks) = crate::prompts::reaction::request(original, blocks, "Trabajo mucho.", "English").unwrap();
+        let mut recorder = RunRecorder::start(RunContext::new(op::REACTION, None).with_blocks(blocks), "test/model");
+        let mut payload = serde_json::json!({"messages": messages});
+        recorder.capture_request(&payload, "test").expect("reaction must reach the provider request path");
+        payload["messages"][0]["content"] = serde_json::json!("Unrecorded system changes");
+        assert!(recorder.capture_request(&payload, "test").is_err());
+    }
+
+    #[test]
     fn a_clean_run_is_ok_with_one_attempt() {
         let _g = guard();
         let mut r =

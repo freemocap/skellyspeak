@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import hmac
 import re
 import secrets
 import time
@@ -191,14 +192,19 @@ def read_session_token(token: str, *, signing_key: str) -> tuple[str, int]:
     return str(claims["sub"]), int(claims.get("tv") or 0)
 
 
-def new_login_code() -> str:
-    """One-time code handed to the app through the browser redirect."""
-    return secrets.token_urlsafe(32)
+def issue_code(*, purpose: str, signing_key: str) -> str:
+    """Authenticate opaque handles before allowing a Firestore lookup."""
+    nonce: str = secrets.token_urlsafe(32)
+    signature: str = hmac.new(signing_key.encode(), f"{purpose}:{nonce}".encode(), hashlib.sha256).hexdigest()
+    return nonce + signature
 
 
-def new_state() -> str:
-    """CSRF guard for the provider round trip."""
-    return secrets.token_urlsafe(24)
+def verify_issued_code(code: str, *, purpose: str, signing_key: str) -> None:
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}[a-f0-9]{64}", code):
+        raise AuthError("Invalid sign-in code. Start sign-in again.")
+    expected: str = hmac.new(signing_key.encode(), f"{purpose}:{code[:43]}".encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(code[43:], expected):
+        raise AuthError("Invalid sign-in code. Start sign-in again.")
 
 
 # ── PKCE (RFC 7636) ─────────────────────────────────────────────────────────

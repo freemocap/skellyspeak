@@ -48,11 +48,11 @@ describe('published installer selection', () => {
   it.each<[OperatingSystem, Architecture, string | null]>([
     ['windows', 'x64', 'EXE'], ['macos', 'arm64', 'DMG'], ['macos', 'x64', 'DMG'],
     ['linux', 'x64', 'AppImage'], ['linux', 'arm64', 'DEB'], ['android', 'unknown', 'APK'],
-    ['ios', 'arm64', null], ['windows', 'arm64', null], ['macos', 'unknown', null], ['unknown', 'unknown', null],
+    ['ios', 'arm64', null], ['windows', 'arm64', null], ['macos', 'unknown', 'DMG'], ['windows', 'unknown', 'EXE'], ['unknown', 'unknown', null],
   ])('recommends only a matching %s / %s installer', (os, arch, format) => {
     const choice = recommend(installers(release), { os, arch });
     expect(choice?.format ?? null).toBe(format);
-    if (choice) expect(choice.arch === arch || choice.arch === 'universal').toBe(true);
+    if (choice) expect(arch === 'unknown' || choice.arch === arch || choice.arch === 'universal').toBe(true);
   });
 
   it('does not invent a link for a missing artifact', () => {

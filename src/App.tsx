@@ -1,3 +1,4 @@
+import { ToolbarIcon } from './components/ToolbarIcon'
 import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
@@ -6,7 +7,8 @@ import { getSettings, saveSettings, hostedAccount, isTauri, languageFor, languag
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import { isReloadShortcut } from './lib/reload'
-import GuidedPage from './pages/GuidedPage'
+import GuidedPage, { type MobileLocation } from './pages/GuidedPage'
+import { DetailDialog } from './components/DetailDialog'
 import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
@@ -14,6 +16,7 @@ import { UpdateBanner } from './components/UpdateBanner'
 import { PausedBanner } from './components/PausedBanner'
 import { openOverlay } from './lib/back'
 import { useAiActivity } from './hooks/useAiActivity'
+import { usePracticeSwipe } from './hooks/usePracticeSwipe'
 import { useIsMobile } from './hooks/useIsMobile'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 import { HOSTED } from './lib/providers'
@@ -62,6 +65,14 @@ export default function App() { return <SkillNavigationProvider><Application /><
 function Application() {
   const navigation = useSkillNavigation()
   const [page, setPage] = useState<Page>('guided')
+  const [mobileSurface, setMobileSurface] = useState<MobileLocation>('chat')
+  const [moreOpen, setMoreOpen] = useState(false)
+  function openPractice(surface: MobileLocation) {
+    setPage('guided')
+    setMobileSurface(surface)
+    setDevOpen(false)
+    setMoreOpen(false)
+  }
   useEffect(() => { if (navigation.state.mapRequest) { setSkillsOpened(true); setPage('skills') } }, [navigation.state.mapRequest])
   const [progressOpen, setProgressOpen] = useState(false)
   const [skillsOpened, setSkillsOpened] = useState(false)
@@ -72,14 +83,17 @@ function Application() {
   const [devOpen, setDevOpen] = useState(false)
   const aiBusy = useAiActivity()
   const isMobile = useIsMobile()
+  useEffect(() => isMobile && page === 'skills' ? openOverlay(() => setPage('guided')) : undefined, [isMobile, page])
   // Owned here because the control belongs beside the wordmark, while the
   // conversations it lists belong to the Guided page.
   const [historyOpen, setHistoryOpen] = useState(false)
+  const swipe = usePracticeSwipe(direction => openPractice(direction === 'next' ? 'panel' : 'chat'), isMobile && page === 'guided' && !historyOpen && !moreOpen && !devOpen && !settingsOpen)
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
   const [settings, setSettings] = useState<Settings | null>(null)
   const [savingLanguage, setSavingLanguage] = useState(false)
-  const evidence = useSkillEvidence(true, settingsVersion)
+  const observedEvidence = useSkillEvidence(true, settingsVersion)
+  const evidence = { ...observedEvidence, snapshot: observedEvidence.snapshot?.target === settings?.target_language ? observedEvidence.snapshot : null }
 
   function settingsChanged(saved: Settings) {
     setSettings(saved)
@@ -191,15 +205,15 @@ function Application() {
             ☰
           </button>
         )}
-        <span className="wordmark">
-          SKELLYSPEAK<b>·</b>
-        </span>
-        <div className="tabs" aria-label="Main navigation">
+        <button type="button" className="wordmark app-home" aria-label="SkellySpeak home — Chat" onClick={() => { openPractice('chat'); setHistoryOpen(false); setProgressOpen(false) }}>
+          <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
+          <span>SKELLYSPEAK<b>·</b></span>
+        </button>
+        {!isMobile && <div className="tabs" aria-label="Main navigation">
           <button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button>
           <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={() => { setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
-        </div>
-        {/* Mobile reaches the same panel by swiping to its third surface, so
-            the topbar button is desktop-only. */}
+        </div>}
+        <div className="topbar-actions">
         {!isMobile && (
           <button
             type="button"
@@ -213,15 +227,15 @@ function Application() {
             AI
           </button>
         )}
-        <button
+        {!isMobile && <button
           type="button"
           className="gear"
           onClick={() => window.location.reload()}
           aria-label="Reload app"
           title="Reload app (⌘/Ctrl+R)"
         >
-          ↻
-        </button>
+          <ToolbarIcon name="reload" />
+        </button>}
         <button
           type="button"
           className="gear"
@@ -230,17 +244,11 @@ function Application() {
           aria-label="Settings"
           title="Settings"
         >
-          ⚙
+          <ToolbarIcon name="settings" />
         </button>
-        {isTauri && <button type="button" className="gear" aria-label="Open language profile" title="My language profile" onClick={() => setProgressOpen(true)}>◈</button>}
-        {settings && <label className="language-picker target-language-picker">
-          <span>Learning</span>
-          <select aria-label="Target language" value={settings.target_language}
-            disabled={savingLanguage || settingsOpen}
-            onChange={(event) => void changeLanguage('target_language', event.target.value)}>
-            {languages().map((language) => <option key={language.code} value={language.code}>{language.endonym}</option>)}
-          </select>
-        </label>}
+        {isMobile && <button type="button" className="gear" aria-label="More" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)}>•••</button>}
+        {isTauri && <button type="button" className="gear profile-trigger" aria-label="Open language profile" title={evidence.snapshot ? `${evidence.snapshot.target} · ${evidence.snapshot.profile.xp} XP` : "My language profile"} onClick={() => setProgressOpen(true)}><ToolbarIcon name="profile" />{evidence.snapshot && <span>{evidence.snapshot.profile.xp.toLocaleString()} XP</span>}</button>}
+        </div>
       </div>
 
       {isTauri && <UpdateBanner />}
@@ -274,10 +282,10 @@ function Application() {
       )}
 
       {evidence.error && <div role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry profile</button></div>}
-      {progressOpen && evidence.snapshot && <ProgressSummary snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
-      <div className="content">
+      {progressOpen && evidence.snapshot && <ProgressSummary key={evidence.snapshot.target} snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
+      <div className="content" {...swipe}>
         {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
-          <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage evidence={evidence} onPractice={() => setPage('guided')} /></Suspense></PageBoundary>
+          <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage evidence={evidence} onPractice={() => openPractice('chat')} /></Suspense></PageBoundary>
         </div>}
         {showNotTauri ? (page !== 'skills' &&
           <div className="not-tauri">
@@ -294,7 +302,18 @@ function Application() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'}
+                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'} mobileSurface={mobileSurface} onMobileSurfaceChange={setMobileSurface}
+                  languagePicker={settings && <div className="conversation-languages"><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
+                    value={settings.target_language} disabled={savingLanguage || settingsOpen}
+                    onChange={event => void changeLanguage('target_language', event.target.value)}>
+                    {languages().map(language => <option key={language.code} value={language.code}>{language.endonym}</option>)}
+                  </select></label>
+                  <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
+                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
+                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option key={language.base} value={language.base}>{language.endonym}</option>)}
+                  </select></label>
+                  {savingLanguage && <span role="status">Saving…</span>}
+                  </div>}
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
@@ -306,26 +325,29 @@ function Application() {
         )}
       </div>
 
-      {page === 'guided' && settings && <footer className="language-footer">
-        {savingLanguage && <span role="status">Saving languages…</span>}
-        <label className="language-picker">
-          <span>My native language</span>
-          <select aria-label="Native language" value={settings.native_language}
-            disabled={savingLanguage || settingsOpen}
-            onChange={(event) => void changeLanguage('native_language', event.target.value)}>
-            {languages().map((language) => <option key={language.base} value={language.base}>{language.endonym}</option>)}
-          </select>
-        </label>
-      </footer>}
 
+
+      {isMobile && <nav className="mobile-nav" aria-label="Main navigation">
+        {(['chat', 'panel'] as const).map(surface => <button key={surface} type="button"
+          className={`mobile-nav-item ${page === 'guided' && mobileSurface === surface ? 'active' : ''}`}
+          aria-current={page === 'guided' && mobileSurface === surface ? 'page' : undefined}
+          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat' : 'Lesson'}</button>)}
+      </nav>}
+      {moreOpen && <DetailDialog title="More" onClose={() => setMoreOpen(false)}>
+        <h2>More</h2>
+        <div className="more-actions">
+          <button className="btn" onClick={() => { setMoreOpen(false); setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
+          <button className="btn" onClick={() => { setMoreOpen(false); setDevOpen(true) }}>AI activity &amp; tools</button>
+          <button className="btn" onClick={() => window.location.reload()}>Reload app</button>
+        </div>
+      </DetailDialog>}
       <LogsOverlay open={devOpen} onOpenChange={setDevOpen} />
 
       {settingsOpen && (
         <SettingsModal
           onClose={() => setSettingsOpen(false)}
           // Fires on every autosave, mid-edit. It must NOT close the modal:
-          // closing is the Close button's job (and the Android back
-          // gesture's, via openOverlay).
+          // closing belongs to Close, backdrop, Escape, or Android back.
           onSettingsChanged={settingsChanged}
         />
       )}

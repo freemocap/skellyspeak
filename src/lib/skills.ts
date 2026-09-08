@@ -80,3 +80,8 @@ export interface LearnerProfile {
 export function saveSkillProfile(choices: ProfileChoices): Promise<SkillSnapshot> {
   return invoke('save_skill_profile', { target: choices.target, expectedRevision: choices.revision, choices })
 }
+
+export interface PracticeOverview {
+  languages: { name: string; endonym: string; snapshot: SkillSnapshot }[]
+}
+export function getPracticeOverview(): Promise<PracticeOverview> { return invoke('get_practice_overview') }

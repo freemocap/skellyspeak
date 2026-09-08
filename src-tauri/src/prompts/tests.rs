@@ -40,12 +40,14 @@ fn beginner_language_constraints_do_not_ban_subjects() {
 #[test]
 fn partner_invites_replies_at_every_difficulty_without_relaxing_limits() {
     for level in [difficulty::Difficulty::Zero, difficulty::Difficulty::Beginner,
-        difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced] {
+        difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced, difficulty::Difficulty::Fluent] {
         let prompt = partner::reply_prompt("", None, "Spanish", level.cefr(), "English", Some("Food"), "Practice preferences");
         assert!(prompt.contains("Every reply must include one clear, easy invitation to respond"));
         assert!(prompt.contains(&level.policy()));
         assert!(prompt.contains("ALL practice difficulty limits"));
         assert!(prompt.contains("THE LEARNER LEADS"));
+        assert!(prompt.contains("Continue from the last exchange, including your opening"));
+        assert!(prompt.contains("No repeated greetings or answered questions"));
         for conflict in ["A question is optional", "and not every turn", "do not pack in a biography or a question"] {
             assert!(!prompt.contains(conflict));
         }
@@ -300,7 +302,7 @@ fn saved_identity_is_in_the_character_block_even_without_conversation_history() 
 
 #[test]
 fn replies_and_suggestions_receive_the_same_selected_policy() {
-    for level in [difficulty::Difficulty::Zero, difficulty::Difficulty::Beginner, difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced] {
+    for level in [difficulty::Difficulty::Zero, difficulty::Difficulty::Beginner, difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced, difficulty::Difficulty::Fluent] {
         let policy = level.policy();
         let reply = partner::reply_prompt("A shopkeeper.", None, "Spanish", level.cefr(), "English", Some("History"), "Advisory observations");
         let suggestions = analysis::scaffolds_prompt("Spanish", level.cefr(), "English", "Advisory observations");
@@ -325,4 +327,24 @@ fn identity_record_preserves_assistant_ownership_and_quoted_content() {
     let neutral = partner::reply_blocks("", None, "Spanish", "PRE-A1", "English", None, "");
     assert_eq!(neutral.iter().find(|b| b.id == "participants").unwrap().content, ownership.content);
     assert!(!neutral.iter().find(|b| b.id == "character").unwrap().content.contains("ESTABLISHED IDENTITY"));
+}
+
+#[test]
+fn fluent_uses_the_same_pipeline_policy_and_all_levels_allow_complex_topics() {
+    let fluent = difficulty::Difficulty::Fluent;
+    assert_eq!(serde_json::from_str::<difficulty::Difficulty>("\"fluent\"").unwrap(), fluent);
+    assert_eq!(fluent.cefr(), "C2");
+    assert_eq!(difficulty::check(&"A long sentence. ".repeat(100), fluent, "es-ES").status, "violation");
+    for level in [difficulty::Difficulty::Zero, difficulty::Difficulty::Beginner, difficulty::Difficulty::Intermediate, difficulty::Difficulty::Advanced, fluent] {
+        let blocks = partner::reply_blocks("A teacher.", None, "Spanish", level.cefr(), "English", Some("Hawaii"), "Advisory lesson context");
+        let prompt = crate::instruction::render(&blocks);
+        assert!(prompt.contains("provider's safety standards"));
+        assert!(prompt.contains("never reasons by themselves to refuse or redirect"));
+        assert!(prompt.contains("desired conversation takes precedence"));
+        assert!(prompt.contains("colonization of Hawaii"));
+        assert!(prompt.contains("Advisory lesson context"));
+        assert!(prompt.contains("Every reply must include"));
+        assert!(prompt.contains(&level.policy()));
+        assert!(blocks.iter().any(|block| block.id == "staging"));
+    }
 }

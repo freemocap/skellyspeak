@@ -235,7 +235,7 @@ fn load_document<T: serde::de::DeserializeOwned + Default>(
         Ok(v) => v,
         Err(e) => {
             let fault = format!("{} could not be read: {e}. Repair the file before continuing.", path.display());
-            log::error!("{fault}");
+            log::error!("Persistence failed; details reported to the UI");
             faults.push(fault);
             T::default()
         }

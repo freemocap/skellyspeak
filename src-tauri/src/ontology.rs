@@ -76,6 +76,7 @@ pub mod agent {
 pub mod op {
     pub const REPLY: &str = "reply";
     pub const REVIEW: &str = "review";
+    pub const REACTION: &str = "reaction";
     pub const ASSESS_SKILLS: &str = "assess_skills";
     pub const ANSWER: &str = "answer";
     pub const REFLECT: &str = "reflect";
@@ -95,7 +96,7 @@ pub const AGENTS: &[Agent] = &[
         label: "Chat",
         purpose: "Your conversation partner. Uses the target language, conversation history, explicit lesson choices and inferred teaching directives. It does not read the private coach thread.",
         memory: "Recent conversation history is supplied to each request. Conversations are saved on this device and restored after restart; the model has no independent persistent memory.",
-        operations: &[op::REPLY],
+        operations: &[op::REPLY, op::REACTION],
     },
     Agent {
         id: agent::COACH,
@@ -107,6 +108,12 @@ pub const AGENTS: &[Agent] = &[
 ];
 
 pub const OPERATIONS: &[Operation] = &[
+    Operation {
+        id: op::REACTION,
+        label: "Partner reaction",
+        purpose: "The conversation partner reports its interpretation and reaction to the learner after replying. A fallible self-report, separate from coach scores.",
+        actor: Actor::Agent(agent::CHAT), faculty: None, mechanical: false,
+    },
     Operation {
         id: op::ASSESS_SKILLS,
         label: "Skill evidence",
@@ -228,6 +235,7 @@ mod tests {
     const ALL_OPS: &[&str] = &[
         op::REPLY,
         op::REVIEW,
+        op::REACTION,
         op::ASSESS_SKILLS,
         op::ANSWER,
         op::REFLECT,

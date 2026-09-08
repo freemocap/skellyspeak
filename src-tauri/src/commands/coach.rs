@@ -75,8 +75,8 @@ pub struct CoachFeedback {
     pub used_native: Vec<String>,
     /// 0-3 corrections. Empty is valid — a perfect message earns empty.
     pub corrections: Vec<CoachCorrection>,
-    /// 1-5: would a native speaker understand the message?
-    pub comprehensibility: u8,
+    /// 1-5: conversational fit in this exchange, independent of grammar.
+    pub conversation: u8,
     /// 1-5: grammatical correctness.
     pub grammar: u8,
 }
@@ -86,7 +86,7 @@ impl CoachFeedback {
         if self.remark.trim().is_empty() {
             return Some("remark must not be empty".into());
         }
-        if !(1..=5).contains(&self.comprehensibility) || !(1..=5).contains(&self.grammar) {
+        if !(1..=5).contains(&self.conversation) || !(1..=5).contains(&self.grammar) {
             return Some("scores must be 1-5".into());
         }
         for c in &self.corrections {
@@ -116,6 +116,21 @@ pub struct CoachChatMessage {
 use crate::conversation::COACH_FILE as COACH_THREAD_FILE;
 const COACH_THREAD_CAP: usize = 40;
 
+/// Historical understanding scores are retained as historical data, never relabeled as conversational fit.
+#[derive(Deserialize, Serialize)]
+#[serde(untagged)]
+enum RecordedFeedback { Current(CoachFeedback), Historical(HistoricalFeedback) }
+
+#[derive(Deserialize, Serialize)]
+struct HistoricalFeedback {
+    remark: String,
+    used_target: Vec<String>,
+    used_native: Vec<String>,
+    corrections: Vec<CoachCorrection>,
+    comprehensibility: u8,
+    grammar: u8,
+}
+
 #[derive(Deserialize, Serialize)]
 struct ContextReply { reply: String }
 
@@ -123,7 +138,7 @@ struct ContextReply { reply: String }
 struct ContextTurn {
     user: Option<String>,
     assistant: Option<ContextReply>,
-    coach: Option<CoachFeedback>,
+    coach: Option<RecordedFeedback>,
 }
 
 fn conversation_context(turns: serde_json::Value) -> Result<String, String> {
@@ -144,7 +159,7 @@ pub fn init_coach_thread(dir: &Path, faults: &mut Vec<String>) -> Vec<CoachChatM
         Ok(v) => v,
         Err(e) => {
             let fault = format!("{} could not be read: {e}. Repair the file before continuing.", path.display());
-            log::error!("{fault}");
+            log::error!("Persistence failed; details reported to the UI");
             faults.push(fault);
             Vec::new()
         }
@@ -323,5 +338,20 @@ mod lesson_tests {
         assert!(decision.validate("What should I practise?").is_none());
         decision.action = LessonAction::Answer;
         assert!(decision.validate("Hi").is_some());
+    }
+
+    #[test]
+    fn current_feedback_requires_conversational_fit_and_preserves_historical_meaning() {
+        let historical = json!({"remark":"A clear message.","used_target":[],"used_native":[],"corrections":[],"grammar":5,"comprehensibility":4});
+        assert!(serde_json::from_value::<CoachFeedback>(historical.clone()).is_err());
+        assert!(matches!(serde_json::from_value::<RecordedFeedback>(historical.clone()).unwrap(), RecordedFeedback::Historical(_)));
+        let mut current = historical;
+        current.as_object_mut().unwrap().remove("comprehensibility");
+        current["conversation"] = json!(5);
+        let feedback: CoachFeedback = serde_json::from_value(current.clone()).unwrap();
+        assert!(feedback.validate().is_none());
+        assert!(matches!(serde_json::from_value::<RecordedFeedback>(current).unwrap(), RecordedFeedback::Current(_)));
+        let invalid = CoachFeedback { conversation: 0, ..feedback };
+        assert!(invalid.validate().is_some());
     }
 }

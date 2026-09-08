@@ -1,15 +1,15 @@
+import { configureRewardSounds, stopRewardSounds } from '../lib/reward-sounds'
 import { RewardPresentationProvider } from '../components/chat/RewardPresentation'
 import { ActivityIndicator } from '../components/ActivityIndicator'
 import { ComposerHelp } from '../components/panes/ComposerHelp'
 import { TopicNotesProvider } from '../components/panes/TopicNotesProvider'
 import { useSkillNavigation } from '../hooks/useSkillNavigation'
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import type { GuidedEvent, GuidedTurnResult, Profile, Scaffolds, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { PracticeContext, DraftAssistanceContext } from '../components/panes/PracticeContext'
 import { SkillRewards } from '../components/chat/SkillRewards'
-import { DevPanel } from '../components/dev/DevPanel'
 import { GlossPopup } from '../components/GlossPopup'
 import {
   getPlan,
@@ -61,7 +61,7 @@ import { needsProviderSetup } from '../lib/providers'
 /// a scaffold refresh and the coach only need the recent exchange.
 const REPLY_HISTORY_MESSAGES = 30
 
-type MobileLocation = 'chat' | 'panel' | 'dev'
+export type MobileLocation = 'chat' | 'panel'
 
 /// A turn whose reply is known but analysis hasn't landed yet.
 function emptyAssistant(reply: string): GuidedTurnResult {
@@ -79,12 +79,18 @@ function emptyAssistant(reply: string): GuidedTurnResult {
 
 export default function GuidedPage({
   active,
+  languagePicker,
+  mobileSurface,
+  onMobileSurfaceChange: setMobileLocation,
   settingsVersion = 0,
   historyOpen = false,
   onHistoryOpenChange,
   onOpenSettings,
 }: {
   active: boolean
+  languagePicker: ReactNode
+  mobileSurface: MobileLocation
+  onMobileSurfaceChange: (surface: MobileLocation) => void
   settingsVersion?: number
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
@@ -98,6 +104,8 @@ export default function GuidedPage({
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const errorRef = useRef(error)
+  errorRef.current = error
   const [input, setInput] = useState('')
   const inputEvidence = useRef<InputEvidence>(unreportedInput())
   // Set while the learner is retrying a past message: the composer is
@@ -114,6 +122,11 @@ export default function GuidedPage({
   const ttsEngine = settings?.tts_engine ?? 'cloud'
   const ttsReady = ttsAvailable(ttsEngine, osVoiceReady)
   const autoSpeak = settings?.auto_speak ?? false
+  useEffect(() => {
+    if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak)
+    if (!active) stopRewardSounds()
+  }, [settings?.reward_sounds, settings?.auto_speak, active])
+  useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'lesson' | 'analysis'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
   const [helpOpen, setHelpOpen] = useState(false)
@@ -230,13 +243,14 @@ export default function GuidedPage({
     void getSettings()
       .then((s) => {
         setSettings(s)
-        logInfo('[guided] settings:', {
-          target: s.target_language,
-          native: s.native_language,
-          model: s.openrouter_model,
-          openrouterKey: s.openrouter_key ? 'set' : 'MISSING',
-          groqKey: s.groq_key ? 'set' : 'MISSING',
-        })
+        logInfo('[guided] settings:')
+        // A saved settings refresh supersedes the missing-provider banner.
+        // Only an empty chat retries its greeting; existing turns stay intact.
+        if (settingsVersion > 0 && errorRef.current && needsProviderSetup(errorRef.current)) {
+          errorRef.current = null
+          setError(null)
+          if (chatIdRef.current && turnsRef.current.length === 0) greetRef.current()
+        }
       })
       .catch((e) => reportFault('Loading settings', e))
     void getPlan()
@@ -248,7 +262,7 @@ export default function GuidedPage({
         // missing array here would throw, defeating the normalization on the
         // line above whose whole job is to make that safe.
         logInfo('[guided] plan loaded:', {
-          focus: norm.plan.session_focus,
+          focusCount: norm.plan.session_focus.length,
           errors: norm.plan.recurring_errors.length,
         })
       })
@@ -268,11 +282,9 @@ export default function GuidedPage({
   const onBubbleTap = useCallback(
     (id: number) => {
       setPinnedId(id)
-      if (isMobile) { setAnalysisOpen(true); return }
-      setPanelTab('analysis')
-      if (!breakOpen) toggleBreak()
+      setAnalysisOpen(true)
     },
-    [breakOpen, toggleBreak, isMobile]
+    []
   )
   const requestTurn = useCallback(
     async (body: { message?: string; greeting?: boolean; steering?: string; replacesMessageId?: number; inputEvidence?: InputEvidence }) => {
@@ -287,9 +299,9 @@ export default function GuidedPage({
       setError(null)
       logInfo('[guided] turn start:', {
         greeting: body.greeting ?? false,
-        message: body.message ?? '',
+        messageLength: body.message?.length ?? 0,
         level: steer.level,
-        topic: steer.topic || '(any)',
+        hasTopic: Boolean(steer.topic),
       })
       const pendingId = nextIdRef.current++
       const userText = body.greeting ? null : (body.message ?? '')
@@ -358,17 +370,22 @@ export default function GuidedPage({
                   : t
               )
               break
+            case 'reaction_done':
+              updatePending(t => ({ ...t, reaction: event.reaction, reactionError: undefined }))
+              break
+            case 'reaction_failed':
+              updatePending(t => ({ ...t, reactionError: event.error }))
+              break
             case 'coach_done':
               setReviewing((ids) => { const next = new Set(ids); next.delete(pendingId); return next })
               logInfo(
-                '[coach] feedback:', event.feedback.corrections.length, 'corrections,',
-                'comp', event.feedback.comprehensibility, '/ grammar', event.feedback.grammar
+                '[coach] feedback received:', event.feedback.corrections.length, 'corrections'
               )
               updatePending((t) => ({ ...t, coach: event.feedback }))
               break
             case 'coach_failed':
               setReviewing((ids) => { const next = new Set(ids); next.delete(pendingId); return next })
-              logWarn('[coach] failed:', event.error)
+              logWarn('[coach] failed')
               updatePending((t) => ({ ...t, coachError: event.error }))
               break
             case 'analysis_done':
@@ -391,7 +408,7 @@ export default function GuidedPage({
             case 'plan_updated': {
               setObservationStatus('Refreshed after a conversation turn. Your explicit choices still take priority.')
               logInfo('[guided] plan updated:', {
-                focus: event.plan.session_focus,
+                focusCount: event.plan.session_focus.length,
                 errors: event.plan.recurring_errors.length,
               })
               const norm = normalizeDocs(event.plan, event.profile)
@@ -431,7 +448,7 @@ export default function GuidedPage({
         )
       } catch (e) {
         if (!isCurrent()) return
-        logError('[guided] turn failed:', e)
+        logError('[guided] turn failed')
         setTurns((prev) => prev.filter((t) => t.id !== pendingId))
         setError(String(e).replace(/^Error:\s*/, ''))
         setSending(false)
@@ -548,7 +565,7 @@ export default function GuidedPage({
   /// cannot drift. Duplicating this into local component state is exactly the
   /// bug to avoid.
   const toggleSetting = useCallback(
-    (key: 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate') => {
+    (key: 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate' | 'always_pronunciation' | 'fast_mode') => {
       setSettings((prev) => {
         if (!prev) return prev
         const next = { ...prev, [key]: !prev[key] }
@@ -614,11 +631,9 @@ export default function GuidedPage({
   })
   toggleMicRef.current = mic.toggleMic
 
-  // Chat and lesson share one mobile scroll; AI remains a separate surface.
   const aiBusy = useAiActivity()
-  const [mobileSurface, setMobileLocation] = useState<MobileLocation>('chat')
 
-  useEffect(() => { if (words.inspect) { if (isMobile) setAnalysisOpen(true); else setPanelTab('analysis') } }, [words.inspect, isMobile])
+  useEffect(() => { if (words.inspect) setAnalysisOpen(true) }, [words.inspect])
 
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
@@ -648,8 +663,10 @@ export default function GuidedPage({
                     ['auto_speak', 'Read aloud'],
                     ['auto_send', 'Auto-send'],
                     ['auto_translate', 'Translation'],
+                    ['always_pronunciation', 'Pronunciation'],
+                    ['fast_mode', 'Fast mode'],
                     ...(showRomanization ? [['always_romanize', 'Romanization']] : []),
-                  ] as ['auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize', string][]).map(([key, label]) => (
+                  ] as ['auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode', string][]).map(([key, label]) => (
                     <span key={key} className={settings?.[key] ? 'is-on' : ''} title={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`} aria-label={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`}>
                       <span aria-hidden="true">{label}</span> <span aria-hidden="true">{settings ? settings[key] ? '✓' : '–' : '…'}</span>
                     </span>
@@ -709,11 +726,13 @@ export default function GuidedPage({
                       ['auto_speak', 'Read aloud', 'Speak each reply automatically'],
                       ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
                       ['auto_translate', 'Translation', 'Always show the translation under each reply'],
+                      ['always_pronunciation', 'Pronunciation', 'Show saved pronunciation in replies and coach advice'],
+                      ['fast_mode', 'Fast mode', 'Automatically dismiss new XP cards; point icons reopen them'],
                       ...(showRomanization
                         ? ([['always_romanize', 'Romanization', 'Always show romanization under each word']] as const)
                         : []),
                     ] as [
-                      'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize',
+                      'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode',
                       string,
                       string,
                     ][]
@@ -762,6 +781,7 @@ export default function GuidedPage({
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
           {helpOpen && <ComposerHelp
+            alwaysPronunciation={settings?.always_pronunciation ?? false}
             key={`${currentChatId}:${turns.at(-1)?.id}`}
             onRefresh={async () => {
               if (adviceRefreshPending.current) throw new Error('Advice is already refreshing.')
@@ -852,7 +872,7 @@ export default function GuidedPage({
   )
 
   return (
-    <RewardPresentationProvider workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
+    <RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
@@ -869,11 +889,12 @@ export default function GuidedPage({
         onDeleteChat={(id) => void removeChat(id)}
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className={`chat ${isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>
+      <section className="chat">
         <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="conversation-title"><span className="chat-heading-label">{targetLanguageName}</span><small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
+          <div className="conversation-title">{languagePicker}<small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
           <div className="chat-heading-actions">
 
+          {!isMobile && (
           <button
             type="button"
             className="plan-toggle"
@@ -882,13 +903,14 @@ export default function GuidedPage({
           >
             Lesson & coach
           </button>
+          )}
           <button type="button" className="new-chat" aria-label="New chat"
             title="Start a new chat — this conversation stays in history"
             disabled={!settings || sending}
             onClick={() => void startNewConversation(steer.persona)}>+</button>
           </div>
         </div>
-        <SkillRewards chatId={currentChatId} active={active} workspace={workspace} />
+        <SkillRewards chatId={currentChatId} active={active} />
         <div className="stream" ref={streamRef}>
           {turns.length === 0 && !error && !sending && (
             <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
@@ -901,13 +923,14 @@ export default function GuidedPage({
               reviewing={reviewing.has(turn.id)}
               targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
               nativeLangCode={settings?.native_language ?? 'en'}
-              onAskCoach={(question) => { setCoachDraft(question); setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
+              onAskCoach={setCoachDraft}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={ttsReady}
               speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
               revealed={words.revealed}
               showRomanization={showRomanization}
               alwaysRomanize={alwaysRomanize}
+              alwaysPronunciation={settings?.always_pronunciation ?? false}
               autoTranslate={settings?.auto_translate ?? false}
               rtl={rtl}
               onReveal={words.reveal}
@@ -939,16 +962,14 @@ export default function GuidedPage({
         {!isMobile && chatComposer}
       </section>
 
-      {isMobile && <div className={`chat mobile-composer ${mobileSurface === 'dev' ? 'mobile-hidden' : ''}`}>{chatComposer}</div>}
+      {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
 
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section
-        className={`break ${breakOpen ? '' : 'collapsed'} ${
-          isMobile && mobileSurface === 'dev' ? 'mobile-hidden' : ''
-        }`}
+        className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open lesson &amp; coach ▸</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open lesson &amp; coach ▸</button>}
 
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
@@ -974,42 +995,7 @@ export default function GuidedPage({
 
       </section>
 
-      {/* The dev surface: the same DevPanel as the desktop dock and the
-          popped-out window, here as the separate diagnostic surface. */}
-      {isMobile && (
-        <section
-          className={`dev-surface ${mobileSurface !== 'dev' ? 'mobile-hidden' : ''}`}
-        >
-          <DevPanel />
-        </section>
-      )}
-
     </div>
-      {/* Mobile navigation jumps within practice or opens diagnostics */}
-      {isMobile && (
-        <nav className="mobile-nav">
-          {(
-            [
-              ['chat', '💬', 'Chat'],
-              ['panel', '🎓', 'Lesson'],
-              ['dev', '💭', 'AI'],
-            ] as [MobileLocation, string, string][]
-          ).map(([id, icon, label]) => (
-            <button
-              key={id}
-              type="button"
-              className={`mobile-nav-item ${mobileSurface === id ? 'active' : ''} ${
-                id === 'dev' && aiBusy ? 'busy' : ''
-              }`}
-              onClick={() => { setMobileLocation(id); if (id === 'panel') { if (!breakOpen) toggleBreak(); breakRef.current?.scrollIntoView({ block: 'start' }) } else if (id === 'chat') composer.current?.scrollIntoView({ block: 'end' }) }}
-            >
-              {/* Wrapped so the icon alone can pulse while agents are running
-                  — the phone has no topbar button to carry that signal. */}
-              <span className="mobile-nav-icon">{icon}</span> {label}
-            </button>
-          ))}
-        </nav>
-      )}
 
       {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
         <h2>Message analysis</h2>

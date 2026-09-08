@@ -326,6 +326,20 @@ mod tests {
         assert!(snapshot(dir.path(), "es-ES").is_err());
     }
     #[test]
+    fn progress_cannot_credit_another_target_language() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut view = snapshot(dir.path(), "es-ES").unwrap();
+        let mut attempt = record("That cup.");
+        attempt.status = Status::Complete;
+        attempt.assessment = Some(assessment(&attempt.source));
+        view.records = vec![attempt];
+        assert_eq!(progress::project(&view, progress::Choices::initial("es-ES")).unwrap().xp, 10);
+        view.records[0].target = "ar".into();
+        assert!(progress::project(&view, progress::Choices::initial("es-ES")).err().unwrap().contains("another language"));
+        assert!(snapshot(dir.path(), "fr").unwrap().records.is_empty());
+    }
+
+    #[test]
     fn progression_is_deduplicated_assistance_aware_and_reversible() {
         let dir = tempfile::tempdir().unwrap();
         let mut view = snapshot(dir.path(), "es-ES").unwrap();

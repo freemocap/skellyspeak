@@ -2,6 +2,7 @@ pub mod ai;
 pub mod sse;
 pub mod persistence;
 mod credentials;
+mod network;
 pub mod gate;
 // The core records wherever the webview cannot: desktop AND iOS. WKWebView
 // gives no `navigator.mediaDevices` under Tauri's custom scheme on macOS, and
@@ -59,6 +60,12 @@ pub struct AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[allow(unused_mut)]
+    let mut context = tauri::generate_context!();
+    #[cfg(all(desktop, debug_assertions))]
+    {
+        context.config_mut().identifier = "com.freemocap.skellyspeak.dev".into();
+    }
+    #[allow(unused_mut)]
     let mut builder = tauri::Builder::default();
     // Desktop only: Tauri ships no updater for Android or iOS, where updates
     // arrive through the store or a sideloaded package.
@@ -100,13 +107,12 @@ pub fn run() {
                         tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir { file_name: Some("skellyspeak".into()) }),
                         tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Webview),
                     ])
-                    .level(log::LevelFilter::Debug)
+                    .level(log::LevelFilter::Info)
                     .max_file_size(2_000_000)
                     .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepOne)
                     .build(),
             )?;
             log::info!("SkellySpeak starting (version {})", app.package_info().version);
-            log::info!("config dir: {}", config_dir.display());
             let loaded = settings::load_or_create(&config_dir);
             if let Some(fault) = loaded.fault {
                 return Err(fault.into());
@@ -134,8 +140,8 @@ pub fn run() {
             let (plan, profile) = observer::load_documents(&docs_dir, &mut startup_faults);
             if !startup_faults.is_empty() { return Err(startup_faults.join("\n").into()); }
             log::info!(
-                "documents loaded: focus={:?} profile_about_len={}",
-                plan.session_focus,
+                "documents loaded: focus_count={} profile_about_len={}",
+                plan.session_focus.len(),
                 profile.about.len(),
             );
             // Attach the trace bus: every AI run is recorded regardless, but
@@ -200,6 +206,7 @@ pub fn run() {
             commands::dev::open_dev_window,
             commands::guided::guided_turn,
             commands::skills::get_skill_evidence,
+            commands::skills::get_practice_overview,
             commands::skills::save_skill_profile,
             commands::hosted_auth::hosted_account,
             commands::hosted_auth::hosted_sign_in,
@@ -223,6 +230,6 @@ pub fn run() {
             commands::stt::transcribe_audio,
             commands::tts::speak_text,
         ])
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running SkellySpeak");
 }

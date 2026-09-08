@@ -99,3 +99,36 @@ async def test_complete_stream_settles_before_done(proxy: httpx.AsyncClient, led
     assert "[DONE]" in response.text
     assert '"error"' not in response.text
     assert quota.read_balance(ledger, "learner", limit=500_000).used == 35
+
+
+@pytest.mark.asyncio
+async def test_provider_error_does_not_refund_or_echo_private_content(
+    proxy: httpx.AsyncClient, ledger: FakeDb, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture,
+) -> None:
+    secret: str = "PRIVATE_TRANSCRIPT_AND_API_KEY_SENTINEL"
+
+    def respond(sent: httpx.Request) -> httpx.Response:
+        return httpx.Response(status_code=400, text=secret)
+
+    upstream(monkeypatch, respond)
+    response: httpx.Response = await proxy.post("/v1/chat/completions", json=request(stream=True))
+    assert secret not in response.text
+    assert secret not in caplog.text
+    records: list[dict[str, object]] = [value for path, value in ledger.store.items() if f"/{budget.RESERVATIONS}/" in path]
+    assert records[0]["status"] == "unknown"
+    assert records[0]["actual_micros"] == records[0]["reserved_micros"]
+
+
+@pytest.mark.asyncio
+async def test_exhausted_audio_budget_never_decodes(
+    proxy: httpx.AsyncClient, ledger: FakeDb, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger.store[f"global_usage/{quota.utc_day()}"] = {"micros": main.CFG.global_daily_micros}
+
+    def forbidden_decode(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Audio decoding must follow spending admission")
+
+    monkeypatch.setattr(main.audio_input, "decode_upload", forbidden_decode)
+    response: httpx.Response = await proxy.post("/v1/audio/transcriptions", content=b"not audio",
+                                              headers={"Content-Type": "multipart/form-data; boundary=test"})
+    assert response.status_code == 429

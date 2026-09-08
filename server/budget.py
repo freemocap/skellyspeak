@@ -12,6 +12,8 @@ import quota
 import transactions
 
 RESERVATIONS = "reservations"
+CONTROLS = "service_controls"
+SPENDING = "spending"
 
 
 @dataclass(frozen=True)
@@ -32,12 +34,14 @@ def reserve(
     usage = user.collection(quota.USAGE).document(reservation.day)
     shared = db.collection(quota.GLOBAL_USAGE).document(reservation.day)
     record = user.collection(RESERVATIONS).document(reservation.request_id)
+    control = db.collection(CONTROLS).document(SPENDING)
 
     @firestore.transactional
     def admit(transaction: firestore.Transaction) -> None:
         personal = usage.get(transaction=transaction).to_dict() or {}
         global_usage = shared.get(transaction=transaction).to_dict() or {}
-        if global_usage.get("blocked"):
+        controls = control.get(transaction=transaction).to_dict() or {}
+        if controls.get("blocked") or global_usage.get("blocked"):
             raise quota.QuotaExceeded("Hosted spending is paused while a provider billing discrepancy is investigated.")
         for data, limit, label in (
             (personal, user_limit, "Your"), (global_usage, global_limit, "The shared")
@@ -77,6 +81,7 @@ def settle(
     record = user.collection(RESERVATIONS).document(reservation.request_id)
     usage = user.collection(quota.USAGE).document(reservation.day)
     shared = db.collection(quota.GLOBAL_USAGE).document(reservation.day)
+    control = db.collection(CONTROLS).document(SPENDING)
 
     @firestore.transactional
     def apply(transaction: firestore.Transaction) -> None:
@@ -108,6 +113,8 @@ def settle(
         transaction.set(shared, correction, merge=True)
         if actual_micros > reservation.micros:
             transaction.set(shared, {"blocked": True, "block_reason": "Provider price ceiling exceeded"}, merge=True)
+            transaction.set(control, {"blocked": True, "reason": "Provider price ceiling exceeded",
+                                      "request_id": reservation.request_id, "updated_at": firestore.SERVER_TIMESTAMP}, merge=True)
         result: dict[str, object] = {
             "status": status, "actual_micros": actual_micros, "tokens": tokens,
             "provider_id": provider_id, "updated_at": firestore.SERVER_TIMESTAMP,

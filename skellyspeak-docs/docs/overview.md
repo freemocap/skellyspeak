@@ -48,7 +48,7 @@ to gently recast, what not to re-teach.
 | **Guided** | The conversation: streamed tutor reply + a right-hand panel with Lesson and Analysis tabs (per-word glosses, POS, romanization, explainer cards, reply scaffolds), tap-to-reveal glossing in the bubbles, voice in/out, learner-visible teaching plan. | `src/pages/GuidedPage.tsx` |
 | **Skill tree** | Meaning-domain graph, local language profile, evidence and practice progression. | `src/pages/SkillsPage.tsx` |
 
-Choose the language you are learning from the **Learning** dropdown at the upper right beside your language profile. On Guided conversation, **My native language** is also available at the bottom. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
+Choose the language you are learning from the language dropdown at the upper left of the chat, which displays the currently selected language. **Native** sits beside the learning language in the chat header. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
 
 ## Lesson and conversation setup
 
@@ -160,7 +160,7 @@ cloud, or custom provider route. The agents do not talk to each other directly:
    next-turn scaffolds. Delivered asynchronously; per-section degradation
    (a failed sub-call costs its section only).
 3. **Coach** (parallel one-shot, skipped on greeting turns) — the private
-   Cyrano side-channel: grades comprehensibility + grammar, offers 0–3
+   Cyrano side-channel: grades conversational fit + grammar, offers 0–3
    corrections, and answers questions the learner embedded in their message.
    Never seen by the reply worker. See [The Coach](./coach).
 4. **Observer** (reasoning model, background, never overlaps itself) —
@@ -219,12 +219,12 @@ underline; repeated wording is marked at each possible occurrence and explained 
 ambiguous. XP details retain all quotes for a skill with one stored-credit total.
 New-credit badges show only the net increase: an assisted-to-direct replacement can
 show +8 while the record has 10 XP. Animations use visible anchors inside the active
-conversation, account for clipping, and stop moving when the layout scrolls or
-resizes. Reduced motion uses a static badge. History never replays as new rewards.
+conversation and account for clipping. Floating cards remain within the visible
+viewport. Reduced motion removes card travel. History never replays as new rewards.
 
 Feedback, XP and skill details use the same dialog host; word help uses the same
 layer lifecycle. Outside click, Escape and the overlay back stack dismiss them.
-Changing surfaces closes transient learner overlays. Understanding/grammar feedback
+Changing surfaces closes transient learner overlays. Conversational-fit/grammar feedback
 describes the message separately from skill XP. Editing retains a collapsible copy
 of the original feedback until the edit is sent or cancelled.
 
@@ -282,7 +282,7 @@ explicit age, gender and manner guide delivery. **Cloud voice without a persona*
 applies only to no-persona chats. OS voices are selected by target language and
 stable identity; their metadata does not reliably describe age or gender. Audio
 cache ownership includes settings scope, language pair, chat, requested voice and
-text. Changing settings or leaving conversation cancels current playback.
+text. Changing settings or leaving the conversation cancels current playback. Hiding, minimizing, backgrounding, or closing the app also stops cloud and OS speech. Returning does not resume an interrupted utterance; a new playback request is required. Delayed speech results cannot restart playback after departure.
 
 ## AI inspection
 
@@ -304,11 +304,11 @@ billing/usage records and external exports remain. Factory reset cannot be undon
 
 The conversation partner continues the existing exchange after its opening, without repeating greetings or introductions on ordinary replies or practice preference changes.
 
-New XP flags pop above visible credited wording, shrink into the visible matching map arm, and brighten both that arm and its branch progress bar on arrival. Branch XP totals and thicker bars update as soon as credit arrives, before the animation completes. With the map collapsed, flags fade at the phrase; offscreen evidence is announced without an invented animation origin. Reduced motion keeps the flag stationary.
+New XP cards appear when new credit reaches the profile, including credit that arrives after its review completes. Cards use visible evidence anchors when available and remain bounded by the visible viewport, even when the keyboard or composer crowds the message stream. Their animations do not control when XP is saved.
 
 Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The large, red-outlined **Record** button fills red and reads **Stop** while recording. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
-Credited phrases have skill-colored +N superscripts. Unopened markers get a three-second grace period, then fade on the next scroll or click elsewhere. Clicking one opens its XP card and removes the marker for the mounted conversation; it does not award XP again. Reading or scrolling inside an XP explanation does not dismiss markers. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm; both the arm and branch bar flash on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation even after its marker disappears. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.
+Credited phrases have persistent skill-colored +N point icons. Clicking an icon opens only that reward’s saved XP card; it neither removes other icons nor awards XP again. Icons remain available for reopening after scrolling, dismissal, or automatic card animations. Clicking an underlined phrase can show the skills associated with that phrase. Uncredited word taps retain their gloss; credited words retain word help through long press.
 
 Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](./platforms#automatic-testflight-uploads).
 
@@ -316,4 +316,41 @@ The right-aligned **Coach** button shares the composer settings row. Background 
 
 The Coach tray’s refresh button requests different advice using the previous advice and recent conversation as context. Existing advice stays visible while loading; a successful refresh replaces and saves it. Opening the tray still makes no request.
 
-The composer header shows a compact summary of language, level, topic, voice/reading toggles, and playback speed on the left. Click the summary to expand settings; its left disclosure arrow shows whether they are open. Coach sits on the right with its own disclosure arrow. Small Translate and Analysis buttons follow the message text inline. An active persona appears after the language as “Persona: name”; no persona entry appears when disabled. The summary stays within two lines, with full setting names and a horizontally scrollable status line on narrow screens. Persona controls remain inside the expandable settings; a pencil opens persona details and the Custom persona option opens the editor. Persona choices label current and new conversations in parentheses.
+The composer header shows a compact summary of language, level, topic, voice/reading toggles, and playback speed on the left. Click the summary to expand settings; its left disclosure arrow shows whether they are open. Coach sits on the right with its own disclosure arrow. Compact Translate and Analysis buttons sit on the bottom-right bubble border (bottom-left for RTL messages) and open dialogs over the chat. An active persona appears after the language as “Persona: name”; no persona entry appears when disabled. The summary stays within two lines, with full setting names and a horizontally scrollable status line on narrow screens. Persona controls remain inside the expandable settings; a pencil opens persona details and the Custom persona option opens the editor. Persona choices label current and new conversations in parentheses.
+
+On phones, **Chat** and **Lesson** are the persistent bottom navigation. Chat is the starting view; Lesson contains the private coach conversation. The **More (•••)** menu opens Skill Tree and AI activity/tools. Either bottom button returns directly from Skill Tree without losing the conversation. AI tools open in a dismissible dialog. The app reserves space for status bars and display cutouts.
+
+Desktop development builds keep credentials and app data in a separate `.dev`
+profile. They require their own sign-in or API keys and do not install release
+updates. Custom remote model servers require HTTPS; HTTP is allowed only for
+loopback servers such as local Ollama or LM Studio.
+
+**Pronunciation** joins Read aloud, Auto-send, Translation, and Romanization in the reading controls. Tapping a chat word reveals its meaning and approximate pronunciation directly underneath that word, with romanization for non-Latin scripts. Enable Pronunciation to keep the word sound guides visible automatically. There is no separate sentence pronunciation block or label in chat. Coach advice groups each original phrase with its translation, romanization, and an expandable sound guide. Phone controls wrap into compact rows. Word pronunciation is generated by the existing token analysis pass; older saved tokens without it still show their available information.
+
+Swipe left from Chat to Lesson and right to return; the bottom buttons provide the same navigation. On phones, dismissing an XP detail card briefly shows the saved cumulative XP and the affected skill bars filling, even when Lesson is off-screen. This is a presentation of existing credit, not an additional award. Reduced-motion settings disable the flight and fill motion.
+
+Signing in or out refreshes the app’s provider settings immediately. Closing Settings saves pending edits before refreshing the chat’s settings. Stale provider-setup errors clear, and an empty chat retries its blocked greeting; existing messages and drafts stay in place. A failed retry displays its current error.
+
+New XP cards appear automatically in a stack as credit arrives. **Fast mode** is on by default: cards arrive about half a second apart with slight timing variation, ease into view, pause for half a second, then accelerate toward progress without pausing the conversation or subsequent rewards. Turn it off in the chat controls or Settings to keep cards until dismissed. Point icons reopen a card for reading and hold it open even in Fast mode. Existing history does not replay arrival animations.
+
+Moving XP cards have thin, empty white rectangular outlines tracing their past and upcoming positions. The outlines shrink and fade with distance, share the card’s path and easing, and never intercept clicks. Reduced motion disables both the travel and the trails.
+
+Chat playback sits on the upper-right bubble edge. Translate and Analysis use short buttons at the bottom-right border, mirrored for RTL messages. Both open dialogs on desktop and phone; automatic translation can still appear inline. Word inspection and chat-originated coach questions also open overlays without navigating away. Top-bar actions stay grouped together.
+
+Android update offers open [the download page](https://docs.freemocap.org/skellyspeak/download). Installer titles name their format, including Windows EXE setup and MSI package. One suggested installer for the selected system has a magenta border; when the processor is unknown, confirm the suggested architecture before downloading.
+
+Click or tap outside a modal to dismiss it. Settings flushes pending edits when it closes; the lesson editor saves before dismissing. Clicking within a modal keeps it open.
+
+The profile button shows XP for the selected target language and opens a practice-evidence dashboard: exact domain totals on a common bar scale, credited skills, stars, distinct contributing messages, and assisted/unassisted skill demonstrations. Filter by domain and open a skill to inspect the source text, model rationale, timestamp, and assessment provenance. Definitions and record-status counts are available inside the dashboard. These are descriptive, model-assessed app records—not validated proficiency, independent trials, or mastery estimates. Progress is keyed by target language; changing the native language does not transfer credit to another target language.
+
+**Fluent**, above Advanced, is a normal difficulty setting using C2-style language. It shares the same conversation, coaching, evaluation, annotation, length-diagnostic, and XP pipeline as every other level. The choice requests fluent expression; it is not a measured CEFR certification. At every difficulty, the learner chooses the subject: complex historical or political topics remain available within provider safeguards, with simpler expression at lower levels rather than topic refusal. Prompt policies cannot guarantee an external model’s behavior.
+
+The SkellySpeak logo and app name are a home button: select them to return to Chat without losing the conversation. The profile has global retained-activity counts above tabs for every supported language. Global XP is explicitly the sum of separate language accounts; each language tab retains its own XP, evidence, and milestones, including an empty state for unpracticed languages.
+
+Reply prompts explicitly continue the prior exchange, including the opening message, preserve speaker facts, and avoid repeating greetings or questions the learner has already answered. This is a model instruction, not a guarantee of conversational quality.
+
+A small emoji on each reviewed partner reply opens its interpretation and reaction, with an edit-and-resend action. The conversation partner self-reports confusion (🤔?), understanding (🙂), curiosity (🧐), surprise (😮), or concern (😟); confusion takes priority. This runs after the streamed reply using the same partner model and context, adding one background model request per learner message. The coach independently grades grammar and conversational fit (1–5), not understanding. Neither output is a validated proficiency measure. Historical understanding grades are never relabeled as conversational fit.
+
+Speech playback is restricted to the active app window. Browser focus/visibility/page lifecycle and native window focus/close/mobile suspension events cancel active audio and block new background playback. Android pause and iOS resign-active events use Tauri’s suspension notification. Returning enables new playback without resuming cancelled speech.
+
+**Play reward sounds** in Voice settings offers Yes, No, and Follow TTS (the default, following Read aloud). Brief, quiet synthesized coin tones accompany new XP cards; larger gains use higher, richer patterns at the same volume. XP-icon clicks use a distinct soft bubble pop. New confused or understood reactions use short question-like or rising cues. Each sound briefly highlights its visible source. Sound is capped during bursts, never replays historical rewards automatically, and stops when muted or the app becomes inactive. Browser audio requires a user gesture. These are interface cues, not claims about learning outcomes. The partner-interpretation dialog shows the referenced exchange with the same learner/partner bubble styling as Chat.

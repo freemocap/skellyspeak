@@ -7,6 +7,7 @@ use tauri::ipc::Channel;
 use crate::observer;
 
 use super::super::coach::CoachFeedback;
+use super::reaction::PartnerReaction;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ChatTurn {
@@ -16,6 +17,9 @@ pub struct ChatTurn {
 
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct GuidedToken {
+    /// Approximate sounds-like guide for this exact token in the native language.
+    #[serde(default)]
+    pub pronunciation: Option<String>,
     /// The exact word from the reply, punctuation attached.
     pub text: String,
     /// Short native-language meaning of the word in this context.
@@ -217,6 +221,8 @@ pub enum GuidedEvent {
     },
     /// Sidebar-tutor feedback on the learner's latest message.
     CoachDone { feedback: CoachFeedback },
+    ReactionDone { reaction: PartnerReaction },
+    ReactionFailed { error: String },
     /// The coach call failed after retries — surfaced loudly.
     CoachFailed { error: String },
     AnalysisDone { turn: GuidedTurnResult },
@@ -442,5 +448,24 @@ mod coach_help_tests {
         let saved: Scaffolds = serde_json::from_str(r#"{"replies":["Hello"],"frames":[],"starters":[]}"#).unwrap();
         assert!(saved.coach_help.is_none());
         assert_eq!(saved.replies, vec!["Hello"]);
+    }
+}
+
+#[cfg(test)]
+mod token_pronunciation_tests {
+    use super::GuidedToken;
+
+    #[test]
+    fn pronunciation_stays_with_its_source_token_in_storage() {
+        let token: GuidedToken = serde_json::from_value(serde_json::json!({
+            "text": "Elia.", "gloss": "Elia", "pronunciation": "Eh-lee-ah"
+        })).unwrap();
+        let stored = serde_json::to_value(&token).unwrap();
+        assert_eq!(stored["text"], "Elia.");
+        assert_eq!(stored["pronunciation"], "Eh-lee-ah");
+        let historical: GuidedToken = serde_json::from_value(serde_json::json!({
+            "text": "Soy", "gloss": "I am"
+        })).unwrap();
+        assert!(historical.pronunciation.is_none());
     }
 }

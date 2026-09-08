@@ -97,3 +97,13 @@ describe('lesson coaching', () => {
 })
 
 function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: ({ children }) => <TopicNotesProvider scope="test">{children}</TopicNotesProvider> }) }
+
+it('opens a chat-originated coach question in a dialog and preserves its draft on close', async () => {
+  render(<CoachAnalysisPanel level="zero" topic="" chatId="chat-1" prepareContext={prepareContext} conversationBusy={false} plan={null} profile={null} observationStatus="" tab="lesson" onTab={vi.fn()} draftQuestion="Explain this phrase" onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />)
+  expect(await screen.findByRole('dialog', { name: 'Coach conversation' })).toBeVisible()
+  expect(screen.getByLabelText('Message your coach')).toHaveValue('Explain this phrase')
+  fireEvent.click(screen.getByRole('button', { name: 'Close Coach conversation' }))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(screen.getByLabelText('Message your coach')).toHaveValue('Explain this phrase')
+  expect(backend.invoke.mock.calls.some(([command]) => command === 'coach_ask')).toBe(false)
+})

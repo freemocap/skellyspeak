@@ -27,6 +27,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
+
+from fastapi import HTTPException
 
 from google.cloud import firestore
 
@@ -41,6 +44,7 @@ LOGIN_CODES = "login_codes"
 # reading from, two different collections that both look right.
 AUTH_STATES = "auth_states"
 DEVICES = "devices"
+MAX_DEVICES: int = 10
 
 # How long usage records live. Firestore deletes them itself, driven by a TTL
 # policy on the `ttl` field — see the deploy notes in docs/hosted-api.md. Long
@@ -222,6 +226,11 @@ def record_device(
     """
     if not install_id:
         return
+    try:
+        if str(UUID(install_id)) != install_id:
+            raise ValueError("Noncanonical UUID")
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail="Installation ID must be a canonical UUID.") from error
     ref = db.collection(USERS).document(user_id).collection(DEVICES).document(install_id)
     entry = {
         "platform": platform,
@@ -231,9 +240,17 @@ def record_device(
     }
     # Only on the first sighting: merging SERVER_TIMESTAMP every time would
     # move `first_seen` forward with it and the two would always be equal.
-    if not ref.get().exists:
-        entry["first_seen"] = firestore.SERVER_TIMESTAMP
-    ref.set(entry, merge=True)
+    @firestore.transactional
+    def register(transaction: firestore.Transaction) -> None:
+        existing: firestore.DocumentSnapshot = ref.get(transaction=transaction)
+        if not existing.exists:
+            devices: firestore.Query = db.collection(USERS).document(user_id).collection(DEVICES).select([])
+            if sum(1 for _ in transaction.get(devices)) >= MAX_DEVICES:
+                raise HTTPException(status_code=409, detail="Device limit reached. Remove an old device before registering another.")
+            entry["first_seen"] = firestore.SERVER_TIMESTAMP
+        transaction.set(ref, entry, merge=True)
+
+    transactions.run(db, register)
 
 
 def upsert_user(
@@ -299,4 +316,3 @@ def upsert_user(
         return 0
 
     return transactions.run(db, apply)
-

@@ -32,6 +32,9 @@ export interface Settings {
   auto_send: boolean
   always_romanize: boolean
   auto_translate: boolean
+  always_pronunciation: boolean
+  fast_mode: boolean
+  reward_sounds: import('./lib/reward-sounds').RewardSoundMode
   tts_engine: string
   tts_voice: string
   tts_rate: number
@@ -57,13 +60,23 @@ export interface OpenedConversation {
 export type AnalysisState = 'pending' | 'done' | null
 
 /// The coach's private read on one learner message.
-export interface CoachFeedback {
-  comprehensibility: number
+export interface CoachFeedbackBody {
   grammar: number
   remark: string
   used_target: string[]
   used_native: string[]
-  corrections: { said: string; corrected: string; kind: string; explanation: string }[]
+  corrections: CoachCorrection[]
+}
+
+export type CoachFeedback = CoachFeedbackBody & (
+  | { conversation: number; comprehensibility?: never }
+  | { comprehensibility: number; conversation?: never }
+)
+
+export interface PartnerReaction {
+  kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned'
+  interpretation: string
+  explanation: string
 }
 
 /// One exchange, as stored. This is the canonical turn shape: the live turn in
@@ -79,6 +92,8 @@ export interface StoredTurn {
   /// pane renders.
   analysisState: AnalysisState
   coach?: CoachFeedback
+  reaction?: PartnerReaction
+  reactionError?: string
   coachError?: string
 }
 
@@ -104,6 +119,7 @@ export interface HostedAccount {
 }
 
 export interface GuidedToken {
+  pronunciation: string | null
   text: string
   gloss: string | null
   pos: string | null
@@ -157,14 +173,7 @@ export interface CoachCorrection {
   kind: string
 }
 
-export interface CoachFeedback {
-  remark: string
-  used_target: string[]
-  used_native: string[]
-  corrections: CoachCorrection[]
-  comprehensibility: number
-  grammar: number
-}
+
 
 export type CoachEvent =
   | { type: 'coach_done'; feedback: CoachFeedback }
@@ -183,6 +192,8 @@ export type GuidedEvent =
       scaffolds?: Scaffolds
     }
   | CoachEvent
+  | { type: 'reaction_done'; reaction: PartnerReaction }
+  | { type: 'reaction_failed'; error: string }
   | { type: 'analysis_done'; turn: GuidedTurnResult }
   | { type: 'plan_updated'; plan: TeachingPlan; profile: Profile }
   // Background work started by this turn failed. Goes straight to the fault bar.
@@ -253,7 +264,7 @@ export interface CoachMessage {
 }
 
 
-export type Level = 'beginner' | 'intermediate' | 'advanced'
+export type Level = 'beginner' | 'intermediate' | 'advanced' | 'fluent'
 
 
 // ─── Observability: one Run per agent execution ──────────────────────────
@@ -283,7 +294,7 @@ export interface Usage {
 
 export interface RequestContext {
   chat_id: string; message_id: number | null; replaces_message_id: number | null; trigger: string
-  target: string; native: string; dialect: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced'
+  target: string; native: string; dialect: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced' | 'fluent'
   inferred_level_notes: string; topic: string | null; lesson_revision: number; partner: unknown; history_messages: number; history_available: number
 }
 export interface PromptBlock { id: string; source: string; content: string }

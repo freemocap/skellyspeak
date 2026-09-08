@@ -16,20 +16,32 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+concurrency:
+  group: skellyspeak-release
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
 jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   # src-tauri/Cargo.toml is the single source of truth for the app version
   # (tauri.conf.json omits `version` and inherits it). Read it once here so
   # every downstream job agrees on the tag.
   version:
+    needs: checks
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get.outputs.version }}
       tag: v${{ steps.get.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
       - id: get
         run: |
@@ -66,7 +78,8 @@ jobs:
           TAG: ${{ needs.version.outputs.tag }}
         run: |
           if gh release view "$TAG" --repo "$GH_REPO" --json id >/dev/null 2>stderr.txt; then
-            echo "release $TAG already exists"
+            [ "$(gh release view "$TAG" --repo "$GH_REPO" --json isDraft --jq .isDraft)" = true ] || { echo "::error::Refusing to overwrite a published release"; exit 1; }
+            echo "draft release $TAG already exists"
           elif grep -qi "release not found" stderr.txt; then
             gh release create "$TAG" --repo "$GH_REPO" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'Release artifacts are attached by the desktop, Android, and iOS build jobs.'
             echo "created draft release $TAG"
@@ -111,7 +124,9 @@ jobs:
             # deb only for now — AppImage tooling on arm64 needs its own pass.
             args: '--bundles deb'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
       - if: runner.os == 'Linux'
         run: |
@@ -132,16 +147,17 @@ jobs:
             libasound2-dev \
             build-essential curl wget file patchelf
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
           cache: npm
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
+          toolchain: stable
           targets: ${{ matrix.rust-target }}
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: src-tauri
           key: ${{ matrix.rust-target }}
@@ -154,7 +170,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          curl -sSLo "$RUNNER_TEMP/artifact-signing-cli.exe"             https://github.com/levminer/trusted-signing-cli/releases/download/0.11.0/artifact-signing-cli.exe
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+            --output "$RUNNER_TEMP/artifact-signing-cli.exe" \
+            https://github.com/levminer/trusted-signing-cli/releases/download/0.11.0/artifact-signing-cli.exe
+          echo "ddc6f6ef68631bf367ad051d7d37109e58d46095406e1fbba60d553b10f94393  $RUNNER_TEMP/artifact-signing-cli.exe" | sha256sum --check --strict
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       # Tauri runs the sign command but discards its stderr, reporting only
@@ -165,9 +184,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         env:
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SIGNING_SECRET }}
+          AZURE_TENANT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_ID || '' }}
+          AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_SIGNING_SECRET || '' }}
         run: |
           Write-Host "--- artifact-signing-cli ---"
           artifact-signing-cli --version
@@ -186,7 +205,7 @@ jobs:
           }
           Write-Host "test sign OK - credentials, account, profile and signtool all work"
 
-      - uses: tauri-apps/tauri-action@v0
+      - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0
         id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -195,20 +214,20 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           # ── Windows: Azure Artifact Signing, read by artifact-signing-cli ──
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_ID || '' }}
           # Named AZURE_SIGNING_SECRET in this repo; the CLI reads it under the
           # standard Azure name.
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SIGNING_SECRET }}
+          AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_SIGNING_SECRET || '' }}
           # ── macOS: Developer ID signing, then notarization ──
           # The identity and team id are not secret — both are readable from
           # any signed binary — so they are literals rather than secrets.
-          APPLE_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE_P12 }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ runner.os == 'macOS' && secrets.MAC_CERTIFICATE_P12 || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ runner.os == 'macOS' && secrets.MAC_CERTIFICATE_PASSWORD || '' }}
           APPLE_SIGNING_IDENTITY: 'Developer ID Application: FreeMoCap Foundation, Inc. (U8LBJLBYPR)'
           APPLE_TEAM_ID: U8LBJLBYPR
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID: ${{ runner.os == 'macOS' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_ID_PASSWORD || '' }}
         with:
           # Writes latest.json — the feed the running app polls. It is served
           # from the newest PUBLISHED release, so a draft reaches nobody until
@@ -249,6 +268,7 @@ jobs:
           fi
           echo "signed updater artifacts:"
           echo "$sigs"
+          cargo run --locked --manifest-path scripts/verify-updater/Cargo.toml -- src-tauri/tauri.conf.json src-tauri/target
 
   android:
     # Runs alongside the desktop matrix, not after it: the release already
@@ -259,31 +279,34 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 22
           cache: npm
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
 
-      - uses: nttld/setup-ndk@v1
+      - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
         id: ndk
         with:
           ndk-version: r27c
           link-to-sdk: true
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
+          toolchain: stable
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: src-tauri
           key: android
@@ -335,7 +358,13 @@ jobs:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
       - name: Verify the APK is signed with the upload key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
+          set -euo pipefail
+          keytool -exportcert -keystore src-tauri/gen/android/upload-keystore.jks -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" -file /tmp/upload-cert.der
+          expected=$(sha256sum /tmp/upload-cert.der | cut -d' ' -f1)
           out=src-tauri/gen/android/app/build/outputs
           apk=$(find "$out/apk" -name '*.apk' | head -1)
           [ -n "$apk" ] || { echo "::error::no APK was produced"; exit 1; }
@@ -343,8 +372,9 @@ jobs:
           [ -n "$apksigner" ] || { echo "::error::apksigner not found"; exit 1; }
           # An unsigned release APK installs nowhere and can never be upgraded
           # over, so a missing signature must fail the build, not ship.
-          "$apksigner" verify --print-certs "$apk" || {
-            echo "::error::the release APK is not validly signed"; exit 1; }
+          "$apksigner" verify --print-certs "$apk" > /tmp/apk-cert.txt
+          actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/apk-cert.txt)
+          [ "$actual" = "$expected" ] || { echo "::error::APK signer differs from the upload key"; exit 1; }
 
       - name: Collect the release artifacts
         run: |
@@ -376,4 +406,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.version.outputs.tag }}
-        run: gh release edit "$TAG" --repo "$GH_REPO" --draft=false --latest
+        run: |
+          set -euo pipefail
+          gh release list --repo "$GH_REPO" --limit 1000 --json tagName,isDraft,isPrerelease > /tmp/releases.json
+          python3 - <<'PYTHON'
+          import json, os, re
+          def version(tag: str) -> tuple[int, ...]:
+              if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+                  raise ValueError("Unexpected stable release tag")
+              return tuple(map(int, tag[1:].split(".")))
+          candidate: tuple[int, ...] = version(os.environ["TAG"])
+          with open("/tmp/releases.json") as source:
+              releases: list[dict[str, object]] = json.load(source)
+          if len(releases) == 1000:
+              raise RuntimeError("Release listing may be truncated")
+          for release in releases:
+              if not release["isDraft"] and not release["isPrerelease"] and version(release["tagName"]) >= candidate:
+                  raise RuntimeError("Refusing to replace an equal or newer published release")
+          PYTHON
+          gh release edit "$TAG" --repo "$GH_REPO" --draft=false --latest
