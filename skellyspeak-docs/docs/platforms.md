@@ -37,7 +37,11 @@ node scripts/release.mjs minor
 The release script accepts `patch`, `minor`, `major`, or an explicit
 semantic version. It performs Git writes, so agents must not run it. A `v*`
 tag triggers the release workflows, which collect artifacts in a draft GitHub
-release for review before publication.
+release. The **Release** workflow publishes it automatically and marks it as
+latest after version validation, draft creation, every desktop matrix build,
+and the Android build succeed. Failed, cancelled, or skipped dependencies prevent
+publication. The separate iOS distribution workflow does not gate publication
+and can attach its verified IPA after the release is published.
 
 ## CI release matrix
 
