@@ -1,5 +1,5 @@
 import { RewardInspectionContext } from './RewardInspectionContext'
-import { domainColors } from '../../lib/skill-domains'
+import { InlineXpBadge } from './InlineXpBadge'
 import { ActivityIndicator } from '../ActivityIndicator'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { PracticeContext } from '../panes/PracticeContext'
@@ -190,16 +190,7 @@ export const TurnView = memo(function TurnView({
   }
   const [showUserTranslation, setShowUserTranslation] = useState(false)
   const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
-  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].filter(item => !dismissedCredits.has(item.id)).map(item => <button key={item.id} className="inline-xp-badge" style={{ color: domainColors(item.domainId).ink }} title={`${item.xp} XP · ${item.label}`} aria-label={`Collect ${item.xp} XP · ${item.label}`} onClick={event => {
-    event.stopPropagation()
-    setRewardDetail([item])
-    const button = event.currentTarget
-    const dismiss = () => setDismissedCredits(previous => new Set([...previous, item.id]))
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { dismiss(); return }
-    button.disabled = true
-    const animation = button.animate([{ transform: 'translateY(0) scale(1)', opacity: 1 }, { transform: 'translateY(-7px) scale(1.55)', opacity: 1, offset: .35 }, { transform: 'translateY(-20px) scale(.65)', opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' })
-    animation.onfinish = dismiss
-  }}>+{item.xp}</button>)
+  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].filter(item => !dismissedCredits.has(item.id)).map(item => <InlineXpBadge key={item.id} item={item} onOpen={() => setRewardDetail([item])} onDismiss={() => setDismissedCredits(previous => new Set([...previous, item.id]))} />)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
