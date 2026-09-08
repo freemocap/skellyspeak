@@ -73,3 +73,48 @@ it('drops offscreen sounds and caps burst backlog', async () => {
   expect(voices.length).toBeLessThanOrEqual(8)
   sound.stopRewardSounds()
 })
+
+it.each(['pointerup', 'touchend'])('unlocks on touch release (%s), recovers interrupted audio, and respects suspension and mute', async eventName => {
+  const sound = await import('./reward-sounds')
+  const { installPlaybackLifecycle } = await import('./playback-lifecycle')
+  const audio = new Synth()
+  audio.state = 'suspended'
+  let activated = false
+  audio.resume.mockImplementation(async () => { if (activated) audio.state = 'running' })
+  vi.stubGlobal('AudioContext', class { constructor() { return audio } })
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const lifecycle = installPlaybackLifecycle()
+  const target = document.createElement('button')
+  document.body.append(target)
+  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 10, 100, 50))
+  target.animate = vi.fn(() => ({ cancel: vi.fn() }) as unknown as Animation)
+  try {
+    sound.configureRewardSounds('follow_tts', true)
+    window.dispatchEvent(new Event('pointerdown'))
+    expect(audio.state).toBe('suspended')
+    activated = true
+    // Capture must run even when a token prevents event bubbling.
+    target.addEventListener(eventName, event => event.stopPropagation())
+    target.dispatchEvent(new Event(eventName, { bubbles: true }))
+    await Promise.resolve()
+    expect(sound.playRewardSound({ kind: 'xp', xp: 10 }, target)).toBe(true)
+    lifecycle.suspend()
+    audio.state = 'interrupted'
+    audio.resume.mockClear()
+    target.dispatchEvent(new Event(eventName, { bubbles: true }))
+    expect(audio.resume).not.toHaveBeenCalled()
+    lifecycle.resume()
+    target.dispatchEvent(new Event(eventName, { bubbles: true }))
+    expect(audio.resume).toHaveBeenCalledOnce()
+    expect(sound.playRewardSound({ kind: 'understood' }, target)).toBe(true)
+    sound.configureRewardSounds('no', true)
+    audio.state = 'interrupted'
+    audio.resume.mockClear()
+    target.dispatchEvent(new Event(eventName, { bubbles: true }))
+    expect(audio.resume).not.toHaveBeenCalled()
+    sound.configureRewardSounds('yes', false)
+    lifecycle.dispose()
+    target.dispatchEvent(new Event(eventName, { bubbles: true }))
+    expect(audio.resume).not.toHaveBeenCalled()
+  } finally { lifecycle.dispose() }
+})

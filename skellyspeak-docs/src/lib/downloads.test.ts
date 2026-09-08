@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { detectSystem, hintedArchitecture, installers, parseRelease, recommend, RELEASES_URL } from './downloads';
+import { detectSystem, hintedArchitecture, installers, matchingInstallers, parseRelease, recommend, RELEASES_URL } from './downloads';
 import type { Architecture, OperatingSystem, Release } from './downloads';
 
 describe('device detection', () => {
@@ -48,7 +48,7 @@ describe('published installer selection', () => {
   it.each<[OperatingSystem, Architecture, string | null]>([
     ['windows', 'x64', 'EXE'], ['macos', 'arm64', 'DMG'], ['macos', 'x64', 'DMG'],
     ['linux', 'x64', 'AppImage'], ['linux', 'arm64', 'DEB'], ['android', 'unknown', 'APK'],
-    ['ios', 'arm64', null], ['windows', 'arm64', null], ['macos', 'unknown', 'DMG'], ['windows', 'unknown', 'EXE'], ['unknown', 'unknown', null],
+    ['ios', 'arm64', null], ['windows', 'arm64', null], ['macos', 'unknown', null], ['windows', 'unknown', null], ['unknown', 'unknown', null],
   ])('recommends only a matching %s / %s installer', (os, arch, format) => {
     const choice = recommend(installers(release), { os, arch });
     expect(choice?.format ?? null).toBe(format);
@@ -67,4 +67,22 @@ describe('published installer selection', () => {
     expect(() => parseRelease({ ...payload, assets: [{ ...release.assets[0], browser_download_url: 'https://example.com/app.exe' }] })).toThrow();
     expect(() => parseRelease({ message: 'API rate limit exceeded' })).toThrow();
   });
+});
+
+it.each(['x64', 'arm64'] as const)('shows only the matching Mac processor: %s', arch => {
+  const available = installers(release);
+  const matching = matchingInstallers(available, { os: 'macos', arch });
+  expect(matching).toHaveLength(1);
+  expect(matching[0].arch).toBe(arch);
+  expect(recommend(available.filter(item => item.arch !== arch), { os: 'macos', arch })).toBeNull();
+});
+it('shows both Mac builds without recommending either when the processor is unknown', () => {
+  const system = { os: 'macos', arch: 'unknown' } as const;
+  expect(matchingInstallers(installers(release), system).map(item => item.arch)).toEqual(['arm64', 'x64']);
+  expect(recommend(installers(release), system)).toBeNull();
+});
+it('shows all available packages without a recommendation when the OS is unknown', () => {
+  const system = { os: 'unknown', arch: 'unknown' } as const;
+  expect(matchingInstallers(installers(release), system)).toEqual(installers(release));
+  expect(recommend(installers(release), system)).toBeNull();
 });

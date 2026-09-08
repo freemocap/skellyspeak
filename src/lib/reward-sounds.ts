@@ -43,7 +43,8 @@ export function setRewardPlaybackAllowed(value: boolean): void {
 export function unlockRewardAudio(): void {
   if (!enabled || !allowed || document.visibilityState === 'hidden') return
   context ??= new AudioContext()
-  if (context.state === 'suspended') void context.resume().catch(error => reportFault('Enabling reward sounds', error))
+  // WebKit also pauses contexts as interrupted after native audio or app suspension.
+  if (context.state !== 'running' && context.state !== 'closed') void context.resume().catch(error => reportFault('Enabling reward sounds', error))
 }
 
 /** No historical replay, no background queue, and no sound without a visible cause. */

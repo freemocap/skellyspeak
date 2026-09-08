@@ -39,7 +39,10 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
   }
   focus(document.hasFocus())
   visibility()
+  // Touch activation occurs on release; pointerdown only activates mouse input.
   window.addEventListener('pointerdown', unlockRewardAudio, true)
+  window.addEventListener('pointerup', unlockRewardAudio, true)
+  window.addEventListener('touchend', unlockRewardAudio, true)
   window.addEventListener('keydown', unlockRewardAudio, true)
   window.addEventListener('focus', onFocus)
   window.addEventListener('blur', onBlur)
@@ -54,6 +57,8 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
     close,
     dispose: () => {
       window.removeEventListener('pointerdown', unlockRewardAudio, true)
+      window.removeEventListener('pointerup', unlockRewardAudio, true)
+      window.removeEventListener('touchend', unlockRewardAudio, true)
       window.removeEventListener('keydown', unlockRewardAudio, true)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onBlur)
