@@ -20,7 +20,7 @@ it('silently loads history, announces new credit, and clears it on chat changes'
     next.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 10
     view.rerender(ui(next))
     expect(screen.getByRole('status')).toHaveTextContent('10 XP for Identify a referent: Ese café')
-    act(() => { vi.advanceTimersByTime(2700) })
+    act(() => { vi.advanceTimersByTime(3000) })
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     view.rerender(ui(structuredClone(next)))
     expect(screen.getByRole('status')).toBeEmptyDOMElement()

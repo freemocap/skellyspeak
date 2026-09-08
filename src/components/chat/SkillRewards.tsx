@@ -1,5 +1,6 @@
 import { RewardInspectionContext } from './RewardInspectionContext'
 import { rewardAnchor } from '../../lib/reward-anchors'
+import { pulseRewardDomain } from '../../lib/reward-pulse'
 import { RewardBadge } from './RewardBadge'
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
@@ -34,13 +35,12 @@ export function RewardFlight({ reward, workspace }: { reward: SkillReward; works
         : { transform: 'translate(0, -12px) scale(.8)', opacity: 0, offset: 1 },
     ]
     const animation = element.animate(frames, { duration: 2200, easing: 'ease-in-out', fill: 'forwards' })
-    let pulse: Animation | null = null
+    let pulses: Animation[] = []
     animation.onfinish = () => {
       if (!target) return
-      const arm = Array.from(scope.querySelectorAll('[data-reward-domain]')).find(node => node.getAttribute('data-reward-domain') === reward.domainId)
-      if (arm) pulse = arm.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2.5) drop-shadow(0 0 5px currentColor)' }, { filter: 'brightness(1)' }], { duration: 550, easing: 'ease-out' })
+      pulses = pulseRewardDomain(scope, reward.domainId)
     }
-    const cancel = () => { animation.cancel(); pulse?.cancel(); element.style.opacity = '0' }
+    const cancel = () => { animation.cancel(); pulses.forEach(pulse => pulse.cancel()); element.style.opacity = '0' }
     window.addEventListener('scroll', cancel, true)
     window.addEventListener('resize', cancel)
     let observedSize: { width: number; height: number } | null = null
@@ -73,7 +73,7 @@ export function SkillRewards({ chatId, active, workspace }: { chatId: string | n
   const reward = queue[0]
   useEffect(() => {
     if (!reward) return
-    const timer = window.setTimeout(() => setQueue(items => items.slice(1)), 2700)
+    const timer = window.setTimeout(() => setQueue(items => items.slice(1)), 3000)
     return () => window.clearTimeout(timer)
   }, [reward])
   return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{reward.xp} XP for {reward.label}: {reward.quote}</span>{!inspection?.presenting && <RewardFlight key={reward.id} reward={reward} workspace={workspace} />}</>}</span>

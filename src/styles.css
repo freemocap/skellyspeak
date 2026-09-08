@@ -1827,7 +1827,9 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 }
 
 .practice-area-switch { margin-inline-end: auto; }
-.conversation-map-branches progress { width: 100%; height: 4px; accent-color: var(--domain-color); }
+.conversation-map-branches progress { width: 100%; height: 8px; accent-color: var(--domain-color); }
+.conversation-map-fill { transition: stroke-dasharray .45s ease-out; }
+@media (prefers-reduced-motion: reduce) { .conversation-map-fill { transition: none; } }
 @media (max-width: 860px) {
   .break > .conversation-map { display: block; }
 }
