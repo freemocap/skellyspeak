@@ -1902,7 +1902,8 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
   .mobile-conversation .break { display: none; }
   .mobile-conversation.mobile-lesson > .chat { display: none; }
   .mobile-conversation.mobile-lesson .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
-  .mobile-conversation.mobile-lesson .lesson-content { overflow: auto; }
+  .mobile-conversation.mobile-lesson .lesson-content { overflow-x: hidden; overflow-y: auto; touch-action: pan-y pinch-zoom; }
+  .mobile-conversation .practice-card-toggle { touch-action: pan-y pinch-zoom; }
   .topbar { gap: 4px; padding: 4px 8px; }
   .topbar .brand { display: none; }
   .chat .composer { padding: 4px 8px max(6px, env(safe-area-inset-bottom)); }

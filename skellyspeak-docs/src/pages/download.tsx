@@ -84,6 +84,7 @@ export default function DownloadPage() {
   const choices: { value: string; label: string }[] = [
     { value: 'windows:x64', label: 'Windows (x64)' },
     { value: 'windows:arm64', label: 'Windows (ARM64)' },
+    { value: 'macos:unknown', label: 'Mac (both processors)' },
     { value: 'macos:arm64', label: 'Mac (Apple Silicon)' },
     { value: 'macos:x64', label: 'Mac (Intel)' },
     { value: 'linux:x64', label: 'Linux x64' },
@@ -134,7 +135,7 @@ export default function DownloadPage() {
             {state.status === 'ready' && <>
               {system.os === 'ios' ? <div className="dl-section-details-content"><p>iPhone testing is limited to known parties at this time. Install through your TestFlight invitation. The release IPA is not a direct-install download.</p><Link to="/docs/platforms#ios">iOS distribution details →</Link></div>
                 : <>
-                  {needsProcessor && <div className="dl-no-detect" role="status"><p>Your browser does not report your processor. These downloads cover the possible processors for your system; none is recommended until you choose yours.</p>{system.os === 'macos' && <p>Open Apple menu → <strong>About This Mac</strong>. Choose <strong>Mac (Intel)</strong> for an Intel processor, or <strong>Mac (Apple Silicon)</strong> for an Apple M-series chip.</p>}</div>}
+                  {needsProcessor && <div className="dl-no-detect" role="status"><p>Both processor options are shown until your processor is detected or selected. Check the labels below; neither architecture is recommended without that information.</p>{system.os === 'macos' && <p>Open Apple menu → <strong>About This Mac</strong>. Choose <strong>Mac (Intel)</strong> for an Intel processor, or <strong>Mac (Apple Silicon)</strong> for an Apple M-series chip.</p>}</div>}
                   {recommended && <div className="dl-downloads"><DownloadCard installer={recommended} primary /></div>}
                   {!recommended && !needsProcessor && <p className="dl-no-detect">{system.os === 'unknown' ? 'Could not detect your OS. All available downloads are shown below with their system and processor labels.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
                   {alternatives.length > 0 && <>
