@@ -13,7 +13,7 @@ const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'refer
 vi.mock('../../lib/message-evidence', () => ({ createMessageEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
 function Triggers() {
   const controller = useContext(RewardInspectionContext)!
-  return <><button onClick={() => controller.open(items as MessageEvidence[], 1, 'this cup')}>Score</button><button onClick={() => controller.arrive(items as MessageEvidence[], 1, 'this cup')}>Arrive</button><button onClick={() => controller.arrive([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Another arrival</button></>
+  return <><button onClick={() => controller.open(items as MessageEvidence[], 1, 'this cup')}>Score</button><button onClick={() => controller.open([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Other score</button><button onClick={() => controller.arrive(items as MessageEvidence[], 1, 'this cup')}>Arrive</button><button onClick={() => controller.arrive([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Another arrival</button></>
 }
 function Fixture({ fastMode }: { fastMode: boolean }) {
   const workspace = useRef<HTMLDivElement>(null)
@@ -133,5 +133,35 @@ it('automatically dismisses reduced-motion arrivals without running flight anima
     expect(document.querySelector('.reward-path-trace')).toBeNull()
     act(() => vi.advanceTimersByTime(500))
     expect(document.querySelector('.floating-reward')).toBeNull()
+  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
+})
+
+ it('replaces inspected cards and pauses their four-second timeout during pointer or keyboard inspection', () => {
+  vi.useFakeTimers()
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
+  const view = render(<Fixture fastMode={false} />)
+  try {
+    fireEvent.click(screen.getByText('Score'))
+    const prior = screen.getByRole('dialog', { name: 'XP details' })
+    fireEvent.click(screen.getByText('Other score'))
+    expect(prior).not.toBeInTheDocument()
+    expect(screen.getAllByRole('dialog', { name: 'XP details' })).toHaveLength(1)
+    const card = document.querySelector('.floating-reward')!
+    fireEvent.pointerEnter(card)
+    act(() => vi.advanceTimersByTime(5000))
+    expect(card).toBeInTheDocument()
+    fireEvent.focus(screen.getByLabelText('Close XP details'))
+    fireEvent.pointerLeave(card)
+    act(() => vi.advanceTimersByTime(5000))
+    expect(card).toBeInTheDocument()
+    fireEvent.blur(screen.getByLabelText('Close XP details'), { relatedTarget: document.body })
+    act(() => vi.advanceTimersByTime(3999))
+    expect(card).toBeInTheDocument()
+    act(() => vi.advanceTimersByTime(1))
+    expect(card).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('Score'))
+    fireEvent.pointerDown(document.body)
+    expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
 })

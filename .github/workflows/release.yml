@@ -373,8 +373,8 @@ jobs:
           # An unsigned release APK installs nowhere and can never be upgraded
           # over, so a missing signature must fail the build, not ship.
           "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-cert.txt
-          # v3.1 certificates use SDK-range labels instead of signer numbers.
-          actual=$(sed -nE 's/^Signer (#[0-9]+|\(minSdkVersion=.*\)) certificate SHA-256 digest: (.*)$/\2/p' /tmp/apk-cert.txt)
+          # apksigner reports numbered, SDK-range, or V2 signer labels.
+          actual=$(sed -nE 's/^(Signer (#[0-9]+|\(minSdkVersion=.*\))|V2 Signer:) certificate SHA-256 digest: (.*)$/\3/p' /tmp/apk-cert.txt)
           [ -n "$actual" ] || { echo "::error::No APK signer SHA-256 fingerprints found in apksigner output"; exit 1; }
           while IFS= read -r fingerprint; do
             [[ "$fingerprint" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Invalid APK signer SHA-256 fingerprint: $fingerprint"; exit 1; }

@@ -308,7 +308,7 @@ New XP cards appear when new credit reaches the profile, including credit that a
 
 Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The large, red-outlined **Record** button fills red and reads **Stop** while recording. The same compact indicators are used on phones; reduced motion retains labels without spinning.
 
-Credited phrases have persistent skill-colored +N point icons. Clicking an icon opens only that reward’s saved XP card; it neither removes other icons nor awards XP again. Icons remain available for reopening after scrolling, dismissal, or automatic card animations. Clicking an underlined phrase can show the skills associated with that phrase. Uncredited word taps retain their gloss; credited words retain word help through long press.
+Credited phrases have skill-colored +N point tokens. Clicking a token pops it away and opens its saved XP card without awarding XP again. Each opened card replaces the previous inspection. It dismisses after four seconds of inactivity, pauses while hovered or keyboard-focused, and closes on outside interaction. Tap the underlined phrase to restore its tokens for another inspection; word help remains available.
 
 Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](./platforms#automatic-testflight-uploads).
 
