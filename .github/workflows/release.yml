@@ -366,25 +366,30 @@ jobs:
           keytool -exportcert -keystore src-tauri/gen/android/upload-keystore.jks -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" -file /tmp/upload-cert.der
           expected=$(sha256sum /tmp/upload-cert.der | cut -d' ' -f1)
           out=src-tauri/gen/android/app/build/outputs
-          apk=$(find "$out/apk" -name '*.apk' | head -1)
-          [ -n "$apk" ] || { echo "::error::no APK was produced"; exit 1; }
+          apk="$out/apk/universal/release/app-universal-release.apk"
+          [ -f "$apk" ] || { echo "::error::release APK not found at $apk"; exit 1; }
           apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort | tail -1)
           [ -n "$apksigner" ] || { echo "::error::apksigner not found"; exit 1; }
           # An unsigned release APK installs nowhere and can never be upgraded
           # over, so a missing signature must fail the build, not ship.
-          "$apksigner" verify --print-certs "$apk" > /tmp/apk-cert.txt
-          actual=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' /tmp/apk-cert.txt)
-          [ "$actual" = "$expected" ] || { echo "::error::APK signer differs from the upload key"; exit 1; }
+          "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-cert.txt
+          # v3.1 certificates use SDK-range labels instead of signer numbers.
+          actual=$(sed -nE 's/^Signer (#[0-9]+|\(minSdkVersion=.*\)) certificate SHA-256 digest: (.*)$/\2/p' /tmp/apk-cert.txt)
+          [ -n "$actual" ] || { echo "::error::No APK signer SHA-256 fingerprints found in apksigner output"; exit 1; }
+          while IFS= read -r fingerprint; do
+            [[ "$fingerprint" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Invalid APK signer SHA-256 fingerprint: $fingerprint"; exit 1; }
+            [ "$fingerprint" = "$expected" ] || { echo "::error::APK signer differs from the upload key: expected $expected, got $fingerprint"; exit 1; }
+          done <<< "$actual"
 
       - name: Collect the release artifacts
         run: |
           out=src-tauri/gen/android/app/build/outputs
           v=${{ needs.version.outputs.version }}
           mkdir -p dist-android
-          apk=$(find "$out/apk" -name '*.apk' | head -1)
-          aab=$(find "$out/bundle" -name '*.aab' | head -1)
-          [ -n "$apk" ] || { echo "::error::no APK found under $out/apk"; exit 1; }
-          [ -n "$aab" ] || { echo "::error::no AAB found under $out/bundle"; exit 1; }
+          apk="$out/apk/universal/release/app-universal-release.apk"
+          aab="$out/bundle/universalRelease/app-universal-release.aab"
+          [ -f "$apk" ] || { echo "::error::release APK not found at $apk"; exit 1; }
+          [ -f "$aab" ] || { echo "::error::release AAB not found at $aab"; exit 1; }
           cp "$apk" "dist-android/SkellySpeak_${v}_universal.apk"
           cp "$aab" "dist-android/SkellySpeak_${v}.aab"
           ls -lh dist-android
