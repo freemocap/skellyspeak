@@ -6,6 +6,7 @@ import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { createMessageEvidenceSelector, type MessageEvidence } from '../../lib/message-evidence'
 import { rewardAnchor, visibleRewardRect } from '../../lib/reward-anchors'
 import { domainColors } from '../../lib/skill-domains'
+import { pulseRewardDomain } from '../../lib/reward-pulse'
 
 type Presentation = { key: number; ids: string[]; messageId: number; source: string; phase: 'opening' | 'hovering' | 'departing'; origin: DOMRect | null }
 
@@ -86,7 +87,8 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove }: {
       animation.current = element.animate([{ transform: 'none', opacity: 1 }, { transform: `translate(${x * .45}px, ${y - 30}px) scale(.65)`, opacity: .95, offset: .55 }, { transform: `translate(${x}px, ${y}px) scale(.03)`, opacity: 0 }], { duration: 650, easing: 'ease-in', fill: 'forwards' })
       animation.current.onfinish = () => {
         if (!destination?.isConnected) { remove(card.key); return }
-        const pulse = destination.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2.5) drop-shadow(0 0 7px currentColor)' }, { filter: 'brightness(1)' }], { duration: 450 })
+        const pulses = arm ? pulseRewardDomain(scope, domainId) : [destination.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2)' }, { filter: 'brightness(1)' }], { duration: 800 })]
+        const pulse = pulses[0]
         pulse.onfinish = () => remove(card.key)
       }
     }
