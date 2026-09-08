@@ -33,7 +33,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
     const startAt = automatic ? Math.max(now, nextArrival.current) : now
     if (automatic) nextArrival.current = startAt + 460 + Math.random() * 100
     const next: Presentation = { key: ++sequence.current, ids: [...new Set(evidence.map(item => item.id))], messageId, source, phase: startAt > now ? 'waiting' : 'opening', origin, automatic, startAt, gains: Object.fromEntries(evidence.map(item => [item.id, item.xp])) }
-    setCards(previous => [...previous.filter(card => !card.ids.every(id => next.ids.includes(id))), next])
+    setCards(previous => automatic ? [...previous.filter(card => card.automatic && !card.ids.every(id => next.ids.includes(id))), next] : [next])
   }, [workspace])
   const arrive = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, true), [present])
   const dismiss = useCallback((key: number) => {
@@ -64,6 +64,8 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove, dep
   const evidence = selector.current(snapshot, chatId, card.messageId, card.source).filter(item => card.ids.includes(item.id))
   const host = useRef<HTMLDivElement>(null)
   const dock = useRef<HTMLButtonElement>(null)
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
   const sounded = useRef(false)
   useEffect(() => {
     if (!card.automatic || card.phase !== 'hovering' || sounded.current || !host.current) return
@@ -86,10 +88,10 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove, dep
     return () => window.clearTimeout(timer)
   }, [card.phase, card.key, card.startAt, begin])
   useEffect(() => {
-    if (!fast || card.phase !== 'hovering') return
-    const timer = window.setTimeout(() => dismiss(card.key), 500)
+    if (card.phase !== 'hovering' || (card.automatic ? !fast : hovered || focused)) return
+    const timer = window.setTimeout(() => dismiss(card.key), card.automatic ? 500 : 4000)
     return () => window.clearTimeout(timer)
-  }, [fast, card.phase, card.key, dismiss])
+  }, [fast, card.automatic, card.phase, card.key, dismiss, hovered, focused])
   useEffect(() => { if (!first) remove(card.key) }, [first, card.key, remove])
   useLayoutEffect(() => {
     if (!first || !host.current || !workspace.current) return
@@ -165,6 +167,6 @@ function FloatingReward({ card, workspace, chatId, dismiss, settled, remove, dep
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
     {compactTarget && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={`${first.label} skill map`} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
-    <div ref={host} className={`floating-reward ${card.phase}`}><RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
+    <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
   </>, document.body)
 }

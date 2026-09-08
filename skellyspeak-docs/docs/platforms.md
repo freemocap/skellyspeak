@@ -143,7 +143,7 @@ npm run android:apk
 `android:apk` produces a sideloadable debug APK for development. The release
 workflow instead requires the configured upload keystore, builds APK and AAB
 artifacts, and verifies the universal release APK signature. Every reported APK
-signer fingerprint must match the upload certificate, including SDK-range signer
+signer fingerprint must match the upload certificate, including numbered signers, `V2 Signer:` entries, and SDK-range signer
 entries for v3.1 signatures. Missing fingerprints and certificate mismatches fail
 the release with diagnostic output. The workflow uploads the exact universal
 release APK it verified and the universal release AAB.
