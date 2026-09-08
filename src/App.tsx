@@ -8,7 +8,6 @@ import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import { isReloadShortcut } from './lib/reload'
 import GuidedPage from './pages/GuidedPage'
 import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
-import { skillIndex } from './lib/skill-index'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
 import { UpdateBanner } from './components/UpdateBanner'
@@ -233,6 +232,15 @@ function Application() {
         >
           ⚙
         </button>
+        {isTauri && <button type="button" className="gear" aria-label="Open language profile" title="My language profile" onClick={() => setProgressOpen(true)}>◈</button>}
+        {settings && <label className="language-picker target-language-picker">
+          <span>Learning</span>
+          <select aria-label="Target language" value={settings.target_language}
+            disabled={savingLanguage || settingsOpen}
+            onChange={(event) => void changeLanguage('target_language', event.target.value)}>
+            {languages().map((language) => <option key={language.code} value={language.code}>{language.endonym}</option>)}
+          </select>
+        </label>}
       </div>
 
       {isTauri && <UpdateBanner />}
@@ -265,22 +273,7 @@ function Application() {
         </div>
       )}
 
-      {isTauri && <div className="learner-profile-bar">
-        <button onClick={() => setProgressOpen(true)} aria-label="Open language profile">
-          <span>◈ My language profile</span>
-          {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {skillIndex(evidence.snapshot).catalog.node(evidence.snapshot.profile.active_focus).label}</span></>}
-          {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
-        </button>
-        {settings && <label className="language-picker target-language-picker">
-          <span>Learning</span>
-          <select aria-label="Target language" value={settings.target_language}
-            disabled={savingLanguage || settingsOpen}
-            onChange={(event) => void changeLanguage('target_language', event.target.value)}>
-            {languages().map((language) => <option key={language.code} value={language.code}>{language.endonym}</option>)}
-          </select>
-        </label>}
-        {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}
-      </div>}
+      {evidence.error && <div role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry profile</button></div>}
       {progressOpen && evidence.snapshot && <ProgressSummary snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
       <div className="content">
         {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>

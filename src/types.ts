@@ -120,9 +120,23 @@ export interface Mechanic {
 }
 
 export interface Scaffolds {
+  coach_help: CoachHelp | null
   replies: string[]
   frames: string[]
   starters: string[]
+}
+
+export interface AssistedPhrase {
+  text: string
+  translation: string
+  romanization: string | null
+  pronunciation: string
+}
+
+export interface CoachHelp {
+  explanation: string
+  partner: AssistedPhrase
+  replies: AssistedPhrase[]
 }
 
 export interface GuidedTurnResult {

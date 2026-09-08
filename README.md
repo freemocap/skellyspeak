@@ -16,7 +16,7 @@ Two surfaces:
   a **Lesson** panel showing your goal, preferences and coaching observations,
   and an **Analysis** tab for detailed breakdowns. Talk to the coach below the
   lesson: explicit requests update it; suggestions wait for you to apply them.
-  Settings fold beside the composer; reply ideas expand inside practice cards. Persona controls fit in one row; the gear opens character details.
+  Settings fold beside the composer; reply ideas expand inside practice cards. Persona controls fit in one row; the pencil opens character details.
   Voice works in *and* out.
   Partner prompts require an easy question, choice, or concrete invitation to
   respond on every turn, within the selected difficulty and lesson context.
@@ -36,11 +36,11 @@ registry is `src-tauri/src/languages.rs`.
 
 Lesson choices open in a centered, dismissible editor and save automatically as you type. Closing waits for pending changes to save; errors keep the editor and unsaved text open. The coach conversation has a distinct background beneath the lesson and analysis.
 
-Each chat saves its character description and first introduction. Reopening restores that partner; editing or deleting persona templates affects future chats only. The persona gear shows the saved snapshot separately from the template library. Older chats recover their earliest saved introduction, with the unknown original template clearly labeled.
+Each chat saves its character description and first introduction. Reopening restores that partner; editing or deleting persona templates affects future chats only. The persona pencil shows the saved snapshot separately from the template library. Older chats recover their earliest saved introduction, with the unknown original template clearly labeled.
 
 Choose **No persona** or switch personas **Off** for conversation without a fictional character. Switch **On** to use Surprise me, or reroll to choose a different partner. Changing these controls starts a new conversation and preserves the previous chat.
 
-The coach conversation starts as a compact dock with its message box visible. Drag its top border to resize it, or use the heading toggle to collapse the thread while keeping the composer available. Its height and collapsed state persist on this device across reloads. The divider also supports the Up/Down arrow keys and Enter.
+The **Coach** button shares the settings row above the input. It opens preloaded advice for the latest partner message: translation, a brief explanation, and two suggested replies with their meanings. Non-Latin phrases include romanization; each phrase has expandable approximate phonetic pronunciation. Selecting a reply adds only its target-language text to the draft without sending. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
 
 ## Architecture
 
@@ -231,7 +231,7 @@ The seven-domain map heads the lesson panel, with branch selectors and star prog
 show progress toward unassisted milestones; XP includes assisted practice too.
 Domain colors identify the same areas in cards, message evidence and Skills.
 Selection is a neutral outline. On phones, lesson content follows the conversation
-in one scroll, with Chat/Lesson jump controls. Practice hints stay in the lesson cards. The chat input stays at the bottom of the visible chat area on mobile, then docks at the top as you scroll into the lesson section so recording and sending remain accessible. The coach starts as a compact input and send button, with a resize handle above. Focusing its composer expands the thread and its controls.
+through separate Chat and Lesson views. Chat keeps its messages scrolling above the input and the optional coach-help tray, so help does not overlay the latest exchange. Long messages may still require scrolling. Reply ideas are available directly above the input as well as in lesson cards. The permanent XP/focus strip is removed; the profile button opens progress on demand. Headers compact further when typing on a short mobile viewport.
 Coach Enter sends, Shift+Enter adds a newline, and composition Enter does not send.
 
 Explanations load only when disclosed. The card and detail share an
@@ -345,3 +345,7 @@ Inline activity indicators distinguish reply generation, pending reply analysis,
 Credited phrases have skill-colored +N superscripts. Clicking one opens its XP card and pops away the marker for the mounted conversation; it does not award XP again. The card grows from its evidence into a floating position at the top of the conversation, above the composer. Selecting another score opens it while the previous card departs. Tapping outside, Close, Escape, or Back sends the card into its visible skill arm, which flashes on arrival. A compact skill indicator provides a visible destination when the map is collapsed or offscreen. Reduced motion switches states without travel. Clicking the underlined phrase opens its saved XP explanation directly. Uncredited word taps retain their gloss; credited words retain word help through long press. Active reply, analysis, and transcription status also appears beside the composer so it stays visible when the relevant message is scrolled away.
 
 Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](skellyspeak-docs/docs/platforms.md#automatic-testflight-uploads).
+
+The Coach tray’s refresh button requests different advice using the previous advice and recent conversation as context. Existing advice stays visible while loading; a successful refresh replaces and saves it. Opening the tray still makes no request.
+
+The composer header shows a compact summary of language, level, topic, voice/reading toggles, and playback speed on the left. Click the summary to expand settings; its left disclosure arrow shows whether they are open. Coach sits on the right with its own disclosure arrow. Small Translate and Analysis buttons follow the message text inline. An active persona appears after the language as “Persona: name”; no persona entry appears when disabled. The summary stays within two lines, with full setting names and a horizontally scrollable status line on narrow screens. Persona controls remain inside the expandable settings; a pencil opens persona details and the Custom persona option opens the editor. Persona choices label current and new conversations in parentheses.

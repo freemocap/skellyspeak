@@ -125,7 +125,7 @@ const turn = (id: number, user: string): StoredTurn => ({
     user_tokens: [],
     user_translation: null,
     mechanics: [],
-    scaffolds: { replies: [], frames: [], starters: [] },
+    scaffolds: { replies: [], frames: [], starters: [], coach_help: null },
     errors: [],
   },
   analysisState: 'done',
@@ -268,7 +268,7 @@ describe('opening the app', () => {
 
 const BAKER = {
   id: 'baker',
-  label: 'The night-shift baker',
+  label: 'Night-shift baker',
   sketch: "You bake bread overnight and your neighbour's dog howls when you sleep.",
   builtin: true,
 }
@@ -292,7 +292,7 @@ describe('who the learner is talking to', () => {
     render(<GuidedPage active={true} />)
     const picker = await screen.findByLabelText('Partner:')
     await waitFor(() =>
-      expect(screen.getByRole('option', { name: 'The night-shift baker' })).toBeInTheDocument()
+      expect(screen.getByRole('option', { name: 'Night-shift baker' })).toBeInTheDocument()
     )
     // "Surprise me" is not one of the core's personas — it is the absence of a
     // choice, and the picker supplies it.
@@ -307,7 +307,7 @@ describe('who the learner is talking to', () => {
     render(<GuidedPage active={true} />)
     const picker = await screen.findByLabelText('Partner:')
     await waitFor(() =>
-      expect(screen.getByRole('option', { name: 'The night-shift baker' })).toBeInTheDocument()
+      expect(screen.getByRole('option', { name: 'Night-shift baker' })).toBeInTheDocument()
     )
 
     fireEvent.change(picker, { target: { value: 'baker' } })
@@ -372,7 +372,7 @@ describe('the persona panel', () => {
 
     // The fork arrives in the editor unsaved, carrying the original's words.
     const name = screen.getByPlaceholderText('My uncle Kiko') as HTMLInputElement
-    expect(name.value).toBe('The night-shift baker (mine)')
+    expect(name.value).toBe('Night-shift baker (mine)')
   })
 
   it('saves a persona the learner wrote and puts it in the picker', async () => {
@@ -441,7 +441,13 @@ describe('the suggestions panel', () => {
     render(<GuidedPage active={true} />)
     fireEvent.click(await screen.findByTitle('Hide chat settings'))
     expect(screen.queryByLabelText('Learner level')).not.toBeInTheDocument()
-    expect(screen.getByText(/any topic/)).toBeInTheDocument()
+    expect(screen.getByLabelText('Current conversation settings')).toHaveTextContent(/Beginner/)
+    expect(screen.getByLabelText('Current conversation settings')).toHaveTextContent('×')
+    const coach = screen.getByRole('button', { name: 'Coach' })
+    expect(coach).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(coach)
+    expect(coach).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Settings & voice' })).toHaveAttribute('aria-expanded', 'false')
   })
 })
 
@@ -656,7 +662,7 @@ it('shows recovered identity separately from the template library', async () => 
   fireEvent.click(await screen.findByLabelText('Open the persona panel'))
   expect(await screen.findByText('Soy Carmen. Vivo en Valencia.')).toBeInTheDocument()
   expect(screen.getByText(/Recovered from the earliest saved reply/)).toBeInTheDocument()
-  expect(screen.getByRole('option', { name: 'The night-shift baker', selected: true })).toBeInTheDocument()
+  expect(screen.getByRole('option', { name: 'Night-shift baker', selected: true })).toBeInTheDocument()
   expect(backend.invoke).toHaveBeenCalledWith('get_conversation_partner', { chatId: 'chat-1' })
 })
 
@@ -686,7 +692,7 @@ it('keeps the edited attempt’s corrections visible while recording and removes
 it('captures card suggestion use in the evaluation input', async () => {
   const greeting = turn(1, '')
   greeting.user = null
-  greeting.assistant!.scaffolds = { replies: ['Me gusta el café.'], frames: ['Me gusta ___.'], starters: [] }
+  greeting.assistant!.scaffolds = { replies: ['Me gusta el café.'], frames: ['Me gusta ___.'], starters: [], coach_help: null }
   backend.loadConversation.mockResolvedValue({ id: 'chat-1', turns: [greeting] })
   render(<GuidedPage active={true} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Me gusta el café.' }))
