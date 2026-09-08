@@ -780,7 +780,8 @@ export default function GuidedPage({
               title={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
               aria-label={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
             >
-              {mic.recording ? '■' : '●'}
+              <span aria-hidden="true">{mic.recording ? '■' : '●'}</span>
+              <span>{mic.recording ? 'Stop' : 'Record'}</span>
             </button>
 
             <button

@@ -2,7 +2,7 @@ import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, hostedAccount, isTauri, languageFor, takeStartupFaults } from './lib/tauri'
+import { getSettings, saveSettings, hostedAccount, isTauri, languageFor, languages, takeStartupFaults } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import { isReloadShortcut } from './lib/reload'
@@ -18,7 +18,7 @@ import { useAiActivity } from './hooks/useAiActivity'
 import { useIsMobile } from './hooks/useIsMobile'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 import { HOSTED } from './lib/providers'
-import type { Shortcuts } from './types'
+import type { Settings, Shortcuts } from './types'
 
 type Page = 'guided' | 'skills'
 const SkillsPage = lazy(() => import('./pages/SkillsPage'))
@@ -78,7 +78,31 @@ function Application() {
   const [historyOpen, setHistoryOpen] = useState(false)
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
+  const [settings, setSettings] = useState<Settings | null>(null)
+  const [savingLanguage, setSavingLanguage] = useState(false)
   const evidence = useSkillEvidence(true, settingsVersion)
+
+  function settingsChanged(saved: Settings) {
+    setSettings(saved)
+    applyUiLanguage(saved.native_language)
+    setSettingsVersion((v) => v + 1)
+  }
+
+  async function changeLanguage(field: 'target_language' | 'native_language', value: string) {
+    if (!settings || savingLanguage || settingsOpen || settings[field] === value) return
+    setSavingLanguage(true)
+    try {
+      const current = await getSettings()
+      const saved = { ...current, [field]: value }
+      if (field === 'target_language') saved.target_dialect = ''
+      await saveSettings(saved)
+      settingsChanged(saved)
+    } catch (error) {
+      reportFault('Saving language', error)
+    } finally {
+      setSavingLanguage(false)
+    }
+  }
   const [showNotTauri, setShowNotTauri] = useState(!isTauri)
   // Everything that has gone wrong anywhere in the app, shown at the very top
   // of the window until dismissed. This is the only destination for a failure.
@@ -113,6 +137,7 @@ function Application() {
     void getSettings()
       .then(async (s) => {
         if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
+        setSettings(s)
         applyUiLanguage(s.native_language)
         // Check in with the hosted service while there is still time to do
         // something about an expired session — it otherwise first shows up as
@@ -127,7 +152,7 @@ function Application() {
 
   // Settings shortcut (configurable, default ctrl+,).
   useEffect(() => {
-    if (!isTauri) return
+    if (!isTauri || savingLanguage) return
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return
       if (comboFromEvent(e) === shortcuts.settings) {
@@ -137,7 +162,7 @@ function Application() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [shortcuts])
+  }, [shortcuts, savingLanguage])
 
   // Desktop webviews do not consistently supply a browser-style refresh
   // command. Own the familiar shortcut at the app shell so it works on every
@@ -202,6 +227,7 @@ function Application() {
           type="button"
           className="gear"
           onClick={() => setSettingsOpen(true)}
+          disabled={savingLanguage}
           aria-label="Settings"
           title="Settings"
         >
@@ -245,6 +271,14 @@ function Application() {
           {evidence.snapshot && <><b>{evidence.snapshot.target}</b><span data-reward-total>{evidence.snapshot.profile.xp} XP · ★ {evidence.snapshot.profile.skills.filter((s) => s.star).length}</span><span className="profile-focus">◆ {skillIndex(evidence.snapshot).catalog.node(evidence.snapshot.profile.active_focus).label}</span></>}
           {!evidence.snapshot && <span>{evidence.error ? 'Profile unavailable' : 'Loading…'}</span>}
         </button>
+        {settings && <label className="language-picker target-language-picker">
+          <span>Learning</span>
+          <select aria-label="Target language" value={settings.target_language}
+            disabled={savingLanguage || settingsOpen}
+            onChange={(event) => void changeLanguage('target_language', event.target.value)}>
+            {languages().map((language) => <option key={language.code} value={language.code}>{language.endonym}</option>)}
+          </select>
+        </label>}
         {evidence.error && <span role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry</button></span>}
       </div>}
       {progressOpen && evidence.snapshot && <ProgressSummary snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
@@ -279,6 +313,18 @@ function Application() {
         )}
       </div>
 
+      {page === 'guided' && settings && <footer className="language-footer">
+        {savingLanguage && <span role="status">Saving languages…</span>}
+        <label className="language-picker">
+          <span>My native language</span>
+          <select aria-label="Native language" value={settings.native_language}
+            disabled={savingLanguage || settingsOpen}
+            onChange={(event) => void changeLanguage('native_language', event.target.value)}>
+            {languages().map((language) => <option key={language.base} value={language.base}>{language.endonym}</option>)}
+          </select>
+        </label>
+      </footer>}
+
       <LogsOverlay open={devOpen} onOpenChange={setDevOpen} />
 
       {settingsOpen && (
@@ -287,10 +333,7 @@ function Application() {
           // Fires on every autosave, mid-edit. It must NOT close the modal:
           // closing is the Close button's job (and the Android back
           // gesture's, via openOverlay).
-          onSettingsChanged={(s) => {
-            applyUiLanguage(s.native_language)
-            setSettingsVersion((v) => v + 1)
-          }}
+          onSettingsChanged={settingsChanged}
         />
       )}
     </div>

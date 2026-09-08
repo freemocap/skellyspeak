@@ -12,7 +12,7 @@ const config: SkellyDocsConfig = {
       url: 'https://freemocap.org',
     },
     ctaButtons: [
-      { label: 'Read the overview', to: '/docs/overview', variant: 'primary' },
+      { label: 'Download SkellySpeak', to: '/download', variant: 'primary' },
       {
         label: 'View the source',
         to: 'https://github.com/freemocap/skellyspeak',
