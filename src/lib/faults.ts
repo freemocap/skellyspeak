@@ -35,7 +35,7 @@ function describe(e: unknown): string {
 /// permitted alternative is rethrowing so a caller reports it instead.
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
-  logError(`[fault] ${context}: ${message}`)
+  logError('[fault] reported to UI')
   store.set([...store.get(), { id: nextId++, context, message }])
 }
 

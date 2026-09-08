@@ -27,7 +27,7 @@ pub async fn hosted_sign_in(
     let session = hosted::sign_in(&app, &client_info).await?;
     let account = hosted::account(&session.token, &client_info).await?;
 
-    info!("[cmd] hosted_sign_in: signed in as {}", session.email);
+    info!("[cmd] hosted_sign_in: signed in");
     {
         let mut epoch = state.context_epoch.lock().expect("context lock poisoned");
         if *epoch != request_epoch { return Err("Settings or sign-in changed while authentication was in progress. Please sign in again.".into()); }
@@ -35,7 +35,7 @@ pub async fn hosted_sign_in(
         let mut updated = guard.clone();
         updated.hosted_token = session.token.clone();
         updated.hosted_email = session.email;
-        settings::persist(&state.config_dir, &updated)?;
+        settings::persist(&state.config_dir, &updated, &crate::credentials::Secrets::from(&*guard))?;
         *guard = updated;
         *epoch += 1;
     }
@@ -67,7 +67,7 @@ pub fn hosted_sign_out(state: State<'_, AppState>) -> Result<(), String> {
     let mut updated = guard.clone();
     updated.hosted_token.clear();
     updated.hosted_email.clear();
-    settings::persist(&state.config_dir, &updated)?;
+    settings::persist(&state.config_dir, &updated, &crate::credentials::Secrets::from(&*guard))?;
     *guard = updated;
     *epoch += 1;
     Ok(())

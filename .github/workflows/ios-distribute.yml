@@ -65,6 +65,11 @@ jobs:
       - name: Scaffold the Xcode project
         run: npx tauri ios init
 
+      - name: Apply the SkellySpeak app icon
+        run: |
+          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+
       # App Store Connect permanently consumes each CFBundleVersion. Keep the
       # user-facing version from Cargo.toml, but give every workflow attempt a
       # fresh, monotonically increasing iOS build number. Include the attempt so

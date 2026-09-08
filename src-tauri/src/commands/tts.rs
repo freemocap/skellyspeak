@@ -4,9 +4,7 @@ use futures_util::StreamExt;
 use log::debug;
 use serde_json::json;
 use tauri::{State};
-use crate::ai::truncate_for_log;
 use crate::AppState;
-use std::time::Duration;
 
 // TTS — cloud synthesis via OpenRouter (openai/gpt-audio-mini). Audio output
 // is streaming-only and ships raw PCM16 (24kHz mono LE); we wrap it in a WAV
@@ -58,10 +56,7 @@ pub async fn speak_text(
             instruction.push_str(&crate::prompts::speech::persona_delivery(&partner.persona.sketch, partner.introduction.as_deref()));
         }
     }
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(120))
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::network::client(120)?;
     let payload = json!({
         "model": TTS_MODEL,
         "modalities": ["text", "audio"],
@@ -84,8 +79,7 @@ pub async fn speak_text(
         .map_err(|e| format!("tts request failed: {e}"))?;
     let status = response.status();
     if !status.is_success() {
-        let body = response.text().await.unwrap_or_default();
-        return Err(format!("tts API error {status}: {}", truncate_for_log(&body, 300)));
+        return Err(crate::network::provider_error(status));
     }
 
     // Stream SSE; accumulate base64 PCM16 chunks, then wrap in a WAV header.

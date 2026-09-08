@@ -40,3 +40,9 @@ it('bounds rewards by the net skill gain when unassisted evidence replaces assis
   previous.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 10
   expect(skillRewards(previous, completed(), 'chat')).toEqual([])
 })
+
+it('announces newly credited XP even when its review was already complete', () => {
+  const previous = structuredClone(skillDemo)
+  previous.records = [structuredClone(record)]
+  expect(skillRewards(previous, completed(), 'chat')).toHaveLength(1)
+})

@@ -18,7 +18,9 @@ use super::conversations::pair_and_chat;
 /// Update delivery is determined by the native build target.
 #[tauri::command]
 pub fn get_update_channel() -> &'static str {
-    if cfg!(target_os = "ios") {
+    if cfg!(all(desktop, debug_assertions)) {
+        "development"
+    } else if cfg!(target_os = "ios") {
         "app-store"
     } else if cfg!(target_os = "android") {
         "download"
@@ -219,13 +221,13 @@ fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bo
         if let Some(first) = faults.into_iter().next() {
             return Err(first);
         }
-        settings::persist(&state.config_dir, &settings)?;
+        settings::persist(&state.config_dir, &settings, &crate::credentials::Secrets::from(&stored))?;
         *state.plan.lock().expect("plan lock poisoned") = plan;
         *state.profile.lock().expect("profile lock poisoned") = profile;
         *state.coach_thread.lock().expect("coach lock poisoned") = thread;
         state.recent_mechanics.lock().expect("mechanics lock poisoned").clear();
     }
-    if !pairing_changed { settings::persist(&state.config_dir, &settings)?; }
+    if !pairing_changed { settings::persist(&state.config_dir, &settings, &crate::credentials::Secrets::from(&stored))?; }
     let context_changed = pairing_changed || stored.target_dialect != settings.target_dialect
         || stored.provider_mode != settings.provider_mode || stored.openrouter_model != settings.openrouter_model
         || stored.observer_model != settings.observer_model || stored.custom_base_url != settings.custom_base_url
@@ -238,4 +240,3 @@ fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bo
     *state.settings.lock().unwrap_or_else(|p| p.into_inner()) = settings;
     Ok(())
 }
-

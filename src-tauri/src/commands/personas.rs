@@ -91,7 +91,7 @@ pub fn save_persona(
         }
     };
     personas::save_custom(&state.config_dir, &custom)?;
-    info!("[cmd] persona saved: {} ({})", saved.label, saved.id);
+    info!("[cmd] persona saved");
     Ok(saved)
 }
 

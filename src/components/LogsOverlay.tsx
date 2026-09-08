@@ -2,17 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { openDevWindow } from '../lib/tauri'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { openOverlay } from '../lib/back'
+import { DetailDialog } from './DetailDialog'
 import { DevPanel } from './dev/DevPanel'
 import { reportFault } from '../lib/faults'
 
 // The docked observability panel: a toggle button that pulls a resizable
 // sheet up from the bottom, and a pop-out into its own OS window.
 //
-// Desktop only. Below the mobile breakpoint the same DevPanel becomes a
-// third swipe surface inside GuidedPage (chat ⇄ coach ⇄ dev), because a
-// bottom sheet over a phone-sized chat is unusable and Tauri mobile has no
-// second window to pop out to.
-
 const HEIGHT_KEY = 'skellyspeak_dev_h'
 const MIN_VH = 18
 // The panel pushes the app up rather than covering it, so the ceiling has to
@@ -39,7 +35,7 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
   const dragging = useRef(false)
 
   // Android back closes the panel instead of exiting the app.
-  useEffect(() => (open ? openOverlay(() => onOpenChange(false)) : undefined), [open, onOpenChange])
+  useEffect(() => (open && !isMobile ? openOverlay(() => onOpenChange(false)) : undefined), [open, onOpenChange, isMobile])
 
   // Drag the top edge. Pointer events (not mouse) so a trackpad, a pen and a
   // touch screen all behave the same.
@@ -74,8 +70,7 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
       .catch((e: unknown) => reportFault('Observability window', e))
   }, [onOpenChange])
 
-  // On mobile the panel is a swipe surface inside GuidedPage, not an overlay.
-  if (isMobile) return null
+  if (isMobile) return open ? <DetailDialog title="AI activity & tools" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><DevPanel /></div></DetailDialog> : null
 
   return (
     <>

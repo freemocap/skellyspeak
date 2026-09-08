@@ -9,7 +9,7 @@
 use futures_util::StreamExt;
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
-use log::{debug, error, info, warn};
+use log::{error, info, warn};
 use serde_json::{json, Value};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
@@ -245,10 +245,8 @@ impl Provider {
     }
 
     fn client(&self) -> Result<reqwest::Client, String> {
-        reqwest::Client::builder()
-            .timeout(Duration::from_secs(180))
-            .build()
-            .map_err(|error| format!("Could not create the AI HTTP client: {error}"))
+        crate::network::validate_endpoint(&self.base_url)?;
+        crate::network::client(180)
     }
 
     /// Consume an SSE chat stream, forwarding each text delta to `on_delta`
@@ -315,8 +313,8 @@ impl Provider {
             .send()
             .await
             .map_err(|e| {
-                warn!("[ai] streaming request failed: {e}");
-                format!("request failed: {e}")
+                warn!("[ai] streaming request failed");
+                format!("request failed: {}", e.without_url())
             });
         let response = match response {
             Ok(r) => r,
@@ -358,12 +356,11 @@ impl Provider {
         let status = response.status();
         info!("[ai] streaming response: status={status}");
         if !status.is_success() {
-            let body = response.text().await.unwrap_or_default();
             // FAIL LOUDLY. A rejected request means the model or the call is
             // wrong (e.g. model refuses reasoning:false). No fallback: fix
             // the cause — change the model or the request.
-            error!("[ai] streaming request REJECTED: {status} {}", truncate_for_log(&body, 800));
-            let msg = format!("API error {status}: {}", truncate_for_log(&body, 800));
+            error!("[ai] streaming request rejected: {status}");
+            let msg = crate::network::provider_error(status);
             run.attempt(AttemptKind::Failed, Some(msg.clone()), None);
             run.finish_failed(&msg)?;
             return Err(msg);
@@ -463,6 +460,10 @@ impl Provider {
                 .map_err(|e| format!("request failed after 429 backoff: {e}"))?;
         }
         let status = response.status();
+        if !status.is_success() {
+            warn!("[ai] API error: {status}");
+            return Err(crate::network::provider_error(status));
+        }
         let body: Value = response
             .json()
             .await
@@ -474,15 +475,6 @@ impl Provider {
             body.to_string().len()
         );
         let usage = Usage::from_response(&body);
-        if !status.is_success() {
-            let detail = body["error"]
-                .as_str()
-                .or_else(|| body["error"]["message"].as_str())
-                .map(str::to_string)
-                .unwrap_or_else(|| body.to_string());
-            warn!("[ai] API error: {}", truncate_for_log(&detail, 500));
-            return Err(format!("API error {status}: {detail}"));
-        }
         // `length` means the model was cut off mid-output. That is NOT a
         // transient defect and a corrective retry cannot fix it — the retry
         // re-sends a LONGER conversation and truncates at the same place.
@@ -492,10 +484,7 @@ impl Provider {
             .unwrap_or("")
             .to_string();
         if content.is_empty() {
-            warn!(
-                "[ai] EMPTY content; full message object: {}",
-                body["choices"][0]["message"]
-            );
+            warn!("[ai] empty response content");
             return Err("API returned an empty response".into());
         }
         Ok((content, usage, truncated))
@@ -613,14 +602,13 @@ impl Provider {
                 run.finish_failed(&msg)?;
                 return Err(msg);
             }
-            debug!("[ai] structured attempt {attempt} raw content: {}", truncate_for_log(&raw, 600));
 
             let cleaned = extract_json(&raw);
             match serde_json::from_str::<T>(&cleaned) {
                 Ok(value) => {
                     if let Some(problem) = validate(&value) {
                         VALIDATION_RETRY.fetch_add(1, Ordering::Relaxed);
-                        warn!("[ai] validation failed ({problem}) - corrective retry");
+                        warn!("[ai] validation failed - corrective retry");
                         run.attempt(
                             AttemptKind::Invalid,
                             Some(problem.clone()),
@@ -641,15 +629,11 @@ impl Provider {
                 }
                 Err(e) => {
                     PARSE_RETRY.fetch_add(1, Ordering::Relaxed);
-                    warn!("[ai] parse failed ({e}) - corrective retry");
+                    warn!("[ai] parse failed - corrective retry");
                     run.attempt(
                         AttemptKind::Unparseable,
                         Some(format!("invalid JSON: {e}")),
                         usage.clone(),
-                    );
-                    warn!(
-                        "[ai] raw response was: {}",
-                        truncate_for_log(&raw, 600)
                     );
                     last_error = format!("invalid JSON: {e}");
                     attempts.push(json!({"role": "assistant", "content": raw}));
@@ -662,7 +646,7 @@ impl Provider {
         }
         RETRIES_EXHAUSTED.fetch_add(1, Ordering::Relaxed);
         error!(
-            "[ai] structured output ({name}) failed after all attempts: {last_error}"
+            "[ai] structured output ({name}) failed after all attempts"
         );
         let msg = format!("structured output failed after retries: {last_error}");
         run.finish_failed(&msg)?;
@@ -856,4 +840,3 @@ fn inline_defs_keeps_unrelated_content() {
     assert_eq!(out["properties"]["y"]["type"], "number");
 }
 }
-

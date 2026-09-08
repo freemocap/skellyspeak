@@ -71,7 +71,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
         audioBase64,
         prompt: buildPromptRef.current(),
       })
-      logInfo('[mic] transcribed:', text)
+      logInfo('[mic] transcription received:', text.length, 'characters')
       // An empty transcription is the normal outcome of a silent recording,
       // not a failure — the composer simply stays as it was.
       if (text) onTranscribeRef.current(text)
@@ -86,7 +86,7 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
 
   const startNative = useCallback(async () => {
     const device = micDeviceIdRef.current || null
-    logInfo('[mic] starting core capture', { device: device ?? '(system default)' })
+    logInfo('[mic] starting core capture', { customDevice: Boolean(device) })
     const samplesPerSecond = await invoke<number>('mic_start', { device })
     setRecording(true)
 
@@ -150,9 +150,9 @@ export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRe
     const constraints: MediaTrackConstraints = {}
     const deviceId = micDeviceIdRef.current
     if (deviceId) constraints.deviceId = { exact: deviceId }
-    logInfo('[mic] requesting permission…', { deviceId: deviceId ?? '(default)' })
+    logInfo('[mic] requesting permission…', { customDevice: Boolean(deviceId) })
     const stream = await mediaDevices().getUserMedia({ audio: constraints })
-    logInfo('[mic] permission granted, device:', stream.getAudioTracks()[0]?.label)
+    logInfo('[mic] permission granted')
     setRecording(true)
 
     const recorder = new MediaRecorder(stream)

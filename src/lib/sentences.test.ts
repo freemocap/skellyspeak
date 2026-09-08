@@ -7,7 +7,7 @@ const t = (text: string): GuidedToken => ({
   gloss: null,
   pos: null,
   notable: false,
-  romanization: null,
+  romanization: null, pronunciation: null,
 })
 
 describe('groupSentences', () => {

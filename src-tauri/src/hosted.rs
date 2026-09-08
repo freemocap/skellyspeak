@@ -176,10 +176,7 @@ fn open_in_browser(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
 }
 
 fn client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| format!("could not create an HTTP client: {e}"))
+    crate::network::client(30)
 }
 
 /// Pull `detail` out of a service response, so the reason the user sees is the

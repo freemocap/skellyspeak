@@ -211,7 +211,7 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
 
     match ready_rx.recv() {
         Ok(Ok((sample_rate, device_label))) => {
-            info!("[mic] capture started: {device_label} at {sample_rate}Hz");
+            info!("[mic] capture started at {sample_rate}Hz");
             Ok(Capture {
                 stop: stop_tx,
                 buffers,

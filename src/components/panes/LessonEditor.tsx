@@ -83,7 +83,10 @@ export function LessonEditor({ lesson, onSave, onClose }: {
   }
   return createPortal(<dialog ref={dialog} className="lesson-editor-dialog" aria-labelledby="lesson-editor-title"
     onCancel={(event) => { event.preventDefault(); void dismiss() }}
-    onClick={(event) => { if (event.target === event.currentTarget) void dismiss() }}>
+    onClick={(event) => {
+      const rect = event.currentTarget.getBoundingClientRect()
+      if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) void dismiss()
+    }}>
     <div className="lesson-editor-body">
       <div className="lesson-heading"><h2 id="lesson-editor-title">Edit your lesson</h2><button type="button" className="lesson-action" aria-label="Close lesson editor" disabled={closing} onClick={() => { void dismiss() }}>✕</button></div>
       <p className="lesson-meta">Changes save automatically. Close this window or click outside when you’re done.</p>

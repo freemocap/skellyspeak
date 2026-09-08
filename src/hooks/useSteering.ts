@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react'
 
-// Conversation steering: level feeds the CEFR in every prompt; topic steers
+// Conversation steering: level selects language complexity; topic steers
 // the conversation when natural. Persisted per device.
 export const STEER_LEVELS = [
   { value: 'zero', label: 'Absolute zero', cefr: 'PRE-A1' },
   { value: 'beginner', label: 'Beginner', cefr: 'A2' },
   { value: 'intermediate', label: 'Intermediate', cefr: 'B1' },
   { value: 'advanced', label: 'Advanced', cefr: 'C1' },
+  { value: 'fluent', label: 'Fluent', cefr: 'C2' },
 ]
 export const STEER_TOPICS: readonly string[] = [
   'Daily routines', 'Food & cooking', 'Travel stories', 'Work & studies',

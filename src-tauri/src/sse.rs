@@ -38,8 +38,8 @@ impl Decoder {
                     let value: Value = serde_json::from_str(&data)
                         .map_err(|e| format!("Provider sent malformed SSE JSON: {e}"))?;
                     if !value.is_object() { return Err("Provider SSE payload is not an object".into()); }
-                    if let Some(error) = value.get("error").filter(|v| !v.is_null()) {
-                        return Err(format!("Provider stream failed: {error}"));
+                    if value.get("error").is_some_and(|v| !v.is_null()) {
+                        return Err("Provider stream failed.".into());
                     }
                     if value["choices"].as_array().is_some_and(|choices|
                         choices.iter().any(|c| matches!(c["finish_reason"].as_str(), Some("length" | "content_filter" | "error")))) {
@@ -91,4 +91,10 @@ mod tests {
         decoder.push(b"data: {}\n\n").unwrap();
         assert!(decoder.finish().is_err());
     }
+}
+
+#[test]
+fn provider_errors_do_not_echo_private_payloads() {
+    let error = Decoder::default().push(b"data: {\"error\":\"PRIVATE_TRANSCRIPT_API_KEY\"}\n\n").unwrap_err();
+    assert_eq!(error, "Provider stream failed.");
 }
