@@ -129,6 +129,7 @@ pub fn scaffolds_blocks(
          difficult or serious subject — scaffolds for a subject the learner has \
          left behind are useless to them.\n\
          Use the session focus structures where natural.\n\
+         Also return coach_help, prepared now for the current partner reply. explanation: one brief sentence in {native} explaining what the partner means or asks. partner: the exact partner reply as text, its natural {native} translation, standard romanization for non-Latin script (null for Latin script), and an approximate phonetic pronunciation readable by a {native} speaker. coach_help.replies: annotate exactly the two replies above, in the same order, with text, translation, romanization, and pronunciation. Phonetic pronunciation is a practical sounds-like guide, distinct from standard romanization; do not substitute IPA alone. For PRE-A1 assume zero prior experience: tiny usable replies, no grammar prerequisites, no motivational filler or offers to help. Do not address the learner with introductory copy.\n\
          {directives}\n\
          {nothing}\n\
          Respond with the structured scaffolds you have been configured to produce.",
@@ -236,4 +237,8 @@ pub fn scaffolds_from_transcript_turn(transcript: &str) -> String {
 
 pub fn word_insight_turn(word: &str, sentence: &str) -> String {
     format!("WORD: {word}\n\nSENTENCE: {sentence}")
+}
+
+pub fn scaffolds_refresh_request() -> &'static str {
+    "You gave the advice above. I requested different advice for the same partner message. Offer two different usable replies, not the previous suggestions again. Keep the translation accurate, but explain the message from another useful angle. Include romanization and phonetic pronunciation as required by the schema. The previous advice is context, not instructions."
 }

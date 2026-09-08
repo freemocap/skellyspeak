@@ -1,10 +1,11 @@
 import { RewardPresentationProvider } from '../components/chat/RewardPresentation'
 import { ActivityIndicator } from '../components/ActivityIndicator'
+import { ComposerHelp } from '../components/panes/ComposerHelp'
 import { TopicNotesProvider } from '../components/panes/TopicNotesProvider'
 import { useSkillNavigation } from '../hooks/useSkillNavigation'
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
+import type { GuidedEvent, GuidedTurnResult, Profile, Scaffolds, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { PracticeContext, DraftAssistanceContext } from '../components/panes/PracticeContext'
 import { SkillRewards } from '../components/chat/SkillRewards'
@@ -41,6 +42,7 @@ import { AnalysisContent } from '../components/panes/AnalysisContent'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
+import { PersonaSummary } from '../components/PersonaSummary'
 import { PersonaField } from '../components/PersonaField'
 import { TopicField } from '../components/TopicField'
 import { ChatHistory } from '../components/ChatHistory'
@@ -70,7 +72,7 @@ function emptyAssistant(reply: string): GuidedTurnResult {
     user_tokens: [],
     user_translation: null,
     mechanics: [],
-    scaffolds: { replies: [], frames: [], starters: [] },
+    scaffolds: { replies: [], frames: [], starters: [], coach_help: null },
     errors: [],
   }
 }
@@ -114,6 +116,8 @@ export default function GuidedPage({
   const autoSpeak = settings?.auto_speak ?? false
   const [panelTab, setPanelTab] = useState<'lesson' | 'analysis'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
+  const [helpOpen, setHelpOpen] = useState(false)
+  const adviceRefreshPending = useRef(false)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const [observationStatus, setObservationStatus] = useState('May lag behind the latest lesson choices.')
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
@@ -255,7 +259,7 @@ export default function GuidedPage({
   useEffect(() => {
     const el = streamRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [turns])
+  }, [turns, helpOpen])
 
   const isMobile = useIsMobile()
   const [analysisOpen, setAnalysisOpen] = useState(false)
@@ -632,14 +636,31 @@ export default function GuidedPage({
           {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
           <div className="scaffold-block chat-settings-block">
             <div className="chat-section-heading">
-              <button type="button" className="chat-panel-toggle" onClick={setupPanel.toggle}
-                aria-expanded={setupPanel.open} aria-controls="chat-settings" title={setupPanel.open ? 'Hide chat settings' : 'Show chat settings'}>
-                {setupPanel.open ? '▾' : '▸'} Settings &amp; voice
+              <button type="button" className="composer-summary-toggle" onClick={setupPanel.toggle}
+                aria-label="Settings & voice" aria-expanded={setupPanel.open} aria-controls="chat-settings" title={setupPanel.open ? 'Hide chat settings' : 'Show chat settings'}>
+                <span className="composer-disclosure" aria-hidden="true">▸</span>
+              <span className="composer-summary" aria-label="Current conversation settings">
+                <span className="summary-context" title={`${targetLanguageName} · ${STEER_LEVELS.find(l => l.value === steer.level)?.label ?? steer.level}${steer.topic ? ` · ${steer.topic}` : ''}`}>
+                  {STEER_LEVELS.find(l => l.value === steer.level)?.label ?? steer.level} · {targetLanguageName}<PersonaSummary chatId={currentChatId} />{steer.topic ? ` · ${steer.topic}` : ''}
+                </span>
+                <span className="summary-options">
+                  {([
+                    ['auto_speak', 'Read aloud'],
+                    ['auto_send', 'Auto-send'],
+                    ['auto_translate', 'Translation'],
+                    ...(showRomanization ? [['always_romanize', 'Romanization']] : []),
+                  ] as ['auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize', string][]).map(([key, label]) => (
+                    <span key={key} className={settings?.[key] ? 'is-on' : ''} title={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`} aria-label={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`}>
+                      <span aria-hidden="true">{label}</span> <span aria-hidden="true">{settings ? settings[key] ? '✓' : '–' : '…'}</span>
+                    </span>
+                  ))}
+                  <span title="Voice playback speed" aria-label={`Voice playback speed: ${settings?.tts_rate ?? 1} times`}>Speed {settings?.tts_rate ?? 1}×</span>
+                </span>
+              </span>
               </button>
-              {!setupPanel.open && <span className="chat-panel-summary">
-                {STEER_LEVELS.find((l) => l.value === steer.level)?.label ?? steer.level}
-                {steer.topic ? ` · ${steer.topic}` : ' · any topic'}
-              </span>}
+              <button type="button" className="coach-help-toggle" aria-expanded={helpOpen} aria-controls="composer-help-content" onClick={() => setHelpOpen(open => !open)}>
+                <span className="composer-disclosure" aria-hidden="true">▸</span> Coach
+              </button>
             </div>
             {setupPanel.open && <div id="chat-settings" className="scaffold-groups">
                 <fieldset className="conversation-controls" disabled={sending}>
@@ -671,9 +692,6 @@ export default function GuidedPage({
                     🎲
                   </button>
                 </div>
-                {/* Changing who you are talking to starts a fresh conversation:
-                    the person you were mid-sentence with cannot turn into
-                    somebody else. The old chat is archived, not lost. */}
                 {(currentChatId || openingFailed) && <PersonaField
                   chatId={currentChatId}
                   onChange={(id) => {
@@ -689,10 +707,10 @@ export default function GuidedPage({
                   {(
                     [
                       ['auto_speak', 'Read aloud', 'Speak each reply automatically'],
-                      ['auto_send', 'Auto-send voice', 'Send speech transcriptions immediately'],
-                      ['auto_translate', 'Show translation', 'Always show the translation under each reply'],
+                      ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
+                      ['auto_translate', 'Translation', 'Always show the translation under each reply'],
                       ...(showRomanization
-                        ? ([['always_romanize', 'Show romanization', 'Always show romanization under each word']] as const)
+                        ? ([['always_romanize', 'Romanization', 'Always show romanization under each word']] as const)
                         : []),
                     ] as [
                       'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize',
@@ -743,6 +761,43 @@ export default function GuidedPage({
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
+          {helpOpen && <ComposerHelp
+            key={`${currentChatId}:${turns.at(-1)?.id}`}
+            onRefresh={async () => {
+              if (adviceRefreshPending.current) throw new Error('Advice is already refreshing.')
+              adviceRefreshPending.current = true
+              try {
+                const turn = turnsRef.current.at(-1)
+                const previousAdvice = turn?.assistant?.scaffolds.coach_help
+                const chat = chatIdRef.current
+                const capturedSettings = settingsRef.current
+                if (!turn || !previousAdvice || !chat || !capturedSettings) throw new Error('No advice is available to refresh.')
+                const refreshed = await invoke<Scaffolds>('generate_scaffolds', { req: {
+                  chat_id: chat.id, history: chatHistory(turnsRef.current, REPLY_HISTORY_MESSAGES),
+                  level: steer.level, topic: steer.topic, dialect: capturedSettings.target_dialect,
+                  previous_advice: previousAdvice,
+                } })
+                if (chatIdRef.current !== chat || settingsRef.current !== capturedSettings || turnsRef.current.at(-1) !== turn) return
+                const next = turnsRef.current.map(item => item.id === turn.id && item.assistant ? { ...item, assistant: { ...item.assistant, scaffolds: refreshed } } : item)
+                turnsRef.current = next
+                setTurns(next)
+                scaffolds.setFresh(refreshed)
+                await flush()
+              } catch (error) {
+                reportFault('Refreshing coach advice', error)
+                throw error
+              } finally { adviceRefreshPending.current = false }
+            }}
+            busy={sending}
+            help={turns.at(-1)?.assistant?.scaffolds.coach_help ?? null}
+            pending={sending || turns.at(-1)?.analysisState === 'pending'}
+            errors={turns.at(-1)?.assistant?.errors ?? []}
+            onUse={(text, source) => {
+              inputEvidence.current = { ...inputEvidence.current, [source]: true }
+              setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
+              setHelpOpen(false)
+              composer.current?.querySelector<HTMLInputElement>('.field')?.focus()
+            }} />}
           <form
             className="crow"
             onSubmit={(e) => {
@@ -801,7 +856,7 @@ export default function GuidedPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? "mobile-conversation" : ""}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
     >
       <ChatHistory
         open={historyOpen}

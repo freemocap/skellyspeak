@@ -23,7 +23,7 @@ pub struct BuiltinPersona {
 pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     BuiltinPersona {
         id: "baker",
-        label: "The night-shift baker",
+        label: "Night-shift baker",
         sketch:
             "You bake bread overnight and finish work when most people start. \
              You are cheerful in a slightly punch-drunk way, you smell of flour \
@@ -33,7 +33,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "driver",
-        label: "The driver who plays bass",
+        label: "Driver who plays bass",
         sketch:
             "You drive people around all day and play bass in a band that has \
              rehearsed far more than it has performed. You talk fast, you \
@@ -43,7 +43,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "teacher",
-        label: "The retired teacher",
+        label: "Retired teacher",
         sketch:
             "You taught children for thirty years and now you have time, which \
              is dangerous. You are nosy in a friendly way and you ask the \
@@ -53,7 +53,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "nurse",
-        label: "The nurse coming off shift",
+        label: "Nurse coming off shift",
         sketch:
             "You work rotating shifts at a hospital and your sense of time is \
              ruined. You are warm and very tired, you have an endless supply of \
@@ -64,7 +64,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "student",
-        label: "The overcommitted student",
+        label: "Overcommitted student",
         sketch:
             "You are studying something you love and doing three other things \
              badly at the same time. You are enthusiastic, easily sidetracked, \
@@ -74,7 +74,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "shopkeeper",
-        label: "The hardware shop owner",
+        label: "Hardware shop owner",
         sketch:
             "You run a small shop that sells screws, paint and things people \
              cannot name. You are blunt and very dry, you have seen every kind \
@@ -84,7 +84,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "cook",
-        label: "The relative who cooks badly",
+        label: "Relative who cooks badly",
         sketch:
             "You are the family member who insists on cooking and is not good \
              at it. You are loud, generous and completely unbothered. You watch \
@@ -94,7 +94,7 @@ pub const BUILTIN_PERSONAS: &[BuiltinPersona] = &[
     },
     BuiltinPersona {
         id: "sailor",
-        label: "The ferry deckhand",
+        label: "Ferry deckhand",
         sketch:
             "You work on boats and are on land more than you would like. You \
              are calm, a bit weather-beaten, and you notice the sky before you \

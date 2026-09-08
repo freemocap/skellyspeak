@@ -23,7 +23,7 @@ use crate::trace::{self, RunContext};
 use crate::AppState;
 
 pub use types::{
-    emit, ChatTurn, GuidedEvent, GuidedToken, GuidedTurnResult, LearnerTokensOut, Mechanic,
+    emit, ChatTurn, CoachHelp, GuidedEvent, GuidedToken, GuidedTurnResult, LearnerTokensOut, Mechanic,
     MechanicsOut, Scaffolds, ScaffoldsOut, TokensOut, TranslationOut,
 };
 pub(super) use types::sanitize_reply;

@@ -76,7 +76,7 @@ Level, topic and persona changes remain in the chat’s collapsible setup contro
 not claim to have changed those selectors. Corrections to inferred memory are
 stored as explicit preferences with higher priority; both sources stay visible.
 
-The coach conversation starts as a compact dock with its message box visible. Drag its top border to resize it, or use the heading toggle to collapse the thread while keeping the composer available. Its height and collapsed state persist on this device across reloads. The divider also supports the Up/Down arrow keys and Enter.
+The **Coach** button shares the settings row above the input. It opens preloaded advice for the latest partner message: translation, a brief explanation, and two suggested replies with their meanings. Non-Latin phrases include romanization; each phrase has expandable approximate phonetic pronunciation. Selecting a reply adds only its target-language text to the draft without sending. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
 
 ## Lesson presentation and future progression
 
@@ -90,3 +90,5 @@ Topic explanations are generated guidance, not evidence that a learner has
 acquired a skill or made a particular error. Grades do not currently award XP.
 The [skill progression proposal](./skill-progression-design) describes a shared
 capability map and auditable evidence as future work.
+
+The Coach tray’s refresh button requests different advice using the previous advice and recent conversation as context. Existing advice stays visible while loading; a successful refresh replaces and saves it. Opening the tray still makes no request.

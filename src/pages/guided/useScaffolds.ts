@@ -5,7 +5,7 @@ import type { Scaffolds } from '../../types'
 /// through a dropdown is one regeneration rather than one per option.
 const STEER_SETTLE_MS = 300
 
-const EMPTY: Scaffolds = { replies: [], frames: [], starters: [] }
+const EMPTY: Scaffolds = { replies: [], frames: [], starters: [], coach_help: null }
 
 interface Options {
   /// Whether settings have loaded. The first steer settle must not fire before

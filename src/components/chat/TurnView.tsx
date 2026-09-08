@@ -330,7 +330,7 @@ export const TurnView = memo(function TurnView({
           {userEntries.length > 0
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
             : plainEvidence}
-          {assistant?.user_translation && <><button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!showUserTranslation) }}>文/A</button>{showUserTranslation && <div className="trans">{assistant.user_translation}</div>}</>}
+          {assistant?.user_translation && <><button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!showUserTranslation) }}>Translate</button>{showUserTranslation && <div className="trans">{assistant.user_translation}</div>}</>}
           {onEditUser && (
             <button
               type="button"
@@ -368,11 +368,11 @@ export const TurnView = memo(function TurnView({
           )}
           {/* Auto-translate shows the reply's translation without a tap; the
               per-sentence tap still works on top of it. */}
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation ?? autoTranslate} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation ?? autoTranslate)) }}>文/A</button>}
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation ?? autoTranslate} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation ?? autoTranslate)) }}>Translate</button>}
+          <button type="button" className="message-translate" onClick={bubbleTap}>Analysis</button>
           {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
             <div className="trans">{assistant.translation}</div>
           )}
-          <button type="button" className="message-translate" onClick={bubbleTap}>Analysis</button>
           {ttsReady && (
             <button
               type="button"

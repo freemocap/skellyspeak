@@ -132,7 +132,7 @@ Lesson editing uses a viewport-constrained modal with debounced, serialized revi
 
 Topic and level changes issue a synthetic steering turn, explicitly identified as a preference change rather than learner speech. The new reply’s analysis supplies suggestions; no parallel scaffold regeneration uses the old history. Existing chat history is preserved.
 
-The coach dock’s height and collapsed state are presentation preferences stored in device localStorage under `skellyspeak_coach_layout`. They do not affect lesson choices or conversation context.
+The private coach remains in the lesson panel; its dock height and collapsed state are stored under `skellyspeak_coach_layout`. The separate composer Coach tray displays `Scaffolds.coach_help` from the existing background suggestion operation. `ScaffoldsOut` requires a brief explanation and annotated partner/reply phrases; validation checks that suggested text matches the insertable replies and that translations and pronunciation are populated. The guided pass also checks the exact partner text. Section events hydrate this data before the complete analysis finishes, and it is persisted with the turn. A null help value means no advice was generated for that saved message; opening the tray does not generate it. Tray visibility is transient UI state.
 
 AI activity is loaded through one panel-owned snapshot/event subscription with run-ID deduplication. The graph and call strip share the selected execution scope; node inspection shows response previews and expandable raw run details. Whole-session graph mode is explicitly distinguished from a single interaction. Captured trace context includes saved-chat/message IDs alongside execution-turn IDs. AI render failures are contained within the panel.
 
@@ -279,3 +279,5 @@ Skill snapshot event bursts coalesce while a read is active and always request a
 ### XP presentation lifecycle
 
 The React reward presentation controller owns opening, hovering, and departing cards. Selections store message/credit identities and resolve evidence against the current snapshot; removed evidence closes the card. Web Animations moves the card from its captured phrase position to the conversation header area and then to a currently visible domain anchor. A compact indicator represents an offscreen map destination. Route, chat, and target changes clear presentations. This transient state does not write credits, alter scoring, or issue model requests.
+
+Explicit advice refresh uses `generate_scaffolds` with required `previous_advice`. The previous advice is supplied as an assistant message followed by the learner’s request for different advice. Validation rejects repeated reply text and a changed partner message. The UI guards duplicate refreshes and discards results after the active turn, chat, or settings change; accepted results replace the turn scaffolds and are saved through the conversation queue.

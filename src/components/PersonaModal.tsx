@@ -5,6 +5,7 @@ import {
   type Persona,
   type ConversationPartner,
 } from '../lib/tauri'
+import { personaLabel } from '../lib/personaLabel'
 import { openOverlay } from '../lib/back'
 import { reportFault } from '../lib/faults'
 
@@ -16,6 +17,7 @@ const MIN_SKETCH = 60
 const MAX_SKETCH = 1200
 
 interface PersonaModalProps {
+  startCreating: boolean
   partner: ConversationPartner
   personas: Persona[]
   /// Which one the picker currently has selected. `surprise` opens the editor
@@ -40,6 +42,7 @@ const BLANK = {
 /// for concrete character details, and the core refuses descriptions too short
 /// to establish a distinct person.
 export function PersonaModal({
+  startCreating,
   partner,
   personas,
   selectedId,
@@ -53,7 +56,7 @@ export function PersonaModal({
     () => personas.find((p) => p.id === selectedId)?.id ?? personas[0]?.id ?? ''
   )
   const [draft, setDraft] = useState(BLANK)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(startCreating)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -79,7 +82,7 @@ export function PersonaModal({
   /// Built-ins cannot be edited, so the way to "change" one is to fork it. The
   /// copy arrives in the editor unsaved, with a name that says what it is.
   function duplicate(p: Persona) {
-    setDraft({ id: '', label: `${p.label} (mine)`, sketch: p.sketch })
+    setDraft({ id: '', label: `${personaLabel(p)} (mine)`, sketch: p.sketch })
     setEditing(true)
     setError(null)
   }
@@ -140,7 +143,7 @@ export function PersonaModal({
         </p>
 
         <details className="saved-partner" open>
-          <summary>This chat: {partner.persona.label}</summary>
+          <summary>This chat: {personaLabel(partner.persona)}</summary>
           <p>{partner.origin === 'recovered_history'
             ? 'Recovered from the earliest saved reply. The original template is unknown.'
             : 'Saved character snapshot · fixed for this conversation.'}</p>
@@ -160,7 +163,7 @@ export function PersonaModal({
                 className={`persona-item ${p.id === viewingId && !editing ? 'on' : ''}`}
                 onClick={() => show(p)}
               >
-                <span className="persona-item-label">{p.label}</span>
+                <span className="persona-item-label">{personaLabel(p)}</span>
                 {!p.builtin && <span className="persona-item-tag">yours</span>}
               </button>
             ))}

@@ -11,7 +11,7 @@ import { skillDemo } from '../../lib/skillDemo'
 
 function Board() {
   const [selected, select] = useState<string | null>(null)
-  return <SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected, select }}><DraftAssistanceContext value={{ useExample: () => {}, suggestions: { replies: [], frames: [], starters: [] }, suggestionsError: null }}><ConversationMap /><SkillPracticeBoard snapshot={skillDemo} chatId="chat" level="zero" busy={false} /></DraftAssistanceContext></PracticeContext></SkillEvidenceContext>
+  return <SkillEvidenceContext value={{ snapshot: skillDemo, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected, select }}><DraftAssistanceContext value={{ useExample: () => {}, suggestions: { replies: [], frames: [], starters: [], coach_help: null }, suggestionsError: null }}><ConversationMap /><SkillPracticeBoard snapshot={skillDemo} chatId="chat" level="zero" busy={false} /></DraftAssistanceContext></PracticeContext></SkillEvidenceContext>
 }
 
 beforeEach(() => localStorage.clear())
