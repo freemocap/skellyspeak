@@ -23,3 +23,17 @@ it('coalesces event bursts into one trailing refresh and masks prior scope data'
   view.rerender({ version: 1 })
   expect(view.result.current.snapshot).toBeNull()
 })
+
+it('ignores a late snapshot from the language that was left', async () => {
+  vi.resetAllMocks()
+  backend.subscribe.mockResolvedValue(() => {})
+  let finishOld: (value: SkillSnapshot) => void = () => { throw new Error('Request not started') }
+  const arabic = { ...skillDemo, target: 'ar' }
+  backend.get.mockImplementationOnce(() => new Promise<SkillSnapshot>(resolve => { finishOld = resolve })).mockResolvedValueOnce(arabic)
+  const view = renderHook(({ version }) => useSkillEvidence(true, version), { initialProps: { version: 0 } })
+  await waitFor(() => expect(backend.get).toHaveBeenCalledTimes(1))
+  view.rerender({ version: 1 })
+  await waitFor(() => expect(view.result.current.snapshot?.target).toBe('ar'))
+  await act(async () => { finishOld(skillDemo) })
+  expect(view.result.current.snapshot?.target).toBe('ar')
+})

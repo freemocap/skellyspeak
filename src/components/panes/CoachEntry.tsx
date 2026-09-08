@@ -47,9 +47,10 @@ export function CoachEntry({
         <>
           <div className="coach-card">
             <div className="coach-scores">
-              <ScoreMeter label="Understood" value={turn.coach.comprehensibility} />
               <ScoreMeter label="Grammar" value={turn.coach.grammar} />
+              {turn.coach.conversation !== undefined && <ScoreMeter label="Conversation" value={turn.coach.conversation} />}
             </div>
+            {turn.coach.conversation === undefined && <p className="lesson-meta">Historical feedback: conversational fit was not assessed.</p>}
             <div className="coach-remark">
               <Markdown text={turn.coach.remark} onTerm={onTerm} />
             </div>

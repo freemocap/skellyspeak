@@ -49,10 +49,7 @@ pub async fn validate_key(
         "groq" => format!("{}/models", settings::GROQ_BASE_URL),
         other => return Err(format!("unknown provider: {other}")),
     };
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(15))
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::network::client(15)?;
     let response = client
         .get(url)
         .bearer_auth(&key)

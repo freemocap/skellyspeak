@@ -1,7 +1,7 @@
 //! Speech to text. One provider and model, named here so a switch is one edit.
 
 use base64::Engine;
-use log::{error, info, warn};
+use log::{info, warn};
 use tauri::{State};
 use crate::languages::{iso639};
 use crate::AppState;
@@ -80,10 +80,7 @@ pub async fn transcribe_audio(
         .text("prompt", prompt.unwrap_or_default())
         .part("file", file_part);
 
-    let client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(60))
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::network::client(60)?;
     let response = client
         .post(&endpoint.url)
         .bearer_auth(&endpoint.api_key)
@@ -93,22 +90,16 @@ pub async fn transcribe_audio(
         .map_err(|e| format!("transcription request failed: {e}"))?;
 
     let status = response.status();
+    if !status.is_success() { return Err(crate::network::provider_error(status)); }
     let body: serde_json::Value = response
         .json()
         .await
         .map_err(|e| format!("invalid transcription response: {e}"))?;
-    if !status.is_success() {
-        error!("[cmd] transcription API error {status}: {}", body);
-        return Err(format!(
-            "transcription API error {status}: {}",
-            body
-        ));
-    }
     let text = body["text"].as_str().unwrap_or_default().trim().to_string();
     info!(
-        "[cmd] transcribe_audio done in {:.1}s: {:?}",
+        "[cmd] transcribe_audio done in {:.1}s: {} characters",
         started.elapsed().as_secs_f32(),
-        text
+        text.chars().count()
     );
     Ok(text)
 }

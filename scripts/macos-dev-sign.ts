@@ -9,7 +9,7 @@ function run(command: string, args: string[]): void {
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`${command} failed with status ${result.status}`)
 }
-const bundle = resolve('src-tauri/target/debug/bundle/macos/SkellySpeak.app')
-run('codesign', ['--force', '--sign', identity, '--identifier', 'com.freemocap.skellyspeak', bundle])
+const bundle = resolve('src-tauri/target/debug/bundle/macos/SkellySpeak Dev.app')
+run('codesign', ['--force', '--sign', identity, '--identifier', 'com.freemocap.skellyspeak.dev', bundle])
 run('codesign', ['--verify', '--strict', '--verbose=2', bundle])
 run('codesign', ['--display', '--requirements', '-', bundle])

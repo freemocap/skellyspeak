@@ -13,7 +13,7 @@ it('shows all quotes once with one stored credit, including repeated-phrase ambi
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
   const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'Ese café', ambiguous: true, rationale: 'Ese identifies a particular coffee.', start: 0, end: 8, color: domainColors('reference').ink, explanation: '' }
   const close = vi.fn()
-  render(<SkillNavigationProvider><RewardDetail interactive={true} evidence={[item, { ...item, start: 10, end: 18 }, { ...item, quote: 'aquel té', ambiguous: false }]} onClose={close} /></SkillNavigationProvider>)
+  render(<SkillNavigationProvider><RewardDetail automatic={false} interactive={true} evidence={[item, { ...item, start: 10, end: 18 }, { ...item, quote: 'aquel té', ambiguous: false }]} onClose={close} /></SkillNavigationProvider>)
   expect(screen.getAllByText('Ese café')).toHaveLength(1)
   expect(screen.getByText('aquel té')).toBeVisible()
   expect(screen.getAllByText('10 XP')).toHaveLength(1)

@@ -17,22 +17,18 @@ export const isTauri =
   typeof window !== 'undefined' &&
   ('__TAURI_INTERNALS__' in window || '__TAURI__' in window)
 
-function summarize(args?: Record<string, unknown>): string {
-  return args ? Object.keys(args).join(', ') : ''
-}
-
 export async function invoke<T>(
   cmd: string,
   args?: Record<string, unknown>
 ): Promise<T> {
   const started = performance.now()
-  logDebug(`[ipc] ${cmd} →`, summarize(args))
+  logDebug(`[ipc] ${cmd} →`)
   try {
     const result = await nativeInvoke<T>(cmd, args)
     logDebug(`[ipc] ${cmd} ✓ ${(performance.now() - started).toFixed(0)}ms`)
     return result
   } catch (e) {
-    logError(`[ipc] ${cmd} ✗ ${(performance.now() - started).toFixed(0)}ms:`, e)
+    logError(`[ipc] ${cmd} ✗ ${(performance.now() - started).toFixed(0)}ms`)
     throw e
   }
 }

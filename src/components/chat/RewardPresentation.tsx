@@ -51,12 +51,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
     }
     setCards(previous => previous.map(card => card.key === key ? { ...card, phase: 'departing' } : card))
   }, [])
-  const open = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => {
-    const ids = new Set(evidence.map(item => item.id))
-    const existing = current.current.cards.find(card => card.messageId === messageId && card.source === source && card.ids.length === ids.size && card.ids.every(id => ids.has(id)))
-    if (existing) { dismiss(existing.key); return }
-    present(evidence, messageId, source, false)
-  }, [dismiss, present])
+  const open = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, false), [present])
   const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
   const settled = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'opening' ? { ...card, phase: 'hovering' } : card)), [])
   const remove = useCallback((key: number) => setCards(previous => previous.filter(card => card.key !== key)), [])

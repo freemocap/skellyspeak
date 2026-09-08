@@ -1,7 +1,8 @@
+import { logError } from './log'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults } from './faults'
 
-vi.mock('./log', () => ({ logError: () => {} }))
+vi.mock('./log', () => ({ logError: vi.fn() }))
 
 describe('the fault bus', () => {
   beforeEach(() => dismissAllFaults())
@@ -40,4 +41,10 @@ describe('the fault bus', () => {
     stop()
     expect(latest.map((f) => f.message)).toEqual(['b'])
   })
+})
+
+it('keeps private errors in the UI without duplicating them in operational logs', () => {
+  vi.mocked(logError).mockClear()
+  reportFault('PRIVATE_CONTEXT', new Error('PRIVATE_TRANSCRIPT'))
+  expect(logError).toHaveBeenCalledExactlyOnceWith('[fault] reported to UI')
 })

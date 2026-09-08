@@ -3,6 +3,9 @@ import App from './App'
 import DevWindow from './DevWindow'
 import { isTauri, loadLanguages } from './lib/tauri'
 import './styles.css'
+import { installNativePlaybackLifecycle, installPlaybackLifecycle } from './lib/playback-lifecycle'
+
+const playbackLifecycle = installPlaybackLifecycle()
 
 // The popped-out observability window runs the same bundle as the main one
 // and is told apart by its WINDOW LABEL (set by the Rust dev command). Routing on the
@@ -27,7 +30,8 @@ function mount(dev: boolean) {
 // The language registry comes from Rust and every picker needs it
 // synchronously, so it is fetched before the first render. Outside Tauri
 // there is no backend at all — App renders its "run via tauri dev" notice.
-void isDevWindow().then((dev) => {
+void isDevWindow().then(async (dev) => {
+  if (isTauri) await installNativePlaybackLifecycle(playbackLifecycle)
   // The dev window renders the panel alone and needs no language registry.
   if (isTauri && !dev) {
     void loadLanguages().then(() => mount(false))

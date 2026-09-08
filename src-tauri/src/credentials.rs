@@ -40,6 +40,17 @@ pub struct Secrets {
     pub hosted_token: String,
 }
 
+impl From<&crate::settings::Settings> for Secrets {
+    fn from(settings: &crate::settings::Settings) -> Self {
+        Self {
+            openrouter_key: settings.openrouter_key.clone(),
+            groq_key: settings.groq_key.clone(),
+            custom_api_key: settings.custom_api_key.clone(),
+            hosted_token: settings.hosted_token.clone(),
+        }
+    }
+}
+
 pub fn initialize() -> Result<(), String> {
     #[cfg(target_os = "windows")]
     use windows_native_keyring_store::Store;
@@ -61,7 +72,8 @@ fn entry(dir: &Path) -> Result<Entry, String> {
     let path = dir.canonicalize().map_err(|e| format!("Credential directory is inaccessible: {e}"))?;
     let user: String = Sha256::digest(path.to_string_lossy().as_bytes())
         .iter().map(|byte| format!("{byte:02x}")).collect();
-    Entry::new("com.freemocap.skellyspeak", &user)
+    let service = if cfg!(all(desktop, debug_assertions)) { "com.freemocap.skellyspeak.dev" } else { "com.freemocap.skellyspeak" };
+    Entry::new(service, &user)
         .map_err(|e| format!("Could not open application credentials: {e}"))
 }
 
@@ -107,9 +119,27 @@ mod tests {
         assert!(!public.contains("openrouter_key"));
         assert_eq!(crate::settings::load_or_create(dir.path()).settings.openrouter_key, settings.openrouter_key);
 
+        let previous = Secrets::from(&loaded.settings);
+        let vault = entry(dir.path()).unwrap();
+        let mock: &keyring_core::mock::Cred = vault.as_any().downcast_ref().unwrap();
+        mock.set_error(Error::Invalid("vault locked".into(), "authorization required".into()));
+        let mut preferences = loaded.settings.clone();
+        preferences.tts_rate = 1.25;
+        crate::settings::persist(dir.path(), &preferences, &previous).unwrap();
+        // The injected failure remains pending because a preference save never touches the vault.
+        assert!(vault.get_password().is_err());
+        let public = std::fs::read_to_string(&settings_path).unwrap();
+        assert!(public.contains("1.25"));
+        assert!(!public.contains("test-secret"));
+
+        mock.set_error(Error::Invalid("vault locked".into(), "authorization required".into()));
+        assert!(crate::settings::persist(dir.path(), &crate::settings::Settings::default(), &previous).is_err());
+        assert_eq!(std::fs::read_to_string(&settings_path).unwrap(), public);
+        assert_eq!(read(dir.path()).unwrap().unwrap().openrouter_key, settings.openrouter_key);
+
         std::fs::remove_file(&settings_path).unwrap();
         std::fs::create_dir(&settings_path).unwrap();
-        assert!(crate::settings::persist(dir.path(), &crate::settings::Settings::default()).is_err());
+        assert!(crate::settings::persist(dir.path(), &crate::settings::Settings::default(), &previous).is_err());
         assert_eq!(read(dir.path()).unwrap().unwrap().openrouter_key, settings.openrouter_key);
     }
 }

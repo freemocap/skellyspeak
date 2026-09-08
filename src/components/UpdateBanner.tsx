@@ -68,7 +68,7 @@ export function UpdateBanner() {
               type="button"
               className="btn primary tiny"
               onClick={() =>
-                void update.open().catch((e) => reportFault('Opening the release page', e))
+                void update.open().catch((e) => reportFault('Opening the download page', e))
               }
             >
               Get {update.version}

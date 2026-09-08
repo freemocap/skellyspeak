@@ -15,7 +15,10 @@ export function FactoryReset() {
   }
   return <>
     <button type="button" className="btn danger" onClick={() => { setConfirmation(''); setError(null); dialog.current!.showModal() }}>Clear all data…</button>
-    <dialog ref={dialog} className="factory-reset-dialog" aria-labelledby="factory-reset-title" onCancel={(event) => { if (busy) event.preventDefault() }}>
+    <dialog ref={dialog} className="factory-reset-dialog" aria-labelledby="factory-reset-title" onClick={event => {
+      const rect = event.currentTarget.getBoundingClientRect()
+      if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) event.currentTarget.close()
+    }}>
       <h2 id="factory-reset-title">Erase all local data?</h2>
       <p>This permanently removes all conversations, lesson plans, coach memory, skill evidence and progress, settings, saved API keys, sign-in credentials, logs, and layout preferences on this device.</p>
       <p><strong>This cannot be undone.</strong> Your cloud account, billing and usage records, and files exported outside the app’s storage are not deleted.</p>

@@ -42,6 +42,12 @@ pub struct Step {
 /// this table gets caught by reconciliation.
 pub const TURN_STEPS: &[Step] = &[
     Step {
+        op: op::REACTION,
+        needs: &[Input::LearnerMessage, Input::Reply],
+        hydrates: true, joins: false, background: true,
+        condition: Some("learner messages only; partner self-report after its reply"),
+    },
+    Step {
         op: op::REPLY,
         needs: &[Input::LearnerMessage],
         hydrates: true, // streamed, token by token

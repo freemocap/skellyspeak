@@ -1,4 +1,5 @@
-/// Desktop installs signed updates; Android links to releases.
+const DOWNLOAD_URL = 'https://docs.freemocap.org/skellyspeak/download'
+/// Desktop installs signed updates; Android links to the download page.
 /// iOS updates are delivered by TestFlight or the App Store.
 
 import { invoke, isTauri } from './tauri'
@@ -17,7 +18,7 @@ export interface InstallableUpdate extends Common {
   install: (onProgress?: (downloaded: number, total: number | null) => void) => Promise<void>
 }
 
-/// Mobile: open the release so the user can install it.
+/// Mobile: open the docs download page so the user can install it.
 export interface DownloadableUpdate extends Common {
   kind: 'download'
   url: string
@@ -26,12 +27,12 @@ export interface DownloadableUpdate extends Common {
 
 export type UpdateOffer = InstallableUpdate | DownloadableUpdate
 
-export type UpdateChannel = 'install' | 'download' | 'app-store'
+export type UpdateChannel = 'install' | 'download' | 'app-store' | 'development'
 
 export async function getUpdateChannel(): Promise<UpdateChannel> {
   if (!isTauri) throw new Error('Update checks need the desktop or mobile app.')
   const channel = await invoke<string>('get_update_channel')
-  if (channel !== 'install' && channel !== 'download' && channel !== 'app-store') {
+  if (channel !== 'install' && channel !== 'download' && channel !== 'app-store' && channel !== 'development') {
     throw new Error(`Unknown update channel: ${channel}`)
   }
   return channel
@@ -48,7 +49,7 @@ interface LatestRelease {
 /// that looks current because it never managed to ask is the worst outcome.
 export async function checkForUpdate(): Promise<UpdateOffer | null> {
   const channel = await getUpdateChannel()
-  if (channel === 'app-store') return null
+  if (channel === 'app-store' || channel === 'development') return null
   return channel === 'install' ? checkDesktop() : checkMobile()
 }
 
@@ -96,10 +97,10 @@ async function checkMobile(): Promise<DownloadableUpdate | null> {
     version: latest.version,
     currentVersion,
     notes: latest.notes,
-    url: latest.url,
+    url: DOWNLOAD_URL,
     open: async () => {
       const { openUrl } = await import('@tauri-apps/plugin-opener')
-      await openUrl(latest.url)
+      await openUrl(DOWNLOAD_URL)
     },
   }
 }

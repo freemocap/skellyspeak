@@ -74,6 +74,10 @@ impl Default for Shortcuts {
     }
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RewardSounds { Yes, No, #[default] FollowTts }
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
     /// One of PROVIDER_HOSTED, PROVIDER_CLOUD or PROVIDER_CUSTOM.
@@ -136,6 +140,15 @@ pub struct Settings {
     /// instead of only on a punctuation tap.
     #[serde(default)]
     pub auto_translate: bool,
+    /// Show saved approximate pronunciation in replies and coach advice.
+    #[serde(default)]
+    pub always_pronunciation: bool,
+    /// New XP cards animate through without waiting for dismissal.
+    #[serde(default = "default_fast_mode")]
+    pub fast_mode: bool,
+    /// Short XP and partner reaction beeps; follow_tts follows auto_speak.
+    #[serde(default)]
+    pub reward_sounds: RewardSounds,
     /// Configurable keyboard shortcuts.
     #[serde(default)]
     pub shortcuts: Shortcuts,
@@ -187,6 +200,8 @@ fn default_native() -> String {
     "en".into()
 }
 
+fn default_fast_mode() -> bool { true }
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -208,6 +223,9 @@ impl Default for Settings {
             auto_send: false,
             always_romanize: false,
             auto_translate: false,
+            always_pronunciation: false,
+            fast_mode: true,
+            reward_sounds: RewardSounds::FollowTts,
             shortcuts: Shortcuts::default(),
             tts_engine: default_tts_engine(),
             tts_voice: default_tts_voice(),
@@ -273,6 +291,7 @@ impl Settings {
                     return Err("No server address configured. Open Settings, and under AI provider enter your server's address (for example http://localhost:11434/v1).".into());
                 }
                 let custom_model = self.custom_model.trim();
+                crate::network::validate_endpoint(url)?;
                 if custom_model.is_empty() {
                     return Err("No model configured for your server. Open Settings, and under AI provider enter the model name your server serves.".into());
                 }
@@ -383,9 +402,10 @@ pub fn load_or_create(dir: &Path) -> Loaded {
 }
 
 fn load(dir: &Path) -> Result<Settings, String> {
+    let previous = crate::credentials::read(dir)?.unwrap_or_default();
     let Some(raw) = crate::persistence::read(&settings_path(dir))? else {
         let settings = Settings { install_id: new_install_id(), ..Settings::default() };
-        persist(dir, &settings)?;
+        persist(dir, &settings, &previous)?;
         return Ok(settings);
     };
     let mut settings: Settings = serde_json::from_str(&raw)
@@ -393,35 +413,30 @@ fn load(dir: &Path) -> Result<Settings, String> {
     let inline_credentials = !settings.openrouter_key.is_empty() || !settings.groq_key.is_empty()
         || !settings.custom_api_key.is_empty() || !settings.hosted_token.is_empty();
     if !inline_credentials {
-        if let Some(secrets) = crate::credentials::read(dir)? {
-            settings.openrouter_key = secrets.openrouter_key;
-            settings.groq_key = secrets.groq_key;
-            settings.custom_api_key = secrets.custom_api_key;
-            settings.hosted_token = secrets.hosted_token;
-        }
+        settings.openrouter_key = previous.openrouter_key.clone();
+        settings.groq_key = previous.groq_key.clone();
+        settings.custom_api_key = previous.custom_api_key.clone();
+        settings.hosted_token = previous.hosted_token.clone();
     }
     let missing_id = settings.install_id.is_empty();
     if missing_id { settings.install_id = new_install_id(); }
-    if inline_credentials || missing_id { persist(dir, &settings)?; }
+    if inline_credentials || missing_id { persist(dir, &settings, &previous)?; }
     Ok(settings)
 }
 
-/// Store credentials in the platform vault and atomically replace public preferences.
-pub fn persist(dir: &Path, settings: &Settings) -> Result<(), String> {
-    let previous = crate::credentials::read(dir)?.unwrap_or_default();
-    let secrets = crate::credentials::Secrets {
-        openrouter_key: settings.openrouter_key.clone(), groq_key: settings.groq_key.clone(),
-        custom_api_key: settings.custom_api_key.clone(), hosted_token: settings.hosted_token.clone(),
-    };
+/// Compare against Rust-owned credentials; ordinary preference saves never access the vault.
+/// Callers serialize changes and update their in-memory settings only after persistence succeeds.
+pub fn persist(dir: &Path, settings: &Settings, previous: &crate::credentials::Secrets) -> Result<(), String> {
+    let secrets = crate::credentials::Secrets::from(settings);
     let mut public = serde_json::to_value(settings).map_err(|e| format!("settings serialization failed: {e}"))?;
     let object = public.as_object_mut().ok_or("Settings must serialize as an object")?;
     for name in ["openrouter_key", "groq_key", "custom_api_key", "hosted_token"] { object.remove(name); }
     let raw = serde_json::to_vec_pretty(&public).map_err(|e| format!("settings serialization failed: {e}"))?;
-    let credentials_changed = secrets != previous;
+    let credentials_changed = &secrets != previous;
     if credentials_changed { crate::credentials::write(dir, &secrets)?; }
     if let Err(error) = crate::persistence::write(&settings_path(dir), &raw) {
         if credentials_changed {
-            crate::credentials::write(dir, &previous)
+            crate::credentials::write(dir, previous)
                 .map_err(|rollback| format!("{error}; credential rollback also failed: {rollback}"))?;
         }
         return Err(error);
@@ -624,6 +639,34 @@ fn a_masked_round_trip_keeps_the_stored_key() {
     assert_eq!(m.groq_key, mask("gsk_0123456789abcdef"));
     // The real material is gone from the IPC copy.
     assert!(!m.openrouter_key.contains("v1-0123"));
+}
+
+#[test]
+fn fast_mode_defaults_on_and_preserves_an_explicit_off_setting() {
+    let default = Settings::default();
+    assert!(default.fast_mode);
+    let mut stored = serde_json::to_value(&default).unwrap();
+    stored.as_object_mut().unwrap().remove("fast_mode");
+    assert!(serde_json::from_value::<Settings>(stored.clone()).unwrap().fast_mode);
+    stored["fast_mode"] = serde_json::Value::Bool(false);
+    let restored: Settings = serde_json::from_value(stored).unwrap();
+    assert!(!restored.fast_mode);
+    assert!(!serde_json::from_str::<Settings>(&serde_json::to_string(&restored).unwrap()).unwrap().fast_mode);
+}
+
+#[test]
+fn reward_sound_choices_round_trip_and_default_to_follow_tts() {
+    let mut stored = serde_json::to_value(Settings::default()).unwrap();
+    stored.as_object_mut().unwrap().remove("reward_sounds");
+    let default: Settings = serde_json::from_value(stored.clone()).unwrap();
+    assert!(matches!(default.reward_sounds, RewardSounds::FollowTts));
+    for mode in ["yes", "no", "follow_tts"] {
+        stored["reward_sounds"] = serde_json::json!(mode);
+        let settings: Settings = serde_json::from_value(stored.clone()).unwrap();
+        assert_eq!(serde_json::to_value(settings).unwrap()["reward_sounds"], mode);
+    }
+    stored["reward_sounds"] = serde_json::json!("sometimes");
+    assert!(serde_json::from_value::<Settings>(stored).is_err());
 }
 
 }
