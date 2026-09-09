@@ -1,0 +1,41 @@
+# Line endings: normalize to LF in the repository, check out native.
+# Without this, core.autocrlf decides per-file by guesswork.
+* text=auto
+
+# Binary assets. `binary` means never line-ending-converted and never diffed
+# as text. App icons in particular MUST arrive byte-identical: tauri embeds
+# them at compile time and rejects a malformed PNG with "Invalid PNG
+# signature", which fails the build on every platform.
+#
+# These are deliberately NOT tracked by Git LFS. They total under 1 MB, and a
+# checkout that does not fetch LFS objects yields pointer text where the
+# image should be — which builds fine on a machine with LFS configured and
+# fails everywhere else.
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.icns   binary
+*.svg    text
+*.pdf    binary
+*.zip    binary
+*.jar    binary
+*.apk    binary
+*.aab    binary
+*.keystore binary
+*.ttf    binary
+*.otf    binary
+*.woff   binary
+*.woff2  binary
+*.wav    binary
+*.mp3    binary
+*.mp4    binary
+
+# Scripts whose line endings are load-bearing.
+*.ps1    text eol=crlf
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+gradlew  text eol=lf
+*.sh     text eol=lf
