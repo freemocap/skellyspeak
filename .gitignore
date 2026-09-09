@@ -1,72 +1,17 @@
-# --- Node / Vite ---
+# Local dependencies, generated output and private configuration.
 node_modules/
-dist/
-
-# --- Rust / Tauri ---
-src-tauri/target/
-src-tauri/gen/schemas/
-
-# Tauri regenerates these into gen/android on `tauri android init`/`dev`.
-src-tauri/gen/android/.gradle/
-src-tauri/gen/android/buildSrc/.gradle/
-src-tauri/gen/android/buildSrc/.kotlin/
-src-tauri/gen/android/app/build/
-src-tauri/gen/android/app/proguard-tauri.pro
-src-tauri/gen/android/app/tauri.build.gradle.kts
-src-tauri/gen/android/app/tauri.properties
-src-tauri/gen/android/app/src/main/assets/tauri.conf.json
-src-tauri/gen/android/app/src/main/jniLibs/
-src-tauri/gen/android/app/src/main/java/**/generated/
-src-tauri/gen/android/tauri.settings.gradle
-
-# Tauri regenerates gen/apple on `tauri ios init` — it needs Xcode, so it
-# is produced on the CI Mac and never committed from Windows (the `ios`
-# subcommand does not even exist in the Windows CLI).
-src-tauri/gen/apple/
-
-# Built APKs
-.build-artifacts/
-
-# Signing material. Never committed, anywhere in the tree — a keystore in the
-# repository is a keystore in every clone of it.
+target/
+.venv/
+__pycache__/
+.DS_Store
+.idea/
+.vscode/
+.vite/
+.env
+.env.*
+!.env.sample
 *.jks
 *.keystore
 *.p12
 *.pfx
 keystore.properties
-
-# --- Python (the hosted API in server/) ---
-# Scoped deliberately. A blanket Python template once matched `lib/` and
-# silently untracked ten TypeScript source files under src/lib — only rules
-# that name Python artefacts belong here.
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.ruff_cache/
-*.egg-info/
-
-# --- Docs site (Docusaurus) ---
-skellyspeak-docs/build/
-skellyspeak-docs/.docusaurus/
-
-# --- Secrets ---
-.env
-.env.*
-!.env.sample
-
-# --- Editors / OS ---
-.idea/
-.vscode/
-.DS_Store
-Thumbs.db
-
-# --- Agent scratch ---
-.claude/
-
-# Reference archive of earlier incarnations (SkellySubs GCP + Python-only).
-# 17 GB with node_modules — kept on disk for reference, never committed.
-old/
-
-# Server local env
-server/.env
-server/.venv/
