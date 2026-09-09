@@ -1,7 +1,8 @@
 # Data model proposal
 
-Status: proposed architecture for review. No application code, database schema or
-storage library is implemented by this document. [DESIGN.md](./DESIGN.md) supplies
+Status: approved architecture direction. The local learner/partner/conversation
+foundation is implemented; analysis and execution records remain planned. See
+[architecture.md](./architecture.md) for concrete storage authority. [DESIGN.md](./DESIGN.md) supplies
 the agreed product requirements. Field names describe logical contracts rather
 than a final serialization format.
 

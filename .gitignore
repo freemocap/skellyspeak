@@ -1,6 +1,8 @@
 # Local dependencies, generated output and private configuration.
 node_modules/
 target/
+dist/
+src-tauri/gen/
 .venv/
 __pycache__/
 .DS_Store
