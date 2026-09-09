@@ -1,6 +1,8 @@
+import { useReadingPreferences } from '../ReadingPreferences'
+import { needsSpaceBetween } from '../../lib/token-spacing'
+import { AnnotatedText, TargetText } from '../TargetText'
 import { memo } from 'react'
 import type { GuidedToken, StoredTurn } from '../../types'
-import { needsSpaceBetween } from '../../lib/token-spacing'
 
 export interface InspectTarget {
   turn: number
@@ -29,6 +31,7 @@ export const AnalysisContent = memo(function AnalysisContent({
   showRomanization,
   rtl,
 }: AnalysisContentProps) {
+  const { autoTranslate, alwaysRomanize } = useReadingPreferences()
   const a = turn.assistant
   if (!a) {
     return (
@@ -43,37 +46,16 @@ export const AnalysisContent = memo(function AnalysisContent({
       ? 'inspected'
       : ''
 
-  const tokenSentenceRomanized = (tokens: GuidedToken[]) => (
-    <p className="sentence rtl">
-      {tokens.map((tok, i) => (
-        <span key={i}>
-          <span className={tok.notable ? 'hl' : ''}>{tok.text}</span>
-          {tok.romanization && <span className="roman-inline"> {tok.romanization}</span>}
-        </span>
-      ))}
-    </p>
-  )
-
   const tokenSentence = (tokens: GuidedToken[]) => (
-    <p className={rtl ? 'sentence rtl' : 'sentence'}>
-      {tokens.map((tok, i) => {
-        const prev = i > 0 ? tokens[i - 1].text : ''
-        return (
-          <span key={i}>
-            {i > 0 && needsSpaceBetween(prev, tok.text) ? ' ' : ''}
-            <span className={tok.notable ? 'hl' : ''}>{tok.text}</span>
-          </span>
-        )
-      })}
-    </p>
+    <p className={rtl ? 'sentence rtl' : 'sentence'}><AnnotatedText text={tokens.map((token, index) => `${index > 0 && needsSpaceBetween(tokens[index - 1].text, token.text) ? ' ' : ''}${token.text}`).join('')} tokens={tokens} /></p>
   )
 
   const glossList = (tokens: GuidedToken[], side: 'me' | 'bot') => (
     <div className="gloss">
       {tokens.map((tok, i) => (
         <div key={i} className={`tok ${tok.notable ? 'key' : ''} ${highlighted(side, i)}`}>
-          <span className="sp" dir="auto">{tok.text}</span>
-          {showRomanization && tok.romanization && (
+          <span className="sp" dir="auto"><AnnotatedText text={tok.text} tokens={[tok]} /></span>
+          {alwaysRomanize && showRomanization && tok.romanization && (
             <span className="proman">{tok.romanization}</span>
           )}
           {tok.gloss && <span className="gl">{tok.gloss}</span>}
@@ -95,21 +77,19 @@ export const AnalysisContent = memo(function AnalysisContent({
         You said
       </p>
       {a.user_tokens && a.user_tokens.length > 0 ? (
-        showRomanization ? tokenSentenceRomanized(a.user_tokens) : tokenSentence(a.user_tokens)
+        tokenSentence(a.user_tokens)
       ) : turn.user ? (
-        <p className={rtl ? 'sentence rtl' : 'sentence'}>{turn.user}</p>
+        <p className={rtl ? 'sentence rtl' : 'sentence'}><TargetText text={turn.user} /></p>
       ) : null}
-      {a.user_translation && <p className="trans-d">{a.user_translation}</p>}
+      {autoTranslate && a.user_translation && <p className="trans-d">{a.user_translation}</p>}
 
       <p className="sect-k" style={{ marginBottom: 8 }}>
         Tutor replied
       </p>
       {a.tokens.length > 0
-        ? showRomanization
-          ? tokenSentenceRomanized(a.tokens)
-          : tokenSentence(a.tokens)
-        : <p className="sentence">{a.reply}</p>}
-      {a.translation && <p className="trans-d">{a.translation}</p>}
+        ? tokenSentence(a.tokens)
+        : <p className="sentence"><TargetText text={a.reply} /></p>}
+      {autoTranslate && a.translation && <p className="trans-d">{a.translation}</p>}
 
       {a.tokens.length > 0 && (
         <>
@@ -143,7 +123,7 @@ export const AnalysisContent = memo(function AnalysisContent({
                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
               </div>
               <p className="exp-body">{mech.body}</p>
-              {mech.example && <p className="exp-ex">{mech.example}</p>}
+              {mech.example && <p className="exp-ex"><TargetText text={mech.example} /></p>}
               {mech.contrast && (
                 <p className="exp-vs">
                   <span>vs {nativeLanguageName || 'your language'}</span>
