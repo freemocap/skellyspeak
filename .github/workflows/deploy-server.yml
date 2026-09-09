@@ -75,10 +75,20 @@ jobs:
           SKELLYSPEAK_FIRESTORE_TEST: '1'
         run: |
           set -euo pipefail
-          gcloud beta emulators firestore start --host-port=127.0.0.1:8787 --project=skellyspeak-ci > /tmp/firestore.log 2>&1 &
+          gcloud emulators firestore start --host-port=127.0.0.1:8787 --project=skellyspeak-ci > /tmp/firestore.log 2>&1 &
           emulator_pid=$!
-          trap 'kill "$emulator_pid"; cat /tmp/firestore.log' EXIT
+          cleanup() {
+            cat /tmp/firestore.log
+            if kill -0 "$emulator_pid" 2>/dev/null; then
+              kill "$emulator_pid"
+            fi
+          }
+          trap cleanup EXIT
           for attempt in $(seq 1 40); do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              echo "::error::Firestore emulator exited before becoming ready"
+              exit 1
+            fi
             if python -c 'import socket; socket.create_connection(("127.0.0.1", 8787), timeout=1).close()'; then
               break
             fi
