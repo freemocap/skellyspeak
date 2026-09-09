@@ -125,10 +125,16 @@ pub fn reset_settings(state: State<'_, AppState>) -> Result<Settings, String> {
 
 #[tauri::command]
 pub fn save_settings(state: State<'_, AppState>, settings: Settings) -> Result<(), String> {
+    if !(75..=150).contains(&settings.text_size) || settings.text_spacing > 12 {
+        return Err("Reading size must be 75–150% and spacing must be 0–12px".into());
+    }
     apply_settings(&state, settings, true)
 }
 
 fn apply_settings(state: &AppState, mut settings: Settings, preserve_session: bool) -> Result<(), String> {
+    if [settings.master_volume, settings.voice_volume, settings.effects_volume].iter().any(|volume| *volume > 100) {
+        return Err("Volume must be between 0 and 100%.".into());
+    }
     if !settings.tts_rate.is_finite() || !(0.5..=1.5).contains(&settings.tts_rate) {
         return Err("Voice playback speed must be between 0.5 and 1.5.".into());
     }

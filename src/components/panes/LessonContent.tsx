@@ -1,3 +1,4 @@
+import { TargetText } from '../TargetText'
 import { Disclosure } from '../Disclosure'
 import { useState } from 'react'
 import { TopicExplanation } from './TopicExplanation'
@@ -11,7 +12,7 @@ export function ChoiceSummary({ choices }: { choices: LessonChoices }) {
     <p className="lesson-meta">Corrections per reply: {choices.correction_budget ?? 'automatic'}</p></>
 }
 function Notes({ label, items }: { label: string; items: string[] }) {
-  return <section><h4>{label}</h4>{items.length ? <ul>{items.map((item, i) => <li key={i}>{item}</li>)}</ul> : <p className="lesson-meta">Nothing recorded yet.</p>}</section>
+  return <section><h4>{label}</h4>{items.length ? <ul>{items.map((item, i) => <li key={i}><TargetText text={item} /></li>)}</ul> : <p className="lesson-meta">Nothing recorded yet.</p>}</section>
 }
 export function LessonContent({ chatId, level, lesson, plan, profile, busy, observationStatus, onSave, onAsk }: {
   chatId: string; level: string; lesson: LessonState; plan: TeachingPlan | null; profile: Profile | null

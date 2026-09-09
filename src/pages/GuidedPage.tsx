@@ -1,3 +1,4 @@
+import { ReadingPreferencesProvider } from '../components/ReadingPreferences'
 import { configureRewardSounds, stopRewardSounds } from '../lib/reward-sounds'
 import { RewardPresentationProvider } from '../components/chat/RewardPresentation'
 import { ActivityIndicator } from '../components/ActivityIndicator'
@@ -6,7 +7,7 @@ import { TopicNotesProvider } from '../components/panes/TopicNotesProvider'
 import { useSkillNavigation } from '../hooks/useSkillNavigation'
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { GuidedEvent, GuidedTurnResult, Profile, Scaffolds, Settings, TeachingPlan } from '../types'
+import type { GuidedEvent, GuidedTurnResult, Profile, Settings, TeachingPlan } from '../types'
 import { unreportedInput, type InputEvidence } from '../lib/skills'
 import { PracticeContext, DraftAssistanceContext } from '../components/panes/PracticeContext'
 import { SkillRewards } from '../components/chat/SkillRewards'
@@ -42,7 +43,6 @@ import { AnalysisContent } from '../components/panes/AnalysisContent'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logError, logInfo, logWarn } from '../lib/log'
 import { STEER_LEVELS, STEER_TOPICS, useSteering } from '../hooks/useSteering'
-import { PersonaSummary } from '../components/PersonaSummary'
 import { PersonaField } from '../components/PersonaField'
 import { TopicField } from '../components/TopicField'
 import { ChatHistory } from '../components/ChatHistory'
@@ -129,14 +129,33 @@ export default function GuidedPage({
   useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'lesson' | 'analysis'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
-  const [helpOpen, setHelpOpen] = useState(false)
-  const adviceRefreshPending = useRef(false)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const [observationStatus, setObservationStatus] = useState('May lag behind the latest lesson choices.')
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const steer = useSteering()
-  const setupPanel = usePersistentToggle('skellyspeak_chat_settings', false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsPanel = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!settingsOpen) return
+    const dismiss = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Element && target.closest('[role="dialog"]')) return
+      if (!settingsPanel.current?.contains(target as Node)) setSettingsOpen(false)
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !document.querySelector('[role="dialog"]')) {
+        setSettingsOpen(false)
+        settingsPanel.current?.querySelector<HTMLButtonElement>('.chat-config-toggle')?.focus()
+      }
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [settingsOpen])
   const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
@@ -273,7 +292,7 @@ export default function GuidedPage({
   useEffect(() => {
     const el = streamRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [turns, helpOpen])
+  }, [turns])
 
   const isMobile = useIsMobile()
   const [analysisOpen, setAnalysisOpen] = useState(false)
@@ -649,37 +668,101 @@ export default function GuidedPage({
             </div>
           )}
           {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
-          <div className="scaffold-block chat-settings-block">
-            <div className="chat-section-heading">
-              <button type="button" className="composer-summary-toggle" onClick={setupPanel.toggle}
-                aria-label="Settings & voice" aria-expanded={setupPanel.open} aria-controls="chat-settings" title={setupPanel.open ? 'Hide chat settings' : 'Show chat settings'}>
-                <span className="composer-disclosure" aria-hidden="true">▸</span>
-              <span className="composer-summary" aria-label="Current conversation settings">
-                <span className="summary-context" title={`${targetLanguageName} · ${STEER_LEVELS.find(l => l.value === steer.level)?.label ?? steer.level}${steer.topic ? ` · ${steer.topic}` : ''}`}>
-                  {STEER_LEVELS.find(l => l.value === steer.level)?.label ?? steer.level} · {targetLanguageName}<PersonaSummary chatId={currentChatId} />{steer.topic ? ` · ${steer.topic}` : ''}
-                </span>
-                <span className="summary-options">
-                  {([
-                    ['auto_speak', 'Read aloud'],
-                    ['auto_send', 'Auto-send'],
-                    ['auto_translate', 'Translation'],
-                    ['always_pronunciation', 'Pronunciation'],
-                    ['fast_mode', 'Fast mode'],
-                    ...(showRomanization ? [['always_romanize', 'Romanization']] : []),
-                  ] as ['auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode', string][]).map(([key, label]) => (
-                    <span key={key} className={settings?.[key] ? 'is-on' : ''} title={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`} aria-label={`${label}: ${settings ? settings[key] ? 'on' : 'off' : 'loading'}`}>
-                      <span aria-hidden="true">{label}</span> <span aria-hidden="true">{settings ? settings[key] ? '✓' : '–' : '…'}</span>
-                    </span>
-                  ))}
-                  <span title="Voice playback speed" aria-label={`Voice playback speed: ${settings?.tts_rate ?? 1} times`}>Speed {settings?.tts_rate ?? 1}×</span>
-                </span>
-              </span>
+          <div className="composer-activity" aria-live="polite">
+            {mic.transcribing ? <ActivityIndicator label="Transcribing audio…" /> : sending ? <ActivityIndicator label="Partner is replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="AI is analysing…" /> : null}
+          </div>
+          {mic.recording && mic.waveSource && (
+            <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
+          )}
+          {<ComposerHelp
+            key={`${currentChatId}:${turns.at(-1)?.id}`}
+            busy={sending}
+            help={turns.at(-1)?.assistant?.scaffolds.coach_help ?? null}
+            pending={sending || turns.at(-1)?.analysisState === 'pending'}
+            errors={turns.at(-1)?.assistant?.errors ?? []}
+            onUse={(text, source) => {
+              inputEvidence.current = { ...inputEvidence.current, [source]: true }
+              setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
+              composer.current?.querySelector<HTMLInputElement>('.field')?.focus()
+            }} />}
+          <form
+            className="crow"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void send(input)
+            }}
+          >
+            <input
+              className="field"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={targetLanguageName ? `Write in ${targetLanguageName}…` : 'Write…'}
+              disabled={!isTauri}
+              lang={settings?.target_language ?? 'es-ES'}
+              enterKeyHint="send"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+            {mic.recording && (
+              <button
+                type="button"
+                className="mic-cancel"
+                onClick={mic.cancel}
+                title="Discard recording without transcribing"
+                aria-label="Discard recording"
+              >
+                Discard
               </button>
-              <button type="button" className="coach-help-toggle" aria-expanded={helpOpen} aria-controls="composer-help-content" onClick={() => setHelpOpen(open => !open)}>
-                <span className="composer-disclosure" aria-hidden="true">▸</span> Coach
-              </button>
-            </div>
-            {setupPanel.open && <div id="chat-settings" className="scaffold-groups">
+            )}
+            <button
+              type="button"
+              className={`mic ${mic.recording ? 'recording' : ''}`}
+              onClick={mic.toggleMic}
+              disabled={!isTauri || sending || mic.transcribing}
+              title={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
+              aria-label={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
+            >
+              <span aria-hidden="true">{mic.recording ? '■' : '●'}</span>
+              <span>{mic.recording ? 'Stop' : 'Record'}</span>
+            </button>
+
+            <button
+              type="submit"
+              className="send"
+              disabled={sending || !input.trim()}
+              aria-label="Send"
+            >
+              ↑
+            </button>
+          </form>
+        </div>
+  )
+
+  return (
+    <ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
+    <div className="guided-workspace">
+    <div
+      ref={workspace}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
+    >
+      <ChatHistory
+        open={historyOpen}
+        chats={chats}
+        currentId={currentChatId}
+        languageName={targetLanguageName}
+        onClose={() => setHistoryOpen(false)}
+        onOpenChat={(id) => void openChat(id)}
+        onNewChat={() => void startNewConversation(steer.persona)}
+        onDeleteChat={(id) => void removeChat(id)}
+      />
+      {/* ── Chat half (paper) ─────────────────────────────────────────── */}
+      <section className="chat">
+        <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="conversation-title" aria-label="Current conversation settings">{languagePicker}<small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
+          <div className="chat-heading-actions">
+          <div className="chat-config" ref={settingsPanel}>
+            <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
+            {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
                 <fieldset className="conversation-controls" disabled={sending}>
                 <div className="steer-row">
                   <select
@@ -774,125 +857,7 @@ export default function GuidedPage({
               </div>
             }
           </div>
-          <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label="Transcribing audio…" /> : sending ? <ActivityIndicator label="Partner is replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="AI is analysing…" /> : null}
-          </div>
-          {mic.recording && mic.waveSource && (
-            <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
-          )}
-          {helpOpen && <ComposerHelp
-            alwaysPronunciation={settings?.always_pronunciation ?? false}
-            key={`${currentChatId}:${turns.at(-1)?.id}`}
-            onRefresh={async () => {
-              if (adviceRefreshPending.current) throw new Error('Advice is already refreshing.')
-              adviceRefreshPending.current = true
-              try {
-                const turn = turnsRef.current.at(-1)
-                const previousAdvice = turn?.assistant?.scaffolds.coach_help
-                const chat = chatIdRef.current
-                const capturedSettings = settingsRef.current
-                if (!turn || !previousAdvice || !chat || !capturedSettings) throw new Error('No advice is available to refresh.')
-                const refreshed = await invoke<Scaffolds>('generate_scaffolds', { req: {
-                  chat_id: chat.id, history: chatHistory(turnsRef.current, REPLY_HISTORY_MESSAGES),
-                  level: steer.level, topic: steer.topic, dialect: capturedSettings.target_dialect,
-                  previous_advice: previousAdvice,
-                } })
-                if (chatIdRef.current !== chat || settingsRef.current !== capturedSettings || turnsRef.current.at(-1) !== turn) return
-                const next = turnsRef.current.map(item => item.id === turn.id && item.assistant ? { ...item, assistant: { ...item.assistant, scaffolds: refreshed } } : item)
-                turnsRef.current = next
-                setTurns(next)
-                scaffolds.setFresh(refreshed)
-                await flush()
-              } catch (error) {
-                reportFault('Refreshing coach advice', error)
-                throw error
-              } finally { adviceRefreshPending.current = false }
-            }}
-            busy={sending}
-            help={turns.at(-1)?.assistant?.scaffolds.coach_help ?? null}
-            pending={sending || turns.at(-1)?.analysisState === 'pending'}
-            errors={turns.at(-1)?.assistant?.errors ?? []}
-            onUse={(text, source) => {
-              inputEvidence.current = { ...inputEvidence.current, [source]: true }
-              setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
-              setHelpOpen(false)
-              composer.current?.querySelector<HTMLInputElement>('.field')?.focus()
-            }} />}
-          <form
-            className="crow"
-            onSubmit={(e) => {
-              e.preventDefault()
-              void send(input)
-            }}
-          >
-            <input
-              className="field"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={targetLanguageName ? `Write in ${targetLanguageName}…` : 'Write…'}
-              disabled={!isTauri}
-              lang={settings?.target_language ?? 'es-ES'}
-              enterKeyHint="send"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-            {mic.recording && (
-              <button
-                type="button"
-                className="mic-cancel"
-                onClick={mic.cancel}
-                title="Discard recording without transcribing"
-                aria-label="Discard recording"
-              >
-                Discard
-              </button>
-            )}
-            <button
-              type="button"
-              className={`mic ${mic.recording ? 'recording' : ''}`}
-              onClick={mic.toggleMic}
-              disabled={!isTauri || sending || mic.transcribing}
-              title={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
-              aria-label={mic.recording ? (settings?.auto_send ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
-            >
-              <span aria-hidden="true">{mic.recording ? '■' : '●'}</span>
-              <span>{mic.recording ? 'Stop' : 'Record'}</span>
-            </button>
 
-            <button
-              type="submit"
-              className="send"
-              disabled={sending || !input.trim()}
-              aria-label="Send"
-            >
-              ↑
-            </button>
-          </form>
-        </div>
-  )
-
-  return (
-    <RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><TopicNotesProvider scope={`${settingsVersion}:${settings?.target_language}:${settings?.native_language}`}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}><DraftAssistanceContext value={{ suggestions: chipsForUI, suggestionsError: null, useExample: (text, source) => { inputEvidence.current = { ...inputEvidence.current, [source]: true }; setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text) } }}>
-    <div className="guided-workspace">
-    <div
-      ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
-    >
-      <ChatHistory
-        open={historyOpen}
-        chats={chats}
-        currentId={currentChatId}
-        languageName={targetLanguageName}
-        onClose={() => setHistoryOpen(false)}
-        onOpenChat={(id) => void openChat(id)}
-        onNewChat={() => void startNewConversation(steer.persona)}
-        onDeleteChat={(id) => void removeChat(id)}
-      />
-      {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className="chat">
-        <div className="chat-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className="conversation-title">{languagePicker}<small>{STEER_LEVELS.find(item => item.value === steer.level)?.label ?? steer.level}{steer.topic ? ` · ${steer.topic}` : ''}</small></div>
-          <div className="chat-heading-actions">
 
           {!isMobile && (
           <button
@@ -1010,6 +975,6 @@ export default function GuidedPage({
         />
       )}
     </div>
-    </DraftAssistanceContext></PracticeContext></TopicNotesProvider></RewardPresentationProvider>
+    </DraftAssistanceContext></PracticeContext></TopicNotesProvider></RewardPresentationProvider></ReadingPreferencesProvider>
   )
 }

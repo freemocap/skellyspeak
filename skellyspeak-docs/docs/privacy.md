@@ -231,3 +231,7 @@ Desktop debug builds use a separate application identity, storage and Keychain
 entry; they do not import the installed release's private data.
 
 Hosted streaming HTTP failures include the upstream numeric status code without its response body. The app explains provider credit/payment failures (402); Google sign-in users depend on the hosted operator’s OpenRouter balance and API-key limit.
+
+Tapping a word in coach prose, advice, lesson examples or other reading text without a saved gloss sends that word and its surrounding text through the configured provider's existing word-insight operation. Meanings are cached transiently in the current app session and language pair. Holding a word or opening deeper inspection uses the same operation. No request is needed to reveal a supplied saved token gloss.
+
+Reading text without saved word annotations is sent with its surrounding context to the configured model when the reading surface appears. This uses the existing tokenize operation and prepares glosses, pronunciation and romanization together. Ordinary word taps reveal these prepared annotations locally. Explicit deeper inspection remains a separate word-insight request. Annotation reuse is transient and scoped to the language pair and exact source/context; it is not a persistent dictionary.

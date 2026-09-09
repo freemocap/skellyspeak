@@ -1,6 +1,24 @@
 use super::*;
 use crate::personas;
 
+#[test]
+fn reading_annotations_distinguish_mixed_source_from_context() {
+    let prompt = analysis::annotations_prompt("Spanish", "English", None);
+    assert!(prompt.contains("Identify each word's actual language"));
+    assert!(prompt.contains("Every token containing a letter or number MUST"));
+    assert!(!prompt.contains("NOTHING TO SAY"));
+    let turn = analysis::annotate_text_turn("Using 'querer' (to want) · turn 3", "context only", true);
+    let source = turn.strip_prefix("Exact source tokens (JSON array):\n").unwrap().split('\n').next().unwrap();
+    let tokens: Vec<String> = serde_json::from_str(source).unwrap();
+    assert_eq!(tokens, ["Using", "'querer'", "(to", "want)", "·", "turn", "3"]);
+    assert!(!tokens.iter().any(|token| token.contains("context")));
+    let chinese = analysis::annotate_text_turn("你好世界。", "Chinese example", false);
+    assert!(chinese.contains("segment into meaningful words"));
+    assert!(!chinese.contains("Exact source tokens"));
+    assert!(analysis::annotations_prompt("Arabic", "English", Some("ALA-LC")).contains("ALA-LC"));
+    assert!(analysis::tokens_prompt("Spanish", "English", None, true).contains("Given a tutor reply"));
+}
+
 fn reply(topic: Option<&str>) -> String {
     partner::reply_prompt(
         &personas::resolve(Some("baker"), "", &personas::builtins()).sketch,
@@ -189,6 +207,7 @@ fn mandarin_segmentation_and_pinyin_ride_with_the_language() {
 #[test]
 fn word_insight_describes_particles_for_isolating_languages() {
     let inflecting = analysis::word_insight_prompt("Spanish", "English", true);
+    assert!(inflecting.contains("gloss: a short translation of this word in context, in English"));
     let isolating =
         analysis::word_insight_prompt("Chinese (Mandarin)", "English", false);
     assert!(inflecting.contains("conjugation/declension"));

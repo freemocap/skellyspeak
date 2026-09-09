@@ -1,3 +1,4 @@
+import { TargetText } from '../TargetText'
 import type { CoachFeedback } from '../../types'
 import { Markdown, type TermHandler } from '../../lib/markdown'
 
@@ -40,7 +41,7 @@ export function CoachEntry({
 }) {
   return (
     <div className="coach-entry">
-      {turn.user && <p className="coach-entry-said">“{turn.user}”</p>}
+      {turn.user && <p className="coach-entry-said">“<TargetText text={turn.user} />”</p>}
       {turn.coachError && <div className="turn-errors">⚠ {turn.coachError}</div>}
       {!turn.coachError && !turn.coach && <p className="center-note">⟳ Coach is listening…</p>}
       {turn.coach && (
@@ -59,7 +60,7 @@ export function CoachEntry({
                 {turn.coach.used_target.length > 0 && (
                   <div className="split-row">
                     <span className="split-k target">{targetLangCode.toUpperCase()}</span>
-                    <span>{turn.coach.used_target.join(' · ')}</span>
+                    <span><TargetText text={turn.coach.used_target.join(' · ')} /></span>
                   </div>
                 )}
                 {turn.coach.used_native.length > 0 && (
@@ -74,11 +75,11 @@ export function CoachEntry({
           {turn.coach.corrections.map((cor, i) => (
             <div key={i} className="coach-correction">
               <div className="cor-line">
-                <s>{cor.said}</s> <span className="cor-arrow">→</span>{' '}
-                <b>{cor.corrected}</b> <span className="cor-kind">{cor.kind}</span>
+                <s><TargetText text={cor.said} /></s> <span className="cor-arrow">→</span>{' '}
+                <b><TargetText text={cor.corrected} /></b> <span className="cor-kind">{cor.kind}</span>
               </div>
               <div className="cor-why">
-                <Markdown text={cor.explanation} />
+                <Markdown text={cor.explanation} onTerm={onTerm} />
               </div>
             </div>
           ))}

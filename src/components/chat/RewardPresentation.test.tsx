@@ -129,7 +129,7 @@ it('automatically dismisses reduced-motion arrivals without running flight anima
   const view = render(<Fixture fastMode />)
   try {
     fireEvent.click(screen.getByText('Arrive'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('hovering')
+    expect(document.querySelector('.floating-reward')).toBeNull()
     expect(document.querySelector('.reward-path-trace')).toBeNull()
     act(() => vi.advanceTimersByTime(500))
     expect(document.querySelector('.floating-reward')).toBeNull()
@@ -164,4 +164,32 @@ it('automatically dismisses reduced-motion arrivals without running flight anima
     fireEvent.pointerDown(document.body)
     expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
+})
+
+it('flies mobile Fast mode rewards straight to the meter and fills only on arrival', () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query.includes('max-width'), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 300, 200))
+  const snapshot = structuredClone(skillDemo)
+  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
+  const original = Element.prototype.animate
+  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
+  const animate = vi.fn<Element['animate']>(function (this: Element) {
+    const animation = { cancel: vi.fn(), onfinish: null }
+    if (this.classList.contains('floating-reward')) animations.push(animation)
+    return animation as unknown as Animation
+  })
+  Element.prototype.animate = animate
+  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><Fixture fastMode /></SkillEvidenceContext>)
+  try {
+    fireEvent.click(screen.getByText('Arrive'))
+    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
+    expect(document.querySelector('.floating-reward.hovering')).toBeNull()
+    const flights = animate.mock.calls.filter((_, index) => (animate.mock.contexts[index] as Element).classList.contains('floating-reward'))
+    expect(flights).toHaveLength(1)
+    expect(flights[0][1]).toMatchObject({ duration: 340 })
+    const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
+    expect(parseFloat(fill.style.width)).toBeCloseTo(100 / 3)
+    act(() => animations[0].onfinish!())
+    expect(parseFloat(fill.style.width)).toBeCloseTo(200 / 3)
+  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
 })

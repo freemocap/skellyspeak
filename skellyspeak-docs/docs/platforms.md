@@ -106,7 +106,7 @@ npm run macos:dev-bundle
 ```
 
 Keep Vite running. The debug bundle uses `http://localhost:1420` for frontend hot
-reload. Quit the app before replacing its executable after Rust changes. Open
+reload. New IPC commands require rebuilding and reopening the native app; refreshing the webview cannot add a command to an older executable. If word help reports `Command annotate_text not found`, rebuild the native binary and bundle with the commands above, then reopen that rebuilt bundle. Quit the app before replacing its executable after Rust changes. Open
 `src-tauri/target/debug/bundle/macos/SkellySpeak Dev.app` for native inspection.
 
 The default development bundle skips signing. Its hash-based code identity changes

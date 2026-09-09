@@ -73,7 +73,7 @@ describe('meaning-domain profile', () => {
     const actions = handlers()
     render(<SkillTreeView snapshot={fixture()} demonstration={false} {...actions} />)
     fireEvent.change(screen.getByRole('combobox', { name: 'Inspect' }), { target: { value: 'referent' } })
-    expect(screen.getByText('هذا الكتاب.', { selector: 'blockquote' })).toBeVisible()
+    expect(document.querySelector('blockquote')).toHaveTextContent('هذا الكتاب.')
     expect(screen.getByText(/Suggested wording · external assistance unknown/)).toBeVisible()
     fireEvent.click(screen.getByText('Source record'))
     expect(screen.getByText('chat-a / 7')).toBeVisible()

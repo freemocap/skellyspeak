@@ -1,3 +1,4 @@
+import { TargetText } from '../TargetText'
 import { useEffect, useRef, useState } from 'react'
 import { playRewardSound } from '../../lib/reward-sounds'
 import type { PartnerReaction as Reaction } from '../../types'
@@ -39,8 +40,8 @@ export function PartnerReaction({ reaction, error, message, reply, onEdit }: {
       <div className="reaction-details">
         <h2><span aria-hidden="true">{display.icon} </span>{display.label}</h2>
         <section className="reaction-exchange" aria-label="Conversation exchange">
-          <div className="reaction-excerpt learner"><span>Your message</span><div className="msg me plain" dir="auto">{message}</div></div>
-          <div className="reaction-excerpt partner"><span>Partner reply</span><div className="msg bot" dir="auto">{reply}</div></div>
+          <div className="reaction-excerpt learner"><span>Your message</span><div className="msg me plain" dir="auto"><TargetText text={message} /></div></div>
+          <div className="reaction-excerpt partner"><span>Partner reply</span><div className="msg bot" dir="auto"><TargetText text={reply} /></div></div>
         </section>
         {error ? <p role="alert">{error}</p> : <>
           <h3>How I read your message</h3><p dir="auto">{reaction!.interpretation}</p>

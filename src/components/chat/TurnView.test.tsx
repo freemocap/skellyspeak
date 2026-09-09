@@ -24,28 +24,29 @@ it('places the partner reaction on the reply and routes editing to its own turn'
   expect(input.onEditUser).toHaveBeenCalledWith(input.turn)
   expect(input.onBubbleTap).not.toHaveBeenCalled()
 })
-it('keeps each message side independent and translation dialogs independent of auto-translation', () => {
+it('uses the same inline translation for the preference and independent message buttons', () => {
   const input = props()
   const view = render(<TurnView {...input} />)
-  expect(view.container.querySelector('.msg.me .wg')).toHaveTextContent('Hello')
-  expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
-  expect(screen.queryByText('Learner translation')).toBeNull()
+  expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Learner translation')
+  expect(view.container.querySelector('.msg.bot .trans')).toHaveTextContent('Partner translation')
   fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
-  expect(screen.getByRole('dialog', { name: 'Your message translation' })).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Close Your message translation' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(screen.getByRole('dialog', { name: 'Partner message translation' })).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Close Partner message translation' }))
+  expect(screen.queryByText('Learner translation')).toBeNull()
   expect(screen.getByText('Partner translation')).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Speak reply' }))
-  expect(input.onSpeak).toHaveBeenCalledOnce()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
+  expect(screen.queryByText('Partner translation')).toBeNull()
+  expect(screen.queryByRole('dialog')).toBeNull()
+  view.rerender(<TurnView {...input} autoTranslate={false} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
+  expect(view.container.querySelector('.msg.bot .trans')).toHaveTextContent('Partner translation')
+  view.rerender(<TurnView {...input} autoTranslate={true} />)
+  expect(screen.getByText('Learner translation')).toBeVisible()
+  expect(screen.getByText('Partner translation')).toBeVisible()
   expect(input.onBubbleTap).not.toHaveBeenCalled()
-  fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
-  expect(input.onBubbleTap).toHaveBeenCalledOnce()
 })
 
-it('keeps pronunciation under its own word and reveals it with the token information', () => {
+it('honors pronunciation even when token information is revealed', () => {
   const input = props()
+  input.turn.assistant!.reply = 'Soy Elia.'
   input.turn.assistant!.tokens = [
     { text: 'Soy', gloss: 'I am', pronunciation: 'soy', romanization: null, pos: null, notable: false },
     { text: 'Elia.', gloss: 'Elia', pronunciation: 'Eh-lee-ah', romanization: null, pos: null, notable: false },
@@ -55,10 +56,20 @@ it('keeps pronunciation under its own word and reveals it with the token informa
   fireEvent.click(soy)
   expect(input.onToggleReveal).toHaveBeenCalledWith(['1:bot:0'])
   view.rerender(<TurnView {...input} revealed={new Set(['1:bot:0'])} />)
-  expect(soy.closest('.wu')).toHaveTextContent('I amsoy')
+  expect(soy.closest('.wu')).toHaveTextContent('I am')
+  expect(view.container.querySelector('.wpronunciation')).toBeNull()
   expect(screen.queryByText('Eh-lee-ah')).toBeNull()
   expect(view.container.querySelector('.phrase-pronunciation')).toBeNull()
   view.rerender(<TurnView {...input} alwaysPronunciation={true} />)
   expect(screen.getByText('Eh-lee-ah').closest('.wu')).toHaveTextContent('Elia.')
   expect(screen.getByText('Eh-lee-ah').closest('.wu')).not.toHaveTextContent('I am')
+})
+
+it('renders source punctuation once and anchors feedback inside the learner bubble', () => {
+  const input = props()
+  input.turn.assistant!.reply = '¡Hola! ¿Te gusta el sol?'
+  input.turn.assistant!.tokens = ['¡', '¡Hola!', '!', '¿', '¿Te', 'gusta', 'el', 'sol?', '?'].map(text => ({text,gloss:null,pronunciation:null,romanization:null,pos:null,notable:false}))
+  const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
+  expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
+  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me .message-actions')).not.toBeNull()
 })

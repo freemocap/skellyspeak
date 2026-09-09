@@ -1,3 +1,5 @@
+import { configureAudioVolumes } from './lib/audio-volume'
+import { ReadingProvider } from './components/TargetText'
 import { ToolbarIcon } from './components/ToolbarIcon'
 import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
@@ -91,6 +93,11 @@ function Application() {
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
   const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => {
+    if (!settings) return
+    try { configureAudioVolumes(settings) }
+    catch (error) { reportFault('Audio settings', error); setSettings(null) }
+  }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])
   const [savingLanguage, setSavingLanguage] = useState(false)
   const observedEvidence = useSkillEvidence(true, settingsVersion)
   const evidence = { ...observedEvidence, snapshot: observedEvidence.snapshot?.target === settings?.target_language ? observedEvidence.snapshot : null }
@@ -191,7 +198,7 @@ function Application() {
   }, [])
 
   return (
-    <div className="app">
+    <ReadingProvider settings={settings}><div className="app">
       <div className="topbar">
         {page === 'guided' && (
           <button
@@ -351,6 +358,6 @@ function Application() {
           onSettingsChanged={settingsChanged}
         />
       )}
-    </div>
+    </div></ReadingProvider>
   )
 }

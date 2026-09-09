@@ -1,3 +1,4 @@
+import { ReadingPreferencesContext } from '../ReadingPreferences'
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { useState } from 'react'
@@ -34,7 +35,7 @@ it('shares one explanation across card and detail and carries the selected skill
   HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
   backend.invoke.mockResolvedValue({ explanation: 'Use a demonstrative to identify which object.', example: 'Ese café.', translation: 'That coffee.' })
-  render(<SkillNavigationProvider><Journey /></SkillNavigationProvider>)
+  render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysPronunciation: false, alwaysRomanize: false }}><SkillNavigationProvider><Journey /></SkillNavigationProvider></ReadingPreferencesContext>)
   expect(backend.invoke).not.toHaveBeenCalled()
   const card = screen.getByRole('button', { name: /Identify a referent.*XP/ })
   fireEvent.click(card)

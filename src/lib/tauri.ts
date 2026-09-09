@@ -1,4 +1,5 @@
 import { invoke as nativeInvoke } from '@tauri-apps/api/core'
+import { validateAudioVolumes } from './audio-settings'
 import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
   Graph,
@@ -115,8 +116,10 @@ export function deletePersona(id: string): Promise<void> {
   return invoke<void>('delete_persona', { id })
 }
 
-export function getSettings(): Promise<Settings> {
-  return invoke<Settings>('get_settings')
+export async function getSettings(): Promise<Settings> {
+  const settings = await invoke<Settings>('get_settings')
+  validateAudioVolumes(settings)
+  return settings
 }
 
 export interface KeyStatus {
@@ -295,7 +298,8 @@ export async function subscribeRuns(
   return listen<Run>('trace:run', (event) => onRun(event.payload))
 }
 
-export function saveSettings(settings: Settings): Promise<void> {
+export async function saveSettings(settings: Settings): Promise<void> {
+  validateAudioVolumes(settings)
   return invoke('save_settings', { settings })
 }
 
@@ -307,8 +311,10 @@ export function takeStartupFaults(): Promise<string[]> {
 
 /// Restore every setting to its built-in default and clear both API keys.
 /// Returns the fresh settings (secrets masked) as the backend now holds them.
-export function resetSettings(): Promise<Settings> {
-  return invoke<Settings>('reset_settings')
+export async function resetSettings(): Promise<Settings> {
+  const settings = await invoke<Settings>('reset_settings')
+  validateAudioVolumes(settings)
+  return settings
 }
 
 

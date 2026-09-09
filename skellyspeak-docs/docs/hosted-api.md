@@ -182,3 +182,7 @@ requires Java, the Firestore emulator on `127.0.0.1:8787`, and
 non-loopback emulator targets.
 
 Hosted streaming HTTP failures include the upstream numeric status code without its response body. The app explains provider credit/payment failures (402); Google sign-in users depend on the hosted operator’s OpenRouter balance and API-key limit.
+
+The existing word-insight operation also supplies on-demand inline meanings outside chat. Its structured response includes a required native-language `gloss`, in addition to lemma, part of speech, form, role and usage. These requests use the existing provider routing and metering path.
+
+Reading text without saved word annotations is sent with its surrounding context to the configured model when the reading surface appears. This uses the existing tokenize operation and prepares glosses, pronunciation and romanization together. Ordinary word taps reveal these prepared annotations locally. Explicit deeper inspection remains a separate word-insight request. Annotation reuse is transient and scoped to the language pair and exact source/context; it is not a persistent dictionary.

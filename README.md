@@ -40,7 +40,7 @@ Each chat saves its character description and first introduction. Reopening rest
 
 Choose **No persona** or switch personas **Off** for conversation without a fictional character. Switch **On** to use Surprise me, or reroll to choose a different partner. Changing these controls starts a new conversation and preserves the previous chat.
 
-The **Coach** button shares the settings row above the input. It opens preloaded advice for the latest partner message: translation, a brief explanation, and two suggested replies with their meanings. Non-Latin phrases include romanization; each phrase has expandable approximate phonetic pronunciation. Selecting a reply adds only its target-language text to the draft without sending. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
+The **Coach** section sits above the input. Suggestions stay visible with preloaded word annotations; there is no collapsed preview or Coach header row. Each suggestion is a compact bubble with inspectable words and a trailing **↗** insertion icon. Only the icon fills the draft, without sending or requesting analysis. Translation follows the chat preference; romanization and pronunciation render under individual words using the same token component as chat, with no sentence-level sound-guide block. **Understand the exchange** below the replies reveals explanation and the partner’s translation. The tray does not repeat the partner’s message. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
 
 ## Architecture
 
@@ -129,6 +129,8 @@ core (cpal) recorder as desktop and requires physical-device verification — se
 detail and the three secrets to set.
 
 ## Updates
+
+Settings → Updates shows the installed app version above the update controls, without requiring an update check.
 
 Desktop builds check for a newer version on launch and offer it in a bar at
 the top of the window; Settings → Updates checks on demand. The feed is
@@ -245,8 +247,7 @@ appends to the current draft and records assistance without sending automaticall
 
 Word help offers its gloss and an explicit **Explain this word** action. Credited
 words also offer **XP details**. Punctuation can reveal a sentence translation;
-each message has its own full-translation button once that data arrives. Learner
-translations begin hidden; partner auto-translation can be collapsed locally.
+each message has its own full-translation button once that data arrives. The Translation preference shows both learner and partner translations inline; either can be toggled locally.
 **Analysis** is a separate message action. On phones it opens a dismissible message dialog over the conversation; Close, tapping outside, Escape, or Back returns to the same chat position. Desktop analysis stays in the learning panel. Audio and translation controls do not
 navigate. Learner and partner token reveals have separate identities.
 
@@ -348,9 +349,9 @@ Credited phrases have skill-colored +N point tokens. Clicking a token pops it aw
 
 Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](skellyspeak-docs/docs/platforms.md#automatic-testflight-uploads).
 
-The Coach tray’s refresh button requests different advice using the previous advice and recent conversation as context. Existing advice stays visible while loading; a successful refresh replaces and saves it. Opening the tray still makes no request.
+Suggestions update with the conversation. The compact **Understand the exchange** disclosure has no refresh control.
 
-The composer header shows a compact summary of language, level, topic, voice/reading toggles, and playback speed on the left. Click the summary to expand settings; its left disclosure arrow shows whether they are open. Coach sits on the right with its own disclosure arrow. Compact Translate and Analysis buttons sit on the bottom-right bubble border (bottom-left for RTL messages) and open dialogs over the chat. An active persona appears after the language as “Persona: name”; no persona entry appears when disabled. The summary stays within two lines, with full setting names and a horizontally scrollable status line on narrow screens. Persona controls remain inside the expandable settings; a pencil opens persona details and the Custom persona option opens the editor. Persona choices label current and new conversations in parentheses.
+Chat settings open from the **⚙** beside the language controls at the top of the chat. The compact panel starts closed and contains level, topic, persona, reading and voice controls. Close it with the gear, Escape, or a tap outside; changing a preference saves it immediately. Coach remains above the input, separate from settings. Compact Translate and Analysis buttons on each message toggle inline translation or open message analysis.
 
 On phones, **Chat** and **Lesson** are the persistent bottom navigation. Chat is the starting view; Lesson contains the private coach conversation. The **More (•••)** menu opens Skill Tree and AI activity/tools. Either bottom button returns directly from Skill Tree without losing the conversation. AI tools open in a dismissible dialog. The app reserves space for status bars and display cutouts.
 
@@ -359,17 +360,17 @@ profile. They require their own sign-in or API keys and do not install release
 updates. Custom remote model servers require HTTPS; HTTP is allowed only for
 loopback servers such as local Ollama or LM Studio.
 
-**Pronunciation** joins Read aloud, Auto-send, Translation, and Romanization in the reading controls. Tapping a chat word reveals its meaning and approximate pronunciation directly underneath that word, with romanization for non-Latin scripts. Enable Pronunciation to keep the word sound guides visible automatically. There is no separate sentence pronunciation block or label in chat. Coach advice groups each original phrase with its translation, romanization, and an expandable sound guide. Phone controls wrap into compact rows. Word pronunciation is generated by the existing token analysis pass; older saved tokens without it still show their available information.
+**Pronunciation** joins Read aloud, Auto-send, Translation, and Romanization in the reading controls. Tapping a chat word reveals its meaning underneath that word, with romanization for non-Latin scripts. Approximate pronunciation appears only while Pronunciation is enabled; revealing meanings does not enable sound guides. There is no separate sentence pronunciation block or label in chat. Coach advice leads with suggested replies and meanings; pronunciation follows its setting and exchange explanations expand on demand. Phone controls wrap into compact rows. Word pronunciation is generated by the existing token analysis pass; older saved tokens without it still show their available information.
 
-Swipe left from Chat to Lesson and right to return; the bottom buttons provide the same navigation. On phones, dismissing an XP detail card briefly shows the saved cumulative XP and the affected skill bars filling, even when Lesson is off-screen. This is a presentation of existing credit, not an additional award. Reduced-motion settings disable the flight and fill motion.
+Swipe left from Chat to Lesson and right to return; the bottom buttons provide the same navigation. On phones, Fast-mode rewards take a short curved flight straight to the XP meter without the header hover. Inspected cards open near their source text and dismiss along the same short path. The meter flashes and fills when the card arrives, showing saved cumulative XP even when Lesson is off-screen. This is a presentation of existing credit, not an additional award. Reduced-motion settings disable the flight and fill motion.
 
 Signing in or out refreshes the app’s provider settings immediately. Closing Settings saves pending edits before refreshing the chat’s settings. Stale provider-setup errors clear, and an empty chat retries its blocked greeting; existing messages and drafts stay in place. A failed retry displays its current error.
 
-New XP cards appear automatically in a stack as credit arrives. **Fast mode** is on by default: cards arrive about half a second apart with slight timing variation, ease into view, pause for half a second, then accelerate toward progress without pausing the conversation or subsequent rewards. Turn it off in the chat controls or Settings to keep cards until dismissed. Point icons reopen a card for reading and hold it open even in Fast mode. Existing history does not replay arrival animations.
+New XP cards appear automatically in a stack as credit arrives. **Fast mode** is on by default: cards arrive about half a second apart with slight timing variation, ease into view, on desktop pause for half a second, then accelerate toward progress without pausing the conversation or subsequent rewards. Turn it off in the chat controls or Settings to keep cards until dismissed. Point icons reopen a card for reading and hold it open even in Fast mode. Existing history does not replay arrival animations.
 
 Moving XP cards have thin, empty white rectangular outlines tracing their past and upcoming positions. The outlines shrink and fade with distance, share the card’s path and easing, and never intercept clicks. Reduced motion disables both the travel and the trails.
 
-Chat playback sits on the upper-right bubble edge. Translate and Analysis use short buttons at the bottom-right border, mirrored for RTL messages. Both open dialogs on desktop and phone; automatic translation can still appear inline. Word inspection and chat-originated coach questions also open overlays without navigating away. Top-bar actions stay grouped together.
+Chat playback sits on the upper-right bubble edge. Translate and Analysis use short buttons at the bottom-right border, mirrored for RTL messages. Translate toggles the same inline translation used by the global preference; Analysis opens a dialog. Word inspection and chat-originated coach questions also open overlays without navigating away. Top-bar actions stay grouped together.
 
 Android update offers open [the download page](https://docs.freemocap.org/skellyspeak/download). Installer titles name their format, including Windows EXE setup and MSI package. One matching installer for the selected system has a magenta border. Processor hints select the matching architecture automatically when available. If the browser does not expose the processor, all builds for that operating system are shown with processor labels and selection guidance, without a recommendation. If the operating system is unknown, all available packages are shown. A known processor filters out the other architecture; all packages also remain under All platforms & formats.
 
@@ -387,6 +388,20 @@ A small emoji on each reviewed partner reply opens its interpretation and reacti
 
 Speech playback is restricted to the active app window. Browser focus/visibility/page lifecycle and native window focus/close/mobile suspension events cancel active audio and block new background playback. Android pause and iOS resign-active events use Tauri’s suspension notification. Returning enables new playback without resuming cancelled speech. On desktop, the window close button and system close shortcuts close the window after playback cleanup.
 
-**Play reward sounds** in Voice settings offers Yes, No, and Follow TTS (the default, following Read aloud). Brief, quiet synthesized coin tones accompany new XP cards; larger gains use higher, richer patterns at the same volume. XP-icon clicks use a distinct soft bubble pop. New confused or understood reactions use short question-like or rising cues. Each sound briefly highlights its visible source. Sound is capped during bursts, never replays historical rewards automatically, and stops when muted or the app becomes inactive. Browser audio requires a user gesture; touch release enables reward audio on iOS, and subsequent gestures resume interrupted audio without replaying stopped rewards. These are interface cues, not claims about learning outcomes. The partner-interpretation dialog shows the referenced exchange with the same learner/partner bubble styling as Chat.
+**Play reward sounds** in Voice settings offers Yes, No, and Follow TTS (the default, following Read aloud). Brief, quiet synthesized coin tones accompany new XP cards; larger gains use higher, richer patterns at the same volume. XP-icon clicks use a more noticeable rising two-note bubble sound. New confused or understood reactions use short question-like or rising cues. Each sound briefly highlights its visible source. Sound is capped during bursts, never replays historical rewards automatically, and stops when muted or the app becomes inactive. Browser audio requires a user gesture; touch release enables reward audio on iOS, and subsequent gestures resume interrupted audio without replaying stopped rewards. These are interface cues, not claims about learning outcomes. The partner-interpretation dialog shows the referenced exchange with the same learner/partner bubble styling as Chat.
 
 On phones, swipe left from Chat to Lesson and right from Lesson to Chat, including across lesson cards. Taps still operate the cards, vertical gestures scroll, and text inputs and dedicated horizontal scrollers retain their own gestures.
+
+Settings → **Reading & display** separates reading aids from voice controls. **Text size** (75–150%) and **Text spacing** (0–12px of extra space between words) save independently. The default extra word spacing is 2px. Mobile settings use compact, collapsible sections; search also finds controls in closed sections.
+
+Reading text in lessons, corrections, analysis and skill evidence uses the shared interactive word presentation. Coach suggestions preserve word inspection and use a trailing **↗** insertion icon. Tap for an inline meaning; hold or right-click for deeper word insight. Text without saved token annotations prepares complete word annotations when mounted, using the chat tokenization prompt and schema through the configured provider. Ordinary taps reveal prepared meanings without a model call. Saved phrase translations in Coach, lessons and analysis appear when Translation is enabled. Suggestion activation never requests word analysis.
+
+The compact green suggestion tray starts directly with reply bubbles above the input. Only **Understand the exchange** expands; there is no separate Coach label, toggle or header spacer.
+
+The +N tokens have faint circular borders and a brief, subtle floating highlight; hover and keyboard focus strengthen the cue. Dismissing a token preserves its inline space. Evidence underlines belong to the word itself so Spanish and Arabic text keep their baseline when tokens disappear. Reduced-motion preferences disable the floating invitation.
+
+Partner messages use warm-white bubbles with darker olive borders and a left-facing corner; learner messages use blue fills, blue borders and a right-facing corner. Grammar/conversation feedback sits on the learner bubble’s lower edge beside Translate. Chat renders punctuation and whitespace from the saved message, preventing duplicate punctuation in token annotations from adding characters; Spanish opening ¡ and ¿ are preserved. XP token clicks use a soft rising pop, controlled by the existing reward-sound preference. Playback checks the visible token circle and continues after the clicked token disappears.
+
+Audio & Voice settings provide Overall volume, Voice volume, and Sound effects volume (0–100%). Overall volume scales both channels; the two channel sliders set their relative levels. Sound effects can be switched off without changing their saved volume, or restricted to when Read aloud is enabled. Voice volume applies to both cloud and OS speech. Existing installations start at 100% on all three controls, preserving their current playback levels.
+
+Settings reports missing or invalid audio fields and blocks editing incomplete preferences. Error messages identify the failed contract without assuming its cause.

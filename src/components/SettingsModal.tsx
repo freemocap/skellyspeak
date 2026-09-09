@@ -1,3 +1,4 @@
+import { configureAudioVolumes } from '../lib/audio-volume'
 import { configureRewardSounds } from '../lib/reward-sounds'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { HostedAccount, Settings, Shortcuts } from '../types'
@@ -19,6 +20,7 @@ import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
 import { displaySecret } from '../lib/secrets'
 import { speechSupported } from '../lib/speech'
 import { invoke } from '@tauri-apps/api/core'
+import { getVersion } from '@tauri-apps/api/app'
 import { mediaDevices } from '../lib/media'
 import { resetsAtLocalTime } from '../lib/quota'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -35,7 +37,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates'
+type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
 
 function KeyBadge({ check }: { check: KeyCheck }) {
   if (check.state === 'idle') return null
@@ -67,7 +69,13 @@ function UpdateCheckRow() {
   )
   const [found, setFound] = useState<UpdateOffer | null>(null)
   const [channel, setChannel] = useState<UpdateChannel | null>(null)
+  const [version, setVersion] = useState<string | null>(null)
+  const [versionError, setVersionError] = useState<string | null>(null)
   useEffect(() => {
+    void getVersion().then(setVersion).catch((error: unknown) => {
+      setVersionError('Could not load the installed version.')
+      reportFault('Loading application version', error)
+    })
     void getUpdateChannel()
       .then(setChannel)
       .catch((error) => reportFault('Loading update settings', error))
@@ -105,10 +113,15 @@ function UpdateCheckRow() {
     }
   }, [found])
 
+  const versionDisplay = versionError
+    ? <p role="alert">{versionError}</p>
+    : <p><strong>Installed version: {version === null ? 'Loading…' : `v${version}`}</strong></p>
+
   if (channel === 'app-store') {
     return (
       <div className="form-row">
         <label>Application updates</label>
+        {versionDisplay}
         <p className="field-note">Updates are managed through TestFlight or the App Store.</p>
       </div>
     )
@@ -117,6 +130,7 @@ function UpdateCheckRow() {
   return (
     <div className="form-row">
       <label>Application updates</label>
+      {versionDisplay}
       <>
         {channel === 'download' && (
           <p className="field-note">
@@ -283,6 +297,7 @@ function ShortcutField({
 }
 
 const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string }[] = [
+  { id: 'reading', labelKey: 'Reading & display', icon: 'Aa', descKey: 'Text size, spacing, and reading aids' },
   {
     id: 'keys',
     labelKey: 'settings.section.keys',
@@ -369,6 +384,16 @@ export function SettingsModal({
 }) {
   const [settings, setSettings] = useState<Settings | null>(null)
   useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
+  const [loadError, setLoadError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!settings) return
+    try { configureAudioVolumes(settings) }
+    catch (error) {
+      reportFault('Audio settings', error)
+      setLoadError(String(error instanceof Error ? error.message : error))
+      setSettings(null)
+    }
+  }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])
   // The last state known to be on disk. Autosave fires whenever `settings`
   // drifts from this, and this catches up once the write lands.
   const [persisted, setPersisted] = useState<Settings | null>(null)
@@ -403,6 +428,7 @@ export function SettingsModal({
       })
       .catch((e) => {
         reportFault('Loading settings', e)
+        setLoadError(String(e instanceof Error ? e.message : e))
         setSettings(null)
       })
   }, [])
@@ -616,7 +642,7 @@ export function SettingsModal({
     return (
       <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
         <div className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
-          <p className="center-note">Loading…</p>
+          {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>Close</button></> : <p className="center-note">Loading…</p>}
         </div>
       </div>
     )
@@ -901,6 +927,23 @@ export function SettingsModal({
         </div>
       ),
     },
+    audio_volume: {
+      section: 'voice', label: 'Volume', kw: 'audio master overall volume voice speech tts effects sound mute rewards',
+      node: <div className="audio-volume-controls">
+        {(['master_volume', 'voice_volume', 'effects_volume'] as const).map((key, index) => <div className={`audio-volume-row${index ? ' audio-volume-channel' : ''}`} key={key}>
+          <label htmlFor={key}>{['Overall volume', 'Voice volume', 'Sound effects volume'][index]}</label>
+          <input id={key} type="range" min="0" max="100" step="1" value={settings[key]}
+            onChange={event => setSettings({ ...settings, [key]: Number(event.target.value) })} />
+          <output htmlFor={key}>{settings[key]}%</output>
+        </div>)}
+        <div className="audio-volume-channel audio-effects-toggles">
+          <label className="check-label"><input type="checkbox" checked={settings.reward_sounds !== 'no'}
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'yes' : 'no' })} />Sound effects</label>
+          {settings.reward_sounds !== 'no' && <label className="check-label"><input type="checkbox" checked={settings.reward_sounds === 'follow_tts'}
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'follow_tts' : 'yes' })} />Only with Read aloud</label>}
+        </div>
+      </div>,
+    },
     microphone: {
       section: 'voice',
       label: L('microphone', 'Microphone'),
@@ -1012,8 +1055,21 @@ export function SettingsModal({
         </div>
       ),
     },
+    text_size: {
+      section: 'reading', label: 'Text size', kw: 'font text size reading display accessibility',
+      node: <div className="form-row"><label htmlFor="reading-size">Text size · {settings.text_size}%</label>
+        <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
+      </div>,
+    },
+    text_spacing: {
+      section: 'reading', label: 'Text spacing', kw: 'word text spacing density compact reading display',
+      node: <div className="form-row"><label htmlFor="reading-spacing">Text spacing · {settings.text_spacing}px</label>
+        <input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} />
+        <p className="field-note">Extra room between words, independent of text size.</p>
+      </div>,
+    },
     always_romanize: {
-      section: 'voice',
+      section: 'reading',
       label: L('always_romanize', 'Always show romanization'),
       kw: 'romanization always show latin arabic pinyin pronunciation',
       node: (
@@ -1024,40 +1080,33 @@ export function SettingsModal({
               checked={settings.always_romanize}
               onChange={(e) => setSettings({ ...settings, always_romanize: e.target.checked })}
             />
-            <span>Always show romanization (non-Latin targets like Arabic)</span>
+            <span>Show romanization</span>
           </label>
         </div>
       ),
     },
-    reward_sounds: {
-      section: 'voice', label: 'Play reward sounds', kw: 'sound audio beeps xp rewards reaction confusion mute tts',
-      node: <div className="form-row"><label>Play reward sounds
-        <select aria-label="Play reward sounds" value={settings.reward_sounds} onChange={event => setSettings({ ...settings, reward_sounds: event.target.value as Settings['reward_sounds'] })}>
-          <option value="yes">Yes</option><option value="no">No</option><option value="follow_tts">Follow TTS</option>
-        </select></label><p className="hint">Quiet XP and reaction beeps. Follow TTS uses Read aloud.</p></div>,
-    },
     fast_mode: {
-      section: 'voice',
+      section: 'reading',
       label: 'Fast mode',
       kw: 'xp reward cards fast mode animation dismiss progress',
       node: <div className="form-row check-row"><label className="check-label">
         <input type="checkbox" checked={settings.fast_mode}
           onChange={event => setSettings({ ...settings, fast_mode: event.target.checked })} />
-        <span>Fast mode — automatically dismiss new XP cards after their arrival animation</span>
+        <span>Fast mode · dismiss XP cards automatically</span>
       </label></div>,
     },
     always_pronunciation: {
-      section: 'voice',
+      section: 'reading',
       label: 'Always show pronunciation',
       kw: 'pronunciation phonetic reading coach reply',
       node: <div className="form-row check-row"><label className="check-label">
         <input type="checkbox" checked={settings.always_pronunciation}
           onChange={event => setSettings({ ...settings, always_pronunciation: event.target.checked })} />
-        <span>Always show saved pronunciation in replies and coach advice</span>
+        <span>Show pronunciation</span>
       </label></div>,
     },
     auto_translate: {
-      section: 'voice',
+      section: 'reading',
       label: L('auto_translate', 'Always show translation'),
       kw: 'translation always show native meaning under reply',
       node: (
@@ -1068,7 +1117,7 @@ export function SettingsModal({
               checked={settings.auto_translate}
               onChange={(e) => setSettings({ ...settings, auto_translate: e.target.checked })}
             />
-            <span>Always show the translation under each reply</span>
+            <span>Show message translations</span>
           </label>
         </div>
       ),
@@ -1101,10 +1150,8 @@ export function SettingsModal({
 
   const q = search.trim().toLowerCase()
   const searching = q.length > 0
-  const allRows = Object.entries(rows).filter(([, r]) => !r.hidden)
-  // On mobile every section is shown at once, in one vertical scroll with
-  // headings. The section nav became a cramped horizontal strip on a phone —
-  // scrolling past headings beats scrolling sideways to find a tab.
+  const allRows = Object.entries(rows).filter(([, r]) => !r.hidden).sort(([, a], [, b]) => SECTIONS.findIndex(group => group.id === a.section) - SECTIONS.findIndex(group => group.id === b.section))
+  // Mobile groups settings in collapsible sections; search exposes matching rows.
   const stacked = isMobile && !searching
   const visibleRows = searching
     ? allRows.filter(
@@ -1159,7 +1206,7 @@ export function SettingsModal({
                   }}
                 >
                   <span className="nav-icon">{s.icon}</span>
-                  {t(ui, s.labelKey)}
+                  {tOr(ui, s.labelKey, s.labelKey)}
                 </button>
               ))}
             </nav>
@@ -1172,18 +1219,21 @@ export function SettingsModal({
               {searching
                 ? `${visibleRows.length} ${t(ui, 'settings.matches')}`
                 : stacked
-                  ? tOr(ui, 'settings.subtitle', 'All settings — scroll through.')
-                  : t(ui, activeSection.descKey)}
+                  ? tOr(ui, 'settings.subtitle', 'Expand a section to adjust its settings.')
+                  : tOr(ui, activeSection.descKey, activeSection.descKey)}
             </p>
           </div>
           <div className="settings-scroll">
             {searching && visibleRows.length === 0 && (
               <p className="center-note">Nothing matches “{search.trim()}”.</p>
             )}
-            {renderRows.map(({ id, row, heading }) => (
+            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'reading'}>
+              <summary>{tOr(ui, group.labelKey, group.labelKey)}</summary>
+              {allRows.filter(([, row]) => row.section === group.id).map(([id, row]) => <div key={id} className="settings-entry">{row.node}</div>)}
+            </details>) : renderRows.map(({ id, row, heading }) => (
               <div key={id} className="settings-entry">
                 {heading && (
-                  <p className="settings-group-k">{t(ui, SECTION_LABEL_KEY[heading])}</p>
+                  <p className="settings-group-k">{tOr(ui, SECTION_LABEL_KEY[heading], SECTION_LABEL_KEY[heading])}</p>
                 )}
                 {row.node}
               </div>
@@ -1207,4 +1257,3 @@ export function SettingsModal({
     </div>
   )
 }
-

@@ -8,6 +8,8 @@ export interface SpeechProgress {
 let cachedVoices: SpeechSynthesisVoice[] = []
 let speakToken = 0
 let currentAudio: HTMLAudioElement | null = null
+let currentUtterance: SpeechSynthesisUtterance | null = null
+let voiceVolume = 1
 let finishPlayback: (() => void) | null = null
 let speakingState = false
 let progress: SpeechProgress | null = null
@@ -85,12 +87,21 @@ export function setPlaybackRate(rate: number): void {
   if (currentAudio) currentAudio.playbackRate = rate
 }
 
+export function setVoiceVolume(volume: number): void {
+  if (!Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Voice volume must be between 0 and 1.')
+  voiceVolume = volume
+  if (currentAudio) currentAudio.volume = volume
+  if (currentUtterance) currentUtterance.volume = volume
+  if (volume === 0) stopSpeaking()
+}
+
 export function stopSpeaking(): void {
   speakToken += 1
   finishPlayback?.()
   finishPlayback = null
   if (speechSupported()) window.speechSynthesis.cancel()
   if (currentAudio) { currentAudio.pause(); currentAudio = null }
+  currentUtterance = null
   setSpeaking(false)
   setProgress(null)
 }
@@ -140,7 +151,7 @@ export async function speakSmart(
 ): Promise<boolean> {
   if (!text.trim()) throw new Error('Nothing to speak.')
   stopSpeaking()
-  if (!playbackIsAllowed()) return false
+  if (!playbackIsAllowed() || voiceVolume === 0) return false
   setPlaybackRate(rate)
   const token = speakToken
   setSpeaking(true)
@@ -151,6 +162,7 @@ export async function speakSmart(
       if (!canContinue(token)) return false
       const audio = new Audio(url)
       audio.playbackRate = rate
+      audio.volume = voiceVolume
       audio.preservesPitch = true
       currentAudio = audio
       return await new Promise<boolean>((resolve, reject) => {
@@ -189,11 +201,14 @@ export async function speakSmart(
       utterance.lang = language
       utterance.voice = selected
       utterance.rate = rate
+      utterance.volume = voiceVolume
+      currentUtterance = utterance
       let finished = false
       const finish = (success: boolean, error: Error | null) => {
         if (finished) return
         finished = true
         utterance.onend = utterance.onerror = null
+        if (currentUtterance === utterance) currentUtterance = null
         if (token === speakToken) { finishPlayback = null; setSpeaking(false); setProgress(null) }
         if (error) reject(error)
         else resolve(success)

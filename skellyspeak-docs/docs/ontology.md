@@ -5,6 +5,10 @@ title: Ontology
 
 # Domain model
 
+This page describes current entities. Proposed learner–language profiles, durable
+contacts, relationships and annotated passages are defined in the
+[architecture redesign plan](./architecture-redesign); they are not yet implemented.
+
 The persisted entities are settings, language pairings, conversations, tutor
 memory, explicit lesson choices, custom personas and the private coach thread. Model-call traces describe
 execution. Type definitions live in Rust and `src/types.ts`; the graph is built
@@ -194,7 +198,7 @@ and credential-service identity. Release storage is not migrated or read by a
 debug build. Ordinary logs contain operational metadata; content-bearing AI
 traces retain their separate inspection and deletion contract.
 
-The Rust-owned `Settings.always_pronunciation` preference defaults to false and controls automatic display of saved `AssistedPhrase.pronunciation` in partner replies and composer Coach advice. The shared pronunciation presentation also supports a one-way reveal button. Mobile Chat/Lesson selection belongs to the app shell so secondary Skill Tree navigation cannot hide the way back to practice.
+The Rust-owned `Settings.always_pronunciation` preference defaults to false and controls token-level pronunciation in chat and Coach through `TokenSpan`. Sentence-level `AssistedPhrase.pronunciation` remains in saved advice but is not rendered. Mobile Chat/Lesson selection belongs to the app shell so secondary Skill Tree navigation cannot hide the way back to practice.
 
 `Settings.fast_mode` is persisted by Rust and defaults to true. New credit detection sends each reward directly into the shared card presentation stack; animation does not gate model processing or later rewards. Automatic arrivals are staggered by 460–560 ms; in Fast mode each card holds for 500 ms after opening before departing; manually inspected cards remain until dismissed. Presentation does not change earned credit.
 
@@ -215,3 +219,9 @@ A completed opening is an assistant history message even though its turn has no 
 Rust settings persist `reward_sounds` as `yes`, `no`, or `follow_tts`; the default follows `auto_speak`. `reward-sounds.ts` synthesizes bounded Web Audio motifs without model calls or audio downloads. Automatic XP cues are attached to new-card settlement, manual inspection pops to XP-icon clicks, and partner cues only to newly received confused/understood results. Visible-source glow and audio share scheduling; offscreen or inactive sources stay silent. App lifecycle cancellation stops scheduled oscillators and highlights alongside TTS. Historical inspection never replays earning sounds.
 
 Reward audio activation listens in capture phase to mouse, keyboard, and touch-release events. Enabled, foreground contexts resume from both suspended and WebKit interrupted states on user interaction; inactive or muted contexts stay silent. Resuming does not recreate cancelled notes.
+
+Reading presentation shares `TokenSpan` across chat and `TargetText` surfaces. `ReadingProvider` supplies language preferences and a bounded transient, language-pair-scoped cache of complete annotation requests keyed by source text and context. The Rust `annotate_text` command uses a dedicated mixed-language reading prompt, the configured provider routing and `TokensOut` schema. Its separate `annotate_text` operation appears as Text annotations in diagnostics. For word-delimited target languages, Rust supplies exact whitespace-delimited source entries and rejects changed, split or merged entries; other target languages retain meaningful-word segmentation with exact source coverage. Every entry containing letters or numbers requires a contextual gloss and pronunciation, including quoted words, native-language words and numbers. Validation feedback identifies the offending token and missing fields; punctuation-only entries may omit these aids. These checks reject invalid output rather than substituting annotations. Unsaved reading text prepares annotations on mount; ordinary word taps only toggle prepared meanings. Hold/right-click explicitly invokes deeper `word_insight` analysis. Cached and in-flight annotations are shared across preview, panel reopen and duplicate text within the mounted reading provider; this cache does not survive app restart. Markdown preserves its surrounding source as inspection context. Explicit request failures appear inline. Saved token annotations are reused when supplied. The Rust settings contract persists `text_size` (75–150%, default 100) and `text_spacing` (0–12px, default 2); CSS scales reading text and word spacing independently. Token pronunciation is gated solely by `always_pronunciation`, including after a gloss reveal. Message Translate buttons and `auto_translate` select the same inline rendering; changing the global preference clears local translation overrides.
+
+Reading display preferences are shared through `ReadingPreferencesProvider`. The guided surface supplies its current settings so quick toggles update Coach, lesson examples, token annotations and analysis dialogs immediately. Coach suggestion words remain inspectable; only the trailing insertion icon fills the draft. The top-bar settings panel uses transient disclosure state and starts closed. Translation, pronunciation and romanization displays respect their corresponding preferences.
+
+Audio volume preferences (`master_volume`, `voice_volume`, `effects_volume`) are persisted by Rust as validated percentages from 0 to 100, defaulting to 100 for existing settings. The frontend multiplies master by each channel before playback: speech uses the cloud audio element or OS utterance volume, while reward sounds share an output gain. The existing `reward_sounds` policy independently controls whether effects play.

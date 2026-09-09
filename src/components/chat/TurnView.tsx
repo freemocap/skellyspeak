@@ -1,17 +1,18 @@
-import { DetailDialog } from '../DetailDialog'
+import { TargetText } from '../TargetText'
+import { TokenSpan } from '../TokenSpan'
 import { RewardInspectionContext } from './RewardInspectionContext'
 import { InlineXpBadge } from './InlineXpBadge'
 import { ActivityIndicator } from '../ActivityIndicator'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { PracticeContext } from '../panes/PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../lib/message-evidence'
-import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
+import { Fragment, memo, useEffect, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import { PartnerReaction } from './PartnerReaction'
 import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
 import { popupAnchor, type PopupState } from '../GlossPopup'
 import { groupSentences, splitSentences } from '../../lib/sentences'
-import { needsSpaceBetween } from '../../lib/token-spacing'
+import { sourceToken } from '../../lib/source-token'
 
 export interface TurnShape {
   id: number
@@ -34,103 +35,6 @@ interface TokenEntry {
 function tokenEntries(tokens: GuidedToken[]): TokenEntry[] {
   return groupSentences(tokens).flatMap((sentence, si) =>
     sentence.map((tok) => ({ tok, si }))
-  )
-}
-
-interface TokenSpanProps {
-  tok: GuidedToken
-  revealed: boolean
-  hasTranslation: boolean
-  showRomanization: boolean
-  alwaysRomanize: boolean
-  alwaysPronunciation: boolean
-  onTap: (e: React.MouseEvent<HTMLSpanElement>) => void
-  onDragStart: () => void
-  onDragOver: () => void
-  onInspect: (e: React.MouseEvent<HTMLSpanElement>) => void
-  onHold: () => void
-}
-
-function TokenSpan({
-  tok,
-  revealed,
-  hasTranslation,
-  showRomanization,
-  alwaysRomanize,
-  alwaysPronunciation,
-  onTap,
-  onDragStart,
-  onDragOver,
-  onInspect,
-  onHold,
-}: TokenSpanProps) {
-  const tappable = !!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation
-  // Press-and-hold (450ms, near-stationary) opens the deep word-insight
-  // modal. Works for mouse + touch; a plain click never fires it, and
-  // dragging cancels it.
-  const holdTimer = useRef<number | null>(null)
-  const heldRef = useRef(false)
-  const pressPos = useRef<{ x: number; y: number } | null>(null)
-  const [holding, setHolding] = useState(false)
-  const startHold = (e: React.PointerEvent<HTMLSpanElement>) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return
-    heldRef.current = false
-    pressPos.current = { x: e.clientX, y: e.clientY }
-    holdTimer.current = window.setTimeout(() => {
-      holdTimer.current = null
-      heldRef.current = true
-      setHolding(true)
-      onHold()
-    }, 450)
-  }
-  const cancelHold = () => {
-    if (holdTimer.current !== null) {
-      window.clearTimeout(holdTimer.current)
-      holdTimer.current = null
-    }
-    setHolding(false)
-  }
-  const trackHoldMove = (e: React.PointerEvent<HTMLSpanElement>) => {
-    if (holdTimer.current === null) return
-    const p = pressPos.current
-    if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 8) cancelHold()
-  }
-  const clickTap = (e: React.MouseEvent<HTMLSpanElement>) => {
-    if (heldRef.current) {
-      heldRef.current = false // the long-press just fired — suppress the click
-      return
-    }
-    onTap(e)
-  }
-  return (
-    <span className="wu" onClick={(e) => e.stopPropagation()}>
-      <span
-        className={`w ${tok.notable ? 'notice' : ''}${tappable ? ' tap' : ''}${
-          revealed ? ' revealed' : ''
-        }${holding ? ' holding' : ''}`}
-        role={tappable ? 'button' : undefined}
-        tabIndex={tappable ? 0 : undefined}
-        onKeyDown={event => { if (tappable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}
-        data-gloss-trigger={tappable || undefined}
-        onClick={tappable ? clickTap : undefined}
-        onPointerDown={startHold}
-        onPointerMove={trackHoldMove}
-        onPointerUp={cancelHold}
-        onPointerLeave={cancelHold}
-        onPointerCancel={cancelHold}
-        onMouseDown={onDragStart}
-        onMouseEnter={onDragOver}
-        onContextMenu={onInspect}
-      >
-        {tok.text}
-      </span>
-      {revealed && tok.gloss && <span className="wg">{tok.gloss}</span>}
-      {(revealed || alwaysPronunciation) && tok.pronunciation && <span className="wpronunciation" dir="auto">{tok.pronunciation}</span>}
-      {/* Always-visible romanization does not depend on revealing the gloss. */}
-      {(revealed || alwaysRomanize) && showRomanization && tok.romanization && (
-        <span className="wroman">{tok.romanization}</span>
-      )}
-    </span>
   )
 }
 
@@ -196,8 +100,9 @@ export const TurnView = memo(function TurnView({
     if (!inspection) throw new Error('XP inspection provider is missing')
     inspection.open(items, turn.id, turn.user ?? '')
   }
-  const [showUserTranslation, setShowUserTranslation] = useState(false)
-  const [showPartnerTranslation, setShowPartnerTranslation] = useState(false)
+  const [showUserTranslation, setShowUserTranslation] = useState<boolean | null>(null)
+  const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
+  useEffect(() => { setShowUserTranslation(null); setShowPartnerTranslation(null) }, [autoTranslate])
   const [creditGenerations, setCreditGenerations] = useState<Record<string, number>>({})
   const restoreCredits = (items: MessageEvidence[]): void => setCreditGenerations(previous => {
     const next = { ...previous }
@@ -211,7 +116,7 @@ export const TurnView = memo(function TurnView({
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); restoreCredits(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : text
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); restoreCredits(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
@@ -281,22 +186,25 @@ export const TurnView = memo(function TurnView({
     let cursor = 0
     return (
     <span className={rtl ? 'line rtl-line' : 'line'}>
-      {entries.map(({ tok, si }, gi) => {
-        const start = rawText.indexOf(tok.text, cursor)
-        cursor = start < 0 ? rawText.length : start + tok.text.length
+      {entries.map(({ tok: annotation, si }, gi) => {
+        const match = sourceToken(rawText, annotation.text, cursor)
+        if (!match) return null
+        const { start, end } = match
+        const prefix = rawText.slice(cursor, start)
+        const tok = { ...annotation, text: match.text }
+        cursor = end
         const matches = side === 'me' && start >= 0 ? evidence.filter(item => item.start < cursor && item.end > start) : []
         const endingCredits = matches.filter(item => item.end <= cursor)
         const key = `${turnId}:${side}:${gi}`
         const isRevealed = revealed.has(key)
-        const prev = gi > 0 ? entries[gi - 1].tok.text : ''
-        const space = gi > 0 && needsSpaceBetween(prev, tok.text) ? ' ' : ''
         return (
           <Fragment key={`${side}-${gi}`}>
-            {space}
-          <span className={matches.length ? 'message-evidence' : undefined} style={evidenceStyle(matches)} data-reward-evidence={matches.length ? JSON.stringify([...new Set(matches.map(item => item.id))]) : undefined}>
+            {prefix}
+          <span className={matches.length ? 'message-evidence token-evidence' : undefined} data-reward-evidence={matches.length ? JSON.stringify([...new Set(matches.map(item => item.id))]) : undefined}>
           <TokenSpan
             key={`${side}-${gi}`}
             tok={tok}
+            textStyle={evidenceStyle(matches)}
             revealed={isRevealed}
             hasTranslation={!!translation}
             showRomanization={showRomanization}
@@ -327,6 +235,7 @@ export const TurnView = memo(function TurnView({
           </Fragment>
         )
       })}
+      {rawText.slice(cursor)}
     </span>
   )
   }
@@ -336,7 +245,7 @@ export const TurnView = memo(function TurnView({
       {turn.user && (
         <div
           data-reward-message={turn.id}
-          className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''}${assistant?.user_translation ? ' with-actions' : ''}`}
+          className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''} with-actions`}
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
           }
@@ -344,12 +253,11 @@ export const TurnView = memo(function TurnView({
           {userEntries.length > 0
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
             : plainEvidence}
-          {assistant?.user_translation && <>
-            {showUserTranslation && <DetailDialog title="Your message translation" onClose={() => setShowUserTranslation(false)}><h2>Your message translation</h2><p dir={rtl ? 'rtl' : 'ltr'}>{turn.user}</p><p dir="auto">{assistant.user_translation}</p></DetailDialog>}
-            <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-              <button type="button" className="message-translate" aria-label="Translate your message" aria-haspopup="dialog" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!showUserTranslation) }}>Translate</button>
-            </div>
-          </>}
+          {(showUserTranslation ?? autoTranslate) && assistant?.user_translation && <div className="trans" dir="auto">{assistant.user_translation}</div>}
+          <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
+            <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach} />
+            {assistant?.user_translation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation ?? autoTranslate} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation ?? autoTranslate)) }}>Translate</button>}
+          </div>
           {onEditUser && (
             <button
               type="button"
@@ -366,7 +274,6 @@ export const TurnView = memo(function TurnView({
           )}
         </div>
       )}
-      {turn.user && <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach} />}
       {assistant && (
         <div
           onDoubleClick={() =>
@@ -383,19 +290,18 @@ export const TurnView = memo(function TurnView({
               assistant.reply
             )
           ) : (
-            assistant.reply
+            <TargetText text={assistant.reply} />
           )}
           {/* Auto-translate shows the reply's translation without a tap; the
               per-sentence tap still works on top of it. */}
           {turn.user && <PartnerReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={onEditUser ? () => onEditUser(turn) : undefined} />}
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-haspopup="dialog" aria-expanded={showPartnerTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(true) }}>Translate</button>}
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation ?? autoTranslate} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation ?? autoTranslate)) }}>Translate</button>}
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
           </div>
-          {autoTranslate && assistant.translation && (
-            <div className="trans">{assistant.translation}</div>
+          {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
+            <div className="trans" dir="auto">{assistant.translation}</div>
           )}
-          {showPartnerTranslation && assistant.translation && <DetailDialog title="Partner message translation" onClose={() => setShowPartnerTranslation(false)}><h2>Partner message translation</h2><p dir={rtl ? 'rtl' : 'ltr'}>{assistant.reply}</p><p dir="auto">{assistant.translation}</p></DetailDialog>}
           {ttsReady && (
             <button
               type="button"

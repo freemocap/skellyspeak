@@ -143,12 +143,24 @@ pub struct Settings {
     /// Show saved approximate pronunciation in replies and coach advice.
     #[serde(default)]
     pub always_pronunciation: bool,
+    /// Reading font size as a percentage of the standard size.
+    #[serde(default = "default_text_size")]
+    pub text_size: u16,
+    /// Extra space between interactive words, in pixels.
+    #[serde(default = "default_text_spacing")]
+    pub text_spacing: u16,
     /// New XP cards animate through without waiting for dismissal.
     #[serde(default = "default_fast_mode")]
     pub fast_mode: bool,
     /// Short XP and partner reaction beeps; follow_tts follows auto_speak.
     #[serde(default)]
     pub reward_sounds: RewardSounds,
+    #[serde(default = "default_volume", deserialize_with = "deserialize_volume")]
+    pub master_volume: u8,
+    #[serde(default = "default_volume", deserialize_with = "deserialize_volume")]
+    pub voice_volume: u8,
+    #[serde(default = "default_volume", deserialize_with = "deserialize_volume")]
+    pub effects_volume: u8,
     /// Configurable keyboard shortcuts.
     #[serde(default)]
     pub shortcuts: Shortcuts,
@@ -202,6 +214,14 @@ fn default_native() -> String {
 
 fn default_fast_mode() -> bool { true }
 
+fn default_text_size() -> u16 {
+    100
+}
+
+fn default_text_spacing() -> u16 {
+    2
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -224,8 +244,13 @@ impl Default for Settings {
             always_romanize: false,
             auto_translate: false,
             always_pronunciation: false,
+            text_size: default_text_size(),
+            text_spacing: default_text_spacing(),
             fast_mode: true,
             reward_sounds: RewardSounds::FollowTts,
+            master_volume: default_volume(),
+            voice_volume: default_volume(),
+            effects_volume: default_volume(),
             shortcuts: Shortcuts::default(),
             tts_engine: default_tts_engine(),
             tts_voice: default_tts_voice(),
@@ -669,4 +694,50 @@ fn reward_sound_choices_round_trip_and_default_to_follow_tts() {
     assert!(serde_json::from_value::<Settings>(stored).is_err());
 }
 
+}
+
+
+#[test]
+fn reading_preferences_restore_defaults_and_round_trip_independently() {
+    let mut stored = serde_json::to_value(Settings::default()).unwrap();
+    stored.as_object_mut().unwrap().remove("text_size");
+    stored.as_object_mut().unwrap().remove("text_spacing");
+    let mut restored: Settings = serde_json::from_value(stored).unwrap();
+    assert_eq!(restored.text_size, 100);
+    assert_eq!(restored.text_spacing, 2);
+    restored.text_size = 125;
+    restored.text_spacing = 0;
+    let reloaded: Settings = serde_json::from_value(serde_json::to_value(restored).unwrap()).unwrap();
+    assert_eq!(reloaded.text_size, 125);
+    assert_eq!(reloaded.text_spacing, 0);
+}
+
+fn default_volume() -> u8 { 100 }
+
+fn deserialize_volume<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<u8, D::Error> {
+    let volume = <u8 as serde::Deserialize>::deserialize(deserializer)?;
+    if volume > 100 { return Err(serde::de::Error::custom("Volume must be between 0 and 100%.")); }
+    Ok(volume)
+}
+
+#[test]
+fn audio_volumes_default_round_trip_and_reject_invalid_values() {
+    let mut stored = serde_json::to_value(Settings::default()).unwrap();
+    for key in ["master_volume", "voice_volume", "effects_volume"] {
+        stored.as_object_mut().unwrap().remove(key);
+    }
+    let defaults: Settings = serde_json::from_value(stored.clone()).unwrap();
+    assert_eq!((defaults.master_volume, defaults.voice_volume, defaults.effects_volume), (100, 100, 100));
+    for key in ["master_volume", "voice_volume", "effects_volume"] {
+        for value in [0, 35, 100] {
+            stored[key] = serde_json::json!(value);
+            let restored: Settings = serde_json::from_value(stored.clone()).unwrap();
+            assert_eq!(serde_json::to_value(restored).unwrap()[key], value);
+        }
+        for value in [-1, 101, 256] {
+            stored[key] = serde_json::json!(value);
+            assert!(serde_json::from_value::<Settings>(stored.clone()).is_err());
+        }
+        stored[key] = serde_json::json!(100);
+    }
 }
