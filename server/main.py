@@ -513,10 +513,12 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         provider_id = ""
         completed = False
         settled = False
+        upstream_status: int | None = None
         try:
             async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
                 async with client.stream("POST", url, json=contract.payload, headers=headers) as upstream:
                     if not upstream.is_success:
+                        upstream_status = upstream.status_code
                         raise RuntimeError(f"AI provider returned {upstream.status_code}.")
                     async for payload in streaming.events(upstream.aiter_bytes()):
                         if payload is None:
@@ -541,7 +543,10 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                 except Exception as settlement_error:
                     exc = RuntimeError(f"{exc}; {settlement_error}")
             log.error("Chat stream failed for reservation %s (%s)", reservation.request_id, type(exc).__name__)
-            yield ("data: " + json.dumps({"error": {"message": "Chat stream failed. The reservation remains charged unless usage was verified."}}) + "\n\n").encode()
+            error_payload: dict[str, object] = {"message": "Chat stream failed. The reservation remains charged unless usage was verified."}
+            if upstream_status is not None:
+                error_payload["code"] = upstream_status
+            yield ("data: " + json.dumps({"error": error_payload}) + "\n\n").encode()
         finally:
             if not settled:
                 await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)

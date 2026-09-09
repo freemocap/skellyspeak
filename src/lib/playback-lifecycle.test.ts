@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest'
 import { installNativePlaybackLifecycle } from './playback-lifecycle'
+import capabilities from '../../src-tauri/capabilities/default.json'
 
 const native = vi.hoisted(() => ({
   focus: vi.fn(), close: vi.fn(), listen: vi.fn(),
@@ -26,4 +27,22 @@ it('connects native focus, close, and mobile suspension events and removes all l
   dispose()
   expect(unlisten).toHaveBeenCalledTimes(4)
   expect(lifecycle.dispose).toHaveBeenCalledOnce()
+})
+
+it('permits Tauri to destroy both windows after playback close cleanup', async () => {
+  const { Window } = await vi.importActual<typeof import('@tauri-apps/api/window')>('@tauri-apps/api/window')
+  for (const label of ['main', 'skellyspeak-dev']) {
+    expect(capabilities.windows).toContain(label)
+  }
+  expect(capabilities.permissions).toContain('core:window:allow-destroy')
+
+  const appWindow: InstanceType<typeof Window> = Object.create(Window.prototype)
+  const listen = vi.spyOn(appWindow, 'listen').mockResolvedValue(() => {})
+  const destroy = vi.spyOn(appWindow, 'destroy').mockResolvedValue()
+  const close = vi.fn()
+  await appWindow.onCloseRequested(close)
+  await listen.mock.calls[0][1]({ event: 'tauri://close-requested', id: 1, payload: null })
+  expect(close).toHaveBeenCalledOnce()
+  expect(destroy).toHaveBeenCalledOnce()
+  expect(close.mock.invocationCallOrder[0]).toBeLessThan(destroy.mock.invocationCallOrder[0])
 })

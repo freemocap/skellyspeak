@@ -39,7 +39,7 @@ impl Decoder {
                         .map_err(|e| format!("Provider sent malformed SSE JSON: {e}"))?;
                     if !value.is_object() { return Err("Provider SSE payload is not an object".into()); }
                     if value.get("error").is_some_and(|v| !v.is_null()) {
-                        return Err("Provider stream failed.".into());
+                        return Err(stream_error(&value["error"]));
                     }
                     if value["choices"].as_array().is_some_and(|choices|
                         choices.iter().any(|c| matches!(c["finish_reason"].as_str(), Some("length" | "content_filter" | "error")))) {
@@ -97,4 +97,26 @@ mod tests {
 fn provider_errors_do_not_echo_private_payloads() {
     let error = Decoder::default().push(b"data: {\"error\":\"PRIVATE_TRANSCRIPT_API_KEY\"}\n\n").unwrap_err();
     assert_eq!(error, "Provider stream failed.");
+}
+
+fn stream_error(error: &Value) -> String {
+    // The hosted service reports HTTP failures either as a status object or a fixed status sentence.
+    let code = error["code"].as_u64().and_then(|code| u16::try_from(code).ok())
+        .or_else(|| error.as_str()?.strip_prefix("The AI provider returned ")?.strip_suffix('.')?.parse::<u16>().ok());
+    match code {
+        Some(402) => "Speech/AI provider credit or spending limit reached (402). For Google sign-in, the hosted service operator must check its OpenRouter balance and key limit; for your own API key, check your OpenRouter account.".into(),
+        Some(code @ 400..=599) => crate::network::provider_error(reqwest::StatusCode::from_u16(code).expect("validated HTTP error status")),
+        _ => "Provider stream failed.".into(),
+    }
+}
+
+#[test]
+fn stream_payment_errors_explain_the_limit_without_exposing_provider_payloads() {
+    for error in [serde_json::json!("The AI provider returned 402."), serde_json::json!({"code": 402, "message": "PRIVATE_TRANSCRIPT_API_KEY"})] {
+        let message = stream_error(&error);
+        assert!(message.contains("credit or spending limit"));
+        assert!(message.contains("hosted service operator"));
+        assert!(!message.contains("PRIVATE"));
+    }
+    assert_eq!(stream_error(&serde_json::json!({"code": "PRIVATE"})), "Provider stream failed.");
 }

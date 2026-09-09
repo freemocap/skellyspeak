@@ -132,3 +132,15 @@ async def test_exhausted_audio_budget_never_decodes(
     response: httpx.Response = await proxy.post("/v1/audio/transcriptions", content=b"not audio",
                                               headers={"Content-Type": "multipart/form-data; boundary=test"})
     assert response.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_upstream_payment_failure_preserves_safe_status(proxy: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    def respond(sent: httpx.Request) -> httpx.Response:
+        return httpx.Response(status_code=402, text="PRIVATE_PROVIDER_BODY")
+
+    upstream(monkeypatch, respond)
+    response: httpx.Response = await proxy.post("/v1/chat/completions", json=request(stream=True))
+    assert '"code": 402' in response.text
+    assert "PRIVATE_PROVIDER_BODY" not in response.text
+    assert "[DONE]" not in response.text
