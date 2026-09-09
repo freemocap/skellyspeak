@@ -5,11 +5,29 @@ sidebar_position: 7.1
 
 # Learner, contacts, and language architecture plan
 
-Discussion plan, September 9, 2026. **Proposed architecture, not shipped behavior.**
-Implementation begins after the user finishes and pushes the current work and we
-reinspect that baseline. This document is the consolidated planning source for
-the redesign; [Architecture](./architecture) and [Ontology](./ontology) continue
-to describe the implementation. Visual design will be developed during the work.
+Execution plan, September 9, 2026. **Refactor authorized; target architecture is
+not yet shipped.** The
+[execution checklist](./refactor-execution) records verified work, implementation
+boundaries and remaining tasks. This document is the consolidated design source;
+[Architecture](./architecture) and [Ontology](./ontology) continue to describe the
+implementation. Visual design will be developed during the work.
+
+## Intention
+
+Build a beautiful, elegant and convivial tool that helps people learn languages
+through welcoming conversations, useful assistance and visible, understandable
+progress. Practice should invite another conversation; feedback should help the
+learner notice what they can do and choose what to try next. Gardens and avatars
+make that experience personal without turning learning into pressure or obligation.
+
+Language features need shared contracts, durable concepts need clear owners, and
+useful AI results should be reused. Success includes the code we remove. Complete each implementation with
+meaningful verification and documentation of the actual behavior.
+
+The cutover is destructive and starts with empty application data. No backups,
+data imports, compatibility adapters, dual schemas or preservation requirements.
+The user handles application data deletion. Code and documentation describe only
+the current design or explicitly planned behavior, without project-history narratives.
 
 ## Direction agreed in discussion
 
@@ -36,7 +54,7 @@ relationship gardens offer different views of that evidence.
 - Unify language analysis, validation, caching and result reuse across all surfaces.
 - Evaluate cheaper models for annotation independently of conversation and coaching.
 - Support language-specific reference resources and future language expansion.
-- Complete each migration boundary, including removal of its obsolete implementation.
+- Complete each implementation boundary, including deletion of unnecessary code.
 
 ## Ownership and entities
 
@@ -56,7 +74,7 @@ relationship gardens offer different views of that evidence.
 | Partner reaction | Comprehension status and separately expressed emotional response, with source-grounded rationale |
 
 Rust owns durable data, provider routing, prompts, cache resolution, validation,
-progression and migrations. React owns presentation and transient interaction
+progression and schema initialization. React owns presentation and transient interaction
 state. A shared frontend store receives backend snapshots and scoped events through
 one integration layer. Components use selectors rather than independent fetch and
 invalidation conventions. The hosted service retains authentication, validation,
@@ -164,8 +182,8 @@ Define a versioned recipe: generator ID/version, integer seed, explicit palette,
 geometry parameters and outline. Randomize by choosing valid parameters and saving
 the concrete result; manual editing operates on that same recipe. Reroll only on
 explicit action. Editing a name or opening a conversation cannot change the image.
-Reopening or resizing reproduces the composition; revisions deliberately preserve
-or migrate existing recipes. Pixel-identical GPU output across devices is not assumed.
+Reopening or resizing reproduces the composition. Pixel-identical GPU output across
+devices is not assumed.
 
 Shader-style math fits this architecture: signed-distance shapes, repeated tiles,
 warped contours and combinations of waves/noise can describe static patterns.
@@ -307,13 +325,12 @@ Language capabilities must separately describe conversation, annotation, resourc
 speech input/output and UI localization. Unsupported capabilities must be explicit.
 Start resource evaluation with Spanish, then test Arabic and Mandarin constraints;
 existing English/French support remains in the quality matrix. Additional languages
-and aesthetic redesign are subsequent work, not prerequisites for the core migration.
+and aesthetic redesign are subsequent work, not prerequisites for core ownership.
 
 ## Decisions to settle before affected implementation
 
 | Decision | Recommended starting position | Needed before |
 | --- | --- | --- |
-| Existing user data | Preserve with a verified one-time migration and recoverable backup; no destructive clean start by default | Persistence cutover |
 | Learner identity scope | One explicit local learner initially; keep hosted account identity separate; defer switching/sync | Schema approval |
 | Canonical language and preference scope | One profile per language, variety-tagged evidence, language overrides for assistance/difficulty; explicit conversation overrides | Profile schema |
 | Automatic difficulty | Recommendations only initially; learner keeps control | Profile/prompt integration |
@@ -323,42 +340,37 @@ and aesthetic redesign are subsequent work, not prerequisites for the core migra
 | Avatar renderer and editable parameters | Seeded static SVG first; benchmark shader recipes before adding WebGL; user-controlled randomization and edits | Avatar implementation |
 | Vibe registry and output boundary | Separate authored/observed/reaction records; define Unicode handling, group limits and literal/associative provenance | Vibe contract |
 | Descriptive statistics | Once-per-message counts with explicit author/language scopes, denominators and deletion behavior | Vibe/statistics persistence |
-| Uncharacterized conversations | Preserve existing no-persona conversations explicitly; decide their place in contact navigation | Contact UX |
 | State and storage tools | Zustand frontend; evaluate SQLite for durable indexed domain data and separate bounded caches | Technical design |
 | Resource packaging | Optional language packs; choose a starter pack only after size/offline requirements are agreed | Resource integration |
 | Quality and performance budgets | Approve reviewed multilingual gates and measured budgets; no unmeasured percentage promises | Model/resource selection |
 
-Exact flower aesthetics, character creator layout and animation can be decided
+Exact flower aesthetics and character creator layout can be decided
 through prototypes during implementation. They must not determine evidence ownership.
 
 ## Execution sequence and exit gates
 
-### 0. Freeze the baseline and approve contracts
+### 0. Define contracts
 
-After the user's update, reinspect implementation and repository instructions.
-Inventory authoritative stores, IPC, event subscriptions, prompts, caches, UI
-consumers and tests. Capture baseline behavior and representative multilingual
-fixtures. Settle schema-blocking decisions above. Record every retiring path and
-its replacement in a migration checklist. The user performs all Git writes.
+Define authoritative stores, IPC, event subscriptions, prompts, caches, UI
+consumers and tests. Create representative multilingual fixtures. Settle
+schema-blocking decisions above and use the execution checklist to track complete
+implementation boundaries. The user performs all Git writes.
 
 ### 1. Establish learner and language ownership
 
-Implement versioned entities, scoped preferences and migration. Replace global
-difficulty storage and pair-scoped ownership where the new model requires it.
-Introduce shared frontend state and the backend snapshot/event bridge. Migrate
-all affected readers/writers together. Gate: switching languages restores each
+Implement entities and scoped preferences from empty storage. Introduce shared
+frontend state and the backend snapshot/event bridge. Connect all affected
+readers/writers together. Gate: switching languages restores each
 profile's choices; changing explanation language or dialect cannot lose progress;
 late events and concurrent saves cannot cross ownership boundaries.
 
 ### 2. Establish durable contacts and relationships
 
-Migrate saved partners without inventing missing identity or merging similar names.
-Replace template-per-chat selection as the contact ownership mechanism. Implement
-contact navigation, multiple conversations, latent backgrounds and scoped shared
+Implement stable contact identities, contact navigation, multiple conversations,
+latent backgrounds and scoped shared
 memory. Include saved static avatar recipes and editable persona Vibe groups.
 Gate: continuity survives restart and template edits; avatars remain static and
-recognizable; coach privacy and
-historical identity remain intact; every old chat has an explicit destination.
+recognizable; coach privacy and conversation ownership are enforced.
 
 ### 3. Consolidate language work end to end
 
@@ -388,32 +400,30 @@ and batch unresolved work. Gate: approved linguistic/performance budgets pass on
 the supported-language matrix. Expand language capabilities only with corresponding
 tests and honest support declarations.
 
-These are complete vertical migrations, not indefinite parallel architectures.
-A temporary adapter may exist only inside an unfinished migration with an explicit
-removal gate; it must not become a shipped permanent compatibility layer.
+Each phase delivers a complete vertical implementation. Compatibility adapters,
+including temporary adapters, are prohibited.
 
 ## Definition of a clean cutover
 
-- One authoritative writer and contract per concept; all consumers migrated.
+- One authoritative writer and contract per concept; all consumers connected.
 - Obsolete IPC, stores, hooks, prompts, schemas, caches, CSS and tests removed or
   rewritten to test the replacement behavior. Search the full repository for old
-  identifiers and verify remaining historical references are intentionally labeled.
-- Import old data once; no dual writes or normal-operation reads of legacy schemas.
-  Verify counts, source references and identity ownership before marking migration
-  complete. Test interruption/restart and recoverability. Fail on invalid states.
-- Keep necessary migration code isolated and versioned; data preservation does not
-  justify retaining a second runtime architecture. Never infer identity or historical
-  proficiency that the source data cannot establish.
+  identifiers and remove unnecessary references, files and historical narratives.
+- Initialize empty storage directly with the current schema. No imports, backups,
+  compatibility readers or dual writes. Fail on invalid states.
+- Test initialization, atomic writes, restart and reset against the current schema.
+  Learning evidence must support every proficiency claim.
 - Run relevant repository checks and stop on failure: frontend tests/build, Rust
   clippy/tests, hosted tests when contracts change, and docs build. Test real Tauri
   integration and applicable native-device behavior separately; unit tests do not
   establish microphone, speech, signing or live-cloud results.
 - Verify language/contact switching during active work, refresh races, restart,
-  migration, cache invalidation, data deletion and factory reset with meaningful
+  initialization, cache invalidation, data deletion and factory reset with meaningful
   integration fixtures. Avoid implementation-mirroring tests.
 - Update current architecture/ontology and the nearest public behavior docs in the
   same phase; update privacy/hosted docs when retention or routing changes. Remove
   completed roadmap items. Retire this plan when implementation docs fully replace it.
 
-No application behavior is changed by this planning task. Existing uncommitted work
-is outside the migration until the baseline is ready.
+Track implementation and cutover verification in the
+[execution checklist](./refactor-execution). Mark gates complete only after their
+checks pass.
