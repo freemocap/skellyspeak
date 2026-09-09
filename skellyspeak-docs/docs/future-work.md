@@ -15,15 +15,18 @@ learner–language profiles, durable contacts, relationship flowers, proficiency
 reports, shared frontend state, language services, caching and model/resource
 evaluation. It also includes static procedural avatars, editable persona Vibe,
 source-attributed emoji observations, expanded reactions and descriptive statistics.
-It records agreed direction, open decisions and complete migration
-gates. Implementation starts after the current work is finished and the resulting
-baseline is reviewed. These are proposals, not shipped capabilities.
+It records agreed direction, open decisions and complete implementation gates.
+The refactor uses a destructive, fresh-data cutover with no backups, imports or
+compatibility paths. The user handles application data deletion. The
+[execution checklist](./refactor-execution) tracks the rollout, starting with
+learner and language ownership. These capabilities remain unshipped until their
+individual cutover gates pass.
 
 ## Meaning-domain progression
 
 The [meaning-domain design](./skill-progression-design) defines the implemented
 catalog, local profile, evidence-derived XP/checks/stars and saved practice focus.
-The two product surfaces are Guided conversation and Skill tree; Stories is retired.
+The two product surfaces are Guided conversation and Skill tree.
 
 Next, calibrate the actual rubrics against reviewed multilingual examples,
 including grammatical partials, uncertainty, assistance, revisions and false
@@ -33,8 +36,8 @@ views remain future work. Avoid fixed branching factors or node-count targets.
 
 ## Local mechanical analysis
 
-The [shared language service plan](./architecture-redesign#shared-language-service-and-ai-policy)
-replaces the earlier standalone migration sequence. First unify passage contracts,
+Follow the [shared language service plan](./architecture-redesign#shared-language-service-and-ai-policy).
+First unify passage contracts,
 validation, result reuse and contextual caching; then compare smaller models and
 language-specific dictionaries/morphology against reviewed multilingual fixtures.
 Batch unresolved spans with context and retain provenance and attribution.
@@ -45,11 +48,9 @@ the existing languages; they do not define separate progression curricula.
 
 ## Prompt provenance and workbench
 
-The [September instruction-flow audit](./ai-instruction-audit-2026-09-06)
-records historical evidence of the zero-level failure. Captured context, shared
-practice policy, per-attempt requests, durable traces, scoped exports and the
-request comparison reader are now described in [Observability](./observability).
-Remaining work includes:
+Captured context, practice policy, per-attempt requests, durable traces, scoped
+exports and the request comparison reader are described in
+[Observability](./observability). Planned work includes:
 
 - Fine-grained prompt-block provenance for every model operation.
 - Preparation, skipped-work, cancellation and speech/transcription coverage.
@@ -61,7 +62,7 @@ Remaining work includes:
 ## Security follow-up
 
 - Protect main and release tags; enable hosted repository secret scanning and push protection. Verify deployed cloud IAM and retention.
-- Verify stable macOS development signing and Android backup/restore on physical devices.
+- Verify stable macOS development signing and Android storage/reset on physical devices.
 - Resolve the upstream GTK/glib vulnerability, Rust maintenance advisories, and the docs image-size advisory when compatible fixes exist.
 - Configure and verify dedicated provider spending limits and cloud edge abuse controls; billing alerts are not hard caps.
 - Independently verify desktop native signer identity and notarization before publication.
@@ -76,7 +77,7 @@ Remaining work includes:
 
 ## Proposed UX follow-up
 
-The [September 2026 UX audit](./ux-audit-2026-09-06) proposes these candidates for prioritization; they are not shipped behavior:
+Candidates for prioritization:
 
 - Explicit microphone starting/transcribing/error states and duplicate-start prevention.
 - Revision-safe restore of explicit lesson choices.
@@ -86,20 +87,10 @@ The [September 2026 UX audit](./ux-audit-2026-09-06) proposes these candidates f
 
 Response-to-context provenance belongs to the prompt-provenance workbench above.
 
-## Frontend coherence migration
-
-The first integrated migration is implemented: shared target-scoped selection,
-contextual map entry, XP summary, skill overview/evidence components, neutral selection,
-shared domain palette, three suggested areas with All areas, demand-loaded shared
-explanations, independent message reveal keys, and one mobile chat/lesson scroll.
-Retired map styles, duplicate detail hosts and the obsolete Suggestions toggle/frontend
-regeneration path were removed. This is not completion of the full source audit.
-
-Remaining work:
+## Frontend coherence
 
 - Verify native desktop and phone layouts, keyboard-open viewport, RTL, large text,
-  touch targets and overlay/back navigation. Native inspection was unavailable during
-  initial implementation; unit tests do not establish these results.
+  touch targets and overlay/back navigation. Unit tests do not establish these results.
 - Replace global reward-anchor scans with scoped, clipping-aware anchors and test
   scroll, route changes, simultaneous credits and reduced motion in the real app.
 - Finish unifying Skills inspector controls and feedback/gloss overlay hosts, preserving
@@ -110,6 +101,4 @@ Remaining work:
 - Add conversation-grounded hints only with explicitly captured context. Current topic
   notes are generic skill/difficulty explanations.
 - Clarify persona voice overrides and validate audio cache ownership on language changes.
-- Complete the remaining CSS/control/accessibility census against the implementation audit.
-
-Preserve the Rust execution pipeline, saved conversation state and progress rules.
+- Complete the CSS/control/accessibility census against the UI guidelines.

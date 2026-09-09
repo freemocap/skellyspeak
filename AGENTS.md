@@ -12,6 +12,14 @@ checkout, stash, or change Git configuration. The user performs all Git writes.
 
 For UI work, read `ui-guidelines.md` and reuse the app’s established interaction patterns and vocabulary.
 
+## Refactor contract
+
+Use a destructive, fresh-data cutover. No backups, data imports, compatibility
+adapters, dual schemas or preservation requirements. The user handles application
+data deletion. Implement one complete architecture and delete unnecessary code.
+Documentation, comments and explanations describe the current design or explicitly
+planned behavior only; do not narrate project history or compare code/data versions.
+
 ## Code style
 
 - Use TypeScript, never JavaScript, for new Node/frontend code.
@@ -50,9 +58,9 @@ The execution graph describes and reconciles the guided pipeline;
 ## Documentation discipline
 
 Treat implementation as authoritative for current behavior. Treat explicit
-design documents as authoritative only for future intent. Clearly label dated
-audits as historical evidence; do not present completed audit checklists as the
-current roadmap.
+design documents as authoritative only for future intent. Keep documentation
+focused on current contracts and actionable planned work; remove historical
+narratives and completed roadmap items.
 
 When behavior changes, update the nearest public document in the same task:
 
