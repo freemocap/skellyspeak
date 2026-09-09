@@ -1,0 +1,62 @@
+.skills-page { display: flex; flex-direction: column; width: 100%; height: 100%; min-width: 0; color: var(--ink-d); background: var(--bg); font-family: var(--sans); }
+.tree-header, .tree-toolbar, .tree-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 14px; flex: none; border-bottom: 1px solid var(--line2); }
+.tree-header h1 { margin: 0; font-size: 14px; letter-spacing: .06em; }
+.tree-header h1 span, .tree-fixture, .tree-footer { color: var(--mut-d); font-size: 12px; }
+.skills-page button, .skills-page select { font: inherit; }
+.tree-layouts { display: flex; flex-wrap: wrap; gap: 4px; }
+.tree-layouts button, .tree-refresh, .tree-navigation button, .tree-detail-actions button, .tree-jump select { padding: 8px 10px; border: 1px solid var(--line2); border-radius: 6px; background: var(--chrome2); color: var(--ink-d); font-size: 12px; cursor: pointer; }
+.tree-layouts button[aria-pressed=true] { outline: 2px solid var(--selected); outline-offset: 1px; }
+.tree-jump { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--mut-d); font-size: 12px; }
+.tree-jump select { min-width: 0; max-width: 260px; }
+.tree-focus-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 14px; border-bottom: 1px solid var(--line2); font-size: 12px; color: var(--mut-d); }
+.tree-focus-strip button { border: 0; background: transparent; color: var(--ink-d); cursor: pointer; padding: 4px; text-align: start; }
+.tree-workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px, 36%); }
+.tree-workspace.details-closed { grid-template-columns: minmax(0,1fr); }
+.tree-workspace.details-closed .tree-inspector { display: none; }
+.tree-canvas { display: flex; flex-direction: column; position: relative; min-width: 0; min-height: 0; }
+.tree-canvas > .react-flow { flex: 1; min-height: 0; }
+.tree-navigation, .tree-detail-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 7px; }
+.tree-navigation { border-bottom: 1px solid var(--line2); background: var(--chrome); }
+.tree-navigation nav { display: flex; align-items: center; flex: 1; min-width: 0; overflow-x: auto; }
+.tree-navigation nav button { border: 0; white-space: nowrap; background: transparent; color: var(--mut-d); }
+.tree-navigation nav button + button::before { content: '/'; margin-inline-end: 10px; }
+.tree-navigation nav button[aria-current] { color: var(--selected); }
+.tree-detail-actions { padding: 0 0 12px; }
+.tree-detail-actions button:last-child { margin-inline-start: auto; }
+.tree-node { width: calc(230px * var(--node-scale)); min-height: calc(88px * var(--node-scale)); display: flex; flex-direction: column; text-align: start; gap: 5px; padding: 10px; color: var(--ink-d); background: var(--chrome); border: 2px solid var(--node-color); border-radius: 10px; cursor: pointer; }
+.tree-node-code { display: flex; justify-content: space-between; gap: 5px; color: var(--mut-d); font-size: 10px; }
+.tree-node strong { font-size: 15px; line-height: 1.3; }
+.tree-node-status { font-size: 12px; color: var(--mut-d); }
+.tree-node.selected { outline: 3px solid var(--selected); outline-offset: 5px; background: var(--chrome2); }
+.tree-node:hover { background: var(--chrome2); }
+.tree-node .react-flow__handle { width: 5px; height: 5px; background: var(--node-color); border: 1px solid var(--bg); }
+.tree-canvas .react-flow__controls { box-shadow: none; border: 1px solid var(--line2); }
+.tree-canvas .react-flow__controls-button { background: var(--chrome2); color: var(--ink-d); fill: currentColor; border-bottom: 1px solid var(--line2); width: 36px; height: 36px; }
+.tree-canvas .react-flow__minimap { bottom: 38px; background: var(--chrome); border: 1px solid var(--line2); }
+.tree-legend { position: absolute; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; max-width: calc(100% - 65px); font-size: 11px; color: var(--mut-d); background: var(--bg); padding: 5px; pointer-events: none; }
+.tree-inspector { min-height: 0; overflow: auto; border-inline-start: 1px solid var(--line2); background: var(--chrome); }
+.tree-inspector-body { padding: 16px; font: 14px/1.55 var(--sans); }
+.tree-inspector h3 { font-size: 15px; }
+.tree-inspector-toggle { display: none; }
+.tree-method { margin-top: 18px; }
+.tree-method summary { cursor: pointer; }
+.tree-load { padding: 20px; color: var(--ink-d); }
+.tree-list { overflow-y: auto; padding: 10px 10px 52px; }
+.tree-list button { display: flex; flex-direction: column; gap: 6px; width: 100%; min-height: 58px; padding: 12px; margin-bottom: 8px; text-align: start; border: 1px solid var(--node-color); border-inline-start-width: 4px; border-radius: 8px; background: var(--chrome); color: var(--ink-d); font-size: 14px; cursor: pointer; }
+.tree-list button[aria-pressed=true] { outline: 2px solid var(--selected); outline-offset: 1px; }
+.tree-list small { color: var(--mut-d); }
+@media (max-width: 860px) {
+  .tree-workspace { display: flex; flex-direction: column; overflow-y: auto; }
+  .tree-canvas { flex: none; height: 55dvh; min-height: 280px; }
+  .tree-inspector { flex: none; overflow: visible; border-inline-start: 0; border-top: 1px solid var(--line2); }
+  .tree-inspector-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; background: var(--chrome2); color: var(--ink-d); border: 0; padding: 10px 14px; text-align: start; }
+  .tree-inspector:not(.expanded) .tree-inspector-body { display: none; }
+  .tree-jump { flex: 1 1 180px; }
+  .tree-jump select { width: 100%; max-width: none; }
+  .tree-navigation nav { flex-basis: 100%; }
+}
+
+.tree-domain-card { border: 1px solid var(--line2); border-inline-start: 4px solid var(--node-color); border-radius: 8px; margin-bottom: 10px; padding: 12px; background: var(--chrome); }
+.tree-domain-card summary { cursor: pointer; font-size: 15px; }
+.tree-domain-card summary small { display: block; margin-top: 6px; color: var(--mut-d); }
+.tree-domain-card button:first-of-type { margin-top: 12px; }

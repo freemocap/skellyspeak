@@ -1,0 +1,20 @@
+# Build, test, and push a candidate without changing the serving revision.
+serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/skellyspeak-build@${PROJECT_ID}.iam.gserviceaccount.com"
+options:
+  logging: CLOUD_LOGGING_ONLY
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: [build, -t, "gcr.io/${PROJECT_ID}/skellyspeak-api:check-${BUILD_ID}", server]
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - run
+      - --rm
+      - --entrypoint=/bin/sh
+      - "gcr.io/${PROJECT_ID}/skellyspeak-api:check-${BUILD_ID}"
+      - -ec
+      - "UV_CACHE_DIR=/tmp/uv uv sync --frozen --group dev && /app/.venv/bin/python -m pytest -q -p no:cacheprovider"
+  - name: gcr.io/cloud-builders/docker
+    args: [push, "gcr.io/${PROJECT_ID}/skellyspeak-api:check-${BUILD_ID}"]
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args: [run, services, describe, skellyspeak-api, --region=us-central1, "--project=${PROJECT_ID}", --format=value(status.url)]

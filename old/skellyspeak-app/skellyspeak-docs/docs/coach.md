@@ -1,0 +1,102 @@
+---
+sidebar_position: 8
+title: The Coach
+---
+
+# The Coach
+
+The coach is a private second conversation. It reads the learner's conversation,
+teaching plan, profile, and its own thread, but the in-character conversation
+partner never receives the private thread or per-message grades. Explicit
+lesson choices are supplied separately as learning directives.
+
+## Per-message feedback
+
+After each learner message, the guided pipeline asks the coach for a validated
+`CoachFeedback` result:
+
+| Field | Meaning |
+|---|---|
+| `remark` | Brief feedback, primarily in the learner's native language |
+| `used_target` / `used_native` | Verbatim portions of the learner message split by language |
+| `corrections` | Up to three corrected phrases with kind and explanation |
+| `conversation` | 1–5 contextual and social fit, independent of grammaticality |
+| `grammar` | 1–5 grammatical-correctness score |
+
+Conversational fit includes coherent responses, clear topic changes, disagreement, boundaries, and endings; it does not require agreement or cheerfulness. Scores are fallible model judgments supported by the remark. Historical feedback retains its original data; it has no conversational-fit score.
+
+The partner handles understanding separately. Its reaction icon opens an explanation of how it interpreted the learner and why it responded that way. Confusion takes priority over positive reactions, including when the partner misread a clear message. The modal offers edit-and-resend and dismisses on outside click.
+
+Greeting and steering turns have no learner message, so they skip feedback.
+Coach failures are surfaced without preventing independent analysis sections
+from completing. A badge attached to each learner message opens a feedback
+dialog with scores, corrections, an editing action and an Ask the coach action.
+Pending, failed and unavailable feedback have distinct labels.
+
+Editing opens a collapsible reference above the composer with the original
+attempt's corrections and coach remark. It remains available during recording;
+sending or cancelling the edit removes it. The full feedback dialog remains
+available separately.
+
+## Interactive thread
+
+The coach conversation sits below the Lesson and Analysis tabs. The coach sees
+recent saved conversation context, inferred plan/profile, explicit lesson choices,
+and its saved thread. Each chat stores up to 40 coach messages in
+`chats/<chat-id>/coach.json`.
+
+Only one coach question can run at a time. A conversation change invalidates a
+late answer, and the completed thread is persisted before it replaces in-memory
+state.
+
+## Call flow
+
+1. The reply worker streams the conversation partner's response.
+2. Learner tokenization can begin immediately.
+3. After the reply, reply tokenization, translation, grammar explanation,
+   scaffolds, and coach feedback run independently.
+4. The observer updates teaching memory on its separate cadence.
+
+Coach corrections do not currently mutate `TeachingPlan.recurring_errors`.
+That remains a possible deterministic integration, not current behavior.
+
+## Model and privacy
+
+The automatic feedback pass uses the configured worker model. Interactive coach
+questions use the same selected provider route. The thread is local application
+data and is never sent to the conversation partner, but it is sent to the
+selected provider when the coach answers.
+
+## Requests and suggestions
+
+A direct request to change a learning goal, preference, correction intensity or
+remembered fact applies immediately to the explicit lesson choices. It takes
+effect on the next partner response. Questions and unsolicited recommendations
+do not apply changes; proposals show an Apply suggestion button. The choices
+editor supports the same validated updates without a model call. Stale edits
+and proposals cannot overwrite a newer revision.
+
+Level, topic and persona changes remain in the chat’s collapsible setup controls. The coach must
+not claim to have changed those selectors. Corrections to inferred memory are
+stored as explicit preferences with higher priority; both sources stay visible.
+
+The **Coach** section sits above the input. Suggestions stay visible with preloaded word annotations; there is no collapsed preview or Coach header row. Each suggestion is a compact bubble with inspectable words and a trailing **↗** insertion icon. Only the icon fills the draft, without sending or requesting analysis. Translation follows the chat preference; romanization and pronunciation render under individual words using the same token component as chat, with no sentence-level sound-guide block. **Understand the exchange** below the replies reveals explanation and the partner’s translation. The tray does not repeat the partner’s message. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
+
+## Lesson presentation and future progression
+
+The lesson shows the actual goal or suggested topics first. Each topic requests
+a short explanation, example and translation through a read-only model call;
+errors expose Retry. Small follow-up actions prepare coach questions without
+sending them. Preferences, correction settings, observations, memory and change
+history are grouped behind one disclosure.
+
+Topic explanations are generated guidance, not evidence that a learner has
+acquired a skill or made a particular error. Grades do not currently award XP.
+The [skill progression proposal](./skill-progression-design) describes a shared
+capability map and auditable evidence as future work.
+
+Suggestions update with the conversation. The compact **Understand the exchange** disclosure has no refresh control.
+
+Words in coach prose, corrections, advice and lesson examples support inline meanings on tap and deeper inspection on hold or right-click. The trailing **↗** icon inserts a suggestion without a word lookup. Settings → **Reading & display** controls text size, word spacing and saved pronunciation.
+
+The compact green suggestion tray starts directly with reply bubbles above the input. Only **Understand the exchange** expands; there is no separate Coach label, toggle or header spacer.

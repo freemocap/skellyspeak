@@ -1,0 +1,69 @@
+name: iOS smoke build
+
+# A cheap, free smoke build: proves the app compiles and links for iOS.
+# It scaffolds src-tauri/gen/apple (which cannot be done from the Windows dev
+# machine — it needs Xcode) and builds for the simulator, where code signing is
+# not required.
+#
+# The real, signed .ipa is built by ios-distribute.yml. This workflow stays
+# separate so a signed-build problem never blocks a quick "does it still
+# compile for iOS?" check.
+#
+# Manual trigger only, so a broken iOS toolchain never blocks a release.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulator-build:
+    name: Build for iOS Simulator (unsigned)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: ios
+
+      - run: npm ci
+
+      # The frontend must exist before the Xcode project references it.
+      - run: npm run build
+
+      - name: Scaffold the Xcode project
+        run: npx tauri ios init
+
+      - name: Apply the SkellySpeak app icon
+        run: |
+          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+
+      # Use tauri ios build (not raw xcodebuild): it starts the JSON-RPC
+      # options server that the Xcode Build Rust Code phase connects to.
+      # Raw xcodebuild would panic on that missing server. The simulator
+      # target needs no code signing.
+      - name: Build for the simulator
+        run: npx tauri ios build --target aarch64-sim
+
+      # gen/apple is generated on a Mac and never committed from Windows —
+      # keep a copy so the scaffold can be inspected without a Mac to hand.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ios-xcode-project
+          path: src-tauri/gen/apple
+          retention-days: 7

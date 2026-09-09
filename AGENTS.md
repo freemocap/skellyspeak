@@ -14,9 +14,13 @@ frameworks, IPC or provider contracts. Do not present plans as working features.
 ## Reference boundary
 
 Everything in `old/` is deprecated reference material. It is not the active
-application, documentation or a specification. Read it only for a concrete design
-question. Do not copy its code, configuration, tests or documentation into the
-active project. Do not run or maintain it as part of the rebuild.
+application, documentation or a specification. Read it for concrete design
+questions and intentionally evaluate useful architectural ideas. Record adopted
+principles in `DESIGN.md`; reference material does not become authoritative by
+association. Do not copy code, configuration, tests or documentation wholesale.
+Any implementation reuse requires explicit review against the approved design
+after implementation is authorized. Do not run or maintain the reference
+application as part of design work.
 
 The rebuild starts from empty application data. No compatibility layers, imports,
 backups or data-conversion work. The user handles application data deletion.
@@ -27,6 +31,23 @@ Keep communication concrete and concise. Continue authorized design work and fla
 meaningful decisions. Ask for user checks only when there is a specific artifact
 to review. Distinguish design review, source implementation, automated verification
 and a running application. Explain exactly what is ready to inspect.
+
+Keep product design finite and specific to SkellySpeak. Do not reopen settled
+platform, AI access or on-device/no-sync decisions through generic questionnaires.
+Defer nonblocking details to focused design passes. Learning feedback and rich local
+statistics deserve focused review before technical contracts; avoid repeated approval
+questions for routine details.
+
+Statistics are dense, mechanical scientific reports: numeric tables, distributions
+and time series, organized by global usage, selected language and conversation
+partner. No conversational or motivational statistical summaries. Performance-based
+guidance belongs only in the language assessment area or separate coaching.
+
+Keep domain records and metrics independent of visualization metaphors. Gardens,
+flowers and alternative views render the same underlying data; renderer geometry,
+styling and random seeds belong to presentation configuration. Evaluate geometric
+Vibe matching through reusable embeddings and emoji references without presuming
+a generative LLM call per observation.
 
 ## Git
 

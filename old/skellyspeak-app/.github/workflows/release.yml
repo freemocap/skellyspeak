@@ -1,0 +1,432 @@
+name: Release
+
+# Cut a release by bumping the version and pushing the tag:
+#
+#   node scripts/release.mjs minor
+#
+# That bumps the version, commits, tags and pushes in the order this workflow
+# requires. The `version` job below compares the tag against the Cargo.toml of
+# the commit it points at and refuses to build when they differ; the script
+# makes the same check locally first, so it should never get this far.
+#
+# Build jobs attach artifacts to the same draft GitHub Release. The final
+# job publishes it as latest only after every job in this workflow succeeds.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: skellyspeak-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  # src-tauri/Cargo.toml is the single source of truth for the app version
+  # (tauri.conf.json omits `version` and inherits it). Read it once here so
+  # every downstream job agrees on the tag.
+  version:
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get.outputs.version }}
+      tag: v${{ steps.get.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - id: get
+        run: |
+          version=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
+          [ -n "$version" ] || { echo "::error::no version in src-tauri/Cargo.toml"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "app version: $version"
+
+      # A tag that disagrees with Cargo.toml would ship mislabelled binaries.
+      - if: startsWith(github.ref, 'refs/tags/')
+        env:
+          ACTUAL_TAG: ${{ github.ref_name }}
+          EXPECTED_TAG: v${{ steps.get.outputs.version }}
+        run: |
+          if [ "$ACTUAL_TAG" != "$EXPECTED_TAG" ]; then
+            echo "::error::tag $ACTUAL_TAG != $EXPECTED_TAG from Cargo.toml"
+            exit 1
+          fi
+
+  # The release object is created here, once, so that every build job can
+  # upload to it independently. Without this the Android job would have to wait
+  # for a desktop job to create it first — ordering for a resource, not for a
+  # build dependency.
+  release-draft:
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Ensure the draft release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          if gh release view "$TAG" --repo "$GH_REPO" --json id >/dev/null 2>stderr.txt; then
+            [ "$(gh release view "$TAG" --repo "$GH_REPO" --json isDraft --jq .isDraft)" = true ] || { echo "::error::Refusing to overwrite a published release"; exit 1; }
+            echo "draft release $TAG already exists"
+          elif grep -qi "release not found" stderr.txt; then
+            gh release create "$TAG" --repo "$GH_REPO" --verify-tag --draft --title "SkellySpeak $TAG" --notes 'Release artifacts are attached by the desktop, Android, and iOS build jobs.'
+            echo "created draft release $TAG"
+          else
+            # Anything other than "not found" is a real failure, not an absence.
+            cat stderr.txt
+            exit 1
+          fi
+
+  desktop:
+    needs: [version, release-draft]
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            # Azure Artifact Signing runs DURING the build, not after: signing
+            # a finished installer would invalidate the updater signature
+            # already computed over it.
+            args: '--config src-tauri/tauri.windows-signing.conf.json'
+          - name: macOS (Apple Silicon)
+            os: macos-latest
+            rust-target: aarch64-apple-darwin
+            args: '--target aarch64-apple-darwin'
+          - name: macOS (Intel)
+            os: macos-latest
+            rust-target: x86_64-apple-darwin
+            args: '--target x86_64-apple-darwin'
+          - name: Linux x64
+            os: ubuntu-22.04
+            rust-target: x86_64-unknown-linux-gnu
+            args: '--bundles deb,appimage,rpm'
+          - name: Linux arm64
+            os: ubuntu-22.04-arm
+            rust-target: aarch64-unknown-linux-gnu
+            # deb only for now — AppImage tooling on arm64 needs its own pass.
+            args: '--bundles deb'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # libasound2-dev is for cpal: the desktop microphone recorder in
+          # src-tauri/src/audio.rs links alsa-sys on Linux, and its build
+          # script fails outright without the ALSA headers. Nothing else in
+          # this build needs it, and its absence breaks only Linux — which is
+          # why a release can go green on Windows, macOS and Android and still
+          # fail here.
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libgtk-3-dev \
+            libxdo-dev \
+            libssl-dev \
+            libasound2-dev \
+            build-essential curl wget file patchelf
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.rust-target }}
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.rust-target }}
+
+      - run: npm ci
+
+      # Prebuilt binary rather than `cargo install`, which would add minutes to
+      # every Windows build. Tauri invokes it through bundle.windows.signCommand.
+      - name: Install Azure Artifact Signing CLI
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+            --output "$RUNNER_TEMP/artifact-signing-cli.exe" \
+            https://github.com/levminer/trusted-signing-cli/releases/download/0.11.0/artifact-signing-cli.exe
+          echo "ddc6f6ef68631bf367ad051d7d37109e58d46095406e1fbba60d553b10f94393  $RUNNER_TEMP/artifact-signing-cli.exe" | sha256sum --check --strict
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      # Tauri runs the sign command but discards its stderr, reporting only
+      # "failed to run artifact-signing-cli" after a full build. Prove the
+      # toolchain and Azure credentials work first, on a throwaway file, where
+      # the actual error is visible and costs seconds instead of minutes.
+      - name: Pre-flight the Windows signing toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          AZURE_TENANT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_ID || '' }}
+          AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_SIGNING_SECRET || '' }}
+        run: |
+          Write-Host "--- artifact-signing-cli ---"
+          artifact-signing-cli --version
+          Write-Host "--- signtool on this runner ---"
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like "*x64*" } | Select-Object -First 1
+          if ($signtool) { Write-Host "found: $($signtool.FullName)" } else { Write-Host "NOT FOUND on PATH search" }
+          Write-Host "--- test sign a throwaway binary ---"
+          Copy-Item "$env:SystemRoot\System32\where.exe" "$env:RUNNER_TEMP\signtest.exe"
+          artifact-signing-cli -e https://eus.codesigning.azure.net/ -a freemocap -c freemocap "$env:RUNNER_TEMP\signtest.exe"
+          # A native command's exit code does not stop pwsh on its own, so the
+          # success line would print over a failed sign. Check it explicitly.
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::Azure signing pre-flight failed (exit $LASTEXITCODE). See the error above."
+            exit 1
+          }
+          Write-Host "test sign OK - credentials, account, profile and signtool all work"
+
+      - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0
+        id: tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signs the updater artifacts. Without these the build fails, because
+          # tauri.conf.json declares a pubkey and createUpdaterArtifacts.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # ── Windows: Azure Artifact Signing, read by artifact-signing-cli ──
+          AZURE_TENANT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_ID || '' }}
+          # Named AZURE_SIGNING_SECRET in this repo; the CLI reads it under the
+          # standard Azure name.
+          AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_SIGNING_SECRET || '' }}
+          # ── macOS: Developer ID signing, then notarization ──
+          # The identity and team id are not secret — both are readable from
+          # any signed binary — so they are literals rather than secrets.
+          APPLE_CERTIFICATE: ${{ runner.os == 'macOS' && secrets.MAC_CERTIFICATE_P12 || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ runner.os == 'macOS' && secrets.MAC_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: 'Developer ID Application: FreeMoCap Foundation, Inc. (U8LBJLBYPR)'
+          APPLE_TEAM_ID: U8LBJLBYPR
+          APPLE_ID: ${{ runner.os == 'macOS' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_ID_PASSWORD || '' }}
+        with:
+          # Writes latest.json — the feed the running app polls. It is served
+          # from the newest PUBLISHED release, so a draft reaches nobody until
+          # the final job publishes it.
+          includeUpdaterJson: true
+          tagName: ${{ needs.version.outputs.tag }}
+          releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
+          releaseBody: |
+            Windows artifacts use Azure Artifact Signing, macOS artifacts use
+            Developer ID signing and notarization, and Android artifacts use
+            the configured upload key. Each build job verifies its required
+            output before attaching it.
+
+            Installed desktop copies offer this version automatically once the
+            release is published.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+
+      # `tauri build` EXITS 0 even when it fails: a missing signing key prints
+      # "A public key has been found, but no private key", and a broken sign
+      # command prints "failed to bundle project" — both with status 0. Neither
+      # can be caught by the exit code, so assert on the output instead.
+      - name: Verify the build produced signed artifacts
+        shell: bash
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
+        run: |
+          echo "tauri-action reported artifacts: ${ARTIFACTS:-<none>}"
+          if [ -z "$ARTIFACTS" ] || [ "$ARTIFACTS" = "[]" ]; then
+            echo "::error::tauri produced no artifacts — bundling or code signing failed. It exits 0 regardless, so this step is what catches it."
+            exit 1
+          fi
+          sigs=$(find src-tauri/target -name '*.sig' 2>/dev/null)
+          if [ -z "$sigs" ]; then
+            echo "::error::No updater .sig artifacts. Check TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD."
+            exit 1
+          fi
+          echo "signed updater artifacts:"
+          echo "$sigs"
+          cargo run --locked --manifest-path scripts/verify-updater/Cargo.toml -- src-tauri/tauri.conf.json src-tauri/target
+
+  android:
+    # Runs alongside the desktop matrix, not after it: the release already
+    # exists, so there is nothing to wait for.
+    needs: [version, release-draft]
+    name: Android (APK)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        id: ndk
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: android
+
+      - run: npm ci
+
+      # `tauri.settings.gradle` hardcodes an absolute path to the local cargo
+      # registry, so gen/android's generated files cannot be committed and must
+      # be produced here. `init` also rewrites tracked files from its templates
+      # — the manifest (RECORD_AUDIO, adjustResize, roundIcon), themes.xml,
+      # MainActivity.kt, BuildTask.kt and the launcher icons — so restore
+      # everything git tracks immediately afterwards.
+      - name: Scaffold gen/android, then restore our tracked customisations
+        run: |
+          npx tauri android init
+          git checkout -- src-tauri/gen/android
+          git status --porcelain src-tauri/gen/android
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      # The keystore is what makes a sideloaded APK upgradable: Android refuses
+      # to install over an app signed with a different key, and the debug key
+      # Android generates is per-machine.
+      - name: Write the release keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not set. Release APKs and AABs must be signed with the upload key, not a per-machine debug key."
+            exit 1
+          fi
+          gen=src-tauri/gen/android
+          echo "$KEYSTORE_BASE64" | base64 -d > "$gen/upload-keystore.jks"
+          cat > "$gen/keystore.properties" <<EOF
+          storeFile=upload-keystore.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      # Release, not debug: the debug build is unoptimised and unstripped, and
+      # ships every ABI's symbols. APK for sideloading, AAB for Play.
+      - name: Build APK and AAB
+        run: npx tauri android build --apk --aab
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      - name: Verify the APK is signed with the upload key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          keytool -exportcert -keystore src-tauri/gen/android/upload-keystore.jks -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" -file /tmp/upload-cert.der
+          expected=$(sha256sum /tmp/upload-cert.der | cut -d' ' -f1)
+          out=src-tauri/gen/android/app/build/outputs
+          apk="$out/apk/universal/release/app-universal-release.apk"
+          [ -f "$apk" ] || { echo "::error::release APK not found at $apk"; exit 1; }
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort | tail -1)
+          [ -n "$apksigner" ] || { echo "::error::apksigner not found"; exit 1; }
+          # An unsigned release APK installs nowhere and can never be upgraded
+          # over, so a missing signature must fail the build, not ship.
+          "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-cert.txt
+          # apksigner reports numbered, SDK-range, or V2 signer labels.
+          actual=$(sed -nE 's/^(Signer (#[0-9]+|\(minSdkVersion=.*\))|V2 Signer:) certificate SHA-256 digest: (.*)$/\3/p' /tmp/apk-cert.txt)
+          [ -n "$actual" ] || { echo "::error::No APK signer SHA-256 fingerprints found in apksigner output"; exit 1; }
+          while IFS= read -r fingerprint; do
+            [[ "$fingerprint" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Invalid APK signer SHA-256 fingerprint: $fingerprint"; exit 1; }
+            [ "$fingerprint" = "$expected" ] || { echo "::error::APK signer differs from the upload key: expected $expected, got $fingerprint"; exit 1; }
+          done <<< "$actual"
+
+      - name: Collect the release artifacts
+        run: |
+          out=src-tauri/gen/android/app/build/outputs
+          v=${{ needs.version.outputs.version }}
+          mkdir -p dist-android
+          apk="$out/apk/universal/release/app-universal-release.apk"
+          aab="$out/bundle/universalRelease/app-universal-release.aab"
+          [ -f "$apk" ] || { echo "::error::release APK not found at $apk"; exit 1; }
+          [ -f "$aab" ] || { echo "::error::release AAB not found at $aab"; exit 1; }
+          cp "$apk" "dist-android/SkellySpeak_${v}_universal.apk"
+          cp "$aab" "dist-android/SkellySpeak_${v}.aab"
+          ls -lh dist-android
+
+      - name: Attach the Android artifacts to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ needs.version.outputs.tag }}" dist-android/* --clobber
+
+  publish-release:
+    name: Publish release as latest
+    needs: [version, release-draft, desktop, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the completed release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release list --repo "$GH_REPO" --limit 1000 --json tagName,isDraft,isPrerelease > /tmp/releases.json
+          python3 - <<'PYTHON'
+          import json, os, re
+          def version(tag: str) -> tuple[int, ...]:
+              if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+                  raise ValueError("Unexpected stable release tag")
+              return tuple(map(int, tag[1:].split(".")))
+          candidate: tuple[int, ...] = version(os.environ["TAG"])
+          with open("/tmp/releases.json") as source:
+              releases: list[dict[str, object]] = json.load(source)
+          if len(releases) == 1000:
+              raise RuntimeError("Release listing may be truncated")
+          for release in releases:
+              if not release["isDraft"] and not release["isPrerelease"] and version(release["tagName"]) >= candidate:
+                  raise RuntimeError("Refusing to replace an equal or newer published release")
+          PYTHON
+          gh release edit "$TAG" --repo "$GH_REPO" --draft=false --latest

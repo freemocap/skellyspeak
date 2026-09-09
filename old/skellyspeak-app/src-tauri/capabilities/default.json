@@ -1,0 +1,22 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability for the main and observability windows. The updater may open only the SkellySpeak docs download page. Rust-side sign-in browser handoffs do not pass through this scope.",
+  "windows": [
+    "main",
+    "skellyspeak-dev"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:allow-destroy",
+    "log:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://docs.freemocap.org/skellyspeak/download"
+        }
+      ]
+    }
+  ]
+}

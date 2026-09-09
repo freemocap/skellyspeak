@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The root Vitest suite includes the docs download-selection tests.
+      - run: npm ci --prefix skellyspeak-docs
+      - run: npm test
+      - run: npm run build
+
+  rust:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+      - run: cargo clippy --lib -- -D warnings
+        working-directory: src-tauri
+      - run: cargo test --lib
+        working-directory: src-tauri
+      - run: cargo test --locked --manifest-path scripts/verify-updater/Cargo.toml
+
+  # The Rust core also has to COMPILE on Linux, which the Windows job above
+  # cannot tell you. Native dependencies differ per platform: cpal links
+  # alsa-sys on Linux only, so a missing libasound2-dev breaks the Linux
+  # release build while every other platform stays green. That is exactly
+  # how v0.4.3 failed -- at release time, after Windows, macOS and Android
+  # had all succeeded. `cargo check` runs build scripts, which is where
+  # alsa-sys fails, so it catches this without a full build.
+  rust-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Install the native libraries the core links against
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libxdo-dev libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libasound2-dev
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+      - run: cargo check --lib
+        working-directory: src-tauri
+
+  # The hosted API tests. They gate the deploy in deploy-server.yml too, but
+  # running them here means a pull request shows the breakage before it lands
+  # rather than after.
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+      - name: Install audio decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
+          ffmpeg -version
+      - run: uv run --frozen --group dev pytest -q
+        working-directory: server
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: skellyspeak-docs/package-lock.json
+      - run: npm ci
+        working-directory: skellyspeak-docs
+      - run: npm run build
+        working-directory: skellyspeak-docs
+
+  # The Android resource merger parses these, but only 4 minutes into a release
+  # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec
+  # forbids) here instead, in seconds, on every push.
+  android-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Validate Android XML resources
+        run: |
+          python3 - <<'EOF'
+          import pathlib, sys, xml.dom.minidom as md
+          failed = []
+          for p in sorted(pathlib.Path('src-tauri/gen/android').rglob('*.xml')):
+              if 'build' in p.parts:
+                  continue
+              try:
+                  md.parse(str(p))
+              except Exception as e:
+                  failed.append(f"{p}: {e}")
+          for f in failed:
+              print(f"::error::{f}")
+          print(f"checked Android XML resources, {len(failed)} malformed")
+          sys.exit(1 if failed else 0)
+          EOF

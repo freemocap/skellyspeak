@@ -1,0 +1,74 @@
+import { useEffect, useState } from 'react'
+import { invoke } from '../lib/tauri'
+import { DetailDialog } from './DetailDialog'
+import { reportFault } from '../lib/faults'
+
+export interface WordInsight {
+  gloss: string
+  lemma: string
+  pos: string
+  form: string
+  role: string
+  usage: string
+}
+
+function InsightRow({ k, v }: { k: string; v: string }) {
+  if (!v.trim()) return null
+  return (
+    <div className="insight-row">
+      <span className="k">{k}</span>
+      <span className="v">{v}</span>
+    </div>
+  )
+}
+
+/// Deep word analysis, opened by press-and-hold (or click in the Analysis
+/// pane) on any word. Opens immediately, hydrates via `word_insight`.
+export function WordInsightModal({
+  word,
+  sentence,
+  onClose,
+}: {
+  word: string
+  sentence: string
+  onClose: () => void
+}) {
+  const [insight, setInsight] = useState<WordInsight | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    setInsight(null)
+    setError(null)
+    void invoke<WordInsight>('word_insight', { word, sentence })
+      .then((w) => {
+        if (alive) setInsight(w)
+      })
+      .catch((e) => {
+        reportFault('Word insight', e)
+        if (alive) setError(String(e).replace(/^Error:\s*/, ''))
+      })
+    return () => {
+      alive = false
+    }
+  }, [word, sentence])
+
+  return (
+    <DetailDialog title={`Word: ${word}`} onClose={onClose}>
+      <h2>{word}</h2>
+        <p className="insight-sentence">{sentence}</p>
+        {!insight && !error && <p className="center-note" style={{ padding: '20px 0' }}>⟳ Analyzing…</p>}
+        {error && <div className="turn-errors">⚠ {error}</div>}
+        {insight && (
+          <div className="insight-body">
+            <InsightRow k="Meaning" v={insight.gloss} />
+            <InsightRow k="Lemma" v={insight.lemma} />
+            <InsightRow k="Part of speech" v={insight.pos} />
+            <InsightRow k="Form" v={insight.form} />
+            <InsightRow k="Role in sentence" v={insight.role} />
+            <InsightRow k="Usage" v={insight.usage} />
+          </div>
+        )}
+    </DetailDialog>
+  )
+}
