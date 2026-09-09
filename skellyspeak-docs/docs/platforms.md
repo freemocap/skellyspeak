@@ -152,6 +152,15 @@ The generated Gradle integration includes repository-specific Windows process
 launch handling. Reconcile generated changes carefully after running
 `tauri android init`.
 
+## Hosted server CI
+
+The server deployment workflow installs Java 21 and the Cloud Firestore emulator,
+then starts it with `gcloud emulators firestore start` before running concurrent
+transaction tests. Startup exits immediately if the emulator process dies, and
+cleanup prints the emulator log even when the process has already exited.
+These tests require a running emulator; ordinary server unit tests do not verify
+Firestore transactions.
+
 ## iOS
 
 iOS builds require macOS and Xcode. `.github/workflows/ios-distribute.yml`
