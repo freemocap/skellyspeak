@@ -180,3 +180,5 @@ Install ffmpeg to exercise real decoding. Emulator integration additionally
 requires Java, the Firestore emulator on `127.0.0.1:8787`, and
 `SKELLYSPEAK_FIRESTORE_TEST=1`. Tests use isolated project namespaces and refuse
 non-loopback emulator targets.
+
+Hosted streaming HTTP failures include the upstream numeric status code without its response body. The app explains provider credit/payment failures (402); Google sign-in users depend on the hosted operator’s OpenRouter balance and API-key limit.

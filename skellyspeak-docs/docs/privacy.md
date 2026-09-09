@@ -229,3 +229,5 @@ Android declares app backup disabled and excludes app data from cloud backup and
 device transfer. This policy requires verification on supported physical devices.
 Desktop debug builds use a separate application identity, storage and Keychain
 entry; they do not import the installed release's private data.
+
+Hosted streaming HTTP failures include the upstream numeric status code without its response body. The app explains provider credit/payment failures (402); Google sign-in users depend on the hosted operator’s OpenRouter balance and API-key limit.
