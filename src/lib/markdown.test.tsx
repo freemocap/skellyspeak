@@ -5,6 +5,8 @@ import { Markdown } from './markdown'
 
 function html(text: string): string {
   const { container } = render(<Markdown text={text} />)
+  // Assert Markdown structure independently of the interactive word wrappers.
+  for (const span of Array.from(container.querySelectorAll('span')).reverse()) span.replaceWith(...span.childNodes)
   return container.innerHTML
 }
 
@@ -80,7 +82,7 @@ describe('not trusting model output', () => {
 
   it('shows a stray asterisk as itself', () => {
     render(<Markdown text="2 * 3 = 6" />)
-    expect(screen.getByText('2 * 3 = 6')).toBeInTheDocument()
+    expect(document.querySelector('.md-p')).toHaveTextContent('2 * 3 = 6')
   })
 
   it('leaves snake_case identifiers alone', () => {

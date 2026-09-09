@@ -4,6 +4,7 @@ import { DetailDialog } from './DetailDialog'
 import { reportFault } from '../lib/faults'
 
 export interface WordInsight {
+  gloss: string
   lemma: string
   pos: string
   form: string
@@ -60,6 +61,7 @@ export function WordInsightModal({
         {error && <div className="turn-errors">⚠ {error}</div>}
         {insight && (
           <div className="insight-body">
+            <InsightRow k="Meaning" v={insight.gloss} />
             <InsightRow k="Lemma" v={insight.lemma} />
             <InsightRow k="Part of speech" v={insight.pos} />
             <InsightRow k="Form" v={insight.form} />
