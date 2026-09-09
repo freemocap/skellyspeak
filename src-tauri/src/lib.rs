@@ -212,6 +212,7 @@ pub fn run() {
             commands::hosted_auth::hosted_sign_in,
             commands::hosted_auth::hosted_sign_out,
             commands::insight::word_insight,
+            commands::insight::annotate_text,
             commands::keys::validate_key,
             commands::personas::delete_persona,
             commands::personas::list_personas,

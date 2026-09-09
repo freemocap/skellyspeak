@@ -86,6 +86,7 @@ pub mod op {
     pub const EXPLAIN: &str = "explain";
     pub const SUGGEST: &str = "suggest";
     pub const WORD_INSIGHT: &str = "word_insight";
+    pub const ANNOTATE_TEXT: &str = "annotate_text";
     pub const TRANSCRIBE: &str = "transcribe";
     pub const SYNTHESIZE: &str = "synthesize";
 }
@@ -195,6 +196,14 @@ pub const OPERATIONS: &[Operation] = &[
         mechanical: false,
     },
     Operation {
+        id: op::ANNOTATE_TEXT,
+        label: "Text annotations",
+        purpose: "Prepares word meanings and pronunciation for reading text, including mixed-language lesson labels and examples.",
+        actor: Actor::Runner,
+        faculty: None,
+        mechanical: true,
+    },
+    Operation {
         id: op::WORD_INSIGHT,
         label: "Word insight",
         purpose: "Explains one word in depth: its dictionary form, its part of speech, and what it is doing in this sentence.",
@@ -245,6 +254,7 @@ mod tests {
         op::EXPLAIN,
         op::SUGGEST,
         op::WORD_INSIGHT,
+        op::ANNOTATE_TEXT,
         op::TRANSCRIBE,
         op::SYNTHESIZE,
     ];

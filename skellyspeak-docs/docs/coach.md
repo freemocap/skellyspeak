@@ -80,7 +80,7 @@ Level, topic and persona changes remain in the chat’s collapsible setup contro
 not claim to have changed those selectors. Corrections to inferred memory are
 stored as explicit preferences with higher priority; both sources stay visible.
 
-The **Coach** button shares the settings row above the input. It opens preloaded advice for the latest partner message: translation, a brief explanation, and two suggested replies with their meanings. Non-Latin phrases include romanization; each phrase has expandable approximate phonetic pronunciation. Selecting a reply adds only its target-language text to the draft without sending. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
+The **Coach** section sits above the input. Suggestions stay visible with preloaded word annotations; there is no collapsed preview or Coach header row. Each suggestion is a compact bubble with inspectable words and a trailing **↗** insertion icon. Only the icon fills the draft, without sending or requesting analysis. Translation follows the chat preference; romanization and pronunciation render under individual words using the same token component as chat, with no sentence-level sound-guide block. **Understand the exchange** below the replies reveals explanation and the partner’s translation. The tray does not repeat the partner’s message. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
 
 ## Lesson presentation and future progression
 
@@ -95,4 +95,8 @@ acquired a skill or made a particular error. Grades do not currently award XP.
 The [skill progression proposal](./skill-progression-design) describes a shared
 capability map and auditable evidence as future work.
 
-The Coach tray’s refresh button requests different advice using the previous advice and recent conversation as context. Existing advice stays visible while loading; a successful refresh replaces and saves it. Opening the tray still makes no request.
+Suggestions update with the conversation. The compact **Understand the exchange** disclosure has no refresh control.
+
+Words in coach prose, corrections, advice and lesson examples support inline meanings on tap and deeper inspection on hold or right-click. The trailing **↗** icon inserts a suggestion without a word lookup. Settings → **Reading & display** controls text size, word spacing and saved pronunciation.
+
+The compact green suggestion tray starts directly with reply bubbles above the input. Only **Understand the exchange** expands; there is no separate Coach label, toggle or header spacer.

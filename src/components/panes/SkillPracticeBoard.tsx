@@ -1,3 +1,4 @@
+import { TargetText } from '../TargetText'
 import { skillIndex, practiceSuggestions } from '../../lib/skill-index'
 import { SkillDetailContent } from './SkillDetailContent'
 import { DetailDialog } from '../DetailDialog'
@@ -80,7 +81,7 @@ export function SkillPracticeBoard({ snapshot, chatId, level, busy }: { snapshot
         </button>
         <div id={`practice-${node.id}`} hidden={expanded !== node.id} className="practice-card-help">
           <p>{node.criterion}</p>
-          {assistance && domain === branch.id && <details className="card-reply-ideas"><summary>Reply ideas for the conversation</summary><p className="lesson-meta">General reply options; these are not specific evidence for this skill.</p>{assistance.suggestions.replies.map(reply => <button key={reply} className="lesson-action" disabled={busy} onClick={() => assistance.useExample(reply, 'suggestion')}>{reply}</button>)}{[...assistance.suggestions.frames, ...assistance.suggestions.starters].map(frame => <button key={frame} className="lesson-action" disabled={busy} onClick={() => assistance.useExample(frame, 'scaffold')}>{frame}</button>)}{assistance.suggestionsError && <p role="alert">{assistance.suggestionsError}</p>}</details>}
+          {assistance && domain === branch.id && <details className="card-reply-ideas"><summary>Reply ideas for the conversation</summary><p className="lesson-meta">General reply options; these are not specific evidence for this skill.</p>{assistance.suggestions.replies.map(reply => <div key={reply}><p><TargetText text={reply} /></p><button className="lesson-action" disabled={busy} onClick={() => assistance.useExample(reply, 'suggestion')}>Use this reply</button></div>)}{[...assistance.suggestions.frames, ...assistance.suggestions.starters].map(frame => <div key={frame}><p><TargetText text={frame} /></p><button className="lesson-action" disabled={busy} onClick={() => assistance.useExample(frame, 'scaffold')}>Use this scaffold</button></div>)}{assistance.suggestionsError && <p role="alert">{assistance.suggestionsError}</p>}</details>}
           {expanded === node.id && <TopicExplanation key={`${chatId}:${level}:${node.id}`} chatId={chatId} level={level} topic={`${node.label}: ${node.criterion}`} busy={busy} />}
           <button className="lesson-inline-action" onClick={() => setDetail(node)}>Explanation &amp; reviewed replies ↗</button>
         </div>

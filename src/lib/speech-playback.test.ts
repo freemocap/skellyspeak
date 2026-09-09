@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { isSpeaking, setPlaybackAllowed, setPlaybackRate, speakSmart, stopSpeaking, subscribeSpeechProgress, type SpeechProgress } from './speech'
+import { isSpeaking, setVoiceVolume, setPlaybackAllowed, setPlaybackRate, speakSmart, stopSpeaking, subscribeSpeechProgress, type SpeechProgress } from './speech'
+import { configureAudioVolumes } from './audio-volume'
 import { installPlaybackLifecycle } from './playback-lifecycle'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
@@ -8,6 +9,7 @@ vi.mock('./tauri', () => ({ invoke: backend.invoke }))
 
 class AudioPlayer {
   static latest: AudioPlayer | undefined
+  volume = 1
   currentTime = 0
   duration = 10
   playbackRate = 1
@@ -21,6 +23,7 @@ class AudioPlayer {
 }
 
 beforeEach(() => {
+  setVoiceVolume(1)
   AudioPlayer.latest = undefined
   backend.invoke.mockReset().mockResolvedValue({ audio_base64: 'AAAAAA==', mime: 'audio/wav' })
   vi.stubGlobal('Audio', AudioPlayer)
@@ -195,4 +198,30 @@ it('does not reuse synthesized audio across language-pair settings scopes', asyn
   await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
   AudioPlayer.latest!.onended!()
   await second
+})
+
+it('scales cloud speech by master and voice, changes live volume, and mutes without another synthesis', async () => {
+  configureAudioVolumes({ master_volume: 50, voice_volume: 80, effects_volume: 10 })
+  const played = speakSmart('volume controls', 'en', 'cloud', 'nova', 1, 'volume', null, 'volume-test')
+  await vi.waitFor(() => expect(AudioPlayer.latest?.play).toHaveBeenCalled())
+  expect(AudioPlayer.latest!.volume).toBeCloseTo(.4)
+  configureAudioVolumes({ master_volume: 25, voice_volume: 80, effects_volume: 100 })
+  expect(AudioPlayer.latest!.volume).toBeCloseTo(.2)
+  configureAudioVolumes({ master_volume: 0, voice_volume: 80, effects_volume: 100 })
+  expect(await played).toBe(false)
+  backend.invoke.mockClear()
+  expect(await speakSmart('muted', 'en', 'cloud', 'nova', 1, 'muted', null, 'volume-test')).toBe(false)
+  expect(backend.invoke).not.toHaveBeenCalled()
+})
+
+it('applies voice and master volume to OS speech independently of effects', async () => {
+  const synth = { getVoices: () => [{ lang: 'en-US' }], cancel: vi.fn(), speak: vi.fn() }
+  vi.stubGlobal('speechSynthesis', synth)
+  vi.stubGlobal('SpeechSynthesisUtterance', class { constructor(public text: string) {} })
+  configureAudioVolumes({ master_volume: 80, voice_volume: 25, effects_volume: 0 })
+  const played = speakSmart('OS volume', 'en', 'os', 'nova', 1, 'volume', null, 'volume-test')
+  expect(synth.speak.mock.calls[0][0].volume).toBeCloseTo(.2)
+  setVoiceVolume(0)
+  expect(await played).toBe(false)
+  expect(synth.cancel).toHaveBeenCalled()
 })

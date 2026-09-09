@@ -9,7 +9,10 @@ it('follows Read aloud only in Follow TTS mode', () => {
   expect(soundEnabled('follow_tts', true)).toBe(true)
 })
 it('uses bounded rising rewards and a distinct confusion contour', () => {
-  expect(soundPattern({ kind: 'pop' })).toEqual([{ frequency: 700, at: 0, duration: 0.06 }])
+  const pop = soundPattern({ kind: 'pop' })
+  expect(pop).toHaveLength(2)
+  expect(pop[1].frequency).toBeGreaterThan(pop[0].frequency)
+  expect(pop[1].at + pop[1].duration).toBeLessThan(.2)
   const small = soundPattern({ kind: 'xp', xp: 2 })
   const large = soundPattern({ kind: 'xp', xp: 1000 })
   expect(large).toHaveLength(4)
@@ -74,6 +77,37 @@ it('drops offscreen sounds and caps burst backlog', async () => {
   sound.stopRewardSounds()
 })
 
+it('plays the visible XP face inside a zero-height button and finishes after the token disappears', async () => {
+  const sound = await import('./reward-sounds')
+  const message = document.createElement('div')
+  message.className = 'msg'
+  const button = document.createElement('button')
+  const face = document.createElement('span')
+  button.append(face)
+  message.append(button)
+  document.body.append(message)
+  vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 30, 28, 0))
+  vi.spyOn(face, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 18, 26, 24))
+  const flash: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null } = { cancel: vi.fn(), onfinish: null }
+  message.animate = vi.fn(() => flash as unknown as Animation)
+  sound.configureRewardSounds('yes', false)
+  sound.unlockRewardAudio()
+  expect(sound.playRewardSound({ kind: 'pop' }, button)).toBe(false)
+  expect(voices).toHaveLength(0)
+  expect(sound.playRewardSound({ kind: 'pop' }, face)).toBe(true)
+  expect(voices).toHaveLength(2)
+  expect(message.animate).toHaveBeenCalledOnce()
+  button.remove()
+  flash.onfinish!()
+  for (const [index, voice] of voices.entries()) {
+    const note = soundPattern({ kind: 'pop' })[index]
+    expect(voice.start).toHaveBeenCalledWith(1 + note.at)
+    expect(voice.stop).toHaveBeenCalledExactlyOnceWith(1 + note.at + note.duration + .01)
+    expect(voice.disconnect).not.toHaveBeenCalled()
+  }
+  sound.stopRewardSounds()
+})
+
 it.each(['pointerup', 'touchend'])('unlocks on touch release (%s), recovers interrupted audio, and respects suspension and mute', async eventName => {
   const sound = await import('./reward-sounds')
   const { installPlaybackLifecycle } = await import('./playback-lifecycle')
@@ -117,4 +151,29 @@ it.each(['pointerup', 'touchend'])('unlocks on touch release (%s), recovers inte
     target.dispatchEvent(new Event(eventName, { bubbles: true }))
     expect(audio.resume).not.toHaveBeenCalled()
   } finally { lifecycle.dispose() }
+})
+
+it('scales the effects output independently and silences active and future notes at zero', async () => {
+  const sound = await import('./reward-sounds')
+  const { configureAudioVolumes } = await import('./audio-volume')
+  const audio = new Synth()
+  const createGain = vi.spyOn(audio, 'createGain')
+  vi.stubGlobal('AudioContext', class { constructor() { return audio } })
+  configureAudioVolumes({ master_volume: 50, voice_volume: 100, effects_volume: 40 })
+  sound.configureRewardSounds('yes', false)
+  sound.unlockRewardAudio()
+  const output = createGain.mock.results[0].value
+  expect(output.gain.value).toBeCloseTo(.2)
+  const target = document.createElement('button')
+  document.body.append(target)
+  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 10, 30, 30))
+  target.animate = vi.fn(() => ({ cancel: vi.fn() }) as unknown as Animation)
+  expect(sound.playRewardSound({ kind: 'pop' }, target)).toBe(true)
+  configureAudioVolumes({ master_volume: 50, voice_volume: 0, effects_volume: 80 })
+  expect(output.gain.value).toBeCloseTo(.4)
+  configureAudioVolumes({ master_volume: 0, voice_volume: 100, effects_volume: 80 })
+  expect(output.gain.value).toBe(0)
+  expect(sound.playRewardSound({ kind: 'pop' }, target)).toBe(false)
+  expect(() => configureAudioVolumes({ master_volume: 101, voice_volume: 100, effects_volume: 80 })).toThrow('Volume')
+  sound.stopRewardSounds()
 })

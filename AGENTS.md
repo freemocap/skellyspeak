@@ -8,6 +8,10 @@ errors with warnings or silent fallbacks.
 Git is read-only for agents. Never commit, push, tag, branch, stage, reset,
 checkout, stash, or change Git configuration. The user performs all Git writes.
 
+## UI
+
+For UI work, read `ui-guidelines.md` and reuse the app’s established interaction patterns and vocabulary.
+
 ## Code style
 
 - Use TypeScript, never JavaScript, for new Node/frontend code.

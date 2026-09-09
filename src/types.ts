@@ -32,9 +32,14 @@ export interface Settings {
   auto_send: boolean
   always_romanize: boolean
   auto_translate: boolean
+  text_size: number
+  text_spacing: number
   always_pronunciation: boolean
   fast_mode: boolean
   reward_sounds: import('./lib/reward-sounds').RewardSoundMode
+  master_volume: number
+  voice_volume: number
+  effects_volume: number
   tts_engine: string
   tts_voice: string
   tts_rate: number
