@@ -2,10 +2,10 @@
 
 ## Current stage
 
-SkellySpeak is in architecture and product design. Do not implement application
-code, scaffold a framework, install dependencies or activate build/deployment
-workflows until the user explicitly authorizes implementation after design review.
-Ordinary agreement with a design idea is not authorization to implement it.
+Implementation is authorized following review of `BUILD-PLAN.md`. Proceed through
+its phases, starting with the durable local foundation. Keep implemented behavior,
+verification results and future work distinct. Deployment and Git writes are not
+authorized by local implementation approval.
 
 The active design lives in `DESIGN.md`. Keep proposals, decisions and unresolved
 questions distinct. Discuss ownership and user behavior before choosing storage,
@@ -57,6 +57,6 @@ checkout, stash or change Git configuration. The user performs all Git writes.
 ## Quality
 
 Fail on errors; do not substitute warnings or silent fallbacks. Keep documentation
-about the active design and actionable questions. Verify local links and document
-consistency during planning. Implementation checks will be defined with the
-implementation architecture, not borrowed from the reference application.
+about the active design and actionable questions. Read `ui-guidelines.md` for UI
+work. Use TypeScript for frontend tooling. Run the relevant checks in README.md;
+do not run archived application workflows.

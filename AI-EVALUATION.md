@@ -193,7 +193,7 @@ do not silently add network inference or replace geometry with generative Vibe.
 - [x] Define bounded pilot coverage, acceptance gates and accounting requirements.
 - [ ] Review adapter scope and proposed evaluation gates.
 - [x] Consolidate proposed choices, phases and user checks in [BUILD-PLAN.md](./BUILD-PLAN.md).
-- [ ] Obtain explicit implementation authorization before scaffolding or harness work.
+- [x] Obtain explicit implementation authorization before scaffolding or harness work.
 - [ ] Build conformance checks and reviewed fixtures, then price the bounded model run.
 - [ ] Run evaluations and record actual task assignments; choose the embedding deployment.
 - [ ] Complete hosted authentication/metering, native lifecycle and device verification.

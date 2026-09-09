@@ -1,11 +1,10 @@
 # SkellySpeak design brief
 
-Status: design discussion. This is product intent, not an implementation contract.
-The platform baseline is a Tauri application with a React webview and Rust core,
-targeting desktop and mobile. Concrete storage and execution contracts are not yet
-selected; the active workspace contains no application implementation.
-Graph-based execution, real operation gating and partial result hydration are
-required architectural capabilities; their proposed contracts remain under review.
+Status: approved product direction with implementation proceeding by build phase.
+Tauri, React and Rust provide the local foundation; SQLite and typed Rust/TypeScript
+contracts are selected. See [README.md](./README.md) for verified current behavior
+and [architecture.md](./architecture.md) for implementation authority. Graph execution,
+AI access and learning analysis remain subsequent-phase work.
 
 [DATA-MODEL.md](./DATA-MODEL.md) develops the first technical proposal: record
 ownership, source references, computed reports and deletion behavior. Its proposed
@@ -351,16 +350,16 @@ in architecture and implementation specifications, not an endless product questi
   [BUILD-PLAN.md](./BUILD-PLAN.md).
 - [x] Draft the data-model proposal with concrete ownership and deletion examples.
 - [x] Draft paired execution and AI-strategy proposals, including all three access routes.
-- [ ] Review data-model, execution and AI-strategy defaults and resolve consequential choices.
+- [x] Review and accept the consolidated data-model, execution and AI-strategy defaults.
 - [x] Draft storage, state and IPC contracts against the proposed ownership/execution rules.
-- [ ] Review persistence/hydration defaults and choose concrete storage and IPC tooling.
+- [x] Accept persistence defaults and select SQLite/rusqlite, ts-rs and Tauri commands
+  for the local foundation; execution subscriptions remain Phase 2 work.
 - [x] Propose concrete provider/model candidates and a bounded evaluation plan in
   [AI-EVALUATION.md](./AI-EVALUATION.md).
 - [ ] Select provider protocols and evaluate models/embeddings; specify concrete
   capability checks, request/metering contracts and execution budgets.
 - [ ] Develop focused visual studies alongside architecture where useful.
-- [ ] Review architecture and explicitly authorize implementation.
+- [x] Review architecture and explicitly authorize implementation.
 
-During this stage, useful review artifacts are user journeys, ownership tables,
-information-flow diagrams and focused visual studies. There is no application
-behavior for the user to test yet.
+Implementation checkpoints and actual user checks are tracked in [BUILD-PLAN.md](./BUILD-PLAN.md).
+The local foundation is runnable; AI, assessment and garden behavior are not yet implemented.

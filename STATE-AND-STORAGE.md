@@ -1,7 +1,8 @@
 # State, storage and application boundary proposal
 
-Status: architecture proposal for review. No database, state library or IPC code
-is implemented. This contract connects [domain ownership](./DATA-MODEL.md),
+Status: approved architecture direction. SQLite/rusqlite, generated TypeScript
+contracts and local commands implement the directory foundation; execution event
+subscriptions and source-analysis projections remain planned. See [architecture.md](./architecture.md). This contract connects [domain ownership](./DATA-MODEL.md),
 [execution](./EXECUTION.md) and [AI routing](./AI-STRATEGY.md). It proceeds against
 their proposed defaults without treating every open choice as approved.
 

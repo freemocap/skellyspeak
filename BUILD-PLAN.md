@@ -1,8 +1,8 @@
 # Build plan and architecture review
 
-Status: proposed implementation sequence, ready for design review. No phase below
-is implemented. Preparing this plan does not start application code, dependency
-installation, paid evaluations or deployment.
+Status: implementation authorized. Phase 1 is implemented and verified locally
+on macOS; mobile/other-platform verification remains explicitly outstanding.
+Subsequent phases are not implemented. No paid evaluation or deployment has run.
 
 ## Intention
 
@@ -48,8 +48,8 @@ and iOS; each requires its own verification evidence.
 
 ## Consolidated decision slate
 
-Review these consequential proposed defaults together. Broad product agreement
-does not mean every mechanism in this table has already been approved.
+The following consolidated defaults were approved for implementation. Concrete
+model eligibility still depends on evaluation; release and platform claims require evidence.
 
 | Decision | Recommended initial contract | Consequence |
 | --- | --- | --- |
@@ -75,20 +75,24 @@ choice materially changes behavior, data scope or platform support.
 
 ## Phase 1: Durable local product foundation
 
-- [ ] Select transactional storage, Rust bindings, typed IPC generation and the
+- [x] Select transactional storage, Rust bindings, typed IPC generation and the
   minimal frontend snapshot mechanism; document dependency rationale.
-- [ ] Establish Tauri/React/Rust and hosted-service boundaries with relevant checks.
+- [x] Establish Tauri/React/Rust and hosted-service boundaries with relevant checks.
   Probe native build viability early, including one phone target.
-- [ ] Implement learner, language registry, partner, relationship, conversation,
+- [x] Implement learner, language registry, partner, relationship, conversation,
   settings and preferences through Rust commands and persisted scoped snapshots.
-- [ ] Include revision validation, create/archive/delete, session drafts, tutorial
+- [x] Include revision validation, create/archive/delete, session drafts, tutorial
   status and procedural-avatar parameters in the first local slice.
-- [ ] Verify restart persistence, independent settings, conflicts and ownership.
+- [x] Verify restart persistence, independent settings, conflicts and ownership.
 
 Exit: a verified local build creates partners and distinct conversations, preserves
 accepted state across restart and restores each conversation's settings. No AI
 conversation claim at this checkpoint. Test doubles stay in tests, not a pretend
 production AI mode.
+
+**Verification:** local checks and native macOS create/edit/settings/restart flow
+passed. Narrow-window layout inspected. iOS prerequisite probe found no full Xcode;
+iOS/device and other-platform builds remain unverified. See README.md for commands.
 
 **User check:** create two conversations with different settings, switch between
 them and restart. Review navigation and partner identity controls.
@@ -209,11 +213,10 @@ checks. Placeholder services, sample scores, silent fallbacks and parallel edita
 truths cannot satisfy completion. Synthetic fixtures remain separate from production.
 Useful sourced evidence and evaluation results are not disposable scaffolding.
 
-Before coding, review the decision slate and explicitly authorize implementation.
-Routine technical selections then proceed within that scope; material deviations
+Implementation of the reviewed plan is authorized.
+Routine technical selections proceed within that scope; material deviations
 return for a concrete decision. Paid evaluation ceilings, deployment and unavailable
 verification environments remain separately identified.
 
-The first implementation action after authorization is Phase 1's concrete technology
-selection and durable local product slice. No further general planning document is
-required to begin that work once the proposed defaults are accepted or amended.
+The next implementation slice is Phase 2: real graph execution and an own-key
+conversation path. No additional general planning document is required to begin it.
