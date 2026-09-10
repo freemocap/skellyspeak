@@ -1,9 +1,9 @@
 # Execution contract proposal
 
-Status: architecture proposal for review; no runtime is implemented. This document
-and [AI-STRATEGY.md](./AI-STRATEGY.md) jointly describe how work fulfills
-[DESIGN.md](./DESIGN.md) using the records in [DATA-MODEL.md](./DATA-MODEL.md).
-The proposed defaults below remain reviewable. Storage technology is not selected.
+Status: approved direction. Hosted desktop authentication and hosted/own-key partner replies are implemented;
+[architecture.md](./architecture.md) describes its concrete contracts and
+[README.md](./README.md) records verification limits. Broader operation families,
+assistance, other access routes and evaluation-dependent behavior below remain planned.
 
 ## One contract for work and inspection
 

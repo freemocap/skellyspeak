@@ -23,7 +23,7 @@ after implementation is authorized. Do not run or maintain the reference
 application as part of design work.
 
 The rebuild starts from empty application data. No compatibility layers, imports,
-backups or data-conversion work. The user handles application data deletion.
+backups or data-conversion work.
 
 ## Collaboration
 

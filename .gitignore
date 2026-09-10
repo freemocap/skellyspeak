@@ -17,3 +17,7 @@ __pycache__/
 *.p12
 *.pfx
 keystore.properties
+
+# Ephemeral Google authentication files and Python test caches.
+gha-creds-*.json
+.pytest_cache/

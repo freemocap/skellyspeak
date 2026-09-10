@@ -2,6 +2,6 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
   "description": "Local main window",
-  "windows": ["main"],
+  "windows": ["main", "ai"],
   "permissions": ["core:default"]
 }

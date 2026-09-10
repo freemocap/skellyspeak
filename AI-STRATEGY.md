@@ -1,8 +1,9 @@
 # AI strategy and provider contract proposal
 
-Status: proposed architecture, paired with [EXECUTION.md](./EXECUTION.md).
-The three access routes are agreed requirements. Protocols, model catalog,
-embedding deployment and concrete defaults below are not implemented or selected.
+Status: approved direction. Hosted desktop authentication and hosted/own-key partner replies are implemented;
+[architecture.md](./architecture.md) describes its concrete contracts and
+[README.md](./README.md) records verification limits. Broader operation families,
+assistance, other access routes and evaluation-dependent behavior below remain planned.
 
 [AI-EVALUATION.md](./AI-EVALUATION.md) names the initial provider/model candidates,
 conformance checks and bounded evaluation gates. Candidate selection is distinct

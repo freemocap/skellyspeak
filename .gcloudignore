@@ -1,0 +1,7 @@
+*
+!server/
+!server/*.py
+!server/pyproject.toml
+!server/uv.lock
+!server/Dockerfile
+!server/cloudbuild.yaml

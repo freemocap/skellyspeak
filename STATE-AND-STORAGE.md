@@ -1,8 +1,8 @@
 # State, storage and application boundary proposal
 
 Status: approved architecture direction. SQLite/rusqlite, generated TypeScript
-contracts and local commands implement the directory foundation; execution event
-subscriptions and source-analysis projections remain planned. See [architecture.md](./architecture.md). This contract connects [domain ownership](./DATA-MODEL.md),
+contracts and local commands implement the directory foundation; conditional scoped conversation snapshots hydrate execution state; source-analysis
+projections remain planned. See [architecture.md](./architecture.md). This contract connects [domain ownership](./DATA-MODEL.md),
 [execution](./EXECUTION.md) and [AI routing](./AI-STRATEGY.md). It proceeds against
 their proposed defaults without treating every open choice as approved.
 

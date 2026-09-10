@@ -1,0 +1,253 @@
+name: Deploy server
+
+# The hosted API deploys itself. Any change to `server/` that lands on main is
+# built and rolled out to Cloud Run, and then checked — there is no step here
+# that a person is expected to run by hand.
+#
+# Authentication is Workload Identity Federation: GitHub mints a short-lived
+# OIDC token that Google exchanges for an access token. No service-account key
+# exists to leak or rotate. Deployment uses the configured repository secrets.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.gcloudignore'
+      - '.github/workflows/deploy-server.yml'
+  # Redeploy without a code change — after rotating a secret, for instance.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time, and never cancel one midway: a half-applied Cloud Run
+# rollout is worse than a queued one.
+concurrency:
+  group: deploy-server
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT: skellyspeak-api
+  REGION: us-central1
+  SERVICE: skellyspeak-api
+  # The service's own public address. It is baked into the OAuth redirect the
+  # server builds, so it has to match what Google has registered.
+  PUBLIC_BASE_URL: https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app
+
+jobs:
+  # Deploying a server whose tests fail is how a broken sign-in reaches the
+  # people using it, so this gates the deploy rather than running beside it.
+  test:
+    name: Server tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+
+      - name: Run pytest
+        working-directory: server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          uv run --frozen --group dev pytest -q
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+        with:
+          install_components: cloud-firestore-emulator
+
+      - name: Exercise concurrent Firestore transactions
+        working-directory: server
+        env:
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8787
+          SKELLYSPEAK_FIRESTORE_TEST: '1'
+        run: |
+          set -euo pipefail
+          gcloud emulators firestore start --host-port=127.0.0.1:8787 --project=skellyspeak-ci > /tmp/firestore.log 2>&1 &
+          emulator_pid=$!
+          cleanup() {
+            cat /tmp/firestore.log
+            if kill -0 "$emulator_pid" 2>/dev/null; then
+              kill "$emulator_pid"
+            fi
+          }
+          trap cleanup EXIT
+          for attempt in $(seq 1 40); do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              echo "::error::Firestore emulator exited before becoming ready"
+              exit 1
+            fi
+            if python -c 'import socket; socket.create_connection(("127.0.0.1", 8787), timeout=1).close()'; then
+              break
+            fi
+            if [ "$attempt" = 40 ]; then exit 1; fi
+            sleep 0.5
+          done
+          uv run --frozen --group dev pytest test_firestore.py -q
+
+  # Passing tests do not mean a container that starts. A deploy of an image
+  # that exits on boot costs a three-minute Cloud Build, fails at the Cloud Run
+  # health check, and reports only "the user-provided container failed to start
+  # and listen on the port" — with the real reason buried in Cloud Logging.
+  # Building and booting it here surfaces that in about a minute, before
+  # anything is pushed anywhere.
+  container:
+    name: Container starts and serves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build -t skellyspeak-api:ci server
+
+      - name: Boot it and check it serves
+        run: |
+          set -euo pipefail
+          # Deliberately fake values. The point is that the process starts,
+          # binds the port and answers — not that it can reach anything.
+          # FIRESTORE_EMULATOR_HOST keeps the Firestore client from demanding
+          # credentials at import; it is never actually connected to.
+          docker run -d --name api -p 8080:8080 \
+            -e GOOGLE_CLIENT_ID=ci -e GOOGLE_CLIENT_SECRET=ci \
+            -e JWT_SIGNING_KEY=0123456789012345678901234567890123456789 \
+            -e PUBLIC_BASE_URL=https://example.invalid \
+            -e OPENROUTER_API_KEY=ci -e GROQ_API_KEY=ci \
+            -e ALLOWED_MODELS=google/gemini-2.5-flash,openai/gpt-audio-mini \
+            -e MAX_COMPLETION_TOKENS=32768 \
+            -e FREE_DAILY_MICROS=500000 -e GLOBAL_DAILY_MICROS=2000000 \
+            -e MAX_USERS=6 \
+            -e GOOGLE_CLOUD_PROJECT=ci \
+            -e FIRESTORE_EMULATOR_HOST=127.0.0.1:9999 \
+            skellyspeak-api:ci
+
+          for attempt in $(seq 1 20); do
+            if curl -fsS --max-time 3 http://127.0.0.1:8080/health > /dev/null; then
+              echo "container is serving"
+              break
+            fi
+            if [ "$(docker inspect -f '{{.State.Status}}' api)" != "running" ]; then
+              echo "::error::The container exited during startup."
+              docker logs api
+              exit 1
+            fi
+            if [ "$attempt" = 20 ]; then
+              echo "::error::The container never answered on 8080."
+              docker logs api
+              exit 1
+            fi
+            sleep 2
+          done
+
+          # It must also be the unprivileged user, not root.
+          uid=$(docker exec api id -u)
+          if [ "$uid" = "0" ]; then
+            echo "::error::The container is running as root."
+            exit 1
+          fi
+          echo "running as uid $uid"
+
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:8080/v1/me)
+          if [ "$code" != "401" ]; then
+            echo "::error::unauthenticated /v1/me returned $code, expected 401"
+            docker logs api
+            exit 1
+          fi
+          echo "unauthenticated /v1/me returned 401"
+
+      - if: always()
+        run: docker rm -f api || true
+
+  deploy:
+    name: Build and deploy to Cloud Run
+    permissions:
+      contents: read
+      id-token: write
+    needs: [test, container]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - id: auth
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+
+      # Submitted from the repository root because cloudbuild.yaml addresses
+      # `server/Dockerfile`. `.gcloudignore` is what keeps that from uploading
+      # the whole repository as build context.
+      - name: Build and deploy
+        run: |
+          gcloud beta builds submit \
+            --project="$GCP_PROJECT" \
+            --config=server/cloudbuild.yaml \
+            --gcs-source-staging-dir="gs://${GCP_PROJECT}_cloudbuild/source" \
+            --substitutions=_PUBLIC_BASE_URL="$PUBLIC_BASE_URL"
+
+      # A green build is not a working service. Cloud Run can accept a revision
+      # that then fails to start, and `--allow-unauthenticated` silently does
+      # nothing from Cloud Build, so both are checked here rather than
+      # discovered by a user who cannot sign in.
+      - name: Verify the new revision is serving
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS --max-time 20 "$PUBLIC_BASE_URL/health" > /tmp/health.txt; then
+              echo "health: $(cat /tmp/health.txt)"
+              break
+            fi
+            if [ "$attempt" = 5 ]; then
+              echo "::error::$PUBLIC_BASE_URL/health did not respond after the deploy."
+              exit 1
+            fi
+            echo "health check attempt $attempt failed; retrying in 10s"
+            sleep 10
+          done
+
+      - name: Verify the service is still public and still guarded
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$PUBLIC_BASE_URL/v1/me")
+          if [ "$code" = "403" ]; then
+            echo "::error::/v1/me returned 403 — the service is private. Re-apply the"
+            echo "::error::allUsers run.invoker binding; Cloud Build cannot set it."
+            exit 1
+          fi
+          if [ "$code" != "401" ]; then
+            echo "::error::/v1/me returned $code for an unauthenticated request; expected 401."
+            exit 1
+          fi
+          echo "unauthenticated /v1/me correctly returned 401"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$PUBLIC_BASE_URL/v1/diagnostics")
+          if [ "$code" != "401" ]; then
+            echo "::error::Unauthenticated diagnostics returned $code; expected 401."
+            exit 1
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo "### Server deployed"
+            echo ""
+            echo "- Service: \`$SERVICE\` in \`$REGION\`"
+            echo "- URL: $PUBLIC_BASE_URL"
+            echo "- Commit: \`${GITHUB_SHA:0:7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
