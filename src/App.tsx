@@ -1,695 +1,363 @@
-import { useEffect, useRef, useState } from "react";
-import type { Conversation } from "./contracts";
-import { Avatar } from "./Avatar";
-import { Modal } from "./Modal";
-import { retainDrafts } from "./directory";
-import { useDirectory } from "./useDirectory";
-import { Field, LanguageSelect, ErrorNotice } from "./Fields";
-import { Onboarding } from "./Onboarding";
-import { ConversationList } from "./ConversationList";
-import { ConversationView } from "./ConversationView";
-import { PartnerForm } from "./PartnerForms";
-import "./styles.css";
-import logo from "../assets/skellyspeak-logo.png";
-import { useChat } from "./useChat";
-import { useAccount } from "./useAccount";
-import { SettingsDialog } from "./SettingsDialog";
-import { ProfilePanel } from "./ProfilePanel";
-import { AiDock } from "./AiWorkspace";
-import { LearningPanel } from "./LearningPanel";
+import { configureAudioVolumes } from './lib/audio-volume'
+import { ReadingProvider } from './components/TargetText'
+import { ToolbarIcon } from './components/ToolbarIcon'
+import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
+import { ProgressSummary } from './components/panes/ProgressSummary'
+import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { getSettings, saveSettings, hostedAccount, isTauri, languageFor, languages, takeStartupFaults } from './lib/tauri'
+import { uiLangFromNative } from './lib/i18n'
+import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
+import { isReloadShortcut } from './lib/reload'
+import GuidedPage, { type MobileLocation } from './pages/GuidedPage'
+import { DetailDialog } from './components/DetailDialog'
+import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
+import { SettingsModal } from './components/SettingsModal'
+import { LogsOverlay } from './components/LogsOverlay'
+import { UpdateBanner } from './components/UpdateBanner'
+import { PausedBanner } from './components/PausedBanner'
+import { openOverlay } from './lib/back'
+import { useAiActivity } from './hooks/useAiActivity'
+import { usePracticeSwipe } from './hooks/usePracticeSwipe'
+import { useIsMobile } from './hooks/useIsMobile'
+import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
+import { HOSTED } from './lib/providers'
+import type { Settings, Shortcuts } from './types'
 
-export default function App() {
-  const { snapshot, error, busy, run, pending, recover, clearError, refresh } =
-    useDirectory();
-  const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
-  const [selectedConversation, setSelectedConversation] = useState<
-    string | null
-  >(null);
-  const initialized = useRef(false);
-  const [chooserOpen, setChooserOpen] = useState(false);
-  const [surface, setSurface] = useState<"chat" | "panel">("chat");
-  const chat = useChat(selectedConversation, refresh);
-  const account = useAccount(chat.snapshot?.turns[0]?.state);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [language, setLanguage] = useState("es");
-  const [showArchive, setShowArchive] = useState(false);
-  const [modal, setModal] = useState<
-    | "profile"
-    | "connection"
-    | "partner"
-    | "preferences"
-    | "deletePartner"
-    | "deleteConversation"
-    | null
-  >(null);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-  useEffect(() => {
-    if (!chooserOpen) return;
-    const dismiss = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setChooserOpen(false);
-    };
-    window.addEventListener("keydown", dismiss);
-    return () => window.removeEventListener("keydown", dismiss);
-  }, [chooserOpen]);
-  useEffect(() => {
-    const preferences = snapshot?.learner.preferences;
-    document.documentElement.style.setProperty(
-      "--reading-scale",
-      String((preferences?.textSize ?? 100) / 100),
-    );
-    document.documentElement.style.setProperty(
-      "--reading-spacing",
-      `${preferences?.textSpacing ?? 0}px`,
-    );
-  }, [
-    snapshot?.learner.preferences.textSize,
-    snapshot?.learner.preferences.textSpacing,
-  ]);
-  useEffect(() => {
-    const shortcut = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.repeat) return;
-      if (document.querySelector("dialog[open]")) return;
-      if (event.key === ",") {
-        event.preventDefault();
-        setModal("preferences");
-      } else if (event.shiftKey && event.key.toLowerCase() === "a") {
-        event.preventDefault();
-        setAiOpen((open) => !open);
-      } else if (event.shiftKey && event.key.toLowerCase() === "p") {
-        event.preventDefault();
-        setModal("profile");
-      } else if (event.key.toLowerCase() === "r") {
-        event.preventDefault();
-        window.location.reload();
-      }
-    };
-    window.addEventListener("keydown", shortcut);
-    return () => window.removeEventListener("keydown", shortcut);
-  }, []);
-  useEffect(() => {
-    if (!snapshot) return;
-    if (!initialized.current) {
-      initialized.current = true;
-      const recent = snapshot.conversations
-        .filter(
-          (c) =>
-            !c.archived &&
-            snapshot.relationships.some(
-              (r) => r.id === c.relationshipId && !r.archived,
-            ),
-        )
-        .sort((a, b) => b.lastUsed - a.lastUsed)[0];
-      if (recent) {
-        setSelectedConversation(recent.id);
-        setSelectedPartner(
-          snapshot.relationships.find((r) => r.id === recent.relationshipId)!
-            .partnerId,
-        );
-      }
-    }
-    setDrafts((current) =>
-      retainDrafts(current, new Set(snapshot.conversations.map((c) => c.id))),
-    );
-    if (
-      selectedPartner &&
-      !snapshot.partners.some((p) => p.id === selectedPartner)
-    ) {
-      setSelectedPartner(null);
-      setSelectedConversation(null);
-    }
-    if (
-      selectedConversation &&
-      !snapshot.conversations.some((c) => c.id === selectedConversation)
-    )
-      setSelectedConversation(null);
-  }, [snapshot, selectedPartner, selectedConversation]);
+type Page = 'guided' | 'skills'
+const SkillsPage = lazy(() => import('./pages/SkillsPage'))
 
-  if (!snapshot)
-    return (
-      <main className="startup">
-        <img src={logo} width="72" height="72" alt="" />
-        <h1>SkellySpeak</h1>
-        <p>
-          {error
-            ? "The local workspace could not open."
-            : "Opening your local workspace…"}
-        </p>
-        <ErrorNotice error={error} />
-      </main>
-    );
-  const preferences = snapshot.learner.preferences;
-  const selected = snapshot.conversations.find(
-    (c) => c.id === selectedConversation,
-  );
-  const activePartner = selected
-    ? snapshot.relationships.find((r) => r.id === selected.relationshipId)
-        ?.partnerId
-    : selectedPartner;
-  const partner = snapshot.partners.find((p) => p.id === activePartner);
-  const relationship = snapshot.relationships.find(
-    (r) => r.partnerId === partner?.id,
-  );
-  const conversation = snapshot.conversations.find(
-    (c) =>
-      c.id === selectedConversation && c.relationshipId === relationship?.id,
-  );
-  const partnerConversations = snapshot.conversations.filter(
-    (c) => c.relationshipId === relationship?.id,
-  );
-  const visiblePartners = snapshot.partners.filter((p) =>
-    snapshot.relationships.some(
-      (r) => r.partnerId === p.id && r.archived === showArchive,
-    ),
-  );
-  const selectChat = (id: string) => {
-    setSelectedConversation(id);
-    setChooserOpen(false);
-    setSurface("chat");
-  };
-  const choosePartner = (id: string) => {
-    setSelectedPartner(id);
-    clearError();
-    const relation = snapshot.relationships.find((r) => r.partnerId === id)!;
-    if (relation.archived) {
-      setSelectedConversation(null);
-      return;
-    }
-    const recent = snapshot.conversations
-      .filter((c) => c.relationshipId === relation.id && !c.archived)
-      .sort((a, b) => b.lastUsed - a.lastUsed)[0];
-    void run(
-      recent
-        ? { kind: "openConversation", conversationId: recent.id }
-        : {
-            kind: "createConversation",
-            relationshipId: relation.id,
-            title: "New conversation",
-          },
-    ).then((receipt) => {
-      if (receipt) selectChat(receipt.entityId);
-    });
-  };
-  const newConversation = () => {
-    if (!relationship) return;
-    void run({
-      kind: "createConversation",
-      relationshipId: relationship.id,
-      title: "New conversation",
-    }).then((receipt) => {
-      if (receipt) selectChat(receipt.entityId);
-    });
-  };
-  const openModal = (value: typeof modal) => {
-    clearError();
-    setModal(value);
-  };
-  const close = () => {
-    if (!busy) {
-      setModal(null);
-      clearError();
-    }
-  };
-  const recovery = pending ? (
-    <button
-      className="primary"
-      disabled={busy}
-      onClick={() => {
-        const action = pending.action;
-        void recover().then((receipt) => {
-          if (!receipt) return;
-          setModal(null);
-          if (action.kind === "sendMessage") {
-            setDrafts((current) =>
-              current[action.conversationId] === action.text
-                ? { ...current, [action.conversationId]: "" }
-                : current,
-            );
-          }
-          if (action.kind === "createPartner") {
-            setShowArchive(false);
-            choosePartner(receipt.entityId);
-          }
-          if (
-            action.kind === "startChat" ||
-            action.kind === "createConversation" ||
-            action.kind === "openConversation"
-          )
-            setSelectedConversation(receipt.entityId);
-        });
-      }}
-    >
-      Recover action
-    </button>
-  ) : null;
-  const openConversation = async (item: Conversation) => {
-    const receipt = await run({
-      kind: "openConversation",
-      conversationId: item.id,
-    });
-    if (receipt) {
-      setSelectedConversation(item.id);
-      setChooserOpen(false);
-      setSurface("chat");
-    }
-  };
-  return (
-    <div className={`app ${preferences.highContrast ? "high-contrast" : ""}`}>
-      <header className="app-header">
-        <button
-          className="icon-button"
-          aria-label="Choose partner"
-          aria-expanded={chooserOpen}
-          onClick={() => setChooserOpen(!chooserOpen)}
-        >
-          ☰
-        </button>
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            setChooserOpen(false);
-          }}
-        >
-          <img src={logo} width="34" height="34" alt="" />
-          <span>
-            SKELLYSPEAK<b>·</b>
-          </span>
-        </a>
-        <div className="header-actions">
-          <span className="navigation-label">Guided conversation</span>
+// Keeps a render crash from blanking the whole app.
+class PageBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="not-tauri">
+          This view crashed: {this.state.error.message}
+          <br />
+          <br />
           <button
-            className={`inside-btn ${aiOpen ? "open" : ""}`}
-            aria-expanded={aiOpen}
-            onClick={() => setAiOpen(!aiOpen)}
+            type="button"
+            className="btn"
+            onClick={() => this.setState({ error: null })}
           >
-            <span className="inside-dot" />
-            AI
-          </button>
-          <button
-            className="quiet"
-            aria-label="Reload app"
-            onClick={() => window.location.reload()}
-          >
-            ↻
-          </button>
-          <button className="quiet" onClick={() => openModal("preferences")}>
-            ⚙ Settings
-          </button>
-          <button
-            aria-label="Open profile"
-            onClick={() => openModal("profile")}
-          >
-            ◎ Profile
+            Reload view
           </button>
         </div>
-      </header>
-      <div className={`workspace mobile-${surface}`}>
-        <aside
-          className={`sidebar ${chooserOpen ? "open" : ""}`}
-          aria-label="Conversation partners"
-          hidden={!chooserOpen}
+      )
+    }
+    return this.props.children
+  }
+}
+
+/// Mirror the native language onto the document: UI strings come from
+/// `uiLangFromNative` (lib/i18n) and text direction from the registry, so an
+/// Arabic native gets a right-to-left UI rather than just Arabic words.
+function applyUiLanguage(native: string) {
+  document.documentElement.dir = languageFor(native)?.direction ?? 'ltr'
+  document.documentElement.lang = uiLangFromNative(native)
+}
+
+export default function App() { return <SkillNavigationProvider><Application /></SkillNavigationProvider> }
+
+function Application() {
+  const navigation = useSkillNavigation()
+  const [page, setPage] = useState<Page>('guided')
+  const [mobileSurface, setMobileSurface] = useState<MobileLocation>('chat')
+  const [moreOpen, setMoreOpen] = useState(false)
+  function openPractice(surface: MobileLocation) {
+    setPage('guided')
+    setMobileSurface(surface)
+    setDevOpen(false)
+    setMoreOpen(false)
+  }
+  useEffect(() => { if (navigation.state.mapRequest) { setSkillsOpened(true); setPage('skills') } }, [navigation.state.mapRequest])
+  const [progressOpen, setProgressOpen] = useState(false)
+  const [skillsOpened, setSkillsOpened] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  // Owned here rather than inside LogsOverlay so its button can sit in the
+  // topbar beside the gear. As a fixed-position element of its own it never
+  // lined up with anything.
+  const [devOpen, setDevOpen] = useState(false)
+  const aiBusy = useAiActivity()
+  const isMobile = useIsMobile()
+  useEffect(() => isMobile && page === 'skills' ? openOverlay(() => setPage('guided')) : undefined, [isMobile, page])
+  // Owned here because the control belongs beside the wordmark, while the
+  // conversations it lists belong to the Guided page.
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const swipe = usePracticeSwipe(direction => openPractice(direction === 'next' ? 'panel' : 'chat'), isMobile && page === 'guided' && !historyOpen && !moreOpen && !devOpen && !settingsOpen)
+  // Bumped whenever Settings saves — pages watch it and re-fetch settings.
+  const [settingsVersion, setSettingsVersion] = useState(0)
+  const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => {
+    if (!settings) return
+    try { configureAudioVolumes(settings) }
+    catch (error) { reportFault('Audio settings', error); setSettings(null) }
+  }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])
+  const [savingLanguage, setSavingLanguage] = useState(false)
+  const observedEvidence = useSkillEvidence(true, settingsVersion)
+  const evidence = { ...observedEvidence, snapshot: observedEvidence.snapshot?.target === settings?.target_language ? observedEvidence.snapshot : null }
+
+  function settingsChanged(saved: Settings) {
+    setSettings(saved)
+    applyUiLanguage(saved.native_language)
+    setSettingsVersion((v) => v + 1)
+  }
+
+  async function changeLanguage(field: 'target_language' | 'native_language', value: string) {
+    if (!settings || savingLanguage || settingsOpen || settings[field] === value) return
+    setSavingLanguage(true)
+    try {
+      const current = await getSettings()
+      const saved = { ...current, [field]: value }
+      if (field === 'target_language') saved.target_dialect = ''
+      await saveSettings(saved)
+      settingsChanged(saved)
+    } catch (error) {
+      reportFault('Saving language', error)
+    } finally {
+      setSavingLanguage(false)
+    }
+  }
+  const [showNotTauri, setShowNotTauri] = useState(!isTauri)
+  // Everything that has gone wrong anywhere in the app, shown at the very top
+  // of the window until dismissed. This is the only destination for a failure.
+  const [faults, setFaults] = useState<Fault[]>([])
+  useEffect(() => subscribeFaults(setFaults), [])
+
+  // Faults the Rust core recorded before this webview existed get pushed onto
+  // the same bus, so a startup problem is as visible as a runtime one.
+  useEffect(() => {
+    if (!isTauri) return
+    void takeStartupFaults()
+      .then((startup) => startup.forEach((m) => reportFault('Startup', m)))
+      .catch((e) => reportFault('Reading startup diagnostics', e))
+  }, [])
+
+  // Android back closes the Settings modal instead of exiting the app.
+  useEffect(
+    () => (settingsOpen ? openOverlay(() => setSettingsOpen(false)) : undefined),
+    [settingsOpen]
+  )
+
+  // Settings are read ONCE here and everything on this screen derives from
+  // that read. Three separate loads raced each other on mount, and two of them
+  // swallowed their failure, so a settings problem showed up as a shortcut
+  // that quietly did nothing.
+  const [shortcuts, setShortcuts] = useState<Shortcuts>(SHORTCUT_DEFAULTS)
+  useEffect(() => {
+    if (!isTauri) {
+      setShowNotTauri(true)
+      return
+    }
+    void getSettings()
+      .then(async (s) => {
+        if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
+        setSettings(s)
+        applyUiLanguage(s.native_language)
+        // Check in with the hosted service while there is still time to do
+        // something about an expired session — it otherwise first shows up as
+        // a failed reply mid-conversation — and to keep the device record
+        // current rather than frozen at the last sign-in.
+        if (s.provider_mode === HOSTED && s.hosted_email) {
+          await hostedAccount()
+        }
+      })
+      .catch((e) => reportFault('Loading settings', e))
+  }, [])
+
+  // Settings shortcut (configurable, default ctrl+,).
+  useEffect(() => {
+    if (!isTauri || savingLanguage) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat) return
+      if (comboFromEvent(e) === shortcuts.settings) {
+        e.preventDefault()
+        setSettingsOpen((open) => !open)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [shortcuts, savingLanguage])
+
+  // Desktop webviews do not consistently supply a browser-style refresh
+  // command. Own the familiar shortcut at the app shell so it works on every
+  // screen, including when a field has focus.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!isReloadShortcut(event)) return
+      event.preventDefault()
+      window.location.reload()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  return (
+    <ReadingProvider settings={settings}><div className="app">
+      <div className="topbar">
+        {page === 'guided' && (
+          <button
+            type="button"
+            className="hamburger"
+            aria-label="Chat history"
+            aria-expanded={historyOpen}
+            title="Chat history"
+            onClick={() => setHistoryOpen((v) => !v)}
+          >
+            ☰
+          </button>
+        )}
+        <button type="button" className="wordmark app-home" aria-label="SkellySpeak home — Chat" onClick={() => { openPractice('chat'); setHistoryOpen(false); setProgressOpen(false) }}>
+          <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
+          <span>SKELLYSPEAK<b>·</b></span>
+        </button>
+        {!isMobile && <div className="tabs" aria-label="Main navigation">
+          <button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button>
+          <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={() => { setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
+        </div>}
+        <div className="topbar-actions">
+        {!isMobile && (
+          <button
+            type="button"
+            className={`inside-btn ${devOpen ? 'open' : ''} ${aiBusy ? 'busy' : ''}`}
+            onClick={() => setDevOpen((v) => !v)}
+            aria-label="AI"
+            aria-expanded={devOpen}
+            title="AI — understand recent activity, inspect a pipeline, or open debugging tools"
+          >
+            <span className="inside-dot" aria-hidden="true" />
+            AI
+          </button>
+        )}
+        {!isMobile && <button
+          type="button"
+          className="gear"
+          onClick={() => window.location.reload()}
+          aria-label="Reload app"
+          title="Reload app (⌘/Ctrl+R)"
         >
-          <div className="section-heading">
-            <h2>
-              Partners <span className="count">{visiblePartners.length}</span>
-            </h2>
-            <button
-              aria-label="Close partner chooser"
-              onClick={() => setChooserOpen(false)}
-            >
-              ×
-            </button>
-          </div>
-          <div className="create-partner">
-            <Field label="Practice language">
-              <LanguageSelect
-                languages={snapshot.languages}
-                value={language}
-                onChange={setLanguage}
-              />
-            </Field>
-            <button
-              className="primary full"
-              disabled={busy}
-              onClick={() => {
-                void run({ kind: "startChat", languageId: language }).then(
-                  (receipt) => {
-                    if (receipt) {
-                      setShowArchive(false);
-                      setSelectedPartner(null);
-                      selectChat(receipt.entityId);
-                    }
-                  },
-                );
-              }}
-            >
-              ＋ New partner
-            </button>
-          </div>
-          <div className="segmented" aria-label="Partner filter">
-            <button
-              aria-pressed={!showArchive}
-              onClick={() => {
-                setShowArchive(false);
-                setSelectedConversation(null);
-                setSelectedPartner(null);
-              }}
-            >
-              Active
-            </button>
-            <button
-              aria-pressed={showArchive}
-              onClick={() => {
-                setShowArchive(true);
-                setSelectedConversation(null);
-                setSelectedPartner(null);
-              }}
-            >
-              Archived
-            </button>
-          </div>
-          <nav className="partner-list" aria-label="Partners">
-            {visiblePartners.map((item) => (
+          <ToolbarIcon name="reload" />
+        </button>}
+        <button
+          type="button"
+          className="gear"
+          onClick={() => setSettingsOpen(true)}
+          disabled={savingLanguage}
+          aria-label="Settings"
+          title="Settings"
+        >
+          <ToolbarIcon name="settings" />
+        </button>
+        {isMobile && <button type="button" className="gear" aria-label="More" aria-expanded={moreOpen} onClick={() => setMoreOpen(true)}>•••</button>}
+        {isTauri && <button type="button" className="gear profile-trigger" aria-label="Open language profile" title={evidence.snapshot ? `${evidence.snapshot.target} · ${evidence.snapshot.profile.xp} XP` : "My language profile"} onClick={() => setProgressOpen(true)}><ToolbarIcon name="profile" />{evidence.snapshot && <span>{evidence.snapshot.profile.xp.toLocaleString()} XP</span>}</button>}
+        </div>
+      </div>
+
+      {isTauri && <UpdateBanner />}
+
+      {/* A paused pipeline is indistinguishable from a hung app unless something
+          says so. This is that something, and it is deliberately outside the
+          panel that can set it. */}
+      <PausedBanner />
+
+      {faults.length > 0 && (
+        <div className="fault-bar" role="alert">
+          {faults.map((f) => (
+            <p key={f.id} className="fault">
+              <b>{f.context}:</b> {f.message}
               <button
-                key={item.id}
-                className={`partner-row ${partner?.id === item.id ? "selected" : ""}`}
-                aria-current={partner?.id === item.id ? "true" : undefined}
-                disabled={busy}
-                onClick={() => choosePartner(item.id)}
+                type="button"
+                className="fault-dismiss"
+                aria-label="Dismiss"
+                onClick={() => dismissFault(f.id)}
               >
-                <Avatar recipe={item.details.avatar} />
-                <span>
-                  <strong dir="auto">{item.details.name}</strong>
-                  <small>
-                    {
-                      snapshot.languages.find((l) => l.id === item.languageId)
-                        ?.name
-                    }
-                  </small>
-                </span>
+                ✕
               </button>
-            ))}
-          </nav>
-          {visiblePartners.length === 0 && (
-            <p className="muted small">
-              {showArchive
-                ? "No archived partners."
-                : "Your partners will appear here."}
             </p>
-          )}
-        </aside>
-        <main className="main-panel">
-          {!modal && (
-            <>
-              <ErrorNotice error={error} />
-              {recovery}
-            </>
-          )}
-          {(preferences.onboarding === "not_started" ||
-            preferences.onboarding === "in_progress") && (
-            <Onboarding learner={snapshot.learner} run={run} busy={busy} />
-          )}
-          {partner && relationship ? (
-            <>
-              {!conversation && (
-                <>
-                  <section className="partner-heading">
-                    <Avatar recipe={partner.details.avatar} size={32} />
-                    <div className="partner-title">
-                      <span className="eyebrow">
-                        {
-                          snapshot.languages.find(
-                            (l) => l.id === partner.languageId,
-                          )?.name
-                        }{" "}
-                        · Conversation partner
-                      </span>
-                      <h1 dir="auto">{partner.details.name}</h1>
-                    </div>
-                    <button
-                      className="quiet"
-                      onClick={() => openModal("partner")}
-                    >
-                      Edit partner
-                    </button>
-                  </section>
-                </>
-              )}
-              {relationship.archived && (
-                <div className="notice">
-                  This partner is archived.{" "}
-                  <button
-                    className="text-button"
-                    disabled={busy}
-                    onClick={() => {
-                      void run({
-                        kind: "setRelationshipArchived",
-                        relationshipId: relationship.id,
-                        expectedRevision: relationship.revision,
-                        archived: false,
-                      }).then((receipt) => {
-                        if (receipt) setShowArchive(false);
-                      });
-                    }}
-                  >
-                    Restore partner
-                  </button>
-                </div>
-              )}
-              {conversation ? (
-                <ConversationView
-                  key={conversation.id}
-                  chat={chat}
-                  connection={() => openModal("connection")}
-                  conversation={conversation}
-                  partner={partner}
-                  languages={snapshot.languages}
-                  busy={busy}
-                  run={run}
-                  error={error}
-                  back={() => setSelectedConversation(null)}
-                  create={newConversation}
-                  draft={drafts[conversation.id] ?? ""}
-                  setDraft={(value) =>
-                    setDrafts((current) => ({
-                      ...current,
-                      [conversation.id]: value,
-                    }))
-                  }
-                  remove={() => openModal("deleteConversation")}
-                />
-              ) : (
-                <ConversationList
-                  conversations={partnerConversations}
-                  relationship={relationship}
-                  busy={busy}
-                  open={openConversation}
-                  create={newConversation}
-                />
-              )}
-              {!conversation && (
-                <footer className="partner-footer">
-                  <button
-                    className="text-button"
-                    disabled={busy}
-                    onClick={() => {
-                      void run({
-                        kind: "setRelationshipArchived",
-                        relationshipId: relationship.id,
-                        expectedRevision: relationship.revision,
-                        archived: !relationship.archived,
-                      }).then((receipt) => {
-                        if (receipt) {
-                          setSelectedPartner(null);
-                          setSelectedConversation(null);
-                        }
-                      });
-                    }}
-                  >
-                    {relationship.archived
-                      ? "Restore partner"
-                      : "Archive partner"}
-                  </button>
-                  <button
-                    className="text-button danger"
-                    onClick={() => openModal("deletePartner")}
-                  >
-                    Delete partner
-                  </button>
-                </footer>
-              )}
-            </>
-          ) : (
-            <section className="empty-chat">
-              <div className="empty-chat-heading">Guided conversation</div>
-              <div className="conversation-canvas">
-                <p>Choose a partner to open a conversation.</p>
-                <button onClick={() => setChooserOpen(true)}>
-                  Choose partner
-                </button>
-              </div>
-              <div className="composer">
-                <textarea
-                  disabled
-                  aria-label="Message"
-                  placeholder="Choose a conversation to write a message…"
-                  rows={2}
-                />
-                <div>
-                  <span className="muted small">
-                    Configure AI connection, then select a conversation.
-                  </span>
-                  <button disabled>Send ↗</button>
-                </div>
-              </div>
-            </section>
-          )}
-        </main>
-        <LearningPanel
-          conversation={conversation}
-          chat={chat.snapshot}
-          run={run}
-          busy={busy}
-          error={error}
-          connection={() => openModal("connection")}
-          editPartner={() => openModal("partner")}
-        />
-      </div>
-      <nav className="mobile-nav" aria-label="Workspace view">
-        <button
-          aria-pressed={surface === "chat"}
-          onClick={() => setSurface("chat")}
-        >
-          Chat
-        </button>
-        <button
-          aria-pressed={surface === "panel"}
-          onClick={() => setSurface("panel")}
-        >
-          Lesson
-        </button>
-      </nav>
-      {aiOpen && (
-        <AiDock
-          directory={snapshot}
-          run={run}
-          busy={busy}
-          refresh={refresh}
-          close={() => setAiOpen(false)}
-        />
-      )}
-      <div className="save-status" role="status">
-        {busy ? "Saving…" : ""}
-      </div>
-      {(modal === "connection" || modal === "preferences") && (
-        <SettingsDialog
-          snapshot={snapshot}
-          run={run}
-          busy={busy}
-          error={error}
-          recovery={recovery}
-          account={account}
-          initial={modal === "connection" ? "account" : "reading"}
-          close={close}
-        />
-      )}
-      {modal === "profile" && (
-        <Modal
-          recovery={recovery}
-          title="Profile · Activity & language"
-          close={close}
-          busy={busy}
-        >
-          <ProfilePanel />
-        </Modal>
-      )}
-      {modal === "partner" && partner && (
-        <Modal
-          recovery={recovery}
-          title="Edit partner"
-          close={close}
-          busy={busy}
-        >
-          <PartnerForm
-            partner={partner}
-            busy={busy}
-            run={run}
-            done={close}
-            error={error}
-          />
-        </Modal>
-      )}
-      {modal === "deletePartner" && partner && (
-        <Modal
-          recovery={recovery}
-          title={`Delete ${partner.details.name}?`}
-          close={close}
-          busy={busy}
-        >
-          <p>
-            This removes this partner, their relationship, and all{" "}
-            {partnerConversations.length} conversation
-            {partnerConversations.length === 1 ? "" : "s"} and settings from
-            this device. This cannot be undone.
-          </p>
-          <ErrorNotice error={error} />
-          <div className="form-actions">
-            <button onClick={close} disabled={busy}>
-              Keep partner
+          ))}
+          {faults.length > 1 && (
+            <button type="button" className="btn tiny" onClick={dismissAllFaults}>
+              Dismiss all
             </button>
-            <button
-              className="destructive"
-              disabled={busy}
-              onClick={() => {
-                void run({
-                  kind: "deletePartner",
-                  partnerId: partner.id,
-                  expectedRevision: partner.revision,
-                }).then((receipt) => {
-                  if (receipt) setModal(null);
-                });
-              }}
-            >
-              Delete partner
-            </button>
+          )}
+        </div>
+      )}
+
+      {evidence.error && <div role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry profile</button></div>}
+      {progressOpen && evidence.snapshot && <ProgressSummary key={evidence.snapshot.target} snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
+      <div className="content" {...swipe}>
+        {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
+          <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage evidence={evidence} onPractice={() => openPractice('chat')} /></Suspense></PageBoundary>
+        </div>}
+        {showNotTauri ? (page !== 'skills' &&
+          <div className="not-tauri">
+            This is the SkellySpeak desktop app UI. Run it with{' '}
+            <b>npm run tauri dev</b> from the repo root — the interface
+            needs the Rust core for AI calls, storage, and speech-to-text.
           </div>
-        </Modal>
-      )}
-      {modal === "deleteConversation" && conversation && (
-        <Modal
-          recovery={recovery}
-          title="Delete conversation?"
-          close={close}
-          busy={busy}
-        >
-          <p>
-            Remove “{conversation.title}”, its settings and the unsent draft
-            from this device? This cannot be undone.
-          </p>
-          <ErrorNotice error={error} />
-          <div className="form-actions">
-            <button onClick={close} disabled={busy}>
-              Keep conversation
-            </button>
-            <button
-              className="destructive"
-              disabled={busy}
-              onClick={() => {
-                void run({
-                  kind: "deleteConversation",
-                  conversationId: conversation.id,
-                  expectedRevision: conversation.revision,
-                }).then((receipt) => {
-                  if (receipt) setModal(null);
-                });
-              }}
+        ) : (
+          <>
+            {/* GuidedPage stays MOUNTED — unmounting it on tab switch
+                destroyed the conversation. Hidden via CSS, not unmounted. */}
+            <div
+              className={`page-holder ${page === 'guided' ? '' : 'hidden'}`}
+              aria-hidden={page !== 'guided'}
             >
-              Delete conversation
-            </button>
-          </div>
-        </Modal>
+              <PageBoundary>
+                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'} mobileSurface={mobileSurface} onMobileSurfaceChange={setMobileSurface}
+                  languagePicker={settings && <div className="conversation-languages"><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
+                    value={settings.target_language} disabled={savingLanguage || settingsOpen}
+                    onChange={event => void changeLanguage('target_language', event.target.value)}>
+                    {languages().map(language => <option key={language.code} value={language.code}>{language.endonym}</option>)}
+                  </select></label>
+                  <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
+                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
+                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option key={language.base} value={language.base}>{language.endonym}</option>)}
+                  </select></label>
+                  {savingLanguage && <span role="status">Saving…</span>}
+                  </div>}
+                  settingsVersion={settingsVersion}
+                  historyOpen={historyOpen}
+                  onHistoryOpenChange={setHistoryOpen}
+                  onOpenSettings={() => setSettingsOpen(true)}
+                /></SkillEvidenceContext></ActiveSurfaceContext>
+              </PageBoundary>
+            </div>
+          </>
+        )}
+      </div>
+
+
+
+      {isMobile && <nav className="mobile-nav" aria-label="Main navigation">
+        {(['chat', 'panel'] as const).map(surface => <button key={surface} type="button"
+          className={`mobile-nav-item ${page === 'guided' && mobileSurface === surface ? 'active' : ''}`}
+          aria-current={page === 'guided' && mobileSurface === surface ? 'page' : undefined}
+          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat' : 'Lesson'}</button>)}
+      </nav>}
+      {moreOpen && <DetailDialog title="More" onClose={() => setMoreOpen(false)}>
+        <h2>More</h2>
+        <div className="more-actions">
+          <button className="btn" onClick={() => { setMoreOpen(false); setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
+          <button className="btn" onClick={() => { setMoreOpen(false); setDevOpen(true) }}>AI activity &amp; tools</button>
+          <button className="btn" onClick={() => window.location.reload()}>Reload app</button>
+        </div>
+      </DetailDialog>}
+      <LogsOverlay open={devOpen} onOpenChange={setDevOpen} />
+
+      {settingsOpen && (
+        <SettingsModal
+          onClose={() => setSettingsOpen(false)}
+          // Fires on every autosave, mid-edit. It must NOT close the modal:
+          // closing belongs to Close, backdrop, Escape, or Android back.
+          onSettingsChanged={settingsChanged}
+        />
       )}
-    </div>
-  );
+    </div></ReadingProvider>
+  )
 }

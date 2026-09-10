@@ -263,3 +263,17 @@ runtime identity. IAM is not modified by the deployment helper. A permissions
 failure is reported as GCLOUD_COMMAND_FAILED, with no raw cloud output logged.
 
 Guidance: [Google TTL configuration and permissions](https://firebase.google.com/docs/firestore/ttl).
+
+### Installation registration ceiling
+
+An account can register 100 installations. These are random persisted app IDs,
+not hardware identities; resetting app data or using separate app configurations
+can produce multiple records on one machine. Repeated check-ins update the same
+record. Records have a 90-day TTL refreshed at check-in; asynchronous Firestore
+TTL deletion means expired records can remain counted until cleanup completes.
+New registrations at 50 or more emit a count-only warning, without account IDs,
+installation IDs, platform, credentials or application content. The ceiling is
+a storage bound, not proof of compromise or a substitute for account-level
+request and spending controls. Existing registrations can still check in at the
+ceiling. Registration is performed by `/v1/me` after authentication; a 409 there
+can therefore follow successful authentication.
