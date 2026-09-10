@@ -190,6 +190,8 @@ jobs:
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
 
       - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+        with:
+          install_components: beta
 
       # Submitted from the repository root because cloudbuild.yaml addresses
       # `server/Dockerfile`. `.gcloudignore` is what keeps that from uploading
