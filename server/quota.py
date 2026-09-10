@@ -25,6 +25,8 @@ and both decide there is room.
 
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
@@ -44,7 +46,10 @@ LOGIN_CODES = "login_codes"
 # reading from, two different collections that both look right.
 AUTH_STATES = "auth_states"
 DEVICES = "devices"
-MAX_DEVICES: int = 10
+# Installation records are not physical devices: fresh app data creates a new ID.
+MAX_DEVICES: int = 100
+DEVICE_WARNING_THRESHOLD: int = 50
+logger = logging.getLogger(__name__)
 
 # How long usage records live. Firestore deletes them itself, driven by a TTL
 # policy on the `ttl` field — see the deploy notes in docs/hosted-api.md. Long
@@ -244,16 +249,23 @@ def record_device(
     # Only on the first sighting: merging SERVER_TIMESTAMP every time would
     # move `first_seen` forward with it and the two would always be equal.
     @firestore.transactional
-    def register(transaction: firestore.Transaction) -> None:
+    def register(transaction: firestore.Transaction) -> int | None:
+        new_count: int | None = None
         existing: firestore.DocumentSnapshot = ref.get(transaction=transaction)
         if not existing.exists:
             devices: firestore.Query = db.collection(USERS).document(user_id).collection(DEVICES).select([])
-            if sum(1 for _ in transaction.get(devices)) >= MAX_DEVICES:
-                raise HTTPException(status_code=409, detail="Device limit reached. Remove an old device before registering another.")
+            count = sum(1 for _ in transaction.get(devices))
+            if count >= MAX_DEVICES:
+                raise HTTPException(status_code=409, detail="Account installation limit reached (100 registrations). Contact the service administrator to review inactive registrations.")
+            new_count = count + 1
             entry["first_seen"] = firestore.SERVER_TIMESTAMP
         transaction.set(ref, entry, merge=True)
+        return new_count
 
-    transactions.run(db, register)
+    new_count = transactions.run(db, register)
+    if new_count is not None and new_count >= DEVICE_WARNING_THRESHOLD:
+        # Log only committed additions, never account IDs or installation metadata.
+        logger.warning("installation_registration_high_count count=%d", new_count)
 
 
 def upsert_user(
