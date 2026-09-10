@@ -1,6 +1,7 @@
 # Release recovery proposal
 
-Status: proposed sequencing, not executed. No Git writes authorized to agents.
+Status: local rebuild and release-recovery branches/worktrees are created.
+The user runs Git mutations; implementation and verification follow this plan.
 Prerequisite satisfied: workflow 34497425319 deployed e05a870 successfully;
 all eight TTL policies are ACTIVE, exact revision promotion passed, and the user
 verified hosted chat. The local receipt records success at 2026-09-10T17:09:33.808Z.
@@ -17,10 +18,9 @@ verified hosted chat. The local receipt records success at 2026-09-10T17:09:33.8
 
 1. Record the deployed server commit and confirm hosted diagnostics/chat. Resolve
    the TTL/IAM rollout before changing application baselines.
-2. User creates and pushes a rebuild branch at the current verified HEAD. Branch
-   names are proposals until chosen by the user; use codex/rebuild and
-   codex/release-recovery if no different names are requested.
-3. User creates the recovery branch from that same HEAD in a separate worktree.
+2. Preserve the rebuild at the verified checkpoint on branch rebuild. The local
+   branch exists; no remote push is part of this transition.
+3. Branch release-recovery exists at that same HEAD in a separate worktree.
    Preserve shared ancestry. Do not reset main, force-push, or merge the entire
    rebuild branch back into the release application.
 4. Review a path inventory before restoring application files from v0.13.5.
@@ -61,3 +61,30 @@ counter, or a particular process crash. Obtain crash details only if reproductio
 cannot identify them. Do not promise one small fix resolves all observed failures.
 The tag's UI and features are the recovery target; its security posture is not.
 No release is considered stable solely because it is tagged or compiles.
+
+## Transition inventory
+
+Baseline checkpoint: 63e0e59.
+
+Restore as coherent tagged application units in the recovery worktree:
+- src/, public/, index.html, package.json/package-lock.json, tsconfig.json and
+  vite.config.ts.
+- src-tauri/ application modules, assets, platform metadata, manifests and lockfile;
+  reapply active credential/permission/network hardening against that implementation.
+- scripts/ required by app builds and updater verification.
+- App documentation/build inputs needed by recovered CI; reconcile doc deployment
+  explicitly because tagged CI installs skellyspeak-docs dependencies.
+
+Retain current server/, .gcloudignore and deploy-server.yml. Reconcile .gitignore,
+AGENTS.md, security/privacy instructions and app CI/release/iOS workflows explicitly.
+Do not import tracked IDE configuration or private environment data.
+
+Confirmed tagged client repair sites:
+- src-tauri/src/ai.rs: streaming 429 resend around line 327; structured HTTP resend
+  around line 444. Both add a fixed three-second retry regardless of refusal type.
+- src-tauri/src/gate.rs: Notify-based wake-all release needs a shared bounded
+  network admission mechanism across caller paths, without serializing the graph.
+- src-tauri/src/ai.rs: structured-output correction attempts require a finite
+  per-operation budget and cancellation/refusal checks before each network attempt.
+- Tagged CI depends on docs tests and scripts/verify-updater; restoring only src/
+  would not yield a coherent candidate or a meaningful green test suite.
