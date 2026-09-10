@@ -4,23 +4,23 @@ options:
   dynamic_substitutions: true
 
 steps:
-  - name: "gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker@sha256:3d00b6c1a9b862621c30fc74d4f2abfc62bcbdee631ed3febd31e7edbdf6252c"
     id: "Build"
     args: ["build", "-t", "${_IMAGE}", "-f", "server/Dockerfile", "server"]
 
-  - name: "gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker@sha256:3d00b6c1a9b862621c30fc74d4f2abfc62bcbdee631ed3febd31e7edbdf6252c"
     id: "Push"
     args: ["push", "${_IMAGE}"]
 
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:bc341c1215dfd18be9cab1dcf1321d583865225fae3e37f4b1ac1a5fdb392262"
     id: "Deploy"
-    entrypoint: "gcloud"
+    entrypoint: "python3"
     args:
-      - "run"
-      - "deploy"
-      - "skellyspeak-api"
-      - "--image=${_IMAGE}"
-      - "--region=${_REGION}"
+      - "server/deploy_candidate.py"
+      - "${PROJECT_ID}"
+      - "${_REGION}"
+      - "${BUILD_ID}"
+      - "${_IMAGE}"
       - "--platform=managed"
       - "--service-account=skellyspeak-run@${PROJECT_ID}.iam.gserviceaccount.com"
       - "--set-env-vars=^@^PUBLIC_BASE_URL=${_PUBLIC_BASE_URL}@FREE_DAILY_MICROS=${_FREE_DAILY_MICROS}@GLOBAL_DAILY_MICROS=${_GLOBAL_DAILY_MICROS}@MAX_USERS=${_MAX_USERS}@ALLOWED_MODELS=${_ALLOWED_MODELS}@MAX_COMPLETION_TOKENS=${_MAX_COMPLETION_TOKENS}"
@@ -31,22 +31,6 @@ steps:
       - "--min-instances=0"
       - "--max-instances=4"
       - "--timeout=600"
-
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "Verify revision"
-    entrypoint: bash
-    args:
-      - -ec
-      - |
-        for attempt in 1 2 3 4 5 6; do
-          gcloud run services describe skellyspeak-api --region=${_REGION} --project=${PROJECT_ID} --format=json > /tmp/service.json
-          if python3 server/verify_revision.py /tmp/service.json "${_IMAGE}"; then
-            exit 0
-          fi
-          sleep 5
-        done
-        echo "Revision verification failed; metadata and reason codes are above."
-        exit 1
 
 
 substitutions:

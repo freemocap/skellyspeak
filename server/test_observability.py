@@ -115,8 +115,51 @@ async def test_unexpected_failure_is_correlated_without_exception_secrets(monkey
     monkeypatch.setattr(main, "ingress", Broken())
     caplog.set_level(logging.INFO, logger="skellyspeak.requests")
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
-        r = await client.get("/health")
+        r = await client.get("/unmatched")
     assert r.status_code == 500
     assert r.json()["code"] == "INTERNAL_ERROR"
     assert "private-database-credential" not in r.text + caplog.text
     assert "RuntimeError" in caplog.text
+
+@pytest.mark.asyncio
+async def test_anonymous_flood_cannot_consume_liveness_or_signed_lane(monkeypatch):
+    class Exhausted:
+        def take(self):
+            raise observability.Rejection("INGRESS_RATE_LIMIT", "Anonymous exhausted", retry=60)
+    monkeypatch.setattr(main, "ingress", Exhausted())
+    monkeypatch.setattr(main, "liveness_ingress", admission.Ingress(1))
+    monkeypatch.setattr(main, "authenticated_ingress", admission.AuthenticatedIngress())
+    from starlette.requests import Request
+    def request(path, token=""):
+        return Request({"type": "http", "method": "GET", "path": path,
+                        "headers": [(b"authorization", token.encode())], "query_string": b""})
+    main.admit_http(request("/health"))
+    with pytest.raises(observability.Rejection):
+        main.admit_http(request("/health"))
+    with pytest.raises(observability.Rejection):
+        main.admit_http(request("/v1/diagnostics", "Bearer invalid"))
+    token = main.auth.issue_session_token(user_id="learner", signing_key=main.CFG.jwt_signing_key)
+    main.admit_http(request("/v1/diagnostics", "Bearer " + token))
+
+
+def test_authenticated_subject_limit_does_not_consume_another_subject():
+    gate = admission.AuthenticatedIngress()
+    for _ in range(60):
+        gate.take("first")
+    with pytest.raises(observability.Rejection):
+        gate.take("first")
+    gate.take("second")
+
+
+def test_authenticated_identity_storage_is_bounded_without_resetting_active_windows(monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(admission.time, "monotonic", lambda: now[0])
+    gate = admission.AuthenticatedIngress()
+    for subject in range(128):
+        gate.take(str(subject))
+    with pytest.raises(observability.Rejection):
+        gate.take("overflow")
+    assert len(gate._subjects) == 128
+    now[0] = 60.0
+    gate.take("new-window")
+    assert len(gate._subjects) == 1

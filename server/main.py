@@ -66,14 +66,35 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="SkellySpeak API", lifespan=lifespan)
 ingress: admission.Ingress = admission.Ingress()
+liveness_ingress = admission.Ingress(60)
+authenticated_ingress = admission.AuthenticatedIngress()
 db = firestore.Client()
 bearer = HTTPBearer(auto_error=False)
 _google_jwks = pyjwt.PyJWKClient(auth.GOOGLE_JWKS_URL)
 
 
+def admit_http(request: Request) -> None:
+    if request.method == "GET" and request.url.path == "/health":
+        liveness_ingress.take()
+        return
+    protected = {"/v1/me", "/v1/diagnostics", "/v1/chat/completions", "/v1/audio/transcriptions"}
+    header = request.headers.get("authorization", "")
+    scheme, _, token = header.partition(" ")
+    if request.url.path in protected and scheme.lower() == "bearer" and 0 < len(token) <= 4096:
+        try:
+            subject, _ = auth.read_session_token(token, signing_key=CFG.jwt_signing_key)
+        except (auth.AuthError, ValueError, TypeError):
+            pass
+        else:
+            authenticated_ingress.take(subject)
+            return
+    # An unverified Authorization header never earns an authenticated allowance.
+    ingress.take()
+
+
 @app.middleware("http")
 async def bound_ingress(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
-    return await observability.observe(request, call_next, ingress)
+    return await observability.observe(request, call_next, ingress, admit=lambda: admit_http(request))
 
 
 @app.exception_handler(StarletteHTTPException)

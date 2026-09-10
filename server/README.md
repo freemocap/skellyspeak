@@ -8,7 +8,10 @@ settlement and session revocation apply to hosted AI calls.
 
 `GET /v1/diagnostics` requires the same signed, unrevoked session as chat. Its
 separate Firestore admission lane allows 120 calls per account per UTC day and
-600 calls globally. The per-process ingress limit still applies. Failed/revoked
+600 calls globally. Signed-session ingress allows 60 requests per subject per
+minute and 240 per process, with at most 128 active subject windows. Anonymous
+traffic has a separate 240/minute process gate; GET /health has a separate
+60/minute gate. These application limits do not provide edge DDoS protection. Failed/revoked
 signed-session attempts consume admission; invalid signatures perform no database
 work. The endpoint does not accept a target account ID.
 
@@ -56,10 +59,14 @@ local secrets, tests and administrative scripts are not included.
 
 The user pushes changes. `.github/workflows/deploy-server.yml` runs on main for
 server changes or manual dispatch, using configured Workload Identity Federation.
-`gcloud beta builds submit` surfaces Cloud Logging output. Revision verification
-prints only image/revision/traffic metadata and explicit failure codes, with a
-bounded readiness wait. It does not weaken image or traffic assertions. It also
-checks that unauthenticated diagnostics return 401.
+`gcloud beta builds submit` surfaces build output from Cloud Logging. Build helpers
+are digest-pinned. `deploy_candidate.py` resolves the pushed image to an immutable
+digest and deploys a build-specific revision with no traffic. Only that exact ready
+revision with matching image/digest can be promoted explicitly to 100%; resulting
+traffic is verified. A failed deployment never promotes, even if its revision
+subsequently appears ready. Reports contain only image/revision/traffic metadata
+and failure codes; raw gcloud errors, runtime logs and service specs are withheld.
+The workflow also checks that unauthenticated diagnostics return 401.
 
 No production deployment or counter reset is performed by local tests. A green
 workflow must be followed by an authenticated diagnostic check and one hosted chat.
@@ -72,8 +79,8 @@ account-scoped reports, read-only snapshots, secret-free error/log output, disti
 budget codes and deployment metadata redaction. No separate GitHub probe workflow,
 GCS report bucket or diagnostic service account is added.
 
-Local verification: 154 server tests, 40 native tests and 16 frontend tests pass;
-frontend build, generated-contract check and native Clippy/format checks pass.
+Local verification for deployment/admission hardening: 162 server tests pass.
 The six Firestore emulator tests and Docker container startup remain CI gates and
-were not run locally. Live IAM, deployed revision and hosted inference still need
-verification after the user pushes and the deployment workflow completes.
+were not run locally. Live IAM, logging policy, candidate startup and hosted inference
+still need verification. See [the focused review](../SERVER-REVIEW.md) for findings,
+remaining operational checks and supporting Google/OWASP guidance.
