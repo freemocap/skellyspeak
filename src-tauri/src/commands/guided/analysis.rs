@@ -188,7 +188,7 @@ pub(super) fn spawn(pass: AnalysisPass) {
             scaffolds_msgs,
             0.6,
             "ScaffoldsOut",
-            move |sc: &ScaffoldsOut| sc.validate().or_else(|| (sc.coach_help.partner.text != assisted_reply).then(|| "Coach help must annotate the exact current partner reply.".into())),
+            move |sc: &ScaffoldsOut| sc.validate().or_else(|| (!same_reply_text(&sc.coach_help.partner.text, &assisted_reply)).then(|| "Coach help must annotate the exact current partner reply.".into())),
             |sc: &ScaffoldsOut| Section {
                 scaffolds: Some(sc.scaffolds()),
                 ..Section::default()
@@ -275,4 +275,24 @@ pub(super) fn spawn(pass: AnalysisPass) {
             },
         );
     });
+}
+
+// Paragraph layout is not part of the coach's source-text identity.
+fn same_reply_text(candidate: &str, source: &str) -> bool {
+    candidate.split_whitespace().eq(source.split_whitespace())
+}
+
+#[cfg(test)]
+mod coach_reply_tests {
+    use super::same_reply_text;
+
+    #[test]
+    fn accepts_paragraph_spacing_but_rejects_changed_content() {
+        let source = "Puedo comer.\n\n¿Tú cocinas algo ahora?";
+        assert!(same_reply_text(" Puedo comer. ¿Tú cocinas algo ahora? ", source));
+        assert!(!same_reply_text("No puedo comer. ¿Tú cocinas algo ahora?", source));
+        assert!(!same_reply_text("Puedo comer. ¿Tú cocinas?", source));
+        assert!(!same_reply_text("Puedo comer ¿Tú cocinas algo ahora?", source));
+        assert!(!same_reply_text("", source));
+    }
 }

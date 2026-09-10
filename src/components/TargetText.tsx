@@ -1,8 +1,7 @@
 import { ReadingPreferencesProvider, useReadingPreferences } from './ReadingPreferences'
-import { createContext, useCallback, Fragment, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, Fragment, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { GuidedToken, Settings } from '../types'
 import { TokenSpan } from './TokenSpan'
-import { invoke } from '../lib/tauri'
 import { WordInsightModal } from './WordInsightModal'
 
 export const ReadingSentenceContext = createContext<string | null>(null)
@@ -10,7 +9,6 @@ export const ReadingSentenceContext = createContext<string | null>(null)
 const ReadingContext = createContext<{
   language: string
   nativeLanguage: string
-  prepare: (text: string, sentence: string) => Promise<GuidedToken[]>
   inspect: (word: string, sentence: string) => void
 } | null>(null)
 
@@ -22,21 +20,7 @@ export function ReadingProvider({ settings, children }: { settings: Settings | n
     return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--word-spacing') }
   }, [settings?.text_size, settings?.text_spacing])
   const [insight, setInsight] = useState<{ word: string; sentence: string } | null>(null)
-  const requests = useMemo(() => new Map<string, Promise<GuidedToken[]>>(), [settings?.target_language, settings?.native_language])
-  const prepare = useCallback((text: string, sentence: string): Promise<GuidedToken[]> => {
-    const key = JSON.stringify([text, sentence])
-    let request = requests.get(key)
-    if (!request) {
-      request = invoke<{ tokens: GuidedToken[] }>('annotate_text', { text, sentence }).then(result => {
-        if (!result.tokens?.length) throw new Error('Text annotation returned no tokens')
-        return result.tokens
-      }).catch((error: unknown) => { requests.delete(key); throw error })
-      if (requests.size >= 256) requests.delete(requests.keys().next().value!)
-      requests.set(key, request)
-    }
-    return request
-  }, [requests])
-  return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ prepare, nativeLanguage: settings?.native_language ?? 'en', language: settings?.target_language ?? 'en', inspect: (word, sentence) => setInsight({ word, sentence }) }}>
+  return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'en', language: settings?.target_language ?? 'en', inspect: (word, sentence) => setInsight({ word, sentence }) }}>
     {children}
     {insight && <WordInsightModal word={insight.word} sentence={insight.sentence} onClose={() => setInsight(null)} />}
   </ReadingContext></ReadingPreferencesProvider>
@@ -58,20 +42,7 @@ function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: s
   const sentence = useContext(ReadingSentenceContext) ?? text
   const reading = useContext(ReadingContext)
   const [revealed, setRevealed] = useState<Set<number>>(new Set())
-  const [prepared, setPrepared] = useState<GuidedToken[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [attempt, setAttempt] = useState(0)
-  const needsPreparation = !savedTokens.length && /[\p{L}\p{N}]/u.test(text)
-  useEffect(() => {
-    if (!needsPreparation || !reading) return
-    let active = true
-    setError(null)
-    void reading.prepare(text, sentence).then(tokens => { if (active) setPrepared(tokens) })
-      .catch((reason: unknown) => { if (active) setError(String(reason)) })
-    return () => { active = false }
-  }, [text, sentence, reading?.prepare, needsPreparation, attempt])
-  const nativeUpdateRequired = error?.includes("Command annotate_text not found") ?? false
-  const tokens = savedTokens.length ? savedTokens : prepared
+  const tokens = savedTokens
   const segments = useMemo(() => {
     if (tokens.length === 0) return Array.from(new Intl.Segmenter(reading?.language, { granularity: 'word' }).segment(text), segment => ({ ...segment, saved: null }))
     let cursor = 0
@@ -85,7 +56,7 @@ function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: s
     if (cursor < text.length) entries.push({ segment: text.slice(cursor), index: cursor, isWordLike: false, saved: null })
     return entries
   }, [text, tokens, reading?.language])
-  return <span className="target-text" dir="auto" aria-busy={needsPreparation && !tokens.length && !error}>{segments.map(({ segment, index, isWordLike, saved }) => {
+  return <span className="target-text" dir="auto">{segments.map(({ segment, index, isWordLike, saved }) => {
     if (!isWordLike) return <Fragment key={index}>{segment}</Fragment>
     const token: GuidedToken = saved ? saved : { text: segment, gloss: null, pronunciation: null, romanization: null, pos: null, notable: false }
     const inspect = (): void => {
@@ -93,12 +64,13 @@ function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: s
       reading.inspect(segment, sentence)
     }
     const tap = (): void => {
+      if (!saved) { inspect(); return }
       if (!token.gloss) return
       setRevealed(previous => { const next = new Set(previous); if (next.has(index)) next.delete(index); else next.add(index); return next })
     }
-    return <Fragment key={`${text}:${index}`}><TokenSpan key={`${text}:${index}`} tok={token} interactive={interactive && !!saved} revealed={revealed.has(index)} hasTranslation={!!token.gloss}
+    return <Fragment key={`${text}:${index}`}><TokenSpan key={`${text}:${index}`} tok={token} interactive={interactive} inspectOnTap={!saved} revealed={revealed.has(index)} hasTranslation={!!token.gloss}
       showRomanization={true} alwaysRomanize={alwaysRomanize} alwaysPronunciation={alwaysPronunciation}
       onTap={tap}
       onHold={inspect} onInspect={event => { event.preventDefault(); inspect() }} onDragStart={() => {}} onDragOver={() => {}} /></Fragment>
-  })}{error && <span className="word-annotation-error" role="alert" dir="auto">{nativeUpdateRequired ? "Word help requires an updated native app. Rebuild and reopen SkellySpeak; refreshing this page is not enough." : error} {interactive && !nativeUpdateRequired && <button type="button" onClick={() => setAttempt(value => value + 1)}>Retry word annotations</button>}</span>}</span>
+  })}</span>
 }

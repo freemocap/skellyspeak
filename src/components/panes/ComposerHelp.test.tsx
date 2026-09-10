@@ -8,7 +8,7 @@ import type { CoachHelp } from '../../types'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../../lib/tauri', () => backend)
-beforeEach(() => { backend.invoke.mockReset(); backend.invoke.mockResolvedValue({ tokens: [{ text: '我', gloss: 'I', pronunciation: 'waw', romanization: 'Wǒ', pos: null, notable: false }, { text: '很好。', gloss: 'am well', pronunciation: 'hun how', romanization: 'hěn hǎo', pos: null, notable: false }] }) })
+beforeEach(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", "") }; HTMLDialogElement.prototype.close = function () { this.removeAttribute("open") }; backend.invoke.mockReset(); backend.invoke.mockResolvedValue({ gloss: 'I', lemma: '我', pos: '', form: '', role: '', usage: '' }) })
 const off = { autoTranslate: false, alwaysPronunciation: false, alwaysRomanize: false }
 const on = { autoTranslate: true, alwaysPronunciation: true, alwaysRomanize: true }
 const help: CoachHelp = {
@@ -27,7 +27,7 @@ it('inserts only from the arrow and keeps word inspection independent', async ()
   expect(screen.queryByText('Use')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我很好。' }))
   expect(onUse).toHaveBeenCalledWith('我很好。', 'suggestion')
-  expect(backend.invoke).toHaveBeenCalledOnce()
+  expect(backend.invoke).not.toHaveBeenCalled()
   fireEvent.click(await screen.findByRole('button', { name: '我' }))
   expect(await screen.findByText('I')).toBeVisible()
   expect(onUse).toHaveBeenCalledOnce()
@@ -44,11 +44,12 @@ it('updates all reading aids from the shared settings without affecting the expl
   expect(screen.getByText('They are asking how you are.')).toBeVisible()
   for (const text of ['I am well.', 'How are you?', 'Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
   view.rerender(<ReadingProvider settings={null}><ReadingPreferencesContext value={on}><ComposerHelp {...props} /></ReadingPreferencesContext></ReadingProvider>)
-  for (const text of ['I am well.', 'How are you?', 'Wǒ', 'waw']) expect(screen.getByText(text)).toBeVisible()
+  for (const text of ['I am well.', 'How are you?']) expect(screen.getByText(text)).toBeVisible()
+  for (const text of ['Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
   expect(view.container).not.toHaveTextContent('你好吗？')
   view.rerender(<ReadingProvider settings={null}><ReadingPreferencesContext value={off}><ComposerHelp {...props} /></ReadingPreferencesContext></ReadingProvider>)
   for (const text of ['I am well.', 'How are you?', 'Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
-  expect(backend.invoke).toHaveBeenCalledOnce()
+  expect(backend.invoke).not.toHaveBeenCalled()
 })
 
 it('distinguishes loading advice from a failed analysis', () => {
