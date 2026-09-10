@@ -11,7 +11,8 @@
     "test": "vitest run",
     "tauri": "tauri",
     "contracts": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts",
-    "contracts:check": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts -- --check"
+    "contracts:check": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts -- --check",
+    "styles:check": "node scripts/check-styles.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
@@ -26,6 +27,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "6.1.1",
     "jsdom": "^30.0.1",
+    "postcss": "8.5.28",
     "prettier": "3.9.6",
     "typescript": "7.0.2",
     "vite": "8.2.2",

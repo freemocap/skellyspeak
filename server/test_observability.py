@@ -99,13 +99,16 @@ async def test_authenticated_diagnostics_survives_exhausted_chat_lane(ledger, mo
     ledger.store[f"users/learner/admission/{quota.utc_day()}"] = {"requests": 2000}
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
         headers = {"Authorization": "Bearer fake-session"}
-        denied = await client.get("/v1/me", headers=headers)
+        denied = await client.post("/v1/chat/completions", headers=headers, json={})
         assert denied.status_code == 429
         assert denied.json()["code"] == "PERSONAL_ACCOUNT_DAILY_LIMIT"
         r = await client.get("/v1/diagnostics?user_id=other", headers=headers)
         assert r.status_code == 200
         assert r.json()["account_requests"]["used"] == 2000
         assert r.json()["diagnostics_requests"]["used"] == 1
+        account = await client.get("/v1/me", headers=headers)
+        assert account.status_code == 200
+        assert ledger.store[f"users/learner/admission/{quota.utc_day()}"]["diagnostics_requests"] == 2
 
 @pytest.mark.asyncio
 async def test_unexpected_failure_is_correlated_without_exception_secrets(monkeypatch, caplog):
@@ -145,10 +148,10 @@ async def test_anonymous_flood_cannot_consume_liveness_or_signed_lane(monkeypatc
 def test_authenticated_subject_limit_does_not_consume_another_subject():
     gate = admission.AuthenticatedIngress()
     for _ in range(60):
-        gate.take("first")
+        gate.take("first", lane="inference")
     with pytest.raises(observability.Rejection):
-        gate.take("first")
-    gate.take("second")
+        gate.take("first", lane="inference")
+    gate.take("second", lane="inference")
 
 
 def test_authenticated_identity_storage_is_bounded_without_resetting_active_windows(monkeypatch):
@@ -156,10 +159,10 @@ def test_authenticated_identity_storage_is_bounded_without_resetting_active_wind
     monkeypatch.setattr(admission.time, "monotonic", lambda: now[0])
     gate = admission.AuthenticatedIngress()
     for subject in range(128):
-        gate.take(str(subject))
+        gate.take(str(subject), lane="inference")
     with pytest.raises(observability.Rejection):
-        gate.take("overflow")
+        gate.take("overflow", lane="inference")
     assert len(gate._subjects) == 128
     now[0] = 60.0
-    gate.take("new-window")
+    gate.take("new-window", lane="inference")
     assert len(gate._subjects) == 1

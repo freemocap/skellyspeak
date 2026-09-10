@@ -76,7 +76,7 @@ Verified in the source at 0.13.4 and the later reference snapshot:
 3. A conversation turn fans out into multiple analysis/background operations.
    One visible message is therefore not one provider request.
 4. `gate::resume` opens the gate and wakes all waiters. The reviewed request path
-   has no global concurrency semaphore comparable to the current two-request
+   has no global concurrency semaphore comparable to the current bounded
    scheduler. Releasing accumulated work can create a synchronized burst.
 
 These mechanisms explain how the architecture could amplify traffic. They do not
@@ -114,7 +114,7 @@ The application access logs are the important discriminator here.
 
 ## Protection and recovery now
 
-Implemented controls include two active requests per app, atomic attempt admission,
+Implemented controls include four shared active inference requests per app, atomic chat attempt admission,
 no automatic retry of failed/unknown outcomes, per-subject/process ingress bounds,
 durable personal/shared daily admission, transactional spending reservation,
 revocation checks, structured refusal codes/request IDs and authenticated diagnostics.
@@ -127,6 +127,13 @@ client can consume its own allowance, and enough clients can affect shared capac
 Diagnostics have a separate daily lane but share signed short-window capacity.
 Old installed clients can still reach the public service with valid sessions.
 Per-process limits are not distributed edge DDoS protection or a hard GCP cost cap.
+The follow-up implementation now shares native network capacity between chat and
+desktop transcription, with at most one waiting transcription. Chat HTTP 429 now
+holds matching submitted chat/coach turns with durable reason/timing metadata.
+Shared target-level refusal admission now also guards fresh submissions and audio;
+explicit recovery clears access without resuming the queue. The
+[route audit](./architecture.md#request-load-audit--september-10-2026) records these
+coverage gaps; the worker limit must not be described as universal request admission.
 
 On recurrence: inspect the structured code and authenticated diagnostics first.
 A short-window throttle calls for stopping the noisy client and waiting its stated
@@ -160,6 +167,8 @@ requires a verified rollout. These are different recovery actions.
 
 This is consistent with [OWASP resource and rate-limiting guidance](https://owasp.org/API-Security/editions/2019/en/0xa4-lack-of-resources-and-rate-limiting/).
 The proposals require focused implementation decisions; none is presented as deployed.
+Their sequencing and acceptance checks are now tracked in the
+[request-load resilience checkpoint](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
 
 ## Two optional console checks to close the evidence gap
 

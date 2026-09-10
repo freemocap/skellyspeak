@@ -31,6 +31,44 @@ export function ExecutionPanel({
       {snapshot.connection.paused && (
         <p role="status">App-wide pause: no new operation starts.</p>
       )}
+      {snapshot.holds.map((hold) => (
+        <div key={hold.id} className="attempt">
+          <p role="alert">
+            {hold.route} access held: {hold.error.message}
+            {hold.error.refusal?.retryAt != null &&
+              ` Earliest recovery: ${new Date(hold.error.refusal.retryAt * 1000).toLocaleString()}.`}
+          </p>
+          <p>
+            After correcting the cause, recover access. Queued turns stay
+            paused.
+          </p>
+          <button
+            disabled={busy}
+            onClick={() =>
+              void run({
+                kind: "recoverAiAccess",
+                holdId: hold.id,
+                expectedGeneration: hold.generation,
+              })
+            }
+          >
+            Recover access
+          </button>
+        </div>
+      ))}
+      {snapshot.transcriptionAttempts.map((attempt) => (
+        <div key={attempt.id} className="attempt">
+          <p>Transcription · {attempt.state}</p>
+          <p>
+            {attempt.route} · {attempt.model} · Usage unavailable
+          </p>
+          <small>
+            {attempt.startedAt}
+            {attempt.finishedAt ? ` → ${attempt.finishedAt}` : ""}
+          </small>
+          {attempt.error && <p role="alert">{attempt.error}</p>}
+        </div>
+      ))}
       {snapshot.turns.length === 0 && <p>No turns submitted.</p>}
       {snapshot.turns.map((turn) => (
         <article key={turn.id} className="turn-inspection">
@@ -73,7 +111,9 @@ export function ExecutionPanel({
                 {turn.paused ? "Resume" : "Pause"}
               </button>
               <button
-                disabled={busy || snapshot.connection.paused}
+                disabled={
+                  busy || snapshot.connection.paused || Boolean(turn.hold)
+                }
                 onClick={() =>
                   void run({
                     kind: "controlTurn",
@@ -97,6 +137,16 @@ export function ExecutionPanel({
                 Cancel
               </button>
             </div>
+          )}
+          {turn.hold && (
+            <p role="alert">
+              Queued work held: {turn.hold.message}
+              {turn.hold.refusal?.retryAt != null &&
+                ` Earliest retry: ${new Date(turn.hold.refusal.retryAt * 1000).toLocaleString()}.`}
+              {
+                " Recover held access first, then explicitly Resume or Retry. Existing requests may finish."
+              }
+            </p>
           )}
           {turn.attempts.map((attempt) => (
             <div className="attempt" key={attempt.id}>

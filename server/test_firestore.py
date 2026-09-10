@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 import secrets
+import time
+import work_admission
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from threading import Barrier
 
@@ -138,3 +140,24 @@ def test_independent_processes_share_request_limit() -> None:
         {"account_requests": admission.GLOBAL_REQUESTS_PER_DAY - 3})
     with ProcessPoolExecutor(max_workers=4) as pool:
         assert sum(pool.map(process_request_admission, [db.project] * 12, range(12))) == 3
+
+
+def _claim_work(project: str, index: int, issued: int) -> bool:
+    client = firestore.Client(project=project)
+    try:
+        return work_admission.claim(client, user_id="learner",
+                                    attempt_id=f"{issued}-{index:032x}", digest="a" * 64).acquired
+    except HTTPException as error:
+        if error.status_code != 429:
+            raise
+        return False
+
+
+def test_work_claims_coordinate_separate_server_processes() -> None:
+    db = database()
+    issued = int(time.time())
+    with ProcessPoolExecutor(max_workers=4) as pool:
+        futures = [pool.submit(_claim_work, db.project, 1, issued) for _ in range(8)]
+        assert sum(f.result(timeout=60) for f in futures) == 1
+        futures = [pool.submit(_claim_work, db.project, index, issued) for index in range(2, 18)]
+        assert sum(f.result(timeout=60) for f in futures) == work_admission.MAX_INFLIGHT - 1

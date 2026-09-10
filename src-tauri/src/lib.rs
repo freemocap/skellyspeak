@@ -1,14 +1,19 @@
 mod access;
+mod admission;
 #[cfg(desktop)]
 mod audio;
 pub mod credentials;
 pub mod execution;
+pub mod grouped;
+mod holds;
 pub mod hosted;
 pub mod languages;
 pub mod model;
 pub mod profile;
 pub mod provider;
+mod refusal;
 pub mod store;
+mod transcription;
 pub mod turn_plan;
 #[cfg(desktop)]
 mod voice;
@@ -27,6 +32,7 @@ use tauri::Manager;
 use zeroize::Zeroizing;
 
 struct Application {
+    admission: admission::Admission,
     #[cfg(desktop)]
     capture: Mutex<Option<voice::Recording>>,
     store: Mutex<Store>,
@@ -340,51 +346,126 @@ async fn scheduler(state: Arc<Application>) {
             return;
         }
     };
-    let capacity = Arc::new(tokio::sync::Semaphore::new(2));
     loop {
-        let permit = match capacity.clone().try_acquire_owned() {
-            Ok(permit) => permit,
-            Err(_) => {
-                tokio::time::sleep(Duration::from_millis(100)).await;
-                continue;
+        let mut groups: Vec<Vec<(execution::Dispatch, tokio::sync::OwnedSemaphorePermit)>> =
+            Vec::new();
+        // Bounded local planning pass; no timer or artificial batch-fill delay.
+        for _ in 0..128 {
+            let Some(permit) = state.admission.try_chat() else {
+                match state.lock().and_then(|store| store.has_ready_work()) {
+                    Ok(true) => state.admission.warn_chat_wait(),
+                    Ok(false) => {}
+                    Err(error) => {
+                        state.stop(error);
+                        return;
+                    }
+                }
+                break;
+            };
+            let dispatch = match state.lock().and_then(|mut store| store.dispatch()) {
+                Ok(value) => value,
+                Err(error) => {
+                    state.stop(error);
+                    return;
+                }
+            };
+            if let Some(dispatch) = dispatch {
+                if dispatch.route != ConnectionRoute::Openrouter
+                    && let Some(group) = groups
+                        .iter_mut()
+                        .find(|g| grouped::compatible(&g[0].0, &dispatch))
+                {
+                    group.push((dispatch, permit));
+                    continue;
+                }
+                groups.push(vec![(dispatch, permit)]);
+            } else {
+                drop(permit);
+                match state.lock().and_then(|store| store.has_ready_work()) {
+                    Ok(true) => continue,
+                    Ok(false) => break,
+                    Err(error) => {
+                        state.stop(error);
+                        return;
+                    }
+                }
             }
-        };
-        let dispatch = match state.lock().and_then(|mut s| s.dispatch()) {
-            Ok(item) => item,
-            Err(error) => {
-                state.stop(error);
-                return;
-            }
-        };
-        if let Some(dispatch) = dispatch {
+        }
+        for group in groups {
             let state = state.clone();
             let client = client.clone();
             tauri::async_runtime::spawn(async move {
-                let _permit = permit;
-                let result=async {
-                    if !state.lock()?.attempt_active(&dispatch.attempt)? { return Err(AppError::new(ErrorCode::Provider,"Attempt revoked before dispatch.")); }
-                    let key=if dispatch.credential.is_empty() { Zeroizing::new(String::new()) } else { read_secret(dispatch.credential.clone()).await? };
-                    if !state.lock()?.attempt_active(&dispatch.attempt)? { return Err(AppError::new(ErrorCode::Provider,"Attempt revoked while reading credentials.")); }
-                    let request=provider::complete(&client,&key,&dispatch);
-                    tokio::pin!(request);
-                    loop {
-                        tokio::select! {
-                            result=&mut request=>return result,
-                            _=tokio::time::sleep(Duration::from_millis(100))=>{
-                                if !state.lock()?.attempt_active(&dispatch.attempt)? { return Err(AppError::new(ErrorCode::Provider,"Request cancelled locally; provider billing may continue.")); }
+                let (dispatches, permits): (Vec<_>, Vec<_>) = group.into_iter().unzip();
+                let mut permits: Vec<_> = permits.into_iter().map(Some).collect();
+                let mut finished = vec![false; dispatches.len()];
+                let result: Result<()> = async {
+                    let first = &dispatches[0];
+                    let key = if first.credential.is_empty() { Zeroizing::new(String::new()) }
+                        else { read_secret(first.credential.clone()).await? };
+                    // A group is captured under one authority; reject before HTTP
+                    // if any item lost that authority during credential access.
+                    for dispatch in &dispatches {
+                        if !state.lock()?.attempt_active(&dispatch.attempt)? {
+                            return Err(AppError::new(ErrorCode::Provider, "Operation revoked before grouped dispatch."));
+                        }
+                        holds::check(&state.lock()?.connection, &dispatch.target)?;
+                    }
+                    if first.route == ConnectionRoute::Openrouter {
+                        let request = provider::complete(&client, &key, first);
+                        tokio::pin!(request);
+                        let outcome = loop {
+                            tokio::select! {
+                                result = &mut request => break result,
+                                _ = tokio::time::sleep(Duration::from_millis(100)) => {
+                                    if !state.lock()?.attempt_active(&first.attempt)? {
+                                        return Err(AppError::new(ErrorCode::UnknownOutcome, "Request cancelled locally; provider billing may continue."));
+                                    }
+                                }
+                            }
+                        };
+                        state.lock()?.finish(first, outcome)?;
+                        finished[0] = true;
+                        permits[0].take();
+                    } else {
+                        let request = grouped::request(&client, &key, &dispatches, |index, outcome| {
+                            state.lock()?.finish(&dispatches[index], outcome)?;
+                            finished[index] = true;
+                            permits[index].take();
+                            Ok(())
+                        });
+                        tokio::pin!(request);
+                        loop {
+                            tokio::select! {
+                                result = &mut request => { result?; break; },
+                                _ = tokio::time::sleep(Duration::from_millis(100)) => {
+                                    let store = state.lock()?;
+                                    let mut active = false;
+                                    for dispatch in &dispatches { active |= store.attempt_active(&dispatch.attempt)?; }
+                                    if !active { break; }
+                                }
                             }
                         }
                     }
+                    Ok(())
                 }.await;
-                let finished = state.lock().and_then(|mut s| s.finish(&dispatch, result));
-                if let Err(error) = finished {
-                    state.stop(error);
+                // A broken stream must not overwrite already committed siblings.
+                for (index, dispatch) in dispatches.iter().enumerate() {
+                    if !finished[index] {
+                        let error = result.as_ref().err().cloned().unwrap_or_else(|| AppError::new(ErrorCode::UnknownOutcome, "Grouped operation has no confirmed result. No automatic retry was made."));
+                        if let Err(error) = state
+                            .lock()
+                            .and_then(|mut store| store.finish(dispatch, Err(error)))
+                        {
+                            state.stop(error);
+                        }
+                    }
                 }
             });
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -393,6 +474,7 @@ pub fn run() {
             let directory = app.path().app_data_dir()?;
             store::prepare_private_directory(&directory)?;
             let state = Arc::new(Application {
+                admission: admission::Admission::new(),
                 #[cfg(desktop)]
                 capture: Mutex::new(None),
                 store: Mutex::new(Store::open(&directory.join("practice.sqlite3"))?),

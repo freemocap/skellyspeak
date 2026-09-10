@@ -21,6 +21,7 @@ async def proxy(ledger: FakeDb, monkeypatch: pytest.MonkeyPatch) -> AsyncIterato
     monkeypatch.setattr(main, "db", ledger)
     main.app.dependency_overrides[main.current_user] = lambda: quota.Principal(
         user_id="learner", daily_limit=500_000, overridden=False)
+    main.app.dependency_overrides[main.diagnostic_user] = main.app.dependency_overrides[main.current_user]
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
         yield client
     main.app.dependency_overrides.clear()

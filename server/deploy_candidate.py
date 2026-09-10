@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 import uuid
+from retention import ensure_retention, RetentionError
 from verify_revision import inspect_revision, inspect_traffic
 
 
@@ -30,6 +31,7 @@ def deploy(project: str, region: str, build: str, image: str, flags: list[str], 
     name = "skellyspeak-api-" + suffix
     if image != f"gcr.io/{project}/skellyspeak-api:{build}":
         raise DeploymentError("UNEXPECTED_IMAGE_TAG")
+    ensure_retention(project, call=call, pause=pause)
     scope = [f"--project={project}", f"--region={region}", "--quiet"]
     print(json.dumps({"stage": "resolve_image", "revision": name}), flush=True)
     digest = call(["container", "images", "describe", image, f"--project={project}",
@@ -72,6 +74,6 @@ def deploy(project: str, region: str, build: str, image: str, flags: list[str], 
 if __name__ == "__main__":
     try:
         deploy(*sys.argv[1:5], sys.argv[5:])
-    except (DeploymentError, ValueError) as error:
-        print(str(error) if isinstance(error, DeploymentError) else "INVALID_DEPLOYMENT_METADATA", file=sys.stderr)
+    except (DeploymentError, RetentionError, ValueError) as error:
+        print(str(error) if isinstance(error, (DeploymentError, RetentionError)) else "INVALID_DEPLOYMENT_METADATA", file=sys.stderr)
         sys.exit(1)

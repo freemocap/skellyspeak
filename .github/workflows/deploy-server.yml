@@ -29,7 +29,7 @@ permissions:
 # One deploy at a time, and never cancel one midway: a half-applied Cloud Run
 # rollout is worse than a queued one.
 concurrency:
-  group: deploy-server
+  group: deploy-server-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
   cancel-in-progress: false
 
 env:
@@ -179,7 +179,7 @@ jobs:
 
   deploy:
     name: Build and deploy to Cloud Run
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: read
       id-token: write
@@ -251,6 +251,19 @@ jobs:
             echo "::error::Unauthenticated diagnostics returned $code; expected 401."
             exit 1
           fi
+
+      - name: Verify grouped endpoints require authentication
+        run: |
+          set -euo pipefail
+          for path in protocol operations; do
+            method=GET
+            if [ "$path" = operations ]; then method=POST; fi
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X "$method" "$PUBLIC_BASE_URL/v1/$path")
+            if [ "$code" != 401 ]; then
+              echo "::error::Unauthenticated grouped endpoint returned $code; expected 401."
+              exit 1
+            fi
+          done
 
       - name: Summary
         run: |

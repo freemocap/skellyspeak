@@ -7,14 +7,69 @@ permissions/CSP, and local database access. GitHub settings were read through it
 The deployed hosted chat was confirmed working by the user. Changes described below
 are local source changes until committed, built and deployed/restarted.
 
-## Result
+## Current pre-deployment result
 
-No confirmed embedded credential or authentication bypass was found. This is not
-an all-clear: repository safeguards need enabling, live GCP IAM/logging remain
-unverified, and the Linux/BSD GUI dependency chain has an unresolved advisory.
-No Git writes, deployment, cloud configuration changes, key retrieval from the
-user's credential store, paid AI requests or destructive production probes were
-performed during this audit.
+The active source review and local verification are complete. No confirmed
+embedded credential or authentication bypass was found. Production IAM, OIDC
+trust conditions, repository settings and managed request-log retention were not
+re-read in this pass; statements about those settings below are not fresh checks.
+No cloud configuration, deployment or Git writes were performed.
+
+### Changes in this pass
+
+- Deployment provisions and verifies ACTIVE TTL policies for eight explicit
+  collection groups before creating/promoting a revision. The helper reads field
+  configuration only and emits fixed status codes. Permission errors and incomplete
+  activation stop deployment. Runtime IAM is unchanged; see server/README.md for
+  the build identity's minimal permissions. Cleanup is asynchronous, independent
+  of session expiry and duplicate rejection. Unresolved reservations have no TTL.
+- Cloud Build upload uses an explicit file allowlist, excluding local test tooling,
+  private environment files, session credentials and administrative reporting tools.
+  The runtime image has a separate explicit source allowlist.
+- Session JWTs require a nonnegative integer revocation-version claim and a valid,
+  bounded subject. Missing or malformed claims are rejected as authentication errors.
+- Server-controlled OpenRouter requests explicitly disable provider fallback while
+  preserving price caps and required-parameter enforcement.
+- Deployment checks unauthenticated protocol and grouped-operation endpoints
+  return 401. PR verification has a separate concurrency group from production
+  deployment so a PR cannot occupy the production deployment queue.
+- Privacy documentation accurately states the transient key-entry/IPC lifetime.
+
+### Verification
+
+- Server tests: 196 passed; seven emulator tests skipped in the ordinary run and
+  all seven passed in a separate real-emulator transaction run.
+- pip-audit: 46 installed server packages, no reported vulnerabilities.
+- npm production audit: zero reported vulnerabilities.
+- OSV: 792 locked package identities checked, including development/platform
+  dependencies. Rust findings remain as documented below; no PyPI/npm findings.
+- Gitleaks: 144 active source paths considered, zero matches; working diff zero
+  matches. Full reachable-history scan returned the same 21 previously reviewed
+  synthetic/code-reference matches. No raw matched values were printed.
+- Exact-value check: local API keys and local session token absent from active
+  source input. Private local.env permissions are 600.
+- Git whitespace check passed. Cloud container build and production smoke tests
+  remain workflow checks; they were not executed locally in this pass.
+
+### Deployment boundary
+
+A source audit cannot establish the deployed service's permissions or behavior.
+The build identity may need the documented TTL-management custom role. Do not
+grant Owner/Editor or add administration access to the runtime identity to make
+deployment pass. TTL activation can exceed ten minutes; the deployment then stops
+with TTL_ACTIVATION_PENDING and can be rerun after activation completes.
+A successful deployment must still be followed by authenticated diagnostics and
+one hosted chat. Grouped chat has per-account distributed concurrency/duplicate
+protection; standalone chat and audio retain their own admission, spending and
+resource limits, not the grouped operation identity protocol.
+
+The Linux/BSD GTK advisory is a Linux release gate, not a server-deployment blocker.
+Maintenance advisories remain visible; no suppressions or compatibility shims
+were introduced.
+
+Guidance used: [Google TTL policies and permissions](https://firebase.google.com/docs/firestore/ttl),
+[GitHub Actions secure use](https://docs.github.com/en/actions/reference/security/secure-use),
+[GitHub OIDC trust](https://docs.github.com/en/actions/reference/security/oidc).
 
 ## Findings fixed in source
 

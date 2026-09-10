@@ -39,27 +39,41 @@ class Ingress:
             self._hits.append(now)
 
 
-class AuthenticatedIngress:
-    """Bounded per-subject windows, plus a process ceiling; identities stay in memory."""
-    def __init__(self):
-        self._subjects = OrderedDict()
-        self._lock = Lock()
-        self._total = Ingress(240)
+IngressLane = Literal["inference", "control"]
+SUBJECT_LIMITS: dict[IngressLane, int] = {"inference": 60, "control": 30}
+PROCESS_LIMITS: dict[IngressLane, int] = {"inference": 240, "control": 60}
+MAX_ACTIVE_SUBJECTS = 128
 
-    def take(self, subject: str):
-        now = time.monotonic()
+
+class AuthenticatedIngress:
+    """Independent bounded lanes; the inference lane cannot consume control slots."""
+
+    def __init__(self) -> None:
+        self._subjects: OrderedDict[str, tuple[dict[IngressLane, Ingress], float]] = OrderedDict()
+        self._lock: Lock = Lock()
+        self._lanes: dict[IngressLane, Ingress] = {
+            lane: Ingress(limit) for lane, limit in PROCESS_LIMITS.items()
+        }
+        self._total: Ingress = Ingress(sum(PROCESS_LIMITS.values()))
+
+    def take(self, subject: str, *, lane: IngressLane) -> None:
+        if lane not in SUBJECT_LIMITS or not subject:
+            raise ValueError("Invalid authenticated ingress lane or subject.")
+        now: float = time.monotonic()
         with self._lock:
-            # Evict only expired windows: rotating subjects cannot erase active limits.
             for key, (_, touched) in list(self._subjects.items()):
                 if now - touched >= 60:
                     del self._subjects[key]
             if subject not in self._subjects:
-                if len(self._subjects) >= 128:
+                if len(self._subjects) >= MAX_ACTIVE_SUBJECTS:
                     raise Rejection("INGRESS_RATE_LIMIT", "Authenticated ingress capacity reached. Try again in a minute.", retry=60)
-                self._subjects[subject] = (Ingress(60), now)
-            gate, _ = self._subjects[subject]
-            self._subjects[subject] = (gate, now)
-            gate.take()
+                self._subjects[subject] = ({
+                    name: Ingress(limit) for name, limit in SUBJECT_LIMITS.items()
+                }, now)
+            gates, _ = self._subjects[subject]
+            self._subjects[subject] = (gates, now)
+            gates[lane].take()
+            self._lanes[lane].take()
             self._total.take()
 
 

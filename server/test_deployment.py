@@ -1,5 +1,7 @@
 import json
+from pathlib import Path
 import pytest
+from retention import COLLECTIONS
 from deploy_candidate import deploy, DeploymentError
 from verify_revision import inspect_revision, inspect_traffic
 
@@ -30,6 +32,8 @@ def test_only_verified_candidate_can_receive_traffic(ready):
     calls = []
     def call(args):
         calls.append(args)
+        if args[:4] == ["firestore", "fields", "ttls", "list"]:
+            return json.dumps([{"name": f"projects/project/databases/(default)/collectionGroups/{group}/fields/ttl", "ttlConfig": {"state": "ACTIVE"}} for group in COLLECTIONS])
         if args[:3] == ["container", "images", "describe"]:
             return DIGEST
         if args[:3] == ["run", "revisions", "describe"]:
@@ -57,6 +61,8 @@ def test_failed_command_or_wrong_digest_never_promotes(failure, capsys):
     calls = []
     def call(args):
         calls.append(args)
+        if args[:4] == ["firestore", "fields", "ttls", "list"]:
+            return json.dumps([{"name": f"projects/project/databases/(default)/collectionGroups/{group}/fields/ttl", "ttlConfig": {"state": "ACTIVE"}} for group in COLLECTIONS])
         if args[:3] == ["container", "images", "describe"]:
             return DIGEST
         if args[:2] == ["run", "deploy"] and failure == "command":
@@ -82,3 +88,14 @@ def test_traffic_requires_complete_valid_allocation():
     for rows in [[], [{"revisionName": NAME, "percent": 100}, {"revisionName": "other", "percent": 1}],
                  [{"revisionName": NAME, "percent": "100"}]]:
         assert inspect_traffic({"status": {"traffic": rows}}, NAME)["failures"] == ["TRAFFIC_MISMATCH"]
+
+
+def test_runtime_python_sources_are_in_docker_context() -> None:
+    root: Path = Path(__file__).parent
+    included: set[str] = {line[1:] for line in (root / ".dockerignore").read_text().splitlines() if line.startswith("!")}
+    for line in (root / "Dockerfile").read_text().splitlines():
+        if line.startswith("COPY ") and "--from=" not in line:
+            for source in line.split()[1:-1]:
+                if source.endswith(".py"):
+                    assert source in included
+                    assert (root / source).is_file()

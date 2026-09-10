@@ -1,6 +1,12 @@
 # Implemented application and boundaries
 
-The local foundation, desktop hosted access and own-key execution are implemented. Native/live
+Custom URL implementation gap: the approved route is a self-hosted instance of our
+server using the same SkellySpeak protocol as hosted access. Chat uses grouped
+`/v1/operations`, and connection checks validate authenticated `/v1/protocol`
+capabilities. Its separately stored bearer credential is a session token from that
+server. Local server/emulator and native custom-route verification remain pending.
+
+The local foundation and desktop Hosted, API-key and Custom URL execution are implemented. Native/live
 verification status is recorded in README.md. Assistance
 and evidence contracts remain future work.
 
@@ -23,7 +29,8 @@ deployment change in this slice.
 
 The local database lives in the application's data directory as `practice.sqlite3`.
 It is initialized only when empty; incompatible or invalid databases fail explicitly.
-The active v3 AI-configuration schema extends transactionally to v4; there are no
+The active schema extends transactionally through v7, with turn refusal state, shared
+target admission and metadata-only transcription receipts; there are no
 archived-data imports. Source-owned records cascade on deletion.
 Settings are one independently editable record per conversation. Opening a
 conversation records use ordering for copying settings on explicit creation.
@@ -63,7 +70,7 @@ context operation, stores operations
 and attempts, enforces gates, and validates publication authority. `lib.rs` schedules
 bounded work outside SQLite transactions and exposes typed commands/queries.
 
-The resolver captures either hosted or own-key OpenRouter access per turn. `provider.rs` uses
+The resolver captures Hosted, own-key OpenRouter or Custom URL access per turn. `provider.rs` uses
 reqwest 0.12 with rustls, no redirects, a 90-second timeout, a 256 KiB response cap,
 2,048 output tokens and no hidden retries. Own-key requests disable provider fallback;
 the hosted service controls upstream routing. Requested and actual
@@ -79,7 +86,13 @@ when a parsed completion fails publication validation. Unavailable usage stays n
 The Unicode policy rejects Emoji_Presentation, Extended_Pictographic, variation
 selector-16 and keycap marks; ordinary digits and multilingual letters remain allowed.
 
-A single pending reply is permitted per conversation and two workers app-wide.
+A single pending reply is permitted per conversation. `admission.rs` owns four
+app-wide network permits shared by partner/coach chat and desktop transcription.
+Chat waits in its durable operation queue; at most one transcription waits in
+memory for capacity. Additional waiting audio fails explicitly without submission.
+Audio rechecks connection/source validity while waiting and after acquiring capacity
+and reading credentials. Dropping a waiter or finishing/cancelling a request releases
+its permit. This bounds local futures, not upstream billing after cancellation.
 Pause gates operation starts; Step grants one ready operation a permit. Running work
 may finish while paused. Cancel, deletion and credential revocation defeat late
 publication. Duplicate callbacks cannot duplicate an output. Startup marks in-flight
@@ -152,3 +165,48 @@ custom protocol configuration. Custom Chat Completions excludes vendor-only
 OpenRouter fields. The optional multipart transcription capability must be selected
 explicitly. Provider implementations, rather than UI components, own endpoint constants.
 Read-aloud has not yet been implemented. Credential policy is in `SECURITY.md`.
+
+## Request-load audit — September 10, 2026
+
+This is a source audit, not a production load test. The three access routes share
+target resolution and credential boundaries; they do not yet share admission for
+every network operation.
+
+| Work | Current admission and failure behavior | Remaining boundary |
+| --- | --- | --- |
+| Partner/coach chat, all routes | Durable attempts; four shared network slots; no automatic HTTP retry; HTTP 429 pauses matching pending turns with durable visible hold metadata | Fresh submissions are checked before acceptance; total queued-work and graph-expansion budgets remain open |
+| Transcription, all routes | Captured target/revision; bounded audio/response; no automatic retry; now shares native network admission with chat, with at most one waiting transcription | Shared target holds checked before capture, while waiting and before submission; durable metadata-only receipts are implemented; audio is not yet a Step-controlled graph operation |
+| Key verification, account/status checks | Explicit native commands, timeouts and response caps; verification makes no inference call | No common native concurrency/coalescing policy across windows and repeated command delivery |
+| Hosted inference | Authenticated ingress, durable daily admission and spending reservation; structured rejection codes | No distributed per-account in-flight admission. Diagnostics have separate daily counters but share authenticated short-window capacity |
+
+Chat HTTP 429 errors now carry typed reason, scope, safe request ID and earliest
+retry metadata. Recognized hosted service refusals span hosted pending work;
+otherwise matching uses route, endpoint and credential reference. Holds are stored
+in a dedicated turn execution-state column, never added to prompt messages. Pending turns pause and
+lose Step permits; in-flight work may finish. Explicit recovery honors known timing,
+but no timer or restart automatically resumes a held turn. The execution panel
+shows the hold. `holds.rs` persists target refusal authority independently of turns;
+fresh submissions and audio consult it. Audio HTTP 429 also records that authority.
+Target keys hash endpoint and native credential reference; neither URL nor credential
+reference enters the hold snapshot. Hosted service-scoped refusals cover chat/audio.
+Recover access checks earliest retry and the observed generation, clears only that
+hold and makes no network call. Queued turns remain paused until explicitly resumed.
+The table is capped at 128 holds; saturation fails closed instead of evicting an
+active refusal. Deleting conversations does not clear access holds.
+
+`transcription.rs` records a receipt immediately before HTTP submission, inside a
+transaction after permission/admission checks. Completion checks source authority
+and commits outcome before returning draft text. Receipts cannot authorize a second
+submission or a second publication. Restart marks running receipts unknown and
+never dispatches audio. Conversation deletion cascades receipt removal; late results
+cannot recreate records. No recording or transcript content is persisted in this
+table. Metadata enters execution inspection and global/language/partner attempt
+counts; audio token usage remains unavailable. Audio Step control is not implemented.
+A chat worker cap limits simultaneous client futures;
+it does not cap requests per minute, total graph work, or provider work that continues
+after local cancellation.
+
+Shared network admission is implemented after this audit; the remaining slice is
+defined in [BUILD-PLAN.md](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
+The incident evidence and its unresolved causality remain in
+[INCIDENT-POSTMORTEM.md](./INCIDENT-POSTMORTEM.md).

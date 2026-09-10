@@ -4,8 +4,8 @@ Partners, conversations, messages, settings and execution records are stored on 
 device. SkellySpeak does not synchronize them. Hosted requests are metered by the service;
 local activity reports remain on device.
 
-Access uses an explicitly selected Google-authenticated hosted session or OpenRouter
-API key. Pressing Send transmits the selected conversation's recent messages, initiating message,
+Access uses one explicitly selected route: hosted sign-in, direct API keys, or a
+self-hosted SkellySpeak server at a custom URL. Pressing Send transmits the selected conversation's recent messages, initiating message,
 practice settings and partner description through the hosted service when selected, or directly to OpenRouter when using your
 key, and onward to the serving provider.
 Saving a key and opening a conversation do not initiate inference. Partner prompts exclude coach threads and other conversations. Coach prompts include
@@ -13,8 +13,9 @@ the selected conversation and its separate coach thread; relationship-memory ret
 is not implemented.
 
 The device credential store holds API keys and hosted sessions; SQLite contains only its opaque
-reference. React does not retain keys in component state. The key-entry field and
-IPC necessarily carry a submitted key transiently. Rust uses zeroizing secret buffers
+reference. React holds a replacement key transiently while it is entered and saved; it clears
+the input after a successful save. Saved secrets are not returned to React. The
+key-entry field and IPC necessarily carry the submitted key transiently. Rust uses zeroizing secret buffers
 and does not echo provider error bodies or secrets into diagnostics. HTTPS is fixed
 to OpenRouter for this route; redirects are refused. The hosted route uses its fixed HTTPS service origin. Custom URLs use explicitly configured HTTPS endpoints, or loopback HTTP for a local
 service. No-auth endpoints receive no Authorization header; redirects are refused.
@@ -29,8 +30,7 @@ Deleting a conversation removes its messages, captured context, operations, atte
 and scoped receipts. Deleting a partner removes its dependent conversations. Late
 worker callbacks cannot recreate deleted records. Disconnecting revokes unpublished
 work and removes the credential; pending credential cleanup is recorded and completed
-on startup if interrupted. The active v3 workspace has a bounded transactional AI-configuration extension;
-there is no archived-data import, backup or synchronization subsystem.
+on startup if interrupted. There is no application data synchronization subsystem.
 
 Provider-side handling is governed by the user's provider agreement and settings:
 [OpenRouter privacy policy](https://openrouter.ai/privacy).

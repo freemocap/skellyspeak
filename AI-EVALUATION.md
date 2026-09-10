@@ -44,26 +44,26 @@ Do not turn model selection into an unbounded vendor tournament.
 
 ## Initial adapter scope
 
-Propose OpenRouter for hosted generation and the initial own-key provider, plus an
-explicit Chat Completions protocol adapter for custom endpoints. This gives all
-three requested routes without implying support for every vendor's native API.
+Use OpenRouter for server generation and direct own-key generation, and Groq for
+transcription. Custom URL locates a self-hosted instance of our server code, using
+the same versioned SkellySpeak protocol as hosted access. Arbitrary OpenAI-compatible
+endpoint adapters are outside scope.
 
 | User route | Concrete proposed target |
 | --- | --- |
 | Sign-in | Rust → versioned SkellySpeak hosted generation endpoint → OpenRouter |
 | API key | Rust → `https://openrouter.ai/api/v1/chat/completions` using the user's OpenRouter key |
-| Custom URL | Rust → configured API base URL plus `/chat/completions`, using the explicitly selected Chat Completions dialect and authentication mode |
+| Custom URL | Rust → self-hosted SkellySpeak server → server-configured providers |
 
 The [OpenRouter API reference](https://openrouter.ai/docs/api_reference/overview)
 defines its request/response interface. Reuse domain request concepts across adapters,
-but keep OpenRouter-specific routing fields out of generic custom requests.
+but keep provider-specific routing inside the responsible provider adapter.
 Native Google-key generation is not included in this initial adapter proposal;
 it can be added as a deliberate provider implementation if desired.
 
-A custom endpoint must pass the same required output-contract tests as hosted/key
-routes. Explicitly configure plain prose, schema-constrained output and usage/stream
-support; do not reinterpret unsupported schema output as plain text. A model list
-endpoint is optional discovery, not required for manually configured model IDs.
+A self-hosted server must pass the same SkellySpeak protocol and output-contract
+tests as the hosted server. Check protocol version and authentication explicitly;
+a provider model-list response does not establish server compatibility.
 
 OpenRouter normally load-balances providers and permits provider fallbacks.
 Proposed strict binding: select an explicit provider endpoint for each model,

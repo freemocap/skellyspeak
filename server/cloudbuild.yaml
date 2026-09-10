@@ -1,3 +1,4 @@
+timeout: "1200s"
 serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/skellyspeak-build@${PROJECT_ID}.iam.gserviceaccount.com"
 options:
   logging: CLOUD_LOGGING_ONLY

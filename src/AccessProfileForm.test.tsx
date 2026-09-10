@@ -87,7 +87,7 @@ it("custom no-auth preserves that choice and explicitly enables transcription", 
   await waitFor(() =>
     expect(mock).toHaveBeenCalledWith("save_access_settings", {
       expectedRevision: 4,
-      custom: { ...initial.custom, transcriptionModel: "whisper-1" },
+      custom: { ...initial.custom, transcriptionModel: "whisper-large-v3" },
       apiKey: null,
       removeKey: false,
     }),

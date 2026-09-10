@@ -53,6 +53,33 @@
 - Keep settings compact: adjacent related inputs, restrained padding, short helper
   text and collapsed secondary details. Preserve readable text and usable targets.
 - AI access lives in Settings, with Hosted sign-in / API keys / Custom URL tabs.
+  Each tab includes a radio indicator. Activating a tab selects the AI route;
+  the selected panel and indicator reflect the persisted choice.
+  Credential edits and sign-in never change the active route.
   Render these as page tabs joined to their content panel, not segmented buttons.
   OpenRouter and Groq key inputs stay together, before model preferences.
   Do not add an API-key or custom-endpoint button to the application toolbar.
+
+## CSS ownership and verification
+
+- `src/styles.css` is the active stylesheet. Component rules own their geometry,
+  states and responsive behavior. Edit those rules in place; do not append a second
+  definition of the same selector group in the same media scope.
+- Shared element defaults cover typography, focus and basic controls. Shared
+  selector groups are intentional reuse, not a place to assign component geometry.
+  Theme selectors must not unintentionally defeat component colors or states.
+- Do not use `!important`. Resizable AI dock height enters CSS through
+  `--ai-dock-height`; media rules own the resulting desktop/mobile geometry.
+- Prefer 4/8/12/16px spacing for new compact controls and panels. Choose 8–12px
+  interior spacing before increasing it; keep touch targets usable independently
+  of surrounding padding. Do not shrink all existing controls mechanically.
+- Use existing surface, text, border and accent variables. Introduce semantic
+  tokens for recurring new roles, rather than repeated literal colors.
+- Remove unused component selectors with the component. Check dynamic class names
+  and shared selector groups before removing anything based on a text search.
+- Run `npm run styles:check`, `npm run build` and `npm test`. The style check rejects
+  exact repeated selector groups within the same at-rule scope, repeated properties
+  within a rule and `!important`. It does not detect all overlapping selectors,
+  shorthand conflicts, unused rules or visual defects.
+- Review desktop/narrow layout, keyboard focus, reading scale and light/dark surface
+  contrast in the running app. Automated source checks do not replace that review.

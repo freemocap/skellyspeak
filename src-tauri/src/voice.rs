@@ -31,6 +31,7 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<St
     }
     let store = state.lock()?;
     let target = access::resolve(&store.connection, access::Capability::Transcription)?;
+    crate::holds::check(&store.connection, &target)?;
     let snapshot = store.snapshot()?;
     let conversation = snapshot
         .conversations
@@ -105,14 +106,26 @@ pub async fn mic_transcribe(
         .await
         .map_err(|_| fault("Audio processing stopped unexpectedly."))?
         .map_err(fault)?;
+    let validate = || {
+        let store = state.lock()?;
+        crate::holds::check(&store.connection, &recording.target)?;
+        crate::transcription::permitted(
+            &store.connection,
+            &recording.conversation,
+            &recording.target,
+        )?;
+        Ok(())
+    };
+    let _permit = state.admission.audio(validate).await?;
     let token = match credential {
         Some(id) => crate::read_secret(id).await?,
         None => zeroize::Zeroizing::new(String::new()),
     };
-    if state.lock()?.connection_config()?.revision != recording.target.revision {
-        return Err(fault("AI connection changed before transcription."));
-    }
+    validate()?;
     let client = crate::provider::client()?;
+    state
+        .lock()?
+        .begin_transcription(&recording_id, &recording.conversation, &recording.target)?;
     let request = access::transcribe(
         &client,
         &recording.target,
@@ -122,28 +135,27 @@ pub async fn mic_transcribe(
         &install,
     );
     tokio::pin!(request);
-    let text = loop {
+    let result = loop {
         tokio::select! {
-            value = &mut request => break value?,
+            value = &mut request => {
+                if let Err(error) = &value {
+                    state.lock()?.note_refusal(&recording.target, error)?;
+                }
+                break value;
+            },
             _ = tokio::time::sleep(std::time::Duration::from_millis(100)) => {
                 let store = state.lock()?;
-                if store.connection_config()?.revision != recording.target.revision || !store.snapshot()?.conversations.iter().any(|c|c.id == recording.conversation && !c.archived) {
-                    return Err(fault("Transcription cancelled: the connection or conversation changed. Provider billing may continue."));
+                if let Err(error) = crate::transcription::permitted(&store.connection, &recording.conversation, &recording.target) {
+                    if error.code != ErrorCode::Conflict { return Err(error); }
+                    break Err(AppError::new(ErrorCode::UnknownOutcome, "Transcription cancelled: the connection or conversation changed. Provider billing may continue."));
                 }
             }
         }
     };
-    let store = state.lock()?;
-    if store.connection_config()?.revision != recording.target.revision
-        || !store
-            .snapshot()?
-            .conversations
-            .iter()
-            .any(|c| c.id == recording.conversation && !c.archived)
-    {
-        return Err(fault(
-            "The conversation or AI connection changed. Transcript was not inserted.",
-        ));
-    }
-    Ok(text)
+    state.lock()?.finish_transcription(
+        &recording_id,
+        &recording.conversation,
+        &recording.target,
+        result,
+    )
 }

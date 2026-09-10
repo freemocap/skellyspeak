@@ -16,6 +16,7 @@ export function AccountSettings({
   const { config, account } = state;
   const [connectionBusy, setConnectionBusy] = useState(false);
   const [accessBusy, setAccessBusy] = useState(false);
+  const tab = config?.route;
   const [modelsOpen, setModelsOpen] = useState(false);
   const activity = useRef({ access: false, connection: false });
   const accessActivity = useCallback(
@@ -52,7 +53,7 @@ export function AccountSettings({
           <div
             className="access-tabs"
             role="tablist"
-            aria-label="AI access method"
+            aria-label="Use for AI requests"
             onKeyDown={(event) => {
               const tabs = Array.from(
                 event.currentTarget.querySelectorAll<HTMLButtonElement>(
@@ -84,14 +85,15 @@ export function AccountSettings({
                 id={`access-tab-${route.id}`}
                 type="button"
                 role="tab"
-                aria-selected={config.route === route.id}
+                aria-selected={tab === route.id}
                 aria-controls={`access-panel-${route.id}`}
-                tabIndex={config.route === route.id ? 0 : -1}
+                tabIndex={tab === route.id ? 0 : -1}
                 disabled={locked}
                 onClick={() => {
                   if (config.route !== route.id) void state.route(route.id);
                 }}
               >
+                <span className="access-route-indicator" aria-hidden="true" />
                 {route.label}
               </button>
             ))}
@@ -99,11 +101,11 @@ export function AccountSettings({
           <div
             className="access-route-panel"
             role="tabpanel"
-            id={`access-panel-${config.route}`}
-            aria-labelledby={`access-tab-${config.route}`}
+            id={`access-panel-${tab}`}
+            aria-labelledby={`access-tab-${tab}`}
             tabIndex={0}
           >
-            {config.route === "hosted" && (
+            {tab === "hosted" && (
               <>
                 {config.signedIn ? (
                   <div className="hosted-identity">
@@ -230,7 +232,7 @@ export function AccountSettings({
                 </details>
               </>
             )}
-            {config.route === "openrouter" && (
+            {tab === "openrouter" && (
               <>
                 <ConnectionForm
                   key={config.revision}
@@ -250,7 +252,7 @@ export function AccountSettings({
                 </ConnectionForm>
               </>
             )}
-            {config.route === "custom" && (
+            {tab === "custom" && (
               <>
                 <AccessProfileForm
                   key={`custom:${config.revision}`}

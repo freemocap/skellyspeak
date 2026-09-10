@@ -9,7 +9,7 @@ informed the selection; active behavior is defined by the implementation.
 | Settings | Search, section navigation, compact rows, automatic preference/key/model saves and backdrop dismissal, text scale/spacing/contrast, learner defaults, onboarding replay | Microphone selection, read-aloud/auto-send, editable shortcuts, distribution updates |
 | AI access | Google system-browser sign-in/cancel/sign-out, quota report, explicit hosted/own-key selection; automatic key verification, green-check/red-X indicators, masked key entry and visible save errors | Mobile sign-in, live route verification |
 | Models | Hosted approved Standard model; own-key Standard/Fast configuration without key reentry | Evaluated Fast assignments |
-| AI activity | Resizable dock, pop-out window, conversation/latest/recent selection, declared dependencies, attempts, models, usage, pause/step/cancel/retry | Selectable graph nodes, local prompt/result inspection and export |
+| AI activity | Resizable dock, pop-out window, conversation/latest/recent selection, declared dependencies, attempts, models, usage, pause/step/cancel/retry; durable queued-chat refusal reason and earliest retry, with Step disabled while held; shared access holds and generation-checked Recover access | Selectable graph nodes, local prompt/result inspection and export; live native inspection of refusal recovery |
 | Profile | Retained totals globally, by language and partner; request/token/message counts and unknown usage coverage | Time series, distributions, source-linked assessment, CEFR, XP and Vibe |
 
 Do not render pending functionality as working controls. Reports remain numerical;
@@ -40,7 +40,7 @@ Visual resemblance alone does not complete a feature.
 | Assessment and XP | Not implemented | Source → observation → eligible credit is inspectable; retries and repeated snapshots never duplicate rewards |
 | Seven-domain skill map | Not implemented | A restrained category-fill view consumes versioned metrics, with no invented proficiency |
 | Growing flower/garden | Not implemented | The same underlying evidence/metrics hydrate the flower; changing renderer changes no scores |
-| Voice interaction | Desktop capture/transcription code exists; native end-to-end validation pending | Record/stop/discard, transcription, read-aloud and any auto-send behavior verified individually |
+| Voice interaction | Desktop capture/transcription; durable metadata-only receipt displayed in AI activity; restart marks interrupted audio unknown without replay | Native record/stop/transcription smoke test pending; read-aloud and any auto-send behavior verified separately |
 
 Next focus: diagnose hosted admission, prove one real exchange, then complete one
 source-linked analysis path from reply to tokens/glosses and inspected bubbles.
