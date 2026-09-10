@@ -5,9 +5,9 @@ informed the selection; active behavior is defined by the implementation.
 
 | Surface | Implemented | Remaining dependencies |
 | --- | --- | --- |
-| Toolbar | Partner chooser, AI toggle, account/token status, reload, Settings, Profile | Ongoing narrow-window inspection |
+| Toolbar | Partner chooser, AI toggle, reload, Settings, Profile | Ongoing narrow-window inspection |
 | Settings | Search, section navigation, compact rows, automatic preference/key/model saves and backdrop dismissal, text scale/spacing/contrast, learner defaults, onboarding replay | Microphone selection, read-aloud/auto-send, editable shortcuts, distribution updates |
-| AI access | Google system-browser sign-in/cancel/sign-out, quota report, explicit hosted/own-key selection; automatic key verification, green-check/red-X indicators, Show/Hide and visible save errors | Custom URL adapter, mobile sign-in, live route verification |
+| AI access | Google system-browser sign-in/cancel/sign-out, quota report, explicit hosted/own-key selection; automatic key verification, green-check/red-X indicators, masked key entry and visible save errors | Mobile sign-in, live route verification |
 | Models | Hosted approved Standard model; own-key Standard/Fast configuration without key reentry | Evaluated Fast assignments |
 | AI activity | Resizable dock, pop-out window, conversation/latest/recent selection, declared dependencies, attempts, models, usage, pause/step/cancel/retry | Selectable graph nodes, local prompt/result inspection and export |
 | Profile | Retained totals globally, by language and partner; request/token/message counts and unknown usage coverage | Time series, distributions, source-linked assessment, CEFR, XP and Vibe |
@@ -16,7 +16,7 @@ Do not render pending functionality as working controls. Reports remain numerica
 absent skill evidence is explicit. Chat remains the main surface and lesson/analysis
 the adjacent surface. Flowers visualize evidence only and do not define the app brand.
 
-The voice-first chat composer and docked coach are integrated. Desktop hosted
+The voice-first chat composer and docked coach are integrated. Desktop capability-routed
 transcription inserts a draft; coach replies use durable separate graph operations.
 Startup opens chat directly and new conversations require no title. Remaining lesson
 parity includes source-linked word breakdowns, suggestion trays, lesson editing,
@@ -66,3 +66,16 @@ credentials and hosted/own-key refresh isolation. Add component/integration cove
 error visibility, settings saves, coach scope, recording controls and the restored
 token/suggestion interactions as those paths are implemented. Provider mock tests
 cannot establish account allowance or successful production inference.
+
+AI access now includes independent Groq credentials and a custom URL form with
+explicit bearer/no-auth and optional transcription capability. Native visual review
+and live custom/Groq checks remain pending. Saved secrets have no reveal control.
+
+
+AI access is a Settings section with Hosted sign-in / API keys / Custom URL tabs.
+OpenRouter and Groq inputs appear consecutively; model preferences follow in a
+closed disclosure. Hosted sign-in is the primary control, with usage and service
+details secondary. API access has no toolbar button. No promotional headings or
+redundant introductory copy. Keyboard tab navigation, save locking and key grouping
+have component tests. Desktop and narrow layouts were inspected using real
+components with isolated visual test data; native authentication is separate.

@@ -45,6 +45,8 @@ describe("OpenRouter connection", () => {
   it("saves a pasted key with whitespace, clears the field, then verifies the stored credential", async () => {
     renderForm();
     const input = await screen.findByLabelText("OpenRouter API key");
+    expect((input as HTMLInputElement).type).toBe("password");
+    expect(screen.queryByRole("button", { name: /show.*key/i })).toBeNull();
     fireEvent.change(input, { target: { value: "  sk-or-test-credential  " } });
     await screen.findByText("All changes saved");
     expect(mock).toHaveBeenCalledWith(
@@ -125,3 +127,26 @@ describe("OpenRouter connection", () => {
     expect(screen.queryByLabelText("API key validated")).toBeNull();
   });
 });
+
+it.each([false, true])(
+  "clears a failed entry without deleting a saved key (saved=%s)",
+  async (ownKeyConfigured) => {
+    mock.mockImplementation(async (command) => {
+      if (command === "get_connection") return { ...config, ownKeyConfigured };
+      if (command === "save_connection") throw { message: "Invalid API key." };
+      if (command === "verify_openrouter_key") return;
+      throw new Error(`Unexpected command: ${command}`);
+    });
+    renderForm();
+    const input = await screen.findByLabelText("OpenRouter API key");
+    fireEvent.change(input, { target: { value: "bad" } });
+    await screen.findByText("Invalid API key.");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear OpenRouter API key entry" }),
+    );
+    expect((input as HTMLInputElement).value).toBe("");
+    expect(screen.queryByText("Invalid API key.")).toBeNull();
+    expect(document.activeElement).toBe(input);
+    expect(mock).not.toHaveBeenCalledWith("disconnect", expect.anything());
+  },
+);

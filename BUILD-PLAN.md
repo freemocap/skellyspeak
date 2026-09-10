@@ -139,7 +139,7 @@ use a suggestion without autosending, inspect coach privacy, and correct/remove 
 
 - [ ] Specify and implement hosted sign-in/session lifecycle, validation, model/provider
   allowlists, quota, attempt receipts and metering reconciliation.
-- [ ] Implement custom URL/auth/model configuration and explicit protocol capabilities.
+- [x] Implement custom URL/auth/model configuration and explicit protocol capabilities.
 - [ ] Verify both model roles on each supported route without secret substitution.
 - [ ] Verify credential redaction, sign-out revocation, route changes, quota errors,
   interrupted requests and duplicate-dispatch prevention.
@@ -244,3 +244,11 @@ and a docked coach. Immediate startup, title-free creation, desktop capture/host
 transcription and durable separate coach turns are implemented. Verify the native
 flow before expanding report or visualization work. Structured lesson controls,
 read-aloud, auto-send, suggestion trays and passage breakdowns remain open.
+
+## Current checkpoint: server-independent AI access
+
+Hosted, API-key and custom routes are implemented for partner/coach chat and
+transcription. Read-aloud remains separate future work. Capability, transport and
+credential-boundary tests are implemented; live Groq/custom/native visual checks
+remain pending. Keep platform credential storage; the session-only suggestion was
+withdrawn. See `SECURITY.md` and README for the actual boundaries.

@@ -6,13 +6,16 @@
   and Send. Keep Lesson/Analysis with a docked Talk to your coach beside the chat.
 
 - AI and Profile are toolbar surfaces. AI supports a resizable dock and separate
-  window. Keep account/token status accessible from the toolbar.
+  window. Keep account and token details in Settings → AI access.
 - Settings uses searchable section navigation and compact controls. Preferences
   save automatically, including API keys, models and conversation practice settings.
   Show pending/error state and finish pending writes before closing. Clicking the
   backdrop dismisses modals; clicks inside the panel do not. Credential validation
   uses a compact green check/red X with accessible labels and error detail, not a
   validation button.
+  Saved credentials have no reveal control; password inputs mask replacement keys.
+  The saved-key status icon becomes a red X on hover or keyboard focus. Clicking
+  opens a confirmation; deletion requires a separate Delete key action.
   Keep the feature inventory in `UI-SURFACES.md` current as functionality ships.
 
 - Use a dark navy shell and analysis pane, a light paper chat canvas, blue accents,
@@ -39,3 +42,17 @@
   the exchange collapses. All reading surfaces respect conversation preferences.
 - Inspect the real application at desktop and narrow widths; unit tests alone do
   not establish visual or native-device correctness.
+
+## Copy and density
+
+- Use plain functional labels. No marketing copy, slogans, promotional headings,
+  saccharine encouragement or filler. Do not add phrases such as “Your keys,
+  together,” “Connect directly,” “Your endpoint,” or “Make it yours.”
+- Name the action, setting or state. Add explanation only when needed to operate
+  a control or understand its consequences. Do not repeat tab labels as headings.
+- Keep settings compact: adjacent related inputs, restrained padding, short helper
+  text and collapsed secondary details. Preserve readable text and usable targets.
+- AI access lives in Settings, with Hosted sign-in / API keys / Custom URL tabs.
+  Render these as page tabs joined to their content panel, not segmented buttons.
+  OpenRouter and Groq key inputs stay together, before model preferences.
+  Do not add an API-key or custom-endpoint button to the application toolbar.

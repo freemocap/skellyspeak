@@ -1,10 +1,10 @@
-use crate::{Application, audio, hosted, model::*, provider};
+use crate::{Application, access, audio, model::*};
 use std::sync::Arc;
 
 pub struct Recording {
     id: String,
     conversation: String,
-    revision: i32,
+    target: access::ResolvedTarget,
     language: String,
     capture: audio::Capture,
 }
@@ -30,10 +30,7 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<St
         return Err(fault("A recording is already running."));
     }
     let store = state.lock()?;
-    let config = store.connection_config()?;
-    if config.route != ConnectionRoute::Hosted || !config.signed_in {
-        return Err(fault("Sign in with Google to use voice transcription."));
-    }
+    let target = access::resolve(&store.connection, access::Capability::Transcription)?;
     let snapshot = store.snapshot()?;
     let conversation = snapshot
         .conversations
@@ -44,7 +41,7 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<St
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
         conversation: conversation_id,
-        revision: config.revision,
+        target,
         language: conversation.language_id.clone(),
         capture: audio::start(None).map_err(fault)?,
     };
@@ -96,54 +93,48 @@ pub async fn mic_transcribe(
     };
     let (credential, install) = {
         let store = state.lock()?;
-        if store.connection_config()?.revision != recording.revision {
+        if store.connection_config()?.revision != recording.target.revision {
             return Err(fault("AI connection changed during recording."));
         }
-        let id = store
-            .hosted_credential()?
-            .ok_or_else(|| fault("Sign in with Google again."))?;
-        (id, store.snapshot()?.learner.id)
+        (
+            recording.target.credential.clone(),
+            store.snapshot()?.learner.id,
+        )
     };
     let wav = tauri::async_runtime::spawn_blocking(move || recording.capture.finish())
         .await
         .map_err(|_| fault("Audio processing stopped unexpectedly."))?
         .map_err(fault)?;
-    let token = crate::read_secret(credential).await?;
-    if state.lock()?.connection_config()?.revision != recording.revision {
+    let token = match credential {
+        Some(id) => crate::read_secret(id).await?,
+        None => zeroize::Zeroizing::new(String::new()),
+    };
+    if state.lock()?.connection_config()?.revision != recording.target.revision {
         return Err(fault("AI connection changed before transcription."));
     }
-    let form = reqwest::multipart::Form::new()
-        .text("model", "whisper-large-v3")
-        .text("response_format", "json")
-        .text("language", recording.language)
-        .part(
-            "file",
-            reqwest::multipart::Part::bytes(wav)
-                .file_name("audio.wav")
-                .mime_str("audio/wav")
-                .map_err(|_| fault("Audio upload type is invalid."))?,
-        );
-    let response = hosted::identity(
-        provider::client()?
-            .post(format!("{}/v1/audio/transcriptions", hosted::ORIGIN))
-            .bearer_auth(token.as_str()),
+    let client = crate::provider::client()?;
+    let request = access::transcribe(
+        &client,
+        &recording.target,
+        &token,
+        wav,
+        &recording.language,
         &install,
-    )
-    .multipart(form)
-    .send()
-    .await
-    .map_err(|_| fault("Transcription request failed. No automatic retry was made."))?;
-    #[derive(serde::Deserialize)]
-    struct Transcript {
-        text: String,
-    }
-    let transcript: Transcript = serde_json::from_slice(&hosted::body(response).await?)
-        .map_err(|_| fault("Invalid transcription response."))?;
-    if transcript.text.len() > 20000 || transcript.text.contains('\0') {
-        return Err(fault("Transcription exceeds the message limits."));
-    }
+    );
+    tokio::pin!(request);
+    let text = loop {
+        tokio::select! {
+            value = &mut request => break value?,
+            _ = tokio::time::sleep(std::time::Duration::from_millis(100)) => {
+                let store = state.lock()?;
+                if store.connection_config()?.revision != recording.target.revision || !store.snapshot()?.conversations.iter().any(|c|c.id == recording.conversation && !c.archived) {
+                    return Err(fault("Transcription cancelled: the connection or conversation changed. Provider billing may continue."));
+                }
+            }
+        }
+    };
     let store = state.lock()?;
-    if store.connection_config()?.revision != recording.revision
+    if store.connection_config()?.revision != recording.target.revision
         || !store
             .snapshot()?
             .conversations
@@ -154,5 +145,5 @@ pub async fn mic_transcribe(
             "The conversation or AI connection changed. Transcript was not inserted.",
         ));
     }
-    Ok(transcript.text)
+    Ok(text)
 }

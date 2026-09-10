@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub struct Store {
     pub(crate) connection: Connection,
     pub(crate) session_id: String,
+    pub(crate) credential_writes: std::collections::HashSet<String>,
     _lock: std::fs::File,
 }
 
@@ -161,7 +162,7 @@ impl Store {
                 params![id(), serde_json::to_string(&preferences)?],
             )?;
             tx.commit()?;
-        } else if version != 3 {
+        } else if version != 3 && version != 4 {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 "Unsupported database schema. No data was changed.",
@@ -186,9 +187,15 @@ impl Store {
                 "Invalid database ownership references.",
             ));
         }
+        if version == 3 {
+            let tx = connection.transaction()?;
+            tx.execute_batch(include_str!("access-schema.sql"))?;
+            tx.commit()?;
+        }
         let store = Self {
             connection,
             session_id: id(),
+            credential_writes: std::collections::HashSet::new(),
             _lock: lock,
         };
         store.snapshot()?;

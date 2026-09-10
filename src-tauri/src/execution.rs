@@ -20,19 +20,29 @@ fn bump(db: &Connection) -> Result<()> {
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {
     let (revision,key,standard,fast,paused,route,hosted,email):(i32,bool,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?)))?;
     let route = ConnectionRoute::parse(&route)?;
+    let access = crate::access::settings(db)?;
     Ok(ConnectionConfig {
         revision,
         configured: if route == ConnectionRoute::Hosted {
             hosted
+        } else if route == ConnectionRoute::Custom {
+            !access.custom.base_url.is_empty()
+                && (!access.custom.bearer_auth || access.custom_key_configured)
         } else {
             key
         },
         standard_model: if route == ConnectionRoute::Hosted {
             "google/gemini-2.5-flash".into()
+        } else if route == ConnectionRoute::Custom {
+            access.custom.standard_model
         } else {
             standard
         },
-        fast_model: fast,
+        fast_model: if route == ConnectionRoute::Custom {
+            access.custom.fast_model
+        } else {
+            fast
+        },
         paused,
         route,
         signed_in: hosted,
@@ -41,9 +51,9 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
     })
 }
 fn active_credential(db: &Connection) -> Result<Option<String>> {
-    Ok(db.query_row("SELECT CASE route WHEN 'hosted' THEN hosted_credential_id ELSE credential_id END FROM ai_config",[],|r|r.get(0))?)
+    Ok(db.query_row("SELECT CASE route WHEN 'hosted' THEN hosted_credential_id WHEN 'custom' THEN CASE WHEN json_extract(custom_config,'$.bearerAuth') THEN custom_credential_id ELSE '' END ELSE credential_id END FROM ai_config",[],|r|r.get(0))?)
 }
-fn invalidate(db: &Connection, revoked: Option<ConnectionRoute>) -> Result<()> {
+pub(crate) fn invalidate(db: &Connection, revoked: Option<ConnectionRoute>) -> Result<()> {
     db.execute("UPDATE turns SET state='invalidated' WHERE state='pending' AND (route=?1 OR NOT EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=turns.id AND o.state='running'))",[revoked.map(|r|r.label())])?;
     db.execute("UPDATE operations SET state='invalidated',permit=0 WHERE state IN ('ready','running','waiting_dependencies') AND turn_id IN (SELECT id FROM turns WHERE state='invalidated')",[])?;
     db.execute("UPDATE attempts SET state='invalidated',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Connection authority changed.' WHERE state='running' AND operation_id IN (SELECT id FROM operations WHERE state='invalidated')",[])?;
@@ -117,6 +127,11 @@ fn accept_turn(
         return Err(fail("This conversation already has an outstanding reply."));
     }
     let profile = config(db)?;
+    if !profile.configured {
+        return Err(fail(
+            "Configure the selected AI route in Settings before sending.",
+        ));
+    }
     let credential = active_credential(db)?.ok_or_else(|| {
         fail("Sign in with Google or configure the selected connection in Settings before sending.")
     })?;
@@ -158,7 +173,8 @@ fn accept_turn(
         ));
     }
     let turn = id();
-    let captured = serde_json::json!({"messages":context,"sourceIds":source_ids,"settingsRevision":conversation.settings_revision,"partnerRevision":partner.revision,"templateVersion":1,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"partner-reply-standard-v1"});
+    let target = crate::access::resolve(db, crate::access::Capability::Chat)?;
+    let captured = serde_json::json!({"target":target,"messages":context,"sourceIds":source_ids,"settingsRevision":conversation.settings_revision,"partnerRevision":partner.revision,"templateVersion":1,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"partner-reply-standard-v1"});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     for node in if coach { COACH_PLAN } else { PLAN } {
@@ -239,7 +255,7 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
             }
             if db.query_row("SELECT EXISTS(SELECT 1 FROM turns WHERE conversation_id=?1 AND rowid>(SELECT rowid FROM turns WHERE id=?2))",params![conversation,turn],|r|r.get::<_,bool>(0))? { return Err(fail("A later turn exists. Start a new exchange instead of inserting a reply into an earlier exchange.")); }
             let (profile, credential): (i32, Option<String>) =
-                db.query_row("SELECT revision,CASE route WHEN 'hosted' THEN hosted_credential_id ELSE credential_id END FROM ai_config", [], |r| {
+                db.query_row("SELECT revision,CASE route WHEN 'hosted' THEN hosted_credential_id WHEN 'custom' THEN CASE WHEN json_extract(custom_config,'$.bearerAuth') THEN custom_credential_id ELSE '' END ELSE credential_id END FROM ai_config", [], |r| {
                     Ok((r.get(0)?, r.get(1)?))
                 })?;
             let original: i32 = db.query_row(
@@ -260,6 +276,7 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
 }
 
 pub struct Dispatch {
+    pub target: crate::access::ResolvedTarget,
     pub attempt: String,
     pub operation: String,
     pub credential: String,
@@ -272,9 +289,10 @@ impl Store {
     pub fn connection_config(&self) -> Result<ConnectionConfig> {
         config(&self.connection)
     }
-    pub fn reserve_credential(&self, id: &str) -> Result<()> {
+    pub fn reserve_credential(&mut self, id: &str) -> Result<()> {
         self.connection
             .execute("INSERT INTO credential_cleanup VALUES(?1)", [id])?;
+        self.credential_writes.insert(id.to_owned());
         Ok(())
     }
     pub fn clean_credentials(&self) -> Result<()> {
@@ -284,6 +302,9 @@ impl Store {
             .query_map([], |r| r.get::<_, String>(0))?
             .collect::<rusqlite::Result<Vec<_>>>()?;
         for id in ids {
+            if self.credential_writes.contains(&id) {
+                continue;
+            }
             crate::credentials::remove(&id)?;
             self.connection
                 .execute("DELETE FROM credential_cleanup WHERE id=?1", [id])?;
@@ -550,6 +571,7 @@ impl Store {
         }
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let messages = serde_json::from_value(captured["messages"].clone())?;
+        let target = serde_json::from_value(captured["target"].clone())?;
         tx.execute(
             "UPDATE operations SET state='running',permit=0 WHERE id=?1",
             [&operation],
@@ -558,6 +580,7 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         Ok(Some(Dispatch {
+            target,
             attempt,
             operation,
             credential,
@@ -1078,5 +1101,81 @@ mod tests {
         );
         assert!(store.dispatch().unwrap().is_none());
         assert!(store.dispatch().unwrap().is_some());
+    }
+    #[test]
+    fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
+        let (_dir, mut store, conversation) = setup();
+        let custom = CustomEndpoint {
+            base_url: "http://localhost:1234/v1".into(),
+            standard_model: "local-model".into(),
+            fast_model: "fast-model".into(),
+            bearer_auth: false,
+            transcription_model: None,
+        };
+        store
+            .connection
+            .execute(
+                "UPDATE ai_config SET custom_config=?1",
+                [serde_json::to_string(&custom).unwrap()],
+            )
+            .unwrap();
+        store.select_route(2, ConnectionRoute::Custom).unwrap();
+        let dispatched = begin(&mut store, &conversation);
+        assert_eq!(
+            dispatched.target.url,
+            "http://localhost:1234/v1/chat/completions"
+        );
+        assert_eq!(dispatched.model, "local-model");
+        assert!(dispatched.credential.is_empty());
+        assert!(dispatched.target.credential.is_none());
+        invalidate(&store.connection, Some(ConnectionRoute::Custom)).unwrap();
+        store.finish(&dispatched, Ok(reply("Late reply"))).unwrap();
+        assert_eq!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages
+                .len(),
+            1
+        );
+    }
+    #[test]
+    fn active_workspace_access_extension_keeps_messages_keys_and_preferences() {
+        let (dir, mut store, conversation) = setup();
+        let dispatched = begin(&mut store, &conversation);
+        store.finish(&dispatched, Ok(reply("Hola"))).unwrap();
+        let before = store.snapshot().unwrap();
+        store.connection.execute_batch("ALTER TABLE ai_config DROP COLUMN groq_credential_id; ALTER TABLE ai_config DROP COLUMN custom_credential_id; ALTER TABLE ai_config DROP COLUMN custom_config; PRAGMA user_version=3;").unwrap();
+        drop(store);
+        let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        assert_eq!(store.snapshot().unwrap().learner.id, before.learner.id);
+        assert_eq!(
+            store.credential_id().unwrap().as_deref(),
+            Some("test-credential")
+        );
+        assert_eq!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages
+                .len(),
+            2
+        );
+        assert_eq!(
+            store.connection_config().unwrap().route,
+            ConnectionRoute::Openrouter
+        );
+        assert!(
+            !crate::access::settings(&store.connection)
+                .unwrap()
+                .groq_key_configured
+        );
+        assert_eq!(
+            store
+                .connection
+                .pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
+                .unwrap(),
+            4
+        );
     }
 }

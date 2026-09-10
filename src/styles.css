@@ -1494,3 +1494,352 @@ fieldset.settings-entry {
 .key-badge.checking {
   color: #b6d6ff;
 }
+
+.access-provider {
+  border-top: 1px solid var(--border, #d4dce8);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.access-capabilities {
+  background: rgba(70, 120, 190, 0.07);
+  border: 1px solid rgba(70, 120, 190, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.access-provider input:not([type="checkbox"]),
+.access-provider select {
+  min-width: 0;
+  width: 100%;
+}
+
+/* AI access: one primary choice, grouped inputs, progressively disclosed detail. */
+.settings-head {
+  padding: 14px 20px;
+}
+.settings-head h2 {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+.settings-scroll {
+  padding: 14px 20px;
+}
+fieldset.settings-entry {
+  padding: 0 0 20px;
+  margin-bottom: 20px;
+}
+fieldset.settings-entry:has(.account-settings) {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.access-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: end;
+  gap: 3px;
+  position: relative;
+  z-index: 1;
+}
+.access-tabs [role="tab"] {
+  position: relative;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  color: var(--mut-d);
+  background: var(--inset);
+  font-size: 13px;
+  font-weight: 600;
+}
+.access-tabs [role="tab"][aria-selected="true"] {
+  background: var(--chrome2);
+  border-color: var(--line2);
+  color: var(--ink-d);
+}
+.access-tabs [role="tab"][aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--chrome2);
+}
+.access-tabs [role="tab"]:focus-visible {
+  outline-offset: -4px;
+}
+.access-tabs [role="tab"]:hover:not(:disabled) {
+  color: var(--ink-d);
+}
+.access-route-panel {
+  padding: 14px;
+  border: 1px solid var(--line2);
+  border-radius: 0 0 8px 8px;
+  background: var(--chrome2);
+}
+.access-route-panel:focus {
+  outline: none;
+}
+.access-route-panel:focus-visible {
+  outline: 2px solid var(--steel);
+  outline-offset: 5px;
+}
+.api-key-row {
+  padding: 0 0 8px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+.api-key-row .field {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.api-key-row .field > span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-d);
+}
+.api-key-row .field small {
+  font-size: 11px;
+  color: var(--mut-d);
+  font-weight: 400;
+}
+.account-settings .secret-control {
+  position: relative;
+}
+.account-settings .secret-control input {
+  width: 100%;
+  padding: 9px 34px 9px 11px;
+  background: var(--inset);
+  border: 1px solid #59697f;
+  border-radius: 7px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.account-settings .secret-control input:focus {
+  border-color: #99c1f0;
+}
+.account-settings .key-badge {
+  position: absolute;
+  right: 10px;
+  pointer-events: auto;
+}
+.key-row-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 2px;
+}
+.key-row-footer .field-note {
+  font-size: 11px;
+  margin: 0;
+}
+.key-row-footer .account-actions {
+  margin: 0;
+}
+.key-delete-control {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.key-delete-icon {
+  display: none;
+}
+.key-delete-control:is(:hover, :focus-visible):not(:disabled) .key-check-icon {
+  display: none;
+}
+.key-delete-control:is(:hover, :focus-visible):not(:disabled) .key-delete-icon {
+  display: inline;
+  color: #ff8e88;
+}
+.key-delete-dialog {
+  width: min(340px, calc(100vw - 40px));
+  padding: 20px;
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  background: var(--chrome2);
+  color: var(--ink-d);
+  box-shadow: 0 12px 48px #0008;
+}
+.key-delete-dialog::backdrop {
+  background: #0008;
+}
+.key-delete-dialog h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.key-delete-dialog p {
+  margin: 0 0 18px;
+  font-size: 13px;
+}
+.key-delete-dialog .account-actions {
+  justify-content: flex-end;
+}
+.key-delete-confirm {
+  color: #ffaaa5;
+  border-color: #87514f;
+}
+.access-footnote {
+  font-size: 11px;
+  color: var(--mut-d);
+  line-height: 1.5;
+  margin: 0 0 12px;
+  max-width: 50ch;
+}
+.access-disclosure {
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+}
+.access-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--ink-d);
+  font-size: 13px;
+  font-weight: 550;
+}
+.access-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.access-disclosure > summary::after {
+  content: "⌄";
+  margin-left: auto;
+  color: var(--mut-d);
+  font-size: 17px;
+}
+.access-disclosure[open] > summary::after {
+  content: "⌃";
+}
+.access-disclosure summary small {
+  display: block;
+  color: var(--mut-d);
+  font-weight: 400;
+  font-size: 11px;
+  margin-top: 3px;
+}
+.access-disclosure > form,
+.access-disclosure > dl {
+  padding-bottom: 12px;
+}
+.access-disclosure .form-grid {
+  grid-template-columns: 1fr;
+}
+.access-capabilities {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 18px 0 0;
+  background: none;
+}
+.custom-access .field > span {
+  font-weight: 550;
+}
+.custom-access .key-row-footer {
+  margin: 12px 0;
+}
+.custom-access .account-actions button:not(.text-button) {
+  border-color: #7791b1;
+}
+.hosted-signin {
+  margin: 0 0 16px;
+}
+.hosted-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.hosted-identity > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.hosted-identity strong {
+  display: block;
+  font-size: 14px;
+}
+.hosted-identity small {
+  display: block;
+  color: var(--mut-d);
+  margin-top: 4px;
+}
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #63cf90;
+  flex: none;
+}
+.hosted-allowance {
+  padding-top: 14px;
+}
+.hosted-allowance .allowance-heading {
+  font-size: 13px;
+  align-items: baseline;
+}
+.hosted-allowance .allowance-heading strong {
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+.hosted-allowance .allowance-heading strong span {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mut-d);
+}
+.allowance-refresh {
+  font-size: 12px;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.service-diagnostics {
+  padding-bottom: 16px;
+}
+@media (max-width: 540px) {
+  .settings-head {
+    padding: 12px 16px;
+  }
+  .settings-scroll {
+    padding: 12px 16px;
+  }
+  .access-tabs [role="tab"] {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+  .api-key-row .field {
+    flex-wrap: wrap;
+    gap: 3px 10px;
+  }
+  .key-row-footer {
+    align-items: center;
+  }
+}
+
+.settings-dialog {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+}
+.settings-dialog * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line2) transparent;
+}
+.settings-dialog summary:focus-visible {
+  outline: 2px solid var(--steel);
+  outline-offset: 2px;
+}

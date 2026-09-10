@@ -48,11 +48,14 @@ pub fn client() -> Result<reqwest::Client> {
         })
 }
 pub fn validate_key_format(key: &str) -> Result<()> {
-    if key.len() < 10 || key.len() > 4096 || !key.bytes().all(|b| b.is_ascii_graphic()) {
+    if key.chars().any(char::is_whitespace) {
         return Err(AppError::new(
             ErrorCode::Validation,
-            "Enter an OpenRouter API key without spaces inside it.",
+            "API keys cannot contain spaces or line breaks.",
         ));
+    }
+    if key.len() < 10 || key.len() > 4096 || !key.bytes().all(|b| b.is_ascii_graphic()) {
+        return Err(AppError::new(ErrorCode::Validation, "Invalid API key."));
     }
     Ok(())
 }
@@ -69,10 +72,7 @@ async fn verify_key_at(client: &reqwest::Client, key: &str, url: &str) -> Result
         ))?;
     if response.status().as_u16() != 200 {
         let detail = match response.status().as_u16() {
-            401 | 403 => {
-                "OpenRouter rejected this API key. Check that it is active and copied completely."
-                    .to_string()
-            }
+            401 | 403 => "OpenRouter rejected this API key.".to_string(),
             429 => {
                 "OpenRouter rate-limited key verification. Wait before trying again.".to_string()
             }
@@ -159,13 +159,10 @@ pub async fn complete(
     key: &str,
     dispatch: &crate::execution::Dispatch,
 ) -> Result<Completion> {
-    let url = match dispatch.route {
-        ConnectionRoute::Hosted => format!("{}/v1/chat/completions", crate::hosted::ORIGIN),
-        ConnectionRoute::Openrouter => "https://openrouter.ai/api/v1/chat/completions".into(),
-    };
+    let url = &dispatch.target.url;
     request(
         client,
-        &url,
+        url,
         key,
         &dispatch.model,
         &dispatch.messages,
@@ -186,6 +183,9 @@ pub fn payload(
         ));
     }
     let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":2048,"temperature":0.7,"reasoning":{"enabled":false}});
+    if route == ConnectionRoute::Custom {
+        payload.as_object_mut().expect("object").remove("reasoning");
+    }
     if route == ConnectionRoute::Openrouter {
         payload["provider"] = serde_json::json!({"allow_fallbacks":false});
     }
@@ -200,10 +200,12 @@ async fn request(
     route: ConnectionRoute,
     install: &str,
 ) -> Result<Completion> {
-    let request = client
-        .post(url)
-        .bearer_auth(key)
-        .json(&payload(model, messages, route)?);
+    let request = client.post(url).json(&payload(model, messages, route)?);
+    let request = if key.is_empty() {
+        request
+    } else {
+        request.bearer_auth(key)
+    };
     let request = if route == ConnectionRoute::Hosted {
         crate::hosted::identity(request, install)
     } else {
@@ -238,6 +240,21 @@ async fn request(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn validate_key_messages_distinguish_whitespace() {
+        assert_eq!(
+            super::validate_key_format("bad").unwrap_err().message,
+            "Invalid API key."
+        );
+        assert_eq!(
+            super::validate_key_format("key with spaces")
+                .unwrap_err()
+                .message,
+            "API keys cannot contain spaces or line breaks."
+        );
+        assert!(super::validate_key_format("test-credential").is_ok());
+    }
+
     use super::*;
     #[test]
     fn hosted_payload_obeys_service_routing_and_model_contract() {
@@ -291,6 +308,14 @@ mod transport_tests {
         body: &str,
         extra: &str,
     ) -> (String, std::thread::JoinHandle<serde_json::Value>) {
+        server_auth(status, body, extra, true)
+    }
+    fn server_auth(
+        status: &str,
+        body: &str,
+        extra: &str,
+        auth: bool,
+    ) -> (String, std::thread::JoinHandle<serde_json::Value>) {
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}/chat/completions", listener.local_addr().unwrap());
         let response = format!(
@@ -313,11 +338,16 @@ mod transport_tests {
                 }
             };
             let headers = String::from_utf8(received[..end].to_vec()).unwrap();
-            assert!(
+            assert_eq!(
                 headers
                     .to_lowercase()
-                    .contains("authorization: bearer test-credential")
+                    .contains("authorization: bearer test-credential"),
+                auth
             );
+            if !auth {
+                assert!(!headers.to_lowercase().contains("authorization:"));
+            }
+
             let length: usize = headers
                 .lines()
                 .find_map(|line| {
@@ -446,5 +476,31 @@ mod transport_tests {
             destination.accept().unwrap_err().kind(),
             std::io::ErrorKind::WouldBlock
         );
+    }
+    #[tokio::test]
+    async fn custom_chat_omits_vendor_fields_and_all_auth_when_none_selected() {
+        let (url, worker) = server_auth(
+            "200 OK",
+            r#"{"id":"local","model":"my-model","choices":[{"finish_reason":"stop","message":{"content":"Hola"}}]}"#,
+            "",
+            false,
+        );
+        let output = request(
+            &client().unwrap(),
+            &url,
+            "",
+            "my-model",
+            &[],
+            ConnectionRoute::Custom,
+            "private-install",
+        )
+        .await
+        .unwrap();
+        assert_eq!(output.actual_model, "my-model");
+        assert_eq!(output.input_tokens, None);
+        let body = worker.join().unwrap();
+        assert!(body.get("provider").is_none());
+        assert!(body.get("reasoning").is_none());
+        assert_eq!(body["model"], "my-model");
     }
 }

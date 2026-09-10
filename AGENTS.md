@@ -27,7 +27,9 @@ backups or data-conversion work.
 
 ## Collaboration
 
-Keep communication concrete and concise. Continue authorized design work and flag
+Keep communication concrete and concise. Product UI uses plain functional labels:
+no marketing copy, slogans, saccharine encouragement or filler. Settings must be
+compact, with related inputs grouped and secondary details collapsed. Continue authorized design work and flag
 meaningful decisions. Ask for user checks only when there is a specific artifact
 to review. Distinguish design review, source implementation, automated verification
 and a running application. Explain exactly what is ready to inspect.

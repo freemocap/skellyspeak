@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { KeyBadge } from "./KeyBadge";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { ConnectionConfig } from "./contracts";
 import { Field, ErrorNotice } from "./Fields";
@@ -7,7 +14,15 @@ import { errorMessage } from "./directory";
 export function ConnectionForm({
   onBusyChange,
   onChanged,
+  children,
+  disabled = false,
+  modelsOpen,
+  onModelsOpenChange,
 }: {
+  children?: ReactNode;
+  disabled?: boolean;
+  modelsOpen?: boolean;
+  onModelsOpenChange?: (open: boolean) => void;
   onBusyChange: (busy: boolean) => void;
   onChanged: () => Promise<void>;
 }) {
@@ -15,7 +30,6 @@ export function ConnectionForm({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [key, setKey] = useState("");
-  const [show, setShow] = useState(false);
   const [standard, setStandard] = useState("");
   const [fast, setFast] = useState("");
   const [check, setCheck] = useState<"idle" | "checking" | "valid" | "invalid">(
@@ -113,7 +127,6 @@ export function ConnectionForm({
       });
       adopt(value);
       setKey("");
-      setShow(false);
       setSaved(true);
       setDirty(false);
       await onChanged();
@@ -141,151 +154,167 @@ export function ConnectionForm({
       {!config ? (
         <button onClick={load}>Load connection settings</button>
       ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void save();
-          }}
-        >
-          <fieldset disabled={busy} className="connection-fields">
-            <label className="field" htmlFor="openrouter-key">
-              <span>OpenRouter API key</span>
-            </label>
-            <div className="secret-control">
-              <input
-                id="openrouter-key"
-                name="apiKey"
-                type={show ? "text" : "password"}
-                value={key}
-                onChange={(e) => {
-                  setKey(e.target.value);
-                  edited();
-                }}
-                placeholder={
-                  config.ownKeyConfigured
-                    ? "Key saved · enter a replacement"
-                    : "sk-or-…"
-                }
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                required={!config.ownKeyConfigured}
-                maxLength={4096}
-              />
-              <span
-                className={`key-badge ${check}`}
-                role="status"
-                aria-label={
-                  check === "valid"
-                    ? "API key validated"
-                    : check === "invalid"
-                      ? "API key not validated"
-                      : check === "checking"
-                        ? "Checking API key"
-                        : "API key not checked"
-                }
-                title={detail || "API key not checked"}
-              >
-                {check === "valid"
-                  ? "✓"
-                  : check === "invalid"
-                    ? "✕"
-                    : check === "checking"
-                      ? "…"
-                      : ""}
-              </span>
-              <button
-                type="button"
-                aria-label={show ? "Hide API key" : "Show API key"}
-                aria-pressed={show}
-                onClick={() => setShow(!show)}
-              >
-                {show ? "Hide" : "Show"}
-              </button>
-            </div>
-            {check === "invalid" && (
-              <p className="key-status invalid" role="alert">
-                {detail}
-              </p>
-            )}
-            <p className="field-note">
-              Your key stays in the system keychain. Chat goes directly to
-              OpenRouter and is billed to your OpenRouter account.
-            </p>
-            <Field label="Standard model · Partner and coach replies">
-              <input
-                name="standardModel"
-                value={standard}
-                required
-                maxLength={160}
-                onChange={(e) => {
-                  setStandard(e.target.value);
-                  edited();
-                }}
-              />
-            </Field>
-            <Field label="Fast model · Smaller tasks">
-              <input
-                name="fastModel"
-                value={fast}
-                required
-                maxLength={160}
-                onChange={(e) => {
-                  setFast(e.target.value);
-                  edited();
-                }}
-              />
-            </Field>
-            <p className="field-note">
-              Fast has no active assignments yet. Key verification checks
-              authentication; model access and available credits are checked
-              when you send.
-            </p>
-            <p className="field-note" role="status">
-              {error
-                ? "Changes not saved"
-                : busy || dirty
-                  ? "Saving…"
-                  : saved
-                    ? "All changes saved"
-                    : "Settings save automatically"}
-            </p>
-            {error && (
-              <button
-                type="button"
-                onClick={() => {
-                  setError(null);
-                  void save();
-                }}
-              >
-                Retry save
-              </button>
-            )}
-            {config.ownKeyConfigured && (
-              <button
-                type="button"
-                onClick={() => {
-                  setBusy(true);
-                  setError(null);
-                  void invoke<ConnectionConfig>("disconnect", {
-                    expectedRevision: config.revision,
-                  })
-                    .then(async (value) => {
-                      adopt(value);
-                      setKey("");
-                      setDirty(false);
-                      setSaved(false);
-                      await onChanged();
+        <>
+          <form
+            className="api-key-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void save();
+            }}
+          >
+            <fieldset disabled={busy || disabled} className="connection-fields">
+              <label className="field" htmlFor="openrouter-key">
+                <span>OpenRouter API key</span>
+                <small id="openrouter-purpose">Chat & coaching</small>
+              </label>
+              <div className="secret-control">
+                <input
+                  id="openrouter-key"
+                  aria-label="OpenRouter API key"
+                  aria-describedby="openrouter-purpose"
+                  name="apiKey"
+                  type="password"
+                  value={key}
+                  onChange={(e) => {
+                    setKey(e.target.value);
+                    edited();
+                  }}
+                  placeholder={
+                    config.ownKeyConfigured
+                      ? "Key saved · enter a replacement"
+                      : "sk-or-…"
+                  }
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  required={!config.ownKeyConfigured}
+                  maxLength={4096}
+                />
+                <KeyBadge
+                  state={check}
+                  label="OpenRouter API key"
+                  detail={detail}
+                  configured={config.ownKeyConfigured}
+                  disabled={busy || disabled || (!key && dirty)}
+                  onClear={
+                    key
+                      ? () => {
+                          ++sequence.current;
+                          setKey("");
+                          setError(null);
+                          setSaved(false);
+                          setCheck("idle");
+                          setDetail("");
+                          setDirty(
+                            standard !== config.standardModel ||
+                              fast !== config.fastModel,
+                          );
+                          document.getElementById("openrouter-key")?.focus();
+                        }
+                      : undefined
+                  }
+                  onRemove={() => {
+                    setBusy(true);
+                    setError(null);
+                    void invoke<ConnectionConfig>("disconnect", {
+                      expectedRevision: config.revision,
                     })
-                    .catch((e) => setError(errorMessage(e)))
-                    .finally(() => setBusy(false));
-                }}
+                      .then(async (value) => {
+                        adopt(value);
+                        setKey("");
+                        setDirty(false);
+                        setSaved(false);
+                        await onChanged();
+                      })
+                      .catch((e) => setError(errorMessage(e)))
+                      .finally(() => setBusy(false));
+                  }}
+                />
+              </div>
+              {check === "invalid" && (
+                <p className="key-status invalid" role="alert">
+                  {detail}
+                </p>
+              )}
+              <div className="key-row-footer">
+                <p className="field-note" role="status">
+                  {error
+                    ? "Changes not saved"
+                    : busy || dirty
+                      ? "Saving…"
+                      : saved
+                        ? "All changes saved"
+                        : "Settings save automatically"}
+                </p>
+                {error && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError(null);
+                      void save();
+                    }}
+                  >
+                    Retry save
+                  </button>
+                )}
+              </div>
+            </fieldset>
+          </form>
+          {children}
+          <p className="access-footnote">
+            Stored in the system credential store. Provider charges apply.
+          </p>
+          <details
+            className="access-disclosure"
+            open={modelsOpen}
+            onToggle={(event) => onModelsOpenChange?.(event.currentTarget.open)}
+          >
+            <summary>
+              <span>Models</span>
+            </summary>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void save();
+              }}
+            >
+              <fieldset
+                className="connection-fields"
+                disabled={busy || disabled}
               >
-                Remove saved key
-              </button>
-            )}
-          </fieldset>
-        </form>
+                <Field label="Standard model · Partner and coach replies">
+                  <input
+                    name="standardModel"
+                    value={standard}
+                    required
+                    maxLength={160}
+                    onChange={(e) => {
+                      setStandard(e.target.value);
+                      edited();
+                    }}
+                  />
+                </Field>
+                <Field label="Fast model · Smaller tasks">
+                  <input
+                    name="fastModel"
+                    value={fast}
+                    required
+                    maxLength={160}
+                    onChange={(e) => {
+                      setFast(e.target.value);
+                      edited();
+                    }}
+                  />
+                </Field>
+                <p className="field-note">
+                  Fast has no active assignments yet. Key verification checks
+                  authentication; model access and available credits are checked
+                  when you send.
+                </p>
+              </fieldset>
+            </form>
+          </details>
+        </>
       )}
     </div>
   );

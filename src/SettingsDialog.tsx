@@ -15,7 +15,7 @@ import { LanguageSelect, ErrorNotice } from "./Fields";
 type Section = "reading" | "account" | "languages" | "shortcuts" | "about";
 const sections: { id: Section; label: string; icon: string }[] = [
   { id: "reading", label: "Reading & display", icon: "Aa" },
-  { id: "account", label: "AI access & models", icon: "◈" },
+  { id: "account", label: "AI access", icon: "◈" },
   { id: "languages", label: "Languages & learner", icon: "文" },
   { id: "shortcuts", label: "Keyboard shortcuts", icon: "⌘" },
   { id: "about", label: "About & onboarding", icon: "ⓘ" },
@@ -185,7 +185,8 @@ export function SettingsDialog({
       id: "account",
       section: "account",
       label: "Google sign-in, tokens and model settings",
-      keywords: "api key provider allowance quota usage standard fast",
+      keywords:
+        "api keys groq openrouter hosted custom url endpoint provider allowance quota usage standard fast models",
       node: (
         <AccountSettings state={account} onBusyChange={setConnectionBusy} />
       ),
@@ -338,12 +339,12 @@ export function SettingsDialog({
       </aside>
       <main className="settings-content">
         <header className="settings-head">
-          <h2>Settings</h2>
-          <p>
+          <h2>
             {query
-              ? `${visible.length} matching settings`
+              ? "Search results"
               : sections.find((item) => item.id === section)?.label}
-          </p>
+          </h2>
+          {query && <p>{visible.length} matching settings</p>}
         </header>
         <div className="settings-scroll">
           {recovery}

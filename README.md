@@ -15,7 +15,7 @@ chooser selects partners and conversations; narrow windows use Chat and Lesson t
 Unsent drafts are session-only. Avatars are static SVGs. Evidence visualizations remain independent of domain records. No skill estimates
 or XP are fabricated.
 
-Custom URLs, structured passage assistance, assessment, XP, Vibe computation
+Structured passage assistance, assessment, XP, Vibe computation
 and measured garden rendering remain planned. Standard handles partner replies;
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
@@ -78,10 +78,11 @@ available; no title or setup form is required. The plus button starts another
 conversation with copied preferences. The partner chooser opens a partner's latest
 active chat or creates one. Names and settings remain editable afterward.
 
-Record starts the desktop system microphone. Stop transcribes through the hosted
-Whisper route and inserts the text for review; Send sends it to the partner.
+Record starts the desktop system microphone. Stop transcribes through the selected
+AI route and inserts text for review; Send sends it to the partner.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
-uploaded only on Stop. Google sign-in is required for transcription. Mobile recording,
+uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
+key; custom endpoints require explicitly enabled transcription and a model ID. Mobile recording,
 auto-send and read-aloud are not implemented in this slice.
 
 The right pane contains Lesson/Analysis and a resizable **Talk to your coach** dock.
@@ -92,7 +93,7 @@ controls and word breakdowns remain pending.
 
 ## Configure and use AI
 
-Open **Sign in** in the toolbar or **Settings → AI access & models**, then choose
+Open **Settings → AI access → Hosted sign-in**, then choose
 **Sign in with Google**. Complete authentication in your system browser and return
 to the app. The account panel reports daily tokens, requests, monetary allowance and
 its reset time. Request/token amounts remaining are estimates; money is authoritative.
@@ -101,8 +102,8 @@ The session stays in the platform credential store. There is no transcript sync.
 Choose **Own OpenRouter API key** to enter a key and configure Standard/Fast models.
 Keys and model settings save automatically after typing stops, with visible pending
 and failure states. The saved key is checked automatically: a green check indicates
-accepted authentication; a red X includes an accessible failure explanation. Show/Hide applies only to
-newly entered text; saved secrets are never returned to the frontend. Model edits
+accepted authentication; a red X includes an accessible failure explanation. Key entry remains masked; saved secrets are never returned to the frontend and
+there is no Show/Hide control. Model edits
 retain the saved key when the key field is blank. Pasted surrounding whitespace is
 trimmed. Saving errors preserve the input. Clicking outside Settings or pressing
 Escape dismisses it after pending writes complete; failures keep the edits visible.
@@ -111,7 +112,7 @@ the hosted route.
 
 Verification uses OpenRouter's authenticated `GET /api/v1/key`; it does not request
 inference or prove model availability or sufficient credits. Saved state and verification
-state are separate. The custom URL adapter remains unimplemented. **Send** uses the selected route and the
+state are separate. **Send** uses the selected route and the
 captured Standard model. Replies are buffered and validated before publication.
 
 Open toolbar **AI** to inspect execution.
@@ -121,9 +122,11 @@ be resumed to Step. Cancel revokes publication and drops the local HTTP request;
 remote execution and billing may continue. Retry is explicit and may incur another
 charge. Restarted in-flight requests show unknown outcomes and never auto-retry.
 
-This build requires the current empty-workspace schema. Incompatible databases fail
-explicitly; there are no migrations, automatic deletion or backup paths. The user
-controls removal of application data before creating a fresh workspace.
+The current active workspace receives an atomic v3-to-v4 AI-configuration schema
+extension, preserving accepted messages, preferences and credential references.
+Pending work under the earlier profile is invalidated; it is never automatically
+resent. Other incompatible databases fail explicitly. No archived application data
+is imported and no automatic deletion or backup path exists.
 
 ## Check this slice
 
@@ -209,3 +212,32 @@ remaining work. Design intent does not imply implemented behavior.
 Active source, security boundaries, diagnostic contracts and deployment checks are
 documented in [server/README.md](server/README.md). The app supports an on-demand
 authenticated service status check; the matching server deployment is required.
+
+
+## AI access foundation: current source checkpoint
+
+Settings → AI access has Hosted sign-in, API keys and Custom URL tabs. API keys
+use OpenRouter for partner/coach replies and Groq Whisper for transcription.
+Custom URL uses OpenAI-compatible Chat Completions and optionally multipart audio
+transcription, with explicit Standard/Fast IDs, transcription model, base URL and
+bearer/no-auth choice. Include the service's API path (often `/v1`) in the base URL.
+HTTPS is required except on loopback. There is no automatic endpoint or key fallback.
+
+Groq key verification uses authenticated GET `/models`. Custom **Check connection**
+uses GET `/models` without inference; failure to implement model listing is reported
+explicitly and does not silently try another protocol. Successful listing establishes
+connectivity/authentication, not audio support or inference quality. Actual requests
+validate their output. Fast remains unassigned. Read-aloud is still future work.
+
+Saved API keys remain in the platform credential store; no session-only or plain-file
+storage option was added. See [credential decisions and sources](SECURITY.md).
+Native visual inspection of this change was blocked by computer-use access. Live
+Groq/custom inference and microphone permission remain unverified. Restart the
+signed native development app after Rust changes; frontend reload alone is insufficient.
+
+
+AI access layout: OpenRouter and Groq keys are grouped together, with model
+preferences collapsed below. Hosted sign-in precedes usage/service details. Access
+configuration has no toolbar button. UI wording uses functional labels and compact
+spacing. The actual React settings components were inspected in an isolated visual
+fixture at 1180×820 and 390×780; this verifies layout, not native authentication.
