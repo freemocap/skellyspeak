@@ -1,0 +1,1259 @@
+import { configureAudioVolumes } from '../lib/audio-volume'
+import { configureRewardSounds } from '../lib/reward-sounds'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import type { HostedAccount, Settings, Shortcuts } from '../types'
+import {
+  getSettings,
+  hostedAccount,
+  hostedSignIn,
+  hostedSignOut,
+  logInfo,
+  saveSettings,
+  resetSettings,
+  validateKey,
+  languages,
+} from '../lib/tauri'
+import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../lib/keyboard'
+import { FactoryReset } from './FactoryReset'
+import { DialectField } from './DialectField'
+import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
+import { displaySecret } from '../lib/secrets'
+import { speechSupported } from '../lib/speech'
+import { invoke } from '@tauri-apps/api/core'
+import { getVersion } from '@tauri-apps/api/app'
+import { mediaDevices } from '../lib/media'
+import { resetsAtLocalTime } from '../lib/quota'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { getUpdateChannel, checkForUpdate, restartIntoUpdate, type UpdateChannel, type UpdateOffer } from '../lib/updater'
+import { reportFault } from '../lib/faults'
+import { CUSTOM, HOSTED, usesCredential } from '../lib/providers'
+
+type KeyCheck = { state: 'idle' | 'checking' | 'valid' | 'invalid'; detail: string }
+
+type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
+
+/// How long an edit rests before it is written. Long enough that typing into a
+/// text field is one write rather than one per keystroke, short enough that
+/// closing the modal straight after a change still catches it.
+const AUTOSAVE_DEBOUNCE_MS = 500
+
+type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
+
+function KeyBadge({ check }: { check: KeyCheck }) {
+  if (check.state === 'idle') return null
+  if (check.state === 'checking')
+    return (
+      <span className="key-badge checking" title="checking key…">
+        ⟳
+      </span>
+    )
+  if (check.state === 'valid')
+    return (
+      <span className="key-badge valid" title={`Key valid — ${check.detail}`}>
+        ✓
+      </span>
+    )
+  return (
+    <span className="key-badge invalid" title={check.detail}>
+      ✕
+    </span>
+  )
+}
+
+/// Manual "check for updates", alongside the eager check that runs at startup.
+/// Reports the outcome inline — including "you are up to date", which the
+/// startup check has no reason to say but a person who just clicked does.
+function UpdateCheckRow() {
+  const [state, setState] = useState<'idle' | 'checking' | 'current' | 'found' | 'installing'>(
+    'idle'
+  )
+  const [found, setFound] = useState<UpdateOffer | null>(null)
+  const [channel, setChannel] = useState<UpdateChannel | null>(null)
+  const [version, setVersion] = useState<string | null>(null)
+  const [versionError, setVersionError] = useState<string | null>(null)
+  useEffect(() => {
+    void getVersion().then(setVersion).catch((error: unknown) => {
+      setVersionError('Could not load the installed version.')
+      reportFault('Loading application version', error)
+    })
+    void getUpdateChannel()
+      .then(setChannel)
+      .catch((error) => reportFault('Loading update settings', error))
+  }, [])
+
+  const check = useCallback(async () => {
+    setState('checking')
+    try {
+      const update = await checkForUpdate()
+      if (update) {
+        setFound(update)
+        setState('found')
+      } else {
+        setState('current')
+      }
+    } catch (e) {
+      reportFault('Checking for updates', e)
+      setState('idle')
+    }
+  }, [])
+
+  const act = useCallback(async () => {
+    if (!found) return
+    if (found.kind === 'download') {
+      await found.open().catch((e) => reportFault('Opening the download page', e))
+      return
+    }
+    setState('installing')
+    try {
+      await found.install()
+      await restartIntoUpdate()
+    } catch (e) {
+      reportFault('Installing update', e)
+      setState('found')
+    }
+  }, [found])
+
+  const versionDisplay = versionError
+    ? <p role="alert">{versionError}</p>
+    : <p><strong>Installed version: {version === null ? 'Loading…' : `v${version}`}</strong></p>
+
+  if (channel === 'app-store') {
+    return (
+      <div className="form-row">
+        <label>Application updates</label>
+        {versionDisplay}
+        <p className="field-note">Updates are managed through TestFlight or the App Store.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="form-row">
+      <label>Application updates</label>
+      {versionDisplay}
+      <>
+        {channel === 'download' && (
+          <p className="field-note">
+            This platform installs updates through its package manager, so SkellySpeak checks
+            for a newer release and opens the docs download page — you install it yourself.
+          </p>
+        )}
+        <>
+          <div className="key-row">
+            <button
+              type="button"
+              className="btn"
+              disabled={channel === null || state === 'checking' || state === 'installing'}
+              onClick={() => void check()}
+            >
+              {state === 'checking' ? 'Checking…' : 'Check for updates'}
+            </button>
+            {state === 'found' && found && (
+              <button type="button" className="btn primary" onClick={() => void act()}>
+                {found.kind === 'install'
+                  ? `Install ${found.version} & restart`
+                  : `Get ${found.version}`}
+              </button>
+            )}
+          </div>
+          {state === 'current' && (
+            <p className="field-note">You are running the newest version.</p>
+          )}
+          {state === 'found' && found && (
+            <p className="field-note">
+              {found.version} is available — you have {found.currentVersion}.
+            </p>
+          )}
+          {state === 'installing' && <p className="field-note">Downloading and installing…</p>}
+        </>
+      </>
+    </div>
+  )
+}
+
+/// Autosave feedback. Settings write themselves, so the footer's job is to
+/// show that it happened — and, above all, to shout if a write FAILED, because
+/// a silent failure means the user's API keys are not on disk.
+function SaveStatus({ state }: { state: SaveState }) {
+  if (state === 'error')
+    return (
+      <span className="save-status error" role="alert">
+        Not saved — check the logs
+      </span>
+    )
+  if (state === 'saving' || state === 'pending')
+    return <span className="save-status">Saving…</span>
+  if (state === 'saved') return <span className="save-status saved">Saved ✓</span>
+  return <span className="save-status hint">Changes save automatically</span>
+}
+
+/// An API key field you can just click into and type, that still never puts
+/// key material on screen.
+///
+/// Unfocused it shows the backend's mask (head 6 + bullets + tail 6) — enough
+/// to tell WHICH key is stored, useless to a shoulder or a screenshot. Sending
+/// that mask back unchanged is how `save_settings` knows to keep the stored
+/// key, so the value passes through verbatim.
+///
+/// Focused it becomes a `type="password"` box with the text pre-selected, so
+/// typing or pasting replaces the key outright and the new key is not readable
+/// either. There is no button to press first: clicking the box is the gesture.
+function SecretField({
+  label,
+  value,
+  placeholder,
+  onChange,
+  onEditingChange,
+  check,
+}: {
+  label: string
+  value: string
+  placeholder: string
+  onChange: (v: string) => void
+  /// Held true while focused, so autosave waits for blur rather than
+  /// persisting a half-typed key over a good one.
+  onEditingChange: (editing: boolean) => void
+  check: KeyCheck
+}) {
+  const [focused, setFocused] = useState(false)
+
+  return (
+    <div className="form-row">
+      <label>{label}</label>
+      <div className="key-row">
+        <input
+          className="key-input"
+          // Password while focused so nothing readable is ever rendered; the
+          // masked text only appears at rest, where it is not editable content.
+          type={focused ? 'password' : 'text'}
+          value={focused ? value : displaySecret(value)}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck={false}
+          aria-label={label}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={(e) => {
+            setFocused(true)
+            onEditingChange(true)
+            // Select-all so the first keystroke or paste replaces the key
+            // instead of appending to the mask.
+            e.target.select()
+          }}
+          onBlur={() => {
+            setFocused(false)
+            onEditingChange(false)
+          }}
+        />
+        <KeyBadge check={check} />
+      </div>
+    </div>
+  )
+}
+
+/// Shortcut recorder: click to arm, press a combo. Esc resets to default.
+function ShortcutField({
+  label,
+  action,
+  value,
+  ui,
+  onChange,
+}: {
+  label: string
+  action: ShortcutAction
+  value: string
+  ui: UiLang
+  onChange: (v: string) => void
+}) {
+  const [recording, setRecording] = useState(false)
+  // Shortcut labels localize via settings.sc.<action>; falls back to the
+  // English label when the key is missing.
+  const displayLabel = tOr(ui, 'settings.sc.' + action, label)
+  return (
+    <div className="shortcut-field">
+      <span className="shortcut-label">{displayLabel}</span>
+      <input
+        data-shortcut-capture={recording || undefined}
+        className="shortcut-input"
+        value={recording ? 'press keys…' : value || SHORTCUT_DEFAULTS[action]}
+        readOnly
+        onFocus={() => setRecording(true)}
+        onBlur={() => setRecording(false)}
+        onKeyDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (e.key === 'Escape') {
+            onChange(SHORTCUT_DEFAULTS[action])
+            ;(e.target as HTMLInputElement).blur()
+            return
+          }
+          if (e.key === 'Control' || e.key === 'Alt' || e.key === 'Shift' || e.key === 'Meta')
+            return
+          onChange(comboFromEvent(e))
+          ;(e.target as HTMLInputElement).blur()
+        }}
+      />
+    </div>
+  )
+}
+
+const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string }[] = [
+  { id: 'reading', labelKey: 'Reading & display', icon: 'Aa', descKey: 'Text size, spacing, and reading aids' },
+  {
+    id: 'keys',
+    labelKey: 'settings.section.keys',
+    icon: '🔑',
+    descKey: 'settings.desc.keys',
+  },
+  {
+    id: 'models',
+    labelKey: 'settings.section.models',
+    icon: '🧠',
+    descKey: 'settings.desc.models',
+  },
+  {
+    id: 'languages',
+    labelKey: 'settings.section.languages',
+    icon: '🌐',
+    descKey: 'settings.desc.languages',
+  },
+  {
+    id: 'voice',
+    labelKey: 'settings.section.voice',
+    icon: '🎙',
+    descKey: 'settings.desc.voice',
+  },
+  {
+    id: 'shortcuts',
+    labelKey: 'settings.section.shortcuts',
+    icon: '⌨',
+    descKey: 'settings.desc.shortcuts',
+  },
+  {
+    id: 'updates',
+    labelKey: 'settings.section.updates',
+    icon: '⬆',
+    descKey: 'settings.desc.updates',
+  },
+]
+
+const SECTION_LABEL_KEY: Record<SectionId, string> = Object.fromEntries(
+  SECTIONS.map((s) => [s.id, s.labelKey])
+) as Record<SectionId, string>
+
+interface RowDef {
+  section: SectionId
+  label: string
+  kw: string
+  node: ReactNode
+  /// Rows that do not apply to the current configuration — e.g. the custom
+  /// server fields while the provider is set to cloud. Hidden everywhere,
+  /// search included: offering a field that is ignored is worse than absent.
+  hidden?: boolean
+}
+
+const SHORTCUT_ROWS: { action: ShortcutAction; label: string }[] = [
+  { action: 'mic', label: 'Toggle microphone' },
+  { action: 'speak', label: 'Speak last reply' },
+  { action: 'panel', label: 'Toggle analysis panel' },
+  { action: 'settings', label: 'Open settings' },
+]
+
+const TTS_VOICES = [
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'fable',
+  'nova',
+  'onyx',
+  'sage',
+  'shimmer',
+  'verse',
+]
+
+export function SettingsModal({
+  onClose,
+  onSettingsChanged,
+}: {
+  onClose: () => void
+  /// Called after every successful autosave so the rest of the app can pick
+  /// the new settings up. It does NOT mean "the user is finished" — this fires
+  /// mid-edit, so nothing hung off it may close the modal.
+  onSettingsChanged: (s: Settings) => void
+}) {
+  const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
+  const [loadError, setLoadError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!settings) return
+    try { configureAudioVolumes(settings) }
+    catch (error) {
+      reportFault('Audio settings', error)
+      setLoadError(String(error instanceof Error ? error.message : error))
+      setSettings(null)
+    }
+  }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])
+  // The last state known to be on disk. Autosave fires whenever `settings`
+  // drifts from this, and this catches up once the write lands.
+  const [persisted, setPersisted] = useState<Settings | null>(null)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
+  // True while an API key box has focus. Autosave holds off until blur so a
+  // half-typed key is never written over a good stored one.
+  const [editingSecret, setEditingSecret] = useState(false)
+  // Normalised, because the two recorders name devices differently: the
+  // browser has opaque deviceIds with separate labels, the core has names that
+  // are both. Either way `microphone_device_id` stores the id.
+  const [mics, setMics] = useState<{ id: string; label: string }[]>([])
+  const [openrouterCheck, setOpenrouterCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
+  const [groqCheck, setGroqCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
+  const [account, setAccount] = useState<HostedAccount | null>(null)
+  const [signingIn, setSigningIn] = useState(false)
+  const [section, setSection] = useState<SectionId>('keys')
+  const [search, setSearch] = useState('')
+  const isMobile = useIsMobile()
+  // Android's WebView ships no speechSynthesis — offer the OS voice only where
+  // it can actually work, rather than letting it be picked and do nothing.
+  const osVoiceAvailable = speechSupported()
+  // The app's UI language follows the learner's NATIVE language.
+  const ui = uiLangFromNative(settings?.native_language)
+
+  useEffect(() => {
+    logInfo('[settings] modal opened')
+    void getSettings()
+      .then((s) => {
+        setSettings(s)
+        setPersisted(s)
+        logInfo('[settings] loaded')
+      })
+      .catch((e) => {
+        reportFault('Loading settings', e)
+        setLoadError(String(e instanceof Error ? e.message : e))
+        setSettings(null)
+      })
+  }, [])
+
+  const listMics = useCallback(async () => {
+    try {
+      if (await invoke<boolean>('mic_native')) {
+        // The core records on this platform, so it owns the device list too —
+        // asking the webview would offer devices that cannot be selected.
+        const names = await invoke<string[]>('mic_devices')
+        setMics(names.map((name) => ({ id: name, label: name })))
+        return
+      }
+      const media = mediaDevices()
+      const stream = await media.getUserMedia({ audio: true })
+      stream.getTracks().forEach((t) => t.stop())
+      const devices = await media.enumerateDevices()
+      setMics(
+        devices
+          .filter((d) => d.kind === 'audioinput')
+          .map((d, i) => ({ id: d.deviceId, label: d.label || `Microphone ${i + 1}` }))
+      )
+    } catch (e) {
+      reportFault('Listing microphones', e)
+    }
+  }, [])
+
+  // Mic enumeration only when the Audio section is visited, so opening
+  // Settings does not trip the mic-permission prompt as a side effect.
+  useEffect(() => {
+    if (section === 'voice') void listMics()
+  }, [section, listMics])
+
+  // Validate both keys as they change (debounced) — including on first load.
+  useEffect(() => {
+    const key = settings?.openrouter_key
+    if (key === undefined) return
+    if (!key.trim()) {
+      setOpenrouterCheck({ state: 'idle', detail: '' })
+      return
+    }
+    setOpenrouterCheck({ state: 'checking', detail: '' })
+    const t = setTimeout(() => {
+      void validateKey('openrouter', key)
+        .then((s) =>
+          setOpenrouterCheck({ state: s.valid ? 'valid' : 'invalid', detail: s.detail })
+        )
+        .catch((e) => setOpenrouterCheck({ state: 'invalid', detail: String(e) }))
+    }, 600)
+    return () => clearTimeout(t)
+  }, [settings?.openrouter_key])
+
+  useEffect(() => {
+    const key = settings?.groq_key
+    if (key === undefined) return
+    if (!key.trim()) {
+      setGroqCheck({ state: 'idle', detail: '' })
+      return
+    }
+    setGroqCheck({ state: 'checking', detail: '' })
+    const t = setTimeout(() => {
+      void validateKey('groq', key)
+        .then((s) => setGroqCheck({ state: s.valid ? 'valid' : 'invalid', detail: s.detail }))
+        .catch((e) => setGroqCheck({ state: 'invalid', detail: String(e) }))
+    }, 600)
+    return () => clearTimeout(t)
+  }, [settings?.groq_key])
+
+  // ── Hosted service ──────────────────────────────────────────────────────
+  // The session lives in the Rust settings; the webview never sees the token,
+  // only the address it belongs to and what allowance is left.
+  const mode = settings?.provider_mode ?? HOSTED
+  const hosted = mode === HOSTED
+  const signedIn = !!settings?.hosted_email
+
+  useEffect(() => {
+    if (!hosted || !signedIn) {
+      setAccount(null)
+      return
+    }
+    void hostedAccount()
+      .then(setAccount)
+      // An expired or revoked session must say so on screen, not leave a
+      // stale allowance sitting there looking fine.
+      .catch((e) => reportFault('Reading your hosted account', e))
+  }, [hosted, signedIn])
+
+  // Sign-in writes the session on the Rust side, so the copy held here is
+  // stale the moment it returns — re-read it rather than patching it locally.
+  const refreshFromBackend = useCallback(async () => {
+    const fresh = await getSettings()
+    setSettings(fresh)
+    setPersisted(fresh)
+    onSettingsChanged(fresh)
+  }, [onSettingsChanged])
+
+  const signIn = useCallback(async () => {
+    setSigningIn(true)
+    try {
+      setAccount(await hostedSignIn())
+      await refreshFromBackend()
+    } catch (e) {
+      reportFault('Signing in to the hosted service', e)
+    } finally {
+      setSigningIn(false)
+    }
+  }, [refreshFromBackend])
+
+  const signOut = useCallback(async () => {
+    try {
+      await hostedSignOut()
+      setAccount(null)
+      await refreshFromBackend()
+    } catch (e) {
+      reportFault('Signing out of the hosted service', e)
+    }
+  }, [refreshFromBackend])
+
+  // ── Autosave ────────────────────────────────────────────────────────────
+  // There is no Save button. Every edit is written after a short pause, so a
+  // key typed into the box is on disk whether or not the modal is dismissed.
+  const dirty = !!settings && !!persisted && JSON.stringify(settings) !== JSON.stringify(persisted)
+
+  useEffect(() => {
+    if (!settings || !dirty) return
+    // Wait for the key box to lose focus — writing mid-keystroke would put a
+    // truncated key on disk and clobber the working one.
+    if (editingSecret) return
+    setSaveState('pending')
+    const timer = setTimeout(() => {
+      setSaveState('saving')
+      logInfo('[settings] autosaving')
+      saveSettings(settings)
+        .then(() => {
+          logInfo('[settings] autosaved ✓')
+          setPersisted(settings)
+          setSaveState('saved')
+          onSettingsChanged(settings)
+        })
+        .catch((e) => {
+          // A failed write means the keys are NOT on disk. The footer says so
+          // inline, and the fault bus puts it at the top of the app as well.
+          reportFault('Saving settings', e)
+          setSaveState('error')
+        })
+    }, AUTOSAVE_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [settings, dirty, editingSecret, onSettingsChanged])
+
+  // Escape closes Settings unless a nested dialog or shortcut capture owns it.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return
+      // ShortcutField binds Escape to "reset this shortcut to its default";
+      // while it is recording, Escape belongs to it, not to the modal.
+      const active = document.activeElement as HTMLElement | null
+      if (active?.hasAttribute('data-shortcut-capture')) return
+      onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Closing flushes pending edits before refreshing the app from persisted
+  // settings, including credentials written by native authentication.
+  const settingsChangedRef = useRef(onSettingsChanged)
+  settingsChangedRef.current = onSettingsChanged
+  const pendingWrite = useRef<Settings | null>(null)
+  useEffect(() => {
+    pendingWrite.current = dirty || editingSecret ? settings : null
+  }, [settings, dirty, editingSecret])
+  useEffect(
+    () => () => {
+      const outstanding = pendingWrite.current
+      const saved = outstanding ? saveSettings(outstanding) : Promise.resolve()
+      void saved.then(() => getSettings())
+        .then(fresh => settingsChangedRef.current(fresh))
+        .catch(error => reportFault('Applying settings on close', error))
+    },
+    []
+  )
+
+  // Let "Saved" fade back to nothing so the footer is not permanently shouting.
+  useEffect(() => {
+    if (saveState !== 'saved') return
+    const t = setTimeout(() => setSaveState('idle'), 1800)
+    return () => clearTimeout(t)
+  }, [saveState])
+
+  const resetAll = useCallback(async () => {
+    if (
+      !window.confirm(
+        'Reset every setting to its default?\n\nThis also clears both API keys — you will need to paste them in again.'
+      )
+    )
+      return
+    try {
+      logInfo('[settings] resetting all settings to defaults')
+      const fresh = await resetSettings()
+      setSettings(fresh)
+      setPersisted(fresh)
+      setSaveState('saved')
+      onSettingsChanged(fresh)
+    } catch (e) {
+      reportFault('Resetting settings', e)
+      setSaveState('error')
+    }
+  }, [onSettingsChanged])
+
+  if (!settings) {
+    return (
+      <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+        <div className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
+          {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>Close</button></> : <p className="center-note">Loading…</p>}
+        </div>
+      </div>
+    )
+  }
+
+  const setShortcuts = (patch: Partial<Shortcuts>) =>
+    setSettings({ ...settings, shortcuts: { ...settings.shortcuts, ...patch } })
+
+  // Localized display label for a registry row (English label = search index).
+  const L = (id: string, fallback: string) => tOr(ui, 'settings.row.' + id, fallback)
+
+  // ── Row registry: adding a setting = one entry here ──────────────────────
+  // Display labels localize via the settings.row.<id> convention (English
+  // fallbacks double as the search index).
+  const rows: Record<string, RowDef> = {
+    provider_mode: {
+      section: 'keys',
+      label: L('provider_mode', 'AI provider'),
+      kw: 'provider endpoint server ollama lm studio local custom openrouter cloud url',
+      node: (
+        <div className="form-row">
+          <label>AI provider</label>
+          <select
+            value={settings.provider_mode}
+            onChange={(e) => setSettings({ ...settings, provider_mode: e.target.value })}
+          >
+            <option value="hosted">Free — sign in, no API key needed</option>
+            <option value="cloud">Cloud — OpenRouter with your API key</option>
+            <option value="custom">Your own server — Ollama, LM Studio, vLLM…</option>
+          </select>
+          {hosted && (
+            <p className="field-note">
+              Chat, voice input and spoken replies all go through SkellySpeak's own
+              service, with a daily allowance. No API keys of your own required.
+            </p>
+          )}
+          {mode === CUSTOM && (
+            <p className="field-note">
+              Chat and analysis go to your server. Voice input still uses Groq, and cloud
+              speech still uses OpenRouter, so those keys stay relevant if you use them.
+              Smaller local models often cannot honour the strict JSON schemas this app
+              requires, so some panels may fail where a hosted model succeeds.
+            </p>
+          )}
+        </div>
+      ),
+    },
+    hosted_account: {
+      section: 'keys',
+      label: L('hosted_account', 'SkellySpeak account'),
+      kw: 'sign in account google login free hosted allowance quota usage tokens',
+      hidden: !hosted,
+      node: (
+        <div className="form-row">
+          <label>SkellySpeak account</label>
+          {signedIn ? (
+            <>
+              <p className="field-note">
+                Signed in as <strong>{settings.hosted_email}</strong>
+              </p>
+              {account && (
+                <>
+                  <p className="field-note">
+                    ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} used
+                    today{account.custom_limit ? ' (custom limit)' : ''} · resets at{' '}
+                    {account.resets} ({resetsAtLocalTime()} your time)
+                  </p>
+                  {/* The dollar figure is the truth, but nobody plans an
+                      afternoon in fractions of a cent. The estimate comes from
+                      this account's own average cost per turn so far. */}
+                  <p className="field-note">
+                    {account.requests_today > 0
+                      ? `About ${account.estimated_requests_remaining.toLocaleString()} more AI requests (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
+                      : 'No usage yet today'}
+                  </p>
+                </>
+              )}
+              <button type="button" className="ghost" onClick={() => void signOut()}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="primary"
+                disabled={signingIn}
+                onClick={() => void signIn()}
+              >
+                {signingIn ? 'Waiting for your browser…' : 'Sign in with Google'}
+              </button>
+              <p className="field-note">
+                Opens your browser — Google does not allow signing in inside an app
+                window. Free while SkellySpeak is in testing.
+              </p>
+            </>
+          )}
+        </div>
+      ),
+    },
+    custom_base_url: {
+      section: 'keys',
+      label: L('custom_base_url', 'Server address'),
+      kw: 'server address url base endpoint ollama lm studio localhost port',
+      hidden: mode !== CUSTOM,
+      node: (
+        <div className="form-row">
+          <label>Server address</label>
+          <input
+            className="field"
+            value={settings.custom_base_url}
+            placeholder="http://localhost:11434/v1"
+            spellCheck={false}
+            onChange={(e) => setSettings({ ...settings, custom_base_url: e.target.value })}
+          />
+          <p className="field-note">
+            Include the version path. Ollama is <code>http://localhost:11434/v1</code>,
+            LM Studio is <code>http://localhost:1234/v1</code>.
+          </p>
+        </div>
+      ),
+    },
+    custom_model: {
+      section: 'keys',
+      label: L('custom_model', 'Model name'),
+      kw: 'model name local llama qwen mistral gemma',
+      hidden: mode !== CUSTOM,
+      node: (
+        <div className="form-row">
+          <label>Model name</label>
+          <input
+            className="field"
+            value={settings.custom_model}
+            placeholder="llama3.2"
+            spellCheck={false}
+            onChange={(e) => setSettings({ ...settings, custom_model: e.target.value })}
+          />
+          <p className="field-note">The name your server uses, not an OpenRouter model id.</p>
+        </div>
+      ),
+    },
+    custom_api_key: {
+      section: 'keys',
+      label: L('custom_api_key', 'Server API key (optional)'),
+      kw: 'custom server api key optional local token',
+      hidden: mode !== CUSTOM,
+      node: (
+        <SecretField
+          label="Server API key (optional)"
+          value={settings.custom_api_key}
+          placeholder="usually not needed"
+          check={{ state: 'idle', detail: '' }}
+          onChange={(v) => setSettings({ ...settings, custom_api_key: v })}
+          onEditingChange={setEditingSecret}
+        />
+      ),
+    },
+    openrouter_key: {
+      section: 'keys',
+      // Visible for a custom server too: cloud speech goes to OpenRouter
+      // whichever provider handles chat, so hiding it here left the user told
+      // to add a key in Settings on a screen that would not show the field.
+      // Hosted mode proxies everything and needs no key at all.
+      hidden: !usesCredential(mode, 'openrouter'),
+      label: L('openrouter_key', 'OpenRouter API key'),
+      kw: 'openrouter api key credential token chat tutor',
+      node: (
+        <SecretField
+          label="OpenRouter API key"
+          value={settings.openrouter_key}
+          placeholder="sk-or-…"
+          check={openrouterCheck}
+          onChange={(v) => setSettings({ ...settings, openrouter_key: v })}
+          onEditingChange={setEditingSecret}
+        />
+      ),
+    },
+    groq_key: {
+      section: 'keys',
+      hidden: !usesCredential(mode, 'groq'),
+      label: L('groq_key', 'Groq API key (speech-to-text)'),
+      kw: 'groq api key credential speech transcription stt whisper voice',
+      node: (
+        <SecretField
+          label="Groq API key (speech-to-text)"
+          value={settings.groq_key}
+          placeholder="gsk_…"
+          check={groqCheck}
+          onChange={(v) => setSettings({ ...settings, groq_key: v })}
+          onEditingChange={setEditingSecret}
+        />
+      ),
+    },
+    worker_model: {
+      section: 'models',
+      label: L('worker_model', 'Worker model (tutor · analysis · coach)'),
+      kw: 'worker model llm gemini openai deepseek tutor analysis speed',
+      node: (
+        <div className="form-row">
+          <label>Worker model</label>
+          <input
+            value={settings.openrouter_model}
+            onChange={(e) => setSettings({ ...settings, openrouter_model: e.target.value })}
+          />
+        </div>
+      ),
+    },
+    observer_model: {
+      section: 'models',
+      label: L('observer_model', 'Observer model (reasoning · planning)'),
+      kw: 'observer model reasoning planning coach agent',
+      node: (
+        <div className="form-row">
+          <label>Observer model</label>
+          <input
+            value={settings.observer_model ?? ''}
+            placeholder="(same as worker model)"
+            onChange={(e) =>
+              setSettings({ ...settings, observer_model: e.target.value || null })
+            }
+          />
+        </div>
+      ),
+    },
+    target_language: {
+      section: 'languages',
+      label: L('target_language', 'I want to learn'),
+      kw: 'target language learn spanish studying',
+      node: (
+        <div className="form-row">
+          <label>I want to learn</label>
+          <select
+            value={settings.target_language}
+            onChange={(e) => {
+              // Changing language resets the dialect to that language's default.
+              setSettings({ ...settings, target_language: e.target.value, target_dialect: '' })
+            }}
+          >
+            {languages().map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.endonym}
+              </option>
+            ))}
+          </select>
+        </div>
+      ),
+    },
+    target_dialect: {
+      section: 'languages',
+      label: L('target_dialect', 'Regional variety'),
+      kw: 'dialect regional variety accent region levantine mexican',
+      node: (
+        <div className="form-row">
+          <label>Regional variety</label>
+          <DialectField
+            presets={
+              languages().find((l) => l.code === settings.target_language)?.dialects ?? []
+            }
+            value={settings.target_dialect}
+            onChange={(v) => setSettings({ ...settings, target_dialect: v })}
+          />
+        </div>
+      ),
+    },
+    native_language: {
+      section: 'languages',
+      label: L('native_language', 'My native language'),
+      kw: 'native language explanations mother tongue',
+      node: (
+        <div className="form-row">
+          <label>My native language</label>
+          <select
+            value={settings.native_language}
+            onChange={(e) => setSettings({ ...settings, native_language: e.target.value })}
+          >
+            {languages().map((l) => (
+              <option key={l.base} value={l.base}>
+                {l.endonym}
+              </option>
+            ))}
+          </select>
+        </div>
+      ),
+    },
+    audio_volume: {
+      section: 'voice', label: 'Volume', kw: 'audio master overall volume voice speech tts effects sound mute rewards',
+      node: <div className="audio-volume-controls">
+        {(['master_volume', 'voice_volume', 'effects_volume'] as const).map((key, index) => <div className={`audio-volume-row${index ? ' audio-volume-channel' : ''}`} key={key}>
+          <label htmlFor={key}>{['Overall volume', 'Voice volume', 'Sound effects volume'][index]}</label>
+          <input id={key} type="range" min="0" max="100" step="1" value={settings[key]}
+            onChange={event => setSettings({ ...settings, [key]: Number(event.target.value) })} />
+          <output htmlFor={key}>{settings[key]}%</output>
+        </div>)}
+        <div className="audio-volume-channel audio-effects-toggles">
+          <label className="check-label"><input type="checkbox" checked={settings.reward_sounds !== 'no'}
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'yes' : 'no' })} />Sound effects</label>
+          {settings.reward_sounds !== 'no' && <label className="check-label"><input type="checkbox" checked={settings.reward_sounds === 'follow_tts'}
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'follow_tts' : 'yes' })} />Only with Read aloud</label>}
+        </div>
+      </div>,
+    },
+    microphone: {
+      section: 'voice',
+      label: L('microphone', 'Microphone'),
+      kw: 'microphone input device recording yeti',
+      node: (
+        <div className="form-row">
+          <label>Microphone</label>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <select
+              value={settings.microphone_device_id ?? ''}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  microphone_device_id: e.target.value || null,
+                })
+              }
+            >
+              <option value="">System default</option>
+              {mics.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            <button type="button" className="btn" onClick={() => void listMics()}>
+              ↻
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    tts_engine: {
+      section: 'voice',
+      label: L('tts_engine', 'Speech engine'),
+      kw: 'tts engine speech synthesis groq playai cloud voice os offline playback',
+      node: (
+        <div className="form-row">
+          <label>Speech engine (reads replies aloud)</label>
+          <select
+            value={settings.tts_engine}
+            onChange={(e) => setSettings({ ...settings, tts_engine: e.target.value })}
+          >
+            <option value="cloud">Cloud — gpt-audio-mini via OpenRouter (natural)</option>
+            <option value="os" disabled={!osVoiceAvailable}>
+              OS voice (offline){osVoiceAvailable ? '' : ' — not available on this platform'}
+            </option>
+          </select>
+          {!osVoiceAvailable && (
+            <p className="field-note">
+              This webview has no speech synthesis of its own (Android), so replies are
+              read aloud by the cloud engine.
+            </p>
+          )}
+        </div>
+      ),
+    },
+    tts_voice: {
+      section: 'voice',
+      label: 'Cloud voice without a persona',
+      kw: 'cloud voice actor narrator openai alloy nova',
+      node: (
+        <div className="form-row">
+          <label>Cloud voice without a persona</label>
+          <select
+            value={settings.tts_voice}
+            onChange={(e) => setSettings({ ...settings, tts_voice: e.target.value })}
+          >
+            {TTS_VOICES.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+          <p className="field-note">Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</p>
+        </div>
+      ),
+    },
+    auto_speak: {
+      section: 'voice',
+      label: L('auto_speak', 'Auto-speak tutor replies'),
+      kw: 'auto speak tts voice speech playback audio read aloud',
+      node: (
+        <div className="form-row check-row">
+          <label className="check-label">
+            <input
+              type="checkbox"
+              checked={settings.auto_speak}
+              onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
+            />
+            <span>Auto-speak tutor replies using the selected speech engine</span>
+          </label>
+        </div>
+      ),
+    },
+    auto_send: {
+      section: 'voice',
+      label: L('auto_send', 'Auto-send transcriptions'),
+      kw: 'auto send transcription mic speech stt voice input',
+      node: (
+        <div className="form-row check-row">
+          <label className="check-label">
+            <input
+              type="checkbox"
+              checked={settings.auto_send}
+              onChange={(e) => setSettings({ ...settings, auto_send: e.target.checked })}
+            />
+            <span>Auto-send transcriptions (mic → send immediately)</span>
+          </label>
+        </div>
+      ),
+    },
+    text_size: {
+      section: 'reading', label: 'Text size', kw: 'font text size reading display accessibility',
+      node: <div className="form-row"><label htmlFor="reading-size">Text size · {settings.text_size}%</label>
+        <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
+      </div>,
+    },
+    text_spacing: {
+      section: 'reading', label: 'Text spacing', kw: 'word text spacing density compact reading display',
+      node: <div className="form-row"><label htmlFor="reading-spacing">Text spacing · {settings.text_spacing}px</label>
+        <input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} />
+        <p className="field-note">Extra room between words, independent of text size.</p>
+      </div>,
+    },
+    always_romanize: {
+      section: 'reading',
+      label: L('always_romanize', 'Always show romanization'),
+      kw: 'romanization always show latin arabic pinyin pronunciation',
+      node: (
+        <div className="form-row check-row">
+          <label className="check-label">
+            <input
+              type="checkbox"
+              checked={settings.always_romanize}
+              onChange={(e) => setSettings({ ...settings, always_romanize: e.target.checked })}
+            />
+            <span>Show romanization</span>
+          </label>
+        </div>
+      ),
+    },
+    fast_mode: {
+      section: 'reading',
+      label: 'Fast mode',
+      kw: 'xp reward cards fast mode animation dismiss progress',
+      node: <div className="form-row check-row"><label className="check-label">
+        <input type="checkbox" checked={settings.fast_mode}
+          onChange={event => setSettings({ ...settings, fast_mode: event.target.checked })} />
+        <span>Fast mode · dismiss XP cards automatically</span>
+      </label></div>,
+    },
+    always_pronunciation: {
+      section: 'reading',
+      label: 'Always show pronunciation',
+      kw: 'pronunciation phonetic reading coach reply',
+      node: <div className="form-row check-row"><label className="check-label">
+        <input type="checkbox" checked={settings.always_pronunciation}
+          onChange={event => setSettings({ ...settings, always_pronunciation: event.target.checked })} />
+        <span>Show pronunciation</span>
+      </label></div>,
+    },
+    auto_translate: {
+      section: 'reading',
+      label: L('auto_translate', 'Always show translation'),
+      kw: 'translation always show native meaning under reply',
+      node: (
+        <div className="form-row check-row">
+          <label className="check-label">
+            <input
+              type="checkbox"
+              checked={settings.auto_translate}
+              onChange={(e) => setSettings({ ...settings, auto_translate: e.target.checked })}
+            />
+            <span>Show message translations</span>
+          </label>
+        </div>
+      ),
+    },
+    app_updates: {
+      section: 'updates',
+      label: L('app_updates', 'Application updates'),
+      kw: 'update updates upgrade version release install newer check',
+      node: <UpdateCheckRow />,
+    },
+  }
+  for (const sr of SHORTCUT_ROWS) {
+    rows[`shortcut_${sr.action}`] = {
+      section: 'shortcuts',
+      label: sr.label,
+      kw: `keyboard shortcut hotkey key combo ${sr.label}`,
+      node: (
+        <div className="form-row">
+        <ShortcutField
+          label={sr.label}
+          ui={ui}
+          action={sr.action}
+            value={settings.shortcuts[sr.action]}
+            onChange={(v) => setShortcuts({ [sr.action]: v })}
+          />
+        </div>
+      ),
+    }
+  }
+
+  const q = search.trim().toLowerCase()
+  const searching = q.length > 0
+  const allRows = Object.entries(rows).filter(([, r]) => !r.hidden).sort(([, a], [, b]) => SECTIONS.findIndex(group => group.id === a.section) - SECTIONS.findIndex(group => group.id === b.section))
+  // Mobile groups settings in collapsible sections; search exposes matching rows.
+  const stacked = isMobile && !searching
+  const visibleRows = searching
+    ? allRows.filter(
+        ([, r]) => r.label.toLowerCase().includes(q) || r.kw.includes(q)
+      )
+    : stacked
+      ? allRows
+      : allRows.filter(([, r]) => r.section === section)
+
+  const activeSection = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
+  // A heading is printed wherever the section changes going down the list —
+  // while searching to show where a hit came from, while stacked to divide the
+  // one long scroll into the same groups the desktop nav has. Resolved here,
+  // not during the map, so nothing mutates while rendering.
+  const showGroupHeadings = searching || stacked
+  let runningSection: SectionId | null = null
+  const renderRows = visibleRows.map(([id, row]) => {
+    const heading = showGroupHeadings && row.section !== runningSection ? row.section : null
+    runningSection = row.section
+    return { id, row, heading }
+  })
+
+  return (
+    <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+      <div
+        className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings"
+        onFocusCapture={(e) => {
+          const t = e.target as HTMLElement
+          if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
+            t.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+          }
+        }}
+      >
+        <aside className="settings-nav">
+          <input
+            className="settings-search"
+            placeholder="Search settings…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search settings"
+          />
+          {!isMobile && (
+            <nav className="settings-tree">
+              {SECTIONS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  className={`nav-item ${!searching && section === s.id ? 'active' : ''}`}
+                  onClick={() => {
+                    setSearch('')
+                    setSection(s.id)
+                  }}
+                >
+                  <span className="nav-icon">{s.icon}</span>
+                  {tOr(ui, s.labelKey, s.labelKey)}
+                </button>
+              ))}
+            </nav>
+          )}
+        </aside>
+        <main className="settings-content">
+          <div className="settings-head">
+            <h2>{searching ? `“${search.trim()}”` : t(ui, 'settings.title')}</h2>
+            <p className="sub">
+              {searching
+                ? `${visibleRows.length} ${t(ui, 'settings.matches')}`
+                : stacked
+                  ? tOr(ui, 'settings.subtitle', 'Expand a section to adjust its settings.')
+                  : tOr(ui, activeSection.descKey, activeSection.descKey)}
+            </p>
+          </div>
+          <div className="settings-scroll">
+            {searching && visibleRows.length === 0 && (
+              <p className="center-note">Nothing matches “{search.trim()}”.</p>
+            )}
+            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'reading'}>
+              <summary>{tOr(ui, group.labelKey, group.labelKey)}</summary>
+              {allRows.filter(([, row]) => row.section === group.id).map(([id, row]) => <div key={id} className="settings-entry">{row.node}</div>)}
+            </details>) : renderRows.map(({ id, row, heading }) => (
+              <div key={id} className="settings-entry">
+                {heading && (
+                  <p className="settings-group-k">{tOr(ui, SECTION_LABEL_KEY[heading], SECTION_LABEL_KEY[heading])}</p>
+                )}
+                {row.node}
+              </div>
+            ))}
+            {!searching && visibleRows.length === 0 && (
+              <p className="center-note">Nothing here yet.</p>
+            )}
+          </div>
+          <div className="modal-actions">
+            <button type="button" className="btn danger" onClick={() => void resetAll()}>
+              Reset settings
+            </button>
+            <FactoryReset />
+            <SaveStatus state={saveState} />
+            <button type="button" className="btn" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}

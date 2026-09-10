@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "createUpdaterArtifacts": false
+  },
+  "identifier": "com.freemocap.skellyspeak.dev",
+  "productName": "SkellySpeak Dev"
+}

@@ -122,3 +122,16 @@ def test_control_flood_does_not_block_inference_and_windows_expire(monkeypatch: 
     gate.take("learner-0", lane="control")
     gate.take("learner-0", lane="inference")
     assert len(gate._total._hits) == 2
+
+
+def test_installation_warning_is_count_only_and_checkins_do_not_add_records(ledger: FakeDb, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+    monkeypatch.setattr(quota, "DEVICE_WARNING_THRESHOLD", 2)
+    for index in range(2):
+        quota.record_device(ledger, "private-user", install_id=f"00000000-0000-4000-8000-{index:012d}",
+                            platform="private-platform", app_version="private-version")
+    assert caplog.messages == ["installation_registration_high_count count=2"]
+    caplog.clear()
+    quota.record_device(ledger, "private-user", install_id="00000000-0000-4000-8000-000000000001",
+                        platform="private-platform", app_version="private-version")
+    assert len(ledger.store) == 2
+    assert caplog.messages == []
