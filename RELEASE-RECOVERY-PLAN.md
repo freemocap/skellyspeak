@@ -1,6 +1,7 @@
 # Release recovery proposal
 
-Status: proposed sequencing, not executed. No Git writes authorized to agents.
+Status: recovery worktree restored; local reliability fixes and verification in progress.
+The user performs Git mutations. Main and the rebuild worktree remain unchanged.
 Prerequisite satisfied: workflow 34497425319 deployed e05a870 successfully;
 all eight TTL policies are ACTIVE, exact revision promotion passed, and the user
 verified hosted chat. The local receipt records success at 2026-09-10T17:09:33.808Z.
@@ -18,8 +19,8 @@ verified hosted chat. The local receipt records success at 2026-09-10T17:09:33.8
 1. Record the deployed server commit and confirm hosted diagnostics/chat. Resolve
    the TTL/IAM rollout before changing application baselines.
 2. User creates and pushes a rebuild branch at the current verified HEAD. Branch
-   names are proposals until chosen by the user; use codex/rebuild and
-   codex/release-recovery if no different names are requested.
+   names are proposals until chosen by the user; use rebuild and
+   release-recovery if no different names are requested.
 3. User creates the recovery branch from that same HEAD in a separate worktree.
    Preserve shared ancestry. Do not reset main, force-push, or merge the entire
    rebuild branch back into the release application.
@@ -61,3 +62,65 @@ counter, or a particular process crash. Obtain crash details only if reproductio
 cannot identify them. Do not promise one small fix resolves all observed failures.
 The tag's UI and features are the recovery target; its security posture is not.
 No release is considered stable solely because it is tagged or compiles.
+
+
+## Recovery implementation checkpoint
+
+The tagged app is restored in release-recovery. Current server runtime,
+retention/deployment helpers, server workflow and cloud upload restrictions are
+unchanged. The unrelated tagged cloud bootstrap script is excluded.
+
+Implemented: no automatic HTTP 429 retry; four shared inference slots across
+chat, structured work, transcription and speech; 64 outstanding requests;
+endpoint refusal holds with explicit pipeline Resume; queued-request invalidation;
+one in-flight guided turn per chat; bounded JSON and reply accumulation;
+custom-credential destination binding; private config directory and file modes.
+The recovered app uses the secured standalone server endpoints. Grouped transport
+and its distributed operation-identity guarantees are not claimed for this client.
+
+Verification: 394 frontend tests, 189 Rust tests (two paid benchmarks ignored),
+Clippy, frontend build, native binary build, documentation build and updater
+signature verification test pass. A self-contained unsigned macOS debug bundle
+also builds successfully with embedded frontend assets.
+Representative streaming-chat, structured-analysis and speech payloads pass the
+current server validator. No paid inference calls were made during verification.
+The duplicate Vitest configuration has been removed. The docs dependency audit
+reports image-size parser denial-of-service advisories with no published fix;
+these are docs build dependencies, not app/server runtime packages. Nineteen
+reported affected package paths trace back to this dependency. No audit suppression
+or forced major dependency update is used.
+
+Still required: installed-client/server end-to-end checks,
+installed macOS QA (chat, partial analysis, audio, refusal recovery, restart),
+remaining platform/release verification and final source/security review before
+merging into main. The exact incident crash trigger remains unproven.
+
+Manual checkpoint: quit other SkellySpeak instances and open
+`src-tauri/target/debug/bundle/macos/SkellySpeak Dev.app` from the recovery
+worktree. Verify hosted sign-in/chat, progressive analysis and recording, then
+restart and verify persistence. This is an unsigned local test bundle; macOS
+signing/permission behavior is not release verification. No Git writes or
+publication were performed. Generated documentation output is ignored.
+
+## Coach annotation patch
+
+Local QA traces contained 61 distinct annotation operations across four reply
+operations, with 77 annotation attempts. This supports excessive render-triggered
+work; it does not establish the original incident's complete causal chain.
+
+Reading components do not launch annotation requests. Saved annotations reveal
+locally; unannotated words open explicit word inspection through click, keyboard,
+hold or context menu. Coach phrase translations and insertion remain available.
+Automatic word glosses/pronunciation on unannotated suggestions are not provided.
+The unused frontend preparation cache, retry UI and error styling are removed.
+
+Verification: 393 frontend tests pass, including reopening 70 distinct fragments
+without requests, coach preference changes and insertion without annotation calls,
+saved-gloss display, and explicit keyboard word inspection. Real-app coach-panel
+QA and a trace review after reopening the rebuilt bundle are still required.
+
+Follow-up coach QA: the session after the rendering patch recorded zero
+annotate_text operations. One scaffold request failed because the copied partner
+reply replaced a paragraph break with a space. Source comparison now tolerates
+whitespace layout differences while requiring identical words and punctuation.
+A regression covers paragraph spacing and rejected content changes.

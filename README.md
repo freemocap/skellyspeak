@@ -1,267 +1,407 @@
+<p align="center">
+  <img src="public/skellyspeak-logo.png" alt="SkellySpeak" width="180" />
+</p>
+
 # SkellySpeak
 
-A convivial tool for learning languages through welcoming conversations,
-useful assistance and understandable progress.
+A standalone multilingual language tutor that does not require an account.
+Tauri v2 targets
+desktop (Windows/macOS/Linux), Android, and iOS, with release workflows for each.
 
-**Current implementation: immediate chat, desktop recording/transcription, a separate
-coach thread, Google sign-in and own-key text execution.** Rust persists messages, conversation settings and complete validated
-replies. The toolbar **AI** panel exposes operations, model targets, attempts,
-reported tokens and pause/step/cancel/retry; it can dock or open in a separate window.
-**Profile** reports retained usage globally, by language and by partner. **Settings**
-has searchable sections, automatically saved reading preferences and account controls.
+Two surfaces:
 
-The interface pairs a light chat canvas with a dark lesson/analysis pane. The partner
-chooser selects partners and conversations; narrow windows use Chat and Lesson tabs.
-Unsent drafts are session-only. Avatars are static SVGs. Evidence visualizations remain independent of domain records. No skill estimates
-or XP are fabricated.
+- **Guided conversation** — the conversation. A streamed tutor reply you can interrogate
+  word by word (tap for a gloss, hold for a run, double-click for a full
+  lemma/POS/usage card — on your own messages too), message-level **Coach feedback** badges with scores, corrections and editing,
+  a **Lesson** panel showing your goal, preferences and coaching observations,
+  and an **Analysis** tab for detailed breakdowns. Talk to the coach below the
+  lesson: explicit requests update it; suggestions wait for you to apply them.
+  Settings fold beside the composer; reply ideas expand inside practice cards. Persona controls fit in one row; the pencil opens character details.
+  Voice works in *and* out.
+  Partner prompts require an easy question, choice, or concrete invitation to
+  respond on every turn, within the selected difficulty and lesson context.
+  Lesson leads with a jewel-toned map and seven branch selectors above the skill cards. On phones, expand the map to browse its domains. Click a card
+  for a practice explanation and example; double-click for reviewed replies and
+  XP attribution. Recent message reviews and lesson details expand on request.
+  On mobile, tapping a word shows its gloss without leaving Chat; tapping the
+  surrounding partner message opens Analysis.
+- **Skill tree** — your language profile, meaning-domain practice paths and inspectable progress.
 
-Structured passage assistance, assessment, XP, Vibe computation
-and measured garden rendering remain planned. Standard handles partner replies;
-Fast has no active assignments until evaluated. Hosted access uses the service's
-approved Gemini 2.5 Flash model.
+Choose the language you are learning from the language dropdown at the upper left of the chat, which displays the currently selected language. **Native** sits beside the learning language in the chat header. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
 
-## Run locally
+Supported languages are symmetric: English (US), French, Spanish, Arabic, and
+Chinese (Mandarin) can each be the language you're learning or your own
+language, with regional dialect selection where applicable. The canonical
+registry is `src-tauri/src/languages.rs`.
 
-Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and run:
+Lesson choices open in a centered, dismissible editor and save automatically as you type. Closing waits for pending changes to save; errors keep the editor and unsaved text open. The coach conversation has a distinct background beneath the lesson and analysis.
 
-```sh
-npm ci
-npm run macos:dev
+Each chat saves its character description and first introduction. Reopening restores that partner; editing or deleting persona templates affects future chats only. The persona pencil shows the saved snapshot separately from the template library. Older chats recover their earliest saved introduction, with the unknown original template clearly labeled.
+
+Choose **No persona** or switch personas **Off** for conversation without a fictional character. Switch **On** to use Surprise me, or reroll to choose a different partner. Changing these controls starts a new conversation and preserves the previous chat.
+
+The **Coach** section sits above the input. Suggestions stay visible with preloaded word annotations; there is no collapsed preview or Coach header row. Each suggestion is a compact bubble with inspectable words and a trailing **↗** insertion icon. Only the icon fills the draft, without sending or requesting analysis. Translation follows the chat preference; romanization and pronunciation render under individual words using the same token component as chat, with no sentence-level sound-guide block. **Understand the exchange** below the replies reveals explanation and the partner’s translation. The tray does not repeat the partner’s message. Advice is generated with the background suggestion pass, not when the button is clicked. The bounded tray scrolls without covering the conversation. The private coach chat remains in the lesson panel.
+
+## Architecture
+
+```
+Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
+├─ OpenAI-compatible client     ├─ Guided conversation (streamed reply,
+│  (OpenRouter; SSE streaming   │   then analysis + coach hydrating in
+│  + json_schema structured     │   asynchronously, section by section)
+│  output, corrective retries)  ├─ Skill tree (meaning domains,
+├─ Observer (reasoning model,   │   profile, evidence and progress)
+│  rewrites plan + profile)     └─ Two-layer design: paper conversation /
+├─ Coach (private side-channel)     dark analysis (Habla·ES tokens)
+├─ Settings + document persistence
+│  (JSON in the app config dir)
+└─ Groq Whisper STT · OpenRouter TTS
 ```
 
-On macOS, this builds a debug executable, creates **SkellySpeak Dev.app**, signs
-and verifies it with the existing **SkellySpeak Local Development** certificate,
-starts Vite, and runs the signed bundle executable. PyCharm's signed-app run
-configuration uses this same command. Frontend edits reload through Vite; restart
-the command after Rust changes. Quit the app or stop the command to stop Vite.
-The launcher fails if port 1420 is occupied or signing fails.
+- **API keys** are stored in the platform credential vault and used only by the
+  Rust core. The webview only ever receives them masked (`sk-or-••••••••cdef`),
+  and a masked value round-tripping back means "keep the stored key".
+- Structured output uses the native `json_schema` response format on every
+  attempt, with corrective retries for malformed output and 429s. **There is
+  no degraded fallback path** — anything else fails loudly with the
+  provider's actual error, so a bad model gets replaced rather than papered
+  over.
+- Choose the hosted service with Google sign-in, your own provider keys, or your own AI server. Conversation files stay on the device.
 
-The signing identity must already exist in Keychain Access → My Certificates,
-including its private key. To use another certificate, run
-`SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev`.
-Self-signed local certificates are supported; no certificate trust settings are
-changed. Ad-hoc signing is rejected because it cannot preserve the certificate
-identity across rebuilds. If macOS requests access to an existing SkellySpeak
-credential, **Always Allow** can remember access for this signed app; switching
-from a previously unsigned build may require that initial grant.
+## Run
 
-`npm run macos:dev-bundle` and `npm run macos:dev-sign` are also available
-separately after `cargo build --manifest-path src-tauri/Cargo.toml --bin skellyspeak`.
-For other desktop platforms use `npm run tauri dev`. On macOS, that direct Tauri
-command bypasses the certificate-signing launcher and may prompt again for Keychain
-access after rebuilds.
+**Pre-alpha:** SkellySpeak is a new project in active development. You’re welcome
+to try it, but expect things to break. Hosted login is limited to known parties
+at this time. Use the hosted login or enter your own OpenRouter and Groq API keys
+(G-R-O-Q, not G-R-O-K) in Settings.
 
-Run this from the repository root. `npm run dev` alone starts frontend assets;
-local storage requires the native Tauri application. Quit an already-running
-SkellySpeak workspace before launching another instance of the same database.
-The app fails explicitly if the workspace is locked, invalid or incompatible.
+For installers, use the [download page](https://docs.freemocap.org/skellyspeak/download).
+It detects your operating system, lets you select or correct the processor,
+and recommends a matching installer from the latest published GitHub release.
+The page uses FreeMoCap’s compact download rows, with other platforms and system help collapsed below.
+Revisit the download page on an Android phone to download the APK. iPhone testing
+is limited to known parties at this time and uses TestFlight invitations.
 
-The authoritative application version is in `src-tauri/Cargo.toml`. Dependencies
-are locked in `package-lock.json` and `src-tauri/Cargo.lock`.
-
-Build an unsigned local macOS inspection bundle (use the signed launcher above
-when testing saved credentials):
-
-```sh
-npm run tauri -- build --debug --bundles app --config '{"productName":"SkellySpeak Workspace","bundle":{"active":true}}'
-open 'src-tauri/target/debug/bundle/macos/SkellySpeak Workspace.app'
+```powershell
+cd skellyspeak
+npm install
+npm run tauri dev     # first run compiles the Rust core (~2-5 min)
 ```
 
-The distinct inspection bundle name makes the running workspace identifiable.
-This is a local debug build, not a signed release or deployment.
+For macOS Computer Use, keep that dev session running and run
+`npm run macos:dev-bundle` after compilation finishes. Run one app process; see
+[macOS development setup](skellyspeak-docs/docs/platforms.md) for consistent signing
+and avoiding repeated Keychain approvals.
+Open `src-tauri/target/debug/bundle/macos/SkellySpeak.app` to use the dev app
+as a discoverable macOS bundle. See the [development bundle workflow](./skellyspeak-docs/docs/platforms.md#macos-development-bundle)
+for hot reload and rebuild instructions.
 
-## Start talking
+On first launch, open Settings (⚙), choose the language you're learning and your
+native language, then either sign into the hosted service, supply your own
+OpenRouter/Groq keys, or configure an OpenAI-compatible chat server.
 
-Opening the app resumes the most recent active conversation. A fresh workspace
-creates a Spanish partner and conversation automatically. The composer is immediately
-available; no title or setup form is required. The plus button starts another
-conversation with copied preferences. The partner chooser opens a partner's latest
-active chat or creates one. Names and settings remain editable afterward.
+## Build an installer
 
-Record starts the desktop system microphone. Stop transcribes through the selected
-AI route and inserts text for review; Send sends it to the partner.
-Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
-uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
-key; custom endpoints require explicitly enabled transcription and a model ID. Mobile recording,
-auto-send and read-aloud are not implemented in this slice.
-
-The right pane contains Lesson/Analysis and a resizable **Talk to your coach** dock.
-Coach exchanges persist separately from partner messages and use the same gated
-execution machinery. Partner prompts never include coach messages. The coach can
-explain or suggest phrasing; it cannot apply lesson/settings changes. Detailed lesson
-controls and word breakdowns remain pending.
-
-## Configure and use AI
-
-Open **Settings → AI access → Hosted sign-in**, then choose
-**Sign in with Google**. Complete authentication in your system browser and return
-to the app. The account panel reports daily tokens, requests, monetary allowance and
-its reset time. Request/token amounts remaining are estimates; money is authoritative.
-The session stays in the platform credential store. There is no transcript sync.
-
-Choose **Own OpenRouter API key** to enter a key and configure Standard/Fast models.
-Keys and model settings save automatically after typing stops, with visible pending
-and failure states. The saved key is checked automatically: a green check indicates
-accepted authentication; a red X includes an accessible failure explanation. Key entry remains masked; saved secrets are never returned to the frontend and
-there is no Show/Hide control. Model edits
-retain the saved key when the key field is blank. Pasted surrounding whitespace is
-trimmed. Saving errors preserve the input. Clicking outside Settings or pressing
-Escape dismisses it after pending writes complete; failures keep the edits visible.
-Conversation practice preferences also save automatically on change. Hosted account refreshes are limited to
-the hosted route.
-
-Verification uses OpenRouter's authenticated `GET /api/v1/key`; it does not request
-inference or prove model availability or sufficient credits. Saved state and verification
-state are separate. **Send** uses the selected route and the
-captured Standard model. Replies are buffered and validated before publication.
-
-Open toolbar **AI** to inspect execution.
-Pause all prevents new starts; it does not revoke running work. Pause a turn and
-Step to admit one operation while keeping that turn paused. The app-wide gate must
-be resumed to Step. Cancel revokes publication and drops the local HTTP request;
-remote execution and billing may continue. Retry is explicit and may incur another
-charge. Restarted in-flight requests show unknown outcomes and never auto-retry.
-
-The current active workspace receives an atomic v3-to-v4 AI-configuration schema
-extension, preserving accepted messages, preferences and credential references.
-Pending work under the earlier profile is invalidated; it is never automatically
-resent. Other incompatible databases fail explicitly. No archived application data
-is imported and no automatic deletion or backup path exists.
-
-## Check this slice
-
-1. Open the partner chooser, choose a language and create a partner. Edit the name, background or avatar.
-2. Create two conversations. Change difficulty and Translation in the first.
-   The next conversation starts with a copy; subsequent edits are independent.
-3. Switch between the conversations and restart the app. Accepted settings persist;
-   unsent drafts are intentionally session-only.
-4. Archive and restore a conversation or partner. Deletion identifies its permanent
-   scope before confirmation and removes dependent local records.
-
-The app stores `practice.sqlite3` in its platform application-data directory under
-identifier `org.skellyspeak.practice`. On macOS this is
-`~/Library/Application Support/org.skellyspeak.practice/`. No application data is
-synchronized. Send transmits selected context through the selected hosted or own-key route;
-see [privacy and data flow](./privacy.md).
-
-## Verification
-
-```sh
-npm test
-npm run build
-npm run contracts:check
-npm run styles:check
-cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-cargo clippy --manifest-path src-tauri/Cargo.toml --lib --tests -- -D warnings
-cargo test --manifest-path src-tauri/Cargo.toml --lib
+```powershell
+npm run tauri build   # platform bundles under src-tauri/target/release/bundle
 ```
 
-Rust integration-style tests use disposable SQLite files for persistence, revision
-conflicts, settings copying, deletion, archives, duplicate actions and session rules.
-Frontend tests cover snapshot ordering and draft scope. Test discovery is restricted
-to the active `src/` tree. `npm run contracts` regenerates TypeScript declarations
-from Rust; the check command detects drift without changing files.
+## Android
 
-Automated verification covers execution gates, duplicate Send/publication, cancellation,
-source deletion, scoped snapshots, captured settings, interrupted attempts, output
-validation and token retention. Loopback HTTP conformance tests exercise the actual
-adapter, explicit model requests, redirect refusal and error redaction. They require
-localhost networking permission and make no live AI calls.
+```powershell
+npm run android       # emulator / connected-device dev loop
+npm run android:apk   # sideloadable debug APK
+```
 
-Native request admission now shares four permits across partner chat, coach chat and
-desktop transcription on all access routes. One audio request may wait for capacity;
-excess waiting audio is rejected without submission. Tests cover mixed occupancy,
-queue saturation, source/configuration invalidation and release on cancellation.
-Queued chat/coach turns now pause on matching HTTP 429 refusals, with the reason and
-earliest retry shown in execution inspection. Holds survive restart; recovery is
-explicit and Step cannot bypass them. Shared access holds also block fresh Send
-and transcription. Recover access in the execution panel checks the retry time
-and refuses stale recovery actions; it makes no AI call and leaves queued turns
-paused. Transcription receipts now retain route, model, timing and outcome;
-interrupted attempts become unknown on restart and are never replayed. The execution
-panel shows these receipts, and usage reports include them with unavailable token
-usage. Audio and transcript text are not stored in receipts;
-this limit does not establish a bound on upstream work after local cancellation.
-Capacity is provisional. `WARN ai_admission` lines go to the native process's stderr
-(the development launch terminal), at most once per event per minute. They identify
-chat capacity waiting, audio queue rejection, or audio wait duration without request
-content or endpoint details. No persistent log file or telemetry upload is added.
+Release Android builds are made by CI, signed with the upload keystore. A
+local `tauri android build` produces an unsigned release, which installs
+nowhere — use the debug loop above for development.
 
-Automated checks cover PKCE/state validation, account decoding, hosted payload rules,
-route capture, credential revocation, retained profile counts and local HTTP adapters.
-Google browser authentication, keychain persistence and live hosted replies require
-native verification; passing mock tests does not establish those results.
-The native bundle builds successfully. Desktop and narrow-window layouts, direct
-chat startup and title-free one-click creation were inspected. The keychain lookup
-no longer holds the workspace lock. No database reset was needed. Microphone
-permissions, recording/transcription and live coach replies remain unverified.
-Hosted deployment passed its test, container and exact-revision traffic checks,
-and the user confirmed hosted chat works. The client preserves documented
-rate/allowance/spending-pause reasons and request IDs. See the
-[security audit](SECURITY-AUDIT.md) for additional local hardening and remaining
-repository/cloud checks; source changes require deployment or native restart.
+## iOS
 
-The signed macOS development launcher passed local build, bundle/signature
-verification, Vite readiness, native-process startup and termination cleanup checks.
-The frontend build also type-checks the launcher. Missing/ad-hoc signing identities
-fail before launch. Account status no longer refreshes on window focus, preventing
-Keychain dialogs from triggering another refresh when focus returns. Remembered
-Keychain access across reloads still requires interactive verification.
+iOS cannot be built on Windows — Tauri's `ios` subcommand only exists on
+macOS, and Xcode does the signing. `.github/workflows/ios-distribute.yml` runs
+on a macOS runner: it scaffolds the Xcode project, signs with an Apple
+Distribution certificate + provisioning profile, and exports a signed `.ipa`
+for TestFlight or ad hoc install. Voice input is implemented through the same
+core (cpal) recorder as desktop and requires physical-device verification — see
+[Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the AVAudioSession
+detail and the three secrets to set.
 
-Desktop Google sign-in uses a loopback callback. Mobile deep-link sign-in is pending.
-The iOS prerequisite probe found no full Xcode installation; phone-device validation,
-Windows, Linux and Android builds remain unverified.
+## Updates
 
-## Architecture and roadmap
+Settings → Updates shows the installed app version above the update controls, without requiring an update check.
 
-[Implemented architecture](./architecture.md) records ownership and tooling.
-[The build plan](./BUILD-PLAN.md) tracks phases and user checkpoints.
-[The design brief](./DESIGN.md), [data model](./DATA-MODEL.md),
-[execution contract](./EXECUTION.md), [AI strategy](./AI-STRATEGY.md),
-[state/storage contract](./STATE-AND-STORAGE.md) and
-[model evaluation plan](./AI-EVALUATION.md) define the approved direction and
-remaining work. Design intent does not imply implemented behavior.
+Desktop builds check for a newer version on launch and offer it in a bar at
+the top of the window; Settings → Updates checks on demand. The feed is
+`latest.json` on the newest **published** GitHub release, so publishing a
+draft is what pushes it to existing installs.
 
-[Working rules](./AGENTS.md) and [UI rules](./ui-guidelines.md) govern development.
-`old/` is reference-only and is excluded from active tests and builds.
+Android and iOS cannot install updates in place — the OS package manager owns
+that — so there the check offers to open the release and you install the
+package yourself.
 
-## Hosted service development
+Building installers locally works without the updater signing key, but the
+updater artifacts are then skipped — and `tauri build` reports that as an
+error while still exiting 0. To produce a full, updatable bundle:
 
-Active source, security boundaries, diagnostic contracts and deployment checks are
-documented in [server/README.md](server/README.md). The app supports an on-demand
-authenticated service status check; the matching server deployment is required.
+```powershell
+$env:TAURI_SIGNING_PRIVATE_KEY = Get-Content ~/.tauri/skellyspeak.key -Raw
+$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "<key password>"
+npm run tauri build
+```
 
+## Cutting a release
 
-## AI access foundation: current source checkpoint
+`src-tauri/Cargo.toml` is the only place the version lives — everything else
+inherits it.
 
-Custom URL connects to a self-hosted SkellySpeak server. Hosted and Custom URL chat
-use version-1 grouped `/operations`; OpenRouter chat and Groq transcription use
-direct API keys. Include `/v1` in the custom API base URL. HTTPS is required except
-on loopback. No automatic endpoint or credential fallback is provided.
+```powershell
+node scripts/release.mjs minor --dry-run   # see the plan, change nothing
+node scripts/release.mjs minor             # bump, commit, tag, push
+```
 
-Custom Check connection calls authenticated `/protocol`, validates the protocol
-version and configured chat/transcription capabilities, and performs no inference.
-Our server requires a session token issued by that server. Selecting no authentication
-cannot bypass server authentication. Hosted session credentials are never reused for
-Custom URL; its token is stored separately and bound to the saved destination.
-Groq key verification uses its `/models` endpoint. Fast task routing and read-aloud
-remain unimplemented. A protocol check does not establish live inference quality.
+Takes `patch`, `minor`, `major`, or an explicit version like `1.0.0-rc.1`.
+It refuses before touching anything if the tree is dirty, the branch is not
+`main`, the remote is ahead, the version would go backwards, or the tag already
+exists — and after tagging it checks that the tag really does contain the bump,
+because a tag naming the wrong commit is the one failure that has to be undone
+on the remote.
 
-Hosted and custom chat batch only operations sharing captured destination and
-credential authority. Custom requests omit hosted install/platform/version headers.
-Transcription remains a separate multipart request using the configured server model.
-Full local server/Custom URL app verification is pending emulator setup; loopback
-transport tests do not substitute for that check.
+The tag triggers `.github/workflows/release.yml` (desktop + Android) and
+`.github/workflows/ios-distribute.yml` (iOS), which together build Windows x64,
+macOS (Apple Silicon + Intel), Linux (x86_64 + aarch64), an Android APK/AAB and
+a signed iOS `.ipa`, and attach them all to a **draft** GitHub Release. Review
+the assets, then publish.
 
-Saved API keys remain in the platform credential store; no session-only or plain-file
-storage option was added. See [credential decisions and sources](SECURITY.md).
-Native visual inspection of this change was blocked by computer-use access. Live
-Groq/custom inference and microphone permission remain unverified. Restart the
-signed native development app after Rust changes; frontend reload alone is insufficient.
+See [Platforms & Build](./skellyspeak-docs/docs/platforms.md) for the toolchain
+env vars and the machine-specific fixes that must survive a `gen/android`
+regeneration.
 
+## Layout
 
-AI access layout: OpenRouter and Groq keys are grouped together, with model
-preferences collapsed below. Hosted sign-in precedes usage/service details. Access
-configuration has no toolbar button. UI wording uses functional labels and compact
-spacing. The actual React settings components were inspected in an isolated visual
-fixture at 1180×820 and 390×780; this verifies layout, not native authentication.
+- `src-tauri/src/ai.rs` — provider client (streaming, schema-constrained
+  structured output, bounded corrective retries, `$defs` inlining)
+- `src-tauri/src/prompts/` — shared persona/mandatory-rules blocks,
+  guided practice prompts (ported from the FreeLingo prompt library)
+- `src-tauri/src/languages.rs` — supported languages + per-variant overlays
+- `src-tauri/src/observer.rs` — the TeachingPlan / Profile documents and the
+  background observer pass that rewrites them
+- `src-tauri/src/commands/` — the IPC surface, with one module per
+  domain: `guided` (a turn and the passes behind it), `coach`, `conversations`,
+  `app_settings`, `hosted_auth`, `skills`, `scaffolds`, `insight`, `tts`,
+  `stt`, `keys`, `dev`
+- `src-tauri/src/conversation.rs` — where conversations live on disk, one
+  directory per language pairing
+- `src/pages/GuidedPage.tsx`, `src/pages/SkillsPage.tsx` — the two surfaces
+
+## Hosted service numbers
+
+```bash
+cd server && uv run python stats.py
+```
+
+Who signed up, spend per day, devices. Or click the [Firestore console](https://console.cloud.google.com/firestore/databases/-default-/data?project=skellyspeak-api).
+Details: [Hosted API](./skellyspeak-docs/docs/hosted-api.md).
+
+## Docs
+
+Full documentation lives in [`skellyspeak-docs/`](./skellyspeak-docs) (Docusaurus):
+
+- [Overview](./skellyspeak-docs/docs/overview.md) — what SkellySpeak is, the steer row, the agent architecture
+- [Architecture](./skellyspeak-docs/docs/architecture.md) — IPC surface, turn pipeline, prompt composition
+- [Ontology](./skellyspeak-docs/docs/ontology.md) — every domain entity, field-by-field
+- [Status](./skellyspeak-docs/docs/status.md) — what works, known issues, order of battle
+- [The Coach](./skellyspeak-docs/docs/coach.md) — the private side-channel tutor (the Cyrano principle)
+- [Platforms & Build](./skellyspeak-docs/docs/platforms.md) — desktop + Android + iOS build matrix
+- [Future Work](./skellyspeak-docs/docs/future-work.md) — replacing per-turn LLM glossing with dictionaries
+- [Hosted API](./skellyspeak-docs/docs/hosted-api.md) — sign-in, quota, deploying, and reading the usage numbers
+
+```powershell
+cd skellyspeak-docs && npm install && npm start   # preview the docs site
+```
+
+## Conversation and practice
+
+The practice board starts with the saved or recommended focus and two core skills
+with less recorded XP. **All areas** offers one skill per domain; **List/Grid** is a
+saved layout preference. Browsing a card or map arm selects that skill across the
+application without changing saved focus. A card expands in place; its explicit
+detail action or double-click opens the explanation and reviewed replies.
+
+The seven-domain map heads the lesson panel, with branch selectors and star progress. It starts expanded on desktop and collapsed on phones; its toggle can collapse it to a slim row on either layout. Lesson/Analysis tabs sit above the map. Cards follow directly below it; a small card display menu holds All areas and List/Grid. The selected skill moves to the first card, with other cards retaining their relative order. Its arms
+and bars fill immediately from credited XP, including assisted practice, up to
+30 XP per skill. XP totals continue growing after a bar fills; stars remain a
+separate milestone requiring three unassisted successes.
+Domain colors identify the same areas in cards, message evidence and Skills.
+Selection is a neutral outline. On phones, lesson content follows the conversation
+through separate Chat and Lesson views. Chat keeps its messages scrolling above the input and the optional coach-help tray, so help does not overlay the latest exchange. Long messages may still require scrolling. Reply ideas are available directly above the input as well as in lesson cards. The permanent XP/focus strip is removed; the profile button opens progress on demand. Headers compact further when typing on a short mobile viewport.
+Coach Enter sends, Shift+Enter adds a newline, and composition Enter does not send.
+
+Explanations load only when disclosed. The card and detail share an
+in-flight request and bounded cache, scoped to settings/language pair, chat, level
+and topic. Retry refreshes every mounted subscriber. These are general skill hints,
+not claims about the latest sentence. Reply ideas, frames and starters come from
+the partner reply's analysis; they are general conversation options. Inserting help
+appends to the current draft and records assistance without sending automatically.
+
+Word help offers its gloss and an explicit **Explain this word** action. Credited
+words also offer **XP details**. Punctuation can reveal a sentence translation;
+each message has its own full-translation button once that data arrives. The Translation preference shows both learner and partner translations inline; either can be toggled locally.
+**Analysis** is a separate message action. On phones it opens a dismissible message dialog over the conversation; Close, tapping outside, Escape, or Back returns to the same chat position. Desktop analysis stays in the learning panel. Audio and translation controls do not
+navigate. Learner and partner token reveals have separate identities.
+
+Credited phrases carry domain-colored underlines. Overlapping domains share an
+underline; repeated wording is marked at each possible occurrence and explained as
+ambiguous. XP details retain all quotes for a skill with one stored-credit total.
+New-credit badges show only the net increase: an assisted-to-direct replacement can
+show +8 while the record has 10 XP. Animations use visible anchors inside the active
+conversation and account for clipping. Floating cards remain within the visible
+viewport. Reduced motion removes card travel. History never replays as new rewards.
+
+Feedback, XP and skill details use the same dialog host; word help uses the same
+layer lifecycle. Outside click, Escape and the overlay back stack dismiss them.
+Changing surfaces closes transient learner overlays. Conversational-fit/grammar feedback
+describes the message separately from skill XP. Editing retains a collapsible copy
+of the original feedback until the edit is sent or cancelled.
+
+**Preferences & coach memory** discloses lesson choices, observations and learner
+memory. Changing topic keeps the conversation and gets new suggestions from the
+new reply. **+** starts a separate chat while retaining the current one in history.
+Record/Stop and Send stay in place during voice capture; Discard appears alongside.
+Stop transcribes to the draft unless Auto-send voice is enabled.
+
+## Skills and language profile
+
+**My language profile** opens a summary of XP, stars and focus. **Skill tree** starts
+with expandable domain cards. **Map** opens the graph with horizontal, radial and
+top-down layouts, breadcrumbs, Back and Whole tree. Horizontal direction follows
+the application. All skills, including extensions, are reachable from domain cards,
+related skills and Inspect. A selection opens the shared detail beside the map or
+cards; **Open full details** opens a dialog. Exploration keeps the conversation
+mounted, preserving draft and position. Only **Practise this in conversation** saves
+a new focus; **Follow recommendations** releases it.
+
+The shared catalog covers entities/reference, properties/comparison,
+events/participants, time/event structure, space/movement,
+negation/questions/possibility and connections between ideas. New learner messages
+receive independent background assessments through the existing provider routing.
+Distinct successful wording earns 10 XP per skill without recorded in-app help,
+or 2 XP with suggestions, scaffolds or revision. Three unassisted successes earn
+a star. External assistance is unknown. These milestones are not certified
+proficiency and never change conversation difficulty.
+
+Only current saved source versions and current-catalog judgments contribute.
+Editing, deleting, truncating or excluding attempts recomputes totals. Excluded,
+superseded, pending, failed and historical evidence remains explicitly classified;
+it cannot display current credit through a different UI filter. Source records,
+exclusion/restore controls, assessment activity and old-rubric evidence remain
+available through disclosure. Progress is separate per target language and shared
+across native-language contexts. Browser Skills uses clearly labeled sample data;
+the native app does not substitute sample data on a failed load.
+
+Skill assessment prompts require native-language explanations of the quoted
+construction, linguistic function and specific criterion. A topic paraphrase is
+insufficient. Existing saved explanations are not rewritten. Semantic calibration
+across languages and uncertain-phrase coaching markers remain separate planned
+work; missing XP is never treated as proof of a mistake.
+
+## Personas and voice
+
+Persona backstory guides manner and stays mostly unspoken. Built-in sketches
+include formative books; existing chats retain their saved sketch. Prompts ask for
+natural conversational openings within the current difficulty and lesson choices,
+and distinguish partner identity from learner identity. These instructions do not
+guarantee every generated reply's quality.
+
+Saved personas have stable cloud voice casts. Custom personas are cast by ID;
+explicit age, gender and manner guide delivery. **Cloud voice without a persona**
+applies only to no-persona chats. OS voices are selected by target language and
+stable identity; their metadata does not reliably describe age or gender. Audio
+cache ownership includes settings scope, language pair, chat, requested voice and
+text. Changing settings or leaving the conversation cancels current playback. Hiding, minimizing, backgrounding, or closing the app also stops cloud and OS speech. Returning does not resume an interrupted utterance; a new playback request is required. Delayed speech results cannot restart playback after departure.
+
+## AI inspection
+
+The **AI** panel exposes the live execution graph, recorded and running calls,
+timing, models and responses. Prompts, attempts and provenance are available through
+the request reader. **How it works** provides context; **Debug** discloses controls,
+logs and comparisons. Reply streaming and independently hydrated analysis, skill
+review and coach work retain their existing Rust owners. Topic explanations are
+tracked requests; cloud speech uses its specialized audio path and playback status,
+not identical Runner telemetry.
+
+## Factory reset
+
+Settings → **Clear all data…** requires typing `DELETE` and choosing **Erase all data
+and close**. Reopening completes removal of local conversations, lesson/coach
+memory, evidence, progress, settings, credentials, app-managed logs/caches and
+webview preferences. **Reset settings** only resets preferences. Cloud accounts,
+billing/usage records and external exports remain. Factory reset cannot be undone.
+
+The conversation partner continues the existing exchange after its opening, without repeating greetings or introductions on ordinary replies or practice preference changes.
+
+New XP cards appear when new credit reaches the profile, including credit that arrives after its review completes. Cards use visible evidence anchors when available and remain bounded by the visible viewport, even when the keyboard or composer crowds the message stream. Their animations do not control when XP is saved.
+
+Inline activity indicators distinguish reply generation, pending reply analysis, skill review, and voice transcription. Analysis stays marked while its data is pending even after reply streaming finishes. Transcription is indicated beside the composer and disables a second recording until it completes. The large, red-outlined **Record** button fills red and reads **Stop** while recording. The same compact indicators are used on phones; reduced motion retains labels without spinning.
+
+Credited phrases have skill-colored +N point tokens. Clicking a token pops it away and opens its saved XP card without awarding XP again. Each opened card replaces the previous inspection. It dismisses after four seconds of inactivity, pauses while hovered or keyboard-focused, and closes on outside interaction. Tap the underlined phrase to restore its tokens for another inspection; word help remains available.
+
+Tagged iOS releases automatically upload their verified IPA to App Store Connect once upload credentials are configured. Internal TestFlight groups can distribute processed builds automatically; external beta review is separate. See [TestFlight setup](skellyspeak-docs/docs/platforms.md#automatic-testflight-uploads).
+
+Suggestions update with the conversation. The compact **Understand the exchange** disclosure has no refresh control.
+
+Chat settings open from the **⚙** beside the language controls at the top of the chat. The compact panel starts closed and contains level, topic, persona, reading and voice controls. Close it with the gear, Escape, or a tap outside; changing a preference saves it immediately. Coach remains above the input, separate from settings. Compact Translate and Analysis buttons on each message toggle inline translation or open message analysis.
+
+On phones, **Chat** and **Lesson** are the persistent bottom navigation. Chat is the starting view; Lesson contains the private coach conversation. The **More (•••)** menu opens Skill Tree and AI activity/tools. Either bottom button returns directly from Skill Tree without losing the conversation. AI tools open in a dismissible dialog. The app reserves space for status bars and display cutouts.
+
+Desktop development builds keep credentials and app data in a separate `.dev`
+profile. They require their own sign-in or API keys and do not install release
+updates. Custom remote model servers require HTTPS; HTTP is allowed only for
+loopback servers such as local Ollama or LM Studio.
+
+**Pronunciation** joins Read aloud, Auto-send, Translation, and Romanization in the reading controls. Tapping a chat word reveals its meaning underneath that word, with romanization for non-Latin scripts. Approximate pronunciation appears only while Pronunciation is enabled; revealing meanings does not enable sound guides. There is no separate sentence pronunciation block or label in chat. Coach advice leads with suggested replies and meanings; pronunciation follows its setting and exchange explanations expand on demand. Phone controls wrap into compact rows. Word pronunciation is generated by the existing token analysis pass; older saved tokens without it still show their available information.
+
+Swipe left from Chat to Lesson and right to return; the bottom buttons provide the same navigation. On phones, Fast-mode rewards take a short curved flight straight to the XP meter without the header hover. Inspected cards open near their source text and dismiss along the same short path. The meter flashes and fills when the card arrives, showing saved cumulative XP even when Lesson is off-screen. This is a presentation of existing credit, not an additional award. Reduced-motion settings disable the flight and fill motion.
+
+Signing in or out refreshes the app’s provider settings immediately. Closing Settings saves pending edits before refreshing the chat’s settings. Stale provider-setup errors clear, and an empty chat retries its blocked greeting; existing messages and drafts stay in place. A failed retry displays its current error.
+
+New XP cards appear automatically in a stack as credit arrives. **Fast mode** is on by default: cards arrive about half a second apart with slight timing variation, ease into view, on desktop pause for half a second, then accelerate toward progress without pausing the conversation or subsequent rewards. Turn it off in the chat controls or Settings to keep cards until dismissed. Point icons reopen a card for reading and hold it open even in Fast mode. Existing history does not replay arrival animations.
+
+Moving XP cards have thin, empty white rectangular outlines tracing their past and upcoming positions. The outlines shrink and fade with distance, share the card’s path and easing, and never intercept clicks. Reduced motion disables both the travel and the trails.
+
+Chat playback sits on the upper-right bubble edge. Translate and Analysis use short buttons at the bottom-right border, mirrored for RTL messages. Translate toggles the same inline translation used by the global preference; Analysis opens a dialog. Word inspection and chat-originated coach questions also open overlays without navigating away. Top-bar actions stay grouped together.
+
+Android update offers open [the download page](https://docs.freemocap.org/skellyspeak/download). Installer titles name their format, including Windows EXE setup and MSI package. One matching installer for the selected system has a magenta border. Processor hints select the matching architecture automatically when available. If the browser does not expose the processor, all builds for that operating system are shown with processor labels and selection guidance, without a recommendation. If the operating system is unknown, all available packages are shown. A known processor filters out the other architecture; all packages also remain under All platforms & formats.
+
+Click or tap outside a modal to dismiss it. Settings flushes pending edits when it closes; the lesson editor saves before dismissing. Clicking within a modal keeps it open.
+
+The profile button shows XP for the selected target language and opens a practice-evidence dashboard: exact domain totals on a common bar scale, credited skills, stars, distinct contributing messages, and assisted/unassisted skill demonstrations. Filter by domain and open a skill to inspect the source text, model rationale, timestamp, and assessment provenance. Definitions and record-status counts are available inside the dashboard. These are descriptive, model-assessed app records—not validated proficiency, independent trials, or mastery estimates. Progress is keyed by target language; changing the native language does not transfer credit to another target language.
+
+**Fluent**, above Advanced, is a normal difficulty setting using C2-style language. It shares the same conversation, coaching, evaluation, annotation, length-diagnostic, and XP pipeline as every other level. The choice requests fluent expression; it is not a measured CEFR certification. At every difficulty, the learner chooses the subject: complex historical or political topics remain available within provider safeguards, with simpler expression at lower levels rather than topic refusal. Prompt policies cannot guarantee an external model’s behavior.
+
+The SkellySpeak logo and app name are a home button: select them to return to Chat without losing the conversation. The profile has global retained-activity counts above tabs for every supported language. Global XP is explicitly the sum of separate language accounts; each language tab retains its own XP, evidence, and milestones, including an empty state for unpracticed languages.
+
+Reply prompts explicitly continue the prior exchange, including the opening message, preserve speaker facts, and avoid repeating greetings or questions the learner has already answered. This is a model instruction, not a guarantee of conversational quality.
+
+A small emoji on each reviewed partner reply opens its interpretation and reaction, with an edit-and-resend action. The conversation partner self-reports confusion (🤔?), understanding (🙂), curiosity (🧐), surprise (😮), or concern (😟); confusion takes priority. This runs after the streamed reply using the same partner model and context, adding one background model request per learner message. The coach independently grades grammar and conversational fit (1–5), not understanding. Neither output is a validated proficiency measure. Historical understanding grades are never relabeled as conversational fit.
+
+Speech playback is restricted to the active app window. Browser focus/visibility/page lifecycle and native window focus/close/mobile suspension events cancel active audio and block new background playback. Android pause and iOS resign-active events use Tauri’s suspension notification. Returning enables new playback without resuming cancelled speech. On desktop, the window close button and system close shortcuts close the window after playback cleanup.
+
+**Play reward sounds** in Voice settings offers Yes, No, and Follow TTS (the default, following Read aloud). Brief, quiet synthesized coin tones accompany new XP cards; larger gains use higher, richer patterns at the same volume. XP-icon clicks use a more noticeable rising two-note bubble sound. New confused or understood reactions use short question-like or rising cues. Each sound briefly highlights its visible source. Sound is capped during bursts, never replays historical rewards automatically, and stops when muted or the app becomes inactive. Browser audio requires a user gesture; touch release enables reward audio on iOS, and subsequent gestures resume interrupted audio without replaying stopped rewards. These are interface cues, not claims about learning outcomes. The partner-interpretation dialog shows the referenced exchange with the same learner/partner bubble styling as Chat.
+
+On phones, swipe left from Chat to Lesson and right from Lesson to Chat, including across lesson cards. Taps still operate the cards, vertical gestures scroll, and text inputs and dedicated horizontal scrollers retain their own gestures.
+
+Settings → **Reading & display** separates reading aids from voice controls. **Text size** (75–150%) and **Text spacing** (0–12px of extra space between words) save independently. The default extra word spacing is 2px. Mobile settings use compact, collapsible sections; search also finds controls in closed sections.
+
+Reading text in lessons, corrections, analysis and skill evidence uses the shared interactive word presentation. Coach suggestions preserve word inspection and use a trailing **↗** insertion icon. Tap for an inline meaning; hold or right-click for deeper word insight. Text without saved token annotations prepares complete word annotations when mounted, using the chat tokenization prompt and schema through the configured provider. Ordinary taps reveal prepared meanings without a model call. Saved phrase translations in Coach, lessons and analysis appear when Translation is enabled. Suggestion activation never requests word analysis.
+
+The compact green suggestion tray starts directly with reply bubbles above the input. Only **Understand the exchange** expands; there is no separate Coach label, toggle or header spacer.
+
+The +N tokens have faint circular borders and a brief, subtle floating highlight; hover and keyboard focus strengthen the cue. Dismissing a token preserves its inline space. Evidence underlines belong to the word itself so Spanish and Arabic text keep their baseline when tokens disappear. Reduced-motion preferences disable the floating invitation.
+
+Partner messages use warm-white bubbles with darker olive borders and a left-facing corner; learner messages use blue fills, blue borders and a right-facing corner. Grammar/conversation feedback sits on the learner bubble’s lower edge beside Translate. Chat renders punctuation and whitespace from the saved message, preventing duplicate punctuation in token annotations from adding characters; Spanish opening ¡ and ¿ are preserved. XP token clicks use a soft rising pop, controlled by the existing reward-sound preference. Playback checks the visible token circle and continues after the clicked token disappears.
+
+Audio & Voice settings provide Overall volume, Voice volume, and Sound effects volume (0–100%). Overall volume scales both channels; the two channel sliders set their relative levels. Sound effects can be switched off without changing their saved volume, or restricted to when Read aloud is enabled. Voice volume applies to both cloud and OS speech. Existing installations start at 100% on all three controls, preserving their current playback levels.
+
+Settings reports missing or invalid audio fields and blocks editing incomplete preferences. Error messages identify the failed contract without assuming its cause.
