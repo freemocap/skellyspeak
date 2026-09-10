@@ -1,0 +1,18 @@
+# Only runtime source and locked build inputs enter the Docker context.
+*
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!main.py
+!config.py
+!auth.py
+!auth_store.py
+!admission.py
+!quota.py
+!budget.py
+!transactions.py
+!contracts.py
+!audio_input.py
+!streaming.py
+!observability.py
+!diagnostics.py
