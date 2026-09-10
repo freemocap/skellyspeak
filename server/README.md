@@ -255,8 +255,9 @@ have no TTL until reconciliation; no TTL is added to accounts or spending contro
 
 The Cloud Build identity `skellyspeak-build` needs
 `datastore.indexes.list`, `datastore.indexes.get`,
-`datastore.indexes.update` and `datastore.operations.get`/
-`datastore.operations.list` in the project. Use a narrowly scoped custom role;
+`datastore.indexes.update` in the project. Updates use --async and readiness
+is checked through field configuration, so operation-list/get permissions are
+not needed by this helper. Use a narrowly scoped custom role;
 do not grant Owner/Editor or give these administration permissions to the
 runtime identity. IAM is not modified by the deployment helper. A permissions
 failure is reported as GCLOUD_COMMAND_FAILED, with no raw cloud output logged.
