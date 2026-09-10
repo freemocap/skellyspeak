@@ -175,13 +175,11 @@ The native bundle builds successfully. Desktop and narrow-window layouts, direct
 chat startup and title-free one-click creation were inspected. The keychain lookup
 no longer holds the workspace lock. No database reset was needed. Microphone
 permissions, recording/transcription and live coach replies remain unverified.
-Saved hosted attempts reported HTTP 429. Account lookup and token-balance display
-have been confirmed by the user, but the cause of chat rejection remains unverified.
-The client now preserves documented rate/daily-request/allowance/spending-pause
-reasons and numeric Retry-After values. Restart the native app after this Rust
-change and retry once to capture the specific refusal; existing attempt messages
-retain the diagnosis recorded when they ran. This fixes error classification,
-not the as-yet unidentified hosted admission condition.
+Hosted deployment passed its test, container and exact-revision traffic checks,
+and the user confirmed hosted chat works. The client preserves documented
+rate/allowance/spending-pause reasons and request IDs. See the
+[security audit](SECURITY-AUDIT.md) for additional local hardening and remaining
+repository/cloud checks; source changes require deployment or native restart.
 
 The signed macOS development launcher passed local build, bundle/signature
 verification, Vite readiness, native-process startup and termination cleanup checks.

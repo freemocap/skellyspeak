@@ -129,3 +129,9 @@ contains OAuth query parameters and must not be committed or attached to public 
 No additional runtime code change follows from this evidence. Proceed with the
 locally tested exact-revision deployment and admission hardening, then inspect
 its CI result and authenticated diagnostics before changing any quota.
+
+## Comprehensive follow-up
+
+See [SECURITY-AUDIT.md](SECURITY-AUDIT.md) for the current source audit, confirmed
+repository settings, secret/dependency scans, additional hardening and verification.
+Hosted deployment and chat succeeded before those additional local changes.

@@ -64,3 +64,12 @@ response in these messages. These choices apply
 and [OWASP error-handling guidance](https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html).
 An unsaved entry can be cleared without deleting a saved credential; saved-key
 removal requires confirmation.
+
+## Audit and additional boundaries
+
+See [the September 10 security audit](SECURITY-AUDIT.md) for confirmed fixes,
+redacted secret scans, dependency advisories, repository settings and remaining
+cloud/platform verification. A saved custom bearer key cannot be retained while
+changing its API base URL: explicitly replace/remove it. Native startup restricts
+Unix app data to owner-only access (directory 700; database and lock 600).
+These changes require rebuilding/restarting the native application.

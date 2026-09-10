@@ -391,7 +391,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let directory = app.path().app_data_dir()?;
-            std::fs::create_dir_all(&directory)?;
+            store::prepare_private_directory(&directory)?;
             let state = Arc::new(Application {
                 #[cfg(desktop)]
                 capture: Mutex::new(None),

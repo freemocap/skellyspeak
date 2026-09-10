@@ -23,8 +23,8 @@ def reject(message: str) -> NoReturn:
 def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...], max_tokens: int) -> ChatRequest:
     allowed = {"model", "messages", "temperature", "stream", "max_tokens", "reasoning",
                "provider", "response_format", "modalities", "audio"}
-    if unexpected := payload.keys() - allowed:
-        reject(f"Unsupported request fields: {', '.join(sorted(unexpected))}")
+    if payload.keys() - allowed:
+        reject("Unsupported request fields.")
     model = payload.get("model")
     if not isinstance(model, str) or model not in allowed_models or model not in {"google/gemini-2.5-flash", "openai/gpt-audio-mini"}:
         reject("This model has no hosted pricing contract.")

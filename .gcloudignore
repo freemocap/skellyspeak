@@ -5,3 +5,4 @@
 !server/uv.lock
 !server/Dockerfile
 !server/cloudbuild.yaml
+!server/.dockerignore

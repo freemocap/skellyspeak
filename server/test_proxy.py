@@ -144,3 +144,57 @@ async def test_upstream_payment_failure_preserves_safe_status(proxy: httpx.Async
     assert '"code": 402' in response.text
     assert "PRIVATE_PROVIDER_BODY" not in response.text
     assert "[DONE]" not in response.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('payload,status', [
+    ({'provider': 'PRIVATE_SENTINEL', 'redirect_uri': 'http://127.0.0.1/callback', 'code_challenge': 'a'*43}, 400),
+    ({'provider': 'google', 'redirect_uri': 'http://127.0.0.1/callback', 'code_challenge': 'a'*43, 'code_challenge_method': 'PRIVATE_SENTINEL'}, 400),
+    ({'provider': 'PRIVATE_SENTINEL'}, 422),
+])
+async def test_auth_errors_do_not_reflect_input(proxy, payload, status, caplog):
+    response = await proxy.get('/auth/start', params=payload)
+    assert response.status_code == status
+    assert 'PRIVATE_SENTINEL' not in response.text + caplog.text
+    assert response.json()['request_id'] == response.headers['x-request-id']
+
+
+@pytest.mark.asyncio
+async def test_callback_error_and_unknown_fields_are_not_echoed(proxy, caplog):
+    response = await proxy.get('/auth/callback/google', params={'error': 'PRIVATE_SENTINEL'})
+    assert response.status_code == 400
+    assert 'PRIVATE_SENTINEL' not in response.text + caplog.text
+    value = request(stream=False)
+    value['PRIVATE_SENTINEL'] = 'anything'
+    response = await proxy.post('/v1/chat/completions', json=value)
+    assert response.status_code == 400
+    assert 'PRIVATE_SENTINEL' not in response.text + caplog.text
+
+
+@pytest.mark.asyncio
+async def test_provider_response_limit_stops_reading_without_content_length():
+    reads = []
+    class Chunks(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            for _ in range(10):
+                reads.append(1)
+                yield b'x' * 8
+    async with httpx.AsyncClient(transport=httpx.MockTransport(
+        lambda _: httpx.Response(200, stream=Chunks()))) as client:
+        with pytest.raises(main.HTTPException, match='size limit'):
+            await main.provider_json(client, 'https://example.invalid', limit=10)
+    assert len(reads) == 2
+
+
+@pytest.mark.asyncio
+async def test_provider_redirect_never_receives_credentials():
+    seen = []
+    def handler(request):
+        seen.append(str(request.url))
+        return httpx.Response(307, headers={'Location': 'https://other.invalid'}, text='PRIVATE_SENTINEL')
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        with pytest.raises(main.HTTPException) as error:
+            await main.provider_json(client, 'https://example.invalid', limit=10,
+                                     headers={'Authorization': 'Bearer PRIVATE_SENTINEL'})
+    assert len(seen) == 1
+    assert 'PRIVATE_SENTINEL' not in str(error.value)

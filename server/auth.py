@@ -133,7 +133,7 @@ def parse_google_id_token(id_token: str, *, client_id: str, jwks_client) -> Goog
         options={"require": ["exp", "iat", "aud", "iss", "sub"]},
     )
     if claims.get("iss") not in GOOGLE_ISSUERS:
-        raise AuthError(f"Unexpected token issuer: {claims.get('iss')!r}")
+        raise AuthError("Unexpected identity token issuer.")
     email = claims.get("email", "")
     if not claims.get("email_verified", False):
         raise AuthError(
@@ -226,7 +226,7 @@ def validate_challenge(code_challenge: str, method: str) -> str:
     """Accept a well-formed S256 challenge, and nothing else."""
     if method != CHALLENGE_METHOD:
         raise AuthError(
-            f"Unsupported code_challenge_method {method!r}. Only S256 is accepted."
+            "Only the S256 code challenge method is accepted."
         )
     candidate = code_challenge.strip()
     # A base64url SHA-256 digest is always 43 characters.

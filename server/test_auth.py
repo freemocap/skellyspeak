@@ -231,3 +231,18 @@ class TestSessionRevocationClaim:
             algorithm="HS256",
         )
         assert auth.read_session_token(legacy, signing_key="k" * 32) == ("google:1", 0)
+
+
+def test_config_representation_and_numeric_errors_exclude_secrets(monkeypatch):
+    import config
+    from dataclasses import replace
+    import main
+    value = replace(main.CFG, google_client_secret='PRIVATE_SENTINEL',
+                    jwt_signing_key='PRIVATE_SENTINEL', openrouter_key='PRIVATE_SENTINEL',
+                    groq_key='PRIVATE_SENTINEL')
+    assert 'PRIVATE_SENTINEL' not in repr(value)
+    monkeypatch.setenv('_TEST_INTEGER', 'PRIVATE_SENTINEL')
+    with pytest.raises(config.ConfigError) as error:
+        config._required_int('_TEST_INTEGER')
+    assert 'PRIVATE_SENTINEL' not in str(error.value)
+    assert error.value.__suppress_context__

@@ -3,6 +3,28 @@ use rusqlite::{Connection, OptionalExtension, params};
 use std::path::Path;
 use uuid::Uuid;
 
+pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
+    let mut builder = std::fs::DirBuilder::new();
+    builder.recursive(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        builder.mode(0o700);
+    }
+    builder.create(path)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if std::fs::symlink_metadata(path)?.file_type().is_symlink() {
+            return Err(std::io::Error::other(
+                "Application data directory cannot be a symbolic link.",
+            ));
+        }
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o700))?;
+    }
+    Ok(())
+}
+
 pub struct Store {
     pub(crate) connection: Connection,
     pub(crate) session_id: String,
@@ -132,6 +154,27 @@ impl Store {
                 format!("The workspace is already open or cannot be locked: {e}"),
             )
         })?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
+            let private_file = || -> std::io::Result<()> {
+                lock.set_permissions(std::fs::Permissions::from_mode(0o600))?;
+                let file = std::fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .create(true)
+                    .truncate(false)
+                    .mode(0o600)
+                    .open(path)?;
+                file.set_permissions(std::fs::Permissions::from_mode(0o600))
+            };
+            private_file().map_err(|_| {
+                AppError::new(
+                    ErrorCode::Storage,
+                    "Could not restrict database access to this user.",
+                )
+            })?;
+        }
         let mut connection = Connection::open(path)?;
         connection.pragma_update(None, "foreign_keys", true)?;
         connection.busy_timeout(std::time::Duration::from_secs(3))?;
@@ -696,6 +739,31 @@ mod tests {
             .find(|c| c.id == receipt.entity_id)
             .unwrap()
     }
+    #[cfg(unix)]
+    #[test]
+    fn application_data_and_database_are_owner_only() {
+        use std::os::unix::fs::PermissionsExt;
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("app-data");
+        std::fs::create_dir(&directory).unwrap();
+        std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(0o755)).unwrap();
+        prepare_private_directory(&directory).unwrap();
+        let path = directory.join("practice.sqlite3");
+        std::fs::write(&path, []).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let _store = Store::open(&path).unwrap();
+        assert_eq!(
+            std::fs::metadata(&directory).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        for file in [&path, &path.with_extension("lock")] {
+            assert_eq!(
+                std::fs::metadata(file).unwrap().permissions().mode() & 0o777,
+                0o600
+            );
+        }
+    }
+
     #[test]
     fn startup_opens_chat_without_setup_and_does_not_duplicate_it() {
         let directory = tempfile::tempdir().unwrap();
