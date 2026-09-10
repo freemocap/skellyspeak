@@ -27,6 +27,12 @@ remain planned. Standard handles partner replies;
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
 
+## Parallel development
+
+Read [domain assignments and integration rules](workflow/README.md) before starting
+a domain task. Each implementation stream uses its own user-created worktree.
+Coordinate native app runs because worktrees share the app identity and local data.
+
 ## Run locally
 
 Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and run:

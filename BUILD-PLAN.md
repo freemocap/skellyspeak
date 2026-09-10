@@ -13,7 +13,8 @@ recovery work. Seven local Firestore emulator tests passed. These are completed
 checks, not a fresh verification of a newly launched rebuild session.
 
 Current slice: scheduled partner-reply translation is implemented and locally tested;
-real-provider native QA is next. Then extend the assistance contract deliberately. Do not merge the recovered application
+basic hosted native QA is verified. Next, parallel domain assignments close lifecycle
+gaps and establish the source-linked reading contract. Do not merge the recovered application
 into rebuild or treat released-app tests as rebuild verification.
 
 ## Intention
@@ -258,7 +259,7 @@ assistance and evaluated task routing. Native/live checks remain capability-spec
   platform packaging require their own verification. Recovery's platform results
   do not establish rebuild platform readiness.
 
-## Next implementation slice: bounded passage assistance
+## Assistance implementation sequence
 
 1. Inventory current graph declarations, execution tests and assistance output slots.
    Freeze one small partner-reply assistance contract with immutable passage identity,
@@ -320,3 +321,12 @@ one successful translation attempt per exchange, one saved assistant message and
 one saved translation each, no errors in these exchanges and zero active operations
 at inspection. This verifies the basic hosted path; other routes and interactive
 cancellation/restart scenarios are not established by this session.
+
+## Parallel domain execution
+
+[workflow/README.md](workflow/README.md) defines domain ownership, three initial
+assignments and integration gates. R1 verifies the current translation lifecycle;
+L1 proposes and tests source mapping; U1 designs data-driven reading presentation.
+Contract decisions remain in their owning root documents. Integration into rebuild
+is serialized and verified even when domain implementation proceeds in parallel.
+The user creates domain chats; no agents or worktrees were started by this plan.
