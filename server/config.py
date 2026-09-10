@@ -8,7 +8,7 @@ for every user is far worse to diagnose than one that refuses to boot.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 class ConfigError(RuntimeError):
@@ -45,7 +45,7 @@ def _required_int(name: str) -> int:
     try:
         value = int(raw)
     except ValueError as exc:
-        raise ConfigError(f"{name} must be an integer, got {raw!r}") from exc
+        raise ConfigError(f"{name} must be an integer.") from None
     if value <= 0:
         raise ConfigError(f"{name} must be positive.")
     return value
@@ -68,19 +68,19 @@ def _required_list(name: str) -> tuple[str, ...]:
 class Config:
     # ── Identity ────────────────────────────────────────────────────────────
     google_client_id: str
-    google_client_secret: str
+    google_client_secret: str = field(repr=False)
     # Signs the session tokens this service issues. Rotating it logs everyone
     # out, which is the intended emergency lever.
-    jwt_signing_key: str
+    jwt_signing_key: str = field(repr=False)
     # Public https base of this service, used to build the OAuth redirect that
     # providers must match exactly.
     public_base_url: str
 
     # ── Upstream AI ─────────────────────────────────────────────────────────
-    openrouter_key: str
+    openrouter_key: str = field(repr=False)
     openrouter_base_url: str
     # Speech-to-text. Hosted users must not need a second key of their own.
-    groq_key: str
+    groq_key: str = field(repr=False)
     groq_base_url: str
 
     # Which models this service will pay for. The request body is otherwise

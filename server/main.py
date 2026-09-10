@@ -36,6 +36,7 @@ import jwt as pyjwt
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.exceptions import RequestValidationError
 from google.cloud import firestore
 
 import audio_input
@@ -100,6 +101,31 @@ async def bound_ingress(request: Request, call_next: Callable[[Request], Awaitab
 @app.exception_handler(StarletteHTTPException)
 async def explain_rejection(request: Request, error: StarletteHTTPException) -> JSONResponse:
     return observability.error_response(request, error)
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_parameters(request: Request, error: RequestValidationError) -> JSONResponse:
+    # Framework validation errors can include submitted values. Keep them private.
+    return observability.error_response(request, HTTPException(422, "Missing or invalid request parameters."))
+
+
+async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, **kwargs) -> dict:
+    """Bound decoded upstream bytes before buffering, including compressed responses."""
+    async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
+        if not response.is_success:
+            raise HTTPException(502, f"Upstream provider returned HTTP {response.status_code}.")
+        body = bytearray()
+        async for chunk in response.aiter_bytes():
+            if len(body) + len(chunk) > limit:
+                raise HTTPException(502, "Upstream response exceeds its size limit.")
+            body.extend(chunk)
+    try:
+        payload = json.loads(body)
+    except (ValueError, UnicodeError, RecursionError) as exc:
+        raise HTTPException(502, "Upstream returned invalid JSON.") from exc
+    if not isinstance(payload, dict):
+        raise HTTPException(502, "Upstream returned an invalid response.")
+    return payload
 
 
 # ── Health ──────────────────────────────────────────────────────────────────
@@ -167,7 +193,7 @@ def auth_start(
     if provider != "google":
         raise HTTPException(
             status_code=400,
-            detail=f"Unknown sign-in provider {provider!r}. Only 'google' is available.",
+            detail="Only Google sign-in is available.",
         )
     try:
         target = auth.validate_redirect_uri(redirect_uri)
@@ -205,7 +231,7 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
     """Where Google returns. Exchanges the code, then hands the app a one-time
     code through its own redirect — never the session token itself."""
     if error:
-        raise HTTPException(status_code=400, detail=f"Google reported: {error}")
+        raise HTTPException(status_code=400, detail="Google sign-in was declined or failed.")
     if not code or not state:
         raise HTTPException(status_code=400, detail="Sign-in response was incomplete.")
 
@@ -221,8 +247,8 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     async with httpx.AsyncClient(timeout=20) as client:
-        token_response = await client.post(
-            auth.GOOGLE_TOKEN_URL,
+        token_payload = await provider_json(client,
+            auth.GOOGLE_TOKEN_URL, limit=65536,
             data={
                 "code": code,
                 "client_id": CFG.google_client_id,
@@ -231,13 +257,7 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
                 "grant_type": "authorization_code",
             },
         )
-    if token_response.status_code != 200:
-        # Status only. The body is a third party's and may quote back parts of
-        # the request; it does not belong in our logs.
-        log.error("google token exchange failed with %s", token_response.status_code)
-        raise HTTPException(status_code=502, detail="Google rejected the sign-in.")
-
-    id_token = token_response.json().get("id_token", "")
+    id_token = token_payload.get("id_token", "")
     if not id_token:
         raise HTTPException(status_code=502, detail="Google returned no identity token.")
     try:
@@ -513,10 +533,8 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         provider_id = ""
         try:
             async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
-                upstream = await client.post(url, json=contract.payload, headers=headers)
-            if not upstream.is_success:
-                raise HTTPException(status_code=502, detail=f"AI provider returned {upstream.status_code}.")
-            payload = upstream.json()
+                payload = await provider_json(client, url, limit=4 * 1024 * 1024,
+                                              json=contract.payload, headers=headers)
             if not isinstance(payload, dict) or payload.get("error"):
                 raise HTTPException(status_code=502, detail="AI provider returned an invalid response.")
             provider_id = str(payload.get("id", ""))
@@ -599,15 +617,12 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
                 wav.writeframes(audio.pcm)
             cost = None
             async with asyncio.timeout(60), httpx.AsyncClient(timeout=60) as client:
-                upstream = await client.post(
-                    f"{CFG.groq_base_url}/audio/transcriptions",
+                payload = await provider_json(client,
+                    f"{CFG.groq_base_url}/audio/transcriptions", limit=262144,
                     headers={"Authorization": f"Bearer {CFG.groq_key}"}, data=audio.fields,
                     files={"file": ("audio.wav", output.getvalue(), "audio/wav")},
                 )
-            if not upstream.is_success:
-                raise HTTPException(status_code=502, detail=f"Transcription provider returned {upstream.status_code}.")
             cost = audio.cost_micros
-            payload = upstream.json()
             if not isinstance(payload, dict) or not isinstance(payload.get("text"), str):
                 raise HTTPException(status_code=502, detail="Transcription provider returned invalid text.")
             return JSONResponse(content=payload)

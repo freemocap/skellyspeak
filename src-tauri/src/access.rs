@@ -74,6 +74,26 @@ pub fn base_url(value: &str) -> Result<reqwest::Url> {
     }
     Ok(url)
 }
+
+fn validate_key_destination(
+    saved: &AccessSettings,
+    custom: Option<&CustomEndpoint>,
+    replacing_or_removing: bool,
+) -> Result<()> {
+    if let Some(custom) = custom
+        && saved.custom_key_configured
+        && !replacing_or_removing
+        && base_url(&saved.custom.base_url)?
+            .as_str()
+            .trim_end_matches('/')
+            != base_url(&custom.base_url)?.as_str().trim_end_matches('/')
+    {
+        return Err(error(
+            "Enter a replacement key for this API base URL, or restore the saved URL and remove its key first.",
+        ));
+    }
+    Ok(())
+}
 pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget> {
     let config = execution::config(db)?;
     let access = settings(db)?;
@@ -174,6 +194,7 @@ pub async fn save_access_settings(
         {
             let mut store = state.lock()?;
             if settings(&store.connection)?.revision != expected_revision { return Err(conflict()); }
+            validate_key_destination(&settings(&store.connection)?, custom.as_ref(), key.is_some() || remove_key)?;
             if let Some(id) = &id { store.reserve_credential(id)?; }
         }
         // Native permission prompts must not hold the workspace mutex.
@@ -413,6 +434,29 @@ mod tests {
             assert!(base_url(url).is_err(), "{url}");
         }
     }
+    #[test]
+    fn saved_custom_key_cannot_follow_a_changed_destination() {
+        let db = db();
+        custom(&db, true, false);
+        db.execute("UPDATE ai_config SET custom_credential_id='saved-key'", [])
+            .unwrap();
+        let saved = settings(&db).unwrap();
+        let mut next = saved.custom.clone();
+        validate_key_destination(&saved, Some(&next), false).unwrap();
+        next.standard_model = "another-model".into();
+        validate_key_destination(&saved, Some(&next), false).unwrap();
+        for destination in [
+            "https://other.example/v1",
+            "http://127.0.0.1:4321/v1",
+            "http://127.0.0.1:1234/other-tenant",
+        ] {
+            next.base_url = destination.into();
+            assert!(validate_key_destination(&saved, Some(&next), false).is_err());
+            validate_key_destination(&saved, Some(&next), true).unwrap();
+        }
+        validate_key_destination(&saved, None, false).unwrap();
+    }
+
     #[test]
     fn direct_capabilities_use_distinct_credentials_and_never_require_hosted_auth() {
         let db = db();
