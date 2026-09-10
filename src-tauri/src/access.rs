@@ -153,6 +153,7 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         None
     };
     let path = match capability {
+        Capability::Chat if config.route != ConnectionRoute::Openrouter => "operations",
         Capability::Chat => "chat/completions",
         Capability::Transcription => "audio/transcriptions",
     };
@@ -238,10 +239,15 @@ pub async fn response_bytes(
             429 => "Rate or allowance limit reached; wait before retrying.",
             _ => "Check the endpoint service.",
         };
-        return Err(AppError::new(
+        let error = AppError::new(
             ErrorCode::Provider,
             format!("{label}: HTTP {status}. {hint} No automatic retry was made."),
-        ));
+        );
+        return Err(if status == 429 {
+            error.with_refusal(crate::refusal::from_response(&response))
+        } else {
+            error
+        });
     }
     let mut body = Vec::new();
     while let Some(chunk) = response
@@ -287,7 +293,7 @@ pub async fn check_access(
         };
         (
             if custom {
-                format!("{}/models", access.custom.base_url.trim_end_matches('/'))
+                format!("{}/protocol", access.custom.base_url.trim_end_matches('/'))
             } else {
                 "https://api.groq.com/openai/v1/models".into()
             },
@@ -316,6 +322,40 @@ pub async fn check_access(
     let value: serde_json::Value =
         serde_json::from_slice(&response_bytes(response, "Connection check", 262144).await?)
             .map_err(|_| error("Endpoint returned invalid JSON."))?;
+    if custom {
+        if value["protocol"] != "skellyspeak"
+            || value["version"].as_u64() != Some(1)
+            || value["max_items"].as_u64() != Some(8)
+        {
+            return Err(error(
+                "The endpoint does not implement SkellySpeak protocol version 1.",
+            ));
+        }
+        let store = state.lock()?;
+        if store.connection_config()?.revision != expected_revision {
+            return Err(conflict());
+        }
+        let access = settings(&store.connection)?;
+        let models = value["chat_models"]
+            .as_array()
+            .ok_or_else(|| error("Server returned invalid protocol capabilities."))?;
+        if !models
+            .iter()
+            .any(|model| model.as_str() == Some(&access.custom.standard_model))
+        {
+            return Err(error(
+                "The configured chat model is not supported by this server.",
+            ));
+        }
+        if let Some(model) = access.custom.transcription_model
+            && value["transcription_model"].as_str() != Some(&model)
+        {
+            return Err(error(
+                "The configured transcription model is not supported by this server.",
+            ));
+        }
+        return Ok("SkellySpeak protocol v1 verified. No inference requested.".into());
+    }
     let models = value["data"].as_array().ok_or_else(||error("Endpoint did not return an OpenAI-compatible model list. This check does not establish inference support."))?;
     if !models
         .iter()
@@ -369,18 +409,25 @@ pub async fn transcribe(
         .multipart(form)
         .send()
         .await
-        .map_err(|_| error("Transcription request failed. No automatic retry was made."))?;
+        .map_err(|_| AppError::new(ErrorCode::UnknownOutcome, "Transcription outcome is unknown after a connection failure. Processing may have incurred a charge. No automatic retry was made."))?;
+    let status = response.status();
     let bytes = if target.route == ConnectionRoute::Hosted {
-        hosted::body(response).await?
+        hosted::body(response).await
     } else {
-        response_bytes(response, "Transcription", 131072).await?
-    };
+        response_bytes(response, "Transcription", 131072).await
+    }
+    .map_err(|mut error| {
+        if !status.is_client_error() {
+            error.code = ErrorCode::UnknownOutcome;
+        }
+        error
+    })?;
     #[derive(Deserialize)]
     struct Transcript {
         text: String,
     }
     let transcript: Transcript = serde_json::from_slice(&bytes)
-        .map_err(|_| error("Endpoint returned an invalid transcription response."))?;
+        .map_err(|_| AppError::new(ErrorCode::UnknownOutcome, "Endpoint returned an invalid transcription response. Processing may have incurred a charge; no automatic retry was made."))?;
     if transcript.text.trim().is_empty() {
         return Err(error("No speech was recognized. Try another recording."));
     }
@@ -493,7 +540,7 @@ mod tests {
         .unwrap();
         let chat = resolve(&db, Capability::Chat).unwrap();
         assert!(chat.credential.is_none());
-        assert_eq!(chat.url, "http://127.0.0.1:1234/v1/chat/completions");
+        assert_eq!(chat.url, "http://127.0.0.1:1234/v1/operations");
         assert_eq!(chat.model, "local-chat");
         assert!(
             resolve(&db, Capability::Transcription)

@@ -32,7 +32,12 @@ export function AccessProfileForm({
     void invoke<AccessSettings>("get_access_settings")
       .then((value) => {
         setSaved(value);
-        setEndpoint(value.custom);
+        setEndpoint({
+          ...value.custom,
+          standardModel:
+            value.custom.standardModel || "google/gemini-2.5-flash",
+          fastModel: value.custom.fastModel || "google/gemini-2.5-flash",
+        });
       })
       .catch((e) => setError(errorMessage(e)));
   }, []);
@@ -114,7 +119,7 @@ export function AccessProfileForm({
   const configured = custom
     ? saved?.customKeyConfigured
     : saved?.groqKeyConfigured;
-  const label = custom ? "Endpoint bearer key" : "Groq API key";
+  const label = custom ? "Server session token" : "Groq API key";
   return (
     <section className={custom ? "custom-access" : "api-key-row"}>
       <ErrorNotice error={error} />
@@ -133,7 +138,7 @@ export function AccessProfileForm({
                 <Field label="API base URL">
                   <input
                     type="url"
-                    placeholder="http://localhost:1234/v1"
+                    placeholder="http://127.0.0.1:8765/v1"
                     value={endpoint.baseUrl}
                     onChange={(e) => update("baseUrl", e.target.value)}
                     autoCapitalize="none"
@@ -141,7 +146,8 @@ export function AccessProfileForm({
                   />
                 </Field>
                 <p className="field-note">
-                  HTTPS, or HTTP on loopback. Include the API path, e.g. /v1.
+                  SkellySpeak server API URL, including /v1. HTTPS, or HTTP on
+                  loopback.
                 </p>
                 <Field label="Authentication">
                   <select
@@ -151,7 +157,7 @@ export function AccessProfileForm({
                     }
                   >
                     <option value="none">No authentication</option>
-                    <option value="bearer">Bearer API key</option>
+                    <option value="bearer">Bearer session token</option>
                   </select>
                 </Field>
               </>
@@ -250,10 +256,7 @@ export function AccessProfileForm({
               </div>
             </div>
             {custom && (
-              <details
-                className="access-disclosure"
-                open={!saved.custom.baseUrl || undefined}
-              >
+              <details className="access-disclosure">
                 <summary>
                   <span>Models & voice</span>
                 </summary>
@@ -285,7 +288,7 @@ export function AccessProfileForm({
                       onChange={(e) =>
                         update(
                           "transcriptionModel",
-                          e.target.checked ? "whisper-1" : null,
+                          e.target.checked ? "whisper-large-v3" : null,
                         )
                       }
                     />

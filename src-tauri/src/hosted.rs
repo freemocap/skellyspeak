@@ -23,13 +23,15 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
             .and_then(|value| value.to_str().ok())
             .and_then(|value| value.parse::<u32>().ok());
         let mut bytes = Vec::new();
-        while let Some(chunk) = response
-            .chunk()
-            .await
-            .map_err(|_| fault("Could not read hosted limit response."))?
+        while let Some(chunk) =
+            response.chunk().await.map_err(|_| {
+                fault("Could not read hosted limit response.")
+                    .with_refusal(crate::refusal::classify(None, retry_after, None))
+            })?
         {
             if bytes.len() + chunk.len() > 65536 {
-                return Err(fault("Hosted limit response exceeds its size limit."));
+                return Err(fault("Hosted limit response exceeds its size limit.")
+                    .with_refusal(crate::refusal::classify(None, retry_after, None)));
             }
             bytes.extend_from_slice(&chunk);
         }
@@ -70,6 +72,16 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
 }
 
 fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
+    let value: serde_json::Value = serde_json::from_slice(bytes).unwrap_or(serde_json::Value::Null);
+    let refusal = crate::refusal::classify(
+        value.get("code").and_then(|v| v.as_str()),
+        retry_after,
+        value.get("request_id").and_then(|v| v.as_str()),
+    );
+    limit_message(bytes, retry_after).with_refusal(refusal)
+}
+
+fn limit_message(bytes: &[u8], retry_after: Option<u32>) -> AppError {
     let value: serde_json::Value = match serde_json::from_slice(bytes) {
         Ok(value) => value,
         Err(_) => {

@@ -1,9 +1,13 @@
 # AI strategy and provider contract proposal
 
-Status: approved direction. Hosted desktop authentication and hosted/own-key partner replies are implemented;
+Status: approved direction. Hosted desktop authentication and partner/coach replies
+through Hosted, API-key and Custom URL routes are implemented;
 [architecture.md](./architecture.md) describes its concrete contracts and
 [README.md](./README.md) records verification limits. Broader operation families,
-assistance, other access routes and evaluation-dependent behavior below remain planned.
+assistance and evaluation-dependent behavior below remain planned. Chat and desktop
+transcription share native network capacity; submitted chat turns have scoped
+refusal holds. Shared admission now also guards fresh submissions and audio;
+durable audio receipts now record outcomes without storing recordings or transcript text.
 
 [AI-EVALUATION.md](./AI-EVALUATION.md) names the initial provider/model candidates,
 conformance checks and bounded evaluation gates. Candidate selection is distinct
@@ -35,25 +39,32 @@ actual model identity on attempts; never infer model identity from a friendly la
 | --- | --- | --- |
 | Hosted sign-in | Rust → hosted service → approved provider | Session credential; server-authorized models, quota and metering; upstream provider secret stays server-side |
 | Own API key | Rust → selected provider | Provider adapter, model assignments and device-held key; direct provider usage is reported locally when available |
-| Custom URL | Rust → explicitly configured endpoint | URL, supported protocol, model IDs, declared capabilities and explicit authentication mode; local or remote endpoint |
+| Custom URL | Rust → self-hosted SkellySpeak server → configured providers | User supplies the location of an instance of our server; same versioned SkellySpeak protocol as hosted access |
 
 Hosted sign-in provides access to inference, not storage or synchronization of
 conversations. Local identity survives sign-out. Sign-out revokes undispatched
 hosted work and attempts to cancel in-flight hosted requests; late results cannot
 publish under the revoked session. It does not select a different route.
 
-Custom URL is an endpoint location plus a protocol contract, not a claim that any
-URL speaks the same API. Initial adapter protocols must be chosen explicitly.
-Configuration validation and a clearly initiated connection/capability test report
-authentication, unsupported features and malformed responses separately. Model
-discovery may populate choices where supported; manual IDs remain a deliberate
-configuration path. Do not silently try unrelated endpoints or credentials.
+Custom URL means a self-hosted instance of our server code, locally or remotely.
+It is not an arbitrary OpenAI-compatible service, provider dialect or endpoint adapter.
+Hosted and self-hosted access share the SkellySpeak protocol, including any future
+grouped submission and independent-result contract. Provider integration belongs
+inside that server. Validate server protocol identity/version explicitly; do not
+probe unrelated APIs or infer compatibility from a model list.
 
-Credential-free custom endpoints are an explicit authentication choice. Transport
-policy must support intentionally configured local servers while protecting secrets:
-proposed default permits HTTP only on loopback and requires HTTPS elsewhere.
+Self-hosted authentication/bootstrap must be specified against our server's actual
+authorization contract; neither hosted-login reuse nor unauthenticated operation
+is assumed. Transport policy protects secrets:
+permit HTTP only on loopback and require HTTPS elsewhere.
 LAN HTTP support, if wanted, needs a deliberate visible configuration decision.
 Adapters must not forward authorization across origins on redirects.
+
+Exactly one route is selected explicitly by activating its AI access tab in Settings.
+Each tab includes a radio indicator reflecting the persisted route. Saving
+credentials, signing in and signing out never select a route. There is no priority list or automatic route fallback.
+Custom-server model fields start with the supported Gemini chat defaults; enabling
+voice selects whisper-large-v3. Advanced model fields remain editable.
 
 An unavailable selected route fails affected work visibly. Never silently switch
 from local to hosted, from the learner's key to hosted billing, or between models.
@@ -248,15 +259,26 @@ Proposed defaults to review: the task assignments above and their evaluation gat
 explicit capability-based adapters, no automatic route/model substitution, and
 complete-prose validation before display.
 
-The focused selection work before implementation is:
+The initial access adapters and configuration are implemented: Hosted, OpenRouter
+chat plus Groq transcription, and explicitly configured SkellySpeak-server Custom URL
+capabilities. Credential and target rules are recorded in `architecture.md` and
+`SECURITY.md`; live checks remain route/platform-specific in README.
 
-1. Choose the initial provider/protocol adapter set and configuration UI contract.
-2. Confirm the standard Gemini binding; evaluate fast-model candidates per operation
+The next implementation and selection work is:
+
+1. Complete shared request admission and refusal holds in the
+   [resilience checkpoint](./BUILD-PLAN.md#next-checkpoint-request-load-resilience)
+   before expanding automatic analysis. Route/model selection never grants an
+   additional concurrency pool, retry allowance or graph budget.
+2. Evaluate the standard Gemini binding and fast-model candidates per operation
    and language, then select routing rules, overrides and capability requirements.
 3. Evaluate local versus endpoint embeddings and select the compatible emoji resource.
-4. Set context, automatic-work, retry and concurrency budgets from those results.
-5. Specify credential lifecycle, hosted request/metering contract and adapter tests.
+4. Set finite graph-expansion, context and attempt budgets from measured workloads;
+   smaller/cheaper models do not justify unlimited work.
+5. Extend adapter conformance tests to typed refusal scope, no dispatch while held,
+   and shared admission across chat/audio and route changes. Hosted protocol gating
+   requires its own explicit contract; it is not required for direct/custom services.
 
-Storage and frontend-state design can proceed against these logical boundaries;
-provider integration cannot be declared implementation-ready until its concrete
-protocols and acceptance checks are selected. Visual studies remain independent.
+The [execution contract](./EXECUTION.md#shared-admission-contract--next-implementation-slice)
+owns scheduling and recovery behavior. Provider adapters supply normalized facts;
+UI components do not independently decide to retry, fail over or fan out work.

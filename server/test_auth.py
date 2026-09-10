@@ -214,23 +214,17 @@ class TestSessionRevocationClaim:
         )
         assert auth.read_session_token(token, signing_key="k" * 32) == ("google:1", 7)
 
-    def test_a_token_without_a_version_reads_as_zero(self):
-        # Tokens minted before revocation existed carry no `tv`. They must read
-        # as version 0 — the version every account starts at — not crash.
-        import jwt as _jwt
-        import time as _time
-
-        legacy = _jwt.encode(
-            {
-                "sub": "google:1",
-                "iat": int(_time.time()),
-                "exp": int(_time.time()) + 60,
-                "iss": "skellyspeak-api",
-            },
-            "k" * 32,
-            algorithm="HS256",
-        )
-        assert auth.read_session_token(legacy, signing_key="k" * 32) == ("google:1", 0)
+    @pytest.mark.parametrize("version", [None, True, -1, "0", 1.5, {}])
+    def test_invalid_or_missing_version_is_rejected(self, version):
+        import jwt
+        import time
+        claims = {"sub": "google:1", "iat": int(time.time()), "exp": int(time.time()) + 60,
+                  "iss": "skellyspeak-api"}
+        if version is not None:
+            claims["tv"] = version
+        token = jwt.encode(claims, "k" * 32, algorithm="HS256")
+        with pytest.raises(auth.AuthError):
+            auth.read_session_token(token, signing_key="k" * 32)
 
 
 def test_config_representation_and_numeric_errors_exclude_secrets(monkeypatch):

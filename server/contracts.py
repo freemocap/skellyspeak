@@ -85,6 +85,7 @@ def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...],
     outbound = dict(payload)
     outbound["max_tokens"] = requested
     outbound["provider"] = {
+        "allow_fallbacks": False,
         "require_parameters": True,
         "max_price": {"prompt": prompt_price, "completion": completion_price, "request": 0},
     }

@@ -205,7 +205,7 @@ impl Store {
                 params![id(), serde_json::to_string(&preferences)?],
             )?;
             tx.commit()?;
-        } else if version != 3 && version != 4 {
+        } else if !(3..=7).contains(&version) {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 "Unsupported database schema. No data was changed.",
@@ -233,6 +233,31 @@ impl Store {
         if version == 3 {
             let tx = connection.transaction()?;
             tx.execute_batch(include_str!("access-schema.sql"))?;
+            tx.commit()?;
+        }
+        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 4 {
+            let tx = connection.transaction()?;
+            tx.execute_batch(include_str!("refusal-schema.sql"))?;
+            tx.commit()?;
+        }
+        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 5 {
+            let tx = connection.transaction()?;
+            tx.execute_batch(include_str!("holds-schema.sql"))?;
+            // Preserve active refusal authority when adding shared admission.
+            let held = tx
+                .prepare("SELECT context,refusal_hold FROM turns WHERE refusal_hold IS NOT NULL")?
+                .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
+                .collect::<rusqlite::Result<Vec<_>>>()?;
+            for (context, error) in held {
+                let context: serde_json::Value = serde_json::from_str(&context)?;
+                let target = serde_json::from_value(context["target"].clone())?;
+                crate::holds::record(&tx, &target, &serde_json::from_str(&error)?)?;
+            }
+            tx.commit()?;
+        }
+        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 6 {
+            let tx = connection.transaction()?;
+            tx.execute_batch(include_str!("transcription-schema.sql"))?;
             tx.commit()?;
         }
         let store = Self {
@@ -352,6 +377,13 @@ impl Store {
                 tx.execute("UPDATE ai_config SET paused=?1 WHERE singleton=1", [paused])?;
                 tx.execute("UPDATE operations SET permit=0 WHERE state='ready'", [])?;
                 "execution".into()
+            }
+            Action::RecoverAiAccess {
+                hold_id,
+                expected_generation,
+            } => {
+                crate::holds::recover(&tx, &hold_id, &expected_generation)?;
+                hold_id
             }
             Action::StartChat { language_id } => {
                 let (partner_id, relationship_id) =

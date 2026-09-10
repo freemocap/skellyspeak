@@ -88,3 +88,37 @@ def test_device_registration_is_bounded_and_rejects_paths(ledger: FakeDb) -> Non
     quota.record_device(ledger, "learner", install_id="00000000-0000-4000-8000-000000000000",
                         platform="macos", app_version="next")
     assert len(ledger.store) == quota.MAX_DEVICES
+
+
+def test_inference_flood_preserves_bounded_control_capacity(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(admission.time, "monotonic", lambda: 0.0)
+    gate: admission.AuthenticatedIngress = admission.AuthenticatedIngress()
+    for index in range(4):
+        for _ in range(admission.SUBJECT_LIMITS["inference"]):
+            gate.take(f"learner-{index}", lane="inference")
+    for _ in range(1000):
+        with pytest.raises(HTTPException):
+            gate.take("learner-0", lane="inference")
+    for index in range(2):
+        for _ in range(admission.SUBJECT_LIMITS["control"]):
+            gate.take(f"learner-{index}", lane="control")
+    with pytest.raises(HTTPException):
+        gate.take("learner-2", lane="control")
+    assert len(gate._total._hits) == sum(admission.PROCESS_LIMITS.values())
+    assert len(gate._subjects) == 4
+
+
+def test_control_flood_does_not_block_inference_and_windows_expire(monkeypatch: pytest.MonkeyPatch) -> None:
+    now: list[float] = [0.0]
+    monkeypatch.setattr(admission.time, "monotonic", lambda: now[0])
+    gate: admission.AuthenticatedIngress = admission.AuthenticatedIngress()
+    for index in range(2):
+        for _ in range(admission.SUBJECT_LIMITS["control"]):
+            gate.take(f"learner-{index}", lane="control")
+    with pytest.raises(HTTPException):
+        gate.take("learner-0", lane="control")
+    gate.take("learner-0", lane="inference")
+    now[0] = 60.0
+    gate.take("learner-0", lane="control")
+    gate.take("learner-0", lane="inference")
+    assert len(gate._total._hits) == 2

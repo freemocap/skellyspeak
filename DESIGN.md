@@ -274,7 +274,9 @@ reopen the product definition.
 
 AI-dependent work requires a reachable configured AI service. Provide three access
 routes: hosted access through sign-in, the learner's own API key, and a custom URL
-for AI calls. A custom endpoint may be local or remote. Connectivity follows the
+for a self-hosted instance of our server code using the same SkellySpeak protocol.
+That server may be local or remote; arbitrary OpenAI-compatible endpoints are outside
+Custom URL scope. Connectivity follows the
 chosen route; a separate offline product mode is not required. Specific endpoint
 and speech capabilities will be expressed by the provider contract.
 
@@ -370,7 +372,8 @@ and source-linked language assistance before treating the visual shell as comple
 - [x] Review architecture and explicitly authorize implementation.
 
 Implementation checkpoints and actual user checks are tracked in [BUILD-PLAN.md](./BUILD-PLAN.md).
-The local foundation is runnable; AI, assessment and garden behavior are not yet implemented.
+The local foundation and chat access are implemented; assessment and garden behavior
+remain future work. README records runnable behavior and verification limits.
 
 ## Presentation direction
 
@@ -403,11 +406,51 @@ user-controlled Git operation with server tests and container checks as gates.
 ## AI access restoration decision
 
 One settings section owns Hosted, API keys (OpenRouter chat and Groq transcription)
-and Custom URL access. Custom services declare audio support explicitly; chat-only
-services remain valid. Requests capture their target and never infer another route
+and Custom URL access. Custom URL targets our self-hosted server implementation and
+shares its versioned protocol with hosted access. Requests capture their target and never infer another route
 from a failed request. Preserve the reference's separation of chat and speech providers
 without inheriting its whole credential implementation.
 
 Retain platform-protected credential storage following Apple and provider guidance;
 no session-only default or alternate file store is adopted. Saved credentials are
 not revealed in settings. See `SECURITY.md` for sources and verification limits.
+
+## Reference interaction fidelity
+
+The composer, settings and execution inspector use the reference application's
+visual hierarchy and interactions as their target. Evaluate individual styles and
+components against current ownership and contracts before reuse; do not transplant
+provider orchestration, persistence or the reference pipeline into presentation.
+Restore compact, aligned Record/Stop and Send controls, a subordinate styled Discard
+action, distinct modal surfaces, and compact searchable autosaving settings.
+
+Audio settings include persisted auto-send transcriptions and waveform history
+duration. A longer waveform window means visible amplitude history, not automatic
+silence detection. Auto-send submits the completed transcript through ordinary
+admission exactly once; failed acceptance retains the draft. It must not bypass
+holds or send into a different conversation after navigation. Handling an existing
+typed draft must be explicit in implementation and verification.
+
+The AI graph is a read-only projection of declared operations, dependency edges
+and attempt states. Selecting nodes may expose existing inspection/actions; opening
+or laying out the graph must not trigger inference. Show only implemented nodes.
+Graph restoration does not require completion of the full annotation pipeline.
+
+## Request-load resilience policy
+
+Harden request admission before expanding automatic analysis. One user action may
+create several declared operations, but must have a finite work budget. Opening a
+panel, restoring a window or reading a report must not create inference work.
+Resume releases eligible work through capacity limits; it does not flush a backlog
+directly to providers. A refused allowance holds related work with a visible reason.
+
+Hosted, API-key and Custom URL are access choices within the same native execution
+policy. Changing providers must not multiply available local workers or silently
+retarget queued work. Status and credential checks need their own bounded capacity
+so diagnosis remains possible while paid work is held.
+
+The hosted service enforces its own limits independently of client cooperation.
+A possible protocol gate can retire incompatible clients, but a supplied version
+is not proof of identity or protection against abuse. That gate remains a proposal.
+See the [incident evidence](./INCIDENT-POSTMORTEM.md) and
+[implementation checkpoint](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).

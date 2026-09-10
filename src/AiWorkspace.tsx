@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { Snapshot } from "./contracts";
 import { useDirectory, type Run } from "./useDirectory";
@@ -117,7 +117,7 @@ export function AiDock({
   return (
     <section
       className="ai-dock"
-      style={{ height: `${height}dvh` }}
+      style={{ "--ai-dock-height": `${height}dvh` } as CSSProperties}
       aria-label="AI activity"
     >
       <div

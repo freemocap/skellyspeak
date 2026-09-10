@@ -41,6 +41,8 @@ from google.cloud import firestore
 
 import audio_input
 import admission
+import grouped
+import work_admission
 import budget
 import contracts
 import auth
@@ -78,7 +80,7 @@ def admit_http(request: Request) -> None:
     if request.method == "GET" and request.url.path == "/health":
         liveness_ingress.take()
         return
-    protected = {"/v1/me", "/v1/diagnostics", "/v1/chat/completions", "/v1/audio/transcriptions"}
+    protected = {"/v1/me", "/v1/diagnostics", "/v1/chat/completions", "/v1/audio/transcriptions", "/v1/operations", "/v1/protocol"}
     header = request.headers.get("authorization", "")
     scheme, _, token = header.partition(" ")
     if request.url.path in protected and scheme.lower() == "bearer" and 0 < len(token) <= 4096:
@@ -87,7 +89,7 @@ def admit_http(request: Request) -> None:
         except (auth.AuthError, ValueError, TypeError):
             pass
         else:
-            authenticated_ingress.take(subject)
+            authenticated_ingress.take(subject, lane="control" if request.url.path in {"/v1/me", "/v1/diagnostics", "/v1/protocol"} else "inference")
             return
     # An unverified Authorization header never earns an authenticated allowance.
     ingress.take()
@@ -384,7 +386,7 @@ FALLBACK_MICROS_PER_REQUEST = 2_000
 
 
 @app.get("/v1/me")
-def me(request: Request, who: quota.Principal = Depends(current_user)) -> dict[str, object]:
+def me(request: Request, who: quota.Principal = Depends(diagnostic_user)) -> dict[str, object]:
     """Identity and remaining allowance, for the quota display in the app.
 
     Doubles as the device check-in, so "which machines" stays current instead
@@ -629,3 +631,61 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
         finally:
             await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
 
+
+
+async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
+                               *, who: quota.Principal) -> dict[str, object]:
+    reservation: budget.Reservation | None = None
+    cost: int | None = 0
+    tokens: int = 0
+    provider_id: str = ""
+    state = "failed"
+    try:
+        with anyio.CancelScope(shield=True):
+            reservation = await anyio.to_thread.run_sync(partial(_reserve, who, item.contract.reserve_micros))
+        # Leave a full work deadline inside the lease, including after slow ledger work.
+        if time.time() + work_admission.WORK_SECONDS >= held.expires_at:
+            raise HTTPException(409, "Admission lease is too close to expiry.")
+        with anyio.fail_after(work_admission.WORK_SECONDS):
+            async with httpx.AsyncClient(timeout=work_admission.WORK_SECONDS) as client:
+                cost = None
+                state = "unknown"
+                payload = await provider_json(client, f"{CFG.openrouter_base_url}/chat/completions",
+                    limit=4 * 1024 * 1024, json=item.contract.payload,
+                    headers={"Authorization": f"Bearer {CFG.openrouter_key}", "X-Title": "SkellySpeak"})
+        if payload.get("error"):
+            raise HTTPException(502, "Invalid provider response.")
+        provider_id = str(payload.get("id", ""))
+        cost, tokens = _usage_from(payload)
+        if cost is not None:
+            state = "succeeded"
+        return {"type": "result", "response": payload}
+    finally:
+        with anyio.CancelScope(shield=True):
+            try:
+                if reservation is not None:
+                    await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+            except BaseException:
+                state = "unknown"
+                raise
+            finally:
+                await anyio.to_thread.run_sync(partial(work_admission.finish, db, claim=held, state=state))
+
+
+@app.post("/v1/operations")
+async def operations(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
+    body = await read_capped_body(request, MAX_JSON_BYTES, "Operation group")
+    try:
+        payload = json.loads(body)
+    except (ValueError, UnicodeError, RecursionError) as error:
+        raise HTTPException(400, "Malformed operation group.") from error
+    items = grouped.parse(payload, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
+    return StreamingResponse(grouped.results(items, db=db, who=who,
+        execute=partial(execute_grouped_item, who=who)), media_type="application/x-ndjson")
+
+
+@app.get("/v1/protocol")
+def protocol(who: quota.Principal = Depends(diagnostic_user)) -> dict[str, object]:
+    return {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
+            "chat_models": [model for model in CFG.allowed_models if model == "google/gemini-2.5-flash"],
+            "transcription_model": "whisper-large-v3"}

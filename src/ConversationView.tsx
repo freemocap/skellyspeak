@@ -223,6 +223,7 @@ export function ConversationView({
             <button
               type="button"
               onClick={() => void recorder.cancel()}
+              className="mic-cancel"
               aria-label="Discard recording"
             >
               Discard

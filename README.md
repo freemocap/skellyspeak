@@ -150,6 +150,7 @@ see [privacy and data flow](./privacy.md).
 npm test
 npm run build
 npm run contracts:check
+npm run styles:check
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --lib --tests -- -D warnings
 cargo test --manifest-path src-tauri/Cargo.toml --lib
@@ -166,6 +167,25 @@ source deletion, scoped snapshots, captured settings, interrupted attempts, outp
 validation and token retention. Loopback HTTP conformance tests exercise the actual
 adapter, explicit model requests, redirect refusal and error redaction. They require
 localhost networking permission and make no live AI calls.
+
+Native request admission now shares four permits across partner chat, coach chat and
+desktop transcription on all access routes. One audio request may wait for capacity;
+excess waiting audio is rejected without submission. Tests cover mixed occupancy,
+queue saturation, source/configuration invalidation and release on cancellation.
+Queued chat/coach turns now pause on matching HTTP 429 refusals, with the reason and
+earliest retry shown in execution inspection. Holds survive restart; recovery is
+explicit and Step cannot bypass them. Shared access holds also block fresh Send
+and transcription. Recover access in the execution panel checks the retry time
+and refuses stale recovery actions; it makes no AI call and leaves queued turns
+paused. Transcription receipts now retain route, model, timing and outcome;
+interrupted attempts become unknown on restart and are never replayed. The execution
+panel shows these receipts, and usage reports include them with unavailable token
+usage. Audio and transcript text are not stored in receipts;
+this limit does not establish a bound on upstream work after local cancellation.
+Capacity is provisional. `WARN ai_admission` lines go to the native process's stderr
+(the development launch terminal), at most once per event per minute. They identify
+chat capacity waiting, audio queue rejection, or audio wait duration without request
+content or endpoint details. No persistent log file or telemetry upload is added.
 
 Automated checks cover PKCE/state validation, account decoding, hosted payload rules,
 route capture, credential revocation, retained profile counts and local HTTP adapters.
@@ -214,18 +234,24 @@ authenticated service status check; the matching server deployment is required.
 
 ## AI access foundation: current source checkpoint
 
-Settings → AI access has Hosted sign-in, API keys and Custom URL tabs. API keys
-use OpenRouter for partner/coach replies and Groq Whisper for transcription.
-Custom URL uses OpenAI-compatible Chat Completions and optionally multipart audio
-transcription, with explicit Standard/Fast IDs, transcription model, base URL and
-bearer/no-auth choice. Include the service's API path (often `/v1`) in the base URL.
-HTTPS is required except on loopback. There is no automatic endpoint or key fallback.
+Custom URL connects to a self-hosted SkellySpeak server. Hosted and Custom URL chat
+use version-1 grouped `/operations`; OpenRouter chat and Groq transcription use
+direct API keys. Include `/v1` in the custom API base URL. HTTPS is required except
+on loopback. No automatic endpoint or credential fallback is provided.
 
-Groq key verification uses authenticated GET `/models`. Custom **Check connection**
-uses GET `/models` without inference; failure to implement model listing is reported
-explicitly and does not silently try another protocol. Successful listing establishes
-connectivity/authentication, not audio support or inference quality. Actual requests
-validate their output. Fast remains unassigned. Read-aloud is still future work.
+Custom Check connection calls authenticated `/protocol`, validates the protocol
+version and configured chat/transcription capabilities, and performs no inference.
+Our server requires a session token issued by that server. Selecting no authentication
+cannot bypass server authentication. Hosted session credentials are never reused for
+Custom URL; its token is stored separately and bound to the saved destination.
+Groq key verification uses its `/models` endpoint. Fast task routing and read-aloud
+remain unimplemented. A protocol check does not establish live inference quality.
+
+Hosted and custom chat batch only operations sharing captured destination and
+credential authority. Custom requests omit hosted install/platform/version headers.
+Transcription remains a separate multipart request using the configured server model.
+Full local server/Custom URL app verification is pending emulator setup; loopback
+transport tests do not substitute for that check.
 
 Saved API keys remain in the platform credential store; no session-only or plain-file
 storage option was added. See [credential decisions and sources](SECURITY.md).

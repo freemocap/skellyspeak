@@ -40,7 +40,7 @@ def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
     request = contracts.chat_request(payload(), allowed_models=MODELS, max_tokens=32768)
     assert request.payload["max_tokens"] == 32768
     assert request.payload["provider"] == {
-        "require_parameters": True, "max_price": {"prompt": 1, "completion": 3, "request": 0},
+        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 1, "completion": 3, "request": 0},
     }
     assert request.reserve_micros >= 32768 * 3
 

@@ -159,6 +159,9 @@ pub async fn complete(
     key: &str,
     dispatch: &crate::execution::Dispatch,
 ) -> Result<Completion> {
+    if dispatch.route != ConnectionRoute::Openrouter {
+        return crate::grouped::complete(client, key, dispatch).await;
+    }
     let url = &dispatch.target.url;
     request(
         client,
@@ -183,9 +186,6 @@ pub fn payload(
         ));
     }
     let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":2048,"temperature":0.7,"reasoning":{"enabled":false}});
-    if route == ConnectionRoute::Custom {
-        payload.as_object_mut().expect("object").remove("reasoning");
-    }
     if route == ConnectionRoute::Openrouter {
         payload["provider"] = serde_json::json!({"allow_fallbacks":false});
     }
@@ -219,14 +219,19 @@ async fn request(
         };
     }
     if !response.status().is_success() {
-        return Err(AppError::new(
+        let error = AppError::new(
             ErrorCode::Provider,
             format!(
                 "{} HTTP {}. Check sign-in, allowance and model access in Settings. No automatic retry was made.",
                 route.label(),
                 response.status().as_u16()
             ),
-        ));
+        );
+        return Err(if response.status().as_u16() == 429 {
+            error.with_refusal(crate::refusal::from_response(&response))
+        } else {
+            error
+        });
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response.chunk().await.map_err(|_| malformed())? {
@@ -444,6 +449,9 @@ mod transport_tests {
         worker.join().unwrap();
         assert!(error.message.contains("Daily request limit reached"));
         assert!(error.message.contains("Retry-After: 60 seconds"));
+        let refusal = error.refusal.unwrap();
+        assert!(refusal.retry_at.unwrap() > crate::refusal::now());
+        assert!(!refusal.service_wide); // Text alone cannot widen the scope.
         assert!(!error.message.contains("test-credential"));
     }
     #[tokio::test]
@@ -476,31 +484,5 @@ mod transport_tests {
             destination.accept().unwrap_err().kind(),
             std::io::ErrorKind::WouldBlock
         );
-    }
-    #[tokio::test]
-    async fn custom_chat_omits_vendor_fields_and_all_auth_when_none_selected() {
-        let (url, worker) = server_auth(
-            "200 OK",
-            r#"{"id":"local","model":"my-model","choices":[{"finish_reason":"stop","message":{"content":"Hola"}}]}"#,
-            "",
-            false,
-        );
-        let output = request(
-            &client().unwrap(),
-            &url,
-            "",
-            "my-model",
-            &[],
-            ConnectionRoute::Custom,
-            "private-install",
-        )
-        .await
-        .unwrap();
-        assert_eq!(output.actual_model, "my-model");
-        assert_eq!(output.input_tokens, None);
-        let body = worker.join().unwrap();
-        assert!(body.get("provider").is_none());
-        assert!(body.get("reasoning").is_none());
-        assert_eq!(body["model"], "my-model");
     }
 }

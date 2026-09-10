@@ -7,6 +7,56 @@ use crate::{
 use rusqlite::{Connection, OptionalExtension, params};
 use uuid::Uuid;
 
+// Outstanding operations include running, paused and dependency-waiting work.
+// These budgets bound accepted work; they do not change network concurrency.
+const OUTSTANDING_NETWORK_LIMIT: i64 = 64;
+const TURN_ATTEMPT_LIMIT: i64 = 16;
+static BUDGET_WARNING: std::sync::Mutex<Option<std::time::Instant>> = std::sync::Mutex::new(None);
+
+fn budget_error(message: &str) -> AppError {
+    let mut last = BUDGET_WARNING
+        .lock()
+        .expect("work budget diagnostics mutex");
+    let now = std::time::Instant::now();
+    if last.is_none_or(|previous| now.duration_since(previous).as_secs() >= 60) {
+        eprintln!(
+            "WARN ai_admission event=work_budget_rejected outstanding_limit={OUTSTANDING_NETWORK_LIMIT} turn_attempt_limit={TURN_ATTEMPT_LIMIT}"
+        );
+        *last = Some(now);
+    }
+    AppError::new(ErrorCode::AdmissionHeld, message)
+}
+
+fn admit_network_work(db: &Connection, additional: i64) -> Result<()> {
+    let outstanding: i64 = db.query_row(
+        "SELECT count(*) FROM operations o JOIN turns t ON t.id=o.turn_id WHERE t.state='pending' AND o.state IN ('ready','waiting_dependencies','running') AND o.kind NOT IN ('partner_context','coach_context')",
+        [], |r| r.get(0),
+    )?;
+    if additional < 0 || additional > OUTSTANDING_NETWORK_LIMIT - outstanding {
+        return Err(budget_error(
+            "AI work queue is full. Let pending work finish or cancel it before submitting again. This action was not accepted.",
+        ));
+    }
+    Ok(())
+}
+
+fn admit_turn_retry(db: &Connection, turn: &str) -> Result<()> {
+    let attempts: i64 = db.query_row(
+        "SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'",
+        [turn], |r| r.get(0),
+    )?;
+    let additional: i64 = db.query_row(
+        "SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('failed','unknown') AND kind NOT IN ('partner_context','coach_context')",
+        [turn], |r| r.get(0),
+    )?;
+    if attempts + additional > TURN_ATTEMPT_LIMIT {
+        return Err(budget_error(
+            "This turn has reached its network attempt budget. No retry was accepted. Start a new exchange if you want to continue.",
+        ));
+    }
+    admit_network_work(db, additional)
+}
+
 fn fail(message: &str) -> AppError {
     AppError::new(ErrorCode::Validation, message)
 }
@@ -15,6 +65,93 @@ fn id() -> String {
 }
 fn bump(db: &Connection) -> Result<()> {
     db.execute("UPDATE metadata SET revision=revision+1", [])?;
+    Ok(())
+}
+
+fn pause_related(
+    db: &Connection,
+    target: &crate::access::ResolvedTarget,
+    error: &AppError,
+) -> Result<()> {
+    let Some(refusal) = &error.refusal else {
+        return Ok(());
+    };
+    crate::holds::record(db, target, error)?;
+    let rows = db
+        .prepare("SELECT id,context,refusal_hold FROM turns WHERE state='pending'")?
+        .query_map([], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, String>(1)?,
+                r.get::<_, Option<String>>(2)?,
+            ))
+        })?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    for (id, context, existing) in rows {
+        let context: serde_json::Value = serde_json::from_str(&context)?;
+        let other: crate::access::ResolvedTarget =
+            serde_json::from_value(context["target"].clone())?;
+        let same = if target.route == ConnectionRoute::Hosted && refusal.service_wide {
+            other.route == ConnectionRoute::Hosted
+        } else {
+            other.route == target.route
+                && other.url == target.url
+                && other.credential == target.credential
+        };
+        if same {
+            if let Some(existing) = existing {
+                let existing: AppError = serde_json::from_str(&existing)?;
+                if existing
+                    .refusal
+                    .and_then(|r| r.retry_at)
+                    .is_some_and(|old| old > refusal.retry_at.unwrap_or(0.0))
+                {
+                    continue;
+                }
+            }
+            db.execute(
+                "UPDATE turns SET paused=1,refusal_hold=?2 WHERE id=?1",
+                params![id, serde_json::to_string(error)?],
+            )?;
+            db.execute("UPDATE operations SET permit=0 WHERE turn_id=?1", [&id])?;
+        }
+    }
+    bump(db)
+}
+
+fn release_hold(db: &Connection, turn: &str, step: bool) -> Result<()> {
+    let context: String = db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
+        r.get(0)
+    })?;
+    let context: serde_json::Value = serde_json::from_str(&context)?;
+    let target = serde_json::from_value(context["target"].clone())?;
+    crate::holds::check(db, &target)?;
+    let hold: Option<String> =
+        db.query_row("SELECT refusal_hold FROM turns WHERE id=?1", [turn], |r| {
+            r.get(0)
+        })?;
+    if let Some(hold) = hold {
+        let error: AppError = serde_json::from_str(&hold)?;
+        if step
+            || error
+                .refusal
+                .as_ref()
+                .and_then(|r| r.retry_at)
+                .is_some_and(|time| time > crate::refusal::now())
+        {
+            return Err(AppError::new(
+                ErrorCode::Provider,
+                format!(
+                    "Work is held after a provider refusal. Honor the retry/reset time, then explicitly Resume or Retry after correcting the cause. {}",
+                    error.message
+                ),
+            ));
+        }
+        db.execute(
+            "UPDATE turns SET refusal_hold=NULL,paused=0 WHERE id=?1",
+            [turn],
+        )?;
+    }
     Ok(())
 }
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {
@@ -174,6 +311,12 @@ fn accept_turn(
     }
     let turn = id();
     let target = crate::access::resolve(db, crate::access::Capability::Chat)?;
+    crate::holds::check(db, &target)?;
+    let plan = if coach { COACH_PLAN } else { PLAN };
+    admit_network_work(
+        db,
+        plan.iter().filter(|node| node.role != "local").count() as i64,
+    )?;
     let captured = serde_json::json!({"target":target,"messages":context,"sourceIds":source_ids,"settingsRevision":conversation.settings_revision,"partnerRevision":partner.revision,"templateVersion":1,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"partner-reply-standard-v1"});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
@@ -220,6 +363,9 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
             if state != "pending" {
                 return Err(fail("This turn is not pending."));
             }
+            if matches!(control, TurnControl::Resume) {
+                release_hold(db, turn, false)?;
+            }
             db.execute(
                 "UPDATE turns SET paused=?2 WHERE id=?1",
                 params![turn, matches!(control, TurnControl::Pause)],
@@ -227,6 +373,7 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
             db.execute("UPDATE operations SET permit=0 WHERE turn_id=?1", [turn])?;
         }
         TurnControl::Step => {
+            release_hold(db, turn, true)?;
             if state != "pending" || config(db)?.paused {
                 return Err(fail(
                     "Resume the app-wide gate before stepping a pending turn.",
@@ -241,9 +388,9 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
                 [],
                 |r| r.get(0),
             )?;
-            if running >= 2 {
+            if running >= crate::admission::NETWORK_CAPACITY as i32 {
                 return Err(fail(
-                    "Both execution slots are occupied. Step again after an attempt ends.",
+                    "Execution capacity is occupied. Step again after an attempt ends.",
                 ));
             }
             db.execute("UPDATE turns SET paused=1 WHERE id=?1", [turn])?;
@@ -268,6 +415,8 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
                     "The connection changed. Send a new exchange with the current connection.",
                 ));
             }
+            admit_turn_retry(db, turn)?;
+            release_hold(db, turn, false)?;
             db.execute("UPDATE turns SET state='pending' WHERE id=?1", [turn])?;
             db.execute("UPDATE operations SET state='ready',permit=0 WHERE turn_id=?1 AND state IN ('failed','unknown')",[turn])?;
         }
@@ -286,6 +435,16 @@ pub struct Dispatch {
     pub messages: Vec<PromptMessage>,
 }
 impl Store {
+    pub fn note_refusal(
+        &mut self,
+        target: &crate::access::ResolvedTarget,
+        error: &AppError,
+    ) -> Result<()> {
+        let tx = self.connection.transaction()?;
+        pause_related(&tx, target, error)?;
+        tx.commit()?;
+        Ok(())
+    }
     pub fn connection_config(&self) -> Result<ConnectionConfig> {
         config(&self.connection)
     }
@@ -347,7 +506,7 @@ impl Store {
         if let Some(id) = credential {
             tx.execute("DELETE FROM credential_cleanup WHERE id=?1", [id])?;
         }
-        tx.execute("UPDATE ai_config SET revision=revision+1,credential_id=?1,standard_model=?2,fast_model=?3,route='openrouter'",params![credential,standard,fast])?;
+        tx.execute("UPDATE ai_config SET revision=revision+1,credential_id=?1,standard_model=?2,fast_model=?3",params![credential,standard,fast])?;
         invalidate(&tx, Some(ConnectionRoute::Openrouter))?;
         bump(&tx)?;
         tx.commit()?;
@@ -377,7 +536,10 @@ impl Store {
         if let Some(id) = credential {
             tx.execute("DELETE FROM credential_cleanup WHERE id=?1", [id])?;
         }
-        tx.execute("UPDATE ai_config SET revision=revision+1,hosted_credential_id=?1,hosted_email=?2,route=CASE WHEN ?1 IS NULL THEN route ELSE 'hosted' END",params![credential,email])?;
+        tx.execute(
+            "UPDATE ai_config SET revision=revision+1,hosted_credential_id=?1,hosted_email=?2",
+            params![credential, email],
+        )?;
         invalidate(&tx, Some(ConnectionRoute::Hosted))?;
         bump(&tx)?;
         tx.commit()?;
@@ -401,7 +563,7 @@ impl Store {
         Ok(())
     }
     pub fn reconcile_execution(&self) -> Result<()> {
-        self.connection.execute_batch("BEGIN IMMEDIATE; UPDATE turns SET state='unknown' WHERE id IN (SELECT turn_id FROM operations WHERE state='running'); UPDATE operations SET state='unknown',permit=0 WHERE state='running'; UPDATE attempts SET state='unknown',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Application interrupted. Provider outcome and cost are unknown; retry is explicit.' WHERE state='running'; UPDATE turns SET paused=1 WHERE state='pending'; UPDATE operations SET permit=0; UPDATE metadata SET revision=revision+1; COMMIT;")?;
+        self.connection.execute_batch("BEGIN IMMEDIATE; UPDATE transcription_attempts SET state='unknown',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Application interrupted. Transcription outcome and usage are unknown; audio is not retained and cannot be replayed.' WHERE state='running'; UPDATE turns SET state='unknown' WHERE id IN (SELECT turn_id FROM operations WHERE state='running'); UPDATE operations SET state='unknown',permit=0 WHERE state='running'; UPDATE attempts SET state='unknown',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Application interrupted. Provider outcome and cost are unknown; retry is explicit.' WHERE state='running'; UPDATE turns SET paused=1 WHERE state='pending'; UPDATE operations SET permit=0; UPDATE metadata SET revision=revision+1; COMMIT;")?;
         Ok(())
     }
     pub fn conversation_snapshot(
@@ -428,9 +590,9 @@ impl Store {
             params![conversation, first],
             |r| r.get(0),
         )?;
-        let rows=db.prepare("SELECT id,state,paused,route FROM turns WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50")?.query_map([conversation],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,bool>(2)?,r.get::<_,String>(3)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let rows=db.prepare("SELECT id,state,paused,route,refusal_hold FROM turns WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50")?.query_map([conversation],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,bool>(2)?,r.get::<_,String>(3)?,r.get::<_,Option<String>>(4)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
         let mut turns = Vec::new();
-        for (id, state, paused, route) in rows {
+        for (id, state, paused, route, hold) in rows {
             let ops = db
                 .prepare(
                     "SELECT id,kind,state,permit FROM operations WHERE turn_id=?1 ORDER BY rowid",
@@ -477,9 +639,10 @@ impl Store {
             let attempts=db.prepare("SELECT a.id,a.operation_id,a.state,a.requested_model,a.actual_model,a.provider_id,a.started_at,a.finished_at,a.input_tokens,a.output_tokens,a.error FROM attempts a JOIN operations o ON a.operation_id=o.id WHERE o.turn_id=?1 ORDER BY a.rowid")?.query_map([&id],|r|Ok(AttemptView{id:r.get(0)?,operation_id:r.get(1)?,state:r.get(2)?,requested_model:r.get(3)?,actual_model:r.get(4)?,provider_id:r.get(5)?,started_at:r.get(6)?,finished_at:r.get(7)?,input_tokens:r.get(8)?,output_tokens:r.get(9)?,error:r.get(10)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
             turns.push(TurnView {
                 route: ConnectionRoute::parse(&route)?,
-                id,
+                id: id.clone(),
                 state,
                 paused,
+                hold: hold.map(|json| serde_json::from_str(&json)).transpose()?,
                 operations,
                 attempts,
             });
@@ -487,6 +650,8 @@ impl Store {
         let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         Ok(ConversationSnapshot {
+            transcription_attempts: crate::transcription::views(db, conversation)?,
+            holds: crate::holds::views(db)?,
             coach_messages,
             conversation_id: conversation.into(),
             session_id: self.session_id.clone(),
@@ -497,6 +662,13 @@ impl Store {
             has_older,
         })
     }
+    pub fn has_ready_work(&self) -> Result<bool> {
+        if config(&self.connection)?.paused {
+            return Ok(false);
+        }
+        Ok(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state='pending' AND (t.paused=0 OR o.permit=1))", [], |r| r.get(0))?)
+    }
+
     pub fn dispatch(&mut self) -> Result<Option<Dispatch>> {
         let tx = self.connection.transaction()?;
         if config(&tx)?.paused {
@@ -507,7 +679,7 @@ impl Store {
             [],
             |r| r.get(0),
         )?;
-        if running >= 2 {
+        if running >= crate::admission::NETWORK_CAPACITY as i32 {
             return Ok(None);
         }
         let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state='pending' AND (t.paused=0 OR o.permit=1) ORDER BY t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
@@ -572,6 +744,11 @@ impl Store {
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let messages = serde_json::from_value(captured["messages"].clone())?;
         let target = serde_json::from_value(captured["target"].clone())?;
+        let attempt = format!(
+            "{}-{}",
+            crate::refusal::now() as u64,
+            Uuid::new_v4().simple()
+        );
         tx.execute(
             "UPDATE operations SET state='running',permit=0 WHERE id=?1",
             [&operation],
@@ -603,8 +780,12 @@ impl Store {
     }
     pub fn finish(&mut self, dispatch: &Dispatch, result: Result<Completion>) -> Result<()> {
         let tx = self.connection.transaction()?;
+        if let Err(error) = &result {
+            pause_related(&tx, &dispatch.target, error)?;
+        }
         let scope:Option<(String,String)>=tx.query_row("SELECT t.id,t.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND a.state='running' AND o.state='running' AND t.state='pending'",[&dispatch.attempt],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         let Some((turn, conversation)) = scope else {
+            tx.commit()?;
             return Ok(());
         };
         let valid = match &result {
@@ -639,6 +820,7 @@ impl Store {
             params![turn, state],
         )?;
         if state == "succeeded" {
+            tx.execute("UPDATE turns SET refusal_hold=NULL WHERE id=?1", [&turn])?;
             let output = result.map_err(|_| fail("Missing validated output."))?;
             tx.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'assistant',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation,turn,output.text])?;
             tx.execute(
@@ -674,6 +856,10 @@ mod tests {
     fn setup() -> (tempfile::TempDir, Store, String) {
         let dir = tempfile::tempdir().unwrap();
         let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        store
+            .connection
+            .execute("UPDATE ai_config SET route='openrouter'", [])
+            .unwrap();
         store
             .set_connection(
                 1,
@@ -735,15 +921,43 @@ mod tests {
         }
     }
     #[test]
+    fn credential_changes_never_select_a_route() {
+        let (_dir, mut store, _) = setup();
+        store.select_route(2, ConnectionRoute::Custom).unwrap();
+        store
+            .set_connection(3, Some("replacement"), "standard", "fast")
+            .unwrap();
+        assert_eq!(
+            store.connection_config().unwrap().route,
+            ConnectionRoute::Custom
+        );
+        store
+            .set_hosted_connection(4, Some("session"), "test@example.com")
+            .unwrap();
+        assert_eq!(
+            store.connection_config().unwrap().route,
+            ConnectionRoute::Custom
+        );
+        store.set_hosted_connection(5, None, "").unwrap();
+        assert_eq!(
+            store.connection_config().unwrap().route,
+            ConnectionRoute::Custom
+        );
+        assert!(
+            crate::access::resolve(&store.connection, crate::access::Capability::Chat).is_err()
+        );
+    }
+    #[test]
     fn hosted_revocation_blocks_publication_and_keeps_own_key() {
         let (_dir, mut store, conversation) = setup();
         store
             .set_hosted_connection(2, Some("hosted-token"), "test@example.com")
             .unwrap();
+        store.select_route(3, ConnectionRoute::Hosted).unwrap();
         let dispatch = begin(&mut store, &conversation);
         assert_eq!(dispatch.route, ConnectionRoute::Hosted);
         assert_eq!(dispatch.credential, "hosted-token");
-        store.set_hosted_connection(3, None, "").unwrap();
+        store.set_hosted_connection(4, None, "").unwrap();
         store.finish(&dispatch, Ok(reply("Hola."))).unwrap();
         assert_eq!(
             store
@@ -765,13 +979,14 @@ mod tests {
         store
             .set_hosted_connection(2, Some("hosted-token"), "test@example.com")
             .unwrap();
+        store.select_route(3, ConnectionRoute::Hosted).unwrap();
         let dispatch = begin(&mut store, &conversation);
-        store.select_route(3, ConnectionRoute::Openrouter).unwrap();
+        store.select_route(4, ConnectionRoute::Openrouter).unwrap();
         store.finish(&dispatch, Ok(reply("Hola."))).unwrap();
         let chat = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(chat.turns[0].route, ConnectionRoute::Hosted);
         assert_eq!(chat.messages.len(), 2);
-        store.set_hosted_connection(4, None, "").unwrap();
+        store.set_hosted_connection(5, None, "").unwrap();
         assert_eq!(
             store.connection_config().unwrap().route,
             ConnectionRoute::Openrouter
@@ -837,6 +1052,222 @@ mod tests {
         assert_eq!(profile.global.attempts, 2);
     }
     #[test]
+    fn refusal_holds_matching_queue_without_attempts_and_survives_restart() {
+        let (dir, mut store, first) = setup();
+        let relationship_id = store.snapshot().unwrap().relationships[0].id.clone();
+        let second = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id: relationship_id.clone(),
+                title: "Queued".into(),
+            },
+        )
+        .entity_id;
+        let third = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id,
+                title: "Independent".into(),
+            },
+        )
+        .entity_id;
+        let dispatch = begin(&mut store, &first);
+        let command = send(&mut store, &second);
+        let queued = store.execute(command).unwrap().entity_id;
+        let command = send(&mut store, &third);
+        let independent = store.execute(command).unwrap().entity_id;
+        // A separately captured credential must not inherit another key's hold.
+        store.connection.execute("UPDATE turns SET context=json_set(context,'$.target.credential','separate-key') WHERE id=?1", [&independent]).unwrap();
+        let error = AppError::new(ErrorCode::Provider, "Provider refused this request.")
+            .with_refusal(crate::refusal::classify(None, Some(60), None));
+        store.finish(&dispatch, Err(error)).unwrap();
+        let view = store.conversation_snapshot(&second, None).unwrap();
+        assert!(view.turns[0].paused);
+        assert!(view.turns[0].hold.is_some());
+        assert!(view.turns[0].attempts.is_empty());
+        assert!(!store.conversation_snapshot(&third, None).unwrap().turns[0].paused);
+        assert!(control_turn(&store.connection, &queued, TurnControl::Resume).is_err());
+        assert!(control_turn(&store.connection, &queued, TurnControl::Step).is_err());
+        // No failed-queue entry consumes an invented network attempt.
+        assert!(store.dispatch().unwrap().is_none()); // Independent local context.
+        assert!(store.dispatch().unwrap().is_some()); // Independent network work.
+        drop(store);
+        let mut reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        reopened.prepare_chat().unwrap();
+        let view = reopened.conversation_snapshot(&second, None).unwrap();
+        assert!(view.turns[0].hold.is_some());
+        assert!(reopened.dispatch().unwrap().is_none());
+        // Expiry alone does not resume the queue; explicit recovery is required.
+        reopened.connection.execute("UPDATE turns SET refusal_hold=json_set(refusal_hold,'$.refusal.retryAt',0) WHERE id=?1", [&queued]).unwrap();
+        assert!(reopened.dispatch().unwrap().is_none());
+        assert!(control_turn(&reopened.connection, &queued, TurnControl::Resume).is_err());
+        reopened
+            .connection
+            .execute(
+                "UPDATE inference_holds SET error=json_set(error,'$.refusal.retryAt',0)",
+                [],
+            )
+            .unwrap();
+        let hold = crate::holds::views(&reopened.connection).unwrap().remove(0);
+        apply(
+            &mut reopened,
+            Action::RecoverAiAccess {
+                hold_id: hold.id,
+                expected_generation: hold.generation,
+            },
+        );
+        assert!(reopened.dispatch().unwrap().is_none());
+        control_turn(&reopened.connection, &queued, TurnControl::Resume).unwrap();
+        assert!(
+            reopened.conversation_snapshot(&second, None).unwrap().turns[0]
+                .hold
+                .is_none()
+        );
+        assert!(reopened.dispatch().unwrap().is_none());
+        assert!(reopened.dispatch().unwrap().is_some());
+    }
+
+    #[test]
+    fn shared_admission_extension_preserves_existing_turn_hold() {
+        let (dir, mut store, conversation) = setup();
+        let dispatch = begin(&mut store, &conversation);
+        store
+            .finish(
+                &dispatch,
+                Err(AppError::new(ErrorCode::Provider, "Rate limited.")
+                    .with_refusal(crate::refusal::classify(None, None, None))),
+            )
+            .unwrap();
+        store
+            .connection
+            .execute_batch("DROP TABLE transcription_attempts; DROP TABLE inference_holds; PRAGMA user_version=5;")
+            .unwrap();
+        let target = dispatch.target;
+        drop(store);
+        let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        assert_eq!(
+            crate::holds::check(&reopened.connection, &target)
+                .unwrap_err()
+                .code,
+            ErrorCode::AdmissionHeld
+        );
+    }
+
+    #[test]
+    fn audio_refusal_blocks_new_chat_before_acceptance_and_survives_source_deletion() {
+        let (dir, mut store, conversation) = setup();
+        let mut target =
+            crate::access::resolve(&store.connection, crate::access::Capability::Chat).unwrap();
+        // Hosted audio and chat share the service spending boundary.
+        store
+            .connection
+            .execute(
+                "UPDATE ai_config SET route='hosted',hosted_credential_id='hosted-test'",
+                [],
+            )
+            .unwrap();
+        target.route = ConnectionRoute::Hosted;
+        target.url = format!("{}/v1/audio/transcriptions", crate::hosted::ORIGIN);
+        target.credential = Some("hosted-test".into());
+        store
+            .note_refusal(
+                &target,
+                &AppError::new(ErrorCode::Provider, "Spending paused.").with_refusal(
+                    crate::refusal::classify(Some("SPENDING_PAUSED"), None, None),
+                ),
+            )
+            .unwrap();
+        let command = send(&mut store, &conversation);
+        assert_eq!(
+            store.execute(command).unwrap_err().code,
+            ErrorCode::AdmissionHeld
+        );
+        assert!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages
+                .is_empty()
+        );
+        let revision = store
+            .snapshot()
+            .unwrap()
+            .conversations
+            .iter()
+            .find(|c| c.id == conversation)
+            .unwrap()
+            .revision;
+        apply(
+            &mut store,
+            Action::DeleteConversation {
+                conversation_id: conversation,
+                expected_revision: revision,
+            },
+        );
+        drop(store);
+        let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        assert_eq!(
+            crate::holds::check(&reopened.connection, &target)
+                .unwrap_err()
+                .code,
+            ErrorCode::AdmissionHeld
+        );
+    }
+
+    #[test]
+    fn service_refusal_spans_hosted_targets_but_not_direct_keys() {
+        let (_dir, mut store, first) = setup();
+        let dispatch = begin(&mut store, &first);
+        let relationship_id = store.snapshot().unwrap().relationships[0].id.clone();
+        let hosted = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id,
+                title: "Hosted".into(),
+            },
+        )
+        .entity_id;
+        let command = send(&mut store, &hosted);
+        let turn = store.execute(command).unwrap().entity_id;
+        store
+            .connection
+            .execute(
+                "UPDATE turns SET context=json_set(context,'$.target.route','hosted') WHERE id=?1",
+                [&turn],
+            )
+            .unwrap();
+        let mut target = dispatch.target;
+        target.route = ConnectionRoute::Hosted;
+        target.url = "https://service.example/v1/audio/transcriptions".into();
+        let error = AppError::new(ErrorCode::Provider, "Daily allowance exhausted.").with_refusal(
+            crate::refusal::classify(Some("SHARED_ALLOWANCE_EXHAUSTED"), None, None),
+        );
+        pause_related(&store.connection, &target, &error).unwrap();
+        assert!(
+            store.conversation_snapshot(&hosted, None).unwrap().turns[0]
+                .hold
+                .is_some()
+        );
+        assert!(
+            store.conversation_snapshot(&first, None).unwrap().turns[0]
+                .hold
+                .is_none()
+        );
+        // An ordinary transport failure does not hold unrelated queued work.
+        pause_related(
+            &store.connection,
+            &target,
+            &AppError::new(ErrorCode::Provider, "HTTP 500"),
+        )
+        .unwrap();
+        assert!(
+            store.conversation_snapshot(&first, None).unwrap().turns[0]
+                .hold
+                .is_none()
+        );
+    }
+
+    #[test]
     fn send_is_atomic_idempotent_and_only_one_pending_reply() {
         let (_dir, mut store, conversation) = setup();
         let command = send(&mut store, &conversation);
@@ -852,9 +1283,11 @@ mod tests {
     #[test]
     fn gate_and_step_admit_one_operation_and_do_not_bank_extra_permits() {
         let (_dir, mut store, conversation) = setup();
+        assert!(!store.has_ready_work().unwrap());
         apply(&mut store, Action::SetPaused { paused: true });
         let command = send(&mut store, &conversation);
         let turn = store.execute(command).unwrap().entity_id;
+        assert!(!store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         assert!(control_turn(&store.connection, &turn, TurnControl::Step).is_err());
         apply(
@@ -865,6 +1298,7 @@ mod tests {
             },
         );
         apply(&mut store, Action::SetPaused { paused: false });
+        assert!(!store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         apply(
             &mut store,
@@ -979,6 +1413,274 @@ mod tests {
         );
     }
     #[test]
+    fn queue_budget_counts_chat_coach_and_paused_work_transactionally() {
+        let (dir, mut store, first) = setup();
+        let relationship = store.snapshot().unwrap().relationships[0].id.clone();
+        let retry_conversation = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id: relationship.clone(),
+                title: "Retry capacity".into(),
+            },
+        )
+        .entity_id;
+        let dispatch = begin(&mut store, &retry_conversation);
+        store
+            .finish(
+                &dispatch,
+                Err(AppError::new(ErrorCode::Provider, "Rejected")),
+            )
+            .unwrap();
+        let retry_turn = store
+            .conversation_snapshot(&retry_conversation, None)
+            .unwrap()
+            .turns[0]
+            .id
+            .clone();
+        let mut first_turn = String::new();
+        for index in 0..OUTSTANDING_NETWORK_LIMIT {
+            let conversation = if index == 0 {
+                first.clone()
+            } else {
+                apply(
+                    &mut store,
+                    Action::CreateConversation {
+                        relationship_id: relationship.clone(),
+                        title: format!("Queue {index}"),
+                    },
+                )
+                .entity_id
+            };
+            let mut command = send(&mut store, &conversation);
+            if index % 2 != 0 {
+                let Action::SendMessage {
+                    conversation_id,
+                    text,
+                    expected_revision,
+                } = command.action
+                else {
+                    unreachable!()
+                };
+                command.action = Action::AskCoach {
+                    conversation_id,
+                    text,
+                    expected_revision,
+                };
+            }
+            let turn = store.execute(command).unwrap().entity_id;
+            if index == 0 {
+                first_turn = turn;
+            }
+        }
+        let extra = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id: relationship,
+                title: "Extra".into(),
+            },
+        )
+        .entity_id;
+        let path = dir.path().join("test.sqlite3");
+        drop(store);
+        let mut store = Store::open(&path).unwrap();
+        let before = store.snapshot().unwrap().revision;
+        let retry_error = store
+            .execute(Command {
+                session_id: store.session_id.clone(),
+                action_id: id(),
+                action: Action::ControlTurn {
+                    turn_id: retry_turn,
+                    control: TurnControl::Retry,
+                },
+            })
+            .unwrap_err();
+        assert_eq!(retry_error.code, ErrorCode::AdmissionHeld);
+        assert_eq!(
+            store
+                .conversation_snapshot(&retry_conversation, None)
+                .unwrap()
+                .turns[0]
+                .state,
+            "failed"
+        );
+        let command = send(&mut store, &extra);
+        assert_eq!(
+            store.execute(command).unwrap_err().code,
+            ErrorCode::AdmissionHeld
+        );
+        assert_eq!(store.snapshot().unwrap().revision, before);
+        assert!(
+            store
+                .conversation_snapshot(&extra, None)
+                .unwrap()
+                .messages
+                .is_empty()
+        );
+        let count: i64 = store
+            .connection
+            .query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE t.state='pending'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 0);
+        apply(
+            &mut store,
+            Action::ControlTurn {
+                turn_id: first_turn,
+                control: TurnControl::Cancel,
+            },
+        );
+        let command = send(&mut store, &extra);
+        store.execute(command).unwrap();
+    }
+
+    #[test]
+    fn explicit_retry_budget_survives_restart_and_preserves_receipts() {
+        let (dir, mut store, conversation) = setup();
+        let first = begin(&mut store, &conversation);
+        store
+            .finish(
+                &first,
+                Err(AppError::new(ErrorCode::UnknownOutcome, "Unknown result")),
+            )
+            .unwrap();
+        let turn = store
+            .conversation_snapshot(&conversation, None)
+            .unwrap()
+            .turns[0]
+            .id
+            .clone();
+        for _ in 1..TURN_ATTEMPT_LIMIT {
+            apply(
+                &mut store,
+                Action::ControlTurn {
+                    turn_id: turn.clone(),
+                    control: TurnControl::Retry,
+                },
+            );
+            let dispatch = store.dispatch().unwrap().unwrap();
+            store
+                .finish(
+                    &dispatch,
+                    Err(AppError::new(ErrorCode::Provider, "Rejected")),
+                )
+                .unwrap();
+        }
+        drop(store);
+        let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        let before = store.snapshot().unwrap().revision;
+        let error = store
+            .execute(Command {
+                session_id: store.session_id.clone(),
+                action_id: id(),
+                action: Action::ControlTurn {
+                    turn_id: turn.clone(),
+                    control: TurnControl::Retry,
+                },
+            })
+            .unwrap_err();
+        assert_eq!(error.code, ErrorCode::AdmissionHeld);
+        assert_eq!(store.snapshot().unwrap().revision, before);
+        let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(snapshot.messages.len(), 1);
+        assert_eq!(
+            snapshot.turns[0]
+                .attempts
+                .iter()
+                .filter(|a| a.requested_model != "local")
+                .count(),
+            TURN_ATTEMPT_LIMIT as usize
+        );
+        assert_eq!(snapshot.turns[0].state, "failed");
+        assert!(store.dispatch().unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn grouped_partial_result_is_durable_before_transport_failure() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let (_dir, mut store, first) = setup();
+        let relationship = store.snapshot().unwrap().relationships[0].id.clone();
+        let second = apply(
+            &mut store,
+            Action::CreateConversation {
+                relationship_id: relationship,
+                title: "Second".into(),
+            },
+        )
+        .entity_id;
+        let mut dispatches = vec![begin(&mut store, &first), begin(&mut store, &second)];
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
+        for dispatch in &mut dispatches {
+            dispatch.route = ConnectionRoute::Hosted;
+            dispatch.target.url = url.clone();
+        }
+        let response = serde_json::json!({"type":"result", "operation_id":dispatches[1].operation.replace('-',""),
+            "attempt_id":dispatches[1].attempt,"response":{"id":"provider","model":"google/gemini-2.5-flash",
+            "choices":[{"finish_reason":"stop","message":{"content":"Hola"}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}});
+        let server = tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut input = Vec::new();
+            loop {
+                let mut chunk = [0u8; 4096];
+                let count = socket.read(&mut chunk).await.unwrap();
+                assert!(count > 0);
+                input.extend_from_slice(&chunk[..count]);
+                if let Some(start) = input.windows(4).position(|w| w == b"\r\n\r\n") {
+                    let header = String::from_utf8_lossy(&input[..start]).to_ascii_lowercase();
+                    let length: usize = header
+                        .lines()
+                        .find_map(|l| l.strip_prefix("content-length: "))
+                        .unwrap()
+                        .parse()
+                        .unwrap();
+                    if input.len() < start + 4 + length {
+                        continue;
+                    }
+                    let envelope: serde_json::Value =
+                        serde_json::from_slice(&input[start + 4..]).unwrap();
+                    assert_eq!(envelope["items"].as_array().unwrap().len(), 2);
+                    break;
+                }
+            }
+            let body = format!("{response}\n");
+            socket.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",body.len()).as_bytes()).await.unwrap();
+        });
+        let mut completed = Vec::new();
+        let result = crate::grouped::request(
+            &crate::provider::client().unwrap(),
+            "test",
+            &dispatches,
+            |index, result| {
+                store.finish(&dispatches[index], result)?;
+                assert_eq!(
+                    store.conversation_snapshot(&second, None)?.messages.len(),
+                    2
+                );
+                completed.push(index);
+                Ok(())
+            },
+        )
+        .await;
+        assert_eq!(result.as_ref().unwrap_err().code, ErrorCode::UnknownOutcome);
+        for (index, dispatch) in dispatches.iter().enumerate() {
+            if !completed.contains(&index) {
+                store
+                    .finish(dispatch, Err(result.as_ref().unwrap_err().clone()))
+                    .unwrap();
+            }
+        }
+        assert_eq!(completed, [1]);
+        assert_eq!(
+            store.conversation_snapshot(&second, None).unwrap().turns[0].state,
+            "succeeded"
+        );
+        assert_eq!(
+            store.conversation_snapshot(&first, None).unwrap().turns[0].state,
+            "unknown"
+        );
+        server.await.unwrap();
+    }
+
+    #[test]
     fn invalid_prose_keeps_usage_and_retry_does_not_duplicate_user_message() {
         let (_dir, mut store, conversation) = setup();
         let dispatch = begin(&mut store, &conversation);
@@ -1086,8 +1788,23 @@ mod tests {
         .entity_id;
         let a = begin(&mut store, &first);
         let b = begin(&mut store, &second);
+        let mut extra = Vec::new();
+        for index in 2..crate::admission::NETWORK_CAPACITY {
+            let relationship_id = store.snapshot().unwrap().relationships[0].id.clone();
+            let conversation = apply(
+                &mut store,
+                Action::CreateConversation {
+                    relationship_id,
+                    title: format!("Extra {index}"),
+                },
+            )
+            .entity_id;
+            extra.push(begin(&mut store, &conversation));
+        }
+        assert!(!store.has_ready_work().unwrap());
         let command = send(&mut store, &third);
         store.execute(command).unwrap();
+        assert!(store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         store.finish(&b, Ok(reply("Second reply"))).unwrap();
         store.finish(&a, Ok(reply("First reply"))).unwrap();
@@ -1121,10 +1838,7 @@ mod tests {
             .unwrap();
         store.select_route(2, ConnectionRoute::Custom).unwrap();
         let dispatched = begin(&mut store, &conversation);
-        assert_eq!(
-            dispatched.target.url,
-            "http://localhost:1234/v1/chat/completions"
-        );
+        assert_eq!(dispatched.target.url, "http://localhost:1234/v1/operations");
         assert_eq!(dispatched.model, "local-model");
         assert!(dispatched.credential.is_empty());
         assert!(dispatched.target.credential.is_none());
@@ -1145,7 +1859,7 @@ mod tests {
         let dispatched = begin(&mut store, &conversation);
         store.finish(&dispatched, Ok(reply("Hola"))).unwrap();
         let before = store.snapshot().unwrap();
-        store.connection.execute_batch("ALTER TABLE ai_config DROP COLUMN groq_credential_id; ALTER TABLE ai_config DROP COLUMN custom_credential_id; ALTER TABLE ai_config DROP COLUMN custom_config; PRAGMA user_version=3;").unwrap();
+        store.connection.execute_batch("DROP TABLE transcription_attempts; DROP TABLE inference_holds; ALTER TABLE turns DROP COLUMN refusal_hold; ALTER TABLE ai_config DROP COLUMN groq_credential_id; ALTER TABLE ai_config DROP COLUMN custom_credential_id; ALTER TABLE ai_config DROP COLUMN custom_config; PRAGMA user_version=3;").unwrap();
         drop(store);
         let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
         assert_eq!(store.snapshot().unwrap().learner.id, before.learner.id);
@@ -1175,7 +1889,7 @@ mod tests {
                 .connection
                 .pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
                 .unwrap(),
-            4
+            7
         );
     }
 }

@@ -80,17 +80,31 @@ it("groups both key inputs before collapsed model settings, without nested forms
     "Custom URL",
   ]);
 });
-it("supports keyboard tab navigation and calls the selected route", async () => {
+it("selects the active route through the tab and waits for persisted confirmation", async () => {
   const account = state();
-  render(<AccountSettings state={account} onBusyChange={vi.fn()} />);
+  const { rerender } = render(
+    <AccountSettings state={account} onBusyChange={vi.fn()} />,
+  );
   await screen.findByLabelText("OpenRouter API key");
   const keys = screen.getByRole("tab", { name: "API keys" });
   keys.focus();
   fireEvent.keyDown(keys, { key: "ArrowRight" });
   const custom = screen.getByRole("tab", { name: "Custom URL" });
   expect(document.activeElement).toBe(custom);
+  expect(account.route).not.toHaveBeenCalled();
   fireEvent.click(custom);
-  expect(account.route).toHaveBeenCalledWith("custom");
+  expect(account.route).toHaveBeenCalledExactlyOnceWith("custom");
+  expect(keys.getAttribute("aria-selected")).toBe("true");
+  expect(custom.getAttribute("aria-selected")).toBe("false");
+  rerender(
+    <AccountSettings
+      state={state({ config: { ...config, route: "custom" } })}
+      onBusyChange={vi.fn()}
+    />,
+  );
+  await screen.findByLabelText("API base URL");
+  expect(custom.getAttribute("aria-selected")).toBe("true");
+  expect(screen.queryByRole("radio")).toBeNull();
 });
 it("blocks route changes and the other key while a key save is pending", async () => {
   let finish!: (value: unknown) => void;

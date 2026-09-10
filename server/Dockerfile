@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
-COPY main.py config.py auth.py auth_store.py admission.py quota.py budget.py transactions.py contracts.py audio_input.py streaming.py observability.py diagnostics.py ./
+COPY main.py config.py auth.py auth_store.py admission.py work_admission.py grouped.py quota.py budget.py transactions.py contracts.py audio_input.py streaming.py observability.py diagnostics.py ./
 RUN useradd --system --uid 10001 --no-create-home app \
     && chown -R app:app /app
 USER app

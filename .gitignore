@@ -21,3 +21,9 @@ keystore.properties
 # Ephemeral Google authentication files and Python test caches.
 gha-creds-*.json
 .pytest_cache/
+
+# Private local-server configuration and generated credentials.
+local.env
+local.env.*
+!local.env.sample
+.local-server/

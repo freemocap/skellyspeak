@@ -181,15 +181,17 @@ def read_session_token(token: str, *, signing_key: str) -> tuple[str, int]:
             signing_key,
             algorithms=["HS256"],
             issuer="skellyspeak-api",
-            options={"require": ["exp", "iat", "sub", "iss"]},
+            options={"require": ["exp", "iat", "sub", "iss", "tv"]},
         )
     except jwt.ExpiredSignatureError as exc:
         raise AuthError("Your session has expired. Sign in again.") from exc
     except jwt.InvalidTokenError as exc:
         raise AuthError("Your session is not valid. Sign in again.") from exc
-    # Tokens minted before revocation existed carry no `tv`; they read as 0,
-    # which is the version every account starts at.
-    return str(claims["sub"]), int(claims.get("tv") or 0)
+    version = claims["tv"]
+    subject = claims["sub"]
+    if type(version) is not int or version < 0 or not isinstance(subject, str) or not subject or len(subject) > 128 or "/" in subject:
+        raise AuthError("Your session is not valid. Sign in again.")
+    return subject, version
 
 
 def issue_code(*, purpose: str, signing_key: str) -> str:

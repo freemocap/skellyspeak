@@ -173,6 +173,10 @@ pub enum Action {
     SetPaused {
         paused: bool,
     },
+    RecoverAiAccess {
+        hold_id: String,
+        expected_generation: String,
+    },
     CreatePartner {
         language_id: String,
     },
@@ -241,6 +245,7 @@ pub enum ErrorCode {
     SessionExpired,
     Storage,
     Provider,
+    AdmissionHeld,
     UnknownOutcome,
     Credential,
     Internal,
@@ -250,13 +255,44 @@ pub enum ErrorCode {
 pub struct AppError {
     pub code: ErrorCode,
     pub message: String,
+    #[serde(default)]
+    pub refusal: Option<Refusal>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct Refusal {
+    pub reason: RefusalReason,
+    pub service_wide: bool,
+    pub retry_at: Option<f64>,
+    pub request_id: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct InferenceHold {
+    pub id: String,
+    pub generation: String,
+    pub route: ConnectionRoute,
+    pub error: AppError,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum RefusalReason {
+    RateLimit,
+    DailyLimit,
+    SpendingPaused,
+    Unknown,
 }
 impl AppError {
     pub fn new(code: ErrorCode, message: impl Into<String>) -> Self {
         Self {
             code,
             message: message.into(),
+            refusal: None,
         }
+    }
+    pub fn with_refusal(mut self, refusal: Refusal) -> Self {
+        self.refusal = Some(refusal);
+        self
     }
 }
 impl std::fmt::Display for AppError {
@@ -313,6 +349,10 @@ pub fn bindings() -> String {
         Command::decl(&config),
         Receipt::decl(&config),
         ErrorCode::decl(&config),
+        Refusal::decl(&config),
+        InferenceHold::decl(&config),
+        TranscriptionAttempt::decl(&config),
+        RefusalReason::decl(&config),
         AppError::decl(&config),
     ];
     format!(
@@ -384,12 +424,15 @@ pub struct TurnView {
     pub id: String,
     pub state: String,
     pub paused: bool,
+    pub hold: Option<AppError>,
     pub operations: Vec<OperationView>,
     pub attempts: Vec<AttemptView>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    pub transcription_attempts: Vec<TranscriptionAttempt>,
+    pub holds: Vec<InferenceHold>,
     pub coach_messages: Vec<ChatMessage>,
     pub conversation_id: String,
     pub session_id: String,
@@ -398,6 +441,17 @@ pub struct ConversationSnapshot {
     pub turns: Vec<TurnView>,
     pub connection: ConnectionConfig,
     pub has_older: bool,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct TranscriptionAttempt {
+    pub id: String,
+    pub route: ConnectionRoute,
+    pub model: String,
+    pub state: String,
+    pub started_at: String,
+    pub finished_at: Option<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, TS, PartialEq)]
