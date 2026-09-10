@@ -1,0 +1,63 @@
+serviceAccount: "projects/${PROJECT_ID}/serviceAccounts/skellyspeak-build@${PROJECT_ID}.iam.gserviceaccount.com"
+options:
+  logging: CLOUD_LOGGING_ONLY
+  dynamic_substitutions: true
+
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build"
+    args: ["build", "-t", "${_IMAGE}", "-f", "server/Dockerfile", "server"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push"
+    args: ["push", "${_IMAGE}"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "Deploy"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "skellyspeak-api"
+      - "--image=${_IMAGE}"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--service-account=skellyspeak-run@${PROJECT_ID}.iam.gserviceaccount.com"
+      - "--set-env-vars=^@^PUBLIC_BASE_URL=${_PUBLIC_BASE_URL}@FREE_DAILY_MICROS=${_FREE_DAILY_MICROS}@GLOBAL_DAILY_MICROS=${_GLOBAL_DAILY_MICROS}@MAX_USERS=${_MAX_USERS}@ALLOWED_MODELS=${_ALLOWED_MODELS}@MAX_COMPLETION_TOKENS=${_MAX_COMPLETION_TOKENS}"
+      - "--set-secrets=GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,JWT_SIGNING_KEY=jwt-signing-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,GROQ_API_KEY=groq-api-key:latest"
+      - "--memory=512Mi"
+      - "--concurrency=8"
+      - "--cpu=1"
+      - "--min-instances=0"
+      - "--max-instances=4"
+      - "--timeout=600"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "Verify revision"
+    entrypoint: bash
+    args:
+      - -ec
+      - |
+        for attempt in 1 2 3 4 5 6; do
+          gcloud run services describe skellyspeak-api --region=${_REGION} --project=${PROJECT_ID} --format=json > /tmp/service.json
+          if python3 server/verify_revision.py /tmp/service.json "${_IMAGE}"; then
+            exit 0
+          fi
+          sleep 5
+        done
+        echo "Revision verification failed; metadata and reason codes are above."
+        exit 1
+
+
+substitutions:
+  _REGION: "us-central1"
+  _IMAGE: "gcr.io/${PROJECT_ID}/skellyspeak-api:${BUILD_ID}"
+  _PUBLIC_BASE_URL: ""
+  _FREE_DAILY_MICROS: "500000"
+  _GLOBAL_DAILY_MICROS: "2000000"
+  _MAX_USERS: "6"
+  _ALLOWED_MODELS: "google/gemini-2.5-flash,openai/gpt-audio-mini"
+  _MAX_COMPLETION_TOKENS: "32768"
+
+images:
+  - "${_IMAGE}"

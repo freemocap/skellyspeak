@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "macos:dev": "node scripts/macos-dev.ts launch",
+    "macos:dev-bundle": "node scripts/macos-dev.ts bundle",
+    "macos:dev-sign": "node scripts/macos-dev.ts sign",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
@@ -17,9 +20,12 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.11.4",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.13.4",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "6.1.1",
+    "jsdom": "^30.0.1",
     "prettier": "3.9.6",
     "typescript": "7.0.2",
     "vite": "8.2.2",

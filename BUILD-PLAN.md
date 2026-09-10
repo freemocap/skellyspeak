@@ -2,7 +2,8 @@
 
 Status: implementation authorized. Phase 1 is implemented and verified locally
 on macOS; mobile/other-platform verification remains explicitly outstanding.
-Subsequent phases are not implemented. No paid evaluation or deployment has run.
+Phase 2 source implementation and automated conformance checks are in place; live-provider and system-keychain verification remain pending. Native macOS setup
+and connection controls were inspected. No paid evaluation or deployment has run.
 
 ## Intention
 
@@ -99,14 +100,17 @@ them and restart. Review navigation and partner identity controls.
 
 ## Phase 2: Graph execution and a real conversation path
 
-- [ ] Implement declarations driving scheduling, durable work intents, attempt
+- [x] Implement declarations driving scheduling, durable work intents, attempt
   identity, pause/step/cancellation and coherent output publication.
-- [ ] Implement own-key OpenRouter access, secure credential handling and capabilities.
-- [ ] Implement Send, permitted context, Standard replies, deterministic validation
+- [x] Implement own-key OpenRouter access, secure credential handling and capabilities.
+- [x] Implement Send, permitted context, Standard replies, deterministic validation
   and accepted-message persistence through the real graph.
-- [ ] Expose operations/model targets and partial/error states in inspection.
-- [ ] Verify duplicate Send delivery, unknown provider outcomes, scoped hydration,
+- [x] Expose operations/model targets and partial/error states in inspection.
+- [x] Verify duplicate Send delivery, unknown provider outcomes, scoped hydration,
   paused dispatch and deletion racing with publication.
+
+**Verification pending:** system-keychain save/retrieval and a live
+OpenRouter exchange. Phase 2 is not declared complete until those checks run.
 
 Exit: one complete AI route works. Gates control actual dispatch. Hosted and custom
 routes are not claimed ready merely because own-key access works.
@@ -218,5 +222,25 @@ Routine technical selections proceed within that scope; material deviations
 return for a concrete decision. Paid evaluation ceilings, deployment and unavailable
 verification environments remain separately identified.
 
-The next implementation slice is Phase 2: real graph execution and an own-key
-conversation path. No additional general planning document is required to begin it.
+The conversation execution checkpoint requires native and live-provider verification. After that
+exit, proceed to independently arriving assistance and evaluated task routing.
+
+## Active checkpoint: hosted access and utility panels
+
+Desktop Google sign-in, secure session storage, allowance refresh and hosted reply
+routing are implemented. This work advances the desktop client portion of Phase 4;
+custom URLs, mobile sign-in and deployment validation remain open. The next native
+checkpoint is Google browser sign-in, account status and a persisted hosted reply.
+Own-key testing is deferred at the user's request.
+
+Toolbar AI docking/pop-out, Profile usage reports and searchable settings are
+implemented. See `UI-SURFACES.md` for the adopted interaction inventory and remaining
+feature dependencies. No assessment/XP or voice functionality is implied by these panels.
+
+## Current priority: voice-first chat and coach
+
+The product checkpoint is the reference chat/Record composer alongside Lesson/Analysis
+and a docked coach. Immediate startup, title-free creation, desktop capture/hosted
+transcription and durable separate coach turns are implemented. Verify the native
+flow before expanding report or visualization work. Structured lesson controls,
+read-aloud, auto-send, suggestion trays and passage breakdowns remain open.

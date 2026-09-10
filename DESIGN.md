@@ -3,8 +3,9 @@
 Status: approved product direction with implementation proceeding by build phase.
 Tauri, React and Rust provide the local foundation; SQLite and typed Rust/TypeScript
 contracts are selected. See [README.md](./README.md) for verified current behavior
-and [architecture.md](./architecture.md) for implementation authority. Graph execution,
-AI access and learning analysis remain subsequent-phase work.
+and [architecture.md](./architecture.md) for implementation authority. Conversation
+graph execution and desktop hosted/own-key access are implemented; learning analysis
+remains planned. Native and live verification limits are explicit in README.md.
 
 [DATA-MODEL.md](./DATA-MODEL.md) develops the first technical proposal: record
 ownership, source references, computed reports and deletion behavior. Its proposed
@@ -12,7 +13,7 @@ mechanisms are separate from the agreed product intent in this document.
 
 [EXECUTION.md](./EXECUTION.md) and [AI-STRATEGY.md](./AI-STRATEGY.md) jointly propose
 operation execution, provider routes, model selection and context boundaries.
-These are review artifacts, not selected libraries or working integrations.
+Their status notes distinguish implemented contracts from broader planned operations.
 
 [STATE-AND-STORAGE.md](./STATE-AND-STORAGE.md) proposes persistence authority,
 transaction boundaries, scoped frontend hydration and the typed application boundary.
@@ -345,6 +346,13 @@ in architecture and implementation specifications, not an endless product questi
 
 ## Remaining sequence
 
+Functional restoration keeps the familiar chat, bubbles, lesson/analysis, word
+inspection and utility-panel interactions. The completion checklist lives in
+[UI-SURFACES.md](./UI-SURFACES.md). Provide both a restrained seven-category skill-map
+view and the growing flower view over the same underlying evidence and metrics;
+renderer selection never changes XP or assessment. Prioritize a verified AI exchange
+and source-linked language assistance before treating the visual shell as complete.
+
 - [x] Agree on statistical reporting hierarchy, density and presentation style.
 - [x] Summarize scope, deferrals, implementation phases and acceptance outcomes in
   [BUILD-PLAN.md](./BUILD-PLAN.md).
@@ -363,3 +371,30 @@ in architecture and implementation specifications, not an endless product questi
 
 Implementation checkpoints and actual user checks are tracked in [BUILD-PLAN.md](./BUILD-PLAN.md).
 The local foundation is runnable; AI, assessment and garden behavior are not yet implemented.
+
+## Presentation direction
+
+Use the SkellySpeak logo, navy application chrome, light chat canvas, compact
+controls and blue accents. Chat and the secondary lesson/analysis pane define
+the desktop workspace. A toolbar drawer selects partners and their conversations.
+Narrow screens expose Chat and Lesson tabs. Flowers are evidence views inside
+the secondary pane, never the application branding or a decorative landing page.
+
+## Immediate voice-first entry
+
+The app opens directly into chat with default partner/conversation state prepared
+in Rust. No mandatory title or configuration sequence precedes composing. The
+reference layout and Record/Stop/Send interaction are the presentation specification;
+Lesson/Analysis and Talk to your coach remain alongside chat. The coach's submitted
+messages persist separately and never enter the partner prompt. Preserve useful
+reference behavior as real functionality; do not replace it with decorative placeholders.
+
+### Hosted service observability
+
+The active hosted service is maintained in `server/`, independently of the local
+conversation model. Its reviewed authentication, capped provider requests,
+transactional admission/settlement and revocation controls are adopted intact.
+Diagnostics add a separate bounded authenticated request lane; they never reset
+counters, mutate allowances or bypass authorization. The app exposes an explicit
+on-demand status check instead of automatic status polling. Deployment remains a
+user-controlled Git operation with server tests and container checks as gates.
