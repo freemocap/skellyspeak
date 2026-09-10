@@ -99,3 +99,20 @@ def test_runtime_python_sources_are_in_docker_context() -> None:
                 if source.endswith(".py"):
                     assert source in included
                     assert (root / source).is_file()
+
+
+@pytest.mark.parametrize(("detail", "category"), [
+    ("PERMISSION_DENIED: private-secret@example.invalid", "PERMISSION_DENIED"),
+    ("unrecognized arguments: private-secret", "CLI_ARGUMENT_ERROR"),
+    ("private-secret", "UNCLASSIFIED"),
+])
+def test_cloud_failures_identify_operation_without_echoing_details(monkeypatch, detail, category):
+    import subprocess
+    from deploy_candidate import gcloud
+    monkeypatch.setattr(subprocess, "run", lambda *a, **kw:
+                        subprocess.CompletedProcess(a, 1, "private-output", detail))
+    with pytest.raises(DeploymentError) as error:
+        gcloud(["firestore", "fields", "ttls", "list", "--project=private-project"])
+    assert "operation=TTL_LIST" in str(error.value)
+    assert f"category={category}" in str(error.value)
+    assert "private" not in str(error.value)

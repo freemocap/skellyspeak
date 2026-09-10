@@ -21,8 +21,31 @@ def gcloud(arguments: list[str]) -> str:
     except (subprocess.TimeoutExpired, OSError) as error:
         raise DeploymentError("GCLOUD_EXECUTION_FAILED") from error
     if result.returncode:
-        # Do not echo stderr or a full service spec into public Actions logs.
-        raise DeploymentError(f"GCLOUD_COMMAND_FAILED exit={result.returncode}")
+        # Classify locally; never print raw stderr, arguments or cloud specs.
+        detail = result.stderr.lower()
+        category = "UNCLASSIFIED"
+        for code, markers in (
+            ("PERMISSION_DENIED", ("permission_denied", "permission denied", "does not have permission", "403")),
+            ("AUTHENTICATION_REQUIRED", ("unauthenticated", "no active account", "401")),
+            ("API_DISABLED", ("service_disabled", "has not been used", "api is disabled")),
+            ("CLI_ARGUMENT_ERROR", ("unrecognized arguments", "invalid choice")),
+            ("RESOURCE_NOT_FOUND", ("not_found", "not found", "404")),
+        ):
+            if any(marker in detail for marker in markers):
+                category = code
+                break
+        operations = {
+            ("firestore", "fields", "ttls", "list"): "TTL_LIST",
+            ("firestore", "fields", "ttls", "update"): "TTL_UPDATE",
+            ("container", "images", "describe"): "IMAGE_DESCRIBE",
+            ("run", "deploy"): "REVISION_DEPLOY",
+            ("run", "revisions", "describe"): "REVISION_DESCRIBE",
+            ("run", "services", "update-traffic"): "TRAFFIC_UPDATE",
+            ("run", "services", "describe"): "SERVICE_DESCRIBE",
+        }
+        operation = next((name for prefix, name in operations.items()
+                          if arguments[:len(prefix)] == list(prefix)), "OTHER")
+        raise DeploymentError(f"GCLOUD_COMMAND_FAILED operation={operation} category={category} exit={result.returncode}")
     return result.stdout
 
 

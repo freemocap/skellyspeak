@@ -38,10 +38,12 @@ def ensure_retention(project: str, *, call, pause=time.sleep) -> None:
                 result[names[name]] = config.get("state", "")
         return result
 
+    print(json.dumps({"stage": "retention_check"}), flush=True)
     current = states()
     for group in COLLECTIONS:
         state = current.get(group)
         if state not in {"ACTIVE", "CREATING"}:
+            print(json.dumps({"stage": "retention_enable", "collection_group": group}), flush=True)
             call(["firestore", "fields", "ttls", "update", "ttl",
                   f"--collection-group={group}", "--enable-ttl", "--async", *scope])
     for attempt in range(120):
