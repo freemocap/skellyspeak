@@ -8,27 +8,30 @@ present and is not represented as deployed behavior.
 
 ## Findings and priorities
 
-1. **Deployment integrity and availability — fix next.** The workflow verifies the
-   service template image and latest-created/latest-ready names. It does not capture
-   an exact build-specific candidate revision and verify that revision's immutable
-   image digest before moving traffic. Traffic promotion is not explicit. Latest
-   observed run 34464548148 built/pushed image tag
-   `285a606b-6ac1-4bb9-b732-2f514518d4cb`, but reported readiness mismatch and 100%
-   traffic on `skellyspeak-api-00011-r75`. This establishes rollout failure, not the
-   cause of hosted HTTP 429. Do not weaken the failing assertions to get a green run.
-2. **Availability under anonymous load.** `admission.Ingress` is a shared 240/minute
-   per-process gate, including health and diagnostics. Anonymous requests can consume
-   it and temporarily deny legitimate callers. This is not a per-user or distributed
-   abuse limit, nor a complete GCP cost cap. Avoid exempting an unbounded endpoint;
-   consider separate bounded liveness/admission lanes or edge protection if needed.
+1. **Deployment integrity — implemented locally, pending CI and deployment.**
+   Deployment resolves the pushed image to an immutable digest, assigns a unique
+   build-specific revision, and deploys without traffic. The exact revision must
+   report Ready and the expected image/digest before explicit promotion to 100%.
+   Traffic allocation is then checked. A failed deploy command never promotes;
+   it attempts an allowlisted metadata report without printing runtime messages
+   or service configuration. Candidate readiness still requires revision-specific evidence.
+2. **Anonymous admission interference — reduced locally.** Anonymous ingress has
+   its own 240/minute per-process allowance. GET /health has a separate bounded
+   60/minute allowance. Protected routes classify signature-verified sessions into
+   a bounded 60/minute per-subject lane with a 240/minute process ceiling and at
+   most 128 active subject windows. Endpoint authentication, revocation and daily
+   Firestore limits still apply. These are tunable application limits, not universal
+   security standards. This does not prevent resource-level floods, health-route
+   abuse or distributed denial of service; it does not establish a GCP cost cap.
 3. **Live least privilege is unknown.** Workflow source uses short-lived Workload
    Identity Federation, main-only deployment and pinned GitHub actions. It cannot
    establish actual WIF repository/ref restrictions or service-account IAM grants.
    Runtime should have only required Firestore and named-secret access; build/deploy
    privileges should be separate. No IAM changes are proposed merely to cure 429.
-4. **Supply-chain reproducibility.** Python/runtime image and uv source are digest
-   pinned, but Cloud Build docker/cloud-sdk helper images are unpinned. Pin tested
-   helper digests in a focused follow-up; do not treat mutable tools as reproducible.
+4. **Build helper pinning — implemented locally, pending CI.** Cloud Build docker
+   and cloud-sdk helpers now use immutable digests, alongside pinned Python/uv
+   images and GitHub actions. Pinning prevents unnoticed tag drift; it does not
+   prove vulnerability absence. Deliberate dependency updates remain necessary.
 5. **Managed logging boundary.** New application request logs omit tokens, bodies,
    raw URLs, identities and exception messages. GCP request logs are independently
    managed and can retain request URLs, including OAuth callback query parameters.
@@ -68,10 +71,11 @@ full service JSON. The ready audit revision is not evidence that the candidate w
 1. Establish the candidate revision's exact startup/readiness failure from console
    evidence; compare command, port, probes and secret references with the container
    that passed CI. Correct the specific failure, not unrelated quotas or permissions.
-2. Make deployment deterministic: use an immutable image digest and a build-specific
-   revision identifier; wait for that exact revision to be ready and verify its image.
-3. Explicitly promote that verified candidate to 100% traffic and assert the resulting
-   traffic allocation. Preserve API authorization and spending controls.
+2. Run the hardened deployment through CI after the user commits/pushes; verify
+   the candidate metadata, readiness and explicit traffic promotion.
+3. Confirm actual WIF repository/ref restrictions, least-privilege service-account
+   grants, and managed logging access/retention in GCP. These are unverified live
+   settings, not resolved by local source changes.
 4. Check public health 200 and unauthenticated diagnostics 401; then use the app's
    authenticated diagnostics and one hosted message. Record the exact rejection code
    and request ID if chat still fails, and fix that specific admission condition.
@@ -80,3 +84,48 @@ full service JSON. The ready audit revision is not evidence that the candidate w
 
 The archive move at September 9 14:34 UTC occurred after the failed deployment at
 03:20 UTC; observed GitHub runs do not support it causing that deployment failure.
+
+## Guidance and verification
+
+The deployment sequence follows Google's [Cloud Run traffic migration guidance](https://cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration)
+and [image deployment contract](https://docs.cloud.google.com/run/docs/deploying).
+Bounded admission and restricted logs follow the relevant principles in OWASP's
+[denial-of-service guidance](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html)
+and [logging guidance](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html).
+If edge protection is needed, use Google's documented [Cloud Armor integration](https://docs.cloud.google.com/armor/docs/integrating-cloud-armor)
+with ingress configured to prevent direct-service bypass. No load balancer or
+Cloud Armor policy has been provisioned by this work.
+
+Local server verification: 162 passed, six Firestore emulator tests skipped.
+Coverage includes failed deployment/nonmatching digest preventing promotion,
+metadata redaction, complete traffic allocation, bounded identity storage, and
+anonymous/signed/liveness admission separation. CI must still exercise the emulator,
+container startup and the pinned Cloud Build helpers. No Git write, deployment,
+IAM mutation, counter reset or privileged diagnostic workflow was performed.
+
+## Supplied Cloud Run export — 2026-09-10
+
+Reviewed 4,778 records spanning September 9 10:47 UTC through September 10
+10:31 UTC. Only sanitized aggregate findings are recorded here; the raw export
+contains OAuth query parameters and must not be committed or attached to public CI.
+
+- 1,236 chat HTTP 200 responses and 253 chat HTTP 429 responses; transcription
+  adds seven 200 and four 429 responses. All 257 HTTP 429s have corresponding
+  application access-log entries. This points to application-handled rejection,
+  not a Cloud Run front-door rejection. These logs contain no rejection reason.
+- The busiest clock minute contains 232 HTTP requests. This supports investigating
+  excess request generation, but does not establish which user action caused it.
+- All recorded 429s occur September 9. The September 10 portion contains no chat
+  requests, so this export cannot establish whether chat still rejects today.
+- The service update at September 10 10:14 UTC retains 100% traffic on
+  `skellyspeak-api-00011-r75`, lists latest-created `skellyspeak-api-00014-z9x`,
+  and latest-ready `skellyspeak-api-audit-0905`. The service itself reports Ready.
+  There are no runtime entries for `00014-z9x` in this export. A startup crash is
+  not established; readiness/routing must be distinguished from startup failure.
+- Uvicorn access logs include OAuth callback query parameters in the serving
+  revision. The prepared runtime disables these access logs; managed GCP request
+  logs remain a separate access/retention review.
+
+No additional runtime code change follows from this evidence. Proceed with the
+locally tested exact-revision deployment and admission hardening, then inspect
+its CI result and authenticated diagnostics before changing any quota.

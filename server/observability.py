@@ -38,13 +38,13 @@ def error_response(request: Request, error: HTTPException) -> JSONResponse:
                                  "resets_at": getattr(error, "resets_at", None)})
 
 
-async def observe(request: Request, call_next, ingress):
+async def observe(request: Request, call_next, ingress, admit=None):
     # Ignore client-provided IDs: they can contain secrets, log injection or collisions.
     request.state.request_id = uuid.uuid4().hex
     request.state.error_code = None
     started = time.monotonic()
     try:
-        ingress.take()
+        admit() if admit is not None else ingress.take()
         response = await call_next(request)
     except HTTPException as error:
         response = error_response(request, error)

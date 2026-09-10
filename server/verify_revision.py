@@ -1,31 +1,32 @@
-"""Verify only deployment metadata; never print a full service configuration."""
+"""Allowlisted verification of the exact immutable deployment candidate."""
 from __future__ import annotations
-import json
-import sys
 
 
-def inspect(service: dict, expected_image: str) -> dict:
-    status = service.get("status", {})
-    created = status.get("latestCreatedRevisionName")
-    ready = status.get("latestReadyRevisionName")
-    containers = service.get("spec", {}).get("template", {}).get("spec", {}).get("containers", [])
-    image = containers[0].get("image") if containers else None
-    traffic = [{"revision": t.get("revisionName"), "percent": t.get("percent", 0)}
-               for t in status.get("traffic", [])]
+def inspect_revision(revision: dict, expected_name: str, expected_image: str) -> dict:
+    status = revision.get("status", {})
+    name = revision.get("metadata", {}).get("name")
+    containers = revision.get("spec", {}).get("containers", [])
+    image = containers[0].get("image") if len(containers) == 1 else None
+    digest = status.get("imageDigest")
+    ready = any(c.get("type") == "Ready" and c.get("status") == "True"
+                for c in status.get("conditions", []))
     failures = []
-    if not created or ready != created:
+    if name != expected_name:
+        failures.append("REVISION_NAME_MISMATCH")
+    if not ready:
         failures.append("REVISION_NOT_READY")
-    if image != expected_image:
-        failures.append("IMAGE_MISMATCH")
-    if not created or sum(t["percent"] for t in traffic if t["revision"] == created) != 100:
-        failures.append("TRAFFIC_MISMATCH")
-    return {"expected_image": expected_image, "actual_image": image,
-            "created_revision": created, "ready_revision": ready,
-            "traffic": traffic, "failures": failures}
+    if image != expected_image or digest != expected_image:
+        failures.append("IMAGE_DIGEST_MISMATCH")
+    return {"revision": name, "expected_revision": expected_name, "image": image,
+            "resolved_image": digest, "expected_image": expected_image,
+            "ready": ready, "failures": failures}
 
 
-if __name__ == "__main__":
-    with open(sys.argv[1]) as source:
-        report = inspect(json.load(source), sys.argv[2])
-    print(json.dumps(report, sort_keys=True))
-    sys.exit(1 if report["failures"] else 0)
+def inspect_traffic(service: dict, expected_name: str) -> dict:
+    traffic = [{"revision": row.get("revisionName"), "percent": row.get("percent", 0)}
+               for row in service.get("status", {}).get("traffic", [])]
+    accepted = (all(type(row["percent"]) is int and 0 <= row["percent"] <= 100 for row in traffic)
+                and sum(row["percent"] for row in traffic) == 100
+                and sum(row["percent"] for row in traffic if row["revision"] == expected_name) == 100)
+    return {"expected_revision": expected_name, "traffic": traffic,
+            "failures": [] if accepted else ["TRAFFIC_MISMATCH"]}

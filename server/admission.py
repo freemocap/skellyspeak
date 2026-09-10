@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from collections import deque
+from collections import deque, OrderedDict
 from threading import Lock
 from typing import Literal
 
@@ -24,7 +24,8 @@ ADMISSION = "admission"
 
 
 class Ingress:
-    def __init__(self) -> None:
+    def __init__(self, limit: int | None = None) -> None:
+        self.limit = limit
         self._hits: deque[float] = deque()
         self._lock: Lock = Lock()
 
@@ -33,9 +34,33 @@ class Ingress:
         with self._lock:
             while self._hits and now - self._hits[0] >= 60:
                 self._hits.popleft()
-            if len(self._hits) >= REQUESTS_PER_MINUTE:
+            if len(self._hits) >= (self.limit if self.limit is not None else REQUESTS_PER_MINUTE):
                 raise Rejection("INGRESS_RATE_LIMIT", "Request rate limit reached. Try again in a minute.", retry=60)
             self._hits.append(now)
+
+
+class AuthenticatedIngress:
+    """Bounded per-subject windows, plus a process ceiling; identities stay in memory."""
+    def __init__(self):
+        self._subjects = OrderedDict()
+        self._lock = Lock()
+        self._total = Ingress(240)
+
+    def take(self, subject: str):
+        now = time.monotonic()
+        with self._lock:
+            # Evict only expired windows: rotating subjects cannot erase active limits.
+            for key, (_, touched) in list(self._subjects.items()):
+                if now - touched >= 60:
+                    del self._subjects[key]
+            if subject not in self._subjects:
+                if len(self._subjects) >= 128:
+                    raise Rejection("INGRESS_RATE_LIMIT", "Authenticated ingress capacity reached. Try again in a minute.", retry=60)
+                self._subjects[subject] = (Ingress(60), now)
+            gate, _ = self._subjects[subject]
+            self._subjects[subject] = (gate, now)
+            gate.take()
+            self._total.take()
 
 
 def take(db: firestore.Client, *, lane: Literal["auth", "account", "diagnostics"], subject: str) -> None:
