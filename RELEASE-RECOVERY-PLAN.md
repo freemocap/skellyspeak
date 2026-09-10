@@ -101,3 +101,26 @@ worktree. Verify hosted sign-in/chat, progressive analysis and recording, then
 restart and verify persistence. This is an unsigned local test bundle; macOS
 signing/permission behavior is not release verification. No Git writes or
 publication were performed. Generated documentation output is ignored.
+
+## Coach annotation patch
+
+Local QA traces contained 61 distinct annotation operations across four reply
+operations, with 77 annotation attempts. This supports excessive render-triggered
+work; it does not establish the original incident's complete causal chain.
+
+Reading components do not launch annotation requests. Saved annotations reveal
+locally; unannotated words open explicit word inspection through click, keyboard,
+hold or context menu. Coach phrase translations and insertion remain available.
+Automatic word glosses/pronunciation on unannotated suggestions are not provided.
+The unused frontend preparation cache, retry UI and error styling are removed.
+
+Verification: 393 frontend tests pass, including reopening 70 distinct fragments
+without requests, coach preference changes and insertion without annotation calls,
+saved-gloss display, and explicit keyboard word inspection. Real-app coach-panel
+QA and a trace review after reopening the rebuilt bundle are still required.
+
+Follow-up coach QA: the session after the rendering patch recorded zero
+annotate_text operations. One scaffold request failed because the copied partner
+reply replaced a paragraph break with a space. Source comparison now tolerates
+whitespace layout differences while requiring identical words and punctuation.
+A regression covers paragraph spacing and rejected content changes.

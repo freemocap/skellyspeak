@@ -8,7 +8,7 @@ User-directed conventions, recorded 2026-09-09. Apply these when changing the UI
 - Translation, Pronunciation and Romanization preferences apply to every reading surface, including Coach, lessons and dialogs. Do not invent labels such as “Reading help” for familiar functionality.
 - Chat settings live in a gear-controlled top-bar panel, closed by default and separate from Coach.
 - Lead with useful content. Explanation is secondary. Do not duplicate the message immediately above the tray.
-- Prepare missing token annotations when a reading surface opens; ordinary taps only reveal cached meanings. Coach uses the chat token renderer for pronunciation and romanization, never separate sentence-level sound guides. Draft insertion and preference changes must not request word analysis.
+- Rendering, reopening and changing reading preferences must not request token annotations. Saved annotations reveal meanings locally; unannotated words support explicit word inspection. Coach uses the chat token renderer for pronunciation and romanization, never separate sentence-level sound guides. Draft insertion and preference changes must not request word analysis.
 - Reading text and action text have different interaction contracts. Never put word buttons inside a suggestion button. Use the existing word interaction on reading surfaces; do not turn every native-language word in prose into a lookup control.
 - Preserve keyboard activation, visible focus and usable touch targets. Compact visual styling does not justify tiny hit targets.
 - Inspect the actual mobile view with realistic short and long replies. Check initial useful content, wrapping, scroll, enlarged text, RTL, and request counts. Passing component tests alone is not visual QA.

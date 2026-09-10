@@ -4,6 +4,7 @@ import type { GuidedToken } from '../types'
 interface TokenSpanProps {
   textStyle?: React.CSSProperties
   interactive?: boolean
+  inspectOnTap?: boolean
   tok: GuidedToken
   revealed: boolean
   hasTranslation: boolean
@@ -21,6 +22,7 @@ export function TokenSpan({
   tok,
   textStyle,
   interactive = true,
+  inspectOnTap = false,
   revealed,
   hasTranslation,
   showRomanization,
@@ -32,7 +34,7 @@ export function TokenSpan({
   onInspect,
   onHold,
 }: TokenSpanProps) {
-  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation)
+  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation || inspectOnTap)
   // Press-and-hold (450ms, near-stationary) opens the deep word-insight
   // modal. Works for mouse + touch; a plain click never fires it, and
   // dragging cancels it.
