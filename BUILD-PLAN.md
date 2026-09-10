@@ -2,21 +2,14 @@
 
 ## Current AI deployment checkpoint
 
-Direct API keys and local self-hosted chat are user-verified. The local grouped
-request completed and released its server slot. Source security review includes
-deployment TTL enforcement, strict session claims, explicit build allowlists and
-unauthenticated grouped-endpoint checks; see SECURITY-AUDIT.md for evidence and
-remaining limits. Server checks: 196 tests plus seven separately executed emulator
-tests pass. Hosted deployment, live IAM/TTL activation and post-deployment hosted
-chat remain unverified. Do not interpret local source/test completion as deployment.
-
-
-Status: implementation authorized. Phase 1 is implemented and verified locally
-on macOS; mobile/other-platform verification remains explicitly outstanding.
-Phase 2 source implementation and automated conformance checks are in place; live-provider and system-keychain verification remain pending. Native macOS setup
-and connection controls were inspected. Hosted deployment and user-confirmed chat
-recovery are recorded in INCIDENT-POSTMORTEM.md. Broader paid model evaluation and
-live Groq/custom checks remain pending; see README for verification scope.
+Hosted deployment is verified for commit e05a870 by successful workflow
+34497425319. All eight TTL policies are ACTIVE. Revision
+skellyspeak-api-b4efc379d49694213a7a5d56efadf2228 is ready and receives 100% of
+traffic; health and unauthenticated endpoint checks pass. The user verified hosted
+chat, and the local attempt receipt records success at 2026-09-10T17:09:33.808Z
+(302 input tokens, 14 output tokens). Direct API keys and local self-hosted chat
+are also user-verified. This completes the AI transport/deployment checkpoint,
+not the complete application feature plan. Next: RELEASE-RECOVERY-PLAN.md.
 
 ## Intention
 
