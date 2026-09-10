@@ -1,5 +1,7 @@
 // Generated from Rust contracts. Run npm run contracts.
-export type ConnectionRoute = "hosted" | "openrouter";
+export type ConnectionRoute = "hosted" | "openrouter" | "custom";
+export type AccessSettings = { revision: number, groqKeyConfigured: boolean, customKeyConfigured: boolean, custom: CustomEndpoint, };
+export type CustomEndpoint = { baseUrl: string, standardModel: string, fastModel: string, bearerAuth: boolean, transcriptionModel: string | null, };
 export type HostedAccount = { email: string, name: string, usedUsd: number, limitUsd: number, remainingUsd: number, tokensToday: number, requestsToday: number, estimatedRequestsRemaining: number, estimatedTokensRemaining: number, customLimit: boolean, resets: string, };
 export type UsageSummary = { id: string, label: string, conversations: number, learnerMessages: number, partnerMessages: number, attempts: number, inputTokens: number, outputTokens: number, unknownUsage: number, };
 export type ProfileSnapshot = { revision: number, global: UsageSummary, languages: Array<UsageSummary>, partners: Array<UsageSummary>, };

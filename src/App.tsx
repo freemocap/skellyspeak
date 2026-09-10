@@ -287,17 +287,6 @@ export default function App() {
             AI
           </button>
           <button
-            className="account-trigger"
-            onClick={() => openModal("connection")}
-            title={account.error ?? "Hosted account and token status"}
-          >
-            {account.account
-              ? `${account.account.tokensToday.toLocaleString()} tokens`
-              : account.config?.signedIn
-                ? "Account"
-                : "Sign in"}
-          </button>
-          <button
             className="quiet"
             aria-label="Reload app"
             onClick={() => window.location.reload()}

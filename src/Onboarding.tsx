@@ -22,9 +22,9 @@ export function Onboarding({
     <section className="onboarding" aria-label="Getting started">
       <div>
         <details>
-          <summary>Start typing to chat · Quick guide</summary>
+          <summary>Quick guide</summary>
           <p className="small muted">
-            Enter sends; Shift+Enter adds a line. Use the partner chooser to
+            Enter sends a message. Use the partner chooser to
             change who you talk to. Conversation settings and titles can be
             changed anytime. The right pane is for your coach and lesson. Replay
             this guide in Settings.
@@ -37,7 +37,7 @@ export function Onboarding({
           disabled={busy}
           onClick={() => update("completed")}
         >
-          Got it
+          Dismiss
         </button>
         <button
           className="text-button"

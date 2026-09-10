@@ -16,7 +16,8 @@ The device credential store holds API keys and hosted sessions; SQLite contains 
 reference. React does not retain keys in component state. The key-entry field and
 IPC necessarily carry a submitted key transiently. Rust uses zeroizing secret buffers
 and does not echo provider error bodies or secrets into diagnostics. HTTPS is fixed
-to OpenRouter for this route; redirects are refused. The hosted route uses its fixed HTTPS service origin. Custom URLs are not implemented.
+to OpenRouter for this route; redirects are refused. The hosted route uses its fixed HTTPS service origin. Custom URLs use explicitly configured HTTPS endpoints, or loopback HTTP for a local
+service. No-auth endpoints receive no Authorization header; redirects are refused.
 
 Attempts retain model identifiers, timing, provider request identifiers and reported
 token counts when available. Unknown usage stays unknown. Cancel prevents local
@@ -28,7 +29,8 @@ Deleting a conversation removes its messages, captured context, operations, atte
 and scoped receipts. Deleting a partner removes its dependent conversations. Late
 worker callbacks cannot recreate deleted records. Disconnecting revokes unpublished
 work and removes the credential; pending credential cleanup is recorded and completed
-on startup if interrupted. No backup, migration or synchronization subsystem exists.
+on startup if interrupted. The active v3 workspace has a bounded transactional AI-configuration extension;
+there is no archived-data import, backup or synchronization subsystem.
 
 Provider-side handling is governed by the user's provider agreement and settings:
 [OpenRouter privacy policy](https://openrouter.ai/privacy).
@@ -43,7 +45,8 @@ the local session and revokes unpublished hosted work; it does not erase incurre
 server metering or sign out of Google in the browser. See `hosted-api.md`.
 
 Desktop Record captures microphone samples in memory. Stop uploads WAV audio and the
-target language to the hosted transcription service, which uses Groq Whisper. Discard
+target language to the selected route: the hosted transcription service, Groq
+directly in API-key mode, or the explicitly audio-enabled custom endpoint. Discard
 uploads nothing. Recordings are capped at two minutes and are not stored on disk.
 Transcripts are inserted into the draft and become conversation data only on Send.
 Hosted audio accounting is independent of local text-attempt totals.

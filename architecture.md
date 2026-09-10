@@ -1,7 +1,7 @@
 # Implemented application and boundaries
 
 The local foundation, desktop hosted access and own-key execution are implemented. Native/live
-verification status is recorded in README.md. Assistance, custom URLs
+verification status is recorded in README.md. Assistance
 and evidence contracts remain future work.
 
 The selected stack is Tauri 2, React 19, TypeScript and Vite. Rust owns the SQLite
@@ -23,7 +23,8 @@ deployment change in this slice.
 
 The local database lives in the application's data directory as `practice.sqlite3`.
 It is initialized only when empty; incompatible or invalid databases fail explicitly.
-There are no migrations or imports. Source-owned records cascade on deletion.
+The active v3 AI-configuration schema extends transactionally to v4; there are no
+archived-data imports. Source-owned records cascade on deletion.
 Settings are one independently editable record per conversation. Opening a
 conversation records use ordering for copying settings on explicit creation.
 
@@ -130,7 +131,24 @@ counts exclude coach text; provider attempt totals include both channels.
 
 Desktop capture uses cpal on a dedicated thread and hound for mono WAV. Recording
 IDs scope waveform/stop/cancel commands. Audio never enters React or SQLite. Stop
-uploads to the hosted Whisper endpoint; transcript insertion checks conversation and
+uploads through the capability resolver to hosted, Groq or custom transcription; transcript insertion checks conversation and
 credential revision. Audio uploads are not yet represented as local graph attempts;
 the hosted service meters them. Native credential reads run outside the database
 lock on blocking workers so keychain prompts cannot prevent chat hydration.
+
+
+## Capability-based AI access
+
+`access.rs` resolves Chat and Transcription into captured route, URL, model,
+credential reference and revision. Partner and coach turns persist that target in
+their captured context; the microphone captures it before recording. Credential
+revocation blocks publication. Transcription drops its HTTP future if its connection
+revision changes or its source conversation disappears/is archived. Ordinary chat
+route switches retain the original identity of already dispatched work, as defined
+by the execution contract; they do not retarget requests in flight.
+
+`ai_config` retains hosted, OpenRouter, Groq and custom credential references, and
+custom protocol configuration. Custom Chat Completions excludes vendor-only
+OpenRouter fields. The optional multipart transcription capability must be selected
+explicitly. Provider implementations, rather than UI components, own endpoint constants.
+Read-aloud has not yet been implemented. Credential policy is in `SECURITY.md`.

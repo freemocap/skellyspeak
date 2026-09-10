@@ -167,6 +167,11 @@ export function ConversationView({
       </div>
       <div className="composer">
         <ErrorNotice error={recorder.error} />
+        {recorder.error && (
+          <button className="text-button" onClick={connection}>
+            AI access settings
+          </button>
+        )}
         {recorder.busy && (
           <p className="composer-activity" role="status">
             Processing audio…
@@ -192,7 +197,7 @@ export function ConversationView({
         )}
         {!snapshot?.connection.configured && (
           <button className="text-button" onClick={connection}>
-            Sign in to send messages or record your voice
+            Configure AI access to send messages
           </button>
         )}
         <form
@@ -227,8 +232,7 @@ export function ConversationView({
             type="button"
             className={`mic ${recorder.recording ? "recording" : ""}`}
             onClick={() => {
-              if (snapshot?.connection.configured) void recorder.toggle();
-              else connection();
+              void recorder.toggle();
             }}
             disabled={
               recorder.busy || busy || !!pendingTurn || conversation.archived

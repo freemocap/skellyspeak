@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { errorMessage } from "./directory";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import type { AccountState } from "./useAccount";
 import { ErrorNotice } from "./Fields";
+import { AccessProfileForm } from "./AccessProfileForm";
 import { ConnectionForm } from "./ConnectionForm";
 
 export function AccountSettings({
@@ -14,164 +15,252 @@ export function AccountSettings({
 }) {
   const { config, account } = state;
   const [connectionBusy, setConnectionBusy] = useState(false);
+  const [accessBusy, setAccessBusy] = useState(false);
+  const [modelsOpen, setModelsOpen] = useState(false);
+  const activity = useRef({ access: false, connection: false });
+  const accessActivity = useCallback(
+    (busy: boolean) => {
+      activity.current.access = busy;
+      setAccessBusy(busy);
+      onBusyChange(activity.current.access || activity.current.connection);
+    },
+    [onBusyChange],
+  );
   const connectionActivity = useCallback(
     (busy: boolean) => {
+      activity.current.connection = busy;
       setConnectionBusy(busy);
-      onBusyChange(busy);
+      onBusyChange(activity.current.access || activity.current.connection);
     },
     [onBusyChange],
   );
   const reset = new Date();
   reset.setUTCHours(24, 0, 0, 0);
+  const routes = [
+    { id: "hosted", label: "Hosted sign-in" },
+    { id: "openrouter", label: "API keys" },
+    { id: "custom", label: "Custom URL" },
+  ] as const;
+  const locked = state.busy || state.signingIn || connectionBusy || accessBusy;
   return (
     <section className="account-settings">
-      <h3>AI access</h3>
-      <p className="field-note">
-        Sign in to use the hosted allowance. Your conversations stay on this
-        device.
-      </p>
       <ErrorNotice error={state.error} />
       {!config ? (
-        <button onClick={() => void state.refresh()}>Load account</button>
+        <button onClick={() => void state.refresh()}>Load AI access</button>
       ) : (
         <>
-          <label className="field">
-            <span>Connection</span>
-            <select
-              value={config.route}
-              disabled={state.busy || state.signingIn || connectionBusy}
-              onChange={(e) =>
-                void state.route(e.target.value as "hosted" | "openrouter")
+          <div
+            className="access-tabs"
+            role="tablist"
+            aria-label="AI access method"
+            onKeyDown={(event) => {
+              const tabs = Array.from(
+                event.currentTarget.querySelectorAll<HTMLButtonElement>(
+                  '[role="tab"]',
+                ),
+              );
+              const index = tabs.indexOf(
+                document.activeElement as HTMLButtonElement,
+              );
+              const next =
+                event.key === "ArrowRight"
+                  ? (index + 1) % tabs.length
+                  : event.key === "ArrowLeft"
+                    ? (index + tabs.length - 1) % tabs.length
+                    : event.key === "Home"
+                      ? 0
+                      : event.key === "End"
+                        ? tabs.length - 1
+                        : null;
+              if (next !== null) {
+                event.preventDefault();
+                tabs[next]?.focus();
               }
-            >
-              <option value="hosted">Hosted · Sign in with Google</option>
-              <option value="openrouter">Own OpenRouter API key</option>
-            </select>
-          </label>
-          {config.route === "hosted" && (
-            <div className="hosted-models">
-              <h3>Models</h3>
-              <dl>
-                <dt>Standard · partner replies</dt>
-                <dd>{config.standardModel}</dd>
-                <dt>Fast · smaller tasks</dt>
-                <dd>No active assignments</dd>
-              </dl>
-              <p className="field-note">
-                Hosted models are authorized by the service. Task routing never
-                silently substitutes another model.
-              </p>
-            </div>
-          )}
-          {config.route === "hosted" && (
-            <>
-              {config.signedIn && <ServiceDiagnostics key={config.revision} />}
-              {config.signedIn ? (
-                <div className="signed-account">
-                  <strong>{account?.name || config.email}</strong>
-                  <span>{config.email}</span>
-                </div>
-              ) : (
-                <p>Not signed in.</p>
-              )}
-              {account && (
-                <>
-                  <div className="allowance-heading">
-                    <strong>
-                      ${account.usedUsd.toFixed(3)} / $
-                      {account.limitUsd.toFixed(2)}
-                    </strong>
-                    <span>
-                      used today
-                      {account.customLimit ? " · custom allowance" : ""}
-                    </span>
-                  </div>
-                  <progress
-                    aria-label="Daily hosted allowance used"
-                    max={Math.max(account.limitUsd, 0.001)}
-                    value={Math.min(account.usedUsd, account.limitUsd)}
-                  />
-                  <dl className="account-metrics">
-                    <dt>Tokens today</dt>
-                    <dd>{account.tokensToday.toLocaleString()}</dd>
-                    <dt>AI requests today</dt>
-                    <dd>{account.requestsToday.toLocaleString()}</dd>
-                    <dt>Remaining allowance</dt>
-                    <dd>${account.remainingUsd.toFixed(3)}</dd>
-                    <dt>Estimated requests remaining</dt>
-                    <dd>
-                      ≈ {account.estimatedRequestsRemaining.toLocaleString()}
-                    </dd>
-                    <dt>Estimated tokens remaining</dt>
-                    <dd>
-                      {account.requestsToday
-                        ? `≈ ${account.estimatedTokensRemaining.toLocaleString()}`
-                        : "Insufficient usage"}
-                    </dd>
-                    <dt>Daily reset</dt>
-                    <dd>
-                      {reset.toLocaleTimeString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}{" "}
-                      local · {account.resets}
-                    </dd>
-                  </dl>
-                  <p className="field-note">
-                    Allowance is metered in dollars. Remaining requests and
-                    tokens are estimates, not guaranteed quotas.
-                  </p>
-                </>
-              )}
-              <div className="account-actions">
-                {!config.signedIn && (
-                  <button
-                    className="google-signin"
-                    disabled={state.signingIn || state.busy}
-                    onClick={() => void state.signIn()}
-                  >
-                    <b aria-hidden="true">G</b>
-                    {state.signingIn
-                      ? "Waiting for Google…"
-                      : "Sign in with Google"}
-                  </button>
-                )}
-                {state.signingIn && (
-                  <button onClick={() => void state.cancel()}>
-                    Cancel sign-in
-                  </button>
-                )}
-                {config.signedIn && (
-                  <>
+            }}
+          >
+            {routes.map((route) => (
+              <button
+                key={route.id}
+                id={`access-tab-${route.id}`}
+                type="button"
+                role="tab"
+                aria-selected={config.route === route.id}
+                aria-controls={`access-panel-${route.id}`}
+                tabIndex={config.route === route.id ? 0 : -1}
+                disabled={locked}
+                onClick={() => {
+                  if (config.route !== route.id) void state.route(route.id);
+                }}
+              >
+                {route.label}
+              </button>
+            ))}
+          </div>
+          <div
+            className="access-route-panel"
+            role="tabpanel"
+            id={`access-panel-${config.route}`}
+            aria-labelledby={`access-tab-${config.route}`}
+            tabIndex={0}
+          >
+            {config.route === "hosted" && (
+              <>
+                {config.signedIn ? (
+                  <div className="hosted-identity">
+                    <span className="connection-dot" aria-hidden="true" />
+                    <div>
+                      <strong>{account?.name || config.email}</strong>
+                      {account?.name && <small>{config.email}</small>}
+                    </div>
                     <button
-                      disabled={state.busy}
-                      onClick={() => void state.refresh()}
-                    >
-                      Refresh allowance
-                    </button>
-                    <button
+                      className="text-button"
                       disabled={state.busy}
                       onClick={() => void state.signOut()}
                     >
                       Sign out
                     </button>
-                  </>
+                  </div>
+                ) : (
+                  <div className="hosted-signin">
+                    <button
+                      className="google-signin"
+                      disabled={state.signingIn || state.busy}
+                      onClick={() => void state.signIn()}
+                    >
+                      <b aria-hidden="true">G</b>
+                      {state.signingIn
+                        ? "Waiting for Google…"
+                        : "Sign in with Google"}
+                    </button>
+                    {state.signingIn && (
+                      <>
+                        <button onClick={() => void state.cancel()}>
+                          Cancel sign-in
+                        </button>
+                        <p className="field-note" role="status">
+                          Complete sign-in in your browser, then return here.
+                        </p>
+                      </>
+                    )}
+                  </div>
                 )}
-              </div>
-              {state.signingIn && (
-                <p role="status" className="field-note">
-                  Complete sign-in in your system browser. Return here when
-                  finished.
-                </p>
-              )}
-            </>
-          )}
-          {config.route === "openrouter" && (
-            <ConnectionForm
-              onBusyChange={connectionActivity}
-              onChanged={state.refresh}
-            />
-          )}
+                {account && (
+                  <div className="hosted-allowance">
+                    <div className="allowance-heading">
+                      <span>Today's allowance</span>
+                      <strong>
+                        ${account.usedUsd.toFixed(3)}{" "}
+                        <span>/ ${account.limitUsd.toFixed(2)}</span>
+                      </strong>
+                    </div>
+                    <progress
+                      aria-label="Daily hosted allowance used"
+                      max={Math.max(account.limitUsd, 0.001)}
+                      value={Math.min(account.usedUsd, account.limitUsd)}
+                    />
+                    <p className="field-note">
+                      ${account.remainingUsd.toFixed(3)} remaining · resets{" "}
+                      {reset.toLocaleTimeString([], {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                      {account.customLimit ? " · custom allowance" : ""}
+                    </p>
+                    <details className="access-disclosure">
+                      <summary>
+                        <span>
+                          Usage details
+                          <small>Tokens, requests and estimates</small>
+                        </span>
+                      </summary>
+                      <dl className="account-metrics">
+                        <dt>Tokens today</dt>
+                        <dd>{account.tokensToday.toLocaleString()}</dd>
+                        <dt>AI requests today</dt>
+                        <dd>{account.requestsToday.toLocaleString()}</dd>
+                        <dt>Estimated requests remaining</dt>
+                        <dd>
+                          ≈{" "}
+                          {account.estimatedRequestsRemaining.toLocaleString()}
+                        </dd>
+                        <dt>Estimated tokens remaining</dt>
+                        <dd>
+                          {account.requestsToday
+                            ? `≈ ${account.estimatedTokensRemaining.toLocaleString()}`
+                            : "Insufficient usage"}
+                        </dd>
+                        <dt>Daily reset</dt>
+                        <dd>{account.resets}</dd>
+                      </dl>
+                      <p className="field-note">
+                        Money is authoritative. Request and token estimates are
+                        not guaranteed quotas.
+                      </p>
+                    </details>
+                  </div>
+                )}
+                {config.signedIn && (
+                  <button
+                    className="text-button allowance-refresh"
+                    disabled={state.busy}
+                    onClick={() => void state.refresh()}
+                  >
+                    Refresh allowance
+                  </button>
+                )}
+                <details className="access-disclosure">
+                  <summary>
+                    <span>
+                      Service details
+                      <small>
+                        Models
+                        {config.signedIn ? " and connection diagnostics" : ""}
+                      </small>
+                    </span>
+                  </summary>
+                  <dl>
+                    <dt>Standard model</dt>
+                    <dd>{config.standardModel}</dd>
+                    <dt>Fast model</dt>
+                    <dd>No active assignments</dd>
+                  </dl>
+                  {config.signedIn && (
+                    <ServiceDiagnostics key={config.revision} />
+                  )}
+                </details>
+              </>
+            )}
+            {config.route === "openrouter" && (
+              <>
+                <ConnectionForm
+                  key={config.revision}
+                  disabled={accessBusy}
+                  modelsOpen={modelsOpen}
+                  onModelsOpenChange={setModelsOpen}
+                  onBusyChange={connectionActivity}
+                  onChanged={state.refresh}
+                >
+                  <AccessProfileForm
+                    key={`keys:${config.revision}`}
+                    custom={false}
+                    disabled={connectionBusy}
+                    onBusyChange={accessActivity}
+                    onChanged={state.refresh}
+                  />
+                </ConnectionForm>
+              </>
+            )}
+            {config.route === "custom" && (
+              <>
+                <AccessProfileForm
+                  key={`custom:${config.revision}`}
+                  custom={true}
+                  onBusyChange={accessActivity}
+                  onChanged={state.refresh}
+                />
+              </>
+            )}
+          </div>
         </>
       )}
     </section>
@@ -183,8 +272,7 @@ function ServiceDiagnostics() {
   const [report, setReport] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   return (
-    <details>
-      <summary>Service diagnostics</summary>
+    <div className="service-diagnostics">
       <button
         disabled={busy}
         onClick={() => {
@@ -205,6 +293,6 @@ function ServiceDiagnostics() {
           {report}
         </pre>
       )}
-    </details>
+    </div>
   );
 }

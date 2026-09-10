@@ -281,6 +281,8 @@ pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
         ConnectionRoute::decl(&config),
+        AccessSettings::decl(&config),
+        CustomEndpoint::decl(&config),
         HostedAccount::decl(&config),
         UsageSummary::decl(&config),
         ProfileSnapshot::decl(&config),
@@ -403,18 +405,21 @@ pub struct ConversationSnapshot {
 pub enum ConnectionRoute {
     Hosted,
     Openrouter,
+    Custom,
 }
 impl ConnectionRoute {
     pub fn label(self) -> &'static str {
         match self {
             Self::Hosted => "hosted",
             Self::Openrouter => "openrouter",
+            Self::Custom => "custom",
         }
     }
     pub fn parse(value: &str) -> Result<Self> {
         match value {
             "hosted" => Ok(Self::Hosted),
             "openrouter" => Ok(Self::Openrouter),
+            "custom" => Ok(Self::Custom),
             _ => Err(AppError::new(ErrorCode::Storage, "Unknown AI route.")),
         }
     }
@@ -460,4 +465,22 @@ pub struct ProfileSnapshot {
     pub global: UsageSummary,
     pub languages: Vec<UsageSummary>,
     pub partners: Vec<UsageSummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq, Default)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CustomEndpoint {
+    pub base_url: String,
+    pub standard_model: String,
+    pub fast_model: String,
+    pub bearer_auth: bool,
+    pub transcription_model: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AccessSettings {
+    pub revision: i32,
+    pub groq_key_configured: bool,
+    pub custom_key_configured: bool,
+    pub custom: CustomEndpoint,
 }

@@ -1,3 +1,4 @@
+mod access;
 #[cfg(desktop)]
 mod audio;
 pub mod credentials;
@@ -94,12 +95,14 @@ async fn save_connection(
                 )
             })?
         };
-        if let Err(error) = store.set_connection(
+        let result = store.set_connection(
             expected_revision,
             Some(&id),
             standard_model.trim(),
             fast_model.trim(),
-        ) {
+        );
+        store.credential_writes.remove(&id);
+        if let Err(error) = result {
             store.clean_credentials()?;
             return Err(error);
         }
@@ -197,7 +200,9 @@ async fn hosted_sign_in(
     let id = uuid::Uuid::new_v4().to_string();
     store.reserve_credential(&id)?;
     credentials::save(&id, &token)?;
-    if let Err(error) = store.set_hosted_connection(revision, Some(&id), &account.email) {
+    let result = store.set_hosted_connection(revision, Some(&id), &account.email);
+    store.credential_writes.remove(&id);
+    if let Err(error) = result {
         store.clean_credentials()?;
         return Err(error);
     }
@@ -358,7 +363,7 @@ async fn scheduler(state: Arc<Application>) {
                 let _permit = permit;
                 let result=async {
                     if !state.lock()?.attempt_active(&dispatch.attempt)? { return Err(AppError::new(ErrorCode::Provider,"Attempt revoked before dispatch.")); }
-                    let key=read_secret(dispatch.credential.clone()).await?;
+                    let key=if dispatch.credential.is_empty() { Zeroizing::new(String::new()) } else { read_secret(dispatch.credential.clone()).await? };
                     if !state.lock()?.attempt_active(&dispatch.attempt)? { return Err(AppError::new(ErrorCode::Provider,"Attempt revoked while reading credentials.")); }
                     let request=provider::complete(&client,&key,&dispatch);
                     tokio::pin!(request);
@@ -408,6 +413,9 @@ pub fn run() {
             voice::mic_transcribe,
             get_snapshot,
             execute_command,
+            access::get_access_settings,
+            access::save_access_settings,
+            access::check_access,
             get_connection,
             save_connection,
             verify_openrouter_key,

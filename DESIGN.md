@@ -398,3 +398,16 @@ Diagnostics add a separate bounded authenticated request lane; they never reset
 counters, mutate allowances or bypass authorization. The app exposes an explicit
 on-demand status check instead of automatic status polling. Deployment remains a
 user-controlled Git operation with server tests and container checks as gates.
+
+
+## AI access restoration decision
+
+One settings section owns Hosted, API keys (OpenRouter chat and Groq transcription)
+and Custom URL access. Custom services declare audio support explicitly; chat-only
+services remain valid. Requests capture their target and never infer another route
+from a failed request. Preserve the reference's separation of chat and speech providers
+without inheriting its whole credential implementation.
+
+Retain platform-protected credential storage following Apple and provider guidance;
+no session-only default or alternate file store is adopted. Saved credentials are
+not revealed in settings. See `SECURITY.md` for sources and verification limits.
