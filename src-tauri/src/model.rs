@@ -386,6 +386,8 @@ pub enum TurnControl {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    pub translation_state: Option<String>,
+    pub translation: Option<String>,
     pub id: String,
     pub sequence: i32,
     pub role: String,

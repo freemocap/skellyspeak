@@ -79,3 +79,10 @@ details secondary. API access has no toolbar button. No promotional headings or
 redundant introductory copy. Keyboard tab navigation, save locking and key grouping
 have component tests. Desktop and narrow layouts were inspected using real
 components with isolated visual test data; native authentication is separate.
+
+## Saved reply translation
+
+Partner messages display saved translation beneath the source when the conversation
+Translation preference is enabled. Pending/error state points to AI controls.
+Toggling display or opening a surface never generates assistance. Eligibility is
+captured at Send. Explicit failure retry operates on the failed task, not the reply.

@@ -210,3 +210,13 @@ Shared network admission is implemented after this audit; the remaining slice is
 defined in [BUILD-PLAN.md](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
 The incident evidence and its unresolved causality remain in
 [INCIDENT-POSTMORTEM.md](./INCIDENT-POSTMORTEM.md).
+
+## Partner-reply translation
+
+The shared turn declaration includes reply_translation after partner_reply. A send
+captures translation eligibility and explanation language. Accepted prose is saved
+first; the turn becomes assisting while its child runs, permitting a new Send.
+Translation reads only that immutable assistant message and publishes into its
+turn context. ChatMessage carries optional translation and translationState in
+the scoped snapshot. No new chat message, schema migration or rendering-side
+request path is introduced. Attempt and queue budgets include dependency work.

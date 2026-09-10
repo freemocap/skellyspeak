@@ -130,6 +130,12 @@ export function ConversationView({
               {message.role === "user" ? "You" : partner.details.name}
             </span>
             <p dir="auto">{message.text}</p>
+            {conversation.settings.translation && message.translation && <p className="small muted" dir="auto" aria-label="Translation">{message.translation}</p>}
+            {conversation.settings.translation && !message.translation && message.translationState && <p className="small muted" role="status">
+              {["ready", "running", "waiting_dependencies"].includes(message.translationState)
+                ? "Translation pending. Progress and controls are in the AI panel."
+                : `Translation ${message.translationState}. Details are in the AI panel.`}
+            </p>}
           </article>
         ))}
         {pendingTurn && (
@@ -145,7 +151,7 @@ export function ConversationView({
           ) && (
             <p className="notice" role="status">
               {partnerTurn.attempts.find((a) => a.error)?.error ??
-                `Reply ${partnerTurn.state}.`}
+                `Operation ${partnerTurn.state}.`}
               {partnerTurn.state === "failed" && (
                 <button
                   disabled={busy}
@@ -157,7 +163,7 @@ export function ConversationView({
                     })
                   }
                 >
-                  Retry reply
+                  Retry failed operation
                 </button>
               )}
               <button onClick={connection}>Account & connection</button>

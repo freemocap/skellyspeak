@@ -96,7 +96,7 @@ export function ExecutionPanel({
               </li>
             ))}
           </ol>
-          {turn.state === "pending" && (
+          {["pending", "assisting"].includes(turn.state) && (
             <div className="execution-controls">
               <button
                 disabled={busy}

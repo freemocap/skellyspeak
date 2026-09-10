@@ -454,3 +454,13 @@ A possible protocol gate can retire incompatible clients, but a supplied version
 is not proof of identity or protection against abuse. That gate remains a proposal.
 See the [incident evidence](./INCIDENT-POSTMORTEM.md) and
 [implementation checkpoint](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
+
+## Work ownership and reading surfaces
+
+Rendering a panel, reopening saved content, changing reading preferences or hydrating
+a report must not schedule inference. Reading surfaces consume durable source-linked
+results; explicit user assistance requests and declared turn operations own paid work.
+Bound total graph expansion and repair attempts while preserving independent
+completion. Source text/offsets belong to the application; models supply analysis,
+not redundant copies of known source formatting. Cache reuse is an optimization,
+not the boundary preventing duplicated or unintended execution.

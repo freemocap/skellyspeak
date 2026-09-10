@@ -3,6 +3,12 @@
 A convivial tool for learning languages through welcoming conversations,
 useful assistance and understandable progress.
 
+This checkout is the **rebuild** branch: the next-generation application.
+The published v0.13.7 application is maintained on **main** in the separate
+`skellyspeak-main` worktree. Recovery is complete; see
+[branch ownership and outcomes](RELEASE-RECOVERY-PLAN.md) and the
+[current implementation plan](BUILD-PLAN.md). Do not merge main wholesale into rebuild.
+
 **Current implementation: immediate chat, desktop recording/transcription, a separate
 coach thread, Google sign-in and own-key text execution.** Rust persists messages, conversation settings and complete validated
 replies. The toolbar **AI** panel exposes operations, model targets, attempts,
@@ -15,8 +21,9 @@ chooser selects partners and conversations; narrow windows use Chat and Lesson t
 Unsent drafts are session-only. Avatars are static SVGs. Evidence visualizations remain independent of domain records. No skill estimates
 or XP are fabricated.
 
-Structured passage assistance, assessment, XP, Vibe computation
-and measured garden rendering remain planned. Standard handles partner replies;
+Saved partner-reply translation is implemented through the scheduler. Token glosses,
+structured coaching, assessment, XP, Vibe computation and measured garden rendering
+remain planned. Standard handles partner replies;
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
 
@@ -250,13 +257,14 @@ remain unimplemented. A protocol check does not establish live inference quality
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
 Transcription remains a separate multipart request using the configured server model.
-Full local server/Custom URL app verification is pending emulator setup; loopback
-transport tests do not substitute for that check.
+The user verified local Custom URL chat with real configured inference keys;
+all seven local Firestore emulator tests passed. Recheck the native development
+session when resuming this branch; no new runtime check is implied by this summary.
 
 Saved API keys remain in the platform credential store; no session-only or plain-file
 storage option was added. See [credential decisions and sources](SECURITY.md).
-Native visual inspection of this change was blocked by computer-use access. Live
-Groq/custom inference and microphone permission remain unverified. Restart the
+Direct-key and Custom URL chat were user-verified. Groq-specific inference and
+microphone permission still need capability-specific verification. Restart the
 signed native development app after Rust changes; frontend reload alone is insufficient.
 
 
@@ -265,3 +273,37 @@ preferences collapsed below. Hosted sign-in precedes usage/service details. Acce
 configuration has no toolbar button. UI wording uses functional labels and compact
 spacing. The actual React settings components were inspected in an isolated visual
 fixture at 1180×820 and 390×780; this verifies layout, not native authentication.
+
+## Reply translation slice
+
+When Translation is enabled at Send, the declared reply_translation operation waits
+for the validated partner reply, then translates that message using the captured
+explanation language and Standard target. No conversation history or coach content
+is supplied to this task. Translation text and its operation state arrive through
+the existing conversation snapshot and appear beneath the source reply.
+
+The source message is immutable and uniquely owned by its turn; its ID is the whole-
+passage identity for this slice. The result is stored in that turn's context JSON,
+not as another conversation message. Source deletion cascades through its turn and
+operations. Token spans and offsets remain a later contract.
+
+A turn can be assisting after its reply is saved; this does not block the next Send.
+Assistance uses the existing bounded permits, captured route and durable attempts.
+There are no automatic retries or repair calls for translation. Explicit Retry
+retries only the failed operation and preserves the saved reply. Attempt admission
+reserves room for dependency work. Cancellation or deletion prevents late publication.
+
+Changing Translation toggles display and applies to future sends; it does not
+backfill existing replies. Panel hydration and reopening only read saved results.
+
+Verification: 79 native tests, 31 frontend tests, Clippy, generated-contract checks,
+style checks, frontend build and native binary build pass. Native translation QA
+with a real provider has not yet been performed. Restart the rebuild development
+app with npm run macos:dev; do not use the release-recovery bundle for this check.
+
+Live hosted translation check, 2026-09-10: the user confirmed two exchanges work.
+Read-only inspection of durable receipts found one successful reply attempt and
+one successful translation attempt per exchange, one saved assistant message and
+one saved translation each, no errors in these exchanges and zero active operations
+at inspection. This verifies the basic hosted path; other routes and interactive
+cancellation/restart scenarios are not established by this session.

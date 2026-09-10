@@ -61,7 +61,7 @@ export function AiWorkspace({
           </select>
         </label>
         <span className="small muted">
-          {chat.snapshot?.turns.filter((t) => t.state === "pending").length ??
+          {chat.snapshot?.turns.filter((t) => ["pending", "assisting"].includes(t.state)).length ??
             0}{" "}
           active turns
         </span>
