@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.skellyspeak" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!-- Android 15 forces edge-to-edge for SDK 35+ targets, which breaks
+             adjustResize (keyboard covers the input). Opt out — we're a
+             chat-style app and want the window to shrink above the keyboard. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

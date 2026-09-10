@@ -124,7 +124,12 @@ jobs:
           python3 - <<'EOF'
           import pathlib, sys, xml.dom.minidom as md
           failed = []
-          for p in sorted(pathlib.Path('src-tauri/gen/android').rglob('*.xml')):
+          root = pathlib.Path('src-tauri/gen/android')
+          required = [root / 'app/src/main/AndroidManifest.xml', root / 'app/build.gradle.kts', root / 'app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt']
+          for path in required:
+              if not path.is_file():
+                  failed.append(f'Missing required Android source: {path}')
+          for p in sorted(root.rglob('*.xml')):
               if 'build' in p.parts:
                   continue
               try:

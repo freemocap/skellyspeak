@@ -2,7 +2,8 @@
 node_modules/
 target/
 dist/
-src-tauri/gen/
+src-tauri/gen/*
+!src-tauri/gen/android/
 .venv/
 __pycache__/
 .DS_Store
