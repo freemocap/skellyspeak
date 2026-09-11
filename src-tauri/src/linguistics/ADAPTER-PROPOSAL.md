@@ -184,3 +184,14 @@ Run focused adapter tests, native lib tests, Clippy and generated-contract check
 Deliver typed pure adapter plus fixtures, with no paid calls or production wiring.
 The separately priced 96-call representation pilot is neither required nor authorized
 by this decoder implementation proposal.
+
+
+## Implemented G1b completion validation
+
+`validate_word_gloss_completion` accepts captured identity, exact source and borrowed
+`provider::Completion`. It requires exact stop termination before invoking the strict
+content decoder and returns fixed `InvalidTermination` otherwise. Completion metadata
+remains available on failure because the function does not consume or mutate it.
+The raw-content decoder remains available for fixtures; production execution should
+select the completion entry point explicitly and retain its own source/publication
+authority checks. No shared routing enum or provider/execution wiring was added.

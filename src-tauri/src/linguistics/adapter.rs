@@ -24,6 +24,7 @@ pub enum AdapterError {
     PayloadTooLarge,
     PromptTooLarge,
     InvalidJsonOrShape,
+    InvalidTermination,
     UnsupportedTargetLanguage,
     UnsupportedExplanationLanguage,
     InvalidSource(ValidationError),
@@ -128,6 +129,20 @@ fn source_map<'a>(
     )
     .map_err(AdapterError::InvalidSource)?;
     SourceMap::new(source).map_err(AdapterError::InvalidSource)
+}
+
+/// Validate a borrowed provider completion without consuming usage/model metadata.
+/// Execution selects this validator explicitly and retains responsibility for
+/// captured source authority, cancellation and transactional publication.
+pub fn validate_word_gloss_completion(
+    identity: &SourceIdentity,
+    source: &str,
+    completion: &provider::Completion,
+) -> Result<ValidatedAnalysis, AdapterError> {
+    if completion.finish_reason != "stop" {
+        return Err(AdapterError::InvalidTermination);
+    }
+    decode_word_gloss(identity, source, &completion.text)
 }
 
 /// Decode raw completion content only. Execution must verify stop termination and
