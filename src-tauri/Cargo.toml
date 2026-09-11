@@ -1,6 +1,6 @@
 [package]
 name = "skellyspeak"
-version = "0.13.7"
+version = "0.13.8"
 description = "SkellySpeak — a standalone multilingual language tutor"
 edition = "2021"
 
