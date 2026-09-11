@@ -40,7 +40,7 @@ zbus-secret-service-keyring-store = { version = "1", features = ["rt-async-io-cr
 
 [target.'cfg(target_os = "android")'.dependencies]
 android-native-keyring-store = "1"
-jni = "0.21"
+jni = "0.22"
 ndk-context = "0.1"
 
 # The updater is desktop-only: Tauri has no updater for Android or iOS, where
