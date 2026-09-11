@@ -1,6 +1,6 @@
 # U1 — Read-only CSS reconciliation audit
 
-Status: plan only, before candidate checkpoint. No CSS/application/test changes in this audit. Implementation waits for integration's checkpoint confirmation. No Git mutations or native launch.
+Status: baseline audit retained for traceability. Cleanup was authorized after the combined checkpoint and is now implemented; see [results and limitations](U1-css-results.md). No Git mutations or second native launch.
 
 Audited src/styles.css SHA-256: a261ac3efb9927cbbdb29adff950f88d03cc39800cc5e3395fdc7e295142d2c7. The strict checker reports 71 failures: 64 repeated occurrences across 60 selector/scope groups, one repeated property and six important declarations. These are inherited rules, not 71 independent appearance defects. Checker keys exact selector strings and literal at-rule parameters; equivalent media spellings and overlapping selector groups are not detected.
 
