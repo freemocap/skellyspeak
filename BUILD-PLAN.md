@@ -480,3 +480,27 @@ hosted login uses a PKCE-bound deep link with cancelled-attempt cleanup.
 Local desktop compilation and automated checks are verified. Android debug compilation
 is required in PR CI; signed packaging and actual Android-device login/voice/update
 verification remain release checks, not claims of completed device testing.
+
+## Settings state follow-up
+
+Native storage is authoritative. React settings snapshots still exist in App,
+GuidedPage and the modal; this is not a unified subscribed frontend settings store.
+Preference saves now serialize through one writer, re-read native state, merge only
+edited fields and retry revision conflicts at most three times. Successful saves
+notify the app to refresh its projections; conversation changes refresh reading
+preferences. A focused replacement of these snapshots with a single subscribed
+settings projection remains follow-up work. Do not add another settings cache.
+
+Reading preferences control token translation, romanization and pronunciation.
+Bubble Translate toggles sentence translation independently.
+
+
+Human-message reading now uses the shared saved-gloss executor and renderer,
+with source-bound validation and scoped manual retries. Human gloss and sentence
+translation operations become ready with captured context, independently of the
+partner reply. Both sentence translations are prepared independently of token
+display preferences. Queue and retry budgets include this work; reading saved
+tokens does not dispatch requests. Grammar/Understanding sits at the user bubble’s
+top-right; Analysis/Translate remain at its bottom. Native source/restart tests and
+frontend interaction tests cover this path; real-app visual verification remains
+a user checkpoint.

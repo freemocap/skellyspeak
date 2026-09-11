@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Cut a release in one command.
 //
+//   node scripts/release.ts current        release the committed version
 //   node scripts/release.ts patch          0.3.0 -> 0.3.1
 //   node scripts/release.ts minor          0.3.0 -> 0.4.0
 //   node scripts/release.ts major          0.3.0 -> 1.0.0
@@ -25,7 +26,7 @@ import { BUMPS, CARGO, bump, compare, parse, versionIn, withVersion } from './ve
 
 const RELEASE_BRANCH = 'main'
 
-const USAGE = `usage: node scripts/release.ts <${BUMPS.join('|')}|x.y.z> [--dry-run] [--no-push]`
+const USAGE = `usage: node scripts/release.ts <current|${BUMPS.join('|')}|x.y.z> [--dry-run] [--no-push]`
 
 // ── Small helpers ───────────────────────────────────────────────────────────
 
@@ -81,10 +82,11 @@ if (!currentVersion) die(`no [package] version line found in ${CARGO}`)
 const current = parse(currentVersion)
 if (!current) die(`the version in ${CARGO} is not valid semver: "${currentVersion}"`)
 
-const nextVersion = BUMPS.includes(target) ? bump(current, target) : target
+const prepared = target === 'current'
+const nextVersion = prepared ? currentVersion : BUMPS.includes(target) ? bump(current, target) : target
 const next = parse(nextVersion)
 if (!next) die(`not a ${BUMPS.join('/')} bump and not a semver version: "${target}"\n${USAGE}`)
-if (compare(next, current) <= 0) {
+if (!prepared && compare(next, current) <= 0) {
   die(
     `${nextVersion} is not newer than the current ${currentVersion}.\n` +
       '  Versions only go up: the updater compares them to decide what to offer.',
@@ -135,6 +137,10 @@ if (behind > 0) {
   )
 }
 
+if (prepared && git('rev-parse', 'HEAD') !== git('rev-parse', 'origin/main')) {
+  die('The prepared release must be the exact origin/main commit. Merge and push it before releasing.')
+}
+
 const tag = `v${nextVersion}`
 const tagExistsLocally = git('tag', '--list', tag) === tag
 const tagOnRemote = git('ls-remote', '--tags', 'origin', tag) !== ''
@@ -153,29 +159,35 @@ if (tagExistsLocally || tagOnRemote) {
 console.log('')
 console.log(`  ${currentVersion} → ${nextVersion}   (${BUMPS.includes(target) ? target : 'explicit'})`)
 console.log('')
-console.log(`  1. write ${nextVersion} to ${CARGO} and update Cargo.lock`)
-console.log(`  2. commit "${tag}"`)
+if (prepared) {
+  console.log(`  use committed version ${nextVersion} at origin/main`)
+} else {
+  console.log(`  1. write ${nextVersion} to ${CARGO} and update Cargo.lock`)
+  console.log(`  2. commit "${tag}"`)
+}
 console.log(`  3. tag ${tag}`)
 console.log(noPush ? '  4. (skipping push — --no-push)' : `  4. push ${RELEASE_BRANCH} and ${tag}`)
 console.log('')
 
 if (dryRun) {
-  console.log('Dry run — nothing was changed.')
+  console.log('Dry run — remote state fetched; no version edits, commits, tags or pushes.')
   process.exit(0)
 }
 
 // ── Do it ───────────────────────────────────────────────────────────────────
 
-writeFileSync(CARGO, withVersion(readFileSync(CARGO, 'utf8'), nextVersion))
-console.log(`  wrote ${CARGO}`)
+if (!prepared) {
+  writeFileSync(CARGO, withVersion(readFileSync(CARGO, 'utf8'), nextVersion))
+  console.log(`  wrote ${CARGO}`)
 
-execFileSync('cargo', ['update', '--package', 'skellyspeak'], {
-  cwd: 'src-tauri',
-  stdio: 'inherit',
-})
+  execFileSync('cargo', ['update', '--package', 'skellyspeak'], {
+    cwd: 'src-tauri',
+    stdio: 'inherit',
+  })
 
-gitDo(false, 'add', CARGO, 'src-tauri/Cargo.lock')
-gitDo(false, 'commit', '-m', tag)
+  gitDo(false, 'add', CARGO, 'src-tauri/Cargo.lock')
+  gitDo(false, 'commit', '-m', tag)
+}
 gitDo(false, 'tag', tag)
 
 // The exact failure this whole script exists to prevent: a tag naming a commit
@@ -188,7 +200,7 @@ if (taggedVersion !== nextVersion) {
     `${tag} points at a commit whose ${CARGO} says ${taggedVersion}, not ${nextVersion}.\n` +
       '  Nothing has been pushed. Undo with:\n' +
       `    git tag -d ${tag}\n` +
-      '    git reset --soft HEAD~1',
+      (prepared ? '' : '    git reset --soft HEAD~1'),
   )
 }
 console.log(`  verified: ${tag} contains version ${nextVersion}`)

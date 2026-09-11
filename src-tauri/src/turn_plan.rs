@@ -48,6 +48,18 @@ pub const PLAN: &[Declaration] = &[
         role: "standard",
         contract_version: 1,
     },
+    Declaration {
+        kind: "user_word_gloss",
+        dependencies: &["partner_context"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "user_translation",
+        dependencies: &["partner_context"],
+        role: "standard",
+        contract_version: 1,
+    },
 ];
 
 pub const COACH_PLAN: &[Declaration] = &[

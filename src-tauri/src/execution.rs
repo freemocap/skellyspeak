@@ -10,6 +10,34 @@ use uuid::Uuid;
 // Outstanding operations include running, paused and dependency-waiting work.
 // These budgets bound accepted work; they do not change network concurrency.
 const OUTSTANDING_NETWORK_LIMIT: i64 = 64;
+fn analysis_role(kind: &str) -> &'static str {
+    if kind.starts_with("user_") {
+        "user"
+    } else {
+        "assistant"
+    }
+}
+fn gloss_path(kind: &str) -> &'static str {
+    if kind == "user_word_gloss" {
+        "$.userWordGloss"
+    } else {
+        "$.wordGloss"
+    }
+}
+fn gloss_error_path(kind: &str) -> &'static str {
+    if kind == "user_word_gloss" {
+        "$.userWordGlossError"
+    } else {
+        "$.wordGlossError"
+    }
+}
+fn translation_path(kind: &str) -> &'static str {
+    if kind == "user_translation" {
+        "$.userTranslation"
+    } else {
+        "$.translation"
+    }
+}
 const TURN_ATTEMPT_LIMIT: i64 = 16;
 fn budget_error(message: &str) -> AppError {
     crate::diagnostics::native_event(
@@ -345,9 +373,7 @@ fn accept_turn(
         db,
         plan.iter()
             .filter(|node| {
-                node.role != "local"
-                    && (node.kind != "reply_translation" || conversation.settings.translation)
-                    && (node.kind != "partner_speech" || speech_enabled)
+                node.role != "local" && (node.kind != "partner_speech" || speech_enabled)
             })
             .count() as i64,
     )?;
@@ -356,9 +382,7 @@ fn accept_turn(
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     for node in if coach { COACH_PLAN } else { PLAN } {
-        if (node.kind == "reply_translation" && !conversation.settings.translation)
-            || (node.kind == "partner_speech" && !speech_enabled)
-        {
+        if node.kind == "partner_speech" && !speech_enabled {
             continue;
         }
         db.execute(
@@ -653,14 +677,22 @@ impl Store {
                 message.suggested_replies = saved.map(|s| serde_json::from_str(&s)).transpose()?;
             }
 
-            if message.role == "assistant" {
-                let (saved, state, operation): (Option<String>, Option<String>, Option<String>) = db.query_row("SELECT json_extract(t.context,'$.wordGloss'),o.state,o.id FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='partner_word_gloss' WHERE m.id=?1", [&message.id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
-                message.gloss_error = db.query_row("SELECT json_extract(t.context,'$.wordGlossError') FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", [&message.id], |r|r.get(0))?;
-                message.word_gloss = saved.map(|json| serde_json::from_str(&json)).transpose()?;
-                message.gloss_state = state;
-                message.gloss_operation_id = operation;
-                (message.translation, message.translation_state) = db.query_row("SELECT json_extract(t.context,'$.translation'),o.state FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='reply_translation' WHERE m.id=?1", [&message.id], |r| Ok((r.get(0)?,r.get(1)?)))?;
-            }
+            let gloss_kind = if message.role == "user" {
+                "user_word_gloss"
+            } else {
+                "partner_word_gloss"
+            };
+            let translation_kind = if message.role == "user" {
+                "user_translation"
+            } else {
+                "reply_translation"
+            };
+            let (saved, state, operation): (Option<String>, Option<String>, Option<String>) = db.query_row("SELECT json_extract(t.context,?2),o.state,o.id FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind=?3 WHERE m.id=?1", params![message.id,gloss_path(gloss_kind),gloss_kind], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
+            message.gloss_error = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id,gloss_error_path(gloss_kind)], |r|r.get(0))?;
+            message.word_gloss = saved.map(|json| serde_json::from_str(&json)).transpose()?;
+            message.gloss_state = state;
+            message.gloss_operation_id = operation;
+            (message.translation, message.translation_state) = db.query_row("SELECT json_extract(t.context,?2),o.state FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind=?3 WHERE m.id=?1", params![message.id,translation_path(translation_kind),translation_kind], |r| Ok((r.get(0)?,r.get(1)?)))?;
         }
         let first = messages.first().map(|m| m.sequence).unwrap_or(0);
         let has_older = db.query_row(
@@ -857,6 +889,8 @@ impl Store {
             && kind != "coach_reply"
             && kind != "reply_translation"
             && kind != "partner_word_gloss"
+            && kind != "user_word_gloss"
+            && kind != "user_translation"
             && kind != "coach_feedback"
             && kind != "coach_suggestions"
         {
@@ -890,11 +924,11 @@ impl Store {
                     return Ok(None);
                 }
             }
-        } else if kind == "partner_word_gloss" {
+        } else if matches!(kind.as_str(), "partner_word_gloss" | "user_word_gloss") {
             let prepared = (|| -> Result<_> {
                 let (message_id, text): (String, String) = tx.query_row(
-                    "SELECT id,text FROM messages WHERE turn_id=?1 AND role='assistant'",
-                    [&turn],
+                    "SELECT id,text FROM messages WHERE turn_id=?1 AND role=?2",
+                    params![turn, analysis_role(&kind)],
                     |r| Ok((r.get(0)?, r.get(1)?)),
                 )?;
                 let source = crate::gloss::Source {
@@ -940,17 +974,17 @@ impl Store {
                         "UPDATE operations SET state='failed',permit=0 WHERE id=?1",
                         [&operation],
                     )?;
-                    tx.execute("UPDATE turns SET context=json_set(context,'$.wordGlossError','Word gloss source exceeds analysis limits or is unavailable.') WHERE id=?1", [&turn])?;
+                    tx.execute("UPDATE turns SET context=json_set(context,?2,'Word gloss source exceeds analysis limits or is unavailable.') WHERE id=?1", params![turn,gloss_error_path(&kind)])?;
                     refresh_turn(&tx, &turn)?;
                     bump(&tx)?;
                     tx.commit()?;
                     return Ok(None);
                 }
             }
-        } else if kind == "reply_translation" {
+        } else if matches!(kind.as_str(), "reply_translation" | "user_translation") {
             let source: String = tx.query_row(
-                "SELECT text FROM messages WHERE turn_id=?1 AND role='assistant'",
-                [&turn],
+                "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
+                params![turn, analysis_role(&kind)],
                 |r| r.get(0),
             )?;
             let language = captured["translationLanguage"]
@@ -981,10 +1015,10 @@ impl Store {
             crate::refusal::now() as u64,
             Uuid::new_v4().simple()
         );
-        if kind == "partner_word_gloss" {
+        if matches!(kind.as_str(), "partner_word_gloss" | "user_word_gloss") {
             tx.execute(
-                "UPDATE turns SET context=json_remove(context,'$.wordGlossError') WHERE id=?1",
-                [&turn],
+                "UPDATE turns SET context=json_remove(context,?2) WHERE id=?1",
+                params![turn, gloss_error_path(&kind)],
             )?;
         }
         tx.execute(
@@ -1057,35 +1091,37 @@ impl Store {
                     coaching = Some(value);
                 })
             }
-            Ok(output) if kind == "partner_word_gloss" => (|| -> Result<()> {
-                let source = dispatch
-                    .gloss_source
-                    .as_ref()
-                    .ok_or_else(|| fail("Missing word gloss source."))?;
-                let bound: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM messages WHERE id=?1 AND turn_id=?2 AND role='assistant' AND text=?3)", params![source.identity.message_id,turn,source.text], |r| r.get(0))?;
-                if !bound {
-                    return Err(fail("Word gloss source is unavailable."));
-                }
-                let captured: String =
-                    tx.query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| {
-                        r.get(0)
-                    })?;
-                let captured: serde_json::Value = serde_json::from_str(&captured)?;
-                if captured["targetLanguage"].as_str()
-                    != Some(source.identity.target_language_id.as_str())
-                    || captured["translationLanguage"].as_str()
-                        != Some(source.identity.explanation_language_id.as_str())
-                {
-                    return Err(fail("Word gloss source identity changed."));
-                }
-                gloss = Some(crate::gloss::validate(
-                    source,
-                    output,
-                    &dispatch.operation,
-                    &dispatch.attempt,
-                )?);
-                Ok(())
-            })(),
+            Ok(output) if matches!(kind.as_str(), "partner_word_gloss" | "user_word_gloss") => {
+                (|| -> Result<()> {
+                    let source = dispatch
+                        .gloss_source
+                        .as_ref()
+                        .ok_or_else(|| fail("Missing word gloss source."))?;
+                    let bound: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM messages WHERE id=?1 AND turn_id=?2 AND role=?4 AND text=?3)", params![source.identity.message_id,turn,source.text,analysis_role(&kind)], |r| r.get(0))?;
+                    if !bound {
+                        return Err(fail("Word gloss source is unavailable."));
+                    }
+                    let captured: String =
+                        tx.query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| {
+                            r.get(0)
+                        })?;
+                    let captured: serde_json::Value = serde_json::from_str(&captured)?;
+                    if captured["targetLanguage"].as_str()
+                        != Some(source.identity.target_language_id.as_str())
+                        || captured["translationLanguage"].as_str()
+                            != Some(source.identity.explanation_language_id.as_str())
+                    {
+                        return Err(fail("Word gloss source identity changed."));
+                    }
+                    gloss = Some(crate::gloss::validate(
+                        source,
+                        output,
+                        &dispatch.operation,
+                        &dispatch.attempt,
+                    )?);
+                    Ok(())
+                })()
+            }
             Ok(_) if kind == "partner_speech" => {
                 Err(fail("Speech requires its media publication validator."))
             }
@@ -1111,10 +1147,10 @@ impl Store {
                 Some(error.message),
             ),
         };
-        if kind == "partner_word_gloss" {
+        if matches!(kind.as_str(), "partner_word_gloss" | "user_word_gloss") {
             tx.execute(
-                "UPDATE turns SET context=json_set(context,'$.wordGlossError',?2) WHERE id=?1",
-                params![turn, error],
+                "UPDATE turns SET context=json_set(context,?3,?2) WHERE id=?1",
+                params![turn, error, gloss_error_path(&kind)],
             )?;
         }
         if kind == "coach_feedback" || kind == "coach_suggestions" {
@@ -1137,11 +1173,11 @@ impl Store {
                 crate::coaching::publish(&tx, &turn, &kind, &value, &dispatch.attempt)?;
             } else if let Some(gloss) = gloss {
                 tx.execute(
-                    "UPDATE turns SET context=json_set(context,'$.wordGloss',json(?2)) WHERE id=?1",
-                    params![turn, serde_json::to_string(&gloss)?],
+                    "UPDATE turns SET context=json_set(context,?3,json(?2)) WHERE id=?1",
+                    params![turn, serde_json::to_string(&gloss)?, gloss_path(&kind)],
                 )?;
-            } else if kind == "reply_translation" {
-                tx.execute("UPDATE turns SET context=json_set(context,'$.translation',?2) WHERE id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role='assistant')", params![turn,output.text])?;
+            } else if matches!(kind.as_str(), "reply_translation" | "user_translation") {
+                tx.execute("UPDATE turns SET context=json_set(context,?3,?2) WHERE id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role=?4)", params![turn,output.text,translation_path(&kind),analysis_role(&kind)])?;
             } else {
                 tx.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'assistant',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation,turn,output.text])?;
             }
@@ -1169,8 +1205,8 @@ fn refresh_turn(db: &Connection, turn: &str) -> Result<()> {
 }
 
 pub fn retry_gloss(db: &Connection, operation: &str) -> Result<String> {
-    let (turn, conversation, state, profile, saved): (String,String,String,i32,Option<String>) = db.query_row("SELECT t.id,t.conversation_id,o.state,t.profile_revision,json_extract(t.context,'$.wordGloss') FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.id=?1 AND o.kind='partner_word_gloss' AND t.state NOT IN ('cancelled','invalidated')", [operation], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).optional()?.ok_or_else(|| fail("Word gloss operation is unavailable."))?;
-    let available: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN relationships r ON r.id=c.relationship_id JOIN messages m ON m.turn_id=t.id WHERE t.id=?1 AND c.archived=0 AND r.archived=0 AND m.role='assistant')", [&turn], |r| r.get(0))?;
+    let (turn, conversation, state, profile, saved): (String,String,String,i32,Option<String>) = db.query_row("SELECT t.id,t.conversation_id,o.state,t.profile_revision,json_extract(t.context,CASE WHEN o.kind='user_word_gloss' THEN '$.userWordGloss' ELSE '$.wordGloss' END) FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.id=?1 AND o.kind IN ('partner_word_gloss','user_word_gloss') AND t.state NOT IN ('cancelled','invalidated')", [operation], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).optional()?.ok_or_else(|| fail("Word gloss operation is unavailable."))?;
+    let available: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN relationships r ON r.id=c.relationship_id JOIN messages m ON m.turn_id=t.id JOIN operations o ON o.turn_id=t.id WHERE t.id=?1 AND o.id=?2 AND c.archived=0 AND r.archived=0 AND m.role=CASE WHEN o.kind='user_word_gloss' THEN 'user' ELSE 'assistant' END)", params![turn,operation], |r| r.get(0))?;
     if !available {
         return Err(fail("Word gloss source is unavailable."));
     }
@@ -1610,7 +1646,11 @@ mod tests {
             },
         }
     }
+    fn isolate_user_reading(store: &mut Store) {
+        store.connection.execute("DELETE FROM operations WHERE kind IN ('user_word_gloss','user_translation') AND state='waiting_dependencies'", []).unwrap();
+    }
     fn isolate_coaching(store: &mut Store) {
+        isolate_user_reading(store);
         // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
         // exercised separately below with both automatic operations retained.
         store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions') AND state='waiting_dependencies'", []).unwrap();
@@ -2691,7 +2731,7 @@ mod tests {
         let relationship = store.snapshot().unwrap().relationships[0].id.clone();
         apply(&mut store, Action::SetPaused { paused: true });
         let mut last = first;
-        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 5 {
+        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 7 {
             if index > 0 {
                 last = apply(
                     &mut store,
@@ -2703,7 +2743,7 @@ mod tests {
                 .entity_id;
             }
             let command = send(&store, &last);
-            if index == OUTSTANDING_NETWORK_LIMIT / 5 {
+            if index == OUTSTANDING_NETWORK_LIMIT / 7 {
                 let before = store.snapshot().unwrap().revision;
                 assert_eq!(
                     store.execute(command).unwrap_err().code,
@@ -2721,8 +2761,8 @@ mod tests {
                 store.execute(command).unwrap();
             }
         }
-        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('partner_reply','reply_translation','partner_word_gloss','coach_feedback','coach_suggestions')", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 5 * 5);
+        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('partner_reply','reply_translation','partner_word_gloss','coach_feedback','coach_suggestions','user_word_gloss','user_translation')", [], |r| r.get(0)).unwrap();
+        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 7 * 7);
         assert_eq!(store.profile().unwrap().global.attempts, 0);
         assert!(store.dispatch().unwrap().is_none());
     }
@@ -3030,7 +3070,7 @@ mod tests {
     }
 
     #[test]
-    fn translation_setting_is_captured_and_not_scheduled_by_reads_or_preferences() {
+    fn sentence_translation_is_independent_of_token_display_preferences() {
         let (_dir, mut store, conversation) = setup();
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false')) WHERE conversation_id=?1", [&conversation]).unwrap();
         let dispatch = begin(&mut store, &conversation);
@@ -3039,6 +3079,9 @@ mod tests {
         for _ in 0..10 {
             store.conversation_snapshot(&conversation, None).unwrap();
         }
+        let translation = store.dispatch().unwrap().unwrap();
+        assert!(translation.messages[0].content.contains("Translate"));
+        store.finish(&translation, Ok(reply("Hello."))).unwrap();
         assert!(!store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         assert_eq!(
@@ -3515,7 +3558,7 @@ mod tests {
         let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(snapshot.messages.len(), 1);
         assert_eq!(snapshot.turns.len(), 1);
-        assert_eq!(snapshot.turns[0].operations.len(), 6); // Read aloud is disabled in this fixture.
+        assert_eq!(snapshot.turns[0].operations.len(), 8); // Read aloud is disabled in this fixture.
     }
     #[test]
     fn gate_and_step_admit_one_operation_and_do_not_bank_extra_permits() {
@@ -3677,7 +3720,7 @@ mod tests {
             .clone();
 
         let mut first_turn = String::new();
-        for index in 0..25 {
+        for index in 0..16 {
             let conversation = if index == 0 {
                 first.clone()
             } else {
@@ -3792,7 +3835,7 @@ mod tests {
             .turns[0]
             .id
             .clone();
-        for _ in 1..TURN_ATTEMPT_LIMIT {
+        for _ in 1..TURN_ATTEMPT_LIMIT - 1 {
             apply(
                 &mut store,
                 Action::ControlTurn {
@@ -3831,7 +3874,7 @@ mod tests {
                 .iter()
                 .filter(|a| a.requested_model != "local")
                 .count(),
-            TURN_ATTEMPT_LIMIT as usize
+            (TURN_ATTEMPT_LIMIT - 1) as usize
         );
         assert_eq!(snapshot.turns[0].state, "failed");
         assert!(store.dispatch().unwrap().is_none());
@@ -4196,6 +4239,51 @@ mod tests {
             8
         );
     }
+    #[test]
+    fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
+        let (dir, mut store, conversation) = setup();
+        store.execute(send(&store, &conversation)).unwrap();
+        store.dispatch().unwrap();
+        let partner = store.dispatch().unwrap().unwrap();
+        let feedback = store.dispatch().unwrap().unwrap();
+        let gloss = store.dispatch().unwrap().unwrap();
+        let translation = store.dispatch().unwrap().unwrap();
+        let source = gloss.gloss_source.as_ref().unwrap();
+        assert_eq!(source.text, "Hola, ¿cómo estás?");
+        assert_eq!(translation.messages[1].content, source.text);
+        assert!(store.attempt_active(&partner.attempt).unwrap());
+        assert!(feedback.coaching_schema.is_some());
+        store.finish(&gloss, Ok(gloss_reply())).unwrap();
+        store
+            .finish(&translation, Ok(reply("Hello, how are you?")))
+            .unwrap();
+        let view = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(view.messages.len(), 1);
+        let user = &view.messages[0];
+        assert_eq!(user.word_gloss.as_ref().unwrap().source_message_id, user.id);
+        assert_eq!(user.translation.as_deref(), Some("Hello, how are you?"));
+        let retry_id = retry_gloss(&store.connection, &gloss.operation).unwrap();
+        assert_eq!(retry_id, conversation);
+        let mut retry = store.dispatch().unwrap().unwrap();
+        retry.gloss_source.as_mut().unwrap().identity.message_id = "wrong-source".into();
+        store.finish(&retry, Ok(gloss_reply())).unwrap();
+        let view = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(view.messages[0].gloss_state.as_deref(), Some("failed"));
+        assert!(view.messages[0].word_gloss.is_some());
+        drop(store);
+        let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        let restored = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(restored.messages[0].translation, user.translation);
+        assert_eq!(
+            restored.messages[0]
+                .word_gloss
+                .as_ref()
+                .unwrap()
+                .source_message_id,
+            user.id
+        );
+    }
+
     #[test]
     fn coaching_is_independent_source_bound_and_xp_is_idempotent() {
         let (_dir, mut store, conversation) = setup();

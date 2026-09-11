@@ -24,24 +24,18 @@ it('places the partner reaction on the reply and routes editing to its own turn'
   expect(input.onEditUser).toHaveBeenCalledWith(input.turn)
   expect(input.onBubbleTap).not.toHaveBeenCalled()
 })
-it('uses the same inline translation for the preference and independent message buttons', () => {
+it('keeps sentence translation buttons independent of token preferences', () => {
   const input = props()
   const view = render(<TurnView {...input} />)
-  expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Learner translation')
-  expect(view.container.querySelector('.msg.bot .trans')).toHaveTextContent('Partner translation')
-  fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
   expect(screen.queryByText('Learner translation')).toBeNull()
+  expect(screen.queryByText('Partner translation')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
   expect(screen.getByText('Partner translation')).toBeVisible()
+  view.rerender(<TurnView {...input} autoTranslate={false} />)
+  expect(screen.getByText('Partner translation')).toBeVisible()
+  expect(screen.queryByText('Learner translation')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
   expect(screen.queryByText('Partner translation')).toBeNull()
-  expect(screen.queryByRole('dialog')).toBeNull()
-  view.rerender(<TurnView {...input} autoTranslate={false} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(view.container.querySelector('.msg.bot .trans')).toHaveTextContent('Partner translation')
-  view.rerender(<TurnView {...input} autoTranslate={true} />)
-  expect(screen.getByText('Learner translation')).toBeVisible()
-  expect(screen.getByText('Partner translation')).toBeVisible()
-  expect(input.onBubbleTap).not.toHaveBeenCalled()
 })
 
 it('honors pronunciation even when token information is revealed', () => {
@@ -71,7 +65,7 @@ it('renders source punctuation once and anchors feedback inside the learner bubb
   input.turn.assistant!.tokens = ['¡', '¡Hola!', '!', '¿', '¿Te', 'gusta', 'el', 'sol?', '?'].map(text => ({text,gloss:null,pronunciation:null,romanization:null,pos:null,notable:false}))
   const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
   expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
-  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me .message-actions')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me')).not.toBeNull()
 })
 
 it('does not expose playback without a connected action', () => {
@@ -134,6 +128,7 @@ it.each([
   input.onRetryGloss = vi.fn()
   const view = render(<TurnView {...input} />)
   expect(screen.getByRole('status')).toHaveTextContent(label)
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
   expect(screen.getByText('Partner translation')).toBeVisible()
   expect(screen.getByRole('button', { name: 'Speak reply' })).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
@@ -157,6 +152,33 @@ it('distinguishes no requested translation from failure and clears progress when
   expect(screen.queryByText('Translating…')).toBeNull()
   update('succeeded', 'Saved translation')
   expect(screen.queryByRole('status')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
   expect(screen.getByText('Saved translation')).toBeVisible()
   expect(screen.queryByRole('button', { name: /Retry translation/ })).toBeNull()
+})
+
+it('uses saved human glosses before a reply and separates scores from bottom actions', () => {
+  const input = props()
+  input.turn.assistant = null
+  input.turn.userTranslation = 'Hello there'
+  input.turn.userSavedGloss = {
+    sourceMessageId: 'human', targetLanguageId: 'es', explanationLanguageId: 'en',
+    formatVersion: 'v1', templateVersion: 'v1', boundaryPolicy: 'v1',
+    operationId: 'human-gloss', attemptId: 'attempt', coverage: 'complete',
+    segments: [{ start: 0, end: 4, kind: 'gloss', gloss: 'Hello', pronunciation: 'OH-lah' }],
+  }
+  const view = render(<TurnView {...input} />)
+  const word = screen.getByRole('button', { name: 'Hola', expanded: false })
+  fireEvent.click(word)
+  expect(word).toHaveAttribute('aria-expanded', 'true')
+  expect(view.container.querySelector('.msg.me .wg')).toHaveTextContent('Hello')
+  expect(view.container.querySelector('.msg.me .wpronunciation')).toHaveTextContent('OH-lah')
+  expect(view.container.querySelector('.saved-word-help')).toBeNull()
+  const grade = screen.getByRole('button', { name: 'Coach feedback for message 1' })
+  expect(grade.parentElement).toHaveClass('msg', 'me')
+  expect(screen.getByRole('button', { name: 'Analyze your message' }).closest('.message-actions')).not.toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
+  expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
+  fireEvent.click(word)
+  expect(word).toHaveAttribute('aria-expanded', 'false')
 })

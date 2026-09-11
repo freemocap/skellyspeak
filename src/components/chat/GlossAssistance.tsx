@@ -5,7 +5,7 @@ import { ErrorDetails } from '../ErrorDetails'
 
 /** Saved-assistance status; only an explicit retry delegates work to the caller. */
 export function GlossAssistance({ assistant, onRetryGloss }: {
-  assistant: GuidedTurnResult
+  assistant: Pick<GuidedTurnResult, 'savedGloss' | 'glossState' | 'glossOperationId' | 'glossError'>
   onRetryGloss?: (operationId: string) => Promise<void>
 }) {
   const [glossRetryPending, setGlossRetryPending] = useState(false)

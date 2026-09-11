@@ -53,7 +53,7 @@ describe('durable conversation projection', () => {
   it('does not include private coach messages in partner turns', () => {
     const source = snapshot([message(1, 'user', 'Partner question')])
     source.coachMessages = [message(2, 'assistant', 'Private coaching')]
-    expect(conversationTurns(source)).toEqual([{ id: 1, user: 'Partner question', assistant: null, analysisState: null }])
+    expect(conversationTurns(source)).toMatchObject([{ id: 1, user: 'Partner question', assistant: null, analysisState: null }])
   })
 
   it('fails on an unexpected native role rather than dropping content', () => {
@@ -85,4 +85,15 @@ it.each([null, 'ready', 'waiting_dependencies', 'running', 'succeeded', 'failed'
   expect(result.glossState).toBeNull()
   expect(result.errors).toEqual([])
   expect(source).toEqual(before)
+})
+
+it('projects human reading independently of the reply and rejects another source', () => {
+  const human = message(1, 'user', 'Hola', 'Hello')
+  human.wordGloss = { sourceMessageId: human.id, targetLanguageId:'es', explanationLanguageId:'en', formatVersion:'v1', templateVersion:'v1', boundaryPolicy:'v1', operationId:'human-gloss', attemptId:'attempt', coverage:'complete', segments:[{ start:0, end:4, kind:'gloss', gloss:'hello' }] }
+  const result = conversationTurns(snapshot([human]))[0]
+  expect(result.userSavedGloss).toBe(human.wordGloss)
+  expect(result.userTranslation).toBe('Hello')
+  expect(result.assistant).toBeNull()
+  human.wordGloss.sourceMessageId = 'different'
+  expect(() => conversationTurns(snapshot([human]))).toThrow('Saved word meanings do not belong to this message.')
 })

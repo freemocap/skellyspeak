@@ -267,7 +267,35 @@ export async function subscribeRuns(
   return listen<Run>('trace:run', (event) => onRun(event.payload))
 }
 
-export async function saveSettings(settings: Settings): Promise<void> {
+let settingsWrites: Promise<void> = Promise.resolve()
+
+/** Serialize preference edits; refresh native revisions and apply only the user's delta. */
+export function saveSettings(settings: Settings, baseline?: Settings): Promise<void> {
+  const save = async () => {
+    if (!baseline) return writeSettings(settings)
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const fresh = await getSettings()
+      if (fresh.scope?.sessionId !== baseline.scope?.sessionId || fresh.scope?.conversationId !== baseline.scope?.conversationId) {
+        throw new Error('This conversation is no longer selected. Open its settings to edit it.')
+      }
+      const merged = { ...fresh }
+      for (const key of Object.keys(settings) as (keyof Settings)[]) {
+        if (key !== 'scope' && JSON.stringify(settings[key]) !== JSON.stringify(baseline[key])) Object.assign(merged, { [key]: settings[key] })
+      }
+      try { await writeSettings(merged); return }
+      catch (error) {
+        const conflict = (error as { code?: string })?.code === 'conflict' || (error instanceof Error && error.message === 'Settings changed. Reload before saving.')
+        if (!conflict) throw error
+        if (attempt === 2) throw new Error('Settings could not be saved because another change is still in progress. Please try again.')
+      }
+    }
+  }
+  const result = settingsWrites.then(save, save)
+  settingsWrites = result.catch(() => {})
+  return result.then(() => { if (typeof window !== 'undefined') window.dispatchEvent(new Event('skellyspeak-settings-saved')) })
+}
+
+async function writeSettings(settings: Settings): Promise<void> {
   if (!settings.scope) throw new Error('Reload settings before saving.')
   validateAudioVolumes(settings)
   const snapshot = await readWorkspace()
@@ -275,7 +303,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
   if (scope.sessionId !== snapshot.sessionId) throw new Error('The application session changed. Reload settings.')
   const conversation = snapshot.conversations.find(c => c.id === scope.conversationId)
   if (!conversation) throw new Error('The settings conversation is unavailable.')
-  if (conversation.settingsRevision !== scope.settingsRevision || snapshot.learner.revision !== scope.learnerRevision) throw new Error('Settings changed. Reload before saving.')
+  if (conversation.settingsRevision !== scope.settingsRevision) throw new Error('Settings changed. Reload before saving.')
   if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
   if (settings.microphone_device_id !== null || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
   const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
@@ -303,7 +331,7 @@ export async function saveSettings(settings: Settings): Promise<void> {
     return
   }
   if (practiceChanged) await executeAction(snapshot, { kind: 'updateSettings', conversationId: conversation.id, expectedRevision: scope.settingsRevision, settings: practice })
-  if (displayChanged) await executeAction(snapshot, { kind: 'updateLearner', expectedRevision: scope.learnerRevision, name: snapshot.learner.name, preferences })
+  if (displayChanged) await executeAction(snapshot, { kind: 'updateLearner', expectedRevision: snapshot.learner.revision, name: snapshot.learner.name, preferences })
 }
 
 /// Drain faults the Rust core recorded before the webview existed. Called once

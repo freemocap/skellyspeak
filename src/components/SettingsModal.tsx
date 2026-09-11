@@ -229,15 +229,8 @@ export function SettingsModal({
       setSaveState('saving')
       logInfo('[settings] autosaving')
       Promise.resolve().then(async () => {
-        const fresh = await getSettings()
-        if (!persisted || fresh.scope?.conversationId !== settings.scope?.conversationId) throw new Error('The selected conversation changed. Reopen settings.')
-        const merged = { ...fresh }
-        for (const key of Object.keys(settings) as (keyof Settings)[]) {
-          if (key === 'scope' || JSON.stringify(settings[key]) === JSON.stringify(persisted[key])) continue
-          if (JSON.stringify(fresh[key]) !== JSON.stringify(persisted[key]) && JSON.stringify(fresh[key]) !== JSON.stringify(settings[key])) throw new Error(`The ${key} preference changed elsewhere. Reopen settings.`)
-          Object.assign(merged, { [key]: settings[key] })
-        }
-        await saveSettings(merged)
+        if (!persisted) throw new Error('Settings are still loading.')
+        await saveSettings(settings, persisted)
       })
         .then(() => getSettings())
         .then((fresh) => {
@@ -553,7 +546,7 @@ export function SettingsModal({
     },
     auto_translate: {
       section: 'reading',
-      label: L('auto_translate', 'Always show translation'),
+      label: 'Token translations',
       kw: 'translation always show native meaning under reply',
       node: (
         <div className="form-row check-row">
@@ -563,7 +556,7 @@ export function SettingsModal({
               checked={settings.auto_translate}
               onChange={(e) => setSettings({ ...settings, auto_translate: e.target.checked })}
             />
-            <span>Show message translations</span>
+            <span>Show token translations</span>
           </label>
         </div>
       ),

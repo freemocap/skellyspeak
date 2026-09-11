@@ -120,11 +120,10 @@ describe('scoped native settings writes', () => {
     expect(commands().map(c => c.action)).toEqual([{ kind: 'openConversation', conversationId: 'b' }])
   })
 
-  it.each(['session', 'practice', 'learner'] as const)('rejects stale %s scope with zero command submissions', async changed => {
+  it.each(['session', 'practice'] as const)('rejects stale %s scope with zero command submissions', async changed => {
     const settings = await getSettings()
     if (changed === 'session') workspace.sessionId = 'replacement-session'
     if (changed === 'practice') workspace.conversations[0].settingsRevision++
-    if (changed === 'learner') workspace.learner.revision++
     await expect(saveSettings({ ...settings, auto_translate: false })).rejects.toThrow(/changed/i)
     expect(commands()).toEqual([])
   })
@@ -166,4 +165,29 @@ describe('independent audio validation', () => {
     await expect(saveSettings({ ...settings, master_volume: volume } as Settings)).rejects.toThrow(/master_volume/)
     expect(backend.invoke).not.toHaveBeenCalled()
   })
+})
+
+
+it('rebases an explicit edit over changed learner and conversation revisions', async () => {
+  const baseline = await getSettings()
+  workspace.learner.revision++
+  workspace.conversations[0].settingsRevision++
+  workspace.conversations[0].settings.readAloud = false
+  await saveSettings({ ...baseline, auto_translate: false }, baseline)
+  const sent = commands().find(command => command.action.kind === 'updateSettings')?.action
+  expect(sent).toMatchObject({ expectedRevision: workspace.conversations[0].settingsRevision,
+    settings: { translation: false, readAloud: false } })
+})
+
+
+it('refreshes and retries a native preference revision conflict', async () => {
+  const baseline = await getSettings()
+  const original = backend.invoke.getMockImplementation()!
+  let attempts = 0
+  backend.invoke.mockImplementation(async (name, args) => {
+    if (name === 'execute_command' && ++attempts === 1) throw { code: 'conflict', message: 'Revision changed' }
+    return original(name, args)
+  })
+  await saveSettings({ ...baseline, auto_translate: false }, baseline)
+  expect(attempts).toBe(2)
 })

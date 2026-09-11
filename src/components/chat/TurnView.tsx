@@ -9,7 +9,7 @@ import { ActivityIndicator } from '../ActivityIndicator'
 import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
 import { PracticeContext } from '../panes/PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../lib/message-evidence'
-import { Fragment, memo, useEffect, useContext, useMemo, useRef, useState } from 'react'
+import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import { PartnerReaction } from './PartnerReaction'
 import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
@@ -18,6 +18,12 @@ import { groupSentences, splitSentences } from '../../lib/sentences'
 import { sourceToken } from '../../lib/source-token'
 
 export interface TurnShape {
+  userSavedGloss?: import('../../contracts').WordGlossView | null
+  userGlossOperationId?: string | null
+  userTranslation?: string | null
+  userGlossState?: string | null
+  userGlossError?: string | null
+
   id: number
   user: string | null
   assistant: GuidedTurnResult | null
@@ -86,7 +92,6 @@ export const TurnView = memo(function TurnView({
   showRomanization,
   alwaysRomanize,
   alwaysPronunciation,
-  autoTranslate,
   rtl,
   onReveal,
   onBubbleTap,
@@ -107,9 +112,8 @@ export const TurnView = memo(function TurnView({
     if (!inspection) throw new Error('XP inspection provider is missing')
     inspection.open(items, turn.id, turn.user ?? '')
   }
-  const [showUserTranslation, setShowUserTranslation] = useState<boolean | null>(null)
-  const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
-  useEffect(() => { setShowUserTranslation(null); setShowPartnerTranslation(null) }, [autoTranslate])
+  const [showUserTranslation, setShowUserTranslation] = useState(false)
+  const [showPartnerTranslation, setShowPartnerTranslation] = useState(false)
   const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => setRewardDetail([item])} />)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
@@ -120,6 +124,7 @@ export const TurnView = memo(function TurnView({
     return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
+  const userTranslation = turn.userTranslation ?? assistant?.user_translation
 
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
 
@@ -252,14 +257,19 @@ export const TurnView = memo(function TurnView({
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
           }
         >
-          {userEntries.length > 0
+          {turn.userSavedGloss
+            ? <SavedGlossText key={turn.userSavedGloss.attemptId} text={turn.user} result={turn.userSavedGloss} decorateSegment={(node, start, end) => {
+                const matches = evidence.filter(item => item.start < end && item.end > start)
+                return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+              }} afterSegment={(start, end) => creditMarkers(evidence.filter(item => item.end > start && item.end <= end))} />
+            : userEntries.length > 0
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
             : plainEvidence}
-          {(showUserTranslation ?? autoTranslate) && assistant?.user_translation && <div className="trans" dir="auto">{assistant.user_translation}</div>}
-          <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-            <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach} />
-            {assistant?.user_translation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation ?? autoTranslate} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation ?? autoTranslate)) }}>Translate</button>}
-          </div>
+          {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
+          <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
+          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+            {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
+          </MessageFeedback>
           {onEditUser && (
             <button
               type="button"
@@ -296,14 +306,12 @@ export const TurnView = memo(function TurnView({
           ) : (
             <TargetText text={assistant.reply} />
           )}
-          {/* Auto-translate shows the reply's translation without a tap; the
-              per-sentence tap still works on top of it. */}
           {turn.user && <PartnerReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={onEditUser ? () => onEditUser(turn) : undefined} />}
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation ?? autoTranslate} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation ?? autoTranslate)) }}>Translate</button>}
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation)) }}>Translate</button>}
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
           </div>
-          {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
+          {(showPartnerTranslation) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
           {['ready', 'running', 'waiting_dependencies'].includes(assistant.translationState ?? '') &&

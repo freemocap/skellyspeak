@@ -5,17 +5,17 @@ import type { StoredTurn } from '../types'
 export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] {
   const turns: StoredTurn[] = []
   for (const message of snapshot.messages) {
+    if (message.wordGloss && message.wordGloss.sourceMessageId !== message.id) {
+      throw new Error('Saved word meanings do not belong to this message.')
+    }
     if (message.role === 'user') {
       const feedback = message.feedback
-      turns.push({ id: message.sequence, user: message.text, assistant: null, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
+      turns.push({ userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, assistant: null, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
         ...(feedback ? { coach: {
           grammar: feedback.correctness, conversation: feedback.understandability, remark: feedback.explanation,
           used_target: [], used_native: [], corrections: feedback.correction ? [{ said: message.text, kind: 'correction', corrected: feedback.correction, explanation: feedback.explanation }] : [],
         } } : {}) })
     } else if (message.role === 'assistant') {
-      if (message.wordGloss && message.wordGloss.sourceMessageId !== message.id) {
-        throw new Error('Saved word meanings do not belong to this message.')
-      }
       const previous = turns.at(-1)
       const turn = previous && previous.assistant === null ? previous : { id: message.sequence, user: null, assistant: null, analysisState: null }
       turn.assistant = {

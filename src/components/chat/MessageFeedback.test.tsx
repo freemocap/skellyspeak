@@ -9,7 +9,7 @@ beforeEach(() => {
 })
 it('shows grammar and conversational fit without an understanding score', () => {
   render(<MessageFeedback id={1} text="No, gracias." feedback={{ conversation: 5, grammar: 5, remark: 'A clear, appropriate refusal.', used_target: [], used_native: [], corrections: [] }} error={undefined} reviewing={false} targetLangCode="es" nativeLangCode="en" onEdit={undefined} onAsk={vi.fn()} />)
-  expect(screen.getByRole('button')).toHaveTextContent('Correctness 5/5 · Understandability 5/5')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Grammar 5/5 · Understanding 5/5')
   expect(screen.queryByText(/Understood/)).toBeNull()
 })
 it('opens the selected message feedback and routes a question with that message', () => {
@@ -25,9 +25,9 @@ it('opens the selected message feedback and routes a question with that message'
 it('distinguishes pending, failed, and missing feedback instead of inventing scores', () => {
   const props = { id: 1, text: 'Hola', feedback: undefined, reviewing: true, error: undefined, targetLangCode: 'es', nativeLangCode: 'en', onEdit: undefined, onAsk: vi.fn() }
   const view = render(<MessageFeedback {...props} />)
-  expect(screen.getByRole('button')).toHaveTextContent('Coach analyzing')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Coach analyzing')
   view.rerender(<MessageFeedback {...props} reviewing={false} error="Provider unavailable" />)
-  expect(screen.getByRole('button')).toHaveTextContent('Feedback failed')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback failed')
   view.rerender(<MessageFeedback {...props} reviewing={false} />)
-  expect(screen.getByRole('button')).toHaveTextContent('Feedback unavailable')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback unavailable')
 })

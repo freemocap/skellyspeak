@@ -262,7 +262,7 @@ describe('native composer admission', () => {
     await act(async () => watches[0].resolve(snapshot()))
     chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_translate: true, text_size: 150 })
     view.rerender(page(1))
-    await waitFor(() => expect(chrome.getSettings).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(chrome.getSettings).toHaveBeenCalledTimes(3))
     expect(commands()).toEqual([])
     expect(chrome.saveSettings).not.toHaveBeenCalled()
   })
