@@ -1,16 +1,44 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import { AiWindow } from "./AiWorkspace";
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import DevWindow from './DevWindow'
+import { isTauri, loadLanguages } from './lib/tauri'
+import './styles.css'
+import { installPlaybackLifecycle } from './lib/playback-lifecycle'
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Application root is missing.");
-createRoot(root).render(
-  <StrictMode>
-    {new URLSearchParams(window.location.search).get("view") === "ai" ? (
-      <AiWindow />
-    ) : (
-      <App />
-    )}
-  </StrictMode>,
-);
+installPlaybackLifecycle()
+
+// The popped-out observability window runs the same bundle as the main one
+// and is told apart by its WINDOW LABEL (set by the Rust dev command). Routing on the
+// label rather than a URL query avoids putting '?' inside the PathBuf that
+// WebviewUrl::App wants.
+const DEV_WINDOW_LABEL = 'ai'
+
+async function isDevWindow(): Promise<boolean> {
+  if (!isTauri) return false
+  const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow')
+  return getCurrentWebviewWindow().label === DEV_WINDOW_LABEL
+}
+
+function mount(dev: boolean) {
+  const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+  root.render(dev ? <DevWindow /> : <App />)
+}
+
+// The language registry comes from Rust and every picker needs it
+// synchronously, so it is fetched before the first render. Outside Tauri
+// there is no backend at all — App renders its "run via tauri dev" notice.
+async function start() {
+  const dev = await isDevWindow()
+  if (isTauri && !dev) await loadLanguages()
+  mount(dev)
+}
+void start().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message
+    : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <div className="not-tauri" role="alert">
+      <p>Could not open SkellySpeak: {message}</p>
+      <button className="btn" onClick={() => window.location.reload()}>Retry startup</button>
+    </div>
+  )
+})

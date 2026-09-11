@@ -6,7 +6,7 @@ fn unavailable() -> AppError {
     )
 }
 #[tauri::command]
-pub fn mic_start(conversation_id: String) -> Result<String> {
+pub fn mic_start(conversation_id: String) -> Result<crate::model::RecordingStarted> {
     let _ = conversation_id;
     Err(unavailable())
 }

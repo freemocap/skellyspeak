@@ -127,6 +127,8 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
+    pub direction: String,
+    pub romanization: Option<String>,
     pub id: String,
     pub name: String,
     pub native_name: String,
@@ -313,9 +315,17 @@ impl From<serde_json::Error> for AppError {
 }
 pub type Result<T> = std::result::Result<T, AppError>;
 
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordingStarted {
+    pub recording_id: String,
+    pub samples_per_second: f64,
+}
+
 pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
+        RecordingStarted::decl(&config),
         ConnectionRoute::decl(&config),
         AccessSettings::decl(&config),
         CustomEndpoint::decl(&config),

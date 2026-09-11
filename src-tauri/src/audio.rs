@@ -224,6 +224,10 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
 impl Capture {
     /// Samples the UI has not drawn yet, removed from the buffer as they are
     /// handed over.
+    pub fn wave_samples_per_second(&self) -> f64 {
+        self.sample_rate as f64 / WAVE_STRIDE as f64
+    }
+
     pub fn take_wave(&self) -> Result<Vec<f32>, String> {
         let mut b = self.buffers.lock().expect("audio buffers");
         if let Some(error) = &b.error {
