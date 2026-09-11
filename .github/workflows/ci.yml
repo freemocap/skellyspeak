@@ -134,7 +134,7 @@ jobs:
           import pathlib, sys, xml.dom.minidom as md
           failed = []
           root = pathlib.Path('src-tauri/gen/android')
-          required = [root / 'app/src/main/AndroidManifest.xml', root / 'app/build.gradle.kts', root / 'app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt']
+          required = [root / 'app/src/main/AndroidManifest.xml', root / 'app/build.gradle.kts', root / 'app/proguard-rules.pro', root / 'app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt']
           for path in required:
               if not path.is_file():
                   failed.append(f'Missing required Android source: {path}')
@@ -145,6 +145,9 @@ jobs:
                   md.parse(str(p))
               except Exception as e:
                   failed.append(f"{p}: {e}")
+          rules = root / 'app/proguard-rules.pro'
+          if rules.is_file() and 'com.freemocap.skellyspeak.RustWebView' not in rules.read_text():
+              failed.append(f'Missing RustWebView JNI keep rule: {rules}')
           for f in failed:
               print(f"::error::{f}")
           print(f"checked Android XML resources, {len(failed)} malformed")
