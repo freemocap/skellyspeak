@@ -4028,6 +4028,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "ts-rs",
+ "unicode-segmentation",
  "uuid",
  "zeroize",
 ]
