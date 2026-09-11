@@ -8,6 +8,7 @@ pub mod grouped;
 mod holds;
 pub mod hosted;
 pub mod languages;
+pub mod linguistics;
 pub mod model;
 pub mod profile;
 pub mod provider;
