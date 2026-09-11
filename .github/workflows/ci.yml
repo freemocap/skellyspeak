@@ -77,6 +77,10 @@ jobs:
           workspaces: src-tauri
       - run: cargo check --lib
         working-directory: src-tauri
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+      - run: npm run logs:test
 
   # The hosted API tests. They gate the deploy in deploy-server.yml too, but
   # running them here means a pull request shows the breakage before it lands

@@ -13,7 +13,8 @@ test('captures split UTF8 and credentials across chunks, including final untermi
     log.write(data.subarray(0, 6)); log.write(data.subarray(6, 17)); log.write(data.subarray(17)); log.close()
     const records = readFileSync(file, 'utf8').trim().split('\n').map(line => JSON.parse(line))
     assert.deepEqual(records.map(r => r.message).filter(message => !message.startsWith('[partial write:')), ['hola é [REDACTED]', 'last line'])
-    assert.equal(statSync(file).mode & 0o777, 0o600)
+    // POSIX mode bits do not describe Windows ACLs.
+    if (process.platform !== 'win32') assert.equal(statSync(file).mode & 0o777, 0o600)
   } finally { rmSync(dir, { recursive: true }) }
 })
 
@@ -23,7 +24,7 @@ test('keeps startup failure output and exit status in a private run directory', 
     const status = await runLogged(dir, process.execPath, ['-e', 'console.log("started"); process.stderr.write("failure without newline"); process.exitCode=7'])
     assert.equal(status, 7)
     const logs = join(dir, '.local/logs'); const run = join(logs, readdirSync(logs)[0])
-    assert.equal(statSync(run).mode & 0o777, 0o700)
+    if (process.platform !== 'win32') assert.equal(statSync(run).mode & 0o777, 0o700)
     assert.match(readFileSync(join(run, 'stdout.jsonl'), 'utf8'), /started/)
     assert.match(readFileSync(join(run, 'stderr.jsonl'), 'utf8'), /failure without newline/)
     assert.match(readFileSync(join(run, 'launcher.jsonl'), 'utf8'), /closed code=7/)
