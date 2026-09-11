@@ -8,12 +8,15 @@
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri",
-    "macos:dev-bundle": "node scripts/macos-dev.ts bundle",
-    "macos:dev-sign": "node scripts/macos-dev.ts sign",
-    "macos:dev": "node scripts/macos-dev.ts launch",
+    "macos:dev-bundle": "node scripts/dev-run.ts bundle",
+    "macos:dev-sign": "node scripts/dev-run.ts sign",
+    "macos:dev": "node scripts/dev-run.ts launch",
     "contracts": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts",
     "contracts:check": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts -- --check",
-    "styles:check": "node scripts/check-styles.ts"
+    "styles:check": "node scripts/check-styles.ts",
+    "server:local": "node scripts/dev-run.ts server",
+    "logs:test": "node --test scripts/run-log.test.ts",
+    "logs:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/run-log.ts scripts/dev-run.ts scripts/run-log.test.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",
@@ -38,5 +41,6 @@
     "typescript": "^5.8.0",
     "vite": "^6.3.0",
     "vitest": "^4.1.11"
-  }
+  },
+  "license": "AGPL-3.0-or-later"
 }
