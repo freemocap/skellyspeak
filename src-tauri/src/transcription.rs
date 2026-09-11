@@ -1,10 +1,8 @@
 //! Metadata-only receipts for volatile audio. No replayable audio or transcript store.
-#[cfg(any(desktop, test))]
 use crate::access::ResolvedTarget;
 use crate::model::*;
 use rusqlite::{Connection, params};
 
-#[cfg(any(desktop, test))]
 pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -> Result<()> {
     let valid: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM conversations c JOIN relationships r ON r.id=c.relationship_id WHERE c.id=?1 AND c.archived=0 AND r.archived=0)", [conversation], |r| r.get(0))?;
     if !valid || crate::execution::config(db)?.revision != target.revision {
@@ -16,7 +14,6 @@ pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -
     Ok(())
 }
 
-#[cfg(any(desktop, test))]
 pub fn begin(db: &Connection, id: &str, conversation: &str, target: &ResolvedTarget) -> Result<()> {
     permitted(db, conversation, target)?;
     crate::holds::check(db, target)?;
@@ -33,7 +30,6 @@ pub fn begin(db: &Connection, id: &str, conversation: &str, target: &ResolvedTar
     Ok(())
 }
 
-#[cfg(any(desktop, test))]
 pub fn finish(
     db: &Connection,
     id: &str,
@@ -72,7 +68,6 @@ pub fn finish(
     Ok(result)
 }
 
-#[cfg(any(desktop, test))]
 impl crate::store::Store {
     pub fn begin_transcription(
         &mut self,

@@ -2,6 +2,7 @@ use crate::model::{AppError, ErrorCode, HostedAccount, Result};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use sha2::{Digest, Sha256};
 use std::time::Duration;
+#[cfg(desktop)]
 use tauri_plugin_opener::OpenerExt;
 use zeroize::Zeroizing;
 

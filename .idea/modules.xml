@@ -5,6 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@1.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@3.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs.iml" filepath="$PROJECT_DIR$/.idea/skellysubs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs@1.iml" filepath="$PROJECT_DIR$/.idea/skellysubs@1.iml" />
     </modules>
   </component>
 </project>

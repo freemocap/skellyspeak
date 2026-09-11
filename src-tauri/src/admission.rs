@@ -1,20 +1,16 @@
 //! One native inference pool, independent of route, model and window.
-#[cfg(any(desktop, test))]
 use crate::model::{AppError, ErrorCode, Result};
 use std::sync::Arc;
-#[cfg(any(desktop, test))]
 use std::time::{Duration, Instant};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
 // Provisional policy, not a provider guarantee. Tune from actual queue waits.
 pub const NETWORK_CAPACITY: usize = 4;
-#[cfg(any(desktop, test))]
 const AUDIO_WAITING_CAPACITY: usize = 1;
 pub struct Admission {
     network: Arc<Semaphore>,
     // Chat waits durably in SQLite. Audio is volatile and must not accumulate
     // an unbounded collection of recordings while waiting for network capacity.
-    #[cfg(any(desktop, test))]
     audio_waiters: Arc<Semaphore>,
 }
 
@@ -27,7 +23,6 @@ impl Admission {
         assert!(capacity > 0);
         Self {
             network: Arc::new(Semaphore::new(capacity)),
-            #[cfg(any(desktop, test))]
             audio_waiters: Arc::new(Semaphore::new(AUDIO_WAITING_CAPACITY)),
         }
     }
@@ -44,7 +39,6 @@ impl Admission {
         self.network.clone().try_acquire_owned().ok()
     }
 
-    #[cfg(any(desktop, test))]
     pub async fn audio(
         &self,
         mut validate: impl FnMut() -> Result<()>,
