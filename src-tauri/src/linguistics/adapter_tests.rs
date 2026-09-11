@@ -356,3 +356,80 @@ fn prompt_byte_guard_fails_without_truncation() {
     ));
     assert!(build_word_gloss_prompt(&identity(), &"x".repeat(MAX_SOURCE_SCALARS)).is_ok());
 }
+
+fn completion(raw: String, termination: &str) -> provider::Completion {
+    provider::Completion {
+        text: raw,
+        finish_reason: termination.into(),
+        actual_model: "fixture-model".into(),
+        provider_id: "fixture-request".into(),
+        input_tokens: Some(17),
+        output_tokens: Some(9),
+    }
+}
+
+#[test]
+fn stopped_completion_preserves_complete_partial_and_no_help_semantics() {
+    for (spans, coverage, glosses) in [
+        (
+            vec![gloss(0, 2, "yes"), literal(2, 3)],
+            Coverage::Complete,
+            1,
+        ),
+        (vec![gloss(0, 2, "yes")], Coverage::Partial, 1),
+        (vec![literal(0, 3)], Coverage::Complete, 0),
+        (vec![], Coverage::Partial, 0),
+    ] {
+        let output = completion(candidate(spans), "stop");
+        let result = validate_word_gloss_completion(&identity(), "sí!", &output).unwrap();
+        assert_eq!(result.coverage(), coverage);
+        assert_eq!(result.gloss_count(), glosses);
+        assert_eq!(result.source(), &identity());
+    }
+}
+
+#[test]
+fn non_stop_completion_fails_before_content_decoding_without_mutation() {
+    for termination in [
+        "length",
+        "refusal",
+        "content_filter",
+        "tool_calls",
+        "",
+        "STOP",
+        "private-termination",
+    ] {
+        for raw in [
+            candidate(vec![gloss(0, 1, "letter")]),
+            "malformed private content".into(),
+        ] {
+            let output = completion(raw.clone(), termination);
+            let result = validate_word_gloss_completion(&identity(), "x", &output);
+            assert_eq!(result, Err(AdapterError::InvalidTermination));
+            assert_eq!(output.text, raw);
+            assert_eq!(output.finish_reason, termination);
+            assert_eq!(output.actual_model, "fixture-model");
+            assert_eq!(output.provider_id, "fixture-request");
+            assert_eq!(output.input_tokens, Some(17));
+            assert_eq!(output.output_tokens, Some(9));
+            assert_eq!(format!("{:?}", result.unwrap_err()), "InvalidTermination");
+        }
+    }
+}
+
+#[test]
+fn stopped_duplicate_key_failure_retains_metadata_and_unknown_usage() {
+    let raw = r#"{"spans":[],"spans":[]}"#;
+    let mut output = completion(raw.into(), "stop");
+    output.output_tokens = None;
+    assert_eq!(
+        validate_word_gloss_completion(&identity(), "x", &output),
+        Err(AdapterError::InvalidJsonOrShape)
+    );
+    assert_eq!(output.text, raw);
+    assert_eq!(output.finish_reason, "stop");
+    assert_eq!(output.actual_model, "fixture-model");
+    assert_eq!(output.provider_id, "fixture-request");
+    assert_eq!(output.input_tokens, Some(17));
+    assert_eq!(output.output_tokens, None);
+}
