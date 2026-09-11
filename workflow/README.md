@@ -1,177 +1,97 @@
 # Domain coordination and integration
 
-This is the working agreement for parallel work on rebuild. Product intent remains
-in DESIGN.md; implementation order remains in BUILD-PLAN.md. This folder assigns
-work and records integration decisions; it is not a competing product specification.
+Product intent lives in DESIGN.md; implementation order lives in BUILD-PLAN.md.
+This document assigns current work and integration ownership. Plans are not working
+features. The integration task coordinates domain tasks, reviews handoffs, resolves
+technical dependencies and validates combined work.
 
-The user creates the separate domain chats. This integration task coordinates them,
-reviews handoffs, resolves contract conflicts and validates combined work. No domain
-agent is active merely because its assignment exists. Git remains read-only for
-agents unless the user explicitly authorizes a particular mutation in that session.
-The release's one-time permission is exhausted. Do not edit AGENTS.md to grant powers.
+## Authorization and communication
 
-## Proposal-first approval — user direction
+The user approved Language and Reliability implementation and the reference-based
+conversation UI. Continue finite work within those domains without repeated approval
+loops. Material product changes and visible departures from the approved UI still
+require direct user design review. Evidence and visualization have no implementation
+assignment yet. No paid model evaluation or deployment is authorized.
 
-Every domain begins with an independent proposal/design conversation with the user.
-Read-only investigation and proposal documents are allowed. Source implementation,
-prototype coding, dependency installation and implementation test/build work require
-explicit user approval in that domain chat. Assignment existence, earlier general
-build authorization and coordinator contract review do not grant that approval.
+Git is read-only for agents. The user performs checkpoints, merges and pushes;
+implementation approval is not Git permission. Never change AGENTS.md to grant powers.
+Send completed handoffs or exact blockers to integration. Save every handoff locally
+in workflow/reports as well: task-message delivery is not guaranteed. Integration
+resolves routine dependencies; do not wait for the user to relay acknowledgements.
 
-Present scope, intended behavior, alternatives/tradeoffs, a recommended bounded
-slice, cross-domain dependencies and decisions for discussion. Wait for the user's
-implementation go-ahead. Integration coordinates consistency; it does not replace
-the user's domain design conversations or approve product changes on their behalf.
-Preserve and disclose any work started before this correction as unapproved work;
-do not silently delete it or treat it as accepted. No integration of that work yet.
+## Current baseline and work
 
-## Starting point
+Rebuild 002afd4 integrates translation lifecycle fixes, deterministic source validation,
+the pure gloss prompt/decoder and the conversation UI. Combined checks passed:
+342 frontend tests, 121 native tests, frontend build, generated contracts and Clippy.
+Recording metadata formatting is corrected in the integration working tree. CSS has
+71 audited checker violations awaiting the scoped Interaction contribution.
+User native QA confirmed the UI candidate's basic chat/translation/private-coach path;
+this does not establish all-route, microphone or combined-build runtime coverage.
+Main maintains released v0.13.7 and is not a feature integration branch.
 
-The translation foundation is checkpointed on rebuild at 44b9f92. Hosted native QA
-confirmed one reply and one translation attempt for each of two exchanges, with no
-extra work left active. This is not full route/device/failure-mode verification.
-The assignment documents must be checkpointed before spawning worktrees from rebuild;
-each handoff records the actual base SHA, rather than assuming it is still 44b9f92.
-Main maintains released v0.13.7; it is not a feature integration branch.
+| Domain | Current finite assignment | State |
+| --- | --- | --- |
+| Integration | Combined verification, server structured contract tests, next execution/storage seams | Active |
+| Reliability | G1a: typed structured request construction and direct/grouped transport tests | Reviewed; awaiting user checkpoint |
+| Language | Transport review and G1b pure completion termination validation | Reviewed; awaiting user checkpoint |
+| Interaction | CSS rule ownership cleanup preserving current appearance | Reviewed; awaiting user checkpoint |
+| Evidence/progression | Observation eligibility, XP and dense reports | Unassigned |
+| Visualization | Garden/skill-map and static mathematical avatars | Unassigned |
 
-## Domains and initial assignments
+## File ownership for this round
 
-| Domain | Responsibility | Current assignment | State |
-| --- | --- | --- | --- |
-| Integration | Shared contracts, dependency order, cross-domain tests, release readiness | Contract review and sequential integration | Active |
-| Execution/reliability | Scheduling, admission, authority, attempts, access routes | R1: translation lifecycle verification | Integrated and verified at 260bb23 |
-| Language analysis | Source segmentation, annotations, linguistic validation | L1: passage contract and pure analysis core | Integrated and verified at 260bb23 |
-| Product/interaction | User workflows, accessible presentation, style consistency | U1: reference-based conversation reading | User approved; implementation active |
-| Evidence/progression | Observation eligibility, rubrics, XP and reports | No implementation assignment yet | Queued |
-| Visualization | Garden/skill-map renderers and mathematical avatars | No implementation assignment yet | Queued |
+Use the existing separate user-created worktrees. No agent Git writes. Only one
+native dev app may run: worktrees share app identity, data and port. Coordinate runtime
+QA with integration before launch; source isolation does not isolate application data.
 
-Read the matching file in assignments/. Start proposal discussions for R1, L1 and U1 only. Evidence and
-visualization can receive finite design assignments later; do not invent production
-scores or infer evidence contracts from visual geometry.
-
-## Worktree and file ownership
-
-Use separate user-created branches/worktrees for implementation: suggested names
-rebuild-reliability, rebuild-language and rebuild-interaction. No branch creation,
-checkout, commit, merge or push is authorized by this document. Do not share one
-dirty checkout between chats. Only one native dev app should run at a time: these
-builds share app identity, local data and the default dev port. Worktrees isolate
-source, not the native application's data or services. Coordinate live QA time.
-
-| Surface | Writer for this round |
+| Surface | Writer |
 | --- | --- |
-| src-tauri/src/execution.rs, admission.rs, holds.rs, grouped.rs, access.rs, provider.rs | R1 |
-| src-tauri/src/linguistics/ and its pure tests | L1 |
-| src/reading/ and its component tests/styles | U1 |
-| model.rs, schema*.sql and other storage initialization, turn_plan.rs, lib.rs, contracts.ts | Integration |
-| ConversationView.tsx, LearningPanel.tsx, useChat.ts, App.tsx, root styles.css | Integration |
-| Root design/architecture docs, dependency manifests/locks, build and release workflows | Integration |
-| workflow/reports/R1.md, L1.md or U1.md | Matching domain |
+| Reliability worktree provider.rs/grouped.rs and colocated transport tests | Reliability G1a |
+| Language worktree linguistics/adapter.rs, adapter_tests.rs and owned reports | Language |
+| Interaction worktree styles.css and scoped graph CSS-variable presentation changes, verification/report | Interaction |
+| Root native model/storage/execution/commands/contracts and server tests | Integration |
+| Root docs, manifests/locks and shared UI controllers | Integration |
 
-These are proposed new module directories, not claims that they already exist.
-An agent may investigate any source read-only. If a fix crosses its write boundary,
-provide the exact proposed change and reason in its report; do not silently edit the
-other domain's files. Small integration seams are applied by the coordinator after
-review. A whole-file reservation is temporary coordination, not permanent architecture.
-Do not add dependencies, change storage or make paid evaluations without resolving
-scope and the applicable authorization first. Never hand-edit generated contracts.
+G1a may define a transport-local Rust output-contract type in provider.rs. It does
+not need an IPC model or generated declaration. Existing prose requests remain
+unchanged; no production gloss operation, new scheduler, fallback, retry or UI trigger
+is enabled in this slice. Direct and grouped payloads share construction, preserve
+route authority, and preflight the complete bounded request. Decoder selection and
+durable publication are separately reviewed execution work.
 
-## Contracts and disagreements
+Interaction resolves cascade ownership, not checker suppression or layers of overrides.
+Preserve density, responsive layouts, reduced motion and the accepted presentation.
+Measure style/geometry comparisons and state verification limits explicitly.
 
-L1 proposes the source/annotation boundary. U1 can propose fixture-based interactions immediately, but must not independently define a production token
-schema. R1 can verify existing translation without waiting on either. When L1's
-contract is reviewed, integration records the accepted decision in DATA-MODEL.md
-and/or EXECUTION.md, regenerates types if necessary, and gives U1 the exact revision.
-Until then, fixture components are review artifacts, not features connected to AI.
+## Next dependency boundary
 
-For a disputed contract, report: observed problem, affected consumer, proposed
-shape/behavior, alternatives, and tests. Continue independent work while waiting.
-Integration resolves implementation choices; the user decides material product
-changes. Do not reopen settled routes, no-fallback behavior, local storage, or the
-separation of data from garden visuals through generic design questionnaires.
-
-Reports are not automatically delivered between chats. Send the coordinator the
-report/commit through available task messaging, or ask the user to relay the handoff.
-The coordinator publishes decisions and informs affected chats; agents must not
-assume another chat has seen their local edits or a changed plan.
+Language's strict decoder is integrated but has not been tested against live model
+output. Server schema envelope acceptance is not evidence of model keyword support.
+Review G1a and the Language transport report before activating a gloss operation.
+The intended next slice is one whole-message gloss child, independent of translation,
+with immutable source binding, retained usage on invalid output and durable partial
+results. Reading/revealing/reopening never starts inference. No per-word fan-out.
+Operation-scoped retry and source/authority checks must be reviewed before exposing
+retry controls. No broader contextual-detail storage model is needed for this singleton.
 
 ## Integration procedure
 
-1. Domain produces a bounded diff and the handoff report; user checkpoints its branch.
-2. Integration reads the exact diff and tests, checks ownership and contract fit,
-   and records any change requests. A successful isolated test is not integration.
-3. Integrate one reviewed contribution at a time into rebuild through user-operated
-   Git commands. Do not merge main's recovered application into rebuild.
-4. Run affected tests, contracts:check and the relevant README checks. Exercise
-   interactions between changes: source revision/deletion, cancellation/refusal,
-   reopen/hydration request counts and independent result arrival.
-5. Request native QA only for an actual runnable feature, identifying the worktree,
-   build, scenario and expected requests. Record measured results separately.
-6. Update the owning design/implementation docs and assignment status. A domain is
-   complete only when its accepted deliverable is integrated and verified, or its
-   explicitly design-only artifact has been reviewed. No automatic deployment.
+1. Domain finishes a bounded diff and local handoff, including its base revision.
+2. Integration reviews exact code, ownership, contracts and independent checks.
+3. User checkpoints the domain and integrates the reviewed contribution into rebuild.
+4. Integration runs relevant README checks and cross-domain regressions. Isolated
+   success is not combined verification. Never describe failing gates as passed.
+5. Request native QA only for a runnable artifact, with build/worktree, actions and
+   expected requests. Record source tests and real-provider/device checks separately.
+6. Update current docs and assignments. Notify the user only for meaningful progress,
+   product choices, Git steps, blockers or specific runnable QA.
 
-## Handoff report
+The ten-minute coordination follow-up remains quiet when nothing actionable changes.
+No acknowledgement loops: continue independent work while another domain is active.
 
-Use HANDOFF.md. State code implemented, isolated tests, integration status and native
-QA separately. Include open risks and cross-domain effects. Do not claim all tests
-passed if only focused checks ran; do not put secrets or conversation text in reports.
-
-## Current integration decisions — 2026-09-10
-
-Language and Reliability have explicit user approval to continue scoped work.
-Language temporarily owns its worktree Cargo.toml/Cargo.lock dependency declaration
-and lib.rs module registration for the grapheme validator; all other shared seams
-remain integration-owned. DATA-MODEL.md records accepted source-boundary requirements.
-No paid format pilot is authorized or running.
-
-R1 execution changes have passed coordinator source review and an independent native
-test run (88 passed). They remain uncommitted in rebuild-reliability and are not
-integrated. User checkpoint is the next Git step. R2 is a proposal, not implemented;
-its passage-wide lifetime detail limit was rejected in favor of separating logical
-request retry bounds from global concurrent capacity. UI implementation remains
-subject to its direct design conversation; its standalone prototype is excluded.
-
-Language core review: coordinator inspected the validator, shared dependency/module
-diff and conformance test, then independently ran `cargo test --manifest-path
-src-tauri/Cargo.toml --lib --locked linguistics::` in rebuild-language: 21 passed,
-including all 766 Unicode corpus cases; 79 unrelated tests filtered out. No blocking
-finding for this bounded deterministic component. This does not validate linguistic
-quality, provider decoding, live source authority or production publication. Those
-remain separate work. Contribution remains uncommitted and unintegrated.
-
-## Combined verification — 2026-09-10
-
-User merged Reliability and Language into rebuild at 260bb23. Combined native tests:
-109 passed; frontend tests: 31 passed. Clippy with warnings denied, Rust formatting,
-generated contracts, frontend typecheck/build and stylesheet checks all passed.
-No native GUI was launched, no provider calls were made, and no release/deployment
-is implied. Earlier pending checkpoint statements above describe completed review
-steps; both contributions are now integrated.
-
-Next Language slice: isolated strict word-gloss prompt builder and JSON decoder under
-linguistics/, using existing serde and validated source boundaries. No provider,
-execution, storage or UI wiring in this slice; its boundary-ID format remains an
-evaluation candidate. Reliability detail-execution proposal awaits storage/command
-seams; UI continues direct parity design review.
-
-## Active follow-through
-
-The coordinator checks domain progress and resolves routine technical dependencies
-without requiring the user to repeat continuation instructions. Domains report a
-completed handoff or precise blocker directly to integration with a recommended
-next action. Assignments must have finite outcomes and retain file ownership.
-Do not send acknowledgement loops in place of work. Escalate material product
-choices, user-operated Git steps and runnable QA clearly; UI design approval remains
-a direct user conversation. A ten-minute thread follow-up checks this integration
-round and stays quiet when no actionable state changes occur.
-
-## UI first-slice approval
-
-The user approved the concrete reference-based conversation-reading slice in the
-integration task: preserve bubble presentation, typography, inline assistance and
-reading gestures within the chat screen. U1 implements reading components/tests;
-integration owns shared rendering and root styles. Real messages/translations may
-connect now; unavailable gloss/detail/sentence-analysis contracts remain explicit
-dependencies, not fabricated features. No repeated approval is required within this
-scope. Material visible departures return to the user; routine seams go to integration.
+Latest isolated reviews: Reliability93native tests passed; Language15focused adapter
+tests passed; Interaction style checker/build passed with342frontend tests reported.
+Root read-aloud availability fix passes343frontend tests/build; server fixtures209pass,
+7emulator skips. These contributions are not yet combined. Next action is the user
+checkpoint/integration block; domain source is frozen for that boundary.

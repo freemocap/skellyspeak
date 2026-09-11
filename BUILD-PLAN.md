@@ -306,14 +306,10 @@ only when Translation is enabled at Send. Results persist against the immutable
 source message's turn and hydrate independently. An assisting turn leaves the next
 Send available. Explicit assistance retries cannot regenerate the saved reply.
 
-79 native tests and 31 frontend tests pass, together with Clippy, contract/style
-checks and frontend/native builds. Regressions cover duplicate result delivery,
+Translation regressions cover duplicate result delivery,
 restart, concurrent next Send, cancellation, source deletion and zero scheduling
-from repeated snapshots or preference changes. Real-provider native QA remains.
-
-Next user check: send with Translation enabled, observe reply then translation,
-send again during assistance, reopen the conversation and toggle display. Inspect
-the AI graph: one translation operation per eligible reply, no work from reopening.
+from repeated snapshots or preference changes. Runtime evidence is recorded below;
+the current UI graph remains unconnected.
 
 Live hosted translation check, 2026-09-10: the user confirmed two exchanges work.
 Read-only inspection of durable receipts found one successful reply attempt and
@@ -322,34 +318,40 @@ one saved translation each, no errors in these exchanges and zero active operati
 at inspection. This verifies the basic hosted path; other routes and interactive
 cancellation/restart scenarios are not established by this session.
 
-## Parallel domain execution
+## Current parallel implementation round
 
-[workflow/README.md](workflow/README.md) defines domain ownership, three initial
-assignments and integration gates. R1 verifies the current translation lifecycle;
-L1 proposes and tests source mapping; U1 designs data-driven reading presentation.
-Contract decisions remain in their owning root documents. Integration into rebuild
-is serialized and verified even when domain implementation proceeds in parallel.
-The user creates domain chats; no agents or worktrees were started by this plan.
+[workflow/README.md](workflow/README.md) records exact ownership and authorization.
+The user approved Language/Reliability implementation and the reference-based UI.
+Material product or visual changes still return to the user; routine technical
+integration proceeds without acknowledgement loops. Agents never mutate Git.
 
-## Domain proposal gate
+Rebuild 002afd4 contains translation lifecycle fixes, deterministic source validation,
+the strict gloss prompt/decoder and the connected conversation UI. Combined checks:
+342 frontend tests, 121 native tests, build, generated contracts and Clippy passed.
+Recording initializer formatting is corrected. CSS cleanup remains a separate gate;
+Interaction is resolving its 71 audited violations while preserving appearance.
+The basic UI candidate's chat/translation/coach path has user runtime verification.
+No live gloss feature, evidence/XP or connected diagnostic graph is claimed.
 
-Each domain must discuss its proposal and design directly with the user before
-implementation. The user has authorized Language and Reliability to continue their
-scoped implementation. UI remains in direct design review with the user; its rejected
-standalone prototype is not an integration candidate. Integration review alone does
-not authorize new product behavior. See workflow/README.md.
+Next work, in dependency order:
 
-Current next steps: Language implements grapheme-safe source validation and its
-deterministic tests; integration reviews the completed reliability diff and prepares
-its user-operated checkpoint/integration. Selected-word detail execution must retain
-independent result ownership and shared concurrent dispatch. Its lifetime budget must
-not make a passage permanently uninspectable after sixteen word requests; resolve
-bounded per-request attempts separately from concurrent queue limits before wiring.
+1. Finish and independently review Interaction CSS cleanup and its visual checks.
+2. Reliability G1a adds typed structured request construction to direct/grouped
+   transport, with exact size checks and unchanged prose requests. No new operation
+   or request trigger. Language reviews candidate schema/size compatibility.
+3. Integrate reviewed contributions through user-run Git and run combined checks.
+4. Wire operation-selected completion validation, retaining usage on invalid output.
+5. Define one whole-message gloss child with source-owned durable results, independent
+   translation completion, explicit operation retry and zero inference from reading.
+   Resolve activation policy and route capability evidence before enabling it.
+6. Connect saved validated word spans to existing reading presentation, then request
+   a focused real-app check with expected operation counts and partial-result behavior.
 
-## Integrated domain foundation
+G1a server conformance tests verify strict-schema forwarding, routing authority,
+request size and pre-inference rejection. Full server fixtures: 209 passed, seven
+Firestore-emulator cases skipped because no emulator was running. No production
+server changes, live model conformance calls or deployment are implied.
 
-At rebuild 260bb23, translation lifecycle fixes and the deterministic annotation
-validator are integrated. Combined checks passed: 109 native tests, 31 frontend
-tests, Clippy, formatting, generated contracts, frontend build and stylesheet checks.
-No new live gloss functionality is wired. Next bounded work is the Language prompt/
-strict-response adapter, followed by reviewed execution and persistence integration.
+Selected-word detail families remain a separate slice. Their lifetime budget must
+not make a passage permanently uninspectable after sixteen distinct word requests;
+bound retries per logical request separately from shared concurrent capacity.

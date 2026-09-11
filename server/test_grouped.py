@@ -16,6 +16,7 @@ import main
 import work_admission
 from test_budget import ledger
 from test_proxy import proxy, upstream
+from test_contracts import structured_format
 
 
 def envelope(count: int = 2) -> dict:
@@ -23,6 +24,42 @@ def envelope(count: int = 2) -> dict:
         "operation_id": f"{i:032x}", "attempt_id": f"{int(time.time())}-{i:032x}",
         "request": {"model": "google/gemini-2.5-flash", "messages": [{"role": "user", "content": f"hello {i}"}]},
     } for i in range(count)]}
+
+
+@pytest.mark.asyncio
+async def test_group_forwards_structured_contract_and_retains_completion_metadata(proxy, monkeypatch):
+    sent = []
+    def respond(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content))
+        return httpx.Response(200, json={"id": "generation", "model": "google/gemini-2.5-flash",
+            "choices": [{"finish_reason": "stop", "message": {"content": '{"spans":[]}'}}],
+            "usage": {"cost": 0.00001, "prompt_tokens": 4, "completion_tokens": 3, "total_tokens": 7}})
+    upstream(monkeypatch, respond)
+    request = envelope(1)
+    request["items"][0]["request"]["response_format"] = structured_format()
+    response = await proxy.post("/v1/operations", json=request)
+    assert response.status_code == 200
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert [event["type"] for event in events] == ["result", "complete"]
+    assert len(sent) == 1
+    assert sent[0]["response_format"] == structured_format()
+    assert sent[0]["provider"]["allow_fallbacks"] is False
+    assert sent[0]["provider"]["require_parameters"] is True
+    assert events[0]["response"]["choices"][0]["finish_reason"] == "stop"
+    assert events[0]["response"]["choices"][0]["message"]["content"] == '{"spans":[]}'
+    assert events[0]["response"]["usage"]["completion_tokens"] == 3
+
+
+@pytest.mark.asyncio
+async def test_invalid_structured_item_prevents_all_claims_and_upstream_calls(proxy, monkeypatch):
+    calls = []
+    upstream(monkeypatch, lambda request: calls.append(request))
+    request = envelope()
+    request["items"][1]["request"]["response_format"] = {"type": "json_object"}
+    response = await proxy.post("/v1/operations", json=request)
+    assert response.status_code == 400
+    assert calls == []
+    assert not any("work_attempts" in key for key in main.db.store)
 
 
 @pytest.mark.asyncio

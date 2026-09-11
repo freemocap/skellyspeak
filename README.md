@@ -10,16 +10,16 @@ The published v0.13.7 application is maintained on **main** in the separate
 [current implementation plan](BUILD-PLAN.md). Do not merge main wholesale into rebuild.
 
 **Current implementation: immediate chat, desktop recording/transcription, a separate
-coach thread, Google sign-in and own-key text execution.** Rust persists messages, conversation settings and complete validated
-replies. The toolbar **AI** panel exposes operations, model targets, attempts,
-reported tokens and pause/step/cancel/retry; it can dock or open in a separate window.
-**Profile** reports retained usage globally, by language and by partner. **Settings**
-has searchable sections, automatically saved reading preferences and account controls.
+coach thread, Google sign-in and own-key/custom-server text execution.** Rust persists
+messages, conversation settings and validated replies. The integrated conversation UI
+reads those native records and uses native commands for sends and settings changes.
 
 The interface pairs a light chat canvas with a dark lesson/analysis pane. The partner
 chooser selects partners and conversations; narrow windows use Chat and Lesson tabs.
-Unsent drafts are session-only. Avatars are static SVGs. Evidence visualizations remain independent of domain records. No skill estimates
-or XP are fabricated.
+Unsent drafts are session-only. The AI activity frame currently reports that its graph
+is not connected. Execution controls, usage reports, evidence/XP and lesson editing
+still need UI wiring; native capabilities are not a claim that those controls work
+in the interface. No skill estimates or XP are fabricated.
 
 Saved partner-reply translation is implemented through the scheduler. Token glosses,
 structured coaching, assessment, XP, Vibe computation and measured garden rendering
@@ -128,8 +128,8 @@ inference or prove model availability or sufficient credits. Saved state and ver
 state are separate. **Send** uses the selected route and the
 captured Standard model. Replies are buffered and validated before publication.
 
-Open toolbar **AI** to inspect execution.
-Pause all prevents new starts; it does not revoke running work. Pause a turn and
+The native execution controls are implemented; their UI wiring is pending.
+At the command layer, Pause all prevents new starts; it does not revoke running work. Pause a turn and
 Step to admit one operation while keeping that turn paused. The app-wide gate must
 be resumed to Step. Cancel revokes publication and drops the local HTTP request;
 remote execution and billing may continue. Retry is explicit and may incur another
@@ -186,14 +186,13 @@ desktop transcription on all access routes. One audio request may wait for capac
 excess waiting audio is rejected without submission. Tests cover mixed occupancy,
 queue saturation, source/configuration invalidation and release on cancellation.
 Queued chat/coach turns now pause on matching HTTP 429 refusals, with the reason and
-earliest retry shown in execution inspection. Holds survive restart; recovery is
+earliest retry retained in the native execution snapshot. Holds survive restart; recovery is
 explicit and Step cannot bypass them. Shared access holds also block fresh Send
-and transcription. Recover access in the execution panel checks the retry time
+and transcription. The native Recover access command checks the retry time
 and refuses stale recovery actions; it makes no AI call and leaves queued turns
 paused. Transcription receipts now retain route, model, timing and outcome;
-interrupted attempts become unknown on restart and are never replayed. The execution
-panel shows these receipts, and usage reports include them with unavailable token
-usage. Audio and transcript text are not stored in receipts;
+interrupted attempts become unknown on restart and are never replayed. Native execution snapshots expose these receipts, and usage projections include
+them with unavailable token usage; presentation remains pending. Audio and transcript text are not stored in receipts;
 this limit does not establish a bound on upstream work after local cancellation.
 Capacity is provisional. `WARN ai_admission` lines go to the native process's stderr
 (the development launch terminal), at most once per event per minute. They identify

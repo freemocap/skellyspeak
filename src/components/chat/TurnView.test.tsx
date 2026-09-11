@@ -73,3 +73,12 @@ it('renders source punctuation once and anchors feedback inside the learner bubb
   expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
   expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me .message-actions')).not.toBeNull()
 })
+
+it('does not expose playback without a connected action', () => {
+  const input = props()
+  const view = render(<TurnView {...input} onSpeak={undefined} />)
+  expect(screen.queryByRole('button', { name: 'Speak reply' })).not.toBeInTheDocument()
+  view.rerender(<TurnView {...input} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Speak reply' }))
+  expect(input.onSpeak).toHaveBeenCalledWith('Hola', 1)
+})

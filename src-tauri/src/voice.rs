@@ -46,7 +46,10 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         language: conversation.language_id.clone(),
         capture: audio::start(None).map_err(fault)?,
     };
-    let started = RecordingStarted { recording_id: recording.id.clone(), samples_per_second: recording.capture.wave_samples_per_second() };
+    let started = RecordingStarted {
+        recording_id: recording.id.clone(),
+        samples_per_second: recording.capture.wave_samples_per_second(),
+    };
     *slot = Some(recording);
     Ok(started)
 }

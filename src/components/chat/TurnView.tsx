@@ -55,7 +55,7 @@ export interface TurnViewProps {
   rtl: boolean
   onReveal: (keys: string[]) => void
   onBubbleTap: (id: number) => void
-  onSpeak: (text: string, turnId: number) => void
+  onSpeak?: (text: string, turnId: number) => void
   onPopup: React.Dispatch<React.SetStateAction<PopupState | null>>
   onInspect: (turnId: number, side: 'me' | 'bot', index: number) => void
   onHold: (word: string, sentence: string) => void
@@ -302,7 +302,7 @@ export const TurnView = memo(function TurnView({
           {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
-          {ttsReady && (
+          {ttsReady && onSpeak && (
             <button
               type="button"
               className="speak-btn"

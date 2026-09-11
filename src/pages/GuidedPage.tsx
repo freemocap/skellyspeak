@@ -18,18 +18,7 @@ import {
   languageFor,
   saveSettings,
 } from '../lib/tauri'
-import {
-  isSpeaking,
-  loadVoices,
-  speakSmart,
-  speechSupported,
-  ttsAvailable,
-  stopSpeaking,
-  subscribeSpeaking,
-  subscribeSpeechProgress,
-  setPlaybackRate,
-  type SpeechProgress,
-} from '../lib/speech'
+import { stopSpeaking } from '../lib/speech'
 import { comboFromEvent } from '../lib/keyboard'
 import { WaveformStrip } from '../components/WaveformStrip'
 import { WordInsightModal } from '../components/WordInsightModal'
@@ -95,12 +84,6 @@ export default function GuidedPage({
   const [settings, setSettings] = useState<Settings | null>(null)
   const [plan] = useState<TeachingPlan | null>(null)
   const [profile] = useState<Profile | null>(null)
-  // Whether the webview's own speech engine is usable. Some webviews (notably
-  // Android's) implement no speechSynthesis, making the OS engine unavailable
-  // there; the cloud engine is unaffected.
-  const [osVoiceReady, setOsVoiceReady] = useState(speechSupported())
-  const ttsEngine = settings?.tts_engine ?? 'cloud'
-  const ttsReady = ttsAvailable(ttsEngine, osVoiceReady)
   useEffect(() => {
     if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak)
     if (!active) stopRewardSounds()
@@ -139,32 +122,8 @@ export default function GuidedPage({
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
 
-  // Speaking state drives the 🔊/⏹ affordance on every bubble.
-  const [speaking, setSpeaking] = useState(false)
-  useEffect(() => subscribeSpeaking(setSpeaking), [])
-  const [speechProgress, setSpeechProgress] = useState<SpeechProgress | null>(null)
-  const [, setSavingSpeechRate] = useState(false)
-  useEffect(() => subscribeSpeechProgress(setSpeechProgress), [])
   useEffect(() => () => stopSpeaking(), [])
   useEffect(() => { stopSpeaking() }, [settingsVersion, active])
-
-  const speakReply = useCallback(
-    (text: string, turnId: number) => {
-      // Toggle: if audio is playing, this click stops it.
-      if (isSpeaking() && speechProgress?.utteranceId === String(turnId)) {
-        stopSpeaking()
-        return
-      }
-      const lang = settings?.target_language ?? 'es-ES'
-      const engine = settings?.tts_engine ?? 'cloud'
-      const voice = settings?.tts_voice || 'nova'
-      // Any failure to speak reaches the screen. A log line alone would leave
-      // a dead button with no explanation.
-      void speakSmart(text, lang, engine, voice, settings?.tts_rate ?? 1, String(turnId), chatIdRef.current?.id ?? null, `${settingsVersion}:${settings?.native_language}:${settings?.target_language}`)
-        .catch((e) => reportFault('Speech', e))
-    },
-    [settingsVersion, settings?.native_language, settings?.target_language, settings?.tts_engine, settings?.tts_voice, settings?.tts_rate, speechProgress?.utteranceId]
-  )
 
   const streamRef = useRef<HTMLDivElement | null>(null)
   const breakRef = useRef<HTMLDivElement | null>(null)
@@ -202,11 +161,9 @@ export default function GuidedPage({
   const clearWordsRef = useRef<() => void>(() => {})
   const {
     turns,
-    turnsRef,
     chats,
     currentChatId,
     openingFailed,
-    chatIdRef,
     openChat,
     startNew: startNewConversation,
     removeChat,
@@ -222,11 +179,6 @@ export default function GuidedPage({
 
   useEffect(() => {
     logInfo('[guided] page mounted, isTauri =', isTauri)
-    void loadVoices().then((v) => {
-      const ready = v.length > 0 || speechSupported()
-      setOsVoiceReady(ready)
-      logInfo(`[tts] OS voice engine ${ready ? 'available' : 'unavailable'}; ${v.length} voices`)
-    })
     // Settings only. This effect re-runs on `settingsVersion`, which the
     // Settings modal bumps on every autosave mid-edit — so it must not touch
     // the conversation. Restoring and greeting are keyed on the pairing
@@ -319,10 +271,6 @@ export default function GuidedPage({
       if (combo === shortcuts.mic) {
         e.preventDefault()
         toggleMicRef.current()
-      } else if (combo === shortcuts.speak) {
-        e.preventDefault()
-        const last = latestAnswered(turnsRef.current)
-        if (last?.assistant) speakReply(last.assistant.reply, last.id)
       } else if (combo === shortcuts.panel) {
         e.preventDefault()
         toggleBreakRef.current()
@@ -330,7 +278,7 @@ export default function GuidedPage({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [settings?.shortcuts, speakReply])
+  }, [settings?.shortcuts])
 
   const editingTurn = turns.find((turn) => turn.id === editingTurnId)
   const latestAssistantId = latestAnswered(turns)?.id ?? null
@@ -572,23 +520,9 @@ export default function GuidedPage({
                       {settings?.[key] ? '☑' : '☐'} {label}
                     </button>
                   ))}
-                  <label className="speech-speed" title={ttsEngine === 'cloud'
-                    ? 'Adjust playback speed while keeping the natural pitch.'
-                    : 'Speed changes apply on replay.'}>
+                  <label className="speech-speed" title="Read-aloud is not connected yet.">
                     Voice speed
-                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1}
-                      disabled={true}
-                      onChange={(event) => {
-                        if (!settings) return
-                        const rate = Number(event.target.value)
-                        const updated = { ...settings, tts_rate: rate }
-                        setSavingSpeechRate(true)
-                        void saveSettings(updated).then(() => {
-                          setSettings(updated)
-                          setPlaybackRate(rate)
-                        }).catch((error: unknown) => reportFault('Saving voice speed', error))
-                          .finally(() => setSavingSpeechRate(false))
-                      }}>
+                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1} disabled>
                       {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
                     </select>
                   </label>
@@ -630,8 +564,8 @@ export default function GuidedPage({
               nativeLangCode={settings?.native_language ?? 'en'}
               onAskCoach={setCoachDraft}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
-              ttsReady={ttsReady}
-              speaking={speaking && speechProgress?.utteranceId === String(turn.id)}
+              ttsReady={false}
+              speaking={false}
               revealed={words.revealed}
               showRomanization={showRomanization}
               alwaysRomanize={alwaysRomanize}
@@ -640,7 +574,6 @@ export default function GuidedPage({
               rtl={rtl}
               onReveal={words.reveal}
               onBubbleTap={onBubbleTap}
-              onSpeak={speakReply}
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onHold={words.holdWord}
