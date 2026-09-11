@@ -186,19 +186,37 @@ pub async fn request(
     client: &reqwest::Client,
     key: &str,
     dispatches: &[crate::execution::Dispatch],
+    publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
+) -> Result<()> {
+    let outputs = vec![provider::RequestOutput::Prose; dispatches.len()];
+    request_with_outputs(client, key, dispatches, &outputs, publish).await
+}
+
+/// One explicit output contract per item; mismatches fail before HTTP submission.
+pub async fn request_with_outputs(
+    client: &reqwest::Client,
+    key: &str,
+    dispatches: &[crate::execution::Dispatch],
+    outputs: &[provider::RequestOutput<'_>],
     mut publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
 ) -> Result<()> {
+    if dispatches.len() != outputs.len() {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Each grouped operation requires one output contract.",
+        ));
+    }
     let first = dispatches.first().ok_or_else(unknown)?;
     if dispatches.len() > 8 || dispatches.iter().any(|d| !compatible(first, d)) {
         return Err(unknown());
     }
     let mut items = Vec::new();
     let mut identities = Vec::new();
-    for dispatch in dispatches {
+    for (dispatch, output) in dispatches.iter().zip(outputs) {
         let operation = dispatch.operation.replace('-', "");
         items.push(
             serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
-            "request":provider::payload(&dispatch.model, &dispatch.messages, dispatch.route)?}),
+            "request":provider::payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, *output)?}),
         );
         identities.push((operation, dispatch.attempt.clone()));
     }
@@ -278,6 +296,27 @@ pub async fn complete(
     result.ok_or_else(unknown)?
 }
 
+pub async fn complete_with_output(
+    client: &reqwest::Client,
+    key: &str,
+    dispatch: &crate::execution::Dispatch,
+    output: provider::RequestOutput<'_>,
+) -> Result<Completion> {
+    let mut result = None;
+    request_with_outputs(
+        client,
+        key,
+        std::slice::from_ref(dispatch),
+        &[output],
+        |_, value| {
+            result = Some(value);
+            Ok(())
+        },
+    )
+    .await?;
+    result.ok_or_else(unknown)?
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -339,11 +378,15 @@ mod tests {
     #[tokio::test]
     async fn hosted_transport_sends_persisted_identity_and_requires_complete_stream() {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
-        for (route, truncated) in [
-            (crate::model::ConnectionRoute::Hosted, false),
-            (crate::model::ConnectionRoute::Hosted, true),
-            (crate::model::ConnectionRoute::Custom, false),
-            (crate::model::ConnectionRoute::Custom, true),
+        for (route, truncated, structured) in [
+            (crate::model::ConnectionRoute::Hosted, false, false),
+            (crate::model::ConnectionRoute::Hosted, false, true),
+            (crate::model::ConnectionRoute::Hosted, true, false),
+            (crate::model::ConnectionRoute::Hosted, true, true),
+            (crate::model::ConnectionRoute::Custom, false, false),
+            (crate::model::ConnectionRoute::Custom, false, true),
+            (crate::model::ConnectionRoute::Custom, true, false),
+            (crate::model::ConnectionRoute::Custom, true, true),
         ] {
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
             let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
@@ -380,6 +423,17 @@ mod tests {
                         let payload: serde_json::Value =
                             serde_json::from_slice(&input[start + 4..]).unwrap();
                         assert_eq!(payload["version"], 1);
+                        let child = &payload["items"][0]["request"];
+                        assert!(child.get("provider").is_none());
+                        assert_eq!(child["max_tokens"], 2048);
+                        if structured {
+                            assert_eq!(
+                                child["response_format"],
+                                serde_json::json!({"type":"json_schema","json_schema":{"name":"fixture","strict":true,"schema":{"type":"object"}}})
+                            );
+                        } else {
+                            assert!(child.get("response_format").is_none());
+                        }
                         assert_eq!(
                             payload["items"][0]["attempt_id"],
                             "2000000000-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -391,8 +445,22 @@ mod tests {
                     "11111111111111111111111111111111",
                     "2000000000-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 );
+                if structured {
+                    let mut second = response(
+                        "22222222222222222222222222222222",
+                        "2000000000-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    );
+                    let mut first: serde_json::Value = serde_json::from_slice(&body).unwrap();
+                    first["response"]["choices"][0]["message"]["content"] =
+                        serde_json::json!("{\"same\":1,\"same\":2}");
+                    first["response"]["choices"][0]["finish_reason"] = serde_json::json!("length");
+                    second.extend(serde_json::to_vec(&first).unwrap());
+                    second.push(b'\n');
+                    body = second;
+                }
                 if !truncated {
-                    body.extend_from_slice(b"{\"type\":\"complete\",\"count\":1}\n");
+                    body.extend(serde_json::to_vec(&serde_json::json!({"type":"complete", "count":if structured {2} else {1}})).unwrap());
+                    body.push(b'\n');
                 }
                 let headers = format!(
                     "HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
@@ -420,12 +488,61 @@ mod tests {
                 route,
                 install_id: "test".into(),
             };
-            let result =
-                provider::complete(&provider::client().unwrap(), "test-only", &dispatch).await;
-            if truncated {
-                assert_eq!(result.unwrap_err().code, ErrorCode::UnknownOutcome);
+            let schema = serde_json::json!({"type":"object"});
+            if structured {
+                let second = crate::execution::Dispatch {
+                    target: dispatch.target.clone(),
+                    operation: "22222222-2222-2222-2222-222222222222".into(),
+                    attempt: "2000000000-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
+                    credential: dispatch.credential.clone(),
+                    model: dispatch.model.clone(),
+                    messages: dispatch.messages.clone(),
+                    route,
+                    install_id: dispatch.install_id.clone(),
+                };
+                let mut arrived = Vec::new();
+                let result = request_with_outputs(
+                    &provider::client().unwrap(),
+                    "test-only",
+                    &[dispatch, second],
+                    &[
+                        provider::RequestOutput::JsonSchema {
+                            name: "fixture",
+                            schema: &schema,
+                        },
+                        provider::RequestOutput::Prose,
+                    ],
+                    |index, result| {
+                        let completion = result.unwrap();
+                        assert_eq!(
+                            (completion.input_tokens, completion.output_tokens),
+                            (Some(2), Some(3))
+                        );
+                        if index == 0 {
+                            assert_eq!(completion.text, "{\"same\":1,\"same\":2}");
+                            assert_eq!(completion.finish_reason, "length");
+                        } else {
+                            assert_eq!(completion.text, "¡Hola!");
+                        }
+                        arrived.push(index);
+                        Ok(())
+                    },
+                )
+                .await;
+                assert_eq!(arrived, vec![1, 0]);
+                if truncated {
+                    assert_eq!(result.unwrap_err().code, ErrorCode::UnknownOutcome);
+                } else {
+                    result.unwrap();
+                }
             } else {
-                assert_eq!(result.unwrap().text, "¡Hola!");
+                let result =
+                    provider::complete(&provider::client().unwrap(), "test-only", &dispatch).await;
+                if truncated {
+                    assert_eq!(result.unwrap_err().code, ErrorCode::UnknownOutcome);
+                } else {
+                    assert_eq!(result.unwrap().text, "¡Hola!");
+                }
             }
             server.await.unwrap();
         }

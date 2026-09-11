@@ -191,6 +191,164 @@ pub fn payload(
     }
     Ok(payload)
 }
+/// Transport-local request contract; never inferred from prompt text or serialized over IPC.
+#[derive(Clone, Copy, Debug)]
+pub enum RequestOutput<'a> {
+    Prose,
+    JsonSchema {
+        name: &'a str,
+        schema: &'a serde_json::Value,
+    },
+}
+
+const STRUCTURED_INPUT_LIMIT: usize = 100_000;
+const SERVER_INPUT_OVERHEAD: usize = 1024;
+
+fn structured_error(message: &str) -> AppError {
+    AppError::new(ErrorCode::Validation, message)
+}
+
+/// Bound Python json.dumps(ensure_ascii=False) size, including its default spaces.
+/// Float spellings can differ between runtimes; reserve 16 extra bytes per float.
+/// This is deliberately a conservative byte bound, not a token count.
+fn structured_input_bound(value: &serde_json::Value) -> Result<usize> {
+    use serde_json::Value;
+    let mut pending = vec![(value, 0usize)];
+    let mut bytes = SERVER_INPUT_OVERHEAD;
+    while let Some((value, depth)) = pending.pop() {
+        if depth > 64 {
+            return Err(structured_error(
+                "Structured request exceeds the nesting limit.",
+            ));
+        }
+        let size = match value {
+            Value::Array(items) => {
+                pending.extend(items.iter().map(|item| (item, depth + 1)));
+                2 + items.len().saturating_sub(1) * 2
+            }
+            Value::Object(fields) => {
+                let mut size = 2 + fields.len().saturating_sub(1) * 2;
+                for (key, value) in fields {
+                    if key.len() > STRUCTURED_INPUT_LIMIT {
+                        return Err(structured_error(
+                            "Structured request exceeds its input limit.",
+                        ));
+                    }
+                    size += serde_json::to_vec(key)?.len() + 2;
+                    pending.push((value, depth + 1));
+                }
+                size
+            }
+            Value::String(text) => {
+                if text.len() > STRUCTURED_INPUT_LIMIT {
+                    return Err(structured_error(
+                        "Structured request exceeds its input limit.",
+                    ));
+                }
+                serde_json::to_vec(text)?.len()
+            }
+            Value::Number(number) => {
+                number.to_string().len() + if number.is_f64() { 16 } else { 0 }
+            }
+            Value::Bool(true) => 4,
+            Value::Bool(false) => 5,
+            Value::Null => 4,
+        };
+        bytes = bytes
+            .checked_add(size)
+            .ok_or_else(|| structured_error("Structured request exceeds its input limit."))?;
+        if bytes > STRUCTURED_INPUT_LIMIT {
+            return Err(structured_error(
+                "Structured request exceeds its input limit.",
+            ));
+        }
+    }
+    Ok(bytes)
+}
+
+pub fn payload_with_output(
+    model: &str,
+    messages: &[PromptMessage],
+    route: ConnectionRoute,
+    output: RequestOutput<'_>,
+) -> Result<serde_json::Value> {
+    let RequestOutput::JsonSchema { name, schema } = output else {
+        return payload(model, messages, route);
+    };
+    // The server accepts a strict named schema object. Restrict names to portable
+    // identifiers locally; nested schema keyword support remains provider-owned.
+    if name.is_empty()
+        || name.len() > 64
+        || !name
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"_-".contains(&b))
+        || !schema.is_object()
+    {
+        return Err(structured_error(
+            "Structured output requires a valid schema name and schema object.",
+        ));
+    }
+    if messages.is_empty()
+        || messages.len() > 64
+        || messages
+            .iter()
+            .any(|m| !matches!(m.role.as_str(), "system" | "user" | "assistant"))
+    {
+        return Err(structured_error(
+            "Structured requests require 1–64 text messages with supported roles.",
+        ));
+    }
+    if route != ConnectionRoute::Openrouter && model != "google/gemini-2.5-flash" {
+        return Err(structured_error(
+            "The grouped route only supports the approved Standard model.",
+        ));
+    }
+    // Reject already-oversized raw inputs before the payload builder clones them.
+    let raw_bytes = messages.iter().try_fold(model.len(), |total, message| {
+        total.checked_add(message.content.len())
+    });
+    if raw_bytes.is_none_or(|bytes| bytes > STRUCTURED_INPUT_LIMIT) {
+        return Err(structured_error(
+            "Structured request exceeds its input limit.",
+        ));
+    }
+    // Check depth/size before cloning or serializing a caller-supplied schema.
+    structured_input_bound(schema)?;
+    let mut request = payload(model, messages, route)?;
+    request["response_format"] = serde_json::json!({"type":"json_schema","json_schema":{"name":name,"strict":true,"schema":schema}});
+    if route == ConnectionRoute::Openrouter {
+        request["provider"] =
+            serde_json::json!({"allow_fallbacks":false,"require_parameters":true});
+    }
+    structured_input_bound(&request)?;
+    Ok(request)
+}
+
+/// Explicit structured transport entry point. Existing callers remain prose-only.
+pub async fn complete_with_output(
+    client: &reqwest::Client,
+    key: &str,
+    dispatch: &crate::execution::Dispatch,
+    output: RequestOutput<'_>,
+) -> Result<Completion> {
+    if matches!(output, RequestOutput::Prose) {
+        return complete(client, key, dispatch).await;
+    }
+    if dispatch.route != ConnectionRoute::Openrouter {
+        return crate::grouped::complete_with_output(client, key, dispatch, output).await;
+    }
+    let body = payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, output)?;
+    request_payload(
+        client,
+        &dispatch.target.url,
+        key,
+        dispatch.route,
+        &dispatch.install_id,
+        body,
+    )
+    .await
+}
+
 async fn request(
     client: &reqwest::Client,
     url: &str,
@@ -200,7 +358,26 @@ async fn request(
     route: ConnectionRoute,
     install: &str,
 ) -> Result<Completion> {
-    let request = client.post(url).json(&payload(model, messages, route)?);
+    request_payload(
+        client,
+        url,
+        key,
+        route,
+        install,
+        payload(model, messages, route)?,
+    )
+    .await
+}
+
+async fn request_payload(
+    client: &reqwest::Client,
+    url: &str,
+    key: &str,
+    route: ConnectionRoute,
+    install: &str,
+    payload: serde_json::Value,
+) -> Result<Completion> {
+    let request = client.post(url).json(&payload);
     let request = if key.is_empty() {
         request
     } else {
@@ -245,6 +422,216 @@ async fn request(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn structured_payload_preserves_prose_and_routes_strict_schema() {
+        let schema = serde_json::json!({"type":"object","additionalProperties":false,"properties":{"spans":{"type":"array"}},"required":["spans"]});
+        let messages = vec![PromptMessage {
+            role: "user".into(),
+            content: "Sí 你好".into(),
+        }];
+        for route in [
+            ConnectionRoute::Openrouter,
+            ConnectionRoute::Hosted,
+            ConnectionRoute::Custom,
+        ] {
+            let prose = payload("google/gemini-2.5-flash", &messages, route).unwrap();
+            assert_eq!(
+                prose,
+                payload_with_output(
+                    "google/gemini-2.5-flash",
+                    &messages,
+                    route,
+                    RequestOutput::Prose
+                )
+                .unwrap()
+            );
+            assert!(prose.get("response_format").is_none());
+            let structured = payload_with_output(
+                "google/gemini-2.5-flash",
+                &messages,
+                route,
+                RequestOutput::JsonSchema {
+                    name: "word_gloss_v1",
+                    schema: &schema,
+                },
+            )
+            .unwrap();
+            assert_eq!(
+                structured["response_format"],
+                serde_json::json!({"type":"json_schema","json_schema":{"name":"word_gloss_v1","strict":true,"schema":schema}})
+            );
+            assert_eq!(structured["messages"], prose["messages"]);
+            assert_eq!(structured["max_tokens"], 2048);
+            assert_eq!(structured["temperature"], 0.7);
+            assert_eq!(
+                structured["reasoning"],
+                serde_json::json!({"enabled":false})
+            );
+            if route == ConnectionRoute::Openrouter {
+                assert_eq!(
+                    structured["provider"],
+                    serde_json::json!({"allow_fallbacks":false,"require_parameters":true})
+                );
+                assert_eq!(
+                    prose["provider"],
+                    serde_json::json!({"allow_fallbacks":false})
+                );
+            } else {
+                assert!(structured.get("provider").is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn structured_bounds_include_schema_python_spaces_escaping_and_float_headroom() {
+        let sample = serde_json::json!({"é":["a\n", true, 1, null]});
+        let python = "{\"é\": [\"a\\n\", true, 1, null]}";
+        assert_eq!(
+            structured_input_bound(&sample).unwrap(),
+            python.len() + SERVER_INPUT_OVERHEAD
+        );
+        for (number, python) in [
+            (1e-7, "1e-07"),
+            (1e20, "1e+20"),
+            (1e100, "1e+100"),
+            (-0.0, "-0.0"),
+        ] {
+            assert!(
+                structured_input_bound(&serde_json::json!(number)).unwrap()
+                    >= python.len() + SERVER_INPUT_OVERHEAD
+            );
+        }
+        let schema = serde_json::json!({"description":"schema content", "type":"object"});
+        for route in [
+            ConnectionRoute::Hosted,
+            ConnectionRoute::Custom,
+            ConnectionRoute::Openrouter,
+        ] {
+            let mut messages = vec![PromptMessage {
+                role: "user".into(),
+                content: String::new(),
+            }];
+            let output = RequestOutput::JsonSchema {
+                name: "bounded",
+                schema: &schema,
+            };
+            let base =
+                payload_with_output("google/gemini-2.5-flash", &messages, route, output).unwrap();
+            let room = STRUCTURED_INPUT_LIMIT - structured_input_bound(&base).unwrap();
+            messages[0].content = "x".repeat(room);
+            assert!(
+                payload_with_output("google/gemini-2.5-flash", &messages, route, output).is_ok()
+            );
+            messages[0].content.push('x');
+            assert_eq!(
+                payload_with_output("google/gemini-2.5-flash", &messages, route, output)
+                    .unwrap_err()
+                    .code,
+                ErrorCode::Validation
+            );
+            messages[0].content = "\n".repeat(room / 2 + 1);
+            assert!(
+                payload_with_output("google/gemini-2.5-flash", &messages, route, output).is_err()
+            );
+        }
+        let huge_schema = serde_json::json!({"description":"s".repeat(100_000)});
+        assert!(
+            payload_with_output(
+                "google/gemini-2.5-flash",
+                &[PromptMessage {
+                    role: "user".into(),
+                    content: "small".into()
+                }],
+                ConnectionRoute::Hosted,
+                RequestOutput::JsonSchema {
+                    name: "schema",
+                    schema: &huge_schema
+                }
+            )
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn structured_invalid_contracts_fail_with_content_free_errors() {
+        let schema = serde_json::json!({});
+        let messages = vec![PromptMessage {
+            role: "user".into(),
+            content: "private fixture".into(),
+        }];
+        for name in ["", "private schema name!", &"n".repeat(65)] {
+            let error = payload_with_output(
+                "google/gemini-2.5-flash",
+                &messages,
+                ConnectionRoute::Hosted,
+                RequestOutput::JsonSchema {
+                    name,
+                    schema: &schema,
+                },
+            )
+            .unwrap_err();
+            assert_eq!(error.code, ErrorCode::Validation);
+            assert!(!error.message.contains("private"));
+        }
+        for schema in [
+            serde_json::json!(true),
+            serde_json::json!([]),
+            serde_json::Value::Null,
+        ] {
+            assert!(
+                payload_with_output(
+                    "chosen/model",
+                    &messages,
+                    ConnectionRoute::Openrouter,
+                    RequestOutput::JsonSchema {
+                        name: "schema",
+                        schema: &schema
+                    }
+                )
+                .is_err()
+            );
+        }
+        let output = RequestOutput::JsonSchema {
+            name: "schema",
+            schema: &schema,
+        };
+        assert!(
+            payload_with_output("chosen/model", &messages, ConnectionRoute::Custom, output)
+                .is_err()
+        );
+        assert!(
+            payload_with_output("chosen/model", &[], ConnectionRoute::Openrouter, output).is_err()
+        );
+        let unsupported = [PromptMessage {
+            role: "tool".into(),
+            content: "private fixture".into(),
+        }];
+        assert!(
+            payload_with_output(
+                "chosen/model",
+                &unsupported,
+                ConnectionRoute::Openrouter,
+                output
+            )
+            .is_err()
+        );
+        let mut nested = serde_json::json!({});
+        for _ in 0..70 {
+            nested = serde_json::json!({"items":nested});
+        }
+        assert!(
+            payload_with_output(
+                "chosen/model",
+                &messages,
+                ConnectionRoute::Openrouter,
+                RequestOutput::JsonSchema {
+                    name: "schema",
+                    schema: &nested
+                }
+            )
+            .is_err()
+        );
+    }
     #[test]
     fn validate_key_messages_distinguish_whitespace() {
         assert_eq!(
@@ -376,6 +763,135 @@ mod transport_tests {
             payload
         });
         (url, worker)
+    }
+    fn structured_dispatch(url: String, route: ConnectionRoute) -> crate::execution::Dispatch {
+        crate::execution::Dispatch {
+            target: crate::access::ResolvedTarget {
+                route,
+                revision: 1,
+                url,
+                model: "google/gemini-2.5-flash".into(),
+                credential: Some("test-credential".into()),
+            },
+            attempt: "2000000000-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into(),
+            operation: "11111111-1111-1111-1111-111111111111".into(),
+            credential: "test-credential".into(),
+            model: "google/gemini-2.5-flash".into(),
+            messages: vec![PromptMessage {
+                role: "user".into(),
+                content: "fixture".into(),
+            }],
+            route,
+            install_id: "test".into(),
+        }
+    }
+    #[tokio::test]
+    async fn structured_direct_preserves_raw_candidate_finish_usage_and_redaction() {
+        let schema = serde_json::json!({"type":"object"});
+        let contract = RequestOutput::JsonSchema {
+            name: "fixture",
+            schema: &schema,
+        };
+        for finish in ["stop", "length"] {
+            let raw = serde_json::json!({"id":"request", "model":"actual", "choices":[{"finish_reason":finish,"message":{"content":"{\"same\":1,\"same\":2}"}}],"usage":{"prompt_tokens":12,"completion_tokens":3}}).to_string();
+            let (url, worker) = server("200 OK", &raw, "");
+            let result = complete_with_output(
+                &client().unwrap(),
+                "test-credential",
+                &structured_dispatch(url, ConnectionRoute::Openrouter),
+                contract,
+            )
+            .await
+            .unwrap();
+            assert_eq!(result.text, "{\"same\":1,\"same\":2}");
+            assert_eq!(result.finish_reason, finish);
+            assert_eq!(
+                (result.input_tokens, result.output_tokens),
+                (Some(12), Some(3))
+            );
+            let payload = worker.join().unwrap();
+            assert_eq!(payload["response_format"]["json_schema"]["schema"], schema);
+            assert_eq!(
+                payload["provider"],
+                serde_json::json!({"allow_fallbacks":false,"require_parameters":true})
+            );
+        }
+        let destination = TcpListener::bind("127.0.0.1:0").unwrap();
+        destination.set_nonblocking(true).unwrap();
+        let (url, worker) = server(
+            "302 Found",
+            "private-schema test-credential",
+            &format!(
+                "Location: http://{}/leak\r\n",
+                destination.local_addr().unwrap()
+            ),
+        );
+        let error = complete_with_output(
+            &client().unwrap(),
+            "test-credential",
+            &structured_dispatch(url, ConnectionRoute::Openrouter),
+            contract,
+        )
+        .await
+        .unwrap_err();
+        worker.join().unwrap();
+        assert!(!error.message.contains("private-schema"));
+        assert!(!error.message.contains("test-credential"));
+        assert_eq!(
+            destination.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
+    #[tokio::test]
+    async fn structured_invalid_preflight_submits_no_http_for_any_route_or_group() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
+        let schema = serde_json::json!({"description":"private-schema".repeat(10000)});
+        let contract = RequestOutput::JsonSchema {
+            name: "fixture",
+            schema: &schema,
+        };
+        let client = client().unwrap();
+        for route in [
+            ConnectionRoute::Hosted,
+            ConnectionRoute::Custom,
+            ConnectionRoute::Openrouter,
+        ] {
+            let error = complete_with_output(
+                &client,
+                "test-credential",
+                &structured_dispatch(url.clone(), route),
+                contract,
+            )
+            .await
+            .unwrap_err();
+            assert_eq!(error.code, ErrorCode::Validation);
+            assert!(!error.message.contains("private-schema"));
+        }
+        let dispatches = [
+            structured_dispatch(url.clone(), ConnectionRoute::Hosted),
+            structured_dispatch(url, ConnectionRoute::Hosted),
+        ];
+        for outputs in [
+            vec![RequestOutput::Prose],
+            vec![RequestOutput::Prose, contract],
+        ] {
+            let error = crate::grouped::request_with_outputs(
+                &client,
+                "test-credential",
+                &dispatches,
+                &outputs,
+                |_, _| panic!("preflight must not publish"),
+            )
+            .await
+            .unwrap_err();
+            assert_eq!(error.code, ErrorCode::Validation);
+        }
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
     }
     #[tokio::test]
     async fn key_verification_checks_authentication_without_a_completion() {
