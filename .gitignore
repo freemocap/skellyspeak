@@ -27,3 +27,6 @@ local.env
 local.env.*
 !local.env.sample
 .local-server/
+
+# Private per-run development logs.
+.local/

@@ -1,21 +1,42 @@
 # Build plan and architecture review
 
-## Current checkpoint — rebuild, 2026-09-10
+## Current checkpoint — rebuild, 2026-09-11
 
-Release recovery is complete: main carries v0.13.7, and the user reports the
-published application is functional. This document governs rebuild, not the
-released application. See RELEASE-RECOVERY-PLAN.md for branch ownership and results.
+Voice, reading assistance, file observability, conversation controls and Contacts
+are integrated in the shared checkout. Domain owners report no missing source
+handoff; Code Quality found no new checkpoint blocker or suspect secret/runtime
+artifact among candidate files. This is a development checkpoint, not a release.
 
-The AI access foundation is implemented: hosted and self-hosted grouped chat,
-direct-key execution, durable attempts, refusal holds and bounded concurrency.
-The user verified hosted, direct-key and local Custom URL exchanges before the
-recovery work. Seven local Firestore emulator tests passed. These are completed
-checks, not a fresh verification of a newly launched rebuild session.
+Implemented behavior includes inclusive grapheme-based word meanings, declarative
+language properties and Simplified Chinese generation guidance; conversation-owned
+five-level difficulty with Beginner default and prompt-only Absolute zero; editable
+contact profiles; compact toolbar controls; and recoverable API settings drafts.
+Credential writes and cleanup run outside the shared Store lock. No extra assistance
+pipeline, automatic route fallback or automatic inference retry is introduced.
 
-Current slice: scheduled partner-reply translation is implemented and locally tested;
-basic hosted native QA is verified. Next, parallel domain assignments close lifecycle
-gaps and establish the source-linked reading contract. Do not merge the recovered application
-into rebuild or treat released-app tests as rebuild verification.
+A bounded native voice check completed two Mandarin turns and one Arabic turn with
+first-attempt structural gloss coverage and successful speech. That establishes
+neither universal model reliability nor linguistic accuracy. Header geometry and
+API recovery have automated/browser verification; latest native API-entry usability
+and mobile behavior still need user/device checks.
+
+Fresh integrated verification: 386 frontend tests, 191 native tests, 221 server
+unit tests and four launcher tests pass. Build, generated contracts, CSS checks,
+launcher type-check, formatting and Clippy pass. See the
+[integration checkpoint](workflow/reports/integration-checkpoint-2026-09-11.md)
+for database checks and remaining work. Earlier reports retain their own bounded
+run evidence; their counts are not the current suite totals.
+
+The approved development database reset completed with scoped credential cleanup;
+all logs remain intact. No further reset is required. Recovered SkellySubs snapshots
+are reference-only and belong in a separate commit. The AGPLv3-or-later license
+commit is already present. The user performs all Git writes; no hosted deployment
+or release is part of this checkpoint.
+
+Next: checkpoint the integrated tree, then scope structured private coaching.
+Interaction and Reliability should first give the waveform/performance concern a
+bounded review; do not infer a crash cause without evidence. Selected-word speech,
+new-contact creation lifecycle and broader cleanup remain separate follow-ups.
 
 ## Intention
 
@@ -117,7 +138,8 @@ them and restart. Review navigation and partner identity controls.
 - [x] Implement own-key OpenRouter access, secure credential handling and capabilities.
 - [x] Implement Send, permitted context, Standard replies, deterministic validation
   and accepted-message persistence through the real graph.
-- [x] Expose operations/model targets and partial/error states in inspection.
+- [x] Expose operations/model targets and partial/error states in native snapshots.
+- [ ] Connect the execution inspection and pause/step controls to the UI.
 - [x] Verify duplicate Send delivery, unknown provider outcomes, scoped hydration,
   paused dispatch and deletion racing with publication.
 
@@ -127,8 +149,8 @@ Repeat a short native smoke check when resuming the rebuild development session.
 Exit: one complete AI route works. Gates control actual dispatch. Hosted and custom
 routes are not claimed ready merely because own-key access works.
 
-**User check:** pause/step an exchange, cancel, switch conversations during work
-and inspect the actual model target. Review full-response presentation.
+**Future user check, after inspection controls are connected:** pause/step an
+exchange, cancel, switch conversations during work and inspect the model target.
 
 ## Phase 3: Assistance, coaching and evaluated model routing
 
@@ -237,121 +259,74 @@ Routine technical selections proceed within that scope; material deviations
 return for a concrete decision. Paid evaluation ceilings, deployment and unavailable
 verification environments remain separately identified.
 
-Complete the request-load resilience checkpoint below before expanding automatic
-assistance and evaluated task routing. Native/live checks remain capability-specific.
+Preserve bounded admission, duplicate protection and operation-scoped retries when
+expanding assistance. Native/live checks remain capability-specific.
 
 ## Current implementation and remaining boundaries
 
-- Local ownership, SQLite persistence, typed IPC, partner/conversation creation,
-  chat and a private coach thread are implemented. Partner-reply translation is implemented. Token-level learning assistance,
-  assessment, earned XP and geometric Vibe are not implemented.
-- Hosted and Custom URL use version-1 grouped `/v1/operations` with independently
-  committed NDJSON results. Direct-key execution runs locally. Custom URL means
-  our self-hosted server contract; credentials and destinations do not fall back.
-- Native chat/coach/audio share bounded capacity. Chat/coach outstanding work is
-  capped at 64; four native execution permits remain provisional. Server envelope
-  size and execution limits are separate policies, not reasons to serialize work.
-- Distributed server attempts/leases and duplicate claims have emulator coverage.
-  Unknown outcomes do not silently retry. Status calls use server control capacity.
-- Private coaching text exists; structured coaching, source attribution, inference
-  about skills, and evaluated Fast-model assignments remain separate phase work.
-- Desktop recording exists. Mobile audio, phone credentials/lifecycle and rebuild
-  platform packaging require their own verification. Recovery's platform results
-  do not establish rebuild platform readiness.
+- Local learner/partner/conversation ownership, SQLite persistence and typed IPC
+  support real chat, private coach text, reply translation and source-bound glosses.
+- Desktop microphone input, automatic Send and source-bound generated speech are
+  integrated. Auto-send and automatic reading default on and persist per conversation.
+- Hosted and Custom URL use version-1 grouped `/v1/operations`; direct keys execute
+  locally. Custom URL means a self-hosted SkellySpeak server. Routes never fall back.
+- Native chat/coach/audio share four provisional permits; server envelope limits
+  are independent. Assistance hydrates separately and never serializes on speech.
+- Durable attempts, refusal holds, duplicate prevention and cancellation retain
+  usage/unknown outcomes. Rendering and reopening saved content start no inference.
+- Frontend/native/local-server/emulator file logging is live. Every domain shares
+  the integration checkout's private run directories; README defines capture limits.
+- Structured coaching, assessment, earned XP, sourced memory, Vibe and garden
+  rendering remain unfinished. Fast-model assignment requires measured eligibility.
+- Mobile audio/authentication, phone credentials/lifecycle and all additional
+  platform packaging require their own verification. Desktop success is insufficient.
 
-## Assistance implementation sequence
+## Reading assistance acceptance
 
-1. Inventory current graph declarations, execution tests and assistance output slots.
-   Freeze one small partner-reply assistance contract with immutable passage identity,
-   source revision and deterministic text offsets. Do not ask a model to recopy known
-   source text merely to attach metadata.
-2. Specify the finite operations launched by a submitted turn and their attempt
-   budgets, including any structured repair. Preserve independent completion and
-   partial hydration; no batch-fill delay or global serial execution.
-3. Implement that assistance through the existing scheduler and durable results.
-   Rendering reads results only. Panel mount, reopen, preference changes and report
-   hydration must cause zero inference. Explicit word help remains explicit work.
-4. Test exact duplicate delivery, source edits/deletion, cancellation, refusal,
-   pause/resume and repeated panel interaction. Assert request counts and publication
-   ownership, not just the appearance of a spinner. Add originating operation/source
-   metadata to diagnostics without logging secrets.
-5. Run relevant README checks, then request a native QA pass on this specific slice.
-   Inspect request counts and first-useful-result latency before expanding operations.
+The shared prompts, declarative language properties, strict source validation,
+compact inline meanings and explicit scoped retry are integrated. Reopening saved
+meanings must cause no inference; retry must not regenerate the reply or siblings.
+Speech and translation remain independently publishable. The bounded voice check
+is recorded in [reading evidence](workflow/reports/integration-reading-checkpoint.md).
 
-Use Standard initially. Assign Fast only after the bounded evaluation in
-AI-EVALUATION.md. Semantic annotation batching and persistent caching are separate
-optimizations; neither is required to establish correct work ownership.
+Continue measuring linguistic usefulness separately from structural coverage.
+No automatic repair/retry loop, new language catalog, configuration editor or paid
+benchmark is authorized by this checkpoint. Use Standard until measured task/language
+eligibility supports Fast. Selected-word detail and caching are separate optimizations.
 
-## Remaining focused follow-ups
+## Following slices
 
-- Review bounded native status/verification admission and coalescing separately
-  from inference capacity. Confirm audio Step semantics before putting it in the graph.
-- Verify both model roles only when actual task assignments exist; no claim of Fast
-  conformance follows from a successful Standard reply.
-- Carry Android packaging lessons into rebuild's platform phase: keep required native
-  sources tracked, ignore generated/local secrets, and fail checks on missing input.
-- Review shared fixes individually. The 100-installation ceiling is already present.
-  Do not merge main wholesale; its application is the recovery implementation.
-- Defer unrelated dependency upgrades to reviewed maintenance. The recovery docs-only
-  image-size finding is not proof of an affected rebuild dependency graph.
-- A stricter client protocol gate remains a proposal. Client semver and installation
-  headers are not authentication or abuse-control boundaries.
+- Structured private coaching and native-language expression help, with source
+  attribution and explicit settings changes. Coach content stays out of partner prompts.
+- Seven-domain evidence/rubrics, assistance treatment and participation/XP rules
+  before scoring or scientific reports. XP is not a CEFR estimate.
+- Garden/skill-map views consume those records; no separate editable health truth.
+- Carry Code Quality findings explicitly: CQ001 automatic API-key verification
+  remains an Interaction follow-up; CQ002 duplicated status-color tokens are
+  nonblocking style cleanup. This checkpoint is not complete UI compliance.
+- Review/adopt the Code Quality guide and scope cleanup between integration slices.
+  Keep dependency updates, CI changes and module moves independently reviewable.
+- Verify actual model roles and failure paths on each route; a Standard exchange
+  does not verify Fast eligibility. Hosted changes require a separate deployment.
 
-No new implementation or fresh runtime verification is claimed by this docs update.
+The earlier phase checklists remain the completion contract. This checkpoint does
+not mark Phase 3 or the overall product complete.
 
-## Translation slice verification
+## Toolbar and API-entry correction
 
-Implemented reply_translation as a Standard dependency of partner_reply, captured
-only when Translation is enabled at Send. Results persist against the immutable
-source message's turn and hydrate independently. An assisting turn leaves the next
-Send available. Explicit assistance retries cannot regenerate the saved reply.
+Difficulty now uses a compact dropdown beside Native. The controls occupy a distinct
+chrome surface above the paper chat canvas. Interaction measured a 49 px header at a
+590 px pane, unchanged across all five choices; Integration inspected the full-pane
+browser fixture. Native window screenshots were unavailable, so that visual check
+is not native-app certification.
 
-Translation regressions cover duplicate result delivery,
-restart, concurrent next Send, cancellation, source deletion and zero scheduling
-from repeated snapshots or preference changes. Runtime evidence is recorded below;
-the current UI graph remains unconnected.
+API drafts save after leaving the edited field, remain editable on failure, and can
+be explicitly discarded without removing saved credentials or changing route.
+Keychain writes/deletions no longer hold the shared Store lock; revision checks and
+cleanup claims preserve destination and credential ownership. Allowlisted rejection
+codes identify validation categories without exposing input. These repairs address
+observed recovery traps and a separate source-level blocking risk; the precise user
+input rejected in the earlier logs was not retained.
 
-Live hosted translation check, 2026-09-10: the user confirmed two exchanges work.
-Read-only inspection of durable receipts found one successful reply attempt and
-one successful translation attempt per exchange, one saved assistant message and
-one saved translation each, no errors in these exchanges and zero active operations
-at inspection. This verifies the basic hosted path; other routes and interactive
-cancellation/restart scenarios are not established by this session.
-
-## Current parallel implementation round
-
-[workflow/README.md](workflow/README.md) records exact ownership and authorization.
-The user approved Language/Reliability implementation and the reference-based UI.
-Material product or visual changes still return to the user; routine technical
-integration proceeds without acknowledgement loops. Agents never mutate Git.
-
-Rebuild 002afd4 contains translation lifecycle fixes, deterministic source validation,
-the strict gloss prompt/decoder and the connected conversation UI. Combined checks:
-342 frontend tests, 121 native tests, build, generated contracts and Clippy passed.
-Recording initializer formatting is corrected. CSS cleanup remains a separate gate;
-Interaction is resolving its 71 audited violations while preserving appearance.
-The basic UI candidate's chat/translation/coach path has user runtime verification.
-No live gloss feature, evidence/XP or connected diagnostic graph is claimed.
-
-Next work, in dependency order:
-
-1. Finish and independently review Interaction CSS cleanup and its visual checks.
-2. Reliability G1a adds typed structured request construction to direct/grouped
-   transport, with exact size checks and unchanged prose requests. No new operation
-   or request trigger. Language reviews candidate schema/size compatibility.
-3. Integrate reviewed contributions through user-run Git and run combined checks.
-4. Wire operation-selected completion validation, retaining usage on invalid output.
-5. Define one whole-message gloss child with source-owned durable results, independent
-   translation completion, explicit operation retry and zero inference from reading.
-   Resolve activation policy and route capability evidence before enabling it.
-6. Connect saved validated word spans to existing reading presentation, then request
-   a focused real-app check with expected operation counts and partial-result behavior.
-
-G1a server conformance tests verify strict-schema forwarding, routing authority,
-request size and pre-inference rejection. Full server fixtures: 209 passed, seven
-Firestore-emulator cases skipped because no emulator was running. No production
-server changes, live model conformance calls or deployment are implied.
-
-Selected-word detail families remain a separate slice. Their lifetime budget must
-not make a passage permanently uninspectable after sixteen distinct word requests;
-bound retries per logical request separately from shared concurrent capacity.
+Current verification: 191 native tests and 386 frontend tests; build/styles,
+contracts, formatting and Clippy pass. Native security and final UI recovery/density reviews cleared. Relaunch requires no reset or server deployment.

@@ -13,13 +13,144 @@ fn decode(source: &str, raw: &str) -> Result<ValidatedAnalysis, AdapterError> {
     decode_word_gloss(&identity(), source, raw)
 }
 fn literal(start: usize, end: usize) -> serde_json::Value {
-    serde_json::json!({"start":format!("b{start:04}"),"end":format!("b{end:04}"),"kind":"literal"})
+    // Convenience for fixtures with one scalar per grapheme only. Complex
+    // graphemes below select explicit catalog IDs, never subtract from an end.
+    serde_json::json!({"first":format!("g{start:04}"),"last":format!("g{:04}", end.saturating_sub(1)),"kind":"literal"})
 }
 fn gloss(start: usize, end: usize, value: &str) -> serde_json::Value {
-    serde_json::json!({"start":format!("b{start:04}"),"end":format!("b{end:04}"),"kind":"gloss","gloss":value})
+    serde_json::json!({"first":format!("g{start:04}"),"last":format!("g{:04}", end.saturating_sub(1)),"kind":"gloss","gloss":value})
 }
 fn candidate(spans: Vec<serde_json::Value>) -> String {
     serde_json::json!({"spans":spans}).to_string()
+}
+
+#[test]
+fn inclusive_ids_reject_gaps_terminal_aliases_and_reversal() {
+    let source = "e\u{301}x";
+    let raw = |first: &str, last: &str| {
+        candidate(vec![
+            serde_json::json!({"first":first,"last":last,"kind":"gloss","gloss":"fixture"}),
+        ])
+    };
+    for (first, last) in [
+        ("g0001", "g0002"),
+        ("g0000", "g0003"),
+        ("b0000", "g0002"),
+        ("g0", "g0002"),
+        ("G0000", "g0002"),
+    ] {
+        assert_eq!(
+            decode(source, &raw(first, last))
+                .unwrap_err()
+                .diagnostic_code(),
+            "gloss_unknown_boundary"
+        );
+    }
+    assert_eq!(
+        decode(source, &raw("g0002", "g0000"))
+            .unwrap_err()
+            .diagnostic_code(),
+        "gloss_empty_or_reversed_span"
+    );
+    let result = decode(source, &raw("g0000", "g0000")).unwrap();
+    assert_eq!(result.segments()[0].span, Span { start: 0, end: 2 });
+    assert_eq!(result.coverage(), Coverage::Partial);
+}
+
+#[test]
+fn explanation_guidance_uses_destination_and_preserves_source() {
+    let mut id = identity();
+    id.explanation_language_id = "zh".into();
+    let source = "Sí, café.";
+    let prompt = build_word_gloss_prompt(&id, source).unwrap();
+    assert!(prompt.messages[0].content.contains("Simplified Chinese"));
+    assert!(
+        prompt.messages[0]
+            .content
+            .contains("does not prevent translating")
+    );
+    let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
+    assert_eq!(data["passage"], source);
+    id.target_language_id = "zh".into();
+    id.explanation_language_id = "en".into();
+    assert!(
+        !build_word_gloss_prompt(&id, "你好").unwrap().messages[0]
+            .content
+            .contains("Simplified Chinese")
+    );
+}
+
+#[test]
+fn diagnostics_distinguish_rejections_without_exposing_content() {
+    let cases = [
+        (
+            "sí",
+            r#"{"spans":[],"private-sentinel":"private-sentinel"}"#.to_owned(),
+            "gloss_invalid_json_or_shape",
+            None,
+        ),
+        (
+            "sí",
+            candidate(vec![gloss(0, 9, "private-sentinel")]),
+            "gloss_unknown_boundary",
+            Some(0),
+        ),
+        (
+            "sí",
+            candidate(vec![gloss(1, 1, "private-sentinel")]),
+            "gloss_empty_or_reversed_span",
+            Some(0),
+        ),
+        (
+            "e\u{301}x",
+            candidate(vec![gloss(0, 2, "private-sentinel")]),
+            "gloss_unknown_boundary",
+            Some(0),
+        ),
+        (
+            "sí sí",
+            candidate(vec![
+                gloss(0, 2, "private-sentinel"),
+                gloss(1, 2, "private-sentinel"),
+            ]),
+            "gloss_overlap_or_unordered",
+            Some(1),
+        ),
+        (
+            "sí",
+            candidate(vec![gloss(0, 2, "\0private-sentinel")]),
+            "gloss_invalid_text",
+            Some(0),
+        ),
+        (
+            "sí",
+            candidate(vec![gloss(0, 2, &"x".repeat(MAX_GLOSS_SCALARS + 1))]),
+            "gloss_text_too_long",
+            Some(0),
+        ),
+    ];
+    for (source, raw, code, index) in cases {
+        let error = decode(source, &raw).unwrap_err();
+        assert_eq!(error.diagnostic_code(), code);
+        assert_eq!(error.span_index(), index);
+        assert!(!error.diagnostic_code().contains("private-sentinel"));
+    }
+    let completion = provider::Completion {
+        text: "private-sentinel".into(),
+        finish_reason: "private-sentinel".into(),
+        actual_model: "fixture".into(),
+        provider_id: "fixture".into(),
+        input_tokens: Some(13),
+        output_tokens: Some(7),
+    };
+    let error = validate_word_gloss_completion(&identity(), "sí", &completion).unwrap_err();
+    assert_eq!(error.diagnostic_code(), "gloss_invalid_termination");
+    assert_eq!(error.span_index(), None);
+    assert_eq!(
+        (completion.input_tokens, completion.output_tokens),
+        (Some(13), Some(7))
+    );
+    assert_eq!(completion.text, "private-sentinel");
 }
 
 #[test]
@@ -76,24 +207,24 @@ fn json_shape_is_strict_without_duplicate_key_collapse() {
         r#"{"spans":null}"#,
         r#"{"spans":[],"spans":[]}"#,
         r#"{"spans":[],"extra":1}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"literal","start":"b0000"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","end":"b0001","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"literal","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"gloss","gloss":"x","gloss":"y"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"gloss","gloss":"x","\u0067loss":"y"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"literal","gloss":null}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"literal","gloss":"x"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"gloss"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"gloss","gloss":null}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"gloss","gloss":1}]}"#,
-        r#"{"spans":[{"start":0,"end":"b0001","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":null,"end":"b0001","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"phrase"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"unresolved"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001","kind":"literal","unit":"word"}]}"#,
-        r#"{"spans":[{"end":"b0001","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":"b0000","kind":"literal"}]}"#,
-        r#"{"spans":[{"start":"b0000","end":"b0001"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","first":"g0000"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","last":"g0001","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":"x","gloss":"y"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":"x","\u0067loss":"y"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","gloss":null}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","gloss":"x"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":null}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":1}]}"#,
+        r#"{"spans":[{"first":0,"last":"g0001","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":null,"last":"g0001","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"phrase"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"unresolved"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","unit":"word"}]}"#,
+        r#"{"spans":[{"last":"g0001","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":"g0000","kind":"literal"}]}"#,
+        r#"{"spans":[{"first":"g0000","last":"g0001"}]}"#,
     ] {
         assert_eq!(
             decode("x", raw),
@@ -144,18 +275,18 @@ fn response_byte_and_item_limits_are_enforced_at_exact_edges() {
 
 #[test]
 fn invalid_anchors_and_order_fail_without_partial_acceptance() {
-    for (text, start, end) in [("e\u{301}", 0, 1), ("x", 0, 2), ("x", 1, 0), ("x", 0, 0)] {
+    for (text, start, end) in [("e\u{301}", 0, 2), ("x", 0, 2), ("xy", 1, 1)] {
         assert!(matches!(
             decode(text, &candidate(vec![literal(start, end)])),
             Err(AdapterError::InvalidBoundary { index: 0, .. })
         ));
     }
-    for ids in [("b0", "b0001"), ("b0000", "B0001")] {
+    for ids in [("g0", "g0001"), ("g0000", "G0001")] {
         assert!(matches!(
             decode(
                 "x",
                 &format!(
-                    r#"{{"spans":[{{"start":"{}","end":"{}","kind":"literal"}}]}}"#,
+                    r#"{{"spans":[{{"first":"{}","last":"{}","kind":"literal"}}]}}"#,
                     ids.0, ids.1
                 )
             ),
@@ -278,24 +409,84 @@ fn prompt_catalog_reconstructs_exact_source_with_no_word_presegmentation() {
         assert_eq!(data["passage"], text);
         assert_eq!(data["target_language"], language);
         assert_eq!(data["explanation_language"], "en");
-        let rows = data["boundaries"].as_array().unwrap();
-        let rebuilt: String = rows.iter().map(|row| row[1].as_str().unwrap()).collect();
+        let rows = data["graphemes"].as_array().unwrap();
+        let rebuilt: String = rows
+            .iter()
+            .map(|row| row["text"].as_str().unwrap())
+            .collect();
         assert_eq!(rebuilt, text);
         let map = SourceMap::new(text).unwrap();
-        for (n, row) in rows.iter().enumerate() {
-            let end = if n + 1 == rows.len() {
-                data["end_boundary"].as_str().unwrap()
-            } else {
-                rows[n + 1][0].as_str().unwrap()
-            };
-            let span = map
-                .resolve_boundaries(row[0].as_str().unwrap(), end)
+        let mut cursor = 0;
+        for row in rows {
+            let raw = candidate(vec![
+                serde_json::json!({"first":row["id"],"last":row["id"],"kind":"literal"}),
+            ]);
+            let result = decode_word_gloss(&id, text, &raw).unwrap();
+            let segment = result
+                .segments()
+                .iter()
+                .find(|s| s.origin == super::super::Origin::Candidate)
                 .unwrap();
-            assert_eq!(map.slice(span).unwrap(), row[1].as_str().unwrap());
+            assert_eq!(segment.span.start, cursor);
+            assert_eq!(
+                map.slice(segment.span).unwrap(),
+                row["text"].as_str().unwrap()
+            );
+            cursor = segment.span.end;
         }
+        assert_eq!(cursor, text.chars().count());
+        assert!(data.get("end_boundary").is_none());
         assert_eq!(prompt.format_id, FORMAT_ID);
         assert_eq!(prompt.template_id, TEMPLATE_ID);
         assert_eq!(prompt.boundary_policy, BOUNDARY_POLICY);
+    }
+}
+
+#[test]
+fn explicit_catalog_endpoints_select_repeated_and_single_grapheme_words() {
+    for (text, selections, expected) in [
+        (
+            "sí sí",
+            vec![(0, 1), (3, 4)],
+            vec![Span { start: 0, end: 2 }, Span { start: 3, end: 5 }],
+        ),
+        (
+            "e\u{301} e\u{301}",
+            vec![(0, 0), (2, 2)],
+            vec![Span { start: 0, end: 2 }, Span { start: 3, end: 5 }],
+        ),
+        ("我", vec![(0, 0)], vec![Span { start: 0, end: 1 }]),
+    ] {
+        let prompt = build_word_gloss_prompt(&identity(), text).unwrap();
+        assert_eq!(prompt.template_id, "partner-word-gloss-prompt-v4");
+        let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
+        let rows = data["graphemes"].as_array().unwrap();
+        let spans: Vec<_> = selections
+            .iter()
+            .map(|&(first, last)| {
+                serde_json::json!({
+                    "first": rows[first]["id"], "last": rows[last]["id"],
+                    "kind": "gloss", "gloss": "fixture meaning"
+                })
+            })
+            .collect();
+        let result = decode(text, &candidate(spans)).unwrap();
+        let actual: Vec<_> = result
+            .segments()
+            .iter()
+            .filter_map(|s| matches!(s.annotation, Annotation::Gloss { .. }).then_some(s.span))
+            .collect();
+        assert_eq!(actual, expected);
+        assert_eq!(result.coverage(), Coverage::Complete);
+        // Old wire equality is never reinterpreted as a singleton v2 row.
+        let bad =
+            serde_json::json!({"start":"b0000","end":"b0000","kind":"gloss","gloss":"fixture"});
+        assert_eq!(
+            decode(text, &candidate(vec![bad]))
+                .unwrap_err()
+                .diagnostic_code(),
+            "gloss_invalid_json_or_shape"
+        );
     }
 }
 
@@ -319,9 +510,10 @@ fn prompt_schema_and_repeated_construction_are_stable() {
     );
     assert_eq!(first.output_schema, second.output_schema);
     assert_eq!(first.output_schema["additionalProperties"], false);
-    assert_eq!(
-        first.output_schema["properties"]["spans"]["maxItems"],
-        MAX_SPANS
+    assert!(
+        first.output_schema["properties"]["spans"]
+            .get("maxItems")
+            .is_none()
     );
     assert_eq!(
         first.output_schema["properties"]["spans"]["items"]["oneOf"]
@@ -334,8 +526,7 @@ fn prompt_schema_and_repeated_construction_are_stable() {
 
 #[test]
 fn prompt_byte_guard_fails_without_truncation() {
-    // Current source caps keep ordinary generated prompts below this independent
-    // wire safeguard; exercise its edge directly to protect future template growth.
+    // Exercise the wire safeguard independently of source and template size.
     let base = vec![PromptMessage {
         role: "user".into(),
         content: String::new(),
@@ -432,4 +623,114 @@ fn stopped_duplicate_key_failure_retains_metadata_and_unknown_usage() {
     assert_eq!(output.provider_id, "fixture-request");
     assert_eq!(output.input_tokens, Some(17));
     assert_eq!(output.output_tokens, None);
+}
+
+#[test]
+fn provider_structural_schema_retains_strict_native_acceptance() {
+    let prompt = build_word_gloss_prompt(&identity(), "Hola.").unwrap();
+    assert!(prompt.messages[0].content.contains("both inclusive"));
+    assert!(
+        prompt.messages[0]
+            .content
+            .contains("select g0000 through g0003")
+    );
+    assert!(
+        prompt.messages[0]
+            .content
+            .contains("For a single row, use its ID for both first and last")
+    );
+    let variants = prompt.output_schema["properties"]["spans"]["items"]["oneOf"]
+        .as_array()
+        .unwrap();
+    assert!(
+        prompt.output_schema["properties"]["spans"]
+            .get("maxItems")
+            .is_none()
+    );
+    assert_eq!(
+        variants[0]["properties"]["gloss"],
+        serde_json::json!({"type":"string"})
+    );
+    for (variant, kind) in variants.iter().zip(["gloss", "literal"]) {
+        assert_eq!(
+            variant["properties"]["first"],
+            serde_json::json!({"type":"string"})
+        );
+        assert_eq!(
+            variant["properties"]["last"],
+            serde_json::json!({"type":"string"})
+        );
+        assert_eq!(
+            variant["properties"]["kind"],
+            serde_json::json!({"type":"string","enum":[kind]})
+        );
+        assert_eq!(variant["additionalProperties"], false);
+        assert!(
+            variant["required"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!("kind"))
+        );
+    }
+    let embedded = prompt.messages[0]
+        .content
+        .split_once("Output schema: ")
+        .unwrap()
+        .1;
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(embedded).unwrap(),
+        prompt.output_schema
+    );
+    let result = decode(
+        "Hola.",
+        &candidate(vec![gloss(0, 4, "hello"), literal(4, 5)]),
+    )
+    .unwrap();
+    assert_eq!(result.coverage(), Coverage::Complete);
+    assert_eq!(result.gloss_count(), 1);
+    for kind in [
+        serde_json::json!(null),
+        serde_json::json!(true),
+        serde_json::json!(1),
+        serde_json::json!("unknown"),
+    ] {
+        let mut span = gloss(0, 4, "hello");
+        span["kind"] = kind;
+        assert_eq!(
+            decode("Hola.", &candidate(vec![span])),
+            Err(AdapterError::InvalidJsonOrShape)
+        );
+    }
+}
+
+#[test]
+fn historical_v1_live_fixture_is_not_reinterpreted_as_v2() {
+    // Synthetic local-server smoke captured 2026-09-11; no learner content.
+    // The model omitted one lexical scalar: preserve valid partial help, never
+    // repair its span or mistake provider success for complete linguistic help.
+    let output = completion(
+        r###"{
+  "spans": [
+    {
+      "start": "b0000",
+      "end": "b0003",
+      "kind": "gloss",
+      "gloss": "hello"
+    },
+    {
+      "start": "b0004",
+      "end": "b0005",
+      "kind": "literal"
+    }
+  ]
+}"###
+            .into(),
+        "stop",
+    );
+    assert_eq!(
+        validate_word_gloss_completion(&identity(), "Hola.", &output),
+        Err(AdapterError::InvalidJsonOrShape)
+    );
+    // Authentic original fields/content remain above; this is historical v1,
+    // not a v2 live result. No compatibility decoder is introduced.
 }

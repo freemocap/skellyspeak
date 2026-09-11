@@ -90,9 +90,9 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
   { id: 'reading', labelKey: 'Reading & display', icon: 'Aa', descKey: 'Text size, spacing, and reading aids' },
   {
     id: 'keys',
-    labelKey: 'settings.section.keys',
+    labelKey: 'AI access',
     icon: '🔑',
-    descKey: 'settings.desc.keys',
+    descKey: 'Hosted sign-in, API keys or a custom server',
   },
   {
     id: 'models',
@@ -469,7 +469,7 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>Auto-speak tutor replies using the selected speech engine</span>
+            <span>Read partner replies aloud</span>
           </label>
         </div>
       ),
@@ -486,7 +486,7 @@ export function SettingsModal({
               checked={settings.auto_send}
               onChange={(e) => setSettings({ ...settings, auto_send: e.target.checked })}
             />
-            <span>Auto-send transcriptions (mic → send immediately)</span>
+            <span>Send after stopping the microphone</span>
           </label>
         </div>
       ),
@@ -584,7 +584,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate'])
+  const supported = new Set(['auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

@@ -1,4 +1,4 @@
-//! Capability resolution is shared by chat and microphone operations. Adapters
+//! Capability resolution is shared by chat, speech and microphone operations. Adapters
 //! consume captured targets; they never choose credentials or fall back to a route.
 use crate::{Application, credentials, execution, hosted, model::*, provider};
 use rusqlite::Connection;
@@ -10,6 +10,7 @@ use zeroize::Zeroizing;
 pub enum Capability {
     Chat,
     Transcription,
+    Speech,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolvedTarget {
@@ -103,6 +104,11 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
             config.standard_model,
             "hosted_credential_id",
         ),
+        (ConnectionRoute::Hosted, Capability::Speech) => (
+            format!("{}/v1", hosted::ORIGIN),
+            "openai/gpt-audio-mini".into(),
+            "hosted_credential_id",
+        ),
         (ConnectionRoute::Hosted, Capability::Transcription) => (
             format!("{}/v1", hosted::ORIGIN),
             "whisper-large-v3".into(),
@@ -111,6 +117,11 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         (ConnectionRoute::Openrouter, Capability::Chat) => (
             "https://openrouter.ai/api/v1".into(),
             config.standard_model,
+            "credential_id",
+        ),
+        (ConnectionRoute::Openrouter, Capability::Speech) => (
+            "https://openrouter.ai/api/v1".into(),
+            "openai/gpt-audio-mini".into(),
             "credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Transcription) => (
@@ -122,6 +133,7 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
             validate_custom(&access.custom)?;
             let model = match capability {
                 Capability::Chat => access.custom.standard_model.clone(),
+                Capability::Speech => "openai/gpt-audio-mini".into(),
                 Capability::Transcription => access.custom.transcription_model.clone().ok_or_else(|| error("This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings."))?,
             };
             (
@@ -154,7 +166,7 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
     };
     let path = match capability {
         Capability::Chat if config.route != ConnectionRoute::Openrouter => "operations",
-        Capability::Chat => "chat/completions",
+        Capability::Chat | Capability::Speech => "chat/completions",
         Capability::Transcription => "audio/transcriptions",
     };
     Ok(ResolvedTarget {
@@ -179,51 +191,81 @@ pub async fn save_access_settings(
     api_key: Option<String>,
     remove_key: bool,
 ) -> Result<AccessSettings> {
-    if let Some(value) = &custom {
-        validate_custom(value)?;
-    }
     let key = api_key.map(|s| Zeroizing::new(s.trim().to_owned()));
-    if let Some(key) = &key {
-        provider::validate_key_format(key)?;
-    }
-    if remove_key && key.is_some() {
-        return Err(error("Remove or replace the key, not both."));
-    }
+    validate_save_input(
+        custom.as_ref(),
+        key.as_ref().map(|k| k.as_str()),
+        remove_key,
+    )
+    .map_err(|(code, error)| {
+        crate::diagnostics::native_event(code, &[]);
+        error
+    })?;
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let id = key.as_ref().map(|_| uuid::Uuid::new_v4().to_string());
-        {
-            let mut store = state.lock()?;
-            if settings(&store.connection)?.revision != expected_revision { return Err(conflict()); }
-            validate_key_destination(&settings(&store.connection)?, custom.as_ref(), key.is_some() || remove_key)?;
-            if let Some(id) = &id { store.reserve_credential(id)?; }
+        let prepare = |store: &mut crate::Store| -> Result<()> {
+            if settings(&store.connection)?.revision != expected_revision {
+                crate::diagnostics::native_event("access_save_revision_conflict", &[]);
+                return Err(conflict());
+            }
+            validate_key_destination(&settings(&store.connection)?, custom.as_ref(), key.is_some() || remove_key)
+                .inspect_err(|_| { crate::diagnostics::native_event("access_save_destination_changed", &[]); })
+        };
+        let commit = |store: &mut crate::Store, id: Option<&str>| -> Result<AccessSettings> {
+            let tx = store.connection.transaction()?;
+            if settings(&tx)?.revision != expected_revision {
+                crate::diagnostics::native_event("access_save_revision_conflict", &[]);
+                return Err(conflict());
+            }
+            let column = if custom.is_some() { "custom_credential_id" } else { "groq_credential_id" };
+            if id.is_some() || remove_key {
+                tx.execute(&format!("INSERT OR IGNORE INTO credential_cleanup SELECT {column} FROM ai_config WHERE {column} IS NOT NULL"),[])?;
+                tx.execute(&format!("UPDATE ai_config SET {column}=?1"),[id])?;
+                if let Some(id) = id { tx.execute("DELETE FROM credential_cleanup WHERE id=?1",[id])?; }
+            }
+            if let Some(custom) = &custom {
+                tx.execute("UPDATE ai_config SET custom_config=?1",[serde_json::to_string(custom)?])?;
+            }
+            tx.execute("UPDATE ai_config SET revision=revision+1",[])?;
+            execution::invalidate(&tx,Some(if custom.is_some() { ConnectionRoute::Custom } else { ConnectionRoute::Openrouter }))?;
+            tx.execute("UPDATE metadata SET revision=revision+1",[])?;
+            tx.commit()?;
+            settings(&store.connection)
+        };
+        if let Some(key) = &key {
+            state.write_credential_with(prepare, |id| credentials::save(id,key),
+                |store,id| commit(store,Some(id)), credentials::remove)
+        } else {
+            let result = {
+                let mut store = state.lock()?;
+                prepare(&mut store)?;
+                commit(&mut store,None)
+            };
+            state.clean_credentials()?;
+            result
         }
-        // Native permission prompts must not hold the workspace mutex.
-        if let (Some(id),Some(key)) = (&id,&key) { credentials::save(id,key)?; }
-        let mut store = state.lock()?;
-        let result = (|| -> Result<()> {
-        let tx = store.connection.transaction()?;
-        if settings(&tx)?.revision != expected_revision { return Err(conflict()); }
-        let column = if custom.is_some() { "custom_credential_id" } else { "groq_credential_id" };
-        if id.is_some() || remove_key {
-            tx.execute(&format!("INSERT OR IGNORE INTO credential_cleanup SELECT {column} FROM ai_config WHERE {column} IS NOT NULL"),[])?;
-            tx.execute(&format!("UPDATE ai_config SET {column}=?1"),[&id])?;
-            if let Some(id) = &id { tx.execute("DELETE FROM credential_cleanup WHERE id=?1",[id])?; }
-        }
-        if let Some(custom) = &custom {
-            tx.execute("UPDATE ai_config SET custom_config=?1",[serde_json::to_string(custom)?])?;
-        }
-        tx.execute("UPDATE ai_config SET revision=revision+1",[])?;
-        execution::invalidate(&tx,Some(if custom.is_some() { ConnectionRoute::Custom } else { ConnectionRoute::Openrouter }))?;
-        tx.execute("UPDATE metadata SET revision=revision+1",[])?;
-        tx.commit()?;
-        Ok(())
-        })();
-        if let Some(id) = &id { store.credential_writes.remove(id); }
-        store.clean_credentials()?;
-        result?;
-        settings(&store.connection)
     }).await.map_err(|_| error("Saving AI access settings stopped unexpectedly."))?
+}
+
+fn validate_save_input(
+    custom: Option<&CustomEndpoint>,
+    key: Option<&str>,
+    remove_key: bool,
+) -> std::result::Result<(), (&'static str, AppError)> {
+    if let Some(value) = custom {
+        base_url(&value.base_url).map_err(|e| ("access_save_url_invalid", e))?;
+        validate_custom(value).map_err(|e| ("access_save_model_invalid", e))?;
+    }
+    if let Some(key) = key {
+        provider::validate_key_format(key).map_err(|e| ("access_save_key_invalid", e))?;
+    }
+    if remove_key && key.is_some() {
+        return Err((
+            "access_save_remove_replace_conflict",
+            error("Remove or replace the key, not both."),
+        ));
+    }
+    Ok(())
 }
 
 pub async fn response_bytes(
@@ -439,11 +481,63 @@ pub async fn transcribe(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn save_validation_reports_allowlisted_reason_without_private_input() {
+        let mut custom = crate::model::CustomEndpoint {
+            base_url: String::new(),
+            standard_model: "fixture".into(),
+            fast_model: "fixture".into(),
+            bearer_auth: true,
+            transcription_model: Some("fixture".into()),
+        };
+        assert_eq!(
+            super::validate_save_input(Some(&custom), None, false)
+                .unwrap_err()
+                .0,
+            "access_save_url_invalid"
+        );
+        custom.base_url = "http://127.0.0.1:8765/v1".into();
+        assert!(super::validate_save_input(Some(&custom), Some("fixture-secret"), false).is_ok());
+        custom.standard_model = "PRIVATE MODEL".into();
+        let (code, error) = super::validate_save_input(Some(&custom), None, false).unwrap_err();
+        assert_eq!(code, "access_save_model_invalid");
+        assert!(!error.message.contains("PRIVATE"));
+        custom.standard_model = "fixture".into();
+        let (code, error) =
+            super::validate_save_input(Some(&custom), Some("PRIVATE KEY"), false).unwrap_err();
+        assert_eq!(code, "access_save_key_invalid");
+        assert!(!error.message.contains("PRIVATE"));
+        // An unused blank custom profile must not block a Groq-key save.
+        assert!(super::validate_save_input(None, Some("fixture-secret"), false).is_ok());
+        assert_eq!(
+            super::validate_save_input(None, Some("fixture-secret"), true)
+                .unwrap_err()
+                .0,
+            "access_save_remove_replace_conflict"
+        );
+    }
+
     use super::*;
     fn db() -> Connection {
         let db = Connection::open_in_memory().unwrap();
         db.execute_batch(include_str!("schema.sql")).unwrap();
         db
+    }
+    #[test]
+    fn fresh_custom_setup_has_server_models_and_voice_enabled() {
+        let database = db();
+        let mut endpoint = settings(&database).unwrap().custom;
+        assert_eq!(endpoint.standard_model, "google/gemini-2.5-flash");
+        assert_eq!(endpoint.fast_model, "google/gemini-2.5-flash");
+        assert_eq!(
+            endpoint.transcription_model.as_deref(),
+            Some("whisper-large-v3")
+        );
+        assert!(endpoint.bearer_auth);
+        endpoint.base_url = "http://127.0.0.1:8765/v1".into();
+        validate_custom(&endpoint).unwrap();
+        endpoint.transcription_model = None;
+        validate_custom(&endpoint).unwrap();
     }
     fn custom(db: &Connection, auth: bool, audio: bool) {
         let value = CustomEndpoint {
@@ -529,6 +623,41 @@ mod tests {
                 .contains("Groq")
         );
     }
+    #[test]
+    fn speech_uses_only_selected_route_credentials_and_never_grouped_transport() {
+        let db = db();
+        for (route, credential, prefix) in [
+            ("hosted", "hosted-key", format!("{}/v1", hosted::ORIGIN)),
+            (
+                "openrouter",
+                "direct-key",
+                "https://openrouter.ai/api/v1".into(),
+            ),
+        ] {
+            db.execute("UPDATE ai_config SET route=?1,credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
+            let speech = resolve(&db, Capability::Speech).unwrap();
+            assert_eq!(speech.credential.as_deref(), Some(credential));
+            assert_eq!(speech.url, format!("{prefix}/chat/completions"));
+            assert_eq!(speech.model, "openai/gpt-audio-mini");
+        }
+        custom(&db, false, false);
+        let speech = resolve(&db, Capability::Speech).unwrap();
+        assert!(speech.credential.is_none());
+        assert_eq!(speech.url, "http://127.0.0.1:1234/v1/chat/completions");
+        assert_eq!(speech.model, "openai/gpt-audio-mini");
+        custom(&db, true, false);
+        assert!(resolve(&db, Capability::Speech).is_err());
+        db.execute("UPDATE ai_config SET custom_credential_id='custom-key'", [])
+            .unwrap();
+        assert_eq!(
+            resolve(&db, Capability::Speech)
+                .unwrap()
+                .credential
+                .as_deref(),
+            Some("custom-key")
+        );
+    }
+
     #[test]
     fn custom_no_auth_and_missing_audio_are_explicit() {
         let db = db();

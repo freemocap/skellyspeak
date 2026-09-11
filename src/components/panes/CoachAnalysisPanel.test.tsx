@@ -11,7 +11,7 @@ vi.mock('../../lib/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../chat/ConversationMap', () => ({ ConversationMap: () => null }))
 const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [] } as unknown as ConversationSnapshot
 function panel(chatId = 'chat-1', draftQuestion = '') {
-  return <CoachAnalysisPanel level="zero" topic="" chatId={chatId} prepareContext={vi.fn()} conversationBusy={false} plan={null} profile={null} observationStatus="" tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
+  return <CoachAnalysisPanel chatId={chatId} conversationBusy={false} contactProfile={null} tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }
 beforeEach(() => {
   vi.resetAllMocks()
@@ -48,7 +48,9 @@ describe('native private coaching', () => {
     await waitFor(() => expect(backend.watch).toHaveBeenCalledTimes(2))
     fireEvent.change(screen.getByLabelText('Message your coach'), { target: { value: 'My question' } })
     fireEvent.click(screen.getByLabelText('Send to coach'))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Admission held')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Coach')
+    fireEvent.click(screen.getByText('⚠ Coach'))
+    expect(screen.getByText(/Admission held/)).toBeVisible()
     expect(screen.getByLabelText('Message your coach')).toHaveValue('My question')
     expect(backend.execute).toHaveBeenCalledTimes(1)
   })

@@ -162,6 +162,12 @@ export interface CoachHelp {
 }
 
 export interface GuidedTurnResult {
+  translationState?: string | null
+  messageId?: string
+  savedGloss?: import('./contracts').WordGlossView | null
+  glossError?: string | null
+  glossState?: string | null
+  glossOperationId?: string | null
   reply: string
   translation: string | null
   tokens: GuidedToken[]

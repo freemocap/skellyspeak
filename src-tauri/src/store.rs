@@ -29,6 +29,7 @@ pub struct Store {
     pub(crate) connection: Connection,
     pub(crate) session_id: String,
     pub(crate) credential_writes: std::collections::HashSet<String>,
+    pub(crate) speech_cache: crate::speech::Cache,
     _lock: std::fs::File,
 }
 
@@ -205,7 +206,7 @@ impl Store {
                 params![id(), serde_json::to_string(&preferences)?],
             )?;
             tx.commit()?;
-        } else if !(3..=7).contains(&version) {
+        } else if !(3..=8).contains(&version) {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 "Unsupported database schema. No data was changed.",
@@ -260,9 +261,15 @@ impl Store {
             tx.execute_batch(include_str!("transcription-schema.sql"))?;
             tx.commit()?;
         }
+        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 7 {
+            let tx = connection.transaction()?;
+            tx.execute_batch(include_str!("speech-settings-schema.sql"))?;
+            tx.commit()?;
+        }
         let store = Self {
             connection,
             session_id: id(),
+            speech_cache: crate::speech::Cache::default(),
             credential_writes: std::collections::HashSet::new(),
             _lock: lock,
         };
@@ -368,6 +375,31 @@ impl Store {
                 )?;
                 conversation_scope = Some(conversation_id);
                 turn_id
+            }
+            Action::RequestMessageSpeech { message_id } => {
+                let cached_attempt: Option<String> = tx.query_row(
+                    "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='partner_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",
+                    [&message_id], |r| r.get(0),
+                ).optional()?;
+                let resident = cached_attempt
+                    .as_ref()
+                    .is_some_and(|attempt| self.speech_cache.get(attempt).is_some());
+                let operation = crate::execution::request_speech(&tx, &message_id, resident)?;
+                conversation_scope = Some(tx.query_row(
+                    "SELECT conversation_id FROM messages WHERE id=?1",
+                    [&message_id],
+                    |r| r.get(0),
+                )?);
+                operation
+            }
+            Action::CancelMessageSpeech { operation_id } => {
+                let operation = crate::execution::cancel_speech(&tx, &operation_id)?;
+                conversation_scope = Some(tx.query_row("SELECT t.conversation_id FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.id=?1", [&operation], |r|r.get(0))?);
+                operation
+            }
+            Action::RetryGloss { operation_id } => {
+                conversation_scope = Some(crate::execution::retry_gloss(&tx, &operation_id)?);
+                operation_id
             }
             Action::ControlTurn { turn_id, control } => {
                 conversation_scope = Some(crate::execution::control_turn(&tx, &turn_id, control)?);
@@ -797,6 +829,32 @@ mod tests {
     }
 
     #[test]
+    fn voice_defaults_are_persistent_and_opt_out_survives_restart() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("practice.sqlite3");
+        let mut store = Store::open(&path).unwrap();
+        store.prepare_chat().unwrap();
+        let conversation = store.snapshot().unwrap().conversations.remove(0);
+        assert!(conversation.settings.auto_send && conversation.settings.read_aloud);
+        let mut settings = conversation.settings;
+        settings.auto_send = false;
+        settings.read_aloud = false;
+        apply(
+            &mut store,
+            Action::UpdateSettings {
+                conversation_id: conversation.id,
+                expected_revision: conversation.settings_revision,
+                settings,
+            },
+        );
+        drop(store);
+        let store = Store::open(&path).unwrap();
+        let settings = &store.snapshot().unwrap().conversations[0].settings;
+        assert!(!settings.auto_send && !settings.read_aloud);
+        assert_eq!(settings.speech_voice, "alloy");
+    }
+
+    #[test]
     fn startup_opens_chat_without_setup_and_does_not_duplicate_it() {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("practice.sqlite3");
@@ -851,7 +909,7 @@ mod tests {
         let relationship = partner(&mut store);
         let first = conversation(&mut store, &relationship, "Weekend plans");
         let mut settings = first.settings.clone();
-        settings.difficulty = Difficulty::Challenging;
+        settings.difficulty = Difficulty::Advanced;
         settings.translation = false;
         apply(
             &mut store,
@@ -863,7 +921,7 @@ mod tests {
         );
         let second = conversation(&mut store, &relationship, "Kitchen stories");
         assert_eq!(second.settings, settings);
-        settings.difficulty = Difficulty::Gentle;
+        settings.difficulty = Difficulty::Beginner;
         apply(
             &mut store,
             Action::UpdateSettings {
@@ -879,7 +937,7 @@ mod tests {
             },
         );
         let third = conversation(&mut store, &relationship, "Train journey");
-        assert_eq!(third.settings.difficulty, Difficulty::Challenging);
+        assert_eq!(third.settings.difficulty, Difficulty::Advanced);
         drop(store);
         let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
         assert_eq!(snapshot.conversations.len(), 3);
@@ -891,7 +949,7 @@ mod tests {
                 .unwrap()
                 .settings
                 .difficulty,
-            Difficulty::Gentle
+            Difficulty::Beginner
         );
         assert_eq!(snapshot.language_profiles.len(), 1);
     }

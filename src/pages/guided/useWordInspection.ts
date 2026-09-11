@@ -16,11 +16,7 @@ interface Options {
   toggleBreak: () => void
 }
 
-/// Everything the learner can do to a single word.
-///
-/// Three gestures, three depths: tap reveals a gloss, right-click highlights
-/// the token in the breakdown, press-and-hold opens the full insight card.
-/// They share the revealed-token set, which is why they live together.
+/// Saved-word reveal and analysis selection state.
 export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) {
   // Tap: the small gloss bubble anchored to the word.
   const [popup, setPopup] = useState<PopupState | null>(null)
@@ -31,10 +27,6 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
 
   // Right-click: highlight the token in the breakdown's word lists.
   const [inspect, setInspect] = useState<InspectTarget | null>(null)
-
-  // Press-and-hold: the modal with lemma, morphology, role and usage.
-  const [insight, setInsight] = useState<{ word: string; sentence: string } | null>(null)
-  const closeInsight = useCallback(() => setInsight(null), [])
 
   /// Drag across words adds them.
   const reveal = useCallback((keys: string[]) => {
@@ -67,11 +59,6 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
     [pinTurn, breakOpen, toggleBreak]
   )
 
-  const holdWord = useCallback(
-    (word: string, sentence: string) => setInsight({ word, sentence }),
-    []
-  )
-
   // Scroll the highlighted token into view in the breakdown.
   useEffect(() => {
     if (!inspect) return
@@ -86,7 +73,6 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
   const clear = useCallback(() => {
     setRevealed(new Set())
     setInspect(null)
-    setInsight(null)
     setPopup(null)
   }, [])
 
@@ -99,9 +85,6 @@ export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) 
     toggleReveal,
     inspect,
     inspectWord,
-    insight,
-    holdWord,
-    closeInsight,
     clear,
   }
 }

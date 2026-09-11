@@ -25,12 +25,14 @@ it('uses saved annotations without requests', () => {
   expect(screen.getByText('hello')).toBeVisible()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
-it('opens unavailable detail without issuing an unsupported request', async () => {
-  backend.invoke.mockResolvedValue({ gloss: 'hello', lemma: 'hola', pos: '', form: '', role: '', usage: '' })
+it('leaves missing word help inert on click, keyboard and context menu', () => {
   render(<ReadingProvider settings={null}><TargetText text="Hola" /></ReadingProvider>)
-  expect(backend.invoke).not.toHaveBeenCalled()
-  fireEvent.keyDown(screen.getByRole('button', { name: 'Hola' }), { key: 'Enter' })
-  expect(await screen.findByText('Word details are not connected yet.')).toBeVisible()
+  const source = screen.getByText('Hola')
+  fireEvent.click(source)
+  fireEvent.keyDown(source, {key: 'Enter'})
+  fireEvent.contextMenu(source)
+  expect(screen.queryByRole('button')).toBeNull()
+  expect(screen.queryByRole('dialog')).toBeNull()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 it('leaves noninteractive reading text inert', () => {

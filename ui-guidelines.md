@@ -27,7 +27,9 @@
 
 - Contacts and conversations are the primary navigation vocabulary. Difficulty,
   composing help, coach proactivity, translation, pronunciation and romanization
-  belong to a conversation. Put these in a gear-controlled panel, closed by default.
+  belong to a conversation. Difficulty is a compact dropdown immediately beside
+  Native in the language row. Other practice controls stay in the gear panel,
+  closed by default.
 - Keep useful content central and secondary controls compact. Do not display invented
   progress, flowers or statistical samples as learner data.
 - Show pending writes and errors. Preserve unsaved form input on failure. Confirm
@@ -59,6 +61,23 @@
   Render these as page tabs joined to their content panel, not segmented buttons.
   OpenRouter and Groq key inputs stay together, before model preferences.
   Do not add an API-key or custom-endpoint button to the application toolbar.
+
+### Conversation header density acceptance
+
+- Difficulty reuses the language selects’ exact class, height, padding and font.
+  Its selected option names the value; the accessible name is Difficulty. Do not
+  add a heading, slider, stop labels, bold selection layout or vertical padding.
+- Give the controls strip its own existing chrome surface and visible boundary
+  against the paper conversation canvas, without increasing its geometry. Use
+  common region and contrast to separate controls from message content (see
+  [NN/g visual-design principles](https://www.nngroup.com/articles/principles-visual-design/)).
+- Keep Learning, Native and Difficulty in one compact row at the reference
+  approximately 590px chat-pane width, including the real adjacent header actions.
+  On narrow screens retain the shared select styling and wrap only as necessary.
+- Measure header height and each select’s height at both widths, inspect a review
+  image and compare the header’s share of the chat canvas. No overflow alone does
+  not establish acceptable density. Fixtures must include the actual surrounding
+  controls and width constraints; a full-width isolated control is insufficient.
 
 ## CSS ownership and verification
 

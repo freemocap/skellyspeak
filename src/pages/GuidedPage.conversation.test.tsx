@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { StrictMode } from 'react'
+import userEvent from '@testing-library/user-event'
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../contracts'
@@ -7,10 +8,11 @@ import type { Settings } from '../types'
 import { SkillNavigationProvider } from '../hooks/useSkillNavigation'
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
+const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {} }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc.invoke }))
 vi.mock('../lib/faults', () => ({ reportFault: ipc.fault }))
-vi.mock('../lib/log', () => ({ logInfo: vi.fn(), logWarn: vi.fn(), logError: vi.fn() }))
+vi.mock('../lib/log', () => ({ logDiagnostic: vi.fn(), logInfo: vi.fn(), logWarn: vi.fn(), logError: vi.fn() }))
 // Only peripheral presentation/hardware is replaced. The page, controller,
 // workspace command builder and native snapshot projection run unchanged.
 vi.mock('../lib/tauri', () => ({
@@ -24,13 +26,11 @@ vi.mock('../lib/speech', () => ({
   subscribeSpeaking: () => () => {}, subscribeSpeechProgress: () => () => {}, setPlaybackRate: vi.fn(),
 }))
 vi.mock('../lib/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
-vi.mock('../hooks/useMicRecorder', () => ({ useMicRecorder: () => ({ recording: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() }) }))
+vi.mock('../hooks/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('../hooks/useAiActivity', () => ({ useAiActivity: () => false }))
-vi.mock('../components/PersonaField', () => ({ PersonaField: () => null }))
 vi.mock('../components/panes/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => null }))
 vi.mock('../components/panes/TopicNotesProvider', () => ({ TopicNotesProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('../components/chat/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
-vi.mock('../components/WordInsightModal', () => ({ WordInsightModal: () => null }))
 vi.mock('../components/chat/TurnView', () => ({ TurnView: () => null }))
 vi.mock('../components/chat/SkillRewards', () => ({ SkillRewards: () => null }))
 
@@ -83,14 +83,14 @@ function directory(): Snapshot {
     conversations: ['a', 'b'].map((id, index) => ({
       id, relationshipId: 'relationship', languageId: 'es', title: id, archived: false,
       revision: 7 + index, settingsRevision: 1, createdAt: '2026-09-10', lastUsed: 2 - index,
-      settings: { difficulty: 'balanced', explanationLanguage: 'en', varietyId: '', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false },
+      settings: { difficulty: 'beginner', explanationLanguage: 'en', varietyId: '', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
     conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
-    messages: text === undefined ? [] : [{ id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
+    messages: text === undefined ? [] : [{ wordGloss: null, glossState: null, glossError: null, glossOperationId: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
   }
@@ -219,6 +219,28 @@ function page(settingsVersion = 0) {
   return <SkillNavigationProvider><GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={settingsVersion} /></SkillNavigationProvider>
 }
 describe('native composer admission', () => {
+  it.each(['Enter', 'Send'])('types into the extracted composer and submits once with %s', async (action) => {
+    const user = userEvent.setup()
+    const pending = deferred<Receipt>()
+    submit = () => pending.promise
+    render(page())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    const composer = await screen.findByPlaceholderText(/Write in/)
+    await user.click(composer)
+    await user.type(composer, 'Hola, ¿cómo estás?')
+    expect(composer).toHaveFocus()
+    expect(composer).toHaveValue('Hola, ¿cómo estás?')
+    expect(commands()).toHaveLength(0)
+    if (action === 'Enter') await user.keyboard('{Enter}')
+    else await user.click(screen.getByRole('button', { name: 'Send' }))
+    await waitFor(() => expect(commands()).toHaveLength(1))
+    expect(commands()[0].action).toEqual({ kind: 'sendMessage', conversationId: 'a', expectedRevision: 7, text: 'Hola, ¿cómo estás?' })
+    await act(async () => pending.reject(new Error('Authentication failed')))
+    expect(composer).toHaveValue('Hola, ¿cómo estás?')
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
+    expect(commands()).toHaveLength(1)
+  })
+
   it('preserves a newer draft when an earlier Send fails', async () => {
     const pending = deferred<Receipt>()
     submit = () => pending.promise
@@ -258,8 +280,27 @@ describe('native composer admission', () => {
     await waitFor(() => expect(commands()).toHaveLength(1))
     await act(async () => pending.reject(new Error('Admission refused')))
     expect(composer).toHaveValue('Keep this unsent text')
-    expect(await screen.findByText('Admission refused')).toBeVisible()
+    expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
+    fireEvent.click(screen.getByText('⚠ Request failed'))
+    expect(screen.getByText('Admission refused')).toBeVisible()
     expect(commands()[0].action).toEqual({ kind: 'sendMessage', conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
     expect(commands()).toHaveLength(1)
   })
+})
+
+it('auto-sends one native transcript and retains a later transcript while a reply is pending', async () => {
+  const pending = deferred<Receipt>()
+  submit = () => pending.promise
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const input = await screen.findByPlaceholderText(/Write in/)
+  act(() => microphone.transcribe('Primera frase'))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toMatchObject({ kind: 'sendMessage', text: 'Primera frase' })
+  act(() => microphone.transcribe('Guardar esta frase'))
+  expect(input).toHaveValue('Guardar esta frase')
+  expect(commands()).toHaveLength(1)
+  await act(async () => pending.reject(new Error('Rejected')))
+  expect(input).toHaveValue('Guardar esta frase')
 })

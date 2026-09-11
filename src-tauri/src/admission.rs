@@ -2,7 +2,7 @@
 #[cfg(any(desktop, test))]
 use crate::model::{AppError, ErrorCode, Result};
 use std::sync::Arc;
-use std::sync::Mutex;
+#[cfg(any(desktop, test))]
 use std::time::{Duration, Instant};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
@@ -10,26 +10,8 @@ use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 pub const NETWORK_CAPACITY: usize = 4;
 #[cfg(any(desktop, test))]
 const AUDIO_WAITING_CAPACITY: usize = 1;
-const WARNING_INTERVAL: Duration = Duration::from_secs(60);
-
-struct Warnings {
-    last: Mutex<[Option<Instant>; 3]>,
-}
-
-impl Warnings {
-    fn allow(&self, event: usize, now: Instant) -> bool {
-        let mut last = self.last.lock().expect("admission diagnostics mutex");
-        if last[event].is_some_and(|previous| now.duration_since(previous) < WARNING_INTERVAL) {
-            return false;
-        }
-        last[event] = Some(now);
-        true
-    }
-}
-
 pub struct Admission {
     network: Arc<Semaphore>,
-    warnings: Warnings,
     // Chat waits durably in SQLite. Audio is volatile and must not accumulate
     // an unbounded collection of recordings while waiting for network capacity.
     #[cfg(any(desktop, test))]
@@ -45,9 +27,6 @@ impl Admission {
         assert!(capacity > 0);
         Self {
             network: Arc::new(Semaphore::new(capacity)),
-            warnings: Warnings {
-                last: Mutex::new([None; 3]),
-            },
             #[cfg(any(desktop, test))]
             audio_waiters: Arc::new(Semaphore::new(AUDIO_WAITING_CAPACITY)),
         }
@@ -55,9 +34,10 @@ impl Admission {
 
     // Called only when eligible work is actually waiting, never on idle polls.
     pub fn warn_chat_wait(&self) {
-        if self.warnings.allow(0, Instant::now()) {
-            eprintln!("WARN ai_admission event=chat_capacity_wait limit={NETWORK_CAPACITY}");
-        }
+        crate::diagnostics::native_event(
+            "chat_capacity_wait",
+            &[("limit", NETWORK_CAPACITY as u64)],
+        );
     }
 
     pub fn try_chat(&self) -> Option<OwnedSemaphorePermit> {
@@ -71,9 +51,7 @@ impl Admission {
     ) -> Result<OwnedSemaphorePermit> {
         validate()?;
         let waiting = self.audio_waiters.clone().try_acquire_owned().map_err(|_| {
-            if self.warnings.allow(1, Instant::now()) {
-                eprintln!("WARN ai_admission event=audio_queue_full limit={AUDIO_WAITING_CAPACITY}");
-            }
+            crate::diagnostics::native_event("audio_queue_full", &[("limit", AUDIO_WAITING_CAPACITY as u64)]);
             AppError::new(
                 ErrorCode::Provider,
                 "Another recording is waiting for AI capacity. This recording was not submitted. Wait for transcription before recording again.",
@@ -95,10 +73,16 @@ impl Admission {
         validate()?;
         drop(waiting);
         let waited = started.elapsed();
-        if waited >= Duration::from_millis(100) && self.warnings.allow(2, Instant::now()) {
-            eprintln!(
-                "WARN ai_admission event=audio_capacity_wait wait_ms={} limit={NETWORK_CAPACITY}",
-                waited.as_millis()
+        if waited >= Duration::from_millis(100) {
+            crate::diagnostics::native_event(
+                "audio_capacity_wait",
+                &[
+                    (
+                        "wait_ms",
+                        u64::try_from(waited.as_millis()).unwrap_or(u64::MAX),
+                    ),
+                    ("limit", NETWORK_CAPACITY as u64),
+                ],
             );
         }
         Ok(permit)
@@ -194,21 +178,5 @@ mod tests {
             .map(|_| admission.try_chat().unwrap())
             .collect();
         assert_eq!(permits.len(), NETWORK_CAPACITY);
-    }
-
-    #[test]
-    fn warning_storm_is_bounded_without_suppressing_other_events() {
-        let warnings = Warnings {
-            last: Mutex::new([None; 3]),
-        };
-        let now = Instant::now();
-        assert!(warnings.allow(0, now));
-        for _ in 0..10000 {
-            assert!(!warnings.allow(0, now));
-        }
-        assert!(warnings.allow(1, now));
-        assert!(warnings.allow(2, now));
-        assert!(!warnings.allow(0, now + WARNING_INTERVAL - Duration::from_millis(1)));
-        assert!(warnings.allow(0, now + WARNING_INTERVAL));
     }
 }

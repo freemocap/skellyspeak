@@ -90,7 +90,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     setHistoryOpen(false)
   }, [refresh, setHistoryOpen])
 
-  const startNew = useCallback(async (_selection: string) => {
+  const startNew = useCallback(async () => {
     if (actionPending.current) return
     actionPending.current = true
     try {
@@ -121,9 +121,10 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     }
   }, [currentChatId, openChat, refresh, target])
 
-  const sendMessage = useCallback(async (text: string) => {
+  const sendMessage = useCallback(async (text: string, expectedConversationId?: string | null) => {
     const owner = chatIdRef.current
     if (!owner) throw new Error('No conversation is open.')
+    if (expectedConversationId !== undefined && owner.id !== expectedConversationId) throw new Error('The conversation changed before sending.')
     const directory = await readWorkspace()
     const conversation = directory.conversations.find(c => c.id === owner.id)
     if (!conversation) throw new Error('Conversation is unavailable.')
@@ -131,6 +132,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
   }, [])
 
   return { turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,
+    snapshot: snapshot?.conversationId === currentChatId ? snapshot : null,
     snapshotRevision: snapshot?.revision ?? -1,
     pendingReply: snapshot?.turns.some(t => t.state === 'pending') ?? false,
     flush: async () => { if (!chatIdRef.current) throw new Error('No conversation is open.') },

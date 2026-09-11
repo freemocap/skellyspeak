@@ -8,10 +8,15 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     if (message.role === 'user') {
       turns.push({ id: message.sequence, user: message.text, assistant: null, analysisState: null })
     } else if (message.role === 'assistant') {
+      if (message.wordGloss && message.wordGloss.sourceMessageId !== message.id) {
+        throw new Error('Saved word meanings do not belong to this message.')
+      }
       const previous = turns.at(-1)
       const turn = previous && previous.assistant === null ? previous : { id: message.sequence, user: null, assistant: null, analysisState: null }
       turn.assistant = {
-        reply: message.text, translation: message.translation,
+        messageId: message.id,
+        reply: message.text, translation: message.translation, translationState: message.translationState,
+        savedGloss: message.wordGloss, glossError: message.glossError, glossState: message.glossState, glossOperationId: message.glossOperationId,
         tokens: [], user_tokens: [], user_translation: null, mechanics: [],
         scaffolds: { replies: [], frames: [], starters: [], coach_help: null }, errors: [],
       }

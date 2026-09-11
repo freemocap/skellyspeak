@@ -1,14 +1,19 @@
-# R1 — Translation lifecycle and admission verification
+# R1 — Reliability and security
 
-## Approval gate
+## Current assignment
 
-Proposal/design conversation with the user comes first. Investigate read-only and
-present your recommendations directly in this domain chat. Do not implement source,
-code prototypes, install dependencies or run implementation builds/tests until the
-user explicitly approves the domain's implementation scope. The work and acceptance
-sections below describe candidate work after approval, not immediate authorization.
-Preserve and disclose existing preliminary edits without treating them as accepted.
-Coordinator review cannot substitute for the user's approval.
+The lifecycle/transport slice is integrated. The user expanded this domain to
+security and hardening. Begin a bounded read-only audit of current root source,
+including its uncommitted changes: route credential/destination isolation, local
+server boundaries, grouped settlement/errors, concurrency/dedup, diagnostics and
+deployment/secrets. Report concrete findings and prioritized fixes. Coordinate
+file ownership with integration before implementation; do not duplicate the active
+server error-handling repair. No Git writes, deployment or paid evaluation.
+
+AI Operations owns provider/model evaluation proposals. Reliability retains
+scheduling/accounting/security ownership and must preserve parallelism and partial
+hydration. Existing implementation authorization is not revoked; shared edits still
+require coordination.
 
 
 Read ../README.md, ../../AGENTS.md, ../../EXECUTION.md, ../../architecture.md and

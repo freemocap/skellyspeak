@@ -21,9 +21,9 @@ is not connected. Execution controls, usage reports, evidence/XP and lesson edit
 still need UI wiring; native capabilities are not a claim that those controls work
 in the interface. No skill estimates or XP are fabricated.
 
-Saved partner-reply translation is implemented through the scheduler. Token glosses,
-structured coaching, assessment, XP, Vibe computation and measured garden rendering
-remain planned. Standard handles partner replies;
+Saved partner-reply translation and whole-message word glosses are implemented through
+the scheduler. Structured coaching, assessment, XP, Vibe computation and measured
+garden rendering remain planned. Standard handles partner replies;
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
 
@@ -92,11 +92,14 @@ conversation with copied preferences. The partner chooser opens a partner's late
 active chat or creates one. Names and settings remain editable afterward.
 
 Record starts the desktop system microphone. Stop transcribes through the selected
-AI route and inserts text for review; Send sends it to the partner.
+AI route and automatically sends the transcript when Auto-send is enabled (default on).
+When disabled, the transcript stays in the composer for review and manual Send.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
 uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
-key; custom endpoints require explicitly enabled transcription and a model ID. Mobile recording,
-auto-send and read-aloud are not implemented in this slice.
+key; Custom URL defaults to the server transcription model `whisper-large-v3`.
+Mobile recording remains unimplemented. Automatic reading defaults on; both voice
+preferences save per conversation. Desktop voice interaction has user verification;
+other devices and general speech fidelity still need their own checks.
 
 The right pane contains Lesson/Analysis and a resizable **Talk to your coach** dock.
 Coach exchanges persist separately from partner messages and use the same gated
@@ -114,8 +117,9 @@ The session stays in the platform credential store. There is no transcript sync.
 
 Choose **Own OpenRouter API key** to enter a key and configure Standard/Fast models.
 Keys and model settings save automatically after typing stops, with visible pending
-and failure states. The saved key is checked automatically: a green check indicates
-accepted authentication; a red X includes an accessible failure explanation. Key entry remains masked; saved secrets are never returned to the frontend and
+and failure states. Connection verification reports authentication separately from saving a key.
+Automatic API-key verification remains tracked as CQ001; do not treat a saved
+credential as verified. Key entry remains masked; saved secrets are never returned to the frontend and
 there is no Show/Hide control. Model edits
 retain the saved key when the key field is blank. Pasted surrounding whitespace is
 trimmed. Saving errors preserve the input. Clicking outside Settings or pressing
@@ -135,11 +139,8 @@ be resumed to Step. Cancel revokes publication and drops the local HTTP request;
 remote execution and billing may continue. Retry is explicit and may incur another
 charge. Restarted in-flight requests show unknown outcomes and never auto-retry.
 
-The current active workspace receives an atomic v3-to-v4 AI-configuration schema
-extension, preserving accepted messages, preferences and credential references.
-Pending work under the earlier profile is invalidated; it is never automatically
-resent. Other incompatible databases fail explicitly. No archived application data
-is imported and no automatic deletion or backup path exists.
+AI configuration changes invalidate affected pending work; it is never automatically
+resent. Accepted messages and conversation preferences remain independently owned.
 
 ## Check this slice
 
@@ -171,8 +172,8 @@ cargo test --manifest-path src-tauri/Cargo.toml --lib
 
 Rust integration-style tests use disposable SQLite files for persistence, revision
 conflicts, settings copying, deletion, archives, duplicate actions and session rules.
-Frontend tests cover snapshot ordering and draft scope. Test discovery is restricted
-to the active `src/` tree. `npm run contracts` regenerates TypeScript declarations
+Frontend tests cover snapshot ordering and draft scope. Vitest excludes dependency, dist, reference and Node launcher test directories.
+Node launcher tests run separately with `npm run logs:test`. `npm run contracts` regenerates TypeScript declarations
 from Rust; the check command detects drift without changing files.
 
 Automated verification covers execution gates, duplicate Send/publication, cancellation,
@@ -194,10 +195,9 @@ paused. Transcription receipts now retain route, model, timing and outcome;
 interrupted attempts become unknown on restart and are never replayed. Native execution snapshots expose these receipts, and usage projections include
 them with unavailable token usage; presentation remains pending. Audio and transcript text are not stored in receipts;
 this limit does not establish a bound on upstream work after local cancellation.
-Capacity is provisional. `WARN ai_admission` lines go to the native process's stderr
-(the development launch terminal), at most once per event per minute. They identify
-chat capacity waiting, audio queue rejection, or audio wait duration without request
-content or endpoint details. No persistent log file or telemetry upload is added.
+Capacity is provisional. Authored admission events persist to the native file sink
+without time-based suppression. They identify capacity waiting, queue rejection
+and wait duration without request content. See Development diagnostic coverage.
 
 Automated checks cover PKCE/state validation, account decoding, hosted payload rules,
 route capture, credential revocation, retained profile counts and local HTTP adapters.
@@ -205,8 +205,8 @@ Google browser authentication, keychain persistence and live hosted replies requ
 native verification; passing mock tests does not establish those results.
 The native bundle builds successfully. Desktop and narrow-window layouts, direct
 chat startup and title-free one-click creation were inspected. The keychain lookup
-no longer holds the workspace lock. No database reset was needed. Microphone
-permissions, recording/transcription and live coach replies remain unverified.
+no longer holds the workspace lock. No database reset was needed. The user verified desktop recording/transcription and basic private coach replies;
+other devices and providers still require capability-specific checks.
 Hosted deployment passed its test, container and exact-revision traffic checks,
 and the user confirmed hosted chat works. The client preserves documented
 rate/allowance/spending-pause reasons and request IDs. See the
@@ -215,7 +215,7 @@ repository/cloud checks; source changes require deployment or native restart.
 
 The signed macOS development launcher passed local build, bundle/signature
 verification, Vite readiness, native-process startup and termination cleanup checks.
-The frontend build also type-checks the launcher. Missing/ad-hoc signing identities
+Run `npm run logs:check` to type-check the logging launchers. Missing/ad-hoc signing identities
 fail before launch. Account status no longer refreshes on window focus, preventing
 Keychain dialogs from triggering another refresh when focus returns. Remembered
 Keychain access across reloads still requires interactive verification.
@@ -256,8 +256,8 @@ version and configured chat/transcription capabilities, and performs no inferenc
 Our server requires a session token issued by that server. Selecting no authentication
 cannot bypass server authentication. Hosted session credentials are never reused for
 Custom URL; its token is stored separately and bound to the saved destination.
-Groq key verification uses its `/models` endpoint. Fast task routing and read-aloud
-remain unimplemented. A protocol check does not establish live inference quality.
+Groq key verification uses its `/models` endpoint. Fast task routing remains unimplemented. Read-aloud uses the selected route and
+the dedicated speech model; actual playback requires device verification. A protocol check does not establish live inference quality.
 
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
@@ -290,7 +290,7 @@ the existing conversation snapshot and appear beneath the source reply.
 The source message is immutable and uniquely owned by its turn; its ID is the whole-
 passage identity for this slice. The result is stored in that turn's context JSON,
 not as another conversation message. Source deletion cascades through its turn and
-operations. Token spans and offsets remain a later contract.
+operations. Word glosses bind validated UTF-16 spans to this same immutable source.
 
 A turn can be assisting after its reply is saved; this does not block the next Send.
 Assistance uses the existing bounded permits, captured route and durable attempts.
@@ -301,14 +301,115 @@ reserves room for dependency work. Cancellation or deletion prevents late public
 Changing Translation toggles display and applies to future sends; it does not
 backfill existing replies. Panel hydration and reopening only read saved results.
 
-Verification: 79 native tests, 31 frontend tests, Clippy, generated-contract checks,
-style checks, frontend build and native binary build pass. Native translation QA
-with a real provider has not yet been performed. Restart the rebuild development
-app with npm run macos:dev; do not use the release-recovery bundle for this check.
+Basic hosted translation has user QA and durable receipt verification: one reply
+and one translation per exchange. See BUILD-PLAN.md for the current checkpoint;
+this does not establish every route or cancellation/restart scenario in live use.
 
-Live hosted translation check, 2026-09-10: the user confirmed two exchanges work.
-Read-only inspection of durable receipts found one successful reply attempt and
-one successful translation attempt per exchange, one saved assistant message and
-one saved translation each, no errors in these exchanges and zero active operations
-at inspection. This verifies the basic hosted path; other routes and interactive
-cancellation/restart scenarios are not established by this session.
+## Word gloss slice
+
+Each new partner turn declares one Standard word-gloss operation. After the reply is
+saved, glossing and optional translation are independently eligible for the shared
+four permits. There is no per-word inference or batch-fill delay. Existing messages
+are not backfilled. Clicking a glossed word reveals its saved meaning inline; opening
+or reopening the conversation creates no requests.
+
+The model selects inclusive first/last grapheme IDs; native code derives exact
+source spans and validates strict structured output before persistence. Valid partial results are usable. Malformed output fails explicitly,
+retains reported usage and does not replace saved meanings. Retry word meanings
+retries only that operation within the turn's attempt budget; it never regenerates
+the reply or translation. Restarted unknown work requires explicit retry.
+
+Tests cover sibling completion order, failures, cancellation, source deletion,
+captured languages, partial results, restart and scoped retry. The latest local
+voice run accepted four gloss attempts across three replies. Complete coverage and
+linguistic quality remain the next focused slice; accepted output is not a quality
+score. Reading/reopening must create no inference. Explicit retry targets glosses
+only; expected new-turn work is reply, gloss, enabled translation and enabled speech.
+
+## Voice integration checkpoint
+
+The desktop source implements transcription → automatic Send → partner text →
+speech playback. Auto-send and automatic reading persist per conversation and
+remain independently switchable. Speech is a source-bound scheduler operation,
+using the selected route and `openai/gpt-audio-mini`; it shares admission capacity
+with other AI work but does not block translation or gloss eligibility.
+
+Playback reads bounded in-memory audio. Opening history does not generate speech
+or autoplay it. Explicit replay can request audio; cancellation prevents late
+playback, and restarting loses the audio cache without automatically regenerating
+it. No operating-system speech fallback is used. Audio playback releases its Blob
+URL when stopped or completed. Local cancellation cannot guarantee upstream billing
+stops.
+
+The user reports working desktop voice interaction. Latest local Custom URL
+receipts show three successful transcriptions/replies/speech generations, with
+speech and gloss running independently. General speech fidelity, stop/replay and
+other devices still need their own checks. Current automated results and next
+work are in BUILD-PLAN.md; detailed evidence is in
+[the integration report](workflow/reports/integration-logging.md).
+
+The local server must allow the speech model. A restart refreshes its session token;
+save the new token before authenticated Custom URL testing. Hosted access remains
+an explicit selection, never a fallback.
+
+## Development diagnostic coverage
+
+Start the native app with `npm run macos:dev` and the local API with
+`npm run server:local`. Each invocation prints its private run directory under
+`.local/logs/`. These directories are Git-ignored, readable by the current user
+and agents on this machine, and retained across runs without automatic deletion.
+Directories use mode 700 and files mode 600. Do not attach raw log directories to
+issues or commits; review them for private data before sharing.
+
+Each run captures process stdout/stderr in `stdout.jsonl` and `stderr.jsonl`,
+including inherited child output. `launcher.jsonl` records lifecycle and exit
+status. The native process adds `diagnostics.jsonl` (frontend events),
+`native.jsonl` (native events/log facade/panic notices), and its manifest. The
+local API adds `server-logging.jsonl`, `server-stdout.jsonl`,
+`server-stderr.jsonl`, and its manifest. The outer process streams preserve
+credential-redacted text; structured files preserve reviewed diagnostic fields.
+`SKELLYSPEAK_LOG_RUN_DIR` connects these sinks to the same run directory. Do not
+reuse a run directory for a second process of the same type.
+
+For other local development tools, including the Firestore emulator, use
+`node scripts/dev-run.ts process <executable> <arguments...>` to capture their
+inherited output. Running a tool directly bypasses that outer capture. Native
+app runs started independently still create structured files under `.local/logs/`
+in debug builds; release builds use the platform app log directory. Cloud-hosted
+server logs remain in Cloud Logging and are not automatically mirrored locally.
+
+Records are appended synchronously (Python/native streams flush each record).
+Frontend delivery acknowledges the native file write before publishing a caught
+fault; bridge delivery failures are explicitly reported and counted. In-memory
+rings limit the UI read view only, not file retention. Files are readable while
+processes run; this is not a guarantee against power-loss or hardware failure.
+
+Credential patterns are redacted from process output. Frontend/structured sinks
+exclude arbitrary argument bodies, stacks, transcripts and provider payloads;
+redacted bodies have explicit markers/counts. Unknown error causes are therefore
+not complete error text. Incomplete process lines get immediate arrival markers;
+the body is recorded on newline or orderly close. Lines over 65,536 characters
+are explicitly redacted to bound memory. Abrupt termination can lose an unfinished
+line's body or an unacknowledged frontend event. Bootstrap errors before frontend
+capture and output from independently launched tools are not retroactively
+recoverable. A disk write failure is an error, never a successful logging receipt.
+
+When investigating a failure, inspect **every stream from every run since the
+preceding checkpoint**, including successful events; do not start with an
+error-only filter. Correlate timestamps, process/run IDs, frontend sequence/fault
+IDs, and local durable operation/transcription/hold records. A missing inference
+attempt does not mean no failure occurred: capture, settings and admission can
+fail first. Report precisely which sources were read and any missing coverage.
+
+Logging checks: `npm run logs:check`, `npm run logs:test`, `npm test`, native
+`cargo test`, and `server/test_local_logging.py`. Node launcher tests are separate
+from the frontend Vitest suite. `.local/` is excluded from Vite's file watcher so
+log writes do not reload the webview.
+
+## License
+
+SkellySpeak is licensed under the GNU Affero General Public License, version 3
+or (at your option) any later version (**AGPL-3.0-or-later**). See [LICENSE](LICENSE)
+for the full license text.
+
+Third-party components and materials retain their respective licenses and notices.

@@ -19,6 +19,18 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
+        kind: "partner_word_gloss",
+        dependencies: &["partner_reply"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "partner_speech",
+        dependencies: &["partner_reply"],
+        role: "speech",
+        contract_version: 1,
+    },
+    Declaration {
         kind: "reply_translation",
         dependencies: &["partner_reply"],
         role: "standard",

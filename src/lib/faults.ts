@@ -6,7 +6,7 @@
 /// other acceptable way to handle an error: no swallowing, no degrading to a
 /// lesser code path, no `catch { log }`.
 
-import { logError } from './log'
+import { logDiagnostic } from './log'
 import { createStore, useStore } from './store'
 
 export interface Fault {
@@ -23,6 +23,7 @@ const store = createStore<Fault[]>([])
 
 function describe(e: unknown): string {
   if (e instanceof Error) return e.message
+  if (typeof e === 'object' && e !== null && 'message' in e && typeof e.message === 'string') return e.message
   if (typeof e === 'string') return e.replace(/^Error:\s*/, '')
   try {
     return JSON.stringify(e)
@@ -35,8 +36,10 @@ function describe(e: unknown): string {
 /// permitted alternative is rethrowing so a caller reports it instead.
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
-  logError('[fault] reported to UI')
-  store.set([...store.get(), { id: nextId++, context, message }])
+  const id = nextId++
+  void Promise.resolve(logDiagnostic(context, e, id)).then(() => {
+    store.set([...store.get(), { id, context, message }])
+  })
 }
 
 /// Subscribe a component to the fault list.
@@ -58,4 +61,9 @@ export function dismissFault(id: number): void {
 
 export function dismissAllFaults(): void {
   store.set([])
+}
+
+/** Sink failures cannot be sent through the failing sink again. */
+export function reportDiagnosticBridgeFailure(): void {
+  store.set([...store.get(), { id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.' }])
 }

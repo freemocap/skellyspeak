@@ -107,7 +107,10 @@ impl Decoder {
                 } => (
                     operation_id,
                     attempt_id,
-                    provider::decode(&serde_json::to_vec(&response)?).map_err(|_| unknown()),
+                    provider::decode(&serde_json::to_vec(&response)?).map_err(|_| AppError::new(
+                        ErrorCode::UnknownOutcome,
+                        "The server returned an invalid AI completion for this operation. Usage is unconfirmed; no automatic retry was made.",
+                    )),
                 ),
                 Event::Duplicate {
                     operation_id,
@@ -153,7 +156,10 @@ impl Decoder {
                             None,
                         ))
                     } else if status >= 500 {
-                        unknown()
+                        AppError::new(
+                            ErrorCode::UnknownOutcome,
+                            format!("The server reported HTTP {status} for this operation. Usage is unconfirmed; no automatic retry was made."),
+                        )
                     } else {
                         AppError::new(
                             ErrorCode::Provider,
@@ -244,6 +250,14 @@ pub async fn request_with_outputs(
     };
     let mut response = request.send().await.map_err(|_| unknown())?;
     if !response.status().is_success() {
+        if first.route == crate::model::ConnectionRoute::Custom
+            && response.status() == reqwest::StatusCode::UNAUTHORIZED
+        {
+            return Err(AppError::new(
+                ErrorCode::Provider,
+                "Custom server authentication failed. Update its session token in Settings → AI access → Custom URL, then check the connection.",
+            ));
+        }
         if response.status().is_server_error() {
             return Err(unknown());
         }
@@ -325,6 +339,35 @@ mod tests {
             "response":{"id":"provider","model":"model","choices":[{"finish_reason":"stop","message":{"content":"¡Hola!"}}],"usage":{"prompt_tokens":2,"completion_tokens":3}}})).unwrap();
         bytes.push(b'\n');
         bytes
+    }
+    #[test]
+    fn item_failure_diagnostics_distinguish_server_status_from_bad_completion() {
+        for (event, expected) in [
+            (
+                serde_json::json!({"type":"error","operation_id":"one","attempt_id":"a","code":"REQUEST_REJECTED","status":502}),
+                "HTTP 502",
+            ),
+            (
+                serde_json::json!({"type":"result","operation_id":"one","attempt_id":"a","response":{"private":"must not be shown"}}),
+                "invalid AI completion",
+            ),
+        ] {
+            let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
+            let bytes = format!("{event}\n{{\"type\":\"complete\",\"count\":1}}\n");
+            let mut errors = Vec::new();
+            decoder
+                .push(bytes.as_bytes(), |_, result| {
+                    errors.push(result.unwrap_err());
+                    Ok(())
+                })
+                .unwrap();
+            decoder.finish().unwrap();
+            assert_eq!(errors.len(), 1);
+            assert_eq!(errors[0].code, ErrorCode::UnknownOutcome);
+            assert!(errors[0].message.contains(expected));
+            assert!(!errors[0].message.contains("private"));
+            assert!(!errors[0].message.contains("must not be shown"));
+        }
     }
     #[test]
     fn partial_results_publish_before_eof_and_survive_missing_siblings() {
@@ -470,6 +513,8 @@ mod tests {
                 socket.write_all(&body).await.unwrap();
             });
             let dispatch = crate::execution::Dispatch {
+                gloss_source: None,
+                speech_source: None,
                 target: crate::access::ResolvedTarget {
                     route,
                     revision: 1,
@@ -491,6 +536,8 @@ mod tests {
             let schema = serde_json::json!({"type":"object"});
             if structured {
                 let second = crate::execution::Dispatch {
+                    gloss_source: None,
+                    speech_source: None,
                     target: dispatch.target.clone(),
                     operation: "22222222-2222-2222-2222-222222222222".into(),
                     attempt: "2000000000-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),

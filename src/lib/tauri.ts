@@ -1,7 +1,7 @@
 import type { ConnectionConfig, AccessSettings } from '../contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from './keyboard'
-import { invoke as nativeInvoke } from '@tauri-apps/api/core'
+import { invoke as nativeInvoke } from './native'
 import { validateAudioVolumes } from './audio-settings'
 import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
@@ -140,9 +140,9 @@ export async function getSettings(): Promise<Settings> {
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
     auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
-    microphone_device_id: null, auto_speak: false, auto_send: false, fast_mode: false,
+    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: false,
     reward_sounds: 'no', master_volume: 1, voice_volume: 1, effects_volume: 1,
-    tts_engine: 'os', tts_voice: '', tts_rate: 1, shortcuts: { ...SHORTCUT_DEFAULTS },
+    tts_engine: 'cloud', tts_voice: conversation.settings.speechVoice, tts_rate: 1, shortcuts: { ...SHORTCUT_DEFAULTS },
   }
 }
 
@@ -276,8 +276,9 @@ export async function saveSettings(settings: Settings): Promise<void> {
   if (!conversation) throw new Error('The settings conversation is unavailable.')
   if (conversation.settingsRevision !== scope.settingsRevision || snapshot.learner.revision !== scope.learnerRevision) throw new Error('Settings changed. Reload before saving.')
   if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
-  if (settings.auto_speak || settings.auto_send || settings.fast_mode || settings.microphone_device_id !== null || settings.reward_sounds !== 'no' || settings.tts_engine !== 'os' || settings.tts_voice || settings.tts_rate !== 1 || settings.master_volume !== 1 || settings.voice_volume !== 1 || settings.effects_volume !== 1 || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  if (settings.fast_mode || settings.microphone_device_id !== null || settings.reward_sounds !== 'no' || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || settings.tts_rate !== 1 || settings.master_volume !== 1 || settings.voice_volume !== 1 || settings.effects_volume !== 1 || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
+    autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: settings.tts_voice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
   const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)

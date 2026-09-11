@@ -8,6 +8,9 @@ from pathlib import Path
 import secrets
 import socket
 import stat
+import time
+
+import local_logging
 
 ROOT = Path(__file__).resolve().parent
 KEYS = {"OPENROUTER_API_KEY", "GROQ_API_KEY"}
@@ -48,7 +51,7 @@ def configure(keys: dict[str, str], signing_key: str) -> None:
         "PUBLIC_BASE_URL": "http://127.0.0.1:8765",
         "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
         "GROQ_BASE_URL": "https://api.groq.com/openai/v1",
-        "ALLOWED_MODELS": "google/gemini-2.5-flash",
+        "ALLOWED_MODELS": "google/gemini-2.5-flash,openai/gpt-audio-mini",
         "MAX_COMPLETION_TOKENS": "2048",
         "FREE_DAILY_MICROS": "500000", "GLOBAL_DAILY_MICROS": "500000",
         "MAX_USERS": "1",
@@ -59,6 +62,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate local configuration without starting the server or making provider calls")
     args = parser.parse_args()
+    configured_logs = os.environ.get("SKELLYSPEAK_LOG_RUN_DIR")
+    directory = Path(configured_logs) if configured_logs else ROOT.parent / ".local" / "logs" / f"server-{time.time_ns()}-{os.getpid()}"
+    logs = local_logging.install(directory)
+    logs.append("logging", {"code": "configuration_check" if args.check else "server_starting"})
     keys = read_keys(ROOT / "local.env")
     signing_key = secrets.token_urlsafe(48)
     configure(keys, signing_key)
@@ -90,7 +97,7 @@ def main() -> None:
     print("Local API: http://127.0.0.1:8765/v1")
     print("Session token: server/.local-server/session-token.txt (refreshed on each launch)")
     print("Provider calls use real keys. Local daily spending reservation limit: $0.50. No cloud storage is used.")
-    uvicorn.run(api.app, host="127.0.0.1", port=8765, access_log=False, log_level="warning")
+    uvicorn.run(api.app, host="127.0.0.1", port=8765, access_log=False, log_level="info", log_config=None)
 
 
 if __name__ == "__main__":

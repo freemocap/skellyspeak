@@ -1,3 +1,5 @@
+import { reportDiagnosticBridgeFailure } from './lib/faults'
+import { installDiagnosticCapture, logDiagnostic } from './lib/log'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import DevWindow from './DevWindow'
@@ -5,6 +7,8 @@ import { isTauri, loadLanguages } from './lib/tauri'
 import './styles.css'
 import { installPlaybackLifecycle } from './lib/playback-lifecycle'
 
+installDiagnosticCapture()
+window.addEventListener('diagnostic-bridge-failed', reportDiagnosticBridgeFailure)
 installPlaybackLifecycle()
 
 // The popped-out observability window runs the same bundle as the main one
@@ -32,7 +36,8 @@ async function start() {
   if (isTauri && !dev) await loadLanguages()
   mount(dev)
 }
-void start().catch((error: unknown) => {
+void start().catch(async (error: unknown) => {
+  await logDiagnostic('startup', error)
   const message = error instanceof Error ? error.message
     : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

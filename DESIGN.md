@@ -71,6 +71,29 @@ or satisfy a simulated person's emotional needs.
 | Relationship | Relevant shared memories, familiarity and the association of conversations with that partner |
 | Conversation | Messages, difficulty, practice choices and analysis; displayed as a flower in the garden view |
 
+## Language extensibility
+
+The initial Spanish, French, Arabic and Mandarin practice set exercises differing
+scripts, reading directions and segmentation needs; it is not the product's language
+limit. English is also present in the current registry. The intended architecture
+supports a much larger language catalog through declarative language configuration
+consumed by shared prompt construction and linguistic analysis code. Adding a
+language should ordinarily mean defining its relevant properties, not creating a
+separate pipeline or duplicating prompts for that language.
+
+Language and AI Operations jointly own a finite configuration design review before
+the next reading-assistance slice. Candidate properties include stable identity,
+variety, script/direction, segmentation conventions, romanization and explanatory
+linguistic guidance. Exact schema and authoring interface remain design work.
+Review the reference GCP/SkellySubs and Python language configurations for useful
+principles; adoption is intentional and does not make reference code authoritative.
+
+Registering a language is separate from establishing quality for a model/task or
+speech provider. Performance may vary substantially; speaker population alone does
+not establish expected quality. Configuration must not imply tested support, choose
+a hidden fallback or weaken source validation. Task/model/language evaluation remains
+explicit. This extensibility does not change single-language conversation ownership.
+
 ## Partner creation and language scope
 
 Provide a one-button way to create a randomized partner for the chosen target
@@ -464,3 +487,102 @@ Bound total graph expansion and repair attempts while preserving independent
 completion. Source text/offsets belong to the application; models supply analysis,
 not redundant copies of known source formatting. Cache reuse is an optimization,
 not the boundary preventing duplicated or unintended execution.
+
+## Voice defaults
+
+Voice is the primary interaction: microphone input, transcription, automatic send,
+partner reply and spoken playback. Text input is essential but secondary; visible
+reply text and inline reading remain essential alongside audio. Transcription is
+part of the core default route capability, not an optional enhancement. Explicit
+voice opt-out is permitted. Missing read-aloud is incomplete core functionality.
+
+Auto-send voice transcriptions and automatically read new partner replies default
+to on when those capabilities are implemented. Both controls remain user-adjustable
+and save automatically. These defaults are approved behavior, not currently active
+features. Auto-send follows successful transcription; automatic reading applies to
+new replies, not reopening saved conversations.
+
+## Inline word reading
+
+A normal word click reveals the saved gloss directly beneath that occurrence using
+the compact word/gloss stack. Unannotated text remains readable and inert; missing
+analysis must not open an empty detail modal. This adopts the reference's inline
+reading behavior without importing its inference lifecycle. A separate deep-inspection
+feature requires working data and its own reviewed interaction.
+
+## On-demand word pronunciation
+
+Provide a small speaker action for an individual source word on hover or keyboard
+focus, with an accessible touch equivalent. Only an explicit click/activation requests
+speech for that word; hover, reading, selection and opening history never generate
+or precompute audio. Bind pronunciation to the selected source occurrence and current
+language/voice, using the selected AI route and existing admission/cancellation rules.
+Word playback must coordinate with whole-reply playback and microphone capture.
+This is an approved follow-up interaction, not an implemented feature. Interaction
+owns presentation; native execution and AI owners define the bounded request contract
+before implementation. Resolve word boundaries from accepted source spans rather
+than inventing a whitespace tokenizer for every language.
+
+The current Mandarin target uses Simplified Chinese. Shared generation prompts must
+express that writing convention from language configuration; preserve source text
+rather than silently converting user input or saved messages. Arabic text surfaces
+must preserve shaping and appropriate direction consistently for user, assistant
+and composer text; Interaction owns concrete typography and layout validation.
+
+## Conversation controls and partner navigation: focused design pass
+
+The conversation difficulty control should sit beside target and explanation
+languages, accessible without opening settings. The requested range is absolute
+zero through fluent; its exact levels and prompt semantics require the focused
+Interaction/AI proposal. This controls the conversation, not assessed proficiency.
+Do not merely relabel the current three difficulty values as a broader scale.
+
+Partner management must expose durable identity, editing and one-action randomized
+creation. Proposed navigation: a top-level partner collection and a contextual
+profile for the selected conversation partner. Placement and whether the contextual
+profile occupies a right-side tab remain proposals, not implemented behavior.
+Interaction owns the layout proposal; AI maps controls to actual prompt effects.
+Remove inert controls as their replacement is integrated; do not present topic or
+persona selectors as operational without a domain action behind them. Private coach
+assistance remains a separate workstream and does not become partner knowledge.
+
+## Contact terminology
+
+Use Contact / Contacts in product-facing terminology. This names the people the
+learner talks with without implying a romantic relationship. Existing internal
+partner identifiers are not renamed by this terminology decision alone.
+
+A generated persona followed by an explicit “Add to contacts” action is a proposed
+future lifecycle. Whether and how an unadded person's conversations remain durable,
+and what adding a contact changes, require design agreement before persistence
+changes. A Contacts collection and contextual Profile surface are proposals; the
+terminology is the approved decision.
+
+## Conversation difficulty: approved implementation scope
+
+Use one compact five-choice dropdown: Absolute zero, Beginner, Intermediate, Advanced,
+and Fluent. New conversations default to Beginner. Difficulty changes only trusted
+prompt guidance for vocabulary, sentence complexity and conversational burden.
+Absolute zero uses the same translation, glossing, coaching, suggestions and analysis
+machinery as every other setting. It introduces no special bilingual cue, response
+option mechanism, extra inference request or separate assistance surface.
+
+The current conversation owns the setting. Changes affect the next accepted send;
+already accepted work retains captured instructions. Chosen difficulty is not assessed
+proficiency and does not award XP. No obsolete difficulty compatibility mode is kept.
+The user explicitly authorized resetting this Mac’s development database after
+verification and before launching this contract. Preserve all runtime logs.
+
+## Conversation toolbar density
+
+Difficulty is a compact dropdown immediately beside Native, sharing the existing
+language selector row and styling. No separate heading/slider/stop-label row or
+selection-dependent geometry. Review the full toolbar at its actual pane width;
+absence of overflow alone is not visual acceptance. Keep chat content dominant.
+This changes presentation only: the five values, autosave and captured prompts remain.
+
+Conversation controls must form a visually distinct region from the message canvas:
+use a consistent control-surface tone and boundary, not additional height or headings.
+Density and hierarchy are simultaneous acceptance criteria, assessed in the complete
+pane. Interaction owns the implementation and Code Quality checks it against the
+style guide and actual geometry.

@@ -1,5 +1,13 @@
 # U1 — Reading and assistance interaction
 
+## Current ownership and UI standards
+
+Interaction owns UI implementation, component choices, styling and detailed UI rules. Integration relays user corrections, coordinates contracts and file ownership, and reviews handoffs; it does not take over UI implementation. Apply this division on every assignment.
+
+Preserve the approved reference presentation and follow `ui-guidelines.md` and established CSS/component patterns for every UI change. Never introduce unstyled controls. A defaults-only request authorizes filling existing configuration, not adding a setting or behavior toggle. Flag material product changes before introducing controls; do not infer permission for them from implementation or cleanup authorization.
+
+Current source is frozen after the Custom model-default correction. No further UI changes are requested. The earlier approval gate and candidate reading assignment below are historical scope; current explicit user authorizations and coordinated assignments govern subsequent work.
+
 ## Approval gate
 
 Proposal/design conversation with the user comes first. Investigate read-only and

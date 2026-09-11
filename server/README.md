@@ -214,8 +214,8 @@ test -e server/local.env || install -m 600 server/local.env.sample server/local.
 With the loopback emulator running, start from the repository root:
 
 ```sh
-server/.venv/bin/python server/local_server.py --check
-server/.venv/bin/python server/local_server.py
+npm run server:local -- --check
+npm run server:local
 ```
 
 The launcher sets emulator storage explicitly, uses the real OpenRouter/Groq HTTPS
@@ -277,3 +277,18 @@ a storage bound, not proof of compromise or a substitute for account-level
 request and spending controls. Existing registrations can still check in at the
 ceiling. Registration is performed by `/v1/me` after authentication; a 409 there
 can therefore follow successful authentication.
+
+Grouped item failures emit `operation_failure` log records with HTTP status,
+optional bounded upstream HTTP status and a fixed `http`/`internal` category.
+These records omit bodies, URLs, identities, exception messages and tracebacks.
+The outer streaming request may return 200 while an item fails; inspect item
+records when diagnosing grouped requests. Unknown-usage settlement retains its
+conservative reservation without replacing an existing upstream error. Storage
+settlement failures remain failures.
+
+The local launcher writes all inherited process output and structured Python
+logging into private `.local/logs/server-.../` files; see the repository README's
+Development diagnostic coverage section for the full capture/redaction contract.
+Use the logged process launcher for the emulator too. A server restart refreshes
+`server/.local-server/session-token.txt`; update Custom URL's saved token before
+trying authenticated requests again. Tokens must never be printed in logs.

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from '../lib/native'
 import { reportFault } from '../lib/faults'
 import type { RecordingStarted } from '../contracts'
 import type { WaveSource } from '../components/WaveformStrip'

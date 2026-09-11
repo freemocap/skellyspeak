@@ -4,7 +4,7 @@ import type { AccessSettings, Command, ConnectionConfig, Snapshot } from '../con
 import type { Settings } from '../types'
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => backend)
-vi.mock('./log', () => ({ logDebug: vi.fn(), logError: vi.fn(), logInfo: vi.fn(), logWarn: vi.fn() }))
+vi.mock('./log', () => ({ logDebug: vi.fn(), logDiagnostic: vi.fn(), logError: vi.fn(), logInfo: vi.fn(), logWarn: vi.fn() }))
 import { getSettings, saveSettings } from './tauri'
 import { validateAudioVolumes } from './audio-settings'
 
@@ -16,7 +16,7 @@ function directory(): Snapshot {
     conversations: ['a', 'b'].map((id, index) => ({
       id, relationshipId: 'relationship', languageId: index ? 'fr' : 'es', title: id,
       archived: false, revision: 5, settingsRevision: index + 6, lastUsed: 10 - index, createdAt: '2026-09-10',
-      settings: { difficulty: 'challenging', explanationLanguage: 'en', varietyId: index ? 'fr-FR' : 'es-MX', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true },
+      settings: { difficulty: 'advanced', explanationLanguage: 'en', varietyId: index ? 'fr-FR' : 'es-MX', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }
@@ -73,6 +73,14 @@ describe('native settings projection', () => {
 })
 
 describe('scoped native settings writes', () => {
+  it('projects voice defaults and saves explicit opt-out on the captured conversation', async () => {
+    const settings = await getSettings()
+    expect(settings).toMatchObject({ auto_send: true, auto_speak: true, tts_engine: 'cloud', tts_voice: 'alloy' })
+    await saveSettings({ ...settings, auto_send: false, auto_speak: false })
+    expect(commands()).toHaveLength(1)
+    expect(commands()[0].action).toMatchObject({ kind: 'updateSettings', conversationId: 'a', settings: { autoSend: false, readAloud: false, speechVoice: 'alloy' } })
+  })
+
   it('sends only updateSettings to the originally captured conversation after recency changes', async () => {
     const settings = await getSettings()
     workspace.conversations[1].lastUsed = 100

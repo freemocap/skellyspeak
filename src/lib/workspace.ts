@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from './native'
 import type { Action, Command, Conversation, ConversationSnapshot, Receipt, Snapshot } from '../contracts'
 
 export function readWorkspace(): Promise<Snapshot> {

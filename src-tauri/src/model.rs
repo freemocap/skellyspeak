@@ -12,9 +12,11 @@ pub struct AvatarRecipe {
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Difficulty {
-    Gentle,
-    Balanced,
-    Challenging,
+    AbsoluteZero,
+    Beginner,
+    Intermediate,
+    Advanced,
+    Fluent,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -42,6 +44,45 @@ pub struct PracticeSettings {
     pub translation: bool,
     pub pronunciation: bool,
     pub romanization: bool,
+    pub auto_send: bool,
+    pub read_aloud: bool,
+    pub speech_voice: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum SpeechUnavailableReason {
+    NotRequested,
+    Cancelled,
+    Failed,
+    UnknownOutcome,
+    Expired,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(
+    tag = "status",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    deny_unknown_fields
+)]
+pub enum SpeechAudioState {
+    Pending {
+        operation_id: String,
+        message_id: String,
+    },
+    Ready {
+        operation_id: String,
+        attempt_id: String,
+        message_id: String,
+        mime: String,
+        audio_base64: String,
+    },
+    Unavailable {
+        operation_id: String,
+        message_id: String,
+        reason: SpeechUnavailableReason,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
@@ -167,6 +208,15 @@ pub enum Action {
         conversation_id: String,
         text: String,
         expected_revision: i32,
+    },
+    RequestMessageSpeech {
+        message_id: String,
+    },
+    CancelMessageSpeech {
+        operation_id: String,
+    },
+    RetryGloss {
+        operation_id: String,
     },
     ControlTurn {
         turn_id: String,
@@ -334,6 +384,10 @@ pub fn bindings() -> String {
         ProfileSnapshot::decl(&config),
         ConnectionConfig::decl(&config),
         TurnControl::decl(&config),
+        GlossSegmentKind::decl(&config),
+        GlossCoverage::decl(&config),
+        GlossSegment::decl(&config),
+        WordGlossView::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
         AttemptView::decl(&config),
@@ -344,6 +398,8 @@ pub fn bindings() -> String {
         HelpAmount::decl(&config),
         CoachProactivity::decl(&config),
         PracticeSettings::decl(&config),
+        SpeechUnavailableReason::decl(&config),
+        SpeechAudioState::decl(&config),
         OnboardingStatus::decl(&config),
         Preferences::decl(&config),
         Learner::decl(&config),
@@ -393,9 +449,48 @@ pub enum TurnControl {
     Cancel,
     Retry,
 }
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum GlossSegmentKind {
+    Gloss,
+    Literal,
+    Unresolved,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum GlossCoverage {
+    Complete,
+    Partial,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct GlossSegment {
+    pub start: u32,
+    pub end: u32,
+    pub kind: GlossSegmentKind,
+    pub gloss: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WordGlossView {
+    pub source_message_id: String,
+    pub target_language_id: String,
+    pub explanation_language_id: String,
+    pub format_version: String,
+    pub template_version: String,
+    pub boundary_policy: String,
+    pub operation_id: String,
+    pub attempt_id: String,
+    pub coverage: GlossCoverage,
+    pub segments: Vec<GlossSegment>,
+}
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    pub word_gloss: Option<WordGlossView>,
+    pub gloss_state: Option<String>,
+    pub gloss_error: Option<String>,
+    pub gloss_operation_id: Option<String>,
     pub translation_state: Option<String>,
     pub translation: Option<String>,
     pub id: String,
@@ -407,6 +502,7 @@ pub struct ChatMessage {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct OperationView {
+    pub source_message_id: Option<String>,
     pub id: String,
     pub kind: String,
     pub contract_version: i32,
@@ -549,4 +645,33 @@ pub struct AccessSettings {
     pub groq_key_configured: bool,
     pub custom_key_configured: bool,
     pub custom: CustomEndpoint,
+}
+
+#[cfg(test)]
+mod difficulty_tests {
+    use super::*;
+
+    #[test]
+    fn five_levels_round_trip_and_previous_values_are_rejected() {
+        for (level, wire) in [
+            (Difficulty::AbsoluteZero, "absolute_zero"),
+            (Difficulty::Beginner, "beginner"),
+            (Difficulty::Intermediate, "intermediate"),
+            (Difficulty::Advanced, "advanced"),
+            (Difficulty::Fluent, "fluent"),
+        ] {
+            let encoded = serde_json::to_value(&level).unwrap();
+            assert_eq!(encoded, serde_json::json!(wire));
+            assert_eq!(
+                serde_json::from_value::<Difficulty>(encoded).unwrap(),
+                level
+            );
+        }
+        for previous in ["gentle", "balanced", "challenging", "zero"] {
+            let mut settings =
+                serde_json::to_value(crate::languages::defaults("es", "en").unwrap()).unwrap();
+            settings["difficulty"] = serde_json::json!(previous);
+            assert!(serde_json::from_value::<PracticeSettings>(settings).is_err());
+        }
+    }
 }

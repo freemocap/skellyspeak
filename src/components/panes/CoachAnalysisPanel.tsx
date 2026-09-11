@@ -1,18 +1,17 @@
+import { ErrorDetails } from '../ErrorDetails'
+import { ActivityIndicator } from '../ActivityIndicator'
 import { DetailDialog } from '../DetailDialog'
 import { ConversationMap } from '../chat/ConversationMap'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../lib/tauri'
 import { executeAction, nativeError, readWorkspace, watchConversation } from '../../lib/workspace'
 import type { ConversationSnapshot } from '../../contracts'
-import type { Profile, TeachingPlan } from '../../types'
 import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { CoachDock } from './CoachDock'
 import { Markdown } from '../../lib/markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, pinnedTurn, inspect, nativeLanguageName, showRomanization, rtl }: {
-  prepareContext: () => Promise<void>; conversationBusy: boolean
-  level: string; topic: string; chatId: string; plan: TeachingPlan | null; profile: Profile | null
-  observationStatus: string; tab: 'lesson' | 'analysis'; onTab: (tab: 'lesson' | 'analysis') => void
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, pinnedTurn, inspect, nativeLanguageName, showRomanization, rtl, contactProfile }: {
+  conversationBusy: boolean; chatId: string; contactProfile: ReactNode; tab: 'lesson' | 'analysis' | 'profile'; onTab: (tab: 'lesson' | 'analysis' | 'profile') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
@@ -76,13 +75,12 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     }
   }
   const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
-  const coachDock = <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled title="Coach thread clearing is not available yet.">Clear thread</button>}>
+  const coachDock = <CoachDock presentation={coachOpen ? 'dialog' : 'dock'} actions={<button type="button" aria-label="Clear coach thread" disabled title="Coach thread clearing is not available yet.">Clear thread</button>}>
     <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">
-      {thread.length === 0 && <p className="lesson-meta">Ask about a message or language usage. Coach messages are private.</p>}
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
-      {busy && <p role="status" className="lesson-meta">Working…</p>}
+      {busy && <ActivityIndicator compact label="Coach replying…" />}
     </div>
-    {(error || executionError) && <div className="turn-errors" role="alert">{error || executionError}</div>}
+    {(error || executionError) && <ErrorDetails label="Coach" errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}
     <form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
@@ -96,9 +94,11 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     <div className="panel-tabs" role="tablist" aria-label="Learning panel">
       <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
       <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
+      <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>Profile</button>
     </div>
-    <ConversationMap />
-    {tab === 'lesson' ? <div className="analysis-scroll"><p className="center-note">Lesson editing and skill evidence are not available yet.</p><button type="button" className="lesson-action" disabled>Edit choices</button></div> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Message analysis is not available yet.</p>}</div>}
+    <div className="analysis-scroll" hidden={tab !== 'profile'}>{contactProfile}</div>
+    {tab !== 'profile' && <ConversationMap />}
+    {tab !== 'profile' && (tab === 'lesson' ? <div className="analysis-scroll"><button type="button" className="lesson-action" disabled title="Lesson editing unavailable">Edit choices</button></div> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a contact reply to see its breakdown.</p>}</div>)}
     {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
   </>
 }

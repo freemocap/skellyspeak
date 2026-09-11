@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
@@ -18,6 +19,17 @@ import quota
 import work_admission as work
 
 MAX_ITEMS = 8
+log = logging.getLogger("skellyspeak.operations")
+
+
+def record_failure(status: int, error: BaseException) -> None:
+    # Deliberately exclude exception messages, tracebacks, request data and identities.
+    upstream = getattr(error, "upstream_status", None)
+    log.warning(json.dumps({"event": "operation_failure",
+        "severity": "ERROR" if status >= 500 else "WARNING",
+        "status": status,
+        "upstream_status": upstream if type(upstream) is int and 100 <= upstream <= 599 else None,
+        "category": "http" if isinstance(error, HTTPException) else "internal"}))
 
 
 @dataclass(frozen=True)
@@ -76,11 +88,13 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
             else:
                 event.update({"type": "duplicate", "state": held.state})
         except HTTPException as error:
+            record_failure(error.status_code, error)
             event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code})
             retry = (error.headers or {}).get("Retry-After", "")
             if retry.isdigit() and 0 < int(retry) <= 604800:
                 event["retry_after"] = int(retry)
-        except Exception:
+        except Exception as error:
+            record_failure(500, error)
             event.update({"type": "error", "code": "UNKNOWN_OUTCOME", "status": 500})
         await send.send(event)
 

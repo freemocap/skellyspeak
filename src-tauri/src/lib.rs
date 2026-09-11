@@ -2,8 +2,11 @@ mod access;
 mod admission;
 #[cfg(desktop)]
 mod audio;
+mod conversation_prompt;
 pub mod credentials;
+pub mod diagnostics;
 pub mod execution;
+pub mod gloss;
 pub mod grouped;
 mod holds;
 pub mod hosted;
@@ -13,6 +16,8 @@ pub mod model;
 pub mod profile;
 pub mod provider;
 mod refusal;
+pub mod speech;
+pub mod speech_provider;
 pub mod store;
 mod transcription;
 pub mod turn_plan;
@@ -48,6 +53,44 @@ impl Application {
         }
         self.store.lock().map_err(|_| internal())
     }
+    fn clean_credentials_with(&self, remove: impl Fn(&str) -> Result<()>) -> Result<()> {
+        loop {
+            let id = self.lock()?.claim_credential_cleanup()?;
+            let Some(id) = id else {
+                return Ok(());
+            };
+            // A claimed unique ID cannot be reused while the external call blocks.
+            let result = remove(&id);
+            self.lock()?
+                .finish_credential_cleanup(&id, result.is_ok())?;
+            result?;
+        }
+    }
+    fn clean_credentials(&self) -> Result<()> {
+        self.clean_credentials_with(credentials::remove)
+    }
+    fn write_credential_with<T>(
+        &self,
+        prepare: impl FnOnce(&mut Store) -> Result<()>,
+        write: impl FnOnce(&str) -> Result<()>,
+        commit: impl FnOnce(&mut Store, &str) -> Result<T>,
+        remove: impl Fn(&str) -> Result<()>,
+    ) -> Result<T> {
+        let id = uuid::Uuid::new_v4().to_string();
+        {
+            let mut store = self.lock()?;
+            prepare(&mut store)?;
+            store.reserve_credential(&id)?;
+        }
+        let written = write(&id);
+        let result = {
+            let mut store = self.lock()?;
+            store.credential_writes.remove(&id);
+            written.and_then(|_| commit(&mut store, &id))
+        };
+        self.clean_credentials_with(remove)?;
+        result
+    }
     fn stop(&self, error: AppError) {
         *self.fatal.lock().expect("execution fault mutex") = Some(error);
     }
@@ -62,6 +105,21 @@ fn get_snapshot(state: tauri::State<'_, Arc<Application>>) -> Result<Snapshot> {
 #[tauri::command]
 fn execute_command(state: tauri::State<'_, Arc<Application>>, command: Command) -> Result<Receipt> {
     state.lock()?.execute(command)
+}
+#[tauri::command]
+fn read_speech_audio(
+    state: tauri::State<'_, Arc<Application>>,
+    session_id: String,
+    operation_id: String,
+) -> Result<model::SpeechAudioState> {
+    let store = state.lock()?;
+    if session_id != store.session_id {
+        return Err(AppError::new(
+            ErrorCode::SessionExpired,
+            "The application session changed. Refresh before continuing.",
+        ));
+    }
+    store.speech_audio(&operation_id, &store.speech_cache)
 }
 #[tauri::command]
 fn get_connection(state: tauri::State<'_, Arc<Application>>) -> Result<ConnectionConfig> {
@@ -82,39 +140,49 @@ async fn save_connection(
     // Keychain may display a native permission prompt. Never block the UI thread.
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let mut store = state.lock()?;
-        if store.connection_config()?.revision != expected_revision {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "Connection settings changed. Reload before saving.",
-            ));
-        }
-        let id = if let Some(key) = &key {
-            let id = uuid::Uuid::new_v4().to_string();
-            store.reserve_credential(&id)?;
-            credentials::save(&id, key.trim())?;
-            id
+        if let Some(key) = &key {
+            state.write_credential_with(
+                |store| {
+                    if store.connection_config()?.revision != expected_revision {
+                        return Err(AppError::new(
+                            ErrorCode::Conflict,
+                            "Connection settings changed. Reload before saving.",
+                        ));
+                    }
+                    Ok(())
+                },
+                |id| credentials::save(id, key.trim()),
+                |store, id| {
+                    store.set_connection(
+                        expected_revision,
+                        Some(id),
+                        standard_model.trim(),
+                        fast_model.trim(),
+                    )?;
+                    store.connection_config()
+                },
+                credentials::remove,
+            )
         } else {
-            store.credential_id()?.ok_or_else(|| {
-                AppError::new(
-                    ErrorCode::Validation,
-                    "Enter an OpenRouter API key before saving.",
-                )
-            })?
-        };
-        let result = store.set_connection(
-            expected_revision,
-            Some(&id),
-            standard_model.trim(),
-            fast_model.trim(),
-        );
-        store.credential_writes.remove(&id);
-        if let Err(error) = result {
-            store.clean_credentials()?;
-            return Err(error);
+            let result = {
+                let mut store = state.lock()?;
+                let id = store.credential_id()?.ok_or_else(|| {
+                    AppError::new(
+                        ErrorCode::Validation,
+                        "Enter an OpenRouter API key before saving.",
+                    )
+                })?;
+                store.set_connection(
+                    expected_revision,
+                    Some(&id),
+                    standard_model.trim(),
+                    fast_model.trim(),
+                )?;
+                store.connection_config()
+            };
+            state.clean_credentials()?;
+            result
         }
-        store.clean_credentials()?;
-        store.connection_config()
     })
     .await
     .map_err(|_| internal())?
@@ -148,26 +216,28 @@ async fn verify_openrouter_key(
     provider::verify_key(&provider::client()?, key.trim()).await
 }
 #[tauri::command]
-fn disconnect(
+async fn disconnect(
     state: tauri::State<'_, Arc<Application>>,
     expected_revision: i32,
 ) -> Result<ConnectionConfig> {
-    let mut store = state.lock()?;
-    let config = store.connection_config()?;
-    if config.revision != expected_revision {
-        return Err(AppError::new(
-            ErrorCode::Conflict,
-            "Connection changed. Reload before disconnecting.",
-        ));
-    }
-    store.set_connection(
-        expected_revision,
-        None,
-        &config.standard_model,
-        &config.fast_model,
-    )?;
-    store.clean_credentials()?;
-    store.connection_config()
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let result = {
+            let mut store = state.lock()?;
+            let config = store.connection_config()?;
+            store.set_connection(
+                expected_revision,
+                None,
+                &config.standard_model,
+                &config.fast_model,
+            )?;
+            store.connection_config()
+        };
+        state.clean_credentials()?;
+        result
+    })
+    .await
+    .map_err(|_| internal())?
 }
 #[tauri::command]
 async fn hosted_sign_in(
@@ -195,25 +265,32 @@ async fn hosted_sign_in(
     let (token, account) = loop {
         tokio::select! {result=&mut authenticate=>break result?,_=tokio::time::sleep(Duration::from_millis(100))=>{if state.auth_epoch.load(std::sync::atomic::Ordering::SeqCst)!=epoch{return Err(AppError::new(ErrorCode::Validation,"Sign-in cancelled."));}}}
     };
-    let mut store = state.lock()?;
-    if store.connection_config()?.revision != revision
-        || state.auth_epoch.load(std::sync::atomic::Ordering::SeqCst) != epoch
-    {
-        return Err(AppError::new(
-            ErrorCode::Conflict,
-            "Connection changed during sign-in. Sign in again.",
-        ));
-    }
-    let id = uuid::Uuid::new_v4().to_string();
-    store.reserve_credential(&id)?;
-    credentials::save(&id, &token)?;
-    let result = store.set_hosted_connection(revision, Some(&id), &account.email);
-    store.credential_writes.remove(&id);
-    if let Err(error) = result {
-        store.clean_credentials()?;
-        return Err(error);
-    }
-    store.clean_credentials()?;
+    let worker = state.inner().clone();
+    let email = account.email.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let valid = |store: &mut Store| -> Result<()> {
+            if store.connection_config()?.revision != revision
+                || worker.auth_epoch.load(std::sync::atomic::Ordering::SeqCst) != epoch
+            {
+                return Err(AppError::new(
+                    ErrorCode::Conflict,
+                    "Connection changed during sign-in. Sign in again.",
+                ));
+            }
+            Ok(())
+        };
+        worker.write_credential_with(
+            valid,
+            |id| credentials::save(id, &token),
+            |store, id| {
+                valid(store)?;
+                store.set_hosted_connection(revision, Some(id), &email)
+            },
+            credentials::remove,
+        )
+    })
+    .await
+    .map_err(|_| internal())??;
     Ok(account)
 }
 #[tauri::command]
@@ -270,17 +347,22 @@ async fn hosted_account(state: tauri::State<'_, Arc<Application>>) -> Result<Hos
     Ok(account)
 }
 #[tauri::command]
-fn hosted_sign_out(
+async fn hosted_sign_out(
     state: tauri::State<'_, Arc<Application>>,
     expected_revision: i32,
 ) -> Result<ConnectionConfig> {
-    state
-        .auth_epoch
-        .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    let mut store = state.lock()?;
-    store.set_hosted_connection(expected_revision, None, "")?;
-    store.clean_credentials()?;
-    store.connection_config()
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let result = {
+            let mut store = state.lock()?;
+            store.set_hosted_connection(expected_revision, None, "")?;
+            store.connection_config()
+        };
+        state.clean_credentials()?;
+        result
+    })
+    .await
+    .map_err(|_| internal())?
 }
 #[tauri::command]
 fn select_route(
@@ -371,10 +453,11 @@ async fn scheduler(state: Arc<Application>) {
                 }
             };
             if let Some(dispatch) = dispatch {
-                if dispatch.route != ConnectionRoute::Openrouter
-                    && let Some(group) = groups
-                        .iter_mut()
-                        .find(|g| grouped::compatible(&g[0].0, &dispatch))
+                if dispatch.speech_source.is_none()
+                    && dispatch.route != ConnectionRoute::Openrouter
+                    && let Some(group) = groups.iter_mut().find(|g| {
+                        g[0].0.speech_source.is_none() && grouped::compatible(&g[0].0, &dispatch)
+                    })
                 {
                     group.push((dispatch, permit));
                     continue;
@@ -411,8 +494,30 @@ async fn scheduler(state: Arc<Application>) {
                         }
                         holds::check(&state.lock()?.connection, &dispatch.target)?;
                     }
-                    if first.route == ConnectionRoute::Openrouter {
-                        let request = provider::complete(&client, &key, first);
+                    let schema = linguistics::adapter::output_schema();
+                    let outputs: Vec<_> = dispatches.iter().map(|dispatch| gloss::request_output(dispatch.gloss_source.as_ref(), &schema)).collect();
+                    if let Some(source) = &first.speech_source {
+                        let input = speech_provider::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
+                        let request = speech_provider::synthesize(&client, &first.target, &key, &input, &first.install_id);
+                        tokio::pin!(request);
+                        let outcome = loop {
+                            tokio::select! {
+                                result = &mut request => break result,
+                                _ = tokio::time::sleep(Duration::from_millis(100)) => {
+                                    if !state.lock()?.attempt_active(&first.attempt)? {
+                                        return Err(AppError::new(ErrorCode::UnknownOutcome, "Speech cancelled locally; provider billing may continue."));
+                                    }
+                                }
+                            }
+                        };
+                        let mut store = state.lock()?;
+                        if let Some(audio) = store.finish_speech(first, outcome)? {
+                            store.speech_cache.insert(audio)?;
+                        }
+                        finished[0] = true;
+                        permits[0].take();
+                    } else if first.route == ConnectionRoute::Openrouter {
+                        let request = provider::complete_with_output(&client, &key, first, outputs[0]);
                         tokio::pin!(request);
                         let outcome = loop {
                             tokio::select! {
@@ -428,7 +533,7 @@ async fn scheduler(state: Arc<Application>) {
                         finished[0] = true;
                         permits[0].take();
                     } else {
-                        let request = grouped::request(&client, &key, &dispatches, |index, outcome| {
+                        let request = grouped::request_with_outputs(&client, &key, &dispatches, &outputs, |index, outcome| {
                             state.lock()?.finish(&dispatches[index], outcome)?;
                             finished[index] = true;
                             permits[index].take();
@@ -453,10 +558,26 @@ async fn scheduler(state: Arc<Application>) {
                 for (index, dispatch) in dispatches.iter().enumerate() {
                     if !finished[index] {
                         let error = result.as_ref().err().cloned().unwrap_or_else(|| AppError::new(ErrorCode::UnknownOutcome, "Grouped operation has no confirmed result. No automatic retry was made."));
-                        if let Err(error) = state
-                            .lock()
-                            .and_then(|mut store| store.finish(dispatch, Err(error)))
-                        {
+                        if let Err(error) = state.lock().and_then(|mut store| {
+                            if dispatch.speech_source.is_some() {
+                                store
+                                    .finish_speech(
+                                        dispatch,
+                                        speech_provider::SpeechOutcome {
+                                            audio: Err(error),
+                                            actual_model: None,
+                                            provider_id: None,
+                                            input_tokens: None,
+                                            output_tokens: None,
+                                            cost_micros: None,
+                                            finish_reason: None,
+                                        },
+                                    )
+                                    .map(|_| ())
+                            } else {
+                                store.finish(dispatch, Err(error))
+                            }
+                        }) {
                             state.stop(error);
                         }
                     }
@@ -472,6 +593,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            diagnostics::initialize(&app.path().app_log_dir()?)?;
             let directory = app.path().app_data_dir()?;
             store::prepare_private_directory(&directory)?;
             let state = Arc::new(Application {
@@ -483,13 +605,16 @@ pub fn run() {
                 signing_in: tokio::sync::Mutex::new(()),
                 auth_epoch: std::sync::atomic::AtomicU64::new(0),
             });
-            state.lock()?.clean_credentials()?;
+            state.clean_credentials()?;
             state.lock()?.prepare_chat()?;
             app.manage(state.clone());
             tauri::async_runtime::spawn(scheduler(state));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            read_speech_audio,
+            diagnostics::record_frontend_diagnostic,
+            diagnostics::read_frontend_diagnostics,
             voice::mic_start,
             voice::mic_wave,
             voice::mic_cancel,
@@ -515,4 +640,135 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("SkellySpeak could not start; no reset or fallback was performed");
+}
+
+#[cfg(test)]
+mod credential_io_tests {
+    use super::*;
+
+    fn application(path: &std::path::Path) -> Arc<Application> {
+        Arc::new(Application {
+            admission: admission::Admission::new(),
+            #[cfg(desktop)]
+            capture: Mutex::new(None),
+            store: Mutex::new(Store::open(path).unwrap()),
+            fatal: Mutex::new(None),
+            signing_in: tokio::sync::Mutex::new(()),
+            auth_epoch: std::sync::atomic::AtomicU64::new(0),
+        })
+    }
+
+    #[test]
+    fn blocked_credential_io_releases_workspace_and_rechecks_revision() {
+        for change_revision in [false, true] {
+            let directory = tempfile::tempdir().unwrap();
+            let app = application(&directory.path().join("test.sqlite3"));
+            let revision = app.lock().unwrap().connection_config().unwrap().revision;
+            let worker = app.clone();
+            let (started, wait_started) = std::sync::mpsc::channel();
+            let (resume, wait_resume) = std::sync::mpsc::channel();
+            let removed = Arc::new(Mutex::new(Vec::new()));
+            let deletions = removed.clone();
+            let task = std::thread::spawn(move || {
+                worker.write_credential_with(
+                    |_| Ok(()),
+                    |_| {
+                        started.send(()).unwrap();
+                        wait_resume.recv().unwrap();
+                        Ok(())
+                    },
+                    |store, id| {
+                        store.set_connection(revision, Some(id), "fixture-standard", "fixture-fast")
+                    },
+                    |id| {
+                        assert!(
+                            worker.store.try_lock().is_ok(),
+                            "Credential deletion held the workspace lock"
+                        );
+                        deletions.lock().unwrap().push(id.to_owned());
+                        Ok(())
+                    },
+                )
+            });
+            wait_started.recv_timeout(Duration::from_secs(2)).unwrap();
+            let mut store = app
+                .store
+                .try_lock()
+                .expect("Blocked credential save held workspace lock");
+            assert!(store.snapshot().is_ok());
+            assert!(
+                store.claim_credential_cleanup().unwrap().is_none(),
+                "Cleanup claimed an in-flight write"
+            );
+            if change_revision {
+                store
+                    .connection
+                    .execute("UPDATE ai_config SET revision=revision+1", [])
+                    .unwrap();
+            }
+            drop(store);
+            resume.send(()).unwrap();
+            let result = task.join().unwrap();
+            let store = app.lock().unwrap();
+            if change_revision {
+                assert_eq!(result.unwrap_err().code, ErrorCode::Conflict);
+                assert!(store.credential_id().unwrap().is_none());
+                assert_eq!(removed.lock().unwrap().len(), 1);
+            } else {
+                result.unwrap();
+                assert!(store.credential_id().unwrap().is_some());
+                assert!(removed.lock().unwrap().is_empty());
+            }
+            assert!(store.credential_writes.is_empty());
+            assert_eq!(
+                store
+                    .connection
+                    .query_row("SELECT count(*) FROM credential_cleanup", [], |r| r
+                        .get::<_, i64>(0))
+                    .unwrap(),
+                0
+            );
+        }
+    }
+
+    #[test]
+    fn failed_keychain_io_releases_claims_and_keeps_failed_cleanup_retryable() {
+        let directory = tempfile::tempdir().unwrap();
+        let app = application(&directory.path().join("test.sqlite3"));
+        let fail = || AppError::new(ErrorCode::Credential, "Synthetic credential failure.");
+        let result: Result<()> = app.write_credential_with(
+            |_| Ok(()),
+            |_| Err(fail()),
+            |_, _| panic!("Failed write must not commit"),
+            |_| Err(fail()),
+        );
+        assert_eq!(result.unwrap_err().code, ErrorCode::Credential);
+        {
+            let store = app.lock().unwrap();
+            assert!(store.credential_writes.is_empty());
+            assert!(store.credential_id().unwrap().is_none());
+            assert_eq!(
+                store
+                    .connection
+                    .query_row("SELECT count(*) FROM credential_cleanup", [], |r| r
+                        .get::<_, i64>(0))
+                    .unwrap(),
+                1
+            );
+        }
+        app.clean_credentials_with(|_| {
+            assert!(app.store.try_lock().is_ok());
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(
+            app.lock()
+                .unwrap()
+                .connection
+                .query_row("SELECT count(*) FROM credential_cleanup", [], |r| r
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+    }
 }

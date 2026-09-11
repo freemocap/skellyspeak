@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { ChatSummary } from '../types'
 
 interface ChatHistoryProps {
+  contacts?: ReactNode
   open: boolean
   chats: ChatSummary[]
   currentId: string | null
@@ -35,6 +36,7 @@ function whenever(updatedAt: number): string {
 /// an Arabic one are separate practice, and mixing them in one list would make
 /// the common case — "the Spanish chat from yesterday" — harder, not easier.
 export function ChatHistory({
+  contacts,
   open,
   chats,
   currentId,
@@ -66,17 +68,18 @@ export function ChatHistory({
   return (
     <>
       <div className="drawer-scrim" onClick={onClose} aria-hidden="true" />
-      <aside className="chat-history" aria-label="Chat history">
+      <aside className="chat-history" aria-label="Contacts">
         <div className="chat-history-head">
           <span className="chat-history-lang">{languageName}</span>
-          <button type="button" className="chat-history-new" onClick={onNewChat}>
+          {!contacts && <button type="button" className="chat-history-new" onClick={onNewChat}>
             ✚ New chat
-          </button>
+          </button>}
         </div>
 
+        {contacts}
         {chats.length === 0 ? (
           <p className="chat-history-empty">
-            No conversations yet. Start talking and this one will be saved here.
+            No conversations yet. Choose New conversation to begin.
           </p>
         ) : (
           <ul className="chat-history-list">

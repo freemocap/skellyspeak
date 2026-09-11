@@ -112,16 +112,19 @@ async def test_results_arrive_independently(ledger):
 
 
 @pytest.mark.asyncio
-async def test_partial_failure_keeps_unknown_lease_without_blocking_sibling(proxy, monkeypatch):
+async def test_partial_failure_keeps_unknown_lease_without_blocking_sibling(proxy, monkeypatch, caplog):
     def respond(request: httpx.Request) -> httpx.Response:
         if json.loads(request.content)["messages"][0]["content"] == "hello 0":
             return httpx.Response(502, text="private upstream content")
         return httpx.Response(200, json={"id": "ok", "choices": [], "usage": {"cost": 0.00001, "total_tokens": 1}})
     upstream(monkeypatch, respond)
     response = await proxy.post("/v1/operations", json=envelope())
-    assert "private upstream content" not in response.text
+    assert "private upstream content" not in response.text + caplog.text
+    diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
+    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 502, "upstream_status": 502, "category": "http"}
     events = [json.loads(line) for line in response.text.splitlines()]
     assert sorted(e["type"] for e in events) == ["complete", "error", "result"]
+    assert next(e for e in events if e["type"] == "error")["status"] == 502
     assert len(main.db.store["users/learner/work_control/slots"]["active"]) == 1
     assert sorted(v["state"] for k, v in main.db.store.items() if "/work_attempts/" in k) == ["succeeded", "unknown"]
 
@@ -174,3 +177,16 @@ async def test_protocol_requires_session(ledger, monkeypatch):
         response = await client.get("/v1/protocol")
     assert response.status_code == 401
     assert ledger.store == {}
+
+
+@pytest.mark.asyncio
+async def test_internal_failure_diagnostic_never_logs_exception_text(proxy, monkeypatch, caplog):
+    async def fail(*args, **kwargs):
+        raise ValueError("PRIVATE_PROMPT_AND_KEY")
+    monkeypatch.setattr(main, "provider_json", fail)
+    response = await proxy.post("/v1/operations", json=envelope(1))
+    assert "PRIVATE_PROMPT_AND_KEY" not in response.text + caplog.text
+    failure = next(json.loads(line) for line in response.text.splitlines() if json.loads(line)["type"] == "error")
+    assert failure["status"] == 500
+    diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
+    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 500, "upstream_status": None, "category": "internal"}

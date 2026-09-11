@@ -180,9 +180,9 @@ function Application() {
           <button
             type="button"
             className="hamburger"
-            aria-label="Chat history"
+            aria-label="Contacts"
             aria-expanded={historyOpen}
-            title="Chat history"
+            title="Contacts"
             onClick={() => setHistoryOpen((v) => !v)}
           >
             ☰
@@ -287,7 +287,7 @@ function Application() {
             >
               <PageBoundary>
                 <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'} mobileSurface={mobileSurface} onMobileSurfaceChange={setMobileSurface}
-                  languagePicker={settings && <div className="conversation-languages"><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
+                  languagePicker={settings && <><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
                     value={settings.target_language} disabled={savingLanguage || settingsOpen}
                     onChange={event => void changeLanguage('target_language', event.target.value)}>
                     {languages().map(language => <option key={language.code} value={language.code}>{language.endonym}</option>)}
@@ -297,7 +297,7 @@ function Application() {
                     {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option key={language.base} value={language.base}>{language.endonym}</option>)}
                   </select></label>
                   {savingLanguage && <span role="status">Saving…</span>}
-                  </div>}
+                  </>}
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}

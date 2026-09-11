@@ -3,7 +3,7 @@ import type { ChatMessage, ConversationSnapshot } from '../contracts'
 import { conversationTurns } from './conversation-view'
 
 function message(sequence: number, role: string, text: string, translation: string | null = null): ChatMessage {
-  return { sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
+  return { wordGloss: null, glossError: null, glossState: null, glossOperationId: null, sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
 }
 function snapshot(messages: ChatMessage[]): ConversationSnapshot {
   return {
@@ -59,4 +59,30 @@ describe('durable conversation projection', () => {
   it('fails on an unexpected native role rather than dropping content', () => {
     expect(() => conversationTurns(snapshot([message(1, 'system', 'Unexpected')]))).toThrow('Unexpected conversation message role.')
   })
+})
+
+it('projects saved source gloss and independent operation state without token reconstruction', () => {
+  const source = message(2, 'assistant', 'Hola hola')
+  source.wordGloss = {sourceMessageId: source.id, targetLanguageId:'spanish', explanationLanguageId:'english', formatVersion:'format', templateVersion:'template', boundaryPolicy:'policy', operationId:'gloss', attemptId:'attempt', coverage:'partial', segments:[{start:5,end:9,kind:'gloss',gloss:'hello'}]}
+  source.glossOperationId = 'gloss'
+  source.glossState = 'failed'
+  source.glossError = 'Word meanings request failed.'
+  const projected = conversationTurns(snapshot([source]))[0].assistant!
+  expect(projected.savedGloss).toBe(source.wordGloss)
+  expect(projected).toMatchObject({reply:'Hola hola',tokens:[],glossOperationId:'gloss',glossState:'failed',glossError:source.glossError})
+  source.wordGloss = {...source.wordGloss, sourceMessageId: 'another-message'}
+  expect(() => conversationTurns(snapshot([source]))).toThrow('Saved word meanings do not belong to this message.')
+})
+
+it.each([null, 'ready', 'waiting_dependencies', 'running', 'succeeded', 'failed', 'unknown', 'cancelled', 'invalidated'])('preserves authoritative translation state %s independently of saved text', state => {
+  const reply = { ...message(2, 'assistant', 'Reply', 'Saved translation'), translationState: state }
+  const source = snapshot([message(1, 'user', 'Question'), reply])
+  const before = structuredClone(source)
+  const result = conversationTurns(source)[0].assistant!
+  expect(result.translationState).toBe(state)
+  expect(result.translation).toBe('Saved translation')
+  expect(result.reply).toBe('Reply')
+  expect(result.glossState).toBeNull()
+  expect(result.errors).toEqual([])
+  expect(source).toEqual(before)
 })
