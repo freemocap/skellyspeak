@@ -1,5 +1,16 @@
 # L1 — Source-linked passage analysis contract
 
+## Approval gate
+
+Proposal/design conversation with the user comes first. Investigate read-only and
+present your recommendations directly in this domain chat. Do not implement source,
+code prototypes, install dependencies or run implementation builds/tests until the
+user explicitly approves the domain's implementation scope. The work and acceptance
+sections below describe candidate work after approval, not immediate authorization.
+Preserve and disclose existing preliminary edits without treating them as accepted.
+Coordinator review cannot substitute for the user's approval.
+
+
 Read ../README.md, ../../AGENTS.md, ../../DATA-MODEL.md (Source, assistance and
 language analysis), ../../EXECUTION.md and ../../AI-EVALUATION.md. Report in
 workflow/reports/L1.md. Own src-tauri/src/linguistics/ and pure tests there.

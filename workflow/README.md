@@ -10,6 +10,21 @@ agent is active merely because its assignment exists. Git remains read-only for
 agents unless the user explicitly authorizes a particular mutation in that session.
 The release's one-time permission is exhausted. Do not edit AGENTS.md to grant powers.
 
+## Proposal-first approval — user direction
+
+Every domain begins with an independent proposal/design conversation with the user.
+Read-only investigation and proposal documents are allowed. Source implementation,
+prototype coding, dependency installation and implementation test/build work require
+explicit user approval in that domain chat. Assignment existence, earlier general
+build authorization and coordinator contract review do not grant that approval.
+
+Present scope, intended behavior, alternatives/tradeoffs, a recommended bounded
+slice, cross-domain dependencies and decisions for discussion. Wait for the user's
+implementation go-ahead. Integration coordinates consistency; it does not replace
+the user's domain design conversations or approve product changes on their behalf.
+Preserve and disclose any work started before this correction as unapproved work;
+do not silently delete it or treat it as accepted. No integration of that work yet.
+
 ## Starting point
 
 The translation foundation is checkpointed on rebuild at 44b9f92. Hosted native QA
@@ -23,14 +38,14 @@ Main maintains released v0.13.7; it is not a feature integration branch.
 
 | Domain | Responsibility | Current assignment | State |
 | --- | --- | --- | --- |
-| Integration | Shared contracts, dependency order, cross-domain tests, release readiness | This coordination pass | Preparing assignments |
-| Execution/reliability | Scheduling, admission, authority, attempts, access routes | R1: translation lifecycle verification | Ready after checkpoint |
-| Language analysis | Source segmentation, annotations, linguistic validation | L1: passage contract and pure analysis core | Ready after checkpoint |
-| Product/interaction | User workflows, accessible presentation, style consistency | U1: source-linked reading interaction | Ready after checkpoint |
+| Integration | Shared contracts, dependency order, cross-domain tests, release readiness | Contract review and sequential integration | Active |
+| Execution/reliability | Scheduling, admission, authority, attempts, access routes | R1: translation lifecycle verification | Reviewed; user checkpoint pending |
+| Language analysis | Source segmentation, annotations, linguistic validation | L1: passage contract and pure analysis core | Core reviewed; user checkpoint pending |
+| Product/interaction | User workflows, accessible presentation, style consistency | U1: main UI parity inventory and adaptation | Direct user design review |
 | Evidence/progression | Observation eligibility, rubrics, XP and reports | No implementation assignment yet | Queued |
 | Visualization | Garden/skill-map renderers and mathematical avatars | No implementation assignment yet | Queued |
 
-Read the matching file in assignments/. Start with R1, L1 and U1 only. Evidence and
+Read the matching file in assignments/. Start proposal discussions for R1, L1 and U1 only. Evidence and
 visualization can receive finite design assignments later; do not invent production
 scores or infer evidence contracts from visual geometry.
 
@@ -63,8 +78,7 @@ scope and the applicable authorization first. Never hand-edit generated contract
 
 ## Contracts and disagreements
 
-L1 proposes the source/annotation boundary. U1 can design with explicitly labeled
-fixture data immediately, but must not independently define a production token
+L1 proposes the source/annotation boundary. U1 can propose fixture-based interactions immediately, but must not independently define a production token
 schema. R1 can verify existing translation without waiting on either. When L1's
 contract is reviewed, integration records the accepted decision in DATA-MODEL.md
 and/or EXECUTION.md, regenerates types if necessary, and gives U1 the exact revision.
@@ -102,3 +116,26 @@ assume another chat has seen their local edits or a changed plan.
 Use HANDOFF.md. State code implemented, isolated tests, integration status and native
 QA separately. Include open risks and cross-domain effects. Do not claim all tests
 passed if only focused checks ran; do not put secrets or conversation text in reports.
+
+## Current integration decisions — 2026-09-10
+
+Language and Reliability have explicit user approval to continue scoped work.
+Language temporarily owns its worktree Cargo.toml/Cargo.lock dependency declaration
+and lib.rs module registration for the grapheme validator; all other shared seams
+remain integration-owned. DATA-MODEL.md records accepted source-boundary requirements.
+No paid format pilot is authorized or running.
+
+R1 execution changes have passed coordinator source review and an independent native
+test run (88 passed). They remain uncommitted in rebuild-reliability and are not
+integrated. User checkpoint is the next Git step. R2 is a proposal, not implemented;
+its passage-wide lifetime detail limit was rejected in favor of separating logical
+request retry bounds from global concurrent capacity. UI implementation remains
+subject to its direct design conversation; its standalone prototype is excluded.
+
+Language core review: coordinator inspected the validator, shared dependency/module
+diff and conformance test, then independently ran `cargo test --manifest-path
+src-tauri/Cargo.toml --lib --locked linguistics::` in rebuild-language: 21 passed,
+including all 766 Unicode corpus cases; 79 unrelated tests filtered out. No blocking
+finding for this bounded deterministic component. This does not validate linguistic
+quality, provider decoding, live source authority or production publication. Those
+remain separate work. Contribution remains uncommitted and unintegrated.

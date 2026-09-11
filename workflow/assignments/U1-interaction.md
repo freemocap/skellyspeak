@@ -1,5 +1,16 @@
 # U1 — Reading and assistance interaction
 
+## Approval gate
+
+Proposal/design conversation with the user comes first. Investigate read-only and
+present your recommendations directly in this domain chat. Do not implement source,
+code prototypes, install dependencies or run implementation builds/tests until the
+user explicitly approves the domain's implementation scope. The work and acceptance
+sections below describe candidate work after approval, not immediate authorization.
+Preserve and disclose existing preliminary edits without treating them as accepted.
+Coordinator review cannot substitute for the user's approval.
+
+
 Read ../README.md, ../../AGENTS.md, ../../DESIGN.md, ../../ui-guidelines.md,
 ../../STYLE-AUDIT.md and ../../UI-SURFACES.md. Report in workflow/reports/U1.md.
 Own src/reading/ and component tests/styles within it.

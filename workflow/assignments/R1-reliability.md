@@ -1,5 +1,16 @@
 # R1 — Translation lifecycle and admission verification
 
+## Approval gate
+
+Proposal/design conversation with the user comes first. Investigate read-only and
+present your recommendations directly in this domain chat. Do not implement source,
+code prototypes, install dependencies or run implementation builds/tests until the
+user explicitly approves the domain's implementation scope. The work and acceptance
+sections below describe candidate work after approval, not immediate authorization.
+Preserve and disclose existing preliminary edits without treating them as accepted.
+Coordinator review cannot substitute for the user's approval.
+
+
 Read ../README.md, ../../AGENTS.md, ../../EXECUTION.md, ../../architecture.md and
 README.md at the repository root. Own only the R1 files listed in the ownership map
 and directly associated tests. Report in workflow/reports/R1.md.

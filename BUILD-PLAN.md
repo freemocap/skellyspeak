@@ -330,3 +330,18 @@ L1 proposes and tests source mapping; U1 designs data-driven reading presentatio
 Contract decisions remain in their owning root documents. Integration into rebuild
 is serialized and verified even when domain implementation proceeds in parallel.
 The user creates domain chats; no agents or worktrees were started by this plan.
+
+## Domain proposal gate
+
+Each domain must discuss its proposal and design directly with the user before
+implementation. The user has authorized Language and Reliability to continue their
+scoped implementation. UI remains in direct design review with the user; its rejected
+standalone prototype is not an integration candidate. Integration review alone does
+not authorize new product behavior. See workflow/README.md.
+
+Current next steps: Language implements grapheme-safe source validation and its
+deterministic tests; integration reviews the completed reliability diff and prepares
+its user-operated checkpoint/integration. Selected-word detail execution must retain
+independent result ownership and shared concurrent dispatch. Its lifetime budget must
+not make a passage permanently uninspectable after sixteen word requests; resolve
+bounded per-request attempts separately from concurrent queue limits before wiring.

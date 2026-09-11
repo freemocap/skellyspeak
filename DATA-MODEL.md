@@ -35,13 +35,29 @@ validate. Cached projections are disposable; their source records are not.
 - Mutable records carry a monotonic `revision`. A command states the revision it
   expects; conflicting edits fail explicitly. Timestamps describe time, not ordering
   guarantees or identity.
-- A message source reference is `(message_id, content_revision, span)`. The span
-  uses one documented text-offset convention, to be chosen with passage contracts.
+- An immutable saved message is identified by `message_id`; its span uses half-open
+  Unicode scalar offsets over the exact saved text. Do not invent a revision counter
+  for immutable content. Any future mutable-source contract must identify revisions.
 - Every child reference must resolve to the same owning learner and valid domain
   scope. Redundant scope fields, if stored for indexing, are checked against their
   authoritative parents rather than independently editable.
 - Source revisions identify the content being analyzed. They do not require a
   permanent history of overwritten text or an event-sourced storage architecture.
+
+### Accepted annotation boundary decisions
+
+These are implementation requirements, not a claim of wired annotation support.
+Rust validates endpoints against default extended grapheme boundaries, using the
+reviewed `unicode-segmentation` 1.13.3 / Unicode 17 policy, and supplies UTF-16
+coordinates for frontend slicing. Reject unsafe endpoints; never normalize or snap
+the source. Provider coordinate representation remains subject to evaluation.
+
+Individual word targets remain available independently of phrase explanations.
+Structural coverage and useful gloss availability are separate fields: zero glosses
+must not be presented as available word help. Valid partial help is terminal and
+readable; it does not trigger retries. A failed explicit retry preserves accepted
+help and records the failed attempt separately. Reading saved results never creates
+inference work. Phrase presentation remains with the UI design conversation.
 
 ## Core records
 
