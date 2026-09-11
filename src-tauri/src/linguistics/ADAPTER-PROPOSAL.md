@@ -1,10 +1,19 @@
 # Next slice: strict whole-passage gloss adapter
 
-Status: proposal only, separate from the accepted deterministic core. The completed
-mod.rs, tests, dependency pin and module registration stay unchanged pending user
-checkpoint. This slice would add pure prompt construction and candidate decoding
-under linguistics/ using existing serde/serde_json and Provider::PromptMessage types.
-It would not register an operation, send a request, change persistence or alter UI.
+Status: scoped pure adapter implemented after integration review on language base
+`fb6a6401c6f92686ff964ceb8dfd723c6ff09d77`. `adapter.rs` and `adapter_tests.rs`
+implement this boundary using existing dependencies. The accepted core changed only
+to register the adapter module. The format remains a candidate without measured
+provider quality; no operation, provider, storage or UI wiring has been added.
+
+Implementation details: parser shape errors (including excessive item count) collapse
+to the fixed `InvalidJsonOrShape` code; a bounded sequence visitor rejects item 513
+before deserializing it. Null gloss fields fail even for literal variants. Both APIs
+validate target and explanation IDs through the native language registry. Thai text
+can be present in mixed source, but Thai is not introduced as a registered target.
+Each decoded gloss reuses the existing prose policy; original source text is exempt.
+The schema is returned for future pipeline integration, not proof of route support.
+See workflow/reports/L1.md for exact checks and combined-rebuild verification needed.
 
 ## Recommended minimal output
 

@@ -101,7 +101,9 @@ Alternative output uses `start_boundary_id` and `end_boundary_id`, selected from
 app-built catalog, e.g. b0000/b0002 for the first gloss. IDs avoid output arithmetic
 but increase prompt/output overhead. Both representations map to the same validator.
 [RECOMMENDATION.md](RECOMMENDATION.md) defines a finite format comparison; neither
-wire format is frozen or benchmarked. No strict JSON adapter or prompt builder exists.
+wire format is benchmarked. The boundary-ID candidate now has a strict pure decoder
+and prompt builder in adapter.rs; the numeric example remains an alternative for
+evaluation. See ADAPTER-PROPOSAL.md for the implemented minimal tagged shape.
 Reject unknown/duplicate fields, wrong variants, malformed JSON, trailing content and
 negative/noninteger/out-of-range coordinates before constructing typed candidates.
 
@@ -155,3 +157,27 @@ permanent exclusions. Phrase UI review does not block this deterministic core.
 Registered module and its tests are source implementation, not a running assistance
 feature. Provider/task wiring, serialized result policy, frontend generation and
 cross-domain lifecycle checks remain integration work.
+
+## Consumer note for the approved conversation-reading slice
+
+The pure adapter is complete; integration owns its durable/IPC connection to the UI.
+Interaction should consume a saved, source-bound result projection, not call the
+adapter or construct provider requests. The projection needs the immutable message
+identity, accepted analysis/policy identity, ordered source segments, native-validated
+UTF-16 coordinates, optional word gloss text and explicit unresolved coverage.
+This lists consumer requirements; it does not create a second generated TypeScript
+schema. Integration should derive the actual shared contract from the accepted model.
+
+Render the original message exactly. Each accepted word occurrence keeps its own
+source span and reveal state even when wording repeats. Literal and unresolved spans
+remain source text, not fabricated word targets. Phrase/detail results must not erase
+word anchors. A complete result with zero glosses has no help to reveal; a partial
+result with glosses can reveal those glosses while retaining its unresolved status.
+
+Tap, drag across words, whole-bubble reveal/hide, preference changes and reopening
+read saved data. Intentional contextual inspection may express an explicit help
+request through the reviewed execution action; it must not be inferred from ordinary
+reveal or mount. A failed new attempt preserves previously accepted help. UI state
+must retain the owning message scope when asynchronous results arrive, and discard
+source-owned data when its source is deleted or invalidated. Integration owns those
+publication and snapshot rules; this adapter does not implement them.

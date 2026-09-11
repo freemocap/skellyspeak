@@ -1,6 +1,8 @@
 //! Source-preserving, grapheme-safe annotation core; no provider or storage wiring.
 //! See CONTRACT.md for semantic limits and future phrase layers.
 
+pub mod adapter;
+
 use unicode_segmentation::UnicodeSegmentation;
 
 pub const BOUNDARY_POLICY: &str = "uax29-egc-17.0.0-us1.13.3-v1";
