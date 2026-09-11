@@ -102,6 +102,37 @@ def test_unknown_cost_stays_reserved_until_reconciled(ledger: FakeDb) -> None:
     assert (balance.used, balance.tokens, balance.requests) == (30, 10, 1)
 
 
+def test_incident_parallel_reservations_reject_before_actual_allowance_is_spent(ledger: FakeDb) -> None:
+    """A timeout plus three worker holds can block an otherwise affordable request."""
+    user_id: str = "incident-learner"
+
+    def hold(micros: int) -> budget.Reservation:
+        return budget.reserve(db=ledger, user_id=user_id, micros=micros,
+                              user_limit=500_000, global_limit=2_000_000)
+
+    completed: budget.Reservation = hold(micros=56_639)
+    budget.settle(db=ledger, reservation=completed, actual_micros=56_639,
+                  tokens=0, status="settled", provider_id="completed")
+    timed_out: budget.Reservation = hold(micros=100_907)
+    budget.settle(db=ledger, reservation=timed_out, actual_micros=100_907,
+                  tokens=0, status="unknown", provider_id="")
+    pending: list[tuple[budget.Reservation, int]] = [
+        (hold(micros=100_939), 2_571),
+        (hold(micros=101_706), 846),
+        (hold(micros=100_784), 1_552),
+    ]
+    assert quota.read_balance(db=ledger, user_id=user_id, limit=500_000).remaining == 39_025
+    with pytest.raises(quota.QuotaExceeded) as rejection:
+        hold(micros=100_000)
+    assert rejection.value.code == "PERSONAL_ALLOWANCE_EXHAUSTED"
+
+    for reservation, actual in pending:
+        budget.settle(db=ledger, reservation=reservation, actual_micros=actual,
+                      tokens=0, status="settled", provider_id=reservation.request_id)
+    assert quota.read_balance(db=ledger, user_id=user_id, limit=500_000).used == 162_515
+    assert hold(micros=100_000).micros == 100_000
+
+
 def test_invalid_verifier_does_not_burn_a_code_and_only_one_exchange_wins(ledger: FakeDb) -> None:
     code = "c" * 43
     verifier = auth.new_code_verifier()

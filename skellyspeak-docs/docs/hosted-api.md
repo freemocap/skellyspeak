@@ -74,6 +74,19 @@ Every paid request atomically reserves its conservative maximum against both
 `users/{id}/usage/{UTC-date}` and `global_usage/{UTC-date}` before contacting a
 provider. It also creates `users/{id}/reservations/{request-id}`.
 
+The client supports four concurrent inference calls. An unaffordable reservation
+is rechecked within the same server request before provider dispatch: at most six
+attempts, separated by 0.5, 1, 2, 4 and 8 seconds. Other admitted calls continue
+running. At most 16 requests per process may wait; overflow fails with HTTP 503.
+Spending pauses and requests larger than the entire allowance fail immediately.
+Persistent allowance rejection returns its specific HTTP 429 code after waiting.
+These checks do not repeat a provider request or lower the spending ceiling.
+
+Output ceilings reflect the task: 2,000 tokens for word insight/topic notes,
+4,000 for translation/mechanics/coach feedback, and 8,000 for suggestions. Long
+word annotations retain 32,000. Smaller models are a separate evaluation; the
+allowance fix does not change model selection.
+
 Settlement corrects both totals in the original UTC bucket. Repeating an
 identical completed settlement has no effect; conflicting settlements fail.
 Missing or incomplete usage retains the full reservation for investigation.
@@ -106,6 +119,13 @@ maximum of four instances; these settings bound concurrency, not total bills.
 AI requests; the client presents it as `estimated_requests_remaining`. A conversation
 turn can make several model calls, and this estimate uses average request cost.
 Pending reservations can temporarily reduce the displayed allowance.
+
+The client labels this total as spent or reserved, including unresolved charges.
+Token totals are reporting, not the allowance limit. Hosted refusal messages use
+allowlisted error reasons and validated request IDs. Embedded refusal codes in
+HTTP-200 streams pause shared admission just as HTTP refusals do; the client does
+not automatically retry them. Both server deployment and a client release are
+needed to deliver the complete allowance/concurrency fix.
 
 ## Reconciliation and retention
 

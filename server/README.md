@@ -4,6 +4,10 @@ The active API source and deployment configuration live here. Authentication,
 request/body limits, model pricing ceilings, transactional budget reservation,
 settlement and session revocation apply to hosted AI calls.
 
+See the [September 10 allowance incident report](../RATE-LIMIT-INVESTIGATION.md)
+for the confirmed cause, concurrency-preserving fix and release checks, and
+[release notes](../RELEASE-NOTES.md) for the unreleased changes.
+
 ## Diagnostics
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
@@ -37,6 +41,16 @@ not a provider probe or a guarantee that the next request will be admitted.
 The app exposes this under Settings → AI access & models → Hosted → Service
 diagnostics → Check service status. It never polls automatically. A missing route
 before deployment reports an HTTP failure, not a healthy result.
+
+Unaffordable spending reservations are rechecked within the same incoming request,
+before contacting the provider: at most six checks with 0.5, 1, 2, 4 and 8 seconds
+between them. At most 16 requests per server process may wait for allowance;
+additional waiters receive HTTP 503. Affordable calls proceed concurrently, and
+settlement by another request or instance can release capacity for a waiting call.
+An impossible request larger than the entire personal/shared allowance and a
+spending pause fail immediately. Persisting allowance exhaustion returns its
+specific HTTP 429 code after the bounded wait. Failed provider calls are not
+resent, and no spending limits or unresolved charges are reduced by this policy.
 
 Errors carry `code`, `detail`, a generated `request_id` and applicable `resets_at`.
 Short-window rejections include Retry-After. Codes distinguish personal/shared

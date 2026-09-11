@@ -93,7 +93,7 @@ pub async fn transcribe_audio(
 
     let status = response.status();
     crate::request_admission::shared().refuse(&endpoint.url, status.as_u16());
-    if !status.is_success() { return Err(crate::network::provider_error(status)); }
+    if !status.is_success() { return Err(crate::network::response_error(response).await); }
     let body = crate::network::response_json(response, 1024 * 1024).await?;
     let text = body["text"].as_str().unwrap_or_default().trim().to_string();
     info!(

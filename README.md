@@ -4,6 +4,8 @@
 
 # SkellySpeak
 
+[Release notes](RELEASE-NOTES.md) · [Hosted allowance incident report](RATE-LIMIT-INVESTIGATION.md)
+
 A standalone multilingual language tutor that does not require an account.
 Tauri v2 targets
 desktop (Windows/macOS/Linux), Android, and iOS, with release workflows for each.
@@ -62,7 +64,8 @@ Rust core (src-tauri)           React 19 + Vite + TS frontend (src)
   Rust core. The webview only ever receives them masked (`sk-or-••••••••cdef`),
   and a masked value round-tripping back means "keep the stored key".
 - Structured output uses the native `json_schema` response format on every
-  attempt, with corrective retries for malformed output and 429s. **There is
+  attempt, with at most three attempts for malformed output. HTTP failures are
+  never automatically retried. **There is
   no degraded fallback path** — anything else fails loudly with the
   provider's actual error, so a bad model gets replaced rather than papered
   over.

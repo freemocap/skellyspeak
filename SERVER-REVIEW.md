@@ -132,6 +132,12 @@ its CI result and authenticated diagnostics before changing any quota.
 
 ## Comprehensive follow-up
 
+The [September 10 allowance incident report](RATE-LIMIT-INVESTIGATION.md)
+documents a separate export with 12 personal-allowance rejections, production
+ledger reconstruction, bounded reservation waiting, task-specific output caps,
+and retained concurrency. The [release notes](RELEASE-NOTES.md) distinguish the
+locally verified repair from pending deployment and installed-client checks.
+
 See [SECURITY-AUDIT.md](SECURITY-AUDIT.md) for the current source audit, confirmed
 repository settings, secret/dependency scans, additional hardening and verification.
 Hosted deployment and chat succeeded before those additional local changes.

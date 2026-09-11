@@ -33,6 +33,32 @@ pub fn provider_error(status: reqwest::StatusCode) -> String {
     format!("API error {status}: {reason}")
 }
 
+fn hosted_error(status: reqwest::StatusCode, body: &serde_json::Value) -> String {
+    let reason = match body["code"].as_str() {
+        Some("PERSONAL_ALLOWANCE_EXHAUSTED") => "Your remaining daily allowance cannot cover this request, including pending reservations and unresolved charges. Check your allowance before resuming.",
+        Some("SHARED_ALLOWANCE_EXHAUSTED") => "The shared hosted allowance cannot cover this request, including pending reservations and unresolved charges. Contact the service operator.",
+        Some("SPENDING_PAUSED") => "Hosted spending is paused for a billing investigation. Contact the service operator.",
+        Some("INGRESS_RATE_LIMIT") => "Too many requests in a short period. Wait a minute before resuming.",
+        _ => return provider_error(status),
+    };
+    let mut message = format!("API error {status}: {reason}");
+    if let Some(id) = body["request_id"].as_str().filter(|id| id.len() == 32 && id.bytes().all(|c| c.is_ascii_hexdigit())) {
+        message.push_str(&format!(" Request ID: {id}"));
+    }
+    message
+}
+
+pub async fn response_error(response: reqwest::Response) -> String {
+    let status = response.status();
+    if !response.url().as_str().starts_with(&format!("{}/", crate::settings::HOSTED_BASE_URL)) {
+        return provider_error(status);
+    }
+    match response_json(response, 4096).await {
+        Ok(body) => hosted_error(status, &body),
+        Err(error) => format!("{} Error details could not be read: {error}", provider_error(status)),
+    }
+}
+
 
 pub async fn response_json(response: reqwest::Response, limit: usize) -> Result<serde_json::Value, String> {
     use futures_util::StreamExt;
@@ -49,6 +75,19 @@ pub async fn response_json(response: reqwest::Response, limit: usize) -> Result<
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn hosted_allowance_errors_preserve_safe_reason_and_identity_only() {
+        let body = serde_json::json!({"code": "PERSONAL_ALLOWANCE_EXHAUSTED", "request_id": "a".repeat(32), "detail": "PRIVATE_TRANSCRIPT"});
+        let message = hosted_error(reqwest::StatusCode::TOO_MANY_REQUESTS, &body);
+        assert!(message.contains("pending reservations"));
+        assert!(message.contains(&"a".repeat(32)));
+        assert!(!message.contains("PRIVATE"));
+        let malformed = serde_json::json!({"code": "INGRESS_RATE_LIMIT", "request_id": "PRIVATE"});
+        let message = hosted_error(reqwest::StatusCode::TOO_MANY_REQUESTS, &malformed);
+        assert!(message.contains("Wait a minute"));
+        assert!(!message.contains("PRIVATE"));
+    }
 
     #[test]
     fn custom_transport_rejects_cleartext_remote_and_embedded_credentials() {

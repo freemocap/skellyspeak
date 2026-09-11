@@ -81,7 +81,7 @@ pub async fn speak_text(
     let status = response.status();
     crate::request_admission::shared().refuse(&endpoint.url, status.as_u16());
     if !status.is_success() {
-        return Err(crate::network::provider_error(status));
+        return Err(crate::network::response_error(response).await);
     }
 
     // Stream SSE; accumulate base64 PCM16 chunks, then wrap in a WAV header.
@@ -92,7 +92,7 @@ pub async fn speak_text(
     let mut transcript = String::new();
     'sse: while let Some(chunk) = stream.next().await {
         let bytes = chunk.map_err(|e| format!("tts stream: {e}"))?;
-        for event in decoder.push(&bytes)? {
+        for event in decoder.push_for_endpoint(&bytes, &endpoint.url)? {
             match event {
                 crate::sse::Event::Done => break 'sse,
                 crate::sse::Event::Data(value) => {

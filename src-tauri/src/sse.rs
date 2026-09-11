@@ -13,9 +13,18 @@ pub struct Decoder {
     buffer: Vec<u8>,
     data: Vec<String>,
     done: bool,
+    refusal_status: Option<u16>,
 }
 
 impl Decoder {
+    pub fn push_for_endpoint(&mut self, bytes: &[u8], endpoint: &str) -> Result<Vec<Event>, String> {
+        let result = self.push(bytes);
+        if let Some(status) = self.refusal_status {
+            crate::request_admission::shared().refuse(endpoint, status);
+        }
+        result
+    }
+
     pub fn push(&mut self, bytes: &[u8]) -> Result<Vec<Event>, String> {
         self.buffer.extend_from_slice(bytes);
         if self.buffer.len() > 4 * 1024 * 1024 {
@@ -39,6 +48,7 @@ impl Decoder {
                         .map_err(|e| format!("Provider sent malformed SSE JSON: {e}"))?;
                     if !value.is_object() { return Err("Provider SSE payload is not an object".into()); }
                     if value.get("error").is_some_and(|v| !v.is_null()) {
+                        self.refusal_status = stream_error_status(&value["error"]);
                         return Err(stream_error(&value["error"]));
                     }
                     if value["choices"].as_array().is_some_and(|choices|
@@ -68,6 +78,22 @@ impl Decoder {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn fragmented_stream_refusals_block_chat_and_audio_without_replaying() {
+        for status in [401, 402, 403, 429] {
+            let base = format!("https://stream-refusal-{status}.invalid/v1");
+            let mut decoder = Decoder::default();
+            let payload = format!("data: {{\"error\":{{\"code\":{status},\"message\":\"PRIVATE\"}}}}\n\n");
+            let bytes = payload.as_bytes();
+            assert!(decoder.push_for_endpoint(&bytes[..bytes.len() - 1], &format!("{base}/chat/completions")).unwrap().is_empty());
+            let error = decoder.push_for_endpoint(&bytes[bytes.len() - 1..], &format!("{base}/chat/completions")).unwrap_err();
+            assert!(!error.contains("PRIVATE"));
+            assert!(crate::request_admission::shared().acquire(&format!("{base}/audio/transcriptions")).await.err().unwrap().contains("paused after a refusal"));
+        }
+        crate::request_admission::shared().resume();
+        crate::gate::resume();
+    }
 
     #[test]
     fn every_utf8_chunk_boundary_preserves_multilingual_text() {
@@ -99,11 +125,14 @@ fn provider_errors_do_not_echo_private_payloads() {
     assert_eq!(error, "Provider stream failed.");
 }
 
-fn stream_error(error: &Value) -> String {
+fn stream_error_status(error: &Value) -> Option<u16> {
     // The hosted service reports HTTP failures either as a status object or a fixed status sentence.
-    let code = error["code"].as_u64().and_then(|code| u16::try_from(code).ok())
-        .or_else(|| error.as_str()?.strip_prefix("The AI provider returned ")?.strip_suffix('.')?.parse::<u16>().ok());
-    match code {
+    error["code"].as_u64().and_then(|code| u16::try_from(code).ok())
+        .or_else(|| error.as_str()?.strip_prefix("The AI provider returned ")?.strip_suffix('.')?.parse::<u16>().ok())
+}
+
+fn stream_error(error: &Value) -> String {
+    match stream_error_status(error) {
         Some(402) => "Speech/AI provider credit or spending limit reached (402). For Google sign-in, the hosted service operator must check its OpenRouter balance and key limit; for your own API key, check your OpenRouter account.".into(),
         Some(code @ 400..=599) => crate::network::provider_error(reqwest::StatusCode::from_u16(code).expect("validated HTTP error status")),
         _ => "Provider stream failed.".into(),

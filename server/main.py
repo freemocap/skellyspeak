@@ -496,12 +496,41 @@ def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
     return quota.dollars_to_micros(cost), tokens
 
 
-def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
+RESERVATION_DELAYS: tuple[float, ...] = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
+_reservation_waiters: asyncio.Semaphore = asyncio.Semaphore(16)
+
+
+async def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
+    """Recheck unaffordable reservations before dispatch; never repeat provider work."""
+    waiting: bool = False
     try:
-        return budget.reserve(db, user_id=who.user_id, micros=micros,
-                              user_limit=who.daily_limit, global_limit=CFG.global_daily_micros)
-    except quota.QuotaExceeded as exc:
-        raise observability.Rejection(exc.code, str(exc), daily=exc.code != "SPENDING_PAUSED") from exc
+        for attempt, delay in enumerate(RESERVATION_DELAYS):
+            if delay:
+                await asyncio.sleep(delay)
+            try:
+                # Deliver ownership before cancellation so the caller can settle its reservation.
+                with anyio.CancelScope(shield=True):
+                    return await anyio.to_thread.run_sync(partial(
+                        budget.reserve, db=db, user_id=who.user_id, micros=micros,
+                        user_limit=who.daily_limit, global_limit=CFG.global_daily_micros,
+                    ))
+            except quota.QuotaExceeded as exc:
+                can_wait: bool = (
+                    exc.code in {"PERSONAL_ALLOWANCE_EXHAUSTED", "SHARED_ALLOWANCE_EXHAUSTED"}
+                    and micros <= min(who.daily_limit, CFG.global_daily_micros)
+                    and attempt + 1 < len(RESERVATION_DELAYS)
+                )
+                if not can_wait:
+                    raise observability.Rejection(exc.code, str(exc), daily=exc.code != "SPENDING_PAUSED") from exc
+                if not waiting:
+                    if _reservation_waiters.locked():
+                        raise HTTPException(status_code=503, detail="Allowance admission is busy. No provider request was sent. Retry the action explicitly.") from exc
+                    await _reservation_waiters.acquire()
+                    waiting = True
+        raise AssertionError("Reservation admission did not return or raise")
+    finally:
+        if waiting:
+            _reservation_waiters.release()
 
 
 async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str) -> None:
@@ -525,7 +554,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     if not isinstance(parsed, dict):
         raise HTTPException(status_code=400, detail="Request body must be an object.")
     contract = contracts.chat_request(parsed, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
-    reservation = await asyncio.to_thread(_reserve, who, contract.reserve_micros)
+    reservation = await _reserve(who=who, micros=contract.reserve_micros)
     url = f"{CFG.openrouter_base_url}/chat/completions"
     headers = {"Authorization": f"Bearer {CFG.openrouter_key}", "X-Title": "SkellySpeak"}
 
@@ -604,7 +633,7 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
         content_type = request.headers.get("content-type", "")
         if not content_type.startswith("multipart/form-data"):
             raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
-        reservation = await asyncio.to_thread(_reserve, who, audio_input.MAX_COST_MICROS)
+        reservation = await _reserve(who=who, micros=audio_input.MAX_COST_MICROS)
         cost: int | None = 0
         try:
             body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
@@ -641,8 +670,7 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
     provider_id: str = ""
     state = "failed"
     try:
-        with anyio.CancelScope(shield=True):
-            reservation = await anyio.to_thread.run_sync(partial(_reserve, who, item.contract.reserve_micros))
+        reservation = await _reserve(who=who, micros=item.contract.reserve_micros)
         # Leave a full work deadline inside the lease, including after slow ledger work.
         if time.time() + work_admission.WORK_SECONDS >= held.expires_at:
             raise HTTPException(409, "Admission lease is too close to expiry.")

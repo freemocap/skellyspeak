@@ -81,6 +81,25 @@ impl Drop for ActiveTurn {
 mod tests {
     use super::*;
     #[tokio::test]
+    async fn hosted_chat_and_audio_preserve_four_concurrent_calls() {
+        let state = Admission::default();
+        let base = crate::settings::HOSTED_BASE_URL;
+        let audio_url = format!("{base}/audio/transcriptions");
+        let chat_url = format!("{base}/chat/completions");
+        let mut permits = Vec::new();
+        for url in [base, &audio_url, &chat_url, base] {
+            permits.push(tokio::time::timeout(std::time::Duration::from_millis(100), state.acquire(url)).await.unwrap().unwrap());
+        }
+        assert!(tokio::time::timeout(std::time::Duration::from_millis(10), state.acquire(&chat_url)).await.is_err());
+        permits.pop();
+        let following = state.acquire(&audio_url).await.unwrap();
+        state.refuse(base, 429);
+        drop(following);
+        drop(permits);
+        assert!(state.acquire(base).await.err().unwrap().contains("paused after a refusal"));
+    }
+
+    #[tokio::test]
     async fn capacity_is_parallel_bounded_and_cancellation_releases_it() {
         let state = Admission::default();
         let mut permits = Vec::new();

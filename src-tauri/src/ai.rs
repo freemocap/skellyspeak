@@ -24,17 +24,21 @@ pub fn retry_stats_snapshot() -> [(&'static str, u64); 3] {
     ]
 }
 
-/// Output caps. These are **runaway guards**, not design constraints — the
-/// only thing they protect against is a degenerate model burning tokens
-/// forever (`frequency_penalty` is the other guard). They are deliberately
-/// generous: a cap tight enough to truncate normal work turns a working call
-/// into an unrecoverable failure, which is exactly what a 6000-token cap did
-/// to `tokenize_learner` on a long learner message.
-///
-/// Reply length is governed by the prompt, not by this number.
+/// Output ceilings bound both generation and hosted spending reservations.
 const REPLY_MAX_TOKENS: u64 = 2_000;
-const WORKER_MAX_TOKENS: u64 = 32_000;
-const REASONING_MAX_TOKENS: u64 = 32_000;
+
+fn structured_token_limit(name: &str) -> Result<u64, String> {
+    match name {
+        "WordInsight" | "TopicNote" => Ok(2_000),
+        "TranslationOut" | "MechanicsOut" | "CoachFeedback" | "TeachingPlan" | "Profile" => Ok(4_000),
+        "ScaffoldsOut" | "SkillAssessment" => Ok(8_000),
+        "CoachDecision" => Ok(3_000),
+        "PartnerReaction" => Ok(1_600),
+        // Word-by-word annotations grow with the source text, including long learner messages.
+        "TokensOut" | "LearnerTokensOut" => Ok(32_000),
+        _ => Err(format!("No output token limit configured for {name}")),
+    }
+}
 
 /// A caller may pass its own, tighter cap. The point is not to constrain the
 /// output — it is to make a runaway CHEAP. The observer's documents are a few
@@ -333,7 +337,7 @@ impl Provider {
             // wrong (e.g. model refuses reasoning:false). No fallback: fix
             // the cause — change the model or the request.
             error!("[ai] streaming request rejected: {status}");
-            let msg = crate::network::provider_error(status);
+            let msg = crate::network::response_error(response).await;
             run.attempt(AttemptKind::Failed, Some(msg.clone()), None);
             run.finish_failed(&msg)?;
             return Err(msg);
@@ -369,12 +373,13 @@ impl Provider {
         on_delta: &mut (dyn FnMut(&str) + Send),
         run: &mut RunRecorder,
     ) -> Result<String, String> {
+        let endpoint = response.url().to_string();
         let mut stream = response.bytes_stream();
         let mut decoder = crate::sse::Decoder::default();
         let mut full = String::new();
         while let Some(chunk) = stream.next().await {
             let bytes = chunk.map_err(|e| format!("stream error: {e}"))?;
-            for event in decoder.push(&bytes)? {
+            for event in decoder.push_for_endpoint(&bytes, &endpoint)? {
                 match event {
                     crate::sse::Event::Done => {
                         decoder.finish()?;
@@ -418,7 +423,7 @@ impl Provider {
         crate::request_admission::shared().refuse(&self.base_url, status.as_u16());
         if !status.is_success() {
             warn!("[ai] API error: {status}");
-            return Err(crate::network::provider_error(status));
+            return Err(crate::network::response_error(response).await);
         }
         let body = crate::network::response_json(response, 4 * 1024 * 1024).await?;
         info!(
@@ -465,11 +470,10 @@ impl Provider {
         F: Fn(&T) -> Option<String>,
     {
         crate::gate::wait(ctx.operation, ctx.turn_id).await;
-        let cap = max_tokens.map(|m| m.0).unwrap_or(if allow_reasoning {
-            REASONING_MAX_TOKENS
-        } else {
-            WORKER_MAX_TOKENS
-        });
+        let cap = match max_tokens {
+            Some(MaxTokens(cap)) => cap,
+            None => structured_token_limit(name)?,
+        };
         let mut run = RunRecorder::start(ctx, &self.model);
         run.profile(Some(temperature), allow_reasoning, Some(cap), false, Some(name));
         let root = match serde_json::to_value(schemars::schema_for!(T)) {
@@ -797,6 +801,16 @@ fn inline_defs_keeps_unrelated_content() {
 #[cfg(test)]
 mod transport_regressions {
     use super::*;
+    #[test]
+    fn output_limits_preserve_long_annotations_and_reject_unconfigured_work() {
+        assert_eq!(structured_token_limit("TokensOut").unwrap(), 32_000);
+        assert_eq!(structured_token_limit("LearnerTokensOut").unwrap(), 32_000);
+        for name in ["WordInsight", "TopicNote", "TranslationOut", "MechanicsOut", "CoachFeedback"] {
+            assert!(structured_token_limit(name).unwrap() <= 4_000);
+        }
+        assert!(structured_token_limit("ScaffoldsOut").unwrap() <= 8_000);
+        assert!(structured_token_limit("UnconfiguredTask").is_err());
+    }
     #[tokio::test]
     async fn refusal_is_not_resent_and_blocks_following_work() {
         use std::io::{Read, Write};

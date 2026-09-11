@@ -706,16 +706,14 @@ export function SettingsModal({
               {account && (
                 <>
                   <p className="field-note">
-                    ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} used
+                    ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} spent or reserved
                     today{account.custom_limit ? ' (custom limit)' : ''} · resets at{' '}
                     {account.resets} ({resetsAtLocalTime()} your time)
                   </p>
-                  {/* The dollar figure is the truth, but nobody plans an
-                      afternoon in fractions of a cent. The estimate comes from
-                      this account's own average cost per turn so far. */}
+                  <p className="field-note">Includes pending requests and unresolved charges from failed requests. Tokens are usage statistics, not the allowance limit.</p>
                   <p className="field-note">
                     {account.requests_today > 0
-                      ? `About ${account.estimated_requests_remaining.toLocaleString()} more AI requests (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
+                      ? `Estimated ${account.estimated_requests_remaining.toLocaleString()} more AI requests; capacity depends on request size (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
                       : 'No usage yet today'}
                   </p>
                 </>
