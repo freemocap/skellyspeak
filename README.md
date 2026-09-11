@@ -77,6 +77,38 @@ open 'src-tauri/target/debug/bundle/macos/SkellySpeak Workspace.app'
 The distinct inspection bundle name makes the running workspace identifiable.
 This is a local debug build, not a signed release or deployment.
 
+## Publish a release
+
+Run these commands from the repository root of the **main** release worktree
+(`skellyspeak-main`). The release script is `scripts/release.mjs` on main;
+this rebuild checkout does not contain the active release script.
+Have Node.js, Rust/Cargo and authenticated Git access available. Commit your
+release changes first and ensure main is current with its upstream; the script
+requires a clean working tree and refuses to release when main is behind.
+
+Choose **one** command (examples assume the current version is 0.13.7):
+
+```sh
+node scripts/release.mjs patch  # 0.13.7 -> 0.13.8
+node scripts/release.mjs minor  # 0.13.7 -> 0.14.0
+node scripts/release.mjs major  # 0.13.7 -> 1.0.0
+```
+
+The script updates `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`, commits the
+version bump, creates the matching `vX.Y.Z` tag, then pushes main and the tag.
+You do not need a separate push command.
+
+To preview a bump, use `node scripts/release.mjs patch --dry-run`. This skips
+version edits, commits, tags and pushes, but still fetches remote branch state.
+To create the local commit and tag without pushing, use
+`node scripts/release.mjs patch --no-push`; it prints the commands to push later.
+
+Follow the build in [GitHub Actions](https://github.com/freemocap/skellyspeak/actions).
+The Release workflow publishes the draft as Latest after its checks and desktop
+and Android jobs succeed. iOS distribution runs separately and does not gate
+publication. Published downloads appear under
+[Releases](https://github.com/freemocap/skellyspeak/releases).
+
 ## Start talking
 
 Opening the app resumes the most recent active conversation. A fresh workspace

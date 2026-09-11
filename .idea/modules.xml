@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@1.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" />
     </modules>
   </component>
 </project>
