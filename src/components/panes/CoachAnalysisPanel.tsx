@@ -1,0 +1,104 @@
+import { DetailDialog } from '../DetailDialog'
+import { ConversationMap } from '../chat/ConversationMap'
+import { useEffect, useRef, useState } from 'react'
+import { isTauri } from '../../lib/tauri'
+import { executeAction, nativeError, readWorkspace, watchConversation } from '../../lib/workspace'
+import type { ConversationSnapshot } from '../../contracts'
+import type { Profile, TeachingPlan } from '../../types'
+import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
+import { CoachDock } from './CoachDock'
+import { Markdown } from '../../lib/markdown'
+
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, pinnedTurn, inspect, nativeLanguageName, showRomanization, rtl }: {
+  prepareContext: () => Promise<void>; conversationBusy: boolean
+  level: string; topic: string; chatId: string; plan: TeachingPlan | null; profile: Profile | null
+  observationStatus: string; tab: 'lesson' | 'analysis'; onTab: (tab: 'lesson' | 'analysis') => void
+  draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
+  inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
+}) {
+  const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
+  const [input, setInput] = useState('')
+  const [coachOpen, setCoachOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const generation = useRef(0)
+  const sending = useRef(false)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const threadRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const current = ++generation.current
+    setSnapshot(null); setInput(''); setError(null); setSubmitting(false); sending.current = false
+    if (!isTauri || !chatId) return
+    let stopped = false
+    void (async () => {
+      let revision = -1
+      while (!stopped) {
+        const next = await watchConversation(chatId, revision)
+        if (stopped) return
+        setSnapshot(next)
+        revision = next.revision
+      }
+    })().catch((failure: unknown) => {
+      if (!stopped) setError(nativeError(failure))
+    })
+    return () => { stopped = true; if (generation.current === current) generation.current++ }
+  }, [chatId])
+  useEffect(() => {
+    if (!draftQuestion) return
+    setCoachOpen(true); setInput(draftQuestion); inputRef.current?.focus(); onDraftConsumed()
+  }, [draftQuestion, onDraftConsumed])
+  const currentSnapshot = snapshot?.conversationId === chatId ? snapshot : null
+  const thread = currentSnapshot?.coachMessages ?? []
+  const coachTurns = currentSnapshot?.turns.filter(turn => turn.operations.some(operation => operation.kind === 'coach_reply')) ?? []
+  const running = coachTurns.some(turn => turn.state === 'pending' || turn.state === 'assisting')
+  const busy = submitting || running
+  const lastCoachTurn = coachTurns[0]
+  const executionError = lastCoachTurn?.hold?.message ?? (lastCoachTurn?.state === 'failed' || lastCoachTurn?.state === 'unknown_outcome'
+    ? lastCoachTurn.attempts.filter(attempt => attempt.error).at(-1)?.error ?? 'Coach request failed. Open AI activity for details.' : null)
+  useEffect(() => { if (coachOpen) inputRef.current?.focus() }, [coachOpen])
+  useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
+  const ask = async (): Promise<void> => {
+    const question = input.trim()
+    if (!question || sending.current || busy || conversationBusy || !currentSnapshot) return
+    const current = generation.current
+    sending.current = true; setSubmitting(true); setError(null)
+    try {
+      const workspace = await readWorkspace()
+      if (generation.current !== current) return
+      const conversation = workspace.conversations.find(item => item.id === chatId)
+      if (!conversation || conversation.archived) throw new Error('This conversation is unavailable.')
+      await executeAction(workspace, { kind: 'askCoach', conversationId: chatId, text: question, expectedRevision: conversation.revision })
+      if (generation.current === current) setInput('')
+    } catch (failure) {
+      if (generation.current === current) setError(nativeError(failure))
+    } finally {
+      if (generation.current === current) { sending.current = false; setSubmitting(false) }
+    }
+  }
+  const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
+  const coachDock = <CoachDock actions={<button type="button" aria-label="Clear coach thread" disabled title="Coach thread clearing is not available yet.">Clear thread</button>}>
+    <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">
+      {thread.length === 0 && <p className="lesson-meta">Ask about a message or language usage. Coach messages are private.</p>}
+      {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
+      {busy && <p role="status" className="lesson-meta">Working…</p>}
+    </div>
+    {(error || executionError) && <div className="turn-errors" role="alert">{error || executionError}</div>}
+    <form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
+      <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
+        if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+          event.preventDefault(); event.currentTarget.form?.requestSubmit()
+        }
+      }} value={input} onChange={event => setInput(event.target.value)} placeholder="Ask about a message or language usage…" aria-label="Message your coach" disabled={!isTauri || busy} />
+      <button type="submit" className="coach-send" aria-label="Send to coach" disabled={!currentSnapshot || !input.trim() || busy || conversationBusy}>↑</button>
+    </form>
+  </CoachDock>
+  return <>
+    <div className="panel-tabs" role="tablist" aria-label="Learning panel">
+      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
+      <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
+    </div>
+    <ConversationMap />
+    {tab === 'lesson' ? <div className="analysis-scroll"><p className="center-note">Lesson editing and skill evidence are not available yet.</p><button type="button" className="lesson-action" disabled>Edit choices</button></div> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Message analysis is not available yet.</p>}</div>}
+    {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
+  </>
+}

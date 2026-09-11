@@ -15,13 +15,13 @@ fn fault(message: impl Into<String>) -> AppError {
 pub async fn mic_start(
     state: tauri::State<'_, Arc<Application>>,
     conversation_id: String,
-) -> Result<String> {
+) -> Result<RecordingStarted> {
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || start_capture(&state, conversation_id))
         .await
         .map_err(|_| fault("Microphone startup stopped unexpectedly."))?
 }
-fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<String> {
+fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<RecordingStarted> {
     let mut slot = state
         .capture
         .lock()
@@ -46,9 +46,9 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<St
         language: conversation.language_id.clone(),
         capture: audio::start(None).map_err(fault)?,
     };
-    let id = recording.id.clone();
+    let started = RecordingStarted { recording_id: recording.id.clone(), samples_per_second: recording.capture.wave_samples_per_second() };
     *slot = Some(recording);
-    Ok(id)
+    Ok(started)
 }
 #[tauri::command]
 pub fn mic_wave(

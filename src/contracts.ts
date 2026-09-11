@@ -1,4 +1,5 @@
 // Generated from Rust contracts. Run npm run contracts.
+export type RecordingStarted = { recordingId: string, samplesPerSecond: number, };
 export type ConnectionRoute = "hosted" | "openrouter" | "custom";
 export type AccessSettings = { revision: number, groqKeyConfigured: boolean, customKeyConfigured: boolean, custom: CustomEndpoint, };
 export type CustomEndpoint = { baseUrl: string, standardModel: string, fastModel: string, bearerAuth: boolean, transcriptionModel: string | null, };
