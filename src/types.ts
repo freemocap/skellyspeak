@@ -89,6 +89,12 @@ export interface PartnerReaction {
 /// GuidedPage is this plus `pendingText`, the streaming buffer, which is
 /// transient by definition and never written to disk.
 export interface StoredTurn {
+  userSavedGloss?: import('./contracts').WordGlossView | null
+  userGlossOperationId?: string | null
+  userTranslation?: string | null
+  userGlossError?: string | null
+  userGlossState?: string | null
+
   id: number
   user: string | null
   assistant: GuidedTurnResult | null

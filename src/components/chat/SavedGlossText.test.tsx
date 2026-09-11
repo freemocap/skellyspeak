@@ -40,3 +40,21 @@ it('shows saved romanization when its reading preference is enabled', () => {
   expect(screen.getByText('nǐ')).toBeVisible()
   expect(invoke).not.toHaveBeenCalled()
 })
+
+
+it('shows token translations from reading preferences without an inspection click', () => {
+  render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: false, alwaysPronunciation: false }}><SavedGlossText text={text} result={result} /></ReadingPreferencesContext>)
+  expect(screen.getByText('yes')).toBeVisible()
+  expect(screen.getByText('indeed')).toBeVisible()
+})
+
+
+it('click reveals inline values and never pins the floating hover helper', () => {
+  const view = render(<SavedGlossText text={text} result={result} />)
+  const word = screen.getAllByRole('button', { name: 'sí' })[0]
+  fireEvent.click(word)
+  expect(word.closest('.wu')).toHaveTextContent('yes')
+  expect(view.container.querySelector('.saved-word-help')).toBeNull()
+  fireEvent.click(word)
+  expect(screen.queryByText('yes')).toBeNull()
+})

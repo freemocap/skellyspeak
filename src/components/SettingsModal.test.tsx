@@ -90,7 +90,7 @@ it('saves text size without exposing spacing controls', async () => {
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text' } })
   fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '125' } })
   expect(screen.queryByLabelText(/Text spacing/)).toBeNull()
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125 })))
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125 }), expect.any(Object)))
 })
 
 it('groups mobile settings into collapsible sections and searches inside closed groups', async () => {
@@ -139,14 +139,14 @@ it('shows native settings-load failures inside the settings dialog', async () =>
   expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible()
 })
 
-it('rebases a reading edit over unrelated saved preferences', async () => {
+it('passes only the edited draft and its baseline to the shared settings writer', async () => {
   const initial = { ...SETTINGS, scope: { sessionId: 's', conversationId: 'c', settingsRevision: 1, learnerRevision: 1, rewardRevision: 0 } }
   const fresh = { ...initial, auto_translate: true, scope: { ...initial.scope, settingsRevision: 2 } }
   backend.getSettings.mockResolvedValueOnce(initial).mockResolvedValue(fresh)
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'romanization' } })
   fireEvent.click(screen.getByLabelText('Show romanization'))
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ always_romanize: true, auto_translate: true, scope: fresh.scope })))
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ always_romanize: true, scope: initial.scope }), initial))
 })
 
 it('preserves a newer text-size edit while the first save completes', async () => {
@@ -159,5 +159,5 @@ it('preserves a newer text-size edit while the first save completes', async () =
   fireEvent.change(screen.getByLabelText('Text size · 110%'), { target: { value: '125' } })
   backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '', text_size: 110 })
   await act(async () => finish())
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ text_size: 125 })))
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ text_size: 125 }), expect.any(Object)))
 })

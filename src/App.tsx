@@ -108,6 +108,13 @@ function Application() {
     setSettingsVersion((v) => v + 1)
   }
 
+  useEffect(() => {
+    let disposed = false
+    const refresh = () => { void getSettings().then(fresh => { if (!disposed) settingsChanged(fresh) }).catch(error => { if (!disposed) reportFault('Loading settings', error) }) }
+    window.addEventListener('skellyspeak-settings-saved', refresh)
+    return () => { disposed = true; window.removeEventListener('skellyspeak-settings-saved', refresh) }
+  }, [])
+
   async function changeLanguage(field: 'target_language' | 'native_language', value: string) {
     if (!settings || savingLanguage || settingsOpen || settings[field] === value) return
     setSavingLanguage(true)
@@ -115,7 +122,7 @@ function Application() {
       const current = await getSettings()
       const saved = { ...current, [field]: value }
       if (field === 'target_language') saved.target_dialect = ''
-      await saveSettings(saved)
+      await saveSettings(saved, current)
       settingsChanged(await getSettings())
     } catch (error) {
       reportFault('Saving language', error)

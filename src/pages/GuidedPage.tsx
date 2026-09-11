@@ -214,7 +214,7 @@ export default function GuidedPage({
       })
       .catch((e) => reportFault('Loading settings', e))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsVersion])
+  }, [settingsVersion, currentChatId])
 
   useEffect(() => {
     const el = streamRef.current
@@ -324,7 +324,7 @@ export default function GuidedPage({
     readingWrite.current = true
     setSavingReading(true)
     try {
-      await saveSettings({ ...settings, [key]: value ?? !settings[key] })
+      await saveSettings({ ...settings, [key]: value ?? !settings[key] }, settings)
       setSettings(await getSettings())
     } catch (error) { reportFault('Saving reading preference', error) }
     finally { readingWrite.current = false; setSavingReading(false) }

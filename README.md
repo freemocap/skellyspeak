@@ -86,9 +86,17 @@ This is a local debug build, not a signed release or deployment.
 
 ## Publish a release
 
-Version **0.14.0** is prepared in Cargo.toml. Push the checkpoint branch, open a PR
+The release target is **1.0.0**. Push the checkpoint branch, open a PR
 into `main`, and require green CI before merging. Confirm CI on the merged commit,
-then create and push `v0.14.0` from that commit. Merging alone does not publish.
+then use the release script from a clean, current `main` checkout:
+
+```sh
+node scripts/release.ts 1.0.0 --dry-run
+node scripts/release.ts 1.0.0
+```
+
+The script updates the Cargo versions, commits, tags and pushes. It refuses an
+existing tag. Merging alone does not publish.
 
 The tag starts the Release workflow: checks, signed desktop installers and updater
 artifacts, and signed Android APK/AAB. Publication as Latest requires all of those
