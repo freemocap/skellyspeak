@@ -1,4 +1,4 @@
-import { invoke } from './tauri'
+import { invoke, getSettings } from './tauri'
 import type { TreeNode } from '../pages/skillTree'
 
 export interface InputEvidence {
@@ -45,10 +45,10 @@ export interface SkillSnapshot {
   records: SkillRecord[]
   profile: LearnerProfile
 }
-export function getSkillEvidence(): Promise<SkillSnapshot> { return invoke('get_skill_evidence') }
+export async function getSkillEvidence(): Promise<SkillSnapshot> { const settings = await getSettings(); return invoke('get_skill_evidence', { target: settings.target_language }) }
 export async function subscribeSkillEvidence(refresh: () => void): Promise<() => void> {
-  const { listen } = await import('@tauri-apps/api/event')
-  return listen('skills:changed', refresh)
+  window.addEventListener('skill-evidence-changed', refresh)
+  return () => window.removeEventListener('skill-evidence-changed', refresh)
 }
 
 export interface ProfileChoices {
@@ -85,3 +85,17 @@ export interface PracticeOverview {
   languages: { name: string; endonym: string; snapshot: SkillSnapshot }[]
 }
 export function getPracticeOverview(): Promise<PracticeOverview> { return invoke('get_practice_overview') }
+
+/** Attribute existing awarded credit to its conversation without inventing new XP. */
+export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): SkillSnapshot {
+  const records = snapshot.records.filter(record => record.chat_id === chatId)
+  const ids = new Set(records.map(record => record.attempt_id))
+  const credits = snapshot.profile.credits.filter(credit => ids.has(credit.attempt_id))
+  const skills = snapshot.profile.skills.map(skill => {
+    const own = credits.filter(credit => credit.skill_id === skill.skill_id)
+    const successes = own.filter(credit => credit.xp === 10).length
+    const assisted = own.filter(credit => credit.xp === 2).length
+    return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), successes, assisted, checked: successes > 0, star: successes >= 3 }
+  })
+  return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) } }
+}

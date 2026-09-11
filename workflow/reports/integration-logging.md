@@ -44,3 +44,15 @@ These observations verify this sample, not complete gloss coverage, general spee
 fidelity, stop/replay behavior or release readiness. Reading assistance is the next
 bounded slice defined in BUILD-PLAN.md. No further user testing is required merely
 to checkpoint this work.
+
+## Progression command contract correction
+
+The progression UI emitted three reviewed command names absent from the native
+DiagnosticCommand enum. Native argument decoding rejected these events before the
+file sink. Other events continued to persist; this was not evidence of disk failure.
+Added get_skill_evidence, get_practice_overview and save_skill_profile to the enum.
+The enum is now exported in generated contracts and the frontend allowlist is
+TypeScript-checked against it. A regression test decodes each command, writes it
+through FileSink and reads it back immediately. Five logging tests, 394 frontend
+tests, production build and Clippy pass. Restart the native application to load the
+corrected decoder. Rejected events from the prior run cannot be reconstructed.

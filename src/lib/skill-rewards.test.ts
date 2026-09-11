@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest'
 import { skillRewards } from './skill-rewards'
 import { skillDemo } from './skillDemo'
-import { unreportedInput, type SkillRecord } from './skills'
+import { conversationEvidence, unreportedInput, type SkillRecord } from './skills'
 
-const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: 3, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }
+const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: 4, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }
 function completed() {
   const snapshot = structuredClone(skillDemo)
   snapshot.records = [structuredClone(record)]
@@ -13,7 +13,7 @@ function completed() {
   return snapshot
 }
 it('connects a new credit to the message, phrase, skill and actual catalog domain', () => {
-  expect(skillRewards(skillDemo, completed(), 'chat')).toEqual([{ id: 'a:referent', messageId: 1, skillId: 'referent', domainId: 'reference', label: 'Identify a referent', quote: 'Ese café', xp: 10 }])
+  expect(skillRewards(skillDemo, completed(), 'chat')).toEqual([{ id: 'a:referent', messageId: 1, skillId: 'referent', domainId: 'statements', label: 'Identify a referent', quote: 'Ese café', xp: 10 }])
   const pending = structuredClone(skillDemo)
   pending.records = [{ ...record, status: 'pending', assessment: null }]
   expect(skillRewards(pending, completed(), 'chat')).toHaveLength(1)
@@ -45,4 +45,17 @@ it('announces newly credited XP even when its review was already complete', () =
   const previous = structuredClone(skillDemo)
   previous.records = [structuredClone(record)]
   expect(skillRewards(previous, completed(), 'chat')).toHaveLength(1)
+})
+
+it('conversation XP attributes only its existing credits and preserves the language total', () => {
+  const all = completed()
+  all.records.push({ ...record, attempt_id: 'b', chat_id: 'second' })
+  all.profile.credits.push({ attempt_id: 'b', skill_id: 'referent', xp: 2 })
+  all.profile.xp = 12
+  const scoped = conversationEvidence(all, 'second')
+  expect(scoped.profile.xp).toBe(2)
+  expect(scoped.records.map(item => item.attempt_id)).toEqual(['b'])
+  expect(scoped.profile.skills.find(item => item.skill_id === 'referent')).toMatchObject({ xp: 2, assisted: 1, successes: 0 })
+  expect(all.profile.xp).toBe(12)
+  expect(conversationEvidence(all, 'empty').profile.xp).toBe(0)
 })

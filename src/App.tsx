@@ -1,10 +1,11 @@
+import { UpdateBanner } from './components/UpdateBanner'
 import { configureAudioVolumes } from './lib/audio-volume'
 import { ReadingProvider } from './components/TargetText'
 import { ToolbarIcon } from './components/ToolbarIcon'
 import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
-import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react'
 import { getSettings, saveSettings, isTauri, languageFor, languages } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
@@ -63,6 +64,8 @@ export default function App() { return <SkillNavigationProvider><Application /><
 function Application() {
   const navigation = useSkillNavigation()
   const [page, setPage] = useState<Page>('guided')
+  const [newChatAction, setNewChatAction] = useState<(() => void) | null>(null)
+  const registerNewChat = useCallback((action: (() => void) | null) => setNewChatAction(() => action), [])
   const [mobileSurface, setMobileSurface] = useState<MobileLocation>('chat')
   const [moreOpen, setMoreOpen] = useState(false)
   function openPractice(surface: MobileLocation) {
@@ -96,7 +99,7 @@ function Application() {
     catch (error) { reportFault('Audio settings', error); setSettings(null) }
   }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])
   const [savingLanguage, setSavingLanguage] = useState(false)
-  const observedEvidence = useSkillEvidence(false, settingsVersion)
+  const observedEvidence = useSkillEvidence(true, settingsVersion)
   const evidence = { ...observedEvidence, snapshot: observedEvidence.snapshot?.target === settings?.target_language ? observedEvidence.snapshot : null }
 
   function settingsChanged(saved: Settings) {
@@ -175,6 +178,7 @@ function Application() {
 
   return (
     <ReadingProvider settings={settings}><div className="app">
+      <UpdateBanner />
       <div className="topbar">
         {page === 'guided' && (
           <button
@@ -193,10 +197,10 @@ function Application() {
           <span>SKELLYSPEAK<b>·</b></span>
         </button>
         {!isMobile && <div className="tabs" aria-label="Main navigation">
-          <button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button>
+          <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button><button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={() => { openPractice('chat'); newChatAction?.() }}>+</button></div>
           <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={() => { setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
         </div>}
-        <div className="topbar-actions">
+        <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={() => { openPractice('chat'); newChatAction?.() }}>+</button>}
         {!isMobile && (
           <button
             type="button"
@@ -243,6 +247,7 @@ function Application() {
 
       {faults.length > 0 && (
         <div className="fault-bar" role="alert">
+          <button type="button" className="btn tiny" onClick={dismissAllFaults}>Dismiss all</button>
           {faults.map((f) => (
             <p key={f.id} className="fault">
               <b>{f.context}:</b> {f.message}
@@ -256,11 +261,7 @@ function Application() {
               </button>
             </p>
           ))}
-          {faults.length > 1 && (
-            <button type="button" className="btn tiny" onClick={dismissAllFaults}>
-              Dismiss all
-            </button>
-          )}
+
         </div>
       )}
 
@@ -286,15 +287,15 @@ function Application() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'} mobileSurface={mobileSurface} onMobileSurfaceChange={setMobileSurface}
-                  languagePicker={settings && <><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
+                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage onNewChatReady={registerNewChat} active={page === 'guided'} mobileSurface={mobileSurface}
+                  languagePicker={settings && <><label><span>Native</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.base === settings.native_language)?.fontScale ?? 1))}px` }} aria-label="Native language" value={settings.native_language}
+                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
+                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.base} value={language.base}>{language.endonym}</option>)}
+                  </select></label>
+                  <label><span>Learning</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.code === settings.target_language)?.fontScale ?? 1))}px` }} aria-label="Target language"
                     value={settings.target_language} disabled={savingLanguage || settingsOpen}
                     onChange={event => void changeLanguage('target_language', event.target.value)}>
-                    {languages().map(language => <option key={language.code} value={language.code}>{language.endonym}</option>)}
-                  </select></label>
-                  <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
-                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
-                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option key={language.base} value={language.base}>{language.endonym}</option>)}
+                    {languages().map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.code} value={language.code}>{language.endonym}</option>)}
                   </select></label>
                   {savingLanguage && <span role="status">Saving…</span>}
                   </>}
@@ -315,7 +316,7 @@ function Application() {
         {(['chat', 'panel'] as const).map(surface => <button key={surface} type="button"
           className={`mobile-nav-item ${page === 'guided' && mobileSurface === surface ? 'active' : ''}`}
           aria-current={page === 'guided' && mobileSurface === surface ? 'page' : undefined}
-          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat' : 'Lesson'}</button>)}
+          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat · Persona' : 'Coach'}</button>)}
       </nav>}
       {moreOpen && <DetailDialog title="More" onClose={() => setMoreOpen(false)}>
         <h2>More</h2>

@@ -654,11 +654,11 @@ fn provider_structural_schema_retains_strict_native_acceptance() {
     for (variant, kind) in variants.iter().zip(["gloss", "literal"]) {
         assert_eq!(
             variant["properties"]["first"],
-            serde_json::json!({"type":"string"})
+            serde_json::json!({"type":"string","enum":["g0000","g0001","g0002","g0003","g0004"]})
         );
         assert_eq!(
             variant["properties"]["last"],
-            serde_json::json!({"type":"string"})
+            serde_json::json!({"type":"string","enum":["g0000","g0001","g0002","g0003","g0004"]})
         );
         assert_eq!(
             variant["properties"]["kind"],

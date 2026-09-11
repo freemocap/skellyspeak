@@ -21,6 +21,8 @@ fn gloss(start: usize, end: usize, text: &str) -> CandidateSpan {
         start,
         end,
         Annotation::Gloss {
+            romanization: None,
+            pronunciation: None,
             unit: Unit::Word,
             gloss: text.into(),
         },
@@ -142,6 +144,8 @@ fn annotation_endpoints_cannot_split_graphemes() {
                     Annotation::Literal,
                     Annotation::Unresolved,
                     Annotation::Gloss {
+                        romanization: None,
+                        pronunciation: None,
                         unit: Unit::Word,
                         gloss: "test".into(),
                     },
@@ -204,6 +208,8 @@ fn phrases_cannot_replace_word_targets_and_unspaced_words_are_supported() {
         0,
         7,
         Annotation::Gloss {
+            romanization: None,
+            pronunciation: None,
             unit: Unit::Phrase,
             gloss: "please".into(),
         },
@@ -443,6 +449,8 @@ fn boundary_and_numeric_candidates_produce_identical_results() {
         .map(|(start, end)| CandidateSpan {
             span: map.resolve_boundaries(start, end).unwrap(),
             annotation: Annotation::Gloss {
+                romanization: None,
+                pronunciation: None,
                 unit: Unit::Word,
                 gloss: "yes".into(),
             },

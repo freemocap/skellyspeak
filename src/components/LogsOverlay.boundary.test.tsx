@@ -15,7 +15,7 @@ it.each([false, true])('opens and reopens the existing AI frame without native g
   mocks.mobile = mobile
   const onOpenChange = vi.fn()
   const view = render(<LogsOverlay open onOpenChange={onOpenChange} />)
-  expect(screen.getByRole('status')).toHaveTextContent('AI activity graph is not connected.')
+  expect(screen.getByRole('status')).toHaveTextContent('Live operations')
   expect(view.container.querySelector(mobile ? '.mobile-ai-panel' : '.logs-panel')).not.toBeNull()
   view.rerender(<LogsOverlay open={false} onOpenChange={onOpenChange} />)
   view.rerender(<LogsOverlay open onOpenChange={onOpenChange} />)
@@ -25,7 +25,9 @@ it.each([false, true])('opens and reopens the existing AI frame without native g
 it('opens the separate AI window without mounting trace or gate controllers', () => {
   const view = render(<DevWindow />)
   expect(view.container.querySelector('.dev-window')).not.toBeNull()
-  expect(screen.getByRole('status')).toHaveTextContent('AI activity graph is not connected.')
+  expect(screen.getByRole('status')).toHaveTextContent('Live operations')
   expect(mocks.oldPanel).not.toHaveBeenCalled()
   expect(mocks.native).not.toHaveBeenCalled()
 })
+
+vi.mock('./dev/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))

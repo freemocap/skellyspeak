@@ -6,7 +6,7 @@ import type { SkillRecord, SkillSnapshot } from './skills'
 function sample(): SkillSnapshot {
   const snapshot = structuredClone(skillDemo)
   const [first, second] = snapshot.profile.skills
-  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'en', source: 'That cup is blue.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: 3, prompt_version: 'v1', status: 'complete', assessment: { judgments: [first, second].map(skill => ({ skill_id: skill.skill_id, outcome: 'demonstrated', quotes: ['cup'], rationale: 'Recorded judgment' })) }, error: null }
+  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'en', source: 'That cup is blue.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: 4, prompt_version: 'v1', status: 'complete', assessment: { judgments: [first, second].map(skill => ({ skill_id: skill.skill_id, outcome: 'demonstrated', quotes: ['cup'], rationale: 'Recorded judgment' })) }, error: null }
   snapshot.records = [record, { ...record, attempt_id: 'b', message_id: 2, source: 'That red cup.', input: { ...record.input, suggestion: true } }]
   Object.assign(first, { successes: 1, assisted: 1, xp: 12 })
   Object.assign(second, { successes: 1, xp: 10 })

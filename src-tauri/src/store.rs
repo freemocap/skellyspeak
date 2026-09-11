@@ -266,6 +266,8 @@ impl Store {
             tx.execute_batch(include_str!("speech-settings-schema.sql"))?;
             tx.commit()?;
         }
+        crate::progression::initialize(&connection)?;
+        crate::reward_settings::initialize(&connection)?;
         let store = Self {
             connection,
             session_id: id(),
@@ -362,6 +364,7 @@ impl Store {
                 turn_id
             }
             Action::SendMessage {
+                input,
                 conversation_id,
                 text,
                 expected_revision,
@@ -372,6 +375,16 @@ impl Store {
                     &conversation_id,
                     &text,
                     expected_revision,
+                )?;
+                if !matches!(input.modality.as_str(), "text" | "speech_transcript") {
+                    return Err(AppError::new(
+                        ErrorCode::Validation,
+                        "Invalid input modality.",
+                    ));
+                }
+                tx.execute(
+                    "UPDATE turns SET context=json_set(context,'$.input',json(?2)) WHERE id=?1",
+                    params![turn_id, serde_json::to_string(&input)?],
                 )?;
                 conversation_scope = Some(conversation_id);
                 turn_id
@@ -425,7 +438,7 @@ impl Store {
                     &language_id,
                     &snapshot.learner.preferences.explanation_language,
                 )?;
-                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,'New conversation',0,1,?4)",params![conversation_id,relationship_id,language_id,revision])?;
+                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,'New conversation',0,1,MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1))",params![conversation_id,relationship_id,language_id])?;
                 tx.execute(
                     "INSERT INTO conversation_settings VALUES(?1,1,?2)",
                     params![conversation_id, serde_json::to_string(&settings)?],
@@ -523,7 +536,7 @@ impl Store {
                     )?,
                 };
                 let conversation_id = id();
-                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,?4,0,1,?5)", params![conversation_id, relationship_id, partner.language_id, title.trim(), revision])?;
+                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,?4,0,1,MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1))", params![conversation_id, relationship_id, partner.language_id, title.trim()])?;
                 tx.execute(
                     "INSERT INTO conversation_settings VALUES(?1,1,?2)",
                     params![conversation_id, serde_json::to_string(&settings)?],
@@ -539,8 +552,8 @@ impl Store {
                     .find(|c| c.id == conversation_id)
                     .ok_or_else(missing)?;
                 tx.execute(
-                    "UPDATE conversations SET last_used=?1 WHERE id=?2",
-                    params![revision, conversation_id],
+                    "UPDATE conversations SET last_used=MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1) WHERE id=?1",
+                    params![conversation_id],
                 )?;
                 conversation_scope = Some(conversation.id.clone());
                 conversation_id
@@ -705,7 +718,7 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
-    let conversations: Vec<Conversation> = connection.prepare("SELECT c.id,c.relationship_id,c.language_id,c.title,c.archived,c.revision,c.created_at,c.last_used,s.revision,s.settings FROM conversations c JOIN conversation_settings s ON s.conversation_id=c.id ORDER BY c.last_used DESC,c.id DESC")?.query_map([], |r| Ok(Conversation { id:r.get(0)?,relationship_id:r.get(1)?,language_id:r.get(2)?,title:r.get(3)?,archived:r.get(4)?,revision:r.get(5)?,created_at:r.get(6)?,last_used:r.get(7)?,settings_revision:r.get(8)?,settings:decode(r,9)? }))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let conversations: Vec<Conversation> = connection.prepare("SELECT c.id,c.relationship_id,c.language_id,c.title,c.archived,c.revision,c.created_at,MAX(c.last_used,CAST((julianday(c.created_at)-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT CAST((julianday(MAX(m.created_at))-2440587.5)*86400000 AS INTEGER) FROM messages m WHERE m.conversation_id=c.id),0)) AS activity_ms,s.revision,s.settings FROM conversations c JOIN conversation_settings s ON s.conversation_id=c.id ORDER BY activity_ms DESC,c.id DESC")?.query_map([], |r| Ok(Conversation { id:r.get(0)?,relationship_id:r.get(1)?,language_id:r.get(2)?,title:r.get(3)?,archived:r.get(4)?,revision:r.get(5)?,created_at:r.get(6)?,last_used:r.get(7)?,settings_revision:r.get(8)?,settings:decode(r,9)? }))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let total: i64 =
         connection.query_row("SELECT count(*) FROM conversations", [], |r| r.get(0))?;
     if total != conversations.len() as i64 {

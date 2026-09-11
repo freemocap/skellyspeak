@@ -146,7 +146,7 @@ describe('native conversation ownership', () => {
     workspace = { ...workspace, sessionId: 'current-session', conversations: workspace.conversations.map(c => ({ ...c, revision: 42 })) }
     await act(async () => result.current.sendMessage('  Sí, 你好 👩🏽‍💻\n'))
     expect(commands()).toHaveLength(1)
-    expect(commands()[0]).toEqual({ sessionId: 'current-session', actionId: expect.any(String), action: { kind: 'sendMessage', conversationId: 'a', expectedRevision: 42, text: '  Sí, 你好 👩🏽‍💻\n' } })
+    expect(commands()[0]).toEqual({ sessionId: 'current-session', actionId: expect.any(String), action: { kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 42, text: '  Sí, 你好 👩🏽‍💻\n' } })
     expect(commands()[0].actionId).not.toBe('')
     expect(result.current.turns).toEqual([])
     await act(async () => watches[0].resolve(snapshot('a', 12, 'Durably accepted')))
@@ -216,7 +216,7 @@ describe('native conversation ownership', () => {
 })
 
 function page(settingsVersion = 0) {
-  return <SkillNavigationProvider><GuidedPage languagePicker={null} mobileSurface="chat" onMobileSurfaceChange={vi.fn()} active settingsVersion={settingsVersion} /></SkillNavigationProvider>
+  return <SkillNavigationProvider><GuidedPage languagePicker={null} mobileSurface="chat" active settingsVersion={settingsVersion} /></SkillNavigationProvider>
 }
 describe('native composer admission', () => {
   it.each(['Enter', 'Send'])('types into the extracted composer and submits once with %s', async (action) => {
@@ -234,7 +234,7 @@ describe('native composer admission', () => {
     if (action === 'Enter') await user.keyboard('{Enter}')
     else await user.click(screen.getByRole('button', { name: 'Send' }))
     await waitFor(() => expect(commands()).toHaveLength(1))
-    expect(commands()[0].action).toEqual({ kind: 'sendMessage', conversationId: 'a', expectedRevision: 7, text: 'Hola, ¿cómo estás?' })
+    expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Hola, ¿cómo estás?' })
     await act(async () => pending.reject(new Error('Authentication failed')))
     expect(composer).toHaveValue('Hola, ¿cómo estás?')
     expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
@@ -283,7 +283,7 @@ describe('native composer admission', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
     fireEvent.click(screen.getByText('⚠ Request failed'))
     expect(screen.getByText('Admission refused')).toBeVisible()
-    expect(commands()[0].action).toEqual({ kind: 'sendMessage', conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
+    expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
     expect(commands()).toHaveLength(1)
   })
 })

@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { openDevWindow } from '../lib/tauri'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { openOverlay } from '../lib/back'
 import { DetailDialog } from './DetailDialog'
-import { UnavailableActivity } from './dev/UnavailableActivity'
-import { reportFault } from '../lib/faults'
+import { LiveActivity } from './dev/LiveActivity'
 
 // The docked observability panel: a toggle button that pulls a resizable
-// sheet up from the bottom, and a pop-out into its own OS window.
+// sheet up from the bottom.
 //
 const HEIGHT_KEY = 'skellyspeak_dev_h'
 const MIN_VH = 18
@@ -29,7 +27,6 @@ interface LogsOverlayProps {
 }
 
 export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
-  const [poppedOut, setPoppedOut] = useState(false)
   const [heightVh, setHeightVh] = useState<number>(storedHeight)
   const isMobile = useIsMobile()
   const dragging = useRef(false)
@@ -61,16 +58,7 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
     window.addEventListener('pointerup', up)
   }, [])
 
-  const popOut = useCallback(() => {
-    void openDevWindow()
-      .then(() => {
-        setPoppedOut(true)
-        onOpenChange(false)
-      })
-      .catch((e: unknown) => reportFault('Observability window', e))
-  }, [onOpenChange])
-
-  if (isMobile) return open ? <DetailDialog title="AI activity & tools" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><UnavailableActivity /></div></DetailDialog> : null
+  if (isMobile) return open ? <DetailDialog title="AI activity & tools" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><LiveActivity /></div></DetailDialog> : null
 
   return (
     <>
@@ -86,18 +74,10 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
           <div className="logs-window-bar">
             <span className="logs-window-title">
               AI activity
-              {poppedOut && <em> · also open in its own window</em>}
             </span>
-            <button
-              type="button"
-              className="logs-clear"
-              onClick={popOut}
-              title="Open in a separate window"
-            >
-              pop out ⧉
-            </button>
+
           </div>
-          <UnavailableActivity />
+          <LiveActivity />
         </div>
       )}
     </>

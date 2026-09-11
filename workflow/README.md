@@ -21,37 +21,34 @@ resolves routine dependencies; do not wait for the user to relay acknowledgement
 
 ## Current baseline and work
 
-The rebuild checkout integrates the desktop voice loop, translation, inline gloss
-reading and durable local diagnostics. BUILD-PLAN.md owns the current checkpoint
-and next-slice exit criteria; workflow/reports/integration-logging.md records evidence.
-The five domain handoffs are complete. No agent is blocked waiting for user QA.
+The integrated checkpoint is committed and pushed. All six worktrees use the
+rewritten history. Git remains read-only for agents. Do not merge obsolete history,
+force-push, or run tag/mirror pushes from local worktrees.
 
-| Domain | Checkpoint responsibility | Next bounded responsibility |
+| Domain | Current bounded assignment | Owned artifact |
 | --- | --- | --- |
-| Integration | Consolidate docs, review findings, prepare user commit | Assign reading slice files and verify combined work |
-| Reliability/security | Logging/concurrency handoff complete | Reading retry and voice lifecycle regressions |
-| Language | Source-bound validation handoff complete | Partial coverage and invalid-span analysis |
-| Interaction | Inline reading, voice and diagnostics handoff complete | Compact reading states using established styles |
-| AI Operations | Provider/prompt handoff complete | Evidence-based gloss contract/prompt corrections |
-| Code Quality | Independent checkpoint hygiene review | Handoff reviews and finite style-guide consolidation |
-| Evidence/progression | Unassigned | Rubric/eligibility design after assistance/coaching |
-| Visualization | Unassigned | Render approved underlying evidence |
+| Integration | Reconcile findings, assign boundaries and verify handoffs | BUILD-PLAN.md and this document |
+| Interaction | Measure waveform redraw cost; fix demonstrated UI waste without changing behavior | reports/U1-waveform-performance.md |
+| Reliability/security | Independent capture/render lifecycle and performance evidence; no UI edits | reports/R1-waveform-performance.md |
+| Language | Structured private coaching semantics and source validation proposal | reports/L1-coaching-contract.md |
+| AI Operations | Coaching task graph, prompts and route/model eligibility proposal | reports/A1-coaching-execution.md |
+| Code Quality | Review handoffs; scope server module organization without moving files | reports/CQ-server-organization.md |
 
-Language and AI Operations first review declarative language configuration and
-shared prompts together, per DESIGN.md. Their proposal work may proceed during the
-checkpoint; no new language implementation or paid evaluation is implied.
+Coaching proposals precede production implementation. All difficulty levels share
+one assistance mechanism. Voice responsiveness, private coach context boundaries
+and explicit route selection remain requirements. No new agents, paid evaluation,
+deployment or speculative UI is assigned. Interaction owns UI changes; Reliability
+coordinates independent measurements/tests rather than editing those same files.
+Report exact blockers to Integration without waiting for the user to relay messages.
 
-Next-slice implementation starts after the checkpoint with explicit disjoint file
-ownership. No new agents, paid benchmark or deployment are needed for this checkpoint.
 Only one native app runs: worktrees share app identity, data and development port.
-All agents use the integration checkout's absolute log path rather than substituting
-their own worktree path.
+Use the integration checkout's absolute log path for complete interval inspection.
 
 ## Reading-assistance round status
 
 The user authorized continuation. The three bounded source handoffs below are
 integrated and independently reviewed by Code Quality.
-The prior checkpoint is still uncommitted; agents do not perform Git writes.
+The reading checkpoint is committed; agents do not perform Git writes.
 
 | Owner | Owned proposal artifact | Required result |
 | --- | --- | --- |

@@ -2,6 +2,19 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
   "description": "Local main window",
-  "windows": ["main", "ai"],
-  "permissions": ["core:default"]
+  "windows": [
+    "main",
+    "ai"
+  ],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://docs.freemocap.org/skellyspeak/download"
+        }
+      ]
+    }
+  ]
 }

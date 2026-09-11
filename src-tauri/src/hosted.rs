@@ -327,10 +327,14 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
             .await
             .map_err(|_| fault("Sign-in timed out. Try again."))??,
     );
+    exchange(&code, &proof.verifier).await
+}
+
+async fn exchange(code: &str, verifier: &str) -> Result<Zeroizing<String>> {
     let response = crate::provider::client()?
         .post(format!("{ORIGIN}/auth/exchange"))
         .timeout(Duration::from_secs(30))
-        .json(&serde_json::json!({"code":code.as_str(),"code_verifier":proof.verifier.as_str()}))
+        .json(&serde_json::json!({"code":code,"code_verifier":verifier}))
         .send()
         .await
         .map_err(|_| fault("Could not exchange the sign-in code."))?;
@@ -348,15 +352,71 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
     Ok(token)
 }
 #[cfg(any(target_os = "android", target_os = "ios"))]
-pub async fn sign_in(_app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
-    Err(fault(
-        "Mobile sign-in requires the native deep-link integration; this build supports desktop sign-in.",
+#[path = "hosted_mobile.rs"]
+mod mobile;
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub use mobile::sign_in;
+
+#[cfg(any(target_os = "android", target_os = "ios", test))]
+fn mobile_callback(url: &reqwest::Url, challenge: &str) -> Option<Result<String>> {
+    if url.scheme() != "skellyspeak"
+        || url.host_str() != Some("auth")
+        || !matches!(url.path(), "" | "/")
+        || !url.username().is_empty()
+        || url.password().is_some()
+        || url.port().is_some()
+        || url.fragment().is_some()
+        || url.as_str().len() > 4096
+    {
+        return None;
+    }
+    let states: Vec<_> = url
+        .query_pairs()
+        .filter(|(key, _)| key == "state")
+        .collect();
+    if states.len() != 1 || states[0].1 != challenge {
+        return None;
+    }
+    Some(callback_code(
+        &format!("/callback?{}", url.query().unwrap_or("")),
+        challenge,
     ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn mobile_redirect_is_bound_to_origin_and_current_attempt() {
+        for url in [
+            "https://auth?state=expected&code=x",
+            "skellyspeak://auth/other?state=expected&code=x",
+            "skellyspeak://auth?state=wrong&code=x",
+            "skellyspeak://auth?state=expected&state=expected&code=x",
+            "skellyspeak://user@auth?state=expected&code=x",
+        ] {
+            assert!(mobile_callback(&reqwest::Url::parse(url).unwrap(), "expected").is_none());
+        }
+        assert_eq!(
+            mobile_callback(
+                &reqwest::Url::parse("skellyspeak://auth?state=expected&code=one").unwrap(),
+                "expected"
+            )
+            .unwrap()
+            .unwrap(),
+            "one"
+        );
+        assert!(
+            mobile_callback(
+                &reqwest::Url::parse("skellyspeak://auth?state=expected&code=one&code=two")
+                    .unwrap(),
+                "expected"
+            )
+            .unwrap()
+            .is_err()
+        );
+    }
+
     #[test]
     fn rate_and_daily_admission_limits_are_distinct_from_spending_limits() {
         for (detail, expected) in [

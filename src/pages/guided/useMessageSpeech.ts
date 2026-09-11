@@ -6,7 +6,8 @@ import { reportFault } from '../../lib/faults'
 import { playSpeechAudio } from './speech-player'
 
 /** Snapshot observation reads audio only; generation is exclusive to explicit replay. */
-export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversationId: string | null, enabled: boolean, active: boolean) {
+export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversationId: string | null, enabled: boolean, active: boolean, rate = 1, volume = 1) {
+  const playback = useRef({ rate, volume }); playback.current = { rate, volume }
   const latest = useRef(snapshot); latest.current = snapshot
   const generation = useRef(0)
   const current = useRef<{ messageId: string; operationId: string | null; sessionId: string; stop?: () => void } | null>(null)
@@ -46,7 +47,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
       const player = playSpeechAudio(audio, finish, () => {
         if (scope === generation.current) { setFailure({ messageId: sourceId, text: 'Audio playback failed.' }); finish() }
-      })
+      }, playback.current.rate, playback.current.volume)
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
       try { await player.play() } catch (error) { player.stop(); throw error }
       return

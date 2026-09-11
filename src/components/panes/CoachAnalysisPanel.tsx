@@ -1,17 +1,17 @@
 import { ErrorDetails } from '../ErrorDetails'
 import { ActivityIndicator } from '../ActivityIndicator'
 import { DetailDialog } from '../DetailDialog'
-import { ConversationMap } from '../chat/ConversationMap'
+import { ConversationProgress } from './ConversationProgress'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../lib/tauri'
 import { executeAction, nativeError, readWorkspace, watchConversation } from '../../lib/workspace'
 import type { ConversationSnapshot } from '../../contracts'
-import { AnalysisContent, type AnalysedTurn, type InspectTarget } from './AnalysisContent'
+import { type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { CoachDock } from './CoachDock'
 import { Markdown } from '../../lib/markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, pinnedTurn, inspect, nativeLanguageName, showRomanization, rtl, contactProfile }: {
-  conversationBusy: boolean; chatId: string; contactProfile: ReactNode; tab: 'lesson' | 'analysis' | 'profile'; onTab: (tab: 'lesson' | 'analysis' | 'profile') => void
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, contactProfile }: {
+  conversationBusy: boolean; chatId: string; contactProfile: ReactNode; tab: 'lesson' | 'profile'; onTab: (tab: 'lesson' | 'profile') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
@@ -92,13 +92,11 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   </CoachDock>
   return <>
     <div className="panel-tabs" role="tablist" aria-label="Learning panel">
-      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Lesson</button>
-      <button type="button" role="tab" aria-selected={tab === 'analysis'} className={`panel-tab ${tab === 'analysis' ? 'active' : ''}`} onClick={() => onTab('analysis')}>Analysis</button>
-      <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>Profile</button>
+      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Skill map</button>
+      <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>Persona</button>
     </div>
     <div className="analysis-scroll" hidden={tab !== 'profile'}>{contactProfile}</div>
-    {tab !== 'profile' && <ConversationMap />}
-    {tab !== 'profile' && (tab === 'lesson' ? <div className="analysis-scroll"><button type="button" className="lesson-action" disabled title="Lesson editing unavailable">Edit choices</button></div> : <div className="analysis-scroll">{pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p className="center-note">Select a contact reply to see its breakdown.</p>}</div>)}
+    {tab === 'lesson' && <ConversationProgress chatId={chatId} />}
     {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
   </>
 }

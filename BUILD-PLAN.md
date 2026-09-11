@@ -28,15 +28,33 @@ for database checks and remaining work. Earlier reports retain their own bounded
 run evidence; their counts are not the current suite totals.
 
 The approved development database reset completed with scoped credential cleanup;
-all logs remain intact. No further reset is required. Recovered SkellySubs snapshots
-are reference-only and belong in a separate commit. The AGPLv3-or-later license
+all logs remain intact. No further reset is required. Recovered SkellySubs source snapshots
+are committed reference material; bundled large binaries are excluded. The AGPLv3-or-later license
 commit is already present. The user performs all Git writes; no hosted deployment
 or release is part of this checkpoint.
 
-Next: checkpoint the integrated tree, then scope structured private coaching.
+The integrated checkpoint is pushed on rebuild. Next: scope structured private coaching.
 Interaction and Reliability should first give the waveform/performance concern a
 bounded review; do not infer a crash cause without evidence. Selected-word speech,
 new-contact creation lifecycle and broader cleanup remain separate follow-ups.
+
+## Waveform performance verification
+
+The bounded waveform fix is integrated in source. It skips identical paints while
+continuing to read audio samples each animation frame. Interaction verified identical
+synthetic canvas output at desktop and narrow widths; Reliability independently
+measured 600 to 101 paints over 600 simulated frames. This measures drawing work,
+not native CPU, frame rate or a mobile crash cause. Code Quality cleared the change.
+Integration reran all 391 frontend tests, production build and CSS checks successfully.
+See workflow/reports/U1-waveform-performance.md and R1-waveform-performance.md.
+No native/server changes or runtime restart were needed for these automated checks.
+
+Coaching remains a contract proposal pending Language/AI reconciliation and review.
+The approved direction is two input-driven automatic coaching nodes per turn
+(immediate learner feedback and response-dependent suggestions), plus deeper analysis
+on request, with separate correctness/understandability assessments and source-linked
+evidence. Language is proposing six skill domains; catalog changes, scoring scales
+and XP/proficiency aggregation are not implemented by this decision.
 
 ## Intention
 
@@ -298,7 +316,7 @@ eligibility supports Fast. Selected-word detail and caching are separate optimiz
 
 - Structured private coaching and native-language expression help, with source
   attribution and explicit settings changes. Coach content stays out of partner prompts.
-- Seven-domain evidence/rubrics, assistance treatment and participation/XP rules
+- Six-domain evidence/rubrics, assistance treatment and participation/XP rules
   before scoring or scientific reports. XP is not a CEFR estimate.
 - Garden/skill-map views consume those records; no separate editable health truth.
 - Carry Code Quality findings explicitly: CQ001 automatic API-key verification
@@ -330,3 +348,135 @@ input rejected in the earlier logs was not retained.
 
 Current verification: 191 native tests and 386 frontend tests; build/styles,
 contracts, formatting and Clippy pass. Native security and final UI recovery/density reviews cleared. Relaunch requires no reset or server deployment.
+
+## Coaching and progression checkpoint
+
+Implemented: saved-message coach feedback runs independently of the partner reply;
+reply suggestions run when partner text is available. Feedback includes independent
+correctness/understandability scores, nullable when evidence is insufficient, exact
+source quotations and validated catalog IDs. Private coach history is captured only
+for coaching. Results hydrate saved messages without creating partner replies.
+
+Native evidence projections now drive the six-domain skill UI, rewards, XP and
+language/global practice statistics. Composer assistance and speech/text provenance
+are captured at send. Skill-map inspection and collapse have separate controls.
+Custom URL check saves the displayed fresh default before validating its revision.
+
+Verification: 196 native tests, 394 frontend tests and production build pass.
+Live voice/coaching/reward behavior still requires an in-app check after restarting
+the native build. Broader usage distributions, partner statistics, deeper analysis,
+CEFR estimation and garden rendering remain separate follow-ups. No server deployment
+or Git writes were performed for this checkpoint.
+
+Diagnostic follow-up: add explicit user-initiated export/share of a reviewed,
+redacted log bundle. No automatic uploads; preview scope and redact secrets and
+conversation content before any sharing. Current logging persists locally.
+
+## Reward presentation controls
+
+Fast mode and sound-effects preferences now persist in device-local native storage;
+new settings default to Fast mode on, effects following Read aloud, and volume 100
+on the existing 0–100 controls. Muting and volume use the shared reward/voice audio
+controls. Automatic cards retain the reference flight path and Fast-mode dismissal;
+manual inspection also dismisses in Fast mode. Popping inline XP removes its spacer;
+clicking evidence inspects credit without regenerating its popped bubble.
+The global fault list has a bounded scroll region and sticky Dismiss all control.
+In-app confirmation requires restarting the native app to load the new preference
+commands and corrected diagnostic decoder. No server changes are required.
+
+## Absolute Zero and feedback validation check
+
+The inspected Arabic turns captured Absolute Zero correctly; excessive reply complexity
+was model noncompliance, not a missing setting. The prompt now explicitly requests one
+short, natural, grammatically complete utterance without a word-count ceiling, discourages complexity inherited from history/persona, and places the
+selected difficulty after contact data. This remains prompting, not a hard linguistic
+complexity guarantee.
+
+Rejected coaching outputs now record content-free validation categories. The schema
+restricts skill IDs to catalog skills; prompts explicitly prohibit changing spelling
+or Arabic diacritics in source quotations. The original rejection category was not
+retained, so these changes require a fresh live check rather than claiming the original
+cause is proven. Invalid evidence still receives no XP and is not silently repaired.
+
+Coaching source restoration is complete; 199 native tests pass. No Git writes or
+server deployment were performed. Restart the native app before testing new turns.
+
+## Reading and usability checkpoint
+
+Implemented: short-source gloss schemas enumerate valid source boundaries; saved
+word glosses carry optional romanization and pronunciation. Reading preferences
+control their display without new calls. New results are needed to inspect readings.
+Absolute Zero prioritizes grammatical, useful speech over artificial word limits.
+Arabic and Simplified Chinese use a language-configured 1.5 text scale.
+
+Voice speed persists locally (0.5–1.5×) and applies to subsequent playback. Fast mode
+controls card auto-dismissal; disabled cards persist until explicitly dismissed.
+Settings saves merge unrelated fresh local settings and reject conflicting edits.
+Analysis identifies its planned deeper grammar content as in development.
+Domain progress earns a display star per 50 XP; subskill mastery milestones remain
+separate evidence-based measures. Unpracticed domains are gray. Collapse is compact.
+
+Partner-initiated opening turns remain deferred: implement a real partner-start
+operation, never a fabricated learner message. Single-word audio and live provider
+validation of this checkpoint remain follow-ups. No server changes are required.
+
+## Conversation XP and compact controls
+
+The Coach pane exposes XP and Persona. The conversation map attributes awarded
+credits to this conversation; selected domains show source messages, assessments
+and awarded XP. Language progression reuses the same map across the language's
+full retained evidence. The lowest-XP domain carries the mechanical focus marker.
+
+Header selectors are revealed by the gear; the closed header summarizes Learning,
+Native and difficulty. Fast mode and voice playback speed are connected in both
+settings surfaces. Desktop pointer hover reveals saved glosses; touch taps toggle.
+Chinese content scale is 1.3; picker scaling is capped at 1.15. Mobile maps open
+expanded and stay alongside domain cards. Supporting prose uses accessible info
+controls; dynamic evidence and short development status remain visible.
+
+History uses millisecond wall-clock activity with monotonic tie-breaking and saved
+message/creation timestamps. The observed secondary failure was duplicate skill IDs
+in coach output. The prompt now explicitly demands unique IDs and one strongest
+quote per skill. Invalid evidence remains rejected; live provider improvement is
+not established by automated checks.
+
+## Practical categories and profile density
+
+The six presentation groups are Social phrases, Statements, Questions,
+Descriptions, Time/place/movement, and Opinions/reasons. Concrete greeting,
+wellbeing and courtesy criteria are part of coach assessment; ordinary formulaic
+social exchanges must not be inferred as event descriptions. Existing source
+judgments retain their exact skill identity; regrouping does not invent new credit.
+Domain colors use cool jewel hues, with muted versions of the same hue before XP.
+
+Language profile tabs attach to their content, with the map before detailed metrics.
+Global metrics are compact. Information popovers use the browser top layer to escape
+scroll-container clipping. The conversation summary distinguishes labels from values
+and opens settings; New chat is on the top bar. Conversation borders have a stable
+jewel hue derived from the conversation ID. Persona identity is not randomized.
+Edit-and-retry remains deferred pending a native revision/dependent-turn operation;
+it must not masquerade as a second learner message.
+
+## UI wiring and release readiness
+
+App activity has a fixed-height scrollable modal. Main navigation and Skill map /
+Persona use attached page tabs; New chat sits inside the Guided conversation tab.
+Native → Learning labels and a clickable settings summary identify language roles.
+Nonzero XP uses saturated jewel hues; zero XP alone uses the muted palette.
+Word hover help is positioned outside text flow. Text spacing is not exposed and
+uses zero added spacing; text-size preference remains active. Pronunciation prompts
+request familiar-letter approximations, not IPA. Pending coach feedback has an
+activity indicator. Autosave preserves edits made while a write is in progress.
+
+AI activity now reads durable operations, dependency edges, states, models, usage
+and errors through conversation watches. It does not mount unsupported gate/trace
+controllers or send inference requests. The displayed conversation is selected when
+the panel opens; exchanges within that conversation can be inspected.
+
+Release integration targets stable 0.14.0. Signed desktop updates, Android APK/AAB
+publication and the platform-selecting website are wired. Android microphone capture
+feeds the shared transcription lifecycle; credentials use Android secure storage;
+hosted login uses a PKCE-bound deep link with cancelled-attempt cleanup.
+Local desktop compilation and automated checks are verified. Android debug compilation
+is required in PR CI; signed packaging and actual Android-device login/voice/update
+verification remain release checks, not claims of completed device testing.

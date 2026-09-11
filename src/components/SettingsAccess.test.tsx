@@ -8,7 +8,7 @@ vi.mock('../lib/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
 const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
   configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', paused: false }
-const access = { revision: 7, groqKeyConfigured: true, customKeyConfigured: true,
+const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, customKeyConfigured: true,
   custom: { baseUrl: 'https://fixture.example/v1', standardModel: 'fixture-standard', fastModel: 'fixture-fast', bearerAuth: true, transcriptionModel: 'fixture-transcription' } }
 beforeEach(() => {
   native.mockReset()
@@ -86,19 +86,55 @@ it('selects only the persisted route from tab headings and never falls back afte
   expect(native.mock.calls.filter(call => call[0] === 'select_route')).toHaveLength(2)
 })
 
-it('fills known model defaults in a fresh Custom form without writes on mount', async () => {
+it('shows the native default address and known model defaults without writes on mount', async () => {
   native.mockImplementation(async (command: string) => {
     if (command === 'get_connection') return connection
-    if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, baseUrl: '', standardModel: '', fastModel: '', transcriptionModel: null } }
+    if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, baseUrl: 'http://127.0.0.1:8765/v1', standardModel: '', fastModel: '', transcriptionModel: null } }
     throw new Error(command)
   })
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
-  await screen.findByLabelText('Server address')
+  expect(await screen.findByLabelText('Server address')).toHaveValue('http://127.0.0.1:8765/v1')
   expect(screen.queryByLabelText('Voice input')).toBeNull()
   expect(screen.getByLabelText('Standard model')).toHaveValue('google/gemini-2.5-flash')
   expect(screen.getByLabelText('Fast model')).toHaveValue('google/gemini-2.5-flash')
   expect(screen.getByLabelText('Transcription model')).toHaveValue('whisper-large-v3')
   expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings'])
+})
+
+it('preserves native address and explicit authentication choice', async () => {
+  native.mockImplementation(async (command: string) => {
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, bearerAuth: false } }
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  expect(await screen.findByLabelText('Server address')).toHaveValue(access.custom.baseUrl)
+  expect(screen.getByLabelText('Use server session token')).not.toBeChecked()
+  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings'])
+})
+
+it('retains a cleared address after rejection until explicitly discarded', async () => {
+  const defaultAddress = 'http://127.0.0.1:8765/v1'
+  native.mockImplementation(async (command: string) => {
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, baseUrl: defaultAddress } }
+    if (command === 'save_access_settings') throw new Error('Server address is required')
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  const url = await screen.findByLabelText('Server address')
+  fireEvent.focus(url); fireEvent.change(url, { target: { value: '' } })
+  expect(url).toHaveValue('')
+  fireEvent.blur(url)
+  await screen.findByRole('alert')
+  expect(url).toHaveValue('')
+  expect(native).toHaveBeenCalledWith('save_access_settings', {
+    expectedRevision: 7, custom: { ...access.custom, baseUrl: '' }, apiKey: null, removeKey: false,
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }))
+  expect(url).toHaveValue(defaultAddress)
+  expect(native.mock.calls.filter(call => call[0] === 'get_access_settings')).toHaveLength(1)
+  expect(native).not.toHaveBeenCalledWith('select_route', expect.anything())
 })
 
 
@@ -184,4 +220,22 @@ it('recovers from a fresh rejected key save without deleting credentials or chan
   expect(native.mock.calls.filter(call => !['get_connection', 'get_access_settings'].includes(call[0]))).toEqual([
     ['save_access_settings', { expectedRevision: 7, custom: { ...freshAccess.custom, standardModel: 'google/gemini-2.5-flash', fastModel: 'google/gemini-2.5-flash', transcriptionModel: 'whisper-large-v3' }, apiKey: 'synthetic-unsaved-key', removeKey: false }],
   ])
+})
+
+it('saves an unsaved URL default once before checking the returned revision', async () => {
+  let saved = false
+  native.mockImplementation(async (command, args) => {
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return { ...access, customUrlIsUnsavedDefault: !saved }
+    if (command === 'save_access_settings') { saved = true; return { ...access, revision: 8, customUrlIsUnsavedDefault: false } }
+    if (command === 'check_access') { expect(args.expectedRevision).toBe(8); return 'Connected' }
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn().mockResolvedValue(undefined)} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Check connection' }))
+  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8, custom: true }))
+  await waitFor(() => expect((screen.getByRole('button', { name: 'Check connection' }) as HTMLButtonElement).disabled).toBe(false))
+  fireEvent.click(screen.getByRole('button', { name: 'Check connection' }))
+  await waitFor(() => expect(native.mock.calls.filter(([name]) => name === 'check_access')).toHaveLength(2))
+  expect(native.mock.calls.filter(([name]) => name === 'save_access_settings')).toHaveLength(1)
 })

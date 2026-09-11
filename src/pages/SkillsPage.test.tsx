@@ -34,7 +34,7 @@ const currentRecord: SkillRecord = {
   attempt_id: 'attempt-a', session_id: 'session-a', turn_id: 42, message_id: 7, replaces_message_id: null,
   chat_id: 'chat-a', learner_id: 'local', target: 'ar', native: 'en', source: 'هذا الكتاب.',
   input: { ...unreportedInput(), suggestion: true }, at_secs: 123, model: 'evaluation-model', provider_mode: 'hosted',
-  catalog_version: 3, prompt_version: 'skill-evidence-4', status: 'complete', error: null,
+  catalog_version: 4, prompt_version: 'skill-evidence-4', status: 'complete', error: null,
   assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['هذا الكتاب.'], rationale: 'Identifiable referent using suggested wording.' }] },
 }
 function fixture(): SkillSnapshot {
@@ -47,14 +47,14 @@ describe('meaning-domain profile', () => {
     const nodes = () => document.querySelectorAll('.tree-node')
     const original = Array.from(nodes())
     expect(original).toHaveLength(displayedTree.length)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Inspect' }), { target: { value: 'time' } })
+    fireEvent.change(screen.getByRole('combobox', { name: 'Inspect' }), { target: { value: 'situating' } })
     expect(Array.from(nodes())).toEqual(original)
     fireEvent.click(screen.getByRole('button', { name: 'Close node details' }))
     expect(Array.from(nodes())).toEqual(original)
   })
   it('preserves the shared taxonomy and keeps every layout separated and mirrored', () => {
     expect(skillTree.filter((n) => n.parent === null)).toHaveLength(1)
-    expect(skillTree.filter((n) => n.kind === 'domain').map((n) => n.id)).toEqual(['reference', 'properties', 'events', 'time', 'space', 'operators', 'connections'])
+    expect(skillTree.filter((n) => n.kind === 'domain').map((n) => n.id)).toEqual(['social', 'descriptions', 'statements', 'situating', 'questions', 'opinions'])
     for (const n of skillTree) {
       const right = nodePosition(n, 'right', skillTree)
       const left = nodePosition(n, 'left', skillTree)

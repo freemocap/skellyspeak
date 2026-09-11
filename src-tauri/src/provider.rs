@@ -766,6 +766,7 @@ mod transport_tests {
     }
     fn structured_dispatch(url: String, route: ConnectionRoute) -> crate::execution::Dispatch {
         crate::execution::Dispatch {
+            coaching_schema: None,
             gloss_source: None,
             speech_source: None,
             target: crate::access::ResolvedTarget {

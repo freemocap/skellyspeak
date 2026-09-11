@@ -110,20 +110,14 @@ export const TurnView = memo(function TurnView({
   const [showUserTranslation, setShowUserTranslation] = useState<boolean | null>(null)
   const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
   useEffect(() => { setShowUserTranslation(null); setShowPartnerTranslation(null) }, [autoTranslate])
-  const [creditGenerations, setCreditGenerations] = useState<Record<string, number>>({})
-  const restoreCredits = (items: MessageEvidence[]): void => setCreditGenerations(previous => {
-    const next = { ...previous }
-    for (const id of new Set(items.map(item => item.id))) next[id] = (previous[id] ?? 0) + 1
-    return next
-  })
-  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={creditGenerations[item.id] ?? 0} onOpen={() => setRewardDetail([item])} />)
+  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => setRewardDetail([item])} />)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); restoreCredits(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
 
@@ -221,7 +215,7 @@ export const TurnView = memo(function TurnView({
             onTap={(e) => {
               e.stopPropagation()
               if (dragRef.current.moved) return
-              if (matches.length) restoreCredits(matches)
+              if (matches.length) setRewardDetail(matches)
               if (tok.gloss || tok.pronunciation || tok.romanization) {
                 onPopup(null)
                 onToggleReveal([key])

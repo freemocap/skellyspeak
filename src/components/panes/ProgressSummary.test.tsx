@@ -17,7 +17,7 @@ it('separates global activity from language tabs and keeps an unused language em
   Object.assign(skill, { xp: 10, successes: 1, checked: true })
   spanish.profile.xp = 10
   spanish.profile.credits = [{ attempt_id: 'a', skill_id: skill.skill_id, xp: 10 }]
-  spanish.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Esa taza.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: 3, prompt_version: 'v1', status: 'complete', assessment: { judgments: [{ skill_id: skill.skill_id, outcome: 'demonstrated', quotes: ['taza'], rationale: 'Identifies the cup.' }] }, error: null }]
+  spanish.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Esa taza.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: 4, prompt_version: 'v1', status: 'complete', assessment: { judgments: [{ skill_id: skill.skill_id, outcome: 'demonstrated', quotes: ['taza'], rationale: 'Identifies the cup.' }] }, error: null }]
   const arabic = structuredClone(skillDemo)
   arabic.target = 'ar'; arabic.profile.choices.target = 'ar'
   backend.getPracticeOverview.mockResolvedValue({ languages: [{ name: 'Spanish', endonym: 'Español', snapshot: spanish }, { name: 'Arabic', endonym: 'العربية', snapshot: arabic }] })

@@ -6,7 +6,7 @@ export interface Shortcuts {
 }
 
 export interface Settings {
-  scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number }
+  scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
   /// 'hosted' (the project's service, signed in with Google), 'cloud'
   /// (OpenRouter with the user's key) or 'custom' (their own
   /// SkellySpeak server). Mirrors settings.rs PROVIDER_* constants.
@@ -67,7 +67,7 @@ export type AnalysisState = 'pending' | 'done' | null
 
 /// The coach's private read on one learner message.
 export interface CoachFeedbackBody {
-  grammar: number
+  grammar: number | null
   remark: string
   used_target: string[]
   used_native: string[]
@@ -75,7 +75,7 @@ export interface CoachFeedbackBody {
 }
 
 export type CoachFeedback = CoachFeedbackBody & (
-  | { conversation: number; comprehensibility?: never }
+  | { conversation: number | null; comprehensibility?: never }
   | { comprehensibility: number; conversation?: never }
 )
 

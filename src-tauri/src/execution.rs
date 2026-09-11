@@ -351,7 +351,8 @@ fn accept_turn(
             })
             .count() as i64,
     )?;
-    let captured = serde_json::json!({"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"partnerRevision":partner.revision,"templateVersion":3,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"partner-reply-standard-v1"});
+    let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let captured = serde_json::json!({"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"partnerRevision":partner.revision,"templateVersion":3,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"partner-reply-standard-v1"});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     for node in if coach { COACH_PLAN } else { PLAN } {
@@ -375,8 +376,8 @@ fn accept_turn(
         )?;
     }
     db.execute(
-        "UPDATE conversations SET revision=revision+1,last_used=?2 WHERE id=?1",
-        params![conversation_id, snapshot.revision + 1],
+        "UPDATE conversations SET revision=revision+1,last_used=MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1) WHERE id=?1",
+        params![conversation_id],
     )?;
     Ok(turn)
 }
@@ -456,7 +457,7 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
             }
             admit_turn_retry(db, turn)?;
             release_hold(db, turn, false)?;
-            db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role='assistant') THEN 'assisting' ELSE 'pending' END WHERE id=?1", [turn])?;
+            db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind IN ('partner_reply','coach_reply') AND state IN ('ready','waiting_dependencies','running')) THEN 'pending' ELSE 'assisting' END WHERE id=?1", [turn])?;
             db.execute("UPDATE operations SET state='ready',permit=0 WHERE turn_id=?1 AND state IN ('failed','unknown') AND kind!='partner_speech'",[turn])?;
         }
     }
@@ -472,6 +473,7 @@ pub struct Dispatch {
     pub route: ConnectionRoute,
     pub install_id: String,
     pub messages: Vec<PromptMessage>,
+    pub coaching_schema: Option<serde_json::Value>,
     pub gloss_source: Option<crate::gloss::Source>,
     pub speech_source: Option<crate::speech::Source>,
 }
@@ -640,9 +642,17 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='partner_reply') AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='partner_reply') AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
+            let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachSuggestions.replies" }], |r|r.get(0))?;
+            if message.role == "user" {
+                message.feedback = saved.map(|s| serde_json::from_str(&s)).transpose()?;
+                (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,json_extract(t.context,'$.coach_feedbackError') FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='coach_feedback' WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
+            } else {
+                message.suggested_replies = saved.map(|s| serde_json::from_str(&s)).transpose()?;
+            }
+
             if message.role == "assistant" {
                 let (saved, state, operation): (Option<String>, Option<String>, Option<String>) = db.query_row("SELECT json_extract(t.context,'$.wordGloss'),o.state,o.id FROM turns t JOIN messages m ON m.turn_id=t.id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='partner_word_gloss' WHERE m.id=?1", [&message.id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
                 message.gloss_error = db.query_row("SELECT json_extract(t.context,'$.wordGlossError') FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", [&message.id], |r|r.get(0))?;
@@ -725,7 +735,7 @@ impl Store {
                 attempts,
             });
         }
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         Ok(ConversationSnapshot {
             transcription_attempts: crate::transcription::views(db, conversation)?,
@@ -744,7 +754,7 @@ impl Store {
         if config(&self.connection)?.paused {
             return Ok(false);
         }
-        Ok(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1))", [], |r| r.get(0))?)
+        Ok(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) AND (o.kind IN ('partner_context','coach_context','partner_reply','coach_reply') OR (SELECT count(*) FROM operations WHERE state='running' AND kind NOT IN ('partner_reply','coach_reply'))<3))", [], |r| r.get(0))?)
     }
 
     pub fn dispatch(&mut self) -> Result<Option<Dispatch>> {
@@ -760,7 +770,7 @@ impl Store {
         if running >= crate::admission::NETWORK_CAPACITY as i32 {
             return Ok(None);
         }
-        let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) ORDER BY t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
+        let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) AND (o.kind IN ('partner_context','coach_context','partner_reply','coach_reply') OR (SELECT count(*) FROM operations WHERE state='running' AND kind NOT IN ('partner_reply','coach_reply'))<3) ORDER BY CASE WHEN o.kind IN ('partner_context','coach_context','partner_reply','coach_reply') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
         let Some((operation, kind, turn, credential, model, context)) = candidate else {
             return Ok(None);
         };
@@ -847,12 +857,40 @@ impl Store {
             && kind != "coach_reply"
             && kind != "reply_translation"
             && kind != "partner_word_gloss"
+            && kind != "coach_feedback"
+            && kind != "coach_suggestions"
         {
             return Err(fail("No executor for declared operation."));
         }
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let mut gloss_source = None;
-        let messages = if kind == "partner_word_gloss" {
+        let coaching_schema = if kind.starts_with("coach_") && kind != "coach_reply" {
+            Some(crate::coaching::schema(&kind))
+        } else {
+            None
+        };
+        let messages = if coaching_schema.is_some() {
+            match crate::coaching::prompt(&tx, &turn, &kind, &captured) {
+                Ok(messages) => messages,
+                Err(error) => {
+                    if matches!(error.code, ErrorCode::Storage | ErrorCode::Internal) {
+                        return Err(error);
+                    }
+                    tx.execute(
+                        "UPDATE operations SET state='failed',permit=0 WHERE id=?1",
+                        [&operation],
+                    )?;
+                    tx.execute(
+                        "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
+                        params![turn, format!("$.{kind}Error"), error.message],
+                    )?;
+                    refresh_turn(&tx, &turn)?;
+                    bump(&tx)?;
+                    tx.commit()?;
+                    return Ok(None);
+                }
+            }
+        } else if kind == "partner_word_gloss" {
             let prepared = (|| -> Result<_> {
                 let (message_id, text): (String, String) = tx.query_row(
                     "SELECT id,text FROM messages WHERE turn_id=?1 AND role='assistant'",
@@ -963,6 +1001,7 @@ impl Store {
             credential,
             model,
             messages,
+            coaching_schema,
             gloss_source,
             speech_source: None,
             route: ConnectionRoute::parse(&self.connection.query_row(
@@ -1011,7 +1050,13 @@ impl Store {
             |r| r.get(0),
         )?;
         let mut gloss = None;
+        let mut coaching = None;
         let valid = match &result {
+            Ok(output) if kind == "coach_feedback" || kind == "coach_suggestions" => {
+                crate::coaching::validate(&tx, &turn, &kind, output).map(|value| {
+                    coaching = Some(value);
+                })
+            }
             Ok(output) if kind == "partner_word_gloss" => (|| -> Result<()> {
                 let source = dispatch
                     .gloss_source
@@ -1072,6 +1117,12 @@ impl Store {
                 params![turn, error],
             )?;
         }
+        if kind == "coach_feedback" || kind == "coach_suggestions" {
+            tx.execute(
+                "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
+                params![turn, format!("$.{kind}Error"), error],
+            )?;
+        }
         tx.execute("UPDATE attempts SET state=?2,error=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1",params![dispatch.attempt,state,error])?;
         tx.execute(
             "UPDATE operations SET state=?2 WHERE id=?1",
@@ -1079,10 +1130,12 @@ impl Store {
         )?;
         if state == "succeeded" {
             if kind == "partner_reply" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','partner_word_gloss','partner_speech') AND state='waiting_dependencies'", [&turn])?;
+                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','partner_word_gloss','partner_speech','coach_suggestions') AND state='waiting_dependencies'", [&turn])?;
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
-            if let Some(gloss) = gloss {
+            if let Some(value) = coaching {
+                crate::coaching::publish(&tx, &turn, &kind, &value, &dispatch.attempt)?;
+            } else if let Some(gloss) = gloss {
                 tx.execute(
                     "UPDATE turns SET context=json_set(context,'$.wordGloss',json(?2)) WHERE id=?1",
                     params![turn, serde_json::to_string(&gloss)?],
@@ -1107,7 +1160,7 @@ impl Store {
     }
 }
 fn refresh_turn(db: &Connection, turn: &str) -> Result<()> {
-    db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state IN ('ready','running')) THEN CASE WHEN EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role='assistant') THEN 'assisting' ELSE 'pending' END WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='unknown') THEN 'unknown' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='failed') THEN 'failed' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='invalidated') THEN 'invalidated' ELSE 'succeeded' END WHERE id=?1", [turn])?;
+    db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state IN ('ready','running')) THEN CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind IN ('partner_reply','coach_reply') AND state IN ('ready','waiting_dependencies','running')) THEN 'pending' ELSE 'assisting' END WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='unknown') THEN 'unknown' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='failed') THEN 'failed' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='invalidated') THEN 'invalidated' ELSE 'succeeded' END WHERE id=?1", [turn])?;
     db.execute(
         "UPDATE turns SET refusal_hold=NULL WHERE id=?1 AND state='succeeded'",
         [turn],
@@ -1246,6 +1299,7 @@ fn prepare_speech(db: &Connection, operation: &str, turn: &str, context: &str) -
         attempt,
         operation: operation.into(),
         messages: vec![],
+        coaching_schema: None,
         gloss_source: None,
         speech_source: Some(crate::speech::Source {
             message_id,
@@ -1536,7 +1590,7 @@ mod tests {
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('false')) WHERE conversation_id=?1", [&conversation]).unwrap();
         (dir, store, conversation)
     }
-    fn send(store: &mut Store, conversation: &str) -> Command {
+    fn send(store: &Store, conversation: &str) -> Command {
         let revision = store
             .snapshot()
             .unwrap()
@@ -1549,19 +1603,27 @@ mod tests {
             session_id: store.session_id.clone(),
             action_id: id(),
             action: Action::SendMessage {
+                input: crate::coaching::InputEvidence::default(),
                 conversation_id: conversation.into(),
                 text: "Hola, ¿cómo estás?".into(),
                 expected_revision: revision,
             },
         }
     }
+    fn isolate_coaching(store: &mut Store) {
+        // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
+        // exercised separately below with both automatic operations retained.
+        store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions') AND state='waiting_dependencies'", []).unwrap();
+    }
     fn isolate_translation(store: &mut Store) {
+        isolate_coaching(store);
         // These tests focus on the established reply/translation lifecycle.
         store.connection.execute("DELETE FROM operations WHERE kind='partner_word_gloss' AND state='waiting_dependencies'", []).unwrap();
     }
     fn begin(store: &mut Store, conversation: &str) -> Dispatch {
         let command = send(store, conversation);
         store.execute(command).unwrap();
+        isolate_coaching(store);
         isolate_translation(store);
         assert!(store.dispatch().unwrap().is_none());
         store.dispatch().unwrap().unwrap()
@@ -1579,6 +1641,7 @@ mod tests {
     fn gloss_children(store: &mut Store, conversation: &str, text: &str) -> (Dispatch, Dispatch) {
         let command = send(store, conversation);
         store.execute(command).unwrap();
+        isolate_coaching(store);
         assert!(store.dispatch().unwrap().is_none());
         let parent = store.dispatch().unwrap().unwrap();
         store.finish(&parent, Ok(reply(text))).unwrap();
@@ -1603,6 +1666,7 @@ mod tests {
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('true')) WHERE conversation_id=?1",[conversation]).unwrap();
         let command = send(store, conversation);
         store.execute(command).unwrap();
+        isolate_coaching(store);
         assert!(store.dispatch().unwrap().is_none());
         let parent = store.dispatch().unwrap().unwrap();
         let reserved:i64=store.connection.query_row("SELECT count(*) FROM operations WHERE kind NOT IN ('partner_context','coach_context')",[],|r|r.get(0)).unwrap();
@@ -1683,8 +1747,9 @@ mod tests {
                 speech.operation
             );
             // A new Send remains admissible after speech and sibling failure.
-            let command = send(&mut store, &conversation);
+            let command = send(&store, &conversation);
             store.execute(command).unwrap();
+            isolate_coaching(&mut store);
             cache.remove_operation(&speech.operation);
             assert!(matches!(
                 store.speech_audio(&speech.operation, &cache).unwrap(),
@@ -1796,8 +1861,9 @@ mod tests {
         }
         let (_dir, mut store, conversation) = setup();
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('true')) WHERE conversation_id=?1",[&conversation]).unwrap();
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         store.reconcile_execution().unwrap();
         assert_eq!(
             store
@@ -2092,8 +2158,9 @@ mod tests {
     fn speech_and_helpers_leave_capacity_for_next_partner_reply() {
         let (_dir, mut store, conversation) = setup();
         let (speech, others) = speech_children(&mut store, &conversation);
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         assert!(store.dispatch().unwrap().is_none()); // Local context.
         let next = store.dispatch().unwrap().unwrap();
         assert!(next.speech_source.is_none());
@@ -2394,8 +2461,9 @@ mod tests {
     #[test]
     fn g2_preflight_failure_creates_no_attempt_and_translation_completes() {
         let (_dir, mut store, conversation) = setup();
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         store.dispatch().unwrap();
         let parent = store.dispatch().unwrap().unwrap();
         store.finish(&parent, Ok(reply(&"a".repeat(4097)))).unwrap();
@@ -2524,8 +2592,9 @@ mod tests {
     #[test]
     fn g2_restart_retry_admits_only_gloss_on_paused_turn() {
         let (dir, mut store, conversation) = setup();
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         store.dispatch().unwrap();
         let parent = store.dispatch().unwrap().unwrap();
         store.finish(&parent, Ok(reply("Hola."))).unwrap();
@@ -2622,7 +2691,7 @@ mod tests {
         let relationship = store.snapshot().unwrap().relationships[0].id.clone();
         apply(&mut store, Action::SetPaused { paused: true });
         let mut last = first;
-        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 3 {
+        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 5 {
             if index > 0 {
                 last = apply(
                     &mut store,
@@ -2633,8 +2702,8 @@ mod tests {
                 )
                 .entity_id;
             }
-            let command = send(&mut store, &last);
-            if index == OUTSTANDING_NETWORK_LIMIT / 3 {
+            let command = send(&store, &last);
+            if index == OUTSTANDING_NETWORK_LIMIT / 5 {
                 let before = store.snapshot().unwrap().revision;
                 assert_eq!(
                     store.execute(command).unwrap_err().code,
@@ -2652,8 +2721,8 @@ mod tests {
                 store.execute(command).unwrap();
             }
         }
-        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('partner_reply','reply_translation','partner_word_gloss')", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 3 * 3);
+        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('partner_reply','reply_translation','partner_word_gloss','coach_feedback','coach_suggestions')", [], |r| r.get(0)).unwrap();
+        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 5 * 5);
         assert_eq!(store.profile().unwrap().global.attempts, 0);
         assert!(store.dispatch().unwrap().is_none());
     }
@@ -2907,7 +2976,7 @@ mod tests {
         assert_eq!(translation.messages.len(), 2);
         assert_eq!(translation.messages[1].content, "Hola.");
         // A new learner message is accepted while translation is running.
-        let next = send(&mut store, &conversation);
+        let next = send(&store, &conversation);
         store.execute(next).unwrap();
         store.finish(&translation, Ok(reply("Hello."))).unwrap();
         store.finish(&translation, Ok(reply("Duplicate"))).unwrap();
@@ -3128,7 +3197,7 @@ mod tests {
                     "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.readAloud',json('false'),'$.translation',json('true')) WHERE conversation_id=?1",
                     params![conversation, explanation],
                 ).unwrap();
-                let mut command = send(&mut store, &conversation);
+                let mut command = send(&store, &conversation);
                 if coach {
                     let Action::SendMessage {
                         conversation_id,
@@ -3145,6 +3214,7 @@ mod tests {
                     };
                 }
                 store.execute(command).unwrap();
+                isolate_coaching(&mut store);
                 // Later settings must not substitute a new explanation language in
                 // either the already captured coach prompt or deferred translation.
                 let later = if explanation == "zh" { "en" } else { "zh" };
@@ -3238,9 +3308,9 @@ mod tests {
         )
         .entity_id;
         let dispatch = begin(&mut store, &first);
-        let command = send(&mut store, &second);
+        let command = send(&store, &second);
         let queued = store.execute(command).unwrap().entity_id;
-        let command = send(&mut store, &third);
+        let command = send(&store, &third);
         let independent = store.execute(command).unwrap().entity_id;
         // A separately captured credential must not inherit another key's hold.
         store.connection.execute("UPDATE turns SET context=json_set(context,'$.target.credential','separate-key') WHERE id=?1", [&independent]).unwrap();
@@ -3343,7 +3413,7 @@ mod tests {
                 ),
             )
             .unwrap();
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         assert_eq!(
             store.execute(command).unwrap_err().code,
             ErrorCode::AdmissionHeld
@@ -3393,7 +3463,7 @@ mod tests {
             },
         )
         .entity_id;
-        let command = send(&mut store, &hosted);
+        let command = send(&store, &hosted);
         let turn = store.execute(command).unwrap().entity_id;
         store
             .connection
@@ -3437,23 +3507,24 @@ mod tests {
     fn send_is_atomic_idempotent_and_only_one_pending_reply() {
         let (_dir, mut store, conversation) = setup();
 
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         let first = store.execute(command.clone()).unwrap();
         assert_eq!(store.execute(command).unwrap().entity_id, first.entity_id);
-        let second = send(&mut store, &conversation);
+        let second = send(&store, &conversation);
         assert!(store.execute(second).is_err());
         let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(snapshot.messages.len(), 1);
         assert_eq!(snapshot.turns.len(), 1);
-        assert_eq!(snapshot.turns[0].operations.len(), 4); // Read aloud is disabled in this fixture.
+        assert_eq!(snapshot.turns[0].operations.len(), 6); // Read aloud is disabled in this fixture.
     }
     #[test]
     fn gate_and_step_admit_one_operation_and_do_not_bank_extra_permits() {
         let (_dir, mut store, conversation) = setup();
         assert!(!store.has_ready_work().unwrap());
         apply(&mut store, Action::SetPaused { paused: true });
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         let turn = store.execute(command).unwrap().entity_id;
+        isolate_coaching(&mut store);
         assert!(!store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         assert!(control_turn(&store.connection, &turn, TurnControl::Step).is_err());
@@ -3606,7 +3677,7 @@ mod tests {
             .clone();
 
         let mut first_turn = String::new();
-        for index in 0..43 {
+        for index in 0..25 {
             let conversation = if index == 0 {
                 first.clone()
             } else {
@@ -3620,12 +3691,13 @@ mod tests {
                 .entity_id
             };
             store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false')) WHERE conversation_id=?1", [&conversation]).unwrap();
-            let mut command = send(&mut store, &conversation);
-            if index % 2 != 0 || index == 42 {
+            let mut command = send(&store, &conversation);
+            if index % 2 != 0 {
                 let Action::SendMessage {
                     conversation_id,
                     text,
                     expected_revision,
+                    ..
                 } = command.action
                 else {
                     unreachable!()
@@ -3673,7 +3745,7 @@ mod tests {
                 .state,
             "failed"
         );
-        let command = send(&mut store, &extra);
+        let command = send(&store, &extra);
         assert_eq!(
             store.execute(command).unwrap_err().code,
             ErrorCode::AdmissionHeld
@@ -3698,8 +3770,9 @@ mod tests {
                 control: TurnControl::Cancel,
             },
         );
-        let command = send(&mut store, &extra);
+        let command = send(&store, &extra);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
     }
 
     #[test]
@@ -3948,8 +4021,9 @@ mod tests {
     #[test]
     fn captured_settings_and_partner_context_are_scoped_and_credential_revocation_wins() {
         let (_dir, mut store, conversation) = setup();
-        let command = send(&mut store, &conversation);
+        let command = send(&store, &conversation);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         let snapshot = store.snapshot().unwrap();
         let mut settings = snapshot.conversations[0].settings.clone();
         settings.difficulty = Difficulty::Advanced;
@@ -4027,8 +4101,9 @@ mod tests {
             extra.push(begin(&mut store, &conversation));
         }
         assert!(!store.has_ready_work().unwrap());
-        let command = send(&mut store, &third);
+        let command = send(&store, &third);
         store.execute(command).unwrap();
+        isolate_coaching(&mut store);
         assert!(store.has_ready_work().unwrap());
         assert!(store.dispatch().unwrap().is_none());
         store.finish(&b, Ok(reply("Second reply"))).unwrap();
@@ -4041,9 +4116,12 @@ mod tests {
             store.conversation_snapshot(&second, None).unwrap().messages[1].text,
             "Second reply"
         );
+        assert!(store.dispatch().unwrap().is_none()); // Prepare the next foreground turn.
+        let next_reply = store.dispatch().unwrap().unwrap();
+        assert!(!next_reply.messages[0].content.contains("Translate"));
         let translation = store.dispatch().unwrap().unwrap();
         assert!(translation.messages[0].content.contains("Translate"));
-        assert!(store.dispatch().unwrap().is_some());
+        assert!(store.dispatch().unwrap().is_none());
     }
     #[test]
     fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
@@ -4117,5 +4195,120 @@ mod tests {
                 .unwrap(),
             8
         );
+    }
+    #[test]
+    fn coaching_is_independent_source_bound_and_xp_is_idempotent() {
+        let (_dir, mut store, conversation) = setup();
+        let cmd = send(&store, &conversation);
+        store.execute(cmd).unwrap();
+        assert!(store.dispatch().unwrap().is_none());
+        let partner = store.dispatch().unwrap().unwrap();
+        let feedback = store.dispatch().unwrap().unwrap();
+        assert!(feedback.coaching_schema.is_some());
+        let candidate = r#"{"correctness":5,"understandability":5,"explanation":"Clear greeting and question.","correction":"","evidence":[{"skill_id":"question","quote":"¿cómo estás?","outcome":"demonstrated","rationale":"Asks about the listener's state."}]}"#;
+        store.finish(&feedback, Ok(reply(candidate))).unwrap();
+        store.finish(&feedback, Ok(reply(candidate))).unwrap();
+        let first = crate::progression::snapshot(&store, "es").unwrap();
+        assert_eq!(first["profile"]["xp"], 10);
+        assert_eq!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages
+                .len(),
+            1
+        );
+        store.finish(&partner, Ok(reply("Bien, gracias."))).unwrap();
+        let suggestions = store.dispatch().unwrap().unwrap();
+        assert!(suggestions.coaching_schema.is_some());
+        store
+            .finish(&suggestions, Ok(reply(r#"{"replies":["Me alegro."]}"#)))
+            .unwrap();
+        let view = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(view.messages.len(), 2);
+        assert!(view.messages[0].feedback.is_some());
+        assert_eq!(
+            view.messages[1].suggested_replies.as_ref().unwrap(),
+            &vec!["Me alegro.".to_string()]
+        );
+        assert_eq!(
+            crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            10
+        );
+        let next = send(&store, &conversation);
+        store.execute(next).unwrap();
+        assert!(store.dispatch().unwrap().is_none());
+        let next_partner = store.dispatch().unwrap().unwrap();
+        assert!(next_partner.coaching_schema.is_none());
+    }
+    #[test]
+    fn invalid_coach_evidence_never_awards_xp() {
+        for quote in ["not in the learner message", ""] {
+            let (_dir, mut store, conversation) = setup();
+            store.execute(send(&store, &conversation)).unwrap();
+            store.dispatch().unwrap();
+            store.dispatch().unwrap();
+            let feedback = store.dispatch().unwrap().unwrap();
+            let body = serde_json::json!({"correctness":5,"understandability":5,"explanation":"Test","correction":"","evidence":[{"skill_id":"question","quote":quote,"outcome":"demonstrated","rationale":"Test"}]}).to_string();
+            store.finish(&feedback, Ok(reply(&body))).unwrap();
+            let view = store.conversation_snapshot(&conversation, None).unwrap();
+            assert!(view.messages[0].feedback.is_none());
+            assert!(view.messages[0].feedback_error.is_some());
+            assert_eq!(
+                crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+                0
+            );
+        }
+    }
+    #[test]
+    fn assisted_speech_credit_retains_provenance() {
+        let (_dir, mut store, conversation) = setup();
+        let mut command = send(&store, &conversation);
+        if let Action::SendMessage { input, .. } = &mut command.action {
+            input.modality = "speech_transcript".into();
+            input.scaffold = true;
+        }
+        store.execute(command).unwrap();
+        store.dispatch().unwrap();
+        store.dispatch().unwrap();
+        let feedback = store.dispatch().unwrap().unwrap();
+        store.finish(&feedback,Ok(reply(r#"{"correctness":5,"understandability":5,"explanation":"Test","correction":"","evidence":[{"skill_id":"question","quote":"¿cómo estás?","outcome":"demonstrated","rationale":"Test"}]}"#))).unwrap();
+        let view = crate::progression::snapshot(&store, "es").unwrap();
+        assert_eq!(view["profile"]["xp"], 2);
+        assert_eq!(view["records"][0]["input"]["modality"], "speech_transcript");
+        assert_eq!(view["records"][0]["input"]["scaffold"], true);
+    }
+    #[test]
+    fn failed_partner_does_not_hold_send_or_discard_running_coach() {
+        let (_dir, mut store, conversation) = setup();
+        let cmd = send(&store, &conversation);
+        store.execute(cmd).unwrap();
+        store.dispatch().unwrap();
+        let partner = store.dispatch().unwrap().unwrap();
+        let coach = store.dispatch().unwrap().unwrap();
+        store
+            .finish(&partner, Err(fail("Synthetic reply failure")))
+            .unwrap();
+        assert_eq!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .turns[0]
+                .state,
+            "assisting"
+        );
+        let next = send(&store, &conversation);
+        store.execute(next).unwrap();
+        store.finish(&coach,Ok(reply(r#"{"correctness":null,"understandability":null,"explanation":"Insufficient evidence.","correction":"","evidence":[]}"#))).unwrap();
+        assert!(
+            store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages[0]
+                .feedback
+                .is_some()
+        );
+        let suggestions:i64=store.connection.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.kind='coach_suggestions'",[],|r|r.get(0)).unwrap();
+        assert_eq!(suggestions, 0);
     }
 }

@@ -9,7 +9,7 @@ import { RewardInspectionContext } from './RewardInspectionContext'
 import { SkillNavigationProvider } from '../../hooks/useSkillNavigation'
 import type { MessageEvidence } from '../../lib/message-evidence'
 vi.mock('../../lib/back', () => ({ openOverlay: () => () => {} }))
-const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
+const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'statements', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
 vi.mock('../../lib/message-evidence', () => ({ createMessageEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
 function Triggers() {
   const controller = useContext(RewardInspectionContext)!
@@ -17,7 +17,7 @@ function Triggers() {
 }
 function Fixture({ fastMode }: { fastMode: boolean }) {
   const workspace = useRef<HTMLDivElement>(null)
-  return <SkillNavigationProvider><RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-domain="reference" /></div></RewardPresentationProvider></SkillNavigationProvider>
+  return <SkillNavigationProvider><RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-domain="statements" /></div></RewardPresentationProvider></SkillNavigationProvider>
 }
 it('grows, holds, and departs on dismissal before flashing the destination', () => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
@@ -136,7 +136,7 @@ it('automatically dismisses reduced-motion arrivals without running flight anima
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
 })
 
- it('replaces inspected cards and pauses their four-second timeout during pointer or keyboard inspection', () => {
+ it('keeps inspected cards until explicit dismissal when Fast mode is off', () => {
   vi.useFakeTimers()
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
   const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
@@ -158,7 +158,9 @@ it('automatically dismisses reduced-motion arrivals without running flight anima
     fireEvent.blur(screen.getByLabelText('Close XP details'), { relatedTarget: document.body })
     act(() => vi.advanceTimersByTime(3999))
     expect(card).toBeInTheDocument()
-    act(() => vi.advanceTimersByTime(1))
+    act(() => vi.advanceTimersByTime(60000))
+    expect(card).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('Close XP details'))
     expect(card).not.toBeInTheDocument()
     fireEvent.click(screen.getByText('Score'))
     fireEvent.pointerDown(document.body)

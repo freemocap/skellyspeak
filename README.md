@@ -17,13 +17,13 @@ reads those native records and uses native commands for sends and settings chang
 The interface pairs a light chat canvas with a dark lesson/analysis pane. The partner
 chooser selects partners and conversations; narrow windows use Chat and Lesson tabs.
 Unsent drafts are session-only. The AI activity frame currently reports that its graph
-is not connected. Execution controls, usage reports, evidence/XP and lesson editing
+is not connected. Execution controls, broader usage reports and lesson editing
 still need UI wiring; native capabilities are not a claim that those controls work
 in the interface. No skill estimates or XP are fabricated.
 
 Saved partner-reply translation and whole-message word glosses are implemented through
-the scheduler. Structured coaching, assessment, XP, Vibe computation and measured
-garden rendering remain planned. Standard handles partner replies;
+the scheduler. Structured coaching and source-derived XP now feed the skill map and practice
+statistics. Vibe computation and measured garden rendering remain planned. Standard handles partner replies;
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
 
@@ -39,6 +39,7 @@ Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and ru
 
 ```sh
 npm ci
+npm ci --prefix skellyspeak-docs
 npm run macos:dev
 ```
 
@@ -85,35 +86,25 @@ This is a local debug build, not a signed release or deployment.
 
 ## Publish a release
 
-Run these commands from the repository root of the **main** release worktree
-(`skellyspeak-main`). The release script is `scripts/release.mjs` on main;
-this rebuild checkout does not contain the active release script.
-Have Node.js, Rust/Cargo and authenticated Git access available. Commit your
-release changes first and ensure main is current with its upstream; the script
-requires a clean working tree and refuses to release when main is behind.
+Version **0.14.0** is prepared in Cargo.toml. Push the checkpoint branch, open a PR
+into `main`, and require green CI before merging. Confirm CI on the merged commit,
+then create and push `v0.14.0` from that commit. Merging alone does not publish.
 
-Choose **one** command (examples assume the current version is 0.13.7):
+The tag starts the Release workflow: checks, signed desktop installers and updater
+artifacts, and signed Android APK/AAB. Publication as Latest requires all of those
+jobs to succeed. Android PR CI also builds a debug ARM64 APK without release secrets.
+The website rebuilds after a successful release and its download page selects the
+current stable APK for Android visitors.
 
-```sh
-node scripts/release.mjs patch  # 0.13.7 -> 0.13.8
-node scripts/release.mjs minor  # 0.13.7 -> 0.14.0
-node scripts/release.mjs major  # 0.13.7 -> 1.0.0
-```
+Desktop release builds install signed updates through the app. Android opens
+https://docs.freemocap.org/skellyspeak/download for APK installation. Debug builds
+do not install updates. Release builds use `src-tauri/tauri.release.conf.json` to
+retain the distributed application's identity and signing continuity.
 
-The script updates `src-tauri/Cargo.toml` and `src-tauri/Cargo.lock`, commits the
-version bump, creates the matching `vX.Y.Z` tag, then pushes main and the tag.
-You do not need a separate push command.
-
-To preview a bump, use `node scripts/release.mjs patch --dry-run`. This skips
-version edits, commits, tags and pushes, but still fetches remote branch state.
-To create the local commit and tag without pushing, use
-`node scripts/release.mjs patch --no-push`; it prints the commands to push later.
-
-Follow the build in [GitHub Actions](https://github.com/freemocap/skellyspeak/actions).
-The Release workflow publishes the draft as Latest after its checks and desktop
-and Android jobs succeed. iOS distribution runs separately and does not gate
-publication. Published downloads appear under
-[Releases](https://github.com/freemocap/skellyspeak/releases).
+For subsequent releases, run `node scripts/release.ts patch` on a clean, current
+`main` checkout with Node 24, Cargo and authenticated Git access. It bumps both
+Cargo files, commits, tags and pushes. `--dry-run` skips writes except fetching
+remote state; `--no-push` performs local Git writes only. The user runs these commands.
 
 ## Start talking
 
@@ -259,6 +250,8 @@ Windows, Linux and Android builds remain unverified.
 ## Architecture and roadmap
 
 [Implemented architecture](./architecture.md) records ownership and tooling.
+[AI request architecture](./AI-ARCHITECTURE.md) is a practical companion guide to
+chat messages, structured results, routes, and operation workflows.
 [The build plan](./BUILD-PLAN.md) tracks phases and user checkpoints.
 [The design brief](./DESIGN.md), [data model](./DATA-MODEL.md),
 [execution contract](./EXECUTION.md), [AI strategy](./AI-STRATEGY.md),

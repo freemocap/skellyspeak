@@ -30,11 +30,15 @@ beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
   connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, standardModel: 'configured-model', fastModel: 'fast-model', paused: false }
-  access = { revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', standardModel: 'custom-model', fastModel: 'custom-fast-model', bearerAuth: true, transcriptionModel: null } }
+  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', standardModel: 'custom-model', fastModel: 'custom-fast-model', bearerAuth: true, transcriptionModel: null } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
     if (name === 'get_snapshot') return workspace
     if (name === 'get_connection') return connection
     if (name === 'get_access_settings') return access
+    if (name === 'get_playback_rate') return 1
+    if (name === 'save_playback_rate') return undefined
+    if (name === 'get_reward_settings') return { revision: 0, fastMode: true, rewardSounds: 'follow_tts', masterVolume: 100, voiceVolume: 100, effectsVolume: 100 }
+    if (name === 'save_reward_settings') return undefined
     if (name === 'execute_command') return { actionId: args!.command.actionId, entityId: 'updated', revision: 21 }
     throw new Error(`Unexpected native command: ${name}`)
   })
@@ -44,7 +48,7 @@ describe('native settings projection', () => {
   it.each([['openrouter', 'cloud'], ['hosted', 'hosted'], ['custom', 'custom']] as const)('maps %s from three read-only snapshots with no credentials', async (route, projected) => {
     connection.route = route
     const settings = await getSettings()
-    expect(backend.invoke.mock.calls.map(([name]) => name).sort()).toEqual(['get_access_settings', 'get_connection', 'get_snapshot'])
+    expect(backend.invoke.mock.calls.map(([name]) => name).sort()).toEqual(['get_access_settings', 'get_connection', 'get_playback_rate', 'get_reward_settings', 'get_snapshot'])
     expect(settings).toMatchObject({
       scope: { sessionId: 'session', conversationId: 'a', settingsRevision: 6, learnerRevision: 9 },
       provider_mode: projected, hosted_email: 'person@example.invalid', openrouter_model: 'configured-model',
@@ -104,10 +108,10 @@ describe('scoped native settings writes', () => {
     expect(commands()).toEqual([])
   })
 
-  it('rejects combined practice/display edits before either command is written', async () => {
+  it('saves combined practice and display edits to their respective owners', async () => {
     const settings = await getSettings()
-    await expect(saveSettings({ ...settings, auto_translate: false, text_size: 140 })).rejects.toThrow('separately')
-    expect(commands()).toEqual([])
+    await saveSettings({ ...settings, auto_translate: false, text_size: 140 })
+    expect(commands().map(command => command.action.kind)).toEqual(['updateSettings', 'updateLearner'])
   })
 
   it('opens the existing target language without rewriting the old conversation', async () => {

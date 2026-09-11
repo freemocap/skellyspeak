@@ -8,8 +8,8 @@ adopting them. Keep these references available; active cleanup must not delete t
 | Directory | Source snapshot | Scope |
 | --- | --- | --- |
 | skellyspeak-app | Existing reference | Tauri conversation application |
-| skellysubs-python-only | fe6e692dd473ea2783933a9c7ffc597df23191c4, January 28, 2025 | Complete tracked tree before the web UI was introduced; 92 files |
-| skellysubs-gcp-ui | ad496456ffe43e4f386fb28ce301f01d12a50944, August 16, 2026, `old/` subtree | Complete archived browser/GCP-era tree, including Python backend and skellysubs2 prototype; 320 files |
+| skellysubs-python-only | fe6e692dd473ea2783933a9c7ffc597df23191c4, January 28, 2025 | Source snapshot before the web UI was introduced; 91 retained files |
+| skellysubs-gcp-ui | ad496456ffe43e4f386fb28ce301f01d12a50944, August 16, 2026, `old/` subtree | Browser/GCP-era source, including Python backend and skellysubs2 prototype; 318 retained files |
 
 The two SkellySubs directory names are descriptive recovery names, not verified
 historical folder names. Recovery copied Git blobs directly and verified all 412
@@ -34,3 +34,12 @@ its object is sha256:f1e2b273014d5dffce57dd909bd2d94cdb4c9c5dd776d262588b7212dc8
 References to files absent in a source snapshot do not imply they were recovered.
 Nine historical `.idea/` files remain ignored by current rules; explicitly force-add
 only those recovered files if preserving the entire tracked snapshot in a commit.
+
+## Excluded bundled binaries
+
+The preserved references omit both copies of
+`fonts/NotoSerifCJKsc-VF-Simplified-Chinese.ttf` and the GCP UI copy of
+`skellysubs-ui/public/ffmpeg.wasm@0.12.9/ffmpeg-core.wasm`.
+These bundled binaries are unnecessary for source inspection. The historical
+recovery verification above describes the original 412-file recovery; the retained
+source snapshots now contain 409 files. No reference runtime is maintained.

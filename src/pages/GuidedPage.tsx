@@ -1,3 +1,4 @@
+import { DifficultySelect } from '../components/chat/DifficultySelect'
 import { ContactProfileDialog } from '../components/contacts/ContactProfileDialog'
 import { ConversationHeader } from '../components/chat/ConversationHeader'
 import { ContactChooser } from '../components/contacts/ContactChooser'
@@ -35,7 +36,7 @@ import { AnalysisContent } from '../components/panes/AnalysisContent'
 import { CoachAnalysisPanel } from '../components/panes/CoachAnalysisPanel'
 import { logInfo, logWarn } from '../lib/log'
 import { ChatHistory } from '../components/ChatHistory'
-import { latestAnswered, latestScaffolds } from '../lib/turns'
+import { latestAnswered } from '../lib/turns'
 import { useConversation } from './guided/useConversation'
 import { useWordInspection } from './guided/useWordInspection'
 import { useMicRecorder } from '../hooks/useMicRecorder'
@@ -50,21 +51,21 @@ export default function GuidedPage({
   active,
   languagePicker,
   mobileSurface,
-  onMobileSurfaceChange: setMobileLocation,
   settingsVersion = 0,
   historyOpen = false,
   onHistoryOpenChange,
   onOpenSettings,
+  onNewChatReady,
 }: {
   active: boolean
   languagePicker: ReactNode
   mobileSurface: MobileLocation
-  onMobileSurfaceChange: (surface: MobileLocation) => void
   settingsVersion?: number
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
   /// Open the Settings modal. It lands on the AI provider section, which is
   /// where every "configure a provider" failure is asking the learner to go.
+  onNewChatReady?: (action: (() => void) | null) => void
   onOpenSettings?: () => void
 }) {
   const workspace = useRef<HTMLDivElement>(null)
@@ -90,7 +91,7 @@ export default function GuidedPage({
     if (!active) stopRewardSounds()
   }, [settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'lesson' | 'analysis' | 'profile'>('lesson')
+  const [panelTab, setPanelTab] = useState<'lesson' | 'profile'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
@@ -246,7 +247,7 @@ export default function GuidedPage({
     setError(null)
     try {
       await details.beforeSend()
-      await sendMessage(text, currentChatId)
+      await sendMessage(text, currentChatId, body.inputEvidence)
     } catch (error) {
       setError(nativeError(error))
       if (inputRevision.current === submittedDraftRevision) setInput(text)
@@ -311,14 +312,19 @@ export default function GuidedPage({
   // Romanization visibility: "always" setting OR a revealed token.
   const alwaysRomanize = settings?.always_romanize ?? false
 
+  useEffect(() => {
+    onNewChatReady?.(settings && !sending ? () => { void startNewConversation() } : null)
+    return () => onNewChatReady?.(null)
+  }, [onNewChatReady, settings, sending, startNewConversation])
+
   const [savingReading, setSavingReading] = useState(false)
   const readingWrite = useRef(false)
-  const toggleSetting = useCallback(async (key: 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate' | 'always_pronunciation' | 'fast_mode') => {
+  const toggleSetting = useCallback(async (key: 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate' | 'always_pronunciation' | 'fast_mode' | 'tts_rate', value?: number) => {
     if (!settings || readingWrite.current) return
     readingWrite.current = true
     setSavingReading(true)
     try {
-      await saveSettings({ ...settings, [key]: !settings[key] })
+      await saveSettings({ ...settings, [key]: value ?? !settings[key] })
       setSettings(await getSettings())
     } catch (error) { reportFault('Saving reading preference', error) }
     finally { readingWrite.current = false; setSavingReading(false) }
@@ -326,7 +332,7 @@ export default function GuidedPage({
 
   const targetLanguageName = settings ? languageFor(settings.target_language)?.endonym ?? settings.target_language : ''
   const nativeLanguageName = settings ? languageFor(settings.native_language)?.endonym ?? settings.native_language : ''
-  const bestScaffolds = latestScaffolds(turns)
+  const bestScaffolds = turns.at(-1)?.assistant?.scaffolds ?? null
   const pinnedTurn = turns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
   const chipsForUI = bestScaffolds ?? { replies: [], frames: [], starters: [], coach_help: null }
@@ -346,7 +352,7 @@ export default function GuidedPage({
       } else logWarn('[mic] transcription was empty (silence?)')
     },
   })
-  const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active)
+  const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
   stopSpeechRef.current = speech.stop
   const toggleMic = () => { speech.stop(); void mic.toggleMic() }
   toggleMicRef.current = toggleMic
@@ -415,12 +421,13 @@ export default function GuidedPage({
         onDeleteChat={(id) => void removeChat(id)}
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className="chat">
-        <ConversationHeader languages={languagePicker} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
+      <section className="chat" style={{ borderInlineStart: `3px solid ${['#3d9699', '#608dd7', '#9676d4', '#ad80b4', '#4ba57b'][Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5]}` }}>
+        <ConversationHeader languages={languagePicker} summary={<><strong>Native:</strong> {nativeLanguageName} <span aria-hidden="true">→</span> <strong>Target language:</strong> {targetLanguageName}</>} onOpenSettings={() => setSettingsOpen(open => !open)} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
           <div className="chat-heading-actions">
           <div className="chat-config" ref={settingsPanel}>
             <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
             {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
+                <div className="conversation-languages">{languagePicker}{details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />}</div>
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
                 <div className="quick-toggles" role="group" aria-label="Reading and voice options">
@@ -447,14 +454,14 @@ export default function GuidedPage({
                       onClick={() => void toggleSetting(key)}
                       aria-pressed={settings?.[key] ?? false}
                       title={title}
-                      disabled={!settings || savingReading || key === 'fast_mode'}
+                      disabled={!settings || savingReading}
                     >
                       {settings?.[key] ? '☑' : '☐'} {label}
                     </button>
                   ))}
-                  <label className="speech-speed" title="Read-aloud is not connected yet.">
+                  <label className="speech-speed">
                     Voice speed
-                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1} disabled>
+                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1} disabled={!settings || savingReading} onChange={event => void toggleSetting('tts_rate', Number(event.target.value))}>
                       {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
                     </select>
                   </label>
@@ -465,20 +472,7 @@ export default function GuidedPage({
           </div>
 
 
-          {!isMobile && (
-          <button
-            type="button"
-            className="plan-toggle"
-            onClick={() => { setPanelTab('lesson'); setMobileLocation('panel'); if (!breakOpen) toggleBreak() }}
-            title="Show lesson and coach"
-          >
-            Lesson & coach
-          </button>
-          )}
-          <button type="button" className="new-chat" aria-label="New chat"
-            title="Start a new chat — this conversation stays in history"
-            disabled={!settings || sending}
-            onClick={() => void startNewConversation()}>+</button>
+
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
@@ -492,7 +486,7 @@ export default function GuidedPage({
             <Fragment key={turn.id}><TurnView
               turn={turn}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
-              reviewing={reviewing.has(turn.id)}
+              reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
               targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
               nativeLangCode={settings?.native_language ?? 'en'}
               onAskCoach={setCoachDraft}
@@ -540,7 +534,7 @@ export default function GuidedPage({
         className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open lesson &amp; coach ▸</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open XP &amp; coach ▸</button>}
 
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
@@ -549,7 +543,7 @@ export default function GuidedPage({
           conversationBusy={sending || details.saving}
           contactProfile={contactProfile}
           tab={panelTab}
-          onTab={tab => { if (isMobile && tab === 'analysis') setAnalysisOpen(true); else setPanelTab(tab) }}
+          onTab={setPanelTab}
           draftQuestion={coachDraft}
           onDraftConsumed={consumeCoachDraft}
           pinnedTurn={pinnedTurn}

@@ -71,10 +71,12 @@ pub enum DiagnosticEvent {
     LanguageRegistryLoaded,
     Other,
 }
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum DiagnosticCommand {
     ReadSpeechAudio,
+    GetUpdateChannel,
+    LatestGithubRelease,
     MicStart,
     MicWave,
     MicCancel,
@@ -96,6 +98,13 @@ pub enum DiagnosticCommand {
     CancelSignIn,
     SelectRoute,
     GetProfile,
+    GetRewardSettings,
+    GetPlaybackRate,
+    SavePlaybackRate,
+    SaveRewardSettings,
+    GetSkillEvidence,
+    GetPracticeOverview,
+    SaveSkillProfile,
     OpenAiWindow,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -425,6 +434,28 @@ mod tests {
         assert!(line.contains("\"recordedAtMs\":123"));
         assert!(line.contains("\"nativeCode\":\"provider\""));
         assert!(!line.contains("private fixture"));
+    }
+    #[test]
+    fn progression_commands_cross_the_diagnostic_bridge() {
+        let temp = tempfile::tempdir().unwrap();
+        let directory = temp.path().canonicalize().unwrap().join("run");
+        let mut sink = FileSink::open(&directory).unwrap();
+        for command in [
+            "get_skill_evidence",
+            "get_practice_overview",
+            "save_skill_profile",
+        ] {
+            let mut input = serde_json::to_value(event()).unwrap();
+            input["command"] = serde_json::json!(command);
+            let decoded: FrontendDiagnostic = serde_json::from_value(input).unwrap();
+            let value = serde_json::to_value(decoded).unwrap();
+            assert_eq!(value["command"], command);
+            sink.append("frontend", &value).unwrap();
+            let text = std::fs::read_to_string(directory.join("diagnostics.jsonl")).unwrap();
+            let last: serde_json::Value =
+                serde_json::from_str(text.lines().last().unwrap()).unwrap();
+            assert_eq!(last["event"]["command"], command);
+        }
     }
     #[test]
     fn bounded_history_keeps_order_and_reads_have_no_side_effects() {

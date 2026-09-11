@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  push:
+    branches: [main, rebuild]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix skellyspeak-docs
+      - run: npm test
+      - run: npm run styles:check
+      - run: node --test scripts/version.test.ts
+      - run: npm run logs:check
+      - run: npm run logs:test
+      - run: npm run build
+
+  rust:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+      - run: cargo clippy --lib -- -D warnings
+        working-directory: src-tauri
+      - run: cargo fmt -- --check
+        working-directory: src-tauri
+      - run: cargo test --locked --lib
+        working-directory: src-tauri
+      - run: cargo test --locked --manifest-path scripts/verify-updater/Cargo.toml
+
+  # The Rust core also has to COMPILE on Linux, which the Windows job above
+  # cannot tell you. Native dependencies differ per platform: cpal links
+  # alsa-sys on Linux only, so a missing libasound2-dev breaks the Linux
+  # release build while every other platform stays green. That is exactly
+  # how v0.4.3 failed -- at release time, after Windows, macOS and Android
+  # had all succeeded. `cargo check` runs build scripts, which is where
+  # alsa-sys fails, so it catches this without a full build.
+  rust-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Install the native libraries the core links against
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libxdo-dev libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libasound2-dev
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+      - run: cargo check --lib
+        working-directory: src-tauri
+
+  # The hosted API tests. They gate the deploy in deploy-server.yml too, but
+  # running them here means a pull request shows the breakage before it lands
+  # rather than after.
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+      - name: Install audio decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
+          ffmpeg -version
+      - run: uv run --frozen --group dev pytest -q
+        working-directory: server
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: skellyspeak-docs/package-lock.json
+      - run: npm ci
+        working-directory: skellyspeak-docs
+      - run: npm run build
+        working-directory: skellyspeak-docs
+
+  # The Android resource merger parses these, but only 4 minutes into a release
+  # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec
+  # forbids) here instead, in seconds, on every push.
+  android-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Validate Android XML resources
+        run: |
+          python3 - <<'EOF'
+          import pathlib, sys, xml.dom.minidom as md
+          failed = []
+          root = pathlib.Path('src-tauri/gen/android')
+          required = [root / 'app/src/main/AndroidManifest.xml', root / 'app/build.gradle.kts', root / 'app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt']
+          for path in required:
+              if not path.is_file():
+                  failed.append(f'Missing required Android source: {path}')
+          for p in sorted(root.rglob('*.xml')):
+              if 'build' in p.parts:
+                  continue
+              try:
+                  md.parse(str(p))
+              except Exception as e:
+                  failed.append(f"{p}: {e}")
+          for f in failed:
+              print(f"::error::{f}")
+          print(f"checked Android XML resources, {len(failed)} malformed")
+          sys.exit(1 if failed else 0)
+          EOF
+
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        id: ndk
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: android-check
+
+      - run: npm ci
+
+      # `tauri.settings.gradle` hardcodes an absolute path to the local cargo
+      # registry, so gen/android's generated files cannot be committed and must
+      # be produced here. `init` also rewrites tracked files from its templates
+      # — the manifest (RECORD_AUDIO, adjustResize, roundIcon), themes.xml,
+      # MainActivity.kt, BuildTask.kt and the launcher icons — so restore
+      # everything git tracks immediately afterwards.
+      - name: Scaffold gen/android, then restore our tracked customisations
+        run: |
+          npx tauri android init --config src-tauri/tauri.release.conf.json
+          git checkout -- src-tauri/gen/android
+          git status --porcelain src-tauri/gen/android
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      - name: Build Android ARM64 debug APK without release credentials
+        run: npx tauri android build --config src-tauri/tauri.release.conf.json --debug --apk --target aarch64 --ci
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}

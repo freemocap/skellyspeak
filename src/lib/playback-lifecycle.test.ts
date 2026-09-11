@@ -29,9 +29,9 @@ it('connects native focus, close, and mobile suspension events and removes all l
   expect(lifecycle.dispose).toHaveBeenCalledOnce()
 })
 
-it('records the rebuild window capability boundary without granting new permissions', () => {
+it('limits external navigation to the download page', () => {
   expect(capabilities.windows).toEqual(['main', 'ai'])
-  expect(capabilities.permissions).toEqual(['core:default'])
+  expect(capabilities.permissions).toEqual(['core:default', { identifier: 'opener:allow-open-url', allow: [{ url: 'https://docs.freemocap.org/skellyspeak/download' }] }])
 })
 
 it('SDK close cleanup calls destroy after its callback; native permission remains an integration prerequisite', async () => {

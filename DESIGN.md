@@ -38,8 +38,8 @@ or satisfy a simulated person's emotional needs.
   stay unobtrusive and arise when relevant or asked about. Private coaching must
   not become something the partner knows.
 - The garden view represents a relationship, with one flower per conversation and rounded
-  petals and mathematically generated branching foliage. Seven petals represent
-  the seven language-practice domains. Define their evidence and growth rules
+  petals and mathematically generated branching foliage. Six petals represent
+  the six language-practice domains. Define their evidence and growth rules
   before treating the visualization as a score.
 - The garden is an aesthetic view of relationship and conversation data, not a
   domain entity or storage requirement. Alternative visualizations must use the
@@ -157,7 +157,7 @@ explicit action; an identity edit does not automatically create another person.
 | Measure | Meaning | Presentation |
 | --- | --- | --- |
 | Participation | Time and meaningful contributions invested in a conversation | Stalk and foliage growth |
-| Practice | Language skills exercised, including with assistance | Seven petals showing practice across the domains |
+| Practice | Language skills exercised, including with assistance | Six petals showing practice across the domains |
 | Demonstrated ability | What learner messages support saying about proficiency, with uncertainty | Language report card with examples across conversations |
 
 Assisted practice contributes to flower growth. Mistakes do not damage the flower,
@@ -236,6 +236,53 @@ assistance surfaces.
 Learner-wide presentation preferences own text size, contrast and other accessibility
 choices. A heavily supported conversation with Juan and a more independent one with
 Marta can coexist without changing the learner's general accessibility preferences.
+
+## Coaching and progression direction
+
+Automatic coaching examines every learner turn; deeper analysis is explicitly
+requested. This supersedes an explicit-review-only implementation proposal.
+The automatic result should consolidate immediately useful material: distinct
+assessments of technical/grammatical correctness and contextual understandability,
+source-linked skill evidence, compact explanations and suggested next responses.
+The two assessments are model estimates with separate rubrics; insufficient
+information must not become a fabricated score. Both use 1–5 message-specific rubrics, with null for insufficient evidence.
+
+Opening saved feedback reuses the accepted result without inference. A distinct
+request for deeper analysis may start new work. Suggestions enter the draft and
+never send automatically. Private feedback stays outside partner knowledge.
+The learner must be able to continue speaking while analysis is pending.
+
+Six skill domains organize the catalog: entities/reference; properties/comparison;
+events/participants; time/place/movement; negation/questions/possibility; connecting
+ideas. Time and space share one domain, retaining their distinct subskills. This
+is an app taxonomy, not a claim that CEFR prescribes these categories.
+
+Source quotations, composing assistance and voice/text provenance are stored apart
+from XP. Demonstrated skills earn 10 XP for distinct unassisted wording and 2 XP
+for assisted wording; whitespace/case-normalized repeats count once per skill.
+Unassisted evidence takes precedence over identical assisted wording. Three distinct
+unassisted demonstrations earn a practice star. Only validated retained evidence
+contributes; retries and rereads do not add credit. Excluding evidence recalculates
+the projection. Scores and XP do not establish CEFR proficiency. Statistics remain
+numerical; garden geometry owns no evidence or scores.
+
+Coaching is split by input readiness, with two automatic inference nodes as the
+initial design. Learner feedback starts from the saved learner message and already
+available context: correctness, contextual understandability, source-linked skill
+evidence and corrections. Response-dependent help and next-reply suggestions start
+when the partner text is available. Responsiveness takes precedence over saving one
+inference request. Neither coaching node depends on completion of the other; both
+publish independently without waiting for speech, glosses or complete turn hydration.
+Understandability is estimated from available context, not claimed as observed
+comprehension by a partner whose reply does not yet exist.
+
+The graph dispatches ready nodes subject to capacity and foreground responsiveness;
+readiness is not a promise of unlimited simultaneous requests. Retry/failure is scoped
+to each node. Late results remain bound to their source; old suggestions cannot
+replace current-exchange suggestions. Reuse common captured context and deterministic
+work where appropriate, without adding an inference dependency between coach nodes.
+AI and Reliability own the bounded scheduling proposal. UI, schema, category
+definitions and progression rules remain proposal work at this stage.
 
 ## Agreed turn flow
 
@@ -332,13 +379,13 @@ The hierarchy is:
 | Level | Report content |
 | --- | --- |
 | Global app usage | Overall usage totals, token distributions, time-series data and numerical activity breakdowns |
-| Selected language | Skill sets, experience/XP, estimated CEFR level such as A1/A2, and performance across the seven skill domains |
+| Selected language | Skill sets, experience/XP, estimated CEFR level such as A1/A2, and performance across the six skill domains |
 | Conversation partner | Conversation counts and distributions, skill-domain statistics across those conversations, and aggregate flower measures including an average flower |
 
 Individual conversations and contributing records can be inspected beneath these
 levels. The statistical report is distinct from in-conversation coaching.
 Concise performance-based guidance is allowed in the language assessment area,
-grounded in the seven domains; it does not turn the general statistics interface
+grounded in the six domains; it does not turn the general statistics interface
 into a conversational assistant.
 
 Counts and charts identify units, denominators, speaker, language, time range and
@@ -373,7 +420,7 @@ in architecture and implementation specifications, not an endless product questi
 
 Functional restoration keeps the familiar chat, bubbles, lesson/analysis, word
 inspection and utility-panel interactions. The completion checklist lives in
-[UI-SURFACES.md](./UI-SURFACES.md). Provide both a restrained seven-category skill-map
+[UI-SURFACES.md](./UI-SURFACES.md). Provide both a restrained six-category skill-map
 view and the growing flower view over the same underlying evidence and metrics;
 renderer selection never changes XP or assessment. Prioritize a verified AI exchange
 and source-linked language assistance before treating the visual shell as complete.
@@ -586,3 +633,12 @@ use a consistent control-surface tone and boundary, not additional height or hea
 Density and hierarchy are simultaneous acceptance criteria, assessed in the complete
 pane. Interaction owns the implementation and Code Quality checks it against the
 style guide and actual geometry.
+
+### Practical skill groups
+
+The current six groups are Social phrases; Statements; Questions; Descriptions;
+Time, place and movement; Opinions and reasons. These are practical product groupings,
+not claims of an exhaustive or validated linguistic taxonomy. Greetings, farewells,
+wellbeing exchanges and courtesy have explicit criteria. Coach feedback still requires
+exact learner-source evidence for each credited skill. Group colors avoid red/orange/
+yellow; unpracticed groups retain a muted version of their hue.

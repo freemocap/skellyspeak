@@ -20,6 +20,7 @@ struct LanguageConfig {
     id: &'static str,
     name: &'static str,
     native_name: &'static str,
+    font_scale: f64,
     direction: Direction,
     romanization: Option<&'static str>,
     varieties: &'static [(&'static str, &'static str)],
@@ -32,6 +33,7 @@ const CONFIGS: &[LanguageConfig] = &[
         id: "en",
         name: "English",
         native_name: "English",
+        font_scale: 1.0,
         direction: Direction::Ltr,
         romanization: None,
         varieties: &[("en-US", "United States"), ("en-GB", "United Kingdom")],
@@ -42,6 +44,7 @@ const CONFIGS: &[LanguageConfig] = &[
         id: "es",
         name: "Spanish",
         native_name: "Español",
+        font_scale: 1.0,
         direction: Direction::Ltr,
         romanization: None,
         varieties: &[("es-ES", "Spain"), ("es-MX", "Mexico")],
@@ -52,6 +55,7 @@ const CONFIGS: &[LanguageConfig] = &[
         id: "fr",
         name: "French",
         native_name: "Français",
+        font_scale: 1.0,
         direction: Direction::Ltr,
         romanization: None,
         varieties: &[("fr-FR", "France"), ("fr-CA", "Canada")],
@@ -62,6 +66,7 @@ const CONFIGS: &[LanguageConfig] = &[
         id: "ar",
         name: "Arabic",
         native_name: "العربية",
+        font_scale: 1.5,
         direction: Direction::Rtl,
         romanization: Some("ALA-LC"),
         varieties: &[("ar-MSA", "Modern Standard Arabic")],
@@ -71,7 +76,8 @@ const CONFIGS: &[LanguageConfig] = &[
     LanguageConfig {
         id: "zh",
         name: "Mandarin",
-        native_name: "普通话",
+        native_name: "中文（简体）",
+        font_scale: 1.3,
         direction: Direction::Ltr,
         romanization: Some("PINYIN"),
         varieties: &[("zh-CN", "Mainland China")],
@@ -152,6 +158,7 @@ fn project(config: &LanguageConfig) -> Language {
         id: config.id.into(),
         name: config.name.into(),
         native_name: config.native_name.into(),
+        font_scale: config.font_scale,
         direction: config.direction.label().into(),
         romanization: config.romanization.map(str::to_owned),
         varieties: config
@@ -303,7 +310,7 @@ mod tests {
             (
                 "zh",
                 "Mandarin",
-                "普通话",
+                "中文（简体）",
                 "ltr",
                 Some("PINYIN"),
                 vec![("zh-CN", "Mainland China")],
@@ -317,7 +324,7 @@ mod tests {
             assert_eq!(
                 serde_json::to_value(actual).unwrap(),
                 serde_json::json!({
-                    "id":id,"name":name,"nativeName":native,"direction":direction,"romanization":scheme,
+                    "fontScale":if id=="ar" {1.5}else if id=="zh" {1.3}else{1.0},"id":id,"name":name,"nativeName":native,"direction":direction,"romanization":scheme,
                     "varieties":varieties.iter().map(|(id,name)| serde_json::json!({"id":id,"name":name})).collect::<Vec<_>>()
                 })
             );

@@ -1,5 +1,5 @@
-import { UnavailableActivity } from './components/dev/UnavailableActivity'
+import { LiveActivity } from './components/dev/LiveActivity'
 
 export default function DevWindow() {
-  return <div className="dev-window"><UnavailableActivity /></div>
+  return <div className="dev-window"><LiveActivity /></div>
 }

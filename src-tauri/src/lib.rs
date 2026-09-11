@@ -2,6 +2,7 @@ mod access;
 mod admission;
 #[cfg(desktop)]
 mod audio;
+pub mod coaching;
 mod conversation_prompt;
 pub mod credentials;
 pub mod diagnostics;
@@ -14,17 +15,16 @@ pub mod languages;
 pub mod linguistics;
 pub mod model;
 pub mod profile;
+pub mod progression;
 pub mod provider;
 mod refusal;
+mod reward_settings;
 pub mod speech;
 pub mod speech_provider;
 pub mod store;
 mod transcription;
 pub mod turn_plan;
-#[cfg(desktop)]
-mod voice;
-#[cfg(not(desktop))]
-#[path = "voice_mobile.rs"]
+mod updater;
 mod voice;
 
 use model::{
@@ -39,7 +39,6 @@ use zeroize::Zeroizing;
 
 struct Application {
     admission: admission::Admission,
-    #[cfg(desktop)]
     capture: Mutex<Option<voice::Recording>>,
     store: Mutex<Store>,
     fatal: Mutex<Option<AppError>>,
@@ -494,8 +493,8 @@ async fn scheduler(state: Arc<Application>) {
                         }
                         holds::check(&state.lock()?.connection, &dispatch.target)?;
                     }
-                    let schema = linguistics::adapter::output_schema();
-                    let outputs: Vec<_> = dispatches.iter().map(|dispatch| gloss::request_output(dispatch.gloss_source.as_ref(), &schema)).collect();
+                    let schemas: Vec<_> = dispatches.iter().map(|d| match &d.gloss_source { Some(source) => linguistics::adapter::source_schema(&source.text).map_err(|_| gloss::validation_error()), None => Ok(linguistics::adapter::output_schema()) }).collect::<Result<Vec<_>>>()?;
+                    let outputs: Vec<_> = dispatches.iter().zip(&schemas).map(|(dispatch,schema)| match dispatch.coaching_schema.as_ref() { Some(schema) => provider::RequestOutput::JsonSchema { name: "coaching", schema }, None => gloss::request_output(dispatch.gloss_source.as_ref(), schema) }).collect();
                     if let Some(source) = &first.speech_source {
                         let input = speech_provider::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
                         let request = speech_provider::synthesize(&client, &first.target, &key, &input, &first.install_id);
@@ -590,15 +589,20 @@ async fn scheduler(state: Arc<Application>) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
+    let builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
+    #[cfg(mobile)]
+    let builder = builder.plugin(tauri_plugin_deep_link::init());
+    #[cfg(desktop)]
+    let builder = builder
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init());
+    builder
         .setup(|app| {
             diagnostics::initialize(&app.path().app_log_dir()?)?;
             let directory = app.path().app_data_dir()?;
             store::prepare_private_directory(&directory)?;
             let state = Arc::new(Application {
                 admission: admission::Admission::new(),
-                #[cfg(desktop)]
                 capture: Mutex::new(None),
                 store: Mutex::new(Store::open(&directory.join("practice.sqlite3"))?),
                 fatal: Mutex::new(None),
@@ -612,6 +616,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            updater::get_update_channel,
+            updater::latest_github_release,
             read_speech_audio,
             diagnostics::record_frontend_diagnostic,
             diagnostics::read_frontend_diagnostics,
@@ -636,6 +642,13 @@ pub fn run() {
             cancel_sign_in,
             select_route,
             get_profile,
+            progression::get_skill_evidence,
+            reward_settings::get_reward_settings,
+            reward_settings::get_playback_rate,
+            reward_settings::save_playback_rate,
+            reward_settings::save_reward_settings,
+            progression::save_skill_profile,
+            progression::get_practice_overview,
             open_ai_window
         ])
         .run(tauri::generate_context!())
@@ -649,7 +662,6 @@ mod credential_io_tests {
     fn application(path: &std::path::Path) -> Arc<Application> {
         Arc::new(Application {
             admission: admission::Admission::new(),
-            #[cfg(desktop)]
             capture: Mutex::new(None),
             store: Mutex::new(Store::open(path).unwrap()),
             fatal: Mutex::new(None),

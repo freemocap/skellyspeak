@@ -74,6 +74,14 @@ pub fn validate(
                 end: span.end as u32,
                 kind,
                 gloss,
+                romanization: match &segment.annotation {
+                    Annotation::Gloss { romanization, .. } => romanization.clone(),
+                    _ => None,
+                },
+                pronunciation: match &segment.annotation {
+                    Annotation::Gloss { pronunciation, .. } => pronunciation.clone(),
+                    _ => None,
+                },
             })
         })
         .collect::<Result<Vec<_>>>()?;
@@ -132,6 +140,18 @@ mod tests {
             serde_json::from_str::<WordGlossView>(&serde_json::to_string(&view).unwrap()).unwrap(),
             view
         );
+    }
+    #[test]
+    fn projection_preserves_readings_for_the_exact_source_span() {
+        let mut source = source();
+        source.text = "你好".into();
+        source.identity.target_language_id = "zh".into();
+        let mut output = completion();
+        output.text = r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":"hello","romanization":"nǐ hǎo","pronunciation":null}]}"#.into();
+        let view = validate(&source, &output, "operation", "attempt").unwrap();
+        assert_eq!(view.segments[0].romanization.as_deref(), Some("nǐ hǎo"));
+        assert_eq!(view.segments[0].pronunciation, None);
+        assert_eq!((view.segments[0].start, view.segments[0].end), (0, 2));
     }
     #[test]
     fn projection_rejects_bad_output_without_echoing_content_or_consuming_usage() {

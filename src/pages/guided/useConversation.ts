@@ -3,6 +3,7 @@ import type { ChatSummary, Settings, StoredTurn } from '../../types'
 import type { ConversationSnapshot, Snapshot } from '../../contracts'
 import { conversationTurns } from '../../lib/conversation-view'
 import { executeAction, nativeError, readWorkspace, selectedConversation, watchConversation } from '../../lib/workspace'
+import { unreportedInput, type InputEvidence } from '../../lib/skills'
 import { reportFault } from '../../lib/faults'
 
 export type Turn = StoredTurn & { pendingText: string }
@@ -34,7 +35,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     directoryRef.current = directory
     setChats(directory.conversations.filter(c => !c.archived && (!target || c.languageId === target))
       .sort((a, b) => b.lastUsed - a.lastUsed)
-      .map(c => ({ id: c.id, title: c.title, updated_at: c.lastUsed })))
+      .map(c => ({ id: c.id, title: c.title, updated_at: Math.floor(c.lastUsed / 1000) })))
     return directory
   }, [target])
 
@@ -71,6 +72,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
         if (next.conversationId !== currentChatId) throw new Error('Conversation snapshot scope mismatch.')
         if (next.revision !== revision) {
           setSnapshot(next)
+          window.dispatchEvent(new Event('skill-evidence-changed'))
           setTurns(conversationTurns(next).map(t => ({ ...t, pendingText: '' })))
         }
         revision = next.revision
@@ -121,14 +123,14 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     }
   }, [currentChatId, openChat, refresh, target])
 
-  const sendMessage = useCallback(async (text: string, expectedConversationId?: string | null) => {
+  const sendMessage = useCallback(async (text: string, expectedConversationId?: string | null, input: InputEvidence = unreportedInput()) => {
     const owner = chatIdRef.current
     if (!owner) throw new Error('No conversation is open.')
     if (expectedConversationId !== undefined && owner.id !== expectedConversationId) throw new Error('The conversation changed before sending.')
     const directory = await readWorkspace()
     const conversation = directory.conversations.find(c => c.id === owner.id)
     if (!conversation) throw new Error('Conversation is unavailable.')
-    await executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text })
+    await executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
   }, [])
 
   return { turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,

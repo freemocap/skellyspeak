@@ -28,7 +28,7 @@ describe('native private coaching', () => {
     await waitFor(() => expect(screen.getByLabelText('Coach conversation')).toHaveTextContent('Saved private answer'))
     expect(backend.watch).toHaveBeenNthCalledWith(2, 'chat-1', 7)
     expect(backend.execute).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: 'Edit choices' })).toBeDisabled()
+    expect(screen.getByRole('tab', { name: 'Skill map' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Clear coach thread' })).toBeDisabled()
   })
   it('submits once with current conversation revision and displays only saved replies', async () => {

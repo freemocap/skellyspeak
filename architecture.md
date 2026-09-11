@@ -10,6 +10,10 @@ The local foundation and desktop Hosted, API-key and Custom URL execution are im
 verification status is recorded in README.md. Assistance
 and evidence contracts remain future work.
 
+For a practical walkthrough of the request shapes, structured-output validation,
+and operation graph, see [AI-ARCHITECTURE.md](./AI-ARCHITECTURE.md). This document
+remains the implementation-boundary authority.
+
 The selected stack is Tauri 2, React 19, TypeScript and Vite. Rust owns the SQLite
 store via rusqlite with bundled SQLite; mutations use explicit transactions,
 foreign keys and optimistic revisions. No ORM or frontend database API is exposed.

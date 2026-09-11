@@ -1,4 +1,4 @@
-import type { ConnectionConfig, AccessSettings } from '../contracts'
+import type { ConnectionConfig, AccessSettings, RewardSettings } from '../contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from './keyboard'
 import { invoke as nativeInvoke } from './native'
@@ -42,6 +42,7 @@ export interface DialectInfo {
 }
 
 export interface LanguageInfo {
+  fontScale: number
   code: string
   base: string
   name: string
@@ -59,7 +60,7 @@ export async function loadLanguages(): Promise<void> {
   const snapshot = await readWorkspace()
   registry = snapshot.languages.map(language => {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
-    return { code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
+    return { fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
       direction: language.direction, romanization: language.romanization,
       dialects: language.varieties.map(variety => ({ id: variety.id, label: variety.name })) }
   })
@@ -123,14 +124,14 @@ export function deletePersona(id: string): Promise<void> {
 
 /** View settings combine native conversation choices and learner display preferences. */
 export async function getSettings(): Promise<Settings> {
-  const [snapshot, connection, access] = await Promise.all([
-    readWorkspace(), invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'),
+  const [snapshot, connection, access, rewards, playbackRate] = await Promise.all([
+    readWorkspace(), invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'), invoke<RewardSettings>('get_reward_settings'), invoke<number>('get_playback_rate'),
   ])
   const conversation = selectedConversation(snapshot)
   if (!conversation) throw new Error('No active conversation is available.')
   const preferences = snapshot.learner.preferences
   return {
-    scope: { sessionId: snapshot.sessionId, conversationId: conversation.id, settingsRevision: conversation.settingsRevision, learnerRevision: snapshot.learner.revision },
+    scope: { sessionId: snapshot.sessionId, conversationId: conversation.id, settingsRevision: conversation.settingsRevision, learnerRevision: snapshot.learner.revision, rewardRevision: rewards.revision },
     provider_mode: connection.route === 'openrouter' ? 'cloud' : connection.route,
     hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
     custom_base_url: access.custom.baseUrl, custom_model: access.custom.standardModel,
@@ -140,9 +141,9 @@ export async function getSettings(): Promise<Settings> {
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
     auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
-    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: false,
-    reward_sounds: 'no', master_volume: 1, voice_volume: 1, effects_volume: 1,
-    tts_engine: 'cloud', tts_voice: conversation.settings.speechVoice, tts_rate: 1, shortcuts: { ...SHORTCUT_DEFAULTS },
+    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
+    reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
+    tts_engine: 'cloud', tts_voice: conversation.settings.speechVoice, tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
   }
 }
 
@@ -276,7 +277,12 @@ export async function saveSettings(settings: Settings): Promise<void> {
   if (!conversation) throw new Error('The settings conversation is unavailable.')
   if (conversation.settingsRevision !== scope.settingsRevision || snapshot.learner.revision !== scope.learnerRevision) throw new Error('Settings changed. Reload before saving.')
   if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
-  if (settings.fast_mode || settings.microphone_device_id !== null || settings.reward_sounds !== 'no' || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || settings.tts_rate !== 1 || settings.master_volume !== 1 || settings.voice_volume !== 1 || settings.effects_volume !== 1 || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  if (settings.microphone_device_id !== null || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
+  const currentRewards = await invoke<RewardSettings>('get_reward_settings')
+  if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
+  const currentRate = await invoke<number>('get_playback_rate')
+  if (settings.tts_rate !== currentRate) await invoke('save_playback_rate', { rate: settings.tts_rate })
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
     autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: settings.tts_voice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
@@ -286,9 +292,16 @@ export async function saveSettings(settings: Settings): Promise<void> {
   if (settings.target_language !== conversation.languageId) {
     const selected = selectedConversation(snapshot, settings.target_language)
     await executeAction(snapshot, selected ? { kind: 'openConversation', conversationId: selected.id } : { kind: 'startChat', languageId: settings.target_language })
+    const nativeChanged = settings.native_language !== conversation.settings.explanationLanguage
+    if (nativeChanged || displayChanged) {
+      const fresh = await readWorkspace()
+      const owner = selectedConversation(fresh, settings.target_language)
+      if (!owner) throw new Error('The selected language conversation is unavailable.')
+      if (nativeChanged) await executeAction(fresh, { kind: 'updateSettings', conversationId: owner.id, expectedRevision: owner.settingsRevision, settings: { ...owner.settings, explanationLanguage: settings.native_language } })
+      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences: { ...fresh.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing } })
+    }
     return
   }
-  if (practiceChanged && displayChanged) throw new Error('Save conversation and display preferences separately.')
   if (practiceChanged) await executeAction(snapshot, { kind: 'updateSettings', conversationId: conversation.id, expectedRevision: scope.settingsRevision, settings: practice })
   if (displayChanged) await executeAction(snapshot, { kind: 'updateLearner', expectedRevision: scope.learnerRevision, name: snapshot.learner.name, preferences })
 }

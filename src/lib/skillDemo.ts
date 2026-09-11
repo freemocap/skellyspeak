@@ -5,7 +5,7 @@ const skillTree = createSkillCatalog(catalog as TreeNode[]).nodes
 import type { SkillSnapshot } from './skills'
 /** Browser-only fixture. Native mode never substitutes this for a failed load. */
 export const skillDemo: SkillSnapshot = {
-  catalog: skillTree, catalog_version: 3, learner_id: 'demo', target: 'es-ES', conversation_count: 0, records: [],
+  catalog: skillTree, catalog_version: 4, learner_id: 'demo', target: 'es-ES', conversation_count: 0, records: [],
   profile: {
     credits: [],
     rules_version: 1, choices: { version: 1, revision: 0, learner_id: 'demo', target: 'es-ES', focus: null, excluded_attempts: [] },

@@ -73,11 +73,15 @@
   [NN/g visual-design principles](https://www.nngroup.com/articles/principles-visual-design/)).
 - Keep Learning, Native and Difficulty in one compact row at the reference
   approximately 590px chat-pane width, including the real adjacent header actions.
-  On narrow screens retain the shared select styling and wrap only as necessary.
+  Use constrained columns so long option lists cannot force Difficulty below the
+  language controls. At narrow widths keep the three selects together; header
+  action buttons may move below. Accessible language names remain available when
+  compact visual labels are hidden.
 - Measure header height and each select’s height at both widths, inspect a review
   image and compare the header’s share of the chat canvas. No overflow alone does
   not establish acceptable density. Fixtures must include the actual surrounding
-  controls and width constraints; a full-width isolated control is insufficient.
+  controls and width constraints, the complete registry option lists and a long
+  option stress case; a one-option or full-width isolated control is insufficient.
 
 ## CSS ownership and verification
 
@@ -102,3 +106,14 @@
   shorthand conflicts, unused rules or visual defects.
 - Review desktop/narrow layout, keyboard focus, reading scale and light/dark surface
   contrast in the running app. Automated source checks do not replace that review.
+
+## Compact conversation surfaces
+
+Conversation chrome summarizes Learning, Native and difficulty; editable selectors
+live in the expandable gear controls. Keep gear and new-chat actions on the same
+row on mobile. The dark Coach pane has XP and Persona tabs; no Analysis tab.
+Conversation XP attributes existing credit to that conversation. Language progression
+uses the same map over all selected-language evidence. Maps start expanded on mobile.
+Static explanatory copy belongs behind an accessible information control (hover,
+keyboard focus or tap), not permanently visible paragraphs. Keep dynamic feedback,
+errors and explicitly requested development placeholders visible and concise.

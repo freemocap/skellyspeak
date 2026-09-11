@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../lib/native'
 import { reportFault } from '../lib/faults'
+import { startBrowserRecording, type BrowserRecording } from '../lib/browser-recording'
 import type { RecordingStarted } from '../contracts'
 import type { WaveSource } from '../components/WaveformStrip'
 
@@ -14,6 +15,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [waveSource, setWaveSource] = useState<WaveSource | null>(null)
+  const browser = useRef<BrowserRecording | null>(null)
   const active = useRef<string | null>(null)
   const working = useRef(false)
   const samples = useRef<number[]>([])
@@ -22,6 +24,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
   callback.current = onTranscribe
 
   const cancel = useCallback(() => {
+    browser.current?.cancel(); browser.current = null
     generation.current++
     const recordingId = active.current
     active.current = null
@@ -30,7 +33,8 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
   }, [])
   useEffect(() => {
     return () => {
-      generation.current++
+      browser.current?.cancel(); browser.current = null
+    generation.current++
       const recordingId = active.current
       active.current = null
       if (recordingId) void invoke('mic_cancel', { recordingId }).catch(error => reportFault('Stopping the microphone', error))
@@ -40,7 +44,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
 
   // Drain native samples once into the copied time-axis renderer.
   useEffect(() => {
-    if (!recording) return
+    if (!recording || browser.current) return
     let polling = false
     const timer = setInterval(() => {
       const recordingId = active.current
@@ -65,7 +69,12 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
       const recordingId = active.current
       if (recordingId) {
         active.current = null; setRecording(false); setWaveSource(null); setTranscribing(true)
-        const text = await invoke<string>('mic_transcribe', { recordingId })
+        const capture = browser.current; browser.current = null
+        let audioBase64: string | undefined
+        try { audioBase64 = await capture?.finish() }
+        catch (error) { await invoke('mic_cancel', { recordingId }); throw error }
+        if (generation.current !== scope) { await invoke('mic_cancel', { recordingId }); return }
+        const text = await invoke<string>('mic_transcribe', { recordingId, ...(audioBase64 ? { audioBase64 } : {}) })
         if (generation.current === scope && text.trim()) callback.current(text)
       } else {
         if (!conversationId) throw new Error('Open a conversation before recording.')
@@ -78,14 +87,21 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
           await invoke('mic_cancel', { recordingId })
           throw new Error('Native recording returned an invalid waveform sample rate.')
         }
+        if (/Android|iPhone|iPad/.test(navigator.userAgent)) {
+          try {
+            const capture = await startBrowserRecording(error => { reportFault('Microphone', error); cancel() })
+            if (generation.current !== scope) { capture.cancel(); await invoke('mic_cancel', { recordingId }); return }
+            browser.current = capture
+          } catch (error) { await invoke('mic_cancel', { recordingId }); throw error }
+        }
         active.current = recordingId
         samples.current = []
-        setWaveSource({ samplesPerSecond, read: () => samples.current.splice(0) })
+        setWaveSource(browser.current?.wave ?? { samplesPerSecond, read: () => samples.current.splice(0) })
         setRecording(true)
       }
     } catch (error) { if (generation.current === scope) reportFault('Microphone', error) }
     finally { working.current = false; setTranscribing(false) }
-  }, [conversationId])
+  }, [conversationId, cancel])
 
   return { recording, transcribing, waveSource, toggleMic, cancel }
 }

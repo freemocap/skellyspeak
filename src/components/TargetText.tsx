@@ -1,3 +1,4 @@
+import { languageFor } from '../lib/tauri'
 import { ReadingPreferencesProvider, useReadingPreferences } from './ReadingPreferences'
 import { createContext, Fragment, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { GuidedToken, Settings } from '../types'
@@ -13,10 +14,11 @@ const ReadingContext = createContext<{
 export function ReadingProvider({ settings, children }: { settings: Settings | null; children: ReactNode }) {
   useEffect(() => {
     const root = document.documentElement
+    root.style.setProperty('--script-scale', String(settings ? languageFor(settings.target_language)?.fontScale ?? 1 : 1))
     root.style.setProperty('--reading-scale', String((settings?.text_size ?? 100) / 100))
-    root.style.setProperty('--word-spacing', `${settings?.text_spacing ?? 2}px`)
-    return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--word-spacing') }
-  }, [settings?.text_size, settings?.text_spacing])
+    root.style.setProperty('--word-spacing', '0px')
+    return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--script-scale'); root.style.removeProperty('--word-spacing') }
+  }, [settings?.text_size, settings?.target_language])
   return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'en', language: settings?.target_language ?? 'en' }}>
     {children}
   </ReadingContext></ReadingPreferencesProvider>

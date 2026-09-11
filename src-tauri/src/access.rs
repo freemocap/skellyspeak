@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 use std::{sync::Arc, time::Duration};
 use zeroize::Zeroizing;
 
+const DEFAULT_CUSTOM_BASE_URL: &str = "http://127.0.0.1:8765/v1";
+
 #[derive(Clone, Copy)]
 pub enum Capability {
     Chat,
@@ -32,6 +34,7 @@ fn conflict() -> AppError {
 pub fn settings(db: &Connection) -> Result<AccessSettings> {
     let (revision,groq,custom,config): (i32,bool,bool,String) = db.query_row("SELECT revision,groq_credential_id IS NOT NULL,custom_credential_id IS NOT NULL,custom_config FROM ai_config",[],|r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)))?;
     Ok(AccessSettings {
+        custom_url_is_unsaved_default: false,
         revision,
         groq_key_configured: groq,
         custom_key_configured: custom,
@@ -179,7 +182,17 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
 }
 #[tauri::command]
 pub fn get_access_settings(state: tauri::State<'_, Arc<Application>>) -> Result<AccessSettings> {
-    settings(&state.lock()?.connection)
+    settings_for_editing(&state.lock()?.connection)
+}
+
+fn settings_for_editing(db: &Connection) -> Result<AccessSettings> {
+    let mut value = settings(db)?;
+    // This is an editable default, never a resolver fallback or storage rewrite.
+    if value.custom.base_url.is_empty() && !value.custom_key_configured {
+        value.custom.base_url = DEFAULT_CUSTOM_BASE_URL.into();
+        value.custom_url_is_unsaved_default = true;
+    }
+    Ok(value)
 }
 
 // Saving one provider must not overwrite or activate another provider's profile.
@@ -534,10 +547,74 @@ mod tests {
             Some("whisper-large-v3")
         );
         assert!(endpoint.bearer_auth);
-        endpoint.base_url = "http://127.0.0.1:8765/v1".into();
+        assert_eq!(endpoint.base_url, DEFAULT_CUSTOM_BASE_URL);
         validate_custom(&endpoint).unwrap();
         endpoint.transcription_model = None;
         validate_custom(&endpoint).unwrap();
+    }
+    #[test]
+    fn editable_local_url_default_never_rewrites_or_resolves_unsaved_settings() {
+        let database = db();
+        for saved_url in ["", "https://fixture.example/v1"] {
+            database
+                .execute(
+                    "UPDATE ai_config SET custom_config=json_set(custom_config,'$.baseUrl',?1)",
+                    [saved_url],
+                )
+                .unwrap();
+            let before: (i32, String, String) = database
+                .query_row(
+                    "SELECT revision,route,custom_config FROM ai_config",
+                    [],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .unwrap();
+            let edited = settings_for_editing(&database).unwrap();
+            assert_eq!(
+                edited.custom.base_url,
+                if saved_url.is_empty() {
+                    DEFAULT_CUSTOM_BASE_URL
+                } else {
+                    saved_url
+                }
+            );
+            assert_eq!(settings(&database).unwrap().custom.base_url, saved_url);
+            assert!(edited.custom.bearer_auth);
+            let after: (i32, String, String) = database
+                .query_row(
+                    "SELECT revision,route,custom_config FROM ai_config",
+                    [],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .unwrap();
+            assert_eq!(after, before);
+        }
+        database.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','')", []).unwrap();
+        assert!(resolve(&database, Capability::Chat).is_err());
+        database.execute("UPDATE ai_config SET custom_config=json_set(custom_config,'$.bearerAuth',json('false'))", []).unwrap();
+        let mut draft = settings_for_editing(&database).unwrap().custom;
+        assert!(!draft.bearer_auth);
+        assert_eq!(draft.base_url, DEFAULT_CUSTOM_BASE_URL);
+        draft.base_url.clear();
+        assert_eq!(
+            validate_save_input(Some(&draft), None, false)
+                .unwrap_err()
+                .0,
+            "access_save_url_invalid"
+        );
+        database
+            .execute(
+                "UPDATE ai_config SET custom_credential_id='fixture-existing-id'",
+                [],
+            )
+            .unwrap();
+        assert!(
+            settings_for_editing(&database)
+                .unwrap()
+                .custom
+                .base_url
+                .is_empty()
+        );
     }
     fn custom(db: &Connection, auth: bool, audio: bool) {
         let value = CustomEndpoint {

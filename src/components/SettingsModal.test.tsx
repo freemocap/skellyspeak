@@ -50,11 +50,14 @@ beforeEach(() => {
   backend.hostedSignIn.mockResolvedValue(null)
 })
 
-it('keeps unsupported updates honest without starting an update check', async () => {
+it('routes explicit update checks to the shared update banner', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'updates' } })
-  expect(await screen.findByText('Application updates are not connected.')).toBeVisible()
-  expect(screen.queryByRole('button', { name: 'Check for updates' })).toBeNull()
+  const check = vi.fn()
+  window.addEventListener('skellyspeak-check-update', check)
+  fireEvent.click(await screen.findByRole('button', { name: 'Check for updates' }))
+  expect(check).toHaveBeenCalledOnce()
+  window.removeEventListener('skellyspeak-check-update', check)
 })
 
 it('keeps the modal open until a pending preference save finishes', async () => {
@@ -82,13 +85,12 @@ it('dismisses on the backdrop but keeps settings open for clicks inside', async 
   expect(close).toHaveBeenCalledOnce()
 })
 
-it('keeps reading size and spacing independent and saves both', async () => {
+it('saves text size without exposing spacing controls', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text' } })
   fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '125' } })
-  expect(screen.getByLabelText('Text spacing · 2px')).toHaveValue('2')
-  fireEvent.change(screen.getByLabelText('Text spacing · 2px'), { target: { value: '0' } })
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125, text_spacing: 0 })))
+  expect(screen.queryByLabelText(/Text spacing/)).toBeNull()
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125 })))
 })
 
 it('groups mobile settings into collapsible sections and searches inside closed groups', async () => {
@@ -107,11 +109,11 @@ it('groups mobile settings into collapsible sections and searches inside closed 
   } finally { window.matchMedia = original }
 })
 
-it('keeps unsupported audio preferences disabled', async () => {
+it('enables connected audio volume preferences', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'volume' } })
-  expect(screen.getByRole('slider', { name: 'Overall volume' })).toBeDisabled()
-  expect(screen.getByRole('slider', { name: 'Voice volume' })).toBeDisabled()
+  expect(screen.getByRole('slider', { name: 'Overall volume' })).toBeEnabled()
+  expect(screen.getByRole('slider', { name: 'Voice volume' })).toBeEnabled()
   expect(backend.saveSettings).not.toHaveBeenCalled()
 })
 
@@ -135,4 +137,27 @@ it('shows native settings-load failures inside the settings dialog', async () =>
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   expect(await screen.findByRole('alert')).toHaveTextContent('Settings response is incomplete.')
   expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible()
+})
+
+it('rebases a reading edit over unrelated saved preferences', async () => {
+  const initial = { ...SETTINGS, scope: { sessionId: 's', conversationId: 'c', settingsRevision: 1, learnerRevision: 1, rewardRevision: 0 } }
+  const fresh = { ...initial, auto_translate: true, scope: { ...initial.scope, settingsRevision: 2 } }
+  backend.getSettings.mockResolvedValueOnce(initial).mockResolvedValue(fresh)
+  render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'romanization' } })
+  fireEvent.click(screen.getByLabelText('Show romanization'))
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ always_romanize: true, auto_translate: true, scope: fresh.scope })))
+})
+
+it('preserves a newer text-size edit while the first save completes', async () => {
+  let finish!: () => void
+  backend.saveSettings.mockImplementationOnce(() => new Promise<void>(resolve => { finish = resolve }))
+  render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text size' } })
+  fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '110' } })
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledOnce())
+  fireEvent.change(screen.getByLabelText('Text size · 110%'), { target: { value: '125' } })
+  backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '', text_size: 110 })
+  await act(async () => finish())
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ text_size: 125 })))
 })

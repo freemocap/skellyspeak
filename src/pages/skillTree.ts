@@ -8,7 +8,7 @@ export type TreeNode = {
   color: string; description: string; criterion: string
 }
 export function evidenceLabel(id: string, version: number): string {
-  const definitions = version === 1 ? legacy : version === 2 ? second : version === 3 ? catalog : null
+  const definitions = version === 1 ? legacy : version === 2 ? second : version === 4 ? catalog : null
   const item = definitions?.find((node) => node.id === id)
   if (!item) throw new Error(`Unknown evidence rubric: ${version}/${id}`)
   return item.label

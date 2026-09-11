@@ -36,7 +36,12 @@ pub enum Unit {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Annotation {
-    Gloss { unit: Unit, gloss: String },
+    Gloss {
+        unit: Unit,
+        gloss: String,
+        romanization: Option<String>,
+        pronunciation: Option<String>,
+    },
     Literal,
     Unresolved,
 }
@@ -323,7 +328,7 @@ pub fn validate(
         if item.span.start < cursor {
             return Err(ValidationError::OverlapOrUnordered { index });
         }
-        if let Annotation::Gloss { unit, gloss } = &item.annotation {
+        if let Annotation::Gloss { unit, gloss, .. } = &item.annotation {
             if *unit == Unit::Phrase {
                 return Err(ValidationError::PhraseRequiresSeparateLayer { index });
             }

@@ -513,6 +513,7 @@ mod tests {
                 socket.write_all(&body).await.unwrap();
             });
             let dispatch = crate::execution::Dispatch {
+                coaching_schema: None,
                 gloss_source: None,
                 speech_source: None,
                 target: crate::access::ResolvedTarget {
@@ -536,6 +537,7 @@ mod tests {
             let schema = serde_json::json!({"type":"object"});
             if structured {
                 let second = crate::execution::Dispatch {
+                    coaching_schema: None,
                     gloss_source: None,
                     speech_source: None,
                     target: dispatch.target.clone(),

@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { invoke } from '@tauri-apps/api/core'
 import type { WordGlossView } from '../../contracts'
+import { ReadingPreferencesContext } from '../ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
 const text = '  sí, sí!\ne\u0301 👩🏽‍💻 مرحبا  '
@@ -30,5 +31,12 @@ it('does not make literal or unresolved spans interactive', () => {
   const view = render(<SavedGlossText text="Hello?" result={{ ...result, segments: [{start: 0, end: 5, kind: 'unresolved', gloss: null}, {start: 5, end: 6, kind: 'literal', gloss: null}] }} />)
   expect(view.container.textContent).toBe('Hello?')
   expect(screen.queryByRole('button')).toBeNull()
+  expect(invoke).not.toHaveBeenCalled()
+})
+
+it('shows saved romanization when its reading preference is enabled', () => {
+  const reading: WordGlossView = { ...result, segments: [{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }] }
+  render(<ReadingPreferencesContext value={{ autoTranslate: false, alwaysPronunciation: false, alwaysRomanize: true }}><SavedGlossText text="你" result={reading} /></ReadingPreferencesContext>)
+  expect(screen.getByText('nǐ')).toBeVisible()
   expect(invoke).not.toHaveBeenCalled()
 })

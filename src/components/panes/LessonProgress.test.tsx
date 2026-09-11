@@ -10,7 +10,7 @@ const record: SkillRecord = {
   attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null,
   chat_id: 'chat', learner_id: 'local', target: 'es-ES', native: 'en', source: 'Ese libro.',
   input: unreportedInput(), at_secs: 1, model: 'model', provider_mode: 'hosted',
-  catalog_version: 3, prompt_version: 'test', status: 'pending', error: null, assessment: null,
+  catalog_version: 4, prompt_version: 'test', status: 'pending', error: null, assessment: null,
 }
 function ui(snapshot: SkillSnapshot | null, error: string | null = null) {
   return <SkillEvidenceContext value={{ snapshot, error }}><LessonProgress chatId="chat" busy={false} level="zero" /></SkillEvidenceContext>

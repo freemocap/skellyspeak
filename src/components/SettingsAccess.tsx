@@ -1,3 +1,4 @@
+import { InfoTip } from './InfoTip'
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../lib/native'
 import type { AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../contracts'
@@ -34,9 +35,8 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'),
     ])
     const custom = nextAccess.custom
-    const fresh = !custom.baseUrl && !custom.standardModel && !custom.fastModel
     setConnection(nextConnection); setAccess(nextAccess)
-    const displayedEndpoint = { ...custom, bearerAuth: fresh ? true : custom.bearerAuth,
+    const displayedEndpoint = { ...custom,
       standardModel: custom.standardModel || CUSTOM_CHAT_MODEL,
       fastModel: custom.fastModel || CUSTOM_CHAT_MODEL,
       transcriptionModel: custom.transcriptionModel || CUSTOM_TRANSCRIPTION_MODEL }
@@ -100,7 +100,18 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     try {
       if (provider === 'openrouter') {
         await invoke('verify_openrouter_key', { apiKey: null, expectedRevision: connection.revision })
-      } else await invoke<string>('check_access', { expectedRevision: access.revision, custom: provider === 'custom' })
+      } else {
+        let current = access
+        if (provider === 'custom' && access.customUrlIsUnsavedDefault) {
+          if (!endpoint) throw new Error('Custom endpoint has not loaded.')
+          current = await invoke<AccessSettings>('save_access_settings', {
+            expectedRevision: access.revision, custom: endpoint, apiKey: null, removeKey: false,
+          })
+          setAccess(current)
+          await onChanged()
+        }
+        await invoke<string>('check_access', { expectedRevision: current.revision, custom: provider === 'custom' })
+      }
       setChecks(current => ({ ...current, [provider]: 'valid' }))
     } catch (error) {
       setChecks(current => ({ ...current, [provider]: 'invalid' }))
@@ -181,7 +192,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       <div className="form-row"><label htmlFor="access-url">Server address</label>
         <input id="access-url" className="field" value={endpoint.baseUrl} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy}
           placeholder="https://your-server.example/v1" onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
-        <p className="field-note">Self-hosted SkellySpeak server. Include /v1. HTTPS is required except on loopback.</p>
+        <InfoTip>Self-hosted SkellySpeak server. Include /v1. HTTPS is required except on loopback.</InfoTip>
       </div>
       <div className="form-row check-row"><label className="check-label"><input type="checkbox" checked={endpoint.bearerAuth} disabled={busy}
         onChange={event => { setEndpoint({ ...endpoint, bearerAuth: event.target.checked }); edit('custom') }} />Use server session token</label></div>

@@ -157,7 +157,8 @@ pub struct Conversation {
     pub settings_revision: i32,
     pub settings: PracticeSettings,
     pub created_at: String,
-    pub last_used: i32,
+    #[ts(type = "number")]
+    pub last_used: i64,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -168,6 +169,7 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
+    pub font_scale: f64,
     pub direction: String,
     pub romanization: Option<String>,
     pub id: String,
@@ -205,6 +207,7 @@ pub enum Action {
         language_id: String,
     },
     SendMessage {
+        input: crate::coaching::InputEvidence,
         conversation_id: String,
         text: String,
         expected_revision: i32,
@@ -388,6 +391,11 @@ pub fn bindings() -> String {
         GlossCoverage::decl(&config),
         GlossSegment::decl(&config),
         WordGlossView::decl(&config),
+        crate::diagnostics::DiagnosticCommand::decl(&config),
+        crate::reward_settings::RewardSettings::decl(&config),
+        crate::coaching::InputEvidence::decl(&config),
+        crate::coaching::Evidence::decl(&config),
+        crate::coaching::Feedback::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
         AttemptView::decl(&config),
@@ -469,6 +477,10 @@ pub struct GlossSegment {
     pub end: u32,
     pub kind: GlossSegmentKind,
     pub gloss: Option<String>,
+    #[ts(optional)]
+    pub romanization: Option<String>,
+    #[ts(optional)]
+    pub pronunciation: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -487,6 +499,14 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    #[ts(optional)]
+    pub feedback: Option<crate::coaching::Feedback>,
+    #[ts(optional)]
+    pub feedback_state: Option<String>,
+    #[ts(optional)]
+    pub feedback_error: Option<String>,
+    #[ts(optional)]
+    pub suggested_replies: Option<Vec<String>>,
     pub word_gloss: Option<WordGlossView>,
     pub gloss_state: Option<String>,
     pub gloss_error: Option<String>,
@@ -641,6 +661,7 @@ pub struct CustomEndpoint {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AccessSettings {
+    pub custom_url_is_unsaved_default: bool,
     pub revision: i32,
     pub groq_key_configured: bool,
     pub custom_key_configured: bool,

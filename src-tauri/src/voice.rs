@@ -1,4 +1,6 @@
-use crate::{Application, access, audio, model::*};
+#[cfg(desktop)]
+use crate::audio;
+use crate::{Application, access, model::*};
 use std::sync::Arc;
 
 pub struct Recording {
@@ -6,6 +8,7 @@ pub struct Recording {
     conversation: String,
     target: access::ResolvedTarget,
     language: String,
+    #[cfg(desktop)]
     capture: audio::Capture,
 }
 fn fault(message: impl Into<String>) -> AppError {
@@ -44,11 +47,15 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         conversation: conversation_id,
         target,
         language: conversation.language_id.clone(),
+        #[cfg(desktop)]
         capture: audio::start(None).map_err(fault)?,
     };
     let started = RecordingStarted {
         recording_id: recording.id.clone(),
+        #[cfg(desktop)]
         samples_per_second: recording.capture.wave_samples_per_second(),
+        #[cfg(mobile)]
+        samples_per_second: 750.0,
     };
     *slot = Some(recording);
     Ok(started)
@@ -66,7 +73,15 @@ pub fn mic_wave(
         .as_ref()
         .filter(|r| r.id == recording_id)
         .ok_or_else(|| fault("Recording is no longer active."))?;
-    recording.capture.take_wave().map_err(fault)
+    #[cfg(desktop)]
+    {
+        recording.capture.take_wave().map_err(fault)
+    }
+    #[cfg(mobile)]
+    {
+        let _ = recording;
+        Ok(Vec::new())
+    }
 }
 #[tauri::command]
 pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: String) -> Result<()> {
@@ -83,6 +98,7 @@ pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: Strin
 pub async fn mic_transcribe(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
+    audio_base64: Option<String>,
 ) -> Result<String> {
     let recording = {
         let mut slot = state
@@ -105,10 +121,30 @@ pub async fn mic_transcribe(
             store.snapshot()?.learner.id,
         )
     };
+    #[cfg(desktop)]
+    if audio_base64.is_some() {
+        return Err(fault("Desktop capture does not accept browser audio."));
+    }
+    #[cfg(desktop)]
     let wav = tauri::async_runtime::spawn_blocking(move || recording.capture.finish())
         .await
         .map_err(|_| fault("Audio processing stopped unexpectedly."))?
         .map_err(fault)?;
+    #[cfg(mobile)]
+    let wav = {
+        use base64::Engine;
+        let encoded = audio_base64.ok_or_else(|| fault("Microphone audio is missing."))?;
+        if encoded.len() > 24 * 1024 * 1024 {
+            return Err(fault("Recording exceeds its size limit."));
+        }
+        let bytes = base64::engine::general_purpose::STANDARD
+            .decode(encoded)
+            .map_err(|_| fault("Invalid recording encoding."))?;
+        if bytes.len() < 44 || &bytes[..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
+            return Err(fault("Recording must be WAV audio."));
+        }
+        bytes
+    };
     let validate = || {
         let store = state.lock()?;
         crate::holds::check(&store.connection, &recording.target)?;

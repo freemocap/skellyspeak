@@ -1,3 +1,4 @@
+import { InfoTip } from './InfoTip'
 import { configureAudioVolumes } from '../lib/audio-volume'
 import { configureRewardSounds } from '../lib/reward-sounds'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
@@ -25,7 +26,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
+type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
 
 function SaveStatus({ state }: { state: SaveState }) {
   if (state === 'error')
@@ -93,12 +94,6 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
     labelKey: 'AI access',
     icon: '🔑',
     descKey: 'Hosted sign-in, API keys or a custom server',
-  },
-  {
-    id: 'models',
-    labelKey: 'settings.section.models',
-    icon: '🧠',
-    descKey: 'settings.desc.models',
   },
   {
     id: 'languages',
@@ -233,10 +228,27 @@ export function SettingsModal({
     const timer = setTimeout(() => {
       setSaveState('saving')
       logInfo('[settings] autosaving')
-      saveSettings(settings)
+      Promise.resolve().then(async () => {
+        const fresh = await getSettings()
+        if (!persisted || fresh.scope?.conversationId !== settings.scope?.conversationId) throw new Error('The selected conversation changed. Reopen settings.')
+        const merged = { ...fresh }
+        for (const key of Object.keys(settings) as (keyof Settings)[]) {
+          if (key === 'scope' || JSON.stringify(settings[key]) === JSON.stringify(persisted[key])) continue
+          if (JSON.stringify(fresh[key]) !== JSON.stringify(persisted[key]) && JSON.stringify(fresh[key]) !== JSON.stringify(settings[key])) throw new Error(`The ${key} preference changed elsewhere. Reopen settings.`)
+          Object.assign(merged, { [key]: settings[key] })
+        }
+        await saveSettings(merged)
+      })
         .then(() => getSettings())
         .then((fresh) => {
-          setSettings(fresh)
+          setSettings(current => {
+            if (!current) return fresh
+            const next = { ...fresh }
+            for (const key of Object.keys(current) as (keyof Settings)[]) {
+              if (key !== 'scope' && JSON.stringify(current[key]) !== JSON.stringify(settings[key])) Object.assign(next, { [key]: current[key] })
+            }
+            return next
+          })
           setPersisted(fresh)
           setSaveState('saved')
           onSettingsChanged(fresh)
@@ -411,6 +423,10 @@ export function SettingsModal({
         </div>
       ),
     },
+    tts_rate: {
+      section: 'voice', label: 'Voice speed', kw: 'voice speech speed rate slower faster',
+      node: <div className="form-row"><label htmlFor="voice-speed">Voice speed</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
+    },
     tts_engine: {
       section: 'voice',
       label: L('tts_engine', 'Speech engine'),
@@ -453,7 +469,7 @@ export function SettingsModal({
               </option>
             ))}
           </select>
-          <p className="field-note">Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</p>
+          <InfoTip>Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</InfoTip>
         </div>
       ),
     },
@@ -497,13 +513,7 @@ export function SettingsModal({
         <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
       </div>,
     },
-    text_spacing: {
-      section: 'reading', label: 'Text spacing', kw: 'word text spacing density compact reading display',
-      node: <div className="form-row"><label htmlFor="reading-spacing">Text spacing · {settings.text_spacing}px</label>
-        <input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} />
-        <p className="field-note">Extra room between words, independent of text size.</p>
-      </div>,
-    },
+
     always_romanize: {
       section: 'reading',
       label: L('always_romanize', 'Always show romanization'),
@@ -562,7 +572,7 @@ export function SettingsModal({
       section: 'updates',
       label: L('app_updates', 'Application updates'),
       kw: 'update updates upgrade version release install newer check',
-      node: <p className="field-note">Application updates are not connected.</p>,
+      node: <div className="form-row"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip><button type="button" className="btn" onClick={() => { void import('@tauri-apps/plugin-opener').then(({ openUrl }) => openUrl('https://docs.freemocap.org/skellyspeak/download')).catch(error => reportFault('Opening downloads', error)) }}>Downloads</button></div>,
     },
   }
   for (const sr of SHORTCUT_ROWS) {
@@ -584,7 +594,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate'])
+  const supported = new Set(['app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
