@@ -11,7 +11,7 @@ vi.mock('../../lib/back', () => ({ openOverlay: () => () => {} }))
 it('shows all quotes once with one stored credit, including repeated-phrase ambiguity', () => {
   HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
-  const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'Ese café', ambiguous: true, rationale: 'Ese identifies a particular coffee.', start: 0, end: 8, color: domainColors('reference').ink, explanation: '' }
+  const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'statements', label: 'Identify a referent', xp: 10, quote: 'Ese café', ambiguous: true, rationale: 'Ese identifies a particular coffee.', start: 0, end: 8, color: domainColors('statements').ink, explanation: '' }
   const close = vi.fn()
   render(<SkillNavigationProvider><RewardDetail automatic={false} interactive={true} evidence={[item, { ...item, start: 10, end: 18 }, { ...item, quote: 'aquel té', ambiguous: false }]} onClose={close} /></SkillNavigationProvider>)
   expect(screen.getAllByText('Ese café')).toHaveLength(1)

@@ -1,126 +1,51 @@
-# Release recovery proposal
+# Release recovery outcome and branch ownership
 
-Status: recovery worktree restored; local reliability fixes and verification in progress.
-The user performs Git mutations. Main and the rebuild worktree remain unchanged.
-Prerequisite satisfied: workflow 34497425319 deployed e05a870 successfully;
-all eight TTL policies are ACTIVE, exact revision promotion passed, and the user
-verified hosted chat. The local receipt records success at 2026-09-10T17:09:33.808Z.
+Status: complete. The user reports v0.13.7 is published and functional.
 
-## Intended result
+## Working branches
 
-- main: tested release application based on v0.13.5 (3d300e8), with current server,
-  deployment/security controls and targeted client reliability fixes.
-- Dedicated rebuild branch: current rebuild preserved for continued development.
-- One active app per branch; no runtime UI switch or duplicate application trees.
-- Existing tags remain immutable. Publish a new patch only after verification.
+- main: released application, v0.13.7 at eaa94bb. Use its separate worktree for
+  release maintenance. Server deployment is gated to main.
+- rebuild: active next-generation application and design in the original skellyspeak
+  folder. The user has pushed this branch. Resume work from BUILD-PLAN.md here.
+- release-recovery: completed recovery branch, merged through PR #29. Its worktree
+  can be retired separately; no deletion is required for development to resume.
 
-## Sequence
+Git mutations remain user-operated. The one-time authorization to commit/push the
+Android fix and patch tag was completed; it is not ongoing authorization.
 
-1. Record the deployed server commit and confirm hosted diagnostics/chat. Resolve
-   the TTL/IAM rollout before changing application baselines.
-2. User creates and pushes a rebuild branch at the current verified HEAD. Branch
-   names are proposals until chosen by the user; use rebuild and
-   release-recovery if no different names are requested.
-3. User creates the recovery branch from that same HEAD in a separate worktree.
-   Preserve shared ancestry. Do not reset main, force-push, or merge the entire
-   rebuild branch back into the release application.
-4. Review a path inventory before restoring application files from v0.13.5.
-   Restore the complete coherent app source/assets/configuration and necessary
-   build/test inputs, removing incompatible app files. Keep current server code,
-   server tests, deploy helper, retention policies and upload/secret protections.
-   Reconcile manifests, lockfiles, Tauri permissions and ignore files explicitly.
-5. Review tagged release/CI/iOS workflows against the recovered app. Retain current
-   action pinning, minimal permissions and secret boundaries. Constrain production
-   server deployment to main and app publication to intentional release triggers;
-   rebuild branch pushes must not publish production artifacts.
-6. Reproduce reported application failure where possible. Separately address the
-   established amplification mechanisms: automatic 429 retries, unbounded gate
-   release, duplicate logical work and bounded structured-output repair attempts.
-   Keep independent work concurrent and progressive results available. Do not
-   introduce a global serial queue or automatic route fallback.
-7. Verify the recovered client against the current server contract. Adapt request
-   payloads/errors/session handling as needed; do not weaken server authentication,
-   pricing, payload validation or accounting to accommodate the app. Determine
-   explicitly whether this release uses grouped transport or bounded standalone
-   requests; do not assume grouped duplicate protection covers standalone routes.
-8. Run recovered-app tests and new regressions, current server/emulator tests,
-   packaging and security checks. Perform manual sign-in, hosted/direct-key chat,
-   recording, cancellation, gate resume, restart and controlled refusal checks.
-   Test synthetic load locally; do not reproduce a request storm on production.
-9. Review the candidate diff and verification evidence. User merges the recovery
-   branch into main through a normal reviewed change, then publishes a new patch.
-   Confirm artifacts identify their source commit and test the installed build.
-10. Bring shared server/security fixes into the rebuild branch selectively. Keep
-    app restoration commits out of it. Prefer small, separately scoped shared
-    fixes so ongoing maintenance can be applied to both branches explicitly.
+## Delivered and verified
 
-## Evidence and unresolved questions
+Recovery preserved the secured server while restoring the released UI and applying
+bounded inference admission, refusal holds, no automatic HTTP 429 retry and one
+in-flight guided turn per conversation. Its standalone server transport is distinct
+from rebuild's grouped transport; do not transfer guarantees between them.
 
-INCIDENT-POSTMORTEM.md establishes request bursts, refusal amplification and failed
-rollouts. It does not establish the initiating client action, exact exhausted
-counter, or a particular process crash. Obtain crash details only if reproduction
-cannot identify them. Do not promise one small fix resolves all observed failures.
-The tag's UI and features are the recovery target; its security posture is not.
-No release is considered stable solely because it is tagged or compiles.
+The coach annotation patch removes inference from reading-component rendering.
+Saved glosses remain local; unannotated words use explicit inspection. Source reply
+validation tolerates whitespace layout changes while rejecting changed content.
+Local checks passed: 393 frontend tests, 190 Rust tests and Clippy, plus the native
+bundle. Recovery PR CI passed. The user verified hosted access and coach behavior,
+then reported the published v0.13.7 functional. This does not claim exhaustive
+phone-device QA or prove the initiating cause of the original incident.
 
+Android packaging required the tracked platform project, omitted during recovery.
+The fix restores it and makes CI reject missing required source files instead of
+passing an empty resource scan. v0.13.6 was not rewritten; v0.13.7 carries the fix.
 
-## Recovery implementation checkpoint
+## Lessons for rebuild
 
-The tagged app is restored in release-recovery. Current server runtime,
-retention/deployment helpers, server workflow and cloud upload restrictions are
-unchanged. The unrelated tagged cloud bootstrap script is excluded.
+A QA session recorded 61 distinct annotation operations and 77 attempts across four
+reply operations. Exact-request caching would not remove that fan-out. After the
+patch, the inspected session contained zero annotate_text operations. Rendering
+must not schedule paid work. Define operation ownership, bounded expansion and
+source-derived identity before adding assistance. Preserve concurrency and partial
+results while eliminating unintended requests.
 
-Implemented: no automatic HTTP 429 retry; four shared inference slots across
-chat, structured work, transcription and speech; 64 outstanding requests;
-endpoint refusal holds with explicit pipeline Resume; queued-request invalidation;
-one in-flight guided turn per chat; bounded JSON and reply accumulation;
-custom-credential destination binding; private config directory and file modes.
-The recovered app uses the secured standalone server endpoints. Grouped transport
-and its distributed operation-identity guarantees are not claimed for this client.
+Do not require generative output to reproduce deterministic source formatting.
+Test semantic source correspondence separately from presentation whitespace.
+Keep traces attributable to source/operation and measure actual request counts.
+The original crash trigger remains unproven; see INCIDENT-POSTMORTEM.md.
 
-Verification: 394 frontend tests, 189 Rust tests (two paid benchmarks ignored),
-Clippy, frontend build, native binary build, documentation build and updater
-signature verification test pass. A self-contained unsigned macOS debug bundle
-also builds successfully with embedded frontend assets.
-Representative streaming-chat, structured-analysis and speech payloads pass the
-current server validator. No paid inference calls were made during verification.
-The duplicate Vitest configuration has been removed. The docs dependency audit
-reports image-size parser denial-of-service advisories with no published fix;
-these are docs build dependencies, not app/server runtime packages. Nineteen
-reported affected package paths trace back to this dependency. No audit suppression
-or forced major dependency update is used.
-
-Still required: installed-client/server end-to-end checks,
-installed macOS QA (chat, partial analysis, audio, refusal recovery, restart),
-remaining platform/release verification and final source/security review before
-merging into main. The exact incident crash trigger remains unproven.
-
-Manual checkpoint: quit other SkellySpeak instances and open
-`src-tauri/target/debug/bundle/macos/SkellySpeak Dev.app` from the recovery
-worktree. Verify hosted sign-in/chat, progressive analysis and recording, then
-restart and verify persistence. This is an unsigned local test bundle; macOS
-signing/permission behavior is not release verification. No Git writes or
-publication were performed. Generated documentation output is ignored.
-
-## Coach annotation patch
-
-Local QA traces contained 61 distinct annotation operations across four reply
-operations, with 77 annotation attempts. This supports excessive render-triggered
-work; it does not establish the original incident's complete causal chain.
-
-Reading components do not launch annotation requests. Saved annotations reveal
-locally; unannotated words open explicit word inspection through click, keyboard,
-hold or context menu. Coach phrase translations and insertion remain available.
-Automatic word glosses/pronunciation on unannotated suggestions are not provided.
-The unused frontend preparation cache, retry UI and error styling are removed.
-
-Verification: 393 frontend tests pass, including reopening 70 distinct fragments
-without requests, coach preference changes and insertion without annotation calls,
-saved-gloss display, and explicit keyboard word inspection. Real-app coach-panel
-QA and a trace review after reopening the rebuilt bundle are still required.
-
-Follow-up coach QA: the session after the rendering patch recorded zero
-annotate_text operations. One scaffold request failed because the copied partner
-reply replaced a paragraph break with a space. Source comparison now tolerates
-whitespace layout differences while requiring identical words and punctuation.
-A regression covers paragraph spacing and rejected content changes.
+Recovery runtime changes are not automatically rebuild code. Review shared server,
+CI and packaging fixes individually; avoid merging main's application into rebuild.

@@ -10,6 +10,10 @@ The local foundation and desktop Hosted, API-key and Custom URL execution are im
 verification status is recorded in README.md. Assistance
 and evidence contracts remain future work.
 
+For a practical walkthrough of the request shapes, structured-output validation,
+and operation graph, see [AI-ARCHITECTURE.md](./AI-ARCHITECTURE.md). This document
+remains the implementation-boundary authority.
+
 The selected stack is Tauri 2, React 19, TypeScript and Vite. Rust owns the SQLite
 store via rusqlite with bundled SQLite; mutations use explicit transactions,
 foreign keys and optimistic revisions. No ORM or frontend database API is exposed.
@@ -210,3 +214,13 @@ Shared network admission is implemented after this audit; the remaining slice is
 defined in [BUILD-PLAN.md](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
 The incident evidence and its unresolved causality remain in
 [INCIDENT-POSTMORTEM.md](./INCIDENT-POSTMORTEM.md).
+
+## Partner-reply translation
+
+The shared turn declaration includes reply_translation after partner_reply. A send
+captures translation eligibility and explanation language. Accepted prose is saved
+first; the turn becomes assisting while its child runs, permitting a new Send.
+Translation reads only that immutable assistant message and publishes into its
+turn context. ChatMessage carries optional translation and translationState in
+the scoped snapshot. No new chat message, schema migration or rendering-side
+request path is introduced. Attempt and queue budgets include dependency work.

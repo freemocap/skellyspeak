@@ -38,8 +38,8 @@ or satisfy a simulated person's emotional needs.
   stay unobtrusive and arise when relevant or asked about. Private coaching must
   not become something the partner knows.
 - The garden view represents a relationship, with one flower per conversation and rounded
-  petals and mathematically generated branching foliage. Seven petals represent
-  the seven language-practice domains. Define their evidence and growth rules
+  petals and mathematically generated branching foliage. Six petals represent
+  the six language-practice domains. Define their evidence and growth rules
   before treating the visualization as a score.
 - The garden is an aesthetic view of relationship and conversation data, not a
   domain entity or storage requirement. Alternative visualizations must use the
@@ -70,6 +70,29 @@ or satisfy a simulated person's emotional needs.
 | Conversation partner | Character identity, background, conversational tendencies, avatar and authored Vibe |
 | Relationship | Relevant shared memories, familiarity and the association of conversations with that partner |
 | Conversation | Messages, difficulty, practice choices and analysis; displayed as a flower in the garden view |
+
+## Language extensibility
+
+The initial Spanish, French, Arabic and Mandarin practice set exercises differing
+scripts, reading directions and segmentation needs; it is not the product's language
+limit. English is also present in the current registry. The intended architecture
+supports a much larger language catalog through declarative language configuration
+consumed by shared prompt construction and linguistic analysis code. Adding a
+language should ordinarily mean defining its relevant properties, not creating a
+separate pipeline or duplicating prompts for that language.
+
+Language and AI Operations jointly own a finite configuration design review before
+the next reading-assistance slice. Candidate properties include stable identity,
+variety, script/direction, segmentation conventions, romanization and explanatory
+linguistic guidance. Exact schema and authoring interface remain design work.
+Review the reference GCP/SkellySubs and Python language configurations for useful
+principles; adoption is intentional and does not make reference code authoritative.
+
+Registering a language is separate from establishing quality for a model/task or
+speech provider. Performance may vary substantially; speaker population alone does
+not establish expected quality. Configuration must not imply tested support, choose
+a hidden fallback or weaken source validation. Task/model/language evaluation remains
+explicit. This extensibility does not change single-language conversation ownership.
 
 ## Partner creation and language scope
 
@@ -134,7 +157,7 @@ explicit action; an identity edit does not automatically create another person.
 | Measure | Meaning | Presentation |
 | --- | --- | --- |
 | Participation | Time and meaningful contributions invested in a conversation | Stalk and foliage growth |
-| Practice | Language skills exercised, including with assistance | Seven petals showing practice across the domains |
+| Practice | Language skills exercised, including with assistance | Six petals showing practice across the domains |
 | Demonstrated ability | What learner messages support saying about proficiency, with uncertainty | Language report card with examples across conversations |
 
 Assisted practice contributes to flower growth. Mistakes do not damage the flower,
@@ -213,6 +236,53 @@ assistance surfaces.
 Learner-wide presentation preferences own text size, contrast and other accessibility
 choices. A heavily supported conversation with Juan and a more independent one with
 Marta can coexist without changing the learner's general accessibility preferences.
+
+## Coaching and progression direction
+
+Automatic coaching examines every learner turn; deeper analysis is explicitly
+requested. This supersedes an explicit-review-only implementation proposal.
+The automatic result should consolidate immediately useful material: distinct
+assessments of technical/grammatical correctness and contextual understandability,
+source-linked skill evidence, compact explanations and suggested next responses.
+The two assessments are model estimates with separate rubrics; insufficient
+information must not become a fabricated score. Both use 1–5 message-specific rubrics, with null for insufficient evidence.
+
+Opening saved feedback reuses the accepted result without inference. A distinct
+request for deeper analysis may start new work. Suggestions enter the draft and
+never send automatically. Private feedback stays outside partner knowledge.
+The learner must be able to continue speaking while analysis is pending.
+
+Six skill domains organize the catalog: entities/reference; properties/comparison;
+events/participants; time/place/movement; negation/questions/possibility; connecting
+ideas. Time and space share one domain, retaining their distinct subskills. This
+is an app taxonomy, not a claim that CEFR prescribes these categories.
+
+Source quotations, composing assistance and voice/text provenance are stored apart
+from XP. Demonstrated skills earn 10 XP for distinct unassisted wording and 2 XP
+for assisted wording; whitespace/case-normalized repeats count once per skill.
+Unassisted evidence takes precedence over identical assisted wording. Three distinct
+unassisted demonstrations earn a practice star. Only validated retained evidence
+contributes; retries and rereads do not add credit. Excluding evidence recalculates
+the projection. Scores and XP do not establish CEFR proficiency. Statistics remain
+numerical; garden geometry owns no evidence or scores.
+
+Coaching is split by input readiness, with two automatic inference nodes as the
+initial design. Learner feedback starts from the saved learner message and already
+available context: correctness, contextual understandability, source-linked skill
+evidence and corrections. Response-dependent help and next-reply suggestions start
+when the partner text is available. Responsiveness takes precedence over saving one
+inference request. Neither coaching node depends on completion of the other; both
+publish independently without waiting for speech, glosses or complete turn hydration.
+Understandability is estimated from available context, not claimed as observed
+comprehension by a partner whose reply does not yet exist.
+
+The graph dispatches ready nodes subject to capacity and foreground responsiveness;
+readiness is not a promise of unlimited simultaneous requests. Retry/failure is scoped
+to each node. Late results remain bound to their source; old suggestions cannot
+replace current-exchange suggestions. Reuse common captured context and deterministic
+work where appropriate, without adding an inference dependency between coach nodes.
+AI and Reliability own the bounded scheduling proposal. UI, schema, category
+definitions and progression rules remain proposal work at this stage.
 
 ## Agreed turn flow
 
@@ -309,13 +379,13 @@ The hierarchy is:
 | Level | Report content |
 | --- | --- |
 | Global app usage | Overall usage totals, token distributions, time-series data and numerical activity breakdowns |
-| Selected language | Skill sets, experience/XP, estimated CEFR level such as A1/A2, and performance across the seven skill domains |
+| Selected language | Skill sets, experience/XP, estimated CEFR level such as A1/A2, and performance across the six skill domains |
 | Conversation partner | Conversation counts and distributions, skill-domain statistics across those conversations, and aggregate flower measures including an average flower |
 
 Individual conversations and contributing records can be inspected beneath these
 levels. The statistical report is distinct from in-conversation coaching.
 Concise performance-based guidance is allowed in the language assessment area,
-grounded in the seven domains; it does not turn the general statistics interface
+grounded in the six domains; it does not turn the general statistics interface
 into a conversational assistant.
 
 Counts and charts identify units, denominators, speaker, language, time range and
@@ -350,7 +420,7 @@ in architecture and implementation specifications, not an endless product questi
 
 Functional restoration keeps the familiar chat, bubbles, lesson/analysis, word
 inspection and utility-panel interactions. The completion checklist lives in
-[UI-SURFACES.md](./UI-SURFACES.md). Provide both a restrained seven-category skill-map
+[UI-SURFACES.md](./UI-SURFACES.md). Provide both a restrained six-category skill-map
 view and the growing flower view over the same underlying evidence and metrics;
 renderer selection never changes XP or assessment. Prioritize a verified AI exchange
 and source-linked language assistance before treating the visual shell as complete.
@@ -454,3 +524,121 @@ A possible protocol gate can retire incompatible clients, but a supplied version
 is not proof of identity or protection against abuse. That gate remains a proposal.
 See the [incident evidence](./INCIDENT-POSTMORTEM.md) and
 [implementation checkpoint](./BUILD-PLAN.md#next-checkpoint-request-load-resilience).
+
+## Work ownership and reading surfaces
+
+Rendering a panel, reopening saved content, changing reading preferences or hydrating
+a report must not schedule inference. Reading surfaces consume durable source-linked
+results; explicit user assistance requests and declared turn operations own paid work.
+Bound total graph expansion and repair attempts while preserving independent
+completion. Source text/offsets belong to the application; models supply analysis,
+not redundant copies of known source formatting. Cache reuse is an optimization,
+not the boundary preventing duplicated or unintended execution.
+
+## Voice defaults
+
+Voice is the primary interaction: microphone input, transcription, automatic send,
+partner reply and spoken playback. Text input is essential but secondary; visible
+reply text and inline reading remain essential alongside audio. Transcription is
+part of the core default route capability, not an optional enhancement. Explicit
+voice opt-out is permitted. Missing read-aloud is incomplete core functionality.
+
+Auto-send voice transcriptions and automatically read new partner replies default
+to on when those capabilities are implemented. Both controls remain user-adjustable
+and save automatically. These defaults are approved behavior, not currently active
+features. Auto-send follows successful transcription; automatic reading applies to
+new replies, not reopening saved conversations.
+
+## Inline word reading
+
+A normal word click reveals the saved gloss directly beneath that occurrence using
+the compact word/gloss stack. Unannotated text remains readable and inert; missing
+analysis must not open an empty detail modal. This adopts the reference's inline
+reading behavior without importing its inference lifecycle. A separate deep-inspection
+feature requires working data and its own reviewed interaction.
+
+## On-demand word pronunciation
+
+Provide a small speaker action for an individual source word on hover or keyboard
+focus, with an accessible touch equivalent. Only an explicit click/activation requests
+speech for that word; hover, reading, selection and opening history never generate
+or precompute audio. Bind pronunciation to the selected source occurrence and current
+language/voice, using the selected AI route and existing admission/cancellation rules.
+Word playback must coordinate with whole-reply playback and microphone capture.
+This is an approved follow-up interaction, not an implemented feature. Interaction
+owns presentation; native execution and AI owners define the bounded request contract
+before implementation. Resolve word boundaries from accepted source spans rather
+than inventing a whitespace tokenizer for every language.
+
+The current Mandarin target uses Simplified Chinese. Shared generation prompts must
+express that writing convention from language configuration; preserve source text
+rather than silently converting user input or saved messages. Arabic text surfaces
+must preserve shaping and appropriate direction consistently for user, assistant
+and composer text; Interaction owns concrete typography and layout validation.
+
+## Conversation controls and partner navigation: focused design pass
+
+The conversation difficulty control should sit beside target and explanation
+languages, accessible without opening settings. The requested range is absolute
+zero through fluent; its exact levels and prompt semantics require the focused
+Interaction/AI proposal. This controls the conversation, not assessed proficiency.
+Do not merely relabel the current three difficulty values as a broader scale.
+
+Partner management must expose durable identity, editing and one-action randomized
+creation. Proposed navigation: a top-level partner collection and a contextual
+profile for the selected conversation partner. Placement and whether the contextual
+profile occupies a right-side tab remain proposals, not implemented behavior.
+Interaction owns the layout proposal; AI maps controls to actual prompt effects.
+Remove inert controls as their replacement is integrated; do not present topic or
+persona selectors as operational without a domain action behind them. Private coach
+assistance remains a separate workstream and does not become partner knowledge.
+
+## Contact terminology
+
+Use Contact / Contacts in product-facing terminology. This names the people the
+learner talks with without implying a romantic relationship. Existing internal
+partner identifiers are not renamed by this terminology decision alone.
+
+A generated persona followed by an explicit “Add to contacts” action is a proposed
+future lifecycle. Whether and how an unadded person's conversations remain durable,
+and what adding a contact changes, require design agreement before persistence
+changes. A Contacts collection and contextual Profile surface are proposals; the
+terminology is the approved decision.
+
+## Conversation difficulty: approved implementation scope
+
+Use one compact five-choice dropdown: Absolute zero, Beginner, Intermediate, Advanced,
+and Fluent. New conversations default to Beginner. Difficulty changes only trusted
+prompt guidance for vocabulary, sentence complexity and conversational burden.
+Absolute zero uses the same translation, glossing, coaching, suggestions and analysis
+machinery as every other setting. It introduces no special bilingual cue, response
+option mechanism, extra inference request or separate assistance surface.
+
+The current conversation owns the setting. Changes affect the next accepted send;
+already accepted work retains captured instructions. Chosen difficulty is not assessed
+proficiency and does not award XP. No obsolete difficulty compatibility mode is kept.
+The user explicitly authorized resetting this Mac’s development database after
+verification and before launching this contract. Preserve all runtime logs.
+
+## Conversation toolbar density
+
+Difficulty is a compact dropdown immediately beside Native, sharing the existing
+language selector row and styling. No separate heading/slider/stop-label row or
+selection-dependent geometry. Review the full toolbar at its actual pane width;
+absence of overflow alone is not visual acceptance. Keep chat content dominant.
+This changes presentation only: the five values, autosave and captured prompts remain.
+
+Conversation controls must form a visually distinct region from the message canvas:
+use a consistent control-surface tone and boundary, not additional height or headings.
+Density and hierarchy are simultaneous acceptance criteria, assessed in the complete
+pane. Interaction owns the implementation and Code Quality checks it against the
+style guide and actual geometry.
+
+### Practical skill groups
+
+The current six groups are Social phrases; Statements; Questions; Descriptions;
+Time, place and movement; Opinions and reasons. These are practical product groupings,
+not claims of an exhaustive or validated linguistic taxonomy. Greetings, farewells,
+wellbeing exchanges and courtesy have explicit criteria. Coach feedback still requires
+exact learner-source evidence for each credited skill. Group colors avoid red/orange/
+yellow; unpracticed groups retain a muted version of their hue.

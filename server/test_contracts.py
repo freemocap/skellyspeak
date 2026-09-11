@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import wave
 
 import httpx
@@ -43,6 +44,50 @@ def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
         "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 1, "completion": 3, "request": 0},
     }
     assert request.reserve_micros >= 32768 * 3
+
+
+def structured_format() -> dict[str, object]:
+    return {"type": "json_schema", "json_schema": {
+        "name": "word_gloss", "strict": True,
+        "schema": {"type": "object", "additionalProperties": False,
+                   "required": ["spans"], "properties": {"spans": {"type": "array", "items": {"type": "string"}}}},
+    }}
+
+
+def test_structured_schema_is_preserved_with_server_owned_routing() -> None:
+    source = {**payload(), "response_format": structured_format(), "max_tokens": 2048}
+    accepted = contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+    assert accepted.payload["response_format"] == source["response_format"]
+    assert "provider" not in source
+    assert accepted.payload["provider"]["allow_fallbacks"] is False
+    assert accepted.payload["provider"]["require_parameters"] is True
+    assert accepted.reserve_micros == len(json.dumps(source, ensure_ascii=False).encode("utf-8")) + 1024 + 2048 * 3
+
+
+@pytest.mark.parametrize("response_format", [
+    "json", {"type": "json_object"},
+    {"type": "json_schema", "json_schema": {"name": "word_gloss", "strict": False, "schema": {}}},
+    {"type": "json_schema", "json_schema": {"name": "word_gloss", "strict": True, "schema": []}},
+    {"type": "json_schema", "json_schema": {"name": "word_gloss", "strict": True, "schema": {}, "extra": "private marker"}},
+])
+def test_invalid_structured_envelope_is_rejected_without_echo(response_format: object) -> None:
+    with pytest.raises(HTTPException) as error:
+        contracts.chat_request({**payload(), "response_format": response_format}, allowed_models=MODELS, max_tokens=32768)
+    assert error.value.status_code == 400
+    assert "private marker" not in str(error.value.detail)
+
+
+def test_structured_schema_counts_toward_exact_utf8_request_limit() -> None:
+    source = {**payload(), "response_format": structured_format()}
+    schema = source["response_format"]["json_schema"]["schema"]
+    schema["description"] = "界"
+    size = len(json.dumps(source, ensure_ascii=False).encode("utf-8")) + 1024
+    schema["description"] += "x" * (100_000 - size)
+    contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+    schema["description"] += "x"
+    with pytest.raises(HTTPException) as error:
+        contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+    assert error.value.status_code == 400
 
 
 def upload(seconds: int) -> httpx.Request:

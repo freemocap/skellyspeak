@@ -1,3 +1,6 @@
+import { ErrorDetails } from '../ErrorDetails'
+import { GlossAssistance } from './GlossAssistance'
+import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from '../TargetText'
 import { TokenSpan } from '../TokenSpan'
 import { RewardInspectionContext } from './RewardInspectionContext'
@@ -47,6 +50,7 @@ export interface TurnViewProps {
   focused: boolean
   ttsReady: boolean
   speaking: boolean
+  speechError?: string
   revealed: Set<string>
   showRomanization: boolean
   alwaysRomanize: boolean
@@ -55,13 +59,14 @@ export interface TurnViewProps {
   rtl: boolean
   onReveal: (keys: string[]) => void
   onBubbleTap: (id: number) => void
-  onSpeak: (text: string, turnId: number) => void
+  onSpeak?: (text: string, turnId: number) => void
   onPopup: React.Dispatch<React.SetStateAction<PopupState | null>>
   onInspect: (turnId: number, side: 'me' | 'bot', index: number) => void
-  onHold: (word: string, sentence: string) => void
+  onHold?: (word: string, sentence: string) => void
   onToggleReveal: (keys: string[]) => void
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
+  onRetryGloss?: (operationId: string) => Promise<void>
   onEditUser?: (turn: TurnShape) => void
 }
 
@@ -76,6 +81,7 @@ export const TurnView = memo(function TurnView({
   focused,
   ttsReady,
   speaking,
+  speechError,
   revealed,
   showRomanization,
   alwaysRomanize,
@@ -90,6 +96,7 @@ export const TurnView = memo(function TurnView({
   onHold,
   onToggleReveal,
   onEditUser,
+  onRetryGloss,
 }: TurnViewProps) {
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
@@ -103,22 +110,17 @@ export const TurnView = memo(function TurnView({
   const [showUserTranslation, setShowUserTranslation] = useState<boolean | null>(null)
   const [showPartnerTranslation, setShowPartnerTranslation] = useState<boolean | null>(null)
   useEffect(() => { setShowUserTranslation(null); setShowPartnerTranslation(null) }, [autoTranslate])
-  const [creditGenerations, setCreditGenerations] = useState<Record<string, number>>({})
-  const restoreCredits = (items: MessageEvidence[]): void => setCreditGenerations(previous => {
-    const next = { ...previous }
-    for (const id of new Set(items.map(item => item.id))) next[id] = (previous[id] ?? 0) + 1
-    return next
-  })
-  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={creditGenerations[item.id] ?? 0} onOpen={() => setRewardDetail([item])} />)
+  const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => setRewardDetail([item])} />)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); restoreCredits(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button>{creditMarkers(matches.filter(item => item.end === end))}</Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
+
   const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
 
   const replyEntries = useMemo(
@@ -213,7 +215,7 @@ export const TurnView = memo(function TurnView({
             onTap={(e) => {
               e.stopPropagation()
               if (dragRef.current.moved) return
-              if (matches.length) restoreCredits(matches)
+              if (matches.length) setRewardDetail(matches)
               if (tok.gloss || tok.pronunciation || tok.romanization) {
                 onPopup(null)
                 onToggleReveal([key])
@@ -225,10 +227,10 @@ export const TurnView = memo(function TurnView({
               e.preventDefault()
               onInspect(turnId, side, gi)
             }}
-            onHold={() => {
+            onHold={onHold ? () => {
               const sents = splitSentences(rawText)
               onHold(tok.text, sents[si] ?? rawText)
-            }}
+            } : undefined}
           />
           </span>
           {creditMarkers(endingCredits)}
@@ -281,7 +283,9 @@ export const TurnView = memo(function TurnView({
           }
           className={`msg bot with-actions ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
         >
-          {assistant.tokens.length > 0 ? (
+          {assistant.savedGloss ? (
+            <SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} result={assistant.savedGloss} />
+          ) : assistant.tokens.length > 0 ? (
             renderTokens(
               replyEntries,
               turn.id,
@@ -302,7 +306,15 @@ export const TurnView = memo(function TurnView({
           {(showPartnerTranslation ?? autoTranslate) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
-          {ttsReady && (
+          {['ready', 'running', 'waiting_dependencies'].includes(assistant.translationState ?? '') &&
+            <ActivityIndicator label="Translating…" />}
+          {assistant.translationState === 'failed' && <div className="trans" role="status">Translation failed</div>}
+          {assistant.translationState === 'unknown' && <div className="trans" role="status">Translation outcome unknown</div>}
+          {assistant.translationState === 'cancelled' && <div className="trans" role="status">Translation cancelled</div>}
+          {assistant.translationState === 'invalidated' && <div className="trans" role="status">Translation unavailable</div>}
+          <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
+          {speechError && <ErrorDetails label="Speech" errorKey={speechError}>{speechError}</ErrorDetails>}
+          {ttsReady && onSpeak && (
             <button
               type="button"
               className="speak-btn"
@@ -320,7 +332,7 @@ export const TurnView = memo(function TurnView({
         </div>
       )}
       {assistant === null && (
-        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator label={turn.pendingText ? "Replying…" : "Thinking…"} /></div>
+        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator compact label={turn.pendingText ? "Replying…" : "Thinking…"} /></div>
       )}
     </div>
   )

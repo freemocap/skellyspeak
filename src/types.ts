@@ -6,9 +6,10 @@ export interface Shortcuts {
 }
 
 export interface Settings {
+  scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
   /// 'hosted' (the project's service, signed in with Google), 'cloud'
   /// (OpenRouter with the user's key) or 'custom' (their own
-  /// OpenAI-compatible server). Mirrors settings.rs PROVIDER_* constants.
+  /// SkellySpeak server). Mirrors settings.rs PROVIDER_* constants.
   provider_mode: string
   /// Always empty here: the Rust side blanks the session token on its way out
   /// and ignores whatever comes back. Sign in and out through the commands.
@@ -53,7 +54,7 @@ export interface ChatSummary {
   /// Derived from the first thing said. Empty for a chat with no turns yet.
   title: string
   updated_at: number
-  turn_count: number
+  turn_count?: number
 }
 
 /// A conversation as opened: which one it is, and its turns.
@@ -66,7 +67,7 @@ export type AnalysisState = 'pending' | 'done' | null
 
 /// The coach's private read on one learner message.
 export interface CoachFeedbackBody {
-  grammar: number
+  grammar: number | null
   remark: string
   used_target: string[]
   used_native: string[]
@@ -74,7 +75,7 @@ export interface CoachFeedbackBody {
 }
 
 export type CoachFeedback = CoachFeedbackBody & (
-  | { conversation: number; comprehensibility?: never }
+  | { conversation: number | null; comprehensibility?: never }
   | { comprehensibility: number; conversation?: never }
 )
 
@@ -161,6 +162,12 @@ export interface CoachHelp {
 }
 
 export interface GuidedTurnResult {
+  translationState?: string | null
+  messageId?: string
+  savedGloss?: import('./contracts').WordGlossView | null
+  glossError?: string | null
+  glossState?: string | null
+  glossOperationId?: string | null
   reply: string
   translation: string | null
   tokens: GuidedToken[]

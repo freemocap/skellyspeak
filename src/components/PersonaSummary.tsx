@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
-import { invoke, isTauri, type ConversationPartner } from '../lib/tauri'
-import { personaLabel } from '../lib/personaLabel'
-import { reportFault } from '../lib/faults'
+import { nativeError, readWorkspace } from '../lib/workspace'
 
 export function PersonaSummary({ chatId }: { chatId: string | null }) {
-  const [saved, setSaved] = useState<{ chatId: string; partner: ConversationPartner } | null>(null)
+  const [saved, setSaved] = useState<{ chatId: string; name: string } | null>(null)
+  const [error, setError] = useState<string | null>(null)
   useEffect(() => {
-    if (!isTauri || !chatId) return
     let active = true
-    void invoke<ConversationPartner>('get_conversation_partner', { chatId }).then(partner => {
-      if (active) setSaved({ chatId, partner })
-    }).catch((error: unknown) => reportFault('Loading persona summary', error))
+    setError(null)
+    if (chatId) void readWorkspace().then(snapshot => {
+      const conversation = snapshot.conversations.find(c => c.id === chatId)
+      const relationship = snapshot.relationships.find(r => r.id === conversation?.relationshipId)
+      const partner = snapshot.partners.find(p => p.id === relationship?.partnerId)
+      if (!partner) throw new Error('Conversation partner is unavailable.')
+      if (active) setSaved({ chatId, name: partner.details.name })
+    }).catch(reason => { if (active) setError(nativeError(reason)) })
     return () => { active = false }
   }, [chatId])
-  const partner = saved?.chatId === chatId ? saved?.partner : null
-  if (!partner || partner.persona.id === '__none__') return null
-  return <span> · Persona: {personaLabel(partner.persona)}</span>
+  if (error) return <span role="alert">{error}</span>
+  if (saved?.chatId !== chatId || !saved) return null
+  return <span> · Persona: {saved.name}</span>
 }

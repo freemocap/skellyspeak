@@ -1,11 +1,12 @@
+import { UpdateBanner } from './components/UpdateBanner'
 import { configureAudioVolumes } from './lib/audio-volume'
 import { ReadingProvider } from './components/TargetText'
 import { ToolbarIcon } from './components/ToolbarIcon'
 import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
-import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, saveSettings, hostedAccount, isTauri, languageFor, languages, takeStartupFaults } from './lib/tauri'
+import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react'
+import { getSettings, saveSettings, isTauri, languageFor, languages } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
 import { isReloadShortcut } from './lib/reload'
@@ -14,14 +15,10 @@ import { DetailDialog } from './components/DetailDialog'
 import { SkillEvidenceContext, useSkillEvidence } from './hooks/useSkillEvidence'
 import { SettingsModal } from './components/SettingsModal'
 import { LogsOverlay } from './components/LogsOverlay'
-import { UpdateBanner } from './components/UpdateBanner'
-import { PausedBanner } from './components/PausedBanner'
 import { openOverlay } from './lib/back'
-import { useAiActivity } from './hooks/useAiActivity'
 import { usePracticeSwipe } from './hooks/usePracticeSwipe'
 import { useIsMobile } from './hooks/useIsMobile'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
-import { HOSTED } from './lib/providers'
 import type { Settings, Shortcuts } from './types'
 
 type Page = 'guided' | 'skills'
@@ -67,6 +64,8 @@ export default function App() { return <SkillNavigationProvider><Application /><
 function Application() {
   const navigation = useSkillNavigation()
   const [page, setPage] = useState<Page>('guided')
+  const [newChatAction, setNewChatAction] = useState<(() => void) | null>(null)
+  const registerNewChat = useCallback((action: (() => void) | null) => setNewChatAction(() => action), [])
   const [mobileSurface, setMobileSurface] = useState<MobileLocation>('chat')
   const [moreOpen, setMoreOpen] = useState(false)
   function openPractice(surface: MobileLocation) {
@@ -79,11 +78,12 @@ function Application() {
   const [progressOpen, setProgressOpen] = useState(false)
   const [skillsOpened, setSkillsOpened] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsBusy, setSettingsBusy] = useState(false)
   // Owned here rather than inside LogsOverlay so its button can sit in the
   // topbar beside the gear. As a fixed-position element of its own it never
   // lined up with anything.
   const [devOpen, setDevOpen] = useState(false)
-  const aiBusy = useAiActivity()
+  const aiBusy = false // Activity requires the native operation snapshot; no old trace subscription.
   const isMobile = useIsMobile()
   useEffect(() => isMobile && page === 'skills' ? openOverlay(() => setPage('guided')) : undefined, [isMobile, page])
   // Owned here because the control belongs beside the wordmark, while the
@@ -116,7 +116,7 @@ function Application() {
       const saved = { ...current, [field]: value }
       if (field === 'target_language') saved.target_dialect = ''
       await saveSettings(saved)
-      settingsChanged(saved)
+      settingsChanged(await getSettings())
     } catch (error) {
       reportFault('Saving language', error)
     } finally {
@@ -128,21 +128,6 @@ function Application() {
   // of the window until dismissed. This is the only destination for a failure.
   const [faults, setFaults] = useState<Fault[]>([])
   useEffect(() => subscribeFaults(setFaults), [])
-
-  // Faults the Rust core recorded before this webview existed get pushed onto
-  // the same bus, so a startup problem is as visible as a runtime one.
-  useEffect(() => {
-    if (!isTauri) return
-    void takeStartupFaults()
-      .then((startup) => startup.forEach((m) => reportFault('Startup', m)))
-      .catch((e) => reportFault('Reading startup diagnostics', e))
-  }, [])
-
-  // Android back closes the Settings modal instead of exiting the app.
-  useEffect(
-    () => (settingsOpen ? openOverlay(() => setSettingsOpen(false)) : undefined),
-    [settingsOpen]
-  )
 
   // Settings are read ONCE here and everything on this screen derives from
   // that read. Three separate loads raced each other on mount, and two of them
@@ -159,13 +144,7 @@ function Application() {
         if (s.shortcuts?.settings) setShortcuts(s.shortcuts)
         setSettings(s)
         applyUiLanguage(s.native_language)
-        // Check in with the hosted service while there is still time to do
-        // something about an expired session — it otherwise first shows up as
-        // a failed reply mid-conversation — and to keep the device record
-        // current rather than frozen at the last sign-in.
-        if (s.provider_mode === HOSTED && s.hosted_email) {
-          await hostedAccount()
-        }
+
       })
       .catch((e) => reportFault('Loading settings', e))
   }, [])
@@ -177,12 +156,12 @@ function Application() {
       if (e.repeat) return
       if (comboFromEvent(e) === shortcuts.settings) {
         e.preventDefault()
-        setSettingsOpen((open) => !open)
+        if (!settingsBusy) setSettingsOpen((open) => !open)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [shortcuts, savingLanguage])
+  }, [shortcuts, savingLanguage, settingsBusy])
 
   // Desktop webviews do not consistently supply a browser-style refresh
   // command. Own the familiar shortcut at the app shell so it works on every
@@ -199,14 +178,15 @@ function Application() {
 
   return (
     <ReadingProvider settings={settings}><div className="app">
+      <UpdateBanner />
       <div className="topbar">
         {page === 'guided' && (
           <button
             type="button"
             className="hamburger"
-            aria-label="Chat history"
+            aria-label="Contacts"
             aria-expanded={historyOpen}
-            title="Chat history"
+            title="Contacts"
             onClick={() => setHistoryOpen((v) => !v)}
           >
             ☰
@@ -217,10 +197,10 @@ function Application() {
           <span>SKELLYSPEAK<b>·</b></span>
         </button>
         {!isMobile && <div className="tabs" aria-label="Main navigation">
-          <button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button>
+          <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => setPage('guided')}>Guided conversation</button><button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={() => { openPractice('chat'); newChatAction?.() }}>+</button></div>
           <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={() => { setSkillsOpened(true); setPage('skills') }}>Skill tree</button>
         </div>}
-        <div className="topbar-actions">
+        <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={() => { openPractice('chat'); newChatAction?.() }}>+</button>}
         {!isMobile && (
           <button
             type="button"
@@ -258,15 +238,16 @@ function Application() {
         </div>
       </div>
 
-      {isTauri && <UpdateBanner />}
+
 
       {/* A paused pipeline is indistinguishable from a hung app unless something
           says so. This is that something, and it is deliberately outside the
           panel that can set it. */}
-      <PausedBanner />
+
 
       {faults.length > 0 && (
         <div className="fault-bar" role="alert">
+          <button type="button" className="btn tiny" onClick={dismissAllFaults}>Dismiss all</button>
           {faults.map((f) => (
             <p key={f.id} className="fault">
               <b>{f.context}:</b> {f.message}
@@ -280,15 +261,12 @@ function Application() {
               </button>
             </p>
           ))}
-          {faults.length > 1 && (
-            <button type="button" className="btn tiny" onClick={dismissAllFaults}>
-              Dismiss all
-            </button>
-          )}
+
         </div>
       )}
 
       {evidence.error && <div role="alert">{evidence.error}<button onClick={evidence.refresh}>Retry profile</button></div>}
+      {progressOpen && !evidence.snapshot && <DetailDialog title="Language profile" onClose={() => setProgressOpen(false)}><p>Language evidence is not connected.</p></DetailDialog>}
       {progressOpen && evidence.snapshot && <ProgressSummary key={evidence.snapshot.target} snapshot={evidence.snapshot} onClose={() => setProgressOpen(false)} />}
       <div className="content" {...swipe}>
         {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
@@ -309,18 +287,18 @@ function Application() {
               aria-hidden={page !== 'guided'}
             >
               <PageBoundary>
-                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage active={page === 'guided'} mobileSurface={mobileSurface} onMobileSurfaceChange={setMobileSurface}
-                  languagePicker={settings && <div className="conversation-languages"><label><span>Learning</span><select className="chat-language-picker" aria-label="Target language"
+                <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage onNewChatReady={registerNewChat} active={page === 'guided'} mobileSurface={mobileSurface}
+                  languagePicker={settings && <><label><span>Native</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.base === settings.native_language)?.fontScale ?? 1))}px` }} aria-label="Native language" value={settings.native_language}
+                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
+                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.base} value={language.base}>{language.endonym}</option>)}
+                  </select></label>
+                  <label><span>Learning</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.code === settings.target_language)?.fontScale ?? 1))}px` }} aria-label="Target language"
                     value={settings.target_language} disabled={savingLanguage || settingsOpen}
                     onChange={event => void changeLanguage('target_language', event.target.value)}>
-                    {languages().map(language => <option key={language.code} value={language.code}>{language.endonym}</option>)}
-                  </select></label>
-                  <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
-                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
-                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option key={language.base} value={language.base}>{language.endonym}</option>)}
+                    {languages().map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.code} value={language.code}>{language.endonym}</option>)}
                   </select></label>
                   {savingLanguage && <span role="status">Saving…</span>}
-                  </div>}
+                  </>}
                   settingsVersion={settingsVersion}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
@@ -338,7 +316,7 @@ function Application() {
         {(['chat', 'panel'] as const).map(surface => <button key={surface} type="button"
           className={`mobile-nav-item ${page === 'guided' && mobileSurface === surface ? 'active' : ''}`}
           aria-current={page === 'guided' && mobileSurface === surface ? 'page' : undefined}
-          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat' : 'Lesson'}</button>)}
+          onClick={() => openPractice(surface)}>{surface === 'chat' ? 'Chat · Persona' : 'Coach'}</button>)}
       </nav>}
       {moreOpen && <DetailDialog title="More" onClose={() => setMoreOpen(false)}>
         <h2>More</h2>
@@ -353,6 +331,7 @@ function Application() {
       {settingsOpen && (
         <SettingsModal
           onClose={() => setSettingsOpen(false)}
+          onBusyChange={setSettingsBusy}
           // Fires on every autosave, mid-edit. It must NOT close the modal:
           // closing belongs to Close, backdrop, Escape, or Android back.
           onSettingsChanged={settingsChanged}

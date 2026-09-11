@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { TurnView, type TurnViewProps } from './TurnView'
 
@@ -72,4 +72,91 @@ it('renders source punctuation once and anchors feedback inside the learner bubb
   const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
   expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
   expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me .message-actions')).not.toBeNull()
+})
+
+it('does not expose playback without a connected action', () => {
+  const input = props()
+  const view = render(<TurnView {...input} onSpeak={undefined} />)
+  expect(screen.queryByRole('button', { name: 'Speak reply' })).not.toBeInTheDocument()
+  view.rerender(<TurnView {...input} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Speak reply' }))
+  expect(input.onSpeak).toHaveBeenCalledWith('Hola', 1)
+})
+
+it('retries partial saved gloss only on explicit request and keeps reading during retry', async () => {
+  const input = props()
+  input.turn.assistant!.tokens = []
+  input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'template', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'partial', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
+  input.turn.assistant!.glossState = 'succeeded'
+  input.turn.assistant!.glossOperationId = 'operation'
+  let finish!: () => void
+  input.onRetryGloss = vi.fn(() => new Promise<void>(resolve => { finish = resolve }))
+  const view = render(<TurnView {...input} />)
+  expect(input.onRetryGloss).not.toHaveBeenCalled()
+  fireEvent.click(view.container.querySelector('.msg.bot [data-source-start] [role="button"]')!)
+  expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
+  expect(input.onRetryGloss).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', {name:'Retry word meanings'}).closest('.message-actions')).toBeNull()
+  expect(screen.getByRole('button', {name:'Retry word meanings'}).closest('.trans')).not.toBeNull()
+  fireEvent.click(screen.getByRole('button', {name:'Retry word meanings'}))
+  fireEvent.click(screen.getByRole('button', {name:'Retry word meanings'}))
+  expect(input.onRetryGloss).toHaveBeenCalledExactlyOnceWith('operation')
+  expect(screen.getByRole('button', {name:'Retry word meanings'})).toBeDisabled()
+  expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
+  await act(async () => finish())
+})
+
+it.each([null, 'running', 'failed', 'unknown'])('keeps reply words passive without saved gloss (%s)', state => {
+  const input = props()
+  input.turn.assistant!.tokens = []
+  input.turn.assistant!.glossState = state
+  const view = render(<TurnView {...input} />)
+  const text = view.container.querySelector('.msg.bot .target-text')!
+  expect(text).toHaveTextContent('Hola')
+  expect(text.querySelector('[role="button"]')).toBeNull()
+  fireEvent.click(text)
+  fireEvent.contextMenu(text)
+  fireEvent.keyDown(text, {key:'Enter'})
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(input.onHold).not.toHaveBeenCalled()
+  expect(input.onPopup).not.toHaveBeenCalled()
+  expect(input.onInspect).not.toHaveBeenCalled()
+  expect(input.onBubbleTap).not.toHaveBeenCalled()
+})
+
+it.each([
+  ['ready', 'Translating…'], ['running', 'Translating…'], ['waiting_dependencies', 'Translating…'],
+  ['failed', 'Translation failed'], ['unknown', 'Translation outcome unknown'],
+  ['cancelled', 'Translation cancelled'], ['invalidated', 'Translation unavailable'],
+])('shows authoritative translation state %s without hiding saved text or invoking work', (state, label) => {
+  const input = props()
+  input.turn.assistant!.translationState = state
+  input.onRetryGloss = vi.fn()
+  const view = render(<TurnView {...input} />)
+  expect(screen.getByRole('status')).toHaveTextContent(label)
+  expect(screen.getByText('Partner translation')).toBeVisible()
+  expect(screen.getByRole('button', { name: 'Speak reply' })).toBeEnabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
+  expect(screen.queryByText('Partner translation')).toBeNull()
+  expect(screen.getByRole('status')).toHaveTextContent(label)
+  view.rerender(<TurnView {...input} autoTranslate={false} />)
+  expect(input.onRetryGloss).not.toHaveBeenCalled()
+  expect(input.onSpeak).not.toHaveBeenCalled()
+  expect(input.onReveal).not.toHaveBeenCalled()
+})
+it('distinguishes no requested translation from failure and clears progress when translation arrives', () => {
+  const input = props()
+  input.turn.assistant!.translation = null
+  const view = render(<TurnView {...input} />)
+  expect(screen.queryByRole('status')).toBeNull()
+  const update = (translationState: string, translation: string | null = null) => view.rerender(<TurnView {...input} turn={{ ...input.turn, assistant: { ...input.turn.assistant!, translationState, translation } }} />)
+  update('running')
+  expect(screen.getByRole('status')).toHaveTextContent('Translating…')
+  update('failed')
+  expect(screen.getByRole('status')).toHaveTextContent('Translation failed')
+  expect(screen.queryByText('Translating…')).toBeNull()
+  update('succeeded', 'Saved translation')
+  expect(screen.queryByRole('status')).toBeNull()
+  expect(screen.getByText('Saved translation')).toBeVisible()
+  expect(screen.queryByRole('button', { name: /Retry translation/ })).toBeNull()
 })

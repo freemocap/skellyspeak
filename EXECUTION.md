@@ -344,3 +344,14 @@ invalid completion counts. A duplicate server receipt cannot reproduce its resul
 so it returns an unknown outcome. Interrupted groups retain already committed outcomes and mark only unresolved
 operations unknown. Direct-key execution remains independent; Custom URL protocol
 integration is still incomplete.
+
+## Assistance admission acceptance criteria
+
+Before expanding the graph for passage assistance, declare a finite work set for
+each triggering user action, including repair budgets. A component mount is never
+such a trigger. Test reopen/remount, preference changes and hydration with zero
+inference dispatch. Test duplicate explicit command delivery against durable work
+identity. Capture source revision and deterministic offsets; invalidate dependent
+publication on edits or deletion. Independent operations may complete concurrently
+and hydrate separately. Record operation/source identity and safe timing/count
+metadata so UI-originated fan-out can be diagnosed without exposing credentials.

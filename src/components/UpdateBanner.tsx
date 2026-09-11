@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
 import { logInfo } from '../lib/log'
@@ -18,7 +18,11 @@ export function UpdateBanner() {
   const [stage, setStage] = useState<Stage>('idle')
   const [progress, setProgress] = useState<{ done: number; total: number | null } | null>(null)
 
+  const checking = useRef(false)
   useEffect(() => {
+    const check = () => {
+    if (checking.current) return
+    checking.current = true
     logInfo('[updater] checking for updates on startup')
     void checkForUpdate()
       .then((found) => {
@@ -29,6 +33,11 @@ export function UpdateBanner() {
       // A startup check that cannot reach the server is worth saying out loud:
       // otherwise the app looks up to date when it simply never asked.
       .catch((e) => reportFault('Checking for updates', e))
+      .finally(() => { checking.current = false })
+    }
+    check()
+    window.addEventListener('skellyspeak-check-update', check)
+    return () => window.removeEventListener('skellyspeak-check-update', check)
   }, [])
 
   const install = useCallback(async () => {

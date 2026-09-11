@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import '@xyflow/react/dist/style.css'
 import {
   getGraph,
@@ -211,9 +211,9 @@ export function AgentGraph({ runs, activeRuns, mode }: { runs: Run[]; activeRuns
             mode === 'explore' || maxId
               ? undefined
               : {
-                  gridTemplateColumns: `${colSplit.size}fr ${100 - colSplit.size}fr`,
+                  '--graph-columns': `${colSplit.size}fr ${100 - colSplit.size}fr`,
                   gridAutoRows: `${paneH.size}px`,
-                }
+                } as CSSProperties
           }
         >
           {mode === 'debug' && openGraphs.length === 0 && (

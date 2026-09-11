@@ -2,7 +2,7 @@ name: Release
 
 # Cut a release by bumping the version and pushing the tag:
 #
-#   node scripts/release.mjs minor
+#   node scripts/release.ts minor
 #
 # That bumps the version, commits, tags and pushes in the order this workflow
 # requires. The `version` job below compares the tag against the Cargo.toml of
@@ -154,7 +154,7 @@ jobs:
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
@@ -250,7 +250,7 @@ jobs:
             release is published.
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --config src-tauri/tauri.release.conf.json ${{ matrix.args }}
 
       # `tauri build` EXITS 0 even when it fails: a missing signing key prints
       # "A public key has been found, but no private key", and a broken sign
@@ -290,7 +290,7 @@ jobs:
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
@@ -326,7 +326,7 @@ jobs:
       # everything git tracks immediately afterwards.
       - name: Scaffold gen/android, then restore our tracked customisations
         run: |
-          npx tauri android init
+          npx tauri android init --config src-tauri/tauri.release.conf.json
           git checkout -- src-tauri/gen/android
           git status --porcelain src-tauri/gen/android
         env:
@@ -358,7 +358,7 @@ jobs:
       # Release, not debug: the debug build is unoptimised and unstripped, and
       # ships every ABI's symbols. APK for sideloading, AAB for Play.
       - name: Build APK and AAB
-        run: npx tauri android build --apk --aab
+        run: npx tauri android build --config src-tauri/tauri.release.conf.json --apk --aab
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 

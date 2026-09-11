@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from '../lib/native'
 
 export function FactoryReset() {
   const dialog = useRef<HTMLDialogElement>(null)

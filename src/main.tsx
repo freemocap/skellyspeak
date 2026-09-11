@@ -1,17 +1,21 @@
+import { reportDiagnosticBridgeFailure } from './lib/faults'
+import { installDiagnosticCapture, logDiagnostic } from './lib/log'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import DevWindow from './DevWindow'
 import { isTauri, loadLanguages } from './lib/tauri'
 import './styles.css'
-import { installNativePlaybackLifecycle, installPlaybackLifecycle } from './lib/playback-lifecycle'
+import { installPlaybackLifecycle } from './lib/playback-lifecycle'
 
-const playbackLifecycle = installPlaybackLifecycle()
+installDiagnosticCapture()
+window.addEventListener('diagnostic-bridge-failed', reportDiagnosticBridgeFailure)
+installPlaybackLifecycle()
 
 // The popped-out observability window runs the same bundle as the main one
 // and is told apart by its WINDOW LABEL (set by the Rust dev command). Routing on the
 // label rather than a URL query avoids putting '?' inside the PathBuf that
 // WebviewUrl::App wants.
-const DEV_WINDOW_LABEL = 'skellyspeak-dev'
+const DEV_WINDOW_LABEL = 'ai'
 
 async function isDevWindow(): Promise<boolean> {
   if (!isTauri) return false
@@ -19,9 +23,6 @@ async function isDevWindow(): Promise<boolean> {
   return getCurrentWebviewWindow().label === DEV_WINDOW_LABEL
 }
 
-// NOTE: No StrictMode — its dev-only double-invocation of effects makes the
-// greeting turn (6 AI calls) fire twice on every mount. Mount effects here
-// are not idempotent-cheap, so StrictMode's safety net costs real money.
 function mount(dev: boolean) {
   const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
   root.render(dev ? <DevWindow /> : <App />)
@@ -30,12 +31,19 @@ function mount(dev: boolean) {
 // The language registry comes from Rust and every picker needs it
 // synchronously, so it is fetched before the first render. Outside Tauri
 // there is no backend at all — App renders its "run via tauri dev" notice.
-void isDevWindow().then(async (dev) => {
-  if (isTauri) await installNativePlaybackLifecycle(playbackLifecycle)
-  // The dev window renders the panel alone and needs no language registry.
-  if (isTauri && !dev) {
-    void loadLanguages().then(() => mount(false))
-  } else {
-    mount(dev)
-  }
+async function start() {
+  const dev = await isDevWindow()
+  if (isTauri && !dev) await loadLanguages()
+  mount(dev)
+}
+void start().catch(async (error: unknown) => {
+  await logDiagnostic('startup', error)
+  const message = error instanceof Error ? error.message
+    : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <div className="not-tauri" role="alert">
+      <p>Could not open SkellySpeak: {message}</p>
+      <button className="btn" onClick={() => window.location.reload()}>Retry startup</button>
+    </div>
+  )
 })

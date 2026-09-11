@@ -9,8 +9,9 @@ import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : TauriActivity() {
   companion object {
-    init { System.loadLibrary("skellyspeak_lib") }
+    init { System.loadLibrary("skellyspeak_core") }
   }
+
 
   private external fun initializeCredentials(context: Context)
 

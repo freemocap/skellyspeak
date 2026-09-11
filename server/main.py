@@ -111,11 +111,18 @@ async def invalid_parameters(request: Request, error: RequestValidationError) ->
     return observability.error_response(request, HTTPException(422, "Missing or invalid request parameters."))
 
 
+class UpstreamHTTPError(HTTPException):
+    def __init__(self, status: int):
+        super().__init__(502, f"Upstream provider returned HTTP {status}.")
+        self.upstream_status = status
+        self.code = "UPSTREAM_FAILURE"
+
+
 async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, **kwargs) -> dict:
     """Bound decoded upstream bytes before buffering, including compressed responses."""
     async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
         if not response.is_success:
-            raise HTTPException(502, f"Upstream provider returned HTTP {response.status_code}.")
+            raise UpstreamHTTPError(response.status_code)
         body = bytearray()
         async for chunk in response.aiter_bytes():
             if len(body) + len(chunk) > limit:
@@ -496,41 +503,16 @@ def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
     return quota.dollars_to_micros(cost), tokens
 
 
-RESERVATION_DELAYS: tuple[float, ...] = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
-_reservation_waiters: asyncio.Semaphore = asyncio.Semaphore(16)
-
-
-async def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
-    """Recheck unaffordable reservations before dispatch; never repeat provider work."""
-    waiting: bool = False
+def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
     try:
-        for attempt, delay in enumerate(RESERVATION_DELAYS):
-            if delay:
-                await asyncio.sleep(delay)
-            try:
-                # Deliver ownership before cancellation so the caller can settle its reservation.
-                with anyio.CancelScope(shield=True):
-                    return await anyio.to_thread.run_sync(partial(
-                        budget.reserve, db=db, user_id=who.user_id, micros=micros,
-                        user_limit=who.daily_limit, global_limit=CFG.global_daily_micros,
-                    ))
-            except quota.QuotaExceeded as exc:
-                can_wait: bool = (
-                    exc.code in {"PERSONAL_ALLOWANCE_EXHAUSTED", "SHARED_ALLOWANCE_EXHAUSTED"}
-                    and micros <= min(who.daily_limit, CFG.global_daily_micros)
-                    and attempt + 1 < len(RESERVATION_DELAYS)
-                )
-                if not can_wait:
-                    raise observability.Rejection(exc.code, str(exc), daily=exc.code != "SPENDING_PAUSED") from exc
-                if not waiting:
-                    if _reservation_waiters.locked():
-                        raise HTTPException(status_code=503, detail="Allowance admission is busy. No provider request was sent. Retry the action explicitly.") from exc
-                    await _reservation_waiters.acquire()
-                    waiting = True
-        raise AssertionError("Reservation admission did not return or raise")
-    finally:
-        if waiting:
-            _reservation_waiters.release()
+        return budget.reserve(db, user_id=who.user_id, micros=micros,
+                              user_limit=who.daily_limit, global_limit=CFG.global_daily_micros)
+    except quota.QuotaExceeded as exc:
+        raise observability.Rejection(exc.code, str(exc), daily=exc.code != "SPENDING_PAUSED") from exc
+
+
+class UsageUnknown(RuntimeError):
+    """Accounting retained the reservation but cannot confirm provider usage."""
 
 
 async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str) -> None:
@@ -541,7 +523,7 @@ async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: 
             tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id,
         ))
     if cost is None:
-        raise RuntimeError(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
+        raise UsageUnknown(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
 
 
 @app.post("/v1/chat/completions")
@@ -554,7 +536,15 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     if not isinstance(parsed, dict):
         raise HTTPException(status_code=400, detail="Request body must be an object.")
     contract = contracts.chat_request(parsed, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
-    reservation = await _reserve(who=who, micros=contract.reserve_micros)
+    # Keep the reservation handle even if the request is cancelled while the
+    # transaction is committing. Deliver pending cancellation before submission.
+    with anyio.CancelScope(shield=True):
+        reservation = await anyio.to_thread.run_sync(partial(_reserve, who, contract.reserve_micros))
+    try:
+        await anyio.lowlevel.checkpoint()
+    except BaseException:
+        await _settle(reservation, cost=0, tokens=0, provider_id="")
+        raise
     url = f"{CFG.openrouter_base_url}/chat/completions"
     headers = {"Authorization": f"Bearer {CFG.openrouter_key}", "X-Title": "SkellySpeak"}
 
@@ -575,7 +565,11 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
             # Settlement is shielded from disconnect cancellation.
             await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
 
+    relay_started = False
+
     async def relay() -> AsyncIterator[bytes]:
+        nonlocal relay_started
+        relay_started = True
         cost: int | None = None
         tokens = 0
         provider_id = ""
@@ -619,7 +613,17 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
             if not settled:
                 await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
 
-    return StreamingResponse(relay(), media_type="text/event-stream")
+    class ReservedStreamResponse(StreamingResponse):
+        async def __call__(self, scope, receive, send) -> None:
+            try:
+                await super().__call__(scope, receive, send)
+            finally:
+                # A disconnect can prevent the generator from ever starting.
+                # In that case there was no upstream submission to account for.
+                if not relay_started:
+                    await _settle(reservation, cost=0, tokens=0, provider_id="")
+
+    return ReservedStreamResponse(relay(), media_type="text/event-stream")
 
 
 _audio_slots = asyncio.Semaphore(2)
@@ -633,9 +637,12 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
         content_type = request.headers.get("content-type", "")
         if not content_type.startswith("multipart/form-data"):
             raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
-        reservation = await _reserve(who=who, micros=audio_input.MAX_COST_MICROS)
+        reservation: budget.Reservation | None = None
         cost: int | None = 0
         try:
+            with anyio.CancelScope(shield=True):
+                reservation = await anyio.to_thread.run_sync(partial(_reserve, who, audio_input.MAX_COST_MICROS))
+            await anyio.lowlevel.checkpoint()
             body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
             audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, body, content_type=content_type))
             if audio.cost_micros > reservation.micros:
@@ -658,7 +665,8 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
                 raise HTTPException(status_code=502, detail="Transcription provider returned invalid text.")
             return JSONResponse(content=payload)
         finally:
-            await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
+            if reservation is not None:
+                await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
 
 
 
@@ -669,8 +677,10 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
     tokens: int = 0
     provider_id: str = ""
     state = "failed"
+    execution_error: BaseException | None = None
     try:
-        reservation = await _reserve(who=who, micros=item.contract.reserve_micros)
+        with anyio.CancelScope(shield=True):
+            reservation = await anyio.to_thread.run_sync(partial(_reserve, who, item.contract.reserve_micros))
         # Leave a full work deadline inside the lease, including after slow ledger work.
         if time.time() + work_admission.WORK_SECONDS >= held.expires_at:
             raise HTTPException(409, "Admission lease is too close to expiry.")
@@ -688,11 +698,20 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
         if cost is not None:
             state = "succeeded"
         return {"type": "result", "response": payload}
+    except BaseException as error:
+        execution_error = error
+        raise
     finally:
         with anyio.CancelScope(shield=True):
             try:
                 if reservation is not None:
                     await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+            except UsageUnknown:
+                state = "unknown"
+                # Keep the original execution failure after conservative settlement.
+                # Storage failures still propagate through the separate handler.
+                if execution_error is None:
+                    raise
             except BaseException:
                 state = "unknown"
                 raise

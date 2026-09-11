@@ -56,7 +56,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
   const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
   const settled = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'opening' ? { ...card, phase: 'hovering' } : card)), [])
   const remove = useCallback((key: number) => setCards(previous => previous.filter(card => card.key !== key)), [])
-  return <RewardInspectionContext value={{ open, arrive }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={card.automatic && fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
+  return <RewardInspectionContext value={{ open, arrive }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
 }
 
 function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { mobile: boolean; landed: (ids: string[]) => void; begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
@@ -89,8 +89,8 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     return () => window.clearTimeout(timer)
   }, [card.phase, card.key, card.startAt, begin])
   useEffect(() => {
-    if (card.phase !== 'hovering' || (card.automatic ? !fast : hovered || focused)) return
-    const timer = window.setTimeout(() => dismiss(card.key), card.automatic ? 500 : 4000)
+    if (card.phase !== 'hovering' || !fast) return
+    const timer = window.setTimeout(() => dismiss(card.key), 500)
     return () => window.clearTimeout(timer)
   }, [fast, card.automatic, card.phase, card.key, dismiss, hovered, focused])
   useEffect(() => { if (!first) remove(card.key) }, [first, card.key, remove])
@@ -133,7 +133,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (card.phase === 'hovering') return
     if (card.phase === 'opening') {
-      if (mobile && fast) { dismiss(card.key); return }
+      if (mobile && fast && card.automatic) { dismiss(card.key); return }
       if (reduced) { settled(card.key); return }
       const rect = element.getBoundingClientRect()
       const x = card.origin ? card.origin.left + card.origin.width / 2 - rect.left - rect.width / 2 : 0

@@ -1,3 +1,5 @@
+import { ErrorDetails } from '../ErrorDetails'
+import { ActivityIndicator } from '../ActivityIndicator'
 import { TargetText } from '../TargetText'
 import { useReadingPreferences } from '../ReadingPreferences'
 import type { CoachHelp } from '../../types'
@@ -7,6 +9,7 @@ export function ComposerHelp({ help, pending, busy, errors, onUse }: {
   onUse: (text: string, source: 'suggestion') => void
 }) {
   const { autoTranslate } = useReadingPreferences()
+  if (!help && !pending && errors.length === 0) return null
   return <section id="composer-help-content" className="composer-help-content" aria-label="Coach advice" aria-live="polite" aria-busy={!help && pending}>
     {help ? <>
       <div className="help-replies" aria-label="Suggested replies">
@@ -22,6 +25,6 @@ export function ComposerHelp({ help, pending, busy, errors, onUse }: {
           {autoTranslate && <p className="help-translation" dir="auto">{help.partner.translation}</p>}
         </details>
       </div>
-    </> : pending ? <p role="status">Finding reply ideas…</p> : <p role={errors.length ? 'alert' : undefined}>{errors.length ? errors.join(' · ') : 'No saved advice for this message.'}</p>}
+    </> : pending ? <ActivityIndicator compact label="Finding reply ideas…" /> : <ErrorDetails label="Reply ideas" errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}
   </section>
 }

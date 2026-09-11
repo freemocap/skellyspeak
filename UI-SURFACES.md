@@ -34,7 +34,7 @@ Visual resemblance alone does not complete a feature.
 | --- | --- | --- |
 | Partner/coach exchange | Separate persisted threads and gated Standard calls; OpenRouter partner reply confirmed in the live app; recorded hosted failures show HTTP 429 | Verify a live accepted reply and coach response; expose actionable hosted failure reasons |
 | Tokenized message bubbles | Plain message text; source-linked token rendering absent | Exact original text, punctuation, Arabic/Chinese spacing, and repeated-word source identity preserved |
-| Glossing and word inspection | Not implemented | Tap/hold/focus reveals reusable source-bound meanings without re-requesting analysis |
+| Inline word glosses | Source implemented; hosted QA failed, diagnosis pending | Click/keyboard reveals saved meanings beneath exact words; unannotated text is inert; no empty detail modal |
 | Translation/pronunciation/romanization | Preferences persist; annotated rendering absent | Same reading preferences apply to messages, coach, suggestions and detail surfaces |
 | Suggestions and expression assistance | Freeform coach available; structured tray absent | Compact content-sized bubbles, distinct insertion action, no autosend, assistance attribution retained |
 | Assessment and XP | Not implemented | Source → observation → eligible credit is inspectable; retries and repeated snapshots never duplicate rewards |
@@ -79,3 +79,16 @@ details secondary. API access has no toolbar button. No promotional headings or
 redundant introductory copy. Keyboard tab navigation, save locking and key grouping
 have component tests. Desktop and narrow layouts were inspected using real
 components with isolated visual test data; native authentication is separate.
+
+## Saved reply translation
+
+Partner messages display saved translation beneath the source when the conversation
+Translation preference is enabled. Pending/error state points to AI controls.
+Toggling display or opening a surface never generates assistance. Eligibility is
+captured at Send. Explicit failure retry operates on the failed task, not the reply.
+
+## Conversation controls and contacts — current source
+
+Difficulty is a compact five-choice dropdown beside Target/Explanation language, saved on the conversation through the native settings action; Beginner is the native default. The same assistance pipeline applies at all levels. Profile beside Lesson/Analysis edits the current contact with autosave. The Contacts drawer selects existing contacts, opens their conversations and exposes explicit Edit profile/New conversation actions. Selecting a contact never creates a conversation. Generated persona/Add to contacts lifecycle remains deferred. See workflow/reports/U1-contact-settings.md for source verification versus native QA.
+
+Header density and AI-access draft recovery are recorded in workflow/reports/U1-header-access-correction.md. AI access retains failed drafts and offers explicit Discard changes without deleting saved credentials.

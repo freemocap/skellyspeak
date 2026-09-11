@@ -4,7 +4,6 @@ import type { GuidedToken } from '../types'
 interface TokenSpanProps {
   textStyle?: React.CSSProperties
   interactive?: boolean
-  inspectOnTap?: boolean
   tok: GuidedToken
   revealed: boolean
   hasTranslation: boolean
@@ -14,15 +13,14 @@ interface TokenSpanProps {
   onTap: (e: React.MouseEvent<HTMLSpanElement>) => void
   onDragStart: () => void
   onDragOver: () => void
-  onInspect: (e: React.MouseEvent<HTMLSpanElement>) => void
-  onHold: () => void
+  onInspect?: (e: React.MouseEvent<HTMLSpanElement>) => void
+  onHold?: () => void
 }
 
 export function TokenSpan({
   tok,
   textStyle,
   interactive = true,
-  inspectOnTap = false,
   revealed,
   hasTranslation,
   showRomanization,
@@ -34,7 +32,7 @@ export function TokenSpan({
   onInspect,
   onHold,
 }: TokenSpanProps) {
-  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation || inspectOnTap)
+  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation)
   // Press-and-hold (450ms, near-stationary) opens the deep word-insight
   // modal. Works for mouse + touch; a plain click never fires it, and
   // dragging cancels it.
@@ -53,7 +51,7 @@ export function TokenSpan({
       holdTimer.current = null
       heldRef.current = true
       setHolding(true)
-      onHold()
+      onHold?.()
     }, 450)
   }
   const cancelHold = () => {
@@ -87,7 +85,7 @@ export function TokenSpan({
         onKeyDown={event => { if (tappable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}
         data-gloss-trigger={tappable || undefined}
         onClick={tappable ? clickTap : undefined}
-        onPointerDown={interactive ? startHold : undefined}
+        onPointerDown={interactive && onHold ? startHold : undefined}
         onPointerMove={trackHoldMove}
         onPointerUp={cancelHold}
         onPointerLeave={cancelHold}

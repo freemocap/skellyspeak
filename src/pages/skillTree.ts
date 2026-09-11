@@ -1,6 +1,6 @@
-import catalog from '../../src-tauri/src/skills/catalog.json'
-import legacy from '../../src-tauri/src/skills/catalog-v1.json'
-import second from '../../src-tauri/src/skills/catalog-v2.json'
+import catalog from '../assets/skill-catalogs/catalog.json'
+import legacy from '../assets/skill-catalogs/catalog-v1.json'
+import second from '../assets/skill-catalogs/catalog-v2.json'
 export type TreeLayout = 'radial' | 'down' | 'right' | 'left'
 export type TreeNode = {
   id: string; parent: string | null; label: string; code: string
@@ -8,7 +8,7 @@ export type TreeNode = {
   color: string; description: string; criterion: string
 }
 export function evidenceLabel(id: string, version: number): string {
-  const definitions = version === 1 ? legacy : version === 2 ? second : version === 3 ? catalog : null
+  const definitions = version === 1 ? legacy : version === 2 ? second : version === 4 ? catalog : null
   const item = definitions?.find((node) => node.id === id)
   if (!item) throw new Error(`Unknown evidence rubric: ${version}/${id}`)
   return item.label

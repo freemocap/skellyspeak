@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest'
 import { installNativePlaybackLifecycle } from './playback-lifecycle'
-import capabilities from '../../src-tauri/capabilities/default.json'
+import capabilities from '../../src-tauri/capabilities/main.json'
 
 const native = vi.hoisted(() => ({
   focus: vi.fn(), close: vi.fn(), listen: vi.fn(),
@@ -29,13 +29,13 @@ it('connects native focus, close, and mobile suspension events and removes all l
   expect(lifecycle.dispose).toHaveBeenCalledOnce()
 })
 
-it('permits Tauri to destroy both windows after playback close cleanup', async () => {
-  const { Window } = await vi.importActual<typeof import('@tauri-apps/api/window')>('@tauri-apps/api/window')
-  for (const label of ['main', 'skellyspeak-dev']) {
-    expect(capabilities.windows).toContain(label)
-  }
-  expect(capabilities.permissions).toContain('core:window:allow-destroy')
+it('limits external navigation to the download page', () => {
+  expect(capabilities.windows).toEqual(['main', 'ai'])
+  expect(capabilities.permissions).toEqual(['core:default', { identifier: 'opener:allow-open-url', allow: [{ url: 'https://docs.freemocap.org/skellyspeak/download' }] }])
+})
 
+it('SDK close cleanup calls destroy after its callback; native permission remains an integration prerequisite', async () => {
+  const { Window } = await vi.importActual<typeof import('@tauri-apps/api/window')>('@tauri-apps/api/window')
   const appWindow: InstanceType<typeof Window> = Object.create(Window.prototype)
   const listen = vi.spyOn(appWindow, 'listen').mockResolvedValue(() => {})
   const destroy = vi.spyOn(appWindow, 'destroy').mockResolvedValue()

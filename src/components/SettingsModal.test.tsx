@@ -6,7 +6,7 @@ import { SettingsModal } from './SettingsModal'
 
 const backend = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn(), hostedSignIn: vi.fn(), hostedAccount: vi.fn() }))
 vi.mock('../lib/tauri', () => ({ ...backend, isTauri: false, logInfo: vi.fn(), languages: () => [], validateKey: vi.fn() }))
-vi.mock('./FactoryReset', () => ({ FactoryReset: () => null }))
+vi.mock('./SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
 vi.mock('./DialectField', () => ({ DialectField: () => null }))
 vi.mock('../lib/speech', () => ({ speechSupported: () => false, setVoiceVolume: vi.fn() }))
 vi.mock('../lib/updater', () => ({ getUpdateChannel: async () => 'stable' }))
@@ -50,39 +50,29 @@ beforeEach(() => {
   backend.hostedSignIn.mockResolvedValue(null)
 })
 
-it('shows the installed native app version above the update controls without checking for updates', async () => {
+it('routes explicit update checks to the shared update banner', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'updates' } })
-  expect(await screen.findByText('Installed version: v0.13.4')).toBeVisible()
-  expect(screen.getByRole('button', { name: 'Check for updates' })).toBeVisible()
+  const check = vi.fn()
+  window.addEventListener('skellyspeak-check-update', check)
+  fireEvent.click(await screen.findByRole('button', { name: 'Check for updates' }))
+  expect(check).toHaveBeenCalledOnce()
+  window.removeEventListener('skellyspeak-check-update', check)
 })
 
-it('notifies the app immediately after Google sign-in re-reads native settings', async () => {
-  const changed = vi.fn()
-  render(<SettingsModal onClose={vi.fn()} onSettingsChanged={changed} />)
-  const signIn = await screen.findByRole('button', { name: 'Sign in with Google' })
-  backend.getSettings.mockResolvedValue(SETTINGS)
-  fireEvent.click(signIn)
-  await waitFor(() => expect(changed).toHaveBeenCalledWith(SETTINGS))
-  expect(backend.hostedSignIn).toHaveBeenCalledOnce()
-})
-
-it('waits for the pending API key write before refreshing the chat on close', async () => {
-  backend.getSettings.mockResolvedValue({ ...SETTINGS, provider_mode: 'cloud' })
-  let finish: () => void = () => { throw new Error('Save has not started') }
+it('keeps the modal open until a pending preference save finishes', async () => {
+  let finish!: () => void
   backend.saveSettings.mockImplementation(() => new Promise<void>(resolve => { finish = resolve }))
-  const changed = vi.fn()
-  const view = render(<SettingsModal onClose={vi.fn()} onSettingsChanged={changed} />)
-  const key = await screen.findByPlaceholderText('sk-or-…')
-  fireEvent.focus(key)
-  fireEvent.change(key, { target: { value: 'test-api-key' } })
-  view.unmount()
-  expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ openrouter_key: 'test-api-key' }))
-  expect(changed).not.toHaveBeenCalled()
-  const saved = { ...SETTINGS, provider_mode: 'cloud', openrouter_key: 'masked-saved-key' }
-  backend.getSettings.mockResolvedValue(saved)
-  await act(async () => { finish() })
-  expect(changed).toHaveBeenCalledWith(saved)
+  const close = vi.fn()
+  render(<SettingsModal onClose={close} onSettingsChanged={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text' } })
+  fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '125' } })
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(close).not.toHaveBeenCalled()
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledOnce())
+  await act(async () => finish())
+  fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+  expect(close).toHaveBeenCalledOnce()
 })
 
 it('dismisses on the backdrop but keeps settings open for clicks inside', async () => {
@@ -95,13 +85,12 @@ it('dismisses on the backdrop but keeps settings open for clicks inside', async 
   expect(close).toHaveBeenCalledOnce()
 })
 
-it('keeps reading size and spacing independent and saves both', async () => {
+it('saves text size without exposing spacing controls', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text' } })
   fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '125' } })
-  expect(screen.getByLabelText('Text spacing · 2px')).toHaveValue('2')
-  fireEvent.change(screen.getByLabelText('Text spacing · 2px'), { target: { value: '0' } })
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125, text_spacing: 0 })))
+  expect(screen.queryByLabelText(/Text spacing/)).toBeNull()
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ text_size: 125 })))
 })
 
 it('groups mobile settings into collapsible sections and searches inside closed groups', async () => {
@@ -120,16 +109,12 @@ it('groups mobile settings into collapsible sections and searches inside closed 
   } finally { window.matchMedia = original }
 })
 
-it('autosaves independent audio levels and keeps the effects level when toggled off and on', async () => {
+it('enables connected audio volume preferences', async () => {
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'volume' } })
-  fireEvent.change(screen.getByRole('slider', { name: 'Overall volume' }), { target: { value: '50' } })
-  fireEvent.change(screen.getByRole('slider', { name: 'Voice volume' }), { target: { value: '80' } })
-  fireEvent.change(screen.getByRole('slider', { name: 'Sound effects volume' }), { target: { value: '30' } })
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Sound effects' }))
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ master_volume: 50, voice_volume: 80, effects_volume: 30, reward_sounds: 'no' })))
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Sound effects' }))
-  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ master_volume: 50, voice_volume: 80, effects_volume: 30, reward_sounds: 'yes' })))
+  expect(screen.getByRole('slider', { name: 'Overall volume' })).toBeEnabled()
+  expect(screen.getByRole('slider', { name: 'Voice volume' })).toBeEnabled()
+  expect(backend.saveSettings).not.toHaveBeenCalled()
 })
 
 it('shows a closable error instead of blanking the app when native volume fields are missing', async () => {
@@ -152,4 +137,27 @@ it('shows native settings-load failures inside the settings dialog', async () =>
   render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
   expect(await screen.findByRole('alert')).toHaveTextContent('Settings response is incomplete.')
   expect(screen.getByRole('dialog', { name: 'Settings' })).toBeVisible()
+})
+
+it('rebases a reading edit over unrelated saved preferences', async () => {
+  const initial = { ...SETTINGS, scope: { sessionId: 's', conversationId: 'c', settingsRevision: 1, learnerRevision: 1, rewardRevision: 0 } }
+  const fresh = { ...initial, auto_translate: true, scope: { ...initial.scope, settingsRevision: 2 } }
+  backend.getSettings.mockResolvedValueOnce(initial).mockResolvedValue(fresh)
+  render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'romanization' } })
+  fireEvent.click(screen.getByLabelText('Show romanization'))
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ always_romanize: true, auto_translate: true, scope: fresh.scope })))
+})
+
+it('preserves a newer text-size edit while the first save completes', async () => {
+  let finish!: () => void
+  backend.saveSettings.mockImplementationOnce(() => new Promise<void>(resolve => { finish = resolve }))
+  render(<SettingsModal onClose={vi.fn()} onSettingsChanged={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'text size' } })
+  fireEvent.change(screen.getByLabelText('Text size · 100%'), { target: { value: '110' } })
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledOnce())
+  fireEvent.change(screen.getByLabelText('Text size · 110%'), { target: { value: '125' } })
+  backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '', text_size: 110 })
+  await act(async () => finish())
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ text_size: 125 })))
 })

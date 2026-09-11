@@ -10,18 +10,18 @@ export interface TurnForCoach {
   coachError?: string
 }
 
-function ScoreMeter({ label, value }: { label: string; value: number }) {
+function ScoreMeter({ label, value }: { label: string; value: number | null }) {
   return (
     <div className="score-meter">
       <span className="score-label">{label}</span>
       <span className="score-dots">
         {[1, 2, 3, 4, 5].map((n) => (
-          <span key={n} className={n <= value ? 'dot on' : 'dot'}>
+          <span key={n} className={value !== null && n <= value ? 'dot on' : 'dot'}>
             ●
           </span>
         ))}
       </span>
-      <span className="score-num">{value}/5</span>
+      <span className="score-num">{value === null ? '—' : `${value}/5`}</span>
     </div>
   )
 }
@@ -48,10 +48,10 @@ export function CoachEntry({
         <>
           <div className="coach-card">
             <div className="coach-scores">
-              <ScoreMeter label="Grammar" value={turn.coach.grammar} />
-              {turn.coach.conversation !== undefined && <ScoreMeter label="Conversation" value={turn.coach.conversation} />}
+              <ScoreMeter label="Correctness" value={turn.coach.grammar} />
+              {turn.coach.conversation !== undefined && <ScoreMeter label="Understandability" value={turn.coach.conversation} />}
             </div>
-            {turn.coach.conversation === undefined && <p className="lesson-meta">Historical feedback: conversational fit was not assessed.</p>}
+            {turn.coach.conversation === undefined && <p className="lesson-meta">Understandability was not assessed.</p>}
             <div className="coach-remark">
               <Markdown text={turn.coach.remark} onTerm={onTerm} />
             </div>

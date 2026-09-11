@@ -1,34 +1,23 @@
+import { InfoTip } from './InfoTip'
 import { configureAudioVolumes } from '../lib/audio-volume'
 import { configureRewardSounds } from '../lib/reward-sounds'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import type { HostedAccount, Settings, Shortcuts } from '../types'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import type { Settings, Shortcuts } from '../types'
 import {
   getSettings,
-  hostedAccount,
-  hostedSignIn,
-  hostedSignOut,
   logInfo,
   saveSettings,
-  resetSettings,
-  validateKey,
   languages,
 } from '../lib/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../lib/keyboard'
-import { FactoryReset } from './FactoryReset'
 import { DialectField } from './DialectField'
 import { t, tOr, uiLangFromNative, type UiLang } from '../lib/i18n'
-import { displaySecret } from '../lib/secrets'
 import { speechSupported } from '../lib/speech'
-import { invoke } from '@tauri-apps/api/core'
-import { getVersion } from '@tauri-apps/api/app'
-import { mediaDevices } from '../lib/media'
-import { resetsAtLocalTime } from '../lib/quota'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { getUpdateChannel, checkForUpdate, restartIntoUpdate, type UpdateChannel, type UpdateOffer } from '../lib/updater'
 import { reportFault } from '../lib/faults'
-import { CUSTOM, HOSTED, usesCredential } from '../lib/providers'
+import { openOverlay } from '../lib/back'
 
-type KeyCheck = { state: 'idle' | 'checking' | 'valid' | 'invalid'; detail: string }
+import { SettingsAccess } from './SettingsAccess'
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
@@ -37,143 +26,8 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'models' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
+type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
 
-function KeyBadge({ check }: { check: KeyCheck }) {
-  if (check.state === 'idle') return null
-  if (check.state === 'checking')
-    return (
-      <span className="key-badge checking" title="checking key…">
-        ⟳
-      </span>
-    )
-  if (check.state === 'valid')
-    return (
-      <span className="key-badge valid" title={`Key valid — ${check.detail}`}>
-        ✓
-      </span>
-    )
-  return (
-    <span className="key-badge invalid" title={check.detail}>
-      ✕
-    </span>
-  )
-}
-
-/// Manual "check for updates", alongside the eager check that runs at startup.
-/// Reports the outcome inline — including "you are up to date", which the
-/// startup check has no reason to say but a person who just clicked does.
-function UpdateCheckRow() {
-  const [state, setState] = useState<'idle' | 'checking' | 'current' | 'found' | 'installing'>(
-    'idle'
-  )
-  const [found, setFound] = useState<UpdateOffer | null>(null)
-  const [channel, setChannel] = useState<UpdateChannel | null>(null)
-  const [version, setVersion] = useState<string | null>(null)
-  const [versionError, setVersionError] = useState<string | null>(null)
-  useEffect(() => {
-    void getVersion().then(setVersion).catch((error: unknown) => {
-      setVersionError('Could not load the installed version.')
-      reportFault('Loading application version', error)
-    })
-    void getUpdateChannel()
-      .then(setChannel)
-      .catch((error) => reportFault('Loading update settings', error))
-  }, [])
-
-  const check = useCallback(async () => {
-    setState('checking')
-    try {
-      const update = await checkForUpdate()
-      if (update) {
-        setFound(update)
-        setState('found')
-      } else {
-        setState('current')
-      }
-    } catch (e) {
-      reportFault('Checking for updates', e)
-      setState('idle')
-    }
-  }, [])
-
-  const act = useCallback(async () => {
-    if (!found) return
-    if (found.kind === 'download') {
-      await found.open().catch((e) => reportFault('Opening the download page', e))
-      return
-    }
-    setState('installing')
-    try {
-      await found.install()
-      await restartIntoUpdate()
-    } catch (e) {
-      reportFault('Installing update', e)
-      setState('found')
-    }
-  }, [found])
-
-  const versionDisplay = versionError
-    ? <p role="alert">{versionError}</p>
-    : <p><strong>Installed version: {version === null ? 'Loading…' : `v${version}`}</strong></p>
-
-  if (channel === 'app-store') {
-    return (
-      <div className="form-row">
-        <label>Application updates</label>
-        {versionDisplay}
-        <p className="field-note">Updates are managed through TestFlight or the App Store.</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="form-row">
-      <label>Application updates</label>
-      {versionDisplay}
-      <>
-        {channel === 'download' && (
-          <p className="field-note">
-            This platform installs updates through its package manager, so SkellySpeak checks
-            for a newer release and opens the docs download page — you install it yourself.
-          </p>
-        )}
-        <>
-          <div className="key-row">
-            <button
-              type="button"
-              className="btn"
-              disabled={channel === null || state === 'checking' || state === 'installing'}
-              onClick={() => void check()}
-            >
-              {state === 'checking' ? 'Checking…' : 'Check for updates'}
-            </button>
-            {state === 'found' && found && (
-              <button type="button" className="btn primary" onClick={() => void act()}>
-                {found.kind === 'install'
-                  ? `Install ${found.version} & restart`
-                  : `Get ${found.version}`}
-              </button>
-            )}
-          </div>
-          {state === 'current' && (
-            <p className="field-note">You are running the newest version.</p>
-          )}
-          {state === 'found' && found && (
-            <p className="field-note">
-              {found.version} is available — you have {found.currentVersion}.
-            </p>
-          )}
-          {state === 'installing' && <p className="field-note">Downloading and installing…</p>}
-        </>
-      </>
-    </div>
-  )
-}
-
-/// Autosave feedback. Settings write themselves, so the footer's job is to
-/// show that it happened — and, above all, to shout if a write FAILED, because
-/// a silent failure means the user's API keys are not on disk.
 function SaveStatus({ state }: { state: SaveState }) {
   if (state === 'error')
     return (
@@ -185,69 +39,6 @@ function SaveStatus({ state }: { state: SaveState }) {
     return <span className="save-status">Saving…</span>
   if (state === 'saved') return <span className="save-status saved">Saved ✓</span>
   return <span className="save-status hint">Changes save automatically</span>
-}
-
-/// An API key field you can just click into and type, that still never puts
-/// key material on screen.
-///
-/// Unfocused it shows the backend's mask (head 6 + bullets + tail 6) — enough
-/// to tell WHICH key is stored, useless to a shoulder or a screenshot. Sending
-/// that mask back unchanged is how `save_settings` knows to keep the stored
-/// key, so the value passes through verbatim.
-///
-/// Focused it becomes a `type="password"` box with the text pre-selected, so
-/// typing or pasting replaces the key outright and the new key is not readable
-/// either. There is no button to press first: clicking the box is the gesture.
-function SecretField({
-  label,
-  value,
-  placeholder,
-  onChange,
-  onEditingChange,
-  check,
-}: {
-  label: string
-  value: string
-  placeholder: string
-  onChange: (v: string) => void
-  /// Held true while focused, so autosave waits for blur rather than
-  /// persisting a half-typed key over a good one.
-  onEditingChange: (editing: boolean) => void
-  check: KeyCheck
-}) {
-  const [focused, setFocused] = useState(false)
-
-  return (
-    <div className="form-row">
-      <label>{label}</label>
-      <div className="key-row">
-        <input
-          className="key-input"
-          // Password while focused so nothing readable is ever rendered; the
-          // masked text only appears at rest, where it is not editable content.
-          type={focused ? 'password' : 'text'}
-          value={focused ? value : displaySecret(value)}
-          placeholder={placeholder}
-          autoComplete="off"
-          spellCheck={false}
-          aria-label={label}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={(e) => {
-            setFocused(true)
-            onEditingChange(true)
-            // Select-all so the first keystroke or paste replaces the key
-            // instead of appending to the mask.
-            e.target.select()
-          }}
-          onBlur={() => {
-            setFocused(false)
-            onEditingChange(false)
-          }}
-        />
-        <KeyBadge check={check} />
-      </div>
-    </div>
-  )
 }
 
 /// Shortcut recorder: click to arm, press a combo. Esc resets to default.
@@ -300,15 +91,9 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
   { id: 'reading', labelKey: 'Reading & display', icon: 'Aa', descKey: 'Text size, spacing, and reading aids' },
   {
     id: 'keys',
-    labelKey: 'settings.section.keys',
+    labelKey: 'AI access',
     icon: '🔑',
-    descKey: 'settings.desc.keys',
-  },
-  {
-    id: 'models',
-    labelKey: 'settings.section.models',
-    icon: '🧠',
-    descKey: 'settings.desc.models',
+    descKey: 'Hosted sign-in, API keys or a custom server',
   },
   {
     id: 'languages',
@@ -373,10 +158,12 @@ const TTS_VOICES = [
 ]
 
 export function SettingsModal({
-  onClose,
+  onClose: closeModal,
   onSettingsChanged,
+  onBusyChange,
 }: {
   onClose: () => void
+  onBusyChange?: (busy: boolean) => void
   /// Called after every successful autosave so the rest of the app can pick
   /// the new settings up. It does NOT mean "the user is finished" — this fires
   /// mid-edit, so nothing hung off it may close the modal.
@@ -398,17 +185,9 @@ export function SettingsModal({
   // drifts from this, and this catches up once the write lands.
   const [persisted, setPersisted] = useState<Settings | null>(null)
   const [saveState, setSaveState] = useState<SaveState>('idle')
-  // True while an API key box has focus. Autosave holds off until blur so a
-  // half-typed key is never written over a good stored one.
-  const [editingSecret, setEditingSecret] = useState(false)
-  // Normalised, because the two recorders name devices differently: the
-  // browser has opaque deviceIds with separate labels, the core has names that
-  // are both. Either way `microphone_device_id` stores the id.
-  const [mics, setMics] = useState<{ id: string; label: string }[]>([])
-  const [openrouterCheck, setOpenrouterCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
-  const [groqCheck, setGroqCheck] = useState<KeyCheck>({ state: 'idle', detail: '' })
-  const [account, setAccount] = useState<HostedAccount | null>(null)
-  const [signingIn, setSigningIn] = useState(false)
+  const [accessBusy, setAccessBusy] = useState(false)
+  const mics: { id: string; label: string }[] = []
+  const listMics = async () => { throw new Error('Microphone selection is not connected.') }
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
@@ -433,150 +212,63 @@ export function SettingsModal({
       })
   }, [])
 
-  const listMics = useCallback(async () => {
-    try {
-      if (await invoke<boolean>('mic_native')) {
-        // The core records on this platform, so it owns the device list too —
-        // asking the webview would offer devices that cannot be selected.
-        const names = await invoke<string[]>('mic_devices')
-        setMics(names.map((name) => ({ id: name, label: name })))
-        return
-      }
-      const media = mediaDevices()
-      const stream = await media.getUserMedia({ audio: true })
-      stream.getTracks().forEach((t) => t.stop())
-      const devices = await media.enumerateDevices()
-      setMics(
-        devices
-          .filter((d) => d.kind === 'audioinput')
-          .map((d, i) => ({ id: d.deviceId, label: d.label || `Microphone ${i + 1}` }))
-      )
-    } catch (e) {
-      reportFault('Listing microphones', e)
-    }
-  }, [])
-
-  // Mic enumeration only when the Audio section is visited, so opening
-  // Settings does not trip the mic-permission prompt as a side effect.
-  useEffect(() => {
-    if (section === 'voice') void listMics()
-  }, [section, listMics])
-
-  // Validate both keys as they change (debounced) — including on first load.
-  useEffect(() => {
-    const key = settings?.openrouter_key
-    if (key === undefined) return
-    if (!key.trim()) {
-      setOpenrouterCheck({ state: 'idle', detail: '' })
-      return
-    }
-    setOpenrouterCheck({ state: 'checking', detail: '' })
-    const t = setTimeout(() => {
-      void validateKey('openrouter', key)
-        .then((s) =>
-          setOpenrouterCheck({ state: s.valid ? 'valid' : 'invalid', detail: s.detail })
-        )
-        .catch((e) => setOpenrouterCheck({ state: 'invalid', detail: String(e) }))
-    }, 600)
-    return () => clearTimeout(t)
-  }, [settings?.openrouter_key])
-
-  useEffect(() => {
-    const key = settings?.groq_key
-    if (key === undefined) return
-    if (!key.trim()) {
-      setGroqCheck({ state: 'idle', detail: '' })
-      return
-    }
-    setGroqCheck({ state: 'checking', detail: '' })
-    const t = setTimeout(() => {
-      void validateKey('groq', key)
-        .then((s) => setGroqCheck({ state: s.valid ? 'valid' : 'invalid', detail: s.detail }))
-        .catch((e) => setGroqCheck({ state: 'invalid', detail: String(e) }))
-    }, 600)
-    return () => clearTimeout(t)
-  }, [settings?.groq_key])
-
-  // ── Hosted service ──────────────────────────────────────────────────────
-  // The session lives in the Rust settings; the webview never sees the token,
-  // only the address it belongs to and what allowance is left.
-  const mode = settings?.provider_mode ?? HOSTED
-  const hosted = mode === HOSTED
-  const signedIn = !!settings?.hosted_email
-
-  useEffect(() => {
-    if (!hosted || !signedIn) {
-      setAccount(null)
-      return
-    }
-    void hostedAccount()
-      .then(setAccount)
-      // An expired or revoked session must say so on screen, not leave a
-      // stale allowance sitting there looking fine.
-      .catch((e) => reportFault('Reading your hosted account', e))
-  }, [hosted, signedIn])
-
-  // Sign-in writes the session on the Rust side, so the copy held here is
-  // stale the moment it returns — re-read it rather than patching it locally.
   const refreshFromBackend = useCallback(async () => {
     const fresh = await getSettings()
-    setSettings(fresh)
-    setPersisted(fresh)
-    onSettingsChanged(fresh)
+    setSettings(fresh); setPersisted(fresh); onSettingsChanged(fresh)
   }, [onSettingsChanged])
 
-  const signIn = useCallback(async () => {
-    setSigningIn(true)
-    try {
-      setAccount(await hostedSignIn())
-      await refreshFromBackend()
-    } catch (e) {
-      reportFault('Signing in to the hosted service', e)
-    } finally {
-      setSigningIn(false)
-    }
-  }, [refreshFromBackend])
-
-  const signOut = useCallback(async () => {
-    try {
-      await hostedSignOut()
-      setAccount(null)
-      await refreshFromBackend()
-    } catch (e) {
-      reportFault('Signing out of the hosted service', e)
-    }
-  }, [refreshFromBackend])
-
   // ── Autosave ────────────────────────────────────────────────────────────
-  // There is no Save button. Every edit is written after a short pause, so a
-  // key typed into the box is on disk whether or not the modal is dismissed.
+  // Supported preference edits save after a short pause; access owns its own writes.
   const dirty = !!settings && !!persisted && JSON.stringify(settings) !== JSON.stringify(persisted)
 
   useEffect(() => {
     if (!settings || !dirty) return
-    // Wait for the key box to lose focus — writing mid-keystroke would put a
-    // truncated key on disk and clobber the working one.
-    if (editingSecret) return
-    setSaveState('pending')
+    // Serialize writes and require explicit retry after failure.
+    if (saveState === 'saving' || saveState === 'error') return
     const timer = setTimeout(() => {
       setSaveState('saving')
       logInfo('[settings] autosaving')
-      saveSettings(settings)
-        .then(() => {
-          logInfo('[settings] autosaved ✓')
-          setPersisted(settings)
+      Promise.resolve().then(async () => {
+        const fresh = await getSettings()
+        if (!persisted || fresh.scope?.conversationId !== settings.scope?.conversationId) throw new Error('The selected conversation changed. Reopen settings.')
+        const merged = { ...fresh }
+        for (const key of Object.keys(settings) as (keyof Settings)[]) {
+          if (key === 'scope' || JSON.stringify(settings[key]) === JSON.stringify(persisted[key])) continue
+          if (JSON.stringify(fresh[key]) !== JSON.stringify(persisted[key]) && JSON.stringify(fresh[key]) !== JSON.stringify(settings[key])) throw new Error(`The ${key} preference changed elsewhere. Reopen settings.`)
+          Object.assign(merged, { [key]: settings[key] })
+        }
+        await saveSettings(merged)
+      })
+        .then(() => getSettings())
+        .then((fresh) => {
+          setSettings(current => {
+            if (!current) return fresh
+            const next = { ...fresh }
+            for (const key of Object.keys(current) as (keyof Settings)[]) {
+              if (key !== 'scope' && JSON.stringify(current[key]) !== JSON.stringify(settings[key])) Object.assign(next, { [key]: current[key] })
+            }
+            return next
+          })
+          setPersisted(fresh)
           setSaveState('saved')
-          onSettingsChanged(settings)
+          onSettingsChanged(fresh)
         })
         .catch((e) => {
-          // A failed write means the keys are NOT on disk. The footer says so
-          // inline, and the fault bus puts it at the top of the app as well.
+          // Preserve the draft on failure and report it in the shared fault bar.
           reportFault('Saving settings', e)
           setSaveState('error')
         })
     }, AUTOSAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [settings, dirty, editingSecret, onSettingsChanged])
+  }, [settings, dirty, saveState, onSettingsChanged])
+
+  const onClose = useCallback(() => {
+    if (accessBusy || dirty || saveState === 'saving') return
+    closeModal()
+  }, [accessBusy, dirty, saveState, closeModal])
+
+  useEffect(() => { onBusyChange?.(accessBusy || dirty || saveState === 'saving') }, [accessBusy, dirty, saveState, onBusyChange])
+  useEffect(() => openOverlay(onClose), [onClose])
 
   // Escape closes Settings unless a nested dialog or shortcut capture owns it.
   useEffect(() => {
@@ -592,51 +284,12 @@ export function SettingsModal({
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  // Closing flushes pending edits before refreshing the app from persisted
-  // settings, including credentials written by native authentication.
-  const settingsChangedRef = useRef(onSettingsChanged)
-  settingsChangedRef.current = onSettingsChanged
-  const pendingWrite = useRef<Settings | null>(null)
-  useEffect(() => {
-    pendingWrite.current = dirty || editingSecret ? settings : null
-  }, [settings, dirty, editingSecret])
-  useEffect(
-    () => () => {
-      const outstanding = pendingWrite.current
-      const saved = outstanding ? saveSettings(outstanding) : Promise.resolve()
-      void saved.then(() => getSettings())
-        .then(fresh => settingsChangedRef.current(fresh))
-        .catch(error => reportFault('Applying settings on close', error))
-    },
-    []
-  )
-
   // Let "Saved" fade back to nothing so the footer is not permanently shouting.
   useEffect(() => {
     if (saveState !== 'saved') return
     const t = setTimeout(() => setSaveState('idle'), 1800)
     return () => clearTimeout(t)
   }, [saveState])
-
-  const resetAll = useCallback(async () => {
-    if (
-      !window.confirm(
-        'Reset every setting to its default?\n\nThis also clears both API keys — you will need to paste them in again.'
-      )
-    )
-      return
-    try {
-      logInfo('[settings] resetting all settings to defaults')
-      const fresh = await resetSettings()
-      setSettings(fresh)
-      setPersisted(fresh)
-      setSaveState('saved')
-      onSettingsChanged(fresh)
-    } catch (e) {
-      reportFault('Resetting settings', e)
-      setSaveState('error')
-    }
-  }, [onSettingsChanged])
 
   if (!settings) {
     return (
@@ -659,211 +312,8 @@ export function SettingsModal({
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
     provider_mode: {
-      section: 'keys',
-      label: L('provider_mode', 'AI provider'),
-      kw: 'provider endpoint server ollama lm studio local custom openrouter cloud url',
-      node: (
-        <div className="form-row">
-          <label>AI provider</label>
-          <select
-            value={settings.provider_mode}
-            onChange={(e) => setSettings({ ...settings, provider_mode: e.target.value })}
-          >
-            <option value="hosted">Free — sign in, no API key needed</option>
-            <option value="cloud">Cloud — OpenRouter with your API key</option>
-            <option value="custom">Your own server — Ollama, LM Studio, vLLM…</option>
-          </select>
-          {hosted && (
-            <p className="field-note">
-              Chat, voice input and spoken replies all go through SkellySpeak's own
-              service, with a daily allowance. No API keys of your own required.
-            </p>
-          )}
-          {mode === CUSTOM && (
-            <p className="field-note">
-              Chat and analysis go to your server. Voice input still uses Groq, and cloud
-              speech still uses OpenRouter, so those keys stay relevant if you use them.
-              Smaller local models often cannot honour the strict JSON schemas this app
-              requires, so some panels may fail where a hosted model succeeds.
-            </p>
-          )}
-        </div>
-      ),
-    },
-    hosted_account: {
-      section: 'keys',
-      label: L('hosted_account', 'SkellySpeak account'),
-      kw: 'sign in account google login free hosted allowance quota usage tokens',
-      hidden: !hosted,
-      node: (
-        <div className="form-row">
-          <label>SkellySpeak account</label>
-          {signedIn ? (
-            <>
-              <p className="field-note">
-                Signed in as <strong>{settings.hosted_email}</strong>
-              </p>
-              {account && (
-                <>
-                  <p className="field-note">
-                    ${account.used_usd.toFixed(3)} of ${account.limit_usd.toFixed(2)} spent or reserved
-                    today{account.custom_limit ? ' (custom limit)' : ''} · resets at{' '}
-                    {account.resets} ({resetsAtLocalTime()} your time)
-                  </p>
-                  <p className="field-note">Includes pending requests and unresolved charges from failed requests. Tokens are usage statistics, not the allowance limit.</p>
-                  <p className="field-note">
-                    {account.requests_today > 0
-                      ? `Estimated ${account.estimated_requests_remaining.toLocaleString()} more AI requests; capacity depends on request size (${account.requests_today.toLocaleString()} so far today, ${account.tokens_today.toLocaleString()} tokens)`
-                      : 'No usage yet today'}
-                  </p>
-                </>
-              )}
-              <button type="button" className="ghost" onClick={() => void signOut()}>
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="primary"
-                disabled={signingIn}
-                onClick={() => void signIn()}
-              >
-                {signingIn ? 'Waiting for your browser…' : 'Sign in with Google'}
-              </button>
-              <p className="field-note">
-                Opens your browser — Google does not allow signing in inside an app
-                window. Free while SkellySpeak is in testing.
-              </p>
-            </>
-          )}
-        </div>
-      ),
-    },
-    custom_base_url: {
-      section: 'keys',
-      label: L('custom_base_url', 'Server address'),
-      kw: 'server address url base endpoint ollama lm studio localhost port',
-      hidden: mode !== CUSTOM,
-      node: (
-        <div className="form-row">
-          <label>Server address</label>
-          <input
-            className="field"
-            value={settings.custom_base_url}
-            placeholder="http://localhost:11434/v1"
-            spellCheck={false}
-            onChange={(e) => setSettings({ ...settings, custom_base_url: e.target.value })}
-          />
-          <p className="field-note">
-            Include the version path. Ollama is <code>http://localhost:11434/v1</code>,
-            LM Studio is <code>http://localhost:1234/v1</code>.
-          </p>
-        </div>
-      ),
-    },
-    custom_model: {
-      section: 'keys',
-      label: L('custom_model', 'Model name'),
-      kw: 'model name local llama qwen mistral gemma',
-      hidden: mode !== CUSTOM,
-      node: (
-        <div className="form-row">
-          <label>Model name</label>
-          <input
-            className="field"
-            value={settings.custom_model}
-            placeholder="llama3.2"
-            spellCheck={false}
-            onChange={(e) => setSettings({ ...settings, custom_model: e.target.value })}
-          />
-          <p className="field-note">The name your server uses, not an OpenRouter model id.</p>
-        </div>
-      ),
-    },
-    custom_api_key: {
-      section: 'keys',
-      label: L('custom_api_key', 'Server API key (optional)'),
-      kw: 'custom server api key optional local token',
-      hidden: mode !== CUSTOM,
-      node: (
-        <SecretField
-          label="Server API key (optional)"
-          value={settings.custom_api_key}
-          placeholder="usually not needed"
-          check={{ state: 'idle', detail: '' }}
-          onChange={(v) => setSettings({ ...settings, custom_api_key: v })}
-          onEditingChange={setEditingSecret}
-        />
-      ),
-    },
-    openrouter_key: {
-      section: 'keys',
-      // Visible for a custom server too: cloud speech goes to OpenRouter
-      // whichever provider handles chat, so hiding it here left the user told
-      // to add a key in Settings on a screen that would not show the field.
-      // Hosted mode proxies everything and needs no key at all.
-      hidden: !usesCredential(mode, 'openrouter'),
-      label: L('openrouter_key', 'OpenRouter API key'),
-      kw: 'openrouter api key credential token chat tutor',
-      node: (
-        <SecretField
-          label="OpenRouter API key"
-          value={settings.openrouter_key}
-          placeholder="sk-or-…"
-          check={openrouterCheck}
-          onChange={(v) => setSettings({ ...settings, openrouter_key: v })}
-          onEditingChange={setEditingSecret}
-        />
-      ),
-    },
-    groq_key: {
-      section: 'keys',
-      hidden: !usesCredential(mode, 'groq'),
-      label: L('groq_key', 'Groq API key (speech-to-text)'),
-      kw: 'groq api key credential speech transcription stt whisper voice',
-      node: (
-        <SecretField
-          label="Groq API key (speech-to-text)"
-          value={settings.groq_key}
-          placeholder="gsk_…"
-          check={groqCheck}
-          onChange={(v) => setSettings({ ...settings, groq_key: v })}
-          onEditingChange={setEditingSecret}
-        />
-      ),
-    },
-    worker_model: {
-      section: 'models',
-      label: L('worker_model', 'Worker model (tutor · analysis · coach)'),
-      kw: 'worker model llm gemini openai deepseek tutor analysis speed',
-      node: (
-        <div className="form-row">
-          <label>Worker model</label>
-          <input
-            value={settings.openrouter_model}
-            onChange={(e) => setSettings({ ...settings, openrouter_model: e.target.value })}
-          />
-        </div>
-      ),
-    },
-    observer_model: {
-      section: 'models',
-      label: L('observer_model', 'Observer model (reasoning · planning)'),
-      kw: 'observer model reasoning planning coach agent',
-      node: (
-        <div className="form-row">
-          <label>Observer model</label>
-          <input
-            value={settings.observer_model ?? ''}
-            placeholder="(same as worker model)"
-            onChange={(e) =>
-              setSettings({ ...settings, observer_model: e.target.value || null })
-            }
-          />
-        </div>
-      ),
+      section: 'keys', label: 'AI access', kw: 'provider server token key account models custom hosted openrouter groq',
+      node: <SettingsAccess onBusyChange={setAccessBusy} onChanged={refreshFromBackend} />,
     },
     target_language: {
       section: 'languages',
@@ -973,6 +423,10 @@ export function SettingsModal({
         </div>
       ),
     },
+    tts_rate: {
+      section: 'voice', label: 'Voice speed', kw: 'voice speech speed rate slower faster',
+      node: <div className="form-row"><label htmlFor="voice-speed">Voice speed</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
+    },
     tts_engine: {
       section: 'voice',
       label: L('tts_engine', 'Speech engine'),
@@ -1015,7 +469,7 @@ export function SettingsModal({
               </option>
             ))}
           </select>
-          <p className="field-note">Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</p>
+          <InfoTip>Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</InfoTip>
         </div>
       ),
     },
@@ -1031,7 +485,7 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>Auto-speak tutor replies using the selected speech engine</span>
+            <span>Read partner replies aloud</span>
           </label>
         </div>
       ),
@@ -1048,7 +502,7 @@ export function SettingsModal({
               checked={settings.auto_send}
               onChange={(e) => setSettings({ ...settings, auto_send: e.target.checked })}
             />
-            <span>Auto-send transcriptions (mic → send immediately)</span>
+            <span>Send after stopping the microphone</span>
           </label>
         </div>
       ),
@@ -1059,13 +513,7 @@ export function SettingsModal({
         <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
       </div>,
     },
-    text_spacing: {
-      section: 'reading', label: 'Text spacing', kw: 'word text spacing density compact reading display',
-      node: <div className="form-row"><label htmlFor="reading-spacing">Text spacing · {settings.text_spacing}px</label>
-        <input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} />
-        <p className="field-note">Extra room between words, independent of text size.</p>
-      </div>,
-    },
+
     always_romanize: {
       section: 'reading',
       label: L('always_romanize', 'Always show romanization'),
@@ -1124,7 +572,7 @@ export function SettingsModal({
       section: 'updates',
       label: L('app_updates', 'Application updates'),
       kw: 'update updates upgrade version release install newer check',
-      node: <UpdateCheckRow />,
+      node: <div className="form-row"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip><button type="button" className="btn" onClick={() => { void import('@tauri-apps/plugin-opener').then(({ openUrl }) => openUrl('https://docs.freemocap.org/skellyspeak/download')).catch(error => reportFault('Opening downloads', error)) }}>Downloads</button></div>,
     },
   }
   for (const sr of SHORTCUT_ROWS) {
@@ -1144,6 +592,12 @@ export function SettingsModal({
         </div>
       ),
     }
+  }
+
+  const supported = new Set(['app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate'])
+  for (const [id, row] of Object.entries(rows)) {
+    if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
+    else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
   }
 
   const q = search.trim().toLowerCase()
@@ -1190,12 +644,14 @@ export function SettingsModal({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search settings"
+            disabled={accessBusy || dirty || saveState === 'saving'}
           />
           {!isMobile && (
             <nav className="settings-tree">
               {SECTIONS.map((s) => (
                 <button
                   key={s.id}
+                  disabled={accessBusy || dirty || saveState === 'saving'}
                   type="button"
                   className={`nav-item ${!searching && section === s.id ? 'active' : ''}`}
                   onClick={() => {
@@ -1221,7 +677,7 @@ export function SettingsModal({
                   : tOr(ui, activeSection.descKey, activeSection.descKey)}
             </p>
           </div>
-          <div className="settings-scroll">
+          <div className="settings-scroll" inert={saveState === 'saving'}>
             {searching && visibleRows.length === 0 && (
               <p className="center-note">Nothing matches “{search.trim()}”.</p>
             )}
@@ -1241,12 +697,10 @@ export function SettingsModal({
             )}
           </div>
           <div className="modal-actions">
-            <button type="button" className="btn danger" onClick={() => void resetAll()}>
-              Reset settings
-            </button>
-            <FactoryReset />
-            <SaveStatus state={saveState} />
-            <button type="button" className="btn" onClick={onClose}>
+            <button type="button" className="btn danger" disabled title="Reset is not connected">Reset settings</button>
+            <SaveStatus state={dirty && saveState === 'idle' ? 'pending' : saveState} />
+            {saveState === 'error' && <button className="btn" onClick={() => setSaveState('idle')}>Retry save</button>}
+            <button type="button" className="btn" disabled={accessBusy || dirty || saveState === 'saving'} onClick={onClose}>
               Close
             </button>
           </div>

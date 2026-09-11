@@ -1,183 +1,92 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { useMicRecorder } from './useMicRecorder'
-
 const invoke = vi.hoisted(() => vi.fn())
+const fault = vi.hoisted(() => vi.fn())
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
-vi.mock('../lib/log', () => ({ logInfo: vi.fn(), logDebug: vi.fn(), logWarn: vi.fn() }))
-
-const reportFault = vi.hoisted(() => vi.fn())
-vi.mock('../lib/faults', () => ({ reportFault }))
-
-/// The core's answers for the desktop path. `mic_start` reports the waveform
-/// rate; `mic_stop` hands back base64 audio.
-function coreRecords(overrides: Record<string, unknown> = {}) {
-  invoke.mockImplementation((cmd: string) => {
-    const answers: Record<string, unknown> = {
-      mic_native: true,
-      mic_start: 750,
-      mic_wave: [],
-      mic_stop: 'BASE64WAV',
-      mic_cancel: undefined,
-      transcribe_audio: 'hola',
-      ...overrides,
-    }
-    if (!(cmd in answers)) throw new Error(`unexpected command: ${cmd}`)
-    return Promise.resolve(answers[cmd])
+vi.mock('../lib/faults', () => ({ reportFault: fault }))
+beforeEach(() => {
+  invoke.mockReset(); fault.mockReset()
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 689 }
+    if (command === 'mic_wave') return []
+    if (command === 'mic_transcribe') return 'fixture transcript'
+    if (command === 'mic_cancel') return
+    throw new Error(`Unexpected native command: ${command}`)
   })
-}
-
+})
 function setup() {
   const onTranscribe = vi.fn()
-  const hook = renderHook(() =>
-    useMicRecorder({ micDeviceId: null, onTranscribe, buildPrompt: () => 'hint' })
-  )
-  return { ...hook, onTranscribe }
+  return { ...renderHook(({ conversationId }) => useMicRecorder({ conversationId, onTranscribe }),
+    { initialProps: { conversationId: 'fixture-conversation' } }), onTranscribe }
 }
-
-beforeEach(() => {
-  invoke.mockReset()
-  reportFault.mockReset()
+it('does no native work on mount and starts capture for the selected conversation only on action', async () => {
+  const { result } = setup()
+  expect(invoke).not.toHaveBeenCalled()
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_start', { conversationId: 'fixture-conversation' })
+  expect(result.current.recording).toBe(true)
 })
-
-describe('choosing a recorder', () => {
-  it('records through the core when the core says it does', async () => {
-    // The macOS bug this exists for: `navigator.mediaDevices` is undefined
-    // there, so touching the browser API at all would throw before the core
-    // was ever asked.
-    coreRecords()
-    expect(navigator.mediaDevices).toBeUndefined()
-
-    const { result } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-
-    expect(invoke).toHaveBeenCalledWith('mic_start', { device: null })
-    await waitFor(() => expect(result.current.recording).toBe(true))
-    expect(reportFault).not.toHaveBeenCalled()
-  })
-
-  it('passes the chosen device through to the core', async () => {
-    coreRecords()
-    const onTranscribe = vi.fn()
-    const { result } = renderHook(() =>
-      useMicRecorder({
-        micDeviceId: 'Yeti Stereo Microphone',
-        onTranscribe,
-        buildPrompt: () => '',
-      })
-    )
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    expect(invoke).toHaveBeenCalledWith('mic_start', { device: 'Yeti Stereo Microphone' })
-  })
-
-  it('reports a device that will not open instead of recording silently', async () => {
-    invoke.mockImplementation((cmd: string) => {
-      if (cmd === 'mic_native') return Promise.resolve(true)
-      if (cmd === 'mic_start') return Promise.reject(new Error('microphone in use'))
-      throw new Error(`unexpected command: ${cmd}`)
-    })
-    const { result } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    expect(reportFault).toHaveBeenCalled()
-    // Crucially it must not look like it is recording when it is not.
-    expect(result.current.recording).toBe(false)
-    expect(result.current.waveSource).toBeNull()
-  })
-})
-
-describe('finishing a core recording', () => {
-  it('transcribes what the core returns', async () => {
-    coreRecords()
-    const { result, onTranscribe } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    await waitFor(() =>
-      expect(invoke).toHaveBeenCalledWith('transcribe_audio', {
-        audioBase64: 'BASE64WAV',
-        prompt: 'hint',
-      })
-    )
-    await waitFor(() => expect(onTranscribe).toHaveBeenCalledWith('hola'))
-    expect(result.current.recording).toBe(false)
-  })
-
-  it('throws the audio away on cancel and never transcribes it', async () => {
-    coreRecords()
-    const { result, onTranscribe } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    act(() => {
-      result.current.cancel()
-    })
-    await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_cancel'))
-    expect(invoke).not.toHaveBeenCalledWith('mic_stop')
-    expect(onTranscribe).not.toHaveBeenCalled()
-    expect(result.current.recording).toBe(false)
-  })
-
-  it('does nothing when cancelled with nothing running', () => {
-    coreRecords()
-    const { result } = setup()
-    act(() => {
-      result.current.cancel()
-    })
-    expect(invoke).not.toHaveBeenCalled()
-  })
-})
-
-describe('the waveform the strip reads', () => {
-  it('reports the rate the core gave, not an assumed 48kHz', async () => {
-    // A device running at 44.1kHz decimates to 689/s, not 750. Assuming the
-    // wrong one puts a visible drift in the strip's time axis.
-    coreRecords({ mic_start: 689 })
-    const { result } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    await waitFor(() => expect(result.current.waveSource?.samplesPerSecond).toBe(689))
-  })
-
-  it('hands each sample over exactly once', async () => {
-    coreRecords({ mic_wave: [0.1, -0.2] })
-    const { result } = setup()
-    await act(async () => {
-      await result.current.toggleMic()
-    })
-    await waitFor(() => expect(result.current.waveSource).not.toBeNull())
-    // Poll once so there is something buffered, then drain twice: the strip
-    // must not redraw the same samples on the following frame.
-    await act(async () => {
-      await vi.waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_wave'))
-    })
-    await waitFor(() => expect(result.current.waveSource?.read().length).toBeGreaterThan(0))
-    expect(result.current.waveSource?.read()).toEqual([])
-  })
-})
-
-it('keeps transcription busy until text arrives and prevents another recording meanwhile', async () => {
-  let finish: (text: string) => void = () => { throw new Error('Transcription not started') }
-  const pending = new Promise<string>(resolve => { finish = resolve })
-  coreRecords({ transcribe_audio: pending })
+it('transcribes the recording ID once on explicit Stop', async () => {
   const { result, onTranscribe } = setup()
   await act(async () => { await result.current.toggleMic() })
   await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording' })
+  expect(onTranscribe).toHaveBeenCalledExactlyOnceWith('fixture transcript')
+})
+it('cancels capture without transcription when the conversation changes', async () => {
+  const { result, rerender, onTranscribe } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  rerender({ conversationId: 'different-conversation' })
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'fixture-recording' }))
+  expect(invoke.mock.calls.some(([command]) => command === 'mic_transcribe')).toBe(false)
+  expect(onTranscribe).not.toHaveBeenCalled()
+})
+it('cancels a late capture startup after unmount', async () => {
+  let resolve!: (value: { recordingId: string; samplesPerSecond: number }) => void
+  invoke.mockImplementation((command: string) => command === 'mic_start'
+    ? new Promise<{ recordingId: string; samplesPerSecond: number }>(done => { resolve = done }) : Promise.resolve())
+  const { result, unmount } = setup()
+  let pending!: Promise<void>
+  act(() => { pending = result.current.toggleMic() })
+  unmount()
+  await act(async () => { resolve({ recordingId: 'late-recording', samplesPerSecond: 689 }); await pending })
+  expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'late-recording' })
+})
+it('keeps transcription exclusive and does not insert a late result into another conversation', async () => {
+  let finish!: (text: string) => void
+  invoke.mockImplementation((command: string) => {
+    if (command === 'mic_start') return Promise.resolve({ recordingId: 'fixture-recording', samplesPerSecond: 689 })
+    if (command === 'mic_transcribe') return new Promise<string>(resolve => { finish = resolve })
+    return Promise.resolve([])
+  })
+  const { result, rerender, onTranscribe } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  let pending!: Promise<void>
+  act(() => { pending = result.current.toggleMic() })
   expect(result.current.transcribing).toBe(true)
-  expect(result.current.recording).toBe(false)
   await act(async () => { await result.current.toggleMic() })
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_start')).toHaveLength(1)
-  await act(async () => { finish('hola'); await pending })
+  rerender({ conversationId: 'different-conversation' })
+  await act(async () => { finish('late transcript'); await pending })
+  expect(onTranscribe).not.toHaveBeenCalled()
   expect(result.current.transcribing).toBe(false)
-  expect(onTranscribe).toHaveBeenCalledWith('hola')
+})
+it('reports capture failure without claiming to record', async () => {
+  invoke.mockRejectedValue(new Error('Microphone unavailable'))
+  const { result } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  expect(result.current.recording).toBe(false)
+  expect(fault).toHaveBeenCalled()
+})
+
+it('uses the native waveform rate and drains each sample once', async () => {
+  const { result } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  expect(result.current.waveSource?.samplesPerSecond).toBe(689)
+  invoke.mockResolvedValue([0.1, -0.2])
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_wave', { recordingId: 'fixture-recording' }))
+  expect(result.current.waveSource?.read()).toEqual([0.1, -0.2])
+  expect(result.current.waveSource?.read()).toEqual([])
 })

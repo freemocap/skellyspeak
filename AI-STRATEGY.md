@@ -13,6 +13,10 @@ durable audio receipts now record outcomes without storing recordings or transcr
 conformance checks and bounded evaluation gates. Candidate selection is distinct
 from measured acceptance and release configuration.
 
+[AI-ARCHITECTURE.md](./AI-ARCHITECTURE.md) provides a code-oriented overview of
+chat messages, structured output, and request workflows. It is explanatory; this
+strategy remains authoritative for route and model policy.
+
 ## Separate the task from its fulfillment
 
 An operation requests a capability and output contract, not a vendor-specific

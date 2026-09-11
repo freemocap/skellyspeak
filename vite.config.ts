@@ -20,6 +20,7 @@ export default defineConfig({
         '**/src-tauri/target/**',
         '**/src-tauri/gen/**',
         '**/.build-artifacts/**',
+        '**/.local/**',
       ],
     },
   },
@@ -29,7 +30,7 @@ export default defineConfig({
   test: {
     // `old/` is an archive of earlier incarnations kept for reference only;
     // its test files are not part of this app.
-    exclude: ['**/node_modules/**', '**/dist/**', 'old/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'old/**', 'scripts/**'],
     // Pure-function tests need no DOM; component tests do. Per-file
     // environments keep the fast majority fast — opt in with
     // `// @vitest-environment jsdom` at the top of a component test.

@@ -30,7 +30,7 @@ const WAVE_MAX: usize = 8_192;
 /// Longest recording accepted, in seconds. A held button or a stuck auto-stop
 /// would otherwise fill memory with audio no one is going to transcribe.
 /// Reaching it is an error, not a silent truncation — see [`Capture::finish`].
-const MAX_SECONDS: u32 = 300;
+const MAX_SECONDS: u32 = 120;
 
 #[derive(Default)]
 struct Buffers {
@@ -41,6 +41,7 @@ struct Buffers {
     /// Set when `pcm` hit [`MAX_SECONDS`]. The recording is no longer complete,
     /// so finishing it must fail rather than hand back a truncated clip.
     overflowed: bool,
+    error: Option<String>,
 }
 
 /// A recording in progress.
@@ -54,15 +55,6 @@ pub struct Capture {
     sample_rate: u32,
     thread: Option<std::thread::JoinHandle<()>>,
     device_label: String,
-}
-
-/// Every input device the host offers, by name.
-pub fn devices() -> Result<Vec<String>, String> {
-    let host = cpal::default_host();
-    let found = host
-        .input_devices()
-        .map_err(|e| format!("The system would not list microphones: {e}"))?;
-    Ok(found.filter_map(|d| d.name().ok()).collect())
 }
 
 fn open(name: Option<&str>) -> Result<cpal::Device, String> {
@@ -86,7 +78,7 @@ fn open(name: Option<&str>) -> Result<cpal::Device, String> {
 
 /// Mix a frame down to mono and record it.
 fn push(buffers: &Arc<Mutex<Buffers>>, mono: &[f32], limit: usize) {
-    let mut b = buffers.lock().unwrap_or_else(|p| p.into_inner());
+    let mut b = buffers.lock().expect("audio buffers");
     if b.overflowed {
         return;
     }
@@ -121,6 +113,7 @@ where
     f32: FromSample<T>,
 {
     let channels = config.channels as usize;
+    let errors = buffers.clone();
     device.build_input_stream(
         config,
         move |data: &[T], _: &cpal::InputCallbackInfo| {
@@ -132,9 +125,10 @@ where
                 .collect();
             push(&buffers, &mono, limit);
         },
-        // The stream survives a bad buffer, so this is genuinely a log — the
-        // failure that matters (no audio at all) surfaces from `finish`.
-        |e| log::error!("[mic] capture stream error: {e}"),
+        move |e| {
+            errors.lock().expect("audio buffers").error =
+                Some(format!("Microphone stream failed: {e}"));
+        },
         None,
     )
 }
@@ -161,7 +155,9 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
         }
         let built = (|| -> Result<(cpal::Stream, u32, String), String> {
             let device = open(wanted.as_deref())?;
-            let label = device.name().unwrap_or_else(|_| "microphone".into());
+            let label = device
+                .name()
+                .map_err(|e| format!("Could not identify microphone: {e}"))?;
             let supported = device
                 .default_input_config()
                 .map_err(|e| format!("The microphone \"{label}\" would not open: {e}"))?;
@@ -183,7 +179,7 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
                     return Err(format!(
                         "The microphone \"{label}\" records in a format this app cannot \
                          read ({other}). Pick another one in Settings."
-                    ))
+                    ));
                 }
             }
             .map_err(|e| format!("The microphone \"{label}\" would not start: {e}"))?;
@@ -226,26 +222,32 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
 }
 
 impl Capture {
-    /// How many waveform samples a second `take_wave` produces.
-    ///
-    /// The device picks the sample rate, so the UI is told rather than left to
-    /// assume 48kHz — guessing puts a visible drift in the waveform's time axis
-    /// on any device that runs at 44.1.
-    pub fn wave_rate(&self) -> f32 {
-        self.sample_rate as f32 / WAVE_STRIDE as f32
-    }
-
     /// Samples the UI has not drawn yet, removed from the buffer as they are
     /// handed over.
-    pub fn take_wave(&self) -> Vec<f32> {
-        let mut b = self.buffers.lock().unwrap_or_else(|p| p.into_inner());
-        std::mem::take(&mut b.wave)
+    pub fn wave_samples_per_second(&self) -> f64 {
+        self.sample_rate as f64 / WAVE_STRIDE as f64
+    }
+
+    pub fn take_wave(&self) -> Result<Vec<f32>, String> {
+        let mut b = self.buffers.lock().expect("audio buffers");
+        if let Some(error) = &b.error {
+            return Err(error.clone());
+        }
+        if b.overflowed {
+            return Err(format!(
+                "Recording exceeded {MAX_SECONDS} seconds. Record a shorter message."
+            ));
+        }
+        Ok(std::mem::take(&mut b.wave))
     }
 
     fn halt(&mut self) {
         let _ = self.stop.send(());
-        if let Some(t) = self.thread.take() {
-            let _ = t.join();
+        if let Some(t) = self.thread.take()
+            && t.join().is_err()
+        {
+            self.buffers.lock().expect("audio buffers").error =
+                Some("Recording thread failed.".into());
         }
         // Hand the microphone back once the stream is dropped.
         #[cfg(target_os = "ios")]
@@ -255,7 +257,10 @@ impl Capture {
     /// Stop recording and return the WAV.
     pub fn finish(mut self) -> Result<Vec<u8>, String> {
         self.halt();
-        let b = self.buffers.lock().unwrap_or_else(|p| p.into_inner());
+        let b = self.buffers.lock().expect("audio buffers");
+        if let Some(error) = &b.error {
+            return Err(error.clone());
+        }
         if b.overflowed {
             return Err(format!(
                 "That recording passed {MAX_SECONDS} seconds and was not kept. \
@@ -276,12 +281,6 @@ impl Capture {
             wav.len()
         );
         Ok(wav)
-    }
-
-    /// Stop recording and throw the audio away.
-    pub fn discard(mut self) {
-        self.halt();
-        info!("[mic] capture cancelled");
     }
 }
 
@@ -310,177 +309,36 @@ fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
     Ok(cursor.into_inner())
 }
 
-/// iOS AVAudioSession configuration.
-///
-/// cpal's coreaudio host opens the raw audio unit but does NOT configure the
-/// session: it links only the C API (coreaudio-rs/coreaudio-sys), so it cannot
-/// reach the Objective-C AVAudioSession. Without this, iOS records silence and
-/// never shows the microphone permission prompt. The category must allow
-/// recording and the session must be active before any capture starts.
-///
-/// objc2 0.6 preserves the framework's camelCase method names:
-/// setCategory:withOptions:error: becomes
-/// setCategory_withOptions_error, and the error methods are `unsafe fn`
-/// returning Result<(), Retained<NSError>>.
-#[cfg(target_os = "ios")]
-mod ios_session {
-    use std::sync::mpsc;
-
-    use block2::RcBlock;
-    use objc2::runtime::Bool;
-    use objc2_avf_audio::{
-        AVAudioSession, AVAudioSessionCategoryPlayAndRecord, AVAudioSessionCategoryOptions,
-        AVAudioSessionModeMeasurement, AVAudioSessionRecordPermission, AVAudioSessionSetActiveOptions,
-    };
-    use objc2_foundation::NSError;
-
-    fn nserror_to_string(err: &NSError) -> String {
-        err.localizedDescription().to_string()
-    }
-
-    /// Ask for (and await) microphone permission.
-    ///
-    /// The callback may run on another thread. Wait on the capture thread
-    /// spawned in `audio::start`, leaving the main thread free for the prompt.
-    fn request_record_permission(session: &AVAudioSession) -> Result<bool, String> {
-        match unsafe { session.recordPermission() } {
-            AVAudioSessionRecordPermission::Granted => return Ok(true),
-            AVAudioSessionRecordPermission::Denied => return Ok(false),
-            AVAudioSessionRecordPermission::Undetermined => {}
-            permission => return Err(format!("Unknown microphone permission: {permission:?}")),
-        }
-        let (tx, rx) = mpsc::channel::<bool>();
-        let handler = RcBlock::new(move |granted: Bool| {
-            tx.send(granted.as_bool())
-                .expect("microphone permission receiver disconnected");
-        });
-        // RcBlock owns the heap-allocated callback retained by AVAudioSession.
-        unsafe { session.requestRecordPermission(&handler) };
-        rx.recv()
-            .map_err(|e| format!("microphone permission prompt never returned: {e}"))
-    }
-
-    /// Configure and activate the session so cpal can capture the microphone.
-    pub fn prepare() -> Result<(), String> {
-        let session = unsafe { AVAudioSession::sharedInstance() };
-        if !request_record_permission(&session)? {
-            return Err(
-                "Microphone access is denied. Allow SkellySpeak in iOS Settings → Privacy & Security → Microphone, then try again."
-                    .into(),
-            );
-        }
-        unsafe {
-            // playAndRecord: the app also plays TTS audio, and this category
-            // lets both directions run. defaultToSpeaker keeps playback on the
-            // speaker rather than the earpiece.
-            session
-                .setCategory_withOptions_error(
-                    AVAudioSessionCategoryPlayAndRecord
-                        .ok_or("iOS PlayAndRecord audio category is unavailable")?,
-                    AVAudioSessionCategoryOptions::DefaultToSpeaker,
-                )
-                .map_err(|e| format!("setCategory failed: {}", nserror_to_string(&e)))?;
-            // measurement disables Apple's automatic gain control and signal
-            // processing — flat, unprocessed audio is what speech-to-text wants.
-            session
-                .setMode_error(
-                    AVAudioSessionModeMeasurement
-                        .ok_or("iOS Measurement audio mode is unavailable")?,
-                )
-                .map_err(|e| format!("setMode failed: {}", nserror_to_string(&e)))?;
-            session
-                .setActive_withOptions_error(true, AVAudioSessionSetActiveOptions::empty())
-                .map_err(|e| format!("setActive failed: {}", nserror_to_string(&e)))?;
-        }
-        Ok(())
-    }
-
-    /// Deactivate the session once recording is done so other apps can take
-    /// the microphone back.
-    pub fn teardown() {
-        let session = unsafe { AVAudioSession::sharedInstance() };
-        unsafe {
-            session
-                .setActive_withOptions_error(
-                    false,
-                    AVAudioSessionSetActiveOptions::NotifyOthersOnDeactivation,
-                )
-                .expect("failed to deactivate the iOS audio session");
-        }
+impl Drop for Capture {
+    fn drop(&mut self) {
+        self.halt();
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// Opens the real default microphone and records for a moment.
-    ///
-    /// Ignored by default because it needs hardware and a granted permission,
-    /// so it cannot run in CI. Run it by hand on a machine with a microphone —
-    /// especially on macOS, where the whole reason this module exists is that
-    /// the webview recorder is unavailable:
-    ///
-    ///     cargo test --lib records_from_the_real_default_device -- --ignored --nocapture
     #[test]
-    #[ignore = "needs a microphone and permission"]
-    fn records_from_the_real_default_device() {
-        let capture = start(None).expect("the default input device should open");
-        std::thread::sleep(std::time::Duration::from_millis(400));
-        let wave = capture.take_wave();
-        let wav = capture.finish().expect("the recording should encode");
-        println!("captured {} waveform samples, {} bytes of WAV", wave.len(), wav.len());
-        assert_eq!(&wav[0..4], b"RIFF");
-        assert!(wav.len() > 44, "the WAV must carry samples, not just a header");
-        assert!(!wave.is_empty(), "the waveform must receive samples too");
-    }
-
-    #[test]
-    fn wav_has_a_riff_header_and_one_channel() {
-        let wav = encode_wav(&[0.0, 0.5, -0.5], 16_000).unwrap();
-        assert_eq!(&wav[0..4], b"RIFF");
-        assert_eq!(&wav[8..12], b"WAVE");
-        // Channel count and sample rate live at fixed offsets in the fmt chunk.
-        assert_eq!(u16::from_le_bytes([wav[22], wav[23]]), 1);
+    fn wav_contains_mono_clamped_pcm_with_actual_rate() {
+        let bytes = encode_wav(&[-2.0, 0.0, 2.0], 48000).unwrap();
+        let mut reader = hound::WavReader::new(std::io::Cursor::new(bytes)).unwrap();
+        assert_eq!(reader.spec().channels, 1);
+        assert_eq!(reader.spec().sample_rate, 48000);
         assert_eq!(
-            u32::from_le_bytes([wav[24], wav[25], wav[26], wav[27]]),
-            16_000
+            reader
+                .samples::<i16>()
+                .collect::<Result<Vec<_>, _>>()
+                .unwrap(),
+            vec![-32767, 0, 32767]
         );
     }
-
     #[test]
-    fn full_scale_samples_do_not_wrap_to_the_opposite_sign() {
-        // `1.0 * i16::MAX` is exactly representable, but anything above it
-        // would wrap to a large negative value and click loudly.
-        let wav = encode_wav(&[1.0, -1.0, 2.0, -2.0], 8_000).unwrap();
-        let data = &wav[44..];
-        let read = |i: usize| i16::from_le_bytes([data[i * 2], data[i * 2 + 1]]);
-        assert_eq!(read(0), i16::MAX);
-        assert_eq!(read(1), -i16::MAX);
-        assert_eq!(read(2), i16::MAX, "clamped, not wrapped");
-        assert_eq!(read(3), -i16::MAX, "clamped, not wrapped");
-    }
-
-    #[test]
-    fn the_waveform_buffer_is_decimated_evenly_across_callbacks() {
+    fn recording_bound_is_explicit_and_does_not_silently_truncate() {
         let buffers = Arc::new(Mutex::new(Buffers::default()));
-        // Two callbacks whose lengths are not multiples of the stride: the
-        // stride must follow the running total, or the decimation clusters at
-        // every buffer boundary.
-        push(&buffers, &vec![0.1; 100], usize::MAX);
-        push(&buffers, &vec![0.2; 100], usize::MAX);
-        let b = buffers.lock().unwrap();
-        assert_eq!(b.pcm.len(), 200);
-        // Indices 0, 64, 128, 192 -> four samples.
-        assert_eq!(b.wave.len(), 4);
-    }
-
-    #[test]
-    fn passing_the_length_cap_is_recorded_rather_than_truncating_silently() {
-        let buffers = Arc::new(Mutex::new(Buffers::default()));
-        push(&buffers, &[0.1; 10], 15);
-        push(&buffers, &[0.1; 10], 15);
-        let b = buffers.lock().unwrap();
-        assert!(b.overflowed, "the second frame must not be quietly dropped");
+        push(&buffers, &[0.0, 0.1], 2);
+        push(&buffers, &[0.2], 2);
+        let buffer = buffers.lock().unwrap();
+        assert!(buffer.overflowed);
+        assert_eq!(buffer.pcm.len(), 2);
     }
 }

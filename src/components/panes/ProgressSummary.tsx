@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { InfoTip } from '../InfoTip'
+import { ConversationMap } from '../chat/ConversationMap'
+import { SkillEvidenceContext } from '../../hooks/useSkillEvidence'
+import { PracticeContext } from './PracticeContext'
+import { useEffect, useMemo, useState } from 'react'
 import { getPracticeOverview, type PracticeOverview, type SkillSnapshot } from '../../lib/skills'
 import { practiceStatistics } from '../../lib/practice-statistics'
-import { domainColors } from '../../lib/skill-domains'
 import { useSkillNavigation } from '../../hooks/useSkillNavigation'
 import { DetailDialog } from '../DetailDialog'
 
@@ -15,32 +18,25 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
   const domain = domainId === null ? null : stats.domains.find(item => item.node.id === domainId)
   if (domainId !== null && !domain) throw new Error('Missing selected practice domain')
   const skills = (domain ? domain.skills : snapshot.profile.skills).filter(skill => includeUnpracticed || skill.successes + skill.assisted > 0)
-  const maximum = Math.max(0, ...stats.domains.map(item => item.xp))
   return <div className="practice-statistics">
-      <header className="practice-statistics-header"><p>{snapshot.target} · recorded practice</p><h2>{name} progress</h2><p>Trace every score back to the messages that contributed it.</p></header>
+      <header className="practice-statistics-header"><h2>{name} progress</h2><InfoTip>Trace every score back to the messages that contributed it.</InfoTip></header>
+      <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: null, selectionVersion: 0, selected: domain?.skills[0]?.skill_id ?? focus.id, select: id => { const match = stats.domains.find(item => item.skills.some(skill => skill.skill_id === id)); setDomainId(match?.node.id ?? null) } }}><ConversationMap /></PracticeContext></SkillEvidenceContext>
       <dl className="practice-metrics">
         <div><dt>Practice XP</dt><dd>{snapshot.profile.xp.toLocaleString()}</dd></div>
         <div><dt>Skills with credit</dt><dd>{stats.practiced}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>Skill stars</dt><dd>{stats.stars}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>Contributing messages</dt><dd>{stats.contributingMessages}</dd></div>
       </dl>
-      <p className="practice-method-note">Descriptive app records, not a validated language-proficiency score. AI assessments can be wrong; these counts are not independent trials.</p>
+      <InfoTip>Descriptive app records, not a validated language-proficiency score. AI assessments can be wrong; these counts are not independent trials.</InfoTip>
       <section aria-label="Credited demonstrations" className="practice-demonstrations">
         <div><strong>{stats.unassisted}</strong><span>Unassisted skill demonstrations</span></div>
         <div><strong>{stats.assisted}</strong><span>Assisted skill demonstrations</span></div>
-        <p>Counts are distinct wording–skill pairs, not messages. One message can contribute to multiple skills.</p>
-      </section>
-      <section aria-labelledby="practice-domains-title">
-        <div className="practice-section-title"><h3 id="practice-domains-title">Where your XP comes from</h3><span>Common scale: 0–{maximum} XP</span></div>
-        <p className="practice-method-note">Select a domain to inspect its skills. Bar length shows recorded XP, not ability.</p>
-        <div className="practice-domains">{stats.domains.map(item => <button type="button" key={item.node.id} aria-label={`${item.node.label} ${item.xp} XP`} aria-pressed={domainId === item.node.id} onClick={() => setDomainId(domainId === item.node.id ? null : item.node.id)} style={{ '--domain-color': domainColors(item.node.id).bright } as CSSProperties}>
-          <span className="practice-domain-label">{item.node.label}</span><span className="practice-domain-track" aria-hidden="true"><span style={{ width: `${maximum === 0 ? 0 : item.xp / maximum * 100}%` }} /></span><strong>{item.xp} XP</strong>
-        </button>)}</div>
+        <InfoTip>Counts are distinct wording–skill pairs, not messages. One message can contribute to multiple skills.</InfoTip>
       </section>
       <section aria-labelledby="practice-skills-title">
         <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? domain.node.label : 'All domains'} · skill evidence</h3>{domainId && <button className="lesson-action" onClick={() => setDomainId(null)}>All domains</button>}</div>
         <label className="practice-unpracticed"><input type="checkbox" checked={includeUnpracticed} onChange={event => setIncludeUnpracticed(event.target.checked)} />Include skills without credit</label>
-        <p className="practice-method-note">Open a skill to inspect its contributing messages and assessment provenance.</p>
+        <InfoTip>Open a skill to inspect its contributing messages and assessment provenance.</InfoTip>
         {skills.length === 0 && <p>No credited demonstrations in this selection yet. Your first credited message will appear here.</p>}
         <div className="practice-skill-list">{skills.map(skill => {
           const node = snapshot.catalog.find(item => item.id === skill.skill_id)
@@ -48,7 +44,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
           const credits = snapshot.profile.credits.filter(item => item.skill_id === skill.skill_id)
           return <details key={skill.skill_id} className="practice-skill">
             <summary><span>{node.label}{skill.star && <span className="practice-star" aria-label="Skill star"> ★</span>}</span><strong>{skill.xp} XP</strong><small>{skill.successes} unassisted · {skill.assisted} assisted</small></summary>
-            <p className="practice-method-note">Criterion: {node.criterion}</p>
+            <InfoTip>Criterion: {node.criterion}</InfoTip>
             {credits.length === 0 && <p>No credited messages.</p>}
             {credits.map(credit => {
               const record = snapshot.records.find(item => item.attempt_id === credit.attempt_id)
@@ -105,7 +101,7 @@ export function ProgressSummary({ snapshot, onClose }: { snapshot: SkillSnapshot
   const practiceDates = new Set(records.map(record => new Date(record.at_secs * 1000).toISOString().slice(0, 10)))
   return <DetailDialog title="Practice progress" onClose={onClose}>
     <div className="practice-overview">
-      <header className="practice-statistics-header"><p>All languages · this learner</p><h2>Global app activity</h2></header>
+      <header className="practice-statistics-header"><h2>App activity</h2></header>
       {loaded.status === 'loading' && <p role="status">Loading language profiles…</p>}
       {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="lesson-action" onClick={() => setAttempt(value => value + 1)}>Retry profiles</button></div>}
       {overview && <>
@@ -115,8 +111,8 @@ export function ProgressSummary({ snapshot, onClose }: { snapshot: SkillSnapshot
           <div><dt>Recorded attempts</dt><dd>{records.length}</dd></div>
           <div><dt>Practice dates (UTC)</dt><dd>{practiceDates.size}</dd></div>
         </dl>
-        <p className="practice-method-note">Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessment attempts, and distinct UTC dates with attempts. Deleted records can reduce these counts.</p>
-        <h3>Experience by language</h3>
+        <InfoTip>Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessment attempts, and distinct UTC dates with attempts. Deleted records can reduce these counts.</InfoTip>
+
         <div className="practice-language-tabs" role="tablist" aria-label="Language experience">{overview.languages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={`${language.name} ${language.snapshot.profile.xp} XP`} aria-selected={selected === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selected === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
           const index = overview.languages.findIndex(item => item.snapshot.target === selected)
           const next = event.key === 'ArrowRight' ? (index + 1) % overview.languages.length : event.key === 'ArrowLeft' ? (index - 1 + overview.languages.length) % overview.languages.length : event.key === 'Home' ? 0 : event.key === 'End' ? overview.languages.length - 1 : null

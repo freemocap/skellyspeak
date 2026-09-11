@@ -49,6 +49,8 @@ export function WaveformStrip({
 
     const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 
+    let needsPaint = true
+    let paintedElapsed = -1
     const resize = () => {
       if (!container) return
       const width = container.clientWidth
@@ -58,6 +60,7 @@ export function WaveformStrip({
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
       ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
+      needsPaint = true
     }
     resize()
     historyRef.current = []
@@ -74,6 +77,16 @@ export function WaveformStrip({
           historyRef.current = historyRef.current.slice(-maxSamples)
         }
       }
+
+      const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000)
+      // Sample positions only change when data arrives; identical frames add no motion.
+      // Keep polling, but repaint for new data, elapsed text, or a cleared/resized canvas.
+      if (!needsPaint && incoming.length === 0 && elapsed === paintedElapsed) {
+        rafRef.current = requestAnimationFrame(draw)
+        return
+      }
+      needsPaint = false
+      paintedElapsed = elapsed
 
       ctx2d.fillStyle = backgroundColor
       ctx2d.fillRect(0, 0, width, height)
@@ -111,7 +124,6 @@ export function WaveformStrip({
       ctx2d.stroke()
 
       // elapsed
-      const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000)
       ctx2d.fillStyle = 'rgba(232, 238, 247, 0.55)'
       ctx2d.font = '9px monospace'
       ctx2d.fillText(`● rec ${elapsed}s`, 6, 12)

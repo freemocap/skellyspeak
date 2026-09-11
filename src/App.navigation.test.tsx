@@ -11,7 +11,6 @@ vi.mock('./lib/tauri', () => ({ isTauri: true, takeStartupFaults: async () => []
 vi.mock('./components/UpdateBanner', () => ({ UpdateBanner: () => null }))
 vi.mock('./components/PausedBanner', () => ({ PausedBanner: () => null }))
 vi.mock('./components/SettingsModal', () => ({ SettingsModal: () => null }))
-vi.mock('./components/dev/DevPanel', () => ({ DevPanel: () => <p>Diagnostic content</p> }))
 vi.mock('./pages/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
 vi.mock('./pages/GuidedPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
   const [draft, setDraft] = useState('')
@@ -23,26 +22,28 @@ it('keeps Chat and Lesson reachable through Skill Tree and preserves the chat dr
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Lesson'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat · Persona', 'Coach'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  for (const destination of ['Chat', 'Lesson']) {
+  for (const destination of ['Chat · Persona', 'Coach']) {
     fireEvent.click(screen.getByRole('button', { name: 'More' }))
     fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
     await screen.findByRole('button', { name: 'Practice this skill' })
     fireEvent.click(within(nav).getByRole('button', { name: destination }))
     expect(within(nav).getByRole('button', { name: destination })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
-    expect(screen.getByText(`Practice surface: ${destination === 'Chat' ? 'chat' : 'panel'}`)).toBeInTheDocument()
+    expect(screen.getByText(`Practice surface: ${destination === 'Chat · Persona' ? 'chat' : 'panel'}`)).toBeInTheDocument()
   }
-  fireEvent.click(within(nav).getByRole('button', { name: 'Lesson' }))
+  fireEvent.click(within(nav).getByRole('button', { name: 'Coach' }))
   fireEvent.click(screen.getByRole('button', { name: 'SkellySpeak home — Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('button', { name: 'Chat · Persona' })).toHaveAttribute('aria-current', 'page')
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
   fireEvent.click(screen.getByRole('button', { name: 'AI activity & tools' }))
-  expect(screen.getByText('Diagnostic content')).toBeInTheDocument()
+  expect(screen.getByText('Live operations')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Close AI activity & tools' }))
-  expect(screen.queryByText('Diagnostic content')).not.toBeInTheDocument()
+  expect(screen.queryByText('Live operations')).not.toBeInTheDocument()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
 })
+
+vi.mock('./components/dev/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))

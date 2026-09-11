@@ -1,324 +1,142 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChatSummary, Settings, StoredTurn } from '../../types'
-import {
-  deleteConversation,
-  isTauri,
-  listConversations,
-  loadConversation,
-  newConversation,
-  openConversation,
-  saveConversation,
-} from '../../lib/tauri'
-import { conversationTitle } from '../../lib/conversation'
+import type { ConversationSnapshot, Snapshot } from '../../contracts'
+import { conversationTurns } from '../../lib/conversation-view'
+import { executeAction, nativeError, readWorkspace, selectedConversation, watchConversation } from '../../lib/workspace'
+import { unreportedInput, type InputEvidence } from '../../lib/skills'
 import { reportFault } from '../../lib/faults'
-import { logInfo } from '../../lib/log'
-import { armGreeting, disarmGreeting } from '../../hooks/useSteering'
 
-/// A turn on screen: everything that gets stored, plus the streaming buffer
-/// for the reply still arriving. `StoredTurn` is the shape on disk.
 export type Turn = StoredTurn & { pendingText: string }
-
-/// How long the conversation rests before it is written. Long enough that a
-/// streamed reply is one write rather than one per token, short enough that
-/// closing the app straight after a turn still catches it.
-const SAVE_DEBOUNCE_MS = 800
-
 interface Options {
-  /// Null until settings have loaded. The pairing comes from here.
-  persona: string
   settings: Settings | null
-  /// A turn in flight; saving waits for it to settle.
-  sending: boolean
   setHistoryOpen: (open: boolean) => void
-  /// Open an empty conversation with a greeting.
-  greet: () => void
-  /// Clear everything tied to the conversation leaving the screen — pinned
-  /// turn, reveals, chips, popups. Owned by the page, because it is page state.
   resetView: () => void
 }
 
-/// Which conversation is on screen, and everything that changes it.
-///
-/// The turns themselves live here because every operation — restoring,
-/// switching chats, starting a new one, saving — shares the same ownership key.
-export function useConversation({
-  settings,
-  persona,
-  sending,
-  setHistoryOpen,
-  greet,
-  resetView,
-}: Options) {
+/** Native snapshots own messages. Mounting observes; only explicit commands create work. */
+export function useConversation({ settings, setHistoryOpen, resetView }: Options) {
   const [turns, setTurns] = useState<Turn[]>([])
-  const [openingFailed, setOpeningFailed] = useState(false)
   const [chats, setChats] = useState<ChatSummary[]>([])
-
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+  const [openingFailed, setOpeningFailed] = useState(false)
+  const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
   const turnsRef = useRef<Turn[]>([])
   turnsRef.current = turns
-  const nextIdRef = useRef(1)
+  const chatIdRef = useRef<{ target: string; native: string; id: string } | null>(null)
+  const directoryRef = useRef<Snapshot | null>(null)
+  const actionPending = useRef(false)
+  const resetRef = useRef(resetView)
+  resetRef.current = resetView
+  const target = settings?.target_language
+  const native = settings?.native_language
 
-  // Which chat the turns on screen belong to. Saves are addressed to THIS
-  // chat, not to whatever settings say right now, so a save landing after a
-  // language switch or a chat change still files the turns under the
-  // conversation they came from.
-  const openKey = useRef<{ target: string; native: string; id: string } | null>(null)
-  const generation = useRef(0)
-  const saves = useRef<Promise<void>>(Promise.resolve())
-  const persist = useCallback((key: NonNullable<typeof openKey.current>, snapshot: Turn[]) => {
-    const stored = snapshot.filter((turn) => turn.assistant !== null)
-      .map(({ pendingText: _pendingText, ...rest }) => rest)
-    const write = saves.current.then(() => saveConversation(
-      key.target, key.native, key.id, stored, conversationTitle(stored)
-    ))
-    // Keep the queue usable after a reported failure; callers still receive the rejection.
-    saves.current = write.catch(() => {})
-    return write
-  }, [])
+  const refresh = useCallback(async () => {
+    const directory = await readWorkspace()
+    directoryRef.current = directory
+    setChats(directory.conversations.filter(c => !c.archived && (!target || c.languageId === target))
+      .sort((a, b) => b.lastUsed - a.lastUsed)
+      .map(c => ({ id: c.id, title: c.title, updated_at: Math.floor(c.lastUsed / 1000) })))
+    return directory
+  }, [target])
 
-  // Callbacks from the page, read through refs so an unstable one from the
-  // caller cannot churn this hook's effects or trigger additional greetings.
-  const greetRef = useRef(greet)
-  greetRef.current = greet
-  const resetViewRef = useRef(resetView)
-  resetViewRef.current = resetView
-  const personaRef = useRef(persona)
-  personaRef.current = persona
-  const settingsRef = useRef<Settings | null>(settings)
-  settingsRef.current = settings
-
-  const refreshChats = useCallback(async (target: string, native: string) => {
-    try {
-      const listed = await listConversations(target, native)
-      if (openKey.current?.target === target && openKey.current.native === native) setChats(listed)
-    } catch (e) {
-      reportFault('Loading your chat history', e)
-    }
-  }, [])
-
-  /// Put a conversation's turns on screen and mark it as the one saves belong
-  /// to. `load` decides which conversation — the open one, or a named one.
-  const show = useCallback(
-    async (
-      target: string,
-      native: string,
-      load: () => Promise<{ id: string; turns: StoredTurn[] }>
-    ) => {
-      const ticket = ++generation.current
-      const previous = openKey.current
-      const snapshot = turnsRef.current
-      openKey.current = null
-      try {
-        if (previous) await persist(previous, snapshot)
-        await saves.current
-        if (ticket !== generation.current) return null
-        const opened = await load()
-        if (ticket !== generation.current) return null
-        setOpeningFailed(false)
-        openKey.current = { target, native, id: opened.id }
-        const restored = opened.turns.map((t) => ({ ...t, pendingText: '' }))
-        turnsRef.current = restored
-        setTurns(restored)
-        // Ids must continue past what was restored or a new turn would collide
-        // with an old one and React would reconcile the wrong bubble.
-        nextIdRef.current = opened.turns.reduce((max, t) => Math.max(max, t.id), 0) + 1
-        void refreshChats(target, native)
-        return opened.turns.length
-      } catch (e) {
-        if (ticket !== generation.current) return null
-        setOpeningFailed(true)
-        reportFault('Opening that conversation', e)
-        return null
-      }
-    },
-    [refreshChats, persist]
-  )
-
-  // Written after a pause rather than on every keystroke of the stream, and
-  // never before a restore has run — saving an empty list first would erase
-  // the conversation we are about to load. Only settled turns are stored: one
-  // still streaming has no reply to keep.
   useEffect(() => {
-    if (!isTauri) return
-    const key = openKey.current
-    if (!key || sending) return
-    const timer = setTimeout(() => {
-      if (openKey.current !== key) return
-      void persist(key, turns)
-        .then(() => refreshChats(key.target, key.native))
-        .catch((e: unknown) => reportFault('Saving your conversation', e))
-    }, SAVE_DEBOUNCE_MS)
-    return () => clearTimeout(timer)
-  }, [turns, sending, refreshChats, persist])
-
-  /// Open a clean conversation. The previous one stays in the list, and what
-  /// the tutor has learned about the learner is untouched — that continuity is
-  /// the whole reason the observer exists.
-  const startNew = useCallback(async (selection: string) => {
-    const s = settingsRef.current
-    if (!s) return
-    const ticket = ++generation.current
-    const previous = openKey.current
-    const snapshot = turnsRef.current
-    openKey.current = null
-    setHistoryOpen(false)
-    let id: string
-    try {
-      if (previous) await persist(previous, snapshot)
-      await saves.current
-      if (ticket !== generation.current) return
-      id = await newConversation(s.target_language, s.native_language, selection)
-      if (ticket !== generation.current) return
-    } catch (e) {
-      if (ticket === generation.current) openKey.current = previous
-      setOpeningFailed(true)
-      reportFault('Starting a new conversation', e)
-      return
-    }
-    setOpeningFailed(false)
-    openKey.current = { target: s.target_language, native: s.native_language, id }
-    turnsRef.current = []
+    let disposed = false
+    chatIdRef.current = null
+    setCurrentChatId(null)
+    setSnapshot(null)
     setTurns([])
-    nextIdRef.current = 1
-    resetViewRef.current()
-    void refreshChats(s.target_language, s.native_language)
-    disarmGreeting()
-    armGreeting()
-    greetRef.current()
-  }, [refreshChats, setHistoryOpen, persist])
+    if (!target || !native) return
+    void refresh().then(directory => {
+      if (disposed) return
+      const selected = selectedConversation(directory, target)
+      if (!selected) throw new Error('No conversation exists for this language. Start a new conversation.')
+      chatIdRef.current = { id: selected.id, target, native }
+      setCurrentChatId(selected.id)
+      setOpeningFailed(false)
+    }).catch(error => {
+      if (!disposed) { setOpeningFailed(true); reportFault('Opening conversation', nativeError(error)) }
+    })
+    return () => { disposed = true }
+  }, [target, native, refresh])
 
-  const openChat = useCallback(
-    async (id: string) => {
-      const s = settingsRef.current
-      if (!s || id === openKey.current?.id) {
-        setHistoryOpen(false)
-        return
-      }
-      setHistoryOpen(false)
-      resetViewRef.current()
-      const restored = await show(s.target_language, s.native_language, () =>
-        openConversation(s.target_language, s.native_language, id, personaRef.current)
-      )
-      // An empty chat reopened is still an empty chat: greet it so there is
-      // something to reply to, exactly as a new one would be.
-      if (restored === 0) {
-        disarmGreeting()
-        armGreeting()
-        greetRef.current()
-      }
-    },
-    [show, setHistoryOpen]
-  )
-
-  const removeChat = useCallback(
-    async (id: string) => {
-      const s = settingsRef.current
-      if (!s) return
-      const key = openKey.current
-      const deletingCurrent = key?.id === id && key.target === s.target_language && key.native === s.native_language
-      const ticket = deletingCurrent ? ++generation.current : generation.current
-      if (deletingCurrent) {
-        openKey.current = null
-        resetViewRef.current()
-      }
-      try {
-        if (deletingCurrent) await persist(key, turnsRef.current)
-        await saves.current
-        await deleteConversation(s.target_language, s.native_language, id)
-        // Deleting the conversation you are looking at leaves nothing on screen,
-        // so open the newest of what is left, or start fresh if none remain.
-        if (deletingCurrent && ticket === generation.current) {
-          const left = await listConversations(s.target_language, s.native_language)
-          setChats(left)
-          if (left.length > 0) {
-            await openChat(left[0].id)
-          } else {
-            await startNew(personaRef.current)
-          }
-          return
-        }
-        void refreshChats(s.target_language, s.native_language)
-        } catch (e) {
-        reportFault('Deleting that conversation', e)
-      }
-    },
-    [openChat, refreshChats, startNew, persist]
-  )
-
-  // The conversation on screen follows the pairing — on first load and on
-  // every switch. Each pairing keeps its turns, coach thread and tutor memory
-  // separately, so going to Arabic and back to Spanish returns to the Spanish
-  // conversation rather than starting over. The dialect is NOT part of a
-  // pairing: changing it is a setting applied to the conversation you are in.
-  //
-  // This is the only place that decides between restoring and greeting, and it
-  // runs only when the pairing actually changes — never on a settings autosave,
-  // which bumps on every keystroke in the Settings modal and would otherwise
-  // reload over turns that had not been written yet.
-  const pairing = settings ? `${settings.target_language}|${settings.native_language}` : null
-  const previousPairing = useRef<string | null>(null)
-  useEffect(() => () => {
-    const previous = openKey.current
-    if (previous) void persist(previous, turnsRef.current)
-      .catch((error: unknown) => reportFault('Saving your conversation', error))
-    openKey.current = null
-    previousPairing.current = null
-    generation.current += 1
-  }, [persist])
   useEffect(() => {
-    if (!pairing || !settings || !isTauri) return
-    const previous = previousPairing.current
-    previousPairing.current = pairing
-    if (previous === pairing) return
-    const switched = previous !== null
-    if (switched) {
-      logInfo('[guided] language pair changed:', previous, '->', pairing)
-      resetViewRef.current()
-    }
-    const { target_language: target, native_language: native } = settings
+    let disposed = false
+    setSnapshot(null)
+    setTurns([])
+    if (!currentChatId) return
     void (async () => {
-      const restored = await show(target, native, () => loadConversation(target, native, personaRef.current))
-      if (restored === null) return
-      if (restored > 0) {
-        logInfo(`[guided] restored ${restored} turns — no greeting`)
-        // Consume the once-per-session greeting: a restored conversation is
-        // already open, and greeting over it would both duplicate the opening
-        // and make it look like nothing had been kept.
-        armGreeting()
-        return
+      let revision = -1
+      while (!disposed) {
+        const next = await watchConversation(currentChatId, revision)
+        if (disposed) return
+        if (next.conversationId !== currentChatId) throw new Error('Conversation snapshot scope mismatch.')
+        if (next.revision !== revision) {
+          setSnapshot(next)
+          window.dispatchEvent(new Event('skill-evidence-changed'))
+          setTurns(conversationTurns(next).map(t => ({ ...t, pendingText: '' })))
+        }
+        revision = next.revision
       }
-      // Empty conversation — open it properly. On a switch the greeting has
-      // usually already been spent on the previous pairing.
-      if (switched) disarmGreeting()
-      if (armGreeting()) {
-        logInfo('[guided] firing greeting turn')
-        greetRef.current()
-      }
-    })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pairing])
+    })().catch(error => { if (!disposed) reportFault('Reading conversation', nativeError(error)) })
+    return () => { disposed = true }
+  }, [currentChatId])
 
-  return {
-    flush: async (): Promise<void> => {
-      const key = openKey.current
-      if (!key) throw new Error('No conversation is open.')
-      await persist(key, turnsRef.current)
-      if (openKey.current !== key) throw new Error('The conversation changed while saving coach context.')
-    },
-    turns,
-    setTurns,
-    turnsRef,
-    nextIdRef,
-    chats,
-    openingFailed,
-    currentChatId: openKey.current?.id ?? null,
-    // The same value, read at call time rather than at render time. The
-    // greeting turn is fired from inside the effect that opens the chat, so a
-    // callback that closed over `currentChatId` would still be holding the
-    // null from the render before the chat existed — and the partner picked
-    // for a whole conversation is seeded from this id.
-    chatIdRef: openKey,
-    openChat,
-    startNew,
-    removeChat,
+  const openChat = useCallback(async (id: string) => {
+    const directory = await refresh()
+    const conversation = directory.conversations.find(c => c.id === id && !c.archived)
+    if (!conversation) throw new Error('Conversation is unavailable.')
+    await executeAction(directory, { kind: 'openConversation', conversationId: id })
+    resetRef.current()
+    chatIdRef.current = { id, target: conversation.languageId, native: conversation.settings.explanationLanguage }
+    setCurrentChatId(id)
+    setHistoryOpen(false)
+  }, [refresh, setHistoryOpen])
+
+  const startNew = useCallback(async () => {
+    if (actionPending.current) return
+    actionPending.current = true
+    try {
+      const directory = await refresh()
+      const owner = directory.conversations.find(c => c.id === chatIdRef.current?.id)
+      const receipt = await executeAction(directory, owner
+        ? { kind: 'createConversation', relationshipId: owner.relationshipId, title: 'Conversation' }
+        : { kind: 'startChat', languageId: target ?? 'es' })
+      if (!receipt.entityId) throw new Error('No new conversation identity was returned.')
+      await openChat(receipt.entityId)
+      await refresh()
+    } catch (error) { reportFault('Starting conversation', nativeError(error)) }
+    finally { actionPending.current = false }
+  }, [openChat, refresh, target])
+
+  const removeChat = useCallback(async (id: string) => {
+    const directory = await refresh()
+    const conversation = directory.conversations.find(c => c.id === id)
+    if (!conversation) throw new Error('Conversation is unavailable.')
+    await executeAction(directory, { kind: 'deleteConversation', conversationId: id, expectedRevision: conversation.revision })
+    const next = await refresh()
+    if (currentChatId === id) {
+      chatIdRef.current = null
+      setCurrentChatId(null)
+      resetRef.current()
+      const selected = selectedConversation(next, target)
+      if (selected) await openChat(selected.id)
+    }
+  }, [currentChatId, openChat, refresh, target])
+
+  const sendMessage = useCallback(async (text: string, expectedConversationId?: string | null, input: InputEvidence = unreportedInput()) => {
+    const owner = chatIdRef.current
+    if (!owner) throw new Error('No conversation is open.')
+    if (expectedConversationId !== undefined && owner.id !== expectedConversationId) throw new Error('The conversation changed before sending.')
+    const directory = await readWorkspace()
+    const conversation = directory.conversations.find(c => c.id === owner.id)
+    if (!conversation) throw new Error('Conversation is unavailable.')
+    await executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
+  }, [])
+
+  return { turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,
+    snapshot: snapshot?.conversationId === currentChatId ? snapshot : null,
+    snapshotRevision: snapshot?.revision ?? -1,
+    pendingReply: snapshot?.turns.some(t => t.state === 'pending') ?? false,
+    flush: async () => { if (!chatIdRef.current) throw new Error('No conversation is open.') },
   }
 }

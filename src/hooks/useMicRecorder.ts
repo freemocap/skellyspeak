@@ -1,259 +1,107 @@
-import { useCallback, useRef, useState } from 'react'
-import { invoke } from '@tauri-apps/api/core'
-import { logDebug, logInfo } from '../lib/log'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { invoke } from '../lib/native'
 import { reportFault } from '../lib/faults'
-import { mediaDevices } from '../lib/media'
+import { startBrowserRecording, type BrowserRecording } from '../lib/browser-recording'
+import type { RecordingStarted } from '../contracts'
 import type { WaveSource } from '../components/WaveformStrip'
 
-const MIC_SILENCE_STOP_MS = 20_000
-const MIC_VOICE_THRESHOLD = 0.02
-
-/// How often the core is asked for the waveform it has captured. Fast enough
-/// that the strip scrolls smoothly, slow enough that it is 10 IPC calls a
-/// second rather than 60.
-const NATIVE_POLL_MS = 100
-
 interface MicRecorderOptions {
-  micDeviceId: string | null | undefined
+  conversationId: string | null
   onTranscribe: (text: string) => void
-  /// Context hint passed to Whisper (live vocabulary, recent conversation).
-  buildPrompt: () => string
 }
 
-interface MicRecorder {
-  recording: boolean
-  transcribing: boolean
-  waveSource: WaveSource | null
-  toggleMic: () => void
-  cancel: () => void
-}
-
-/// Microphone recording lifecycle: permission, capture, silence auto-stop,
-/// live waveform, and Whisper transcription. `onTranscribe` fires with the
-/// transcript when a recording completes.
-///
-/// There are two recorders behind this, chosen by where the audio can actually
-/// come from — `mic_native` in the core decides, and it is a compile-time fact
-/// there rather than a probe here:
-///
-/// - **Desktop** records in the core with cpal. A packaged macOS build has no
-///   `navigator.mediaDevices` at all (WKWebView will not treat Tauri's custom
-///   scheme as a secure context), so the browser recorder is not an option
-///   there, and putting the other desktops on a different recorder would mean
-///   two paths to keep honest instead of one.
-/// - **Mobile** records in the webview, where the browser API is present and
-///   the OS owns the permission prompt.
-///
-/// Neither is a fallback for the other: if the chosen recorder fails, the
-/// failure is reported and nothing else is tried.
-export function useMicRecorder({ micDeviceId, onTranscribe, buildPrompt }: MicRecorderOptions): MicRecorder {
-  const [transcribing, setTranscribing] = useState(false)
-  const transcriptionPending = useRef(false)
+/** Recording is native-owned and bound to its conversation. Only explicit Stop transcribes. */
+export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOptions) {
   const [recording, setRecording] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
   const [waveSource, setWaveSource] = useState<WaveSource | null>(null)
+  const browser = useRef<BrowserRecording | null>(null)
+  const active = useRef<string | null>(null)
+  const working = useRef(false)
+  const samples = useRef<number[]>([])
+  const generation = useRef(0)
+  const callback = useRef(onTranscribe)
+  callback.current = onTranscribe
 
-  /// Ends the recording in progress. Null when nothing is running, which is
-  /// also how `toggleMic` knows which way it is toggling.
-  const stopRef = useRef<((abort: boolean) => void) | null>(null)
-
-  const onTranscribeRef = useRef(onTranscribe)
-  onTranscribeRef.current = onTranscribe
-  const buildPromptRef = useRef(buildPrompt)
-  buildPromptRef.current = buildPrompt
-  const micDeviceIdRef = useRef(micDeviceId)
-  micDeviceIdRef.current = micDeviceId
-
-  /// Hand a finished recording to Whisper. Shared by both recorders — by this
-  /// point it is base64 audio and nothing downstream cares which one made it.
-  const transcribe = useCallback(async (audioBase64: string) => {
-    try {
-      const text = await invoke<string>('transcribe_audio', {
-        audioBase64,
-        prompt: buildPromptRef.current(),
-      })
-      logInfo('[mic] transcription received:', text.length, 'characters')
-      // An empty transcription is the normal outcome of a silent recording,
-      // not a failure — the composer simply stays as it was.
-      if (text) onTranscribeRef.current(text)
-      else logInfo('[mic] transcription was empty (silence)')
-    } catch (e) {
-      reportFault('Transcription', e)
-      onTranscribeRef.current('')
-    } finally { transcriptionPending.current = false; setTranscribing(false) }
+  const cancel = useCallback(() => {
+    browser.current?.cancel(); browser.current = null
+    generation.current++
+    const recordingId = active.current
+    active.current = null
+    setRecording(false); setWaveSource(null)
+    if (recordingId) void invoke('mic_cancel', { recordingId }).catch(error => reportFault('Stopping the microphone', error))
   }, [])
+  useEffect(() => {
+    return () => {
+      browser.current?.cancel(); browser.current = null
+    generation.current++
+      const recordingId = active.current
+      active.current = null
+      if (recordingId) void invoke('mic_cancel', { recordingId }).catch(error => reportFault('Stopping the microphone', error))
+    }
+  }, [conversationId])
+  useEffect(() => { setRecording(false); setWaveSource(null) }, [conversationId])
 
-  // ── Desktop: the core records ────────────────────────────────────────────
-
-  const startNative = useCallback(async () => {
-    const device = micDeviceIdRef.current || null
-    logInfo('[mic] starting core capture', { customDevice: Boolean(device) })
-    const samplesPerSecond = await invoke<number>('mic_start', { device })
-    setRecording(true)
-
-    // Drained by the waveform every frame, refilled by the poll below.
-    let pending: number[] = []
-    let lastVoiceAt = Date.now()
+  // Drain native samples once into the copied time-axis renderer.
+  useEffect(() => {
+    if (!recording || browser.current) return
     let polling = false
-
-    const poll = window.setInterval(() => {
-      // A slow round trip must not stack more calls up behind it.
-      if (polling) return
+    const timer = setInterval(() => {
+      const recordingId = active.current
+      if (!recordingId || polling) return
       polling = true
-      void invoke<number[]>('mic_wave')
-        .then((chunk) => {
-          if (chunk.length > 0) {
-            pending = pending.concat(chunk)
-            let peak = 0
-            for (const v of chunk) {
-              const a = Math.abs(v)
-              if (a > peak) peak = a
-            }
-            if (peak >= MIC_VOICE_THRESHOLD) lastVoiceAt = Date.now()
-          }
-          if (Date.now() - lastVoiceAt >= MIC_SILENCE_STOP_MS) {
-            logInfo('[mic] silence auto-stop (20s without voice)')
-            stopRef.current?.(false)
-          }
-        })
-        .catch((e: unknown) => reportFault('Microphone level meter', e))
-        .finally(() => {
-          polling = false
-        })
-    }, NATIVE_POLL_MS)
-
-    setWaveSource({ samplesPerSecond, read: () => pending.splice(0) })
-
-    stopRef.current = (abort: boolean) => {
-      stopRef.current = null
-      window.clearInterval(poll)
-      setRecording(false)
-      setWaveSource(null)
-      if (abort) {
-        invoke('mic_cancel').catch((e: unknown) => reportFault('Stopping the microphone', e))
-        logInfo('[mic] recording cancelled')
-        return
-      }
-      transcriptionPending.current = true
-      setTranscribing(true)
-      void invoke<string>('mic_stop')
-        .then((audioBase64) => {
-          logDebug('[mic] core capture finished:', audioBase64.length, 'base64 chars')
-          return transcribe(audioBase64)
-        })
-        .catch((e: unknown) => { transcriptionPending.current = false; setTranscribing(false); reportFault('Microphone', e) })
-    }
-  }, [transcribe])
-
-  // ── Mobile: the webview records ──────────────────────────────────────────
-
-  const startBrowser = useCallback(async () => {
-    const constraints: MediaTrackConstraints = {}
-    const deviceId = micDeviceIdRef.current
-    if (deviceId) constraints.deviceId = { exact: deviceId }
-    logInfo('[mic] requesting permission…', { customDevice: Boolean(deviceId) })
-    const stream = await mediaDevices().getUserMedia({ audio: constraints })
-    logInfo('[mic] permission granted')
-    setRecording(true)
-
-    const recorder = new MediaRecorder(stream)
-    const chunks: Blob[] = []
-    recorder.ondataavailable = (e) => chunks.push(e.data)
-
-    const ctx = new AudioContext()
-    void ctx.resume()
-    const analyser = ctx.createAnalyser()
-    analyser.fftSize = 2048
-    ctx.createMediaStreamSource(stream).connect(analyser)
-    const frame = new Float32Array(analyser.fftSize)
-    // One in ten of the time-domain buffer, read once a frame: about the same
-    // level of detail the core's decimated stream provides.
-    const stride = 10
-    setWaveSource({
-      samplesPerSecond: (60 * analyser.fftSize) / stride,
-      read: () => {
-        analyser.getFloatTimeDomainData(frame)
-        const out: number[] = []
-        for (let i = 0; i < frame.length; i += stride) out.push(frame[i] ?? 0)
-        return out
-      },
-    })
-
-    let lastVoiceAt = Date.now()
-    const poll = window.setInterval(() => {
-      analyser.getFloatTimeDomainData(frame)
-      let peak = 0
-      for (let i = 0; i < frame.length; i++) {
-        const a = Math.abs(frame[i])
-        if (a > peak) peak = a
-      }
-      if (peak >= MIC_VOICE_THRESHOLD) {
-        lastVoiceAt = Date.now()
-      } else if (Date.now() - lastVoiceAt >= MIC_SILENCE_STOP_MS) {
-        logInfo('[mic] silence auto-stop (20s without voice)')
-        stopRef.current?.(false)
-      }
-    }, 500)
-
-    const teardown = () => {
-      window.clearInterval(poll)
-      stream.getTracks().forEach((t) => t.stop())
-      void ctx.close()
-      setRecording(false)
-      setWaveSource(null)
-    }
-
-    recorder.onstop = () => {
-      transcriptionPending.current = true
-      setTranscribing(true)
-      const blob = new Blob(chunks, { type: recorder.mimeType })
-      logInfo('[mic] recording finished:', blob.size, 'bytes,', recorder.mimeType)
-      void blob
-        .arrayBuffer()
-        .then((buffer) => {
-          const bytes = new Uint8Array(buffer)
-          let binary = ''
-          for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-          return transcribe(btoa(binary))
-        })
-        .catch((e: unknown) => { transcriptionPending.current = false; setTranscribing(false); reportFault('Microphone', e) })
-    }
-
-    stopRef.current = (abort: boolean) => {
-      stopRef.current = null
-      // Dropping onstop is what makes an abort produce no transcription, rather
-      // than a flag the handler has to remember to check.
-      if (abort) recorder.onstop = null
-      teardown()
-      if (recorder.state !== 'inactive') recorder.stop()
-      if (abort) logInfo('[mic] recording cancelled')
-    }
-
-    recorder.start()
-    logInfo('[mic] recording started (tap again to stop; auto-stops after 20s of silence)')
-  }, [transcribe])
+      void invoke<number[]>('mic_wave', { recordingId })
+        .then(chunk => { if (active.current === recordingId) samples.current = [...samples.current, ...chunk].slice(-8192) })
+        .catch(error => {
+          if (active.current !== recordingId) return
+          reportFault('Microphone level meter', error)
+          cancel()
+        }).finally(() => { polling = false })
+    }, 100)
+    return () => clearInterval(timer)
+  }, [recording, cancel])
 
   const toggleMic = useCallback(async () => {
-    if (transcriptionPending.current) return
-    if (stopRef.current) {
-      logInfo('[mic] stop requested by user')
-      stopRef.current(false)
-      return
-    }
+    if (working.current) return
+    const scope = generation.current
+    working.current = true
     try {
-      if (await invoke<boolean>('mic_native')) await startNative()
-      else await startBrowser()
-    } catch (e) {
-      setRecording(false)
-      setWaveSource(null)
-      stopRef.current = null
-      reportFault('Microphone', e)
-    }
-  }, [startNative, startBrowser])
-
-  /// Abort without transcribing — teardown only, no side effects.
-  const cancel = useCallback(() => {
-    stopRef.current?.(true)
-  }, [])
+      const recordingId = active.current
+      if (recordingId) {
+        active.current = null; setRecording(false); setWaveSource(null); setTranscribing(true)
+        const capture = browser.current; browser.current = null
+        let audioBase64: string | undefined
+        try { audioBase64 = await capture?.finish() }
+        catch (error) { await invoke('mic_cancel', { recordingId }); throw error }
+        if (generation.current !== scope) { await invoke('mic_cancel', { recordingId }); return }
+        const text = await invoke<string>('mic_transcribe', { recordingId, ...(audioBase64 ? { audioBase64 } : {}) })
+        if (generation.current === scope && text.trim()) callback.current(text)
+      } else {
+        if (!conversationId) throw new Error('Open a conversation before recording.')
+        const { recordingId, samplesPerSecond } = await invoke<RecordingStarted>('mic_start', { conversationId })
+        if (generation.current !== scope) {
+          await invoke('mic_cancel', { recordingId })
+          return
+        }
+        if (!Number.isFinite(samplesPerSecond) || samplesPerSecond <= 0) {
+          await invoke('mic_cancel', { recordingId })
+          throw new Error('Native recording returned an invalid waveform sample rate.')
+        }
+        if (/Android|iPhone|iPad/.test(navigator.userAgent)) {
+          try {
+            const capture = await startBrowserRecording(error => { reportFault('Microphone', error); cancel() })
+            if (generation.current !== scope) { capture.cancel(); await invoke('mic_cancel', { recordingId }); return }
+            browser.current = capture
+          } catch (error) { await invoke('mic_cancel', { recordingId }); throw error }
+        }
+        active.current = recordingId
+        samples.current = []
+        setWaveSource(browser.current?.wave ?? { samplesPerSecond, read: () => samples.current.splice(0) })
+        setRecording(true)
+      }
+    } catch (error) { if (generation.current === scope) reportFault('Microphone', error) }
+    finally { working.current = false; setTranscribing(false) }
+  }, [conversationId, cancel])
 
   return { recording, transcribing, waveSource, toggleMic, cancel }
 }

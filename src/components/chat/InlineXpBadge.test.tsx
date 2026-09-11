@@ -6,7 +6,7 @@ import type { MessageEvidence } from '../../lib/message-evidence'
 import { playRewardSound } from '../../lib/reward-sounds'
 vi.mock('../../lib/reward-sounds', () => ({ playRewardSound: vi.fn() }))
 
-const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'reference', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }
+const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'statements', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }
 
 it('consumes only the selected token and restores it only with a new word generation', () => {
   vi.useFakeTimers()
@@ -21,7 +21,7 @@ it('consumes only the selected token and restores it only with a new word genera
     const token = screen.getByRole('button', { name: 'Inspect 10 XP · Referent' })
     const face = token.querySelector('.inline-xp-face')
     fireEvent.click(token)
-    expect(view.container.querySelector('.inline-xp-slot')).toHaveAttribute('aria-hidden', 'true')
+    expect(view.container.querySelector('.inline-xp-slot')).toBeNull()
     expect(first).toHaveBeenCalledOnce()
     expect(playRewardSound).toHaveBeenCalledWith({ kind: 'pop' }, face)
     expect(second).not.toHaveBeenCalled()

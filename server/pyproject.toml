@@ -1,6 +1,7 @@
 [project]
 name = "skellyspeak-api"
 version = "0.1.0"
+license = "AGPL-3.0-or-later"
 description = "Sign-in, quota, and an authenticated AI passthrough for SkellySpeak"
 requires-python = ">=3.12"
 dependencies = [

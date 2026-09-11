@@ -4,10 +4,6 @@ The active API source and deployment configuration live here. Authentication,
 request/body limits, model pricing ceilings, transactional budget reservation,
 settlement and session revocation apply to hosted AI calls.
 
-See the [September 10 allowance incident report](../RATE-LIMIT-INVESTIGATION.md)
-for the confirmed cause, concurrency-preserving fix and release checks, and
-[release notes](../RELEASE-NOTES.md) for the unreleased changes.
-
 ## Diagnostics
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
@@ -41,16 +37,6 @@ not a provider probe or a guarantee that the next request will be admitted.
 The app exposes this under Settings → AI access & models → Hosted → Service
 diagnostics → Check service status. It never polls automatically. A missing route
 before deployment reports an HTTP failure, not a healthy result.
-
-Unaffordable spending reservations are rechecked within the same incoming request,
-before contacting the provider: at most six checks with 0.5, 1, 2, 4 and 8 seconds
-between them. At most 16 requests per server process may wait for allowance;
-additional waiters receive HTTP 503. Affordable calls proceed concurrently, and
-settlement by another request or instance can release capacity for a waiting call.
-An impossible request larger than the entire personal/shared allowance and a
-spending pause fail immediately. Persisting allowance exhaustion returns its
-specific HTTP 429 code after the bounded wait. Failed provider calls are not
-resent, and no spending limits or unresolved charges are reduced by this policy.
 
 Errors carry `code`, `detail`, a generated `request_id` and applicable `resets_at`.
 Short-window rejections include Retry-After. Codes distinguish personal/shared
@@ -228,8 +214,8 @@ test -e server/local.env || install -m 600 server/local.env.sample server/local.
 With the loopback emulator running, start from the repository root:
 
 ```sh
-server/.venv/bin/python server/local_server.py --check
-server/.venv/bin/python server/local_server.py
+npm run server:local -- --check
+npm run server:local
 ```
 
 The launcher sets emulator storage explicitly, uses the real OpenRouter/Groq HTTPS
@@ -291,3 +277,18 @@ a storage bound, not proof of compromise or a substitute for account-level
 request and spending controls. Existing registrations can still check in at the
 ceiling. Registration is performed by `/v1/me` after authentication; a 409 there
 can therefore follow successful authentication.
+
+Grouped item failures emit `operation_failure` log records with HTTP status,
+optional bounded upstream HTTP status and a fixed `http`/`internal` category.
+These records omit bodies, URLs, identities, exception messages and tracebacks.
+The outer streaming request may return 200 while an item fails; inspect item
+records when diagnosing grouped requests. Unknown-usage settlement retains its
+conservative reservation without replacing an existing upstream error. Storage
+settlement failures remain failures.
+
+The local launcher writes all inherited process output and structured Python
+logging into private `.local/logs/server-.../` files; see the repository README's
+Development diagnostic coverage section for the full capture/redaction contract.
+Use the logged process launcher for the emulator too. A server restart refreshes
+`server/.local-server/session-token.txt`; update Custom URL's saved token before
+trying authenticated requests again. Tokens must never be printed in logs.

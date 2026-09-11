@@ -1,4 +1,7 @@
-import { invoke as nativeInvoke } from '@tauri-apps/api/core'
+import type { ConnectionConfig, AccessSettings, RewardSettings } from '../contracts'
+import { readWorkspace, selectedConversation, executeAction } from './workspace'
+import { SHORTCUT_DEFAULTS } from './keyboard'
+import { invoke as nativeInvoke } from './native'
 import { validateAudioVolumes } from './audio-settings'
 import { logDebug, logError, logInfo, logWarn } from './log'
 import type {
@@ -8,10 +11,7 @@ import type {
   Reconciliation,
   Run,
   RunStarted,
-  ChatSummary,
-  OpenedConversation,
   Settings,
-  StoredTurn,
 } from '../types'
 
 export const isTauri =
@@ -42,6 +42,7 @@ export interface DialectInfo {
 }
 
 export interface LanguageInfo {
+  fontScale: number
   code: string
   base: string
   name: string
@@ -56,7 +57,13 @@ let registry: LanguageInfo[] | null = null
 /// Load the registry before the first render. Fails loudly — the UI cannot
 /// render a language picker it does not have.
 export async function loadLanguages(): Promise<void> {
-  registry = await invoke<LanguageInfo[]>('get_languages')
+  const snapshot = await readWorkspace()
+  registry = snapshot.languages.map(language => {
+    if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
+    return { fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
+      direction: language.direction, romanization: language.romanization,
+      dialects: language.varieties.map(variety => ({ id: variety.id, label: variety.name })) }
+  })
   logInfo(`[lang] registry loaded: ${registry.map((l) => l.code).join(', ')}`)
 }
 
@@ -70,8 +77,7 @@ export function languages(): LanguageInfo[] {
 
 /// The registry entry for a target-language code, or null if unknown.
 export function languageFor(code: string): LanguageInfo | null {
-  const base = code.split('-')[0]
-  return languages().find((l) => l.code === code || l.base === base) ?? null
+  return languages().find(l => l.code === code || l.dialects.some(v => v.id === code)) ?? null
 }
 
 /// One character, as the core defines it.
@@ -116,10 +122,29 @@ export function deletePersona(id: string): Promise<void> {
   return invoke<void>('delete_persona', { id })
 }
 
+/** View settings combine native conversation choices and learner display preferences. */
 export async function getSettings(): Promise<Settings> {
-  const settings = await invoke<Settings>('get_settings')
-  validateAudioVolumes(settings)
-  return settings
+  const [snapshot, connection, access, rewards, playbackRate] = await Promise.all([
+    readWorkspace(), invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'), invoke<RewardSettings>('get_reward_settings'), invoke<number>('get_playback_rate'),
+  ])
+  const conversation = selectedConversation(snapshot)
+  if (!conversation) throw new Error('No active conversation is available.')
+  const preferences = snapshot.learner.preferences
+  return {
+    scope: { sessionId: snapshot.sessionId, conversationId: conversation.id, settingsRevision: conversation.settingsRevision, learnerRevision: snapshot.learner.revision, rewardRevision: rewards.revision },
+    provider_mode: connection.route === 'openrouter' ? 'cloud' : connection.route,
+    hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
+    custom_base_url: access.custom.baseUrl, custom_model: access.custom.standardModel,
+    openrouter_model: connection.standardModel, observer_model: null,
+    target_language: conversation.languageId, target_dialect: conversation.settings.varietyId,
+    native_language: conversation.settings.explanationLanguage,
+    always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
+    auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
+    // Unsupported controls are disabled. These presentation values confer no runtime capability.
+    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
+    reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
+    tts_engine: 'cloud', tts_voice: conversation.settings.speechVoice, tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
+  }
 }
 
 export interface KeyStatus {
@@ -149,62 +174,6 @@ export function hostedSignOut(): Promise<void> {
   return invoke('hosted_sign_out')
 }
 
-/// Every chat for this pairing, most recently used first.
-export function listConversations(target: string, native: string): Promise<ChatSummary[]> {
-  return invoke<ChatSummary[]>('list_conversations', { target, native })
-}
-
-/// The chat currently open for this pairing, starting one if there is none.
-///
-/// The pairing is named explicitly rather than inferred from settings: the
-/// webview knows which conversation the turns on screen belong to, and saying
-/// so is what stops a language switch racing an in-flight save and filing one
-/// conversation under another's name. Saves name the chat id for the same
-/// reason.
-export function loadConversation(
-  target: string,
-  native: string,
-  personaId: string
-): Promise<OpenedConversation> {
-  return invoke<OpenedConversation>('load_conversation', { target, native, personaId })
-}
-
-/// Switch to another chat. Its coach thread comes with it.
-export function openConversation(
-  target: string,
-  native: string,
-  id: string,
-  personaId: string
-): Promise<OpenedConversation> {
-  return invoke<OpenedConversation>('open_conversation', { target, native, id, personaId })
-}
-
-export function saveConversation(
-  target: string,
-  native: string,
-  id: string,
-  turns: StoredTurn[],
-  title: string
-): Promise<void> {
-  return invoke('save_conversation', { target, native, id, turns, title })
-}
-
-/// Start a fresh chat and make it the open one. What the tutor has learned
-/// about the learner is deliberately kept — it lives above the chats.
-export function newConversation(target: string, native: string, personaId: string): Promise<string> {
-  return invoke<string>('new_conversation', { target, native, personaId })
-}
-
-/// Take a chat out of the list. Its turns stay on disk, marked with the time
-/// they were removed.
-export function deleteConversation(
-  target: string,
-  native: string,
-  id: string
-): Promise<void> {
-  return invoke('delete_conversation', { target, native, id })
-}
-
 export function getDiagnostics(): Promise<[string, number][]> {
   return invoke('get_diagnostics')
 }
@@ -213,7 +182,7 @@ export function getDiagnostics(): Promise<[string, number][]> {
 /// the window is built in Rust, so the webview never needs window-creation
 /// permission.
 export function openDevWindow(): Promise<void> {
-  return invoke('open_dev_window')
+  return invoke('open_ai_window')
 }
 
 /// The execution graph as Rust declares it. The UI renders this and only
@@ -299,8 +268,42 @@ export async function subscribeRuns(
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
+  if (!settings.scope) throw new Error('Reload settings before saving.')
   validateAudioVolumes(settings)
-  return invoke('save_settings', { settings })
+  const snapshot = await readWorkspace()
+  const scope = settings.scope
+  if (scope.sessionId !== snapshot.sessionId) throw new Error('The application session changed. Reload settings.')
+  const conversation = snapshot.conversations.find(c => c.id === scope.conversationId)
+  if (!conversation) throw new Error('The settings conversation is unavailable.')
+  if (conversation.settingsRevision !== scope.settingsRevision || snapshot.learner.revision !== scope.learnerRevision) throw new Error('Settings changed. Reload before saving.')
+  if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
+  if (settings.microphone_device_id !== null || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
+  const currentRewards = await invoke<RewardSettings>('get_reward_settings')
+  if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
+  const currentRate = await invoke<number>('get_playback_rate')
+  if (settings.tts_rate !== currentRate) await invoke('save_playback_rate', { rate: settings.tts_rate })
+  const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
+    autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: settings.tts_voice,
+    translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
+  const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing }
+  const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)
+  const displayChanged = JSON.stringify(preferences) !== JSON.stringify(snapshot.learner.preferences)
+  if (settings.target_language !== conversation.languageId) {
+    const selected = selectedConversation(snapshot, settings.target_language)
+    await executeAction(snapshot, selected ? { kind: 'openConversation', conversationId: selected.id } : { kind: 'startChat', languageId: settings.target_language })
+    const nativeChanged = settings.native_language !== conversation.settings.explanationLanguage
+    if (nativeChanged || displayChanged) {
+      const fresh = await readWorkspace()
+      const owner = selectedConversation(fresh, settings.target_language)
+      if (!owner) throw new Error('The selected language conversation is unavailable.')
+      if (nativeChanged) await executeAction(fresh, { kind: 'updateSettings', conversationId: owner.id, expectedRevision: owner.settingsRevision, settings: { ...owner.settings, explanationLanguage: settings.native_language } })
+      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences: { ...fresh.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing } })
+    }
+    return
+  }
+  if (practiceChanged) await executeAction(snapshot, { kind: 'updateSettings', conversationId: conversation.id, expectedRevision: scope.settingsRevision, settings: practice })
+  if (displayChanged) await executeAction(snapshot, { kind: 'updateLearner', expectedRevision: scope.learnerRevision, name: snapshot.learner.name, preferences })
 }
 
 /// Drain faults the Rust core recorded before the webview existed. Called once

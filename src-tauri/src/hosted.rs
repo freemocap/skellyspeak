@@ -1,534 +1,582 @@
-//! Sign-in to the hosted service.
-//!
-//! The app holds no OAuth client secret. It opens the SYSTEM browser at the
-//! service's `/auth/start`, the service performs the Google exchange, and the
-//! browser comes back to the app carrying a short-lived one-time code. The app
-//! trades that code for a session token over HTTPS.
-//!
-//! The system browser is not a preference. Google refuses OAuth from embedded
-//! webviews outright (`disallowed_useragent`), and this app's entire UI is one.
-//!
-//! Coming back into the app happens two different ways, because the platforms
-//! offer nothing in common:
-//!
-//! * **Desktop** — a loopback listener on an ephemeral port (RFC 8252). Bound
-//!   before the browser opens, so the port in the redirect is known to be ours.
-//! * **Android** — a `skellyspeak://auth` deep link, delivered by the OS.
-//!
-//! The service accepts exactly those two shapes and nothing else; see
-//! `validate_redirect_uri` in `server/auth.py`.
-
-use crate::settings::HOSTED_BASE_URL;
-use tauri_plugin_opener::OpenerExt;
-use serde::{Deserialize, Serialize};
+use crate::model::{AppError, ErrorCode, HostedAccount, Result};
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+use sha2::{Digest, Sha256};
 use std::time::Duration;
+#[cfg(desktop)]
+use tauri_plugin_opener::OpenerExt;
+use zeroize::Zeroizing;
 
-/// How long to wait for someone to finish signing in before giving up. Long
-/// enough to find a password, short enough that an abandoned attempt does not
-/// leave a listener bound forever.
-const SIGN_IN_TIMEOUT: Duration = Duration::from_secs(300);
-
-/// Who is signed in and what allowance is left. Mirrors `GET /v1/me`.
-///
-/// The allowance is money, not tokens: the service meters what OpenRouter
-/// actually charged, because the price of a token varies about a hundredfold
-/// across models. Tokens and turns come back as ESTIMATES derived from this
-/// account's own usage so far — they are the readable form of the number, not
-/// the number the limit is enforced against.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Account {
-    pub email: String,
-    pub name: String,
-    /// US dollars.
-    pub used_usd: f64,
-    pub limit_usd: f64,
-    pub remaining_usd: f64,
-    /// Reporting only.
-    pub tokens_today: u64,
-    pub requests_today: u64,
-    /// The API calls this estimate "turns"; each unit is one AI request.
-    #[serde(rename(deserialize = "estimated_turns_remaining"))]
-    pub estimated_requests_remaining: u64,
-    pub estimated_tokens_remaining: u64,
-    /// This account carries its own daily limit rather than the service
-    /// default. Shown so an unusual allowance reads as deliberate.
-    #[serde(default)]
-    pub custom_limit: bool,
-    pub resets: String,
+pub const ORIGIN: &str = "https://skellyspeak-api-ndkvvlbq4a-uc.a.run.app";
+fn fault(message: &str) -> AppError {
+    AppError::new(ErrorCode::Provider, message)
 }
-
-#[test]
-fn account_decodes_service_contract_and_exposes_request_estimate_to_ui() {
-    let mut body = serde_json::json!({
-        "email": "learner@example.com", "name": "Learner",
-        "used_usd": 0.1, "limit_usd": 0.5, "remaining_usd": 0.4,
-        "tokens_today": 100, "requests_today": 2,
-        "estimated_turns_remaining": 8, "estimated_tokens_remaining": 400,
-        "custom_limit": false, "resets": "00:00 UTC"
-    });
-    let account: Account = serde_json::from_value(body.clone()).unwrap();
-    assert_eq!(account.estimated_requests_remaining, 8);
-    let ui = serde_json::to_value(account).unwrap();
-    assert_eq!(ui["estimated_requests_remaining"], 8);
-    assert!(ui.get("estimated_turns_remaining").is_none());
-    body.as_object_mut().unwrap().remove("estimated_turns_remaining");
-    assert!(serde_json::from_value::<Account>(body).unwrap_err().to_string()
-        .contains("estimated_turns_remaining"));
+pub fn identity(request: reqwest::RequestBuilder, install: &str) -> reqwest::RequestBuilder {
+    request
+        .header("X-SkellySpeak-Install", install)
+        .header("X-SkellySpeak-Platform", std::env::consts::OS)
+        .header("X-SkellySpeak-Version", env!("CARGO_PKG_VERSION"))
 }
-
-/// A session token and the address it belongs to.
-pub struct Session {
-    pub token: String,
-    pub email: String,
-}
-
-/// What the app tells the service about itself.
-///
-/// Deliberately three things and no more: a random per-installation id, the
-/// operating system, and the app version. Enough to answer "how many machines
-/// does someone use, on what, running what" — which is what decides where
-/// effort goes — without carrying anything that locates or identifies a
-/// person. No IP address, no device name, no hardware or advertising id.
-pub struct ClientInfo {
-    pub install_id: String,
-    pub platform: &'static str,
-    pub version: &'static str,
-}
-
-impl ClientInfo {
-    pub fn new(install_id: &str) -> Self {
-        Self {
-            install_id: install_id.to_string(),
-            platform: std::env::consts::OS,
-            version: env!("CARGO_PKG_VERSION"),
+pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
+    if response.status().as_u16() == 429 {
+        let retry_after = response
+            .headers()
+            .get(reqwest::header::RETRY_AFTER)
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| value.parse::<u32>().ok());
+        let mut bytes = Vec::new();
+        while let Some(chunk) =
+            response.chunk().await.map_err(|_| {
+                fault("Could not read hosted limit response.")
+                    .with_refusal(crate::refusal::classify(None, retry_after, None))
+            })?
+        {
+            if bytes.len() + chunk.len() > 65536 {
+                return Err(fault("Hosted limit response exceeds its size limit.")
+                    .with_refusal(crate::refusal::classify(None, retry_after, None)));
+            }
+            bytes.extend_from_slice(&chunk);
         }
+        return Err(limit_error(&bytes, retry_after));
     }
+    if !response.status().is_success() {
+        let request_id = response
+            .headers()
+            .get("x-request-id")
+            .and_then(|h| h.to_str().ok())
+            .filter(|id| id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()));
+        let message: String = match response.status().as_u16() {
+            401 => "Your hosted session expired or was refused. Sign in with Google again.".into(),
+            403 => "The hosted account does not have access to this request.".into(),
+            status => format!(
+                "Hosted service HTTP {status}. The request failed; no automatic retry was made."
+            ),
+        };
+        return Err(fault(&format!(
+            "{message}{}",
+            request_id
+                .map(|id| format!(" Request ID: {id}."))
+                .unwrap_or_default()
+        )));
+    }
+    let mut bytes = Vec::new();
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|_| fault("Could not read the hosted response."))?
+    {
+        if bytes.len() + chunk.len() > 65536 {
+            return Err(fault("The hosted response exceeds its size limit."));
+        }
+        bytes.extend_from_slice(&chunk);
+    }
+    Ok(bytes)
 }
 
-/// Header names the service reads to record a device. Kept together so the
-/// two sides are easy to keep in step.
-const INSTALL_HEADER: &str = "X-SkellySpeak-Install";
-const PLATFORM_HEADER: &str = "X-SkellySpeak-Platform";
-const VERSION_HEADER: &str = "X-SkellySpeak-Version";
-
-/// An absolute URL on the service, given a path rooted at its origin. The
-/// AI endpoints live under `/v1`; sign-in lives beside it, not under it.
-fn service_url(path: &str) -> String {
-    let origin = HOSTED_BASE_URL.trim_end_matches("/v1");
-    format!("{origin}{path}")
+fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
+    let value: serde_json::Value = serde_json::from_slice(bytes).unwrap_or(serde_json::Value::Null);
+    let refusal = crate::refusal::classify(
+        value.get("code").and_then(|v| v.as_str()),
+        retry_after,
+        value.get("request_id").and_then(|v| v.as_str()),
+    );
+    limit_message(bytes, retry_after).with_refusal(refusal)
 }
 
-/// The PKCE pair for one sign-in attempt (RFC 7636).
-///
-/// The redirect that carries the login code back is NOT a private channel: on
-/// Android any app may register `skellyspeak://`, and on desktop the loopback
-/// port is reachable by anything on the machine. The verifier never leaves this
-/// process, so a code intercepted in transit cannot be exchanged for a session.
-/// RFC 8252 §8.1 requires this for native apps.
-struct Pkce {
-    verifier: String,
+fn limit_message(bytes: &[u8], retry_after: Option<u32>) -> AppError {
+    let value: serde_json::Value = match serde_json::from_slice(bytes) {
+        Ok(value) => value,
+        Err(_) => {
+            return fault(
+                "Hosted HTTP 429: the service rejected the request but returned a malformed limit response. The cause is unknown; no automatic retry was made.",
+            );
+        }
+    };
+    let code = value.get("code").and_then(serde_json::Value::as_str);
+    let explanation = match code {
+        Some("PERSONAL_ACCOUNT_DAILY_LIMIT") => {
+            Some("Your daily authenticated-request limit is exhausted. Resets at 00:00 UTC.")
+        }
+        Some("SHARED_ACCOUNT_DAILY_LIMIT") => Some(
+            "The service's daily authenticated-request limit is exhausted. Resets at 00:00 UTC.",
+        ),
+        Some("PERSONAL_DIAGNOSTICS_DAILY_LIMIT" | "SHARED_DIAGNOSTICS_DAILY_LIMIT") => {
+            Some("The diagnostics request limit is exhausted. Resets at 00:00 UTC.")
+        }
+        Some("INGRESS_RATE_LIMIT") => {
+            Some("The server process is receiving too many requests. Wait at least 60 seconds.")
+        }
+        Some("PERSONAL_ALLOWANCE_EXHAUSTED") => Some(
+            "Your remaining daily allowance cannot cover this request, including pending reservations. Resets at 00:00 UTC.",
+        ),
+        Some("SHARED_ALLOWANCE_EXHAUSTED") => Some(
+            "The shared remaining daily allowance cannot cover this request, including pending reservations. Resets at 00:00 UTC.",
+        ),
+        Some("SPENDING_PAUSED") => Some(
+            "Service spending is paused for billing reconciliation. Restarting does not clear this control.",
+        ),
+        _ => None,
+    };
+    if let Some(reason) = explanation {
+        let id = value
+            .get("request_id")
+            .and_then(serde_json::Value::as_str)
+            .filter(|id| id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()));
+        return fault(&format!(
+            "Hosted HTTP 429: {reason}{} No automatic retry was made.",
+            id.map(|id| format!(" Request ID: {id}."))
+                .unwrap_or_default()
+        ));
+    }
+    // Only documented service messages may reach the UI or persisted attempt log.
+    let detail = value.get("detail").and_then(serde_json::Value::as_str);
+    let reason = match detail {
+        Some("Request rate limit reached. Try again in a minute.") => {
+            "Request rate limit reached. Try again in a minute. A positive token balance does not override the request-rate limit."
+        }
+        Some("Daily request limit reached. Resets at 00:00 UTC.") => {
+            "Daily request limit reached. Resets at 00:00 UTC. This is a separate limit from your remaining token allowance."
+        }
+        Some("Hosted spending is paused while a provider billing discrepancy is investigated.") => {
+            "Hosted spending is paused while a provider billing discrepancy is investigated. Signing in again will not clear this service-side pause."
+        }
+        Some(
+            "Your remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset.",
+        ) => {
+            "Your remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset."
+        }
+        Some(
+            "The shared remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset.",
+        ) => {
+            "The shared remaining daily allowance cannot cover this request. Your personal token balance may still be positive. Wait for pending requests to finish or for the 00:00 UTC reset."
+        }
+        Some("Transcription is busy. Try again shortly.") => {
+            "Transcription is busy. Try again shortly."
+        }
+        Some("Too many sign-in attempts right now. Wait a minute and try again.") => {
+            "Too many sign-in attempts right now. Wait a minute and try again."
+        }
+        _ => {
+            "The service returned an unrecognized limit response. The cause is unknown; a positive token balance alone does not establish chat availability."
+        }
+    };
+    let delay = retry_after
+        .map(|seconds| format!(" Server Retry-After: {seconds} seconds."))
+        .unwrap_or_default();
+    fault(&format!(
+        "Hosted HTTP 429: {reason}{delay} No automatic retry was made."
+    ))
+}
+pub async fn account(token: &str, install: &str) -> Result<HostedAccount> {
+    let response = identity(
+        crate::provider::client()?
+            .get(format!("{ORIGIN}/v1/me"))
+            .bearer_auth(token),
+        install,
+    )
+    .timeout(Duration::from_secs(30))
+    .send()
+    .await
+    .map_err(|_| fault("Could not reach the hosted account service."))?;
+    decode_account(&body(response).await?)
+}
+pub fn decode_account(bytes: &[u8]) -> Result<HostedAccount> {
+    let account: HostedAccount = serde_json::from_slice(bytes)
+        .map_err(|_| fault("The hosted account response is malformed."))?;
+    if [account.used_usd, account.limit_usd, account.remaining_usd]
+        .iter()
+        .any(|n| !n.is_finite() || *n < 0.0)
+        || account.email.is_empty()
+        || account.resets != "00:00 UTC"
+    {
+        return Err(fault("The hosted account contains invalid allowance data."));
+    }
+    Ok(account)
+}
+struct Proof {
+    verifier: Zeroizing<String>,
     challenge: String,
 }
-
-impl Pkce {
-    fn new() -> Self {
-        use base64::Engine;
-        use sha2::{Digest, Sha256};
-        // 32 random bytes base64url-encoded is 43 characters — the minimum the
-        // RFC allows and 256 bits of entropy.
+impl Proof {
+    fn create() -> Result<Self> {
         let mut raw = [0u8; 32];
-        getrandom::fill(&mut raw).expect("the OS must provide random bytes");
-        let verifier = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(raw);
-        let challenge = base64::engine::general_purpose::URL_SAFE_NO_PAD
-            .encode(Sha256::digest(verifier.as_bytes()));
-        Self { verifier, challenge }
+        getrandom::fill(&mut raw).map_err(|_| fault("Secure randomness is unavailable."))?;
+        let verifier = Zeroizing::new(URL_SAFE_NO_PAD.encode(raw));
+        let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(verifier.as_bytes()));
+        Ok(Self {
+            verifier,
+            challenge,
+        })
     }
 }
-
-/// Where the browser is sent to begin sign-in.
-fn start_url(redirect_uri: &str, challenge: &str) -> Result<String, String> {
+fn start_url(redirect: &str, challenge: &str) -> Result<String> {
     reqwest::Url::parse_with_params(
-        &service_url("/auth/start"),
+        &format!("{ORIGIN}/auth/start"),
         &[
             ("provider", "google"),
-            ("redirect_uri", redirect_uri),
+            ("redirect_uri", redirect),
             ("code_challenge", challenge),
             ("code_challenge_method", "S256"),
             ("app_state", challenge),
         ],
     )
     .map(String::from)
-    .map_err(|e| format!("could not build the sign-in URL: {e}"))
+    .map_err(|_| fault("Could not construct the sign-in URL."))
 }
-
-/// Send the system browser to `url`.
-///
-/// This goes through the plugin instance on the AppHandle, NOT the crate-level
-/// `open_url` free function. That free function is desktop-only in effect: it
-/// spawns a helper program (`xdg-open` and friends), which does not exist on
-/// Android, so it fails there with "No such file or directory (os error 2)".
-/// The plugin instance dispatches to an ACTION_VIEW intent on Android and to
-/// the same helper on desktop.
-fn open_in_browser(app: &tauri::AppHandle, url: &str) -> Result<(), String> {
-    app.opener()
-        .open_url(url, None::<&str>)
-        .map_err(|e| format!("could not open your browser to sign in: {e}"))
-}
-
-fn client() -> Result<reqwest::Client, String> {
-    crate::network::client(30)
-}
-
-/// Pull `detail` out of a service response, so the reason the user sees is the
-/// one the server actually gave rather than a bare status code.
-async fn detail_of(response: reqwest::Response) -> String {
-    let status = response.status();
-    let body = response.text().await.unwrap_or_default();
-    serde_json::from_str::<serde_json::Value>(&body)
-        .ok()
-        .and_then(|v| v["detail"].as_str().map(str::to_string))
-        .unwrap_or_else(|| format!("The hosted service returned {status}."))
-}
-
-/// Trade the one-time code for a session token, then read the account back so
-/// the UI has an address to show for the session it just created.
-async fn exchange(
-    code: &str,
-    verifier: &str,
-    client_info: &ClientInfo,
-) -> Result<Session, String> {
-    let response = client()?
-        .post(service_url("/auth/exchange"))
-        .json(&serde_json::json!({ "code": code, "code_verifier": verifier }))
-        .send()
-        .await
-        .map_err(|e| format!("could not reach the sign-in service: {e}"))?;
-    if !response.status().is_success() {
-        return Err(detail_of(response).await);
+fn callback_code(target: &str, challenge: &str) -> Result<String> {
+    let url = reqwest::Url::parse(&format!("http://127.0.0.1{target}"))
+        .map_err(|_| fault("Malformed sign-in callback."))?;
+    if url.path() != "/callback" {
+        return Err(fault("Unexpected sign-in callback path."));
     }
-    let body: serde_json::Value = response
-        .json()
-        .await
-        .map_err(|e| format!("the sign-in service sent something unreadable: {e}"))?;
-    let token = body["token"]
-        .as_str()
-        .filter(|t| !t.is_empty())
-        .ok_or("The sign-in service returned no session token.")?
-        .to_string();
-    let email = account(&token, client_info).await?.email;
-    Ok(Session { token, email })
-}
-
-/// Identity and remaining allowance for a session token.
-///
-/// Doubles as the device check-in: the service records the installation the
-/// call came from, so this is what keeps "which machines" current rather than
-/// frozen at whenever the person last signed in.
-pub async fn account(token: &str, client_info: &ClientInfo) -> Result<Account, String> {
-    let response = client()?
-        .get(service_url("/v1/me"))
-        .bearer_auth(token)
-        .header(INSTALL_HEADER, &client_info.install_id)
-        .header(PLATFORM_HEADER, client_info.platform)
-        .header(VERSION_HEADER, client_info.version)
-        .send()
-        .await
-        .map_err(|e| format!("could not reach the hosted service: {e}"))?;
-    if !response.status().is_success() {
-        return Err(detail_of(response).await);
+    let states: Vec<_> = url
+        .query_pairs()
+        .filter(|(key, _)| key == "state")
+        .collect();
+    if states.len() != 1 || states[0].1 != challenge {
+        return Err(fault("The sign-in response does not match this request."));
     }
-    let raw = response.bytes().await
-        .map_err(|error| format!("could not read the hosted account response: {error}"))?;
-    serde_json::from_slice::<Account>(&raw)
-        .map_err(|error| format!("the hosted service sent an unreadable account: {error}"))
+    if url.query_pairs().any(|(key, _)| key == "error") {
+        return Err(fault("Google sign-in was declined or failed."));
+    }
+    let codes: Vec<_> = url.query_pairs().filter(|(key, _)| key == "code").collect();
+    if codes.len() != 1 || codes[0].1.is_empty() || codes[0].1.len() > 2048 {
+        return Err(fault("The sign-in response must contain one valid code."));
+    }
+    Ok(codes[0].1.to_string())
 }
-
-// ─── Desktop: loopback listener ──────────────────────────────────────────────
-
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-pub async fn sign_in(
-    app: &tauri::AppHandle,
-    client_info: &ClientInfo,
-) -> Result<Session, String> {
+pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
-    // Bound before the browser opens, so the port named in the redirect is
-    // provably the one we are listening on.
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
-        .map_err(|e| format!("could not open a local port to receive the sign-in: {e}"))?;
+        .map_err(|_| fault("Could not open the local sign-in callback port."))?;
     let port = listener
         .local_addr()
-        .map_err(|e| format!("could not read the local port: {e}"))?
+        .map_err(|_| fault("Could not read the callback address."))?
         .port();
-    // The literal address, not "localhost": that is what RFC 8252 specifies and
-    // what the service's allowlist accepts.
-    let redirect_uri = format!("http://127.0.0.1:{port}/callback");
-
-    let pkce = Pkce::new();
-    open_in_browser(app, &start_url(&redirect_uri, &pkce.challenge)?)?;
-
-    let accept = async {
+    let proof = Proof::create()?;
+    let url = start_url(
+        &format!("http://127.0.0.1:{port}/callback"),
+        &proof.challenge,
+    )?;
+    app.opener()
+        .open_url(&url, None::<&str>)
+        .map_err(|_| fault("Could not open your system browser."))?;
+    let receive = async {
         loop {
             let (mut stream, _) = listener
                 .accept()
                 .await
-                .map_err(|e| format!("the sign-in listener failed: {e}"))?;
-
-            let mut buffer = [0u8; 2048];
-            let read = match tokio::time::timeout(Duration::from_secs(3), stream.read(&mut buffer)).await {
-                Ok(Ok(read)) => read,
-                Ok(Err(error)) => return Err(format!("could not read the sign-in response: {error}")),
-                Err(_) => continue,
-            };
-            let request = String::from_utf8_lossy(&buffer[..read]).to_string();
-
-            // Browsers ask for /favicon.ico alongside the real request; that is
-            // not the callback, so keep listening rather than failing.
-            let Some(target) = request
+                .map_err(|_| fault("The sign-in listener failed."))?;
+            let mut request = Vec::new();
+            let mut chunk = [0u8; 1024];
+            tokio::time::timeout(Duration::from_secs(5), async {
+                loop {
+                    let count = stream
+                        .read(&mut chunk)
+                        .await
+                        .map_err(|_| fault("Could not read the sign-in callback."))?;
+                    if count == 0 {
+                        return Err(fault("The sign-in callback ended unexpectedly."));
+                    }
+                    request.extend_from_slice(&chunk[..count]);
+                    if request.len() > 8192 {
+                        return Err(fault("The sign-in callback is too large."));
+                    }
+                    if request.windows(4).any(|w| w == b"\r\n\r\n") {
+                        return Ok(());
+                    }
+                }
+            })
+            .await
+            .map_err(|_| fault("The sign-in callback timed out."))??;
+            let request =
+                std::str::from_utf8(&request).map_err(|_| fault("Invalid callback encoding."))?;
+            let mut parts = request
                 .lines()
                 .next()
-                .and_then(|line| line.split_whitespace().nth(1))
-            else {
-                continue;
-            };
-            if !request.starts_with("GET ") || target.split('?').next() != Some("/callback") {
-                let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n").await;
+                .ok_or_else(|| fault("Missing callback request."))?
+                .split_whitespace();
+            let method = parts.next();
+            let target = parts
+                .next()
+                .ok_or_else(|| fault("Missing callback target."))?;
+            if method != Some("GET") || target.split('?').next() != Some("/callback") {
+                stream
+                    .write_all(
+                        b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+                    )
+                    .await
+                    .map_err(|_| fault("Could not respond to the browser."))?;
                 continue;
             }
-
-            let callback = reqwest::Url::parse(&format!("http://127.0.0.1:{port}{target}"))
-                .map_err(|_| "Malformed sign-in callback".to_string())?;
-            if !matches_state(&callback, &pkce.challenge) { continue; }
-            let outcome = code_from_url(&callback);
-            let page = match &outcome {
-                Ok(_) => landing_page(
-                    "Signed in",
-                    "You can close this window and go back to SkellySpeak.",
-                ),
-                Err(reason) => landing_page("Sign-in failed", reason),
+            let code = callback_code(target, &proof.challenge);
+            let text = if code.is_ok() {
+                "Sign-in received. Return to SkellySpeak to finish."
+            } else {
+                "Sign-in failed. Return to SkellySpeak for details."
             };
-            let _ = stream.write_all(page.as_bytes()).await;
-            let _ = stream.flush().await;
-            return outcome;
+            let page = format!(
+                "<!doctype html><meta charset=utf-8><title>SkellySpeak</title><p>{text}</p>"
+            );
+            stream.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{page}",page.len()).as_bytes()).await.map_err(|_|fault("Could not acknowledge sign-in to the browser."))?;
+            return code;
         }
     };
-
-    let code = tokio::time::timeout(SIGN_IN_TIMEOUT, accept)
-        .await
-        .map_err(|_| "Sign-in timed out. Try again.".to_string())??;
-    exchange(&code, &pkce.verifier, client_info).await
-}
-
-/// The `code` parameter from a callback request target such as
-/// `/callback?code=abc&state=xyz`.
-fn matches_state(url: &reqwest::Url, expected: &str) -> bool {
-    let states: Vec<_> = url.query_pairs().filter(|(key, _)| key == "state").collect();
-    states.len() == 1 && states[0].1 == expected
-}
-
-/// The `code` a callback carries, or the reason there isn't one. Shared by
-/// both platforms, because a deep link and a loopback request differ only in
-/// how they arrive.
-fn code_from_url(url: &reqwest::Url) -> Result<String, String> {
-    if let Some((_, reason)) = url.query_pairs().find(|(k, _)| k == "error") {
-        return Err(format!("Sign-in was refused: {reason}"));
-    }
-    let codes: Vec<_> = url.query_pairs().filter(|(key, _)| key == "code").collect();
-    if codes.len() != 1 || codes[0].1.is_empty() {
-        return Err("The sign-in response must carry exactly one nonempty code.".into());
-    }
-    Ok(codes[0].1.to_string())
-}
-
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
-fn landing_page(heading: &str, message: &str) -> String {
-    let escape = |value: &str| value.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;").replace('\'', "&#39;");
-    let heading = escape(heading);
-    let message = escape(message);
-    let body = format!(
-        "<!doctype html><meta charset=\"utf-8\"><title>SkellySpeak</title>\
-         <style>body{{background:#0c1420;color:#e8eef6;font:16px/1.6 system-ui,sans-serif;\
-         display:grid;place-items:center;height:100vh;margin:0;text-align:center}}\
-         h1{{font-size:1.3rem;margin:0 0 .5rem}}p{{opacity:.75;margin:0}}</style>\
-         <div><h1>{heading}</h1><p>{message}</p></div>"
+    let code = Zeroizing::new(
+        tokio::time::timeout(Duration::from_secs(300), receive)
+            .await
+            .map_err(|_| fault("Sign-in timed out. Try again."))??,
     );
-    format!(
-        "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\
-         Content-Length: {}\r\nConnection: close\r\n\r\n{body}",
-        body.len()
-    )
+    exchange(&code, &proof.verifier).await
 }
 
-// ─── Android: deep link ──────────────────────────────────────────────────────
-
-/// The sign-in attempt currently waiting for a redirect, if any.
-#[cfg(any(target_os = "android", target_os = "ios"))]
-fn awaiting_link() -> &'static std::sync::Mutex<Option<(String, tokio::sync::oneshot::Sender<String>)>> {
-    static SLOT: std::sync::OnceLock<
-        std::sync::Mutex<Option<(String, tokio::sync::oneshot::Sender<String>)>>,
-    > = std::sync::OnceLock::new();
-    SLOT.get_or_init(|| std::sync::Mutex::new(None))
-}
-
-/// Guards the one-time registration of the deep-link handler.
-#[cfg(any(target_os = "android", target_os = "ios"))]
-static DEEP_LINK_HANDLER: std::sync::OnceLock<()> = std::sync::OnceLock::new();
-
-#[cfg(any(target_os = "android", target_os = "ios"))]
-pub async fn sign_in(
-    app: &tauri::AppHandle,
-    client_info: &ClientInfo,
-) -> Result<Session, String> {
-    use tauri_plugin_deep_link::DeepLinkExt;
-
-    let (sender, receiver) = tokio::sync::oneshot::channel::<String>();
-    let pkce = Pkce::new();
-    // Hand this attempt's sender to the one permanent handler, displacing any
-    // left behind by an attempt that was abandoned or failed before the
-    // browser opened. A sign-in that never completed must not be able to
-    // swallow the redirect belonging to the next one.
-    *awaiting_link().lock().unwrap_or_else(|p| p.into_inner()) = Some((pkce.challenge.clone(), sender));
-
-    // Registered exactly once for the life of the process. Registering per
-    // attempt accumulated a handler every time someone pressed the button,
-    // each holding a sender whose receiver was already gone.
-    DEEP_LINK_HANDLER.get_or_init(|| {
-        app.deep_link().on_open_url(|event| {
-            let Some(url) = event.urls().first().cloned() else {
-                return;
-            };
-            let mut pending = awaiting_link().lock().expect("sign-in lock poisoned");
-            let Some((state, _)) = pending.as_ref() else { return; };
-            if url.scheme() != "skellyspeak" || url.host_str() != Some("auth")
-                || !matches!(url.path(), "" | "/") || !url.username().is_empty()
-                || url.password().is_some() || url.port().is_some() || !matches_state(&url, state) { return; }
-            if let Some((_, sender)) = pending.take() {
-                let _ = sender.send(url.to_string());
-            }
-        });
-    });
-
-    open_in_browser(app, &start_url("skellyspeak://auth", &pkce.challenge)?)?;
-
-    let url = tokio::time::timeout(SIGN_IN_TIMEOUT, receiver)
+async fn exchange(code: &str, verifier: &str) -> Result<Zeroizing<String>> {
+    let response = crate::provider::client()?
+        .post(format!("{ORIGIN}/auth/exchange"))
+        .timeout(Duration::from_secs(30))
+        .json(&serde_json::json!({"code":code,"code_verifier":verifier}))
+        .send()
         .await
-        .map_err(|_| "Sign-in timed out. Try again.".to_string())?
-        .map_err(|_| "The sign-in was cancelled.".to_string())?;
+        .map_err(|_| fault("Could not exchange the sign-in code."))?;
+    #[derive(serde::Deserialize)]
+    struct Session {
+        token: String,
+    }
+    let bytes = Zeroizing::new(body(response).await?);
+    let session: Session =
+        serde_json::from_slice(&bytes).map_err(|_| fault("Invalid hosted session response."))?;
+    let token = Zeroizing::new(session.token);
+    if token.len() < 20 || token.len() > 8192 || !token.bytes().all(|b| b.is_ascii_graphic()) {
+        return Err(fault("The hosted service returned an invalid session."));
+    }
+    Ok(token)
+}
+#[cfg(any(target_os = "android", target_os = "ios"))]
+#[path = "hosted_mobile.rs"]
+mod mobile;
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub use mobile::sign_in;
 
-    let parsed = reqwest::Url::parse(&url)
-        .map_err(|_| "The sign-in response was malformed.".to_string())?;
-    let code = code_from_url(&parsed)?;
-    exchange(&code, &pkce.verifier, client_info).await
+#[cfg(any(target_os = "android", target_os = "ios", test))]
+fn mobile_callback(url: &reqwest::Url, challenge: &str) -> Option<Result<String>> {
+    if url.scheme() != "skellyspeak"
+        || url.host_str() != Some("auth")
+        || !matches!(url.path(), "" | "/")
+        || !url.username().is_empty()
+        || url.password().is_some()
+        || url.port().is_some()
+        || url.fragment().is_some()
+        || url.as_str().len() > 4096
+    {
+        return None;
+    }
+    let states: Vec<_> = url
+        .query_pairs()
+        .filter(|(key, _)| key == "state")
+        .collect();
+    if states.len() != 1 || states[0].1 != challenge {
+        return None;
+    }
+    Some(callback_code(
+        &format!("/callback?{}", url.query().unwrap_or("")),
+        challenge,
+    ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
-    fn callback_state_must_match_exactly_once() {
-        for query in ["state=wrong", "code=abc", "state=expected&state=expected"] {
-            let url = reqwest::Url::parse(&format!("skellyspeak://auth?{query}")).unwrap();
-            assert!(!matches_state(&url, "expected"));
+    fn mobile_redirect_is_bound_to_origin_and_current_attempt() {
+        for url in [
+            "https://auth?state=expected&code=x",
+            "skellyspeak://auth/other?state=expected&code=x",
+            "skellyspeak://auth?state=wrong&code=x",
+            "skellyspeak://auth?state=expected&state=expected&code=x",
+            "skellyspeak://user@auth?state=expected&code=x",
+        ] {
+            assert!(mobile_callback(&reqwest::Url::parse(url).unwrap(), "expected").is_none());
         }
-        assert!(matches_state(&reqwest::Url::parse("skellyspeak://auth?state=expected&code=abc").unwrap(), "expected"));
-        assert!(code_of("/callback?code=one&code=two").is_err());
-    }
-
-    #[cfg(not(any(target_os = "android", target_os = "ios")))]
-    #[test]
-    fn callback_error_is_escaped_in_the_landing_page() {
-        let page = landing_page("Failed", "<script>alert('x')</script>");
-        assert!(!page.contains("<script>"));
-        assert!(page.contains("&lt;script&gt;"));
-    }
-
-    #[test]
-    fn sign_in_urls_sit_beside_the_ai_base_not_under_it() {
-        assert!(service_url("/v1/me").ends_with("/v1/me"));
-        assert!(service_url("/auth/exchange").ends_with("/auth/exchange"));
-        // A token exchange posted to /v1/auth/exchange would 404 forever.
-        assert!(!service_url("/auth/exchange").contains("/v1/"));
-    }
-
-    #[test]
-    fn the_start_url_carries_an_encoded_redirect() {
-        let url = start_url("http://127.0.0.1:53127/callback", "c".repeat(43).as_str()).unwrap();
-        assert!(url.contains("provider=google"));
-        // Encoded, or the service reads a truncated redirect and refuses it.
-        assert!(url.contains("redirect_uri=http%3A%2F%2F127.0.0.1%3A53127%2Fcallback"));
-    }
-
-    fn code_of(target: &str) -> Result<String, String> {
-        let url = reqwest::Url::parse("http://127.0.0.1")
+        assert_eq!(
+            mobile_callback(
+                &reqwest::Url::parse("skellyspeak://auth?state=expected&code=one").unwrap(),
+                "expected"
+            )
             .unwrap()
-            .join(target)
-            .unwrap();
-        code_from_url(&url)
+            .unwrap(),
+            "one"
+        );
+        assert!(
+            mobile_callback(
+                &reqwest::Url::parse("skellyspeak://auth?state=expected&code=one&code=two")
+                    .unwrap(),
+                "expected"
+            )
+            .unwrap()
+            .is_err()
+        );
     }
 
     #[test]
-    fn the_callback_code_is_read_and_bad_ones_are_refused() {
-        assert_eq!(code_of("/callback?code=abc123").unwrap(), "abc123");
-        assert_eq!(code_of("/callback?code=abc123&state=xyz").unwrap(), "abc123");
-        // Google reporting a refusal must surface as that refusal, not as a
-        // generic "no code" — the two need different responses from the user.
-        assert!(code_of("/callback?error=access_denied")
-            .unwrap_err()
-            .contains("refused"));
-        assert!(code_of("/callback").is_err());
-        assert!(code_of("/callback?code=").is_err());
+    fn rate_and_daily_admission_limits_are_distinct_from_spending_limits() {
+        for (detail, expected) in [
+            (
+                "Request rate limit reached. Try again in a minute.",
+                "request-rate limit",
+            ),
+            (
+                "Daily request limit reached. Resets at 00:00 UTC.",
+                "separate limit",
+            ),
+            (
+                "Hosted spending is paused while a provider billing discrepancy is investigated.",
+                "service-side pause",
+            ),
+            (
+                "The shared remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset.",
+                "personal token balance may still be positive",
+            ),
+            (
+                "Your remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset.",
+                "Your remaining daily allowance",
+            ),
+        ] {
+            let bytes = serde_json::to_vec(&serde_json::json!({"detail": detail})).unwrap();
+            let error = limit_error(&bytes, Some(60));
+            assert!(error.message.contains(expected), "{}", error.message);
+            assert!(error.message.contains("Retry-After: 60 seconds"));
+            assert!(error.message.contains("No automatic retry"));
+        }
+    }
+    #[test]
+    fn unknown_or_malformed_limit_bodies_do_not_leak_response_content() {
+        for raw in [
+            br#"{"detail":"private-provider-secret"}"#.as_slice(),
+            br#"{"detail":{"error":"private-provider-secret"}}"#,
+            b"private-provider-secret",
+        ] {
+            let error = limit_error(raw, None);
+            assert!(!error.message.contains("private-provider-secret"));
+            assert!(error.message.contains("unknown"));
+        }
+    }
+    #[test]
+    fn pkce_and_state_are_bound_to_the_local_request() {
+        let proof = Proof::create().unwrap();
+        assert_eq!(proof.verifier.len(), 43);
+        assert_eq!(
+            proof.challenge,
+            URL_SAFE_NO_PAD.encode(Sha256::digest(proof.verifier.as_bytes()))
+        );
+        let url = start_url("http://127.0.0.1:4567/callback", &proof.challenge).unwrap();
+        assert!(!url.contains(proof.verifier.as_str()));
+        assert_eq!(
+            callback_code(
+                &format!("/callback?state={}&code=abc", proof.challenge),
+                &proof.challenge
+            )
+            .unwrap(),
+            "abc"
+        );
+        for target in [
+            "/callback?state=wrong&code=abc",
+            "/callback?state=s&state=s&code=a",
+            "/callback?state=s&code=a&code=b",
+            "/else?state=s&code=a",
+            "/callback?state=s&error=refused",
+        ] {
+            assert!(callback_code(target, "s").is_err());
+        }
+    }
+    #[test]
+    fn account_preserves_reported_usage_and_labels_request_estimates() {
+        let raw=br#"{"email":"person@example.com","name":"Person","used_usd":0.1,"limit_usd":0.5,"remaining_usd":0.4,"tokens_today":1234,"requests_today":7,"estimated_turns_remaining":28,"estimated_tokens_remaining":4936,"custom_limit":false,"resets":"00:00 UTC"}"#;
+        let account = decode_account(raw).unwrap();
+        assert_eq!(account.tokens_today, 1234);
+        assert_eq!(account.estimated_requests_remaining, 28);
+        assert_eq!(
+            serde_json::to_value(account).unwrap()["estimatedRequestsRemaining"],
+            28
+        );
+        assert!(decode_account(b"{}").is_err());
     }
 }
 
+pub async fn diagnostics(token: &str) -> Result<String> {
+    let response = crate::provider::client()?
+        .get(format!("{ORIGIN}/v1/diagnostics"))
+        .bearer_auth(token)
+        .timeout(Duration::from_secs(15))
+        .send()
+        .await
+        .map_err(|_| fault("Could not reach hosted diagnostics."))?;
+    let bytes = body(response).await?;
+    diagnostic_report(&bytes)
+}
+
+fn diagnostic_report(bytes: &[u8]) -> Result<String> {
+    let v: serde_json::Value =
+        serde_json::from_slice(bytes).map_err(|_| fault("Malformed service diagnostics."))?;
+    let number = |path: &str| {
+        v.pointer(path)
+            .and_then(serde_json::Value::as_u64)
+            .ok_or_else(|| fault("Incomplete service diagnostics."))
+    };
+    let flag = |path: &str| {
+        v.pointer(path)
+            .and_then(serde_json::Value::as_bool)
+            .ok_or_else(|| fault("Incomplete service diagnostics."))
+    };
+    let revision = v
+        .get("revision")
+        .and_then(serde_json::Value::as_str)
+        .filter(|s| {
+            !s.is_empty()
+                && s.len() <= 128
+                && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-')
+        })
+        .ok_or_else(|| fault("Invalid service revision."))?;
+    Ok(format!(
+        "Revision: {revision}\nAccount requests today: {} / {}\nAllowance used (micro-USD, includes reservations): {} / {}\nShared request limit exhausted: {}\nShared allowance exhausted: {}\nSpending paused: {}\nDiagnostics requests today: {} / {}\nDaily reset: 00:00 UTC\nSnapshot only; provider availability is not tested.",
+        number("/account_requests/used")?,
+        number("/account_requests/limit")?,
+        number("/account_allowance/used_micros")?,
+        number("/account_allowance/limit_micros")?,
+        flag("/shared_requests_exhausted")?,
+        flag("/shared_allowance_exhausted")?,
+        flag("/spending_paused")?,
+        number("/diagnostics_requests/used")?,
+        number("/diagnostics_requests/limit")?
+    ))
+}
+
 #[cfg(test)]
-mod pkce_tests {
+mod diagnostic_tests {
     use super::*;
-
     #[test]
-    fn the_challenge_is_the_base64url_sha256_of_the_verifier() {
-        // RFC 7636 Appendix B, so this is checked against the spec rather than
-        // against itself.
-        use base64::Engine;
-        use sha2::{Digest, Sha256};
-        let verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
-        let challenge = base64::engine::general_purpose::URL_SAFE_NO_PAD
-            .encode(Sha256::digest(verifier.as_bytes()));
-        assert_eq!(challenge, "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM");
+    fn structured_limit_codes_distinguish_scopes_and_redact_details() {
+        let id = "1234567890abcdef1234567890abcdef";
+        let raw = format!(
+            r#"{{"code":"PERSONAL_ACCOUNT_DAILY_LIMIT","detail":"private-token","request_id":"{id}"}}"#
+        );
+        let message = limit_error(raw.as_bytes(), None).message;
+        assert!(message.contains("Your daily authenticated-request"));
+        assert!(message.contains(id));
+        assert!(!message.contains("private-token"));
+        let shared = raw.replace("PERSONAL_ACCOUNT", "SHARED_ACCOUNT");
+        assert!(
+            limit_error(shared.as_bytes(), None)
+                .message
+                .contains("service's daily")
+        );
     }
-
     #[test]
-    fn a_generated_pair_satisfies_the_rfc_and_verifies() {
-        use base64::Engine;
-        use sha2::{Digest, Sha256};
-        let pkce = Pkce::new();
-        // RFC 7636 §4.1: 43-128 characters of unreserved ASCII.
-        assert!((43..=128).contains(&pkce.verifier.len()));
-        assert!(pkce
-            .verifier
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || "-._~".contains(c)));
-        assert_eq!(pkce.challenge.len(), 43);
-        let expected = base64::engine::general_purpose::URL_SAFE_NO_PAD
-            .encode(Sha256::digest(pkce.verifier.as_bytes()));
-        assert_eq!(pkce.challenge, expected);
-    }
-
-    #[test]
-    fn every_attempt_gets_a_fresh_verifier() {
-        // Reusing one would make interception of a single code permanently
-        // useful rather than useless.
-        let a = Pkce::new();
-        let b = Pkce::new();
-        assert_ne!(a.verifier, b.verifier);
-        assert_ne!(a.challenge, b.challenge);
-    }
-
-    #[test]
-    fn the_start_url_carries_the_challenge_and_names_s256() {
-        let url = start_url("skellyspeak://auth", "abc").unwrap();
-        assert!(url.contains("code_challenge=abc"));
-        assert!(url.contains("code_challenge_method=S256"));
+    fn diagnostics_are_allowlisted_and_require_complete_types() {
+        let raw = br#"{"revision":"revision-1","account_requests":{"used":2,"limit":2000},"account_allowance":{"used_micros":12,"limit_micros":500000},"shared_requests_exhausted":false,"shared_allowance_exhausted":false,"spending_paused":true,"diagnostics_requests":{"used":1,"limit":120},"unexpected":"private-value"}"#;
+        let report = diagnostic_report(raw).unwrap();
+        assert!(report.contains("Spending paused: true"));
+        assert!(!report.contains("private-value"));
+        assert!(diagnostic_report(b"{}").is_err());
     }
 }

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, rebuild]
   pull_request:
   workflow_call:
 
@@ -18,12 +18,15 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
-      # The root Vitest suite includes the docs download-selection tests.
       - run: npm ci --prefix skellyspeak-docs
       - run: npm test
+      - run: npm run styles:check
+      - run: node --test scripts/version.test.ts
+      - run: npm run logs:check
+      - run: npm run logs:test
       - run: npm run build
 
   rust:
@@ -35,13 +38,15 @@ jobs:
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           toolchain: stable
-          components: clippy
+          components: clippy, rustfmt
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: src-tauri
       - run: cargo clippy --lib -- -D warnings
         working-directory: src-tauri
-      - run: cargo test --lib
+      - run: cargo fmt -- --check
+        working-directory: src-tauri
+      - run: cargo test --locked --lib
         working-directory: src-tauri
       - run: cargo test --locked --manifest-path scripts/verify-updater/Cargo.toml
 
@@ -72,6 +77,10 @@ jobs:
           workspaces: src-tauri
       - run: cargo check --lib
         working-directory: src-tauri
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+      - run: npm run logs:test
 
   # The hosted API tests. They gate the deploy in deploy-server.yml too, but
   # running them here means a pull request shows the breakage before it lands
@@ -102,7 +111,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: skellyspeak-docs/package-lock.json
       - run: npm ci
@@ -141,3 +150,59 @@ jobs:
           print(f"checked Android XML resources, {len(failed)} malformed")
           sys.exit(1 if failed else 0)
           EOF
+
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        id: ndk
+        with:
+          ndk-version: r27c
+          link-to-sdk: true
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: android-check
+
+      - run: npm ci
+
+      # `tauri.settings.gradle` hardcodes an absolute path to the local cargo
+      # registry, so gen/android's generated files cannot be committed and must
+      # be produced here. `init` also rewrites tracked files from its templates
+      # — the manifest (RECORD_AUDIO, adjustResize, roundIcon), themes.xml,
+      # MainActivity.kt, BuildTask.kt and the launcher icons — so restore
+      # everything git tracks immediately afterwards.
+      - name: Scaffold gen/android, then restore our tracked customisations
+        run: |
+          npx tauri android init --config src-tauri/tauri.release.conf.json
+          git checkout -- src-tauri/gen/android
+          git status --porcelain src-tauri/gen/android
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+
+      - name: Build Android ARM64 debug APK without release credentials
+        run: npx tauri android build --config src-tauri/tauri.release.conf.json --debug --apk --target aarch64 --ci
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
