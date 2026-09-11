@@ -58,7 +58,7 @@ tauri-plugin-single-instance = "2"
 # works there. On iOS, cpal's coreaudio host needs the app to configure
 # AVAudioSession first — see src/audio.rs.
 [target.'cfg(not(target_os = "android"))'.dependencies]
-cpal = "0.15"
+cpal = "0.18"
 hound = "3.5"
 
 # AVAudioSession configuration on iOS: the recorder needs the session category
