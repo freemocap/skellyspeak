@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { RunDetails } from '../dev/RunDetails'
 import { actorColor } from '../../lib/actor'
 import type { GraphNode, Run } from '../../types'
@@ -26,7 +27,7 @@ export function NodeInspector({
   const recent = [...runs].reverse().slice(0, 40)
 
   return (
-    <aside className="graph-inspector" style={{ width }}>
+    <aside className="graph-inspector" style={{ '--inspector-width': `${width}px` } as CSSProperties}>
       {node ? (
         <>
           <div className="ins-head">
