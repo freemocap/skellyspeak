@@ -39,9 +39,9 @@ Main maintains released v0.13.7; it is not a feature integration branch.
 | Domain | Responsibility | Current assignment | State |
 | --- | --- | --- | --- |
 | Integration | Shared contracts, dependency order, cross-domain tests, release readiness | Contract review and sequential integration | Active |
-| Execution/reliability | Scheduling, admission, authority, attempts, access routes | R1: translation lifecycle verification | Reviewed; user checkpoint pending |
-| Language analysis | Source segmentation, annotations, linguistic validation | L1: passage contract and pure analysis core | Core reviewed; user checkpoint pending |
-| Product/interaction | User workflows, accessible presentation, style consistency | U1: main UI parity inventory and adaptation | Direct user design review |
+| Execution/reliability | Scheduling, admission, authority, attempts, access routes | R1: translation lifecycle verification | Integrated and verified at 260bb23 |
+| Language analysis | Source segmentation, annotations, linguistic validation | L1: passage contract and pure analysis core | Integrated and verified at 260bb23 |
+| Product/interaction | User workflows, accessible presentation, style consistency | U1: reference-based conversation reading | User approved; implementation active |
 | Evidence/progression | Observation eligibility, rubrics, XP and reports | No implementation assignment yet | Queued |
 | Visualization | Garden/skill-map renderers and mathematical avatars | No implementation assignment yet | Queued |
 
@@ -139,3 +139,39 @@ including all 766 Unicode corpus cases; 79 unrelated tests filtered out. No bloc
 finding for this bounded deterministic component. This does not validate linguistic
 quality, provider decoding, live source authority or production publication. Those
 remain separate work. Contribution remains uncommitted and unintegrated.
+
+## Combined verification — 2026-09-10
+
+User merged Reliability and Language into rebuild at 260bb23. Combined native tests:
+109 passed; frontend tests: 31 passed. Clippy with warnings denied, Rust formatting,
+generated contracts, frontend typecheck/build and stylesheet checks all passed.
+No native GUI was launched, no provider calls were made, and no release/deployment
+is implied. Earlier pending checkpoint statements above describe completed review
+steps; both contributions are now integrated.
+
+Next Language slice: isolated strict word-gloss prompt builder and JSON decoder under
+linguistics/, using existing serde and validated source boundaries. No provider,
+execution, storage or UI wiring in this slice; its boundary-ID format remains an
+evaluation candidate. Reliability detail-execution proposal awaits storage/command
+seams; UI continues direct parity design review.
+
+## Active follow-through
+
+The coordinator checks domain progress and resolves routine technical dependencies
+without requiring the user to repeat continuation instructions. Domains report a
+completed handoff or precise blocker directly to integration with a recommended
+next action. Assignments must have finite outcomes and retain file ownership.
+Do not send acknowledgement loops in place of work. Escalate material product
+choices, user-operated Git steps and runnable QA clearly; UI design approval remains
+a direct user conversation. A ten-minute thread follow-up checks this integration
+round and stays quiet when no actionable state changes occur.
+
+## UI first-slice approval
+
+The user approved the concrete reference-based conversation-reading slice in the
+integration task: preserve bubble presentation, typography, inline assistance and
+reading gestures within the chat screen. U1 implements reading components/tests;
+integration owns shared rendering and root styles. Real messages/translations may
+connect now; unavailable gloss/detail/sentence-analysis contracts remain explicit
+dependencies, not fabricated features. No repeated approval is required within this
+scope. Material visible departures return to the user; routine seams go to integration.

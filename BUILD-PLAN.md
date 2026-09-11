@@ -345,3 +345,11 @@ its user-operated checkpoint/integration. Selected-word detail execution must re
 independent result ownership and shared concurrent dispatch. Its lifetime budget must
 not make a passage permanently uninspectable after sixteen word requests; resolve
 bounded per-request attempts separately from concurrent queue limits before wiring.
+
+## Integrated domain foundation
+
+At rebuild 260bb23, translation lifecycle fixes and the deterministic annotation
+validator are integrated. Combined checks passed: 109 native tests, 31 frontend
+tests, Clippy, formatting, generated contracts, frontend build and stylesheet checks.
+No new live gloss functionality is wired. Next bounded work is the Language prompt/
+strict-response adapter, followed by reviewed execution and persistence integration.

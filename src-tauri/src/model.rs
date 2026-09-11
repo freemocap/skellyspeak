@@ -127,6 +127,8 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
+    pub direction: String,
+    pub romanization: Option<String>,
     pub id: String,
     pub name: String,
     pub native_name: String,

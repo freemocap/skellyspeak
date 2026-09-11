@@ -35,6 +35,12 @@ pub fn registry() -> Vec<Language> {
     ]
     .into_iter()
     .map(|(id, name, native_name, varieties)| Language {
+        direction: if id == "ar" { "rtl" } else { "ltr" }.into(),
+        romanization: match id {
+            "ar" => Some("ALA-LC".into()),
+            "zh" => Some("PINYIN".into()),
+            _ => None,
+        },
         id: id.into(),
         name: name.into(),
         native_name: native_name.into(),
