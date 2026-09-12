@@ -23,6 +23,7 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix skellyspeak-docs
       - run: npm test
+      - run: npm run docs:test
       - run: npm run styles:check
       - run: node --test scripts/version.test.ts
       - run: npm run logs:check

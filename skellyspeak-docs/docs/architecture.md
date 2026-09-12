@@ -28,10 +28,10 @@ flowchart LR
 
 | Module | Responsibility |
 |---|---|
-| `src/pages/GuidedPage.tsx` | Streamed UI events and conversation interaction |
-| `src/pages/guided/useConversation.ts` | Chat ownership, serialized saves, loading and deletion |
-| `src/lib/speech.ts` | One active playback, speed, cancellation and bounded audio cache |
-| `src/lib/tauri.ts` | Typed IPC; logs command and argument names without argument values |
+| `src/features/guided/GuidedPage.tsx` | Streamed UI events and conversation interaction |
+| `src/features/guided/useConversation.ts` | Chat ownership, serialized saves, loading and deletion |
+| `src/platform/audio/speech.ts` | One active playback, speed, cancellation and bounded audio cache |
+| `src/platform/ipc/tauri.ts` | Typed IPC; logs command and argument names without argument values |
 | `src-tauri/src/commands/guided/` | Turn execution, independent analysis/coach/observer work |
 | `src-tauri/src/prompts/` | Prompt text and explicit instruction precedence |
 | `src-tauri/src/ai.rs`, `sse.rs` | Provider requests, validation/retries and byte-safe SSE decoding |
@@ -42,6 +42,31 @@ flowchart LR
 | `src-tauri/src/credentials.rs`, `settings.rs` | Platform vault and public preferences |
 | `src-tauri/src/conversation.rs`, `persistence.rs` | Chat files, soft deletion and atomic writes |
 | `server/` | Hosted security and spending contracts; see [Hosted API](./hosted-api) |
+
+### Frontend layout
+
+`src/` is layered, and the direction is enforced by a test rather than by review.
+
+| Layer | Holds | May import |
+|---|---|---|
+| `app/` | The shell: application state, chrome, page composition | anything below |
+| `features/` | One folder per product surface — `guided/`, `skills/`, `settings/`, `activity/` | `state/`, `ui/`, `domain/`, `platform/` |
+| `state/` | Shared React state that more than one feature reads | `domain/`, `platform/` |
+| `ui/` | Shared presentation primitives with no domain knowledge | `domain/`, `platform/` |
+| `platform/` | The only layer that talks to Tauri, plus browser-history integration | `domain/` |
+| `domain/` | Pure logic: no React, no Tauri, no imports of any other layer | nothing internal |
+
+`src/architecture/boundaries.test.ts` fails on a violation of those rules, and
+`src/architecture/dead-code.test.ts` warns about production modules no entry point
+reaches. Both read the real import graph (`scripts/import-graph.ts`) rather than
+scanning text, so they cannot drift from what the bundler resolves.
+`scripts/refactor-move.ts` performs map-driven moves and rewrites every reference,
+including `vi.mock` paths and `new URL(..., import.meta.url)` literals.
+
+Three paths are fixed by files outside `src/` and must not be moved casually:
+`src/contracts.ts`, which `src-tauri/src/bin/export-contracts.rs` writes;
+`src/assets/skill-catalogs/catalog.json`, compiled into the native binary with
+`include_str!`; and `src/styles.css`, named by `scripts/check-styles.ts`.
 
 The graph describes and reconciles execution; it does not execute the turn.
 `commands/guided` is the orchestrator. Routing is centralized in Rust settings;

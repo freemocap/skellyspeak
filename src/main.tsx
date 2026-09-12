@@ -1,11 +1,12 @@
-import { reportDiagnosticBridgeFailure, reportUnhandledError } from './lib/faults'
-import { installDiagnosticCapture, logDiagnostic } from './lib/log'
+import { reportDiagnosticBridgeFailure, reportUnhandledError } from './platform/diagnostics/faults'
+import { installDiagnosticCapture, logDiagnostic } from './platform/diagnostics/log'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import DevWindow from './DevWindow'
-import { isTauri, loadLanguages } from './lib/tauri'
+import { isTauri, loadLanguages } from './platform/ipc/tauri'
 import './styles.css'
-import { installPlaybackLifecycle } from './lib/playback-lifecycle'
+import { installPlaybackLifecycle } from './platform/playback-lifecycle'
+import { currentWindowLabel } from './platform/ipc/window'
 
 installDiagnosticCapture()
 window.addEventListener('diagnostic-bridge-failed', reportDiagnosticBridgeFailure)
@@ -19,9 +20,7 @@ installPlaybackLifecycle()
 const DEV_WINDOW_LABEL = 'ai'
 
 async function isDevWindow(): Promise<boolean> {
-  if (!isTauri) return false
-  const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow')
-  return getCurrentWebviewWindow().label === DEV_WINDOW_LABEL
+  return await currentWindowLabel() === DEV_WINDOW_LABEL
 }
 
 function mount(dev: boolean) {

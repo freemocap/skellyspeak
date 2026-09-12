@@ -21,9 +21,9 @@ resolves routine dependencies; do not wait for the user to relay acknowledgement
 
 ## Current baseline and work
 
-The integrated checkpoint is committed and pushed. All six worktrees use the
-rewritten history. Git remains read-only for agents. Do not merge obsolete history,
-force-push, or run tag/mirror pushes from local worktrees.
+The integrated checkpoint is committed and pushed. Work happens in a single working
+tree. Git remains read-only for agents. Do not merge obsolete history, force-push, or
+run tag/mirror pushes.
 
 | Domain | Current bounded assignment | Owned artifact |
 | --- | --- | --- |
@@ -41,8 +41,9 @@ deployment or speculative UI is assigned. Interaction owns UI changes; Reliabili
 coordinates independent measurements/tests rather than editing those same files.
 Report exact blockers to Integration without waiting for the user to relay messages.
 
-Only one native app runs: worktrees share app identity, data and development port.
-Use the integration checkout's absolute log path for complete interval inspection.
+Only one native app runs at a time: it owns the app identity, local data and the
+development port. Use the repository's absolute log path for complete interval
+inspection.
 
 ## Reading-assistance round status
 
@@ -73,9 +74,10 @@ Reliability edits only tests in `src-tauri/src/execution.rs` for one combined
 retry-with-speech-running regression. No prompt bytes, public IPC types or provider
 choices change in that extraction. Config-version dispatch/provenance rules are
 separate pending design work, not an implicit gate added to current conversations.
-Interaction also owns `src/lib/conversation-view.ts`, `src/components/chat/TurnView.tsx`,
-their tests and `src/types.ts` only if needed to retain the authoritative translation
-state in compact presentation (U1-READ-001). No new retry command or CSS system.
+Interaction also owns `src/domain/language/conversation-view.ts`,
+`src/features/guided/TurnView.tsx`, their tests and `src/types.ts` only if needed to
+retain the authoritative translation state in compact presentation (U1-READ-001). No
+new retry command or CSS system.
 AI's recommendation is to retain prompt-v3 in this extraction; semantic evaluation
 and any prompt revision remain separate from these behavior/coverage fixes.
 
@@ -89,8 +91,8 @@ and any prompt revision remain separate from these behavior/coverage fixes.
 3. User checkpoints the domain and integrates the reviewed contribution into rebuild.
 4. Integration runs relevant README checks and cross-domain regressions. Isolated
    success is not combined verification. Never describe failing gates as passed.
-5. Request native QA only for a runnable artifact, with build/worktree, actions and
-   expected requests. Record source tests and real-provider/device checks separately.
+5. Request native QA only for a runnable artifact, with build, actions and expected
+   requests. Record source tests and real-provider/device checks separately.
 6. Update current docs and assignments. Notify the user only for meaningful progress,
    product choices, Git steps, blockers or specific runnable QA.
 

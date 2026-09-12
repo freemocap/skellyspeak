@@ -30,8 +30,8 @@ approved Gemini 2.5 Flash model.
 ## Parallel development
 
 Read [domain assignments and integration rules](workflow/README.md) before starting
-a domain task. Each implementation stream uses its own user-created worktree.
-Coordinate native app runs because worktrees share the app identity and local data.
+a domain task. Work happens in a single working tree. Coordinate native app runs
+because only one runs at a time: it owns the app identity and local data.
 
 ## Run locally
 

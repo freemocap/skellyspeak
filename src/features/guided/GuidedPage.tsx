@@ -1,0 +1,581 @@
+import { ContactProfileDialog } from './ContactProfileDialog'
+import { ConversationHeader } from './ConversationHeader'
+import { ContactChooser } from './ContactChooser'
+import { ContactProfile } from './ContactProfile'
+import { useConversationDetails } from './useConversationDetails'
+import { ComposerInput } from './ComposerInput'
+import { ErrorDetails } from '../../ui/ErrorDetails'
+import { ReadingPreferencesProvider } from '../../ui/ReadingPreferences'
+import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
+import { RewardPresentationProvider } from './RewardPresentation'
+import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { ComposerHelp } from './ComposerHelp'
+import { useSkillNavigation } from '../../state/useSkillNavigation'
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
+import type { Settings } from '../../types'
+import { unreportedInput, type InputEvidence } from '../../domain/skills/skills'
+import { PracticeContext } from './PracticeContext'
+import { SkillRewards } from './SkillRewards'
+import { GlossPopup } from './GlossPopup'
+import {
+  getSettings,
+  isTauri,
+  languageFor,
+  saveSettings,
+} from '../../platform/ipc/tauri'
+import { useMessageSpeech } from './useMessageSpeech'
+import { comboFromEvent } from '../../domain/input/keyboard'
+import { WaveformStrip } from '../../ui/WaveformStrip'
+import { EditFeedback } from './EditFeedback'
+import { TurnView } from './TurnView'
+import { DetailDialog } from '../../ui/DetailDialog'
+import { AnalysisContent } from './AnalysisContent'
+import { CoachAnalysisPanel } from './CoachAnalysisPanel'
+import { logInfo, logWarn } from '../../platform/diagnostics/log'
+import { ChatHistory } from './ChatHistory'
+import { latestAnswered } from '../../domain/language/turns'
+import { useConversation } from './useConversation'
+import { useWordInspection } from './useWordInspection'
+import { useMicRecorder } from './useMicRecorder'
+import { usePersistentToggle } from '../../ui/usePersistentToggle'
+import { useIsMobile } from '../../ui/useIsMobile'
+import { reportFault } from '../../platform/diagnostics/faults'
+import { needsProviderSetup } from '../../domain/access/providers'
+
+export type MobileLocation = 'chat' | 'panel'
+
+export default function GuidedPage({
+  active,
+  learningPicker,
+  nativePicker,
+  mobileSurface,
+  settingsVersion = 0,
+  historyOpen = false,
+  onHistoryOpenChange,
+  onOpenSettings,
+  accessConfigured = null,
+  accessStarting = false,
+  onStartHostedSignIn,
+  onNewChatReady,
+}: {
+  active: boolean
+  /// The target-language picker shown large in the conversation header.
+  learningPicker: ReactNode
+  /// The explanation-language picker, kept in the conversation settings panel.
+  nativePicker: ReactNode
+  mobileSurface: MobileLocation
+  settingsVersion?: number
+  historyOpen?: boolean
+  onHistoryOpenChange?: (open: boolean) => void
+  accessConfigured?: boolean | null
+  accessStarting?: boolean
+  onStartHostedSignIn?: () => void
+  /// Open the Settings modal. It lands on the AI provider section, which is
+  /// where every "configure a provider" failure is asking the learner to go.
+  onNewChatReady?: (action: (() => void) | null) => void
+  onOpenSettings?: () => void
+}) {
+  const workspace = useRef<HTMLDivElement>(null)
+  const composer = useRef<HTMLDivElement>(null)
+  const stopSpeechRef = useRef<() => void>(() => {})
+  const navigation = useSkillNavigation()
+  const [pinnedId, setPinnedId] = useState<number | null>(null)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const errorRef = useRef(error)
+  errorRef.current = error
+  const [input, setInputState] = useState('')
+  const inputRevision = useRef(0)
+  const setInput = useCallback((value: string | ((previous: string) => string)) => { inputRevision.current += 1; setInputState(value) }, [])
+  const inputEvidence = useRef<InputEvidence>(unreportedInput())
+  // Set while the learner is retrying a past message: the composer is
+  // pre-filled with what they said, and sending it discards that turn and
+  // everything after it, then regenerates from the edited text.
+  const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
+  const [settings, setSettings] = useState<Settings | null>(null)
+  useEffect(() => {
+    if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak)
+    if (!active) stopRewardSounds()
+  }, [settings?.reward_sounds, settings?.auto_speak, active])
+  useEffect(() => () => stopRewardSounds(), [])
+  const [panelTab, setPanelTab] = useState<'lesson' | 'profile'>('lesson')
+  const [coachDraft, setCoachDraft] = useState('')
+  const [reviewing, setReviewing] = useState<Set<number>>(new Set())
+  const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
+  const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsPanel = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!settingsOpen) return
+    const dismiss = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Element && target.closest('[role="dialog"]')) return
+      if (!settingsPanel.current?.contains(target as Node)) setSettingsOpen(false)
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !document.querySelector('[role="dialog"]')) {
+        setSettingsOpen(false)
+        settingsPanel.current?.querySelector<HTMLButtonElement>('.chat-config-toggle')?.focus()
+      }
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [settingsOpen])
+  const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
+  // Panel reload counter: bumped when the coach thread is reset externally.
+  const [threadReload, setThreadReload] = useState(0)
+
+
+  const streamRef = useRef<HTMLDivElement | null>(null)
+  const breakRef = useRef<HTMLDivElement | null>(null)
+
+  const settingsRef = useRef<Settings | null>(null)
+  settingsRef.current = settings
+  const sendRef = useRef<(text: string) => Promise<void>>(async () => {})
+  const toggleMicRef = useRef<() => void>(() => {})
+  const toggleBreakRef = useRef<() => void>(() => {})
+
+  const setHistoryOpen = useCallback(
+    (open: boolean) => onHistoryOpenChange?.(open),
+    [onHistoryOpenChange]
+  )
+
+  /// Everything tied to the conversation leaving the screen. The turns
+  /// themselves are set by whoever swapped them.
+  const resetView = useCallback(() => {
+    setPinnedId(null)
+    setCoachDraft('')
+    setReviewing(new Set())
+    clearWordsRef.current()
+    setError(null)
+    setSending(false)
+    setEditingTurnId(null)
+    stopSpeechRef.current()
+    setThreadReload((v) => v + 1)
+  }, [])
+
+  // resetView is declared before the conversation controller.
+  const clearWordsRef = useRef<() => void>(() => {})
+  const {
+    turns,
+    chats,
+    currentChatId,
+    openChat,
+    startNew: startNewConversation,
+    removeChat,
+    sendMessage,
+    pendingReply,
+    snapshotRevision,
+    snapshot,
+  } = useConversation({
+    settings,
+    setHistoryOpen,
+    resetView,
+  })
+
+  const details = useConversationDetails(currentChatId, snapshotRevision)
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
+  const [creatingConversation, setCreatingConversation] = useState(false)
+  const creatingContactConversation = useRef(false)
+  const [contactError, setContactError] = useState<string | null>(null)
+  const availableContacts = details.directory?.partners.filter(contact => contact.languageId === settings?.target_language && details.directory?.relationships.some(item => item.partnerId === contact.id && !item.archived)) ?? []
+  const selectedContact = availableContacts.find(item => item.id === selectedContactId) ?? details.contact ?? availableContacts[0]
+  const selectedRelationship = details.directory?.relationships.find(item => item.partnerId === selectedContact?.id && !item.archived)
+  const contactChats = chats.filter(chat => details.directory?.conversations.some(item => item.id === chat.id && item.relationshipId === selectedRelationship?.id))
+  async function createContactConversation(contactId: string) {
+    if (creatingContactConversation.current) return
+    creatingContactConversation.current = true; setCreatingConversation(true); setContactError(null)
+    try { await details.beforeSend(); await openChat(await details.createConversation(contactId)) }
+    catch (reason) { setContactError(nativeError(reason)) }
+    finally { creatingContactConversation.current = false; setCreatingConversation(false) }
+  }
+  const [editingContactId, setEditingContactId] = useState<string | null>(null)
+  const editingContact = details.directory?.partners.find(item => item.id === editingContactId)
+  const contactProfile = details.contact ? <ContactProfile key={details.contact.id} contact={details.contact}
+    language={targetLanguageLabel(details.contact.languageId)} onSave={details.saveContact} /> : <p className="center-note">Contact profile is unavailable.</p>
+  function targetLanguageLabel(id: string) { return details.directory?.languages.find(item => item.id === id)?.name ?? id }
+
+
+
+  useEffect(() => {
+    logInfo('[guided] page mounted, isTauri =', isTauri)
+    // Settings only. This effect re-runs on `settingsVersion`, which the
+    // Settings modal bumps on every autosave mid-edit — so it must not touch
+    // the conversation. Restoring and greeting are keyed on the pairing
+    // instead, in the effect below, which fires only when the pairing really
+    // changes.
+    void getSettings()
+      .then((s) => {
+        setSettings(s)
+        logInfo('[guided] settings:')
+        // A saved settings refresh supersedes the missing-provider banner.
+        // Only an empty chat retries its greeting; existing turns stay intact.
+        if (settingsVersion > 0 && errorRef.current && needsProviderSetup(errorRef.current)) {
+          errorRef.current = null
+          setError(null)
+        }
+      })
+      .catch((e) => reportFault('Loading settings', e))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsVersion, currentChatId])
+
+  useEffect(() => {
+    const el = streamRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [turns])
+
+  const isMobile = useIsMobile()
+  const [analysisOpen, setAnalysisOpen] = useState(false)
+  useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
+
+  const onBubbleTap = useCallback(
+    (id: number) => {
+      setPinnedId(id)
+      setAnalysisOpen(true)
+    },
+    []
+  )
+  const acceptingSend = useRef(false)
+  useEffect(() => setSending(pendingReply), [pendingReply, snapshotRevision])
+  const requestTurn = useCallback(async (body: { message?: string; replacesMessageId?: number; inputEvidence?: InputEvidence }) => {
+    if (body.replacesMessageId !== undefined) {
+      setError('This action is not connected yet.')
+      return
+    }
+    const text = body.message?.trim()
+    if (!text || acceptingSend.current) return
+    acceptingSend.current = true
+    const submittedDraftRevision = inputRevision.current
+    setSending(true)
+    setError(null)
+    try {
+      await details.beforeSend()
+      await sendMessage(text, currentChatId, body.inputEvidence)
+    } catch (error) {
+      setError(nativeError(error))
+      if (inputRevision.current === submittedDraftRevision) setInput(text)
+      setSending(false)
+    } finally { acceptingSend.current = false }
+  }, [sendMessage, details.beforeSend, currentChatId])
+
+  async function send(text: string) {
+    const message = text.trim()
+    if (!message || sending) return
+    const provenance = { ...inputEvidence.current, revision: editingTurnId !== null }
+    inputEvidence.current = unreportedInput()
+    setInput('')
+    stopSpeechRef.current() // new turn: silence any ongoing playback
+    const replacesMessageId = editingTurnId ?? undefined
+    await requestTurn({ message, replacesMessageId, inputEvidence: provenance })
+  }
+  sendRef.current = send
+
+  const cancelEdit = useCallback(() => {
+    inputEvidence.current = unreportedInput()
+    setEditingTurnId(null)
+    setInput('')
+  }, [])
+  toggleBreakRef.current = toggleBreak
+  // Configurable keyboard shortcuts. Modifier combos work while typing;
+  // the handler ignores repeat events and the shortcut-capture inputs.
+  useEffect(() => {
+    const shortcuts = settings?.shortcuts
+    if (!shortcuts) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat) return
+      const target = e.target as HTMLElement | null
+      if (target?.closest?.('[data-shortcut-capture]')) return
+      const combo = comboFromEvent(e)
+      const inField = /^(input|textarea|select)$/i.test(target?.tagName ?? '')
+      const hasMod = e.ctrlKey || e.altKey || e.metaKey
+      if (!hasMod && inField) return
+      if (combo === shortcuts.mic) {
+        e.preventDefault()
+        toggleMicRef.current()
+      } else if (combo === shortcuts.panel) {
+        e.preventDefault()
+        toggleBreakRef.current()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [settings?.shortcuts])
+
+  const editingTurn = turns.find((turn) => turn.id === editingTurnId)
+  const latestAssistantId = latestAnswered(turns)?.id ?? null
+
+  // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
+  const showRomanization =
+    settings != null && languageFor(settings.target_language)?.romanization != null
+
+  // RTL targets render token lines right-to-left.
+  const rtl =
+    settings != null && languageFor(settings.target_language)?.direction === 'rtl'
+
+  // Romanization visibility: "always" setting OR a revealed token.
+  const alwaysRomanize = settings?.always_romanize ?? false
+
+  useEffect(() => {
+    onNewChatReady?.(settings && !sending ? () => { void startNewConversation() } : null)
+    return () => onNewChatReady?.(null)
+  }, [onNewChatReady, settings, sending, startNewConversation])
+
+  const [savingReading, setSavingReading] = useState(false)
+  const readingWrite = useRef(false)
+  const toggleSetting = useCallback(async (key: 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate' | 'always_pronunciation' | 'fast_mode' | 'tts_rate', value?: number) => {
+    if (!settings || readingWrite.current) return
+    readingWrite.current = true
+    setSavingReading(true)
+    try {
+      await saveSettings({ ...settings, [key]: value ?? !settings[key] }, settings)
+      setSettings(await getSettings())
+    } catch (error) { reportFault('Saving reading preference', error) }
+    finally { readingWrite.current = false; setSavingReading(false) }
+  }, [settings])
+
+  const targetLanguageName = settings ? languageFor(settings.target_language)?.endonym ?? settings.target_language : ''
+  const nativeLanguageName = settings ? languageFor(settings.native_language)?.endonym ?? settings.native_language : ''
+  const pinnedTurn = turns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
+
+  clearWordsRef.current = words.clear
+
+  const mic = useMicRecorder({
+    conversationId: active ? currentChatId : null,
+    onTranscribe: (text: string) => {
+      if (text) {
+        inputEvidence.current.modality = 'speech_transcript'
+        if (settingsRef.current?.auto_send && !sending) {
+          logInfo('[mic] auto-send enabled — sending transcription')
+          void sendRef.current(text)
+        } else {
+          setInput((prev) => (prev ? `${prev} ${text}` : text))
+        }
+      } else logWarn('[mic] transcription was empty (silence?)')
+    },
+  })
+  const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
+  stopSpeechRef.current = speech.stop
+  const toggleMic = () => { speech.stop(); void mic.toggleMic() }
+  toggleMicRef.current = toggleMic
+
+  const aiBusy = pendingReply
+
+  useEffect(() => { if (words.inspect) setAnalysisOpen(true) }, [words.inspect])
+
+  useEffect(() => {
+    if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
+  }, [isMobile, mobileSurface, panelTab])
+  const chatComposer = (
+        <div className="composer" ref={composer}>
+          {editingTurnId !== null && (
+            <div className="edit-banner">
+              <span>✎ Editing your message — send or record to try again</span>
+              <button type="button" onClick={cancelEdit}>
+                Cancel
+              </button>
+            </div>
+          )}
+          {editingTurn && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
+          <div className="composer-activity" aria-live="polite">
+            {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
+          </div>
+          {mic.recording && mic.waveSource && (
+            <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
+          )}
+          {<ComposerHelp
+            key={`${currentChatId}:${turns.at(-1)?.id}`}
+            busy={sending}
+            replies={turns.at(-1)?.assistant?.scaffolds.replies ?? []}
+            pending={['ready', 'running', 'waiting_dependencies'].includes(turns.at(-1)?.assistant?.suggestionsState ?? '')}
+            errors={turns.at(-1)?.assistant?.errors ?? []}
+            onUse={(text, source) => {
+              inputEvidence.current = { ...inputEvidence.current, [source]: true }
+              setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
+              composer.current?.querySelector<HTMLInputElement>('.field')?.focus()
+            }} />}
+          <ComposerInput input={input} available={isTauri} sending={sending}
+            recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
+            targetLanguage={settings?.target_language ?? 'es-ES'} targetLanguageName={targetLanguageName}
+            onInput={setInput} onSend={text => { void send(text) }}
+            onDiscardRecording={mic.cancel} onToggleRecording={toggleMic} />
+        </div>
+  )
+
+  return (
+    <ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion: navigation.state.sequence, selected: navigation.state.selected && navigation.state.selected.target === settings?.target_language ? navigation.state.selected.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); navigation.select({ target: settings.target_language, skillId }) } }}>
+    <div className="guided-workspace">
+    <div
+      ref={workspace}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
+    >
+      <ChatHistory
+        open={historyOpen}
+        chats={contactChats}
+        contacts={<><ContactChooser contacts={availableContacts} selectedId={selectedContact?.id ?? ''} busy={creatingConversation}
+          onSelect={setSelectedContactId} onEdit={setEditingContactId} onCreate={id => { void createContactConversation(id) }} />
+          {contactError && <ErrorDetails label="Creating conversation" errorKey={contactError}>{contactError}</ErrorDetails>}</>}
+        currentId={currentChatId}
+        languageName={targetLanguageName}
+        onClose={() => setHistoryOpen(false)}
+        onOpenChat={(id) => void openChat(id)}
+        onNewChat={() => void startNewConversation()}
+        onDeleteChat={(id) => void removeChat(id)}
+      />
+      {/* ── Chat half (paper) ─────────────────────────────────────────── */}
+      <section className="chat" style={{ borderInlineStart: `3px solid ${['#3d9699', '#608dd7', '#9676d4', '#ad80b4', '#4ba57b'][Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5]}` }}>
+        <ConversationHeader learning={learningPicker} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
+          <div className="chat-heading-actions">
+          <div className="chat-config" ref={settingsPanel}>
+            <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
+            {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
+                <div className="conversation-languages">{nativePicker}</div>
+                {/* The same Settings record the modal edits — Rust owns it,
+                    these are a second VIEW of one variable, not a copy. */}
+                <div className="quick-toggles" role="group" aria-label="Reading and voice options">
+                  {(
+                    [
+                      ['auto_speak', 'Read aloud', 'Speak each reply automatically'],
+                      ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
+                      ['auto_translate', 'Translation', 'Always show the translation under each reply'],
+                      ['always_pronunciation', 'Pronunciation', 'Show saved pronunciation in replies and coach advice'],
+                      ['fast_mode', 'Fast mode', 'Automatically dismiss new XP cards; point icons reopen them'],
+                      ...(showRomanization
+                        ? ([['always_romanize', 'Romanization', 'Always show romanization under each word']] as const)
+                        : []),
+                    ] as [
+                      'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode',
+                      string,
+                      string,
+                    ][]
+                  ).map(([key, label, title]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`quick-toggle ${settings?.[key] ? 'on' : ''}`}
+                      onClick={() => void toggleSetting(key)}
+                      aria-pressed={settings?.[key] ?? false}
+                      title={title}
+                      disabled={!settings || savingReading}
+                    >
+                      {settings?.[key] ? '☑' : '☐'} {label}
+                    </button>
+                  ))}
+                  <label className="speech-speed">
+                    Voice speed
+                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1} disabled={!settings || savingReading} onChange={event => void toggleSetting('tts_rate', Number(event.target.value))}>
+                      {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
+                    </select>
+                  </label>
+                </div>
+
+              </div>
+            }
+          </div>
+
+
+
+          </div>
+        </ConversationHeader>
+        <SkillRewards chatId={currentChatId} active={active} />
+        <div className="stream" ref={streamRef}>
+          {turns.length === 0 && !error && !sending && accessConfigured === false && onStartHostedSignIn ? (
+            <div className="access-start">
+              <p>You’re not signed in.</p>
+              <button type="button" className="btn primary" disabled={accessStarting} onClick={onStartHostedSignIn}>
+                {accessStarting ? 'Signing in…' : 'Sign in with Google'}
+              </button>
+            </div>
+          ) : turns.length === 0 && !error && !sending && (
+            <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
+              Say hello to start the conversation.
+            </p>
+          )}
+          {turns.map((turn) => (
+            <Fragment key={turn.id}><TurnView
+              turn={turn}
+              onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
+              reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
+              onAskCoach={setCoachDraft}
+              focused={(pinnedId ?? latestAssistantId) === turn.id}
+              ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
+              speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
+              speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure?.text : undefined}
+              onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
+              revealed={words.revealed}
+              showRomanization={showRomanization}
+              alwaysRomanize={alwaysRomanize}
+              alwaysPronunciation={settings?.always_pronunciation ?? false}
+              autoTranslate={settings?.auto_translate ?? false}
+              rtl={rtl}
+              onReveal={words.reveal}
+              onBubbleTap={onBubbleTap}
+              onPopup={words.setPopup}
+              onInspect={words.inspectWord}
+              onToggleReveal={words.toggleReveal}
+              onEditUser={undefined}
+            />
+            </Fragment>
+          ))}
+          {error && (
+            <ErrorDetails label="Request failed" errorKey={error}>
+              <div>{error}</div>
+              {/* A message that says "go to Settings" should take you there,
+                  rather than making you find the gear yourself. */}
+              {onOpenSettings && needsProviderSetup(error) && (
+                <button type="button" className="err-action" onClick={onOpenSettings}>
+                  Open Settings
+                </button>
+              )}
+            </ErrorDetails>
+          )}
+        </div>
+
+        {!isMobile && chatComposer}
+      </section>
+
+      {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
+
+      {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
+      <section
+        className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
+        ref={breakRef}
+      >
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open XP &amp; coach ▸</button>}
+
+        {/* Lesson choices and private coaching share the learning panel. */}
+        {currentChatId && <CoachAnalysisPanel
+          key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
+          chatId={currentChatId}
+          conversationBusy={sending || details.saving}
+          contactProfile={contactProfile}
+          tab={panelTab}
+          onTab={setPanelTab}
+          draftQuestion={coachDraft}
+          onDraftConsumed={consumeCoachDraft}
+          pinnedTurn={pinnedTurn}
+          inspect={words.inspect}
+          nativeLanguageName={nativeLanguageName}
+          showRomanization={showRomanization}
+          rtl={rtl}
+        />}
+
+      </section>
+
+    </div>
+
+      {editingContact && <ContactProfileDialog key={editingContact.id} contact={editingContact} language={targetLanguageLabel(editingContact.languageId)} onSave={details.saveContact} onClose={() => setEditingContactId(null)} />}
+      {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
+        <h2>Message analysis</h2>
+        {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>Select Analysis on a conversation reply to inspect that message.</p>}
+      </DetailDialog>}
+      {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
+
+    </div>
+    </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider>
+  )
+}

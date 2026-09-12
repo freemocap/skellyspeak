@@ -31,8 +31,12 @@ export default defineConfig({
   },
   test: {
     // `old/` is an archive of earlier incarnations kept for reference only;
-    // its test files are not part of this app.
-    exclude: ['**/node_modules/**', '**/dist/**', 'old/**', 'scripts/**'],
+    // its test files are not part of this app. `scripts/` and
+    // `skellyspeak-docs/` are separate projects with their own commands
+    // (`npm run logs:test`, `npm run docs:test`); excluding them here keeps
+    // this suite to the app, so a missing install in another project cannot
+    // fail it.
+    exclude: ['**/node_modules/**', '**/dist/**', 'old/**', 'scripts/**', 'skellyspeak-docs/**'],
     // Pure-function tests need no DOM; component tests do. Per-file
     // environments keep the fast majority fast — opt in with
     // `// @vitest-environment jsdom` at the top of a component test.

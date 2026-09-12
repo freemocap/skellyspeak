@@ -47,8 +47,8 @@ to gently recast, what not to re-teach.
 
 | Surface | What it is | Where |
 |---|---|---|
-| **Guided** | The conversation: streamed tutor reply + a right-hand panel with Lesson and Analysis tabs (per-word glosses, POS, romanization, explainer cards, reply scaffolds), tap-to-reveal glossing in the bubbles, voice in/out, learner-visible teaching plan. | `src/pages/GuidedPage.tsx` |
-| **Skill tree** | Meaning-domain graph, local language profile, evidence and practice progression. | `src/pages/SkillsPage.tsx` |
+| **Guided** | The conversation: streamed tutor reply + a right-hand panel with Lesson and Analysis tabs (per-word glosses, POS, romanization, explainer cards, reply scaffolds), tap-to-reveal glossing in the bubbles, voice in/out, learner-visible teaching plan. | `src/features/guided/GuidedPage.tsx` |
+| **Skill tree** | Meaning-domain graph, local language profile, evidence and practice progression. | `src/features/skills/SkillsPage.tsx` |
 
 Choose the language you are learning from the language dropdown at the upper left of the chat, which displays the currently selected language. **Native** sits beside the learning language in the chat header. Both save automatically and switch to the conversations for that language pair. Changing the learning language resets its regional variety to the default; use Settings to choose another variety. The selectors support desktop and mobile layouts.
 
@@ -84,7 +84,12 @@ Choose **No persona** or switch personas **Off** for conversation without a fict
 
 #### The persona panel
 
-`src/components/PersonaModal.tsx`, opened from the ⚙ beside the picker. The top shows **this chat’s saved character and first introduction**, the identity reference included in every reply prompt. Below it, the library lists reusable templates and their full descriptions. Editing a template affects future chats; it cannot change someone you are already talking to. Older chats recover their earliest saved introduction and explicitly show that the original template is unknown. Contradictory transcript entries are preserved, while the earliest introduction supplies the identity reference for future replies.
+Deferred. The template library described in earlier revisions — a panel opened from
+the ⚙ beside the picker, with *Duplicate & edit* — is not rendered anywhere in `src/`.
+The platform layer still exposes persona IPC (`listPersonas`, `savePersona`,
+`deletePersona` in `src/platform/ipc/tauri.ts`) and the native core still owns
+`<config>/personas.json`; no surface consumes either yet. The contact profile dialog
+is the editing surface that exists.
 
 Built-ins are readable but never editable — *Duplicate & edit* forks one into
 an unsaved copy — so there is always a working set to get back to. Custom
@@ -137,7 +142,7 @@ surrounding partner message to open Analysis.
 
 | Gesture | Result |
 |---|---|
-| Tap a token | Its gloss (+ romanization for non-Latin scripts) appears through `src/components/GlossPopup.tsx` |
+| Tap a token | Its gloss (+ romanization for non-Latin scripts) appears through `src/features/guided/GlossPopup.tsx` |
 | Tap a punctuation token | That sentence's translation |
 | Drag / press-and-hold across tokens | Reveals a run of glosses |
 | Double-click / right-click a token | Full word-insight card (lemma, POS, form, role in this sentence, usage) |

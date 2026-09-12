@@ -7,6 +7,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "docs:test": "vitest run --config vitest.docs.config.ts",
     "tauri": "tauri",
     "macos:dev-bundle": "node scripts/dev-run.ts bundle",
     "macos:dev-sign": "node scripts/dev-run.ts sign",
@@ -14,9 +15,14 @@
     "contracts": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts",
     "contracts:check": "cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts -- --check",
     "styles:check": "node scripts/check-styles.ts",
+    "styles:dead": "node scripts/prune-styles.ts",
+    "styles:prune": "node scripts/prune-styles.ts --write",
     "server:local": "node scripts/dev-run.ts server",
     "logs:test": "node --test scripts/run-log.test.ts",
-    "logs:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/run-log.ts scripts/dev-run.ts scripts/run-log.test.ts"
+    "logs:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/run-log.ts scripts/dev-run.ts scripts/run-log.test.ts",
+    "graph": "node scripts/import-graph.ts",
+    "move": "node scripts/refactor-move.ts",
+    "graph:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/import-graph.ts scripts/refactor-move.ts scripts/prune-styles.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",
