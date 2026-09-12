@@ -85,14 +85,20 @@
 
 ## CSS ownership and verification
 
-- `src/styles.css` is the active stylesheet. Component rules own their geometry,
-  states and responsive behavior. Edit those rules in place; do not append a second
-  definition of the same selector group in the same media scope.
+- `src/styles/` is the stylesheet root. `index.css` is the import manifest and the
+  only sheet `src/main.tsx` loads; every other sheet is owned by one surface. Add a
+  rule to the file that owns the component, never to `index.css`, and never append a
+  second definition of the same selector group in the same media scope — including
+  in a different file, which `npm run styles:check` rejects.
 - Shared element defaults cover typography, focus and basic controls. Shared
   selector groups are intentional reuse, not a place to assign component geometry.
   Theme selectors must not unintentionally defeat component colors or states.
-- Do not use `!important`. Resizable AI dock height enters CSS through
-  `--ai-dock-height`; media rules own the resulting desktop/mobile geometry.
+- Do not use `!important`. The resizable coach dock height is measured in the
+  component and applied to that element, so media rules own the resulting
+  desktop/mobile geometry rather than a shared custom property. Custom properties
+  written from TypeScript are declared with their defaults in `tokens.css`; add a
+  new one there, with the writer named in the comment, rather than leaving the
+  contract implicit.
 - Prefer 4/8/12/16px spacing for new compact controls and panels. Choose 8–12px
   interior spacing before increasing it; keep touch targets usable independently
   of surrounding padding. Do not shrink all existing controls mechanically.

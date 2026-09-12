@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SkellySpeak — styleguide</title>
+
+<!-- The application's own manifest: the same sheets, in the same cascade order,
+     as src/main.tsx loads. Every token listed below is read from the loaded
+     stylesheet at runtime, so this page cannot drift from tokens.css. Open it
+     through the dev server (npm run dev, then /styleguide.html); browsers do
+     not expose stylesheet rules to a page opened from disk. -->
+<link rel="stylesheet" href="./src/styles/index.css" />
+
+<style>
+  /* Guide chrome only. Every rule is sg-prefixed so it cannot reach the app,
+     and nothing here redefines a component: components are shown as shipped. */
+  body { overflow: auto; height: auto; background: var(--shell-bg); color: var(--shell-text); }
+
+  .sg-page { max-width: 1180px; margin: 0 auto; padding: 0 var(--space-7) var(--space-11); }
+  .sg-head {
+    position: sticky; top: 0; z-index: var(--z-sticky);
+    display: flex; align-items: baseline; gap: var(--space-5); flex-wrap: wrap;
+    padding: var(--space-5) 0; margin-bottom: var(--space-8);
+    background: var(--shell-bg); border-bottom: var(--border-width) solid var(--shell-line);
+  }
+  .sg-head h1 { margin: 0; font-size: var(--text-2xl); letter-spacing: var(--tracking-tight); }
+  .sg-head h1 b { color: var(--accent); }
+  .sg-head p { margin: 0; color: var(--shell-text-muted); font-size: var(--text-sm); }
+  .sg-head nav { margin-inline-start: auto; display: flex; gap: var(--space-4); flex-wrap: wrap; }
+  .sg-head nav a { color: var(--shell-text-muted); font-size: var(--text-xs); text-decoration: none; font-family: var(--font-mono); }
+  .sg-head nav a:hover { color: var(--accent); }
+  .sg-page code { font-family: var(--font-mono); }
+
+  .sg-fault { margin: 0 0 var(--space-8); padding: var(--space-6) var(--space-7); border: var(--border-width) solid var(--danger-bar-line); border-radius: var(--radius-md); background: var(--danger-bar-bg); color: var(--danger-bar-ink); }
+
+  .sg-section { margin-bottom: var(--space-11); scroll-margin-top: 72px; }
+  .sg-section > h2 { margin: 0 0 var(--space-2); font-size: var(--text-3xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+  .sg-note { margin: 0 0 var(--space-8); color: var(--shell-text-muted); font-size: var(--text-sm); line-height: var(--leading-relaxed); max-width: 78ch; }
+  .sg-sub { margin: var(--space-9) 0 var(--space-5); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--shell-text-faint); }
+
+  .sg-grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); }
+  .sg-swatch { border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-md); overflow: hidden; background: var(--shell-chrome); }
+  .sg-swatch .sg-chip { height: 56px; border-bottom: var(--border-width) solid var(--shell-line); }
+  .sg-swatch .meta { padding: var(--space-3) var(--space-4); }
+  .sg-tok { display: block; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--shell-text); overflow-wrap: anywhere; }
+  .sg-val { display: block; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--shell-text-faint); margin-top: var(--space-1); overflow-wrap: anywhere; }
+
+  .sg-ramp { display: flex; border-radius: var(--radius-md); overflow: hidden; border: var(--border-width) solid var(--shell-line); margin-bottom: var(--space-4); }
+  .sg-ramp .step { flex: 1; height: 48px; position: relative; }
+  .sg-ramp .step span { position: absolute; inset: auto 0 var(--space-1) 0; text-align: center; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--ink-on-fill); mix-blend-mode: difference; }
+
+  .sg-panel { border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-lg); background: var(--shell-chrome); padding: var(--space-7); }
+  .sg-panel + .sg-panel { margin-top: var(--space-5); }
+  .sg-panel > h3 { margin: 0 0 var(--space-5); font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--shell-text-faint); font-weight: var(--weight-regular); }
+  .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+
+  .sg-line { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-3) 0; border-bottom: var(--border-width) solid var(--shell-line); }
+  .sg-line > code { flex: none; width: 150px; font-size: var(--text-xs); color: var(--shell-text-faint); }
+  .sg-line > .sg-val { flex: none; width: 90px; margin: 0; }
+  .sg-bar { height: 14px; background: var(--accent); border-radius: var(--radius-xs); }
+
+  .sg-box { width: 84px; height: 60px; background: var(--shell-raised); border: var(--border-width) solid var(--shell-line-strong); display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--shell-text-muted); }
+  .sg-shadows { background: var(--shell-sunken); padding: var(--space-7); border-radius: var(--radius-md); gap: var(--space-9); }
+  .sg-shadow { width: 150px; height: 74px; border-radius: var(--radius-md); background: var(--shell-raised); display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--shell-text-muted); }
+
+  .sg-frame { border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-lg); overflow: hidden; background: var(--paper-bg); }
+  .sg-frame > .bar { padding: var(--space-3) var(--space-5); background: var(--shell-chrome); border-bottom: var(--border-width) solid var(--shell-line); font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--shell-text-faint); }
+  .sg-frame > .body { padding: var(--space-7); }
+  .sg-frame .chat { height: 560px; border-radius: var(--radius-md); }
+  .sg-scrim { margin-top: var(--space-5); border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-lg); overflow: hidden; background: var(--shell-scrim); padding: var(--space-9); display: grid; place-items: center; }
+
+  .sg-foot { color: var(--shell-text-muted); font-size: var(--text-sm); line-height: var(--leading-relaxed); max-width: 78ch; }
+  .sg-foot li { margin-bottom: var(--space-3); }
+</style>
+</head>
+<body>
+<div class="sg-page">
+
+  <header class="sg-head">
+    <h1>SkellySpeak <b>styleguide</b></h1>
+    <p>Rendered by <code>src/styles/index.css</code>; every value is read from it.</p>
+    <nav>
+      <a href="#colour">Colour</a>
+      <a href="#type">Type</a>
+      <a href="#space">Space</a>
+      <a href="#shape">Shape</a>
+      <a href="#depth">Depth</a>
+      <a href="#motion">Motion</a>
+      <a href="#controls">Controls</a>
+      <a href="#conversation">Conversation</a>
+      <a href="#templates">Templates</a>
+      <a href="#rules">Rules</a>
+    </nav>
+  </header>
+
+  <div id="sg-fault" class="sg-fault" hidden></div>
+
+  <section class="sg-section" id="colour">
+    <h2>Colour</h2>
+    <p class="sg-note">
+      Two surface families are on screen at once: the dark navy shell that carries
+      chrome, and the light paper canvas that carries the conversation. Components
+      reference the semantic roles; the <code>--c-*</code> ramps are private to
+      <code>tokens.css</code>, and each ramp runs from light to dark.
+    </p>
+    <div id="sg-semantic"></div>
+    <div class="sg-sub">Palette ramps — private to tokens.css</div>
+    <div id="sg-ramps"></div>
+  </section>
+
+  <section class="sg-section" id="type">
+    <h2>Type</h2>
+    <div class="sg-panel"><h3>Families</h3><div class="sg-row" id="sg-fonts" style="gap:var(--space-9)"></div></div>
+    <div class="sg-panel"><h3>Size</h3><div id="sg-text"></div></div>
+    <div class="sg-panel"><h3>Weight</h3><div id="sg-weight"></div></div>
+    <div class="sg-panel"><h3>Leading</h3><div id="sg-leading"></div></div>
+    <div class="sg-panel"><h3>Tracking</h3><div id="sg-tracking"></div></div>
+  </section>
+
+  <section class="sg-section" id="space">
+    <h2>Space</h2>
+    <p class="sg-note">A 2px grid up to 20px, then wider steps. The hairline is a line width, not a step.</p>
+    <div class="sg-panel"><div id="sg-space"></div></div>
+    <div class="sg-panel"><h3>Control metrics</h3><div id="sg-control"></div></div>
+  </section>
+
+  <section class="sg-section" id="shape">
+    <h2>Radius</h2>
+    <div class="sg-panel"><div class="sg-row" id="sg-radius"></div></div>
+  </section>
+
+  <section class="sg-section" id="depth">
+    <h2>Depth and layering</h2>
+    <div class="sg-panel"><h3>Elevation</h3><div class="sg-row sg-shadows" id="sg-shadow"></div></div>
+    <div class="sg-panel"><h3>Layering</h3><div id="sg-z"></div></div>
+  </section>
+
+  <section class="sg-section" id="motion">
+    <h2>Motion</h2>
+    <p class="sg-note">Hover a card to feel each transition duration with <code>--ease-out</code>. Ambient loops are listed below it.</p>
+    <div class="sg-panel"><div class="sg-grid" id="sg-motion"></div></div>
+    <div class="sg-panel"><h3>Easing and loops</h3><div id="sg-motion-rest"></div></div>
+  </section>
+
+  <section class="sg-section" id="controls">
+    <h2>Controls</h2>
+    <p class="sg-note">The shared vocabulary, each shown on the surface it lives on.</p>
+
+    <div class="sg-sub">Buttons — dark shell</div>
+    <div class="sg-panel">
+      <div class="sg-row">
+        <button class="btn">Default</button>
+        <button class="btn primary">Primary</button>
+        <button class="btn danger">Danger</button>
+        <button class="btn tiny">Tiny</button>
+        <button class="btn" disabled>Disabled</button>
+      </div>
+    </div>
+
+    <div class="sg-sub">Tabs</div>
+    <div class="sg-panel">
+      <div class="panel-tabs">
+        <button class="panel-tab active">Coach</button>
+        <button class="panel-tab">Analysis</button>
+      </div>
+    </div>
+
+    <div class="sg-sub">Form</div>
+    <div class="sg-panel">
+      <div class="form-row"><label>Label</label><input value="Text input" readonly /></div>
+      <div class="form-row"><label>Select</label><select><option>Option</option></select></div>
+      <div class="form-row"><label>Range</label><input type="range" min="0" max="100" value="60" /></div>
+      <div class="form-row check-row"><label class="check-label"><input type="checkbox" checked /> Checkbox row</label></div>
+      <div class="form-row"><div class="shortcut-field"><span class="shortcut-label">Increase reading size</span><button class="shortcut-input">Ctrl +</button></div></div>
+      <p class="field-note">Field note: explanation only where a control needs it to be operated.</p>
+      <div class="modal-actions">
+        <span class="save-status saved">Saved</span>
+        <button class="btn">Cancel</button>
+        <button class="btn primary">Apply</button>
+      </div>
+    </div>
+
+    <div class="sg-sub">Notices</div>
+    <div class="sg-panel" style="padding:0;overflow:hidden">
+      <div class="update-bar"><span class="update-text">An update is available — <b>1.0.4</b></span><button class="btn tiny">Install</button></div>
+      <div class="fault-bar">
+        <p class="fault"><b>Could not save settings.</b> The workspace is locked by another window.<button class="fault-dismiss" aria-label="Dismiss">×</button></p>
+        <button class="btn tiny">Open Settings</button>
+      </div>
+      <div style="padding:var(--space-7);background:var(--paper-bg)">
+        <p class="err">Settings could not be opened.<button class="err-action">Open Settings</button></p>
+      </div>
+    </div>
+
+    <div class="sg-sub">Popover, tooltip and dialog</div>
+    <div class="sg-panel">
+      <div class="sg-row" style="align-items:flex-start">
+        <div class="popup-card"><span>serendipity</span><button class="popup-x" aria-label="Close">×</button></div>
+        <div class="info-tip-content" style="position:static">A tooltip explains a control without becoming permanent page copy.</div>
+      </div>
+    </div>
+    <div class="sg-scrim">
+      <div class="modal" style="width:min(480px,100%)">
+        <h2>Dialog title</h2>
+        <p class="sub">Secondary line that explains scope or consequence.</p>
+        <div class="form-row"><label>Field</label><input value="Value" readonly /></div>
+        <div class="modal-actions">
+          <button class="btn danger">Delete</button>
+          <span class="save-status hint">Saves automatically</span>
+          <button class="btn primary">Close</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="conversation">
+    <h2>Conversation</h2>
+    <p class="sg-note">
+      The primary surface: a light paper canvas inside the dark shell. The
+      partner's bubble is warm white with a muted green edge; the learner's is
+      blue. Word help hangs below the word and never widens it.
+    </p>
+    <div class="sg-frame">
+      <div class="bar">Paper canvas — <code>--paper-bg</code></div>
+      <div class="body">
+        <div class="chat" data-stripe="0">
+          <div class="chat-head">
+            <div class="conversation-title">
+              <div class="learning-line">
+                <span class="learning-label">Learning:</span>
+                <select class="learning-picker"><option>Spanish</option></select>
+                <select class="chat-language-picker"><option>Beginner</option></select>
+              </div>
+            </div>
+            <div class="chat-heading-actions"><button class="new-chat" aria-label="New conversation">+</button></div>
+          </div>
+          <div class="stream">
+            <div class="msg bot">
+              <div class="line">
+                <span class="wu"><span class="w">¿</span></span>
+                <span class="wu"><span class="w">Qué</span><span class="wg">what</span></span>
+                <span class="wu"><span class="w">tal</span><span class="wg">such</span></span>
+                <span class="wu"><span class="w">estás</span><span class="wroman">estás</span></span>
+                <span class="wu"><span class="w">?</span></span>
+              </div>
+            </div>
+            <div class="msg bot with-speak">
+              <div class="line"><span class="wu"><span class="w">Muy</span><span class="wg">very</span></span><span class="wu"><span class="w">bien</span><span class="wg">well</span></span></div>
+              <button class="speak-btn" aria-label="Speak">▶</button>
+            </div>
+            <div class="msg me">
+              <div class="line"><span class="wu"><span class="w">Estoy</span></span><span class="wu"><span class="w">cansado</span><span class="wpronunciation">kan-SAH-do</span></span></div>
+            </div>
+          </div>
+          <div class="composer">
+            <div class="crow">
+              <input class="field" placeholder="Write or hold Record…" />
+              <button class="mic" aria-label="Record">●</button>
+              <button class="send" aria-label="Send">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="sg-note" style="margin-top:var(--space-5)">
+      <code>.wu</code> sizes itself to the word; gloss, romanization and
+      pronunciation contribute no width of their own, so a long gloss grows the
+      box downward instead of pushing the next word away.
+    </p>
+  </section>
+
+  <section class="sg-section" id="templates">
+    <h2>Templates</h2>
+    <p class="sg-note">The recurring compositions, assembled from the controls above.</p>
+
+    <div class="sg-sub">Coach card — correction, scores and remark</div>
+    <div class="sg-panel">
+      <div class="coach-card">
+        <div class="coach-scores">
+          <div class="score-meter"><span class="score-label">Grammar</span><span class="score-dots"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></span><span class="score-num">2/3</span></div>
+          <div class="score-meter"><span class="score-label">Vocabulary</span><span class="score-dots"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></span><span class="score-num">3/3</span></div>
+        </div>
+        <p class="coach-remark">Close — the participle agrees with the subject here.</p>
+        <p class="coach-correction"><span class="cor-line"><s>Estoy cansada</s> → Estoy cansado</span><span class="cor-kind">agreement</span></p>
+        <p class="cor-why">“Cansado” agrees with a masculine speaker.</p>
+      </div>
+    </div>
+
+    <div class="sg-sub">Practice statistics — a dense numeric report</div>
+    <div class="sg-panel">
+      <div class="practice-metrics">
+        <div><dt>Messages</dt><dd>412</dd></div>
+        <div><dt>Distinct words</dt><dd>1,284</dd></div>
+        <div><dt>Demonstrated skills</dt><dd>37 <small>of 96</small></dd></div>
+      </div>
+    </div>
+
+    <div class="sg-sub">Reward badge — earned evidence</div>
+    <div class="sg-panel">
+      <div class="reward-badge">
+        <p class="reward-badge-heading"><span class="reward-domain-dot"></span>Questions · <strong>Structured question forms</strong></p>
+        <blockquote>¿Qué tal estás?</blockquote>
+        <p class="reward-rationale">Formed an inverted interrogative with correct accent.</p>
+        <p class="reward-credit-note">Credited to this conversation.</p>
+      </div>
+    </div>
+
+    <div class="sg-sub">Settings section — compact, collapsible</div>
+    <div class="sg-panel">
+      <details class="settings-section" open>
+        <summary>Reading</summary>
+        <div class="settings-entry">
+          <div class="form-row"><label>Text size</label><input type="range" min="75" max="150" value="100" /></div>
+          <div class="form-row"><label>Word spacing</label><input type="range" min="0" max="12" value="0" /></div>
+          <p class="field-note">Word spacing is stored as <code>preference.text_spacing</code> in pixels.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="sg-section" id="rules">
+    <h2>Rules</h2>
+    <div class="sg-foot">
+      <p><code>npm run styles:check</code> fails on any of these:</p>
+      <ul>
+        <li>a sheet that <code>index.css</code> does not import, an import of a missing sheet, or <code>tokens.css</code> not imported first;</li>
+        <li>a selector group owned twice in one scope, in any file, a property repeated within a rule, or <code>!important</code>;</li>
+        <li>a custom property declared outside <code>tokens.css</code> <code>:root</code>, a <code>var()</code> naming an undeclared token, or a <code>var()</code> fallback;</li>
+        <li>outside <code>tokens.css</code>: a literal or named colour, a <code>--c-*</code> primitive, or a literal font size, font weight, radius, duration or layer;</li>
+        <li>a media query on a width or height outside the breakpoint set;</li>
+        <li>in TypeScript: a literal colour (outside the skill-domain palette module), a primitive, or an undeclared token.</li>
+      </ul>
+      <p>Geometry that belongs to one component — a width, an offset, a minimap size — stays literal in that component's rule.</p>
+      <p><code>npm run styles:dead</code> reports class names no source file references, matching whole identifiers. Review its list before running <code>styles:prune</code>: a class composed at runtime can look unused to a text search.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Every token on this page comes from the loaded stylesheet: the :root rule in
+  // tokens.css, reached through index.css's @import chain. Nothing is listed by
+  // hand, so a token added, renamed or removed shows up here as it is.
+  function rootTokens() {
+    var names = [];
+    function visit(rules) {
+      for (var i = 0; i < rules.length; i++) {
+        var rule = rules[i];
+        if (rule.styleSheet) visit(rule.styleSheet.cssRules);
+        else if (rule.selectorText === ':root')
+          for (var j = 0; j < rule.style.length; j++) if (rule.style[j].indexOf('--') === 0) names.push(rule.style[j]);
+      }
+    }
+    for (var s = 0; s < document.styleSheets.length; s++) visit(document.styleSheets[s].cssRules);
+    if (!names.length) throw new Error('No tokens found: index.css did not load, or tokens.css declares none.');
+    return names;
+  }
+
+  var rootStyle = getComputedStyle(document.documentElement);
+  function value(name) { return rootStyle.getPropertyValue(name).trim(); }
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function line(host, name, sample) {
+    var row = el('div', 'sg-line');
+    row.appendChild(el('code', null, name));
+    row.appendChild(el('span', 'sg-val', value(name)));
+    if (sample) row.appendChild(sample);
+    host.appendChild(row);
+  }
+  function prefixed(names, prefix) { return names.filter(function (n) { return n.indexOf(prefix) === 0; }); }
+
+  try {
+    var tokens = rootTokens();
+    var isColour = function (name) { var v = value(name); return v && CSS.supports('color', v); };
+
+    // Semantic colour roles, grouped by their first name segment.
+    var semantic = tokens.filter(function (n) { return n.indexOf('--c-') !== 0 && isColour(n); });
+    var groups = {};
+    semantic.forEach(function (n) { var g = n.slice(2).split('-')[0]; (groups[g] = groups[g] || []).push(n); });
+    var semanticHost = document.getElementById('sg-semantic');
+    Object.keys(groups).forEach(function (g) {
+      semanticHost.appendChild(el('div', 'sg-sub', g));
+      var grid = el('div', 'sg-grid');
+      groups[g].forEach(function (name) {
+        var card = el('div', 'sg-swatch');
+        var chip = el('div', 'sg-chip');
+        chip.style.background = 'var(' + name + ')';
+        card.appendChild(chip);
+        var meta = el('div', 'meta');
+        meta.appendChild(el('span', 'sg-tok', name));
+        meta.appendChild(el('span', 'sg-val', value(name)));
+        card.appendChild(meta);
+        grid.appendChild(card);
+      });
+      semanticHost.appendChild(grid);
+    });
+
+    // Palette ramps, grouped by hue name.
+    var ramps = {};
+    prefixed(tokens, '--c-').forEach(function (n) { var h = n.slice(4).split('-')[0]; (ramps[h] = ramps[h] || []).push(n); });
+    var rampHost = document.getElementById('sg-ramps');
+    Object.keys(ramps).forEach(function (h) {
+      rampHost.appendChild(el('div', 'sg-sub', h));
+      var ramp = el('div', 'sg-ramp');
+      ramps[h].forEach(function (name) {
+        var cell = el('div', 'step');
+        cell.style.background = 'var(' + name + ')';
+        cell.title = name + ' ' + value(name);
+        cell.appendChild(el('span', null, name.slice(5 + h.length)));
+        ramp.appendChild(cell);
+      });
+      rampHost.appendChild(ramp);
+    });
+
+    prefixed(tokens, '--font-').forEach(function (name) {
+      var cell = el('div');
+      var sample = el('div', null, value(name).split(',')[0].replace(/'/g, ''));
+      sample.style.cssText = 'font-family:var(' + name + ');font-size:var(--text-2xl)';
+      cell.appendChild(sample);
+      cell.appendChild(el('code', 'sg-val', name));
+      document.getElementById('sg-fonts').appendChild(cell);
+    });
+    function specimen(prop, name) {
+      var s = el('span', null, 'The partner is waiting');
+      s.style.cssText = prop + ':var(' + name + ')';
+      return s;
+    }
+    prefixed(tokens, '--text-').forEach(function (n) { line(document.getElementById('sg-text'), n, specimen('font-size', n)); });
+    prefixed(tokens, '--weight-').forEach(function (n) { line(document.getElementById('sg-weight'), n, specimen('font-weight', n)); });
+    prefixed(tokens, '--leading-').forEach(function (n) {
+      var s = el('span', null, 'Two lines of text show how far apart the lines of a paragraph sit at this leading.');
+      s.style.cssText = 'line-height:var(' + n + ');max-width:40ch;display:block';
+      line(document.getElementById('sg-leading'), n, s);
+    });
+    prefixed(tokens, '--tracking-').forEach(function (n) { line(document.getElementById('sg-tracking'), n, specimen('letter-spacing', n)); });
+
+    prefixed(tokens, '--space-').forEach(function (n) {
+      var bar = el('div', 'sg-bar');
+      bar.style.width = 'var(' + n + ')';
+      line(document.getElementById('sg-space'), n, bar);
+    });
+    tokens.filter(function (n) { return /^--(control-|touch-|border-width|focus-width)/.test(n); })
+      .forEach(function (n) { line(document.getElementById('sg-control'), n); });
+
+    prefixed(tokens, '--radius-').forEach(function (n) {
+      var box = el('div', 'sg-box', n.replace('--radius-', ''));
+      box.style.borderRadius = 'var(' + n + ')';
+      box.title = value(n);
+      document.getElementById('sg-radius').appendChild(box);
+    });
+
+    prefixed(tokens, '--shadow-').forEach(function (n) {
+      var box = el('div', 'sg-shadow', n.replace('--shadow-', ''));
+      box.style.boxShadow = 'var(' + n + ')';
+      document.getElementById('sg-shadow').appendChild(box);
+    });
+    prefixed(tokens, '--z-').forEach(function (n) { line(document.getElementById('sg-z'), n); });
+
+    prefixed(tokens, '--dur-').filter(function (n) { return !/loop|spin/.test(n); }).forEach(function (n) {
+      var card = el('div', 'sg-swatch');
+      var chip = el('div', 'sg-chip');
+      chip.style.cssText = 'background:var(--accent);transition:transform var(' + n + ') var(--ease-out)';
+      chip.onmouseenter = function () { chip.style.transform = 'translateY(-8px)'; };
+      chip.onmouseleave = function () { chip.style.transform = ''; };
+      card.appendChild(chip);
+      var meta = el('div', 'meta');
+      meta.appendChild(el('span', 'sg-tok', n));
+      meta.appendChild(el('span', 'sg-val', value(n)));
+      card.appendChild(meta);
+      document.getElementById('sg-motion').appendChild(card);
+    });
+    tokens.filter(function (n) { return /^--(ease-|dur-(loop|spin))/.test(n); })
+      .forEach(function (n) { line(document.getElementById('sg-motion-rest'), n); });
+  } catch (error) {
+    var fault = document.getElementById('sg-fault');
+    fault.textContent = 'The styleguide could not read the tokens: ' + error.message +
+      ' Open this page through the dev server (npm run dev, then /styleguide.html).';
+    fault.hidden = false;
+    throw error;
+  }
+</script>
+</body>
+</html>

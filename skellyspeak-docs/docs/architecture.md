@@ -66,7 +66,8 @@ including `vi.mock` paths and `new URL(..., import.meta.url)` literals.
 Three paths are fixed by files outside `src/` and must not be moved casually:
 `src/contracts.ts`, which `src-tauri/src/bin/export-contracts.rs` writes;
 `src/assets/skill-catalogs/catalog.json`, compiled into the native binary with
-`include_str!`; and `src/styles.css`, named by `scripts/check-styles.ts`.
+`include_str!`; and the `src/styles/` root, read by `scripts/check-styles.ts`
+and `scripts/prune-styles.ts`.
 
 The graph describes and reconciles execution; it does not execute the turn.
 `commands/guided` is the orchestrator. Routing is centralized in Rust settings;

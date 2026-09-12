@@ -3,9 +3,9 @@
 html, body, #root { margin: 0; height: 100%; overscroll-behavior: none; }
 
 body {
-  background: var(--bg);
-  color: var(--ink-d);
-  font-family: var(--sans);
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  font-family: var(--font-sans);
   overflow: hidden;
 }
 
@@ -15,10 +15,17 @@ button, input, select { touch-action: manipulation; }
 
 /* Selection is independent of execution state and keyboard focus. */
 
-:where(button, a, input, textarea, select, summary, [role="separator"]):focus-visible { outline: 2px solid var(--selected); outline-offset: 3px; }
+:where(button, a, input, textarea, select, summary, [role="separator"]):focus-visible {
+  outline: var(--focus-width) solid var(--shell-text-strong);
+  outline-offset: 3px;
+}
 
-.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: #24405f; }
+.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: var(--brand-line); }
 
-input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
+input::placeholder, textarea::placeholder { color: var(--shell-text-muted); opacity: 1; }
 
-.chat input::placeholder, .chat textarea::placeholder { color: var(--ink-mut); }
+.chat input::placeholder, .chat textarea::placeholder { color: var(--paper-ink-muted); }
+
+@media (pointer: coarse) {
+  button, select, summary { min-height: var(--touch-target); }
+}

@@ -30,9 +30,9 @@ export function ConversationMap() {
         return <g key={branch.id} data-reward-domain={branch.id} style={{ color: branch.xp > 0 ? domainColors(branch.id).bright : domainColors(branch.id).muted }}>
           <line x1="90" y1="90" x2={x} y2={y} stroke="currentColor" strokeWidth="7" opacity=".23" />
           <line className="conversation-map-fill" x1="90" y1="90" x2={x} y2={y} pathLength="1" strokeDasharray={`${branch.fill} 1`} stroke="currentColor" strokeWidth="7" />
-          <circle cx={x} cy={y} r={active.id === branch.id ? 11 : 6} fill="currentColor" stroke={active.id === branch.id ? '#f4f6f8' : 'none'} strokeWidth="4" />
+          <circle cx={x} cy={y} r={active.id === branch.id ? 11 : 6} fill="currentColor" className={active.id === branch.id ? 'is-active' : undefined} stroke="none" strokeWidth="4" />
         </g>
-      })}<circle data-reward-total="xp" cx="90" cy="90" r="22" fill="#14202e" /><text x="90" y="94" textAnchor="middle" fill="#e8eef7" fontSize="14">★</text></svg>}
+      })}<circle data-reward-total="xp" cx="90" cy="90" r="22" /><text x="90" y="94" textAnchor="middle" fontSize="14">★</text></svg>}
       <span>{snapshot.profile.xp} XP · Skill map</span>
     </button>
     <button className="lesson-action conversation-map-collapse" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Collapse map' : 'Expand map'}</button>

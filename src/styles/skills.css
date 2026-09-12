@@ -1,0 +1,238 @@
+/* Skill map: the tree page, its inspector and the skill overview.
+
+   React Flow's own stylesheet loads after this one, with the lazy skill-map
+   chunk, so every react-flow__* override here is scoped under .tree-canvas or
+   .tree-node and wins on specificity, never on source order. Do not add an
+   unscoped .react-flow rule. */
+
+.skill-overview {
+  border-inline-start: 4px solid var(--shell-text);
+  padding-inline-start: var(--space-7);
+  margin: var(--space-8) 0;
+}
+.skill-overview h2 { margin: var(--space-3) 0; font: var(--weight-semibold) var(--text-3xl) var(--font-sans); }
+.skill-overview small { color: var(--shell-text-muted); }
+.skill-overview-progress { display: flex; gap: var(--space-6); flex-wrap: wrap; font: var(--text-md) var(--font-sans); }
+.skill-connections { margin-block: var(--space-8); }
+.skill-connections summary { cursor: pointer; }
+
+.skills-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  color: var(--shell-text);
+  background: var(--shell-bg);
+  font-family: var(--font-sans);
+}
+.tree-header, .tree-toolbar, .tree-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-7);
+  flex: none;
+  border-bottom: var(--border-width) solid var(--shell-line-strong);
+}
+.tree-header h1 { margin: 0; font-size: var(--text-base); letter-spacing: var(--tracking-label); }
+.tree-header h1 span, .tree-fixture, .tree-footer { color: var(--shell-text-muted); font-size: var(--text-sm); }
+.skills-page button, .skills-page select { font: inherit; }
+.tree-layouts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tree-layouts button, .tree-refresh, .tree-navigation button, .tree-detail-actions button, .tree-jump select {
+  padding: var(--space-4) var(--space-5);
+  border: var(--border-width) solid var(--shell-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--shell-raised);
+  color: var(--shell-text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.tree-layouts button[aria-pressed=true] {
+  outline: var(--focus-width) solid var(--shell-text-strong);
+  outline-offset: 1px;
+}
+.tree-jump {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  color: var(--shell-text-muted);
+  font-size: var(--text-sm);
+}
+.tree-jump select { min-width: 0; max-width: 260px; }
+.tree-focus-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-4) var(--space-7);
+  border-bottom: var(--border-width) solid var(--shell-line-strong);
+  font-size: var(--text-sm);
+  color: var(--shell-text-muted);
+}
+.tree-focus-strip button {
+  border: 0;
+  background: transparent;
+  color: var(--shell-text);
+  cursor: pointer;
+  padding: var(--space-2);
+  text-align: start;
+}
+.tree-workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px, 36%); }
+.tree-workspace.details-closed { grid-template-columns: minmax(0,1fr); }
+.tree-workspace.details-closed .tree-inspector { display: none; }
+.tree-canvas { display: flex; flex-direction: column; position: relative; min-width: 0; min-height: 0; }
+.tree-canvas > .react-flow { flex: 1; min-height: 0; }
+.tree-navigation, .tree-detail-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+.tree-navigation { border-bottom: var(--border-width) solid var(--shell-line-strong); background: var(--shell-chrome); }
+.tree-navigation nav { display: flex; align-items: center; flex: 1; min-width: 0; overflow-x: auto; }
+.tree-navigation nav button { border: 0; white-space: nowrap; background: transparent; color: var(--shell-text-muted); }
+.tree-navigation nav button + button::before { content: '/'; margin-inline-end: var(--space-5); }
+.tree-navigation nav button[aria-current] { color: var(--shell-text-strong); }
+.tree-detail-actions { padding: 0 0 var(--space-6); }
+.tree-detail-actions button:last-child { margin-inline-start: auto; }
+.tree-node {
+  width: calc(230px * var(--node-scale));
+  min-height: calc(88px * var(--node-scale));
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  color: var(--shell-text);
+  background: var(--shell-chrome);
+  border: var(--border-width-strong) solid var(--node-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.tree-node-code {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--shell-text-muted);
+  font-size: var(--text-2xs);
+}
+.tree-node strong { font-size: var(--text-lg); line-height: 1.3; }
+.tree-node-status { font-size: var(--text-sm); color: var(--shell-text-muted); }
+.tree-node.selected {
+  outline: var(--focus-width-thick) solid var(--shell-text-strong);
+  outline-offset: 5px;
+  background: var(--shell-raised);
+}
+.tree-node:hover { background: var(--shell-raised); }
+.tree-node .react-flow__handle {
+  width: 5px;
+  height: 5px;
+  background: var(--node-color);
+  border: var(--border-width) solid var(--shell-bg);
+}
+.tree-canvas .react-flow__controls { box-shadow: none; border: var(--border-width) solid var(--shell-line-strong); }
+.tree-canvas .react-flow__controls-button {
+  background: var(--shell-raised);
+  color: var(--shell-text);
+  fill: currentColor;
+  border-bottom: var(--border-width) solid var(--shell-line-strong);
+  width: 36px;
+  height: 36px;
+}
+.tree-canvas .react-flow__minimap {
+  bottom: 38px;
+  background: var(--shell-chrome);
+  border: var(--border-width) solid var(--shell-line-strong);
+}
+.tree-legend {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3) var(--space-6);
+  max-width: calc(100% - 65px);
+  font-size: var(--text-xs);
+  color: var(--shell-text-muted);
+  background: var(--shell-bg);
+  padding: var(--space-2);
+  pointer-events: none;
+}
+.tree-inspector {
+  min-height: 0;
+  overflow: auto;
+  border-inline-start: var(--border-width) solid var(--shell-line-strong);
+  background: var(--shell-chrome);
+}
+.tree-inspector-body { padding: var(--space-8); font: var(--text-base)/1.55 var(--font-sans); }
+.tree-inspector h3 { font-size: var(--text-lg); }
+.tree-inspector-toggle { display: none; }
+.tree-method { margin-top: var(--space-9); }
+.tree-method summary { cursor: pointer; }
+.tree-load { padding: var(--space-10); color: var(--shell-text); }
+.tree-list { overflow-y: auto; padding: var(--space-5) var(--space-5) 52px; }
+.tree-list button {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 58px;
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+  text-align: start;
+  border: var(--border-width) solid var(--node-color);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--shell-chrome);
+  color: var(--shell-text);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+.tree-list button[aria-pressed=true] {
+  outline: var(--focus-width) solid var(--shell-text-strong);
+  outline-offset: 1px;
+}
+.tree-list small { color: var(--shell-text-muted); }
+@media (max-width: 860px) {
+  .tree-workspace { display: flex; flex-direction: column; overflow-y: auto; }
+  .tree-canvas { flex: none; height: 55dvh; min-height: 280px; }
+  .tree-inspector {
+    flex: none;
+    overflow: visible;
+    border-inline-start: 0;
+    border-top: var(--border-width) solid var(--shell-line-strong);
+  }
+  .tree-inspector-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: var(--touch-target);
+    background: var(--shell-raised);
+    color: var(--shell-text);
+    border: 0;
+    padding: var(--space-5) var(--space-7);
+    text-align: start;
+  }
+  .tree-inspector:not(.expanded) .tree-inspector-body { display: none; }
+  .tree-jump { flex: 1 1 180px; }
+  .tree-jump select { width: 100%; max-width: none; }
+  .tree-navigation nav { flex-basis: 100%; }
+}
+
+.tree-domain-card {
+  border: var(--border-width) solid var(--shell-line-strong);
+  border-inline-start: 4px solid var(--node-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  padding: var(--space-6);
+  background: var(--shell-chrome);
+}
+.tree-domain-card summary { cursor: pointer; font-size: var(--text-lg); }
+.tree-domain-card summary small { display: block; margin-top: var(--space-3); color: var(--shell-text-muted); }
+.tree-domain-card button:first-of-type { margin-top: var(--space-6); }

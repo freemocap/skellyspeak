@@ -245,7 +245,7 @@ export const TurnView = memo(function TurnView({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className="turn-stack">
       {turn.user && (
         <div
           data-reward-message={turn.id}

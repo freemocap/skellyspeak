@@ -239,32 +239,31 @@ Marta can coexist without changing the learner's general accessibility preferenc
 
 ## Coaching and progression direction
 
-Automatic coaching examines every learner turn; deeper analysis is explicitly
-requested. This supersedes an explicit-review-only implementation proposal.
-The automatic result should consolidate immediately useful material: distinct
-assessments of technical/grammatical correctness and contextual understandability,
-source-linked skill evidence, compact explanations and suggested next responses.
-The two assessments are model estimates with separate rubrics; insufficient
-information must not become a fabricated score. Both use 1–5 message-specific rubrics, with null for insufficient evidence.
+The approved coaching, learner-model and game-layer design is the
+[coaching plan](skellyspeak-docs/docs/coaching-plan.md); its execution is the
+[coaching work plan](skellyspeak-docs/docs/coaching-work-plan.md). Summary:
 
-Opening saved feedback reuses the accepted result without inference. A distinct
-request for deeper analysis may start new work. Suggestions enter the draft and
-never send automatically. Private feedback stays outside partner knowledge.
-The learner must be able to continue speaking while analysis is pending.
+- SkellySpeak is a convivial tool: dialogue with partners is the core activity, the
+  coach poses problems before giving answers, and the learner owns and can inspect
+  their data, rules and progress.
+- The model observes; versioned policy code decides what to show, credit and reward.
+  The coach returns per-construct observations (quote, outcome, error tag, hint);
+  there are no global correctness or understandability scores.
+- Feedback follows a hint-first ladder. Edit & try again produces a new revision
+  turn; revisions are credited, weighted by how much help was needed.
+- One construct registry, tagged by lens (function, form, interaction, pragmatics,
+  support, fluency), serves both the practical and the functional skill views.
+- Learner state is a projection folded from retained observations (Elo-style
+  rating, uncertainty, decay). Proficiency is shown per lens, never as one level.
+- XP is the evidence-caused currency of effort. Rewards are caused by evidence,
+  truthful, and never punish stopping; sound and motion carry the delight.
+- Language knowledge, constructs, starters and policies are YAML config loaded at
+  startup; every rule cites `references.bib`.
 
-Six skill domains organize the catalog: entities/reference; properties/comparison;
-events/participants; time/place/movement; negation/questions/possibility; connecting
-ideas. Time and space share one domain, retaining their distinct subskills. This
-is an app taxonomy, not a claim that CEFR prescribes these categories.
-
-Source quotations, composing assistance and voice/text provenance are stored apart
-from XP. Demonstrated skills earn 10 XP for distinct unassisted wording and 2 XP
-for assisted wording; whitespace/case-normalized repeats count once per skill.
-Unassisted evidence takes precedence over identical assisted wording. Three distinct
-unassisted demonstrations earn a practice star. Only validated retained evidence
-contributes; retries and rereads do not add credit. Excluding evidence recalculates
-the projection. Scores and XP do not establish CEFR proficiency. Statistics remain
-numerical; garden geometry owns no evidence or scores.
+Opening saved feedback reuses the accepted result without inference. Suggestions
+enter the draft and never send automatically. Private feedback stays outside
+partner knowledge. The learner can keep speaking while analysis is pending.
+Statistics remain numerical; garden geometry owns no evidence or scores.
 
 Coaching is split by input readiness, with two automatic inference nodes as the
 initial design. Learner feedback starts from the saved learner message and already

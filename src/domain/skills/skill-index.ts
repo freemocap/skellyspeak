@@ -28,7 +28,7 @@ export function createSkillCatalog(catalog: TreeNode[]) {
   }
   const children = (id: string): TreeNode[] => catalog.filter(item => item.parent === id)
   const descendants = (id: string): string[] => catalog.filter(item => ancestry(item.id).some(parent => parent.id === id)).map(item => item.id)
-  const painted = catalog.map(item => ({ ...item, color: item.kind === 'root' ? '#e8eef7' : domainColors(domain(item.id).id).bright }))
+  const painted = catalog.map(item => ({ ...item, color: item.kind === 'root' ? 'var(--shell-text)' : domainColors(domain(item.id).id).bright }))
   return { node, ancestry, domain, children, descendants, nodes: painted, displayed: painted.filter(item => ancestry(item.id).length <= 3), mapAnchor: (id: string) => { const path = ancestry(id); return path[Math.min(2, path.length - 1)] }, scale: (id: string) => Math.pow(0.76, ancestry(id).length - 1) * 1.3 }
 }
 export type SkillCatalog = ReturnType<typeof createSkillCatalog>

@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react'
 import type { WaveSource } from '../domain/audio/waveform'
+import { cssToken } from '../platform/css-token'
 
 interface WaveformStripProps {
   source: WaveSource | null
   height?: number
   timelineSeconds?: number
-  waveColor?: string
-  backgroundColor?: string
 }
 
 /// Compact scrolling oscilloscope for the composer — adapted from the
@@ -17,8 +16,6 @@ export function WaveformStrip({
   source,
   height = 44,
   timelineSeconds = 6,
-  waveColor = '#6f9bff',
-  backgroundColor = '#0c151f',
 }: WaveformStripProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -33,6 +30,14 @@ export function WaveformStrip({
 
     const ctx2d = canvas.getContext('2d')
     if (!ctx2d) return
+
+    // A canvas cannot read var(), so the colours are resolved from the design
+    // tokens once per source; opacity is a drawing parameter, not a colour.
+    const backgroundColor = cssToken('--shell-sunken')
+    const waveColor = cssToken('--accent')
+    const gridColor = cssToken('--ink-on-fill')
+    const nowColor = cssToken('--warning')
+    const labelColor = cssToken('--shell-text')
 
     const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 
@@ -75,11 +80,13 @@ export function WaveformStrip({
       needsPaint = false
       paintedElapsed = elapsed
 
+      ctx2d.globalAlpha = 1
       ctx2d.fillStyle = backgroundColor
       ctx2d.fillRect(0, 0, width, height)
 
       // center line
-      ctx2d.strokeStyle = 'rgba(255, 255, 255, 0.12)'
+      ctx2d.globalAlpha = 0.12
+      ctx2d.strokeStyle = gridColor
       ctx2d.lineWidth = 1
       ctx2d.beginPath()
       ctx2d.moveTo(0, height / 2)
@@ -90,6 +97,7 @@ export function WaveformStrip({
       const history = historyRef.current
       if (history.length > 1) {
         const pxPerSample = width / maxSamples
+        ctx2d.globalAlpha = 1
         ctx2d.strokeStyle = waveColor
         ctx2d.lineWidth = 1.5
         ctx2d.beginPath()
@@ -103,7 +111,8 @@ export function WaveformStrip({
       }
 
       // "now" edge
-      ctx2d.strokeStyle = 'rgba(230, 179, 87, 0.7)'
+      ctx2d.globalAlpha = 0.7
+      ctx2d.strokeStyle = nowColor
       ctx2d.lineWidth = 1.5
       ctx2d.beginPath()
       ctx2d.moveTo(width - 1, 0)
@@ -111,7 +120,8 @@ export function WaveformStrip({
       ctx2d.stroke()
 
       // elapsed
-      ctx2d.fillStyle = 'rgba(232, 238, 247, 0.55)'
+      ctx2d.globalAlpha = 0.55
+      ctx2d.fillStyle = labelColor
       ctx2d.font = '9px monospace'
       ctx2d.fillText(`● rec ${elapsed}s`, 6, 12)
 
@@ -126,11 +136,11 @@ export function WaveformStrip({
       window.removeEventListener('resize', resize)
       historyRef.current = []
     }
-  }, [source, height, timelineSeconds, waveColor, backgroundColor])
+  }, [source, height, timelineSeconds])
 
   return (
     <div ref={containerRef} className="wave-strip">
-      <canvas ref={canvasRef} style={{ display: 'block', width: '100%' }} />
+      <canvas ref={canvasRef} />
     </div>
   )
 }

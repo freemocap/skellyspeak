@@ -13,7 +13,7 @@ export function MobileNav() {
       {(['chat', 'panel'] as const).map(item => <button key={item} type="button"
         className={`mobile-nav-item ${page === 'guided' && surface === item ? 'active' : ''}`}
         aria-current={page === 'guided' && surface === item ? 'page' : undefined}
-        onClick={() => openPractice(item)}>{item === 'chat' ? 'Chat · Contact' : 'Coach'}</button>)}
+        onClick={() => openPractice(item)}>{item === 'chat' ? 'Chat' : 'Coach'}</button>)}
     </nav>
   )
 }

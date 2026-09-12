@@ -60,5 +60,5 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment }
   }
   if (cursor < text.length) pieces.push(<Fragment key={`gap-${cursor}`}>{text.slice(cursor)}</Fragment>)
   if (afterSegment && cursor < text.length) pieces.push(<Fragment key="credit-tail">{afterSegment(cursor, text.length)}</Fragment>)
-  return <span className="w" dir="auto" style={{ whiteSpace: 'pre-wrap' }}>{pieces}</span>
+  return <span className="w preserve-space" dir="auto">{pieces}</span>
 }

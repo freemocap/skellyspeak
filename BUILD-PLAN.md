@@ -416,9 +416,12 @@ Analysis identifies its planned deeper grammar content as in development.
 Domain progress earns a display star per 50 XP; subskill mastery milestones remain
 separate evidence-based measures. Unpracticed domains are gray. Collapse is compact.
 
-Partner-initiated opening turns remain deferred: implement a real partner-start
-operation, never a fabricated learner message. Single-word audio and live provider
-validation of this checkpoint remain follow-ups. No server changes are required.
+Partner-initiated opening turns are specified in the
+[coaching plan](skellyspeak-docs/docs/coaching-plan.md) §10 (`StartConversation`
+with a `persona_opening` operation; never a fabricated learner message) and
+scheduled in wave 2 of the
+[coaching work plan](skellyspeak-docs/docs/coaching-work-plan.md). Single-word audio
+and live provider validation of this checkpoint remain follow-ups.
 
 ## Conversation XP and compact controls
 

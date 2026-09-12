@@ -1,100 +1,200 @@
-.persona-profile { padding: 4px 2px; color: var(--ink-d); }
+.persona-profile { padding: var(--space-2) var(--space-1); color: var(--shell-text); }
 
-.persona-profile fieldset { border: 0; padding: 0; margin: 6px 0 0; min-width: 0; }
+.persona-profile fieldset { border: 0; padding: 0; margin: var(--space-3) 0 0; min-width: 0; }
 
-.persona-profile .field { width: 100%; min-width: 0; resize: vertical; border: 1px solid var(--line2); border-radius: 8px; padding: 5px 8px; background: var(--chrome2); color: var(--ink-d); font: 13.5px/1.4 var(--sans); }
+.persona-profile .field {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  border: var(--border-width) solid var(--shell-line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  background: var(--shell-raised);
+  color: var(--shell-text);
+  font: var(--text-base)/1.4 var(--font-sans);
+}
 
 /* The header's persona control: one compact control that opens the contact list. */
 
 .persona-picker { position: relative; display: inline-flex; min-width: 0; }
 
-.persona-picker-toggle { display: inline-flex; align-items: center; gap: 6px; max-width: 170px; cursor: pointer; }
+.persona-picker-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 170px;
+  cursor: pointer;
+}
 
 .persona-picker-toggle > span:not([aria-hidden]) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.persona-picker-menu { position: absolute; top: calc(100% + 4px); inset-inline-start: 0; z-index: 30; display: flex; flex-direction: column; min-width: 190px; padding: 4px; border: 1px solid var(--line2); border-radius: 8px; background: var(--chrome2); box-shadow: 0 8px 24px rgb(0 0 0 / 25%); }
+.persona-picker-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline-start: 0;
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--shell-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--shell-raised);
+  box-shadow: var(--shadow-menu);
+}
 
-.persona-picker-item { display: flex; align-items: center; gap: 6px; width: 100%; padding: 5px 6px; border: 0; border-radius: 6px; background: none; color: var(--ink-d); font: inherit; text-align: start; cursor: pointer; }
+.persona-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--shell-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
 
-.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--inset); }
+.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--shell-sunken); }
 
-.persona-picker-item[aria-checked="true"] { color: var(--steel); }
+.persona-picker-item[aria-checked="true"] { color: var(--accent); }
 
 .persona-avatar { flex: none; display: inline-block; width: 1.25em; text-align: center; line-height: 1; }
 
-.persona-tab-actions { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
+.persona-tab-actions { display: flex; justify-content: flex-end; padding: var(--space-4) var(--space-6) 0; }
 
-.persona-generate { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 6px; }
+.persona-generate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-3);
+}
 
-.persona-generate .field { flex: 1 1 240px; min-width: 0; }
+.persona-generate .field { width: 100%; min-width: 0; resize: vertical; }
 
-.persona-identity { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); column-gap: 8px; }
+.persona-generate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 
-.persona-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+/* Text boxes grow to fit what they hold, so a list or a background is read without
+   scrolling inside a small box. The cap keeps a very long field from pushing the
+   rest of the form out of the dialog. */
 
-.persona-group > legend { margin-bottom: 4px; font: 600 11.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint-d); }
+.persona-profile textarea.field { field-sizing: content; min-height: 2.4em; max-height: 50vh; }
 
-.persona-field-hint { font-style: normal; font-size: 11px; color: var(--faint-d); }
+.persona-wide { grid-column: 1 / -1; }
 
-.persona-vibe-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 8px; border: 1px solid var(--line2); border-radius: 999px; font-size: 16px; line-height: 1.4; }
+.persona-identity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  column-gap: var(--space-4);
+}
 
-.persona-vibe-chip button { border: 0; background: none; color: var(--faint-d); cursor: pointer; padding: 2px 4px; font-size: 11px; }
+.persona-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
 
-.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--ink-d); }
+.persona-group > legend {
+  margin-bottom: var(--space-2);
+  font: var(--weight-semibold) var(--text-sm) var(--font-sans);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--shell-text-faint);
+}
 
-.persona-inline-error { margin: 4px 0 0; font-size: 11.5px; color: var(--steel); }
+.persona-field-hint { font-style: normal; font-size: var(--text-xs); color: var(--shell-text-faint); }
+
+.persona-vibe-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
+  border: var(--border-width) solid var(--shell-line-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xl);
+  line-height: 1.4;
+}
+
+.persona-vibe-chip button {
+  border: 0;
+  background: none;
+  color: var(--shell-text-faint);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+}
+
+.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--shell-text); }
+
+.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--accent); }
 
 /* Persona control panel — the list on the left, one character on the right.
    Wider than the settings modal because the sketch is the point: it is what
    gets sent to the model verbatim, so it has to be readable and editable
    without a scrollbar for anything under a paragraph. */
 
-.persona-field { display: block; margin-bottom: 6px; }
+.persona-field { display: block; margin-bottom: var(--space-3); }
 
 .persona-field > span {
   display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--mut-d); margin-bottom: 5px;
+  font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
+  text-transform: uppercase; color: var(--shell-text-muted); margin-bottom: var(--space-2);
 }
 
-.persona-hint { margin: 0; font-size: 11.5px; line-height: 1.45; color: var(--faint-d); }
+.persona-hint { margin: 0; font-size: var(--text-sm); line-height: 1.45; color: var(--shell-text-faint); }
 
 .persona-reaction {
   position: absolute;
   top: -17px;
   inset-inline-start: 9px;
-  min-width: 32px;
+  min-width: var(--control-height);
   height: 28px;
-  padding: 1px 6px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 17px;
+  padding: var(--space-hairline) var(--space-3);
+  border: var(--border-width) solid var(--shell-line);
+  border-radius: var(--radius-lg);
+  background: var(--paper-bg);
+  color: var(--paper-ink);
+  font-size: var(--text-2xl);
   line-height: 1;
   cursor: pointer;
 }
 
-.persona-reaction.is-confused { border-color: #ba790d; box-shadow: 0 0 0 1px #ba790d33; }
+.persona-reaction.is-confused { border-color: var(--warning-ink); box-shadow: 0 0 0 1px var(--warning-ink); }
 
-.persona-reaction:focus-visible { outline: 2px solid #718eea; outline-offset: 3px; }
+.persona-reaction:focus-visible { outline: var(--focus-width) solid var(--focus-accent); outline-offset: 3px; }
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
-.reaction-details h3 { font-size: 13px; margin: 20px 0 6px; }
+.reaction-details h3 { font-size: var(--text-md); margin: var(--space-10) 0 var(--space-3); }
 
-.reaction-details blockquote { margin: 0; padding: 9px 12px; border-inline-start: 2px solid #839bd1; }
+.reaction-details blockquote {
+  margin: 0;
+  padding: var(--space-4) var(--space-6);
+  border-inline-start: var(--border-width-strong) solid var(--reaction-line);
+}
 
 .reaction-details p { line-height: 1.55; }
 
-.reaction-exchange { display: flex; flex-direction: column; gap: 14px; padding: 14px 0 2px; }
+.reaction-exchange {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--space-7) 0 var(--space-1);
+}
 
-.reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: 5px; }
+.reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: var(--space-2); }
 
-.reaction-excerpt > span { font-size: 11px; color: var(--dim); }
+.reaction-excerpt > span { font-size: var(--text-xs); color: var(--shell-text-muted); }
 
 .reaction-excerpt.learner { align-self: flex-end; align-items: flex-end; }
 
 .reaction-excerpt.persona { align-self: flex-start; align-items: flex-start; }
 
-.reaction-excerpt .msg { margin: 0; max-width: 100%; min-width: 0; padding: 9px 12px; font-size: 16px; line-height: 1.45; font-family: var(--serif); }
+.reaction-excerpt .msg {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--text-xl);
+  line-height: 1.45;
+  font-family: var(--font-serif);
+}

@@ -1,0 +1,41 @@
+/* ============================================================================
+   SkellySpeak stylesheet entry point.
+
+   This is the only stylesheet the application imports (src/main.tsx). It is a
+   manifest, not a place for rules: the cascade order below is the contract, so
+   add new rules to the file that owns the component, never here.
+
+   Order, and why it is this order:
+     1. tokens      — custom properties must exist before anything reads them
+     2. reset       — element defaults; lowest specificity, must not win later
+     3. typography  — prose and reading roles shared by several surfaces
+     4. layout      — the shell: app frame, toolbar, panes, navigation
+     5. primitives  — buttons, fields, dialogs, notices: the shared vocabulary
+     6. features    — one file per product surface, in surface order
+     7. motion      — @keyframes only; names are order-independent, so last
+
+   Component rules own their geometry, states and responsive behaviour. Media
+   queries stay in the file that owns the component they adjust.
+
+   Vendor CSS (@xyflow/react) loads later, with the lazy chunks that need it,
+   so nothing here may rely on source order to beat it. Win with specificity
+   instead; skills.css shows the pattern.
+   ========================================================================= */
+
+@import './tokens.css';
+@import './reset.css';
+@import './typography.css';
+@import './layout.css';
+@import './primitives.css';
+
+/* Feature surfaces, in the order the learner meets them. */
+@import './conversation.css';
+@import './coach.css';
+@import './lesson.css';
+@import './analysis.css';
+@import './settings.css';
+@import './persona.css';
+@import './practice.css';
+@import './skills.css';
+
+@import './motion.css';

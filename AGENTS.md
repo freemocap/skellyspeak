@@ -28,7 +28,9 @@ backups or data-conversion work.
 ## Collaboration
 
 Keep communication concrete and concise. Product UI uses plain functional labels:
-no marketing copy, slogans, saccharine encouragement or filler. Settings must be
+no marketing copy, slogans, saccharine encouragement or filler. This rule governs
+text. Reward presentation (tiered sound, animation and haptics defined in the
+coaching plan's game layer) is required product behaviour, not decoration to strip. Settings must be
 compact, with related inputs grouped and secondary details collapsed. Continue authorized design work and flag
 meaningful decisions. Ask for user checks only when there is a specific artifact
 to review. Distinguish design review, source implementation, automated verification
@@ -50,6 +52,16 @@ flowers and alternative views render the same underlying data; renderer geometry
 styling and random seeds belong to presentation configuration. Evaluate geometric
 Vibe matching through reusable embeddings and emoji references without presuming
 a generative LLM call per observation.
+
+## Coaching plan and research
+
+Coaching, learner-model, new-chat and game-layer work follows
+`skellyspeak-docs/docs/coaching-plan.md`, executed per
+`skellyspeak-docs/docs/coaching-work-plan.md`, with the seams between work areas in
+`skellyspeak-docs/docs/coaching-contracts.md`. Cite research through
+`references.bib` keys at the repo root (`sources: [key]` in YAML, `// [@key]` in
+code, `[@key]` in docs). When research informs a change, add its entry with `url`,
+`review` and `claim` in the same change.
 
 ## Git
 

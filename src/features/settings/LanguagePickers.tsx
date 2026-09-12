@@ -22,9 +22,8 @@ function usePicker() {
 export function LearningPicker() {
   const { settings, saving, disabled, change } = usePicker()
   if (!settings) return null
-  const scale = languages().find(language => language.code === settings.target_language)?.fontScale ?? 1
   return <>
-    <select className="learning-picker" style={{ fontSize: `${15 * Math.min(1.15, scale)}px` }} aria-label="Target language"
+    <select className="learning-picker" aria-label="Target language"
       value={settings.target_language} disabled={disabled}
       onChange={event => change('target_language', event.target.value)}>
       {languages().map(language => <option lang={language.code} key={language.code} value={language.code}>{languageLabel(language)}</option>)}
@@ -39,11 +38,10 @@ export function LearningPicker() {
 export function NativePicker() {
   const { settings, disabled, change } = usePicker()
   if (!settings) return null
-  const scale = languages().find(language => language.base === settings.native_language)?.fontScale ?? 1
   return (
-    <label><span>Native</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, scale)}px` }} aria-label="Native language" value={settings.native_language}
+    <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
       disabled={disabled} onChange={event => change('native_language', event.target.value)}>
-      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.base} value={language.base}>{languageLabel(language)}</option>)}
+      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} key={language.base} value={language.base}>{languageLabel(language)}</option>)}
     </select></label>
   )
 }

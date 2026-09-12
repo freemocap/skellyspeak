@@ -379,7 +379,7 @@ export function SettingsModal({
       node: (
         <div className="form-row">
           <label>Microphone</label>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="microphone-row">
             <select
               value={settings.microphone_device_id ?? ''}
               onChange={(e) =>

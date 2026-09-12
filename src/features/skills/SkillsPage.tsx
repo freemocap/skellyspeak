@@ -14,7 +14,6 @@ import { skillDemo } from '../../domain/skills/skillDemo'
 import type { ProfileChoices, SkillProgress, SkillSnapshot } from '../../domain/skills/skills'
 import { nodePosition, type TreeLayout, type TreeNode } from '../../domain/skills/skillTree'
 import { TreeCamera, type CameraRequest } from './TreeCamera'
-import './skills.css'
 
 type SkillNodeData = Record<string, unknown> & { item: TreeNode; scale: number; picked: boolean; focus: boolean; status: string; source: Position; target: Position; onPick: (id: string) => void }
 function SkillNode({ data }: NodeProps<Node<SkillNodeData>>) {
@@ -91,7 +90,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
   useEffect(() => {
     setNodes((previous) => visible.map((node) => ({ ...previous.find((n) => n.id === node.id), id: node.id, type: 'skill', position: nodePosition(node, layout, visible), data: { item: node, scale: scale(node.id), status: status(node), picked: mapAnchor(selected).id === node.id, focus: mapAnchor(focus).id === node.id, onPick: pick, ...ports(node, layout, visible) }, draggable: false })))
   }, [layout, selected, focus, pick, setNodes, visible, status, scale, mapAnchor])
-  const edges = useMemo<Edge[]>(() => visible.filter((node) => node.parent !== null).map((node) => ({ id: `${node.parent}-${node.id}`, source: node.parent!, target: node.id, type: layout === 'radial' ? 'straight' : 'smoothstep', style: { stroke: selected === node.id || selected === node.parent ? '#f4f6f8' : node.color, strokeWidth: selected === node.id || selected === node.parent ? 3 : 2, vectorEffect: 'non-scaling-stroke' } })), [layout, selected, visible])
+  const edges = useMemo<Edge[]>(() => visible.filter((node) => node.parent !== null).map((node) => ({ id: `${node.parent}-${node.id}`, source: node.parent!, target: node.id, type: layout === 'radial' ? 'straight' : 'smoothstep', style: { stroke: selected === node.id || selected === node.parent ? 'var(--shell-text-strong)' : node.color, strokeWidth: selected === node.id || selected === node.parent ? 3 : 2, vectorEffect: 'non-scaling-stroke' } })), [layout, selected, visible])
   const update = async (choices: ProfileChoices, practice: boolean) => {
     setMutationError(null)
     try { await save(choices); if (practice) onPractice() } catch (error) { setMutationError(String(error)) }
@@ -119,7 +118,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
         {!graphVisible ? <div className="tree-list">{catalog.nodes.filter(n => n.kind === 'domain').map(domain => <details key={domain.id} className="tree-domain-card" style={{ '--node-color': domain.color } as CSSProperties}>
           <summary>{domain.label}<small>{status(domain)}</small></summary>
           {catalog.nodes.filter(node => node.kind === 'skill' && catalog.domain(node.id).id === domain.id).map(node => <button key={node.id} aria-pressed={selected === node.id} onClick={() => pick(node.id)} onDoubleClick={() => setDetailModal(true)}><span>{node.label}</span><small>{status(node)}</small></button>)}
-        </details>)}</div> : <ReactFlow nodes={nodes} onNodesChange={onNodesChange} edges={edges} nodeTypes={nodeTypes} nodeOrigin={[0.5, 0.5]} nodesDraggable={false} nodesConnectable={false} nodesFocusable={false} edgesFocusable={false} minZoom={0.08} maxZoom={3} onPaneClick={() => setDetailOpen(false)}><Background variant={BackgroundVariant.Dots} gap={24} color="var(--line2)" /><Controls showInteractive={false} showFitView={false} /><MiniMap style={{ width: mobile ? 90 : 130, height: mobile ? 60 : 90 }} pannable zoomable nodeColor={(node) => (node.data as SkillNodeData).item.color} maskColor="#09111ab8" /><TreeCamera catalog={catalog} request={camera} layout={layout} onRestore={restore} onCanBackChange={setCanBack} /></ReactFlow>}
+        </details>)}</div> : <ReactFlow nodes={nodes} onNodesChange={onNodesChange} edges={edges} nodeTypes={nodeTypes} nodeOrigin={[0.5, 0.5]} nodesDraggable={false} nodesConnectable={false} nodesFocusable={false} edgesFocusable={false} minZoom={0.08} maxZoom={3} onPaneClick={() => setDetailOpen(false)}><Background variant={BackgroundVariant.Dots} gap={24} color="var(--shell-line-strong)" /><Controls showInteractive={false} showFitView={false} /><MiniMap style={{ width: mobile ? 90 : 130, height: mobile ? 60 : 90 }} pannable zoomable nodeColor={(node) => (node.data as SkillNodeData).item.color} maskColor="var(--map-mask)" /><TreeCamera catalog={catalog} request={camera} layout={layout} onRestore={restore} onCanBackChange={setCanBack} /></ReactFlow>}
         {graphVisible && <div className="tree-legend"><span>○ No success</span><span>✓ One · ✓✓ Two · ★ Three</span><span>◆ Practice focus</span></div>}
       </section>
       <aside className={`tree-inspector ${detailOpen ? 'expanded' : ''}`} aria-label="Selected node" style={{ '--node-color': item.color, '--node-scale': scale(item.id) } as CSSProperties}>

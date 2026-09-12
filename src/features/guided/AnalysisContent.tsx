@@ -68,12 +68,12 @@ export const AnalysisContent = memo(function AnalysisContent({
   return (
     <>
       {turn.analysisState === 'pending' && (
-        <p className="sect-k" style={{ color: 'var(--steel)', marginBottom: 12 }}>
+        <p className="sect-k pending">
           ⟳ Analyzing grammar…
         </p>
       )}
 
-      <p className="sect-k" style={{ marginBottom: 8 }}>
+      <p className="sect-k">
         You said
       </p>
       {a.user_tokens && a.user_tokens.length > 0 ? (
@@ -83,7 +83,7 @@ export const AnalysisContent = memo(function AnalysisContent({
       ) : null}
       {autoTranslate && a.user_translation && <p className="trans-d">{a.user_translation}</p>}
 
-      <p className="sect-k" style={{ marginBottom: 8 }}>
+      <p className="sect-k">
         Tutor replied
       </p>
       {a.tokens.length > 0

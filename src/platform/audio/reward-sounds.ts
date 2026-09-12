@@ -1,5 +1,6 @@
 import { reportFault } from '../diagnostics/faults'
 import { visibleRewardRect } from '../../domain/reward/reward-anchors'
+import { cssToken } from '../css-token'
 export type RewardSoundMode = 'yes' | 'no' | 'follow_tts'
 export type SoundCue = { kind: 'xp'; xp: number } | { kind: 'confused' } | { kind: 'understood' } | { kind: 'pop' }
 export interface Beep { frequency: number; at: number; duration: number }
@@ -90,9 +91,10 @@ export function playRewardSound(cue: SoundCue, target: HTMLElement): boolean {
     oscillator.stop(at + note.duration + 0.01)
   }
   const flashTarget = cue.kind === 'pop' ? target.closest<HTMLElement>('.msg') ?? target : target
+  const glow = cssToken('--reward-flash')
   const flash = flashTarget.animate([
-    { boxShadow: '0 0 0 2px #f4d780, 0 0 12px #f4d78066' },
-    { boxShadow: '0 0 0 0px #f4d78000, 0 0 0px #f4d78000' },
+    { boxShadow: `0 0 0 2px ${glow}, 0 0 12px color-mix(in srgb, ${glow} 40%, transparent)` },
+    { boxShadow: '0 0 0 0px transparent, 0 0 0px transparent' },
   ], { delay: (start - audio.currentTime) * 1000, duration: 240, easing: 'ease-out' })
   flashes.add(flash)
   flash.onfinish = () => { flashes.delete(flash) }

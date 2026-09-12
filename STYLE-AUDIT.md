@@ -1,6 +1,6 @@
 # Styling audit
 
-Scope: active React components, inline styles and `src/styles.css`. Source inspection
+Scope: active React components, inline styles and the stylesheet root. Source inspection
 and automated verification are complete for this pass; live visual QA is pending.
 The styling agreement is in `ui-guidelines.md`.
 
@@ -24,13 +24,13 @@ The styling agreement is in `ui-guidelines.md`.
 
 ## Recommendations and remaining inspection
 
-1. Keep one active stylesheet for now. Splitting files by surface is useful only if
-   ownership and import order stay explicit; moving contradictory rules into several
-   files would not solve them. Group future component additions with their owner.
-2. Use existing semantic colors and a compact 4/8/12/16px spacing vocabulary.
-   The composer, coach and credential controls still contain literal role colors;
-   consolidate these into semantic tokens during their visual QA, rather than
-   globally substituting numerically similar colors with different purposes.
+1. The stylesheet is split by surface under `src/styles/`, with `index.css` as the
+   import manifest. `npm run styles:check` enforces one owner per selector across
+   files and keeps literal colours, sizes, weights, radii, durations and layers in
+   `tokens.css`. Group future component additions with their owner.
+2. Use the semantic colour roles and the spacing scale in `tokens.css`. When a
+   surface needs a colour no role covers, add a primitive to the palette and a role
+   that names its purpose, rather than reusing a numerically similar colour.
 3. Review shared form/notice spacing and nested settings margins in the app. Avoid
    another global padding reduction until the affected surfaces are visible.
 4. Inspect remaining broad light-pane input/button selectors against hover, focus,

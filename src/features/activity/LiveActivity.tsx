@@ -38,7 +38,7 @@ export function LiveActivity() {
   const nodes: Node[] = turn?.operations.map(op => {
     const column = depth(op.id), row = rows.get(column) ?? 0
     rows.set(column, row + 1)
-    return { id: op.id, position: { x: column * 225, y: row * 90 }, data: { label: `${op.kind.replaceAll('_', ' ')} · ${op.state}` }, style: { background: '#192d42', color: '#e8eef7', borderColor: op.state === 'failed' ? '#ce6978' : '#438bb4', width: 200 } }
+    return { id: op.id, position: { x: column * 225, y: row * 90 }, data: { label: `${op.kind.replaceAll('_', ' ')} · ${op.state}` }, className: op.state === 'failed' ? 'activity-node failed' : 'activity-node' }
   }) ?? []
   const edges: Edge[] = turn?.operations.flatMap(op => op.dependencies.map(dep => ({ id: `${dep}:${op.id}`, source: dep, target: op.id, animated: op.state === 'running' }))) ?? []
   return <section className="live-activity">

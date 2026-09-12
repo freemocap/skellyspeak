@@ -36,7 +36,9 @@ class Synth {
   }
   createGain() { return { gain: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn() } }
 }
-beforeEach(() => { vi.resetModules(); voices.length = 0; vi.stubGlobal('AudioContext', Synth) })
+// The flash reads its colour from the design tokens, and jsdom loads no
+// stylesheet, so declare the one it uses.
+beforeEach(() => { vi.resetModules(); voices.length = 0; vi.stubGlobal('AudioContext', Synth); document.documentElement.style.setProperty('--reward-flash', '#f4d780') })
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); document.body.innerHTML = '' })
 
 it('synchronizes a visible flash with sound and cancels all scheduled notes when backgrounded', async () => {

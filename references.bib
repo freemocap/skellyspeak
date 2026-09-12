@@ -1,0 +1,334 @@
+% SkellySpeak bibliography — single source of truth for citations in config, prompts, docs and code.
+% Custom fields: review = {abstract | full-text | reviewed}; claim = the sentence the codebase relies on;
+% used-by = informational pointer (the citation test computes the real list).
+% Seeded 2026-09-12 from the coaching-plan research. Most entries were checked via abstracts/summaries only.
+
+% ---------------------------------------------------------------- philosophy of the tool
+@book{illich1973,
+  author = {Illich, Ivan}, title = {Tools for Conviviality}, publisher = {Harper \& Row}, year = {1973},
+  url = {https://arl.human.cornell.edu/linked%20docs/Illich_Tools_for_Conviviality.pdf},
+  review = {abstract}, claim = {Convivial tools enlarge users' autonomy and creativity and remain under their control; industrial tools past a threshold shape users to their own ends (radical monopoly, counterproductivity).},
+  used-by = {plan §1 stance; conviviality check; §11 game layer}
+}
+@book{freire1970,
+  author = {Freire, Paulo}, title = {Pedagogy of the Oppressed}, publisher = {Herder and Herder}, year = {1970},
+  url = {https://en.wikipedia.org/wiki/Problem-posing_education},
+  review = {abstract}, claim = {Rejects banking education; problem-posing dialogue built on learners' generative themes, with teacher-students and student-teachers.},
+  used-by = {plan §1; new-chat starts from learner themes; coach poses problems before answers}
+}
+@book{hooks1994,
+  author = {hooks, bell}, title = {Teaching to Transgress: Education as the Practice of Freedom}, publisher = {Routledge}, year = {1994},
+  url = {https://infed.org/dir/welcome/bell-hooks-on-education/},
+  review = {abstract}, claim = {Engaged pedagogy treats learners as whole persons and holds that excitement belongs in learning.},
+  used-by = {plan §1; §11 delight is legitimate; person-safe feedback}
+}
+
+% ---------------------------------------------------------------- frameworks & scales
+@techreport{cefr2020,
+  author = {{Council of Europe}}, title = {Common European Framework of Reference for Languages: Learning, Teaching, Assessment. Companion Volume},
+  institution = {Council of Europe}, year = {2020},
+  url = {https://rm.coe.int/cefr-companion-volume-with-new-descriptors-2020/16809ea0d4},
+  review = {abstract}, claim = {Adds mediation, online interaction and plurilingual descriptors; levels Pre-A1 to C2 with plus-levels.}, used-by = {constructs; bands}
+}
+@misc{actfl2024,
+  author = {{ACTFL}}, title = {ACTFL Proficiency Guidelines 2024}, year = {2024},
+  url = {https://www.actfl.org/proficiency-guidelines-overview},
+  review = {abstract}, claim = {Proficiency described by Functions, Accuracy, Context/content and Text type; functions primarily distinguish levels.}, used-by = {function lens}
+}
+@misc{gse,
+  author = {{Pearson}}, title = {Global Scale of English Learning Objectives}, year = {2022},
+  url = {https://www.pearson.com/content/dam/one-dot-com/one-dot-com/pearson-languages/en-gb/pdfs/gse/gse-resources/gse-learning-objectives-overview.pdf},
+  review = {abstract}, claim = {A 10-90 granular scale subdivides CEFR levels to show finer progress.}, used-by = {bands}
+}
+@article{egp2017,
+  author = {O'Keeffe, Anne and Mark, Geraldine}, title = {The English Grammar Profile of learner competence: Methodology and key findings},
+  journal = {International Journal of Corpus Linguistics}, year = {2017},
+  url = {https://benjamins.com/catalog/ijcl.14086.oke},
+  review = {abstract}, claim = {Corpus-derived criterial features identify grammar that first appears at each CEFR level (1,200+ statements).}, used-by = {constructs.band}
+}
+@article{grambank2023,
+  author = {Skirg{\aa}rd, Hedvig and others}, title = {Grambank reveals the importance of genealogical constraints on linguistic diversity and highlights the impact of language loss},
+  journal = {Science Advances}, year = {2023},
+  url = {https://www.eva.mpg.de/linguistic-and-cultural-evolution/research/grambank/},
+  review = {abstract}, claim = {195 morphosyntactic features for 2,467 languages; usable as a trait reference vocabulary.}, used-by = {traits}
+}
+@misc{ud,
+  author = {{Universal Dependencies contributors}}, title = {Universal Dependencies}, url = {https://universaldependencies.org/},
+  review = {abstract}, claim = {Cross-linguistic UPOS, FEATS and dependency annotation, including Arabic and Chinese.}, used-by = {constructs.ud_features; ErrorTag.category}
+}
+@techreport{unimorph,
+  author = {Sylak-Glassman, John}, title = {The Composition and Use of the Universal Morphological Feature Schema (UniMorph Schema)}, year = {2016},
+  url = {https://unimorph.github.io/doc/unimorph-schema.pdf},
+  review = {abstract}, claim = {23 dimensions, 212+ values of inflectional meaning; deterministic mapping to UD exists.}, used-by = {traits}
+}
+
+% ---------------------------------------------------------------- SLA: proficiency, development, instruction
+@article{housen_kuiken2009,
+  author = {Housen, Alex and Kuiken, Folkert}, title = {Complexity, Accuracy, and Fluency in Second Language Acquisition},
+  journal = {Applied Linguistics}, year = {2009}, volume = {30}, number = {4}, pages = {461--473},
+  url = {https://academic.oup.com/applij/article-abstract/30/4/461/225923},
+  review = {abstract}, claim = {L2 proficiency is multicomponential: complexity, accuracy and fluency.}, used-by = {form and fluency lenses}
+}
+@misc{pienemann_pt,
+  author = {Pienemann, Manfred}, title = {Processability Theory and the Teachability Hypothesis},
+  url = {https://en.wikipedia.org/wiki/Teachability_Hypothesis},
+  review = {abstract}, claim = {Structures are acquired in implicational stages; instruction succeeds only at the next stage.}, used-by = {constructs.requires}
+}
+@article{norris_ortega2000,
+  author = {Norris, John M. and Ortega, Lourdes}, title = {Effectiveness of L2 Instruction: A Research Synthesis and Quantitative Meta-analysis},
+  journal = {Language Learning}, year = {2000}, volume = {50}, number = {3}, pages = {417--528},
+  url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/0023-8333.00136},
+  review = {abstract}, claim = {Focused instruction yields large gains; explicit outperforms implicit.}, used-by = {feedback policy}
+}
+@article{spada_tomita2010,
+  author = {Spada, Nina and Tomita, Yasuyo}, title = {Interactions Between Type of Instruction and Type of Language Feature: A Meta-Analysis},
+  journal = {Language Learning}, year = {2010}, volume = {60}, number = {2}, pages = {263--308},
+  url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9922.2010.00562.x},
+  review = {abstract}, claim = {Explicit instruction helps both simple and complex features, including spontaneous use.}, used-by = {feedback policy}
+}
+@misc{interaction_noticing_output,
+  author = {Long, Michael and Schmidt, Richard and Swain, Merrill and Mackey, Alison and Goo, Jaemyung}, title = {Interaction, noticing and output hypotheses; Mackey and Goo (2007) interaction meta-analysis},
+  url = {https://assets.cambridge.org/97811084/99637/excerpt/9781108499637_excerpt.pdf},
+  review = {abstract}, claim = {Interaction with negotiation of meaning, noticing and pushed output support acquisition; large interaction effects.}, used-by = {partner focus block; partner_clarify}
+}
+@article{nation2007,
+  author = {Nation, Paul}, title = {The Four Strands}, journal = {Innovation in Language Learning and Teaching}, year = {2007}, volume = {1}, number = {1},
+  url = {https://www.tandfonline.com/doi/abs/10.2167/illt039.0},
+  review = {abstract}, claim = {Balance meaning-focused input, meaning-focused output, language-focused learning and fluency development.}, used-by = {product gaps}
+}
+@misc{dekeyser_suzuki2025,
+  author = {DeKeyser, Robert M. and Suzuki, Yuichi}, title = {Skill acquisition theory}, year = {2025},
+  howpublished = {In VanPatten, Keating and Wulff (Eds.), Theories in Second Language Acquisition, 4th ed.},
+  url = {https://www.researchgate.net/publication/393631114},
+  review = {abstract}, claim = {Declarative knowledge proceduralizes and automatizes through practice.}, used-by = {background}
+}
+@misc{ellis_wulff_usage,
+  author = {Ellis, Nick C. and Wulff, Stefanie}, title = {Usage-based approaches to SLA},
+  url = {https://sites.lsa.umich.edu/nickellis-new/wp-content/uploads/sites/1284/2021/07/TSLA-Ellis-Wulff_012014.pdf},
+  review = {abstract}, claim = {L2 learning is learning probabilistic form-meaning constructions from usage.}, used-by = {background}
+}
+@book{jarvis_pavlenko2007,
+  author = {Jarvis, Scott and Pavlenko, Aneta}, title = {Crosslinguistic Influence in Language and Cognition}, publisher = {Routledge}, year = {2007},
+  url = {https://www.researchgate.net/publication/287233789},
+  review = {abstract}, claim = {L1 influence shapes L2 performance across lexis, grammar and phonology.}, used-by = {ErrorTag.source = transfer}
+}
+@article{galaczi_taylor2018,
+  author = {Galaczi, Evelina and Taylor, Lynda}, title = {Interactional Competence: Conceptualisations, Operationalisations, and Outstanding Questions}, year = {2018},
+  journal = {Language Assessment Quarterly},
+  url = {https://www.researchgate.net/publication/324850184},
+  review = {abstract}, claim = {Interactional competence covers topic management, turn-taking, sequencing and repair.}, used-by = {interaction lens}
+}
+@book{taguchi_pragmatics,
+  author = {Taguchi, Naoko and Roever, Carsten}, title = {Second Language Pragmatics}, publisher = {Oxford University Press}, year = {2017},
+  url = {https://www.cambridge.org/core/books/second-language-pragmatics/6250B5EAF9E978903FD4903BF8AD3C69},
+  review = {abstract}, claim = {Pragmatic competence links pragmalinguistic forms to sociopragmatic norms; assessable.}, used-by = {pragmatics lens}
+}
+@book{younes2015,
+  author = {Younes, Munther}, title = {The Integrated Approach to Arabic Instruction}, publisher = {Routledge}, year = {2015},
+  url = {https://www.routledge.com/The-Integrated-Approach-to-Arabic-Instruction/Younes/p/book/9781138822320},
+  review = {abstract}, claim = {Teach fusha and a dialect together to match native practice.}, used-by = {varieties; pragmatics}
+}
+@book{ryding2005,
+  author = {Ryding, Karin C.}, title = {A Reference Grammar of Modern Standard Arabic}, publisher = {Cambridge University Press}, year = {2005},
+  review = {abstract}, claim = {Reference for MSA constructions (e.g. idafa).}, used-by = {constructs/form.ar.yaml}
+}
+
+% ---------------------------------------------------------------- feedback & assessment
+@article{lyster_ranta1997,
+  author = {Lyster, Roy and Ranta, Leila}, title = {Corrective Feedback and Learner Uptake},
+  journal = {Studies in Second Language Acquisition}, year = {1997}, volume = {19}, pages = {37--66},
+  url = {https://www.semanticscholar.org/paper/eecbea6c9fdc3a79deb060123883a6de920c70fc},
+  review = {abstract}, claim = {Recasts rarely lead to learner repair; elicitation, metalinguistic cues, clarification and repetition do.}, used-by = {feedback ladder; revision credit}
+}
+@article{lyster_saito2010,
+  author = {Lyster, Roy and Saito, Kazuya}, title = {Oral Feedback in Classroom {SLA}: A Meta-Analysis},
+  journal = {Studies in Second Language Acquisition}, year = {2010}, volume = {32}, number = {2}, pages = {265--302},
+  url = {https://eric.ed.gov/?id=EJ892626},
+  review = {abstract}, claim = {Oral CF has durable effects; prompts outperform recasts.}, used-by = {policy/feedback.yaml}
+}
+@article{li2010,
+  author = {Li, Shaofeng}, title = {The Effectiveness of Corrective Feedback in SLA: A Meta-Analysis},
+  journal = {Language Learning}, year = {2010}, volume = {60}, pages = {309--365},
+  url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9922.2010.00561.x},
+  review = {abstract}, claim = {Corrective feedback has a medium overall effect (d about 0.61).}, used-by = {feedback policy}
+}
+@article{aljaafreh_lantolf1994,
+  author = {Aljaafreh, Ali and Lantolf, James P.}, title = {Negative Feedback as Regulation and Second Language Learning in the Zone of Proximal Development},
+  journal = {The Modern Language Journal}, year = {1994}, volume = {78}, pages = {465--483},
+  url = {https://www.researchgate.net/publication/228010209},
+  review = {abstract}, claim = {A 13-step implicit-to-explicit regulatory scale; needing less help indicates development.}, used-by = {support lens; ladder; support weights}
+}
+@article{poehner_lantolf2005,
+  author = {Poehner, Matthew E. and Lantolf, James P.}, title = {Dynamic assessment in the language classroom},
+  journal = {Language Teaching Research}, year = {2005},
+  url = {https://journals.sagepub.com/doi/10.1191/1362168805lr166oa},
+  review = {abstract}, claim = {Graduated, contingent mediation both assesses and promotes development.}, used-by = {support lens}
+}
+@inproceedings{errant2017,
+  author = {Bryant, Christopher and Felice, Mariano and Briscoe, Ted}, title = {Automatic Annotation and Evaluation of Error Types for Grammatical Error Correction}, year = {2017},
+  booktitle = {Proceedings of ACL},
+  url = {https://aclanthology.org/2020.latechclfl-1.10.pdf},
+  review = {abstract}, claim = {Errors classified as Missing/Replacement/Unnecessary by part of speech.}, used-by = {ErrorTag.op}
+}
+@misc{dagneaux_error_tagging,
+  author = {Dagneaux, Estelle and Denness, Sharon and Granger, Sylviane and Meunier, Fanny}, title = {Error Tagging Manual (Louvain)}, year = {1996},
+  url = {https://hispadoc.es/descarga/articulo/2198610.pdf},
+  review = {abstract}, claim = {Hierarchical learner-corpus error tagset by linguistic level.}, used-by = {ErrorTag.category}
+}
+@article{llm_validity2026,
+  title = {Conditional validity in LLM-mediated L2 assessment: an argument-based systematic review and meta-analysis},
+  journal = {Frontiers in Research Metrics and Analytics}, year = {2026},
+  url = {https://www.frontiersin.org/journals/research-metrics-and-analytics/articles/10.3389/frma.2026.1908592/full},
+  review = {abstract}, claim = {LLM assessment reliability must hold across prompts, runs and model versions; often it does not.}, used-by = {model observes, code decides; no single CEFR number}
+}
+@misc{llm_tutor_fl2025,
+  title = {AI Conversational Tutors in Foreign Language Learning: A Mixed-Methods Evaluation Study}, year = {2025},
+  url = {https://arxiv.org/pdf/2508.05156},
+  review = {abstract}, claim = {LLM tutors give fluent feedback; humans remain better at accurate error identification.}, used-by = {human-labelled eval set}
+}
+
+@inproceedings{koenecke2024,
+  author = {Koenecke, Allison and Choi, Anna Seo Gyeong and Mei, Katelyn X. and Schellmann, Hilke and Sloane, Mona}, title = {Careless Whisper: Speech-to-Text Hallucination Harms},
+  booktitle = {Proceedings of ACM FAccT}, year = {2024}, doi = {10.1145/3630106.3658996},
+  url = {https://arxiv.org/abs/2402.08021},
+  review = {abstract}, claim = {About 1% of Whisper transcriptions contain wholly hallucinated phrases; longer non-speech periods raise hallucination likelihood.},
+  used-by = {fluency: local VAD gates Whisper words; fixture whisper-sample.json shows a hallucinated "Gracias." in trailing silence}
+}
+
+% ---------------------------------------------------------------- learner modelling
+@article{pelanek2016,
+  author = {Pel{\'a}nek, Radek}, title = {Applications of the Elo rating system in adaptive educational systems},
+  journal = {Computers \& Education}, year = {2016},
+  url = {https://www.fi.muni.cz/~xpelanek/publications/CAE-elo.pdf},
+  review = {abstract}, claim = {Elo gives simple online estimates of learner skill and item difficulty without heavy calibration.}, used-by = {policy/estimator.yaml}
+}
+@inproceedings{settles_meeder2016,
+  author = {Settles, Burr and Meeder, Brendan}, title = {A Trainable Spaced Repetition Model for Language Learning}, booktitle = {Proceedings of ACL}, year = {2016},
+  url = {https://research.duolingo.com/papers/settles.acl16.pdf},
+  review = {abstract}, claim = {Half-life regression predicts recall decay; correct answers extend half-life, errors shrink it.}, used-by = {decay; due reviews}
+}
+@inproceedings{bull_kay_olm,
+  author = {Bodily, Robert and others}, title = {Open learner models and learning analytics dashboards: a systematic review}, booktitle = {Proceedings of LAK}, year = {2018},
+  url = {https://dl.acm.org/doi/10.1145/3170358.3170409},
+  review = {abstract}, claim = {Learner-inspectable models support self-regulated learning.}, used-by = {profile / OLM}
+}
+
+% ---------------------------------------------------------------- motivation, feedback psychology, self-regulation
+@article{deci_koestner_ryan1999,
+  author = {Deci, Edward L. and Koestner, Richard and Ryan, Richard M.}, title = {A Meta-Analytic Review of Experiments Examining the Effects of Extrinsic Rewards on Intrinsic Motivation},
+  journal = {Psychological Bulletin}, year = {1999}, volume = {125}, number = {6}, pages = {627--668},
+  url = {https://home.ubalt.edu/tmitch/642/articles%20syllabus/Deci%20Koestner%20Ryan%20meta%20IM%20psy%20bull%2099.pdf},
+  review = {abstract}, claim = {Expected contingent tangible rewards undermine intrinsic motivation; positive informational feedback enhances it (d about 0.33).}, used-by = {game.yaml rules}
+}
+@article{hattie_timperley2007,
+  author = {Hattie, John and Timperley, Helen}, title = {The Power of Feedback}, journal = {Review of Educational Research}, year = {2007}, volume = {77}, number = {1}, pages = {81--112},
+  url = {https://journals.sagepub.com/doi/abs/10.3102/003465430298487},
+  review = {abstract}, claim = {Task, process and self-regulation feedback help; self-level praise does not.}, used-by = {feedback copy; never praise_the_person}
+}
+@article{kluger_denisi1996,
+  author = {Kluger, Avraham N. and DeNisi, Angelo}, title = {The Effects of Feedback Interventions on Performance},
+  journal = {Psychological Bulletin}, year = {1996}, volume = {119}, number = {2}, pages = {254--284},
+  url = {https://mrbartonmaths.com/resourcesnew/8.%20Research/Marking%20and%20Feedback/The%20effects%20of%20feedback%20interventions.pdf},
+  review = {abstract}, claim = {Feedback helps on average (d about 0.41) but over a third of interventions reduce performance.}, used-by = {feedback policy}
+}
+@article{ryan_rigby_przybylski2006,
+  author = {Ryan, Richard M. and Rigby, C. Scott and Przybylski, Andrew}, title = {The Motivational Pull of Video Games: A Self-Determination Theory Approach},
+  journal = {Motivation and Emotion}, year = {2006}, volume = {30}, number = {4}, pages = {347--363},
+  url = {https://selfdeterminationtheory.org/SDT/documents/2006_RyanRigbyPrzybylski_MandE.pdf},
+  review = {abstract}, claim = {Autonomy, competence and relatedness predict enjoyment and continued play.}, used-by = {game layer}
+}
+@misc{sdt_andragogy,
+  author = {Houde, Joseph}, title = {Andragogy and Motivation: An Examination of the Principles of Andragogy through Two Motivation Theories},
+  url = {http://edpsycinteractive.org/articles/houde_andragogy.pdf},
+  review = {abstract}, claim = {Knowles' adult-learning assumptions align with self-determination theory.}, used-by = {autonomy features}
+}
+@article{locke_latham2002,
+  author = {Locke, Edwin A. and Latham, Gary P.}, title = {Building a Practically Useful Theory of Goal Setting and Task Motivation},
+  journal = {American Psychologist}, year = {2002}, volume = {57}, number = {9}, pages = {705--717},
+  url = {https://www-2.rotman.utoronto.ca/facbios/file/09%20-%20Locke%20&%20Latham%202002%20AP.pdf},
+  review = {abstract}, claim = {Specific proximal goals raise performance via self-efficacy; learning goals beat outcome goals on complex tasks.}, used-by = {session goals}
+}
+@misc{elliot_goals,
+  author = {Elliot, Andrew J. and others}, title = {Achievement goal theory: mastery-approach goals},
+  url = {https://www.sas.rochester.edu/psy/people/faculty/elliot_andrew/assets/pdf/guoetal2023.pdf},
+  review = {abstract}, claim = {Mastery-approach goals predict better goal pursuit than performance (other-referenced) goals.}, used-by = {secured constructs; no leaderboards}
+}
+@misc{zimmerman_srl,
+  author = {Panadero, Ernesto and Alonso-Tapia, Jes{\'u}s}, title = {How do students self-regulate? Review of Zimmerman's cyclical model of self-regulated learning},
+  url = {https://www.researchgate.net/publication/260684981},
+  review = {abstract}, claim = {Forethought, performance and self-reflection phases form a cycle.}, used-by = {session start/review}
+}
+@article{dornyei_macintyre_wtc,
+  title = {How can L2 motivational self system enhance willingness to communicate? The contribution of foreign language enjoyment and anxiety},
+  journal = {Current Psychology}, year = {2023},
+  url = {https://link.springer.com/article/10.1007/s12144-023-04479-3},
+  review = {abstract}, claim = {Ideal L2 self raises and anxiety lowers willingness to communicate.}, used-by = {new-chat start; private coach}
+}
+
+% ---------------------------------------------------------------- gamification, reward, game feel
+@article{sailer_homner2020,
+  author = {Sailer, Michael and Homner, Lisa}, title = {The Gamification of Learning: a Meta-analysis},
+  journal = {Educational Psychology Review}, year = {2020}, volume = {32}, pages = {77--112},
+  url = {https://eric.ed.gov/?id=EJ1245270},
+  review = {abstract}, claim = {Small positive effects on cognitive (g=0.49), motivational (0.36) and behavioural (0.25) outcomes; element choice matters.}, used-by = {game layer}
+}
+@article{hanus_fox2015,
+  author = {Hanus, Michael D. and Fox, Jesse}, title = {Assessing the effects of gamification in the classroom: A longitudinal study},
+  journal = {Computers \& Education}, year = {2015},
+  url = {https://www.researchgate.net/publication/265644737},
+  review = {abstract}, claim = {Badges and leaderboards reduced motivation, satisfaction and empowerment over a semester.}, used-by = {excluded: leaderboards}
+}
+@article{schultz1998,
+  author = {Schultz, Wolfram}, title = {Predictive Reward Signal of Dopamine Neurons}, journal = {Journal of Neurophysiology}, year = {1998}, volume = {80}, number = {1}, pages = {1--27},
+  url = {https://journals.physiology.org/doi/full/10.1152/jn.1998.80.1.1},
+  review = {abstract}, claim = {Dopamine neurons respond more to unpredicted than predicted rewards (reward prediction error).}, used-by = {game loop: uncertainty then reveal}
+}
+@article{schultz_rpe_review,
+  author = {Glimcher, Paul W.}, title = {Understanding dopamine and reinforcement learning: The dopamine reward prediction error hypothesis},
+  journal = {PNAS}, year = {2011},
+  url = {https://pmc.ncbi.nlm.nih.gov/articles/PMC3176615/},
+  review = {abstract}, claim = {Review of RPE evidence and its role in learning.}, used-by = {game loop}
+}
+@article{howard_jones_demetriou2009,
+  author = {Howard-Jones, Paul A. and Demetriou, Skevi}, title = {Uncertainty and engagement with learning games},
+  journal = {Instructional Science}, year = {2009},
+  url = {https://link.springer.com/article/10.1007/s11251-008-9073-6},
+  review = {abstract}, claim = {Gaming uncertainty increased engagement and electrodermal arousal in a learning quiz.}, used-by = {anticipation beat}
+}
+@article{inzlicht2018,
+  author = {Inzlicht, Michael and Shenhav, Amitai and Olivola, Christopher Y.}, title = {The Effort Paradox: Effort Is Both Costly and Valued},
+  journal = {Trends in Cognitive Sciences}, year = {2018}, volume = {22}, number = {4}, pages = {337--349},
+  url = {https://pubmed.ncbi.nlm.nih.gov/29477776/},
+  review = {abstract}, claim = {Effort adds value to outcomes and can itself be valued.}, used-by = {xp multipliers}
+}
+@article{kao_juiciness,
+  author = {Kao, Dominic}, title = {The effects of juiciness in an action RPG}, journal = {Entertainment Computing}, year = {2020},
+  url = {https://www.sciencedirect.com/science/article/pii/S1875952118300879},
+  review = {abstract}, claim = {N=3,018: medium and high juiciness beat none and extreme on motivation, play time and performance.}, used-by = {juice levels; max tier-3 rate}
+}
+@inproceedings{hicks_juicy2019,
+  author = {Hicks, Kieran and Dickinson, Patrick and Holopainen, Jussi and Gerling, Kathrin}, title = {Juicy Game Design: Understanding the Impact of Visual Embellishments on Player Experience},
+  booktitle = {Proceedings of CHI PLAY}, year = {2019},
+  url = {https://dl.acm.org/doi/10.1145/3311350.3347171},
+  review = {abstract}, claim = {Visual embellishment affects player experience; framework for juicy design.}, used-by = {juice design}
+}
+@inproceedings{zagal2013,
+  author = {Zagal, Jos{\'e} P. and Bj{\"o}rk, Staffan and Lewis, Chris}, title = {Dark Patterns in the Design of Games},
+  booktitle = {Foundations of Digital Games}, year = {2013},
+  url = {https://www.diva-portal.org/smash/get/diva2:1043332/FULLTEXT01.pdf},
+  review = {abstract}, claim = {Dark patterns: designer intent, negative experience, against player interest, without consent (e.g. grinding).}, used-by = {game.yaml three rules; excluded list}
+}
+@misc{duolingo_streaks,
+  title = {Encouraging Repeated App Usage Through Habit-Forming Mechanisms: A Case Study Using the Example of Duolingo},
+  url = {https://www.wr-publishing.org/index.php/ijmat/article/view/908},
+  review = {abstract}, claim = {Industry-level evidence that streaks drive retention; loss-aversion framing. Not strong evidence.}, used-by = {consistency (weak evidence)}
+}
+
+% ---------------------------------------------------------------- speech recognition
+@inproceedings{koenecke2024,
+  author = {Koenecke, Allison and Choi, Anna Seo Gyeong and Mei, Katelyn X. and Schellmann, Hilke and Sloane, Mona},
+  title = {Careless Whisper: Speech-to-Text Hallucination Harms}, booktitle = {Proceedings of ACM FAccT}, year = {2024},
+  url = {https://arxiv.org/abs/2402.08021},
+  review = {abstract}, claim = {Whisper hallucinates text, disproportionately during silences and non-vocal durations.},
+  used-by = {plan §5.1 hallucination gate}
+}

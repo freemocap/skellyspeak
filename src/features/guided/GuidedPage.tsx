@@ -47,6 +47,10 @@ import { useIsMobile } from '../../ui/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { needsProviderSetup } from '../../domain/access/providers'
 
+/// Number of conversation stripe hues: the .chat[data-stripe] rules in
+/// conversation.css and the --chat-stripe-* tokens in tokens.css.
+const CHAT_STRIPES = 5
+
 export default function GuidedPage({
   active,
   learningPicker,
@@ -447,7 +451,7 @@ export default function GuidedPage({
         onDeleteChat={(id) => void removeChat(id)}
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
-      <section className="chat" style={{ borderInlineStart: `3px solid ${['#3d9699', '#608dd7', '#9676d4', '#ad80b4', '#4ba57b'][Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5]}` }}>
+      <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
         <ConversationHeader learning={learningPicker} persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
           <div className="chat-heading-actions">
@@ -512,7 +516,7 @@ export default function GuidedPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && !sending && (
-            <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
+            <p className="center-note on-paper">
               Say hello to start the conversation.
             </p>
           )}

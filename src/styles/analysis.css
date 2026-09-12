@@ -5,7 +5,7 @@
 .analysis-scroll {
   flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain;
-  padding: 14px 16px 20px;
+  padding: var(--space-7) var(--space-8) var(--space-10);
 }
 
 /* Logs overlay (floating debug console) — docked beside the topbar gear so
@@ -15,23 +15,23 @@
    and never overlaps content at narrow widths. */
 
 .inside-btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: none; border: 1px solid var(--line2); border-radius: 6px;
-  color: var(--mut-d); cursor: pointer; padding: 6px 12px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  background: none; border: var(--border-width) solid var(--shell-line-strong); border-radius: var(--radius-sm);
+  color: var(--shell-text-muted); cursor: pointer; padding: var(--space-3) var(--space-6);
+  font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-wide);
   white-space: nowrap;
 }
 
-.inside-btn:hover { color: var(--ink-d); border-color: var(--steel); }
+.inside-btn:hover { color: var(--shell-text); border-color: var(--accent); }
 
-.inside-btn.open { color: var(--steel); border-color: var(--steel); }
+.inside-btn.open { color: var(--accent); border-color: var(--accent); }
 
 .inside-dot {
-  width: 7px; height: 7px; border-radius: 50%; flex: none;
-  background: var(--line2);
+  width: 7px; height: 7px; border-radius: var(--radius-circle); flex: none;
+  background: var(--shell-line-strong);
 }
 
-.inside-btn:hover .inside-dot { background: var(--steel); }
+.inside-btn:hover .inside-dot { background: var(--accent); }
 
 /* While agents are running, the button says so: an amber ring travelling
    around the border, plus a lit dot. Motion ONLY while something is actually
@@ -39,14 +39,14 @@
    it. `trace:run_started` and `trace:run` are what turn it on and off. */
 
 .inside-btn.busy {
-  color: var(--amber-deep);
-  border-color: var(--amber);
-  animation: inside-glow 1.6s ease-in-out infinite;
+  color: var(--warning-strong);
+  border-color: var(--warning);
+  animation: inside-glow var(--dur-loop) ease-in-out infinite;
 }
 
 .inside-btn.busy .inside-dot {
-  background: var(--amber);
-  animation: inside-pulse 1.1s ease-in-out infinite;
+  background: var(--warning);
+  animation: inside-pulse var(--dur-loop-fast) ease-in-out infinite;
 }
 
 /* Anyone who has asked not to see motion gets the colour change and nothing
@@ -64,55 +64,45 @@
 .logs-panel {
   flex: none; min-height: 0; overflow: hidden;
   display: flex; flex-direction: column;
-  background: var(--bg); border-top: 1px solid var(--line);
+  background: var(--shell-bg); border-top: var(--border-width) solid var(--shell-line);
 }
 
 /* Drag the top edge to resize; the height persists per device. Generous hit
    area, hairline appearance. */
 
 .logs-resize {
-  flex: none; height: 7px; margin-top: -3px; cursor: ns-resize;
-  background: linear-gradient(var(--line2), var(--line2)) center/100% 1px no-repeat;
+  flex: none; height: 7px; margin-top: calc(-1 * var(--space-1)); cursor: ns-resize;
+  background: linear-gradient(var(--shell-line-strong), var(--shell-line-strong)) center/100% 1px no-repeat;
   touch-action: none;
 }
 
-.logs-resize:hover { background: linear-gradient(var(--steel), var(--steel)) center/100% 2px no-repeat; }
+.logs-resize:hover { background: linear-gradient(var(--accent), var(--accent)) center/100% 2px no-repeat; }
 
 .logs-window-bar {
   flex: none; display: flex; align-items: center; justify-content: space-between;
-  padding: 5px 12px 3px;
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--faint-d);
+  padding: var(--space-2) var(--space-6) var(--space-1);
+  font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
+  text-transform: uppercase; color: var(--shell-text-faint);
 }
 
-.logs-window-title em { font-style: normal; color: var(--steel); text-transform: none; letter-spacing: 0; }
+.logs-window-title em {
+  font-style: normal;
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: var(--tracking-normal);
+}
 
 /* The popped-out window owns its whole viewport. */
 
 .dev-window {
   position: fixed; inset: 0; display: flex; flex-direction: column;
-  background: var(--bg);
+  background: var(--shell-bg);
 }
 
 /* React Flow overrides — keep its chrome out of the way. */
 
 /* Endpoints keep their handles (edges need an anchor) but should not show
    connector dots — they are places, not machinery. */
-
-.lg { white-space: nowrap; }
-
-.lg::before {
-  content: ''; display: inline-block; width: 14px; height: 0;
-  border-top-width: 2px; margin-right: 5px; vertical-align: middle;
-}
-
-.lg.hydrate::before { border-top: 2px solid var(--amber-deep); }
-
-.lg.fan_in::before { border-top: 2px dotted var(--mut-d); }
-
-.lg.conditional::before { border-top: 2px dashed var(--steel-deep); }
-
-.lg.background::before { border-top: 2px dotted var(--mut-d); }
 
 /* The graph reporting on its own truthfulness. A diagram that cannot tell
    you when it is wrong is a claim, not an observation. */
@@ -121,25 +111,25 @@
 
 .quick-toggles {
   display: flex; flex-wrap: wrap;
-  border-top: 1px dashed #d8d3c4; margin-top: 0; padding: 3px 0 0; gap: 3px;
+  border-top: var(--border-width) dashed var(--paper-line-strong); margin-top: 0; padding: var(--space-1) 0 0; gap: var(--space-1);
 }
 
 .quick-toggle {
-  border: 1px solid var(--paper-line); background: #fff; border-radius: 14px;
-  color: var(--ink-mut); cursor: pointer;
-  font-family: var(--mono); font-size: 10px; white-space: nowrap; padding: 3px 7px;
+  border: var(--border-width) solid var(--paper-line); background: var(--paper-raised); border-radius: var(--radius-xl);
+  color: var(--paper-ink-muted); cursor: pointer;
+  font-family: var(--font-mono); font-size: var(--text-2xs); white-space: nowrap; padding: var(--space-1) var(--space-3);
 }
 
-.quick-toggle:hover:not(:disabled) { border-color: var(--amber-deep); color: var(--ink); }
+.quick-toggle:hover:not(:disabled) { border-color: var(--warning-strong); color: var(--paper-ink); }
 
-.quick-toggle.on { color: var(--ink); border-color: var(--amber-deep); background: #fffcf2; }
+.quick-toggle.on { color: var(--paper-ink); border-color: var(--warning-strong); background: var(--paper-highlight); }
 
 .quick-toggle:disabled { opacity: 0.45; cursor: default; }
 
 /* Each compact section heading stays attached to its own content. */
 
 @media (pointer: coarse) {
-  .quick-toggle, .scaf { min-height: 44px; }
+  .quick-toggle { min-height: var(--touch-target); }
 }
 
 @media (max-width: 860px) {
@@ -147,6 +137,15 @@
   .quick-toggles .quick-toggle { white-space: normal; text-align: start; }
 }
 
-.live-activity { min-width: 0; padding: 8px; }
+.live-activity { min-width: 0; padding: var(--space-4); }
+
+.live-activity .react-flow__node.activity-node {
+  width: 200px;
+  background: var(--shell-raised);
+  color: var(--shell-text);
+  border-color: var(--accent-line-strong);
+}
+
+.live-activity .react-flow__node.activity-node.failed { border-color: var(--danger); }
 
 .live-operation-graph { height: 300px; min-height: 180px; }
