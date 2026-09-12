@@ -294,7 +294,7 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
             path
         }
         None => {
-            let root = if cfg!(all(
+            if cfg!(all(
                 debug_assertions,
                 not(any(target_os = "android", target_os = "ios"))
             )) {
@@ -304,8 +304,7 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
                     .join(".local/logs")
             } else {
                 fallback_root.to_owned()
-            };
-            root
+            }
         }
     };
     let directory = if custom.is_some() {
