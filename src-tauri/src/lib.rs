@@ -7,6 +7,7 @@ mod conversation_prompt;
 pub mod credentials;
 pub mod diagnostics;
 pub mod execution;
+mod factory_reset;
 pub mod gloss;
 pub mod grouped;
 mod holds;
@@ -31,26 +32,59 @@ use model::{
     AppError, Command, ConnectionConfig, ConnectionRoute, ConversationSnapshot, ErrorCode,
     HostedAccount, ProfileSnapshot, Receipt, Result, Snapshot,
 };
+use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 use store::Store;
 use tauri::Manager;
+#[cfg(desktop)]
+use tauri::{
+    Emitter,
+    menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+};
 use zeroize::Zeroizing;
 
 struct Application {
     admission: admission::Admission,
     capture: Mutex<Option<voice::Recording>>,
-    store: Mutex<Store>,
+    store: Mutex<Option<Store>>,
+    credential_operations: Mutex<()>,
     fatal: Mutex<Option<AppError>>,
     signing_in: tokio::sync::Mutex<()>,
     auth_epoch: std::sync::atomic::AtomicU64,
 }
+struct StoreGuard<'a>(MutexGuard<'a, Option<Store>>);
+impl Deref for StoreGuard<'_> {
+    type Target = Store;
+    fn deref(&self) -> &Self::Target {
+        self.0.as_ref().expect("application store is unavailable")
+    }
+}
+impl DerefMut for StoreGuard<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.0.as_mut().expect("application store is unavailable")
+    }
+}
 impl Application {
-    fn lock(&self) -> Result<MutexGuard<'_, Store>> {
+    fn lock(&self) -> Result<StoreGuard<'_>> {
         if let Some(error) = self.fatal.lock().map_err(|_| internal())?.as_ref() {
             return Err(error.clone());
         }
-        self.store.lock().map_err(|_| internal())
+        let store = self.store.lock().map_err(|_| internal())?;
+        if store.is_none() {
+            return Err(internal());
+        }
+        Ok(StoreGuard(store))
+    }
+    fn take_store(&self) -> Result<Store> {
+        self.store
+            .lock()
+            .map_err(|_| internal())?
+            .take()
+            .ok_or_else(internal)
+    }
+    fn credential_operation(&self) -> Result<MutexGuard<'_, ()>> {
+        self.credential_operations.lock().map_err(|_| internal())
     }
     fn clean_credentials_with(&self, remove: impl Fn(&str) -> Result<()>) -> Result<()> {
         loop {
@@ -75,6 +109,7 @@ impl Application {
         commit: impl FnOnce(&mut Store, &str) -> Result<T>,
         remove: impl Fn(&str) -> Result<()>,
     ) -> Result<T> {
+        let _credential_operation = self.credential_operation()?;
         let id = uuid::Uuid::new_v4().to_string();
         {
             let mut store = self.lock()?;
@@ -595,16 +630,87 @@ pub fn run() {
     #[cfg(desktop)]
     let builder = builder
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_process::init());
+        .plugin(tauri_plugin_process::init())
+        .on_menu_event(|app, event| {
+            let action = if event.id() == "reading-size-increase" {
+                Some("increase")
+            } else if event.id() == "reading-size-decrease" {
+                Some("decrease")
+            } else if event.id() == "reading-size-reset" {
+                Some("reset")
+            } else {
+                None
+            };
+            if let Some(action) = action
+                && let Err(error) = app.emit("reading-size-action", action)
+            {
+                eprintln!("Unable to deliver reading-size menu action: {error}");
+            }
+        });
     builder
         .setup(|app| {
-            diagnostics::initialize(&app.path().app_log_dir()?)?;
+            #[cfg(desktop)]
+            {
+                let app_menu = SubmenuBuilder::new(app, "SkellySpeak")
+                    .about(None)
+                    .services()
+                    .separator()
+                    .hide()
+                    .hide_others()
+                    .separator()
+                    .quit()
+                    .build()?;
+                let edit_menu = SubmenuBuilder::new(app, "Edit")
+                    .undo()
+                    .redo()
+                    .separator()
+                    .cut()
+                    .copy()
+                    .paste()
+                    .select_all()
+                    .build()?;
+                let view_menu = SubmenuBuilder::new(app, "View")
+                    .item(
+                        &MenuItemBuilder::with_id("reading-size-increase", "Increase Font Size")
+                            .accelerator("CmdOrCtrl+=")
+                            .build(app)?,
+                    )
+                    .item(
+                        &MenuItemBuilder::with_id("reading-size-decrease", "Decrease Font Size")
+                            .accelerator("CmdOrCtrl+-")
+                            .build(app)?,
+                    )
+                    .item(
+                        &MenuItemBuilder::with_id("reading-size-reset", "Reset Font Size")
+                            .accelerator("CmdOrCtrl+0")
+                            .build(app)?,
+                    )
+                    .build()?;
+                let window_menu = SubmenuBuilder::new(app, "Window")
+                    .minimize()
+                    .close_window()
+                    .build()?;
+                app.set_menu(
+                    MenuBuilder::new(app)
+                        .items(&[&app_menu, &edit_menu, &view_menu, &window_menu])
+                        .build()?,
+                )?;
+            }
             let directory = app.path().app_data_dir()?;
             store::prepare_private_directory(&directory)?;
+            // Android/iOS use a subdirectory of app data: it is private, writable,
+            // and available before the webview starts. Desktop retains the platform
+            // log directory (or the development repository sink) in diagnostics.
+            #[cfg(any(target_os = "android", target_os = "ios"))]
+            let diagnostics_root = directory.join("logs");
+            #[cfg(not(any(target_os = "android", target_os = "ios")))]
+            let diagnostics_root = app.path().app_log_dir()?;
+            diagnostics::initialize(&diagnostics_root)?;
             let state = Arc::new(Application {
                 admission: admission::Admission::new(),
                 capture: Mutex::new(None),
-                store: Mutex::new(Store::open(&directory.join("practice.sqlite3"))?),
+                store: Mutex::new(Some(Store::open(&directory.join("practice.sqlite3"))?)),
+                credential_operations: Mutex::new(()),
                 fatal: Mutex::new(None),
                 signing_in: tokio::sync::Mutex::new(()),
                 auth_epoch: std::sync::atomic::AtomicU64::new(0),
@@ -625,6 +731,7 @@ pub fn run() {
             voice::mic_wave,
             voice::mic_cancel,
             voice::mic_transcribe,
+            factory_reset::factory_reset,
             get_snapshot,
             execute_command,
             access::get_access_settings,
@@ -663,7 +770,8 @@ mod credential_io_tests {
         Arc::new(Application {
             admission: admission::Admission::new(),
             capture: Mutex::new(None),
-            store: Mutex::new(Store::open(path).unwrap()),
+            store: Mutex::new(Some(Store::open(path).unwrap())),
+            credential_operations: Mutex::new(()),
             fatal: Mutex::new(None),
             signing_in: tokio::sync::Mutex::new(()),
             auth_epoch: std::sync::atomic::AtomicU64::new(0),
@@ -707,13 +815,20 @@ mod credential_io_tests {
                 .store
                 .try_lock()
                 .expect("Blocked credential save held workspace lock");
-            assert!(store.snapshot().is_ok());
+            assert!(store.as_mut().unwrap().snapshot().is_ok());
             assert!(
-                store.claim_credential_cleanup().unwrap().is_none(),
+                store
+                    .as_mut()
+                    .unwrap()
+                    .claim_credential_cleanup()
+                    .unwrap()
+                    .is_none(),
                 "Cleanup claimed an in-flight write"
             );
             if change_revision {
                 store
+                    .as_mut()
+                    .unwrap()
                     .connection
                     .execute("UPDATE ai_config SET revision=revision+1", [])
                     .unwrap();

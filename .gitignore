@@ -34,6 +34,7 @@ local.env.*
 
 # Generated mobile output and machine-local signing material.
 **/.gradle/
+**/.kotlin/
 **/build/
 **/.cxx/
 **/.externalNativeBuild/

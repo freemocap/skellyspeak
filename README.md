@@ -84,6 +84,22 @@ open 'src-tauri/target/debug/bundle/macos/SkellySpeak Workspace.app'
 The distinct inspection bundle name makes the running workspace identifiable.
 This is a local debug build, not a signed release or deployment.
 
+### Android device development
+
+With USB debugging enabled and the device authorized by `adb`, run:
+
+```sh
+npm run tauri -- android dev
+```
+
+This builds, installs, and opens a locally signed debug app on the connected
+device without GitHub Actions or a release signing key. It uses the production
+package identity, so Android requires uninstalling a released copy first: their
+signing certificates differ. Keep the command running for frontend reloads. For
+a local SkellySpeak server, start `npm run server:local` in a second terminal and
+run `adb reverse tcp:8765 tcp:8765`; the device may then use
+`http://127.0.0.1:8765/v1`.
+
 ## Publish a release
 
 The release target is **1.0.0**. Push the checkpoint branch, open a PR

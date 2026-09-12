@@ -18,6 +18,7 @@ it('opens the selected message feedback and routes a question with that message'
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Coach feedback for message 3' }))
   expect(screen.getByRole('dialog')).toHaveTextContent('First person.')
+  expect(screen.getByLabelText('Detailed analysis')).toHaveTextContent('Additional language analysis will appear here.')
   fireEvent.click(screen.getByRole('button', { name: 'Ask the coach' }))
   expect(ask).toHaveBeenCalledWith('Help me understand the feedback on my message: “Yo fue ayer”')
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -25,7 +26,7 @@ it('opens the selected message feedback and routes a question with that message'
 it('distinguishes pending, failed, and missing feedback instead of inventing scores', () => {
   const props = { id: 1, text: 'Hola', feedback: undefined, reviewing: true, error: undefined, targetLangCode: 'es', nativeLangCode: 'en', onEdit: undefined, onAsk: vi.fn() }
   const view = render(<MessageFeedback {...props} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Coach analyzing')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Analyzing')
   view.rerender(<MessageFeedback {...props} reviewing={false} error="Provider unavailable" />)
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback failed')
   view.rerender(<MessageFeedback {...props} reviewing={false} />)

@@ -1,5 +1,12 @@
 # Add project specific ProGuard rules here.
 -keep class com.freemocap.skellyspeak.MainActivity { native <methods>; }
+
+# Wry invokes these generated WebView methods through JNI. R8 cannot see that
+# native call graph, so it must retain the public bridge methods in release APKs.
+# In particular, Tauri calls clearAllBrowsingData during Android WebView setup.
+-keepclassmembers class com.freemocap.skellyspeak.RustWebView {
+    public <methods>;
+}
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
 #

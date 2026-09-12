@@ -6,9 +6,10 @@ import { ActiveSurfaceContext } from './hooks/useOverlayLayer'
 import { ProgressSummary } from './components/panes/ProgressSummary'
 import { SkillNavigationProvider, useSkillNavigation } from './hooks/useSkillNavigation'
 import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react'
-import { getSettings, saveSettings, isTauri, languageFor, languages } from './lib/tauri'
+import { getSettings, saveSettings, isTauri, invoke, languageFor, languages } from './lib/tauri'
 import { uiLangFromNative } from './lib/i18n'
 import { comboFromEvent, SHORTCUT_DEFAULTS } from './lib/keyboard'
+import { applyFontSizeAction, fontSizeActionFromShortcut, type FontSizeAction } from './lib/font-size'
 import { isReloadShortcut } from './lib/reload'
 import GuidedPage, { type MobileLocation } from './pages/GuidedPage'
 import { DetailDialog } from './components/DetailDialog'
@@ -20,6 +21,7 @@ import { usePracticeSwipe } from './hooks/usePracticeSwipe'
 import { useIsMobile } from './hooks/useIsMobile'
 import { dismissAllFaults, dismissFault, reportFault, subscribeFaults, type Fault } from './lib/faults'
 import type { Settings, Shortcuts } from './types'
+import type { ConnectionConfig } from './contracts'
 
 type Page = 'guided' | 'skills'
 const SkillsPage = lazy(() => import('./pages/SkillsPage'))
@@ -93,6 +95,12 @@ function Application() {
   // Bumped whenever Settings saves — pages watch it and re-fetch settings.
   const [settingsVersion, setSettingsVersion] = useState(0)
   const [settings, setSettings] = useState<Settings | null>(null)
+  const [connection, setConnection] = useState<ConnectionConfig | null>(null)
+  const [startingHostedSignIn, setStartingHostedSignIn] = useState(false)
+  const refreshConnection = useCallback(async () => {
+    if (!isTauri) return
+    setConnection(await invoke<ConnectionConfig>('get_connection'))
+  }, [])
   useEffect(() => {
     if (!settings) return
     try { configureAudioVolumes(settings) }
@@ -106,7 +114,28 @@ function Application() {
     setSettings(saved)
     applyUiLanguage(saved.native_language)
     setSettingsVersion((v) => v + 1)
+    void refreshConnection().catch(error => reportFault('Loading AI access', error))
   }
+
+  const startHostedSignIn = useCallback(async () => {
+    if (startingHostedSignIn) return
+    setStartingHostedSignIn(true)
+    try {
+      let current = await invoke<ConnectionConfig>('get_connection')
+      if (current.route !== 'hosted') {
+        current = await invoke<ConnectionConfig>('select_route', {
+          expectedRevision: current.revision,
+          route: 'hosted',
+        })
+      }
+      await invoke('hosted_sign_in')
+      setConnection(await invoke<ConnectionConfig>('get_connection'))
+    } catch (error) {
+      reportFault('Signing in with Google', error)
+    } finally {
+      setStartingHostedSignIn(false)
+    }
+  }, [startingHostedSignIn])
 
   useEffect(() => {
     let disposed = false
@@ -114,6 +143,10 @@ function Application() {
     window.addEventListener('skellyspeak-settings-saved', refresh)
     return () => { disposed = true; window.removeEventListener('skellyspeak-settings-saved', refresh) }
   }, [])
+
+  useEffect(() => {
+    void refreshConnection().catch(error => reportFault('Loading AI access', error))
+  }, [refreshConnection])
 
   async function changeLanguage(field: 'target_language' | 'native_language', value: string) {
     if (!settings || savingLanguage || settingsOpen || settings[field] === value) return
@@ -169,6 +202,46 @@ function Application() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [shortcuts, savingLanguage, settingsBusy])
+
+  // Reading size is a learner preference, not transient WebView zoom. Both
+  // the keyboard and the native View menu call this one path.
+  const changeFontSize = (action: FontSizeAction) => {
+    void (async () => {
+      const current = await getSettings()
+      const textSize = applyFontSizeAction(current.text_size, action)
+      if (textSize === current.text_size) return
+      await saveSettings({ ...current, text_size: textSize }, current)
+      settingsChanged(await getSettings())
+    })().catch(error => reportFault('Changing text size', error))
+  }
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.repeat) return
+      const action = fontSizeActionFromShortcut(event)
+      if (!action) return
+      event.preventDefault()
+      changeFontSize(action)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [settings])
+
+  // The desktop menu owns its accelerators. Receiving its action here keeps
+  // menu clicks and keyboard shortcuts identical while leaving web builds
+  // with the keyboard handler above.
+  useEffect(() => {
+    if (!isTauri || !('__TAURI_INTERNALS__' in window)) return
+    let disposed = false
+    let unlisten: (() => void) | undefined
+    void import('@tauri-apps/api/event')
+      .then(({ listen }) => listen<string>('reading-size-action', event => {
+        if (event.payload === 'increase' || event.payload === 'decrease' || event.payload === 'reset') changeFontSize(event.payload)
+      }))
+      .then(stop => { if (disposed) stop(); else unlisten = stop })
+      .catch(error => reportFault('Listening for text size menu actions', error))
+    return () => { disposed = true; unlisten?.() }
+  }, [settings])
 
   // Desktop webviews do not consistently supply a browser-style refresh
   // command. Own the familiar shortcut at the app shell so it works on every
@@ -307,6 +380,9 @@ function Application() {
                   {savingLanguage && <span role="status">Saving…</span>}
                   </>}
                   settingsVersion={settingsVersion}
+                  accessConfigured={connection?.configured ?? null}
+                  accessStarting={startingHostedSignIn}
+                  onStartHostedSignIn={() => void startHostedSignIn()}
                   historyOpen={historyOpen}
                   onHistoryOpenChange={setHistoryOpen}
                   onOpenSettings={() => setSettingsOpen(true)}

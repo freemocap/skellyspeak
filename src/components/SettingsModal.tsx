@@ -18,6 +18,7 @@ import { reportFault } from '../lib/faults'
 import { openOverlay } from '../lib/back'
 
 import { SettingsAccess } from './SettingsAccess'
+import { FactoryReset } from './FactoryReset'
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
@@ -186,6 +187,7 @@ export function SettingsModal({
   const [persisted, setPersisted] = useState<Settings | null>(null)
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [accessBusy, setAccessBusy] = useState(false)
+  const [appVersion, setAppVersion] = useState<string | null>(null)
   const mics: { id: string; label: string }[] = []
   const listMics = async () => { throw new Error('Microphone selection is not connected.') }
   const [section, setSection] = useState<SectionId>('keys')
@@ -211,6 +213,7 @@ export function SettingsModal({
         setSettings(null)
       })
   }, [])
+  useEffect(() => { void import('@tauri-apps/api/app').then(({ getVersion }) => getVersion()).then(setAppVersion).catch(error => reportFault('Loading application version', error)) }, [])
 
   const refreshFromBackend = useCallback(async () => {
     const fresh = await getSettings()
@@ -565,7 +568,7 @@ export function SettingsModal({
       section: 'updates',
       label: L('app_updates', 'Application updates'),
       kw: 'update updates upgrade version release install newer check',
-      node: <div className="form-row"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip><button type="button" className="btn" onClick={() => { void import('@tauri-apps/plugin-opener').then(({ openUrl }) => openUrl('https://docs.freemocap.org/skellyspeak/download')).catch(error => reportFault('Opening downloads', error)) }}>Downloads</button></div>,
+      node: <div className="update-controls"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><button type="button" className="btn" onClick={() => { void import('@tauri-apps/plugin-opener').then(({ openUrl }) => openUrl('https://docs.freemocap.org/skellyspeak/download')).catch(error => reportFault('Opening downloads', error)) }}>Downloads</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip></div>,
     },
   }
   for (const sr of SHORTCUT_ROWS) {
@@ -690,10 +693,11 @@ export function SettingsModal({
             )}
           </div>
           <div className="modal-actions">
-            <button type="button" className="btn danger" disabled title="Reset is not connected">Reset settings</button>
+            <button type="button" className="settings-version" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))} title="Check for updates">v{appVersion ?? '…'}</button>
             <SaveStatus state={dirty && saveState === 'idle' ? 'pending' : saveState} />
+            <FactoryReset />
             {saveState === 'error' && <button className="btn" onClick={() => setSaveState('idle')}>Retry save</button>}
-            <button type="button" className="btn" disabled={accessBusy || dirty || saveState === 'saving'} onClick={onClose}>
+            <button type="button" className="btn settings-close" disabled={accessBusy || dirty || saveState === 'saving'} onClick={onClose}>
               Close
             </button>
           </div>

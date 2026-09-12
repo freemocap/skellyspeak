@@ -81,6 +81,7 @@ pub enum DiagnosticCommand {
     MicWave,
     MicCancel,
     MicTranscribe,
+    FactoryReset,
     GetSnapshot,
     ExecuteCommand,
     GetAccessSettings,
@@ -170,6 +171,15 @@ impl Buffer {
 fn unavailable() -> AppError {
     AppError::new(ErrorCode::Internal, "Native diagnostics are unavailable.")
 }
+/// Startup diagnostics must never expose an app-private path or operating-system
+/// error to the UI. The stage is sufficient to make a device log actionable.
+fn unavailable_at(stage: &'static str) -> AppError {
+    eprintln!("Native diagnostics setup failed at {stage}.");
+    AppError::new(
+        ErrorCode::Internal,
+        format!("Native diagnostics could not initialize ({stage})."),
+    )
+}
 fn buffer() -> &'static Mutex<Buffer> {
     static BUFFER: OnceLock<Mutex<Buffer>> = OnceLock::new();
     BUFFER.get_or_init(|| Mutex::new(Buffer::new()))
@@ -200,21 +210,28 @@ fn private_file(path: &Path) -> std::io::Result<File> {
 }
 impl FileSink {
     fn open(directory: &Path) -> Result<Self> {
-        // Reject symlink paths before touching permissions or opening sinks.
+        // Desktop paths must not traverse user-controlled symlinks. Android's
+        // app-private path is supplied by the OS but conventionally includes the
+        // system-owned /data/user/0 alias, so rejecting every ancestor there would
+        // reject every valid app-data directory. `prepare_private_directory` still
+        // rejects a symlink at the final private directory on every Unix platform.
+        #[cfg(not(target_os = "android"))]
         for ancestor in directory.ancestors() {
             if let Ok(metadata) = std::fs::symlink_metadata(ancestor)
                 && metadata.file_type().is_symlink()
             {
-                return Err(unavailable());
+                return Err(unavailable_at("path_validation"));
             }
         }
-        crate::store::prepare_private_directory(directory).map_err(|_| unavailable())?;
-        let frontend =
-            private_file(&directory.join("diagnostics.jsonl")).map_err(|_| unavailable())?;
-        let native = private_file(&directory.join("native.jsonl")).map_err(|_| unavailable())?;
+        crate::store::prepare_private_directory(directory)
+            .map_err(|_| unavailable_at("directory"))?;
+        let frontend = private_file(&directory.join("diagnostics.jsonl"))
+            .map_err(|_| unavailable_at("frontend_file"))?;
+        let native = private_file(&directory.join("native.jsonl"))
+            .map_err(|_| unavailable_at("native_file"))?;
         let mut manifest =
             private_file(&directory.join(format!("native-{}.manifest.json", std::process::id())))
-                .map_err(|_| unavailable())?;
+                .map_err(|_| unavailable_at("manifest_file"))?;
         serde_json::to_writer(
             &mut manifest,
             &serde_json::json!({
@@ -223,11 +240,11 @@ impl FileSink {
                 "retention": "no_automatic_deletion", "content": "structured_allowlisted_metadata",
             }),
         )
-        .map_err(|_| unavailable())?;
+        .map_err(|_| unavailable_at("manifest_encoding"))?;
         manifest
             .write_all(b"\n")
             .and_then(|_| manifest.flush())
-            .map_err(|_| unavailable())?;
+            .map_err(|_| unavailable_at("manifest_write"))?;
         Ok(Self {
             directory: directory.to_owned(),
             frontend,
@@ -251,26 +268,36 @@ impl FileSink {
             .map_err(|_| unavailable())
     }
 }
-static SINK: OnceLock<Mutex<FileSink>> = OnceLock::new();
-fn sink() -> Result<&'static Mutex<FileSink>> {
+static SINK: OnceLock<Mutex<Option<FileSink>>> = OnceLock::new();
+static LOG_ROOT: OnceLock<PathBuf> = OnceLock::new();
+fn sink() -> Result<&'static Mutex<Option<FileSink>>> {
     SINK.get().ok_or_else(unavailable)
 }
 
 /// Root calls this during setup before opening application state. No deletion/rotation.
 pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     if let Some(sink) = SINK.get() {
-        return Ok(sink.lock().map_err(|_| unavailable())?.directory.clone());
+        return sink
+            .lock()
+            .map_err(|_| unavailable())?
+            .as_ref()
+            .map(|value| value.directory.clone())
+            .ok_or_else(unavailable);
     }
-    let directory = match std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR") {
+    let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
+    let root = match custom.as_ref() {
         Some(value) => {
             let path = PathBuf::from(value);
             if !path.is_absolute() {
-                return Err(unavailable());
+                return Err(unavailable_at("custom_root"));
             }
             path
         }
         None => {
-            let root = if cfg!(debug_assertions) {
+            let root = if cfg!(all(
+                debug_assertions,
+                not(any(target_os = "android", target_os = "ios"))
+            )) {
                 Path::new(env!("CARGO_MANIFEST_DIR"))
                     .parent()
                     .ok_or_else(unavailable)?
@@ -278,12 +305,23 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
             } else {
                 fallback_root.to_owned()
             };
-            root.join(format!("native-{}-{}", timestamp()?, std::process::id()))
+            root
         }
     };
+    let directory = if custom.is_some() {
+        root.clone()
+    } else {
+        root.join(format!("native-{}-{}", timestamp()?, std::process::id()))
+    };
     let mut output = FileSink::open(&directory)?;
-    output.append("native", &serde_json::json!({"code":"logging_initialized"}))?;
-    SINK.set(Mutex::new(output)).map_err(|_| unavailable())?;
+    output
+        .append("native", &serde_json::json!({"code":"logging_initialized"}))
+        .map_err(|_| unavailable_at("initial_record"))?;
+    LOG_ROOT
+        .set(root)
+        .map_err(|_| unavailable_at("root_registration"))?;
+    SINK.set(Mutex::new(Some(output)))
+        .map_err(|_| unavailable_at("sink_registration"))?;
     #[cfg(desktop)]
     {
         log::set_logger(&NATIVE_LOGGER).map_err(|_| unavailable())?;
@@ -304,7 +342,17 @@ fn append_native(event: &serde_json::Value) -> Result<()> {
     sink()?
         .lock()
         .map_err(|_| unavailable())?
+        .as_mut()
+        .ok_or_else(unavailable)?
         .append("native", event)
+}
+
+pub fn log_root() -> Result<PathBuf> {
+    LOG_ROOT.get().cloned().ok_or_else(unavailable)
+}
+pub fn shutdown() -> Result<()> {
+    sink()?.lock().map_err(|_| unavailable())?.take();
+    Ok(())
 }
 
 /// Authored diagnostic code with numerical metrics only; no arbitrary error body.
@@ -372,7 +420,7 @@ pub fn record_frontend_diagnostic(event: FrontendDiagnostic) -> Result<Diagnosti
         event,
     };
     let mut sink = sink()?.lock().map_err(|_| unavailable())?;
-    sink.append(
+    sink.as_mut().ok_or_else(unavailable)?.append(
         "frontend",
         &serde_json::to_value(&record).map_err(|_| unavailable())?,
     )?;

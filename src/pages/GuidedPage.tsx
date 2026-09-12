@@ -55,6 +55,9 @@ export default function GuidedPage({
   historyOpen = false,
   onHistoryOpenChange,
   onOpenSettings,
+  accessConfigured = null,
+  accessStarting = false,
+  onStartHostedSignIn,
   onNewChatReady,
 }: {
   active: boolean
@@ -63,6 +66,9 @@ export default function GuidedPage({
   settingsVersion?: number
   historyOpen?: boolean
   onHistoryOpenChange?: (open: boolean) => void
+  accessConfigured?: boolean | null
+  accessStarting?: boolean
+  onStartHostedSignIn?: () => void
   /// Open the Settings modal. It lands on the AI provider section, which is
   /// where every "configure a provider" failure is asking the learner to go.
   onNewChatReady?: (action: (() => void) | null) => void
@@ -477,7 +483,14 @@ export default function GuidedPage({
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
         <div className="stream" ref={streamRef}>
-          {turns.length === 0 && !error && !sending && (
+          {turns.length === 0 && !error && !sending && accessConfigured === false && onStartHostedSignIn ? (
+            <div className="access-start">
+              <p>You’re not signed in.</p>
+              <button type="button" className="btn primary" disabled={accessStarting} onClick={onStartHostedSignIn}>
+                {accessStarting ? 'Signing in…' : 'Sign in with Google'}
+              </button>
+            </div>
+          ) : turns.length === 0 && !error && !sending && (
             <p className="center-note" style={{ color: 'var(--ink-mut)', background: 'none', border: 'none' }}>
               Say hello to start the conversation.
             </p>

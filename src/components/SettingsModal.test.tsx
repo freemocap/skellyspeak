@@ -57,6 +57,8 @@ it('routes explicit update checks to the shared update banner', async () => {
   window.addEventListener('skellyspeak-check-update', check)
   fireEvent.click(await screen.findByRole('button', { name: 'Check for updates' }))
   expect(check).toHaveBeenCalledOnce()
+  fireEvent.click(await screen.findByRole('button', { name: 'v0.13.4' }))
+  expect(check).toHaveBeenCalledTimes(2)
   window.removeEventListener('skellyspeak-check-update', check)
 })
 
