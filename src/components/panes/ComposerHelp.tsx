@@ -1,30 +1,22 @@
 import { ErrorDetails } from '../ErrorDetails'
 import { ActivityIndicator } from '../ActivityIndicator'
-import { TargetText } from '../TargetText'
-import { useReadingPreferences } from '../ReadingPreferences'
-import type { CoachHelp } from '../../types'
+import { SavedGlossText } from '../chat/SavedGlossText'
+import type { SuggestedReply } from '../../contracts'
 
-export function ComposerHelp({ help, pending, busy, errors, onUse }: {
-  help: CoachHelp | null; pending: boolean; busy: boolean; errors: string[]
+/// Reply ideas for the latest partner message, with saved word glosses. Inserting fills the draft; it never sends.
+export function ComposerHelp({ replies, pending, busy, errors, onUse }: {
+  replies: SuggestedReply[]; pending: boolean; busy: boolean; errors: string[]
   onUse: (text: string, source: 'suggestion') => void
 }) {
-  const { autoTranslate } = useReadingPreferences()
-  if (!help && !pending && errors.length === 0) return null
-  return <section id="composer-help-content" className="composer-help-content" aria-label="Coach advice" aria-live="polite" aria-busy={!help && pending}>
-    {help ? <>
-      <div className="help-replies" aria-label="Suggested replies">
-        {help.replies.map(phrase => <div className="help-reply" key={phrase.text}>
-          <span className="help-reply-text" dir="auto"><TargetText text={phrase.text} /><button type="button" className="help-insert" aria-label={`Insert reply: ${phrase.text}`} title="Insert reply" disabled={busy} onClick={() => onUse(phrase.text, 'suggestion')}><span aria-hidden="true">↗</span></button></span>
-          {autoTranslate && <span className="help-translation" dir="auto">{phrase.translation}</span>}
-        </div>)}
-      </div>
-      <div className="help-footer">
-        <details className="help-context" key={help.partner.text}>
-          <summary>Understand the exchange</summary>
-          <p className="help-explanation" dir="auto">{help.explanation}</p>
-          {autoTranslate && <p className="help-translation" dir="auto">{help.partner.translation}</p>}
-        </details>
-      </div>
-    </> : pending ? <ActivityIndicator compact label="Finding reply ideas…" /> : <ErrorDetails label="Reply ideas" errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}
+  if (replies.length === 0 && !pending && errors.length === 0) return null
+  return <section id="composer-help-content" className="composer-help-content" aria-label="Reply ideas" aria-live="polite" aria-busy={pending}>
+    {replies.length > 0 && <div className="help-replies" aria-label="Suggested replies">
+      {replies.map(reply => <div className="help-reply" key={reply.text}>
+        <span className="help-reply-text" dir="auto"><SavedGlossText text={reply.text} segments={reply.segments} /></span>
+        <button type="button" className="help-insert" aria-label={`Insert reply: ${reply.text}`} title="Insert reply" disabled={busy} onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>
+      </div>)}
+    </div>}
+    {pending && <ActivityIndicator compact label="Finding reply ideas…" />}
+    {errors.length > 0 && <ErrorDetails label="Reply ideas" errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}
   </section>
 }

@@ -216,7 +216,7 @@ describe('native conversation ownership', () => {
 })
 
 function page(settingsVersion = 0) {
-  return <SkillNavigationProvider><GuidedPage languagePicker={null} mobileSurface="chat" active settingsVersion={settingsVersion} /></SkillNavigationProvider>
+  return <SkillNavigationProvider><GuidedPage learningPicker={null} nativePicker={null} mobileSurface="chat" active settingsVersion={settingsVersion} /></SkillNavigationProvider>
 }
 describe('native composer admission', () => {
   it.each(['Enter', 'Send'])('types into the extracted composer and submits once with %s', async (action) => {

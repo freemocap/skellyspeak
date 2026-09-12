@@ -105,7 +105,7 @@ pub async fn mic_transcribe(
             .capture
             .lock()
             .map_err(|_| fault("Microphone state unavailable."))?;
-        if !slot.as_ref().is_some_and(|r| r.id == recording_id) {
+        if slot.as_ref().is_none_or(|r| r.id != recording_id) {
             return Err(fault("Recording is no longer active."));
         }
         slot.take()

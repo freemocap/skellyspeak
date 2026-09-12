@@ -1,4 +1,4 @@
-import { reportDiagnosticBridgeFailure } from './lib/faults'
+import { reportDiagnosticBridgeFailure, reportUnhandledError } from './lib/faults'
 import { installDiagnosticCapture, logDiagnostic } from './lib/log'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -9,6 +9,7 @@ import { installPlaybackLifecycle } from './lib/playback-lifecycle'
 
 installDiagnosticCapture()
 window.addEventListener('diagnostic-bridge-failed', reportDiagnosticBridgeFailure)
+window.addEventListener('unhandled-ui-error', reportUnhandledError)
 installPlaybackLifecycle()
 
 // The popped-out observability window runs the same bundle as the main one

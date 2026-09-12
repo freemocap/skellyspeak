@@ -2,15 +2,17 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 // Tauri expects a fixed dev port; failure to bind aborts `tauri dev`.
-// TAURI_DEV_HOST is set by `tauri android dev` so the emulator can reach
-// the dev server over the LAN — bind to it when present.
+// TAURI_DEV_HOST is set by `tauri android dev` so the device can reach
+// the dev server over the LAN — bind to it when present. Otherwise bind the
+// exact address of `build.devUrl` in tauri.conf.json: "localhost" resolves to
+// IPv6 ::1 on Windows, where `tauri dev` waits on 127.0.0.1 forever.
 export default defineConfig({
   plugins: [react()],
   clearScreen: false,
   server: {
     port: 1420,
     strictPort: true,
-    host: process.env.TAURI_DEV_HOST || false,
+    host: process.env.TAURI_DEV_HOST || '127.0.0.1',
     watch: {
       // These directories do not feed the frontend bundle. Ignoring them
       // prevents unrelated builds from reloading the active webview.

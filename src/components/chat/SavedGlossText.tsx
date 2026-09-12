@@ -1,15 +1,15 @@
 import { useReadingPreferences } from '../ReadingPreferences'
 import { Fragment, useState, type ReactNode } from 'react'
-import type { WordGlossView } from '../../contracts'
+import type { GlossSegment } from '../../contracts'
 
 /** Saved UTF-16 anchors select exact source occurrences; reading never requests analysis. */
-export function SavedGlossText({ text, result, afterSegment, decorateSegment }: { text: string; result: WordGlossView; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
+export function SavedGlossText({ text, segments, afterSegment, decorateSegment }: { text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set())
   const [hovered, setHovered] = useState<number | null>(null)
   const pieces = []
   let cursor = 0
-  for (const segment of result.segments) {
+  for (const segment of segments) {
     if (segment.start > cursor) pieces.push(<Fragment key={`gap-${cursor}`}>{text.slice(cursor, segment.start)}</Fragment>)
     const source = text.slice(segment.start, segment.end)
     const open = revealed.has(segment.start)

@@ -45,10 +45,43 @@ pub struct Feedback {
     pub correction: String,
     pub evidence: Vec<Evidence>,
 }
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+/// One word chunk of a suggested reply, exactly as the model returned it.
+#[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct Suggestions {
-    pub replies: Vec<String>,
+pub struct ReplyToken {
+    pub text: String,
+    pub gloss: String,
+    pub romanization: Option<String>,
+    pub pronunciation: Option<String>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ReplyOutput {
+    text: String,
+}
+/// Tokens are one flat list tagged with their reply's index: providers reject
+/// strict schemas that nest an array inside an array item.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TokenOutput {
+    reply: usize,
+    text: String,
+    gloss: String,
+    romanization: Option<String>,
+    pronunciation: Option<String>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SuggestionsOutput {
+    replies: Vec<ReplyOutput>,
+    tokens: Vec<TokenOutput>,
+}
+/// A validated reply suggestion with its word glosses bound to UTF-16 spans of `text`.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SuggestedReply {
+    pub text: String,
+    pub segments: Vec<GlossSegment>,
 }
 fn rejected(reason: &str) -> AppError {
     AppError::new(
@@ -62,7 +95,8 @@ pub fn catalog() -> Value {
 }
 pub fn schema(kind: &str) -> Value {
     if kind == SUGGESTIONS {
-        return json!({"type":"object","additionalProperties":false,"required":["replies"],"properties":{"replies":{"type":"array","maxItems":3,"items":{"type":"string"}}}});
+        let token = json!({"type":"object","additionalProperties":false,"required":["reply","text","gloss","romanization","pronunciation"],"properties":{"reply":{"type":"integer"},"text":{"type":"string"},"gloss":{"type":"string"},"romanization":{"type":["string","null"]},"pronunciation":{"type":["string","null"]}}});
+        return json!({"type":"object","additionalProperties":false,"required":["replies","tokens"],"properties":{"replies":{"type":"array","maxItems":3,"items":{"type":"object","additionalProperties":false,"required":["text"],"properties":{"text":{"type":"string"}}}},"tokens":{"type":"array","items":token}}});
     }
     let ids: Vec<_> = catalog()
         .as_array()
@@ -109,7 +143,7 @@ pub fn prompt(
     let task = if kind == FEEDBACK {
         "Assess only learnerSource. Score correctness and contextual understandability independently, 1 to 5; null when evidence is insufficient. Correctness: 1 pervasive form errors, 2 frequent errors, 3 mixed accuracy, 4 minor errors, 5 accurate. Understandability: 1 intent cannot be recovered, 2 substantial guessing, 3 some ambiguity, 4 clear with minor effort, 5 readily understood. These are message judgments, never CEFR ratings or pronunciation assessments. Explain briefly in explanationLanguage. Supply a corrected target-language sentence only when useful, otherwise empty correction. Use only literal skill IDs in skillCriteria, never category names. Emit each skill_id at most once across the entire evidence array, even when multiple phrases demonstrate it; select its single strongest exact quote. Before returning, verify all skill_id values are unique. Cite up to six distinct skills using exact nonempty substrings copied character-for-character from learnerSource. Never correct spelling, add diacritics, normalize Arabic letters, or translate evidence quotes; put corrections only in correction. If no exact quote supports a skill, omit that evidence. Demonstrated requires the criterion to be fulfilled; partial and uncertain earn no credit. Conventional greetings, farewells and wellbeing exchanges should be assessed as greeting, social_checkin or courtesy. Do not classify a formulaic hello as an event or a wellbeing formula as property description unless the learner actually adds descriptive content. Never invent errors."
     } else {
-        "Offer at most three short, meaningfully different target-language replies to partnerReply, appropriate to learner difficulty. Return replies only. Do not send, insert or claim the learner chose them."
+        "Offer two or three short, meaningfully different target-language replies to partnerReply, appropriate to learner difficulty. Then list every word of every reply in tokens, reply by reply and in reading order: reply is the zero-based index of the token's reply; copy each token's text exactly from that reply, without surrounding spaces or punctuation, and give a short gloss of what it means in that reply, written in explanationLanguage. Set romanization to the standard romanization when the target language is not written in Latin script, otherwise null. Set pronunciation to a simple approximation spelled for explanationLanguage readers, never IPA. Do not send, insert or claim the learner chose them."
     };
     let mut data = json!({"learnerSource":source,"priorConversation":context,"privateCoachHistory":captured["coachSources"],"targetLanguage":captured["targetLanguage"],"explanationLanguage":captured["translationLanguage"],"difficulty":captured["practiceSettings"]["difficulty"]});
     if kind == SUGGESTIONS {
@@ -153,6 +187,42 @@ pub fn prompt(
         },
     ])
 }
+const MAX_REPLY_TOKENS: usize = 40;
+/// Binds each returned token to the next exact occurrence in `reply`. Only spaces and
+/// punctuation may sit between tokens, and every letter or digit must be covered, in order.
+fn reply_segments(reply: &str, tokens: &[ReplyToken]) -> Result<Vec<GlossSegment>> {
+    if tokens.is_empty() || tokens.len() > MAX_REPLY_TOKENS {
+        return Err(rejected("suggestion_token_count"));
+    }
+    let mut cursor = 0;
+    let mut segments = Vec::with_capacity(tokens.len());
+    for token in tokens {
+        if token.text.is_empty() {
+            return Err(rejected("empty_suggestion_token"));
+        }
+        prose(&token.gloss, 120, false)?;
+        while !reply[cursor..].starts_with(&token.text) {
+            match reply[cursor..].chars().next() {
+                Some(c) if !c.is_alphanumeric() => cursor += c.len_utf8(),
+                _ => return Err(rejected("suggestion_token_not_in_reply")),
+            }
+        }
+        let start = reply[..cursor].encode_utf16().count() as u32;
+        cursor += token.text.len();
+        segments.push(GlossSegment {
+            start,
+            end: reply[..cursor].encode_utf16().count() as u32,
+            kind: GlossSegmentKind::Gloss,
+            gloss: Some(token.gloss.clone()),
+            romanization: token.romanization.clone(),
+            pronunciation: token.pronunciation.clone(),
+        });
+    }
+    if reply[cursor..].chars().any(char::is_alphanumeric) {
+        return Err(rejected("suggestion_tokens_incomplete"));
+    }
+    Ok(segments)
+}
 fn prose(text: &str, limit: usize, empty: bool) -> Result<()> {
     if text.chars().count() > limit {
         return Err(rejected("field_too_long"));
@@ -177,19 +247,39 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
         return Err(rejected("output_too_large"));
     }
     if kind == SUGGESTIONS {
-        let value: Suggestions =
+        let value: SuggestionsOutput =
             serde_json::from_str(&output.text).map_err(|_| rejected("suggestions_schema"))?;
-        if value.replies.len() > 3 {
+        if value.replies.is_empty() || value.replies.len() > 3 {
             return Err(rejected("suggestion_count"));
         }
+        let mut grouped: Vec<Vec<ReplyToken>> = value.replies.iter().map(|_| Vec::new()).collect();
+        let mut previous = 0;
+        for token in value.tokens {
+            if token.reply >= grouped.len() || token.reply < previous {
+                return Err(rejected("suggestion_token_reply"));
+            }
+            previous = token.reply;
+            grouped[token.reply].push(ReplyToken {
+                text: token.text,
+                gloss: token.gloss,
+                romanization: token.romanization,
+                pronunciation: token.pronunciation,
+            });
+        }
         let mut seen = HashSet::new();
-        for reply in &value.replies {
-            prose(reply, 256, false)?;
-            if !seen.insert(reply) {
+        let mut replies = Vec::with_capacity(value.replies.len());
+        for (reply, tokens) in value.replies.into_iter().zip(grouped) {
+            prose(&reply.text, 256, false)?;
+            if !seen.insert(reply.text.clone()) {
                 return Err(rejected("duplicate_suggestion"));
             }
+            let segments = reply_segments(&reply.text, &tokens)?;
+            replies.push(SuggestedReply {
+                text: reply.text,
+                segments,
+            });
         }
-        return Ok(serde_json::to_value(value)?);
+        return Ok(serde_json::to_value(replies)?);
     }
     let value: Feedback =
         serde_json::from_str(&output.text).map_err(|_| rejected("json_schema"))?;
@@ -247,7 +337,7 @@ pub fn publish(
     let field = if kind == FEEDBACK {
         "coachFeedback"
     } else {
-        "coachSuggestions"
+        "coachReplies"
     };
     db.execute(
         "UPDATE turns SET context=json_set(context,?2,json(?3),?4,?5) WHERE id=?1",
@@ -271,5 +361,48 @@ mod tests {
             .unwrap();
         assert!(ids.iter().any(|id| id == "question"));
         assert!(!ids.iter().any(|id| id == "reference"));
+    }
+    fn token(text: &str, gloss: &str) -> super::ReplyToken {
+        super::ReplyToken {
+            text: text.into(),
+            gloss: gloss.into(),
+            romanization: None,
+            pronunciation: None,
+        }
+    }
+    #[test]
+    fn reply_tokens_bind_to_exact_utf16_spans_around_punctuation() {
+        let segments = super::reply_segments(
+            "¿Qué cocinas tú?",
+            &[
+                token("Qué", "what"),
+                token("cocinas", "do you cook"),
+                token("tú", "you"),
+            ],
+        )
+        .unwrap();
+        let spans: Vec<_> = segments.iter().map(|s| (s.start, s.end)).collect();
+        assert_eq!(spans, vec![(1, 4), (5, 12), (13, 15)]);
+        assert_eq!(segments[1].gloss.as_deref(), Some("do you cook"));
+    }
+    #[test]
+    fn reply_tokens_must_cover_every_word_in_order() {
+        let reply = "Me gusta cocinar.";
+        assert!(
+            super::reply_segments(reply, &[token("Me", "me"), token("cocinar", "cook")]).is_err()
+        );
+        assert!(
+            super::reply_segments(reply, &[token("Me", "me"), token("gusta", "like")]).is_err()
+        );
+        assert!(
+            super::reply_segments(reply, &[token("gusta", "like"), token("Me", "me")]).is_err()
+        );
+        assert!(super::reply_segments(reply, &[]).is_err());
+    }
+    #[test]
+    fn reply_tokens_count_utf16_units_for_astral_characters() {
+        let segments =
+            super::reply_segments("𐐀 sí", &[token("𐐀", "letter"), token("sí", "yes")]).unwrap();
+        assert_eq!((segments[1].start, segments[1].end), (3, 5));
     }
 }

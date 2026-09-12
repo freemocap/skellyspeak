@@ -368,17 +368,17 @@ function Application() {
             >
               <PageBoundary>
                 <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><GuidedPage onNewChatReady={registerNewChat} active={page === 'guided'} mobileSurface={mobileSurface}
-                  languagePicker={settings && <><label><span>Native</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.base === settings.native_language)?.fontScale ?? 1))}px` }} aria-label="Native language" value={settings.native_language}
-                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
-                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.base} value={language.base}>{language.endonym}</option>)}
-                  </select></label>
-                  <label><span>Learning</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.code === settings.target_language)?.fontScale ?? 1))}px` }} aria-label="Target language"
+                  learningPicker={settings && <><select className="learning-picker" style={{ fontSize: `${15 * Math.min(1.15, (languages().find(language => language.code === settings.target_language)?.fontScale ?? 1))}px` }} aria-label="Target language"
                     value={settings.target_language} disabled={savingLanguage || settingsOpen}
                     onChange={event => void changeLanguage('target_language', event.target.value)}>
-                    {languages().map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.code} value={language.code}>{language.endonym}</option>)}
-                  </select></label>
-                  {savingLanguage && <span role="status">Saving…</span>}
+                    {languages().map(language => <option lang={language.code} key={language.code} value={language.code}>{language.endonym}</option>)}
+                  </select>
+                  {savingLanguage && <span role="status" className="learning-saving">Saving…</span>}
                   </>}
+                  nativePicker={settings && <label><span>Native</span><select className="chat-language-picker" style={{ fontSize: `${13 * Math.min(1.15, (languages().find(language => language.base === settings.native_language)?.fontScale ?? 1))}px` }} aria-label="Native language" value={settings.native_language}
+                    disabled={savingLanguage || settingsOpen} onChange={event => void changeLanguage('native_language', event.target.value)}>
+                    {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} style={{ fontSize: `${13 * Math.min(language.fontScale, 1.15)}px` }} key={language.base} value={language.base}>{language.endonym}</option>)}
+                  </select></label>}
                   settingsVersion={settingsVersion}
                   accessConfigured={connection?.configured ?? null}
                   accessStarting={startingHostedSignIn}

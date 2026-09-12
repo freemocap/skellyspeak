@@ -49,6 +49,8 @@ pub enum DiagnosticCause {
     PlaybackDenied,
     PlaybackFailed,
     NetworkFailure,
+    ResizeObserverLoop,
+    ResourceLoadFailed,
     TypeError,
     ReferenceError,
     SyntaxError,

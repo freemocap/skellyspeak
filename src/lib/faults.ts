@@ -63,6 +63,15 @@ export function dismissAllFaults(): void {
   store.set([])
 }
 
+/** Unhandled errors from diagnostic capture, which has already logged them. An
+ * identical fault that is still on screen is not stacked again. */
+export function reportUnhandledError(event: Event): void {
+  if (!(event instanceof CustomEvent)) throw new Error('Unhandled UI errors arrive as CustomEvent.')
+  const message = describe(event.detail)
+  if (store.get().some(fault => fault.context === 'Unexpected error' && fault.message === message)) return
+  store.set([...store.get(), { id: nextId++, context: 'Unexpected error', message }])
+}
+
 /** Sink failures cannot be sent through the failing sink again. */
 export function reportDiagnosticBridgeFailure(): void {
   store.set([...store.get(), { id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.' }])

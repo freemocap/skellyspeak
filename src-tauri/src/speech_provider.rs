@@ -329,13 +329,15 @@ impl Decoder {
             );
         }
         // Preserve absent provider finish_reason as None; do not invent "stop".
-        // Deliberately conservative: do not collapse punctuation, case, accents,
-        // digits, or internal whitespace. A matching transcript is metadata, not
-        // proof that the waveform pronounces the text correctly.
+        // Deliberately conservative: do not collapse punctuation, case, accents or
+        // digits. Whitespace-only differences are accepted: speech transcripts do
+        // not reproduce line breaks or spacing, so they say nothing about the audio.
+        // A matching transcript is metadata, not proof that the waveform pronounces
+        // the text correctly.
         match transcript_difference(source, &self.transcript) {
             TranscriptDifference::Exact => {}
             TranscriptDifference::Missing => self.fail("Speech transcript is missing (speech_transcript_missing)."),
-            TranscriptDifference::Whitespace => self.fail("Speech transcript differs in whitespace (speech_transcript_whitespace_difference)."),
+            TranscriptDifference::Whitespace => {}
             TranscriptDifference::PunctuationOrCase => self.fail("Speech transcript differs in punctuation or case (speech_transcript_punctuation_or_case_difference)."),
             TranscriptDifference::Content => self.fail("Speech transcript differs in content (speech_transcript_content_difference)."),
         }
@@ -574,18 +576,23 @@ mod tests {
         out.cost_micros
     }
     #[test]
-    fn transcript_policy_outer_whitespace_v1_preserves_lexical_distinctions() {
-        assert!(
-            decode(&stream(" \nHola\t", &[0, 0], "stop"), "Hola")
-                .audio
-                .is_ok()
-        );
+    fn transcript_policy_accepts_whitespace_and_preserves_lexical_distinctions() {
+        for (source, transcript) in [
+            ("Hola", " \nHola\t"),
+            ("a b", "a  b"),
+            ("Hola.\n\n¿Qué tal?", "Hola. ¿Qué tal?"),
+        ] {
+            assert!(
+                decode(&stream(transcript, &[0, 0], "stop"), source)
+                    .audio
+                    .is_ok()
+            );
+        }
         for (source, transcript) in [
             ("No quiero", "quiero"),
             ("1,5", "15"),
             ("Sí", "Si"),
             ("Hola", "hola"),
-            ("a b", "a  b"),
             ("é", "e\u{301}"),
             ("Hola", ""),
         ] {
@@ -828,7 +835,7 @@ mod tests {
         );
     }
     #[test]
-    fn mismatch_categories_are_diagnostic_and_never_relax_acceptance() {
+    fn mismatch_categories_are_diagnostic_and_only_whitespace_is_accepted() {
         for (source, transcript, category) in [
             (" Hola. ", "Hola.", TranscriptDifference::Exact),
             ("Hola", "", TranscriptDifference::Missing),
@@ -850,7 +857,13 @@ mod tests {
         ] {
             assert_eq!(transcript_difference(source, transcript), category);
             let out = decode(&stream(transcript, &[0, 0], "stop"), source);
-            assert_eq!(out.audio.is_ok(), category == TranscriptDifference::Exact);
+            assert_eq!(
+                out.audio.is_ok(),
+                matches!(
+                    category,
+                    TranscriptDifference::Exact | TranscriptDifference::Whitespace
+                )
+            );
             if let Err(error) = out.audio {
                 assert!(!error.message.contains(source));
                 assert!(!error.message.contains("¿Qué tal?"));

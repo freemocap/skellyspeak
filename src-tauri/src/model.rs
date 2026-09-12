@@ -396,6 +396,7 @@ pub fn bindings() -> String {
         crate::coaching::InputEvidence::decl(&config),
         crate::coaching::Evidence::decl(&config),
         crate::coaching::Feedback::decl(&config),
+        crate::coaching::SuggestedReply::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
         AttemptView::decl(&config),
@@ -506,7 +507,11 @@ pub struct ChatMessage {
     #[ts(optional)]
     pub feedback_error: Option<String>,
     #[ts(optional)]
-    pub suggested_replies: Option<Vec<String>>,
+    pub suggested_replies: Option<Vec<crate::coaching::SuggestedReply>>,
+    #[ts(optional)]
+    pub suggestions_state: Option<String>,
+    #[ts(optional)]
+    pub suggestions_error: Option<String>,
     pub word_gloss: Option<WordGlossView>,
     pub gloss_state: Option<String>,
     pub gloss_error: Option<String>,

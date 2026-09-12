@@ -5,7 +5,7 @@ import type { GuidedTurnResult, Scaffolds, StoredTurn } from '../types'
 const scaffolds = (over: Partial<Scaffolds> = {}): Scaffolds => ({
   replies: [],
   frames: [],
-  starters: [], coach_help: null,
+  starters: [],
   ...over,
 })
 
@@ -89,8 +89,8 @@ describe('latestAnswered', () => {
 describe('latestScaffolds', () => {
   it('takes the newest turn that actually produced suggestions', () => {
     const turns = [
-      turn(1, 'a', 'A', scaffolds({ replies: ['old'] })),
-      turn(2, 'b', 'B', scaffolds({ starters: ['new'], coach_help: null })),
+      turn(1, 'a', 'A', scaffolds({ replies: [{ text: 'old', segments: [] }] })),
+      turn(2, 'b', 'B', scaffolds({ starters: ['new'] })),
     ]
     expect(latestScaffolds(turns)?.starters).toEqual(['new'])
   })
@@ -99,10 +99,10 @@ describe('latestScaffolds', () => {
     // Analysis degrades per section; showing no chips when usable ones exist
     // just above would be worse than showing the older ones.
     const turns = [
-      turn(1, 'a', 'A', scaffolds({ replies: ['still useful'] })),
+      turn(1, 'a', 'A', scaffolds({ replies: [{ text: 'still useful', segments: [] }] })),
       turn(2, 'b', 'B', scaffolds()),
     ]
-    expect(latestScaffolds(turns)?.replies).toEqual(['still useful'])
+    expect(latestScaffolds(turns)?.replies).toEqual([{ text: 'still useful', segments: [] }])
   })
 
   it('is null when no turn produced any', () => {

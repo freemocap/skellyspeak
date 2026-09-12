@@ -666,15 +666,16 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='partner_reply') AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='partner_reply') AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
-            let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachSuggestions.replies" }], |r|r.get(0))?;
+            let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachReplies" }], |r|r.get(0))?;
             if message.role == "user" {
                 message.feedback = saved.map(|s| serde_json::from_str(&s)).transpose()?;
                 (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,json_extract(t.context,'$.coach_feedbackError') FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='coach_feedback' WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             } else {
                 message.suggested_replies = saved.map(|s| serde_json::from_str(&s)).transpose()?;
+                (message.suggestions_state,message.suggestions_error) = db.query_row("SELECT o.state,json_extract(t.context,'$.coach_suggestionsError') FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='coach_suggestions' WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             }
 
             let gloss_kind = if message.role == "user" {
@@ -767,7 +768,7 @@ impl Store {
                 attempts,
             });
         }
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         Ok(ConversationSnapshot {
             transcription_attempts: crate::transcription::views(db, conversation)?,
@@ -4310,15 +4311,25 @@ mod tests {
         let suggestions = store.dispatch().unwrap().unwrap();
         assert!(suggestions.coaching_schema.is_some());
         store
-            .finish(&suggestions, Ok(reply(r#"{"replies":["Me alegro."]}"#)))
+            .finish(&suggestions, Ok(reply(r#"{"replies":[{"text":"Me alegro."}],"tokens":[{"reply":0,"text":"Me","gloss":"myself","romanization":null,"pronunciation":null},{"reply":0,"text":"alegro","gloss":"am glad","romanization":null,"pronunciation":"ah-LEH-groh"}]}"#)))
             .unwrap();
         let view = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(view.messages.len(), 2);
         assert!(view.messages[0].feedback.is_some());
+        let replies = view.messages[1].suggested_replies.as_ref().unwrap();
+        assert_eq!(replies.len(), 1);
+        assert_eq!(replies[0].text, "Me alegro.");
+        let spans: Vec<_> = replies[0]
+            .segments
+            .iter()
+            .map(|s| (s.start, s.end, s.gloss.as_deref()))
+            .collect();
+        assert_eq!(spans, vec![(0, 2, Some("myself")), (3, 9, Some("am glad"))]);
         assert_eq!(
-            view.messages[1].suggested_replies.as_ref().unwrap(),
-            &vec!["Me alegro.".to_string()]
+            view.messages[1].suggestions_state.as_deref(),
+            Some("succeeded")
         );
+        assert!(view.messages[1].suggestions_error.is_none());
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
             10
@@ -4328,6 +4339,37 @@ mod tests {
         assert!(store.dispatch().unwrap().is_none());
         let next_partner = store.dispatch().unwrap().unwrap();
         assert!(next_partner.coaching_schema.is_none());
+    }
+    #[test]
+    fn rejected_suggestions_surface_their_state_and_error() {
+        let (_dir, mut store, conversation) = setup();
+        store.execute(send(&store, &conversation)).unwrap();
+        assert!(store.dispatch().unwrap().is_none());
+        let partner = store.dispatch().unwrap().unwrap();
+        let feedback = store.dispatch().unwrap().unwrap();
+        store.finish(&feedback, Ok(reply(r#"{"correctness":null,"understandability":null,"explanation":"Insufficient evidence.","correction":"","evidence":[]}"#))).unwrap();
+        store.finish(&partner, Ok(reply("Bien, gracias."))).unwrap();
+        let waiting = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(
+            waiting.messages[1].suggestions_state.as_deref(),
+            Some("ready")
+        );
+        let suggestions = store.dispatch().unwrap().unwrap();
+        assert!(suggestions.coaching_schema.is_some());
+        store.finish(&suggestions, Ok(reply("not json"))).unwrap();
+        let view = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(
+            view.messages[1].suggestions_state.as_deref(),
+            Some("failed")
+        );
+        assert!(
+            view.messages[1]
+                .suggestions_error
+                .as_deref()
+                .unwrap()
+                .contains("suggestions_schema")
+        );
+        assert!(view.messages[1].suggested_replies.is_none());
     }
     #[test]
     fn invalid_coach_evidence_never_awards_xp() {

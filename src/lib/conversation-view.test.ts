@@ -26,7 +26,7 @@ describe('durable conversation projection', () => {
     expect(projected[0].assistant?.reply).toBe(source.messages[1].text)
     expect(projected[0].assistant?.translation).toBe('Hello\nHello.')
     expect(projected[0].analysisState).toBeNull()
-    expect(projected[0].assistant).toMatchObject({ tokens: [], user_tokens: [], user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [], coach_help: null }, errors: [] })
+    expect(projected[0].assistant).toMatchObject({ tokens: [], user_tokens: [], user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, suggestionsState: null, errors: [] })
     expect(source).toEqual(original)
   })
 
@@ -59,6 +59,16 @@ describe('durable conversation projection', () => {
   it('fails on an unexpected native role rather than dropping content', () => {
     expect(() => conversationTurns(snapshot([message(1, 'system', 'Unexpected')]))).toThrow('Unexpected conversation message role.')
   })
+})
+
+it('passes native feedback through unchanged and projects suggestion state and failure', () => {
+  const user: ChatMessage = { ...message(1, 'user', 'Yo fue ayer'), feedbackState: 'succeeded',
+    feedback: { correctness: 2, understandability: 4, explanation: 'Use fui for yo.', correction: 'Yo fui ayer.', evidence: [] } }
+  const reply: ChatMessage = { ...message(2, 'assistant', '¿Adónde fuiste?'), suggestedReplies: [{ text: 'Fui al mercado.', segments: [] }], suggestionsState: 'failed', suggestionsError: 'Coach feedback rejected: suggestions_schema.' }
+  const [turn] = conversationTurns(snapshot([user, reply]))
+  expect(turn.coach).toBe(user.feedback)
+  expect(turn.analysisState).toBe('done')
+  expect(turn.assistant).toMatchObject({ scaffolds: { replies: [{ text: 'Fui al mercado.', segments: [] }] }, suggestionsState: 'failed', errors: ['Coach feedback rejected: suggestions_schema.'] })
 })
 
 it('projects saved source gloss and independent operation state without token reconstruction', () => {

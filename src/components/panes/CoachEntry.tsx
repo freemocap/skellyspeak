@@ -1,13 +1,28 @@
 import { TargetText } from '../TargetText'
-import type { CoachFeedback } from '../../types'
+import type { Feedback } from '../../contracts'
 import { Markdown, type TermHandler } from '../../lib/markdown'
+import catalog from '../../assets/skill-catalogs/catalog.json'
 
-/// The parts of a turn the coach feed renders.
+/// The parts of a turn the coach feedback renders.
 export interface TurnForCoach {
   id: number
   user: string | null
-  coach?: CoachFeedback
+  coach?: Feedback
   coachError?: string
+}
+
+const skillLabels = new Map(catalog.filter(node => node.kind === 'skill').map(node => [node.id, node.label]))
+function skillLabel(id: string): string {
+  const label = skillLabels.get(id)
+  if (!label) throw new Error(`Coach feedback cites an unknown skill: ${id}`)
+  return label
+}
+
+const OUTCOMES: Record<string, string> = { demonstrated: 'Shown', partial: 'Partly shown', uncertain: 'Unclear' }
+function outcomeLabel(outcome: string): string {
+  const label = OUTCOMES[outcome]
+  if (!label) throw new Error(`Coach feedback has an unknown outcome: ${outcome}`)
+  return label
 }
 
 function ScoreMeter({ label, value }: { label: string; value: number | null }) {
@@ -26,66 +41,45 @@ function ScoreMeter({ label, value }: { label: string; value: number | null }) {
   )
 }
 
-/// One turn's worth of coaching: the learner's line, for context, plus
-/// whatever the coach made of it.
-export function CoachEntry({
-  turn,
-  targetLangCode,
-  nativeLangCode,
-  onTerm,
-}: {
-  turn: TurnForCoach
-  targetLangCode: string
-  nativeLangCode: string
-  onTerm?: TermHandler
-}) {
+/// Everything the coach saved about one learner message.
+export function CoachEntry({ turn, onTerm }: { turn: TurnForCoach; onTerm?: TermHandler }) {
+  const coach = turn.coach
   return (
     <div className="coach-entry">
       {turn.user && <p className="coach-entry-said">“<TargetText text={turn.user} />”</p>}
       {turn.coachError && <div className="turn-errors">⚠ {turn.coachError}</div>}
-      {!turn.coachError && !turn.coach && <p className="center-note">⟳ Coach is listening…</p>}
-      {turn.coach && (
+      {!turn.coachError && !coach && <p className="center-note">⟳ Coach is listening…</p>}
+      {coach && (
         <>
           <div className="coach-card">
             <div className="coach-scores">
-              <ScoreMeter label="Correctness" value={turn.coach.grammar} />
-              {turn.coach.conversation !== undefined && <ScoreMeter label="Understandability" value={turn.coach.conversation} />}
+              <ScoreMeter label="Correctness" value={coach.correctness} />
+              <ScoreMeter label="Understandability" value={coach.understandability} />
             </div>
-            {turn.coach.conversation === undefined && <p className="lesson-meta">Understandability was not assessed.</p>}
-            <div className="coach-remark">
-              <Markdown text={turn.coach.remark} onTerm={onTerm} />
-            </div>
-            {(turn.coach.used_target.length > 0 || turn.coach.used_native.length > 0) && (
-              <div className="coach-split">
-                {turn.coach.used_target.length > 0 && (
-                  <div className="split-row">
-                    <span className="split-k target">{targetLangCode.toUpperCase()}</span>
-                    <span><TargetText text={turn.coach.used_target.join(' · ')} /></span>
-                  </div>
-                )}
-                {turn.coach.used_native.length > 0 && (
-                  <div className="split-row">
-                    <span className="split-k native">{nativeLangCode.toUpperCase()}</span>
-                    <span>{turn.coach.used_native.join(' · ')}</span>
-                  </div>
-                )}
-              </div>
-            )}
+            {coach.explanation.trim() && <div className="coach-remark"><Markdown text={coach.explanation} onTerm={onTerm} /></div>}
           </div>
-          {turn.coach.corrections.map((cor, i) => (
-            <div key={i} className="coach-correction">
-              <div className="cor-line">
-                <s><TargetText text={cor.said} /></s> <span className="cor-arrow">→</span>{' '}
-                <b><TargetText text={cor.corrected} /></b> <span className="cor-kind">{cor.kind}</span>
-              </div>
-              <div className="cor-why">
-                <Markdown text={cor.explanation} onTerm={onTerm} />
-              </div>
+          {coach.correction.trim() && (
+            <div className="coach-correction">
+              <span className="cor-kind">Suggested version</span>
+              <div className="cor-line"><b><TargetText text={coach.correction} /></b></div>
             </div>
-          ))}
+          )}
+          {coach.evidence.length > 0 && (
+            <section className="coach-evidence" aria-label="What this message shows">
+              <span className="cor-kind">What this message shows</span>
+              <ul>
+                {coach.evidence.map(item => (
+                  <li key={item.skill_id}>
+                    <div className="evidence-head"><strong>{skillLabel(item.skill_id)}</strong> <span className={`evidence-outcome ${item.outcome}`}>{outcomeLabel(item.outcome)}</span></div>
+                    <div className="evidence-quote">“<TargetText text={item.quote} />”</div>
+                    <div className="cor-why">{item.rationale}</div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </>
       )}
     </div>
   )
 }
-

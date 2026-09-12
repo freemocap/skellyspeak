@@ -12,7 +12,8 @@ import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } fr
 import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import { PartnerReaction } from './PartnerReaction'
-import type { CoachFeedback, GuidedToken, GuidedTurnResult } from '../../types'
+import type { GuidedToken, GuidedTurnResult } from '../../types'
+import type { Feedback } from '../../contracts'
 import { popupAnchor, type PopupState } from '../GlossPopup'
 import { groupSentences, splitSentences } from '../../lib/sentences'
 import { sourceToken } from '../../lib/source-token'
@@ -28,7 +29,7 @@ export interface TurnShape {
   user: string | null
   assistant: GuidedTurnResult | null
   pendingText: string
-  coach?: CoachFeedback
+  coach?: Feedback
   coachError?: string
   reaction?: import('../../types').PartnerReaction
   reactionError?: string
@@ -50,8 +51,6 @@ function tokenEntries(tokens: GuidedToken[]): TokenEntry[] {
 export interface TurnViewProps {
   turn: TurnShape
   reviewing: boolean
-  targetLangCode: string
-  nativeLangCode: string
   onAskCoach: (question: string) => void
   focused: boolean
   ttsReady: boolean
@@ -81,8 +80,6 @@ export interface TurnViewProps {
 export const TurnView = memo(function TurnView({
   turn,
   reviewing,
-  targetLangCode,
-  nativeLangCode,
   onAskCoach,
   focused,
   ttsReady,
@@ -258,7 +255,7 @@ export const TurnView = memo(function TurnView({
           }
         >
           {turn.userSavedGloss
-            ? <SavedGlossText key={turn.userSavedGloss.attemptId} text={turn.user} result={turn.userSavedGloss} decorateSegment={(node, start, end) => {
+            ? <SavedGlossText key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} decorateSegment={(node, start, end) => {
                 const matches = evidence.filter(item => item.start < end && item.end > start)
                 return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
               }} afterSegment={(start, end) => creditMarkers(evidence.filter(item => item.end > start && item.end <= end))} />
@@ -267,7 +264,7 @@ export const TurnView = memo(function TurnView({
             : plainEvidence}
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
-          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} targetLangCode={targetLangCode} nativeLangCode={nativeLangCode} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
           </MessageFeedback>
           {onEditUser && (
@@ -294,7 +291,7 @@ export const TurnView = memo(function TurnView({
           className={`msg bot with-actions ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
         >
           {assistant.savedGloss ? (
-            <SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} result={assistant.savedGloss} />
+            <SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} />
           ) : assistant.tokens.length > 0 ? (
             renderTokens(
               replyEntries,

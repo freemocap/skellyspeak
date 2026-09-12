@@ -3,76 +3,59 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ComposerHelp } from './ComposerHelp'
 import { ReadingProvider } from '../TargetText'
-import { ReadingPreferencesContext } from '../ReadingPreferences'
-import type { CoachHelp } from '../../types'
+import type { SuggestedReply } from '../../contracts'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../../lib/tauri', () => backend)
-beforeEach(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", "") }; HTMLDialogElement.prototype.close = function () { this.removeAttribute("open") }; backend.invoke.mockReset(); backend.invoke.mockResolvedValue({ gloss: 'I', lemma: '我', pos: '', form: '', role: '', usage: '' }) })
-const off = { autoTranslate: false, alwaysPronunciation: false, alwaysRomanize: false }
-const on = { autoTranslate: true, alwaysPronunciation: true, alwaysRomanize: true }
-const help: CoachHelp = {
-  explanation: 'They are asking how you are.',
-  partner: { text: '你好吗？', translation: 'How are you?', romanization: 'Nǐ hǎo ma?', pronunciation: 'nee how mah' },
-  replies: [{ text: '我很好。', translation: 'I am well.', romanization: 'Wǒ hěn hǎo.', pronunciation: 'waw hun how' }],
-}
-const base = { help, pending: false, busy: false, errors: [] }
+beforeEach(() => { backend.invoke.mockReset() })
+const replies: SuggestedReply[] = [
+  { text: '我很好。', segments: [{ start: 0, end: 1, kind: 'gloss', gloss: 'I', romanization: 'wǒ' }, { start: 1, end: 2, kind: 'gloss', gloss: 'very' }, { start: 2, end: 3, kind: 'gloss', gloss: 'good' }] },
+  { text: '还不错。', segments: [{ start: 0, end: 3, kind: 'gloss', gloss: 'not bad' }] },
+]
+const base = { replies, pending: false, busy: false, errors: [] }
 
-it('inserts only from the arrow and leaves unannotated words passive', async () => {
+it('shows every saved reply and inserts only from its arrow', () => {
   const onUse = vi.fn()
   const view = render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
   expect(view.container.querySelector('section')?.firstElementChild).toHaveAttribute('aria-label', 'Suggested replies')
-  expect(view.container.querySelector('.help-reply')).not.toHaveAttribute('role', 'button')
-  expect(screen.queryByText('Reading help')).toBeNull()
-  expect(screen.queryByText('Use')).toBeNull()
+  expect(view.container.querySelectorAll('.help-reply')).toHaveLength(2)
   fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我很好。' }))
   expect(onUse).toHaveBeenCalledWith('我很好。', 'suggestion')
-  expect(backend.invoke).not.toHaveBeenCalled()
-  fireEvent.click(view.container.querySelector('.help-reply .target-text')!)
-  expect(screen.queryByRole('dialog')).toBeNull()
-  expect(onUse).toHaveBeenCalledOnce()
   fireEvent.click(view.container.querySelector('.help-reply')!)
   expect(onUse).toHaveBeenCalledOnce()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 
-it('updates all reading aids from the shared settings without affecting the explanation', async () => {
-  const props = { ...base, onUse: vi.fn() }
-  const view = render(<ReadingProvider settings={null}><ReadingPreferencesContext value={off}><ComposerHelp {...props} /></ReadingPreferencesContext></ReadingProvider>)
-  expect(screen.queryByRole('button', { name: '我' })).toBeNull()
-  fireEvent.click(screen.getByText('Understand the exchange'))
-  expect(screen.getByText('They are asking how you are.')).toBeVisible()
-  for (const text of ['I am well.', 'How are you?', 'Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
-  view.rerender(<ReadingProvider settings={null}><ReadingPreferencesContext value={on}><ComposerHelp {...props} /></ReadingPreferencesContext></ReadingProvider>)
-  for (const text of ['I am well.', 'How are you?']) expect(screen.getByText(text)).toBeVisible()
-  for (const text of ['Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
-  expect(view.container).not.toHaveTextContent('你好吗？')
-  view.rerender(<ReadingProvider settings={null}><ReadingPreferencesContext value={off}><ComposerHelp {...props} /></ReadingPreferencesContext></ReadingProvider>)
-  for (const text of ['I am well.', 'How are you?', 'Wǒ', 'waw']) expect(screen.queryByText(text)).toBeNull()
+it('reveals the saved gloss of a tapped word without inserting or requesting analysis', () => {
+  const onUse = vi.fn()
+  render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
+  expect(screen.queryByText('very')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: '很' }))
+  expect(screen.getByText('very')).toBeVisible()
+  expect(onUse).not.toHaveBeenCalled()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 
-it('distinguishes loading advice from a failed analysis', () => {
-  const props = { help: null, busy: false, onUse: vi.fn() }
+it('distinguishes loading reply ideas from a failed suggestions job', () => {
+  const props = { replies: [], busy: false, onUse: vi.fn() }
   const { rerender } = render(<ComposerHelp {...props} pending errors={[]} />)
   expect(screen.getByRole('status')).toHaveTextContent('Finding reply ideas…')
-  rerender(<ComposerHelp {...props} pending={false} errors={['Suggestions failed: provider unavailable']} />)
+  rerender(<ComposerHelp {...props} pending={false} errors={['Coach feedback rejected: suggestion_token_not_in_reply.']} />)
   expect(screen.getByRole('alert')).toHaveTextContent('Reply ideas')
-  expect(screen.getByText('Suggestions failed: provider unavailable')).not.toBeVisible()
+  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).not.toBeVisible()
   fireEvent.click(screen.getByText('⚠ Reply ideas'))
-  expect(screen.getByText('Suggestions failed: provider unavailable')).toBeVisible()
+  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).toBeVisible()
 })
 
-it('disables only insertion during a conversation request', async () => {
+it('disables only insertion during a conversation request', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} busy onUse={vi.fn()} /></ReadingProvider>)
   expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeDisabled()
-  expect(screen.queryByRole('button', { name: '我' })).toBeNull()
-  expect(screen.getByText('我很好。')).toBeVisible()
+  expect(screen.getByRole('button', { name: '很' })).toBeEnabled()
 })
 
- it('leaves the empty composer free of unavailable-advice placeholders', () => {
+it('renders nothing when there are no reply ideas, pending work or failures', () => {
   const onUse = vi.fn()
-  const { container } = render(<ComposerHelp help={null} pending={false} busy={false} errors={[]} onUse={onUse} />)
+  const { container } = render(<ComposerHelp replies={[]} pending={false} busy={false} errors={[]} onUse={onUse} />)
   expect(container).toBeEmptyDOMElement()
   expect(onUse).not.toHaveBeenCalled()
 })

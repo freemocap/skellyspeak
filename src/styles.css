@@ -1526,9 +1526,6 @@ button, input, select { touch-action: manipulation; }
 .lesson-empty { font-size: 18px; color: var(--ink-d); }
 .lesson-goal { font-size: 16px; line-height: 1.5; }
 .lesson-meta { color: var(--mut-d); font-size: 11.5px; line-height: 1.5; }
-.analysis-placeholder { margin-top: 14px; padding: 11px 12px; border: 1px dashed var(--line2); border-radius: 8px; background: var(--chrome2); color: var(--mut-d); }
-.analysis-placeholder strong { display: block; color: var(--ink-d); font: 600 11px var(--mono); letter-spacing: .05em; text-transform: uppercase; }
-.analysis-placeholder p { margin: 5px 0 0; font-size: 12px; line-height: 1.45; }
 .lesson-section { border-bottom: 1px solid var(--line); padding: 11px 0; }
 .lesson-section > summary { color: var(--ink-d); cursor: pointer; font-weight: 600; }
 .lesson-section .steer-row { flex-wrap: wrap; margin-top: 10px; }
@@ -1852,6 +1849,13 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .skill-connections summary { cursor: pointer; }
 .detail-dialog .coach-entry-said { margin-bottom: 14px; }
 .detail-dialog .coach-correction { margin-top: 12px; }
+.coach-evidence { margin-top: 12px; }
+.coach-evidence ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.coach-evidence li { padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--inset); }
+.evidence-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 13px; color: var(--ink-d); }
+.evidence-outcome { font: 600 10px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--mut-d); }
+.evidence-outcome.demonstrated { color: var(--steel); }
+.evidence-quote { margin-top: 3px; font-family: var(--serif); font-size: 14px; color: var(--ink-d); }
 .w[role=button]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .msg .line { display: inline; }
 .msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
@@ -1922,22 +1926,18 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
   .language-footer { padding-inline: 10px; }
 }
 
-/* Coach advice is preloaded with the reply and expands within the composer. */
-.composer-help-content { max-height: min(260px, 30dvh); overflow-y: auto; overscroll-behavior: contain; margin: 0 0 3px; padding: 4px; border: 1px solid #a6b9aa; border-radius: 6px; background: #f3f7f1; color: #243a2b; font: 13px/1.4 var(--sans); }
+/* Reply ideas for the latest partner message sit directly above the composer. */
+.composer-help-content { max-height: min(260px, 30dvh); overflow-y: auto; overscroll-behavior: contain; margin: 0 0 3px; padding: 3px; border: 1px solid #a6b9aa; border-radius: 6px; background: #f3f7f1; color: #243a2b; font: 13px/1.4 var(--sans); }
 .composer-help-content p { margin: 0; }
-.help-explanation, .help-translation { color: #4f6153; font-size: 12px; }
 .help-romanization { color: #385d46; font-size: 12px; }
-.help-replies { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
-.help-reply { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: fit-content; max-width: 100%; min-height: 0; padding: 3px 7px; border: 1px solid #a6b9aa; border-radius: 10px; background: #e3eee0; color: #224f34; text-align: start; overflow-wrap: anywhere; }
-.help-reply-text { font: calc(16px * var(--reading-scale, 1) * var(--script-scale, 1))/1.4 var(--serif); }
-.help-insert { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-inline-start: 2px; padding: 0; width: 28px; height: 28px; border: 0; border-radius: 4px; background: transparent; color: #315943; font: 20px/1 var(--sans); cursor: pointer; }
+.help-replies { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 3px; }
+.help-reply { display: inline-flex; align-items: center; gap: 1px; width: fit-content; max-width: 100%; min-height: 0; padding: 0 1px 0 6px; border: 1px solid #a6b9aa; border-radius: 7px; background: #e3eee0; color: #224f34; text-align: start; overflow-wrap: anywhere; }
+.help-reply-text { font: calc(15px * var(--reading-scale, 1) * var(--script-scale, 1))/1.3 var(--serif); }
+.help-reply-text .wg, .help-reply-text .wroman, .help-reply-text .wpronunciation { line-height: 1.1; }
+.help-insert { display: inline-flex; flex: none; align-items: center; justify-content: center; padding: 0; width: 22px; height: 22px; border: 0; border-radius: 4px; background: transparent; color: #315943; font: 15px/1 var(--sans); cursor: pointer; }
 .help-insert:hover { background: #c5dcc0; }
 .help-insert:focus-visible { outline: 2px solid #315943; outline-offset: 1px; }
 .help-insert:disabled { opacity: .5; cursor: default; }
-.help-context > summary { cursor: pointer; font: 12px/1.4 var(--sans); padding-block: 2px; min-height: 24px; box-sizing: border-box; color: #385d46; }
-.help-footer { border-top: 1px solid #c5d2c4; padding-top: 2px; margin-top: 3px; }
-.help-context { flex: 1; min-width: 0; }
-.help-context .md-p { margin: 4px 0; }
 .conversation-title small, .chat-panel-summary { display: none; }
 .topbar .target-language-picker { font-size: 11px; margin-left: auto; }
 .topbar .target-language-picker > span { display: none; }
@@ -1999,6 +1999,15 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 
 .chat-language-picker { max-width: 100%; min-width: 0; min-height: 36px; padding: 4px 6px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 600 16px var(--sans); cursor: pointer; }
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
+/* Conversation header: "Learning:" then the target language, large, as its own picker. */
+.learning-line { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; }
+.learning-label { font: 600 10px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--mut-d); }
+.learning-picker { min-width: 0; max-width: 100%; min-height: 28px; padding: 0 2px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink-d); font-family: var(--sans); font-weight: 650; letter-spacing: 0; text-transform: none; line-height: 1.2; cursor: pointer; }
+.learning-picker:hover:not(:disabled) { border-color: var(--line2); background: var(--inset); }
+.learning-picker:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+.learning-picker:disabled { opacity: .6; cursor: default; }
+.learning-picker option { background: var(--paper); color: var(--ink); font: 15px var(--sans); }
+.learning-saving { font: 11px var(--sans); letter-spacing: 0; text-transform: none; color: var(--mut-d); }
 @media (max-width: 860px) { .chat-language-picker { min-height: 44px; } }
 
 .reward-path-trace { position: fixed; pointer-events: none; opacity: 0; transform-origin: center; }
@@ -2157,8 +2166,8 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .target-text .wu { vertical-align: top; margin-inline-end: var(--word-spacing, 2px); }
 .target-text { font-family: var(--serif); line-height: 1.5; white-space: pre-wrap; }
 .wg, .wroman, .wpronunciation { font-size: calc(10px * var(--reading-scale, 1)); }
-.trans, .help-translation, .lesson-example-translation { font-size: calc(12.5px * var(--reading-scale, 1)); }
-.md-p, .md-list, .help-explanation { font-size: calc(14px * var(--reading-scale, 1)); }
+.trans, .lesson-example-translation { font-size: calc(12.5px * var(--reading-scale, 1)); }
+.md-p, .md-list { font-size: calc(14px * var(--reading-scale, 1)); }
 .settings-modal .form-row { margin-bottom: 10px; }
 .settings-modal .form-row label { letter-spacing: .04em; text-transform: none; font-size: 12px; }
 .settings-modal .form-row input, .settings-modal .form-row select { border-radius: 5px; padding: 7px 9px; }
@@ -2223,7 +2232,6 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 
 .conversation-map-collapse { position: absolute; top: 2px; right: 4px; font-size: 10px; padding: 1px 4px; }
 
-.conversation-summary { display: block; font: 11px/1.4 var(--sans); letter-spacing: normal; text-transform: none; }
 .info-tip { display: inline-block; position: relative; margin-inline: 4px; vertical-align: middle; }
 .info-tip > button { border: 0; padding: 1px 3px; background: transparent; color: inherit; font: inherit; cursor: help; }
 .info-tip-content { position: fixed; inset: auto; margin: 0; width: min(290px, 75vw); padding: 8px; border: 1px solid var(--line2); border-radius: 6px; background: var(--chrome); color: var(--ink-d); font: 12px/1.4 var(--sans); box-shadow: 0 3px 12px #0005; }
@@ -2232,9 +2240,6 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 
 #practice-language-panel { border: 1px solid var(--line2); border-top: 0; padding: 6px; }
 .practice-statistics-header { display: flex; align-items: center; gap: 4px; margin: 0; }
-.conversation-summary small { color: var(--mut-d); font-size: 10px; font-weight: 400; }
-.conversation-summary strong { font-size: 13px; font-weight: 650; }
-button.conversation-summary { padding: 0; border: 0; background: transparent; color: inherit; text-align: start; cursor: pointer; }
 
 .tab-group { display: flex; align-items: center; border: 1px solid var(--line2); border-radius: 7px 7px 0 0; background: var(--chrome); }
 .tab-group > .tab { border: 0; }

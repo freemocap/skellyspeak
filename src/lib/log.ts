@@ -17,7 +17,7 @@ export function clearLogs(): void { LOG_BUFFER.length = 0; listeners.forEach(fn 
 
 type DiagnosticContext = 'application' | 'conversation' | 'speech' | 'microphone' | 'settings' | 'audio' | 'navigation' | 'other'
 type DiagnosticCode = 'ui_fault' | 'native_command_failed' | 'unhandled_error' | 'unhandled_rejection' | 'diagnostic_bridge_failed' | 'ui_event'
-type Cause = 'custom_transcription_unconfigured' | 'playback_denied' | 'playback_failed' | 'network_failure' | 'type_error' | 'reference_error' | 'syntax_error' | 'abort_error' | 'unknown'
+type Cause = 'custom_transcription_unconfigured' | 'playback_denied' | 'playback_failed' | 'network_failure' | 'resize_observer_loop' | 'resource_load_failed' | 'type_error' | 'reference_error' | 'syntax_error' | 'abort_error' | 'unknown'
 type EventName = 'console' | 'ipc_started' | 'ipc_succeeded' | 'ipc_failed' | 'settings_opened' | 'settings_loaded' | 'settings_saving' | 'microphone_autosend' | 'microphone_empty' | 'application_mounted' | 'language_registry_loaded' | 'other'
 const nativeCodes = new Set(['validation', 'conflict', 'not_found', 'session_expired', 'storage', 'provider', 'admission_held', 'unknown_outcome', 'credential', 'internal'])
 const commands = new Set<string>(['get_update_channel', 'latest_github_release', 'read_speech_audio', 'mic_start', 'mic_wave', 'mic_cancel', 'mic_transcribe', 'factory_reset', 'get_snapshot', 'execute_command', 'get_access_settings', 'save_access_settings', 'check_access', 'get_connection', 'save_connection', 'verify_openrouter_key', 'disconnect', 'watch_conversation', 'hosted_sign_in', 'hosted_account', 'hosted_diagnostics', 'hosted_sign_out', 'cancel_sign_in', 'select_route', 'get_profile', 'get_reward_settings', 'get_playback_rate', 'save_playback_rate', 'save_reward_settings', 'get_skill_evidence', 'get_practice_overview', 'save_skill_profile', 'open_ai_window'] satisfies DiagnosticCommand[])
@@ -46,6 +46,8 @@ function causeOf(error: unknown): Cause {
   if (text === 'This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings.') return 'custom_transcription_unconfigured'
   if (text === 'Audio playback failed.') return 'playback_failed'
   if (text === 'Failed to fetch' || text === 'Network request failed') return 'network_failure'
+  // The browser's fixed notice that observer callbacks were deferred to the next frame.
+  if (text === 'ResizeObserver loop completed with undelivered notifications.' || text === 'ResizeObserver loop limit exceeded') return 'resize_observer_loop'
   const name = field(error, 'name')
   if (name === 'NotAllowedError') return 'playback_denied'
   if (name === 'TypeError') return 'type_error'
@@ -56,12 +58,12 @@ function causeOf(error: unknown): Cause {
 }
 
 /** Every body is omitted explicitly; only reviewed enums and counts cross IPC. */
-export async function logDiagnostic(context: string, error: unknown, faultId?: number, code: DiagnosticCode = 'ui_fault', level: Level = 'error', metadata: { command?: string; eventName?: EventName; redactedArgs?: number } = {}): Promise<boolean> {
+export async function logDiagnostic(context: string, error: unknown, faultId?: number, code: DiagnosticCode = 'ui_fault', level: Level = 'error', metadata: { command?: string; eventName?: EventName; redactedArgs?: number; cause?: Cause } = {}): Promise<boolean> {
   const candidate = field(error, 'code')
   const event = { context: diagnosticContext(context), code, level,
     nativeCode: typeof candidate === 'string' && nativeCodes.has(candidate) ? candidate : null,
     faultId: faultId ?? null, command: metadata.command && commands.has(metadata.command) ? metadata.command : null,
-    cause: causeOf(error), eventName: metadata.eventName ?? 'other',
+    cause: metadata.cause ?? causeOf(error), eventName: metadata.eventName ?? 'other',
     redactedArgs: metadata.redactedArgs ?? (error == null ? 0 : 1) }
   const summary = JSON.stringify(event)
   record(level, summary)
@@ -127,8 +129,24 @@ export function installDiagnosticCapture(): () => void {
     if (!Reflect.set(console, method, wrapped)) throw new Error('Console diagnostic capture could not be installed.')
     restore.push(() => { if (console[method] === wrapped && !Reflect.set(console, method, original)) throw new Error('Console diagnostic capture could not be restored.') })
   }
-  const onError = (event: ErrorEvent) => { void logDiagnostic('application', event.error ?? event.message, undefined, 'unhandled_error') }
-  const onRejection = (event: PromiseRejectionEvent) => { void logDiagnostic('application', event.reason, undefined, 'unhandled_rejection') }
+  // Capture phase also receives element load failures, which do not bubble.
+  // Everything except the browser's resize-observer notice and aborted requests
+  // is also put on screen; `unhandled-ui-error` carries it to the fault bar.
+  const surface = (detail: unknown) => window.dispatchEvent(new CustomEvent('unhandled-ui-error', { detail }))
+  const onError = (event: ErrorEvent) => {
+    if (event.target instanceof Element) {
+      void logDiagnostic('application', null, undefined, 'unhandled_error', 'error', { cause: 'resource_load_failed' })
+      surface(`A ${event.target.tagName.toLowerCase()} element failed to load its resource.`)
+      return
+    }
+    const error = event.error ?? event.message
+    void logDiagnostic('application', error, undefined, 'unhandled_error')
+    if (causeOf(error) !== 'resize_observer_loop') surface(error)
+  }
+  const onRejection = (event: PromiseRejectionEvent) => {
+    void logDiagnostic('application', event.reason, undefined, 'unhandled_rejection')
+    if (causeOf(event.reason) !== 'abort_error') surface(event.reason)
+  }
   window.addEventListener('error', onError, true)
   window.addEventListener('unhandledrejection', onRejection)
   disposeCapture = () => {

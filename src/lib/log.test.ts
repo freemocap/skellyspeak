@@ -4,6 +4,7 @@ const invoke = vi.hoisted(() => vi.fn())
 vi.mock('./tauri', () => ({ isTauri: true }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
 import { clearLogs, getLogs, logDiagnostic, installDiagnosticCapture, logInfo, diagnosticDeliveryState } from './log'
+import { dismissAllFaults, reportUnhandledError, subscribeFaults } from './faults'
 let dispose: (() => void) | undefined
 beforeEach(() => { invoke.mockReset(); invoke.mockResolvedValue({}); clearLogs() })
 afterEach(() => { dispose?.(); dispose = undefined; vi.restoreAllMocks() })
@@ -36,6 +37,27 @@ it('captures window errors and rejections with safe error type and no stack', as
   expect(invoke.mock.calls[0][1].event.cause).toBe('type_error')
   expect(invoke.mock.calls[1][1].event.code).toBe('unhandled_rejection')
   expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
+})
+it('names resize-observer and resource-load events and surfaces everything but the resize notice', async () => {
+  dispose = installDiagnosticCapture()
+  const surfaced = vi.fn(); window.addEventListener('unhandled-ui-error', surfaced)
+  window.dispatchEvent(new ErrorEvent('error', { message: 'ResizeObserver loop completed with undelivered notifications.' }))
+  const image = document.createElement('img'); document.body.append(image); image.dispatchEvent(new Event('error'))
+  window.dispatchEvent(new ErrorEvent('error', { error: new TypeError('PRIVATE_STACK') }))
+  await vi.waitFor(() => expect(invoke).toHaveBeenCalledTimes(3))
+  expect(invoke.mock.calls.map(call => call[1].event.cause)).toEqual(['resize_observer_loop', 'resource_load_failed', 'type_error'])
+  expect(surfaced).toHaveBeenCalledTimes(2)
+  expect(surfaced.mock.calls[0][0].detail).toBe('A img element failed to load its resource.')
+  expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
+  window.removeEventListener('unhandled-ui-error', surfaced); image.remove()
+})
+it('shows a repeating unhandled error once on the fault bar', () => {
+  dismissAllFaults()
+  for (let i = 0; i < 5; i++) reportUnhandledError(new CustomEvent('unhandled-ui-error', { detail: new Error('Layout failed') }))
+  let faults: unknown[] = []
+  subscribeFaults(current => { faults = current })()
+  expect(faults).toEqual([{ id: expect.any(Number), context: 'Unexpected error', message: 'Layout failed' }])
+  dismissAllFaults()
 })
 it('makes failed delivery explicit without forwarding its own failure recursively', async () => {
   await logDiagnostic('application', null)

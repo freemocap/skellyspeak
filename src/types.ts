@@ -65,20 +65,6 @@ export interface OpenedConversation {
 
 export type AnalysisState = 'pending' | 'done' | null
 
-/// The coach's private read on one learner message.
-export interface CoachFeedbackBody {
-  grammar: number | null
-  remark: string
-  used_target: string[]
-  used_native: string[]
-  corrections: CoachCorrection[]
-}
-
-export type CoachFeedback = CoachFeedbackBody & (
-  | { conversation: number | null; comprehensibility?: never }
-  | { comprehensibility: number; conversation?: never }
-)
-
 export interface PartnerReaction {
   kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned'
   interpretation: string
@@ -103,7 +89,7 @@ export interface StoredTurn {
   /// reports per-section problems in `assistant.errors`, which the analysis
   /// pane renders.
   analysisState: AnalysisState
-  coach?: CoachFeedback
+  coach?: import('./contracts').Feedback
   reaction?: PartnerReaction
   reactionError?: string
   coachError?: string
@@ -148,26 +134,14 @@ export interface Mechanic {
 }
 
 export interface Scaffolds {
-  coach_help: CoachHelp | null
-  replies: string[]
+  replies: import('./contracts').SuggestedReply[]
   frames: string[]
   starters: string[]
 }
 
-export interface AssistedPhrase {
-  text: string
-  translation: string
-  romanization: string | null
-  pronunciation: string
-}
-
-export interface CoachHelp {
-  explanation: string
-  partner: AssistedPhrase
-  replies: AssistedPhrase[]
-}
-
 export interface GuidedTurnResult {
+  /// State of the reply-suggestions job for this partner message.
+  suggestionsState?: string | null
   translationState?: string | null
   messageId?: string
   savedGloss?: import('./contracts').WordGlossView | null
@@ -184,38 +158,6 @@ export interface GuidedTurnResult {
   errors: string[]
 }
 
-export interface CoachCorrection {
-  said: string
-  corrected: string
-  explanation: string
-  kind: string
-}
-
-
-
-export type CoachEvent =
-  | { type: 'coach_done'; feedback: CoachFeedback }
-  | { type: 'coach_failed'; error: string }
-
-export type GuidedEvent =
-  | { type: 'reply_delta'; text: string }
-  | { type: 'reply_done'; reply: string }
-  | {
-      type: 'analysis_section'
-      tokens?: GuidedToken[]
-      translation?: string
-      user_tokens?: GuidedToken[]
-      user_translation?: string
-      mechanics?: Mechanic[]
-      scaffolds?: Scaffolds
-    }
-  | CoachEvent
-  | { type: 'reaction_done'; reaction: PartnerReaction }
-  | { type: 'reaction_failed'; error: string }
-  | { type: 'analysis_done'; turn: GuidedTurnResult }
-  | { type: 'plan_updated'; plan: TeachingPlan; profile: Profile }
-  // Background work started by this turn failed. Goes straight to the fault bar.
-  | { type: 'fault'; context: string; message: string }
 
 export interface RecurringError {
   error: string

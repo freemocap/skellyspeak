@@ -1,4 +1,3 @@
-import { DifficultySelect } from '../components/chat/DifficultySelect'
 import { ContactProfileDialog } from '../components/contacts/ContactProfileDialog'
 import { ConversationHeader } from '../components/chat/ConversationHeader'
 import { ContactChooser } from '../components/contacts/ContactChooser'
@@ -49,7 +48,8 @@ export type MobileLocation = 'chat' | 'panel'
 
 export default function GuidedPage({
   active,
-  languagePicker,
+  learningPicker,
+  nativePicker,
   mobileSurface,
   settingsVersion = 0,
   historyOpen = false,
@@ -61,7 +61,10 @@ export default function GuidedPage({
   onNewChatReady,
 }: {
   active: boolean
-  languagePicker: ReactNode
+  /// The target-language picker shown large in the conversation header.
+  learningPicker: ReactNode
+  /// The explanation-language picker, kept in the conversation settings panel.
+  nativePicker: ReactNode
   mobileSurface: MobileLocation
   settingsVersion?: number
   historyOpen?: boolean
@@ -341,7 +344,7 @@ export default function GuidedPage({
   const bestScaffolds = turns.at(-1)?.assistant?.scaffolds ?? null
   const pinnedTurn = turns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
-  const chipsForUI = bestScaffolds ?? { replies: [], frames: [], starters: [], coach_help: null }
+  const chipsForUI = bestScaffolds ?? { replies: [], frames: [], starters: [] }
   clearWordsRef.current = words.clear
 
   const mic = useMicRecorder({
@@ -380,7 +383,7 @@ export default function GuidedPage({
               </button>
             </div>
           )}
-          {editingTurn && settings && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} targetLangCode={settings.target_language} nativeLangCode={settings.native_language} />}
+          {editingTurn && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
             {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
           </div>
@@ -390,8 +393,8 @@ export default function GuidedPage({
           {<ComposerHelp
             key={`${currentChatId}:${turns.at(-1)?.id}`}
             busy={sending}
-            help={turns.at(-1)?.assistant?.scaffolds.coach_help ?? null}
-            pending={sending || turns.at(-1)?.analysisState === 'pending'}
+            replies={turns.at(-1)?.assistant?.scaffolds.replies ?? []}
+            pending={['ready', 'running', 'waiting_dependencies'].includes(turns.at(-1)?.assistant?.suggestionsState ?? '')}
             errors={turns.at(-1)?.assistant?.errors ?? []}
             onUse={(text, source) => {
               inputEvidence.current = { ...inputEvidence.current, [source]: true }
@@ -428,12 +431,12 @@ export default function GuidedPage({
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" style={{ borderInlineStart: `3px solid ${['#3d9699', '#608dd7', '#9676d4', '#ad80b4', '#4ba57b'][Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 5]}` }}>
-        <ConversationHeader languages={languagePicker} summary={<><strong>Native:</strong> {nativeLanguageName} <span aria-hidden="true">→</span> <strong>Target language:</strong> {targetLanguageName}</>} onOpenSettings={() => setSettingsOpen(open => !open)} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
+        <ConversationHeader learning={learningPicker} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
           <div className="chat-heading-actions">
           <div className="chat-config" ref={settingsPanel}>
             <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
             {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
-                <div className="conversation-languages">{languagePicker}{details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />}</div>
+                <div className="conversation-languages">{nativePicker}</div>
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
                 <div className="quick-toggles" role="group" aria-label="Reading and voice options">
@@ -500,8 +503,6 @@ export default function GuidedPage({
               turn={turn}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
-              targetLangCode={(settings?.target_language ?? 'es-ES').split('-')[0]}
-              nativeLangCode={settings?.native_language ?? 'en'}
               onAskCoach={setCoachDraft}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
