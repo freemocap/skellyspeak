@@ -1,0 +1,37 @@
+/* Lightweight Markdown (coach remarks + coach thread) */
+
+.md-p { margin: 0; }
+
+.md-p + .md-p { margin-top: 6px; }
+
+/* A rabbit hole the coach offered. Reads as part of the sentence — an
+   underline and a colour, not a chip — because a paragraph of buttons is a
+   toolbar, and this is meant to be prose you can fall into. */
+
+.md-term {
+  display: inline; padding: 0; border: none; background: none;
+  font: inherit; color: var(--steel); cursor: pointer;
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.md-term:hover { color: var(--amber-deep); text-decoration-style: solid; }
+
+.md-term:focus-visible { outline: 1px solid var(--steel); outline-offset: 2px; }
+
+.md-list { margin: 4px 0; padding-left: 20px; }
+
+.md-list li { margin: 2px 0; }
+
+.md-code {
+  margin: 6px 0; padding: 8px 10px; border-radius: 6px;
+  background: var(--inset); border: 1px solid var(--line2);
+  font-family: var(--mono); font-size: 12px; line-height: 1.5;
+  overflow-x: auto; white-space: pre;
+}
+
+.md-p, .md-list { font-size: calc(14px * var(--reading-scale, 1)); }
+
+.md-p .target-text, .md-list .target-text { font-size: inherit; font-family: inherit; }
+
+.md-p .target-text .w, .md-list .target-text .w { font-family: inherit; }

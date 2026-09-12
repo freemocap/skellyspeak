@@ -1,5 +1,4 @@
 import { skillIndex } from '../../domain/skills/skill-index'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 // @vitest-environment jsdom
 import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
@@ -92,16 +91,6 @@ describe('meaning-domain profile', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Profile changed')
     expect(actions.onPractice).not.toHaveBeenCalled()
   })
-  it('keeps historical evidence distinct from current skill evidence', () => {
-    const snapshot = fixture()
-    snapshot.records = [{ ...currentRecord, catalog_version: 1, assessment: { judgments: [{ skill_id: 'preference', outcome: 'demonstrated', quotes: [currentRecord.source], rationale: 'Old rubric.' }] } }]
-    render(<SkillTreeView snapshot={snapshot} demonstration={false} {...handlers()} />)
-    expect(screen.getByText(/Previous rubric evidence/)).toBeVisible()
-    expect(screen.queryByText(currentRecord.source, { selector: 'blockquote' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByText(/Previous rubric evidence/))
-    fireEvent.click(screen.getByText(currentRecord.source))
-    expect(screen.getByText(/Needs & preferences: demonstrated/)).toBeVisible()
-  })
   it('follows application direction and preserves inspection through layout changes', async () => {
     const original = document.documentElement.dir
     try {
@@ -120,6 +109,6 @@ describe('meaning-domain profile', () => {
   })
 })
 
-function render(ui: React.ReactNode) { return testingRender(ui, { wrapper: SkillNavigationProvider }) }
+function render(ui: React.ReactNode) { return testingRender(ui) }
 
 const { nodes: skillTree, displayed: displayedTree } = skillIndex(skillDemo).catalog

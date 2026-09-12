@@ -6,7 +6,7 @@ import { useConversationDetails } from './useConversationDetails'
 import { executeAction, readWorkspace } from '../../platform/ipc/workspace'
 vi.mock('../../platform/ipc/workspace', () => ({ readWorkspace: vi.fn(), executeAction: vi.fn(), nativeError: String }))
 const settings = { difficulty: 'beginner', translation: false, speechVoice: 'voice', explanationLanguage: 'en' }
-const directory = { sessionId: 'session', conversations: [{ id: 'chat', settingsRevision: 4, settings }], partners: [], relationships: [] } as unknown as Snapshot
+const directory = { sessionId: 'session', conversations: [{ id: 'chat', settingsRevision: 4, settings }], personas: [], contacts: [] } as unknown as Snapshot
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(readWorkspace).mockResolvedValue(directory) })
 
 it('only observes on mount; saves scoped settings and waits before admitting the next send', async () => {

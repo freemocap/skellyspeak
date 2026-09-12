@@ -1,3 +1,4 @@
+import { useSkillEvidenceStore } from '../../state/skill-evidence'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ChatSummary, Settings, StoredTurn } from '../../types'
 import type { ConversationSnapshot, Snapshot } from '../../contracts'
@@ -72,7 +73,8 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
         if (next.conversationId !== currentChatId) throw new Error('Conversation snapshot scope mismatch.')
         if (next.revision !== revision) {
           setSnapshot(next)
-          window.dispatchEvent(new Event('skill-evidence-changed'))
+          // Evidence moves with the conversation; the store re-reads it.
+          useSkillEvidenceStore.getState().reload()
           setTurns(conversationTurns(next).map(t => ({ ...t, pendingText: '' })))
         }
         revision = next.revision
@@ -99,7 +101,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
       const directory = await refresh()
       const owner = directory.conversations.find(c => c.id === chatIdRef.current?.id)
       const receipt = await executeAction(directory, owner
-        ? { kind: 'createConversation', relationshipId: owner.relationshipId, title: 'Conversation' }
+        ? { kind: 'createConversation', contactId: owner.contactId, title: 'Conversation' }
         : { kind: 'startChat', languageId: target ?? 'es' })
       if (!receipt.entityId) throw new Error('No new conversation identity was returned.')
       await openChat(receipt.entityId)

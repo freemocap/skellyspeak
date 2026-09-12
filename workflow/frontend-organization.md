@@ -381,10 +381,150 @@ fixed; three claims were checked and did not hold.
 state did not disappear — it moved into `app/AppShell.tsx`, which is the layer the
 Zustand task drains. That is where the real reduction happens.
 
+## Integration with the parallel speech and contact work
+
+A second agent worked in this tree while the Zustand migration was finishing; its work
+landed on top of it. It was reviewed for alignment rather than merged blind.
+
+**What it did.** Cloud speech playback left the platform layer.
+`platform/audio/speech.ts` is playback *authority* only — 28 lines, `registerSpeechPlayback`,
+`setPlaybackAllowed`, `setVoiceVolume`, and no audio of its own — while
+`features/guided/speech-player.ts` creates, plays and releases one utterance from a
+`SpeechAudioState`. The JS-side synthesis cache, in-flight sharing and language-pair scope
+cache are gone because synthesis is a core command now (`read_speech_audio`):
+`useMessageSpeech` polls the contract and plays what comes back. The OS-voice path
+(`speakSmart`, `ttsAvailable`, `speechSupported`) is deleted with its tests, and
+`SettingsModal`'s OS-voice-only toggle went with it. Separately, the static persona list
+(`Persona`, `PersonaList`, `listPersonas`) left `platform/ipc/tauri.ts`; contacts are
+generated through one structured call, `generateContact` → `generate_contact`
+(`lib.rs:459`, registered at `lib.rs:836`).
+
+**Aligned, and checked rather than assumed**
+
+- **Layering holds.** `features → platform` is the allowed direction and the one used;
+  `platform/audio/speech.ts` imports nothing and cannot reach upward. The boundary test,
+  the import graph (0 unresolved, 0 unreachable) and the dead-code check all pass.
+- **The module-level state is the right kind.** `let active` (platform) and `let current`
+  (the player) are resource handles owned by an imperative audio subsystem that no
+  component renders. The rule is *state a component renders lives in a store*, not *no
+  module state anywhere*; no store was duplicated or bypassed by this work.
+- **Coverage moved instead of vanishing.** The deleted `speech-playback.test.ts` covered
+  lifecycle suspension, live volume, mute-by-ending and exclusivity. The same four are
+  covered for the surviving implementation in `speech-player.test.ts`, which also says in
+  a comment why it restores module state by hand.
+- **Nothing of the Zustand migration was reverted.** `AppShell` is still composition only,
+  the overlay store, the store-backed evidence and the direct store tests are intact, and
+  the suite is 75 files / 402 tests.
+- **Not a defect:** the `/** */` and `///` doc-comment split (55 against 491) predates this
+  work and is spread over 40 files. Not worth a churn pass; new code follows `///`.
+
+**Left as is, deliberately:** `speech-player.ts`'s `PlaybackHandle` is a superset of
+platform's `ActiveSpeechPlayback` and satisfies it structurally, so registration is
+type-safe without the feature importing the platform interface. If a second playback kind
+appears, promote the interface into `platform/audio/speech.ts` and import it.
+
 ## Outstanding
 
-- **Visual verification.** The dead-CSS prune and the regroup cannot be proven by the
-  test suite. Run `npm run tauri dev` and check Guided, Skill tree, Settings, the AI
-  activity panel, the mobile nav, the font-size and settings shortcuts, and one fault.
+- **Visual verification.** The dead-CSS prune, the regroup and the speech rewrite cannot be
+  proven by the test suite. Run `npm run tauri dev` and check Guided, Skill tree, Settings,
+  the AI activity panel, the mobile nav, the font-size and settings shortcuts, one fault,
+  and — since the speech rewrite — speaking a reply, changing voice speed and the voice
+  volume, and backgrounding the window mid-utterance (playback must end, not resume). The
+  persona editor and the Generate persona control have not been opened in the running app.
+- **Persona generation is not in operation tracking.** It dispatches outside the turn graph,
+  so a generation does not appear in AI activity. The design it needs is written up in the
+  decisions below; it is the first item of the next chunk of work.
+- **The generation request itself is untested.** `apply_generated_persona` covers everything
+  after a completion arrives, including both failure outcomes, but nothing drives the HTTP
+  call or a stubbed provider.
 - **Nothing is committed.** Git is read-only for agents; the change set sits in the
   working tree.
+
+## Persona and contact: current decisions
+
+Recorded after the reorg agent signed off, when the persona/contact work was completed.
+
+- **Naming is two concepts, and "partner" is gone.** A **persona** is the authored
+  personality (`PersonaDetails`: name, age, location, occupation, background, current
+  situation, interests, opinions, interesting facts, manner, quirks, vibe, avatar). It owns
+  the "persona" wording in the UI: the right-pane tab, the profile editor, the generation
+  control, and the `PersonaProfile*` components. A **contact** is the container that points
+  at one persona and owns its conversations and statistics. It owns the list-entry and
+  history wording: the drawer chooser, the conversation list, the mobile nav. A
+  case-insensitive search for `partner` or `relationship` returns nothing in
+  `src-tauri/src` or `src`. Tables are `personas` and `contacts`; the conversation
+  column is `contact_id`.
+- **One persona per contact.** `contacts.persona_id` is unique, and `DeleteContact`
+  removes the persona row, so the cascade takes the contact and its conversations with it.
+- **One schema, no upgrade path.** `schema.sql` is the whole schema at `user_version` 11.
+  The five `*-schema.sql` upgrade files and every version branch in `Store::open` are
+  deleted. An empty file is created at the current version, a file at exactly that version
+  opens, and anything else is refused with a storage error naming Factory Reset, leaving the
+  file untouched. Covered by `an_empty_workspace_opens_at_the_one_supported_version` and
+  `any_other_schema_version_is_refused_without_modifying_the_file`.
+- **Persona limits are defined once**, in `src-tauri/src/persona.rs`, and read by both
+  `persona::validate` and `persona::output_schema`. Vibe is 2–4 emoji; lists are bounded,
+  nonempty, single-line and distinct; the generation schema sets `minLength` and
+  `uniqueItems` from the same constants.
+- **Emoji recognition follows default presentation.** `emoji.rs` uses the
+  `Emoji_Presentation` Unicode property with presentation selectors and flag pairs, so
+  "↔", "▪", "⬀" and "☀" are refused while "↔️", "▪️" and "☀️" are accepted.
+- **The starter persona is authored, never generated, and cannot panic.**
+  `persona::starter` returns an error for an unknown language, and a test walks the language
+  registry to prove every registered language has one that validates. Startup therefore
+  never calls a model.
+- **Credential identifiers are recorded outside the database, before the secret
+  exists.** A factory reset must remove keychain entries even when the workspace cannot
+  be opened, and the identifiers otherwise live in `ai_config` — the table a refused
+  workspace cannot be read from. `Application::write_credential_with` appends each id to
+  `<app data>/credentials.index` *before* the keychain write, so the id is durable before
+  any secret can exist; the file holds identifiers only, never secrets, is append-only, and
+  is erased with the data directory. `factory_reset` removes the union of that index and
+  whatever an open database reports, so it is correct in both states.
+- **A refused workspace opens a window.** `setup()` no longer aborts when `Store::open`
+  fails: the reason is held on `Application` and `get_startup_state` reports it while every
+  other command returns it, so the shell is never mounted against a missing store.
+  `main.tsx` checks that command before initialising and renders the reason with a single
+  Factory Reset button. That button cannot ask for a typed confirmation, because the app
+  that would ask is the one that cannot start, so it names the action and carries the
+  consequence in its tooltip; the in-app reset keeps its typed confirmation.
+- **The reset treats the data directory as its subject and the rest as derived.** A failure
+  to clear the data directory is reported and stops the reset. A failure to clear the cache
+  or log directory is tolerated, because on Windows the running webview holds files inside
+  its cache: failing there used to return before `app.exit(0)`, so a reset that had already
+  erased the workspace reported the deletion and left the app open. Secrets and workspace
+  data still fail loudly; only derived directories are best-effort.
+- **The OS-voice option and its Settings control are removed, deliberately.** Native
+  validation pins `speech_voice` to `alloy` (`languages.rs`) and the speech provider
+  keeps its own voice allowlist, so the picker could only ever save one value and every
+  other choice failed. `tts_engine` and the per-conversation voice picker are gone; the
+  conversation's own `speechVoice` is preserved on write instead of being projected
+  through the view.
+
+- **The chat header owns the persona choice.** `PersonaPicker` shows the contact being
+  spoken with — its persona's avatar and name — lists every contact for the target
+  language, and ends with "+ New persona…". Choosing one opens that contact's most recent
+  conversation, or gives them their first. Contact selection no longer lives in the history
+  drawer, which now lists conversations for the current contact and offers New conversation.
+  The Persona tab shows the persona being talked to and nothing that could overwrite it by
+  accident; editing happens through Edit persona, which opens the existing dialog.
+- **Creating a persona is one action, and generating is none.** `generatePersona(languageId,
+  brief)` is one structured call that returns a validated `PersonaDetails` and persists
+  nothing, so a discarded proposal costs the call and nothing else. `CreateContact {
+  languageId, details }` is the single creation action: it validates, then creates the
+  persona, the contact and their first conversation. The New Persona dialog offers writing,
+  describing and Surprise me, and all three fill the same form, so review and Create are the
+  same step for each. Cancel writes nothing.
+- **The form's limits are generated, not copied.** `PERSONA_LIMITS` in `src/contracts.ts`
+  comes from `persona.rs` through `npm run contracts`, and the form's messages match the
+  store's wording, so a field that fails on blur reads the same as a create that fails on
+  the wire.
+
+**Left open: generation is not in operation tracking.** Generation supplies real, unique
+`attempt` and `operation` identities because the grouped transport keys its batch by them,
+but no row backs them, so a generation does not appear in AI activity. Doing that properly
+means letting a turn exist without a conversation: `turns.conversation_id` is `NOT NULL`,
+every operation kind must be declared in `PLAN` or `COACH_PLAN` and resolve dependencies in
+`conversation_snapshot`, and `finish` would need a generation branch plus a frontend that
+watches a turn rather than awaiting a command. That is a change to the execution model, not
+a cleanup.

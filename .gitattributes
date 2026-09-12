@@ -1,0 +1,11 @@
+# Normalize every text file to LF in the repository, independent of the
+# contributor's `core.autocrlf` setting. Without this, a Windows checkout
+# rewrites line endings on commit and multi-line edits stop matching.
+* text=auto eol=lf
+
+# Binary assets: never converted, never diffed as text.
+*.png binary
+*.jpg binary
+*.ico binary
+*.icns binary
+*.woff2 binary

@@ -7,7 +7,7 @@ use unicode_segmentation::UnicodeSegmentation;
 
 pub const BOUNDARY_POLICY: &str = "uax29-egc-17.0.0-us1.13.3-v1";
 
-pub const ANALYSIS_VERSION: &str = "partner-gloss-v1";
+pub const ANALYSIS_VERSION: &str = "persona-gloss-v1";
 pub const MAX_SOURCE_SCALARS: usize = 4096;
 pub const MAX_SPANS: usize = 512;
 pub const MAX_GLOSS_SCALARS: usize = 256;

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/tauri'
+import { SaveDataCopy } from '../../ui/SaveDataCopy'
 
 export function FactoryReset() {
   const dialog = useRef<HTMLDialogElement>(null)
@@ -14,7 +15,7 @@ export function FactoryReset() {
     catch (failure) { setError(String(failure)); setBusy(false) }
   }
   return <>
-    <button type="button" className="settings-delete-link" onClick={() => { setConfirmation(''); setError(null); dialog.current!.showModal() }}>Delete my data and close</button>
+    <button type="button" className="btn danger" onClick={() => { setConfirmation(''); setError(null); dialog.current!.showModal() }}>Delete my data and close</button>
     <dialog ref={dialog} className="factory-reset-dialog" aria-labelledby="factory-reset-title" onClick={event => {
       const rect = event.currentTarget.getBoundingClientRect()
       if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) event.currentTarget.close()
@@ -23,6 +24,8 @@ export function FactoryReset() {
       <p>This permanently removes all conversations, lesson plans, coach memory, skill evidence and progress, settings, saved API keys, sign-in credentials, logs, and layout preferences on this device.</p>
       <p><strong>This cannot be undone.</strong> Your cloud account, billing and usage records, and files exported outside the app’s storage are not deleted.</p>
       <p>The app will close. Reopen SkellySpeak to complete the reset and start with factory defaults.</p>
+      <p>Keep a copy first if you might want your conversations and progress later:</p>
+      <SaveDataCopy />
       <label htmlFor="factory-reset-confirmation">Type <strong>DELETE</strong> to confirm</label>
       <input id="factory-reset-confirmation" autoComplete="off" spellCheck={false} value={confirmation} disabled={busy} onChange={(event) => setConfirmation(event.target.value)} />
       {error && <p role="alert">{error}</p>}

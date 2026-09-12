@@ -17,7 +17,7 @@ const base = { replies, pending: false, busy: false, errors: [] }
 it('shows every saved reply and inserts only from its arrow', () => {
   const onUse = vi.fn()
   const view = render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
-  expect(view.container.querySelector('section')?.firstElementChild).toHaveAttribute('aria-label', 'Suggested replies')
+  expect(view.container.querySelector('section .help-replies')).toHaveAttribute('aria-label', 'Suggested replies')
   expect(view.container.querySelectorAll('.help-reply')).toHaveLength(2)
   fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我很好。' }))
   expect(onUse).toHaveBeenCalledWith('我很好。', 'suggestion')
@@ -51,6 +51,18 @@ it('disables only insertion during a conversation request', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} busy onUse={vi.fn()} /></ReadingProvider>)
   expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeDisabled()
   expect(screen.getByRole('button', { name: '很' })).toBeEnabled()
+})
+
+it('folds to one button that reopens the reply ideas', () => {
+  render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={vi.fn()} /></ReadingProvider>)
+  fireEvent.click(screen.getByRole('button', { name: 'Hide reply ideas' }))
+  expect(screen.queryByRole('button', { name: 'Insert reply: 我很好。' })).toBeNull()
+  const reopen = screen.getByRole('button', { name: 'Show reply ideas' })
+  expect(reopen).toHaveAttribute('aria-expanded', 'false')
+  expect(reopen).toHaveTextContent('2')
+  fireEvent.click(reopen)
+  expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Hide reply ideas' })).toHaveAttribute('aria-expanded', 'true')
 })
 
 it('renders nothing when there are no reply ideas, pending work or failures', () => {

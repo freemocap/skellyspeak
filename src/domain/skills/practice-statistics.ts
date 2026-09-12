@@ -1,4 +1,5 @@
 import type { SkillProgress, SkillSnapshot } from './skills'
+import { requireCatalogVersion } from './skills'
 import { skillDomain } from './skill-domains'
 import type { TreeNode } from './skillTree'
 
@@ -43,7 +44,8 @@ export function practiceStatistics(snapshot: SkillSnapshot) {
     const key = JSON.stringify([credit.attempt_id, credit.skill_id])
     if (!record || !seen.has(credit.skill_id) || creditKeys.has(key)) throw new Error('Invalid practice credit provenance')
     const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
-    if (record.status !== 'complete' || record.catalog_version !== snapshot.catalog_version || snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) || !record.assessment?.judgments.some(judgment => judgment.skill_id === credit.skill_id && judgment.outcome === 'demonstrated') || credit.xp !== (assisted ? 2 : 10)) throw new Error('Practice credit does not match eligible source evidence')
+    requireCatalogVersion(snapshot, record)
+    if (record.status !== 'complete' || snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) || !record.assessment?.judgments.some(judgment => judgment.skill_id === credit.skill_id && judgment.outcome === 'demonstrated') || credit.xp !== (assisted ? 2 : 10)) throw new Error('Practice credit does not match eligible source evidence')
     creditKeys.add(key)
     messages.add(JSON.stringify([record.chat_id, record.message_id]))
   }

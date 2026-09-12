@@ -1,5 +1,5 @@
 import type { TreeNode } from './skillTree'
-import type { SkillJudgment, SkillRecord, SkillSnapshot } from './skills'
+import { requireCatalogVersion, type SkillJudgment, type SkillRecord, type SkillSnapshot } from './skills'
 import { domainColors } from './skill-domains'
 
 export function createSkillCatalog(catalog: TreeNode[]) {
@@ -42,22 +42,21 @@ function buildIndex(snapshot: SkillSnapshot) {
   const skills = new Map<string, EvidenceEntry[]>()
   const entries = new Map<string, EvidenceEntry>()
   for (const record of snapshot.records) {
+    requireCatalogVersion(snapshot, record)
     const key = JSON.stringify([record.chat_id, record.message_id])
     const records = messages.get(key) ?? []
     records.push(record)
     messages.set(key, records)
     for (const judgment of record.assessment?.judgments ?? []) {
-      const state = record.catalog_version !== snapshot.catalog_version ? 'historical' : excluded.has(record.attempt_id) ? 'excluded' : record.status
+      const state = excluded.has(record.attempt_id) ? 'excluded' : record.status
       const entry = { record, judgment, state, xp: state === 'complete' ? credits.get(`${record.attempt_id}:${judgment.skill_id}`) ?? 0 : 0 }
       entries.set(`${record.attempt_id}:${judgment.skill_id}`, entry)
-      if (record.catalog_version === snapshot.catalog_version) {
-        const items = skills.get(judgment.skill_id) ?? []
-        items.push(entry)
-        skills.set(judgment.skill_id, items)
-      }
+      const items = skills.get(judgment.skill_id) ?? []
+      items.push(entry)
+      skills.set(judgment.skill_id, items)
     }
   }
-  return { catalog, credits, excluded, messages, skills, entries, progress: new Map(snapshot.profile.skills.map(item => [item.skill_id, item])) }
+  return { catalog, credits, excluded, messages, skills, entries }
 }
 export function skillIndex(snapshot: SkillSnapshot) {
   let index = indexes.get(snapshot)
@@ -69,16 +68,3 @@ export function evidenceForSkill(snapshot: SkillSnapshot, id: string, chatId: st
   return index.catalog.descendants(id).flatMap(skill => index.skills.get(skill) ?? []).filter(entry => (chatId === null || entry.record.chat_id === chatId) && entry.judgment.outcome !== 'not_observed').sort((a, b) => b.record.at_secs - a.record.at_secs)
 }
 
-export function practiceSuggestions(snapshot: SkillSnapshot) {
-  const index = skillIndex(snapshot)
-  const focus = index.catalog.node(snapshot.profile.active_focus)
-  const focusDomain = index.catalog.domain(focus.id).id
-  const areas = index.catalog.nodes.filter(node => node.kind === 'domain').map(domain => {
-    if (domain.id === focusDomain) return focus
-    const skills = index.catalog.children(domain.id).filter(node => node.kind === 'skill')
-    skills.sort((a, b) => index.progress.get(a.id)!.xp - index.progress.get(b.id)!.xp)
-    if (!skills.length) throw new Error(`No practice skills in ${domain.id}`)
-    return skills[0]
-  })
-  return { areas, suggested: [focus, ...areas.filter(node => node.id !== focus.id).sort((a, b) => index.progress.get(a.id)!.xp - index.progress.get(b.id)!.xp)].slice(0, 3) }
-}

@@ -39,18 +39,28 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
         return Err(limit_error(&bytes, retry_after));
     }
     if !response.status().is_success() {
+        let status = response.status().as_u16();
         let request_id = response
             .headers()
             .get("x-request-id")
             .and_then(|h| h.to_str().ok())
-            .filter(|id| id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()));
-        let message: String = match response.status().as_u16() {
-            401 => "Your hosted session expired or was refused. Sign in with Google again.".into(),
-            403 => "The hosted account does not have access to this request.".into(),
-            status => format!(
-                "Hosted service HTTP {status}. The request failed; no automatic retry was made."
-            ),
-        };
+            .filter(|id| id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()))
+            .map(str::to_owned);
+        let mut body = Vec::new();
+        let mut unread = false;
+        loop {
+            match response.chunk().await {
+                Ok(Some(chunk)) if body.len() + chunk.len() <= 65536 => {
+                    body.extend_from_slice(&chunk)
+                }
+                Ok(Some(_)) | Err(_) => {
+                    unread = true;
+                    break;
+                }
+                Ok(None) => break,
+            }
+        }
+        let message = refusal_message(status, if unread { None } else { Some(&body) });
         return Err(fault(&format!(
             "{message}{}",
             request_id
@@ -70,6 +80,37 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
         bytes.extend_from_slice(&chunk);
     }
     Ok(bytes)
+}
+
+/// What the learner reads when the hosted service refuses a request. The service
+/// answers every refusal with an authored `detail` sentence — never a secret or a
+/// submitted value — so it is shown as given: without it, a refusal reads as a bare
+/// status code and cannot be told apart from any other. `body` is `None` when the
+/// response could not be read in full.
+fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
+    match status {
+        401 => {
+            return "Your hosted session expired or was refused. Sign in with Google again.".into();
+        }
+        403 => return "The hosted account does not have access to this request.".into(),
+        _ => {}
+    }
+    let detail = body
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(bytes).ok())
+        .and_then(|value| value.get("detail")?.as_str().map(str::to_owned))
+        .map(|detail| detail.chars().take(300).collect::<String>())
+        .filter(|detail| !detail.trim().is_empty());
+    match (detail, body) {
+        (Some(detail), _) => format!(
+            "Hosted service refused the request (HTTP {status}): {detail} No automatic retry was made."
+        ),
+        (None, None) => format!(
+            "Hosted service HTTP {status}, and its explanation could not be read. No automatic retry was made."
+        ),
+        (None, Some(_)) => format!(
+            "Hosted service HTTP {status} without an explanation. No automatic retry was made."
+        ),
+    }
 }
 
 fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
@@ -578,5 +619,37 @@ mod diagnostic_tests {
         assert!(report.contains("Spending paused: true"));
         assert!(!report.contains("private-value"));
         assert!(diagnostic_report(b"{}").is_err());
+    }
+}
+
+#[cfg(test)]
+mod refusal_message_tests {
+    use super::refusal_message;
+
+    #[test]
+    fn a_refusal_shows_the_services_own_explanation() {
+        let body = br#"{"detail":"Invalid attempt identity.","code":"INVALID_REQUEST","request_id":"x","resets_at":null}"#;
+        let message = refusal_message(400, Some(body));
+        assert!(message.contains("HTTP 400"), "{message}");
+        assert!(message.contains("Invalid attempt identity."), "{message}");
+    }
+
+    #[test]
+    fn a_refusal_without_a_readable_explanation_says_so() {
+        assert!(refusal_message(400, Some(b"not json")).contains("without an explanation"));
+        assert!(refusal_message(400, Some(br#"{"detail":""}"#)).contains("without an explanation"));
+        assert!(refusal_message(502, None).contains("could not be read"));
+    }
+
+    #[test]
+    fn session_and_access_refusals_keep_their_guidance() {
+        assert!(refusal_message(401, Some(br#"{"detail":"x"}"#)).contains("Sign in with Google"));
+        assert!(refusal_message(403, None).contains("does not have access"));
+    }
+
+    #[test]
+    fn a_long_explanation_is_bounded() {
+        let body = format!(r#"{{"detail":"{}"}}"#, "a".repeat(5000));
+        assert!(refusal_message(400, Some(body.as_bytes())).len() < 500);
     }
 }

@@ -12,9 +12,9 @@ function directory(): Snapshot {
   return {
     sessionId: 'session', revision: 20,
     learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
-    partners: [], relationships: [], languages: [], languageProfiles: [],
+    personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
-      id, relationshipId: 'relationship', languageId: index ? 'fr' : 'es', title: id,
+      id, contactId: 'contact', languageId: index ? 'fr' : 'es', title: id,
       archived: false, revision: 5, settingsRevision: index + 6, lastUsed: 10 - index, createdAt: '2026-09-10',
       settings: { difficulty: 'advanced', explanationLanguage: 'en', varietyId: index ? 'fr-FR' : 'es-MX', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
@@ -79,7 +79,7 @@ describe('native settings projection', () => {
 describe('scoped native settings writes', () => {
   it('projects voice defaults and saves explicit opt-out on the captured conversation', async () => {
     const settings = await getSettings()
-    expect(settings).toMatchObject({ auto_send: true, auto_speak: true, tts_engine: 'cloud', tts_voice: 'alloy' })
+    expect(settings).toMatchObject({ auto_send: true, auto_speak: true, tts_rate: 1 })
     await saveSettings({ ...settings, auto_send: false, auto_speak: false })
     expect(commands()).toHaveLength(1)
     expect(commands()[0].action).toMatchObject({ kind: 'updateSettings', conversationId: 'a', settings: { autoSend: false, readAloud: false, speechVoice: 'alloy' } })

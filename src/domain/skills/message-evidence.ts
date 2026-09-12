@@ -1,12 +1,14 @@
 import { skillIndex } from './skill-index'
-import type { SkillSnapshot } from './skills'
+import { requireCatalogVersion, type SkillSnapshot } from './skills'
 import { domainColors } from './skill-domains'
 
 export interface MessageEvidence { skillId: string; domainId: string; label: string; xp: number; quote: string; ambiguous: boolean; rationale: string; id: string; start: number; end: number; color: string; explanation: string }
 export function messageEvidence(snapshot: SkillSnapshot | null, chatId: string | null, messageId: number, source: string): MessageEvidence[] {
   if (!snapshot || !chatId) return []
   const index = skillIndex(snapshot)
-  return (index.messages.get(JSON.stringify([chatId, messageId])) ?? []).filter(record => record.chat_id === chatId && record.message_id === messageId && record.source === source && record.status === 'complete' && record.catalog_version === snapshot.catalog_version && !index.excluded.has(record.attempt_id)).flatMap(record => record.assessment!.judgments.flatMap(judgment => {
+  const records = (index.messages.get(JSON.stringify([chatId, messageId])) ?? []).filter(record => record.chat_id === chatId && record.message_id === messageId && record.source === source && record.status === 'complete' && !index.excluded.has(record.attempt_id))
+  for (const record of records) requireCatalogVersion(snapshot, record)
+  return records.flatMap(record => record.assessment!.judgments.flatMap(judgment => {
     const xp = index.credits.get(`${record.attempt_id}:${judgment.skill_id}`)
     if (!xp || xp <= 0) return []
     const node = index.catalog.node(judgment.skill_id)

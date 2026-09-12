@@ -3,23 +3,20 @@ import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../../types'
-import {
-  getSettings,
-  logInfo,
-  saveSettings,
-  languages,
-} from '../../platform/ipc/tauri'
+import { logInfo, languages } from '../../platform/ipc/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../../domain/input/keyboard'
 import { DialectField } from './DialectField'
 import { t, tOr, uiLangFromNative, type UiLang } from '../../domain/language/i18n'
-import { speechSupported } from '../../platform/audio/speech'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { openOverlay } from '../../domain/input/back'
+import { useSettingsStore } from '../../state/settings'
+import { languageLabel } from '../../domain/language/language-label'
 import { appVersion as loadAppVersion, openDownloads } from '../../platform/updater'
 
 import { SettingsAccess } from './SettingsAccess'
 import { FactoryReset } from './FactoryReset'
+import { SaveDataCopy } from '../../ui/SaveDataCopy'
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
@@ -28,7 +25,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading'
+type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'data'
 
 function SaveStatus({ state }: { state: SaveState }) {
   if (state === 'error')
@@ -121,6 +118,7 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
     icon: '⬆',
     descKey: 'settings.desc.updates',
   },
+  { id: 'data', labelKey: 'Your data', icon: '💾', descKey: 'Save a copy, or delete everything and start over' },
 ]
 
 const SECTION_LABEL_KEY: Record<SectionId, string> = Object.fromEntries(
@@ -145,31 +143,12 @@ const SHORTCUT_ROWS: { action: ShortcutAction; label: string }[] = [
   { action: 'settings', label: 'Open settings' },
 ]
 
-const TTS_VOICES = [
-  'alloy',
-  'ash',
-  'ballad',
-  'coral',
-  'echo',
-  'fable',
-  'nova',
-  'onyx',
-  'sage',
-  'shimmer',
-  'verse',
-]
-
 export function SettingsModal({
   onClose: closeModal,
-  onSettingsChanged,
   onBusyChange,
 }: {
   onClose: () => void
   onBusyChange?: (busy: boolean) => void
-  /// Called after every successful autosave so the rest of the app can pick
-  /// the new settings up. It does NOT mean "the user is finished" — this fires
-  /// mid-edit, so nothing hung off it may close the modal.
-  onSettingsChanged: (s: Settings) => void
 }) {
   const [settings, setSettings] = useState<Settings | null>(null)
   useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
@@ -194,21 +173,22 @@ export function SettingsModal({
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
-  // Android's WebView ships no speechSynthesis — offer the OS voice only where
-  // it can actually work, rather than letting it be picked and do nothing.
-  const osVoiceAvailable = speechSupported()
   // The app's UI language follows the learner's NATIVE language.
   const ui = uiLangFromNative(settings?.native_language)
 
   useEffect(() => {
     logInfo('[settings] modal opened')
-    void getSettings()
-      .then((s) => {
+    // The store owns the record; this is a re-read so the draft starts from what
+    // Rust holds right now. It does not count as a settings change.
+    void useSettingsStore.getState().load()
+      .then(() => {
+        const s = useSettingsStore.getState().settings
+        if (!s) throw new Error('Settings are still loading.')
         setSettings(s)
         setPersisted(s)
         logInfo('[settings] loaded')
       })
-      .catch((e) => {
+      .catch((e: unknown) => {
         reportFault('Loading settings', e)
         setLoadError(String(e instanceof Error ? e.message : e))
         setSettings(null)
@@ -216,10 +196,13 @@ export function SettingsModal({
   }, [])
   useEffect(() => { void loadAppVersion().then(setAppVersion).catch(error => reportFault('Loading application version', error)) }, [])
 
+  // AI access writes its own commands, so it re-reads through the store. That is
+  // a real change to the record, hence `refresh` rather than `reload`.
   const refreshFromBackend = useCallback(async () => {
-    const fresh = await getSettings()
-    setSettings(fresh); setPersisted(fresh); onSettingsChanged(fresh)
-  }, [onSettingsChanged])
+    await useSettingsStore.getState().refresh()
+    const fresh = useSettingsStore.getState().settings
+    if (fresh) { setSettings(fresh); setPersisted(fresh) }
+  }, [])
 
   // ── Autosave ────────────────────────────────────────────────────────────
   // Supported preference edits save after a short pause; access owns its own writes.
@@ -234,9 +217,10 @@ export function SettingsModal({
       logInfo('[settings] autosaving')
       Promise.resolve().then(async () => {
         if (!persisted) throw new Error('Settings are still loading.')
-        await saveSettings(settings, persisted)
+        // The store writes and adopts the result, so every reader of the record
+        // sees it without the modal having to announce the change.
+        return useSettingsStore.getState().save(settings, persisted)
       })
-        .then(() => getSettings())
         .then((fresh) => {
           setSettings(current => {
             if (!current) return fresh
@@ -248,7 +232,6 @@ export function SettingsModal({
           })
           setPersisted(fresh)
           setSaveState('saved')
-          onSettingsChanged(fresh)
         })
         .catch((e) => {
           // Preserve the draft on failure and report it in the shared fault bar.
@@ -257,7 +240,7 @@ export function SettingsModal({
         })
     }, AUTOSAVE_DEBOUNCE_MS)
     return () => clearTimeout(timer)
-  }, [settings, dirty, saveState, onSettingsChanged])
+  }, [settings, dirty, saveState])
 
   const onClose = useCallback(() => {
     if (accessBusy || dirty || saveState === 'saving') return
@@ -328,7 +311,7 @@ export function SettingsModal({
           >
             {languages().map((l) => (
               <option key={l.code} value={l.code}>
-                {l.endonym}
+                {languageLabel(l)}
               </option>
             ))}
           </select>
@@ -365,7 +348,7 @@ export function SettingsModal({
           >
             {languages().map((l) => (
               <option key={l.base} value={l.base}>
-                {l.endonym}
+                {languageLabel(l)}
               </option>
             ))}
           </select>
@@ -424,52 +407,6 @@ export function SettingsModal({
       section: 'voice', label: 'Voice speed', kw: 'voice speech speed rate slower faster',
       node: <div className="form-row"><label htmlFor="voice-speed">Voice speed</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
     },
-    tts_engine: {
-      section: 'voice',
-      label: L('tts_engine', 'Speech engine'),
-      kw: 'tts engine speech synthesis groq playai cloud voice os offline playback',
-      node: (
-        <div className="form-row">
-          <label>Speech engine (reads replies aloud)</label>
-          <select
-            value={settings.tts_engine}
-            onChange={(e) => setSettings({ ...settings, tts_engine: e.target.value })}
-          >
-            <option value="cloud">Cloud — gpt-audio-mini via OpenRouter (natural)</option>
-            <option value="os" disabled={!osVoiceAvailable}>
-              OS voice (offline){osVoiceAvailable ? '' : ' — not available on this platform'}
-            </option>
-          </select>
-          {!osVoiceAvailable && (
-            <p className="field-note">
-              This webview has no speech synthesis of its own (Android), so replies are
-              read aloud by the cloud engine.
-            </p>
-          )}
-        </div>
-      ),
-    },
-    tts_voice: {
-      section: 'voice',
-      label: 'Cloud voice without a persona',
-      kw: 'cloud voice actor narrator openai alloy nova',
-      node: (
-        <div className="form-row">
-          <label>Cloud voice without a persona</label>
-          <select
-            value={settings.tts_voice}
-            onChange={(e) => setSettings({ ...settings, tts_voice: e.target.value })}
-          >
-            {TTS_VOICES.map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
-          <InfoTip>Saved personas use their own stable voice. This selection applies to conversations without a persona. Persona traits guide delivery; installed OS voices are matched by language and stable identity, not age or gender.</InfoTip>
-        </div>
-      ),
-    },
     auto_speak: {
       section: 'voice',
       label: L('auto_speak', 'Auto-speak tutor replies'),
@@ -482,7 +419,7 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>Read partner replies aloud</span>
+            <span>Read persona replies aloud</span>
           </label>
         </div>
       ),
@@ -571,6 +508,18 @@ export function SettingsModal({
       kw: 'update updates upgrade version release install newer check',
       node: <div className="update-controls"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><button type="button" className="btn" onClick={() => { void openDownloads().catch(error => reportFault('Opening downloads', error)) }}>Downloads</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip></div>,
     },
+    data_copy: {
+      section: 'data',
+      label: 'Save a copy of my data',
+      kw: 'data export backup save copy download workspace conversations',
+      node: <SaveDataCopy />,
+    },
+    data_reset: {
+      section: 'data',
+      label: 'Delete my data',
+      kw: 'data delete erase factory reset wipe start over',
+      node: <FactoryReset />,
+    },
   }
   for (const sr of SHORTCUT_ROWS) {
     rows[`shortcut_${sr.action}`] = {
@@ -591,7 +540,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate'])
+  const supported = new Set(['app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
@@ -696,7 +645,6 @@ export function SettingsModal({
           <div className="modal-actions">
             <button type="button" className="settings-version" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))} title="Check for updates">v{appVersion ?? '…'}</button>
             <SaveStatus state={dirty && saveState === 'idle' ? 'pending' : saveState} />
-            <FactoryReset />
             {saveState === 'error' && <button className="btn" onClick={() => setSaveState('idle')}>Retry save</button>}
             <button type="button" className="btn settings-close" disabled={accessBusy || dirty || saveState === 'saving'} onClick={onClose}>
               Close

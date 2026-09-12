@@ -1,17 +1,15 @@
-import { invoke, getSettings } from './ipc/tauri'
+import { invoke } from './ipc/tauri'
 import type { PracticeOverview, ProfileChoices, SkillSnapshot } from '../domain/skills/skills'
 
 /// The IPC half of skill evidence. Every function here crosses the Tauri
 /// boundary; the snapshot types and credit arithmetic they speak in live in
-/// `./skills`.
+/// `domain/skills/skills`.
+///
+/// Nothing here reads settings: the caller passes the target it wants, so this
+/// layer stays a boundary rather than a second reader of another store.
 
-export async function getSkillEvidence(): Promise<SkillSnapshot> { const settings = await getSettings(); return invoke('get_skill_evidence', { target: settings.target_language }) }
-
-/// The native side announces a change through a window event; this is the only
-/// signal the UI has that evidence moved without the learner doing anything.
-export async function subscribeSkillEvidence(refresh: () => void): Promise<() => void> {
-  window.addEventListener('skill-evidence-changed', refresh)
-  return () => window.removeEventListener('skill-evidence-changed', refresh)
+export function getSkillEvidence(target: string): Promise<SkillSnapshot> {
+  return invoke('get_skill_evidence', { target })
 }
 
 export function saveSkillProfile(choices: ProfileChoices): Promise<SkillSnapshot> {

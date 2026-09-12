@@ -7,11 +7,11 @@ and production execution/UI wiring remain separate. No provider evaluation has r
 ## Source and ownership
 
 One bounded task proposes short contextual word glosses for one immutable saved
-partner message, using Standard and its captured explanation language. The complete
+persona message, using Standard and its captured explanation language. The complete
 passage supplies context. It does not assess the learner or spawn per-word work.
 
 Capture `message_id`, `target_language_id`, `explanation_language_id` and
-`analysis_version = "partner-gloss-v1"`. The immutable message ID identifies its sole
+`analysis_version = "persona-gloss-v1"`. The immutable message ID identifies its sole
 content revision. No synthetic numeric revision is added; editing/regeneration creates
 a fresh message ID. Mutable messages would require an authoritative revision and a
 new contract. Resolve language IDs and parent ownership natively during integration.
@@ -143,9 +143,9 @@ required. Result availability, deduplication and failure behavior remain explici
 | Required behavior | Additional ownership/contract work |
 | --- | --- |
 | Word reveal and selection | Consume native validated word targets without replacing them with phrases. |
-| Deep contextual detail | R2 proposes one explicit request for a saved partner-word occurrence, with separate meaning/lemma/POS/form/role/usage output. L1 detail schema remains follow-on work. |
+| Deep contextual detail | R2 proposes one explicit request for a saved persona-word occurrence, with separate meaning/lemma/POS/form/role/usage output. L1 detail schema remains follow-on work. |
 | Punctuation sentence translation | Literal punctuation does not establish sentence boundaries; review sentence anchors while preserving independent whole-message translation. |
-| Learner analysis | Preserve speaker and known assistance; do not derive skill credit from aided/partner text. |
+| Learner analysis | Preserve speaker and known assistance; do not derive skill credit from aided/persona text. |
 | Mechanics/examples/native-language contrasts | Additional structured explanations and captured explanation language, not fabricated gloss metadata. |
 | Suggestions and coach reading | Review source lifetimes/identity; suggestions insert into the current draft without sending; coach content stays private. |
 

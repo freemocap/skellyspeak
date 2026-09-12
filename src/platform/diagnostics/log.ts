@@ -5,22 +5,19 @@ import { isTauri } from '../ipc/tauri'
 type Level = 'debug' | 'info' | 'warn' | 'error'
 export interface LogEntry { ts: number; level: Level; message: string }
 const LOG_BUFFER: LogEntry[] = []
-const listeners = new Set<(entries: LogEntry[]) => void>()
 function record(level: Level, message: string) {
   LOG_BUFFER.push({ ts: Date.now(), level, message })
   if (LOG_BUFFER.length > 400) LOG_BUFFER.shift()
-  listeners.forEach(fn => queueMicrotask(() => fn(LOG_BUFFER)))
 }
 export function getLogs(): LogEntry[] { return LOG_BUFFER }
-export function subscribeLogs(fn: (entries: LogEntry[]) => void): () => void { listeners.add(fn); return () => { listeners.delete(fn) } }
-export function clearLogs(): void { LOG_BUFFER.length = 0; listeners.forEach(fn => queueMicrotask(() => fn(LOG_BUFFER))) }
+export function clearLogs(): void { LOG_BUFFER.length = 0 }
 
 type DiagnosticContext = 'application' | 'conversation' | 'speech' | 'microphone' | 'settings' | 'audio' | 'navigation' | 'other'
 type DiagnosticCode = 'ui_fault' | 'native_command_failed' | 'unhandled_error' | 'unhandled_rejection' | 'diagnostic_bridge_failed' | 'ui_event'
 type Cause = 'custom_transcription_unconfigured' | 'playback_denied' | 'playback_failed' | 'network_failure' | 'resize_observer_loop' | 'resource_load_failed' | 'type_error' | 'reference_error' | 'syntax_error' | 'abort_error' | 'unknown'
 type EventName = 'console' | 'ipc_started' | 'ipc_succeeded' | 'ipc_failed' | 'settings_opened' | 'settings_loaded' | 'settings_saving' | 'microphone_autosend' | 'microphone_empty' | 'application_mounted' | 'language_registry_loaded' | 'other'
 const nativeCodes = new Set(['validation', 'conflict', 'not_found', 'session_expired', 'storage', 'provider', 'admission_held', 'unknown_outcome', 'credential', 'internal'])
-const commands = new Set<string>(['get_update_channel', 'latest_github_release', 'read_speech_audio', 'mic_start', 'mic_wave', 'mic_cancel', 'mic_transcribe', 'factory_reset', 'get_snapshot', 'execute_command', 'get_access_settings', 'save_access_settings', 'check_access', 'get_connection', 'save_connection', 'verify_openrouter_key', 'disconnect', 'watch_conversation', 'hosted_sign_in', 'hosted_account', 'hosted_diagnostics', 'hosted_sign_out', 'cancel_sign_in', 'select_route', 'get_profile', 'get_reward_settings', 'get_playback_rate', 'save_playback_rate', 'save_reward_settings', 'get_skill_evidence', 'get_practice_overview', 'save_skill_profile', 'open_ai_window'] satisfies DiagnosticCommand[])
+const commands = new Set<string>(['get_update_channel', 'latest_github_release', 'read_speech_audio', 'mic_start', 'mic_wave', 'mic_cancel', 'mic_transcribe', 'factory_reset', 'get_startup_state', 'generate_persona', 'get_snapshot', 'execute_command', 'get_access_settings', 'save_access_settings', 'check_access', 'get_connection', 'save_connection', 'verify_openrouter_key', 'disconnect', 'watch_conversation', 'hosted_sign_in', 'hosted_account', 'hosted_diagnostics', 'hosted_sign_out', 'cancel_sign_in', 'select_route', 'get_profile', 'get_reward_settings', 'get_playback_rate', 'save_playback_rate', 'save_reward_settings', 'get_skill_evidence', 'get_practice_overview', 'save_skill_profile', 'open_ai_window'] satisfies DiagnosticCommand[])
 let bridgeFailureReported = false
 let deliveryFailures = 0
 let pendingDeliveries = 0

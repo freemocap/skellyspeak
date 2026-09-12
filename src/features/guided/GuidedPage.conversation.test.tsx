@@ -5,7 +5,6 @@ import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-li
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../contracts'
 import type { Settings } from '../../types'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
 const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {} }))
@@ -20,11 +19,6 @@ vi.mock('../../platform/ipc/tauri', () => ({
   languages: () => [{ base: 'es', endonym: 'Español' }, { base: 'en', endonym: 'English' }],
   languageFor: () => ({ endonym: 'Español' }),
 }))
-vi.mock('../../platform/audio/speech', () => ({
-  isSpeaking: () => false, loadVoices: async () => [], speechSupported: () => false,
-  ttsAvailable: () => false, stopSpeaking: vi.fn(), speakSmart: vi.fn(),
-  subscribeSpeaking: () => () => {}, subscribeSpeechProgress: () => () => {}, setPlaybackRate: vi.fn(),
-}))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
 vi.mock('./useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => null }))
@@ -34,6 +28,7 @@ vi.mock('./SkillRewards', () => ({ SkillRewards: () => null }))
 
 import GuidedPage from './GuidedPage'
 import { useConversation } from './useConversation'
+import { useSettingsStore } from '../../state/settings'
 
 const SETTINGS: Settings = {
   provider_mode: 'hosted',
@@ -60,8 +55,6 @@ const SETTINGS: Settings = {
   text_spacing: 2,
   fast_mode: true, reward_sounds: 'follow_tts',
   master_volume: 100, voice_volume: 100, effects_volume: 100,
-  tts_engine: 'cloud',
-  tts_voice: 'nova',
   tts_rate: 1,
   shortcuts: { mic: 'ctrl+m', speak: 'ctrl+l', panel: 'ctrl+b', settings: 'ctrl+,' },
 }
@@ -77,9 +70,9 @@ function directory(): Snapshot {
   return {
     sessionId: 'native-session', revision: 10,
     learner: { id: 'learner', name: '', revision: 1, preferences: { explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
-    languages: [], languageProfiles: [], partners: [], relationships: [],
+    languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
-      id, relationshipId: 'relationship', languageId: 'es', title: id, archived: false,
+      id, contactId: 'contact', languageId: 'es', title: id, archived: false,
       revision: 7 + index, settingsRevision: 1, createdAt: '2026-09-10', lastUsed: 2 - index,
       settings: { difficulty: 'beginner', explanationLanguage: 'en', varietyId: '', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
@@ -102,7 +95,7 @@ function useSubject(settings = SETTINGS) { return useConversation({ settings, re
 function commands(): Command[] {
   return ipc.invoke.mock.calls.filter(([name]) => name === 'execute_command').map(([, args]) => args.command as Command)
 }
-beforeEach(() => {
+beforeEach(async () => {
   vi.clearAllMocks()
   localStorage.clear()
   workspace = directory()
@@ -110,6 +103,9 @@ beforeEach(() => {
   submit = async command => ({ actionId: command.actionId, entityId: 'accepted', revision: 11 })
   chrome.getSettings.mockResolvedValue(SETTINGS)
   chrome.saveSettings.mockResolvedValue(undefined)
+  // The page reads settings from the store, so seed it the way startup does.
+  // Test setup resets every store between tests, so this is the first load.
+  await useSettingsStore.getState().load()
   ipc.invoke.mockImplementation((name: string, args?: { conversationId: string; afterRevision: number; command: Command }) => {
     if (name === 'get_snapshot') return Promise.resolve(workspace)
     if (name === 'watch_conversation') {
@@ -213,8 +209,8 @@ describe('native conversation ownership', () => {
   })
 })
 
-function page(settingsVersion = 0) {
-  return <SkillNavigationProvider><GuidedPage learningPicker={null} nativePicker={null} mobileSurface="chat" active settingsVersion={settingsVersion} /></SkillNavigationProvider>
+function page() {
+  return <GuidedPage learningPicker={null} nativePicker={null} mobileSurface="chat" active />
 }
 describe('native composer admission', () => {
   it.each(['Enter', 'Send'])('types into the extracted composer and submits once with %s', async (action) => {
@@ -255,12 +251,15 @@ describe('native composer admission', () => {
   })
 
   it('settings refresh and empty conversation hydration do not send an automatic greeting', async () => {
-    const view = render(page())
+    render(page())
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
     chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_translate: true, text_size: 150 })
-    view.rerender(page(1))
-    await waitFor(() => expect(chrome.getSettings).toHaveBeenCalledTimes(3))
+    // A settings write landed elsewhere: the revision moves and the page re-reads
+    // through the store rather than through a prop it was handed.
+    await act(async () => { await useSettingsStore.getState().refresh() })
+    expect(useSettingsStore.getState().revision).toBe(1)
+    expect(useSettingsStore.getState().settings?.text_size).toBe(150)
     expect(commands()).toEqual([])
     expect(chrome.saveSettings).not.toHaveBeenCalled()
   })

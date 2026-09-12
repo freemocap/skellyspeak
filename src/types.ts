@@ -41,8 +41,6 @@ export interface Settings {
   master_volume: number
   voice_volume: number
   effects_volume: number
-  tts_engine: string
-  tts_voice: string
   tts_rate: number
   shortcuts: Shortcuts
 }
@@ -65,7 +63,7 @@ export interface OpenedConversation {
 
 export type AnalysisState = 'pending' | 'done' | null
 
-export interface PartnerReaction {
+export interface PersonaReaction {
   kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned'
   interpretation: string
   explanation: string
@@ -90,7 +88,7 @@ export interface StoredTurn {
   /// pane renders.
   analysisState: AnalysisState
   coach?: import('./contracts').Feedback
-  reaction?: PartnerReaction
+  reaction?: PersonaReaction
   reactionError?: string
   coachError?: string
 }
@@ -140,7 +138,7 @@ export interface Scaffolds {
 }
 
 export interface GuidedTurnResult {
-  /// State of the reply-suggestions job for this partner message.
+  /// State of the reply-suggestions job for this persona message.
   suggestionsState?: string | null
   translationState?: string | null
   messageId?: string
@@ -255,7 +253,7 @@ export interface Usage {
 export interface RequestContext {
   chat_id: string; message_id: number | null; replaces_message_id: number | null; trigger: string
   target: string; native: string; dialect: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced' | 'fluent'
-  inferred_level_notes: string; topic: string | null; lesson_revision: number; partner: unknown; history_messages: number; history_available: number
+  inferred_level_notes: string; topic: string | null; lesson_revision: number; persona: unknown; history_messages: number; history_available: number
 }
 export interface PromptBlock { id: string; source: string; content: string }
 export interface RecordedRequest {

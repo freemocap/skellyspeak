@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 import { domainColors } from '../../domain/skills/skill-domains'
 import type { MessageEvidence } from '../../domain/skills/message-evidence'
 import { RewardDetail } from './RewardBadge'
@@ -13,7 +12,7 @@ it('shows all quotes once with one stored credit, including repeated-phrase ambi
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
   const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'statements', label: 'Identify a referent', xp: 10, quote: 'Ese café', ambiguous: true, rationale: 'Ese identifies a particular coffee.', start: 0, end: 8, color: domainColors('statements').ink, explanation: '' }
   const close = vi.fn()
-  render(<SkillNavigationProvider><RewardDetail automatic={false} interactive={true} evidence={[item, { ...item, start: 10, end: 18 }, { ...item, quote: 'aquel té', ambiguous: false }]} onClose={close} /></SkillNavigationProvider>)
+  render(<RewardDetail automatic={false} interactive={true} evidence={[item, { ...item, start: 10, end: 18 }, { ...item, quote: 'aquel té', ambiguous: false }]} onClose={close} />)
   expect(screen.getAllByText('Ese café')).toHaveLength(1)
   expect(screen.getByText('aquel té')).toBeVisible()
   expect(screen.getAllByText('10 XP')).toHaveLength(1)

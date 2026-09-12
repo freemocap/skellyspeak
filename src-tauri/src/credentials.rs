@@ -1,5 +1,58 @@
 use crate::model::{AppError, ErrorCode, Result};
+use std::collections::BTreeSet;
+use std::io::Write;
+use std::path::Path;
 use zeroize::Zeroizing;
+
+/// Credential identifiers recorded outside the database.
+///
+/// The identifiers a reset needs otherwise live in `ai_config`, which is exactly
+/// what a refused workspace cannot be read from. This file holds identifiers only,
+/// never secrets, and is append-only: an identifier that has already been removed
+/// simply resolves to no entry. Writing it happens before the secret exists, so a
+/// reset can always find every secret the keychain could hold.
+pub fn index_path(directory: &Path) -> std::path::PathBuf {
+    directory.join("credentials.index")
+}
+
+pub fn remember(index: &Path, id: &str) -> Result<()> {
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(index)
+        .map_err(|error| {
+            AppError::new(
+                ErrorCode::Storage,
+                format!("Could not record the credential index: {error}"),
+            )
+        })?;
+    writeln!(file, "{id}").map_err(|error| {
+        AppError::new(
+            ErrorCode::Storage,
+            format!("Could not record the credential index: {error}"),
+        )
+    })
+}
+
+/// Every identifier a reset must remove, whether or not the workspace opens.
+pub fn indexed(index: &Path) -> Result<BTreeSet<String>> {
+    let contents = match std::fs::read_to_string(index) {
+        Ok(contents) => contents,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(BTreeSet::new()),
+        Err(error) => {
+            return Err(AppError::new(
+                ErrorCode::Storage,
+                format!("Could not read the credential index: {error}"),
+            ));
+        }
+    };
+    Ok(contents
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(str::to_owned)
+        .collect())
+}
 
 fn unavailable() -> AppError {
     AppError::new(

@@ -1,4 +1,4 @@
-import type { SkillSnapshot } from './skills'
+import { requireCatalogVersion, type SkillSnapshot } from './skills'
 
 export interface SkillReward { id: string; messageId: number; skillId: string; domainId: string; label: string; quote: string; xp: number }
 
@@ -9,7 +9,8 @@ export function skillRewards(previous: SkillSnapshot, current: SkillSnapshot, ch
   const previousCredits = new Map(previous.profile.credits.map(credit => [`${credit.attempt_id}:${credit.skill_id}`, credit.xp]))
   const rewards: SkillReward[] = []
   for (const record of current.records) {
-    if (record.chat_id !== chatId || record.status !== 'complete' || record.replaces_message_id !== null || record.catalog_version !== current.catalog_version || current.profile.choices.excluded_attempts.includes(record.attempt_id)) continue
+    requireCatalogVersion(current, record)
+    if (record.chat_id !== chatId || record.status !== 'complete' || record.replaces_message_id !== null || current.profile.choices.excluded_attempts.includes(record.attempt_id)) continue
     for (const credit of current.profile.credits.filter(item => item.attempt_id === record.attempt_id)) {
       const increase = Math.max(0, credit.xp - (previousCredits.get(`${credit.attempt_id}:${credit.skill_id}`) ?? 0))
       const xp = Math.min(increase, remaining.get(credit.skill_id) ?? 0)

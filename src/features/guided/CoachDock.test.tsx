@@ -57,14 +57,8 @@ it('resizes upward by dragging the divider and persists the result', () => {
   vi.unstubAllGlobals()
 })
 
-it('gives a legacy small expanded dock a usable minimum', () => {
-  localStorage.setItem('skellyspeak_coach_layout', JSON.stringify({ height: 88, collapsed: false }))
-  mount()
-  expect(screen.getByLabelText('Coach panel')).toHaveStyle({ height: '160px' })
-})
-
 it('dialog presentation stays expanded without reading or overwriting dock preferences', () => {
-  const stored = JSON.stringify({ height: 88, collapsed: true })
+  const stored = JSON.stringify({ height: 160, collapsed: true })
   localStorage.setItem('skellyspeak_coach_layout', stored)
   const view = render(<CoachDock presentation="dialog" actions={<button>Clear thread</button>}><div className="lesson-thread">Messages</div><textarea aria-label="Message your coach" /></CoachDock>)
   expect(screen.getByLabelText('Coach panel')).toHaveClass('is-dialog')

@@ -2,14 +2,6 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct AvatarRecipe {
-    pub seed: u32,
-    pub hue: u16,
-    pub lobes: u8,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Difficulty {
     AbsoluteZero,
@@ -93,6 +85,13 @@ pub enum OnboardingStatus {
     Skipped,
     Completed,
 }
+/// Reading size, in percent. Rust owns these; the frontend reads them from the
+/// generated contracts.
+pub const TEXT_SIZE_DEFAULT: u16 = 85;
+pub const TEXT_SIZE_MIN: u16 = 75;
+pub const TEXT_SIZE_MAX: u16 = 150;
+pub const TEXT_SIZE_STEP: u16 = 5;
+
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Preferences {
@@ -120,28 +119,41 @@ pub struct LanguageProfile {
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct PartnerDetails {
+pub struct PersonaDetails {
     pub name: String,
+    /// The name in Latin letters, present exactly when the persona's language has
+    /// a romanization system.
+    pub romanized_name: Option<String>,
+    /// Left blank until someone chooses one.
+    pub age: Option<u8>,
+    pub location: String,
+    pub occupation: String,
     pub background: String,
-    pub tendencies: String,
+    pub current_situation: String,
+    pub interests: Vec<String>,
+    pub opinions: Vec<String>,
+    pub interesting_facts: Vec<String>,
+    pub favorite_books: Vec<String>,
+    pub favorite_movies: Vec<String>,
+    pub manner: String,
+    pub quirks: Vec<String>,
     pub vibe: Vec<String>,
-    pub avatar: AvatarRecipe,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct Partner {
+pub struct Persona {
     pub id: String,
     pub learner_id: String,
     pub language_id: String,
     pub revision: i32,
-    pub details: PartnerDetails,
+    pub details: PersonaDetails,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct Relationship {
+pub struct Contact {
     pub id: String,
     pub learner_id: String,
-    pub partner_id: String,
+    pub persona_id: String,
     pub archived: bool,
     pub revision: i32,
 }
@@ -149,7 +161,7 @@ pub struct Relationship {
 #[serde(rename_all = "camelCase")]
 pub struct Conversation {
     pub id: String,
-    pub relationship_id: String,
+    pub contact_id: String,
     pub language_id: String,
     pub title: String,
     pub archived: bool,
@@ -185,8 +197,8 @@ pub struct Snapshot {
     pub learner: Learner,
     pub languages: Vec<Language>,
     pub language_profiles: Vec<LanguageProfile>,
-    pub partners: Vec<Partner>,
-    pub relationships: Vec<Relationship>,
+    pub personas: Vec<Persona>,
+    pub contacts: Vec<Contact>,
     pub conversations: Vec<Conversation>,
 }
 
@@ -232,25 +244,26 @@ pub enum Action {
         hold_id: String,
         expected_generation: String,
     },
-    CreatePartner {
+    CreateContact {
         language_id: String,
+        details: PersonaDetails,
     },
-    UpdatePartner {
-        partner_id: String,
+    UpdatePersona {
+        persona_id: String,
         expected_revision: i32,
-        details: PartnerDetails,
+        details: PersonaDetails,
     },
-    SetRelationshipArchived {
-        relationship_id: String,
+    SetContactArchived {
+        contact_id: String,
         expected_revision: i32,
         archived: bool,
     },
-    DeletePartner {
-        partner_id: String,
+    DeleteContact {
+        contact_id: String,
         expected_revision: i32,
     },
     CreateConversation {
-        relationship_id: String,
+        contact_id: String,
         title: String,
     },
     OpenConversation {
@@ -375,6 +388,35 @@ pub struct RecordingStarted {
     pub samples_per_second: f64,
 }
 
+/// What the window needs before it can mount: whether the workspace opened, and
+/// whether a cleanup an earlier reset recorded still could not be finished.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct StartupState {
+    /// Set when the workspace could not be opened, so the shell cannot mount.
+    pub refusal: Option<AppError>,
+    /// Set when directories a previous reset recorded still could not be cleared.
+    /// The app is usable; that leftover data is not cleared.
+    pub cleanup: Option<AppError>,
+}
+
+/// The limits the persona editor validates against, generated so the frontend
+/// cannot drift from the rules the store enforces.
+fn persona_limits() -> String {
+    use crate::persona::*;
+    format!(
+        "export const PERSONA_LIMITS = {{ nameMax: {NAME_MAX}, ageMin: {AGE_MIN}, ageMax: {AGE_MAX}, locationMax: {LOCATION_MAX}, occupationMax: {OCCUPATION_MAX}, backgroundMax: {BACKGROUND_MAX}, currentSituationMax: {CURRENT_SITUATION_MAX}, mannerMax: {MANNER_MAX}, itemMax: {ITEM_MAX}, interestsMax: {INTERESTS_MAX}, opinionsMax: {OPINIONS_MAX}, factsMax: {FACTS_MAX}, booksMax: {BOOKS_MAX}, moviesMax: {MOVIES_MAX}, quirksMax: {QUIRKS_MAX}, vibeMin: {VIBE_MIN}, vibeMax: {VIBE_MAX}, briefMax: {BRIEF_MAX} }} as const"
+    )
+}
+
+/// The reading-size range and default, generated so the shortcut, the reset and
+/// the store agree.
+fn text_size_limits() -> String {
+    format!(
+        "export const TEXT_SIZE = {{ default: {TEXT_SIZE_DEFAULT}, min: {TEXT_SIZE_MIN}, max: {TEXT_SIZE_MAX}, step: {TEXT_SIZE_STEP} }} as const"
+    )
+}
+
 pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
@@ -402,7 +444,6 @@ pub fn bindings() -> String {
         AttemptView::decl(&config),
         TurnView::decl(&config),
         ConversationSnapshot::decl(&config),
-        AvatarRecipe::decl(&config),
         Difficulty::decl(&config),
         HelpAmount::decl(&config),
         CoachProactivity::decl(&config),
@@ -413,13 +454,14 @@ pub fn bindings() -> String {
         Preferences::decl(&config),
         Learner::decl(&config),
         LanguageProfile::decl(&config),
-        PartnerDetails::decl(&config),
-        Partner::decl(&config),
-        Relationship::decl(&config),
+        PersonaDetails::decl(&config),
+        Persona::decl(&config),
+        Contact::decl(&config),
         Conversation::decl(&config),
         Variety::decl(&config),
         Language::decl(&config),
         Snapshot::decl(&config),
+        StartupState::decl(&config),
         Action::decl(&config),
         Command::decl(&config),
         Receipt::decl(&config),
@@ -431,8 +473,10 @@ pub fn bindings() -> String {
         AppError::decl(&config),
     ];
     format!(
-        "// Generated from Rust contracts. Run npm run contracts.\n{}\n",
-        declarations.map(|line| format!("export {line}")).join("\n")
+        "// Generated from Rust contracts. Run npm run contracts.\n{}\n{}\n{}\n",
+        declarations.map(|line| format!("export {line}")).join("\n"),
+        persona_limits(),
+        text_size_limits()
     )
 }
 
@@ -639,7 +683,7 @@ pub struct UsageSummary {
     pub label: String,
     pub conversations: i32,
     pub learner_messages: i32,
-    pub partner_messages: i32,
+    pub persona_messages: i32,
     pub attempts: i32,
     pub input_tokens: i32,
     pub output_tokens: i32,
@@ -651,7 +695,7 @@ pub struct ProfileSnapshot {
     pub revision: i32,
     pub global: UsageSummary,
     pub languages: Vec<UsageSummary>,
-    pub partners: Vec<UsageSummary>,
+    pub personas: Vec<UsageSummary>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq, Default)]

@@ -7,8 +7,12 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@2.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@3.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@3.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@4.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@5.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@5.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellyspeak-api@6.iml" filepath="$PROJECT_DIR$/.idea/skellyspeak-api@6.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs.iml" filepath="$PROJECT_DIR$/.idea/skellysubs.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs@1.iml" filepath="$PROJECT_DIR$/.idea/skellysubs@1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs@2.iml" filepath="$PROJECT_DIR$/.idea/skellysubs@2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/skellysubs@3.iml" filepath="$PROJECT_DIR$/.idea/skellysubs@3.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,100 @@
+.persona-profile { padding: 4px 2px; color: var(--ink-d); }
+
+.persona-profile fieldset { border: 0; padding: 0; margin: 6px 0 0; min-width: 0; }
+
+.persona-profile .field { width: 100%; min-width: 0; resize: vertical; border: 1px solid var(--line2); border-radius: 8px; padding: 5px 8px; background: var(--chrome2); color: var(--ink-d); font: 13.5px/1.4 var(--sans); }
+
+/* The header's persona control: one compact control that opens the contact list. */
+
+.persona-picker { position: relative; display: inline-flex; min-width: 0; }
+
+.persona-picker-toggle { display: inline-flex; align-items: center; gap: 6px; max-width: 170px; cursor: pointer; }
+
+.persona-picker-toggle > span:not([aria-hidden]) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.persona-picker-menu { position: absolute; top: calc(100% + 4px); inset-inline-start: 0; z-index: 30; display: flex; flex-direction: column; min-width: 190px; padding: 4px; border: 1px solid var(--line2); border-radius: 8px; background: var(--chrome2); box-shadow: 0 8px 24px rgb(0 0 0 / 25%); }
+
+.persona-picker-item { display: flex; align-items: center; gap: 6px; width: 100%; padding: 5px 6px; border: 0; border-radius: 6px; background: none; color: var(--ink-d); font: inherit; text-align: start; cursor: pointer; }
+
+.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--inset); }
+
+.persona-picker-item[aria-checked="true"] { color: var(--steel); }
+
+.persona-avatar { flex: none; display: inline-block; width: 1.25em; text-align: center; line-height: 1; }
+
+.persona-tab-actions { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
+
+.persona-generate { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 6px; }
+
+.persona-generate .field { flex: 1 1 240px; min-width: 0; }
+
+.persona-identity { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); column-gap: 8px; }
+
+.persona-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.persona-group > legend { margin-bottom: 4px; font: 600 11.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint-d); }
+
+.persona-field-hint { font-style: normal; font-size: 11px; color: var(--faint-d); }
+
+.persona-vibe-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 8px; border: 1px solid var(--line2); border-radius: 999px; font-size: 16px; line-height: 1.4; }
+
+.persona-vibe-chip button { border: 0; background: none; color: var(--faint-d); cursor: pointer; padding: 2px 4px; font-size: 11px; }
+
+.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--ink-d); }
+
+.persona-inline-error { margin: 4px 0 0; font-size: 11.5px; color: var(--steel); }
+
+/* Persona control panel — the list on the left, one character on the right.
+   Wider than the settings modal because the sketch is the point: it is what
+   gets sent to the model verbatim, so it has to be readable and editable
+   without a scrollbar for anything under a paragraph. */
+
+.persona-field { display: block; margin-bottom: 6px; }
+
+.persona-field > span {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--mut-d); margin-bottom: 5px;
+}
+
+.persona-hint { margin: 0; font-size: 11.5px; line-height: 1.45; color: var(--faint-d); }
+
+.persona-reaction {
+  position: absolute;
+  top: -17px;
+  inset-inline-start: 9px;
+  min-width: 32px;
+  height: 28px;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.persona-reaction.is-confused { border-color: #ba790d; box-shadow: 0 0 0 1px #ba790d33; }
+
+.persona-reaction:focus-visible { outline: 2px solid #718eea; outline-offset: 3px; }
+
+.reaction-details { max-width: 560px; overflow-wrap: anywhere; }
+
+.reaction-details h3 { font-size: 13px; margin: 20px 0 6px; }
+
+.reaction-details blockquote { margin: 0; padding: 9px 12px; border-inline-start: 2px solid #839bd1; }
+
+.reaction-details p { line-height: 1.55; }
+
+.reaction-exchange { display: flex; flex-direction: column; gap: 14px; padding: 14px 0 2px; }
+
+.reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: 5px; }
+
+.reaction-excerpt > span { font-size: 11px; color: var(--dim); }
+
+.reaction-excerpt.learner { align-self: flex-end; align-items: flex-end; }
+
+.reaction-excerpt.persona { align-self: flex-start; align-items: flex-start; }
+
+.reaction-excerpt .msg { margin: 0; max-width: 100%; min-width: 0; padding: 9px 12px; font-size: 16px; line-height: 1.45; font-family: var(--serif); }

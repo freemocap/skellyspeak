@@ -157,7 +157,7 @@ mod tests {
     use super::*;
     fn setup() -> (Connection, ResolvedTarget) {
         let db = Connection::open_in_memory().unwrap();
-        db.execute_batch(include_str!("holds-schema.sql")).unwrap();
+        db.execute_batch(include_str!("schema.sql")).unwrap();
         let target = ResolvedTarget {
             route: ConnectionRoute::Openrouter,
             revision: 1,

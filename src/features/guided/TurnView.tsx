@@ -11,7 +11,7 @@ import { PracticeContext } from './PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../domain/skills/message-evidence'
 import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
-import { PartnerReaction } from './PartnerReaction'
+import { PersonaReaction } from './PersonaReaction'
 import type { GuidedToken, GuidedTurnResult } from '../../types'
 import type { Feedback } from '../../contracts'
 import { popupAnchor, type PopupState } from './GlossPopup'
@@ -31,7 +31,7 @@ export interface TurnShape {
   pendingText: string
   coach?: Feedback
   coachError?: string
-  reaction?: import('../../types').PartnerReaction
+  reaction?: import('../../types').PersonaReaction
   reactionError?: string
 }
 
@@ -110,7 +110,7 @@ export const TurnView = memo(function TurnView({
     inspection.open(items, turn.id, turn.user ?? '')
   }
   const [showUserTranslation, setShowUserTranslation] = useState(false)
-  const [showPartnerTranslation, setShowPartnerTranslation] = useState(false)
+  const [showPersonaTranslation, setShowPersonaTranslation] = useState(false)
   const creditMarkers = (items: MessageEvidence[]) => [...new Map(items.map(item => [item.id, item])).values()].map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => setRewardDetail([item])} />)
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
@@ -303,12 +303,12 @@ export const TurnView = memo(function TurnView({
           ) : (
             <TargetText text={assistant.reply} />
           )}
-          {turn.user && <PartnerReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={onEditUser ? () => onEditUser(turn) : undefined} />}
+          {turn.user && <PersonaReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={onEditUser ? () => onEditUser(turn) : undefined} />}
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate partner message" aria-expanded={showPartnerTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPartnerTranslation(!(showPartnerTranslation)) }}>Translate</button>}
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate persona message" aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>Translate</button>}
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
           </div>
-          {(showPartnerTranslation) && assistant.translation && (
+          {(showPersonaTranslation) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
           {['ready', 'running', 'waiting_dependencies'].includes(assistant.translationState ?? '') &&

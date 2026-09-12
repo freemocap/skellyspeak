@@ -1,0 +1,317 @@
+/* ============================================================================
+   Design tokens — the single source of truth for colour, type, space, radius,
+   elevation, motion and layering.
+
+   Rules of the house:
+     1. Components never contain a literal colour, size, radius or duration.
+        They reference a semantic token from this file.
+     2. Primitives (the --c-* ramp) are an implementation detail of this file.
+        Nothing outside this file may reference them.
+     3. Semantic tokens are named for the ROLE they play, not the value they
+        hold, so a value can change without touching a component.
+     4. SkellySpeak is two-toned, not themed. --shell-* is the dark navy chrome
+        and --paper-* is the light conversation canvas; both are on screen at
+        once. A token that reads on one is not automatically valid on the
+        other, which is why every feedback role carries both variants.
+
+   Order: palette -> semantic roles -> scales -> runtime contracts -> legacy.
+   The legacy aliases at the bottom exist only so unmigrated rules keep
+   resolving. New and edited rules must use the semantic names above them.
+   ========================================================================= */
+
+:root {
+  /* ── Palette primitives ──────────────────────────────────────────────────
+     Raw values. Never referenced from a component rule. */
+
+  /* Navy ramp — the dark shell. */
+  --c-navy-950: #080d15;
+  --c-navy-900: #0c1420;
+  --c-navy-880: #0c151f;
+  --c-navy-850: #132133;
+  --c-navy-800: #14202e;
+  --c-navy-780: #17212d;
+  --c-navy-750: #142334;
+  --c-navy-700: #1a2838;
+  --c-navy-650: #1d2b3b;
+  --c-navy-620: #233a56;
+  --c-navy-600: #26374a;
+  --c-navy-550: #303c49;
+  --c-navy-500: #394859;
+  --c-navy-450: #405469;
+  --c-navy-400: #38506a;
+  --c-navy-300: #617184;
+  --c-navy-250: #839bd1;
+
+  /* Paper ramp — the light conversation canvas. */
+  --c-paper-50: #ffffff;
+  --c-paper-80: #fffdf7;
+  --c-paper-100: #f3f1ea;
+  --c-paper-150: #eeebe1;
+  --c-paper-300: #e0ddd2;
+  --c-paper-400: #d8d3c4;
+
+  /* Ink ramp — text and marks. */
+  --c-ink-900: #1d242e;
+  --c-ink-600: #505d6e;
+  --c-ink-500: #6b7889;
+  --c-ink-300: #9bacc2;
+  --c-ink-200: #b0bfd2;
+  --c-ink-50: #e8eef7;
+  --c-ink-0: #f4f6f8;
+
+  /* Blue ramp — the accent. */
+  --c-blue-100: #e9f1ff;
+  --c-blue-150: #e6ecfa;
+  --c-blue-200: #d3e3fa;
+  --c-blue-300: #b8d2ff;
+  --c-blue-400: #9ac3ff;
+  --c-blue-500: #6f9bff;
+  --c-blue-600: #3c78b5;
+  --c-blue-650: #315fdf;
+  --c-blue-700: #294f84;
+  --c-blue-800: #17446f;
+
+  /* Green ramp — success, and the partner's voice. */
+  --c-green-100: #f3f7f1;
+  --c-green-200: #e3eee0;
+  --c-green-300: #c5dcc0;
+  --c-green-400: #a6b9aa;
+  --c-green-500: #58c98b;
+  --c-green-700: #315943;
+  --c-green-800: #224f34;
+  --c-green-900: #243a2b;
+
+  /* Red ramp — failure and destructive actions. */
+  --c-red-150: #fbeaea;
+  --c-red-200: #ffd7d7;
+  --c-red-300: #e8c9c9;
+  --c-red-400: #e06c6c;
+  --c-red-500: #d84a4a;
+  --c-red-600: #bd3038;
+  --c-red-700: #a2262d;
+  --c-red-800: #8b3422;
+  --c-red-850: #7a3535;
+  --c-red-900: #3a1a1a;
+
+  /* Amber ramp — attention and earned rewards. */
+  --c-amber-100: #fff0e8;
+  --c-amber-200: #f5ca7c;
+  --c-amber-300: #e6b357;
+  --c-amber-400: #daa693;
+  --c-amber-500: #c78a2f;
+  --c-amber-700: #ba790d;
+
+  /* ── Shell surfaces (dark chrome) ─────────────────────────────────────── */
+  --shell-bg: var(--c-navy-900);
+  --shell-chrome: var(--c-navy-800);
+  --shell-raised: var(--c-navy-700);
+  --shell-sunken: var(--c-navy-880);
+  --shell-well: var(--c-navy-850);
+  --shell-overlay: var(--c-navy-780);
+  --shell-scrim: rgb(5 9 15 / 72%);
+
+  /* ── Shell lines ──────────────────────────────────────────────────────── */
+  --shell-line: var(--c-navy-600);
+  --shell-line-strong: var(--c-navy-400);
+  --shell-line-soft: rgb(255 255 255 / 8%);
+
+  /* ── Shell text ───────────────────────────────────────────────────────── */
+  --shell-text: var(--c-ink-50);
+  --shell-text-muted: var(--c-ink-200);
+  --shell-text-faint: var(--c-ink-300);
+  --shell-text-strong: var(--c-ink-0);
+
+  /* ── Paper surfaces (light canvas) ────────────────────────────────────── */
+  --paper-bg: var(--c-paper-100);
+  --paper-raised: var(--c-paper-50);
+  --paper-sunken: var(--c-paper-150);
+  --paper-line: var(--c-paper-300);
+  --paper-line-strong: var(--c-paper-400);
+
+  /* ── Paper text ───────────────────────────────────────────────────────── */
+  --paper-ink: var(--c-ink-900);
+  --paper-ink-muted: var(--c-ink-600);
+  --paper-ink-faint: var(--c-ink-500);
+
+  /* ── Conversation bubbles ─────────────────────────────────────────────── */
+  --bubble-partner-bg: var(--c-paper-80);
+  --bubble-partner-line: #75816e;
+  --bubble-partner-line-focus: #53634a;
+  --bubble-learner-bg: var(--c-blue-200);
+  --bubble-learner-line: #6286b9;
+  --bubble-learner-ink: #213e68;
+
+  /* ── Accent ───────────────────────────────────────────────────────────── */
+  --accent: var(--c-blue-500);
+  --accent-strong: var(--c-blue-650);
+  --accent-ink: var(--c-blue-800);
+  --accent-soft: var(--c-blue-100);
+  --accent-line: #7fa3ce;
+  --accent-dim: rgb(111 155 255 / 15%);
+  --accent-on-accent: var(--c-paper-50);
+
+  /* ── Feedback: danger ─────────────────────────────────────────────────── */
+  --danger: var(--c-red-400);
+  --danger-line: rgb(224 108 108 / 45%);
+  --danger-ink: var(--c-red-800);
+  --danger-soft: var(--c-red-150);
+  --danger-edge: var(--c-amber-400);
+  --danger-fill: var(--c-red-600);
+  --danger-fill-hover: var(--c-red-700);
+  --danger-bar-bg: var(--c-red-900);
+  --danger-bar-line: var(--c-red-850);
+  --danger-bar-ink: var(--c-red-200);
+
+  /* ── Feedback: success ────────────────────────────────────────────────── */
+  --success: var(--c-green-500);
+  --success-ink: var(--c-green-800);
+  --success-soft: var(--c-green-200);
+  --success-edge: var(--c-green-400);
+  --success-surface: var(--c-green-100);
+  --success-line: var(--c-green-300);
+  --success-deep: var(--c-green-700);
+  --success-deepest: var(--c-green-900);
+
+  /* ── Feedback: warning ────────────────────────────────────────────────── */
+  --warning: var(--c-amber-300);
+  --warning-strong: var(--c-amber-500);
+  --warning-ink: var(--c-amber-700);
+  --warning-soft: var(--c-amber-100);
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --font-sans: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
+
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+  --text-2xl: 18px;
+  --text-3xl: 21px;
+  --text-4xl: 24px;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+  --leading-loose: 1.8;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-caps: 0.14em;
+
+  /* ── Space scale (4px base; 2px half steps for compact controls) ──────── */
+  --space-0: 0;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 10px;
+  --space-6: 12px;
+  --space-7: 16px;
+  --space-8: 20px;
+  --space-9: 24px;
+  --space-10: 32px;
+  --space-11: 40px;
+
+  /* ── Radius scale ─────────────────────────────────────────────────────── */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  /* ── Control metrics ──────────────────────────────────────────────────── */
+  --control-height-sm: 26px;
+  --control-height: 32px;
+  --control-height-lg: 40px;
+  --touch-target: 44px;
+  --focus-width: 2px;
+
+  /* ── Elevation ────────────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgb(29 36 46 / 12%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 25%);
+  --shadow-lg: 0 12px 35px rgb(0 0 0 / 40%);
+  --shadow-pop: 0 5px 18px rgb(0 0 0 / 13%);
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --dur-instant: 80ms;
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-deliberate: 800ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Layering ─────────────────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 5;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --z-fault: 100;
+  --z-dev-window: 1090;
+  --z-dev-overlay: 1100;
+
+  /* ══ Runtime contracts ═══════════════════════════════════════════════════
+     These are written from TypeScript and must never be authored here as a
+     component value. They are declared so the contract is documented in one
+     place and so every consumer has a default without repeating a fallback.
+
+       --reading-scale   text_size / 100          src/ui/TargetText.tsx
+       --script-scale    language fontScale       src/ui/TargetText.tsx
+       --word-spacing    spacing between words    src/ui/TargetText.tsx
+       --domain-color    skill-domain colour      src/features/guided/ConversationMap.tsx
+       --node-color      skill-map node colour    src/features/skills/SkillsPage.tsx
+       --node-scale      skill-map node scale     src/features/skills/SkillsPage.tsx
+
+     The reading values are set on documentElement, so the defaults below are
+     what a surface reads before any settings have loaded. */
+  --reading-scale: 1;
+  --script-scale: 1;
+  --word-spacing: 4px;
+  --domain-color: var(--accent);
+  --node-color: var(--accent);
+  --node-scale: 1;
+
+  /* ══ Legacy aliases ══════════════════════════════════════════════════════
+     Pre-token names, kept so unmigrated rules keep resolving. Do not use
+     these in new or edited rules; migrate the rule to a semantic token. */
+  --bg: var(--shell-bg);
+  --chrome: var(--shell-chrome);
+  --chrome2: var(--shell-raised);
+  --inset: var(--shell-sunken);
+  --line: var(--shell-line);
+  --line2: var(--shell-line-strong);
+  --ink-d: var(--shell-text);
+  --mut-d: var(--shell-text-muted);
+  --faint-d: var(--shell-text-faint);
+  --steel: var(--accent);
+  --steel-deep: var(--accent-strong);
+  --selected: var(--shell-text-strong);
+  --amber: var(--warning);
+  --amber-deep: var(--warning-strong);
+  --paper: var(--paper-bg);
+  --paper2: var(--paper-sunken);
+  --ink: var(--paper-ink);
+  --ink-mut: var(--paper-ink-muted);
+  --user-bg: var(--bubble-learner-bg);
+  --user-ink: var(--bubble-learner-ink);
+  --serif: var(--font-serif);
+  --mono: var(--font-mono);
+  --sans: var(--font-sans);
+}

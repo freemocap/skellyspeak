@@ -92,7 +92,7 @@ mod tests {
     #[tokio::test]
     async fn mixed_work_shares_capacity_and_waiting_audio_is_not_starved() {
         let admission = Admission::with_capacity(2);
-        let partner = admission.try_chat().unwrap();
+        let persona = admission.try_chat().unwrap();
         let coach = admission.try_chat().unwrap();
         let audio = admission.audio(|| Ok(()));
         tokio::pin!(audio);
@@ -103,7 +103,7 @@ mod tests {
         );
         assert!(admission.try_chat().is_none());
         assert!(admission.audio(|| Ok(())).await.is_err());
-        drop(partner);
+        drop(persona);
         // Tokio reserves released capacity for the existing waiter.
         assert!(admission.try_chat().is_none());
         let transcription = audio.await.unwrap();

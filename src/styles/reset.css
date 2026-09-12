@@ -1,0 +1,24 @@
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body, #root { margin: 0; height: 100%; overscroll-behavior: none; }
+
+body {
+  background: var(--bg);
+  color: var(--ink-d);
+  font-family: var(--sans);
+  overflow: hidden;
+}
+
+/* Touch + notched-screen niceties */
+
+button, input, select { touch-action: manipulation; }
+
+/* Selection is independent of execution state and keyboard focus. */
+
+:where(button, a, input, textarea, select, summary, [role="separator"]):focus-visible { outline: 2px solid var(--selected); outline-offset: 3px; }
+
+.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: #24405f; }
+
+input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
+
+.chat input::placeholder, .chat textarea::placeholder { color: var(--ink-mut); }

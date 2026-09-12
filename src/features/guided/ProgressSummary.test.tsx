@@ -2,7 +2,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { ProgressSummary } from './ProgressSummary'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 import { skillDemo } from '../../domain/skills/skillDemo'
 
 const backend = vi.hoisted(() => ({ getPracticeOverview: vi.fn() }))
@@ -21,7 +20,7 @@ it('separates global activity from language tabs and keeps an unused language em
   const arabic = structuredClone(skillDemo)
   arabic.target = 'ar'; arabic.profile.choices.target = 'ar'
   backend.getPracticeOverview.mockResolvedValue({ languages: [{ name: 'Spanish', endonym: 'Español', snapshot: spanish }, { name: 'Arabic', endonym: 'العربية', snapshot: arabic }] })
-  render(<SkillNavigationProvider><ProgressSummary snapshot={spanish} onClose={vi.fn()} /></SkillNavigationProvider>)
+  render(<ProgressSummary snapshot={spanish} onClose={vi.fn()} />)
   expect(await screen.findByRole('heading', { name: 'Spanish progress' })).toBeVisible()
   expect(screen.getByText('Total practice XP').parentElement).toHaveTextContent('10')
   expect(screen.getByText('Practice XP').parentElement).toHaveTextContent('10')

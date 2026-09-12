@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { buildGraph, PRODUCTION_ROOTS, reachable, unreachableModules } from '../../scripts/import-graph'
+import { buildGraph, PRODUCTION_ROOTS, reachable, unreachableModules, unusedExports } from '../../scripts/import-graph'
 import { analyseStyles } from '../../scripts/prune-styles'
 
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url))
@@ -20,7 +20,6 @@ const CRITICAL = [
   'src/features/activity/LogsOverlay.tsx',
   'src/platform/ipc/tauri.ts',
   'src/platform/diagnostics/faults.ts',
-  'src/platform/ipc/store.ts',
 ]
 
 it('reaches the application from its entry points', () => {
@@ -42,6 +41,17 @@ it('warns about production modules no entry point reaches', () => {
   }
   // The walk itself is asserted above; this test exists to report, and reports
   // through the console rather than by failing.
+})
+
+/// Warning only, for a stronger reason than the module list: an export may be a
+/// seam kept for a caller that has not landed yet. The list should be empty; when
+/// it is not, the offender is named below.
+it('warns about exports no other module mentions', () => {
+  const unused = unusedExports(graph)
+  if (unused.length) {
+    console.warn(unused.length + " export(s) no other module mentions:\n" +
+      unused.map((item) => "  " + item.module + ": " + item.name).join("\n"))
+  }
 })
 
 /// Warning only, for the same reason. `npm run styles:dead` reports the same

@@ -2,7 +2,7 @@ import { ProgressRules } from './ProgressRules'
 import { DetailDialog } from '../../ui/DetailDialog'
 import { skillIndex } from '../../domain/skills/skill-index'
 import { SkillDetailContent } from './SkillDetailContent'
-import { useSkillNavigation } from '../../state/useSkillNavigation'
+import { useSkillNavigationStore } from '../../state/skill-navigation'
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Background, BackgroundVariant, Controls, MiniMap, Handle, Position, ReactFlow, useNodesState, type Node, type NodeProps, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -12,7 +12,7 @@ import { useSkillEvidence } from '../../state/useSkillEvidence'
 import { isTauri } from '../../platform/ipc/tauri'
 import { skillDemo } from '../../domain/skills/skillDemo'
 import type { ProfileChoices, SkillProgress, SkillSnapshot } from '../../domain/skills/skills'
-import { evidenceLabel, nodePosition, type TreeLayout, type TreeNode } from '../../domain/skills/skillTree'
+import { nodePosition, type TreeLayout, type TreeNode } from '../../domain/skills/skillTree'
 import { TreeCamera, type CameraRequest } from './TreeCamera'
 import './skills.css'
 
@@ -32,21 +32,24 @@ function ports(node: TreeNode, layout: TreeLayout, visible: TreeNode[]) {
   const point = nodePosition(node, layout, visible)
   return point.x >= 0 ? { source: Position.Right, target: Position.Left } : { source: Position.Left, target: Position.Right }
 }
-export function marks(progress: SkillProgress): string {
+function marks(progress: SkillProgress): string {
   return progress.star ? `★ ${progress.successes} successes` : `${'✓'.repeat(progress.successes)}${'○'.repeat(3 - progress.successes)} ${progress.successes}/3`
 }
 
-export default function SkillsPage({ evidence, onPractice }: { evidence: ReturnType<typeof useSkillEvidence>; onPractice: () => void }) {
-  if (isTauri && evidence.error) return <div className="tree-load" role="alert">Profile: {evidence.error}<button onClick={evidence.refresh}>Retry</button></div>
+export default function SkillsPage({ onPractice }: { onPractice: () => void }) {
+  const evidence = useSkillEvidence()
+  if (isTauri && evidence.error) return <div className="tree-load" role="alert">Profile: {evidence.error}<button onClick={evidence.reload}>Retry</button></div>
   if (isTauri && !evidence.snapshot) return <p className="tree-load" role="status">Loading your language profile…</p>
-  return <SkillTreeView snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.refresh} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
+  return <SkillTreeView snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
 }
 export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, onPractice }: { snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void }) {
   const catalog = useMemo(() => skillIndex(snapshot).catalog, [snapshot])
   const { node: treeNode, descendants, ancestry, mapAnchor, scale, displayed: displayedTree, nodes: skillTree } = catalog
-  const navigation = useSkillNavigation()
-  const selected = navigation.state.selected?.target === snapshot.target ? navigation.state.selected.skillId : 'experience'
-  const setSelected = useCallback((skillId: string) => navigation.select({ target: snapshot.target, skillId }), [navigation.select, snapshot.target])
+  const picked = useSkillNavigationStore((state) => state.selected)
+  const select = useSkillNavigationStore((state) => state.select)
+  const mapRequest = useSkillNavigationStore((state) => state.mapRequest)
+  const selected = picked?.target === snapshot.target ? picked.skillId : 'experience'
+  const setSelected = useCallback((skillId: string) => select({ target: snapshot.target, skillId }), [select, snapshot.target])
   const [camera, setCamera] = useState<CameraRequest>({ sequence: 0, target: 'experience', action: 'whole' })
   const [layoutChoice, setLayoutChoice] = useState<'horizontal' | 'radial' | 'down'>('horizontal')
   const direction = useUiDirection()
@@ -62,16 +65,14 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
   const focus = demoFocus ?? profile.active_focus
   const item = treeNode(selected)
   const failures = snapshot.records.filter((r) => r.status === 'failed')
-  const legacy = snapshot.records.filter((r) => r.catalog_version !== snapshot.catalog_version)
   const restore = useCallback((id: string) => { setSelected(id); setDetailOpen(id !== 'experience') }, [setSelected])
   const pick = useCallback((id: string) => {
     setSelected(id); setDetailOpen(true)
     setCamera((v) => ({ sequence: v.sequence + 1, target: mapAnchor(id).id, action: 'focus' }))
   }, [setSelected, mapAnchor])
   useEffect(() => {
-    const request = navigation.state.mapRequest
-    if (request?.location.target === snapshot.target) { setDetailOpen(true); setCamera({ sequence: request.sequence, target: mapAnchor(request.location.skillId).id, action: 'focus' }) }
-  }, [navigation.state.mapRequest, snapshot.target, mapAnchor])
+    if (mapRequest?.location.target === snapshot.target) { setDetailOpen(true); setCamera({ sequence: mapRequest.sequence, target: mapAnchor(mapRequest.location.skillId).id, action: 'focus' }) }
+  }, [mapRequest, snapshot.target, mapAnchor])
   const wholeTree = () => {
     setSelected('experience'); setDetailOpen(false)
     setCamera((v) => ({ sequence: v.sequence + 1, target: 'experience', action: 'whole' }))
@@ -130,7 +131,6 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
           <ProgressRules />
           <p className="lesson-meta">Profile revision {profile.choices.revision} · rules {profile.rules_version} · {snapshot.target}</p>
           <details className="tree-method"><summary>Assessment activity · {snapshot.records.filter((r) => r.status === 'pending').length} pending · {failures.length} failed</summary><button className="tree-refresh" onClick={refresh}>Refresh</button>{failures.map((r) => <p key={r.attempt_id}>{r.chat_id}/{r.message_id}: {r.error}</p>)}</details>
-          {legacy.length > 0 && <details className="tree-method"><summary>Previous rubric evidence · {legacy.length} attempts</summary><p>Retained for inspection. These judgments do not establish the current meaning-domain skills.</p>{legacy.map((r) => <details key={r.attempt_id}><summary>{r.source}</summary><p>Catalog {r.catalog_version} · {r.chat_id}/{r.message_id} · {r.attempt_id}</p>{r.assessment?.judgments.filter((j) => j.outcome !== 'not_observed').map((j) => <p key={j.skill_id}>{evidenceLabel(j.skill_id, r.catalog_version)}: {j.outcome} — {j.rationale}</p>)}</details>)}</details>}
         </div>
       </aside>
     </div>

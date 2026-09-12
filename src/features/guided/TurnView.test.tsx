@@ -10,16 +10,16 @@ beforeEach(() => {
 
 function props(): TurnViewProps {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
-  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Partner translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: true, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
+  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: true, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
 }
-it('places the partner reaction on the reply and routes editing to its own turn', () => {
+it('places the persona reaction on the reply and routes editing to its own turn', () => {
   const input = props()
   input.turn.reaction = { kind: 'confused', interpretation: 'Uncertain meaning', explanation: 'Please clarify the reference.' }
   input.onEditUser = vi.fn()
   const view = render(<TurnView {...input} />)
-  expect(view.container.querySelector('.msg.bot .partner-reaction')).not.toBeNull()
-  expect(view.container.querySelector('.msg.me .partner-reaction')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Partner is unsure' }))
+  expect(view.container.querySelector('.msg.bot .persona-reaction')).not.toBeNull()
+  expect(view.container.querySelector('.msg.me .persona-reaction')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Persona is unsure' }))
   fireEvent.click(screen.getByRole('button', { name: 'Edit & try again' }))
   expect(input.onEditUser).toHaveBeenCalledWith(input.turn)
   expect(input.onBubbleTap).not.toHaveBeenCalled()
@@ -28,14 +28,14 @@ it('keeps sentence translation buttons independent of token preferences', () => 
   const input = props()
   const view = render(<TurnView {...input} />)
   expect(screen.queryByText('Learner translation')).toBeNull()
-  expect(screen.queryByText('Partner translation')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(screen.getByText('Partner translation')).toBeVisible()
+  expect(screen.queryByText('Persona translation')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  expect(screen.getByText('Persona translation')).toBeVisible()
   view.rerender(<TurnView {...input} autoTranslate={false} />)
-  expect(screen.getByText('Partner translation')).toBeVisible()
+  expect(screen.getByText('Persona translation')).toBeVisible()
   expect(screen.queryByText('Learner translation')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(screen.queryByText('Partner translation')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  expect(screen.queryByText('Persona translation')).toBeNull()
 })
 
 it('honors pronunciation even when token information is revealed', () => {
@@ -128,11 +128,11 @@ it.each([
   input.onRetryGloss = vi.fn()
   const view = render(<TurnView {...input} />)
   expect(screen.getByRole('status')).toHaveTextContent(label)
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(screen.getByText('Partner translation')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  expect(screen.getByText('Persona translation')).toBeVisible()
   expect(screen.getByRole('button', { name: 'Speak reply' })).toBeEnabled()
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
-  expect(screen.queryByText('Partner translation')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  expect(screen.queryByText('Persona translation')).toBeNull()
   expect(screen.getByRole('status')).toHaveTextContent(label)
   view.rerender(<TurnView {...input} autoTranslate={false} />)
   expect(input.onRetryGloss).not.toHaveBeenCalled()
@@ -152,7 +152,7 @@ it('distinguishes no requested translation from failure and clears progress when
   expect(screen.queryByText('Translating…')).toBeNull()
   update('succeeded', 'Saved translation')
   expect(screen.queryByRole('status')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
   expect(screen.getByText('Saved translation')).toBeVisible()
   expect(screen.queryByRole('button', { name: /Retry translation/ })).toBeNull()
 })

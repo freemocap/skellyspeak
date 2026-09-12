@@ -50,10 +50,10 @@ describe('durable conversation projection', () => {
     expect(result.every(turn => turn.analysisState === null)).toBe(true)
   })
 
-  it('does not include private coach messages in partner turns', () => {
-    const source = snapshot([message(1, 'user', 'Partner question')])
+  it('does not include private coach messages in persona turns', () => {
+    const source = snapshot([message(1, 'user', 'Persona question')])
     source.coachMessages = [message(2, 'assistant', 'Private coaching')]
-    expect(conversationTurns(source)).toMatchObject([{ id: 1, user: 'Partner question', assistant: null, analysisState: null }])
+    expect(conversationTurns(source)).toMatchObject([{ id: 1, user: 'Persona question', assistant: null, analysisState: null }])
   })
 
   it('fails on an unexpected native role rather than dropping content', () => {

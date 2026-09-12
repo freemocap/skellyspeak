@@ -7,7 +7,6 @@ import { RewardInspectionContext } from './RewardInspectionContext'
 import { SkillRewards } from './SkillRewards'
 import { InlineXpBadge } from './InlineXpBadge'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 import { skillDemo } from '../../domain/skills/skillDemo'
 import { messageEvidence } from '../../domain/skills/message-evidence'
 import { unreportedInput, type SkillSnapshot } from '../../domain/skills/skills'
@@ -18,11 +17,11 @@ function Points({ snapshot }: { snapshot: SkillSnapshot }) {
 }
 function Fixture({ snapshot }: { snapshot: SkillSnapshot }) {
   const workspace = useRef<HTMLDivElement>(null)
-  return <SkillNavigationProvider><SkillEvidenceContext value={{ snapshot, error: null }}>
+  return <SkillEvidenceContext value={{ snapshot, error: null }}>
     <RewardPresentationProvider fastMode workspace={workspace} chatId="chat" active>
       <div ref={workspace}><div className="stream"><Points snapshot={snapshot} /></div><div className="composer" /><SkillRewards chatId="chat" active /></div>
     </RewardPresentationProvider>
-  </SkillEvidenceContext></SkillNavigationProvider>
+  </SkillEvidenceContext>
 }
 
 it.each(['new review', 'late credit'])('presents %s in a cramped viewport and opens only the clicked point card', source => {

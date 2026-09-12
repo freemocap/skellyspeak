@@ -1,0 +1,515 @@
+.stream, .modal {
+  overscroll-behavior: contain;
+}
+
+.chat {
+  flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column;
+  background: var(--paper);
+  /* The dev panel shrinks this pane; without clipping, the composer's
+     controls bleed out over the panel below. */
+  overflow: hidden;
+}
+
+.stream { overflow-x: hidden; flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
+
+.msg { min-width: 0; overflow-wrap: anywhere; max-width: 88%; padding: 10px 13px; border-radius: 15px; font-size: 15.5px; }
+
+.line { min-width: 0; max-width: 100%; display: flex; flex-wrap: wrap; align-items: flex-start; user-select: none; gap: 3px var(--word-spacing, 4px); }
+
+/* One word and its help, as a box. The word sets the width; a gloss, romanization
+   or pronunciation contributes no width of its own and wraps inside it, so a long
+   gloss grows the box downward instead of spilling onto the next word. The small
+   minimum keeps a single character's gloss readable, and the padding separates
+   words in scripts written without spaces. */
+
+.wu { max-width: 100%; min-width: 2.5em; display: inline-flex; flex-direction: column; align-items: flex-start; padding: 1px 3px; border: 1px solid transparent; border-radius: 5px; }
+
+.wu:hover, .wu:focus-within { border-color: var(--line2); }
+
+.wu > .wg, .wu > .wroman, .wu > .wpronunciation { contain: inline-size; width: 100%; overflow-wrap: anywhere; }
+
+.wg { font-size: 10px; color: var(--ink-mut); line-height: 1.2; }
+
+.chat-head {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mut); padding: 11px 18px 0; gap: 0.5rem; position: relative; z-index: 5; flex-wrap: nowrap;
+}
+
+.conversation-title { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+
+.chat > .chat-head { background: var(--chrome2); color: var(--ink-d); border-bottom: 1px solid var(--line2); flex-shrink: 0; padding: 6px 12px; gap: 6px; }
+
+.chat .stream { padding: 24px 20px; gap: 20px; overscroll-behavior: contain; }
+
+.chat .msg { padding: 13px 16px; line-height: 1.65; }
+
+.chat .composer { padding: 8px 16px 16px; border-top: 1px solid var(--paper-line); }
+
+.chat .crow { margin-top: 8px; }
+
+.chat .crow .field { border-radius: 12px; padding: 13px 15px; font-size: 16px; }
+
+.chat .crow .field:dir(rtl) { font-size: calc(16px * var(--reading-scale, 1) * var(--script-scale, 1)); line-height: 1.7; }
+
+.chat .crow .send, .chat .crow .mic { border-radius: 12px; min-height: 46px; }
+
+@media(max-width:860px) { .chat .stream { padding: 16px 12px; } .chat .composer { padding: 4px 8px max(6px, env(safe-area-inset-bottom)); } }
+
+.msg.bot {
+  align-self: flex-start; background: #fff; border: 1px solid var(--paper-line);
+  border-bottom-left-radius: 5px; color: var(--ink); cursor: pointer; position: relative;
+}
+
+.msg.bot.focused { border-color: var(--ink-mut); box-shadow: 0 0 0 1px var(--ink-mut); }
+
+.msg.me {
+  align-self: flex-end; background: var(--user-bg); color: var(--user-ink);
+  border-bottom-right-radius: 5px; font-family: var(--serif); position: relative;
+}
+
+.msg.pending { opacity: 0.6; font-style: italic; }
+
+.msg.me.with-edit { padding-right: 32px; }
+
+.msg.me.rtl.with-edit { padding-right: 13px; padding-left: 32px; }
+
+.msg.me .edit-btn {
+  position: absolute; top: 12px; right: 5px; border: none; background: none;
+  color: var(--user-ink); opacity: 1; cursor: pointer; font-size: 13px;
+  line-height: 1; padding: 3px;
+}
+
+.msg.me.rtl .edit-btn { right: auto; left: 5px; }
+
+.msg.me .edit-btn:hover { opacity: 1; }
+
+.msg.bot.with-speak { margin-top: 20px; }
+
+.speak-btn {
+  position: absolute; top: -20px; right: 8px; border: 1px solid var(--paper-line);
+  background: #fff; border-radius: 10px;
+  min-width: 36px; min-height: 32px;
+  font-size: 15px; line-height: 1; cursor: pointer; padding: 6px 8px;
+  color: var(--ink);
+}
+
+.speak-btn:hover { border-color: var(--steel); background: #fffcf2; }
+
+.w { font-family: var(--serif); font-size: 16px; line-height: 1.5; }
+
+.w.notice { border-bottom: 2px dotted var(--amber-deep); }
+
+.w.tap { cursor: pointer; border-bottom: 2px dotted transparent; border-radius: 2px; }
+
+.w.tap:hover { border-bottom-color: var(--amber-deep); }
+
+.msg.me .wg { color: #3d5a80; }
+
+/* Composer */
+
+.composer { background: var(--paper2); padding: 4px 12px 11px; flex: 0 0 auto; min-height: 0; padding-bottom: max(11px, env(safe-area-inset-bottom)); }
+
+.edit-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: 4px 2px 6px; padding: 6px 10px; border-radius: 8px;
+  background: var(--inset); border: 1px solid var(--amber-deep);
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-d);
+}
+
+.edit-banner button {
+  flex: none; border: none; background: none; color: var(--amber-deep);
+  cursor: pointer; font-size: 11px; text-decoration: underline;
+}
+
+.scaf {
+  flex: none; font-family: var(--serif); font-size: 13.5px; color: var(--ink);
+  background: #fff; border: 1px solid #b9b29c; border-radius: 18px; cursor: pointer; white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(29, 36, 46, 0.12); padding: 4px 9px;
+}
+
+.scaf:hover { border-color: var(--amber-deep); background: #fffcf2; }
+
+/* Custom topic: the text box takes the select's place and the return arrow
+   sits beside it, so the row keeps its shape when the mode changes. */
+
+.wave-strip {
+  margin: 2px 2px 6px; border: 1px solid var(--line); border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Suggestion block (steer-driven scaffolds) — visually distinct from the input */
+
+/* Collapsed, the header has to say what is folded away — otherwise the level
+   and topic become invisible settings that steer every reply. */
+
+/* The persona picker gets its own line: the label plus a long character name
+   does not fit beside the level and topic on a phone. */
+
+/* Bounded so a long chat and a full suggestion set cannot fight over the
+   column: suggestions scroll inside their own box rather than pushing the
+   composer around or being crushed by the stream. */
+
+.scaffold-groups {
+  display: flex; flex-direction: column;
+  max-height: 32vh; overflow-y: auto; overscroll-behavior: contain; padding: 3px 8px 4px; gap: 3px;
+}
+
+/* Romanization (non-Latin targets: ALA-LC for Arabic) */
+
+.wroman { font-size: 10px; color: var(--steel); line-height: 1.2; font-family: var(--mono); font-style: normal; }
+
+.w.holding { background: rgba(111, 155, 255, 0.15); }
+
+.sentence.rtl { direction: rtl; font-size: 21px; }
+
+.proman { font-size: 10px; color: var(--steel); font-family: var(--mono); font-style: normal; }
+
+/* Flex layout overrides the Unicode bidi algorithm: for RTL targets the
+   token line must run row-reverse so the first word (DOM order) appears
+   rightmost. */
+
+.line.rtl-line { flex-direction: row-reverse; }
+
+.line.rtl-line .wu { direction: rtl; }
+
+/* Arabic (and other RTL scripts) sit visually smaller than Latin at the same
+   px size — x-height and stroke weight differ. Scale up for legibility. */
+
+.msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text { font-size: calc(16px * var(--reading-scale, 1) * var(--script-scale, 1)); line-height: 1.7; }
+
+.msg.rtl .wg, .line.rtl-line .wg { font-size: 11px; }
+
+.msg.rtl .wroman, .line.rtl-line .wroman { font-size: 11px; }
+
+.msg.me.rtl { align-self: flex-end; }
+
+.msg.bot.rtl .line { flex-direction: row-reverse; }
+
+.msg.bot.rtl .line .wu { direction: rtl; }
+
+.msg.bot.rtl { text-align: right; }
+
+.crow { display: flex; gap: 8px; align-items: center; }
+
+.send {
+  flex: none; width: 38px; height: 38px; border-radius: 50%; border: none;
+  background: var(--steel-deep); color: #fff; font-weight: 700; cursor: pointer; font-size: 15px;
+}
+
+.send:disabled { opacity: 0.5; cursor: default; }
+
+.mic {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  flex: none; min-width: 112px; height: 52px; padding: 0 16px; border-radius: 12px; border: 2px solid #bd3038;
+  background: #fff; color: #bd3038; cursor: pointer; font-family: var(--sans); font-size: 16px; font-weight: 700;
+}
+
+.mic:hover:not(:disabled) { background: #fff0f1; }
+
+.mic.recording { background: #bd3038; color: #fff; border-color: #bd3038; }
+
+.mic.recording:hover:not(:disabled) { background: #a2262d; border-color: #a2262d; }
+
+.mic:disabled { opacity: 0.5; cursor: default; }
+
+.mic-cancel {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #d84a4a; background: #fff; color: #d84a4a;
+  cursor: pointer; font-size: 12px;
+}
+
+.mic-cancel:hover { background: #d84a4a; color: #fff; }
+
+.sentence { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--ink-d); margin-bottom: 14px; }
+
+.sentence .hl { color: var(--amber); border-bottom: 2px solid var(--amber-deep); }
+
+.trans-d { font-size: 13px; color: var(--mut-d); font-style: italic; margin-bottom: 14px; }
+
+.sect-k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint-d); margin: 20px 0 9px; }
+
+.gloss { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.tok { border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; background: var(--chrome); display: flex; flex-direction: column; gap: 2px; }
+
+.tok.key { border-color: var(--amber-deep); background: rgba(199, 138, 47, 0.1); }
+
+.tok .sp { font-family: var(--serif); font-size: 16px; color: var(--ink-d); }
+
+.tok.key .sp { color: var(--amber); }
+
+.tok .gl { font-size: 11px; color: var(--mut-d); }
+
+.tok .po { font-family: var(--mono); font-size: 9px; color: var(--faint-d); }
+
+@media (max-width: 860px) {
+  .chat { flex: 1 1 auto; min-height: 0; }
+  /* The graph needs real estate; on a phone it gets the whole surface. */
+  .msg { max-width: 94%; }
+}
+
+.feedback-badge { align-self: flex-end; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #b9c8df; border-radius: 12px; padding: 4px 9px; background: #edf2fb; color: #35557b; font: inherit; font-size: 11px; cursor: pointer; max-width: 95%; text-align: start; white-space: nowrap; }
+
+.feedback-badge:hover { border-color: #35557b; }
+
+.feedback-badge.feedback-error { background: #fff0e8; color: #8b3422; border-color: #daa693; }
+
+/* Record/Stop and Send remain anchored at the composer’s right edge. */
+
+.crow .mic-cancel { width: auto; min-height: 38px; padding: 0 8px; flex: none; font-size: 12px; color: #923737; border-color: #923737; border-radius: 8px; }
+
+.crow .mic-cancel:hover { background: #923737; color: #fff; }
+
+@media (pointer: coarse) { .crow .mic-cancel { min-height: 44px; } }
+
+.crow .field { min-width: 0; }
+
+.chat-heading-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+
+.message-evidence { border-bottom: 3px solid; border-radius: 3px; background: #ffffff80; cursor: pointer; }
+
+.evidence-phrase { font: inherit; padding: 0; border: 0; border-bottom: 3px solid; }
+
+.message-translate { display: inline-block; margin: 0 0 0 6px; padding: 1px 4px; border: 1px solid #8c969c; border-radius: 4px; background: transparent; color: #405469; font: 10px var(--sans); cursor: pointer; min-height: 0; font-size: 10px; line-height: 1.4; vertical-align: baseline; }
+
+.w[role=button]:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.msg .line { display: inline; }
+
+.msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
+
+.msg .line .wu { vertical-align: top; margin-block-end: 2px; margin-inline-end: var(--word-spacing, 2px); }
+
+@media (pointer: coarse) {
+  .w[role=button] { display: inline-block; padding-block: 8px; }
+}
+
+.activity-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; font: 12px var(--sans); color: inherit; max-width: 100%; }
+
+.activity-spinner { display: inline-block; flex: none; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: activity-spin .8s linear infinite; }
+
+.msg .activity-indicator { display: flex; }
+
+.msg .feedback-badge .activity-indicator { display: inline-flex; flex: none; padding: 0; font: inherit; white-space: nowrap; }
+
+.composer > .activity-indicator { margin-inline: 10px; }
+
+@media (prefers-reduced-motion: reduce) { .activity-spinner { border-style: dotted; animation: none; } }
+
+.inline-xp-badge { position: relative; top: -.3em; display: inline-block; vertical-align: baseline; min-width: 28px; width: 28px; height: 0; min-height: 0; margin: 0 2px; padding: 0; border: 0; overflow: visible; font: 800 13px/0 var(--sans); color: #173f68; background: none; cursor: pointer; }
+
+.inline-xp-badge::before { content: ''; position: absolute; inset: -9px -1px; }
+
+.inline-xp-badge:hover, .inline-xp-badge:focus-visible { outline-offset: 5px; outline: none; }
+
+.composer-activity:empty { display: none; }
+
+.composer-activity { padding: 3px 10px; color: var(--ink); }
+
+.composer-activity .activity-spinner { width: 16px; height: 16px; }
+
+/* Language choices remain accessible around the conversation workspace. */
+
+.language-picker { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--mut-d); font: 11px var(--sans); }
+
+.language-picker select { min-width: 0; max-width: 180px; min-height: 34px; padding: 5px 8px; border: 1px solid var(--line2); border-radius: 6px; background: var(--chrome); color: var(--ink-d); font: 13px var(--sans); }
+
+.language-picker select:disabled { opacity: 0.6; }
+
+@media (max-width: 600px) {
+  .language-picker select { min-height: 44px; font-size: 16px; }
+}
+
+/* Reply ideas for the latest persona message sit directly above the composer. */
+
+.composer-help-content { max-height: min(260px, 30dvh); overflow-y: auto; overscroll-behavior: contain; margin: 0 0 3px; padding: 3px; border: 1px solid #a6b9aa; border-radius: 6px; background: #f3f7f1; color: #243a2b; font: 13px/1.4 var(--sans); }
+
+.composer-help-content p { margin: 0; }
+
+/* Folded or open, the toggle sits at the inline end, above the record button. */
+
+.composer-help-head, .composer-help-folded { display: flex; justify-content: flex-end; }
+
+.composer-help-folded { margin: 0 0 3px; }
+
+.composer-help-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 44px; min-height: 32px; padding: 0 8px; border: 1px solid #a6b9aa; border-radius: 8px; background: #f3f7f1; color: #243a2b; font: 13px/1 var(--sans); cursor: pointer; }
+
+.composer-help-toggle:hover { background: #e3eee0; }
+
+.composer-help-toggle:focus-visible { outline: 2px solid #315943; outline-offset: 1px; }
+
+.composer-help-count { font-size: 11px; font-weight: 600; }
+
+.help-replies { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 3px; }
+
+.help-reply { display: inline-flex; align-items: center; gap: 1px; width: fit-content; max-width: 100%; min-height: 0; padding: 0 1px 0 6px; border: 1px solid #a6b9aa; border-radius: 7px; background: #e3eee0; color: #224f34; text-align: start; overflow-wrap: anywhere; }
+
+.help-reply-text { font: calc(15px * var(--reading-scale, 1) * var(--script-scale, 1))/1.3 var(--serif); }
+
+.help-reply-text .wg, .help-reply-text .wroman, .help-reply-text .wpronunciation { line-height: 1.1; }
+
+.help-insert { display: inline-flex; flex: none; align-items: center; justify-content: center; padding: 0; width: 22px; height: 22px; border: 0; border-radius: 4px; background: transparent; color: #315943; font: 15px/1 var(--sans); cursor: pointer; }
+
+.help-insert:hover { background: #c5dcc0; }
+
+.help-insert:focus-visible { outline: 2px solid #315943; outline-offset: 1px; }
+
+.help-insert:disabled { opacity: .5; cursor: default; }
+
+.conversation-title small { display: none; font-size: 11px; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
+
+@media (max-width: 860px) and (max-height: 550px) {
+  .composer-help-content { max-height: 110px; }
+}
+
+.phrase-pronunciation { margin: 8px 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* One look for the conversation row: language, difficulty and persona are the same
+   control in three roles, so they share every box, border and type decision. */
+
+.chat-language-picker, .learning-picker, .persona-picker-toggle { max-width: 100%; min-width: 0; min-height: 36px; padding: 4px 6px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 600 16px var(--sans); cursor: pointer; }
+
+.chat-language-picker:disabled { opacity: .6; cursor: default; }
+
+/* Conversation header: "Learning:" then the target language, large, as its own picker. */
+
+.learning-line { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; }
+
+.learning-label { font: 600 10px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--mut-d); }
+
+.learning-picker { font-weight: 650; letter-spacing: 0; text-transform: none; line-height: 1.2; cursor: pointer; }
+
+.learning-picker:hover:not(:disabled) { border-color: var(--steel); }
+
+.learning-picker:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+
+.learning-picker:disabled { opacity: .6; cursor: default; }
+
+.learning-picker option { background: var(--paper); color: var(--ink); font: 15px var(--sans); }
+
+.learning-saving { font: 11px var(--sans); letter-spacing: 0; text-transform: none; color: var(--mut-d); }
+
+@media (max-width: 860px) { .chat-language-picker { min-height: 44px; } }
+
+.wpronunciation {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--steel);
+  margin-block-start: 3px;
+  overflow-wrap: anywhere;
+}
+
+/* Edge controls leave the bubble interior available for reading. */
+
+.msg.with-actions { margin-bottom: 14px; min-width: 140px; }
+
+.message-actions {
+  position: absolute;
+  bottom: -9px;
+  inset-inline-end: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.message-actions .message-translate {
+  margin: 0;
+  min-height: 18px;
+  padding: 1px 6px;
+  background: #fff;
+  border-color: var(--paper-line);
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+.msg.me .message-actions .message-translate { background: var(--user-bg); color: var(--user-ink); }
+
+.message-actions .message-translate:hover { border-color: var(--steel); }
+
+.msg.rtl .message-actions { direction: rtl; right: auto; left: 12px; }
+
+.msg:not(.rtl) .message-actions { direction: ltr; left: auto; right: 12px; }
+
+.conversation-languages { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(100px, 1fr); gap: 6px; align-items: center; min-width: 0; }
+
+.conversation-languages label { display: flex; align-items: center; gap: 4px; min-width: 0; }
+
+.conversation-languages label > span { font: 10px var(--sans); text-transform: none; letter-spacing: 0; }
+
+.conversation-languages .chat-language-picker { appearance: none; width: 100%; max-width: 100%; min-width: 0; height: 30px; min-height: 30px; padding: 4px 20px 4px 6px; border-color: var(--line2); background-color: var(--chrome); color: var(--ink-d); font: 12px var(--sans); background-image: linear-gradient(45deg, transparent 50%, var(--mut-d) 50%), linear-gradient(135deg, var(--mut-d) 50%, transparent 50%); background-position: calc(100% - 11px) 50%, calc(100% - 7px) 50%; background-size: 4px 4px; background-repeat: no-repeat; }
+
+.conversation-languages .chat-language-picker:hover:not(:disabled) { border-color: var(--steel); }
+
+.conversation-languages .chat-language-picker:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+
+@media (max-width: 860px) {
+  .chat > .chat-head { flex-wrap: nowrap; }
+  .chat > .chat-head .conversation-title { flex: 1; min-width: 0; }
+  .conversation-languages { grid-template-columns: 1fr; }
+  .chat-heading-actions { margin-inline-start: auto; }
+}
+
+/* Shared reading density and compact settings. */
+
+.w, .target-text { font-size: calc(16px * var(--reading-scale, 1) * var(--script-scale, 1)); }
+
+.target-text .wu { vertical-align: top; margin-inline-end: var(--word-spacing, 2px); }
+
+.target-text { font-family: var(--serif); line-height: 1.5; white-space: pre-wrap; }
+
+.wg, .wroman, .wpronunciation { font-size: calc(10px * var(--reading-scale, 1)); }
+
+.trans { font-size: calc(12.5px * var(--reading-scale, 1)); color: var(--ink-mut); font-style: italic;
+  margin-top: 7px; padding-top: 7px; border-top: 1px dashed var(--paper-line); }
+
+.target-text .w { font-size: inherit; }
+
+.msg.plain, .msg.pending { font-size: calc(16px * var(--reading-scale, 1) * var(--script-scale, 1)); }
+
+.chat-head .conversation-title { flex: 1; }
+
+.chat-config-toggle { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--line2); border-radius: 6px; background: transparent; color: var(--ink-d); font-size: 21px; cursor: pointer; }
+
+.chat-config-toggle[aria-expanded=true] { background: var(--inset); }
+
+.chat-config-panel { position: absolute; top: 100%; inset-inline-end: 8px; width: min(440px, calc(100% - 16px)); box-sizing: border-box; max-height: min(65dvh, 520px); overflow-y: auto; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); font-family: var(--sans); text-transform: none; letter-spacing: normal; box-shadow: 0 5px 18px #0002; }
+
+/* Word-owned evidence rules stay below the glyphs when adjacent XP controls disappear. */
+
+.message-evidence.token-evidence { border: 0; background: none; }
+
+.message-evidence.token-evidence .w { display: inline-block; border-bottom: 3px solid; }
+
+.inline-xp-face { white-space: nowrap; direction: ltr; unicode-bidi: isolate; font-size: 12px; position: absolute; inset-inline-start: 0; top: 0; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 26px; height: 24px; padding: 0 2px; border: 1px solid color-mix(in srgb, currentColor 24%, transparent); border-radius: 50%; background: color-mix(in srgb, currentColor 4%, transparent); line-height: 1; transform: translateY(-50%); animation: xp-invitation 5s ease-in-out 2; }
+
+.inline-xp-badge:hover .inline-xp-face, .inline-xp-badge:focus-visible .inline-xp-face { animation: none; transform: translateY(calc(-50% - 1px)); border-color: currentColor; background: color-mix(in srgb, currentColor 12%, transparent); }
+
+@media (prefers-reduced-motion: reduce) { .inline-xp-face { animation: none; } .inline-xp-badge:hover .inline-xp-face, .inline-xp-badge:focus-visible .inline-xp-face { transform: translateY(-50%); animation: none; } }
+
+.chat-config-toggle:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
+
+.chat .msg.bot { background: #fffdf7; border: 2px solid #75816e; border-radius: 16px 16px 16px 3px; max-width: 90%; }
+
+.chat .msg.bot.focused { border-color: #53634a; box-shadow: none; }
+
+.chat .msg.me { background: #d3e3fa; border: 2px solid #6286b9; border-radius: 16px 16px 3px 16px; max-width: 85%; }
+
+.msg.me .message-actions { position: relative; bottom: auto; inset: auto; justify-content: flex-end; flex-wrap: wrap; gap: 4px; margin: 5px -7px -24px 0; }
+
+.msg.me.rtl .message-actions { left: auto; right: auto; margin-inline: 0 -7px; }
+
+.msg.me.with-actions { margin-bottom: 26px; }
+
+.msg.me > .feedback-badge { position: absolute; top: -10px; right: 0; z-index: 2; margin: 0; min-height: 18px; padding: 1px 4px; border: 1px solid #6384b1; border-radius: 5px; background: #e9f1ff; color: #213e68; font: 600 10px/1.25 var(--sans); width: max-content; max-width: min(260px, calc(100vw - 48px)); }
+
+.msg.me > .feedback-badge:hover { background: #fff; border-color: #294f84; }
+
+.msg.me > .feedback-badge.feedback-error { background: #fff0e8; color: #8b3422; border-color: #daa693; }
+
+.saved-word { position: relative; }
+
+/* Top-layer popover: the reply tray and the message stream both clip their own
+   box, so the card is placed against the word's viewport box and escapes both. */
+
+.saved-word-help { position: fixed; inset: auto; margin: 0; width: max-content; max-width: min(220px, 65vw); padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); color: var(--ink); box-shadow: 0 2px 5px #0002; }
+
+.saved-word-help > span { display: block; }

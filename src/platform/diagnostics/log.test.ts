@@ -4,7 +4,7 @@ const invoke = vi.hoisted(() => vi.fn())
 vi.mock('../ipc/tauri', () => ({ isTauri: true }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
 import { clearLogs, getLogs, logDiagnostic, installDiagnosticCapture, logInfo, diagnosticDeliveryState } from './log'
-import { dismissAllFaults, reportUnhandledError, subscribeFaults } from './faults'
+import { reportUnhandledError, useFaultStore } from './faults'
 let dispose: (() => void) | undefined
 beforeEach(() => { invoke.mockReset(); invoke.mockResolvedValue({}); clearLogs() })
 afterEach(() => { dispose?.(); dispose = undefined; vi.restoreAllMocks() })
@@ -52,12 +52,8 @@ it('names resize-observer and resource-load events and surfaces everything but t
   window.removeEventListener('unhandled-ui-error', surfaced); image.remove()
 })
 it('shows a repeating unhandled error once on the fault bar', () => {
-  dismissAllFaults()
   for (let i = 0; i < 5; i++) reportUnhandledError(new CustomEvent('unhandled-ui-error', { detail: new Error('Layout failed') }))
-  let faults: unknown[] = []
-  subscribeFaults(current => { faults = current })()
-  expect(faults).toEqual([{ id: expect.any(Number), context: 'Unexpected error', message: 'Layout failed' }])
-  dismissAllFaults()
+  expect(useFaultStore.getState().faults).toEqual([{ id: expect.any(Number), context: 'Unexpected error', message: 'Layout failed' }])
 })
 it('makes failed delivery explicit without forwarding its own failure recursively', async () => {
   await logDiagnostic('application', null)

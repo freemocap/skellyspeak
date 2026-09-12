@@ -1,0 +1,274 @@
+.app { display: flex; flex-direction: column; height: 100dvh; padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+
+/* Top bar */
+
+.topbar {
+  display: flex; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--chrome);
+  flex: none; justify-content: flex-start; gap: 8px;
+}
+
+/* The hamburger sits with the wordmark, where every chat app puts it. */
+
+.hamburger {
+  background: none; border: 1px solid transparent; border-radius: 6px;
+  color: var(--mut-d); cursor: pointer; padding: 4px 9px; font-size: 16px;
+  line-height: 1; margin-right: 10px;
+}
+
+.hamburger:hover { color: var(--ink-d); border-color: var(--line2); }
+
+.hamburger[aria-expanded='true'] { color: var(--ink-d); background: var(--inset); border-color: var(--line2); }
+
+.wordmark { font-weight: 700; font-size: 17px; letter-spacing: 0.02em; }
+
+.wordmark b { color: var(--steel); }
+
+.tabs { display: flex; gap: 4px; }
+
+@media (max-width: 480px) {
+  .topbar { flex-wrap: wrap; gap: 6px; padding-inline: 10px; }
+  .topbar .tabs { order: 3; width: 100%; }
+  .topbar .tab { flex: 1; }
+}
+
+.tab {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 7px 12px; border: 1px solid var(--line2); border-radius: 7px 7px 0 0;
+  background: none; color: var(--mut-d); cursor: pointer;
+}
+
+.tab:hover { color: var(--ink-d); }
+
+.tab.active { color: var(--ink-d); border-color: var(--line2); background: var(--inset); }
+
+.gear {
+  background: none; border: 1px solid var(--line2); border-radius: 6px;
+  color: var(--mut-d); cursor: pointer; padding: 6px 10px; font-size: 14px;
+}
+
+.gear:hover { color: var(--ink-d); }
+
+.content { flex: 1; min-height: 0; display: flex; }
+
+/* Tab pages stay mounted (state survives tab switches); inactive ones are
+   display:none so they neither paint nor intercept input. */
+
+.page-holder { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; }
+
+.page-holder.hidden { display: none; }
+
+.not-tauri {
+  margin: auto; max-width: 420px; text-align: center; color: var(--mut-d);
+  font-family: var(--mono); font-size: 13px; line-height: 1.8;
+  border: 1px solid var(--line); border-radius: 12px; padding: 24px;
+}
+
+/* A refused workspace: the reason, and the one action that recovers it. */
+
+.startup-refusal {
+  margin: auto; max-width: 520px; display: flex; flex-direction: column; gap: 16px;
+  color: var(--ink-d); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  border: 1px solid var(--line2); border-radius: 12px; padding: 24px;
+}
+
+/* ── Guided: split layout ─────────────────────────────────────────────── */
+
+.guided-workspace { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
+
+.split { flex: 1; min-height: 0; display: flex; }
+
+/* Overflow guards: flex's default min-width/min-height:auto lets wide
+   token/gloss columns and long chats blow past the viewport — break the
+   chain in both axes so .stream scrolls instead of stretching the page. */
+
+.split, .chat, .stream { min-width: 0; min-height: 0; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: 8px; border: none; background: none; color: var(--mut-d);
+  cursor: pointer; font-size: 13.5px; text-align: left;
+}
+
+.nav-item:hover { color: var(--ink-d); background: var(--chrome2); }
+
+.nav-icon { width: 18px; text-align: center; }
+
+/* Mobile mode: the window snapping below the breakpoint IS mobile mode —
+   a single-surface layout (swipes and bottom navigation switch Chat ⇄ Lesson)
+   instead of one unusable stacked column. */
+
+.mobile-nav {
+  flex: none; display: flex; border-top: 1px solid var(--line);
+  background: var(--chrome); padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-nav-item {
+  flex: 1; padding: 10px 2px; border: none; background: none;
+  color: var(--mut-d); font-size: 12px; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.mobile-nav-item.active { color: var(--steel); background: var(--inset); }
+
+@media (max-width: 860px) {
+  .split { flex-direction: column; }
+  .nav-item { white-space: nowrap; }
+}
+
+/* ── Chat history drawer ──────────────────────────────────────────────────
+   Overlays rather than reflows: the conversation keeps its width and position
+   while you browse, so opening the list does not shuffle the text you were
+   reading. */
+
+.drawer-scrim {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(6, 11, 18, 0.55);
+}
+
+.chat-history {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 41;
+  width: min(320px, 86vw);
+  display: flex; flex-direction: column;
+  background: var(--chrome); border-right: 1px solid var(--line);
+  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.35);
+}
+
+.chat-history-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 12px 12px 10px; border-bottom: 1px solid var(--line);
+}
+
+.chat-history-lang {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mut-d);
+}
+
+.chat-history-new {
+  background: var(--inset); border: 1px solid var(--line2); border-radius: 6px;
+  color: var(--ink-d); cursor: pointer; padding: 5px 10px; font-size: 12px;
+}
+
+.chat-history-new:hover { border-color: var(--steel); }
+
+.chat-history-empty { padding: 16px 14px; color: var(--faint-d); font-size: 13px; line-height: 1.5; }
+
+.chat-history-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; flex: 1; }
+
+.chat-history-list li {
+  display: flex; align-items: stretch; gap: 2px;
+  border-radius: 6px; margin-bottom: 2px;
+}
+
+.chat-history-list li:hover { background: var(--chrome2); }
+
+.chat-history-list li.current { background: var(--inset); outline: 1px solid var(--line2); }
+
+.chat-history-item {
+  flex: 1; min-width: 0; text-align: left; background: none; border: none;
+  color: var(--ink-d); cursor: pointer; padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+
+.chat-history-title {
+  font-size: 13px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.chat-history-title em { color: var(--faint-d); }
+
+.chat-history-meta { font-size: 11px; color: var(--faint-d); }
+
+.chat-history-delete {
+  background: none; border: none; color: var(--faint-d); cursor: pointer;
+  padding: 0 8px; font-size: 13px; opacity: 0; transition: opacity 120ms;
+}
+
+.chat-history-list li:hover .chat-history-delete,
+.chat-history-delete:focus-visible { opacity: 1; }
+
+.chat-history-delete:hover { color: var(--amber); }
+
+.chat-history-confirm { display: flex; align-items: center; gap: 4px; padding-right: 6px; }
+
+.chat-history-confirm button {
+  background: var(--inset); border: 1px solid var(--line2); border-radius: 5px;
+  color: var(--ink-d); cursor: pointer; font-size: 11px; padding: 3px 7px;
+}
+
+.chat-history-confirm button:first-child { color: var(--amber); border-color: var(--amber-deep); }
+
+.nav-item.active { box-shadow: inset 3px 0 var(--steel); background: var(--chrome2); color: var(--ink-d); }
+
+.tab.active, .panel-tab.active, .mobile-nav-item.active { box-shadow: inset 0 -3px var(--steel); color: var(--ink-d); }
+
+@media (max-width: 600px) { .topbar { flex-wrap: wrap; } .topbar .tabs { order: 5; flex-basis: 100%; } .topbar .tabs .tab { flex: 1; padding: 8px; font-size: 10px; } }
+
+@media (max-width: 860px) {
+  .mobile-conversation { overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; overflow: hidden; }
+  .mobile-conversation .chat { display: flex; flex: none; overflow: visible; min-height: 65dvh; }
+  .mobile-conversation .stream { overflow: visible; flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px; }
+  /* Dock below the conversation, then above the lesson as it scrolls. */
+  .mobile-conversation .mobile-composer { top: 0; bottom: 0; z-index: 2; position: static; flex: none; min-height: 0; overflow: visible; }
+  .mobile-conversation .break { flex: none; overflow: visible; min-height: 0; display: none; }
+  .mobile-conversation .coach-dock { max-height: 50dvh; }
+}
+
+@media (max-width: 860px) {
+  .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
+  .mobile-conversation.mobile-lesson > .chat { display: none; }
+  .mobile-conversation.mobile-lesson .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
+  .topbar { padding: 4px 8px; gap: 4px; }
+}
+
+@media (max-width: 860px) and (max-height: 550px) {
+  .app:has(.composer :focus) .topbar { display: none; }
+  .app:has(.composer :focus) .chat > .chat-head { display: none; }
+}
+
+.more-actions { display: flex; flex-direction: column; gap: 12px; }
+
+.more-actions .btn, .mobile-nav-item { min-height: 44px; }
+
+.mobile-ai-panel { display: flex; flex-direction: column; height: 65dvh; min-height: 0; }
+
+.topbar-actions { display: flex; align-items: center; gap: 4px; margin-inline-start: auto; flex: none; }
+
+.topbar-actions .gear { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 4px; }
+
+.topbar-actions .inside-btn { height: 30px; margin: 0; padding: 4px 7px; }
+
+@media (max-width: 860px) {
+  .topbar .wordmark { font-size: 14px; }
+  .topbar .hamburger { margin: 0; padding: 4px; }
+}
+
+.topbar-actions .profile-trigger { width: auto; gap: 5px; padding-inline: 6px; }
+
+.profile-trigger > span { font: 11px var(--mono); color: #b8d2ff; white-space: nowrap; }
+
+.app-home { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--ink-d); padding: 0; cursor: pointer; white-space: nowrap; }
+
+.app-home img { flex: none; object-fit: contain; }
+
+.app-home:focus-visible { outline: 2px solid var(--steel); outline-offset: 3px; border-radius: 4px; }
+
+@media (max-width: 380px) { .topbar .app-home { font-size: 11px; gap: 3px; } .app-home img { width: 24px; height: 24px; } }
+
+/* Remaining motion owners; graph scope also wins over lazily loaded vendor CSS. */
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-history-delete { transition: none; }
+}
+
+.mobile-nav-item:first-child { background: var(--paper); color: var(--ink); }
+
+.tab-group { display: flex; align-items: center; border: 1px solid var(--line2); border-radius: 7px 7px 0 0; background: var(--chrome); }
+
+.tab-group > .tab { border: 0; }
+
+.tab-group.active { background: var(--inset); border-bottom-color: var(--inset); }
+
+.tab-group > .new-chat { border: 1px solid #7fa3ce; background: #e8f1fc; color: #17446f; margin-inline-end: 3px; min-width: 26px; height: 28px; }
+
+.tab-group > .new-chat:hover:not(:disabled) { background: #d5e7fa; border-color: #3c78b5; color: #12395e; }

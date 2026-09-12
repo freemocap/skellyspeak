@@ -4,7 +4,7 @@ use crate::model::*;
 use rusqlite::{Connection, params};
 
 pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -> Result<()> {
-    let valid: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM conversations c JOIN relationships r ON r.id=c.relationship_id WHERE c.id=?1 AND c.archived=0 AND r.archived=0)", [conversation], |r| r.get(0))?;
+    let valid: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM conversations c JOIN contacts r ON r.id=c.contact_id WHERE c.id=?1 AND c.archived=0 AND r.archived=0)", [conversation], |r| r.get(0))?;
     if !valid || crate::execution::config(db)?.revision != target.revision {
         return Err(AppError::new(
             ErrorCode::Conflict,
@@ -210,7 +210,7 @@ mod tests {
             .unwrap();
         store
             .connection
-            .execute("UPDATE relationships SET archived=1", [])
+            .execute("UPDATE contacts SET archived=1", [])
             .unwrap();
         assert!(
             store
@@ -223,7 +223,7 @@ mod tests {
         );
         store
             .connection
-            .execute("UPDATE relationships SET archived=0", [])
+            .execute("UPDATE contacts SET archived=0", [])
             .unwrap();
         store
             .begin_transcription("deleted", &conversation, &target)

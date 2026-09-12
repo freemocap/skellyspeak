@@ -17,13 +17,16 @@ it('uses snapshot labels and rejects broken catalog ancestry', () => {
   value.catalog.find(node => node.id === 'statements')!.parent = 'referent'
   expect(() => createSkillCatalog(value.catalog)).toThrow('Cyclic')
 })
-it('classifies excluded, superseded and historical evidence without current XP', () => {
+it('classifies excluded and superseded evidence alongside current credit', () => {
   const value = snapshot(3)
   value.profile.choices.excluded_attempts = ['a-0']
   value.records[1].status = 'superseded'
-  value.records[2].catalog_version = 2
-  expect(evidenceForSkill(value, 'referent', null).map(entry => [entry.state, entry.xp])).toEqual([['superseded', 0], ['excluded', 0]])
-  expect(skillIndex(value).entries.get('a-2:referent')?.state).toBe('historical')
+  expect(evidenceForSkill(value, 'referent', null).map(entry => [entry.state, entry.xp])).toEqual([['complete', 10], ['superseded', 0], ['excluded', 0]])
+})
+it('refuses evidence written by another catalog instead of hiding it', () => {
+  const value = snapshot(1)
+  value.records[0].catalog_version = 2
+  expect(() => skillIndex(value)).toThrow('Evidence uses catalog 2')
 })
 it('indexes long histories once and retains unchanged message ranges across refreshes', () => {
   const value = snapshot(10000)

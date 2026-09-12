@@ -4,15 +4,7 @@ import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'
 import { invoke as nativeInvoke } from './native'
 import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 import { logDebug, logError, logInfo, logWarn } from '../diagnostics/log'
-import type {
-  Graph,
-  HostedAccount,
-  ObserverDocuments,
-  Reconciliation,
-  Run,
-  RunStarted,
-  Settings,
-} from '../../types'
+import type { Settings } from '../../types'
 
 export const isTauri =
   typeof window !== 'undefined' &&
@@ -80,48 +72,6 @@ export function languageFor(code: string): LanguageInfo | null {
   return languages().find(l => l.code === code || l.dialects.some(v => v.id === code)) ?? null
 }
 
-/// One character, as the core defines it.
-export interface Persona {
-  id: string
-  label: string
-  /// The description that goes into the reply prompt, verbatim.
-  sketch: string
-  /// Ships with the app: readable in the editor, but never editable or
-  /// deletable, so there is always a working set to get back to.
-  builtin: boolean
-}
-
-/// The list plus anything that went wrong reading it. Faults travel with the
-/// data rather than being logged: a personas file that could not be read shows
-/// up to the learner as "my characters are gone", and they are owed the reason.
-export interface ConversationPartner {
-  persona: Persona
-  introduction: string | null
-  origin: 'new_chat' | 'recovered_history'
-}
-
-export interface PersonaList {
-  personas: Persona[]
-  faults: string[]
-}
-
-/// The characters the learner can be paired with. Asked for rather than
-/// hardcoded: the personas live in Rust because the prompt is built from them,
-/// and a copy here would drift the first time one is added.
-export function listPersonas(): Promise<PersonaList> {
-  return invoke<PersonaList>('list_personas')
-}
-
-/// Create (`id: ''`) or update one of the learner's own characters. Refuses to
-/// touch a built-in.
-export function savePersona(id: string, label: string, sketch: string): Promise<Persona> {
-  return invoke<Persona>('save_persona', { id, label, sketch })
-}
-
-export function deletePersona(id: string): Promise<void> {
-  return invoke<void>('delete_persona', { id })
-}
-
 /** View settings combine native conversation choices and learner display preferences. */
 export async function getSettings(): Promise<Settings> {
   const [snapshot, connection, access, rewards, playbackRate] = await Promise.all([
@@ -143,130 +93,12 @@ export async function getSettings(): Promise<Settings> {
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
     microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
     reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
-    tts_engine: 'cloud', tts_voice: conversation.settings.speechVoice, tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
+    tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
   }
-}
-
-export interface KeyStatus {
-  valid: boolean
-  detail: string
-}
-
-export function validateKey(
-  provider: 'openrouter' | 'groq',
-  key: string
-): Promise<KeyStatus> {
-  return invoke('validate_key', { provider, key })
-}
-
-/// Sign in to the hosted service. Opens the system browser and resolves once
-/// the redirect comes back — which can take as long as the user takes.
-export function hostedSignIn(): Promise<HostedAccount> {
-  return invoke<HostedAccount>('hosted_sign_in')
-}
-
-/// Identity and remaining allowance for the stored session.
-export function hostedAccount(): Promise<HostedAccount> {
-  return invoke<HostedAccount>('hosted_account')
-}
-
-export function hostedSignOut(): Promise<void> {
-  return invoke('hosted_sign_out')
-}
-
-export function getDiagnostics(): Promise<[string, number][]> {
-  return invoke('get_diagnostics')
-}
-
-/// Pop the observability panel into its own OS window. Desktop only —
-/// the window is built in Rust, so the webview never needs window-creation
-/// permission.
-export function openDevWindow(): Promise<void> {
-  return invoke('open_ai_window')
 }
 
 /// The execution graph as Rust declares it. The UI renders this and only
 /// this — a hand-drawn diagram would drift from the code within a week.
-export function getGraph(): Promise<Graph[]> {
-  return invoke('get_graph')
-}
-
-/// The declared graph diffed against what actually ran.
-export function getReconciliation(): Promise<Reconciliation> {
-  return invoke('get_reconciliation')
-}
-
-/// Retained AI runs across application restarts, oldest first.
-export function getRuns(): Promise<Run[]> {
-  return invoke('get_runs')
-}
-
-export function clearRuns(): Promise<void> {
-  return invoke('clear_runs')
-}
-
-/// Operation starts. Subscribe alongside `subscribeRuns` to know what is
-/// working *now* rather than what has already finished.
-export async function subscribeRunStarts(
-  onStart: (run: RunStarted) => void
-): Promise<() => void> {
-  const { listen } = await import('@tauri-apps/api/event')
-  return listen<RunStarted>('trace:run_started', (e) => onStart(e.payload))
-}
-
-/// An operation stopped at the pipeline gate, waiting to be let through.
-export interface HeldOperation {
-  id: number
-  operation: string
-  turn_id: number | null
-}
-
-/// Whether the agent pipeline is paused, and what is queued behind it.
-export interface GateStatus {
-  paused: boolean
-  /// Operations still allowed through while paused — spent by stepping.
-  budget: number
-  waiting: HeldOperation[]
-}
-
-/// Pause the pipeline. This holds REAL work: the next operation stops before
-/// its model call, so the conversation genuinely stops advancing.
-export function gatePause(): Promise<GateStatus> {
-  return invoke('gate_pause')
-}
-
-export function gateResume(): Promise<GateStatus> {
-  return invoke('gate_resume')
-}
-
-/// Let `count` operations through, then stop again.
-export function gateStep(count = 1): Promise<GateStatus> {
-  return invoke('gate_step', { count })
-}
-
-export function gateStatus(): Promise<GateStatus> {
-  return invoke('gate_status')
-}
-
-/// Live gate state. Fires when it is paused, resumed, stepped, and whenever an
-/// operation arrives at or leaves the queue.
-export async function subscribeGate(
-  onChange: (status: GateStatus) => void
-): Promise<() => void> {
-  const { listen } = await import('@tauri-apps/api/event')
-  return listen<GateStatus>('trace:gate', (e) => onChange(e.payload))
-}
-
-/// The trace bus. Every agent execution lands here the moment it finishes,
-/// from ANY command — not just guided_turn, which is the only one with a
-/// per-turn channel. Returns an unsubscribe function.
-export async function subscribeRuns(
-  onRun: (run: Run) => void
-): Promise<() => void> {
-  const { listen } = await import('@tauri-apps/api/event')
-  return listen<Run>('trace:run', (event) => onRun(event.payload))
-}
-
 let settingsWrites: Promise<void> = Promise.resolve()
 
 /** Serialize preference edits; refresh native revisions and apply only the user's delta. */
@@ -295,7 +127,7 @@ export function saveSettings(settings: Settings, baseline?: Settings): Promise<v
   // later one. This is sequencing only: `result` still carries the rejection to
   // the caller, which is what reports it.
   settingsWrites = result.catch(() => {})
-  return result.then(() => { if (typeof window !== 'undefined') window.dispatchEvent(new Event('skellyspeak-settings-saved')) })
+  return result
 }
 
 async function writeSettings(settings: Settings): Promise<void> {
@@ -308,14 +140,14 @@ async function writeSettings(settings: Settings): Promise<void> {
   if (!conversation) throw new Error('The settings conversation is unavailable.')
   if (conversation.settingsRevision !== scope.settingsRevision) throw new Error('Settings changed. Reload before saving.')
   if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
-  if (settings.microphone_device_id !== null || settings.tts_engine !== 'cloud' || settings.tts_voice !== 'alloy' || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  if (settings.microphone_device_id !== null || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
   const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
   const currentRewards = await invoke<RewardSettings>('get_reward_settings')
   if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
   const currentRate = await invoke<number>('get_playback_rate')
   if (settings.tts_rate !== currentRate) await invoke('save_playback_rate', { rate: settings.tts_rate })
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
-    autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: settings.tts_voice,
+    autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: conversation.settings.speechVoice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
   const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)
@@ -337,24 +169,6 @@ async function writeSettings(settings: Settings): Promise<void> {
   if (displayChanged) await executeAction(snapshot, { kind: 'updateLearner', expectedRevision: snapshot.learner.revision, name: snapshot.learner.name, preferences })
 }
 
-/// Drain faults the Rust core recorded before the webview existed. Called once
-/// on mount so a startup failure reaches the screen instead of only a log file.
-export function takeStartupFaults(): Promise<string[]> {
-  return invoke<string[]>('take_startup_faults')
-}
 
-/// Restore every setting to its built-in default and clear both API keys.
-/// Returns the fresh settings (secrets masked) as the backend now holds them.
-export async function resetSettings(): Promise<Settings> {
-  const settings = await invoke<Settings>('reset_settings')
-  validateAudioVolumes(settings)
-  return settings
-}
-
-
-
-export function getPlan(): Promise<ObserverDocuments> {
-  return invoke('get_plan')
-}
 
 export { logDebug, logError, logInfo, logWarn }

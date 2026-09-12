@@ -5,6 +5,13 @@
 import '@testing-library/jest-dom/vitest'
 import { afterEach, vi } from 'vitest'
 
+// Zustand stores are module-level singletons, so state written by one test is
+// visible to the next. The root `__mocks__/zustand.ts` remembers each store's
+// initial state and restores it after every test, so no store carries reset
+// machinery of its own. Registering it here opts every test file into that mock:
+// without this call vitest leaves the real package in place.
+vi.mock('zustand')
+
 if (typeof document !== 'undefined') {
   const { cleanup } = await import('@testing-library/react')
   afterEach(cleanup)

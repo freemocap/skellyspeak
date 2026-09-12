@@ -1,17 +1,8 @@
-import catalog from '../../assets/skill-catalogs/catalog.json'
-import legacy from '../../assets/skill-catalogs/catalog-v1.json'
-import second from '../../assets/skill-catalogs/catalog-v2.json'
 export type TreeLayout = 'radial' | 'down' | 'right' | 'left'
 export type TreeNode = {
   id: string; parent: string | null; label: string; code: string
   kind: 'root' | 'domain' | 'skill'
   color: string; description: string; criterion: string
-}
-export function evidenceLabel(id: string, version: number): string {
-  const definitions = version === 1 ? legacy : version === 2 ? second : version === 4 ? catalog : null
-  const item = definitions?.find((node) => node.id === id)
-  if (!item) throw new Error(`Unknown evidence rubric: ${version}/${id}`)
-  return item.label
 }
 /** Ordered leaf spans keep variable-width branches separate in every layout. */
 export function nodePosition(node: TreeNode, layout: TreeLayout, visible: TreeNode[]): { x: number; y: number } {

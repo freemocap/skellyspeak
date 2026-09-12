@@ -1,0 +1,90 @@
+/* Breakdown half */
+
+.break { flex: 1 1 50%; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
+
+.break-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  width: 100%; padding: 12px 18px 10px; border: none; border-bottom: 1px solid var(--line);
+  background: none; text-align: left; cursor: pointer; flex: none;
+}
+
+.break-head .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--steel); }
+
+.break-head .live { font-family: var(--mono); font-size: 10px; color: var(--faint-d); }
+
+.break-head .chev { font-size: 15px; color: var(--ink-d); }
+
+.break.collapsed { flex: 0 0 auto; min-width: 0; }
+
+.break.collapsed .break-head { border-bottom: none; padding: 11px 18px; }
+
+.feat { font-family: var(--mono); font-size: 11px; color: var(--steel); border: 1px solid var(--line2); border-radius: 6px; padding: 3px 8px; background: var(--inset); }
+
+.feat b { color: var(--ink-d); font-weight: 500; }
+
+.exp { border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 11px; padding: 13px 14px; background: var(--chrome); margin-top: 6px; }
+
+.exp-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+
+.exp-title { font-weight: 600; font-size: 15px; }
+
+.exp-cefr { font-family: var(--mono); font-size: 10.5px; color: var(--amber); border: 1px solid var(--amber-deep); border-radius: 20px; padding: 1px 8px; }
+
+.exp-body { font-size: 13.5px; color: var(--mut-d); line-height: 1.55; margin-top: 9px; }
+
+.exp-ex { font-family: var(--serif); font-size: 15px; color: var(--amber); margin-top: 9px; line-height: 1.45; }
+
+.exp-vs { font-size: 12.5px; color: var(--mut-d); margin-top: 9px; line-height: 1.5; }
+
+.exp-vs span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint-d); display: block; margin-bottom: 2px; }
+
+@media (max-width: 860px) {
+  .break { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+}
+
+.lesson-meta { color: var(--mut-d); font-size: 11.5px; line-height: 1.5; }
+
+.lesson-action { border: 1px solid var(--line2); border-radius: 7px; background: var(--inset); color: var(--ink-d); cursor: pointer; padding: 7px 10px; font: inherit; font-size: 12px; }
+
+.lesson-action:hover { border-color: var(--steel); }
+
+.lesson-action:disabled { opacity: .5; cursor: default; }
+
+.lesson-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.break.collapsed > :not(.break-head) { display: none; }
+
+.detail-dialog { box-sizing: border-box; width: min(580px, calc(100vw - 28px)); max-height: 85dvh; overflow-y: auto; padding: 22px; border: 1px solid #617184; border-radius: 14px; background: var(--chrome); color: var(--ink-d); font: 15px/1.55 var(--sans); }
+
+/* The conversation dialog owns its available height; saved side-dock sizes do not apply. */
+
+.detail-dialog[open]:has(> .coach-dock.is-dialog) { display: flex; flex-direction: column; height: min(640px, 85dvh); overflow: hidden; }
+
+.detail-dialog:has(> .coach-dock.is-dialog) > .detail-close,
+.detail-dialog:has(> .coach-dock.is-dialog) > h2 { flex: none; }
+
+.detail-dialog > .coach-dock.is-dialog { flex: 1; min-height: 0; max-height: none; }
+
+.detail-dialog::backdrop { background: #09111a88; }
+
+.detail-close { display: block; margin-inline-start: auto; border: 1px solid var(--line2); border-radius: 6px; padding: 6px 10px; color: var(--ink-d); background: transparent; cursor: pointer; }
+
+.skill-evidence-record { border-top: 1px solid var(--line2); padding: 16px 0; overflow-wrap: anywhere; font: 14px/1.55 var(--sans); }
+
+.skill-evidence-record header { display: flex; justify-content: space-between; gap: 12px; }
+
+.skill-evidence-record blockquote { margin: 12px 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line2); font-size: 17px; }
+
+.skill-evidence-record dd { margin-inline-start: 0; }
+
+.detail-dialog .coach-entry-said { margin-bottom: 14px; }
+
+.detail-dialog .coach-correction { margin-top: 12px; }
+
+@media (pointer: coarse) {
+  .detail-dialog { width: calc(100vw - 16px); padding: 16px; }
+}
+
+.detail-dialog:has(.practice-overview) { width: min(820px, calc(100vw - 24px)); height: 85dvh; padding: 10px; font-size: 13px; }
+
+.detail-dialog:has(.practice-overview) > .detail-close { float: right; padding: 3px 7px; }

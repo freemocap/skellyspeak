@@ -1,30 +1,36 @@
-import { isTauri } from '../../platform/ipc/tauri'
+import { useIsMobile } from '../../ui/useIsMobile'
 import { ToolbarIcon } from '../../ui/ToolbarIcon'
-import type { Page } from '../navigation'
+import { isTauri } from '../../platform/ipc/tauri'
+import { useNavigationStore } from '../../state/navigation'
+import { useSettingsStore } from '../../state/settings'
+import { useSkillEvidence } from '../../state/useSkillEvidence'
 
 /// The app's fixed chrome: contacts toggle, wordmark, surface tabs and the
-/// action cluster. It owns no state — every control reports upward, because the
-/// same values are read by the pages below.
-export function TopBar({ page, isMobile, historyOpen, devOpen, moreOpen, savingLanguage, newChatAction, profile, onHistoryToggle, onHome, onPage, onNewChat, onSkillTree, onDevToggle, onOpenSettings, onMoreOpen, onOpenProfile }: {
-  page: Page
-  isMobile: boolean
-  historyOpen: boolean
-  devOpen: boolean
-  moreOpen: boolean
-  savingLanguage: boolean
-  newChatAction: (() => void) | null
-  /// The language profile the button opens, or null when evidence is not loaded.
-  profile: { target: string; xp: number } | null
-  onHistoryToggle: () => void
-  onHome: () => void
-  onPage: (page: Page) => void
-  onNewChat: () => void
-  onSkillTree: () => void
-  onDevToggle: () => void
-  onOpenSettings: () => void
-  onMoreOpen: () => void
-  onOpenProfile: () => void
-}) {
+/// action cluster.
+///
+/// It reads the stores rather than being handed a dozen callbacks, and owns no
+/// state of its own — including the XP on the profile button, which is the
+/// evidence store's value for the active language.
+export function TopBar() {
+  const evidence = useSkillEvidence()
+  // A summary of the language profile: which language, and its XP. There is
+  // nothing to show until evidence for the active language has landed.
+  const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
+  const savingLanguage = useSettingsStore((state) => state.savingLanguage)
+  const newChatAction = useNavigationStore((state) => state.newChatAction)
+  const isMobile = useIsMobile()
+  const page = useNavigationStore((state) => state.page)
+  const historyOpen = useNavigationStore((state) => state.historyOpen)
+  const overlay = useNavigationStore((state) => state.overlay)
+  const toggleHistory = useNavigationStore((state) => state.toggleHistory)
+  const goHome = useNavigationStore((state) => state.goHome)
+  const showPage = useNavigationStore((state) => state.showPage)
+  const openPractice = useNavigationStore((state) => state.openPractice)
+  const openSkills = useNavigationStore((state) => state.openSkills)
+  const showOverlay = useNavigationStore((state) => state.showOverlay)
+  const toggleOverlay = useNavigationStore((state) => state.toggleOverlay)
+  const newChat = () => { openPractice('chat'); newChatAction?.() }
+
   return (
     <div className="topbar">
       {page === 'guided' && (
@@ -34,27 +40,27 @@ export function TopBar({ page, isMobile, historyOpen, devOpen, moreOpen, savingL
           aria-label="Contacts"
           aria-expanded={historyOpen}
           title="Contacts"
-          onClick={onHistoryToggle}
+          onClick={toggleHistory}
         >
           ☰
         </button>
       )}
-      <button type="button" className="wordmark app-home" aria-label="SkellySpeak home — Chat" onClick={onHome}>
+      <button type="button" className="wordmark app-home" aria-label="SkellySpeak home — Chat" onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SKELLYSPEAK<b>·</b></span>
       </button>
       {!isMobile && <div className="tabs" aria-label="Main navigation">
-        <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => onPage('guided')}>Guided conversation</button><button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={onNewChat}>+</button></div>
-        <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={onSkillTree}>Skill tree</button>
+        <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => showPage('guided')}>Guided conversation</button><button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={newChat}>+</button></div>
+        <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={openSkills}>Skill tree</button>
       </div>}
-      <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={onNewChat}>+</button>}
+      <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={newChat}>+</button>}
       {!isMobile && (
         <button
           type="button"
-          className={`inside-btn ${devOpen ? 'open' : ''}`}
-          onClick={onDevToggle}
+          className={`inside-btn ${overlay === 'activity' ? 'open' : ''}`}
+          onClick={() => toggleOverlay('activity')}
           aria-label="AI"
-          aria-expanded={devOpen}
+          aria-expanded={overlay === 'activity'}
           title="AI — understand recent activity, inspect a pipeline, or open debugging tools"
         >
           <span className="inside-dot" aria-hidden="true" />
@@ -73,15 +79,15 @@ export function TopBar({ page, isMobile, historyOpen, devOpen, moreOpen, savingL
       <button
         type="button"
         className="gear"
-        onClick={onOpenSettings}
+        onClick={() => showOverlay('settings')}
         disabled={savingLanguage}
         aria-label="Settings"
         title="Settings"
       >
         <ToolbarIcon name="settings" />
       </button>
-      {isMobile && <button type="button" className="gear" aria-label="More" aria-expanded={moreOpen} onClick={onMoreOpen}>•••</button>}
-      {isTauri && <button type="button" className="gear profile-trigger" aria-label="Open language profile" title={profile ? `${profile.target} · ${profile.xp} XP` : "My language profile"} onClick={onOpenProfile}><ToolbarIcon name="profile" />{profile && <span>{profile.xp.toLocaleString()} XP</span>}</button>}
+      {isMobile && <button type="button" className="gear" aria-label="More" aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}>•••</button>}
+      {isTauri && <button type="button" className="gear profile-trigger" aria-label="Open language profile" title={profile ? `${profile.target} · ${profile.xp} XP` : "My language profile"} onClick={() => showOverlay('profile')}><ToolbarIcon name="profile" />{profile && <span>{profile.xp.toLocaleString()} XP</span>}</button>}
       </div>
     </div>
   )

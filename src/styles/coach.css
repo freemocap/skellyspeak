@@ -1,0 +1,215 @@
+/* Private coach conversation below the lesson. */
+
+.coach-thread {
+  flex: 0 1 auto; max-height: 45%;
+  overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 14px; border-top: 1px solid var(--line);
+}
+
+.coach-msg {
+  max-width: 88%; padding: 8px 12px; border-radius: 10px;
+  font-size: 13.5px; line-height: 1.55;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+.coach-msg.user {
+  align-self: flex-end;
+  background: var(--user-bg); color: var(--user-ink);
+}
+
+.coach-msg.coach {
+  align-self: flex-start;
+  background: var(--chrome2); color: var(--ink-d);
+  border: 1px solid var(--line);
+}
+
+.coach-input-row {
+  display: flex; gap: 6px; align-items: center;
+  padding: 8px 12px; border-top: 1px solid var(--line); flex: none;
+}
+
+.coach-input {
+  flex: 1; min-width: 0;
+  background: var(--inset); border: 1px solid var(--line2); border-radius: 8px;
+  color: var(--ink-d); font-size: 13px; padding: 7px 10px; outline: none;
+}
+
+.coach-input:focus { border-color: var(--steel); }
+
+.coach-send {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  border: none; background: var(--steel-deep); color: #fff;
+  font-weight: 700; cursor: pointer;
+}
+
+.coach-send:disabled { opacity: 0.5; cursor: default; }
+
+.coach-card {
+  border: 1px solid var(--line); border-left: 3px solid var(--steel);
+  border-radius: 11px; padding: 13px 14px; background: var(--chrome);
+}
+
+.coach-scores { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+
+.score-meter { display: flex; align-items: center; gap: 10px; }
+
+.score-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--faint-d); width: 110px;
+}
+
+.score-dots { color: var(--line2); font-size: 11px; letter-spacing: 3px; }
+
+.score-dots .dot.on { color: var(--steel); }
+
+.score-num { font-family: var(--mono); font-size: 10px; color: var(--mut-d); }
+
+.coach-remark { font-size: 14px; color: var(--ink-d); line-height: 1.6; margin: 0; }
+
+.coach-correction {
+  border: 1px solid var(--line); border-left: 3px solid var(--amber);
+  border-radius: 9px; padding: 10px 12px; background: var(--chrome); margin-top: 8px;
+}
+
+.cor-line { font-size: 14px; color: var(--ink-d); font-family: var(--serif); }
+
+.cor-line s { color: var(--mut-d); }
+
+.cor-kind {
+  font-family: var(--mono); font-size: 8.5px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--amber); border: 1px solid var(--amber-deep);
+  border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: 1px;
+}
+
+.cor-why { font-size: 12.5px; color: var(--mut-d); line-height: 1.55; margin: 6px 0 0; }
+
+/* Coach feed: a persistent scrollback of one entry per coached message,
+   rather than a single card that overwrites itself every turn. */
+
+.coach-entry + .coach-entry { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
+
+.coach-entry-said {
+  font-family: var(--serif); font-size: 12.5px; font-style: italic;
+  color: var(--mut-d); margin: 0 0 8px;
+}
+
+.coach-msg code, .coach-remark code, .cor-why code {
+  font-family: var(--mono); font-size: 0.92em;
+  background: var(--inset); border-radius: 3px; padding: 1px 4px;
+}
+
+.turn-errors {
+  border: 1px solid #e06c6c; border-radius: 9px; padding: 8px 11px;
+  background: rgba(224, 108, 108, 0.08); color: #e08a8a;
+  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.error-details { padding: 4px 8px; font-size: 11px; }
+
+.error-details > summary { position: relative; padding-inline-end: 28px; cursor: pointer; }
+
+.error-dismiss { position: absolute; inset-inline-end: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; padding: 0; border: 0; background: transparent; color: inherit; font: 16px/1 var(--sans); cursor: pointer; }
+
+.error-details-body { padding-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.error-details:not([open]) { flex: none; }
+
+/* Collapsible coach thread. */
+
+.coach-thread-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px 4px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--faint-d); border-top: 2px solid var(--steel); padding-top: 12px; padding-bottom: 8px;
+}
+
+.coach-thread-head button {
+  margin-left: auto; background: none; border: none; color: var(--mut-d);
+  cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px;
+}
+
+.coach-thread-head button:hover { color: var(--ink-d); }
+
+.coach-input-row textarea { resize: vertical; max-height: 140px; line-height: 1.4; }
+
+/* Coach conversation is visually distinct from the lesson and analysis. */
+
+.coach-thread-head, .lesson-thread, .coach-input-row { background: var(--chrome2); }
+
+/* The coach dock keeps its composer accessible at every saved height. */
+
+.coach-dock { flex: none; min-height: 160px; max-height: max(160px, calc(100% - 120px)); display: flex; flex-direction: column; background: var(--chrome2); overflow: hidden; }
+
+.coach-resizer { flex: none; height: 8px; cursor: ns-resize; touch-action: none; background: var(--chrome); border-top: 1px solid var(--steel); display: grid; place-items: center; }
+
+.coach-resizer::after { content: ''; width: 38px; height: 2px; border-radius: 2px; background: var(--steel); }
+
+.coach-resizer:hover, .coach-resizer:focus-visible { background: var(--steel-deep); outline: none; }
+
+.coach-dock .coach-thread-head { flex: none; border-top: 0; padding: 5px 12px; min-height: 26px; }
+
+.coach-dock .coach-collapse { margin-left: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+
+.coach-dock .lesson-thread { flex: 1; min-height: 32px; max-height: none; padding: 4px 14px; }
+
+.coach-dock.is-collapsed { min-height: 64px; }
+
+.coach-dock.is-collapsed:has(.turn-errors) { min-height: 112px; }
+
+.coach-dock.is-collapsed .lesson-thread { display: none; }
+
+.coach-dock .coach-input-row { margin-top: auto; }
+
+.coach-dock .coach-input { resize: none; }
+
+.coach-dock .turn-errors { flex: 0 1 auto; min-height: 0; max-height: 35%; margin-block: 4px; padding-block: 6px; overflow: auto; }
+
+.coach-dock .error-details { margin-block: 0; padding-block: 2px; }
+
+.coach-dock .error-details:not([open]) { flex: none; max-height: none; overflow: hidden; }
+
+@media (max-width: 860px) {
+  .coach-resizer { height: 12px; }
+}
+
+.edit-feedback { background: var(--inset); color: var(--ink-d); border: 1px solid var(--line2); border-radius: 8px; margin: 5px 0 8px; font-size: 12px; }
+
+.edit-feedback > summary { cursor: pointer; padding: 7px 10px; font-weight: 600; }
+
+.edit-feedback > summary span { color: var(--mut-d); font-weight: 400; font-size: 11px; margin-left: 5px; }
+
+.edit-feedback-body { max-height: min(210px, 28dvh); overflow-y: auto; overscroll-behavior: contain; padding: 0 10px 8px; }
+
+.edit-feedback-body:focus-visible { outline: 2px solid var(--steel); outline-offset: -2px; }
+
+.edit-feedback .coach-entry { display: flex; flex-direction: column; padding: 0; }
+
+.edit-feedback .coach-correction { order: 0; margin: 4px 0; }
+
+.edit-feedback .coach-card { order: 1; background: transparent; padding: 3px 0; }
+
+.edit-feedback .coach-scores { display: none; }
+
+.edit-feedback .coach-remark { font-size: 12px; }
+
+.coach-evidence { margin-top: 12px; }
+
+.coach-evidence ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.coach-evidence li { padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--inset); }
+
+.evidence-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 13px; color: var(--ink-d); }
+
+.evidence-outcome { font: 600 10px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--mut-d); }
+
+.evidence-outcome.demonstrated { color: var(--steel); }
+
+.evidence-quote { margin-top: 3px; font-family: var(--serif); font-size: 14px; color: var(--ink-d); }
+
+.coach-dock.is-collapsed .coach-thread-head { display: none; }
+
+.coach-dock.is-collapsed .coach-input-row { padding: 4px 10px; gap: 6px; }
+
+.coach-dock.is-collapsed .coach-input { height: 40px; min-height: 40px; padding-block: 8px; }

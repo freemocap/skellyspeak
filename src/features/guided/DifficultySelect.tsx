@@ -1,6 +1,6 @@
 import type { Difficulty } from '../../contracts'
 
-export const DIFFICULTIES = [
+const DIFFICULTIES = [
   { value: 'absolute_zero', label: 'Absolute zero' },
   { value: 'beginner', label: 'Beginner' },
   { value: 'intermediate', label: 'Intermediate' },

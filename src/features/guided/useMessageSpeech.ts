@@ -78,7 +78,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   useEffect(() => {
     if (!snapshot || snapshot.conversationId !== conversationId) return
     const messages = snapshot.messages.filter(item => item.role === 'assistant')
-    const operations = snapshot.turns.flatMap(turn => turn.operations).filter(item => item.kind === 'partner_speech')
+    const operations = snapshot.turns.flatMap(turn => turn.operations).filter(item => item.kind === 'persona_speech')
     if (!baseline.current || baseline.current.conversation !== conversationId) {
       baseline.current = { conversation: conversationId, messages: new Set(messages.map(item => item.id)), eligible: new Set(), operations: new Set(operations.filter(item => item.sourceMessageId).map(item => item.id)) }
       return

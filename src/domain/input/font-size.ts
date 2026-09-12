@@ -1,14 +1,12 @@
-export const FONT_SIZE_DEFAULT = 100
-export const FONT_SIZE_MIN = 75
-export const FONT_SIZE_MAX = 150
-export const FONT_SIZE_STEP = 5
+import { TEXT_SIZE } from '../../contracts'
 
 export type FontSizeAction = 'increase' | 'decrease' | 'reset'
 
+/// Reading size moves in the steps Rust defines and stays inside its range.
 export function applyFontSizeAction(size: number, action: FontSizeAction): number {
-  if (action === 'reset') return FONT_SIZE_DEFAULT
-  const delta = action === 'increase' ? FONT_SIZE_STEP : -FONT_SIZE_STEP
-  return Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, size + delta))
+  if (action === 'reset') return TEXT_SIZE.default
+  const delta = action === 'increase' ? TEXT_SIZE.step : -TEXT_SIZE.step
+  return Math.min(TEXT_SIZE.max, Math.max(TEXT_SIZE.min, size + delta))
 }
 
 /** The familiar browser/document reading-size shortcuts, on either platform modifier. */

@@ -6,7 +6,6 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { RewardPresentationProvider } from './RewardPresentation'
 import { RewardInspectionContext } from './RewardInspectionContext'
-import { SkillNavigationProvider } from '../../state/useSkillNavigation'
 import type { MessageEvidence } from '../../domain/skills/message-evidence'
 vi.mock('../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'statements', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
@@ -17,7 +16,7 @@ function Triggers() {
 }
 function Fixture({ fastMode }: { fastMode: boolean }) {
   const workspace = useRef<HTMLDivElement>(null)
-  return <SkillNavigationProvider><RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-domain="statements" /></div></RewardPresentationProvider></SkillNavigationProvider>
+  return <RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-domain="statements" /></div></RewardPresentationProvider>
 }
 it('grows, holds, and departs on dismissal before flashing the destination', () => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)

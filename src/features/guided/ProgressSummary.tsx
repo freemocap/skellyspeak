@@ -6,11 +6,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { getPracticeOverview } from '../../platform/skill-evidence'
 import type { PracticeOverview, SkillSnapshot } from '../../domain/skills/skills'
 import { practiceStatistics } from '../../domain/skills/practice-statistics'
-import { useSkillNavigation } from '../../state/useSkillNavigation'
+import { useSkillNavigationStore } from '../../state/skill-navigation'
 import { DetailDialog } from '../../ui/DetailDialog'
 
 function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot; name: string; onClose: () => void }) {
-  const navigation = useSkillNavigation()
+  const explore = useSkillNavigationStore((state) => state.explore)
   const stats = useMemo(() => practiceStatistics(snapshot), [snapshot])
   const [domainId, setDomainId] = useState<string | null>(null)
   const [includeUnpracticed, setIncludeUnpracticed] = useState(false)
@@ -70,7 +70,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
         <dl className="practice-record-counts"><div><dt>Complete records</dt><dd>{stats.statuses.complete}</dd></div><div><dt>Pending</dt><dd>{stats.statuses.pending}</dd></div><div><dt>Failed</dt><dd>{stats.statuses.failed}</dd></div><div><dt>Superseded</dt><dd>{stats.statuses.superseded}</dd></div><div><dt>Stored exclusions</dt><dd>{snapshot.profile.choices.excluded_attempts.length}</dd></div></dl>
       </details>
       <p className="practice-focus">Current focus: <strong>{focus.label}</strong></p>
-      <button className="lesson-action" onClick={() => { onClose(); navigation.explore({ target: snapshot.target, skillId: focus.id }) }}>Explore skill map</button>
+      <button className="lesson-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: focus.id }) }}>Explore skill map</button>
     </div>
 }
 

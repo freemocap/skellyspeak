@@ -6,7 +6,6 @@ import DevWindow from '../../DevWindow'
 
 const mocks = vi.hoisted(() => ({ native: vi.fn(), mobile: false }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.native }))
-vi.mock('../../platform/ipc/tauri', () => ({ openDevWindow: mocks.native }))
 vi.mock('../../ui/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
 vi.mock('../../ui/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
 beforeEach(() => { vi.clearAllMocks(); mocks.mobile = false })

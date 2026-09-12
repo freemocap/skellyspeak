@@ -1,4 +1,4 @@
-//! Source-owned projection for one partner-message gloss result.
+//! Source-owned projection for one persona-message gloss result.
 use crate::{
     linguistics::{self, Annotation, Coverage, SourceIdentity, SourceMap, adapter},
     model::{

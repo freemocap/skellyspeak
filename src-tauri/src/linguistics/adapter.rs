@@ -13,8 +13,8 @@ use serde::{
 };
 use std::fmt;
 
-pub const FORMAT_ID: &str = "partner-word-gloss-grapheme-v2";
-pub const TEMPLATE_ID: &str = "partner-word-gloss-prompt-v4";
+pub const FORMAT_ID: &str = "persona-word-gloss-grapheme-v2";
+pub const TEMPLATE_ID: &str = "persona-word-gloss-prompt-v4";
 pub const MAX_RESPONSE_BYTES: usize = 128 * 1024;
 pub const MAX_PROMPT_BYTES: usize = 256 * 1024;
 

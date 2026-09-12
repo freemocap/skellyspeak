@@ -58,3 +58,29 @@ it('click reveals inline values and never pins the floating hover helper', () =>
   fireEvent.click(word)
   expect(screen.queryByText('yes')).toBeNull()
 })
+
+/// The helper is opened by the browser's own hover, which is delivered as the
+/// bubbling pointerover that React derives pointerenter from.
+function hoverEvent(type: 'pointerover' | 'pointerout'): Event {
+  const event = new Event(type, { bubbles: true })
+  Object.defineProperty(event, 'pointerType', { value: 'mouse' })
+  return event
+}
+
+it('opens saved word help in the top layer so no clipping host can cut it off', () => {
+  const show = vi.fn()
+  HTMLElement.prototype.showPopover = show
+  try {
+    const view = render(<SavedGlossText text={text} segments={result.segments} />)
+    const word = view.container.querySelector('.saved-word')!
+    fireEvent(word, hoverEvent('pointerover'))
+    expect(show).toHaveBeenCalledOnce()
+    const help = view.container.querySelector('.saved-word-help')!
+    expect(help).toHaveAttribute('popover', 'manual')
+    expect(help).toHaveTextContent('yes')
+    fireEvent(word, hoverEvent('pointerout'))
+    expect(view.container.querySelector('.saved-word-help')).toBeNull()
+  } finally {
+    Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
+  }
+})

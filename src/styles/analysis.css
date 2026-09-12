@@ -1,0 +1,152 @@
+.analysis-scroll[hidden] { display: none; }
+
+/* Analysis pane: scrollable body + Q&A input */
+
+.analysis-scroll {
+  flex: 1; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 14px 16px 20px;
+}
+
+/* Logs overlay (floating debug console) — docked beside the topbar gear so
+   it never overlaps content on any screen size. */
+
+/* "AI" is an ordinary topbar flex item beside the gear, so it remains aligned
+   and never overlaps content at narrow widths. */
+
+.inside-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: 1px solid var(--line2); border-radius: 6px;
+  color: var(--mut-d); cursor: pointer; padding: 6px 12px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.inside-btn:hover { color: var(--ink-d); border-color: var(--steel); }
+
+.inside-btn.open { color: var(--steel); border-color: var(--steel); }
+
+.inside-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex: none;
+  background: var(--line2);
+}
+
+.inside-btn:hover .inside-dot { background: var(--steel); }
+
+/* While agents are running, the button says so: an amber ring travelling
+   around the border, plus a lit dot. Motion ONLY while something is actually
+   happening -- an idle animation is decoration, and after a while nobody sees
+   it. `trace:run_started` and `trace:run` are what turn it on and off. */
+
+.inside-btn.busy {
+  color: var(--amber-deep);
+  border-color: var(--amber);
+  animation: inside-glow 1.6s ease-in-out infinite;
+}
+
+.inside-btn.busy .inside-dot {
+  background: var(--amber);
+  animation: inside-pulse 1.1s ease-in-out infinite;
+}
+
+/* Anyone who has asked not to see motion gets the colour change and nothing
+   else -- the state is still legible without it. */
+
+@media (prefers-reduced-motion: reduce) {
+  .inside-btn.busy,
+  .inside-btn.busy .inside-dot { animation: none; }
+}
+
+/* A layout participant, NOT an overlay: it is the last flex child of .app,
+   so opening it shrinks .content instead of covering the composer. Height
+   comes from an inline style set by the resize drag. */
+
+.logs-panel {
+  flex: none; min-height: 0; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+
+/* Drag the top edge to resize; the height persists per device. Generous hit
+   area, hairline appearance. */
+
+.logs-resize {
+  flex: none; height: 7px; margin-top: -3px; cursor: ns-resize;
+  background: linear-gradient(var(--line2), var(--line2)) center/100% 1px no-repeat;
+  touch-action: none;
+}
+
+.logs-resize:hover { background: linear-gradient(var(--steel), var(--steel)) center/100% 2px no-repeat; }
+
+.logs-window-bar {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 12px 3px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--faint-d);
+}
+
+.logs-window-title em { font-style: normal; color: var(--steel); text-transform: none; letter-spacing: 0; }
+
+/* The popped-out window owns its whole viewport. */
+
+.dev-window {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  background: var(--bg);
+}
+
+/* React Flow overrides — keep its chrome out of the way. */
+
+/* Endpoints keep their handles (edges need an anchor) but should not show
+   connector dots — they are places, not machinery. */
+
+.lg { white-space: nowrap; }
+
+.lg::before {
+  content: ''; display: inline-block; width: 14px; height: 0;
+  border-top-width: 2px; margin-right: 5px; vertical-align: middle;
+}
+
+.lg.hydrate::before { border-top: 2px solid var(--amber-deep); }
+
+.lg.fan_in::before { border-top: 2px dotted var(--mut-d); }
+
+.lg.conditional::before { border-top: 2px dashed var(--steel-deep); }
+
+.lg.background::before { border-top: 2px dotted var(--mut-d); }
+
+/* The graph reporting on its own truthfulness. A diagram that cannot tell
+   you when it is wrong is a claim, not an observation. */
+
+/* Quick toggles: a second VIEW of the Settings record, not a copy of it. */
+
+.quick-toggles {
+  display: flex; flex-wrap: wrap;
+  border-top: 1px dashed #d8d3c4; margin-top: 0; padding: 3px 0 0; gap: 3px;
+}
+
+.quick-toggle {
+  border: 1px solid var(--paper-line); background: #fff; border-radius: 14px;
+  color: var(--ink-mut); cursor: pointer;
+  font-family: var(--mono); font-size: 10px; white-space: nowrap; padding: 3px 7px;
+}
+
+.quick-toggle:hover:not(:disabled) { border-color: var(--amber-deep); color: var(--ink); }
+
+.quick-toggle.on { color: var(--ink); border-color: var(--amber-deep); background: #fffcf2; }
+
+.quick-toggle:disabled { opacity: 0.45; cursor: default; }
+
+/* Each compact section heading stays attached to its own content. */
+
+@media (pointer: coarse) {
+  .quick-toggle, .scaf { min-height: 44px; }
+}
+
+@media (max-width: 860px) {
+  .quick-toggles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quick-toggles .quick-toggle { white-space: normal; text-align: start; }
+}
+
+.live-activity { min-width: 0; padding: 8px; }
+
+.live-operation-graph { height: 300px; min-height: 180px; }

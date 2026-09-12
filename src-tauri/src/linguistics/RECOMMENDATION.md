@@ -106,7 +106,7 @@ before freezing; the strings below are draft stimuli, not authoritative tokeniza
 | X03 | Emoji amid prose, target English | `Go 👩🏽‍💻, wave 🇫🇷, fly ✈️, press 1️⃣.` |
 | X04 | Long repeated target English | `red blue ` repeated exactly 20 times followed by `red.` (184 scalars) |
 
-X03 is deliberate robustness input; it does not authorize emoji in generated partner
+X03 is deliberate robustness input; it does not authorize emoji in generated persona
 prose. Refusal/injection resistance and loss of repeated occurrence identity are
 scored explicitly. X01/X02 are boundary stress probes, not new certified languages.
 Use additional local-only 4,096/4,097-scalar bounds and malformed-candidate fixtures;

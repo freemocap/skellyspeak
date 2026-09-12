@@ -31,7 +31,7 @@ snapshot reads. `lib.rs` exposes local commands; `src/` presents them. The hoste
 Its active client contract is in `hosted-api.md`; there is no active local server or
 deployment change in this slice.
 
-The local database lives in the application's data directory as `practice.sqlite3`.
+The local database lives in the application's data directory as `skellyspeak.sqlite3`.
 It is initialized only when empty; incompatible or invalid databases fail explicitly.
 The active schema extends transactionally through v7, with turn refusal state, shared
 target admission and metadata-only transcription receipts; there are no

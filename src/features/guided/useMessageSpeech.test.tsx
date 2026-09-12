@@ -9,7 +9,7 @@ vi.mock('../../platform/ipc/workspace', () => ({ executeAction: native.execute, 
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: native.fault }))
 vi.mock('./speech-player', () => ({ playSpeechAudio: () => ({ play: native.play, stop: native.stop }) }))
 function snapshot(ids: string[], operation = true): ConversationSnapshot {
-  return { conversationId: 'chat', sessionId: 'session', revision: ids.length, messages: ids.map((id, i) => ({ id, sequence: i, role: 'assistant', text: id })), turns: operation ? ids.map(id => ({ operations: [{ id: `speech-${id}`, kind: 'partner_speech', sourceMessageId: id }] })) : [] } as unknown as ConversationSnapshot
+  return { conversationId: 'chat', sessionId: 'session', revision: ids.length, messages: ids.map((id, i) => ({ id, sequence: i, role: 'assistant', text: id })), turns: operation ? ids.map(id => ({ operations: [{ id: `speech-${id}`, kind: 'persona_speech', sourceMessageId: id }] })) : [] } as unknown as ConversationSnapshot
 }
 beforeEach(() => {
   vi.clearAllMocks()
@@ -67,7 +67,7 @@ it('surfaces playback rejection without falling back or regenerating', async () 
 
 it('waits for source binding on a pre-created speech operation', async () => {
   const first = snapshot(['old'])
-  first.turns.push({ operations: [{ id: 'speech-new', kind: 'partner_speech', sourceMessageId: null }] } as never)
+  first.turns.push({ operations: [{ id: 'speech-new', kind: 'persona_speech', sourceMessageId: null }] } as never)
   const view = renderHook(({ state }) => useMessageSpeech(state, 'chat', true, true), { initialProps: { state: first } })
   view.rerender({ state: snapshot(['old', 'new']) })
   await waitFor(() => expect(native.play).toHaveBeenCalledTimes(1))

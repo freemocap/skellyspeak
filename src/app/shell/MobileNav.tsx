@@ -1,17 +1,19 @@
-import type { MobileLocation } from '../../features/guided/GuidedPage'
+import { useIsMobile } from '../../ui/useIsMobile'
+import { useNavigationStore } from '../../state/navigation'
 
 /// Narrow-window navigation between the conversation and the learning panel.
-export function MobileNav({ active, surface, onSurface }: {
-  active: boolean
-  surface: MobileLocation
-  onSurface: (surface: MobileLocation) => void
-}) {
+export function MobileNav() {
+  const page = useNavigationStore((state) => state.page)
+  const surface = useNavigationStore((state) => state.mobileSurface)
+  const openPractice = useNavigationStore((state) => state.openPractice)
+  const isMobile = useIsMobile()
+  if (!isMobile) return null
   return (
     <nav className="mobile-nav" aria-label="Main navigation">
       {(['chat', 'panel'] as const).map(item => <button key={item} type="button"
-        className={`mobile-nav-item ${active && surface === item ? 'active' : ''}`}
-        aria-current={active && surface === item ? 'page' : undefined}
-        onClick={() => onSurface(item)}>{item === 'chat' ? 'Chat · Persona' : 'Coach'}</button>)}
+        className={`mobile-nav-item ${page === 'guided' && surface === item ? 'active' : ''}`}
+        aria-current={page === 'guided' && surface === item ? 'page' : undefined}
+        onClick={() => openPractice(item)}>{item === 'chat' ? 'Chat · Contact' : 'Coach'}</button>)}
     </nav>
   )
 }

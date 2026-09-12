@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Difficulty, Partner, PartnerDetails, Snapshot } from '../../contracts'
+import type { Difficulty, Persona, PersonaDetails, Snapshot } from '../../contracts'
 import { executeAction, nativeError, readWorkspace } from '../../platform/ipc/workspace'
 
 /** Directory reads and explicit edits; no inference or automatic retries. */
@@ -10,7 +10,7 @@ export function useConversationDetails(chatId: string | null, revision: number) 
   const readGeneration = useRef(0)
   const scope = useRef(chatId)
   scope.current = chatId
-  const contactPending = useRef<Promise<Partner> | null>(null)
+  const personaPending = useRef<Promise<Persona> | null>(null)
   const pending = useRef<Promise<void> | null>(null)
   const refresh = useCallback(async () => {
     const generation = ++readGeneration.current
@@ -25,8 +25,8 @@ export function useConversationDetails(chatId: string | null, revision: number) 
     return () => { active = false; readGeneration.current++ }
   }, [chatId, revision, refresh])
   const conversation = directory?.conversations.find(item => item.id === chatId)
-  const relationship = directory?.relationships.find(item => item.id === conversation?.relationshipId)
-  const contact = directory?.partners.find(item => item.id === relationship?.partnerId)
+  const contact = directory?.contacts.find(item => item.id === conversation?.contactId)
+  const persona = directory?.personas.find(item => item.id === contact?.personaId)
 
   const saveDifficulty = (difficulty: Difficulty): Promise<void> => {
     if (!conversation || !directory) return Promise.reject(new Error('Conversation settings are unavailable.'))
@@ -47,29 +47,29 @@ export function useConversationDetails(chatId: string | null, revision: number) 
     pending.current = write
     return write
   }
-  const saveContact = (owner: Partner, details: PartnerDetails): Promise<Partner> => {
-    if (contactPending.current) return Promise.reject(new Error('Wait for the current profile save.'))
+  const savePersona = (owner: Persona, details: PersonaDetails): Promise<Persona> => {
+    if (personaPending.current) return Promise.reject(new Error('Wait for the current persona save.'))
     const write = (async () => {
       try {
         const latest = await readWorkspace()
-        await executeAction(latest, { kind: 'updatePartner', partnerId: owner.id, expectedRevision: owner.revision, details })
+        await executeAction(latest, { kind: 'updatePersona', personaId: owner.id, expectedRevision: owner.revision, details })
         const next = await refresh()
-        const saved = next.partners.find(item => item.id === owner.id)
-        if (!saved) throw new Error('Saved contact is unavailable.')
+        const saved = next.personas.find(item => item.id === owner.id)
+        if (!saved) throw new Error('Saved persona is unavailable.')
         return saved
-      } finally { contactPending.current = null }
+      } finally { personaPending.current = null }
     })()
-    contactPending.current = write
+    personaPending.current = write
     return write
   }
-  const createConversation = async (partnerId: string) => {
+  const createConversation = async (contactId: string) => {
     const latest = await readWorkspace()
-    const owner = latest.relationships.find(item => item.partnerId === partnerId && !item.archived)
+    const owner = latest.contacts.find(item => item.id === contactId && !item.archived)
     if (!owner) throw new Error('This contact is unavailable.')
-    const receipt = await executeAction(latest, { kind: 'createConversation', relationshipId: owner.id, title: 'Conversation' })
+    const receipt = await executeAction(latest, { kind: 'createConversation', contactId, title: 'Conversation' })
     return receipt.entityId
   }
-  return { directory, conversation, contact, error, saving, saveDifficulty, saveContact, createConversation,
-    beforeSend: async () => { if (pending.current) await pending.current; if (contactPending.current) await contactPending.current },
+  return { directory, conversation, contact, persona, error, saving, saveDifficulty, savePersona, createConversation,
+    beforeSend: async () => { if (pending.current) await pending.current; if (personaPending.current) await personaPending.current },
   }
 }

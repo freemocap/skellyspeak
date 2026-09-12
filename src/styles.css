@@ -90,6 +90,13 @@ body {
   border: 1px solid var(--line); border-radius: 12px; padding: 24px;
 }
 
+/* A refused workspace: the reason, and the one action that recovers it. */
+.startup-refusal {
+  margin: auto; max-width: 520px; display: flex; flex-direction: column; gap: 16px;
+  color: var(--ink-d); font-family: var(--sans); font-size: 14px; line-height: 1.6;
+  border: 1px solid var(--line2); border-radius: 12px; padding: 24px;
+}
+
 /* ── Guided: split layout ─────────────────────────────────────────────── */
 .guided-workspace { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
 .split { flex: 1; min-height: 0; display: flex; }
@@ -106,26 +113,51 @@ body {
 .split, .chat, .stream { min-width: 0; min-height: 0; }
 .stream { overflow-x: hidden; flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
 .msg { min-width: 0; overflow-wrap: anywhere; max-width: 88%; padding: 10px 13px; border-radius: 15px; font-size: 15.5px; }
-.line { min-width: 0; max-width: 100%; display: flex; flex-wrap: wrap; align-items: flex-start; user-select: none; gap: 2px var(--word-spacing, 2px); }
-.wu { max-width: 100%; display: inline-flex; flex-direction: column; align-items: flex-start; }
-.wg { overflow-wrap: anywhere; font-size: 10px; color: var(--ink-mut); line-height: 1.2; }
+.line { min-width: 0; max-width: 100%; display: flex; flex-wrap: wrap; align-items: flex-start; user-select: none; gap: 3px var(--word-spacing, 4px); }
+/* One word and its help, as a box. The word sets the width; a gloss, romanization
+   or pronunciation contributes no width of its own and wraps inside it, so a long
+   gloss grows the box downward instead of spilling onto the next word. The small
+   minimum keeps a single character's gloss readable, and the padding separates
+   words in scripts written without spaces. */
+.wu { max-width: 100%; min-width: 2.5em; display: inline-flex; flex-direction: column; align-items: flex-start; padding: 1px 3px; border: 1px solid transparent; border-radius: 5px; }
+.wu:hover, .wu:focus-within { border-color: var(--line2); }
+.wu > .wg, .wu > .wroman, .wu > .wpronunciation { contain: inline-size; width: 100%; overflow-wrap: anywhere; }
+.wg { font-size: 10px; color: var(--ink-mut); line-height: 1.2; }
 .chat-head {
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mut); padding: 11px 18px 0; gap: 0.5rem; position: relative; z-index: 5; flex-wrap: nowrap;
 }
 .conversation-title { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.contact-profile { padding: 12px; color: var(--ink-d); }
-.contact-profile > fieldset, .contact-vibe { border: 0; padding: 0; margin: 12px 0 0; min-width: 0; }
-.contact-profile .field { width: 100%; min-width: 0; resize: vertical; border: 1px solid var(--line2); border-radius: 8px; padding: 8px; background: var(--chrome2); color: var(--ink-d); font: 14px/1.5 var(--sans); }
-.contact-profile details > summary { cursor: pointer; margin-bottom: 8px; font: 12px var(--sans); }
-.contact-profile-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.contact-vibe { display: flex; flex-wrap: wrap; gap: 4px; }
-.contact-vibe legend { margin-bottom: 8px; font: 12px var(--sans); }
-.contact-vibe .btn { min-width: 36px; min-height: 36px; padding: 4px; }
-.contact-vibe [aria-pressed="true"] { border-color: var(--steel); background: var(--inset); }
-.contact-chooser { padding: 12px; border-bottom: 1px solid var(--line); }
-.contact-chooser label { display: flex; flex-direction: column; gap: 4px; font: 12px var(--sans); }
-.contact-chooser .field { min-width: 0; width: 100%; }
+.persona-profile { padding: 4px 2px; color: var(--ink-d); }
+.persona-profile fieldset { border: 0; padding: 0; margin: 6px 0 0; min-width: 0; }
+.persona-profile .field { width: 100%; min-width: 0; resize: vertical; border: 1px solid var(--line2); border-radius: 8px; padding: 5px 8px; background: var(--chrome2); color: var(--ink-d); font: 13.5px/1.4 var(--sans); }
+/* The header's persona control: one compact control that opens the contact list. */
+.persona-picker { position: relative; display: inline-flex; min-width: 0; }
+.persona-picker-toggle { display: inline-flex; align-items: center; gap: 6px; max-width: 170px; cursor: pointer; }
+.persona-picker-toggle > span:not([aria-hidden]) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.persona-picker-menu { position: absolute; top: calc(100% + 4px); inset-inline-start: 0; z-index: 30; display: flex; flex-direction: column; min-width: 190px; padding: 4px; border: 1px solid var(--line2); border-radius: 8px; background: var(--chrome2); box-shadow: 0 8px 24px rgb(0 0 0 / 25%); }
+.persona-picker-item { display: flex; align-items: center; gap: 6px; width: 100%; padding: 5px 6px; border: 0; border-radius: 6px; background: none; color: var(--ink-d); font: inherit; text-align: start; cursor: pointer; }
+.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--inset); }
+.persona-picker-item[aria-checked="true"] { color: var(--steel); }
+.persona-avatar { flex: none; display: inline-block; width: 1.25em; text-align: center; line-height: 1; }
+.persona-tab-actions { display: flex; justify-content: flex-end; padding: 8px 12px 0; }
+.persona-generate { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 6px; }
+.persona-generate .field { width: 100%; min-width: 0; resize: vertical; }
+.persona-generate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+/* Text boxes grow to fit what they hold, so a list or a background is read without
+   scrolling inside a small box. The cap keeps a very long field from pushing the
+   rest of the form out of the dialog. */
+.persona-profile textarea.field { field-sizing: content; min-height: 2.4em; max-height: 50vh; }
+.persona-wide { grid-column: 1 / -1; }
+.persona-identity { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); column-gap: 8px; }
+.persona-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.persona-group > legend { margin-bottom: 4px; font: 600 11.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint-d); }
+.persona-field-hint { font-style: normal; font-size: 11px; color: var(--faint-d); }
+.persona-vibe-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 8px; border: 1px solid var(--line2); border-radius: 999px; font-size: 16px; line-height: 1.4; }
+.persona-vibe-chip button { border: 0; background: none; color: var(--faint-d); cursor: pointer; padding: 2px 4px; font-size: 11px; }
+.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--ink-d); }
+.persona-inline-error { margin: 4px 0 0; font-size: 11.5px; color: var(--steel); }
 .analysis-scroll[hidden] { display: none; }
 .chat > .chat-head { background: var(--chrome2); color: var(--ink-d); border-bottom: 1px solid var(--line2); flex-shrink: 0; padding: 6px 12px; gap: 6px; }
 .chat .stream { padding: 24px 20px; gap: 20px; overscroll-behavior: contain; }
@@ -212,7 +244,7 @@ body {
 
 /* Collapsed, the header has to say what is folded away — otherwise the level
    and topic become invisible settings that steer every reply. */
-/* The partner picker gets its own line: the label plus a long character name
+/* The persona picker gets its own line: the label plus a long character name
    does not fit beside the level and topic on a phone. */
 /* Bounded so a long chat and a full suggestion set cannot fight over the
    column: suggestions scroll inside their own box rather than pushing the
@@ -833,11 +865,6 @@ body {
 }
 .settings-version { border: 0; background: none; padding: 0; color: var(--faint-d); font: 10px var(--mono); letter-spacing: 0.08em; cursor: pointer; }
 .settings-version:hover, .settings-version:focus-visible { color: var(--steel); text-decoration: underline; }
-.settings-delete-link {
-  border: 0; background: none; padding: 0; color: #d96767;
-  font: 11px var(--mono); font-variant-caps: all-small-caps; letter-spacing: 0.04em; cursor: pointer;
-}
-.settings-delete-link:hover, .settings-delete-link:focus-visible { color: #ff9898; text-decoration: underline; }
 .update-controls { display: flex; align-items: center; gap: 8px; }
 .update-controls .btn { padding: 6px 10px; }
 .settings-group-k {
@@ -855,14 +882,14 @@ body {
 .save-status.saved { color: #58c98b; }
 .save-status.error { color: #e06c6c; }
 .settings-close { margin-left: auto; }
-.btn.danger { border-color: transparent; color: var(--faint-d); }
-.btn.danger:hover { color: #e06c6c; border-color: #e06c6c; }
+.btn.danger { border-color: #8a3a3a; color: #f08a8a; }
+.btn.danger:hover { color: #fff; background: #a83a3a; border-color: #a83a3a; }
 
 /* Persona control panel — the list on the left, one character on the right.
    Wider than the settings modal because the sketch is the point: it is what
    gets sent to the model verbatim, so it has to be readable and editable
    without a scrollbar for anything under a paragraph. */
-.persona-field { display: block; margin-bottom: 12px; }
+.persona-field { display: block; margin-bottom: 6px; }
 .persona-field > span {
   display: flex; justify-content: space-between; align-items: baseline;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
@@ -1242,9 +1269,16 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
   .language-picker select { min-height: 44px; font-size: 16px; }
 }
 
-/* Reply ideas for the latest partner message sit directly above the composer. */
+/* Reply ideas for the latest persona message sit directly above the composer. */
 .composer-help-content { max-height: min(260px, 30dvh); overflow-y: auto; overscroll-behavior: contain; margin: 0 0 3px; padding: 3px; border: 1px solid #a6b9aa; border-radius: 6px; background: #f3f7f1; color: #243a2b; font: 13px/1.4 var(--sans); }
 .composer-help-content p { margin: 0; }
+/* Folded or open, the toggle sits at the inline end, above the record button. */
+.composer-help-head, .composer-help-folded { display: flex; justify-content: flex-end; }
+.composer-help-folded { margin: 0 0 3px; }
+.composer-help-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 44px; min-height: 32px; padding: 0 8px; border: 1px solid #a6b9aa; border-radius: 8px; background: #f3f7f1; color: #243a2b; font: 13px/1 var(--sans); cursor: pointer; }
+.composer-help-toggle:hover { background: #e3eee0; }
+.composer-help-toggle:focus-visible { outline: 2px solid #315943; outline-offset: 1px; }
+.composer-help-count { font-size: 11px; font-weight: 600; }
 .help-replies { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 3px; }
 .help-reply { display: inline-flex; align-items: center; gap: 1px; width: fit-content; max-width: 100%; min-height: 0; padding: 0 1px 0 6px; border: 1px solid #a6b9aa; border-radius: 7px; background: #e3eee0; color: #224f34; text-align: start; overflow-wrap: anywhere; }
 .help-reply-text { font: calc(15px * var(--reading-scale, 1) * var(--script-scale, 1))/1.3 var(--serif); }
@@ -1289,13 +1323,15 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 @keyframes reward-receipt { 0% { opacity: 0; transform: translateY(-8px); } 10%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .reward-progress-toast { animation: none; } .reward-progress-track > span { transition: none; } }
 
-.chat-language-picker { max-width: 100%; min-width: 0; min-height: 36px; padding: 4px 6px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 600 16px var(--sans); cursor: pointer; }
+/* One look for the conversation row: language, difficulty and persona are the same
+   control in three roles, so they share every box, border and type decision. */
+.chat-language-picker, .learning-picker, .persona-picker-toggle { max-width: 100%; min-width: 0; min-height: 36px; padding: 4px 6px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 600 16px var(--sans); cursor: pointer; }
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
 /* Conversation header: "Learning:" then the target language, large, as its own picker. */
 .learning-line { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; min-width: 0; }
 .learning-label { font: 600 10px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--mut-d); }
-.learning-picker { min-width: 0; max-width: 100%; min-height: 28px; padding: 0 2px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink-d); font-family: var(--sans); font-weight: 650; letter-spacing: 0; text-transform: none; line-height: 1.2; cursor: pointer; }
-.learning-picker:hover:not(:disabled) { border-color: var(--line2); background: var(--inset); }
+.learning-picker { font-weight: 650; letter-spacing: 0; text-transform: none; line-height: 1.2; cursor: pointer; }
+.learning-picker:hover:not(:disabled) { border-color: var(--steel); }
 .learning-picker:focus-visible { outline: 2px solid var(--steel); outline-offset: 2px; }
 .learning-picker:disabled { opacity: .6; cursor: default; }
 .learning-picker option { background: var(--paper); color: var(--ink); font: 15px var(--sans); }
@@ -1414,7 +1450,7 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .app-home:focus-visible { outline: 2px solid var(--steel); outline-offset: 3px; border-radius: 4px; }
 @media (max-width: 380px) { .topbar .app-home { font-size: 11px; gap: 3px; } .app-home img { width: 24px; height: 24px; } }
 
-.partner-reaction {
+.persona-reaction {
   position: absolute;
   top: -17px;
   inset-inline-start: 9px;
@@ -1429,8 +1465,8 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
   line-height: 1;
   cursor: pointer;
 }
-.partner-reaction.is-confused { border-color: #ba790d; box-shadow: 0 0 0 1px #ba790d33; }
-.partner-reaction:focus-visible { outline: 2px solid #718eea; outline-offset: 3px; }
+.persona-reaction.is-confused { border-color: #ba790d; box-shadow: 0 0 0 1px #ba790d33; }
+.persona-reaction:focus-visible { outline: 2px solid #718eea; outline-offset: 3px; }
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 .reaction-details h3 { font-size: 13px; margin: 20px 0 6px; }
 .reaction-details blockquote { margin: 0; padding: 9px 12px; border-inline-start: 2px solid #839bd1; }
@@ -1440,7 +1476,7 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: 5px; }
 .reaction-excerpt > span { font-size: 11px; color: var(--dim); }
 .reaction-excerpt.learner { align-self: flex-end; align-items: flex-end; }
-.reaction-excerpt.partner { align-self: flex-start; align-items: flex-start; }
+.reaction-excerpt.persona { align-self: flex-start; align-items: flex-start; }
 .reaction-excerpt .msg { margin: 0; max-width: 100%; min-width: 0; padding: 9px 12px; font-size: 16px; line-height: 1.45; font-family: var(--serif); }
 
 /* Shared reading density and compact settings. */
@@ -1529,7 +1565,9 @@ input::placeholder, textarea::placeholder { color: var(--mut-d); opacity: 1; }
 .tab-group > .new-chat { border: 1px solid #7fa3ce; background: #e8f1fc; color: #17446f; margin-inline-end: 3px; min-width: 26px; height: 28px; }
 .tab-group > .new-chat:hover:not(:disabled) { background: #d5e7fa; border-color: #3c78b5; color: #12395e; }
 .saved-word { position: relative; }
-.saved-word-help { position: absolute; z-index: 8; bottom: calc(100% + 4px); inset-inline-start: 0; width: max-content; max-width: min(220px, 65vw); padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); box-shadow: 0 2px 5px #0002; }
+/* Top-layer popover: the reply tray and the message stream both clip their own
+   box, so the card is placed against the word's viewport box and escapes both. */
+.saved-word-help { position: fixed; inset: auto; margin: 0; width: max-content; max-width: min(220px, 65vw); padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); color: var(--ink); box-shadow: 0 2px 5px #0002; }
 .saved-word-help > span { display: block; }
 
 .live-activity { min-width: 0; padding: 8px; }

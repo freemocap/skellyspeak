@@ -35,7 +35,7 @@ export type UpdateCheck =
 
 export type UpdateChannel = 'install' | 'download' | 'app-store' | 'development'
 
-export async function getUpdateChannel(): Promise<UpdateChannel> {
+async function getUpdateChannel(): Promise<UpdateChannel> {
   if (!isTauri) throw new Error('Update checks need the desktop or mobile app.')
   const channel = await invoke<string>('get_update_channel')
   if (channel !== 'install' && channel !== 'download' && channel !== 'app-store' && channel !== 'development') {

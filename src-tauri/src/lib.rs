@@ -6,6 +6,7 @@ pub mod coaching;
 mod conversation_prompt;
 pub mod credentials;
 pub mod diagnostics;
+mod emoji;
 pub mod execution;
 mod factory_reset;
 pub mod gloss;
@@ -15,6 +16,8 @@ pub mod hosted;
 pub mod languages;
 pub mod linguistics;
 pub mod model;
+mod persona;
+mod persona_prompt;
 pub mod profile;
 pub mod progression;
 pub mod provider;
@@ -30,7 +33,7 @@ mod voice;
 
 use model::{
     AppError, Command, ConnectionConfig, ConnectionRoute, ConversationSnapshot, ErrorCode,
-    HostedAccount, ProfileSnapshot, Receipt, Result, Snapshot,
+    HostedAccount, PersonaDetails, ProfileSnapshot, Receipt, Result, Snapshot, StartupState,
 };
 use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -48,6 +51,12 @@ struct Application {
     admission: admission::Admission,
     capture: Mutex<Option<voice::Recording>>,
     store: Mutex<Option<Store>>,
+    /// Why the workspace could not be opened at startup. Commands report it
+    /// rather than a generic failure, and the window stays open so the reason
+    /// reaches the screen and the reset stays reachable.
+    refusal: Mutex<Option<AppError>>,
+    /// A cleanup a previous reset recorded that this launch could not finish.
+    cleanup: Mutex<Option<AppError>>,
     credential_operations: Mutex<()>,
     fatal: Mutex<Option<AppError>>,
     signing_in: tokio::sync::Mutex<()>,
@@ -66,12 +75,45 @@ impl DerefMut for StoreGuard<'_> {
     }
 }
 impl Application {
+    /// Open the workspace without ever aborting the launch. A refused database is
+    /// an ordinary outcome, and it has to reach a screen that can reset it.
+    /// `cleanup` is the failure, if any, of finishing a previous reset; the caller
+    /// runs that before the log sink opens, because the log directory is part of it.
+    fn start(workspace: &std::path::Path, cleanup: Option<AppError>) -> Arc<Self> {
+        let (store, refusal) = match Store::open(workspace) {
+            Ok(store) => (Some(store), None),
+            Err(error) => (None, Some(error)),
+        };
+        Arc::new(Self {
+            admission: admission::Admission::new(),
+            capture: Mutex::new(None),
+            store: Mutex::new(store),
+            refusal: Mutex::new(refusal),
+            cleanup: Mutex::new(cleanup),
+            credential_operations: Mutex::new(()),
+            fatal: Mutex::new(None),
+            signing_in: tokio::sync::Mutex::new(()),
+            auth_epoch: std::sync::atomic::AtomicU64::new(0),
+        })
+    }
+    fn refusal(&self) -> Option<AppError> {
+        self.refusal.lock().ok().and_then(|value| value.clone())
+    }
+    fn startup_state(&self) -> StartupState {
+        StartupState {
+            refusal: self.refusal(),
+            cleanup: self.cleanup.lock().ok().and_then(|value| value.clone()),
+        }
+    }
     fn lock(&self) -> Result<StoreGuard<'_>> {
         if let Some(error) = self.fatal.lock().map_err(|_| internal())?.as_ref() {
             return Err(error.clone());
         }
         let store = self.store.lock().map_err(|_| internal())?;
         if store.is_none() {
+            if let Some(error) = self.refusal.lock().map_err(|_| internal())?.as_ref() {
+                return Err(error.clone());
+            }
             return Err(internal());
         }
         Ok(StoreGuard(store))
@@ -114,6 +156,9 @@ impl Application {
         {
             let mut store = self.lock()?;
             prepare(&mut store)?;
+            // Durable before the secret exists: a reset that cannot read the
+            // database still has to be able to find every keychain entry.
+            credentials::remember(&store.credential_index, &id)?;
             store.reserve_credential(&id)?;
         }
         let written = write(&id);
@@ -131,6 +176,13 @@ impl Application {
 }
 fn internal() -> AppError {
     AppError::new(ErrorCode::Internal, "Application state is unavailable.")
+}
+/// Why the workspace could not be opened, or null when it opened. This is the one
+/// command that answers before any store exists, so the window can always report
+/// a refusal instead of failing every call with a generic error.
+#[tauri::command]
+fn get_startup_state(state: tauri::State<'_, Arc<Application>>) -> StartupState {
+    state.startup_state()
 }
 #[tauri::command]
 fn get_snapshot(state: tauri::State<'_, Arc<Application>>) -> Result<Snapshot> {
@@ -450,6 +502,177 @@ async fn watch_conversation(
         tokio::time::sleep(Duration::from_millis(150)).await;
     }
 }
+/// Invent one persona with a single structured model call.
+///
+/// Nothing is written: the caller reviews the result and creates the contact
+/// through the ordinary action, so a failure never leaves a half-made person
+/// behind and a discarded proposal costs nothing but the call.
+#[tauri::command]
+async fn generate_persona(
+    state: tauri::State<'_, Arc<Application>>,
+    language_id: String,
+    brief: Option<String>,
+) -> Result<PersonaDetails> {
+    if let Some(brief) = brief.as_deref()
+        && (brief.chars().count() > persona::BRIEF_MAX || brief.contains('\0'))
+    {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            format!(
+                "A generation brief must be at most {} characters.",
+                persona::BRIEF_MAX
+            ),
+        ));
+    }
+    let (language_name, target, credential, install_id) = {
+        let store = state.lock()?;
+        let database = &store.connection;
+        let language = languages::language(&language_id)?;
+        let target = access::resolve(database, access::Capability::Chat)?;
+        holds::check(database, &target)?;
+        let credential = execution::active_credential(database)?.ok_or_else(|| {
+            AppError::new(
+                ErrorCode::Credential,
+                "Sign in with Google or configure the selected connection in Settings before generating a contact.",
+            )
+        })?;
+        (
+            language.name,
+            target,
+            credential,
+            store.snapshot()?.learner.id,
+        )
+    };
+    let permit = state.admission.try_chat().ok_or_else(|| {
+        AppError::new(
+            ErrorCode::AdmissionHeld,
+            "AI work is already at capacity. Let pending work finish, then generate again.",
+        )
+    })?;
+    let client = provider::client()?;
+    let key = if credential.is_empty() {
+        Zeroizing::new(String::new())
+    } else {
+        read_secret(credential.clone()).await?
+    };
+    let messages = persona_prompt::messages(&language_name, brief.as_deref());
+    let schema = persona::output_schema();
+    // The grouped route keys its batch by attempt and operation identity. A
+    // generation is not a conversation turn, so these identify this request
+    // alone rather than a tracked operation; see the notes on AI activity.
+    let (attempt, operation) = generation_identity();
+    let dispatch = execution::Dispatch {
+        target: target.clone(),
+        attempt,
+        operation,
+        credential,
+        model: target.model.clone(),
+        route: target.route,
+        install_id,
+        messages,
+        coaching_schema: None,
+        gloss_source: None,
+        speech_source: None,
+    };
+    let outcome = provider::complete_with_output(
+        &client,
+        &key,
+        &dispatch,
+        provider::RequestOutput::JsonSchema {
+            name: persona_prompt::SCHEMA_NAME,
+            schema: &schema,
+        },
+    )
+    .await;
+    drop(permit);
+    let completion = outcome?;
+    generated_persona(&completion.text, &language_id)
+}
+
+/// Attempt and operation identities for one generation request, in the forms every
+/// dispatch uses. The hosted server refuses a grouped request whose identities have
+/// any other shape.
+fn generation_identity() -> (String, String) {
+    (
+        execution::new_attempt_id(),
+        uuid::Uuid::new_v4().simple().to_string(),
+    )
+}
+
+/// Parse and validate one completion. Pure, so both outcomes are covered without
+/// a provider and a rejected response cannot have written anything.
+fn generated_persona(text: &str, language_id: &str) -> Result<PersonaDetails> {
+    let details = persona_prompt::parse(text)?;
+    persona::validate(&details, language_id)?;
+    Ok(details)
+}
+
+#[cfg(test)]
+mod generation_tests {
+    use super::*;
+
+    #[test]
+    fn generation_identities_have_the_shape_the_hosted_server_accepts() {
+        let hex = |value: &str| {
+            value.len() == 32
+                && value
+                    .chars()
+                    .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c))
+        };
+        let (attempt, operation) = generation_identity();
+        // The server's rules: operation `[0-9a-f]{32}`, attempt `[0-9]{10}-[0-9a-f]{32}`.
+        let (issued, random) = attempt.split_once('-').expect("attempt has an issue time");
+        assert!(
+            issued.len() == 10 && issued.chars().all(|c| c.is_ascii_digit()),
+            "{attempt}"
+        );
+        assert!(hex(random), "{attempt}");
+        assert!(hex(&operation), "{operation}");
+    }
+
+    #[test]
+    fn a_valid_response_becomes_a_reviewable_persona_and_writes_nothing() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
+        let before = store.snapshot().unwrap();
+        let proposed = persona::starter("fr").unwrap();
+        let details = generated_persona(&serde_json::to_string(&proposed).unwrap(), "fr").unwrap();
+        assert_eq!(details.name, proposed.name);
+        assert_eq!(details.vibe, proposed.vibe);
+        // A proposal is not a contact: nothing is written until the learner creates one.
+        let after = store.snapshot().unwrap();
+        assert_eq!(after.revision, before.revision);
+        assert!(after.personas.is_empty());
+        assert!(after.contacts.is_empty());
+        assert!(after.conversations.is_empty());
+    }
+
+    #[test]
+    fn an_unusable_response_is_refused_and_writes_nothing() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
+        let before = store.snapshot().unwrap().revision;
+        assert_eq!(
+            generated_persona("not json", "fr").unwrap_err().code,
+            ErrorCode::Provider
+        );
+        // Well-shaped but outside a limit: refused by the same rules an edit obeys.
+        let mut oversized = persona::starter("fr").unwrap();
+        oversized.vibe = vec!["🌿".into()];
+        assert_eq!(
+            generated_persona(&serde_json::to_string(&oversized).unwrap(), "fr")
+                .unwrap_err()
+                .code,
+            ErrorCode::Validation
+        );
+        let after = store.snapshot().unwrap();
+        assert_eq!(after.revision, before);
+        assert!(after.personas.is_empty());
+        assert!(after.contacts.is_empty());
+        assert!(after.conversations.is_empty());
+    }
+}
+
 async fn read_secret(id: String) -> Result<Zeroizing<String>> {
     tauri::async_runtime::spawn_blocking(move || credentials::read(&id))
         .await
@@ -698,6 +921,9 @@ pub fn run() {
             }
             let directory = app.path().app_data_dir()?;
             store::prepare_private_directory(&directory)?;
+            // A previous reset may have left the log directory to clear. That has to
+            // happen before the log sink below opens a file inside it.
+            let cleanup = factory_reset::finish_pending(&directory).err();
             // Android/iOS use a subdirectory of app data: it is private, writable,
             // and available before the webview starts. Desktop retains the platform
             // log directory (or the development repository sink) in diagnostics.
@@ -706,17 +932,13 @@ pub fn run() {
             #[cfg(not(any(target_os = "android", target_os = "ios")))]
             let diagnostics_root = app.path().app_log_dir()?;
             diagnostics::initialize(&diagnostics_root)?;
-            let state = Arc::new(Application {
-                admission: admission::Admission::new(),
-                capture: Mutex::new(None),
-                store: Mutex::new(Some(Store::open(&directory.join("practice.sqlite3"))?)),
-                credential_operations: Mutex::new(()),
-                fatal: Mutex::new(None),
-                signing_in: tokio::sync::Mutex::new(()),
-                auth_epoch: std::sync::atomic::AtomicU64::new(0),
-            });
-            state.clean_credentials()?;
-            state.lock()?.prepare_chat()?;
+            let state = Application::start(&directory.join(store::WORKSPACE_FILE), cleanup);
+            // A refused workspace has nothing to clean or prepare; the window still
+            // opens, the reason reaches the screen, and the reset stays reachable.
+            if state.refusal().is_none() {
+                state.clean_credentials()?;
+                state.lock()?.prepare_chat()?;
+            }
             app.manage(state.clone());
             tauri::async_runtime::spawn(scheduler(state));
             Ok(())
@@ -732,6 +954,8 @@ pub fn run() {
             voice::mic_cancel,
             voice::mic_transcribe,
             factory_reset::factory_reset,
+            factory_reset::export_workspace,
+            get_startup_state,
             get_snapshot,
             execute_command,
             access::get_access_settings,
@@ -742,6 +966,7 @@ pub fn run() {
             verify_openrouter_key,
             disconnect,
             watch_conversation,
+            generate_persona,
             hosted_sign_in,
             hosted_account,
             hosted_diagnostics,
@@ -766,16 +991,36 @@ pub fn run() {
 mod credential_io_tests {
     use super::*;
 
+    /// A fixture workspace that must open; a refusal here is a broken fixture.
     fn application(path: &std::path::Path) -> Arc<Application> {
-        Arc::new(Application {
-            admission: admission::Admission::new(),
-            capture: Mutex::new(None),
-            store: Mutex::new(Some(Store::open(path).unwrap())),
-            credential_operations: Mutex::new(()),
-            fatal: Mutex::new(None),
-            signing_in: tokio::sync::Mutex::new(()),
-            auth_epoch: std::sync::atomic::AtomicU64::new(0),
-        })
+        let app = Application::start(path, None);
+        assert!(app.refusal().is_none(), "the fixture workspace must open");
+        app
+    }
+
+    /// An older workspace is refused by design; the application must survive it so
+    /// the reason can reach the screen and the reset stays reachable.
+    #[test]
+    fn a_refused_workspace_leaves_the_application_running_with_the_reason_recorded() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("skellyspeak.sqlite3");
+        drop(Store::open(&path).unwrap());
+        {
+            let connection = rusqlite::Connection::open(&path).unwrap();
+            connection.pragma_update(None, "user_version", 8).unwrap();
+        }
+        let app = Application::start(&path, None);
+        let refusal = app.refusal().expect("the refusal is recorded");
+        assert!(
+            refusal.message.contains("Factory Reset"),
+            "{}",
+            refusal.message
+        );
+        let error = match app.lock() {
+            Ok(_) => panic!("a refused workspace must not hand out a store"),
+            Err(error) => error,
+        };
+        assert_eq!(error.message, refusal.message);
     }
 
     #[test]

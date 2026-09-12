@@ -77,8 +77,10 @@ export async function installNativePlaybackLifecycle(lifecycle: PlaybackLifecycl
   const { TauriEvent } = await import('@tauri-apps/api/event')
   const appWindow = getCurrentWindow()
   const listeners = await Promise.all([
+    // No close-request listener, in any form: while the page listens for one, Tauri
+    // holds the close and waits for the page to destroy the window, so the window
+    // cannot be closed. Closing ends playback through `beforeunload` instead.
     appWindow.onFocusChanged(event => lifecycle.focus(event.payload)),
-    appWindow.onCloseRequested(lifecycle.close),
     appWindow.listen(TauriEvent.WINDOW_SUSPENDED, lifecycle.suspend),
     appWindow.listen(TauriEvent.WINDOW_RESUMED, lifecycle.resume),
   ])

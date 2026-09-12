@@ -84,6 +84,8 @@ pub enum DiagnosticCommand {
     MicCancel,
     MicTranscribe,
     FactoryReset,
+    GetStartupState,
+    GeneratePersona,
     GetSnapshot,
     ExecuteCommand,
     GetAccessSettings,

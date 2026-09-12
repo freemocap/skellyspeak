@@ -1,4 +1,4 @@
-import { useSkillNavigation } from '../../state/useSkillNavigation'
+import { useSkillNavigationStore } from '../../state/skill-navigation'
 import { useContext, useRef, type RefObject } from 'react'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { domainColors } from '../../domain/skills/skill-domains'
@@ -19,7 +19,7 @@ function InspectionLayer({ host, onClose }: { host: RefObject<HTMLElement | null
 
 export function RewardDetail({ evidence, onClose, interactive, automatic }: { automatic: boolean; evidence: MessageEvidence[]; onClose: () => void; interactive: boolean }) {
   const host = useRef<HTMLElement>(null)
-  const navigation = useSkillNavigation()
+  const explore = useSkillNavigationStore((state) => state.explore)
   const { snapshot } = useContext(SkillEvidenceContext)
   const groups = new Map<string, MessageEvidence[]>()
   for (const item of evidence) {
@@ -32,6 +32,6 @@ export function RewardDetail({ evidence, onClose, interactive, automatic }: { au
       const item = group[0]
       return <section key={item.id}><RewardBadge {...item} creditKind="stored" />
       {group.slice(1).map(quote => <blockquote key={quote.quote} dir="auto">{quote.quote}</blockquote>)}
-      {group.some(quote => quote.ambiguous) && <p className="reward-credit-note">This wording appears more than once. The review identifies the phrase, but does not specify which occurrence.</p>}<p className="reward-rationale">{item.rationale}</p><small className="reward-credit-note">Total credited for this skill in this message. The animation shows only newly added XP.</small>{snapshot && <button className="lesson-action" onClick={() => { onClose(); navigation.explore({ target: snapshot.target, skillId: item.skillId }) }}>Explore this skill</button>}</section>})}
+      {group.some(quote => quote.ambiguous) && <p className="reward-credit-note">This wording appears more than once. The review identifies the phrase, but does not specify which occurrence.</p>}<p className="reward-rationale">{item.rationale}</p><small className="reward-credit-note">Total credited for this skill in this message. The animation shows only newly added XP.</small>{snapshot && <button className="lesson-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: item.skillId }) }}>Explore this skill</button>}</section>})}
   </section>
 }

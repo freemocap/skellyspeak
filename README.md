@@ -3,11 +3,10 @@
 A convivial tool for learning languages through welcoming conversations,
 useful assistance and understandable progress.
 
-This checkout is the **rebuild** branch: the next-generation application.
-The published v0.13.7 application is maintained on **main** in the separate
-`skellyspeak-main` worktree. Recovery is complete; see
-[branch ownership and outcomes](RELEASE-RECOVERY-PLAN.md) and the
-[current implementation plan](BUILD-PLAN.md). Do not merge main wholesale into rebuild.
+This checkout is the application: the React/TypeScript interface, the Tauri Rust core
+and the optional hosted service. [The build plan](BUILD-PLAN.md) tracks phases and
+checkpoints; [release recovery](RELEASE-RECOVERY-PLAN.md) records how the earlier
+published release was recovered.
 
 **Current implementation: immediate chat, desktop recording/transcription, a separate
 coach thread, Google sign-in and own-key/custom-server text execution.** Rust persists
@@ -199,7 +198,7 @@ resent. Accepted messages and conversation preferences remain independently owne
 4. Archive and restore a conversation or partner. Deletion identifies its permanent
    scope before confirmation and removes dependent local records.
 
-The app stores `practice.sqlite3` in its platform application-data directory under
+The app stores `skellyspeak.sqlite3` in its platform application-data directory under
 identifier `org.skellyspeak.practice`. On macOS this is
 `~/Library/Application Support/org.skellyspeak.practice/`. No application data is
 synchronized. Send transmits selected context through the selected hosted or own-key route;

@@ -6,8 +6,8 @@
 /// other acceptable way to handle an error: no swallowing, no degrading to a
 /// lesser code path, no `catch { log }`.
 
+import { create } from 'zustand'
 import { logDiagnostic } from './log'
-import { createStore, useStore } from '../ipc/store'
 
 export interface Fault {
   id: number
@@ -16,10 +16,26 @@ export interface Fault {
   message: string
 }
 
+interface FaultState {
+  faults: Fault[]
+  publish: (fault: Fault) => void
+  dismiss: (id: number) => void
+  dismissAll: () => void
+}
+
+/// This store stays here, beside the logger it writes through, rather than in
+/// `state/`. It is the sink every layer reports into — eleven modules across
+/// `app/`, `features/` and `platform/` — and one of them,
+/// `platform/audio/reward-sounds.ts`, is itself in the platform layer. A home
+/// above that layer would force it to import upward.
+export const useFaultStore = create<FaultState>((set) => ({
+  faults: [],
+  publish: (fault) => set((state) => ({ faults: [...state.faults, fault] })),
+  dismiss: (id) => set((state) => ({ faults: state.faults.filter((fault) => fault.id !== id) })),
+  dismissAll: () => set({ faults: [] }),
+}))
+
 let nextId = 1
-// One observable value: React reads it through `useFaults`, and non-React
-// callers through `subscribeFaults`.
-const store = createStore<Fault[]>([])
 
 function describe(e: unknown): string {
   if (e instanceof Error) return e.message
@@ -34,33 +50,18 @@ function describe(e: unknown): string {
 
 /// Record a failure and show it. Always call this in a `catch` — the only
 /// permitted alternative is rethrowing so a caller reports it instead.
+///
+/// The fault is published first and written to the durable log after: the log is
+/// a report, not a gate. A rejected log becomes its own fault rather than taking
+/// the original one down with it.
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
   const id = nextId++
-  void Promise.resolve(logDiagnostic(context, e, id)).then(() => {
-    store.set([...store.get(), { id, context, message }])
+  useFaultStore.getState().publish({ id, context, message })
+  void Promise.resolve(logDiagnostic(context, e, id)).catch(() => {
+    // The sink cannot report its own failure through the sink.
+    reportDiagnosticBridgeFailure()
   })
-}
-
-/// Subscribe a component to the fault list.
-export function useFaults(): Fault[] {
-  return useStore(store)
-}
-
-/// For callers outside React. Fires immediately with the current list, as it
-/// always has.
-export function subscribeFaults(fn: (f: Fault[]) => void): () => void {
-  const unsubscribe = store.subscribe(() => fn(store.get()))
-  fn(store.get())
-  return unsubscribe
-}
-
-export function dismissFault(id: number): void {
-  store.set(store.get().filter((f) => f.id !== id))
-}
-
-export function dismissAllFaults(): void {
-  store.set([])
 }
 
 /** Unhandled errors from diagnostic capture, which has already logged them. An
@@ -68,11 +69,12 @@ export function dismissAllFaults(): void {
 export function reportUnhandledError(event: Event): void {
   if (!(event instanceof CustomEvent)) throw new Error('Unhandled UI errors arrive as CustomEvent.')
   const message = describe(event.detail)
-  if (store.get().some(fault => fault.context === 'Unexpected error' && fault.message === message)) return
-  store.set([...store.get(), { id: nextId++, context: 'Unexpected error', message }])
+  const { faults, publish } = useFaultStore.getState()
+  if (faults.some(fault => fault.context === 'Unexpected error' && fault.message === message)) return
+  publish({ id: nextId++, context: 'Unexpected error', message })
 }
 
 /** Sink failures cannot be sent through the failing sink again. */
 export function reportDiagnosticBridgeFailure(): void {
-  store.set([...store.get(), { id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.' }])
+  useFaultStore.getState().publish({ id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.' })
 }

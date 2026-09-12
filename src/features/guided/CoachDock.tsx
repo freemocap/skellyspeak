@@ -11,11 +11,11 @@ function readLayout(): Layout {
   if (stored === null) return { height: DEFAULT_HEIGHT, collapsed: true }
   const layout: unknown = JSON.parse(stored)
   if (typeof layout !== 'object' || layout === null || !('height' in layout) ||
-      typeof layout.height !== 'number' || !Number.isFinite(layout.height) || layout.height < MIN_HEIGHT ||
+      typeof layout.height !== 'number' || !Number.isFinite(layout.height) || layout.height < MIN_EXPANDED_HEIGHT ||
       !('collapsed' in layout) || typeof layout.collapsed !== 'boolean') {
     throw new Error('Invalid saved coach panel layout.')
   }
-  return { height: Math.max(MIN_EXPANDED_HEIGHT, layout.height), collapsed: layout.collapsed }
+  return { height: layout.height, collapsed: layout.collapsed }
 }
 
 type CoachDockProps = { children: ReactNode; actions: ReactNode; presentation?: 'dock' | 'dialog' }

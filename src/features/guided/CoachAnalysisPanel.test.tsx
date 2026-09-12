@@ -11,7 +11,7 @@ vi.mock('../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('./ConversationMap', () => ({ ConversationMap: () => null }))
 const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [] } as unknown as ConversationSnapshot
 function panel(chatId = 'chat-1', draftQuestion = '') {
-  return <CoachAnalysisPanel chatId={chatId} conversationBusy={false} contactProfile={null} tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
+  return <CoachAnalysisPanel chatId={chatId} conversationBusy={false} personaProfile={null} tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }
 beforeEach(() => {
   vi.resetAllMocks()

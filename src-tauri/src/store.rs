@@ -25,10 +25,19 @@ pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+/// The only schema this build opens. Keep in step with schema.sql's user_version.
+pub(crate) const SCHEMA_VERSION: i32 = 11;
+
+/// The workspace database, inside the application data directory.
+pub(crate) const WORKSPACE_FILE: &str = "skellyspeak.sqlite3";
+
 pub struct Store {
     pub(crate) connection: Connection,
     pub(crate) session_id: String,
     pub(crate) credential_writes: std::collections::HashSet<String>,
+    /// Where credential identifiers are recorded outside the database, so a
+    /// factory reset can remove secrets even when the workspace will not open.
+    pub(crate) credential_index: std::path::PathBuf,
     pub(crate) speech_cache: crate::speech::Cache,
     _lock: std::fs::File,
 }
@@ -42,6 +51,17 @@ fn missing() -> AppError {
         "This item no longer exists. Refresh the view.",
     )
 }
+/// A bounded, nonempty, single-line label. Persona fields have their own limits
+/// in `crate::persona`.
+fn short_text(value: &str, label: &str, max: usize) -> Result<()> {
+    if value.trim().is_empty() || value.chars().count() > max || value.contains('\0') {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            format!("{label} must be nonempty and at most {max} characters."),
+        ));
+    }
+    Ok(())
+}
 fn check_revision(actual: i32, expected: i32) -> Result<()> {
     if actual != expected {
         return Err(AppError::new(
@@ -50,94 +70,6 @@ fn check_revision(actual: i32, expected: i32) -> Result<()> {
         ));
     }
     Ok(())
-}
-fn text(value: &str, label: &str, max: usize, empty: bool) -> Result<()> {
-    if (!empty && value.trim().is_empty()) || value.chars().count() > max || value.contains('\0') {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            format!(
-                "{label} must {}be at most {max} characters.",
-                if empty { "" } else { "be nonempty and " }
-            ),
-        ));
-    }
-    Ok(())
-}
-fn validate_details(details: &PartnerDetails) -> Result<()> {
-    text(&details.name, "Name", 80, false)?;
-    text(&details.background, "Background", 2000, true)?;
-    text(&details.tendencies, "Conversational tendencies", 600, true)?;
-    if details.avatar.hue > 359 || !(3..=9).contains(&details.avatar.lobes) {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            "Avatar hue or shape is outside its supported range.",
-        ));
-    }
-    if details.vibe.len() > 8
-        || details.vibe.iter().any(|v| {
-            !["🌿", "☀️", "🌊", "📚", "🎵", "🚲", "🍵", "🌙", "🏔️", "🎨"].contains(&v.as_str())
-        })
-    {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            "Choose up to eight supported Vibe symbols.",
-        ));
-    }
-    let mut unique = details.vibe.clone();
-    unique.sort();
-    unique.dedup();
-    if unique.len() != details.vibe.len() {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            "Vibe symbols must be distinct.",
-        ));
-    }
-    Ok(())
-}
-fn generated_details(language_id: &str) -> PartnerDetails {
-    let seed = Uuid::new_v4().as_fields().0;
-    let names = match language_id {
-        "es" => ["Lucía", "Mateo", "Inés", "Diego"],
-        "fr" => ["Camille", "Jules", "Manon", "Louis"],
-        "ar" => ["نور", "سامي", "ليلى", "عمر"],
-        "zh" => ["小林", "安然", "明月", "子涵"],
-        "en" => ["Rowan", "Alex", "Morgan", "Robin"],
-        _ => unreachable!("language validated before generation"),
-    };
-    let interests = [
-        (
-            "Keeps a small balcony garden and enjoys early morning walks.",
-            "Warm, curious, and unhurried.",
-            "🌿",
-        ),
-        (
-            "Enjoys cooking for friends and browsing neighborhood markets.",
-            "Thoughtful, playful, and attentive.",
-            "☀️",
-        ),
-        (
-            "Spends free afternoons reading and listening to music.",
-            "Reflective, imaginative, and easygoing.",
-            "📚",
-        ),
-        (
-            "Likes cycling, sketching, and exploring unfamiliar streets.",
-            "Lively, observant, and welcoming.",
-            "🚲",
-        ),
-    ];
-    let (background, tendencies, vibe) = interests[((seed >> 8) % 4) as usize];
-    PartnerDetails {
-        name: names[(seed % 4) as usize].into(),
-        background: background.into(),
-        tendencies: tendencies.into(),
-        vibe: vec![vibe.into()],
-        avatar: AvatarRecipe {
-            seed,
-            hue: (seed % 360) as u16,
-            lobes: 3 + ((seed >> 16) % 7) as u8,
-        },
-    }
 }
 
 impl Store {
@@ -189,14 +121,14 @@ impl Store {
             if count != 0 {
                 return Err(AppError::new(
                     ErrorCode::Storage,
-                    "Unrecognized database. No data was changed.",
+                    "Unrecognized database. No data was changed. Use Factory Reset to start a new workspace.",
                 ));
             }
             let tx = connection.transaction()?;
             tx.execute_batch(include_str!("schema.sql"))?;
             let preferences = Preferences {
                 explanation_language: "en".into(),
-                text_size: 100,
+                text_size: crate::model::TEXT_SIZE_DEFAULT,
                 text_spacing: 0,
                 high_contrast: false,
                 onboarding: OnboardingStatus::NotStarted,
@@ -206,10 +138,15 @@ impl Store {
                 params![id(), serde_json::to_string(&preferences)?],
             )?;
             tx.commit()?;
-        } else if !(3..=8).contains(&version) {
+        }
+        // One schema, no upgrade path: any other version is refused untouched.
+        let version: i32 = connection.pragma_query_value(None, "user_version", |r| r.get(0))?;
+        if version != SCHEMA_VERSION {
             return Err(AppError::new(
                 ErrorCode::Storage,
-                "Unsupported database schema. No data was changed.",
+                format!(
+                    "This workspace uses schema version {version}, and this build supports only version {SCHEMA_VERSION}. No data was changed. Use Factory Reset to start a new workspace."
+                ),
             ));
         }
         let application_id: i32 =
@@ -231,41 +168,6 @@ impl Store {
                 "Invalid database ownership references.",
             ));
         }
-        if version == 3 {
-            let tx = connection.transaction()?;
-            tx.execute_batch(include_str!("access-schema.sql"))?;
-            tx.commit()?;
-        }
-        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 4 {
-            let tx = connection.transaction()?;
-            tx.execute_batch(include_str!("refusal-schema.sql"))?;
-            tx.commit()?;
-        }
-        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 5 {
-            let tx = connection.transaction()?;
-            tx.execute_batch(include_str!("holds-schema.sql"))?;
-            // Preserve active refusal authority when adding shared admission.
-            let held = tx
-                .prepare("SELECT context,refusal_hold FROM turns WHERE refusal_hold IS NOT NULL")?
-                .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
-                .collect::<rusqlite::Result<Vec<_>>>()?;
-            for (context, error) in held {
-                let context: serde_json::Value = serde_json::from_str(&context)?;
-                let target = serde_json::from_value(context["target"].clone())?;
-                crate::holds::record(&tx, &target, &serde_json::from_str(&error)?)?;
-            }
-            tx.commit()?;
-        }
-        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 6 {
-            let tx = connection.transaction()?;
-            tx.execute_batch(include_str!("transcription-schema.sql"))?;
-            tx.commit()?;
-        }
-        if connection.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? == 7 {
-            let tx = connection.transaction()?;
-            tx.execute_batch(include_str!("speech-settings-schema.sql"))?;
-            tx.commit()?;
-        }
         crate::progression::initialize(&connection)?;
         crate::reward_settings::initialize(&connection)?;
         let store = Self {
@@ -273,6 +175,7 @@ impl Store {
             session_id: id(),
             speech_cache: crate::speech::Cache::default(),
             credential_writes: std::collections::HashSet::new(),
+            credential_index: path.with_file_name("credentials.index"),
             _lock: lock,
         };
         store.snapshot()?;
@@ -286,15 +189,15 @@ impl Store {
         if snapshot.conversations.iter().any(|c| {
             !c.archived
                 && snapshot
-                    .relationships
+                    .contacts
                     .iter()
-                    .any(|r| r.id == c.relationship_id && !r.archived)
+                    .any(|r| r.id == c.contact_id && !r.archived)
         }) {
             return Ok(());
         }
-        let action = match snapshot.relationships.iter().find(|r| !r.archived) {
-            Some(relationship) => Action::CreateConversation {
-                relationship_id: relationship.id.clone(),
+        let action = match snapshot.contacts.iter().find(|r| !r.archived) {
+            Some(contact) => Action::CreateConversation {
+                contact_id: contact.id.clone(),
                 title: "New conversation".into(),
             },
             None => Action::StartChat {
@@ -345,7 +248,7 @@ impl Store {
             .revision
             .checked_add(1)
             .ok_or_else(|| AppError::new(ErrorCode::Storage, "Revision capacity exceeded."))?;
-        let mut partner_scope: Option<String> = None;
+        let mut persona_scope: Option<String> = None;
         let mut conversation_scope: Option<String> = None;
         let entity_id = match command.action {
             Action::AskCoach {
@@ -391,7 +294,7 @@ impl Store {
             }
             Action::RequestMessageSpeech { message_id } => {
                 let cached_attempt: Option<String> = tx.query_row(
-                    "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='partner_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",
+                    "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='persona_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",
                     [&message_id], |r| r.get(0),
                 ).optional()?;
                 let resident = cached_attempt
@@ -431,117 +334,135 @@ impl Store {
                 hold_id
             }
             Action::StartChat { language_id } => {
-                let (partner_id, relationship_id) =
-                    create_partner(&tx, &snapshot.learner.id, &language_id)?;
-                let conversation_id = id();
+                let details = crate::persona::starter(&language_id)?;
+                let (persona_id, contact_id) =
+                    create_persona(&tx, &snapshot.learner.id, &language_id, details)?;
                 let settings = languages::defaults(
                     &language_id,
                     &snapshot.learner.preferences.explanation_language,
                 )?;
-                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,'New conversation',0,1,MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1))",params![conversation_id,relationship_id,language_id])?;
-                tx.execute(
-                    "INSERT INTO conversation_settings VALUES(?1,1,?2)",
-                    params![conversation_id, serde_json::to_string(&settings)?],
+                let conversation_id = create_conversation(
+                    &tx,
+                    &contact_id,
+                    &language_id,
+                    "New conversation",
+                    &settings,
                 )?;
-                partner_scope = Some(partner_id);
+                persona_scope = Some(persona_id);
                 conversation_scope = Some(conversation_id.clone());
                 conversation_id
             }
-            Action::CreatePartner { language_id } => {
-                let (partner_id, _) = create_partner(&tx, &snapshot.learner.id, &language_id)?;
-                partner_scope = Some(partner_id.clone());
-                partner_id
+            Action::CreateContact {
+                language_id,
+                details,
+            } => {
+                let (persona_id, contact_id) =
+                    create_persona(&tx, &snapshot.learner.id, &language_id, details)?;
+                let settings = languages::defaults(
+                    &language_id,
+                    &snapshot.learner.preferences.explanation_language,
+                )?;
+                let conversation_id = create_conversation(
+                    &tx,
+                    &contact_id,
+                    &language_id,
+                    "New conversation",
+                    &settings,
+                )?;
+                persona_scope = Some(persona_id);
+                conversation_scope = Some(conversation_id.clone());
+                conversation_id
             }
-            Action::UpdatePartner {
-                partner_id,
+            Action::UpdatePersona {
+                persona_id,
                 expected_revision,
                 details,
             } => {
-                let partner = snapshot
-                    .partners
+                let persona = snapshot
+                    .personas
                     .iter()
-                    .find(|p| p.id == partner_id)
+                    .find(|p| p.id == persona_id)
                     .ok_or_else(missing)?;
-                check_revision(partner.revision, expected_revision)?;
-                validate_details(&details)?;
+                check_revision(persona.revision, expected_revision)?;
+                crate::persona::validate(&details, &persona.language_id)?;
                 tx.execute(
-                    "UPDATE partners SET details=?1,revision=revision+1 WHERE id=?2",
-                    params![serde_json::to_string(&details)?, partner_id],
+                    "UPDATE personas SET details=?1,revision=revision+1 WHERE id=?2",
+                    params![serde_json::to_string(&details)?, persona_id],
                 )?;
-                partner_scope = Some(partner_id.clone());
-                partner_id
+                persona_scope = Some(persona_id.clone());
+                persona_id
             }
-            Action::SetRelationshipArchived {
-                relationship_id,
+            Action::SetContactArchived {
+                contact_id,
                 expected_revision,
                 archived,
             } => {
-                let relationship = snapshot
-                    .relationships
+                let contact = snapshot
+                    .contacts
                     .iter()
-                    .find(|r| r.id == relationship_id)
+                    .find(|r| r.id == contact_id)
                     .ok_or_else(missing)?;
-                check_revision(relationship.revision, expected_revision)?;
+                check_revision(contact.revision, expected_revision)?;
                 tx.execute(
-                    "UPDATE relationships SET archived=?1,revision=revision+1 WHERE id=?2",
-                    params![archived, relationship_id],
+                    "UPDATE contacts SET archived=?1,revision=revision+1 WHERE id=?2",
+                    params![archived, contact_id],
                 )?;
-                partner_scope = Some(relationship.partner_id.clone());
-                relationship_id
+                persona_scope = Some(contact.persona_id.clone());
+                contact_id
             }
-            Action::DeletePartner {
-                partner_id,
+            Action::DeleteContact {
+                contact_id,
                 expected_revision,
             } => {
-                let partner = snapshot
-                    .partners
+                let contact = snapshot
+                    .contacts
                     .iter()
-                    .find(|p| p.id == partner_id)
+                    .find(|c| c.id == contact_id)
                     .ok_or_else(missing)?;
-                check_revision(partner.revision, expected_revision)?;
-                tx.execute("DELETE FROM partners WHERE id=?1", [&partner_id])?;
-                partner_id
+                check_revision(contact.revision, expected_revision)?;
+                // One persona per contact: removing the contact removes its
+                // persona, and the cascade takes the conversations with it.
+                tx.execute("DELETE FROM personas WHERE id=?1", [&contact.persona_id])?;
+                contact_id
             }
-            Action::CreateConversation {
-                relationship_id,
-                title,
-            } => {
-                text(&title, "Conversation title", 100, false)?;
-                let relationship = snapshot
-                    .relationships
+            Action::CreateConversation { contact_id, title } => {
+                short_text(&title, "Conversation title", 100)?;
+                let contact = snapshot
+                    .contacts
                     .iter()
-                    .find(|r| r.id == relationship_id)
+                    .find(|r| r.id == contact_id)
                     .ok_or_else(missing)?;
-                if relationship.archived {
+                if contact.archived {
                     return Err(AppError::new(
                         ErrorCode::Validation,
-                        "Restore this partner before creating a conversation.",
+                        "Restore this persona before creating a conversation.",
                     ));
                 }
-                let partner = snapshot
-                    .partners
+                let persona = snapshot
+                    .personas
                     .iter()
-                    .find(|p| p.id == relationship.partner_id)
+                    .find(|p| p.id == contact.persona_id)
                     .ok_or_else(missing)?;
                 let recent = snapshot
                     .conversations
                     .iter()
-                    .filter(|c| c.relationship_id == relationship_id)
+                    .filter(|c| c.contact_id == contact_id)
                     .max_by(|a, b| a.last_used.cmp(&b.last_used).then(a.id.cmp(&b.id)));
                 let settings = match recent {
                     Some(c) => c.settings.clone(),
                     None => languages::defaults(
-                        &partner.language_id,
+                        &persona.language_id,
                         &snapshot.learner.preferences.explanation_language,
                     )?,
                 };
-                let conversation_id = id();
-                tx.execute("INSERT INTO conversations(id,relationship_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,?4,0,1,MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1))", params![conversation_id, relationship_id, partner.language_id, title.trim()])?;
-                tx.execute(
-                    "INSERT INTO conversation_settings VALUES(?1,1,?2)",
-                    params![conversation_id, serde_json::to_string(&settings)?],
+                let conversation_id = create_conversation(
+                    &tx,
+                    &contact_id,
+                    &persona.language_id,
+                    title.trim(),
+                    &settings,
                 )?;
-                partner_scope = Some(partner.id.clone());
+                persona_scope = Some(persona.id.clone());
                 conversation_scope = Some(conversation_id.clone());
                 conversation_id
             }
@@ -564,7 +485,7 @@ impl Store {
                 title,
                 archived,
             } => {
-                text(&title, "Conversation title", 100, false)?;
+                short_text(&title, "Conversation title", 100)?;
                 let conversation = snapshot
                     .conversations
                     .iter()
@@ -617,9 +538,12 @@ impl Store {
                 preferences,
             } => {
                 check_revision(snapshot.learner.revision, expected_revision)?;
-                text(&name, "Learner name", 80, false)?;
+                short_text(&name, "Learner name", 80)?;
                 languages::language(&preferences.explanation_language)?;
-                if !(75..=150).contains(&preferences.text_size) || preferences.text_spacing > 12 {
+                if !(crate::model::TEXT_SIZE_MIN..=crate::model::TEXT_SIZE_MAX)
+                    .contains(&preferences.text_size)
+                    || preferences.text_spacing > 12
+                {
                     return Err(AppError::new(
                         ErrorCode::Validation,
                         "Reading size or spacing is outside the supported range.",
@@ -651,7 +575,7 @@ impl Store {
                 receipt.action_id,
                 request,
                 serde_json::to_string(&receipt)?,
-                partner_scope,
+                persona_scope,
                 conversation_scope
             ],
         )?;
@@ -692,10 +616,10 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
-    let partners: Vec<Partner> = connection
-        .prepare("SELECT id,learner_id,language_id,revision,details FROM partners ORDER BY rowid")?
+    let personas: Vec<Persona> = connection
+        .prepare("SELECT id,learner_id,language_id,revision,details FROM personas ORDER BY rowid")?
         .query_map([], |r| {
-            Ok(Partner {
+            Ok(Persona {
                 id: r.get(0)?,
                 learner_id: r.get(1)?,
                 language_id: r.get(2)?,
@@ -704,21 +628,19 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
-    let relationships = connection
-        .prepare(
-            "SELECT id,learner_id,partner_id,archived,revision FROM relationships ORDER BY rowid",
-        )?
+    let contacts = connection
+        .prepare("SELECT id,learner_id,persona_id,archived,revision FROM contacts ORDER BY rowid")?
         .query_map([], |r| {
-            Ok(Relationship {
+            Ok(Contact {
                 id: r.get(0)?,
                 learner_id: r.get(1)?,
-                partner_id: r.get(2)?,
+                persona_id: r.get(2)?,
                 archived: r.get(3)?,
                 revision: r.get(4)?,
             })
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
-    let conversations: Vec<Conversation> = connection.prepare("SELECT c.id,c.relationship_id,c.language_id,c.title,c.archived,c.revision,c.created_at,MAX(c.last_used,CAST((julianday(c.created_at)-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT CAST((julianday(MAX(m.created_at))-2440587.5)*86400000 AS INTEGER) FROM messages m WHERE m.conversation_id=c.id),0)) AS activity_ms,s.revision,s.settings FROM conversations c JOIN conversation_settings s ON s.conversation_id=c.id ORDER BY activity_ms DESC,c.id DESC")?.query_map([], |r| Ok(Conversation { id:r.get(0)?,relationship_id:r.get(1)?,language_id:r.get(2)?,title:r.get(3)?,archived:r.get(4)?,revision:r.get(5)?,created_at:r.get(6)?,last_used:r.get(7)?,settings_revision:r.get(8)?,settings:decode(r,9)? }))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let conversations: Vec<Conversation> = connection.prepare("SELECT c.id,c.contact_id,c.language_id,c.title,c.archived,c.revision,c.created_at,MAX(c.last_used,CAST((julianday(c.created_at)-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT CAST((julianday(MAX(m.created_at))-2440587.5)*86400000 AS INTEGER) FROM messages m WHERE m.conversation_id=c.id),0)) AS activity_ms,s.revision,s.settings FROM conversations c JOIN conversation_settings s ON s.conversation_id=c.id ORDER BY activity_ms DESC,c.id DESC")?.query_map([], |r| Ok(Conversation { id:r.get(0)?,contact_id:r.get(1)?,language_id:r.get(2)?,title:r.get(3)?,archived:r.get(4)?,revision:r.get(5)?,created_at:r.get(6)?,last_used:r.get(7)?,settings_revision:r.get(8)?,settings:decode(r,9)? }))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let total: i64 =
         connection.query_row("SELECT count(*) FROM conversations", [], |r| r.get(0))?;
     if total != conversations.len() as i64 {
@@ -727,9 +649,8 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             "Conversation settings are missing.",
         ));
     }
-    for partner in &partners {
-        languages::language(&partner.language_id)?;
-        validate_details(&partner.details)?;
+    for persona in &personas {
+        crate::persona::validate(&persona.details, &persona.language_id)?;
     }
     for conversation in &conversations {
         languages::validate_settings(&conversation.language_id, &conversation.settings)?;
@@ -744,32 +665,55 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
         learner,
         languages: languages::registry(),
         language_profiles,
-        partners,
-        relationships,
+        personas,
+        contacts,
         conversations,
     })
 }
 
-fn create_partner(db: &Connection, learner: &str, language_id: &str) -> Result<(String, String)> {
-    languages::language(language_id)?;
-    let partner_id = id();
-    let relationship_id = id();
-    let details = generated_details(language_id);
+/// The one place a persona and its contact are created, from the starter or from
+/// a generated result. The language is validated here.
+fn create_persona(
+    db: &Connection,
+    learner: &str,
+    language_id: &str,
+    details: PersonaDetails,
+) -> Result<(String, String)> {
+    crate::persona::validate(&details, language_id)?;
+    let persona_id = id();
+    let contact_id = id();
     db.execute("INSERT INTO language_profiles SELECT ?1,?2,?3 WHERE NOT EXISTS(SELECT 1 FROM language_profiles WHERE learner_id=?2 AND language_id=?3)", params![id(), learner, language_id])?;
     db.execute(
-        "INSERT INTO partners VALUES(?1,?2,?3,1,?4)",
+        "INSERT INTO personas VALUES(?1,?2,?3,1,?4)",
         params![
-            partner_id,
+            persona_id,
             learner,
             language_id,
             serde_json::to_string(&details)?
         ],
     )?;
     db.execute(
-        "INSERT INTO relationships VALUES(?1,?2,?3,0,1)",
-        params![relationship_id, learner, partner_id],
+        "INSERT INTO contacts VALUES(?1,?2,?3,0,1)",
+        params![contact_id, learner, persona_id],
     )?;
-    Ok((partner_id, relationship_id))
+    Ok((persona_id, contact_id))
+}
+
+/// The one place a conversation is created for a contact.
+fn create_conversation(
+    db: &Connection,
+    contact_id: &str,
+    language_id: &str,
+    title: &str,
+    settings: &PracticeSettings,
+) -> Result<String> {
+    let conversation_id = id();
+    db.execute("INSERT INTO conversations(id,contact_id,language_id,title,archived,revision,last_used) VALUES(?1,?2,?3,?4,0,1,MAX(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),COALESCE((SELECT MAX(last_used) FROM conversations),0)+1))", params![conversation_id, contact_id, language_id, title])?;
+    db.execute(
+        "INSERT INTO conversation_settings VALUES(?1,1,?2)",
+        params![conversation_id, serde_json::to_string(settings)?],
+    )?;
+    Ok(conversation_id)
 }
 
 #[cfg(test)]
@@ -785,26 +729,21 @@ mod tests {
     fn apply(store: &mut Store, action: Action) -> Receipt {
         store.execute(command(store, action)).unwrap()
     }
-    fn partner(store: &mut Store) -> Relationship {
+    fn contact(store: &mut Store) -> Contact {
         apply(
             store,
-            Action::CreatePartner {
+            Action::CreateContact {
                 language_id: "es".into(),
+                details: crate::persona::starter("es").unwrap(),
             },
         );
-        store
-            .snapshot()
-            .unwrap()
-            .relationships
-            .last()
-            .unwrap()
-            .clone()
+        store.snapshot().unwrap().contacts.last().unwrap().clone()
     }
-    fn conversation(store: &mut Store, relationship: &Relationship, title: &str) -> Conversation {
+    fn conversation(store: &mut Store, contact: &Contact, title: &str) -> Conversation {
         let receipt = apply(
             store,
             Action::CreateConversation {
-                relationship_id: relationship.id.clone(),
+                contact_id: contact.id.clone(),
                 title: title.into(),
             },
         );
@@ -825,7 +764,7 @@ mod tests {
         std::fs::create_dir(&directory).unwrap();
         std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(0o755)).unwrap();
         prepare_private_directory(&directory).unwrap();
-        let path = directory.join("practice.sqlite3");
+        let path = directory.join("skellyspeak.sqlite3");
         std::fs::write(&path, []).unwrap();
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
         let _store = Store::open(&path).unwrap();
@@ -844,7 +783,7 @@ mod tests {
     #[test]
     fn voice_defaults_are_persistent_and_opt_out_survives_restart() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("practice.sqlite3");
+        let path = directory.path().join("skellyspeak.sqlite3");
         let mut store = Store::open(&path).unwrap();
         store.prepare_chat().unwrap();
         let conversation = store.snapshot().unwrap().conversations.remove(0);
@@ -870,11 +809,11 @@ mod tests {
     #[test]
     fn startup_opens_chat_without_setup_and_does_not_duplicate_it() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("practice.sqlite3");
+        let path = directory.path().join("skellyspeak.sqlite3");
         let mut store = Store::open(&path).unwrap();
         store.prepare_chat().unwrap();
         let snapshot = store.snapshot().unwrap();
-        assert_eq!(snapshot.partners.len(), 1);
+        assert_eq!(snapshot.personas.len(), 1);
         assert_eq!(snapshot.conversations.len(), 1);
         assert_eq!(snapshot.conversations[0].language_id, "es");
         let conversation = snapshot.conversations[0].id.clone();
@@ -887,9 +826,9 @@ mod tests {
         assert_eq!(snapshot.conversations[0].id, conversation);
     }
     #[test]
-    fn one_click_partner_and_chat_creation_is_atomic_and_replay_safe() {
+    fn one_click_persona_and_chat_creation_is_atomic_and_replay_safe() {
         let directory = tempfile::tempdir().unwrap();
-        let mut store = Store::open(&directory.path().join("practice.sqlite3")).unwrap();
+        let mut store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
         let command = Command {
             session_id: store.session_id.clone(),
             action_id: id(),
@@ -900,7 +839,7 @@ mod tests {
         let receipt = store.execute(command.clone()).unwrap();
         assert_eq!(store.execute(command).unwrap().entity_id, receipt.entity_id);
         let snapshot = store.snapshot().unwrap();
-        assert_eq!(snapshot.partners.len(), 1);
+        assert_eq!(snapshot.personas.len(), 1);
         assert_eq!(snapshot.conversations.len(), 1);
         assert_eq!(snapshot.conversations[0].id, receipt.entity_id);
         assert_eq!(snapshot.conversations[0].language_id, "fr");
@@ -912,15 +851,67 @@ mod tests {
             },
         };
         assert!(store.execute(invalid).is_err());
-        assert_eq!(store.snapshot().unwrap().partners.len(), 1);
+        assert_eq!(store.snapshot().unwrap().personas.len(), 1);
+    }
+    #[test]
+    fn a_generated_contact_arrives_with_its_own_conversation_or_writes_nothing() {
+        let directory = tempfile::tempdir().unwrap();
+        let mut store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
+        let generated = PersonaDetails {
+            name: "Generated".into(),
+            ..crate::persona::starter("es").unwrap()
+        };
+        let receipt = apply(
+            &mut store,
+            Action::CreateContact {
+                language_id: "es".into(),
+                details: generated.clone(),
+            },
+        );
+        let snapshot = store.snapshot().unwrap();
+        assert_eq!(snapshot.personas.len(), 1);
+        assert_eq!(snapshot.personas[0].details.name, "Generated");
+        assert_eq!(snapshot.conversations.len(), 1);
+        assert_eq!(snapshot.conversations[0].id, receipt.entity_id);
+        for rejected in [
+            PersonaDetails {
+                age: Some(12),
+                ..generated.clone()
+            },
+            PersonaDetails {
+                vibe: vec!["not an emoji".into()],
+                ..generated.clone()
+            },
+            PersonaDetails {
+                name: "  ".into(),
+                ..generated
+            },
+        ] {
+            let before = store.snapshot().unwrap().revision;
+            let refused = command(
+                &store,
+                Action::CreateContact {
+                    language_id: "es".into(),
+                    details: rejected,
+                },
+            );
+            assert_eq!(
+                store.execute(refused).unwrap_err().code,
+                ErrorCode::Validation
+            );
+            let after = store.snapshot().unwrap();
+            assert_eq!(after.revision, before);
+            assert_eq!(after.personas.len(), 1);
+            assert_eq!(after.conversations.len(), 1);
+        }
     }
     #[test]
     fn settings_are_independent_copies_of_last_opened_conversation_and_survive_restart() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("practice.sqlite3");
+        let path = directory.path().join("skellyspeak.sqlite3");
         let mut store = Store::open(&path).unwrap();
-        let relationship = partner(&mut store);
-        let first = conversation(&mut store, &relationship, "Weekend plans");
+        let contact = contact(&mut store);
+        let first = conversation(&mut store, &contact, "Weekend plans");
         let mut settings = first.settings.clone();
         settings.difficulty = Difficulty::Advanced;
         settings.translation = false;
@@ -932,7 +923,7 @@ mod tests {
                 settings: settings.clone(),
             },
         );
-        let second = conversation(&mut store, &relationship, "Kitchen stories");
+        let second = conversation(&mut store, &contact, "Kitchen stories");
         assert_eq!(second.settings, settings);
         settings.difficulty = Difficulty::Beginner;
         apply(
@@ -949,11 +940,12 @@ mod tests {
                 conversation_id: first.id.clone(),
             },
         );
-        let third = conversation(&mut store, &relationship, "Train journey");
+        let third = conversation(&mut store, &contact, "Train journey");
         assert_eq!(third.settings.difficulty, Difficulty::Advanced);
         drop(store);
         let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
-        assert_eq!(snapshot.conversations.len(), 3);
+        // The contact's first conversation plus the three created here.
+        assert_eq!(snapshot.conversations.len(), 4);
         assert_eq!(
             snapshot
                 .conversations
@@ -972,17 +964,19 @@ mod tests {
         let mut store = Store::open(&directory.path().join("db")).unwrap();
         let cmd = command(
             &store,
-            Action::CreatePartner {
+            Action::CreateContact {
                 language_id: "es".into(),
+                details: crate::persona::starter("es").unwrap(),
             },
         );
         let first = store.execute(cmd.clone()).unwrap();
         let second = store.execute(cmd.clone()).unwrap();
         assert_eq!(first.entity_id, second.entity_id);
-        assert_eq!(store.snapshot().unwrap().partners.len(), 1);
+        assert_eq!(store.snapshot().unwrap().personas.len(), 1);
         let mut other = cmd;
-        other.action = Action::CreatePartner {
+        other.action = Action::CreateContact {
             language_id: "fr".into(),
+            details: crate::persona::starter("fr").unwrap(),
         };
         assert_eq!(store.execute(other).unwrap_err().code, ErrorCode::Conflict);
     }
@@ -990,8 +984,8 @@ mod tests {
     fn stale_settings_and_invalid_language_do_not_partially_write() {
         let directory = tempfile::tempdir().unwrap();
         let mut store = Store::open(&directory.path().join("db")).unwrap();
-        let relationship = partner(&mut store);
-        let convo = conversation(&mut store, &relationship, "Plans");
+        let contact = contact(&mut store);
+        let convo = conversation(&mut store, &contact, "Plans");
         let mut invalid = convo.settings.clone();
         invalid.variety_id = "fr-FR".into();
         let before = store.snapshot().unwrap().revision;
@@ -1027,23 +1021,24 @@ mod tests {
         assert_eq!(store.execute(stale).unwrap_err().code, ErrorCode::Conflict);
     }
     #[test]
-    fn deletion_cascades_without_touching_other_partners_or_profiles() {
+    fn deletion_cascades_without_touching_other_personas_or_profiles() {
         let directory = tempfile::tempdir().unwrap();
         let mut store = Store::open(&directory.path().join("db")).unwrap();
-        let one = partner(&mut store);
-        let two = partner(&mut store);
+        let one = contact(&mut store);
+        let two = contact(&mut store);
         let deleted = conversation(&mut store, &one, "Delete me");
         let kept = conversation(&mut store, &two, "Keep me");
         apply(
             &mut store,
-            Action::DeletePartner {
-                partner_id: one.partner_id,
+            Action::DeleteContact {
+                contact_id: one.id.clone(),
                 expected_revision: 1,
             },
         );
         let state = store.snapshot().unwrap();
-        assert_eq!(state.partners.len(), 1);
-        assert_eq!(state.conversations.len(), 1);
+        assert_eq!(state.personas.len(), 1);
+        // Two contacts were created, each with its own first conversation.
+        assert_eq!(state.conversations.len(), 2);
         assert_eq!(state.conversations[0].id, kept.id);
         assert_eq!(state.language_profiles.len(), 1);
         let late = command(
@@ -1061,27 +1056,29 @@ mod tests {
                 r.get(0)
             })
             .unwrap();
-        assert_eq!(orphans, 1);
+        // Every surviving conversation keeps exactly one settings row.
+        assert_eq!(orphans, 2);
     }
     #[test]
     fn archive_retains_conversations_and_can_be_restored() {
         let directory = tempfile::tempdir().unwrap();
         let mut store = Store::open(&directory.path().join("db")).unwrap();
-        let relation = partner(&mut store);
+        let relation = contact(&mut store);
         conversation(&mut store, &relation, "Plans");
         apply(
             &mut store,
-            Action::SetRelationshipArchived {
-                relationship_id: relation.id.clone(),
+            Action::SetContactArchived {
+                contact_id: relation.id.clone(),
                 expected_revision: 1,
                 archived: true,
             },
         );
-        assert_eq!(store.snapshot().unwrap().conversations.len(), 1);
+        // The contact's first conversation plus the one created above.
+        assert_eq!(store.snapshot().unwrap().conversations.len(), 2);
         let blocked = command(
             &store,
             Action::CreateConversation {
-                relationship_id: relation.id.clone(),
+                contact_id: relation.id.clone(),
                 title: "Blocked".into(),
             },
         );
@@ -1091,13 +1088,13 @@ mod tests {
         );
         apply(
             &mut store,
-            Action::SetRelationshipArchived {
-                relationship_id: relation.id,
+            Action::SetContactArchived {
+                contact_id: relation.id,
                 expected_revision: 2,
                 archived: false,
             },
         );
-        assert!(!store.snapshot().unwrap().relationships[0].archived);
+        assert!(!store.snapshot().unwrap().contacts[0].archived);
     }
     #[test]
     fn preferences_survive_restart_and_old_session_is_rejected() {
@@ -1106,8 +1103,9 @@ mod tests {
         let mut store = Store::open(&path).unwrap();
         let old = command(
             &store,
-            Action::CreatePartner {
+            Action::CreateContact {
                 language_id: "es".into(),
+                details: crate::persona::starter("es").unwrap(),
             },
         );
         let mut preferences = store.snapshot().unwrap().learner.preferences;
@@ -1132,6 +1130,63 @@ mod tests {
             ErrorCode::SessionExpired
         );
     }
+    #[test]
+    fn an_empty_workspace_opens_at_the_one_supported_version() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("skellyspeak.sqlite3");
+        let store = Store::open(&path).unwrap();
+        assert_eq!(
+            store
+                .connection
+                .pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
+                .unwrap(),
+            SCHEMA_VERSION
+        );
+        assert!(store.snapshot().is_ok());
+        drop(store);
+        // Reopening the same file is the ordinary path, not an upgrade.
+        assert!(Store::open(&path).is_ok());
+    }
+
+    #[test]
+    fn any_other_schema_version_is_refused_without_modifying_the_file() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("skellyspeak.sqlite3");
+        drop(Store::open(&path).unwrap());
+        for version in [3, 5, 8, 9, 10, SCHEMA_VERSION + 1] {
+            let connection = Connection::open(&path).unwrap();
+            connection
+                .pragma_update(None, "user_version", version)
+                .unwrap();
+            let before: i32 = connection
+                .query_row("SELECT revision FROM metadata WHERE singleton=1", [], |r| {
+                    r.get(0)
+                })
+                .unwrap();
+            drop(connection);
+            let error = match Store::open(&path) {
+                Ok(_) => panic!("version {version} must be refused"),
+                Err(error) => error,
+            };
+            assert_eq!(error.code, ErrorCode::Storage);
+            assert!(error.message.contains("Factory Reset"), "{}", error.message);
+            let connection = Connection::open(&path).unwrap();
+            assert_eq!(
+                connection
+                    .pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
+                    .unwrap(),
+                version
+            );
+            assert_eq!(
+                connection
+                    .query_row("SELECT revision FROM metadata WHERE singleton=1", [], |r| r
+                        .get::<_, i32>(0))
+                    .unwrap(),
+                before
+            );
+        }
+    }
+
     #[test]
     fn malformed_existing_database_is_not_reset() {
         let directory = tempfile::tempdir().unwrap();
@@ -1166,7 +1221,7 @@ mod tests {
     fn deleting_one_conversation_keeps_its_sibling_and_clears_receipts() {
         let directory = tempfile::tempdir().unwrap();
         let mut store = Store::open(&directory.path().join("db")).unwrap();
-        let relation = partner(&mut store);
+        let relation = contact(&mut store);
         let first = conversation(&mut store, &relation, "First");
         let second = conversation(&mut store, &relation, "Second");
         apply(
@@ -1177,8 +1232,9 @@ mod tests {
             },
         );
         let snapshot = store.snapshot().unwrap();
-        assert_eq!(snapshot.partners.len(), 1);
-        assert_eq!(snapshot.conversations.len(), 1);
+        assert_eq!(snapshot.personas.len(), 1);
+        // The contact's first conversation survives beside the one kept here.
+        assert_eq!(snapshot.conversations.len(), 2);
         assert_eq!(snapshot.conversations[0].id, second.id);
         let remaining: i32 = store
             .connection
@@ -1197,8 +1253,8 @@ mod tests {
         let mut json = serde_json::to_value(settings).unwrap();
         json["languageDifficulty"] = serde_json::json!("advanced");
         assert!(serde_json::from_value::<PracticeSettings>(json).is_err());
-        let action = serde_json::json!({"kind":"updatePartner", "partnerId":"id", "expectedRevision":1,
-            "details":generated_details("es"), "languageId":"fr"});
+        let action = serde_json::json!({"kind":"updatePersona", "personaId":"id", "expectedRevision":1,
+            "details":crate::persona::starter("es").unwrap(), "languageId":"fr"});
         assert!(serde_json::from_value::<Action>(action).is_err());
     }
 }

@@ -43,6 +43,14 @@ export interface SkillRecord {
   assessment: { judgments: SkillJudgment[] } | null
   error: string | null
 }
+/// A snapshot is written by exactly one rubric. A record from another catalog is
+/// a defect to report, never a record to filter out quietly.
+export function requireCatalogVersion(snapshot: SkillSnapshot, record: SkillRecord): void {
+  if (record.catalog_version !== snapshot.catalog_version) {
+    throw new Error(`Evidence uses catalog ${record.catalog_version}, and this snapshot uses ${snapshot.catalog_version}`)
+  }
+}
+
 export interface SkillSnapshot {
   catalog: TreeNode[]
   catalog_version: number

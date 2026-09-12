@@ -27,6 +27,10 @@ export interface Graph {
   /// Relative specifiers that resolve to nothing. These are defects, so they are
   /// returned rather than ignored.
   unresolved: Edge[]
+  /// Module source, kept so export analysis does not read every file twice.
+  sources: Map<string, string>
+  /// Names each module exports by declaration or export list.
+  exports: Map<string, string[]>
 }
 
 /// A relative specifier found in source, with the offsets needed to replace
@@ -162,6 +166,8 @@ export function buildGraph(repositoryRoot: string, scan: string = SCAN_ROOT): Gr
   const unresolved: Edge[] = []
   const importers = new Map<string, Set<string>>()
   const bareImports = new Map<string, Set<string>>()
+  const exports = new Map<string, string[]>()
+  for (const [from, source] of read) exports.set(from, extractExports(source))
   for (const [from, source] of read) {
     for (const { spec, kind, relative } of extractSpecifiers(source)) {
       if (!relative) {
@@ -185,7 +191,72 @@ export function buildGraph(repositoryRoot: string, scan: string = SCAN_ROOT): Gr
       importers.set(to, set)
     }
   }
-  return { files, directories, modules, edges, importers, bareImports, unresolved }
+  return { files, directories, modules, edges, importers, bareImports, unresolved, sources: read, exports }
+}
+
+/// Declarations that carry a value. Interfaces and type aliases are the
+/// vocabulary of a shape rather than code, so they are not reported.
+const EXPORT_DECLARATION = /export[ ]+(?:async[ ]+)?(function|const|let|var|class)[ ]+([A-Za-z_$][A-Za-z0-9_$]*)/g
+const EXPORT_LIST = /export[ ]*(?:type[ ]*)?[{]([^}]*)[}]/g
+
+/// Files that are generated, so pruning them is not an option.
+const GENERATED = new Set(["src/contracts.ts"])
+
+/// Names a module exports that a caller could fail to use. A re-export star and
+/// a default export name no identifier, so neither is collected.
+export function extractExports(source: string): string[] {
+  const names = new Set<string>()
+  for (const match of source.matchAll(EXPORT_DECLARATION)) names.add(match[2])
+  for (const match of source.matchAll(EXPORT_LIST)) {
+    for (const entry of match[1].split(',')) {
+      const name = entry.trim().split(/ as /).pop()?.trim()
+      if (name && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)) names.add(name)
+    }
+  }
+  return [...names]
+}
+
+const IMPORT_LIST = /\bimport\s+(?:type\s+)?(?:[A-Za-z_$][A-Za-z0-9_$]*\s*,\s*)?[{]([^}]*)[}]\s*from/g
+const IMPORT_DEFAULT = /\bimport\s+(?:type\s+)?([A-Za-z_$][A-Za-z0-9_$]*)\s*(?:,\s*[{][^}]*[}]\s*)?from/g
+const REEXPORT_LIST = /\bexport\s*(?:type\s*)?[{]([^}]*)[}]\s*from/g
+
+function listedNames(body: string): string[] {
+  return body.split(',').map((entry) => entry.trim().split(/ as /)[0].trim()).filter((name) => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name))
+}
+
+/// Every name a module takes from another module, tests included: a unit a test
+/// imports and exercises is a seam, not dead code. A name that appears only as a
+/// key inside a mocked shape is not imported, and that is the case worth
+/// catching — a wrapper whose only "use" is a vi.mock entry.
+export function importedNames(sources: Map<string, string>): Set<string> {
+  const names = new Set<string>()
+  for (const source of sources.values()) {
+    for (const match of source.matchAll(IMPORT_LIST)) for (const name of listedNames(match[1])) names.add(name)
+    for (const match of source.matchAll(REEXPORT_LIST)) for (const name of listedNames(match[1])) names.add(name)
+    for (const match of source.matchAll(IMPORT_DEFAULT)) names.add(match[1])
+  }
+  return names
+}
+
+/// Exports no other module mentions, module by module.
+export function unusedExports(graph: Graph): { module: string; name: string }[] {
+  const imported = importedNames(graph.sources)
+  const words = new Map<string, Set<string>>()
+  for (const [module, source] of graph.sources) {
+    // Production text is evidence of use; a bare mention in test text is not.
+    if (isTestFile(module) || isTestInfrastructure(module)) continue
+    words.set(module, new Set(source.split(/[^A-Za-z0-9_$]+/)))
+  }
+  const unused: { module: string; name: string }[] = []
+  for (const [module, names] of graph.exports) {
+    if (GENERATED.has(module) || isTestFile(module) || isTestInfrastructure(module)) continue
+    for (const name of names) {
+      if (imported.has(name)) continue
+      const mentioned = [...words].some(([other, tokens]) => other !== module && tokens.has(name))
+      if (!mentioned) unused.push({ module, name })
+    }
+  }
+  return unused.sort((a, b) => a.module.localeCompare(b.module) || a.name.localeCompare(b.name))
 }
 
 export function reachable(graph: Graph, roots: string[]): Set<string> {
@@ -206,11 +277,17 @@ export function reachable(graph: Graph, roots: string[]): Set<string> {
 /// by vitest configuration rather than imported, so it is a root too.
 export const PRODUCTION_ROOTS = ['src/main.tsx', 'src/test/setup.ts']
 
+/// Test infrastructure is not shipped and is not reachable from the application
+/// entry point by design, so it is never reported as dead.
+export function isTestInfrastructure(path: string): boolean {
+  return path.startsWith('src/test/')
+}
+
 /// Production modules nothing reaches from a root. Test files are excluded: a
 /// test importing a dead module must not keep that module alive.
 export function unreachableModules(graph: Graph, roots: string[] = PRODUCTION_ROOTS): string[] {
   const live = reachable(graph, roots)
-  return graph.modules.filter((file) => !isTestFile(file) && !live.has(file))
+  return graph.modules.filter((file) => !isTestFile(file) && !isTestInfrastructure(file) && !live.has(file))
 }
 
 const isEntry = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href

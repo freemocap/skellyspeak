@@ -1,0 +1,234 @@
+.err {
+  align-self: center; color: #b34a4a; background: #fbeaea; border: 1px solid #e8c9c9;
+  border-radius: 10px; padding: 8px 12px; font-size: 12.5px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+}
+
+/* The way out of a failure that names Settings — same red, but clearly a
+   control rather than more prose. */
+
+.err-action {
+  flex: none; background: #b34a4a; border: 1px solid #a03f3f; border-radius: 6px;
+  color: #fff; cursor: pointer; font-size: 12px; padding: 4px 10px; white-space: nowrap;
+}
+
+.err-action:hover { background: #9d3f3f; }
+
+.popup-roman { color: var(--steel); font-family: var(--mono); font-style: normal; }
+
+/* Unified panel tabs (Coach / Analysis) */
+
+.panel-tabs { display: flex; gap: 3px; padding: 4px 8px 0; border-bottom: 1px solid var(--line2); flex: none; }
+
+.panel-tab {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 6px 12px; border-radius: 7px 7px 0 0;
+  border: 1px solid var(--line2); background: var(--chrome); color: var(--mut-d); cursor: pointer;
+}
+
+.panel-tab:hover { color: var(--ink-d); }
+
+.panel-tab.active { color: var(--steel); border-color: var(--steel); border-bottom-color: var(--inset); background: var(--inset); }
+
+.field {
+  flex: 1; background: #fff; border: 1px solid var(--paper-line); border-radius: 20px;
+  padding: 9px 14px; color: var(--ink); font-family: var(--serif); font-size: 14px; outline: none;
+}
+
+.field:focus { border-color: var(--steel); }
+
+.field::placeholder { color: var(--ink-mut); }
+
+.chip {
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  border: 1px solid var(--line2); background: none; color: var(--mut-d);
+  border-radius: 20px; padding: 6px 13px; cursor: pointer;
+}
+
+.chip:hover { color: var(--ink-d); }
+
+.chip.active { border-color: var(--amber-deep); color: var(--amber); background: rgba(199, 138, 47, 0.08); }
+
+.chip:disabled { opacity: 0.5; cursor: default; }
+
+.center-note { text-align: center; color: var(--mut-d); font-family: var(--mono); font-size: 13px; padding: 40px 0; }
+
+.btn {
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+  border: 1px solid var(--line2); background: none; color: var(--mut-d);
+  border-radius: 8px; padding: 8px 16px; cursor: pointer;
+}
+
+.btn:hover { color: var(--ink-d); border-color: var(--steel); }
+
+.btn.primary { background: var(--steel-deep); border-color: var(--steel-deep); color: #fff; }
+
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btn.tiny { padding: 6px 10px; font-size: 10px; letter-spacing: 0.1em; }
+
+/* Update offer. Sits above the fault bar — it is an action, not a problem. */
+
+.update-bar {
+  flex: none; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--chrome); border-bottom: 1px solid var(--steel);
+  color: var(--ink-d); padding: 9px 14px; font-size: 13px;
+}
+
+.update-text { margin-right: auto; }
+
+.update-bar b { color: var(--steel); }
+
+/* Every failure in the app lands here, at the top of the window, above all
+   other chrome. Nothing that goes wrong is allowed to stay in a log file. */
+
+.fault-bar {
+  flex: none; background: #3a1a1a; border-bottom: 1px solid #7a3535;
+  color: #ffd7d7; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+  display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+  max-height: min(120px, 18dvh); overflow-y: auto; overscroll-behavior: contain;
+}
+
+.fault-bar > .btn { position: sticky; top: 0; z-index: 1; flex: none; align-self: flex-end; }
+
+.fault-bar .fault { margin: 0; padding-right: 22px; position: relative; width: 100%; }
+
+.fault-bar .fault b { color: #ffb4b4; }
+
+.fault-dismiss {
+  position: absolute; top: -2px; right: 0; border: none; background: none;
+  color: #ffd7d7; cursor: pointer; font-size: 13px; line-height: 1; padding: 2px 4px;
+}
+
+.fault-dismiss:hover { color: #fff; }
+
+/* Word popup */
+
+.popup { position: fixed; z-index: 50; transform: translate(-50%, -100%); max-width: min(340px, calc(100vw - 16px)); max-height: min(55dvh, 360px); overflow-y: auto; background: var(--chrome); color: var(--ink-d); border: 1px solid var(--line2); border-radius: 10px; padding: 10px; }
+
+.popup-card {
+  display: flex; align-items: center; gap: 8px;
+  max-width: min(340px, 90vw);
+  background: var(--chrome2); border: 1px solid var(--amber-deep); border-radius: 10px;
+  padding: 8px 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--amber);
+  line-height: 1.5;
+}
+
+.popup-x { background: none; border: none; color: var(--faint-d); cursor: pointer; font-size: 12px; }
+
+.popup-x:hover { color: var(--ink-d); }
+
+/* Settings modal */
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(5, 9, 15, 0.72); z-index: 60;
+  display: grid; place-items: center;
+  /* Safe-area insets, and every child below sizes against THIS box (100%),
+     never against dvh. A dvh-sized modal plus this padding was taller than the
+     viewport, and `place-items: center` then clipped it at both ends at once —
+     which put the section nav off the top of the screen and the Save button
+     off the bottom, with no scroll to reach either. */
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.modal {
+  width: min(480px, 100%); background: var(--chrome); border: 1px solid var(--line);
+  border-radius: 14px; padding: 22px 24px; max-height: 100%; overflow-y: auto;
+}
+
+.modal h2 { margin: 0 0 4px; font-size: 17px; }
+
+.modal .sub { color: var(--mut-d); font-size: 12.5px; margin-bottom: 16px; line-height: 1.5; }
+
+.form-row { margin-bottom: 13px; }
+
+.field-note { margin: 6px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--faint-d); }
+
+.form-row label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut-d); margin-bottom: 5px; }
+
+.form-row input, .form-row select {
+  width: 100%; background: var(--inset); color: var(--ink-d);
+  border: 1px solid var(--line2); border-radius: 8px; padding: 8px 11px;
+  font-size: 13.5px; outline: none;
+}
+
+.form-row input:focus, .form-row select:focus { border-color: var(--steel); }
+
+.check-row .check-label {
+  display: flex; align-items: center; gap: 9px; cursor: pointer;
+  font-family: var(--sans); font-size: 13px; color: var(--ink-d);
+}
+
+.check-row input[type='checkbox'] { width: auto; accent-color: var(--steel-deep); }
+
+.shortcut-field { display: flex; align-items: center; gap: 10px; }
+
+.shortcut-label { flex: 1; font-size: 12.5px; color: var(--mut-d); }
+
+.shortcut-input {
+  width: 170px; background: var(--inset); color: var(--steel); text-align: center;
+  border: 1px solid var(--line2); border-radius: 6px; padding: 5px 9px;
+  font-family: var(--mono); font-size: 12px; cursor: pointer; outline: none;
+}
+
+.shortcut-input:focus { border-color: var(--steel); color: var(--ink-d); }
+
+.key-row { display: flex; align-items: center; gap: 8px; }
+
+.key-row input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 12px; }
+
+/* Resting state is a read-only mask, not a disabled field — keep it readable
+   and let the caret sit in it so the mask can be selected and copied. */
+
+.key-row input[readonly] { color: var(--mut-d); cursor: default; }
+
+.update-controls { display: flex; align-items: center; gap: 8px; }
+
+.update-controls .btn { padding: 6px 10px; }
+
+.modal-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+/* Settings autosave: destructive action far left, status in the middle, the
+   only remaining button on the right. No Save — edits write themselves. */
+
+.save-status {
+  margin: 0 0 0 4px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--mut-d);
+}
+
+.save-status.hint { color: var(--faint-d); }
+
+.save-status.saved { color: #58c98b; }
+
+.save-status.error { color: #e06c6c; }
+
+.btn.danger { border-color: #8a3a3a; color: #f08a8a; }
+
+.btn.danger:hover { color: #fff; background: #a83a3a; border-color: #a83a3a; }
+
+@media (max-width: 860px) {
+  /* iOS zooms any focused input under 16px — keep inputs at 16 on touch. */
+  .field, .form-row input, .form-row select { font-size: 16px; }
+  .save-status { margin-left: 8px; font-size: 9px; }
+}
+
+.new-chat { width: 32px; height: 32px; padding: 0; border: 1px solid #aab3bf; border-radius: 7px; background: #fff; color: var(--ink); font-size: 24px; line-height: 1; cursor: pointer; }
+
+.new-chat:hover:not(:disabled) { background: var(--user-bg); border-color: var(--user-ink); }
+
+.new-chat:disabled { opacity: .5; cursor: default; }
+
+@media (pointer: coarse) { .new-chat { width: 44px; height: 44px; } }
+
+.popup-actions { margin-bottom: 0; }
+
+.info-tip { display: inline-block; position: relative; margin-inline: 4px; vertical-align: middle; }
+
+.info-tip > button { border: 0; padding: 1px 3px; background: transparent; color: inherit; font: inherit; cursor: help; }
+
+.info-tip-content { position: fixed; inset: auto; margin: 0; width: min(290px, 75vw); padding: 8px; border: 1px solid var(--line2); border-radius: 6px; background: var(--chrome); color: var(--ink-d); font: 12px/1.4 var(--sans); box-shadow: 0 3px 12px #0005; }
