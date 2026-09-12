@@ -355,6 +355,17 @@ jobs:
           keyPassword=$KEY_PASSWORD
           EOF
 
+      # Tauri stamps Android versionName/versionCode only from the config's
+      # `version`; without it every APK is versionCode 1 / "1.0". Cargo.toml
+      # stays the single source: the version job read it from this commit.
+      - name: Stamp the release version into the Android build config
+        run: |
+          set -euo pipefail
+          conf=src-tauri/tauri.release.conf.json
+          jq --arg v "${{ needs.version.outputs.version }}" '.version = $v' "$conf" > "$conf.tmp"
+          mv "$conf.tmp" "$conf"
+          cat "$conf"
+
       # Release, not debug: the debug build is unoptimised and unstripped, and
       # ships every ABI's symbols. APK for sideloading, AAB for Play.
       - name: Build APK and AAB
@@ -385,6 +396,22 @@ jobs:
             [[ "$fingerprint" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Invalid APK signer SHA-256 fingerprint: $fingerprint"; exit 1; }
             [ "$fingerprint" = "$expected" ] || { echo "::error::APK signer differs from the upload key: expected $expected, got $fingerprint"; exit 1; }
           done <<< "$actual"
+
+      # Android refuses to install a lower versionCode over a higher one, and
+      # Play rejects a repeated one, so a wrong version must fail here.
+      - name: Verify the APK carries the release version
+        run: |
+          set -euo pipefail
+          v=${{ needs.version.outputs.version }}
+          IFS=. read -r major minor patch <<< "$v"
+          code=$((major * 1000000 + minor * 1000 + patch))
+          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
+          aapt2=$(find "$ANDROID_HOME/build-tools" -name aapt2 -type f | sort | tail -1)
+          [ -n "$aapt2" ] || { echo "::error::aapt2 not found"; exit 1; }
+          badge=$("$aapt2" dump badging "$apk" | head -1)
+          echo "$badge"
+          [[ "$badge" == *"versionCode='$code'"* ]] || { echo "::error::APK versionCode is not $code"; exit 1; }
+          [[ "$badge" == *"versionName='$v'"* ]] || { echo "::error::APK versionName is not $v"; exit 1; }
 
       - name: Collect the release artifacts
         run: |

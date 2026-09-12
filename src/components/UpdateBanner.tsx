@@ -3,41 +3,49 @@ import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../lib/upda
 import { reportFault } from '../lib/faults'
 import { logInfo } from '../lib/log'
 
-type Stage = 'idle' | 'offering' | 'installing' | 'ready'
+type Stage = 'idle' | 'offering' | 'installing' | 'ready' | 'notice'
 
 /// Update prompt, shown at the top of the window when a newer version exists.
 ///
-/// The startup check is deliberately eager: it runs once on launch and puts
-/// the offer in front of the user rather than hiding it behind a menu. It is
-/// dismissible, and dismissing does not install anything.
+/// The startup check runs once on launch and speaks only when there is an
+/// update. A check the learner asks for (Settings) always answers: an update,
+/// "current", or why this build does not take updates here.
 ///
 /// A failed check is reported through the fault bar like any other failure —
 /// silently never updating is exactly the outcome this is meant to prevent.
 export function UpdateBanner() {
   const [update, setUpdate] = useState<UpdateOffer | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [stage, setStage] = useState<Stage>('idle')
   const [progress, setProgress] = useState<{ done: number; total: number | null } | null>(null)
 
   const checking = useRef(false)
   useEffect(() => {
-    const check = () => {
-    if (checking.current) return
-    checking.current = true
-    logInfo('[updater] checking for updates on startup')
-    void checkForUpdate()
-      .then((found) => {
-        if (!found) return
-        setUpdate(found)
-        setStage('offering')
-      })
-      // A startup check that cannot reach the server is worth saying out loud:
-      // otherwise the app looks up to date when it simply never asked.
-      .catch((e) => reportFault('Checking for updates', e))
-      .finally(() => { checking.current = false })
+    const check = (requested: boolean) => {
+      if (checking.current) return
+      checking.current = true
+      logInfo(`[updater] checking for updates (${requested ? 'requested' : 'startup'})`)
+      void checkForUpdate()
+        .then((result) => {
+          if (result.kind === 'install' || result.kind === 'download') {
+            setUpdate(result)
+            setStage('offering')
+          } else if (requested) {
+            setNotice(result.kind === 'current'
+              ? `SkellySpeak ${result.currentVersion} is the latest release.`
+              : `SkellySpeak ${result.currentVersion}: ${result.reason}`)
+            setStage('notice')
+          }
+        })
+        // A check that cannot reach the server is worth saying out loud:
+        // otherwise the app looks up to date when it simply never asked.
+        .catch((e) => reportFault('Checking for updates', e))
+        .finally(() => { checking.current = false })
     }
-    check()
-    window.addEventListener('skellyspeak-check-update', check)
-    return () => window.removeEventListener('skellyspeak-check-update', check)
+    const requested = () => check(true)
+    check(false)
+    window.addEventListener('skellyspeak-check-update', requested)
+    return () => window.removeEventListener('skellyspeak-check-update', requested)
   }, [])
 
   const install = useCallback(async () => {
@@ -52,7 +60,24 @@ export function UpdateBanner() {
     }
   }, [update])
 
-  if (stage === 'idle' || !update) return null
+  const dismiss = () => {
+    setUpdate(null)
+    setNotice(null)
+    setStage('idle')
+  }
+
+  if (stage === 'idle') return null
+
+  if (stage === 'notice') {
+    return (
+      <div className="update-bar" role="status">
+        <span className="update-text">{notice}</span>
+        <button type="button" className="btn tiny" onClick={dismiss}>Dismiss</button>
+      </div>
+    )
+  }
+
+  if (!update) return null
 
   const pct =
     progress && progress.total
@@ -83,14 +108,7 @@ export function UpdateBanner() {
               Get {update.version}
             </button>
           )}
-          <button
-            type="button"
-            className="btn tiny"
-            onClick={() => {
-              setUpdate(null)
-              setStage('idle')
-            }}
-          >
+          <button type="button" className="btn tiny" onClick={dismiss}>
             Later
           </button>
         </>

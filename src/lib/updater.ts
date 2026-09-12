@@ -27,6 +27,12 @@ export interface DownloadableUpdate extends Common {
 
 export type UpdateOffer = InstallableUpdate | DownloadableUpdate
 
+/// Every check ends in exactly one of these; none of them is silent.
+export type UpdateCheck =
+  | UpdateOffer
+  | { kind: 'current'; currentVersion: string }
+  | { kind: 'unmanaged'; currentVersion: string; reason: string }
+
 export type UpdateChannel = 'install' | 'download' | 'app-store' | 'development'
 
 export async function getUpdateChannel(): Promise<UpdateChannel> {
@@ -44,13 +50,23 @@ interface LatestRelease {
   notes: string
 }
 
-/// Returns an update offer, or null when current or managed by the App Store.
 /// Throws on any failure — an unreachable server is a real problem, and an app
 /// that looks current because it never managed to ask is the worst outcome.
-export async function checkForUpdate(): Promise<UpdateOffer | null> {
+export async function checkForUpdate(): Promise<UpdateCheck> {
   const channel = await getUpdateChannel()
-  if (channel === 'app-store' || channel === 'development') return null
-  return channel === 'install' ? checkDesktop() : checkMobile()
+  const { getVersion } = await import('@tauri-apps/api/app')
+  const currentVersion = await getVersion()
+  if (channel === 'development') {
+    return {
+      kind: 'unmanaged', currentVersion,
+      reason: 'This is a development build, so it does not check for releases. A release install needs this build uninstalled first: the two are signed with different keys.',
+    }
+  }
+  if (channel === 'app-store') {
+    return { kind: 'unmanaged', currentVersion, reason: 'Updates for this device come from TestFlight or the App Store.' }
+  }
+  const offer = channel === 'install' ? await checkDesktop() : await checkMobile(currentVersion)
+  return offer ?? { kind: 'current', currentVersion }
 }
 
 async function checkDesktop(): Promise<InstallableUpdate | null> {
@@ -81,9 +97,7 @@ async function checkDesktop(): Promise<InstallableUpdate | null> {
   }
 }
 
-async function checkMobile(): Promise<DownloadableUpdate | null> {
-  const { getVersion } = await import('@tauri-apps/api/app')
-  const currentVersion = await getVersion()
+async function checkMobile(currentVersion: string): Promise<DownloadableUpdate | null> {
   // The core makes this call: connect-src does not let the webview reach
   // api.github.com, and widening it for one call widens it for all of them.
   const latest = await invoke<LatestRelease>('latest_github_release')
