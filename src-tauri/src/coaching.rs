@@ -96,7 +96,7 @@ pub fn catalog() -> Value {
 pub fn schema(kind: &str) -> Value {
     if kind == SUGGESTIONS {
         let token = json!({"type":"object","additionalProperties":false,"required":["reply","text","gloss","romanization","pronunciation"],"properties":{"reply":{"type":"integer"},"text":{"type":"string"},"gloss":{"type":"string"},"romanization":{"type":["string","null"]},"pronunciation":{"type":["string","null"]}}});
-        return json!({"type":"object","additionalProperties":false,"required":["replies","tokens"],"properties":{"replies":{"type":"array","maxItems":3,"items":{"type":"object","additionalProperties":false,"required":["text"],"properties":{"text":{"type":"string"}}}},"tokens":{"type":"array","items":token}}});
+        return json!({"type":"object","additionalProperties":false,"required":["replies","tokens"],"properties":{"replies":{"type":"array","maxItems":2,"items":{"type":"object","additionalProperties":false,"required":["text"],"properties":{"text":{"type":"string"}}}},"tokens":{"type":"array","items":token}}});
     }
     let ids: Vec<_> = catalog()
         .as_array()
@@ -143,7 +143,7 @@ pub fn prompt(
     let task = if kind == FEEDBACK {
         "Assess only learnerSource. Score correctness and contextual understandability independently, 1 to 5; null when evidence is insufficient. Correctness: 1 pervasive form errors, 2 frequent errors, 3 mixed accuracy, 4 minor errors, 5 accurate. Understandability: 1 intent cannot be recovered, 2 substantial guessing, 3 some ambiguity, 4 clear with minor effort, 5 readily understood. These are message judgments, never CEFR ratings or pronunciation assessments. Explain briefly in explanationLanguage. Supply a corrected target-language sentence only when useful, otherwise empty correction. Use only literal skill IDs in skillCriteria, never category names. Emit each skill_id at most once across the entire evidence array, even when multiple phrases demonstrate it; select its single strongest exact quote. Before returning, verify all skill_id values are unique. Cite up to six distinct skills using exact nonempty substrings copied character-for-character from learnerSource. Never correct spelling, add diacritics, normalize Arabic letters, or translate evidence quotes; put corrections only in correction. If no exact quote supports a skill, omit that evidence. Demonstrated requires the criterion to be fulfilled; partial and uncertain earn no credit. Conventional greetings, farewells and wellbeing exchanges should be assessed as greeting, social_checkin or courtesy. Do not classify a formulaic hello as an event or a wellbeing formula as property description unless the learner actually adds descriptive content. Never invent errors."
     } else {
-        "Offer two or three short, meaningfully different target-language replies to personaReply, appropriate to learner difficulty. Then list every word of every reply in tokens, reply by reply and in reading order: reply is the zero-based index of the token's reply; copy each token's text exactly from that reply, without surrounding spaces or punctuation, and give a short gloss of what it means in that reply, written in explanationLanguage. Set romanization to the standard romanization when the target language is not written in Latin script, otherwise null. Set pronunciation to a simple approximation spelled for explanationLanguage readers, never IPA. Do not send, insert or claim the learner chose them."
+        "Offer exactly two short, meaningfully different target-language replies to personaReply, appropriate to learner difficulty. Then list every word of every reply in tokens, reply by reply and in reading order: reply is the zero-based index of the token's reply; copy each token's text exactly from that reply, without surrounding spaces or punctuation, and give a short gloss of what it means in that reply, written in explanationLanguage. Set romanization to the standard romanization when the target language is not written in Latin script, otherwise null. Set pronunciation to a simple approximation spelled for explanationLanguage readers, never IPA. Do not send, insert or claim the learner chose them."
     };
     let mut data = json!({"learnerSource":source,"priorConversation":context,"privateCoachHistory":captured["coachSources"],"targetLanguage":captured["targetLanguage"],"explanationLanguage":captured["translationLanguage"],"difficulty":captured["practiceSettings"]["difficulty"]});
     if kind == SUGGESTIONS {
@@ -249,7 +249,7 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
     if kind == SUGGESTIONS {
         let value: SuggestionsOutput =
             serde_json::from_str(&output.text).map_err(|_| rejected("suggestions_schema"))?;
-        if value.replies.is_empty() || value.replies.len() > 3 {
+        if value.replies.is_empty() || value.replies.len() > 2 {
             return Err(rejected("suggestion_count"));
         }
         let mut grouped: Vec<Vec<ReplyToken>> = value.replies.iter().map(|_| Vec::new()).collect();

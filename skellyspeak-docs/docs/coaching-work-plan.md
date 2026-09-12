@@ -67,7 +67,7 @@ Inferred vs read: label any file:line not read during this wave
 - No git writes.
 - No fallbacks, and every error reaches the UI.
 - No fake UI.
-- No backwards compatibility. The schema is one file; bump `user_version` and `SCHEMA_VERSION` together, with no upgrade path (fresh data).
+- The authorized additive 11 → 12 generation-receipt upgrade preserves current conversations. It does not authorize further migrations. Planned coaching changes target v13; keep `user_version` and `SCHEMA_VERSION` aligned and explicitly settle any subsequent upgrade policy.
 - Never listen for Tauri close requests.
 - Cite research by `references.bib` key.
 - Linguistic content starts at `review: needs_review`.
@@ -83,7 +83,7 @@ Inferred vs read: label any file:line not read during this wave
 
 | A | B | C |
 |---|---|---|
-| Romanization scheme registry + guidance function; inject it into the gloss adapter; guard test "every declared scheme reaches a prompt"; add `؟` to `TERMINAL_PUNCT`; assessment-guidance function holding the Arabic rule; citation-key test over `references.bib` | Use A's romanization and assessment functions in `coaching.rs`; 5 outcomes in the Rust contract; catalog codes match hierarchy; real or removed catalog version; focus into persona and coach prompts; **schema v12** `turns.replaces_turn_id` + `ReviseTurn` action + `replaces_message_id` populated + `revision` recorded | Wire Edit & try again to `ReviseTurn`; remove the `requestTurn` rejection; the collapsed "Earlier version" view; replace mock-only `TurnView` tests with GuidedPage integration tests |
+| Romanization scheme registry + guidance function; inject it into the gloss adapter; guard test "every declared scheme reaches a prompt"; add `؟` to `TERMINAL_PUNCT`; assessment-guidance function holding the Arabic rule; citation-key test over `references.bib` | Use A's romanization and assessment functions in `coaching.rs`; 5 outcomes in the Rust contract; catalog codes match hierarchy; real or removed catalog version; focus into persona and coach prompts; **planned schema v13** `turns.replaces_turn_id` + `ReviseTurn` action + `replaces_message_id` populated + `revision` recorded | Wire Edit & try again to `ReviseTurn`; remove the `requestTurn` rejection; the collapsed "Earlier version" view; replace mock-only `TurnView` tests with GuidedPage integration tests |
 
 **Order:** A's two functions and B's `ReviseTurn` contract land first. C builds rendering and test scaffolding against fixtures, then wires to the real action.
 

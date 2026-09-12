@@ -43,4 +43,7 @@ local.env.*
 **/keystore.properties
 
 # Documentation build cache.
-skellyspeak-docs/.docusaurus/
+.docusaurus/
+
+# Generated Tauri schemas, including leftovers beside archived source snapshots.
+**/src-tauri/gen/schemas/

@@ -77,3 +77,37 @@ it('an older utterance releasing late does not steal the newer registration', as
   expect(media[1].pause).toHaveBeenCalledOnce()
   void second
 })
+
+it('rejects late registration while suspended and cannot replay a released handle', async () => {
+  const { media, revoke } = stubAudio()
+  const ended = vi.fn()
+  setPlaybackAllowed(false)
+  const player = playSpeechAudio(audio0, ended, vi.fn())
+  await player.play()
+  setPlaybackAllowed(true)
+  await player.play()
+  expect(media[0].play).not.toHaveBeenCalled()
+  expect(ended).toHaveBeenCalledOnce()
+  expect(revoke).toHaveBeenCalledOnce()
+})
+
+it('treats a play promise aborted by suspension as an ended utterance', async () => {
+  const { media } = stubAudio()
+  const ended = vi.fn()
+  const player = playSpeechAudio(audio0, ended, vi.fn())
+  let reject!: (error: Error) => void
+  media[0].play.mockImplementationOnce(() => new Promise((_resolve, fail) => { reject = fail }))
+  const playing = player.play()
+  setPlaybackAllowed(false)
+  reject(new Error('Playback interrupted'))
+  await expect(playing).resolves.toBeUndefined()
+  expect(ended).toHaveBeenCalledOnce()
+})
+
+it('propagates a play promise rejection while the utterance is active', async () => {
+  const { media } = stubAudio()
+  const player = playSpeechAudio(audio0, vi.fn(), vi.fn())
+  media[0].play.mockRejectedValueOnce(new Error('Playback denied'))
+  await expect(player.play()).rejects.toThrow('Playback denied')
+  player.stop()
+})

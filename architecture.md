@@ -1,14 +1,16 @@
 # Implemented application and boundaries
 
-Custom URL implementation gap: the approved route is a self-hosted instance of our
-server using the same SkellySpeak protocol as hosted access. Chat uses grouped
-`/v1/operations`, and connection checks validate authenticated `/v1/protocol`
-capabilities. Its separately stored bearer credential is a session token from that
-server. Local server/emulator and native custom-route verification remain pending.
+Custom URL uses a self-hosted instance of the SkellySpeak server protocol. Chat
+uses grouped `/v1/operations`, and connection checks validate authenticated
+`/v1/protocol` capabilities. Its separately stored bearer credential is a session
+token from that server. Local adapter/integration tests and recorded desktop voice
+checks are described in README.md; they do not establish production or mobile-device
+behavior.
 
-The local foundation and desktop Hosted, API-key and Custom URL execution are implemented. Native/live
-verification status is recorded in README.md. Assistance
-and evidence contracts remain future work.
+The local foundation, Hosted/API-key/Custom URL execution, translation, word glosses,
+speech and structured coaching evidence are implemented in source. The broader
+coaching-plan learner model and new-chat/game work remain separate planned slices.
+Native/live verification status is recorded in README.md.
 
 For a practical walkthrough of the request shapes, structured-output validation,
 and operation graph, see [AI-ARCHITECTURE.md](./AI-ARCHITECTURE.md). This document
@@ -18,8 +20,9 @@ The selected stack is Tauri 2, React 19, TypeScript and Vite. Rust owns the SQLi
 store via rusqlite with bundled SQLite; mutations use explicit transactions,
 foreign keys and optimistic revisions. No ORM or frontend database API is exposed.
 Rust serde contracts generate TypeScript through ts-rs. React owns transient drafts,
-selection and forms; durable state comes from Rust snapshots. No additional state
-library is needed for the local directory slice.
+selection and forms; durable state comes from Rust snapshots. Zustand stores share
+settings, session and evidence projections across surfaces; Rust remains their
+durable authority.
 
 Sources: [Tauri commands](https://v2.tauri.app/develop/calling-rust/),
 [rusqlite](https://docs.rs/rusqlite/latest/rusqlite/) and
@@ -28,14 +31,19 @@ Sources: [Tauri commands](https://v2.tauri.app/develop/calling-rust/),
 `src-tauri/src/model.rs` owns serialized domain contracts. `languages.rs` owns the
 explicit language/variety registry. `store.rs` owns validated transactions and
 snapshot reads. `lib.rs` exposes local commands; `src/` presents them. The hosted client in `hosted.rs` targets the deployed authentication/metering service.
-Its active client contract is in `hosted-api.md`; there is no active local server or
-deployment change in this slice.
+Its active client contract is in `hosted-api.md`; `server/` implements the service
+and supports the local launcher documented in README.md. Editing client or server
+source does not deploy it.
 
 The local database lives in the application's data directory as `skellyspeak.sqlite3`.
 It is initialized only when empty; incompatible or invalid databases fail explicitly.
-The active schema extends transactionally through v7, with turn refusal state, shared
-target admission and metadata-only transcription receipts; there are no
-archived-data imports. Source-owned records cascade on deletion.
+The build uses schema 12: the released base in `schema.sql` plus the receipt addition
+in `generation_schema.sql`. A specifically authorized, transactional upgrade from
+recognized schema 11 adds this table while preserving existing conversations.
+Identity, integrity, foreign keys and base schema are checked before the upgrade;
+other versions remain refused. The schema includes turn refusal state, shared target
+admission and metadata-only transcription and persona-generation receipts.
+There are no archived-data imports. Source-owned records cascade on deletion.
 Settings are one independently editable record per conversation. Opening a
 conversation records use ordering for copying settings on explicit creation.
 
@@ -102,11 +110,15 @@ may finish while paused. Cancel, deletion and credential revocation defeat late
 publication. Duplicate callbacks cannot duplicate an output. Startup marks in-flight
 attempts unknown and holds undispatched pending turns for explicit resumption.
 
+Persona proposals use native begin/run/cancel ownership. At most four proposals are pending or running; unclaimed tickets expire after 30 seconds. Run shares network admission, rechecks pause and captured connection authority across credential/provider awaits, and refuses abandoned results. Refusals populate shared access holds. Briefs and proposals remain volatile until explicit contact creation. Generation receipts retain lifecycle, model and reported token metadata; rejected proposals retain reported usage. Restart marks interrupted requests cancelled or unknown without replay. Global/language totals include dispatched generation attempts, independently of conversation/persona lifetime. The AI activity panel exposes the latest 50 generation receipts and all retained generation usage; unknown token usage stays explicit.
+
 `credentials.rs` uses keyring 3.6 platform stores: Apple Keychain, Windows Credential
-Store and Linux Secret Service with encrypted transport. Unsupported platforms fail
-explicitly rather than using keyring's mock store. Android credential support remains
-unimplemented. Secrets cross IPC only on explicit key submission, are not React state,
-are zeroized in Rust-owned temporary strings, and never enter records or diagnostics.
+Store and Linux Secret Service with encrypted transport. Android uses `keyring-core`
+with `android-native-keyring-store`, initialized from the application context. Unsupported platforms fail explicitly rather than using
+keyring's mock store. Device keychain/secure-storage verification is separate from
+source and build checks. Replacement keys cross IPC on explicit submission; saved
+secrets are never returned to React. Rust-owned temporary secret strings are
+zeroized, and credentials do not enter domain records or diagnostics.
 Credential cleanup intents are persisted before writing a new credential; replacing
 or disconnecting records revocation and cleanup. Startup completes pending cleanup.
 
@@ -129,7 +141,9 @@ substitution occurs. Hosted allowance remains server-owned.
 `profile.rs` derives scoped retained message, request and token totals from SQLite.
 Unknown usage is counted separately; deleted records cease contributing. These are
 local activity reports, not lifetime hosted billing or proficiency measurements.
-The docked/pop-out AI view uses the same scoped conversation snapshots and commands.
+The docked/pop-out AI view and mobile dialog inspect scoped conversation snapshots,
+rendering the operation graph and attempt details without inference. Native turn
+controls exist, but this graph does not expose Pause/Step/Cancel controls.
 Settings captures learner revisions, debounces preference writes, retains failed
 drafts and flushes before closing. Reading scale and spacing are presentation settings.
 
@@ -147,7 +161,9 @@ own retained thread. Coach asks cannot mutate settings. Local conversation messa
 counts exclude coach text; provider attempt totals include both channels.
 
 Desktop capture uses cpal on a dedicated thread and hound for mono WAV. Recording
-IDs scope waveform/stop/cancel commands. Audio never enters React or SQLite. Stop
+IDs scope waveform/stop/cancel commands. On Android/iOS, browser microphone capture
+feeds the same native transcription lifecycle; bounded audio crosses IPC on Stop.
+Capture is held in memory and is not stored in SQLite. Stop
 uploads through the capability resolver to hosted, Groq or custom transcription; transcript insertion checks conversation and
 credential revision. Audio uploads are not yet represented as local graph attempts;
 the hosted service meters them. Native credential reads run outside the database
@@ -168,7 +184,9 @@ by the execution contract; they do not retarget requests in flight.
 custom protocol configuration. Custom Chat Completions excludes vendor-only
 OpenRouter fields. The optional multipart transcription capability must be selected
 explicitly. Provider implementations, rather than UI components, own endpoint constants.
-Read-aloud has not yet been implemented. Credential policy is in `SECURITY.md`.
+Read-aloud is a source-bound scheduler operation with bounded in-memory audio and
+explicit replay. Playback suspension invalidates delayed audio; returning to the
+app does not resume it. Credential policy is in `SECURITY.md`.
 
 ## Request-load audit — September 10, 2026
 

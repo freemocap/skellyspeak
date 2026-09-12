@@ -613,6 +613,17 @@ Absolute zero uses the same translation, glossing, coaching, suggestions and ana
 machinery as every other setting. It introduces no special bilingual cue, response
 option mechanism, extra inference request or separate assistance surface.
 
+The selected difficulty is a ceiling even when the profile or previous replies use
+complex language. Absolute zero asks for one tiny utterance, one idea/clause and
+at most seven words in space-delimited languages. Beginner usually uses two short,
+natural sentences with a concrete detail or easy question to sustain the exchange,
+aiming for 12–24 words with a ceiling of 28. Common tense forms and one simple
+connection are allowed; nested clauses and specialist vocabulary are avoided. Other
+writing systems use equivalently brief utterances, not character/token counts.
+Correct grammar is preserved by simplifying the idea. Persona detail, novelty,
+hooks and wording help must fit that same budget. These are prompt constraints;
+model compliance is not guaranteed by deterministic output validation.
+
 The current conversation owns the setting. Changes affect the next accepted send;
 already accepted work retains captured instructions. Chosen difficulty is not assessed
 proficiency and does not award XP. No obsolete difficulty compatibility mode is kept.
@@ -641,3 +652,19 @@ not claims of an exhaustive or validated linguistic taxonomy. Greetings, farewel
 wellbeing exchanges and courtesy have explicit criteria. Coach feedback still requires
 exact learner-source evidence for each credited skill. Group colors avoid red/orange/
 yellow; unpracticed groups retain a muted version of their hue.
+
+
+### Persona generation receipts and schema exception — 2026-09-12
+
+The user authorized a narrow, transactional schema 11 → 12 upgrade to preserve
+existing conversations while adding persona-generation receipts. This is a specific
+exception to the rebuild's no-upgrade policy, not authorization for archived-data
+imports or unrelated migrations. Unknown schemas remain refused.
+
+Proposals remain volatile until Create. Durable receipts contain request identity,
+language, route/model, captured authority revision, lifecycle timestamps/state,
+reported token usage and content-free errors. No brief, credential or generated
+text is retained in the receipts. They belong to the workspace and language, not
+a conversation or an existing persona; deleting a conversation does not erase
+this separate usage. Factory Reset clears them. Opening activity reads metadata
+and settles expired local ownership; it does not dispatch inference.

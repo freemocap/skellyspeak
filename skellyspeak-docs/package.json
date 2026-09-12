@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "node scripts/image-size-patch.mts --check && docusaurus start",
+    "build": "node scripts/image-size-patch.mts --check && docusaurus build",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "postinstall": "node scripts/image-size-patch.mts --apply",
+    "security:check": "node scripts/image-size-patch.mts --check",
+    "security:test": "node --test scripts/image-size-patch.test.mts"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.2",
@@ -28,13 +31,14 @@
     "typescript": "~5.6.2"
   },
   "engines": {
-    "node": ">=20.0"
+    "node": ">=22.18.0"
   },
   "overrides": {
     "serialize-javascript": "7.1.1",
     "sockjs": {
       "uuid": "11.1.1"
     },
-    "qs": "6.16.0"
+    "qs": "6.16.0",
+    "image-size": "2.0.2"
   }
 }

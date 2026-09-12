@@ -62,7 +62,7 @@ ReviseTurn {
   - Revising the latest turn needs no confirmation.
   - Revising an earlier turn removes the later turns under EXECUTION.md's edit rule. Rust enforces this; the UI confirms first.
   - A pending turn in the conversation rejects the action with a typed error, which C shows.
-- **Schema v12:** `turns.replaces_turn_id TEXT NULL REFERENCES turns(id)`. `SCHEMA_VERSION` and `user_version` both become 12, with no upgrade path.
+- **Planned schema v13:** `turns.replaces_turn_id TEXT NULL REFERENCES turns(id)`. `SCHEMA_VERSION` and `user_version` both become 13. The authorized 11 → 12 generation-receipt upgrade is separate; any subsequent upgrade policy requires its own design decision.
 - **Snapshot:**
   - each turn exposes `replacesTurnId: string | null`,
   - the conversation view marks turns that have been replaced (`replacedBy: string | null`),

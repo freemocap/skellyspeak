@@ -1,0 +1,82 @@
+{
+  "dist/detector.cjs": {
+    "original": "1b7ac8a58c4da82b41d8ad3bc6379cc51f8747df5c675fd465edbf7bbc4c5f82",
+    "patched": "a53650fa03c68bbef3142ce738577c795fdc7439f95e7c61d70816bfd0ea8a0d"
+  },
+  "dist/detector.mjs": {
+    "original": "4e74352113a6edcb31b71bf8a43a720da70f3de509ba596c2d46ffabc3d66ca7",
+    "patched": "7ab175f976fdcbd0d62ade87fa2ad1a052e422999da5fb23cf450ff27fafd8c3"
+  },
+  "dist/fromFile.cjs": {
+    "original": "24af84a96ff69ed79e612dea086fba450bc44bb2ca8a9f4be7d23078a4d184c0",
+    "patched": "98cd622fe57fc3ab7564c91477a4f508e8ffc01b3a2ac569b0f9483a51ce7550"
+  },
+  "dist/fromFile.mjs": {
+    "original": "e451c80dec9fe6e496b6aa4a0227e38c9af395be7c2404067fc614acb017e068",
+    "patched": "6dba55e1b6f9e37386d975652b45dbac7738ff8f2781e6278dbfb0257465c632"
+  },
+  "dist/index.cjs": {
+    "original": "aeb11b9ec9d0d670c40d66dcb4fc7032aa32722499f6740b715e21a20eab1b62",
+    "patched": "a085948c1c457ce6c09307657b45fe0ec7c605903e3e59aed08513ada3193fe7"
+  },
+  "dist/index.mjs": {
+    "original": "4cd2d0d738b99a976127d7e9738153839961a08b0b39f91c2655de018615bb37",
+    "patched": "c7dc1a0b48f1d40d521e5e79868cb249e2fefcddf17e7f238aaa75204b9fbaa2"
+  },
+  "dist/lookup.cjs": {
+    "original": "b8aa629b98f5b77d8c02399e9b83c2c944e5e9a333e3e904b5bcb4a05146c4f1",
+    "patched": "08e0e4e5d1b9896e03199318e20b5b5a8e287a8024f67379cad17f49417394f5"
+  },
+  "dist/lookup.mjs": {
+    "original": "e83f3039e2d4083a5791a3c5db044f21c60520f9cc1f73385e78ae8cda29256e",
+    "patched": "53c2d5d6fb629b4d013175e0c7ba4da9af826324762ddb6bf7b31d9d5e0f14ef"
+  },
+  "dist/types/heif.cjs": {
+    "original": "5b49c7ec1997d13961cb54f1f3bfffbf7d81e9938e620f4a0dd938dbac623180",
+    "patched": "bc108bff040bac3a70fe050e2341cfc3a641ac94d3a7162766bf6db75a60b1ed"
+  },
+  "dist/types/heif.mjs": {
+    "original": "8e4fa983236f95c98f5987c313a955a8288b9b1320719085ac8a3eac69489280",
+    "patched": "d1021772fd4590f44bc2d842ce35ed20c488ce5745b7e4ba85c09136aa0da408"
+  },
+  "dist/types/icns.cjs": {
+    "original": "38603bdc01743c7d4545d7cf76c88a4b2c8686f1fc3db1b6b92b3625f3dbfcac",
+    "patched": "d03c756f9d06d80a08f7e08ab4fae658ff28f080fd51bfc24b12fba52753fc1e"
+  },
+  "dist/types/icns.mjs": {
+    "original": "8727eda9b8ae19549d8d1880fffabf6e0aa1eb6029ca6bc887010194533fdafe",
+    "patched": "e74740e980374890c46f853e452fe8926d6e98a6aca5206b6275974761084384"
+  },
+  "dist/types/index.cjs": {
+    "original": "7f1c345a88f64d6e33b1b8793c4fdb171a3e093d14775243b11e0bdf3f2a1fd2",
+    "patched": "484269316bb351eb82f62732a061c92430b68ffc9ca94545745dbd74c8f41009"
+  },
+  "dist/types/index.mjs": {
+    "original": "02b03f05a44a87b8bdf0142a0bccca4cbc1e5a085b47bccf1aec527643dd4676",
+    "patched": "3cbf0a5b8f0387542dceea36da1729878a56d3437a64ced743a9f4f870a4923a"
+  },
+  "dist/types/jp2.cjs": {
+    "original": "49dc087c964a0c2800fdb5b05b45b185f8313a8b45932f5d2c907d54c2ee5ab1",
+    "patched": "6f9e8e06c0f50671dd6cb48c00219acc1914d7be77abc07a9a04fa227e8925b5"
+  },
+  "dist/types/jp2.mjs": {
+    "original": "c6fc4d672b3471f63c53c1a76dd45b009b573b72298e9d5a5b4fcbc0a1fee35b",
+    "patched": "5770eaf94a51d4d18b9c6f13a598b0631c77fdb5fe41ea5d995776e73f7cbd5a"
+  },
+  "dist/types/jxl.cjs": {
+    "original": "c9078df9004eaa657bf8dd9a8d5c5f72a20f2f4bf4002e24d942e6468928abc8",
+    "patched": "2fa1eb9caa55bd6f0ed42d9f41c6f1e45cd187aa799ced682fc4c3df8e9cee08"
+  },
+  "dist/types/jxl.mjs": {
+    "original": "35d829b747d47500ade32e5b44c5dcf485a9931c3d577d6a81e59fdfe8402445",
+    "patched": "50c285f82f2a3da684dd798dbbaf525f0b80e6b7ba599bdf0054e93e05139c67"
+  },
+  "dist/types/utils.cjs": {
+    "original": "a8db7068d5451cd90a77a33b1184bfaeffecf658e347b8f4d0c2295f6d8cf957",
+    "patched": "57157d42303559f00caf1e52a22427560fdec6d141c41a77e82eaad880928530"
+  },
+  "dist/types/utils.mjs": {
+    "original": "ff6f487e714d313988ee3803821cf8f656dae9b9e3ecf47d59d510e0120d1a0d",
+    "patched": "db68e65b1f8c8608da9f493f329923e410e91b337c274e4103bd66b997e94155"
+  }
+}

@@ -103,3 +103,41 @@ it('writes a text size only when the action changes it', async () => {
   await vi.waitFor(() => expect(native.save).toHaveBeenCalledTimes(1))
   expect(native.save.mock.calls[0][0].text_size).toBe(95)
 })
+
+it('keeps the newest read and UI language when an older read completes last', async () => {
+  let finish!: (value: Settings) => void
+  native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+    .mockResolvedValueOnce(record({ native_language: 'fr', target_language: 'fr' }))
+  const old = useSettingsStore.getState().load()
+  await useSettingsStore.getState().load()
+  finish(record({ native_language: 'es' }))
+  await old
+  expect(useSettingsStore.getState().settings?.target_language).toBe('fr')
+  expect(document.documentElement.lang).toBe('fr')
+})
+
+it('a post-save read cannot overwrite a later conversation read', async () => {
+  let finish!: (value: Settings) => void
+  native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+    .mockResolvedValueOnce(record({ target_language: 'fr' }))
+  const save = useSettingsStore.getState().save(record(), record())
+  await vi.waitFor(() => expect(native.get).toHaveBeenCalledTimes(1))
+  await useSettingsStore.getState().load()
+  finish(record())
+  await save
+  expect(useSettingsStore.getState().settings?.target_language).toBe('fr')
+  expect(useSettingsStore.getState().revision).toBe(1)
+  native.get.mockResolvedValue(record({ target_language: 'fr' }))
+  await useSettingsStore.getState().load()
+  expect(useSettingsStore.getState().revision).toBe(1)
+})
+
+it('a store reset invalidates pending reads', async () => {
+  let finish!: (value: Settings) => void
+  native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  const old = useSettingsStore.getState().load()
+  useSettingsStore.setState(useSettingsStore.getInitialState(), true)
+  finish(record())
+  await old
+  expect(useSettingsStore.getState().settings).toBeNull()
+})

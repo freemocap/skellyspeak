@@ -3,6 +3,7 @@ import { invoke } from '../../platform/ipc/native'
 import type { ConversationSnapshot, SpeechAudioState } from '../../contracts'
 import { executeAction, nativeError } from '../../platform/ipc/workspace'
 import { reportFault } from '../../platform/diagnostics/faults'
+import { speechPlaybackPermit } from '../../platform/audio/speech'
 import { playSpeechAudio } from './speech-player'
 
 /** Snapshot observation reads audio only; generation is exclusive to explicit replay. */
@@ -37,10 +38,11 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
 
   useEffect(() => { if (!enabled) stop() }, [enabled, stop])
 
-  const consume = useCallback(async (scope: number, sessionId: string, operationId: string, sourceId: string) => {
+  const consume = useCallback(async (scope: number, permit: object, sessionId: string, operationId: string, sourceId: string) => {
     while (scope === generation.current) {
       const audio = await invoke<SpeechAudioState>('read_speech_audio', { sessionId, operationId })
       if (scope !== generation.current) return
+      if (speechPlaybackPermit() !== permit) { stop(); return }
       if (audio.operationId !== operationId || audio.messageId !== sourceId) throw new Error('Speech does not belong to this reply.')
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 400)); continue }
       if (audio.status === 'unavailable') throw new Error(`Speech unavailable: ${audio.reason}`)
@@ -52,11 +54,12 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       try { await player.play() } catch (error) { player.stop(); throw error }
       return
     }
-  }, [])
+  }, [stop])
 
   const start = useCallback(async (sourceId: string, operationId?: string) => {
     const state = latest.current
-    if (!state || state.conversationId !== conversationId || !active) return
+    const permit = speechPlaybackPermit()
+    if (!permit || !state || state.conversationId !== conversationId || !active) return
     stop()
     const scope = generation.current
     current.current = { messageId: sourceId, operationId: operationId ?? null, sessionId: state.sessionId }
@@ -69,7 +72,8 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
         if (scope !== generation.current) { cancelOperation(state.sessionId, operationId); return }
         current.current = { messageId: sourceId, operationId, sessionId: state.sessionId }
       }
-      await consume(scope, state.sessionId, operationId, sourceId)
+      if (speechPlaybackPermit() !== permit) { stop(); return }
+      await consume(scope, permit, state.sessionId, operationId, sourceId)
     } catch (error) {
       if (scope === generation.current) { current.current = null; setMessageId(null); setFailure({ messageId: sourceId, text: nativeError(error) }) }
     }

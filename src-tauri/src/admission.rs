@@ -7,6 +7,37 @@ use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 // Provisional policy, not a provider guarantee. Tune from actual queue waits.
 pub const NETWORK_CAPACITY: usize = 4;
 const AUDIO_WAITING_CAPACITY: usize = 1;
+/// OS keychain reads cannot be cancelled after their blocking call starts. Keep
+/// admission inside that call so dropping an IPC/provider await cannot free a
+/// slot while native credential access is still running.
+pub struct CredentialReads {
+    slots: Arc<Semaphore>,
+}
+
+impl CredentialReads {
+    pub fn new() -> Self {
+        Self {
+            slots: Arc::new(Semaphore::new(NETWORK_CAPACITY)),
+        }
+    }
+
+    pub async fn read<T: Send + 'static>(
+        &self,
+        read: impl FnOnce() -> Result<T> + Send + 'static,
+    ) -> Result<T> {
+        let permit = self.slots.clone().try_acquire_owned().map_err(|_| AppError::new(
+            ErrorCode::AdmissionHeld,
+            "Credential access is already at capacity. Finish pending system keychain prompts before trying again.",
+        ))?;
+        tauri::async_runtime::spawn_blocking(move || {
+            let _permit = permit;
+            read()
+        })
+        .await
+        .map_err(|_| AppError::new(ErrorCode::Internal, "Credential access failed."))?
+    }
+}
+
 pub struct Admission {
     network: Arc<Semaphore>,
     // Chat waits durably in SQLite. Audio is volatile and must not accumulate
@@ -88,6 +119,65 @@ mod tests {
     use super::*;
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::time::Duration;
+
+    #[tokio::test]
+    async fn abandoned_keychain_awaits_retain_capacity_until_blocking_reads_finish() {
+        let reads = Arc::new(CredentialReads::new());
+        let mut releases = Vec::new();
+        for _ in 0..NETWORK_CAPACITY {
+            let (started, waiting) = tokio::sync::oneshot::channel();
+            let (release, blocked) = std::sync::mpsc::channel();
+            releases.push(release);
+            let owned = reads.clone();
+            let task = tokio::spawn(async move {
+                owned
+                    .read(move || {
+                        started.send(()).unwrap();
+                        blocked.recv().unwrap();
+                        Ok(())
+                    })
+                    .await
+            });
+            tokio::time::timeout(Duration::from_secs(2), waiting)
+                .await
+                .unwrap()
+                .unwrap();
+            task.abort();
+            assert!(task.await.unwrap_err().is_cancelled());
+        }
+        let additional_calls = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        for _ in 0..20 {
+            let counter = additional_calls.clone();
+            let result = reads
+                .read(move || {
+                    counter.fetch_add(1, Ordering::SeqCst);
+                    Ok(())
+                })
+                .await;
+            assert_eq!(result.unwrap_err().code, ErrorCode::AdmissionHeld);
+        }
+        assert_eq!(additional_calls.load(Ordering::SeqCst), 0);
+        assert_eq!(reads.slots.available_permits(), 0);
+        for release in releases {
+            release.send(()).unwrap();
+        }
+        tokio::time::timeout(Duration::from_secs(2), async {
+            while reads.slots.available_permits() != NETWORK_CAPACITY {
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert_eq!(reads.read(|| Ok(42)).await.unwrap(), 42);
+        assert_eq!(reads.slots.available_permits(), NETWORK_CAPACITY);
+        assert!(
+            reads
+                .read::<()>(|| Err(AppError::new(ErrorCode::Credential, "Synthetic failure")))
+                .await
+                .is_err()
+        );
+        assert_eq!(reads.slots.available_permits(), NETWORK_CAPACITY);
+    }
 
     #[tokio::test]
     async fn mixed_work_shares_capacity_and_waiting_audio_is_not_starved() {

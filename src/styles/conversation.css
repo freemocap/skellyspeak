@@ -699,45 +699,33 @@
 
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
 
-/* Conversation header: "Learning:" then the target language, large, as its own picker. */
-
-/* The conversation header's control row: Learning, Difficulty and the contact
-   picker read as ONE set, so the row owns their height, shape and type rather
-   than each control deciding for itself.
-
-   It never wraps. Narrowing the window shrinks these controls; it does not push
-   one onto a second row, so the group clips instead of reflowing. Nothing in
-   here may set flex-wrap, and nothing may set a height of its own. */
+/* Give the partner the largest share of the single-row selector group.
+   Zero minimums let long labels truncate without squeezing another control out.
+   Keep overflow visible so the partner menu can open below the row. */
 .learning-line {
-  display: flex; flex-wrap: nowrap; align-items: center;
-  gap: var(--space-1) var(--space-2); min-width: 0;
-  /* Deliberately NOT overflow:hidden: the contact menu is absolutely positioned
-     inside this row, and clipping the row would hide it. nowrap plus a zero
-     minimum lets the controls shrink and clip their own text instead. */
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: center;
+  gap: var(--space-2); min-width: 0;
 }
 
 .learning-line > .learning-picker,
 .learning-line > .chat-language-picker,
 .learning-line .persona-picker-toggle {
-  flex: 0 1 auto; min-width: 0;
+  width: 100%; max-width: 100%; min-width: 0;
+  text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: var(--tracking-normal); text-transform: none;
   height: var(--control-height-sm); min-height: var(--control-height-sm); max-height: var(--control-height-sm);
   padding: 0 var(--space-3);
-  border: var(--border-width) solid var(--paper-line); border-radius: var(--radius-xs);
+  border: var(--border-width) solid var(--paper-line); border-radius: var(--radius-sm);
   background: var(--paper-bg); color: var(--paper-ink);
   font-family: var(--font-sans); font-size: var(--text-xs); font-weight: var(--weight-semibold);
   line-height: var(--leading-snug); cursor: pointer;
 }
 
-.learning-line > .persona-picker { flex: 0 1 auto; min-width: 0; }
+.learning-line > .persona-picker { min-width: 0; }
 
-.learning-label {
-  flex: none;
-  font: var(--weight-semibold) var(--text-2xs) var(--font-sans);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
-  color: var(--shell-text-muted);
-  white-space: nowrap;
-}
+.learning-line .persona-picker-toggle { gap: var(--space-2); }
+
+.learning-line .persona-picker-toggle > span:last-child { margin-inline-start: auto; flex: none; }
 
 .learning-picker { letter-spacing: var(--tracking-normal); text-transform: none; cursor: pointer; }
 
@@ -750,6 +738,10 @@
 .learning-picker option { background: var(--paper-bg); color: var(--paper-ink); font: var(--text-lg) var(--font-sans); }
 
 .learning-saving {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
   font: var(--text-xs) var(--font-sans);
   letter-spacing: var(--tracking-normal);
   text-transform: none;

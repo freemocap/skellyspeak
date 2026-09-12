@@ -427,6 +427,9 @@ pub fn bindings() -> String {
         HostedAccount::decl(&config),
         UsageSummary::decl(&config),
         ProfileSnapshot::decl(&config),
+        PersonaGenerationAttempt::decl(&config),
+        PersonaGenerationUsage::decl(&config),
+        PersonaGenerationActivity::decl(&config),
         ConnectionConfig::decl(&config),
         TurnControl::decl(&config),
         GlossSegmentKind::decl(&config),
@@ -696,6 +699,44 @@ pub struct ProfileSnapshot {
     pub global: UsageSummary,
     pub languages: Vec<UsageSummary>,
     pub personas: Vec<UsageSummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct PersonaGenerationAttempt {
+    pub id: String,
+    pub attempt_id: String,
+    pub operation_id: String,
+    pub language_id: String,
+    pub route: ConnectionRoute,
+    pub requested_model: String,
+    pub profile_revision: i32,
+    pub state: String,
+    pub created_at: String,
+    pub dispatched_at: Option<String>,
+    pub finished_at: Option<String>,
+    pub actual_model: Option<String>,
+    pub provider_id: Option<String>,
+    pub input_tokens: Option<i32>,
+    pub output_tokens: Option<i32>,
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct PersonaGenerationUsage {
+    pub attempts: i32,
+    pub input_tokens: i32,
+    pub output_tokens: i32,
+    pub unknown_usage: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct PersonaGenerationActivity {
+    pub revision: i32,
+    pub attempts: Vec<PersonaGenerationAttempt>,
+    pub usage: PersonaGenerationUsage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq, Default)]

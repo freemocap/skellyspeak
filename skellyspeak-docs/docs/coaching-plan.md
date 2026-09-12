@@ -63,7 +63,7 @@ Checked against disk this session; the agent's latest verification agrees.
 | Coach contract | `{correctness 1–5, understandability 1–5, explanation, correction, evidence[3 outcomes]}`; TS declares 5 outcomes; the whole catalog is sent every call. | Section 6. |
 | Focus loop | `active_focus` is computed and displayed but never reaches the partner or coach prompts. | Section 7. |
 | Edit & retry | **Five dead links**: `onEditUser={undefined}` (`GuidedPage.tsx`, ~line 541); `requestTurn` rejects `replacesMessageId` ("This action is not connected yet.", ~line 276); `editingTurnId` is only ever set to null, so `revision` is always false; `progression.rs:34` hardcodes `replaces_message_id: null`; the `skill-rewards.ts:12` filter therefore never fires. `TurnView.test.tsx` mocks the missing handler, so it passes anyway. | Section 8. |
-| Schema | One `schema.sql` at `user_version=11`; `store.rs` `SCHEMA_VERSION` opens only that version (no upgrade path; fresh data). `operations UNIQUE(turn_id, kind)`, `messages UNIQUE(turn_id, role)`, one pending turn per conversation, no parent link on `turns`. | A revision is a **new turn** with `replaces_turn_id`; the schema moves to **v12**. |
+| Schema | `SCHEMA_VERSION=12`: released base `schema.sql` plus `generation_schema.sql`, with the authorized additive 11 → 12 receipt upgrade. `operations UNIQUE(turn_id, kind)`, `messages UNIQUE(turn_id, role)`, one pending turn per conversation, no parent link on `turns`. | A revision is a **new turn** with `replaces_turn_id`; the schema moves to **v13**. |
 | New chat | An empty stream shows "Say hello to start the conversation." (`GuidedPage.tsx:491`). `BUILD-PLAN.md:419` defers partner-initiated openings: it needs a real partner-start operation, **never a fabricated learner message**. | Section 10. |
 | Fluency data | Timing is **requested away**: `access.rs:443` asks for `response_format: "json"` and reads only `text`; the hosted server allows only `json` (`audio_input.py:55`). Groq `whisper-large-v3` supports `verbose_json` with word and segment timestamps at no extra cost. Raw PCM is already in Rust (`audio.rs`). A real sample confirmed both sources (see §5.1). | Fluency lens is **buildable now** (§5.1). |
 | `؟` | Missing from `TERMINAL_PUNCT` in `sentences.ts:6`. | Fix in phase 1a. |
@@ -247,7 +247,7 @@ If the learner's last message was not understood, ask one short natural clarific
 
 ## 8. Edit & retry
 
-### 8.1 Persistence (schema v12)
+### 8.1 Persistence (planned schema v13)
 
 - `turns.replaces_turn_id` is nullable. **A revision is a new turn.** This keeps `UNIQUE(turn_id, kind)`, `UNIQUE(turn_id, role)` and the one-pending-turn rule meaningful.
 - The word `attempt` is already used for transport retries (`attempts` table). Use **`revision`**, which `InputEvidence.revision` already uses.
@@ -574,7 +574,7 @@ Work is split across three domain agents and one integration agent in waves 0–
 
 ## 15. Decisions (all resolved)
 
-1. **Revision shape:** a new turn plus `turns.replaces_turn_id`, schema v12.
+1. **Revision shape:** a new turn plus `turns.replaces_turn_id`, planned schema v13.
 2. **XP:** the evidence-caused currency of effort, driving stars, the flower and partner milestones; proficiency is shown separately (§11.5). Tuning of `game.yaml` numbers and sound/animation assets continues during wave 3.
 3. **Surprise me:** the partner reveals the topic **only when the learner asks**; the coach card can offer a hint.
 4. **Coach openers:** run only when coach proactivity is standard or higher.

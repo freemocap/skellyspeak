@@ -8,17 +8,19 @@ and the optional hosted service. [The build plan](BUILD-PLAN.md) tracks phases a
 checkpoints; [release recovery](RELEASE-RECOVERY-PLAN.md) records how the earlier
 published release was recovered.
 
-**Current implementation: immediate chat, desktop recording/transcription, a separate
-coach thread, Google sign-in and own-key/custom-server text execution.** Rust persists
+**Current source implementation: immediate chat, recording/transcription and speech
+playback, a separate coach thread, Google sign-in and own-key/custom-server execution.** Rust persists
 messages, conversation settings and validated replies. The integrated conversation UI
 reads those native records and uses native commands for sends and settings changes.
 
-The interface pairs a light chat canvas with a dark lesson/analysis pane. The partner
-chooser selects partners and conversations; narrow windows use Chat and Lesson tabs.
-Unsent drafts are session-only. The AI activity frame currently reports that its graph
-is not connected. Execution controls, broader usage reports and lesson editing
-still need UI wiring; native capabilities are not a claim that those controls work
-in the interface. No skill estimates or XP are fabricated.
+The interface pairs a light chat canvas with a dark coach pane containing the skill
+map and persona profile. The partner chooser selects partners and conversations;
+narrow windows expose the chat and coach surfaces separately. Unsent drafts are
+session-only. AI activity displays retained operation dependencies, states and attempt
+metadata in the dock, pop-out and mobile dialog. The graph is inspection-only;
+native Pause/Step/Cancel controls still need UI wiring. Source implementation and
+automated checks do not establish native-device behavior; verification evidence and
+limits are recorded below.
 
 Saved partner-reply translation and whole-message word glosses are implemented through
 the scheduler. Structured coaching and source-derived XP now feed the skill map and practice
@@ -101,13 +103,14 @@ run `adb reverse tcp:8765 tcp:8765`; the device may then use
 
 ## Publish a release
 
-The release target is **1.0.0**. Push the checkpoint branch, open a PR
-into `main`, and require green CI before merging. Confirm CI on the merged commit,
-then use the release script from a clean, current `main` checkout:
+The user chooses the next unreleased semantic version and performs all Git writes.
+Require green CI before merging into `main`, then confirm CI on the merged commit.
+From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
 ```sh
-node scripts/release.ts 1.0.0 --dry-run
-node scripts/release.ts 1.0.0
+next_version="X.Y.Z"
+node scripts/release.ts "$next_version" --dry-run
+node scripts/release.ts "$next_version"
 ```
 
 The script updates the Cargo versions, commits, tags and pushes. It refuses an
@@ -137,21 +140,23 @@ available; no title or setup form is required. The plus button starts another
 conversation with copied preferences. The partner chooser opens a partner's latest
 active chat or creates one. Names and settings remain editable afterward.
 
-Record starts the desktop system microphone. Stop transcribes through the selected
-AI route and automatically sends the transcript when Auto-send is enabled (default on).
+Record starts microphone capture for the current conversation. Stop transcribes
+through the selected AI route and automatically sends the transcript when Auto-send is enabled (default on).
 When disabled, the transcript stays in the composer for review and manual Send.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
 uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
 key; Custom URL defaults to the server transcription model `whisper-large-v3`.
-Mobile recording remains unimplemented. Automatic reading defaults on; both voice
-preferences save per conversation. Desktop voice interaction has user verification;
-other devices and general speech fidelity still need their own checks.
+Desktop capture uses native audio; Android/iOS use browser capture connected to the
+same native transcription lifecycle. Automatic reading defaults on; both voice
+preferences save per conversation. Desktop voice interaction has prior user
+verification. Mobile capture code and Android build checks do not establish device
+login/voice/update behavior; those checks and general speech fidelity remain separate.
 
-The right pane contains Lesson/Analysis and a resizable **Talk to your coach** dock.
+The right pane contains the skill map, persona profile and a resizable coach dock.
 Coach exchanges persist separately from partner messages and use the same gated
 execution machinery. Partner prompts never include coach messages. The coach can
 explain or suggest phrasing; it cannot apply lesson/settings changes. Detailed lesson
-controls and word breakdowns remain pending.
+editing remains pending; saved word glosses are available in the conversation.
 
 ## Configure and use AI
 
@@ -199,8 +204,9 @@ resent. Accepted messages and conversation preferences remain independently owne
    scope before confirmation and removes dependent local records.
 
 The app stores `skellyspeak.sqlite3` in its platform application-data directory under
-identifier `org.skellyspeak.practice`. On macOS this is
-`~/Library/Application Support/org.skellyspeak.practice/`. No application data is
+identifier `com.freemocap.skellyspeak`, as configured in `src-tauri/tauri.conf.json`
+and `src-tauri/tauri.release.conf.json`. On macOS this is
+`~/Library/Application Support/com.freemocap.skellyspeak/`. No application data is
 synchronized. Send transmits selected context through the selected hosted or own-key route;
 see [privacy and data flow](./privacy.md).
 
@@ -376,7 +382,7 @@ only; expected new-turn work is reply, gloss, enabled translation and enabled sp
 
 ## Voice integration checkpoint
 
-The desktop source implements transcription → automatic Send → partner text →
+The source implements transcription → automatic Send → partner text →
 speech playback. Auto-send and automatic reading persist per conversation and
 remain independently switchable. Speech is a source-bound scheduler operation,
 using the selected route and `openai/gpt-audio-mini`; it shares admission capacity

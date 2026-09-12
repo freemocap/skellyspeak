@@ -83,3 +83,51 @@ it('shows a snapshot only for the language and settings revision it was read for
   expect(selectSkillSnapshot(state, skillDemo.target, 4)).toBeNull()
   expect(selectSkillSnapshot(state, undefined, 3)).toBeNull()
 })
+
+it('returning to cached evidence abandons a different language and reloads the displayed scope', async () => {
+  let finish!: (value: SkillSnapshot) => void
+  backend.get.mockResolvedValueOnce(skillDemo)
+    .mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+    .mockResolvedValueOnce(skillDemo)
+  useSkillEvidenceStore.getState().load(skillDemo.target, 0)
+  await waitFor(() => expect(useSkillEvidenceStore.getState().snapshot).toEqual(skillDemo))
+  useSkillEvidenceStore.getState().load('fr', 0)
+  useSkillEvidenceStore.getState().reload()
+  useSkillEvidenceStore.getState().load(skillDemo.target, 0)
+  await act(async () => finish({ ...skillDemo, target: 'fr' }))
+  expect(useSkillEvidenceStore.getState().snapshot).toEqual(skillDemo)
+  expect(backend.get).toHaveBeenCalledTimes(2)
+  useSkillEvidenceStore.getState().reload()
+  expect(backend.get).toHaveBeenLastCalledWith(skillDemo.target)
+  await waitFor(() => expect(useSkillEvidenceStore.getState().read?.pending).toBe(false))
+})
+
+it('an abandoned request cannot consume the current scope’s trailing reload', async () => {
+  let finishOld!: (value: SkillSnapshot) => void
+  let finishNew!: (value: SkillSnapshot) => void
+  backend.get.mockImplementationOnce(() => new Promise(resolve => { finishOld = resolve }))
+    .mockImplementationOnce(() => new Promise(resolve => { finishNew = resolve }))
+    .mockResolvedValueOnce({ ...skillDemo, target: 'fr' })
+  useSkillEvidenceStore.getState().load(skillDemo.target, 0)
+  useSkillEvidenceStore.getState().reload()
+  useSkillEvidenceStore.getState().load('fr', 0)
+  useSkillEvidenceStore.getState().reload()
+  await act(async () => finishOld(skillDemo))
+  expect(backend.get).toHaveBeenCalledTimes(2)
+  await act(async () => finishNew({ ...skillDemo, target: 'fr' }))
+  expect(backend.get).toHaveBeenCalledTimes(3)
+  expect(backend.get).toHaveBeenLastCalledWith('fr')
+  expect(useSkillEvidenceStore.getState().snapshot?.target).toBe('fr')
+})
+
+it('resets desired scope, requests and queued reloads with the public store state', async () => {
+  let finish!: (value: SkillSnapshot) => void
+  backend.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  useSkillEvidenceStore.getState().load(skillDemo.target, 0)
+  useSkillEvidenceStore.getState().reload()
+  useSkillEvidenceStore.setState(useSkillEvidenceStore.getInitialState(), true)
+  await act(async () => finish(skillDemo))
+  useSkillEvidenceStore.getState().reload()
+  expect(backend.get).toHaveBeenCalledTimes(1)
+  expect(useSkillEvidenceStore.getState().snapshot).toBeNull()
+})

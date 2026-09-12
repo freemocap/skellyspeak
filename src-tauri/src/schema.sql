@@ -1,6 +1,7 @@
--- The one schema. A workspace is created at this shape or refused; there is no
--- earlier version to upgrade and no compatibility path. Bump user_version with
--- any change and update Store::open's SCHEMA_VERSION to match.
+-- Base workspace DDL at version 11. Store::open creates fresh version 12 by
+-- applying this base plus generation_schema.sql in the same transaction, then
+-- setting user_version=12. Existing version 11 upgrades use that same addition.
+-- No other historical schema is upgraded.
 CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL CHECK(revision>=0));
 INSERT INTO metadata VALUES(1,0);
 CREATE TABLE learner (id TEXT PRIMARY KEY, singleton INTEGER NOT NULL UNIQUE CHECK(singleton=1), name TEXT NOT NULL, revision INTEGER NOT NULL, preferences TEXT NOT NULL CHECK(json_valid(preferences)));

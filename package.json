@@ -7,7 +7,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "docs:test": "vitest run --config vitest.docs.config.ts",
+    "docs:test": "vitest run --config vitest.docs.config.ts && npm run security:test --prefix skellyspeak-docs",
     "tauri": "tauri",
     "macos:dev-bundle": "node scripts/dev-run.ts bundle",
     "macos:dev-sign": "node scripts/dev-run.ts sign",

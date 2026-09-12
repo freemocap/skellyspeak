@@ -1,3 +1,9 @@
+import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
+
+// Also protect direct Docusaurus CLI calls and npm --ignore-scripts runs.
+execFileSync(process.execPath, [join(__dirname, 'scripts/image-size-patch.mts'), '--check'], { stdio: 'inherit' });
+
 import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 

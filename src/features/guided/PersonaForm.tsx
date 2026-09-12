@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { useImperativeHandle, useState, type Ref } from 'react'
 import type { PersonaDetails } from '../../contracts'
 import { PERSONA_LIMITS } from '../../contracts'
-import { PERSONA_LISTS, isEmoji, itemsToLines, linesToItems, sameItems } from './personaLimits'
+import { PERSONA_LISTS, isEmoji, itemsToLines, linesToItems } from './personaLimits'
+
+export interface PersonaFormHandle { flush: () => PersonaDetails }
 
 type ListKey = (typeof PERSONA_LISTS)[number]['key']
 
 /// The persona fields, controlled. Saving belongs to the caller: an existing
 /// persona autosaves through its editor, and a new one is written only on Create.
-export function PersonaForm({ draft, romanized, onChange, onCommit, disabled }: {
+export function PersonaForm({ draft, romanized, onChange, onCommit, disabled, ref }: {
+  ref?: Ref<PersonaFormHandle>
   draft: PersonaDetails
   /// The persona's language has a romanization system, so the name is also
   /// written in Latin letters.
@@ -28,18 +31,33 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled }: 
   const commitList = (key: ListKey, value: string) => {
     const items = linesToItems(value)
     setLists(current => ({ ...current, [key]: itemsToLines(items) }))
-    if (sameItems(items, draft[key])) return
     onChange({ ...draft, [key]: items })
     onCommit({ ...draft, [key]: items })
   }
-  const addVibe = () => {
+  const flush = (): PersonaDetails => {
+    const next = { ...draft }
+    for (const { key } of PERSONA_LISTS) next[key] = linesToItems(lists[key])
     const value = vibeDraft.trim()
-    if (!value) return
-    if (!isEmoji(value)) { setVibeError('Each Vibe entry must be one emoji. ' + value + ' is not an emoji.'); return }
-    if (draft.vibe.includes(value)) { setVibeError('Vibe symbols must be distinct.'); return }
-    if (draft.vibe.length >= PERSONA_LIMITS.vibeMax) { setVibeError('Vibe needs between ' + PERSONA_LIMITS.vibeMin + ' and ' + PERSONA_LIMITS.vibeMax + ' emoji.'); return }
-    const next = { ...draft, vibe: [...draft.vibe, value] }
-    setVibeDraft(''); setVibeError(null); onChange(next); onCommit(next)
+    if (value) {
+      const reason = !isEmoji(value) ? 'Each Vibe entry must be one emoji. ' + value + ' is not an emoji.'
+        : next.vibe.includes(value) ? 'Vibe symbols must be distinct.'
+          : next.vibe.length >= PERSONA_LIMITS.vibeMax ? 'Vibe needs between ' + PERSONA_LIMITS.vibeMin + ' and ' + PERSONA_LIMITS.vibeMax + ' emoji.' : null
+      if (reason) { setVibeError(reason); throw new Error(reason) }
+      next.vibe = [...next.vibe, value]
+      setVibeDraft(''); setVibeError(null)
+    }
+    onChange(next)
+    return next
+  }
+  // Escape/native cancel do not blur inputs. The parent must collect every local
+  // buffer before saving, including an emoji still being composed in Add emoji.
+  useImperativeHandle(ref, () => ({ flush }))
+  const addVibe = () => {
+    if (!vibeDraft.trim()) return
+    let next: PersonaDetails
+    try { next = flush() }
+    catch { return /* Invalid pending input remains visible beside the Vibe field. */ }
+    onCommit(next)
   }
   const removeVibe = (symbol: string) => {
     if (draft.vibe.length <= PERSONA_LIMITS.vibeMin) { setVibeError('Vibe needs between ' + PERSONA_LIMITS.vibeMin + ' and ' + PERSONA_LIMITS.vibeMax + ' emoji.'); return }
@@ -71,7 +89,11 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled }: 
       {PERSONA_LISTS.map(({ key, label, hint }) => <label className="persona-field" key={key}>
         <span>{label} <em className="persona-field-hint">{hint}</em></span>
         <textarea className="field" rows={2} aria-label={label} value={lists[key]} disabled={disabled} dir="auto"
-          onChange={event => setLists(current => ({ ...current, [key]: event.target.value }))}
+          onChange={event => {
+            const value = event.target.value
+            setLists(current => ({ ...current, [key]: value }))
+            edit({ [key]: linesToItems(value) })
+          }}
           onBlur={event => commitList(key, event.target.value)} />
       </label>)}
     </fieldset>

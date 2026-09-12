@@ -2,6 +2,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { ConversationSnapshot } from '../../contracts'
+import { setPlaybackAllowed } from '../../platform/audio/speech'
 import { useMessageSpeech } from './useMessageSpeech'
 const native = vi.hoisted(() => ({ invoke: vi.fn(), execute: vi.fn(), fault: vi.fn(), play: vi.fn(), stop: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: native.invoke }))
@@ -12,6 +13,7 @@ function snapshot(ids: string[], operation = true): ConversationSnapshot {
   return { conversationId: 'chat', sessionId: 'session', revision: ids.length, messages: ids.map((id, i) => ({ id, sequence: i, role: 'assistant', text: id })), turns: operation ? ids.map(id => ({ operations: [{ id: `speech-${id}`, kind: 'persona_speech', sourceMessageId: id }] })) : [] } as unknown as ConversationSnapshot
 }
 beforeEach(() => {
+  setPlaybackAllowed(true)
   vi.clearAllMocks()
   native.play.mockResolvedValue(undefined)
   native.execute.mockResolvedValue({ entityId: 'manual' })
@@ -94,4 +96,17 @@ it('manual replay consumes the native operation returned for the selected messag
   await waitFor(() => expect(native.play).toHaveBeenCalledTimes(2))
   expect(native.execute).toHaveBeenCalledTimes(2)
   expect(native.invoke).toHaveBeenCalledTimes(2)
+})
+
+it.each([false, true])('suppresses a delayed audio result after suspension (resumed: %s)', async (resume) => {
+  let finish!: (value: unknown) => void
+  native.invoke.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  const view = renderHook(({ state }) => useMessageSpeech(state, 'chat', true, true), { initialProps: { state: snapshot(['old']) } })
+  view.rerender({ state: snapshot(['old', 'new']) })
+  await waitFor(() => expect(native.invoke).toHaveBeenCalledOnce())
+  act(() => { setPlaybackAllowed(false); if (resume) setPlaybackAllowed(true) })
+  await act(async () => finish({ status: 'ready', operationId: 'speech-new', messageId: 'new' }))
+  expect(native.play).not.toHaveBeenCalled()
+  expect(view.result.current.messageId).toBeNull()
+  expect(native.execute).toHaveBeenCalledWith({ sessionId: 'session' }, { kind: 'cancelMessageSpeech', operationId: 'speech-new' })
 })

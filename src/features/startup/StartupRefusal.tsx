@@ -11,8 +11,9 @@ import { SaveDataCopy } from '../../ui/SaveDataCopy'
 export function StartupRefusal({ error }: { error: AppError }) {
   const [busy, setBusy] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
+  const ownedElsewhere = error.code === 'conflict'
   const reset = async () => {
-    if (busy) return
+    if (busy || ownedElsewhere) return
     setBusy(true)
     setFailure(null)
     try { await invoke('factory_reset', { confirmation: 'DELETE' }) }
@@ -20,8 +21,8 @@ export function StartupRefusal({ error }: { error: AppError }) {
   }
   return <main className="startup-refusal">
     <p role="alert">{error.message}</p>
-    <SaveDataCopy />
-    <button type="button" className="btn danger" disabled={busy}
+    {!ownedElsewhere && <SaveDataCopy />}
+    <button type="button" className="btn danger" disabled={busy || ownedElsewhere}
       title="Deletes all local data, including conversations and saved keys, then closes the app."
       onClick={() => { void reset() }}>
       {busy ? 'Resetting…' : 'Factory Reset'}

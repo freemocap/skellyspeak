@@ -27,6 +27,8 @@ function applyUiLanguage(native: string): void {
 
 interface SettingsState {
   settings: Settings | null
+  /** Identity of the latest projection read; reset with the public store state. */
+  readRequest: { changed: boolean } | null
   /// Bumped when a **write** lands, never by a read. Callers use it as a reload
   /// key and as "a save has happened since mount", so a read must not look like
   /// one.
@@ -71,6 +73,7 @@ interface SettingsState {
 
 const initialState = {
   settings: null as Settings | null,
+  readRequest: null as { changed: boolean } | null,
   revision: 0,
   savingLanguage: false,
   savingPreference: false,
@@ -81,21 +84,27 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
   /// record, described again.
   const adopt = (saved: Settings, changed: boolean) => {
     applyUiLanguage(saved.native_language)
-    set((state) => ({ settings: saved, revision: changed ? state.revision + 1 : state.revision }))
+    set((state) => ({ settings: saved, readRequest: null, revision: changed ? state.revision + 1 : state.revision }))
   }
-  const read = async (changed: boolean) => { adopt(await getSettings(), changed) }
+  const read = async (changed: boolean): Promise<Settings> => {
+    // A newer read inherits an unadopted write notification. It may replace
+    // the projection, but must not lose the invalidation that write requires.
+    const request = { changed: changed || get().readRequest?.changed === true }
+    set({ readRequest: request })
+    const fresh = await getSettings()
+    if (get().readRequest === request) adopt(fresh, request.changed)
+    return fresh
+  }
 
   return {
     ...initialState,
 
-    load: () => read(false),
-    refresh: () => read(true),
+    load: async () => { await read(false) },
+    refresh: async () => { await read(true) },
 
     save: async (next, baseline) => {
       await saveSettings(next, baseline)
-      const fresh = await getSettings()
-      adopt(fresh, true)
-      return fresh
+      return read(true)
     },
 
     update: async (change, faultContext) => {

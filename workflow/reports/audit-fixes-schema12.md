@@ -1,0 +1,13 @@
+# Authorized receipt schema upgrade — 12 September 2026
+
+Implemented the user-approved, additive **version 11 → 12** upgrade for persona-generation inference receipts. This is the only supported upgrade; other version markers remain refused without reset or conversion.
+
+`generation_schema.sql` defines the receipt table once. Fresh workspaces apply the existing `schema.sql` version-11 base plus this addition inside one transaction, then mark version 12. Existing version-11 workspaces use the same addition in an immediate transaction. The base file is explicitly labeled as the version-11 component so it is not mistaken for the complete fresh schema.
+
+Before changing version 11, the transaction checks application identity, SQLite quick-check and foreign keys, then compares every required base table/index/trigger definition against an in-memory reference built from the base DDL. Missing or altered structures are refused, even if their numeric version and application ID look correct. Independent runtime settings tables remain untouched. Table creation and the version marker commit together; failures roll back. Store startup invokes `generation_receipts::recover` after ordinary execution reconciliation.
+
+The new table stores opaque generation/attempt/operation IDs, language/route/model/profile revision, lifecycle state/timestamps, optional actual model/provider ID, usage and locally authored error information. State and route constraints, unique attempt/operation identities and nonnegative nullable usage are enforced. There are no brief, prompt, proposal or credential columns.
+
+Verification: **22 Store tests passed**, including populated version-11 upgrade and repeated reopening, exact preservation of every existing row during the migration transaction, the normal Store::open upgrade path, failure after table creation plus a tentative existing-row edit rolling back fully, and refusal of bad identity, integrity, foreign keys, missing tables, altered columns, missing triggers, unexpected versions and an addition-name collision. Receipt constraints also have regression coverage. Strict all-target Clippy with warnings denied passed; modified Rust source is formatted and the scoped whitespace check passed.
+
+End-to-end reopening retains existing application behavior: metadata revision advances during ordinary execution reconciliation and transient command-idempotency receipts are cleared. Those are preexisting startup policies; the migration itself preserves all existing rows exactly. All tests used disposable local fixtures, populated through ordinary native writes and reduced to the unchanged version-11 base by removing only the additive receipt table. No actual user workspace was opened or changed. No Git writes occurred.

@@ -85,7 +85,10 @@ pub enum DiagnosticCommand {
     MicTranscribe,
     FactoryReset,
     GetStartupState,
-    GeneratePersona,
+    BeginPersonaGeneration,
+    RunPersonaGeneration,
+    CancelPersonaGeneration,
+    GetPersonaGenerationActivity,
     GetSnapshot,
     ExecuteCommand,
     GetAccessSettings,
@@ -279,17 +282,11 @@ fn sink() -> Result<&'static Mutex<Option<FileSink>>> {
 }
 
 /// Root calls this during setup before opening application state. No deletion/rotation.
-pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
-    if let Some(sink) = SINK.get() {
-        return sink
-            .lock()
-            .map_err(|_| unavailable())?
-            .as_ref()
-            .map(|value| value.directory.clone())
-            .ok_or_else(unavailable);
-    }
+/// Resolve cleanup destinations from the same trusted configuration used by the
+/// sink, before initialization opens any files.
+pub(crate) fn configured_root(fallback_root: &Path) -> Result<PathBuf> {
     let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
-    let root = match custom.as_ref() {
+    Ok(match custom.as_ref() {
         Some(value) => {
             let path = PathBuf::from(value);
             if !path.is_absolute() {
@@ -310,7 +307,20 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
                 fallback_root.to_owned()
             }
         }
-    };
+    })
+}
+
+pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
+    if let Some(sink) = SINK.get() {
+        return sink
+            .lock()
+            .map_err(|_| unavailable())?
+            .as_ref()
+            .map(|value| value.directory.clone())
+            .ok_or_else(unavailable);
+    }
+    let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
+    let root = configured_root(fallback_root)?;
     let directory = if custom.is_some() {
         root.clone()
     } else {

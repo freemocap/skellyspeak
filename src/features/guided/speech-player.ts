@@ -1,5 +1,5 @@
 import type { SpeechAudioState } from '../../contracts'
-import { registerSpeechPlayback } from '../../platform/audio/speech'
+import { registerSpeechPlayback, speechPlaybackPermit } from '../../platform/audio/speech'
 
 /** Playback only: this module cannot request speech generation. */
 interface PlaybackHandle {
@@ -35,13 +35,22 @@ export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'read
       URL.revokeObjectURL(url)
       release(handle)
     },
-    play: () => audio.play(),
+    play: async () => {
+      if (released) return
+      if (!speechPlaybackPermit()) { handle.suspend(); return }
+      try { await audio.play() } catch (error) {
+        // pause/load may reject an outstanding play promise during suspension.
+        // That utterance already ended; genuine playback failures still reject.
+        if (!released) throw error
+      }
+    },
     /// Suspension is an end, not a pause: the caller clears its speaking state.
     suspend: () => { if (released) return; handle.stop(); onEnd() },
     setVolume: (value: number) => { if (!released) audio.volume = value },
   }
   audio.onended = () => { handle.stop(); onEnd() }
   audio.onerror = () => { handle.stop(); onError() }
+  current?.suspend()
   current = handle
   registerSpeechPlayback(handle)
   return handle

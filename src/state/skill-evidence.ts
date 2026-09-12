@@ -9,6 +9,8 @@ import type { ProfileChoices, SkillSnapshot } from '../domain/skills/skills'
 /// listening for the change, and nothing has to unsubscribe.
 
 export interface SkillEvidenceState {
+  /** Desired scope and its request bookkeeping reset together with the store. */
+  read: Read | null
   snapshot: SkillSnapshot | null
   /// The settings revision the snapshot was read at. A snapshot read at another
   /// revision was read for settings that no longer apply.
@@ -30,37 +32,30 @@ export interface SkillEvidenceState {
 
 const initialState = {
   snapshot: null as SkillSnapshot | null,
+  read: null as Read | null,
   scope: 0,
   error: null as string | null,
   saving: false,
 }
 
-/// One read: which language, at which settings revision, and which attempt it is.
-type Read = { id: number; target: string; revision: number }
+/// The desired scope owns its active request and its one trailing reload.
+type Read = { request: object; target: string; revision: number; pending: boolean; queued: boolean }
 
 export const useSkillEvidenceStore = create<SkillEvidenceState>((set, get) => {
-  /// Read bookkeeping, deliberately not store state: nothing renders it, and it
-  /// has to outlive a failed read so that a retry re-reads what failed.
-  /// `id` identifies an attempt, so the answer to a superseded read — a slower one,
-  /// or one for a language the learner has left — cannot land on top of a newer
-  /// answer.
-  let read: Read = { id: 0, target: '', revision: 0 }
-  let inFlight: Read | null = null
-  /// A read of the current request was asked for while one was in flight, so it
-  /// runs when that one settles. At most one trailing read: a burst of reloads
-  /// must not become a burst of requests, and the last one must still land.
-  let queued = false
-
-  const start = (next: Read) => {
-    read = next
-    inFlight = next
-    void getSkillEvidence(next.target).then((value) => {
-      if (read.id === next.id) set({ snapshot: value, scope: next.revision, error: null })
+  const start = (target: string, revision: number) => {
+    const request = {}
+    set({ read: { request, target, revision, pending: true, queued: false }, error: null })
+    void getSkillEvidence(target).then((value) => {
+      const current = get().read
+      if (current?.request !== request || current.queued) return
+      set({ snapshot: value, scope: revision, error: null })
     }).catch((failure: unknown) => {
-      if (read.id === next.id) set({ error: String(failure) })
+      if (get().read?.request === request) set({ error: String(failure) })
     }).finally(() => {
-      if (inFlight?.id === next.id) inFlight = null
-      if (queued) { queued = false; start(read) }
+      const current = get().read
+      if (current?.request !== request) return
+      if (current.queued) start(target, revision)
+      else set({ read: { ...current, pending: false } })
     })
   }
 
@@ -68,20 +63,22 @@ export const useSkillEvidenceStore = create<SkillEvidenceState>((set, get) => {
     ...initialState,
 
     load: (target, revision) => {
-      // Already showing it, or already being read: a second read would put the
-      // same question to the core twice.
-      if (get().snapshot?.target === target && get().scope === revision) return
-      if (inFlight?.target === target && inFlight.revision === revision) return
-      start({ id: read.id + 1, target, revision })
+      const current = get().read
+      if (current?.target === target && current.revision === revision && current.pending) return
+      // Selecting a cached scope still abandons the other scope's request and
+      // trailing reload. Its completion cannot affect this selection.
+      if (get().snapshot?.target === target && get().scope === revision) {
+        set({ read: { request: {}, target, revision, pending: false, queued: false }, error: null })
+        return
+      }
+      start(target, revision)
     },
 
     reload: () => {
-      if (read.id === 0) return
-      const next = { ...read, id: read.id + 1 }
-      // A read is in flight: one more runs when it settles, rather than asking
-      // twice at once.
-      if (inFlight) { read = next; queued = true; return }
-      start(next)
+      const current = get().read
+      if (!current) return
+      if (current.pending) { set({ read: { ...current, queued: true } }); return }
+      start(current.target, current.revision)
     },
 
     save: async (choices) => {

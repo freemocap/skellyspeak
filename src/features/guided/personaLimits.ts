@@ -5,12 +5,30 @@ import type { PersonaDetails } from '../../contracts'
 /// wording here matches the messages persona::validate returns, because a field
 /// that fails on blur and a create that fails on the wire should read the same.
 
-/// One authored symbol. Rust is authoritative; this stops an obviously wrong
-/// entry before the learner waits for a round trip.
-const EMOJI = /^(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u20E3)?(?:\u200D(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u20E3)?)*$/u
+// The same explicit sequence grammar is used by src-tauri/src/emoji.rs and
+// checked against test-fixtures/emoji.json at both boundaries.
+const PRESENTATION = /^\p{Emoji_Presentation}$/u
+const PICTOGRAPHIC = /^\p{Extended_Pictographic}$/u
+const MODIFIER_BASE = /^\p{Emoji_Modifier_Base}$/u
+const MODIFIER = /^\p{Emoji_Modifier}$/u
+const REGIONAL = /^\p{Regional_Indicator}$/u
 
 export function isEmoji(value: string): boolean {
-  return EMOJI.test(value)
+  if (/^[\p{Regional_Indicator}]{2}$/u.test(value)) return true
+  if (/^[0-9#*]\uFE0F?\u20E3$/u.test(value)) return true
+  if (/^🏴[\u{E0061}-\u{E007A}]{2,}\u{E007F}$/u.test(value)) return true
+  return value.split('\u200D').every(component => {
+    const points = Array.from(component)
+    const base = points.shift()
+    if (!base || REGIONAL.test(base) || MODIFIER.test(base)) return false
+    const selector = points[0] === '\uFE0F'
+    if (selector) points.shift()
+    const modifier = points.length > 0 && MODIFIER.test(points[0])
+    if (modifier) points.shift()
+    return points.length === 0
+      && (!modifier || MODIFIER_BASE.test(base))
+      && (PRESENTATION.test(base) || (PICTOGRAPHIC.test(base) && (selector || modifier)))
+  })
 }
 
 type ListField = 'interests' | 'opinions' | 'interestingFacts' | 'favoriteBooks' | 'favoriteMovies' | 'quirks'
@@ -42,10 +60,6 @@ export function linesToItems(value: string): string[] {
     items.push(item)
   }
   return items
-}
-
-export function sameItems(left: string[], right: string[]): boolean {
-  return left.length === right.length && left.every((item, index) => item === right[index])
 }
 
 function listObjection(values: string[], label: string, max: number): string | null {

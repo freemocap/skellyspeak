@@ -64,3 +64,24 @@ it('reports a failed sign-in, and stays ready to try again', async () => {
   await useSessionStore.getState().startHostedSignIn()
   expect(native.invoke).toHaveBeenCalled()
 })
+
+it('ignores an older route read that completes after a new one', async () => {
+  let finish!: (value: ConnectionConfig) => void
+  native.invoke.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+    .mockResolvedValueOnce(connection({ route: 'custom', revision: 2 }))
+  const old = useSessionStore.getState().refresh()
+  await useSessionStore.getState().refresh()
+  finish(connection())
+  await old
+  expect(useSessionStore.getState().connection?.route).toBe('custom')
+})
+
+it('invalidates pending route reads on a public store reset', async () => {
+  let finish!: (value: ConnectionConfig) => void
+  native.invoke.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  const old = useSessionStore.getState().refresh()
+  useSessionStore.setState(useSessionStore.getInitialState(), true)
+  finish(connection())
+  await old
+  expect(useSessionStore.getState().connection).toBeNull()
+})

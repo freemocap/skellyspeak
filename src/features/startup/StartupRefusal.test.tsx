@@ -40,3 +40,12 @@ it('reports a failed reset instead of leaving the screen silent', async () => {
   expect(await screen.findByText('Could not erase local data: access denied')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Factory Reset' })).toBeEnabled()
 })
+
+
+it('disables recovery while another instance owns the workspace', () => {
+  render(<StartupRefusal error={{ code: 'conflict', message: 'Close other instances and restart the app.', refusal: null }} />)
+  expect(screen.getByRole('button', { name: 'Factory Reset' })).toBeDisabled()
+  expect(screen.queryByRole('button', { name: 'Save a copy of my data' })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Factory Reset' }))
+  expect(backend.invoke).not.toHaveBeenCalled()
+})

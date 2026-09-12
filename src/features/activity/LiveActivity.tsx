@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { readWorkspace, selectedConversation, watchConversation, nativeError } from '../../platform/ipc/workspace'
+import { GenerationActivity } from './GenerationActivity'
 import type { ConversationSnapshot } from '../../contracts'
 
 /** Draw the actual durable operation dependencies; inspecting never dispatches inference. */
@@ -12,16 +13,43 @@ export function LiveActivity() {
   useEffect(() => {
     let stopped = false
     void (async () => {
-      const workspace = await readWorkspace()
-      const conversation = selectedConversation(workspace)
-      if (!conversation) return
+      let workspace = await readWorkspace()
+      let conversationId: string | null = null
       let revision = -1
       while (!stopped) {
-        const next = await watchConversation(conversation.id, revision)
+        const desired = selectedConversation(workspace)?.id ?? null
+        if (desired !== conversationId) {
+          conversationId = desired; revision = -1
+          setSnapshot(null); setSelected(null); setError(null)
+        }
+        if (!conversationId) {
+          // No conversation exists to long-poll yet. Keep this inspector alive
+          // so opening/creating one in the main window supplies its scope.
+          await new Promise(resolve => setTimeout(resolve, 500))
+          if (stopped) return
+          workspace = await readWorkspace()
+          continue
+        }
+        let next: ConversationSnapshot
+        try { next = await watchConversation(conversationId, revision) }
+        catch (failure) {
+          if (stopped) return
+          workspace = await readWorkspace()
+          if (stopped) return
+          // Deleting/archiving the abandoned conversation may reject its wait.
+          if (selectedConversation(workspace)?.id !== conversationId) continue
+          throw failure
+        }
         if (stopped) return
+        // Native selection changes increment the same global revision that
+        // wakes this wait. Re-read the directory before accepting its old scope.
+        workspace = await readWorkspace()
+        if (stopped) return
+        if (selectedConversation(workspace)?.id !== conversationId) continue
+        if (next.conversationId !== conversationId) throw new Error('AI activity returned a different conversation.')
         setSnapshot(next); revision = next.revision
       }
-    })().catch(failure => { if (!stopped) setError(nativeError(failure)) })
+    })().catch(failure => { if (!stopped) { setSnapshot(null); setError(nativeError(failure)) } })
     return () => { stopped = true }
   }, [])
   const turn = snapshot?.turns.find(item => item.id === selected) ?? snapshot?.turns[0]
@@ -47,5 +75,6 @@ export function LiveActivity() {
     <div className="live-operation-graph"><ReactFlow key={turn?.id} nodes={nodes} edges={edges} fitView nodesDraggable={false} nodesConnectable={false}><Background /><Controls showInteractive={false} /></ReactFlow></div>
     {!turn && <p>No recorded AI operations.</p>}
     {turn?.attempts.map(attempt => <details key={attempt.id}><summary>{turn.operations.find(op => op.id === attempt.operationId)?.kind} · {attempt.state}</summary><dl><dt>Model</dt><dd>{attempt.actualModel ?? attempt.requestedModel}</dd><dt>Tokens in / out</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd><dt>Started</dt><dd>{attempt.startedAt}</dd></dl>{attempt.error && <p>{attempt.error}</p>}</details>)}
+    <GenerationActivity />
   </section>
 }

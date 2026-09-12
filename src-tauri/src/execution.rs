@@ -1672,6 +1672,85 @@ mod tests {
         assert!(store.dispatch().unwrap().is_none());
         store.dispatch().unwrap().unwrap()
     }
+    #[tokio::test]
+    async fn custom_server_refusal_redacts_remote_content_before_persistence() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        for request_id in ["1234567890abcdef1234567890abcdef", "private-header-token"] {
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let url = format!("http://{}", listener.local_addr().unwrap());
+            let server = tokio::spawn(async move {
+                let (mut socket, _) = listener.accept().await.unwrap();
+                let mut input = Vec::new();
+                loop {
+                    let mut chunk = [0u8; 4096];
+                    let count = socket.read(&mut chunk).await.unwrap();
+                    assert!(count > 0);
+                    input.extend_from_slice(&chunk[..count]);
+                    if let Some(start) = input.windows(4).position(|w| w == b"\r\n\r\n") {
+                        let headers = String::from_utf8_lossy(&input[..start]);
+                        let length: usize = headers
+                            .lines()
+                            .find_map(|line| {
+                                line.to_ascii_lowercase()
+                                    .strip_prefix("content-length: ")
+                                    .map(str::to_owned)
+                            })
+                            .unwrap()
+                            .parse()
+                            .unwrap();
+                        if input.len() >= start + 4 + length {
+                            break;
+                        }
+                    }
+                }
+                let body = r#"{"detail":"private-authorization-secret private-echoed-message","code":"INVALID_REQUEST","request_id":"private-body-token"}"#;
+                let response = format!(
+                    "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nX-Request-ID: {request_id}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                );
+                socket.write_all(response.as_bytes()).await.unwrap();
+            });
+            let (dir, mut store, conversation) = setup();
+            store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'),'$.standardModel','fixture','$.fastModel','fixture')", [&url]).unwrap();
+            let dispatch = begin(&mut store, &conversation);
+            assert_eq!(dispatch.route, ConnectionRoute::Custom);
+            let error =
+                crate::grouped::complete(&crate::provider::client().unwrap(), "", &dispatch)
+                    .await
+                    .unwrap_err();
+            server.await.unwrap();
+            assert!(error.message.contains("HTTP 400"));
+            assert!(error.message.contains("request format"));
+            assert!(!error.message.contains("private"));
+            assert_eq!(
+                error.message.contains("Request ID:"),
+                request_id.len() == 32
+            );
+            let message = error.message.clone();
+            store.finish(&dispatch, Err(error)).unwrap();
+            drop(store);
+            let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+            let persisted: String = reopened
+                .connection
+                .query_row(
+                    "SELECT error FROM attempts WHERE id=?1",
+                    [&dispatch.attempt],
+                    |row| row.get(0),
+                )
+                .unwrap();
+            assert_eq!(persisted, message);
+            let context: String = reopened.connection.query_row("SELECT context FROM turns WHERE id=(SELECT turn_id FROM operations WHERE id=?1)", [&dispatch.operation], |row| row.get(0)).unwrap();
+            for sentinel in [
+                "private-authorization-secret",
+                "private-echoed-message",
+                "private-body-token",
+                "private-header-token",
+            ] {
+                assert!(!context.contains(sentinel));
+            }
+        }
+    }
+
     fn reply(text: &str) -> Completion {
         Completion {
             text: text.into(),

@@ -82,35 +82,43 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
-/// What the learner reads when the hosted service refuses a request. The service
-/// answers every refusal with an authored `detail` sentence — never a secret or a
-/// submitted value — so it is shown as given: without it, a refusal reads as a bare
-/// status code and cannot be told apart from any other. `body` is `None` when the
-/// response could not be read in full.
+/// Refusal messages can be persisted in attempts and turn context. Remote text
+/// is untrusted, including responses from Custom URL servers: only client-authored
+/// status/code guidance is allowed through this boundary.
 fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
-    match status {
-        401 => {
-            return "Your hosted session expired or was refused. Sign in with Google again.".into();
+    let parsed = body.and_then(|bytes| serde_json::from_slice::<serde_json::Value>(bytes).ok());
+    let code = parsed
+        .as_ref()
+        .and_then(|value| value.get("code")?.as_str());
+    let guidance = match (status, code) {
+        (401, _) => {
+            "The service refused authentication. Check the selected connection in Settings and sign in again or replace its saved credential."
         }
-        403 => return "The hosted account does not have access to this request.".into(),
-        _ => {}
-    }
-    let detail = body
-        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(bytes).ok())
-        .and_then(|value| value.get("detail")?.as_str().map(str::to_owned))
-        .map(|detail| detail.chars().take(300).collect::<String>())
-        .filter(|detail| !detail.trim().is_empty());
-    match (detail, body) {
-        (Some(detail), _) => format!(
-            "Hosted service refused the request (HTTP {status}): {detail} No automatic retry was made."
-        ),
-        (None, None) => format!(
-            "Hosted service HTTP {status}, and its explanation could not be read. No automatic retry was made."
-        ),
-        (None, Some(_)) => format!(
-            "Hosted service HTTP {status} without an explanation. No automatic retry was made."
-        ),
-    }
+        (403, _) => {
+            "The service account does not have access to this request. Check access in Settings."
+        }
+        (400, Some("INVALID_REQUEST")) => {
+            "The service rejected the request format. Check the connection settings and application version."
+        }
+        (404, Some("NOT_FOUND")) => {
+            "The requested endpoint was not found. Check the service URL in Settings."
+        }
+        (502, Some("UPSTREAM_FAILURE")) => {
+            "The service could not complete the provider request. Check service availability before retrying."
+        }
+        (400 | 422, _) => {
+            "The service rejected the request. Check the connection settings and application version."
+        }
+        (404, _) => "The requested endpoint was not found. Check the service URL in Settings.",
+        (413, _) => {
+            "The request exceeds the service size limit. Reduce the request size before retrying."
+        }
+        (500..=599, _) => {
+            "The service could not complete the request. Check service availability before retrying."
+        }
+        _ => "The service refused the request. Check connection and account access in Settings.",
+    };
+    format!("Service HTTP {status}: {guidance} No automatic retry was made.")
 }
 
 fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
@@ -627,29 +635,37 @@ mod refusal_message_tests {
     use super::refusal_message;
 
     #[test]
-    fn a_refusal_shows_the_services_own_explanation() {
-        let body = br#"{"detail":"Invalid attempt identity.","code":"INVALID_REQUEST","request_id":"x","resets_at":null}"#;
+    fn known_codes_select_client_authored_guidance_without_remote_detail() {
+        let body = br#"{"detail":"private-token private-user-text","code":"INVALID_REQUEST"}"#;
         let message = refusal_message(400, Some(body));
-        assert!(message.contains("HTTP 400"), "{message}");
-        assert!(message.contains("Invalid attempt identity."), "{message}");
+        assert!(message.contains("HTTP 400"));
+        assert!(message.contains("request format"));
+        assert!(!message.contains("private"));
     }
 
     #[test]
-    fn a_refusal_without_a_readable_explanation_says_so() {
-        assert!(refusal_message(400, Some(b"not json")).contains("without an explanation"));
-        assert!(refusal_message(400, Some(br#"{"detail":""}"#)).contains("without an explanation"));
-        assert!(refusal_message(502, None).contains("could not be read"));
+    fn hostile_unknown_malformed_and_unreadable_errors_use_safe_status_guidance() {
+        for status in [400, 401, 403, 404, 413, 422, 500, 502, 503] {
+            for body in [
+                Some(br#"{"detail":"private-token private-user-text","code":"private-code","request_id":"private-id"}"#.as_slice()),
+                Some(br#"{"detail":{"nested":"private-token"}}"#.as_slice()),
+                Some(b"private-malformed-body".as_slice()),
+                None,
+            ] {
+                let message = refusal_message(status, body);
+                assert!(message.contains(&format!("HTTP {status}")));
+                assert!(message.contains("No automatic retry"));
+                assert!(!message.contains("private"), "{message}");
+            }
+        }
     }
 
     #[test]
-    fn session_and_access_refusals_keep_their_guidance() {
-        assert!(refusal_message(401, Some(br#"{"detail":"x"}"#)).contains("Sign in with Google"));
+    fn codes_cannot_override_the_status_guidance() {
+        let body = br#"{"code":"UPSTREAM_FAILURE"}"#;
+        assert!(refusal_message(400, Some(body)).contains("connection settings"));
+        assert!(refusal_message(502, Some(body)).contains("provider request"));
+        assert!(refusal_message(401, Some(body)).contains("refused authentication"));
         assert!(refusal_message(403, None).contains("does not have access"));
-    }
-
-    #[test]
-    fn a_long_explanation_is_bounded() {
-        let body = format!(r#"{{"detail":"{}"}}"#, "a".repeat(5000));
-        assert!(refusal_message(400, Some(body.as_bytes())).len() < 500);
     }
 }

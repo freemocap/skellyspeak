@@ -9,7 +9,7 @@ informed the selection; active behavior is defined by the implementation.
 | Settings | Search, section navigation, compact rows, automatic preference/key/model saves and backdrop dismissal, text scale/spacing/contrast, learner defaults, onboarding replay | Microphone selection, read-aloud/auto-send, editable shortcuts, distribution updates |
 | AI access | Google system-browser sign-in/cancel/sign-out, quota report, explicit hosted/own-key selection; automatic key verification, green-check/red-X indicators, masked key entry and visible save errors | Mobile sign-in, live route verification |
 | Models | Hosted approved Standard model; own-key Standard/Fast configuration without key reentry | Evaluated Fast assignments |
-| AI activity | Resizable dock, pop-out window, conversation/latest/recent selection, declared dependencies, attempts, models, usage, pause/step/cancel/retry; durable queued-chat refusal reason and earliest retry, with Step disabled while held; shared access holds and generation-checked Recover access | Selectable graph nodes, local prompt/result inspection and export; live native inspection of refusal recovery |
+| AI activity | Resizable dock, pop-out and mobile dialog; exchange selection, declared dependency graph, attempt states, models and reported token usage | Pause/step/cancel/retry and Recover access controls; selectable graph nodes, local prompt/result inspection and export; live native inspection of refusal recovery |
 | Profile | Retained totals globally, by language and partner; request/token/message counts and unknown usage coverage | Time series, distributions, source-linked assessment, CEFR, XP and Vibe |
 
 Do not render pending functionality as working controls. Reports remain numerical;
@@ -89,6 +89,11 @@ captured at Send. Explicit failure retry operates on the failed task, not the re
 
 ## Conversation controls and contacts — current source
 
-Difficulty is a compact five-choice dropdown beside Target/Explanation language, saved on the conversation through the native settings action; Beginner is the native default. The same assistance pipeline applies at all levels. Profile beside Lesson/Analysis edits the current contact with autosave. The Contacts drawer selects existing contacts, opens their conversations and exposes explicit Edit profile/New conversation actions. Selecting a contact never creates a conversation. Generated persona/Add to contacts lifecycle remains deferred. See workflow/reports/U1-contact-settings.md for source verification versus native QA.
+Difficulty is a compact five-choice dropdown beside Target/Explanation language, saved on the conversation through the native settings action; Beginner is the native default. The same assistance pipeline applies at all levels. Profile beside Lesson/Analysis edits the current contact with autosave. The Contacts drawer selects existing contacts, opens their conversations and exposes explicit Edit profile/New conversation actions. Selecting a contact never creates a conversation. New persona supports manual editing and generated proposals, followed by explicit Create. Generation is single-use, bounded and cancellable; pause and connection authority are rechecked throughout. Durable generation receipts and reported usage appear in AI activity, including cancelled/unknown outcomes. Only dispatched attempts enter generation usage totals. See workflow/reports/U1-contact-settings.md for source verification versus native QA.
 
 Header density and AI-access draft recovery are recorded in workflow/reports/U1-header-access-correction.md. AI access retains failed drafts and offers explicit Discard changes without deleting saved credentials.
+
+The chat header omits the visible Learning label; the target selector retains its
+accessible name. Target language, difficulty and partner share a single grid row,
+with the largest share reserved for the partner. Saving status remains announced
+without consuming a selector column.

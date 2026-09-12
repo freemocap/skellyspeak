@@ -9,6 +9,8 @@ pub mod diagnostics;
 mod emoji;
 pub mod execution;
 mod factory_reset;
+mod generation;
+mod generation_receipts;
 pub mod gloss;
 pub mod grouped;
 mod holds;
@@ -49,6 +51,7 @@ use zeroize::Zeroizing;
 
 struct Application {
     admission: admission::Admission,
+    generations: generation::Registry,
     capture: Mutex<Option<voice::Recording>>,
     store: Mutex<Option<Store>>,
     /// Why the workspace could not be opened at startup. Commands report it
@@ -86,6 +89,7 @@ impl Application {
         };
         Arc::new(Self {
             admission: admission::Admission::new(),
+            generations: generation::Registry::default(),
             capture: Mutex::new(None),
             store: Mutex::new(store),
             refusal: Mutex::new(refusal),
@@ -117,13 +121,6 @@ impl Application {
             return Err(internal());
         }
         Ok(StoreGuard(store))
-    }
-    fn take_store(&self) -> Result<Store> {
-        self.store
-            .lock()
-            .map_err(|_| internal())?
-            .take()
-            .ok_or_else(internal)
     }
     fn credential_operation(&self) -> Result<MutexGuard<'_, ()>> {
         self.credential_operations.lock().map_err(|_| internal())
@@ -502,91 +499,176 @@ async fn watch_conversation(
         tokio::time::sleep(Duration::from_millis(150)).await;
     }
 }
-/// Invent one persona with a single structured model call.
-///
-/// Nothing is written: the caller reviews the result and creates the contact
-/// through the ordinary action, so a failure never leaves a half-made person
-/// behind and a discarded proposal costs nothing but the call.
+/// Reserve bounded ownership before any provider work. The proposal remains
+/// volatile; creating the reviewed contact is a separate ordinary action.
 #[tauri::command]
-async fn generate_persona(
+fn begin_persona_generation(
     state: tauri::State<'_, Arc<Application>>,
     language_id: String,
     brief: Option<String>,
-) -> Result<PersonaDetails> {
-    if let Some(brief) = brief.as_deref()
-        && (brief.chars().count() > persona::BRIEF_MAX || brief.contains('\0'))
-    {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            format!(
-                "A generation brief must be at most {} characters.",
-                persona::BRIEF_MAX
-            ),
-        ));
+) -> Result<String> {
+    reserve_persona_generation(&state, language_id, brief)
+}
+
+fn reserve_persona_generation(
+    state: &Application,
+    language_id: String,
+    brief: Option<String>,
+) -> Result<String> {
+    let mut store = state.lock()?;
+    for expired in state.generations.expire()? {
+        generation_receipts::expire(&mut store, &expired)?;
     }
-    let (language_name, target, credential, install_id) = {
-        let store = state.lock()?;
-        let database = &store.connection;
-        let language = languages::language(&language_id)?;
-        let target = access::resolve(database, access::Capability::Chat)?;
-        holds::check(database, &target)?;
-        let credential = execution::active_credential(database)?.ok_or_else(|| {
+    let request = generation::Request::capture(&store, language_id, brief)?;
+    let request = state.generations.insert(request)?;
+    if let Err(error) = generation_receipts::begin(&mut store, &request) {
+        state.generations.cancel(&request.id)?;
+        return Err(error);
+    }
+    Ok(request.id.clone())
+}
+
+#[tauri::command]
+fn cancel_persona_generation(
+    state: tauri::State<'_, Arc<Application>>,
+    generation_id: String,
+) -> Result<()> {
+    cancel_owned_persona_generation(&state, &generation_id)
+}
+
+fn cancel_owned_persona_generation(state: &Application, generation_id: &str) -> Result<()> {
+    let mut store = state.lock()?;
+    if let Some(request) = state.generations.cancel(generation_id)? {
+        generation_receipts::cancel(&mut store, &request)?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn run_persona_generation(
+    state: tauri::State<'_, Arc<Application>>,
+    generation_id: String,
+) -> Result<PersonaDetails> {
+    let run = {
+        let mut store = state.lock()?;
+        for expired in state.generations.expire()? {
+            generation_receipts::expire(&mut store, &expired)?;
+        }
+        state.generations.claim(&generation_id)?
+    };
+    let request = &run.request;
+    // Keep completion metadata even when the proposal fails parsing or loses
+    // authority before adoption. Its text never enters the durable receipt.
+    let mut provider_outcome = None;
+    let outcome = async {
+        let validate = || {
+            let store = state.lock()?;
+            request.validate(&store)
+        };
+        validate()?;
+        let permit = state.admission.try_chat().ok_or_else(|| {
             AppError::new(
-                ErrorCode::Credential,
-                "Sign in with Google or configure the selected connection in Settings before generating a contact.",
+                ErrorCode::AdmissionHeld,
+                "AI work is already at capacity. Let pending work finish, then generate again.",
             )
         })?;
-        (
-            language.name,
-            target,
-            credential,
-            store.snapshot()?.learner.id,
+        let client = provider::client()?;
+        let key = generation::await_checked(
+            request,
+            async {
+                if request.credential.is_empty() {
+                    Ok(Zeroizing::new(String::new()))
+                } else {
+                    read_secret(request.credential.clone()).await
+                }
+            },
+            validate,
         )
-    };
-    let permit = state.admission.try_chat().ok_or_else(|| {
-        AppError::new(
-            ErrorCode::AdmissionHeld,
-            "AI work is already at capacity. Let pending work finish, then generate again.",
-        )
-    })?;
-    let client = provider::client()?;
-    let key = if credential.is_empty() {
-        Zeroizing::new(String::new())
-    } else {
-        read_secret(credential.clone()).await?
-    };
-    let messages = persona_prompt::messages(&language_name, brief.as_deref());
-    let schema = persona::output_schema();
-    // The grouped route keys its batch by attempt and operation identity. A
-    // generation is not a conversation turn, so these identify this request
-    // alone rather than a tracked operation; see the notes on AI activity.
-    let (attempt, operation) = generation_identity();
-    let dispatch = execution::Dispatch {
-        target: target.clone(),
-        attempt,
-        operation,
-        credential,
-        model: target.model.clone(),
-        route: target.route,
-        install_id,
-        messages,
-        coaching_schema: None,
-        gloss_source: None,
-        speech_source: None,
-    };
-    let outcome = provider::complete_with_output(
-        &client,
-        &key,
-        &dispatch,
-        provider::RequestOutput::JsonSchema {
-            name: persona_prompt::SCHEMA_NAME,
-            schema: &schema,
-        },
-    )
+        .await??;
+        validate()?;
+        let language = languages::language(&request.language_id)?;
+        let schema = persona::output_schema();
+        let dispatch = execution::Dispatch {
+            target: request.target.clone(),
+            attempt: request.attempt.clone(),
+            operation: request.operation.clone(),
+            credential: request.credential.clone(),
+            model: request.target.model.clone(),
+            route: request.target.route,
+            install_id: request.install_id.clone(),
+            messages: persona_prompt::messages(&language.name, request.brief.as_deref()),
+            coaching_schema: None,
+            gloss_source: None,
+            speech_source: None,
+        };
+        {
+            // Cancellation also takes Store before Registry. Validation, the
+            // durable dispatch boundary and submission state are one ordered step.
+            let mut store = state.lock()?;
+            request.validate(&store)?;
+            generation_receipts::dispatch(&mut store, request)?;
+            request.mark_submitted();
+        }
+        provider_outcome = Some(
+            generation::await_checked(
+                request,
+                provider::complete_with_output(
+                    &client,
+                    &key,
+                    &dispatch,
+                    provider::RequestOutput::JsonSchema {
+                        name: persona_prompt::SCHEMA_NAME,
+                        schema: &schema,
+                    },
+                ),
+                validate,
+            )
+            .await?,
+        );
+        drop(permit);
+        let completed = provider_outcome
+            .as_ref()
+            .expect("provider outcome was captured");
+        generation::accept_completion(&mut *state.lock()?, request, completed)?;
+        let completion = completed.as_ref().map_err(Clone::clone)?;
+        let details = generated_persona(&completion.text, &request.language_id)?;
+        validate()?;
+        Ok(details)
+    }
     .await;
-    drop(permit);
-    let completion = outcome?;
-    generated_persona(&completion.text, &language_id)
+    let completion = provider_outcome
+        .as_ref()
+        .and_then(|value| value.as_ref().ok());
+    finish_persona_generation(&state, request, completion, outcome)
+}
+
+fn finish_persona_generation(
+    state: &Application,
+    request: &generation::Request,
+    completion: Option<&provider::Completion>,
+    mut outcome: Result<PersonaDetails>,
+) -> Result<PersonaDetails> {
+    // The final authority check and terminal receipt share the Store lock with
+    // cancel/settings actions. A failed terminal write never adopts a proposal.
+    let mut store = state.lock()?;
+    if outcome.is_ok()
+        && let Err(error) = request.validate(&store)
+    {
+        outcome = Err(error);
+    }
+    generation_receipts::finish(&mut store, request, completion, &outcome)?;
+    outcome
+}
+
+#[tauri::command]
+fn get_persona_generation_activity(
+    state: tauri::State<'_, Arc<Application>>,
+) -> Result<model::PersonaGenerationActivity> {
+    let mut store = state.lock()?;
+    for expired in state.generations.expire()? {
+        generation_receipts::expire(&mut store, &expired)?;
+    }
+    generation_receipts::activity(&store.connection)
 }
 
 /// Attempt and operation identities for one generation request, in the forms every
@@ -610,6 +692,168 @@ fn generated_persona(text: &str, language_id: &str) -> Result<PersonaDetails> {
 #[cfg(test)]
 mod generation_tests {
     use super::*;
+
+    fn generation_app() -> (tempfile::TempDir, Arc<Application>) {
+        let directory = tempfile::tempdir().unwrap();
+        let app = Application::start(&directory.path().join("generation.sqlite3"), None);
+        app.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8765/v1','$.bearerAuth',json('false'),'$.standardModel','fixture','$.fastModel','fixture')", []).unwrap();
+        (directory, app)
+    }
+
+    #[test]
+    fn failed_durable_begin_releases_volatile_ownership_and_cancel_is_idempotent() {
+        let (_directory, app) = generation_app();
+        app.lock()
+            .unwrap()
+            .connection
+            .execute_batch("PRAGMA query_only=ON")
+            .unwrap();
+        for _ in 0..5 {
+            let error = reserve_persona_generation(&app, "es".into(), None).unwrap_err();
+            assert_eq!(error.code, ErrorCode::Storage);
+        }
+        app.lock()
+            .unwrap()
+            .connection
+            .execute_batch("PRAGMA query_only=OFF")
+            .unwrap();
+        let ids: Vec<_> = (0..4)
+            .map(|_| reserve_persona_generation(&app, "es".into(), None).unwrap())
+            .collect();
+        for id in ids {
+            cancel_owned_persona_generation(&app, &id).unwrap();
+            cancel_owned_persona_generation(&app, &id).unwrap();
+            assert!(app.generations.claim(&id).is_err());
+        }
+        assert!(reserve_persona_generation(&app, "es".into(), None).is_ok());
+    }
+
+    #[test]
+    fn cancellation_or_authority_change_cannot_adopt_a_completed_proposal() {
+        for cancel in [true, false] {
+            let (_directory, app) = generation_app();
+            let id = reserve_persona_generation(&app, "es".into(), None).unwrap();
+            let run = {
+                let mut store = app.lock().unwrap();
+                let run = app.generations.claim(&id).unwrap();
+                generation_receipts::dispatch(&mut store, &run.request).unwrap();
+                run.request.mark_submitted();
+                run
+            };
+            if cancel {
+                cancel_owned_persona_generation(&app, &id).unwrap();
+            } else {
+                app.lock()
+                    .unwrap()
+                    .connection
+                    .execute("UPDATE ai_config SET revision=revision+1", [])
+                    .unwrap();
+            }
+            let proposed = persona::starter("es").unwrap();
+            let completion = provider::Completion {
+                text: serde_json::to_string(&proposed).unwrap(),
+                actual_model: "fixture".into(),
+                provider_id: "synthetic".into(),
+                finish_reason: "stop".into(),
+                input_tokens: Some(4),
+                output_tokens: Some(8),
+            };
+            let error =
+                finish_persona_generation(&app, &run.request, Some(&completion), Ok(proposed))
+                    .unwrap_err();
+            assert_eq!(error.code, ErrorCode::UnknownOutcome);
+        }
+    }
+
+    #[test]
+    fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adopt() {
+        for reject_write in [true, false] {
+            let (_directory, app) = generation_app();
+            let id = reserve_persona_generation(&app, "es".into(), Some("private brief".into()))
+                .unwrap();
+            let run = {
+                let mut store = app.lock().unwrap();
+                let run = app.generations.claim(&id).unwrap();
+                generation_receipts::dispatch(&mut store, &run.request).unwrap();
+                run.request.mark_submitted();
+                run
+            };
+            let completion = provider::Completion {
+                text: "private malformed proposal".into(),
+                actual_model: "fixture-actual".into(),
+                provider_id: "synthetic".into(),
+                finish_reason: "stop".into(),
+                input_tokens: Some(4),
+                output_tokens: Some(8),
+            };
+            let outcome = if reject_write {
+                app.lock()
+                    .unwrap()
+                    .connection
+                    .execute_batch("PRAGMA query_only=ON")
+                    .unwrap();
+                Ok(persona::starter("es").unwrap())
+            } else {
+                generated_persona(&completion.text, "es")
+            };
+            let error = finish_persona_generation(&app, &run.request, Some(&completion), outcome)
+                .unwrap_err();
+            if reject_write {
+                assert_eq!(error.code, ErrorCode::Storage);
+            } else {
+                let activity =
+                    generation_receipts::activity(&app.lock().unwrap().connection).unwrap();
+                assert_eq!(activity.attempts[0].state, "failed");
+                assert_eq!(activity.attempts[0].input_tokens, Some(4));
+                assert_eq!(activity.attempts[0].output_tokens, Some(8));
+                assert_eq!(
+                    activity.attempts[0].actual_model.as_deref(),
+                    Some("fixture-actual")
+                );
+                assert!(
+                    !serde_json::to_string(&activity)
+                        .unwrap()
+                        .contains("private")
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
+        for finish in ["length", "content_filter", "tool_calls", ""] {
+            let (_directory, app) = generation_app();
+            let id = reserve_persona_generation(&app, "es".into(), None).unwrap();
+            let run = {
+                let mut store = app.lock().unwrap();
+                let run = app.generations.claim(&id).unwrap();
+                generation_receipts::dispatch(&mut store, &run.request).unwrap();
+                run.request.mark_submitted();
+                run
+            };
+            let proposed = persona::starter("es").unwrap();
+            let completed = Ok(provider::Completion {
+                text: serde_json::to_string(&proposed).unwrap(),
+                actual_model: "fixture".into(),
+                provider_id: "synthetic".into(),
+                finish_reason: finish.into(),
+                input_tokens: Some(9),
+                output_tokens: Some(14),
+            });
+            let outcome =
+                generation::accept_completion(&mut app.lock().unwrap(), &run.request, &completed)
+                    .map(|_| proposed);
+            let error =
+                finish_persona_generation(&app, &run.request, completed.as_ref().ok(), outcome)
+                    .unwrap_err();
+            assert_eq!(error.code, ErrorCode::Provider);
+            let view = generation_receipts::activity(&app.lock().unwrap().connection).unwrap();
+            assert_eq!(view.attempts[0].state, "failed");
+            assert_eq!(view.usage.input_tokens, 9);
+            assert_eq!(view.usage.output_tokens, 14);
+            assert_eq!(view.usage.unknown_usage, 0);
+        }
+    }
 
     #[test]
     fn generation_identities_have_the_shape_the_hosted_server_accepts() {
@@ -674,9 +918,9 @@ mod generation_tests {
 }
 
 async fn read_secret(id: String) -> Result<Zeroizing<String>> {
-    tauri::async_runtime::spawn_blocking(move || credentials::read(&id))
-        .await
-        .map_err(|_| internal())?
+    static READS: std::sync::LazyLock<admission::CredentialReads> =
+        std::sync::LazyLock::new(admission::CredentialReads::new);
+    READS.read(move || credentials::read(&id)).await
 }
 async fn scheduler(state: Arc<Application>) {
     let client = match provider::client() {
@@ -923,7 +1167,6 @@ pub fn run() {
             store::prepare_private_directory(&directory)?;
             // A previous reset may have left the log directory to clear. That has to
             // happen before the log sink below opens a file inside it.
-            let cleanup = factory_reset::finish_pending(&directory).err();
             // Android/iOS use a subdirectory of app data: it is private, writable,
             // and available before the webview starts. Desktop retains the platform
             // log directory (or the development repository sink) in diagnostics.
@@ -931,6 +1174,11 @@ pub fn run() {
             let diagnostics_root = directory.join("logs");
             #[cfg(not(any(target_os = "android", target_os = "ios")))]
             let diagnostics_root = app.path().app_log_dir()?;
+            let cleanup = factory_reset::finish_pending(
+                &directory,
+                &diagnostics::configured_root(&diagnostics_root)?,
+            )
+            .err();
             diagnostics::initialize(&diagnostics_root)?;
             let state = Application::start(&directory.join(store::WORKSPACE_FILE), cleanup);
             // A refused workspace has nothing to clean or prepare; the window still
@@ -966,7 +1214,9 @@ pub fn run() {
             verify_openrouter_key,
             disconnect,
             watch_conversation,
-            generate_persona,
+            begin_persona_generation,
+            run_persona_generation,
+            cancel_persona_generation,
             hosted_sign_in,
             hosted_account,
             hosted_diagnostics,
@@ -974,6 +1224,7 @@ pub fn run() {
             cancel_sign_in,
             select_route,
             get_profile,
+            get_persona_generation_activity,
             progression::get_skill_evidence,
             reward_settings::get_reward_settings,
             reward_settings::get_playback_rate,
