@@ -77,6 +77,7 @@ export interface TurnViewProps {
   onToggleReveal: (keys: string[]) => void
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
+  onRetryHelp?: () => Promise<void>
   onRetryGloss?: (operationId: string) => Promise<void>
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
   editDisabled?: boolean
@@ -109,6 +110,7 @@ export const TurnView = memo(function TurnView({
   onCoachControl,
   editDisabled,
   onRetryGloss,
+  onRetryHelp,
 }: TurnViewProps) {
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
@@ -280,7 +282,7 @@ export const TurnView = memo(function TurnView({
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
           <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
-          <MessageFeedback analysis={<AnalysisSentence label="Your message" text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <MessageFeedback onRetry={onRetryHelp} analysis={<AnalysisSentence label="Your message" text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
           </MessageFeedback>
           {onEditUser && (

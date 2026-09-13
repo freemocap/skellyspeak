@@ -964,8 +964,8 @@
   padding: var(--space-hairline) var(--space-2);
   border: var(--border-width) solid var(--accent-edge-strong);
   border-radius: var(--radius-sm);
-  background: var(--accent-soft);
-  color: var(--bubble-learner-ink);
+  background: var(--warning);
+  color: var(--shell-sunken);
   font: var(--weight-semibold) var(--text-2xs)/1.25 var(--font-sans);
   width: max-content;
   max-width: min(260px, calc(100vw - 48px));

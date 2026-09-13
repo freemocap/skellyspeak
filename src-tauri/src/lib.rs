@@ -19,6 +19,7 @@ pub mod hosted;
 pub mod languages;
 pub mod linguistics;
 pub mod model;
+pub mod partner_reaction;
 mod persona;
 mod persona_prompt;
 pub mod profile;

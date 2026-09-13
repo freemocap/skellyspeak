@@ -47,7 +47,7 @@
 
 .coach-card {
   border: var(--border-width) solid var(--shell-line); border-left: var(--border-width-thick) solid var(--accent);
-  border-radius: var(--radius-md); padding: 8px 12px; background: var(--accent-dim);
+  border-radius: var(--radius-md); padding: 8px 12px; background: var(--warning-dim);
 }
 
 .coach-remark { font-size: var(--text-base); color: var(--shell-text); line-height: 1.45; margin: 0; }
@@ -280,18 +280,22 @@
 .evidence-mapping-notice dd { margin: 0; }
 
 /* Coaching uses compact phrases and the conversation's interactive reading blocks. */
-.coach-card blockquote { margin: 0 0 8px; color: var(--analysis-accent-soft); font-size: var(--text-lg); }
+.coach-card blockquote { margin: 0 0 8px; color: var(--warning); font-size: var(--text-lg); }
 .coach-card-help { border-inline-start-color: var(--warning); background: var(--warning-dim); }
 .coach-card-help blockquote { color: var(--warning); }
 .coach-entry { display: grid; gap: 8px; }
 .live-coach-review { display: grid; gap: 12px; }
-.live-coach-review > h3 { margin: 0; color: var(--analysis-accent-soft); font-size: var(--text-lg); }
+.live-coach-review > h3 { margin: 0; color: var(--warning); font-size: var(--text-lg); }
 .live-coach-review > .lesson-action { justify-self: start; }
 .analysis-sentence { padding: 8px 12px; margin-block: 8px; border-radius: var(--radius-md); border-inline-start: 3px solid var(--analysis-accent); background: var(--accent-dim); }
 .analysis-sentence-bot { border-inline-start-color: var(--success-soft); background: color-mix(in srgb, var(--success-soft) 8%, var(--shell-sunken)); }
 .analysis-sentence > h4 { margin: 0 0 4px; font-size: var(--text-xs); color: var(--analysis-accent-soft); }
 .analysis-sentence-bot > h4 { color: var(--success-soft); }
-.analysis-sentence > .sentence { margin: 0; font-size: var(--text-lg); line-height: 1.5; }
+.analysis-sentence > .sentence { margin: 0; font-size: var(--text-lg); line-height: 1.5; color: var(--analysis-accent-soft); }
 .analysis-sentence > .trans-d { margin: 4px 0 0; font-style: normal; }
 .live-coach-review > .analysis-sentence { margin: 0; }
 .detail-dialog > .analysis-sentence { clear: both; margin-bottom: 12px; }
+
+.analysis-sentence-bot > .sentence { color: var(--success-soft); }
+
+.coach-card-explanation { border-inline-start-color: var(--warning); background: var(--warning-dim); }

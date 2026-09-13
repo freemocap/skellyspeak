@@ -5,7 +5,7 @@
 .analysis-scroll {
   flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain;
-  padding: var(--space-7) var(--space-8) var(--space-10);
+  padding: 12px;
 }
 
 /* Logs overlay (floating debug console) — docked beside the topbar gear so

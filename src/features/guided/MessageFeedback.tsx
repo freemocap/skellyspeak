@@ -5,7 +5,8 @@ import type { CoachControl, CoachDecision, CoachObservationView } from '../../co
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../platform/ipc/workspace'
 
-export function MessageFeedback({ id, text, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis }: {
+export function MessageFeedback({ id, text, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, onRetry }: {
+  onRetry?: () => Promise<void>
   analysis?: ReactNode
   children?: ReactNode
   id: number; text: string; feedback: CoachObservationView | undefined; decision?: CoachDecision; error: string | undefined
@@ -48,6 +49,7 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
       <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />
       {!decision && !error && <p role="status">{reviewing ? 'The coach is reviewing this message.' : feedback ? 'Coaching decision is unavailable.' : 'No feedback was saved for this message.'}</p>}
       <div className="lesson-actions">
+        {error && onRetry && <button type="button" className="lesson-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>Retry failed help</button>}
         {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="lesson-action" onClick={() => void openCard()}>View coaching help</button>}
         {onEdit && <button type="button" disabled={busy} className="lesson-action" onClick={() => { close(); onEdit() }}>{decision?.retryInvited ? 'Edit & try again' : 'Edit message'}</button>}
         {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="lesson-action" onClick={() => void control('show_answer')}>Show answer</button>}

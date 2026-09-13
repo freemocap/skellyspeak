@@ -722,3 +722,10 @@ Suggested replies remain collapsed behind “Show suggested replies” and are
 computed only on explicit request. Automatic coach feedback is separate from
 optional generated replies. Visible hint exposure is recorded for assistance
 accounting; hidden mobile panels do not count as help viewed.
+
+Partner reaction is an interpretation of the actual reply, generated after that
+reply and displayed as an inspectable emoji on its bubble. It is neither a score
+nor a claim of measured emotion or privileged access to the partner's mind.
+The small understanding/confusion sound follows existing sound settings and only
+plays on a newly arriving reaction, not snapshot refreshes. Coaching addresses
+you directly, with short practical advice; yellow calls out feedback and help.

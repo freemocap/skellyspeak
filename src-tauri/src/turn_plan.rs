@@ -66,6 +66,12 @@ pub const PLAN: &[Declaration] = &[
         role: "standard",
         contract_version: 1,
     },
+    Declaration {
+        kind: "coach_reaction",
+        dependencies: &["persona_reply"],
+        role: "standard",
+        contract_version: 1,
+    },
 ];
 
 pub const COACH_PLAN: &[Declaration] = &[

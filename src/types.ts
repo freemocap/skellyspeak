@@ -64,7 +64,7 @@ export interface OpenedConversation {
 export type AnalysisState = 'pending' | 'done' | null
 
 export interface PersonaReaction {
-  kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned'
+  kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned' | 'happy' | 'sad' | 'angry'
   interpretation: string
   explanation: string
 }

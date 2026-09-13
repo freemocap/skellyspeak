@@ -814,7 +814,7 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
             let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachReplies" }], |r|r.get(0))?;
@@ -833,6 +833,17 @@ impl Store {
                     .transpose()?;
                 (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,coalesce(json_extract(t.context,'$.coach_feedbackError'),json_extract(t.context,'$.coach_retry_checkError')) FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind IN ('coach_feedback','coach_retry_check') WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             } else {
+                let reaction: Option<String> = db.query_row(
+                    "SELECT json_extract(context,'$.partnerReaction') FROM turns WHERE id=?1",
+                    [&message.turn_id],
+                    |r| r.get(0),
+                )?;
+                message.reaction = reaction.map(|s| serde_json::from_str(&s)).transpose()?;
+                message.reaction_error = db.query_row(
+                    "SELECT json_extract(context,'$.coach_reactionError') FROM turns WHERE id=?1",
+                    [&message.turn_id],
+                    |r| r.get(0),
+                )?;
                 message.suggested_replies = saved.map(|s| serde_json::from_str(&s)).transpose()?;
                 (message.suggestions_state,message.suggestions_error) = db.query_row("SELECT o.state,json_extract(t.context,'$.coach_suggestionsError') FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='coach_suggestions' WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             }
@@ -929,7 +940,7 @@ impl Store {
                 attempts,
             });
         }
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         Ok(ConversationSnapshot {
             starter_cards: crate::openers::choices(self, conversation)?
@@ -1059,13 +1070,16 @@ impl Store {
             && kind != "user_translation"
             && kind != "coach_feedback"
             && kind != "coach_suggestions"
+            && kind != "coach_reaction"
         {
             return Err(fail("No executor for declared operation."));
         }
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let mut gloss_source = None;
         let coaching_schema = if kind.starts_with("coach_") && kind != "coach_reply" {
-            Some(if kind == crate::coaching::SUGGESTIONS {
+            Some(if kind == "coach_reaction" {
+                crate::partner_reaction::schema()
+            } else if kind == crate::coaching::SUGGESTIONS {
                 crate::coaching::schema(&kind)
             } else {
                 crate::coach_observation::schema(&captured, kind == "coach_retry_check")?
@@ -1073,7 +1087,9 @@ impl Store {
         } else {
             None
         };
-        let messages = if coaching_schema.is_some() {
+        let messages = if kind == "coach_reaction" {
+            crate::partner_reaction::prompt(&tx, &turn, &captured)?
+        } else if coaching_schema.is_some() {
             match crate::coaching::prompt(&tx, &turn, &kind, &captured) {
                 Ok(messages) => messages,
                 Err(error) => {
@@ -1266,9 +1282,12 @@ impl Store {
             Ok(output)
                 if kind == "coach_feedback"
                     || kind == "coach_retry_check"
-                    || kind == "coach_suggestions" =>
+                    || kind == "coach_suggestions"
+                    || kind == "coach_reaction" =>
             {
-                (if kind == crate::coaching::SUGGESTIONS {
+                (if kind == "coach_reaction" {
+                    crate::partner_reaction::validate(output)
+                } else if kind == crate::coaching::SUGGESTIONS {
                     crate::coaching::validate(&tx, &turn, &kind, output)
                 } else {
                     crate::coach_observation::validate(&tx, &turn, &kind, output)
@@ -1342,7 +1361,11 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if kind == "coach_feedback" || kind == "coach_retry_check" || kind == "coach_suggestions" {
+        if kind == "coach_feedback"
+            || kind == "coach_retry_check"
+            || kind == "coach_suggestions"
+            || kind == "coach_reaction"
+        {
             tx.execute(
                 "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
                 params![turn, format!("$.{kind}Error"), error],
@@ -1355,11 +1378,13 @@ impl Store {
         )?;
         if state == "succeeded" {
             if kind == "persona_reply" || kind == "persona_opening" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions') AND state='waiting_dependencies'", [&turn])?;
+                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction') AND state='waiting_dependencies'", [&turn])?;
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if kind == crate::coaching::SUGGESTIONS {
+                if kind == "coach_reaction" {
+                    tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1",params![turn,value.to_string()])?;
+                } else if kind == crate::coaching::SUGGESTIONS {
                     crate::coaching::publish(&tx, &turn, &kind, &value, &dispatch.attempt)?;
                 } else {
                     crate::coach_observation::publish(&tx, &turn, &value, &dispatch.attempt)?;
@@ -1862,7 +1887,7 @@ mod tests {
         isolate_user_reading(store);
         // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
         // exercised separately below with both automatic operations retained.
-        store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions') AND state='waiting_dependencies'", []).unwrap();
+        store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction') AND state='waiting_dependencies'", []).unwrap();
     }
     fn isolate_translation(store: &mut Store) {
         isolate_coaching(store);
@@ -3019,7 +3044,7 @@ mod tests {
         let contact = store.snapshot().unwrap().contacts[0].id.clone();
         apply(&mut store, Action::SetPaused { paused: true });
         let mut last = first;
-        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 6 {
+        for index in 0..=OUTSTANDING_NETWORK_LIMIT / 7 {
             if index > 0 {
                 last = apply(
                     &mut store,
@@ -3031,7 +3056,7 @@ mod tests {
                 .entity_id;
             }
             let command = send(&store, &last);
-            if index == OUTSTANDING_NETWORK_LIMIT / 6 {
+            if index == OUTSTANDING_NETWORK_LIMIT / 7 {
                 let before = store.snapshot().unwrap().revision;
                 assert_eq!(
                     store.execute(command).unwrap_err().code,
@@ -3049,8 +3074,8 @@ mod tests {
                 store.execute(command).unwrap();
             }
         }
-        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('persona_reply','reply_translation','persona_word_gloss','coach_feedback','coach_suggestions','user_word_gloss','user_translation')", [], |r| r.get(0)).unwrap();
-        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 6 * 6);
+        let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('persona_reply','reply_translation','persona_word_gloss','coach_feedback','coach_suggestions','coach_reaction','user_word_gloss','user_translation')", [], |r| r.get(0)).unwrap();
+        assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 7 * 7);
         assert_eq!(store.profile().unwrap().global.attempts, 0);
         assert!(store.dispatch().unwrap().is_none());
     }
@@ -3807,7 +3832,7 @@ mod tests {
         let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(snapshot.messages.len(), 1);
         assert_eq!(snapshot.turns.len(), 1);
-        assert_eq!(snapshot.turns[0].operations.len(), 7); // Suggestions are requested separately; read aloud is disabled in this fixture.
+        assert_eq!(snapshot.turns[0].operations.len(), 8); // Suggestions are requested separately; read aloud is disabled in this fixture.
     }
     #[test]
     fn gate_and_step_admit_one_operation_and_do_not_bank_extra_permits() {
@@ -5884,6 +5909,39 @@ mod tests {
             wave2_context(&store, &turn)["coachDecision"]["shown"]["explanation"],
             "Hidden corrected wording must not leak."
         );
+    }
+
+    #[test]
+    fn reaction_waits_for_reply_and_publishes_on_its_message() {
+        let (_dir, mut store, conversation) = setup();
+        let command = send(&store, &conversation);
+        let turn = store.execute(command).unwrap().entity_id;
+        assert!(store.dispatch().unwrap().is_none());
+        let persona = store.dispatch().unwrap().unwrap();
+        assert!(
+            !store
+                .conversation_snapshot(&conversation, None)
+                .unwrap()
+                .messages
+                .iter()
+                .any(|m| m.reaction.is_some())
+        );
+        store
+            .finish(&persona, Ok(reply("¿Qué quieres decir?")))
+            .unwrap();
+        store.connection.execute("UPDATE operations SET state='cancelled' WHERE turn_id=?1 AND kind NOT IN ('persona_context','persona_reply','coach_reaction')",[&turn]).unwrap();
+        let reaction = store.dispatch().unwrap().unwrap();
+        assert!(reaction.messages[1].content.contains("¿Qué quieres decir?"));
+        assert!(reaction.coaching_schema.as_ref().unwrap()["properties"]["kind"].is_object());
+        store.finish(&reaction,Ok(reply(r#"{"kind":"confused","interpretation":"Your partner asked you to clarify.","explanation":"Their question asks what you mean."}"#))).unwrap();
+        let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
+        assert!(snapshot.messages[0].reaction.is_none());
+        assert!(matches!(
+            snapshot.messages[1].reaction.as_ref().unwrap().kind,
+            crate::partner_reaction::ReactionKind::Confused
+        ));
+        let invalid = reply(r#"{"kind":"happy","interpretation":"","explanation":"Fine."}"#);
+        assert!(crate::partner_reaction::validate(&invalid).is_err());
     }
 
     #[test]

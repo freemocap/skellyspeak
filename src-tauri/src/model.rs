@@ -476,6 +476,8 @@ pub fn bindings() -> String {
         crate::coaching::CoachDecision::decl(&config),
         crate::coaching::CoachControl::decl(&config),
         crate::coaching::RetryCheck::decl(&config),
+        crate::partner_reaction::PartnerReaction::decl(&config),
+        crate::partner_reaction::ReactionKind::decl(&config),
         crate::coaching::RepairStatus::decl(&config),
         Opening::decl(&config),
         StarterCard::decl(&config),
@@ -589,6 +591,10 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    #[ts(optional)]
+    pub reaction: Option<crate::partner_reaction::PartnerReaction>,
+    #[ts(optional)]
+    pub reaction_error: Option<String>,
     pub coach_decision: Option<crate::coaching::CoachDecision>,
     pub turn_id: String,
     pub replaces_turn_id: Option<String>,

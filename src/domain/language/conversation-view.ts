@@ -21,6 +21,8 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
       Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
         ...(feedback ? { coach: feedback } : {}), ...(message.coachDecision ? { coachDecision: message.coachDecision } : {}) })
     } else if (message.role === 'assistant') {
+      turn.reaction = message.reaction ?? undefined
+      turn.reactionError = message.reactionError ?? undefined
       turn.assistant = {
         messageId: message.id,
         reply: message.text, translation: message.translation, translationState: message.translationState,

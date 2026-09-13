@@ -590,6 +590,7 @@ export default function GuidedPage({
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onToggleReveal={words.toggleReveal}
+              onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
               onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
                 await executeAction(snapshot, { kind: 'coachControl', turnId: selected.turnId, control, expectedRevision: snapshot.revision })

@@ -170,3 +170,15 @@ Message actions follow expanding content in normal layout flow.
 Suggested replies start collapsed behind “Show suggested replies.” Opening that
 control explicitly requests generation; sending a message does not schedule
 suggestion generation. Repeated requests share the existing operation.
+
+Coaching review reuses saved interactive sentence text, including anchored Arabic
+word groups, instead of separate vertical word/gloss lists. Learner and partner
+reading blocks use blue and green accents; correction cues use amber. Compact
+quote margins and panel spacing keep help beside the exchange. Both message
+action rows use Translate then Analysis, aligned to the same bubble inset.
+
+Partner replies receive a separate reaction evaluation after generation. An emoji
+on the bubble opens the interpretation and its evidence; missing results do not
+imply understanding. Reaction sounds respect existing settings. A failed coaching
+review offers Retry failed help, using the bounded native turn retry: successful
+reply/content remain intact and failed assistance operations are retried.

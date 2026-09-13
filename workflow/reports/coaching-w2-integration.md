@@ -208,3 +208,40 @@ diagnostics confirm successful workspace/settings/evidence IPC. No new provider
 request was made for this verification. Partner response naturalness remains
 unverified against a live model; the earlier approval-review block still applies.
 Wave 2 changes remain uncommitted; this is not a Wave 3 completion claim.
+
+### Coaching density and saved text reuse — 2026-09-13
+
+Replaced the feedback dialog's vertical definition list and the analysis pane's
+duplicated token lists with AnalysisSentence, which reuses SavedGlossText and
+AnnotatedText. Saved source text, anchors, click-to-reveal help and Arabic joining
+remain intact. Removed duplicate source text in the feedback dialog. Blue learner
+and green partner blocks distinguish the exchange; amber cues distinguish help.
+Tightened coaching padding, blockquote margins and analysis spacing. Removed the
+learner bubble's whole-row edit gutter and made Translate/Analysis ordering match.
+Browser fixture inspected with real saved word data and expanded translations,
+then the feedback dialog. No provider requests or phone testing in this pass.
+562 existing frontend tests passed; the added Arabic analysis-sentence test passed
+after fixing its ambiguous assertion (563 distinct passing tests). Production
+build and styles checks passed. Native code is unchanged by this visual pass.
+
+### Direct coaching and partner reactions — 2026-09-13
+
+Screenshot failure is a rejected empty evidence quote. Exact-source validation
+remains intact; strengthened omission instructions and added explicit bounded
+Retry failed help. No claim that prompt changes guarantee future valid output.
+Coaching now explicitly addresses you, prohibits third-person assessment prose,
+and requests one or two practical sentences. Existing saved text is unchanged.
+Yellow accents distinguish help and feedback controls.
+
+Found the reaction presentation and sound existed without a native producer. Added
+a dependent coach_reaction operation reading the actual learner message and partner
+reply, bounded structured validation, source-linked snapshot projection, and the
+clickable emoji explanation. This costs one additional helper generation per new
+exchange. No retroactive requests for old exchanges. Happy/sad/angry join existing
+understood/confused/curious/surprised/concerned possibilities. Treat all as tentative
+interpretations. Stable content comparison prevents sound replay on snapshot refresh.
+
+Verification: 289 native tests pass, plus the focused reaction pipeline test (290
+distinct passing); the live-provider test remains ignored. Frontend suite, build,
+styles and strict Clippy checked. Restarted desktop with new native executable.
+Wave 2 remains in stabilization, uncommitted; Wave 3 has not begun.
