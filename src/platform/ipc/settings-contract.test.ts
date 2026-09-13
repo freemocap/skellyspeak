@@ -11,7 +11,7 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 function directory(): Snapshot {
   return {
     sessionId: 'session', revision: 20,
-    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
+    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { theme: 'dark', explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'fr' : 'es', title: id,
@@ -190,4 +190,14 @@ it('refreshes and retries a native preference revision conflict', async () => {
   })
   await saveSettings({ ...baseline, auto_translate: false }, baseline)
   expect(attempts).toBe(2)
+})
+
+it.each(['light', 'dark', 'system'] as const)('saves %s appearance to the learner without changing conversation settings', async theme => {
+  const settings = await getSettings()
+  await saveSettings({ ...settings, theme })
+  if (theme === 'dark') expect(commands()).toEqual([])
+  else expect(commands().map(command => command.action)).toEqual([{
+    kind: 'updateLearner', expectedRevision: 9, name: 'Learner',
+    preferences: { ...workspace.learner.preferences, theme },
+  }])
 })

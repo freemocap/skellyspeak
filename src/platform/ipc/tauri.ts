@@ -89,7 +89,7 @@ export async function getSettings(): Promise<Settings> {
     target_language: conversation.languageId, target_dialect: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
-    auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
+    theme: preferences.theme ?? 'light', auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
     microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
     reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
@@ -149,7 +149,7 @@ async function writeSettings(settings: Settings): Promise<void> {
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
     autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: conversation.settings.speechVoice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
-  const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing }
+  const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)
   const displayChanged = JSON.stringify(preferences) !== JSON.stringify(snapshot.learner.preferences)
   if (settings.target_language !== conversation.languageId) {
@@ -161,7 +161,7 @@ async function writeSettings(settings: Settings): Promise<void> {
       const owner = selectedConversation(fresh, settings.target_language)
       if (!owner) throw new Error('The selected language conversation is unavailable.')
       if (nativeChanged) await executeAction(fresh, { kind: 'updateSettings', conversationId: owner.id, expectedRevision: owner.settingsRevision, settings: { ...owner.settings, explanationLanguage: settings.native_language } })
-      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences: { ...fresh.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing } })
+      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences: { ...fresh.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) } })
     }
     return
   }

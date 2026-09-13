@@ -14,10 +14,9 @@
      3. Semantic tokens are named for the ROLE they play, not the value they
         hold, so a value can change without touching a component. Two roles may
         share one primitive.
-     4. SkellySpeak is two-toned, not themed. --shell-* is the dark navy chrome
-        and --paper-* is the light conversation canvas; both are on screen at
-        once. A token that reads on one is not automatically valid on the
-        other, which is why every feedback role carries both variants.
+     4. Surface roles share a graphite or warm-paper theme. Historical shell
+        and paper names remain semantic aliases so every surface changes
+        together. Domain fill and readable domain ink are separate roles.
      5. Media queries cannot read custom properties, so breakpoints are not
         tokens. The permitted set is BREAKPOINTS in scripts/check-styles.ts.
      6. Every custom property is declared here, including the ones TypeScript
@@ -85,7 +84,7 @@
   --c-blue-560: #6286b9;
   --c-blue-580: #6384b1;
   --c-blue-600: #3c78b5;
-  --c-blue-650: #315fdf;
+  --c-blue-650: #6240b5;
   --c-blue-660: #3d5a80;
   --c-blue-680: #35557b;
   --c-blue-700: #294f84;
@@ -139,54 +138,136 @@
   --c-stripe-mauve: #ad80b4;
   --c-stripe-green: #4ba57b;
 
+
+  /* Living Spectrum theme palette: neutral surfaces let evidence carry hue. */
+  --c-spectrum-bg: #e8e2d4;
+  --c-spectrum-chrome: #f6f2e8;
+  --c-spectrum-sheet: #fffdf8;
+  --c-spectrum-card: #fbf8f0;
+  --c-spectrum-dock: #f8f5ec;
+  --c-spectrum-quiet: #f3eee1;
+  --c-spectrum-chip: #e8e2d2;
+  --c-spectrum-field: #ffffff;
+  --c-spectrum-track: #e2dac6;
+  --c-spectrum-line: #b4a991;
+  --c-spectrum-line-soft: #dcd3be;
+  --c-spectrum-ink: #1f1c17;
+  --c-spectrum-ink-2: #3a3630;
+  --c-spectrum-ink-3: #5c564b;
+  --c-spectrum-partner-top: #fff4e3;
+  --c-spectrum-partner-line: #cbb28e;
+  --c-spectrum-well-top: #dfd8e8;
+  --c-spectrum-well-bottom: #dbd4c5;
+  --c-domain-social: #e08a2e;
+  --c-domain-ink-social: #8a4e0a;
+  --c-domain-questions: #d9564f;
+  --c-domain-ink-questions: #922c2a;
+  --c-domain-opinions: #c0519b;
+  --c-domain-ink-opinions: #822f66;
+  --c-domain-statements: #3d7bd6;
+  --c-domain-ink-statements: #1f4785;
+  --c-domain-descriptions: #7d5bd4;
+  --c-domain-ink-descriptions: #4e3590;
+  --c-domain-situating: #1e9c8e;
+  --c-domain-ink-situating: #0e5c53;
+
   /* ══ Semantic roles ══════════════════════════════════════════════════════ */
 
+  --bg: var(--c-spectrum-bg);
+  --chrome: var(--c-spectrum-chrome);
+  --sheet: var(--c-spectrum-sheet);
+  --card: var(--c-spectrum-card);
+  --dock: var(--c-spectrum-dock);
+  --quiet: var(--c-spectrum-quiet);
+  --chip: var(--c-spectrum-chip);
+  --field: var(--c-spectrum-field);
+  --track: var(--c-spectrum-track);
+  --line: var(--c-spectrum-line);
+  --line-soft: var(--c-spectrum-line-soft);
+  --ink: var(--c-spectrum-ink);
+  --ink-2: var(--c-spectrum-ink-2);
+  --ink-3: var(--c-spectrum-ink-3);
+  --partner-top: var(--c-spectrum-partner-top);
+  --partner-line: var(--c-spectrum-partner-line);
+  --well-top: var(--c-spectrum-well-top);
+  --well-bottom: var(--c-spectrum-well-bottom);
+  --well: linear-gradient(180deg, var(--well-top), var(--well-bottom) 62%);
+  --sheet-shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 18%);
+  --card-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+  --well-shadow: inset 0 2px 8px rgb(0 0 0 / 20%);
+  --field-shadow: inset 0 1px 3px rgb(0 0 0 / 12%);
+  --d-social: var(--c-domain-social);
+  --di-social: var(--c-domain-ink-social);
+  --dm-social: color-mix(in srgb, var(--d-social) 65%, var(--sheet));
+  --tint-social: color-mix(in srgb, var(--d-social) 16%, transparent);
+  --d-questions: var(--c-domain-questions);
+  --di-questions: var(--c-domain-ink-questions);
+  --dm-questions: color-mix(in srgb, var(--d-questions) 65%, var(--sheet));
+  --tint-questions: color-mix(in srgb, var(--d-questions) 16%, transparent);
+  --d-opinions: var(--c-domain-opinions);
+  --di-opinions: var(--c-domain-ink-opinions);
+  --dm-opinions: color-mix(in srgb, var(--d-opinions) 65%, var(--sheet));
+  --tint-opinions: color-mix(in srgb, var(--d-opinions) 16%, transparent);
+  --d-statements: var(--c-domain-statements);
+  --di-statements: var(--c-domain-ink-statements);
+  --dm-statements: color-mix(in srgb, var(--d-statements) 65%, var(--sheet));
+  --tint-statements: color-mix(in srgb, var(--d-statements) 16%, transparent);
+  --d-descriptions: var(--c-domain-descriptions);
+  --di-descriptions: var(--c-domain-ink-descriptions);
+  --dm-descriptions: color-mix(in srgb, var(--d-descriptions) 65%, var(--sheet));
+  --tint-descriptions: color-mix(in srgb, var(--d-descriptions) 16%, transparent);
+  --d-situating: var(--c-domain-situating);
+  --di-situating: var(--c-domain-ink-situating);
+  --dm-situating: color-mix(in srgb, var(--d-situating) 65%, var(--sheet));
+  --tint-situating: color-mix(in srgb, var(--d-situating) 16%, transparent);
+
   /* ── Shell surfaces (dark chrome) ─────────────────────────────────────── */
-  --shell-bg: var(--c-navy-950);
-  --shell-sunken: var(--c-navy-950);
-  --shell-well: var(--c-navy-900);
-  --shell-chrome: var(--c-navy-850);
-  --shell-overlay: var(--c-navy-850);
-  --shell-raised: var(--c-navy-800);
+  --shell-bg: var(--bg);
+  --shell-sunken: var(--field);
+  --shell-well: var(--card);
+  --shell-chrome: var(--chrome);
+  --shell-overlay: var(--card);
+  --shell-raised: var(--card);
   --shell-scrim: rgb(5 9 15 / 72%);
 
   /* ── Shell lines ──────────────────────────────────────────────────────── */
-  --shell-line: var(--c-navy-700);
-  --shell-line-strong: var(--c-navy-400);
-  --brand-line: var(--c-navy-550);
+  --shell-line: var(--line-soft);
+  --shell-line-strong: var(--line);
+  --brand-line: var(--line);
 
   /* ── Shell text ───────────────────────────────────────────────────────── */
-  --shell-text-strong: var(--c-ink-0);
-  --shell-text: var(--c-ink-50);
-  --shell-text-muted: var(--c-ink-200);
-  --shell-text-faint: var(--c-ink-300);
+  --shell-text-strong: var(--ink);
+  --shell-text: var(--ink);
+  --shell-text-muted: var(--ink-2);
+  --shell-text-faint: var(--ink-3);
   --ink-on-fill: var(--c-paper-50);
+  --ink-on-domain: var(--c-paper-50);
 
   /* ── Paper surfaces (light canvas) ────────────────────────────────────── */
-  --paper-raised: var(--c-paper-50);
-  --paper-highlight: var(--c-paper-90);
-  --paper-bg: var(--c-paper-100);
-  --paper-sunken: var(--c-paper-150);
+  --paper-raised: var(--field);
+  --paper-highlight: var(--quiet);
+  --paper-bg: var(--sheet);
+  --paper-sunken: var(--chrome);
 
   /* ── Paper lines ──────────────────────────────────────────────────────── */
-  --paper-line: var(--c-paper-300);
-  --paper-line-strong: var(--c-paper-400);
-  --paper-line-quiet: var(--c-ink-250);
-  --paper-line-deep: var(--c-ink-400);
+  --paper-line: var(--line-soft);
+  --paper-line-strong: var(--line);
+  --paper-line-quiet: var(--line);
+  --paper-line-deep: var(--ink-3);
 
   /* ── Paper text ───────────────────────────────────────────────────────── */
-  --paper-ink: var(--c-ink-900);
-  --paper-ink-soft: var(--c-ink-700);
-  --paper-ink-muted: var(--c-ink-600);
+  --paper-ink: var(--ink);
+  --paper-ink-soft: var(--ink-2);
+  --paper-ink-muted: var(--ink-3);
 
   /* ── Conversation bubbles ─────────────────────────────────────────────── */
-  --bubble-partner-bg: var(--c-paper-80);
-  --bubble-partner-line: var(--c-green-600);
-  --bubble-partner-line-focus: var(--c-green-650);
-  --bubble-learner-bg: var(--c-blue-200);
-  --bubble-learner-line: var(--c-blue-560);
-  --bubble-learner-ink: var(--c-blue-850);
-  --bubble-learner-ink-muted: var(--c-blue-660);
+  --bubble-partner-bg: linear-gradient(180deg, var(--partner-top), var(--sheet));
+  --bubble-partner-line: var(--partner-line);
+  --bubble-partner-line-focus: var(--di-social);
+  --bubble-learner-bg: var(--quiet);
+  --bubble-learner-line: var(--line);
+  --bubble-learner-ink: var(--ink);
+  --bubble-learner-ink-muted: var(--ink-3);
 
   /* ── Conversation stripes ─────────────────────────────────────────────── */
   --chat-stripe-0: var(--c-stripe-teal);
@@ -196,44 +277,44 @@
   --chat-stripe-4: var(--c-stripe-green);
 
   /* ── Accent ───────────────────────────────────────────────────────────── */
-  --accent: var(--c-blue-500);
+  --accent: var(--d-descriptions);
   --accent-strong: var(--c-blue-650);
-  --accent-ink: var(--c-blue-800);
-  --accent-ink-deep: var(--c-blue-900);
-  --accent-soft: var(--c-blue-100);
-  --accent-soft-ink: var(--c-blue-300);
-  --accent-surface: var(--c-ink-50);
-  --accent-surface-hover: var(--c-blue-150);
-  --accent-line: var(--c-blue-470);
-  --accent-line-strong: var(--c-blue-600);
-  --accent-edge: var(--c-ink-180);
-  --accent-edge-strong: var(--c-blue-580);
-  --accent-edge-deep: var(--c-blue-700);
-  --accent-label: var(--c-blue-680);
+  --accent-ink: var(--di-descriptions);
+  --accent-ink-deep: var(--di-descriptions);
+  --accent-soft: var(--chip);
+  --accent-soft-ink: var(--di-descriptions);
+  --accent-surface: var(--quiet);
+  --accent-surface-hover: var(--chip);
+  --accent-line: var(--line);
+  --accent-line-strong: var(--d-descriptions);
+  --accent-edge: var(--line);
+  --accent-edge-strong: var(--d-statements);
+  --accent-edge-deep: var(--di-statements);
+  --accent-label: var(--di-statements);
   --accent-dim: color-mix(in srgb, var(--c-blue-500) 15%, transparent);
-  --focus-accent: var(--c-blue-540);
-  --reaction-line: var(--c-blue-520);
-  --xp-ink: var(--c-blue-830);
+  --focus-accent: var(--d-descriptions);
+  --reaction-line: var(--line);
+  --xp-ink: var(--di-statements);
 
   /* ── Analysis pane (dark) ─────────────────────────────────────────────── */
-  --analysis-surface: var(--c-navy-900);
-  --analysis-raised: var(--c-navy-800);
-  --analysis-selected: var(--c-navy-600);
-  --analysis-line: var(--c-navy-500);
-  --analysis-ink: var(--c-ink-20);
-  --analysis-ink-muted: var(--c-ink-100);
-  --analysis-ink-dim: var(--c-ink-150);
-  --analysis-accent: var(--c-blue-400);
-  --analysis-accent-soft: var(--c-blue-350);
-  --analysis-accent-dim: var(--c-blue-250);
-  --analysis-accent-line: var(--c-blue-450);
-  --analysis-accent-deep: var(--c-navy-650);
-  --analysis-star: var(--c-amber-200);
+  --analysis-surface: var(--card);
+  --analysis-raised: var(--card);
+  --analysis-selected: var(--chip);
+  --analysis-line: var(--line);
+  --analysis-ink: var(--ink);
+  --analysis-ink-muted: var(--ink-2);
+  --analysis-ink-dim: var(--ink-3);
+  --analysis-accent: var(--di-statements);
+  --analysis-accent-soft: var(--di-statements);
+  --analysis-accent-dim: var(--di-descriptions);
+  --analysis-accent-line: var(--d-statements);
+  --analysis-accent-deep: var(--quiet);
+  --analysis-star: var(--di-social);
 
   /* ── Detail dialogs and overlays ──────────────────────────────────────── */
-  --detail-line: var(--c-navy-300);
-  --detail-ink: var(--c-ink-20);
-  --detail-input-line: var(--c-ink-350);
+  --detail-line: var(--line);
+  --detail-ink: var(--ink);
+  --detail-input-line: var(--line);
   --detail-scrim: rgb(9 17 26 / 53%);
   --drawer-scrim: rgb(6 11 18 / 55%);
   --map-mask: rgb(9 17 26 / 72%);
@@ -241,11 +322,11 @@
 
   /* ── Feedback: danger ─────────────────────────────────────────────────── */
   --danger: var(--c-red-400);
-  --danger-text: var(--c-red-550);
-  --danger-ink: var(--c-red-800);
-  --danger-deep: var(--c-red-720);
+  --danger-text: var(--di-questions);
+  --danger-ink: var(--di-questions);
+  --danger-deep: var(--di-questions);
   --danger-line: var(--c-red-500);
-  --danger-tint: var(--c-red-100);
+  --danger-tint: var(--quiet);
   --danger-edge: var(--c-amber-400);
   --danger-edge-soft: var(--c-red-450);
   --danger-fill: var(--c-red-600);
@@ -260,19 +341,19 @@
 
   /* ── Feedback: success ────────────────────────────────────────────────── */
   --success: var(--c-green-500);
-  --success-ink: var(--c-green-800);
-  --success-soft: var(--c-green-200);
+  --success-ink: var(--di-situating);
+  --success-soft: var(--di-situating);
   --success-edge: var(--c-green-400);
-  --success-surface: var(--c-green-100);
+  --success-surface: var(--quiet);
   --success-line: var(--c-green-300);
-  --success-deep: var(--c-green-700);
-  --success-deepest: var(--c-green-900);
+  --success-deep: var(--di-situating);
+  --success-deepest: var(--di-situating);
 
   /* ── Feedback: warning ────────────────────────────────────────────────── */
-  --warning: var(--c-amber-300);
-  --warning-strong: var(--c-amber-500);
-  --warning-ink: var(--c-amber-700);
-  --warning-soft: var(--c-amber-100);
+  --warning: var(--di-social);
+  --warning-strong: var(--d-social);
+  --warning-ink: var(--di-social);
+  --warning-soft: var(--quiet);
   --warning-dim: color-mix(in srgb, var(--c-amber-500) 10%, transparent);
   --warning-ring: color-mix(in srgb, var(--c-amber-300) 55%, transparent);
   --warning-ring-clear: color-mix(in srgb, var(--c-amber-300) 0%, transparent);
@@ -413,10 +494,47 @@
 
      The reading values are set on documentElement, so the defaults below are
      what a surface reads before any settings have loaded. */
+  /* Guided split width, written by GuidedPage’s keyboard/pointer divider. */
+  --chat-share: 50%;
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;
   --domain-color: var(--accent);
   --node-color: var(--accent);
   --node-scale: 1;
+}
+
+/* Same roles, warm-paper values. Muted text remains readable at small sizes. */
+:root[data-theme='dark'] {
+  --ink-on-domain: var(--c-spectrum-bg);
+  --c-spectrum-bg: #141517;
+  --c-spectrum-chrome: #1b1d20;
+  --c-spectrum-sheet: #24262a;
+  --c-spectrum-card: #202227;
+  --c-spectrum-dock: #191b1e;
+  --c-spectrum-quiet: #131416;
+  --c-spectrum-chip: #2b2e33;
+  --c-spectrum-field: #111214;
+  --c-spectrum-track: #343a41;
+  --c-spectrum-line: #454b53;
+  --c-spectrum-line-soft: #343a41;
+  --c-spectrum-ink: #f0f1f3;
+  --c-spectrum-ink-2: #d3d6da;
+  --c-spectrum-ink-3: #a3a8af;
+  --c-spectrum-partner-top: #32291b;
+  --c-spectrum-partner-line: #695339;
+  --c-spectrum-well-top: #211b2c;
+  --c-spectrum-well-bottom: #101113;
+  --c-domain-social: #f0a957;
+  --c-domain-ink-social: #f0a957;
+  --c-domain-questions: #f07a72;
+  --c-domain-ink-questions: #f07a72;
+  --c-domain-opinions: #de7bbb;
+  --c-domain-ink-opinions: #de7bbb;
+  --c-domain-statements: #6fa3ea;
+  --c-domain-ink-statements: #6fa3ea;
+  --c-domain-descriptions: #a585e8;
+  --c-domain-ink-descriptions: #bfa4f0;
+  --c-domain-situating: #3fc0af;
+  --c-domain-ink-situating: #3fc0af;
 }

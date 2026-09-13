@@ -3,26 +3,25 @@ import { expect, it } from 'vitest'
 
 const tokens = readFileSync(new URL('../../styles/tokens.css', import.meta.url), 'utf8')
 
-/// Token name -> declared value. Reading the whole sheet rather than
-/// pattern-matching one line lets a colour be followed through the alias chain
-/// (--shell-text -> --c-ink-50), which is how the palette is written.
-const declared = new Map<string, string>()
-for (const match of tokens.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) declared.set(match[1], match[2].trim())
-
+// Resolve the default table and each explicit override independently: scanning
+// the entire sheet as one map would silently test only the last theme.
+const defaults = tokens.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1]
+const dark = tokens.match(/:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\}/)?.[1]
+if (!defaults || !dark) throw new Error('Missing theme tables')
+function table(source: string) {
+  return new Map([...source.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)].map(match => [match[1], match[2].trim()]))
+}
+const themes = { light: table(defaults), dark: table(defaults + dark) }
 const aliasPattern = /^var\(\s*--([\w-]+)\s*\)$/
-
-/// The colour a token actually renders as. Fails loudly when a token resolves
-/// only to another token: contrast cannot be measured against an indirection.
-function color(name: string, depth = 0): string {
-  const value = declared.get(name)
+function color(theme: keyof typeof themes, name: string, depth = 0): string {
+  const value = themes[theme].get(name.match(aliasPattern)?.[1] ?? name)
   if (value === undefined) throw new Error('Missing palette color: ' + name)
   const alias = value.match(aliasPattern)
   if (alias) {
     if (depth > 10) throw new Error('Token cycle while resolving --' + name)
-    return color(alias[1], depth + 1)
+    return color(theme, alias[1], depth + 1)
   }
-  if (!/^#[0-9a-f]{6}$/i.test(value))
-    throw new Error('Token --' + name + ' does not resolve to a six-digit hex colour: ' + value)
+  if (!/^#[0-9a-f]{6}$/i.test(value)) throw new Error('Non-hex color: ' + name + ': ' + value)
   return value
 }
 function luminance(hex: string): number {
@@ -34,24 +33,28 @@ function contrast(a: string, b: string): number {
   const values = [luminance(a), luminance(b)].sort((x, y) => x - y)
   return (values[1] + 0.05) / (values[0] + 0.05)
 }
-it('keeps shared secondary text readable on its dark and paper surfaces', () => {
-  for (const text of ['shell-text', 'shell-text-muted', 'shell-text-faint']) {
-    for (const background of ['shell-bg', 'shell-sunken', 'shell-well', 'shell-chrome', 'shell-overlay', 'shell-raised']) {
-      expect(contrast(color(text), color(background)), `${text} on ${background}`).toBeGreaterThanOrEqual(4.5)
+for (const theme of ['dark', 'light'] as const) {
+  const c = (name: string) => color(theme, name)
+  it(`keeps primary, secondary and action text readable in ${theme}`, () => {
+    for (const text of ['shell-text', 'shell-text-muted', 'shell-text-faint']) {
+      for (const background of ['shell-bg', 'shell-sunken', 'shell-well', 'shell-chrome', 'shell-overlay', 'shell-raised', 'well-top', 'well-bottom']) {
+        expect(contrast(c(text), c(background)), `${text} on ${background}`).toBeGreaterThanOrEqual(4.5)
+      }
     }
-  }
-  for (const background of [color('paper-bg'), color('paper-sunken'), '#e9e5d8']) {
-    expect(contrast(color('paper-ink-muted'), background)).toBeGreaterThanOrEqual(4.5)
-  }
-  expect(contrast(color('ink-on-fill'), color('accent-strong'))).toBeGreaterThanOrEqual(4.5)
-})
-
-it('keeps domain evidence text and XP badge text readable without using domain colors as small dark-surface text', async () => {
-  const { domainColors } = await import('./skill-domains')
-  for (const domain of ['social', 'descriptions', 'statements', 'situating', 'questions', 'opinions']) {
-    const palette = domainColors(domain)
-    expect(contrast(palette.ink, color('paper-bg')), `${domain} on paper`).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(palette.ink, color('bubble-learner-bg')), `${domain} on user bubble`).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(color('ink-on-fill'), palette.ink), `${domain} XP badge`).toBeGreaterThanOrEqual(4.5)
-  }
-})
+    for (const background of ['paper-bg', 'paper-sunken', 'bubble-learner-bg', 'partner-top']) {
+      expect(contrast(c('paper-ink-muted'), c(background))).toBeGreaterThanOrEqual(4.5)
+    }
+    expect(contrast(c('ink-on-fill'), c('accent-strong'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(c('danger-ink'), c('paper-raised'))).toBeGreaterThanOrEqual(4.5)
+  })
+  it(`keeps evidence and XP badge text readable in ${theme}`, async () => {
+    const { domainColors } = await import('./skill-domains')
+    for (const domain of ['social', 'descriptions', 'statements', 'situating', 'questions', 'opinions']) {
+      const palette = domainColors(domain)
+      for (const background of ['paper-bg', 'bubble-learner-bg', 'shell-raised']) {
+        expect(contrast(c(palette.ink), c(background)), `${domain} on ${background}`).toBeGreaterThanOrEqual(4.5)
+      }
+      expect(contrast(c('ink-on-domain'), c(palette.ink)), `${domain} XP badge`).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+}

@@ -441,6 +441,10 @@ export function SettingsModal({
         </div>
       ),
     },
+    theme: {
+      section: 'reading', label: 'Appearance', kw: 'theme light dark system appearance',
+      node: <div className="form-row"><label htmlFor="appearance-theme">Appearance</label><select id="appearance-theme" value={settings.theme ?? 'light'} onChange={event=>setSettings({...settings,theme:event.target.value as 'light'|'dark'|'system'})}><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></div>,
+    },
     text_size: {
       section: 'reading', label: 'Text size', kw: 'font text size reading display accessibility',
       node: <div className="form-row"><label htmlFor="reading-size">Text size · {settings.text_size}%</label>
@@ -540,7 +544,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
