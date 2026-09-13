@@ -1,4 +1,3 @@
-mod model_routing;
 mod access;
 mod admission;
 #[cfg(desktop)]
@@ -24,6 +23,7 @@ pub mod languages;
 pub mod learner_state;
 pub mod linguistics;
 pub mod model;
+mod model_routing;
 pub mod partner_reaction;
 mod persona;
 mod persona_prompt;

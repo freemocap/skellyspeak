@@ -103,7 +103,7 @@ run `adb reverse tcp:8765 tcp:8765`; the device may then use
 
 ## Publish a release
 
-The user chooses the next unreleased semantic version and performs all Git writes.
+The user authorizes a release version or bump; agents may perform the Git writes.
 Require green CI before merging into `main`, then confirm CI on the merged commit.
 From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
@@ -158,7 +158,7 @@ retain the distributed application's identity and signing continuity.
 For subsequent releases, run `node scripts/release.ts patch` on a clean, current
 `main` checkout with Node 24, Cargo and authenticated Git access. It bumps both
 Cargo files, commits, tags and pushes. `--dry-run` skips writes except fetching
-remote state; `--no-push` performs local Git writes only. The user runs these commands.
+remote state; `--no-push` performs local Git writes only.
 
 ## Start talking
 

@@ -596,8 +596,7 @@ mod tests {
             schema: &schema,
         };
         assert!(
-            payload_with_output("chosen/model", &messages, ConnectionRoute::Custom, output)
-                .is_ok()
+            payload_with_output("chosen/model", &messages, ConnectionRoute::Custom, output).is_ok()
         );
         assert!(
             payload_with_output("chosen/model", &[], ConnectionRoute::Openrouter, output).is_err()

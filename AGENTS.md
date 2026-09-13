@@ -4,8 +4,8 @@
 
 Implementation is authorized following review of `BUILD-PLAN.md`. Proceed through
 its phases, starting with the durable local foundation. Keep implemented behavior,
-verification results and future work distinct. Deployment and Git writes are not
-authorized by local implementation approval.
+verification results and future work distinct. Routine Git writes and version
+bumps are authorized as described below. Deployment requires explicit authorization.
 
 The active design lives in `DESIGN.md`. Keep proposals, decisions and unresolved
 questions distinct. Discuss ownership and user behavior before choosing storage,
@@ -73,8 +73,19 @@ code, `[@key]` in docs). When research informs a change, add its entry with `url
 
 ## Git
 
-Git is read-only for agents. Never commit, push, tag, branch, stage, reset,
-checkout, stash or change Git configuration. The user performs all Git writes.
+Agents may stage changes, create commits, create and switch branches, merge,
+push commits to the configured remote, bump versions and create and push release
+tags as part of authorized work, without repeat confirmation. Keep version
+metadata and lockfiles consistent, run relevant checks before committing, and
+summarize commits, version changes and pushes performed.
+
+Inspect the working tree first and preserve unrelated user changes. Do not
+include unrelated changes in commits. Destructive operations (including force
+pushes, discarding changes, deleting branches or tags, and rewriting published
+history) require explicit user authorization. Do not change Git configuration
+without explicit authorization. Publishing packages and deploying applications
+require explicit authorization; permission to push commits or tags alone does
+not authorize triggering a known publishing or deployment workflow.
 
 ## Quality
 
