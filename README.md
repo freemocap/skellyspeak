@@ -116,47 +116,39 @@ node scripts/release.ts "$next_version"
 The script updates the Cargo versions, commits, tags and pushes. It refuses an
 existing tag. Merging alone does not publish.
 
-The tag starts the Release workflow: checks, signed desktop installers and updater
-artifacts, signed Android APK/AAB, and an App Store distribution-signed iOS IPA.
-Publication as Latest requires all of those jobs to succeed and verifies the IPA
-attachment exists. PR CI also builds an Android debug ARM64 APK and an unsigned
-iOS simulator app without release secrets.
-The website rebuilds after a successful release and its download page selects the
-current stable APK for Android visitors.
+The tag starts the Release workflow for checks, signed desktop installers,
+updater artifacts and signed Android APK/AAB. These publish as Latest when their
+jobs succeed. The independent **iOS distribute** workflow builds a signed IPA,
+attaches it to the same release and uploads it to TestFlight. Its failure remains
+visible but does not block desktop or Android publication. PR CI also builds an
+Android debug ARM64 APK and an unsigned iOS simulator app without release secrets.
+The website rebuilds after a successful Release run.
 
-### iOS release artifact
+### iOS distribution
 
-Download `SkellySpeak_X.Y.Z.ipa` from the GitHub release for manual upload to App
-Store Connect using Transporter. The same verified file is retained for 14 days
-as the Release run's `ios-ipa` Actions artifact. The workflow builds and attaches
-the file; it does not upload to Apple or submit an App Store review.
+The v0 iOS distribution workflow has been restored at the user's request. It
+stages a temporary signing keychain and provisioning profile, injects manual Xcode
+signing settings, writes ExportOptions.plist, and runs Tauri's App Store export.
+It verifies the signature, bundle identity, build number, microphone permission,
+debugging entitlement and signing team before retaining `ios-ipa` for 14 days.
+Separate jobs attach `SkellySpeak_X.Y.Z.ipa` to the matching release, then upload it
+to App Store Connect, waiting for processing. TestFlight requires successful release
+attachment first; manual TestFlight dispatch therefore requires `release_tag`. Apple controls tester distribution
+and review. Manual dispatch can build without either upload.
 
-The iOS job uses the existing repository secrets `IOS_CERTIFICATE_P12` (base64
-distribution certificate with private key), `IOS_CERTIFICATE_PASSWORD`, and
-`IOS_PROVISION_PROFILE` (base64 App Store provisioning profile). The certificate
-and profile must belong to team `U8LBJLBYPR` and application
-`com.freemocap.skellyspeak`. Missing credentials, expired/wrong profiles, signing
-failures and missing or misversioned artifacts fail the release. Signing material
-is staged in a temporary keychain and removed with an always-run cleanup step.
+Signing uses `IOS_CERTIFICATE_P12`, `IOS_CERTIFICATE_PASSWORD` and
+`IOS_PROVISION_PROFILE` for team `U8LBJLBYPR`, app `com.freemocap.skellyspeak`.
+TestFlight uses repository variables `APPSTORE_ISSUER_ID`, `APPSTORE_API_KEY_ID`,
+`APPSTORE_USES_NON_EXEMPT_ENCRYPTION` and secret `APPSTORE_API_PRIVATE_KEY`.
+Missing configuration fails explicitly. Signing credentials are removed in an
+always-run cleanup step. Cargo supplies the marketing version; the standalone
+workflow run number plus attempt supplies the iOS build number.
 
-Cargo supplies the marketing version. `CFBundleVersion` is the Release workflow's
-run number plus attempt (`123.2`), so rerunning a failed job gives a fresh build
-number. Export preserves both values, and the final IPA is checked for both.
-The helper rejects run numbers above 9999 or attempts above 99; revising that
-scheme would require a deliberate change before reaching either limit.
-
-Recovery status: v1.1.1 was published without an IPA because the refactor moved
-the iOS workflows into `old/`. The integrated replacement has local helper tests,
-workflow lint and icon verification; its first GitHub signed build and App Store
-Connect acceptance remain unverified. Include these source changes in the next
-user-created release. Rerunning the original v1.1.1 workflow cannot pick up this
-fix, and the release workflow intentionally refuses to overwrite a published release.
-
-Build/sign/export follows Tauri's App Store distribution contract
-[@tauriIosSigning]. The explicit Xcode signing settings and `ExportOptions.plist`
-avoid the documented Tauri provisioning-profile reader problem
-[@tauriIosExport15741]. See [the iOS recovery report](workflow/reports/ios-release-recovery.md)
-for verification scope and the reference review.
+The v1.21.1 signed archive and export succeeded; its added verification helper
+failed on a dotted entitlement key. The restored workflow uses v0's codesign
+team check instead. Local verification does not establish that the restored
+workflow has passed on GitHub or that Apple has accepted a new build. See
+[the restoration report](workflow/reports/ios-v0-workflow-restoration.md).
 
 Desktop release builds install signed updates through the app. Android opens
 https://docs.freemocap.org/skellyspeak/download for APK installation. Debug builds

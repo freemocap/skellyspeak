@@ -823,3 +823,12 @@ and version metadata. Raw internal context, credentials and provider payloads ar
 excluded. Both actions use the same native serializer and read current saved data
 on demand, without an AI request. Preview renders literal text; saving creates a
 new file in Downloads and reports its path or an explicit error.
+
+## iOS distribution workflow restoration (2026-09-13)
+
+Adopted by explicit user request: v0's standalone `ios-distribute.yml` signing,
+export, verification, release attachment and TestFlight strategy. This is a
+specific reviewed reuse of the reference workflow, not adoption of the archived
+application. iOS failures remain explicit and independent of desktop/Android
+publication. The active frontend retains Node 24. Implementation and local tests
+do not imply a successful signed GitHub run or App Store Connect acceptance.

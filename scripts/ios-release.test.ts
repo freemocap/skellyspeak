@@ -1,121 +1,80 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { buildNumber, identifier, signingProject, team, validateProfile } from './ios-release.ts';
 
-test('build numbers increase across runs and reruns, with Apple component bounds', () => {
-  assert.equal(buildNumber('123', '2'), '123.2');
-  assert.equal(buildNumber('124', '1'), '124.1');
-  for (const [run, attempt] of [['0', '1'], ['10000', '1'], ['2', '100'], ['-1', '1'], ['1', '1.2']]) {
-    assert.throws(() => buildNumber(run, attempt));
+const workflow = readFileSync(new URL('../.github/workflows/ios-distribute.yml', import.meta.url), 'utf8');
+function shellStep(name: string): string {
+  const section = workflow.split(`      - name: ${name}\n`)[1];
+  assert.ok(section, `Missing step ${name}`);
+  const body = section.split('\n      - ')[0];
+  const inline = body.match(/^        run: (?!\|)(.+)$/m);
+  if (inline) return inline[1];
+  const lines = body.split('        run: |\n')[1].split('\n');
+  const end = lines.findIndex(line => line.length > 0 && !line.startsWith('          '));
+  return lines.slice(0, end < 0 ? undefined : end).map(line => line.slice(10)).join('\n');
+}
+
+test('distribution stages credentials separately and verifies before artifact consumers', () => {
+  const build = workflow.split('\n  attach-release:')[0];
+  assert.ok(build.indexOf('Verify the .ipa') < build.indexOf('actions/upload-artifact@'));
+  assert.ok(build.includes('if: always()'));
+  const command = shellStep('Build the signed .ipa');
+  assert.equal(command.trim(), 'npx tauri ios build --export-method app-store-connect');
+  for (const job of ['attach-release', 'testflight']) {
+    const body = workflow.split(`\n  ${job}:\n`)[1];
+    assert.match(body, job === 'testflight'
+      ? /needs: \[build-ipa, attach-release\]/
+      : /needs: build-ipa/);
+    assert.match(body, /gh run download "\$GITHUB_RUN_ID" --name ios-ipa/);
   }
+  const release = readFileSync(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8');
+  assert.match(release.split('\n  publish-release:\n')[1], /needs: \[version, release-draft, desktop, android\]/);
+  assert.ok(!release.includes('\n  ios:'));
 });
 
-const validProfile = {
-  uuid: '01234567-89AB-CDEF-0123-456789ABCDEF', teams: [team],
-  entitlements: { 'application-identifier': `${team}.${identifier}`, 'get-task-allow': false },
-  expires: '2030-01-01T00:00:00Z', deviceProvisioning: false,
-};
-test('only an unexpired App Store profile for this application is admitted', () => {
-  const now = Date.parse('2026-09-13T00:00:00Z');
-  validateProfile(validProfile, now);
-  for (const patch of [
-    { uuid: '../unexpected-profile' }, { teams: ['OTHER'] }, { deviceProvisioning: true },
-    { expires: '2026-09-12T00:00:00Z' }, { expires: 'invalid' },
-    { entitlements: { ...validProfile.entitlements, 'get-task-allow': true } },
-    { entitlements: { ...validProfile.entitlements, 'application-identifier': `${team}.other` } },
-  ]) assert.throws(() => validateProfile({ ...validProfile, ...patch }, now));
-});
-
-const appSettings = `buildSettings = {
-                CODE_SIGN_ENTITLEMENTS = app.entitlements;
-                CODE_SIGN_STYLE = Automatic;
-                "CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
-                PROVISIONING_PROFILE_SPECIFIER = "old-profile";
-                PRODUCT_BUNDLE_IDENTIFIER = com.freemocap.skellyspeak;
-            };`;
-test('manual signing replaces defaults in both app configurations only and is idempotent', () => {
-  const unrelated = 'buildSettings = {\n                OTHER = retained;\n            };';
-  const source = [appSettings, unrelated, appSettings].join('\n');
-  const certificate = `Apple Distribution: Example (${team})`;
-  const patched = signingProject(source, certificate, validProfile.uuid);
-  assert.ok(patched.includes(unrelated));
-  assert.ok(!patched.includes('Automatic'));
-  assert.ok(!patched.includes('Apple Development'));
-  assert.ok(!patched.includes('old-profile'));
-  assert.equal(patched.match(/CODE_SIGN_STYLE = Manual;/g)?.length, 2);
-  assert.equal(patched.match(/"PROVISIONING_PROFILE_SPECIFIER\[sdk=iphoneos\*\]" =/g)?.length, 2);
-  assert.equal(signingProject(patched, certificate, validProfile.uuid), patched);
-  assert.throws(() => signingProject(unrelated, certificate, validProfile.uuid));
-  assert.throws(() => signingProject(appSettings, certificate, validProfile.uuid));
-});
-
-test('signing style survives Tauri raw-token export without embedded quotes', () => {
-  // Tauri CLI 2.11.4 synchronize_project_config lowercases the raw value, then
-  // merges it OVER our ExportOptions.plist. This reproduces the failing boundary.
-  const exportedStyles = (source: string) => [...source.matchAll(/^\s*CODE_SIGN_STYLE = ([^;]+);/gm)]
-    .map(match => match[1].toLowerCase());
-  const previous = appSettings.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = "Manual";');
-  assert.deepEqual(exportedStyles(previous), ['"manual"']);
-  const certificate = `Apple Distribution: Example & Company (${team})`;
-  const fixed = signingProject([previous, appSettings].join('\n'), certificate, validProfile.uuid);
-  assert.deepEqual(exportedStyles(fixed), ['manual', 'manual']);
-  assert.ok(fixed.includes(`CODE_SIGN_IDENTITY = ${JSON.stringify(certificate)};`));
-  assert.equal(signingProject(fixed, certificate, validProfile.uuid), fixed);
-});
-
-test('Apple plist parser still resolves the bare style and quoted certificate', { skip: process.platform !== 'darwin' }, () => {
-  const directory = mkdtempSync(join(tmpdir(), 'skellyspeak-signing-project-'));
-  try {
-    const file = join(directory, 'project.pbxproj');
-    const certificate = `Apple Distribution: Example & Company (${team})`;
-    writeFileSync(file, signingProject(`{ objects = { A = { ${appSettings} }; B = { ${appSettings} }; }; }`, certificate, validProfile.uuid));
-    const parsed = spawnSync('plutil', ['-convert', 'json', '-o', '-', file], { encoding: 'utf8' });
-    assert.equal(parsed.status, 0, parsed.stderr);
-    const project = JSON.parse(parsed.stdout);
-    for (const key of ['A', 'B']) {
-      assert.equal(project.objects[key].buildSettings.CODE_SIGN_STYLE, 'Manual');
-      assert.equal(project.objects[key].buildSettings.CODE_SIGN_IDENTITY, certificate);
-      assert.equal(project.objects[key].buildSettings.PROVISIONING_PROFILE_SPECIFIER, validProfile.uuid);
-    }
-  } finally { rmSync(directory, { recursive: true, force: true }); }
-});
-
-test('configure stamps Cargo version and attempt before scaffolding, rejecting version mismatch', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'skellyspeak-ios-test-'));
-  try {
-    mkdirSync(join(directory, 'src-tauri'));
-    writeFileSync(join(directory, 'src-tauri/Cargo.toml'), '[package]\nversion = "1.2.3"\n');
-    const config = join(directory, 'src-tauri/tauri.release.conf.json');
-    writeFileSync(config, JSON.stringify({ identifier }));
-    const script = fileURLToPath(new URL('./ios-release.ts', import.meta.url));
-    const result = spawnSync(process.execPath, [script, 'configure'], { cwd: directory,
-      env: { ...process.env, RELEASE_VERSION: '1.2.3', GITHUB_RUN_NUMBER: '52', GITHUB_RUN_ATTEMPT: '2' }, encoding: 'utf8' });
-    assert.equal(result.status, 0, result.stderr);
-    const stamped = readFileSync(config, 'utf8');
-    assert.deepEqual(JSON.parse(stamped), { identifier, version: '1.2.3', bundle: {
-      iOS: { developmentTeam: team, bundleVersion: '52.2' },
-    } });
-    const mismatch = spawnSync(process.execPath, [script, 'configure'], { cwd: directory,
-      env: { ...process.env, RELEASE_VERSION: '1.2.4' }, encoding: 'utf8' });
-    assert.notEqual(mismatch.status, 0);
-    assert.match(mismatch.stderr, /differs from Cargo.toml/);
-    assert.equal(readFileSync(config, 'utf8'), stamped);
-  } finally { rmSync(directory, { recursive: true, force: true }); }
-});
-
-test('release publication requires the iOS job and the IPA attachment', () => {
-  const workflow = readFileSync(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8');
-  const publish = workflow.split('\n  publish-release:\n')[1];
-  assert.match(publish, /needs: \[version, release-draft, desktop, android, ios\]/);
-  assert.match(publish, /grep -Fx "SkellySpeak_\$\{TAG#v\}\.ipa"/);
-  const ios = workflow.split('\n  ios:\n')[1].split('\n  publish-release:\n')[0];
-  assert.match(ios, /needs: \[version, release-draft\]/);
-  assert.ok(ios.indexOf('ios-release.ts verify') < ios.indexOf('gh release upload'));
-  assert.ok(!ios.includes('continue-on-error'));
-  assert.ok(!ios.includes('old/'));
-});
+test('actual verification shell accepts distribution IPA and rejects bad identity, build, signature and debug permission',
+  { skip: process.platform !== 'darwin' }, () => {
+    const root = mkdtempSync(join(tmpdir(), 'skellyspeak-ipa-test-'));
+    try {
+      const bin = join(root, 'bin'); mkdirSync(bin);
+      // Signing itself needs release credentials. Substitute only codesign;
+      // execute the workflow shell, real zip/unzip and Apple's plist parser.
+      const codesign = join(bin, 'codesign');
+      writeFileSync(codesign, `#!/bin/bash
+if [ "$1" = --verify ]; then exit "\${SIGNATURE_STATUS:-0}"; fi
+if [ "$2" = --entitlements ]; then cat "$FIXTURE_ENTITLEMENTS"; exit 0; fi
+printf 'TeamIdentifier=%s\\n' "$FIXTURE_TEAM" >&2
+`);
+      chmodSync(codesign, 0o755);
+      const script = shellStep('Verify the .ipa is signed for the right team');
+      for (const scenario of ['valid', 'wrong-team', 'wrong-bundle', 'wrong-build', 'debug', 'bad-signature', 'no-microphone']) {
+        const cwd = join(root, scenario); mkdirSync(cwd);
+        const temp = join(cwd, 'temp'); mkdirSync(temp);
+        const app = join(cwd, 'Payload', 'SkellySpeak.app'); mkdirSync(app, { recursive: true });
+        writeFileSync(join(app, 'Info.plist'), JSON.stringify({
+          CFBundleIdentifier: scenario === 'wrong-bundle' ? 'other.app' : 'com.freemocap.skellyspeak',
+          CFBundleVersion: scenario === 'wrong-build' ? '4.1' : '52.2',
+          NSMicrophoneUsageDescription: scenario === 'no-microphone' ? '' : 'Record your voice',
+        }));
+        const entitlements = join(cwd, 'entitlements.plist');
+        writeFileSync(entitlements, JSON.stringify({
+          'get-task-allow': scenario === 'debug',
+          'com.apple.developer.team-identifier': 'U8LBJLBYPR',
+        }));
+        const build = join(cwd, 'src-tauri/gen/apple/build'); mkdirSync(build, { recursive: true });
+        const zip = spawnSync('zip', ['-qr', join(build, 'app.ipa'), 'Payload'], { cwd, encoding: 'utf8' });
+        assert.equal(zip.status, 0, zip.stderr);
+        const result = spawnSync('bash', ['-c', script], { cwd, encoding: 'utf8', env: {
+          ...process.env, PATH: `${bin}:${process.env.PATH}`, RUNNER_TEMP: temp,
+          GITHUB_RUN_NUMBER: '52', GITHUB_RUN_ATTEMPT: '2', FIXTURE_ENTITLEMENTS: entitlements,
+          FIXTURE_TEAM: scenario === 'wrong-team' ? 'OTHER' : 'U8LBJLBYPR',
+          SIGNATURE_STATUS: scenario === 'bad-signature' ? '1' : '0',
+        } });
+        if (scenario === 'valid') assert.equal(result.status, 0, result.stdout + result.stderr);
+        else assert.notEqual(result.status, 0, `Verifier accepted ${scenario}`);
+      }
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  });
