@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-09-13T19:14:37.039Z",
+  "bindings": [
+    [
+      "google/gemini-3.1-pro-preview",
+      "google-ai-studio"
+    ]
+  ],
+  "reservedUsd": 0.624016,
+  "fixtureSha256": "c3bc8ddda33b7205a2c96ed8787f44b7482ac8147201bb8e02c3da4d026a8701",
+  "concurrency": 2,
+  "reasoning": {
+    "effort": "low"
+  },
+  "outputCap": 4096
+}

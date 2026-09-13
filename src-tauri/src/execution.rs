@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 // Outstanding operations include running, paused and dependency-waiting work.
 // These budgets bound accepted work; they do not change network concurrency.
-const OUTSTANDING_NETWORK_LIMIT: i64 = 64;
+const OUTSTANDING_NETWORK_LIMIT: i64 = 512;
 fn analysis_role(kind: &str) -> &'static str {
     if kind.starts_with("user_") {
         "user"
@@ -467,6 +467,7 @@ fn accept_turn(
     }
     let turn = id();
     let target = crate::access::resolve(db, crate::access::Capability::Chat)?;
+    let target = crate::model_routing::target(&target, if coach { "coach_reply" } else if opening.is_some() { "persona_opening" } else { "persona_reply" }, &profile.fast_model);
     crate::holds::check(db, &target)?;
     let speech_enabled = !coach && conversation.settings.read_aloud;
     let speech_target = if speech_enabled {
@@ -499,8 +500,8 @@ fn accept_turn(
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":8,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"persona-reply-standard-v1"});
-    db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
+    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":8,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
+    db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }
@@ -965,7 +966,7 @@ impl Store {
         if config(&self.connection)?.paused {
             return Ok(false);
         }
-        Ok(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) AND (o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply') OR (SELECT count(*) FROM operations WHERE state='running' AND kind NOT IN ('persona_reply','persona_opening','coach_reply'))<3))", [], |r| r.get(0))?)
+        Ok(self.connection.query_row("SELECT EXISTS(SELECT 1 FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1))", [], |r| r.get(0))?)
     }
 
     pub fn dispatch(&mut self) -> Result<Option<Dispatch>> {
@@ -981,7 +982,7 @@ impl Store {
         if running >= crate::admission::NETWORK_CAPACITY as i32 {
             return Ok(None);
         }
-        let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) AND (o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply') OR (SELECT count(*) FROM operations WHERE state='running' AND kind NOT IN ('persona_reply','persona_opening','coach_reply'))<3) ORDER BY CASE WHEN o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
+        let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) ORDER BY CASE WHEN o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
         let Some((operation, kind, turn, credential, model, context)) = candidate else {
             return Ok(None);
         };
@@ -1206,7 +1207,11 @@ impl Store {
         } else {
             serde_json::from_value(captured["messages"].clone())?
         };
-        let target = serde_json::from_value(captured["target"].clone())?;
+        let base: crate::access::ResolvedTarget = serde_json::from_value(captured["target"].clone())?;
+        let target = if captured["routingPolicy"] == "task-models-v1" {
+            crate::model_routing::target(&base, &kind, captured["fastModel"].as_str().ok_or_else(|| fail("Captured fast model is missing."))?)
+        } else { base };
+        let model = target.model.clone();
         let attempt = new_attempt_id();
         if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {
             tx.execute(
@@ -4387,6 +4392,78 @@ mod tests {
             1
         );
     }
+    #[test]
+    fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
+        let (_dir, mut store, conversation) = setup();
+        store.set_hosted_connection(2, Some("hosted-token"), "test@example.com").unwrap();
+        store.select_route(3, ConnectionRoute::Hosted).unwrap();
+        store.execute(send(&store, &conversation)).unwrap();
+        assert!(store.dispatch().unwrap().is_none());
+        let reply_work = store.dispatch().unwrap().unwrap();
+        assert_eq!(reply_work.model, crate::model_routing::OSS);
+        assert_eq!(reply_work.target.model, reply_work.model);
+        assert_eq!(reply_work.credential, "hosted-token");
+        assert_eq!(reply_work.messages.last().unwrap().role, "user");
+        store.finish(&reply_work, Ok(reply("¿Qué te gusta leer?"))).unwrap();
+        let mut kinds = std::collections::HashSet::new();
+        while let Some(work) = store.dispatch().unwrap() {
+            let kind: String = store.connection.query_row("SELECT kind FROM operations WHERE id=?1", [&work.operation], |r| r.get(0)).unwrap();
+            let expected = match kind.as_str() {
+                "user_translation" | "reply_translation" | "coach_reaction" => crate::model_routing::LITE,
+                "user_word_gloss" | "persona_word_gloss" => crate::model_routing::OSS,
+                "coach_feedback" => crate::model_routing::FLASH,
+                _ => panic!("Unexpected automatic task: {kind}"),
+            };
+            assert_eq!(work.model, expected);
+            assert_eq!(work.target.model, expected);
+            let recorded: String = store.connection.query_row("SELECT requested_model FROM attempts WHERE id=?1", [&work.attempt], |r| r.get(0)).unwrap();
+            assert_eq!(recorded, expected);
+            kinds.insert(kind);
+        }
+        for kind in ["user_translation", "reply_translation", "user_word_gloss", "persona_word_gloss", "coach_feedback", "coach_reaction"] { assert!(kinds.contains(kind), "Missing {kind}"); }
+    }
+
+    #[test]
+    fn background_work_uses_idle_capacity_and_queued_reply_gets_next_slot() {
+        let (_dir, mut store, first) = setup();
+        let contact_id = store.snapshot().unwrap().contacts[0].id.clone();
+        // Leave several independent translations ready, without completing any.
+        for index in 0..crate::admission::NETWORK_CAPACITY + 1 {
+            let conversation = if index == 0 {
+                first.clone()
+            } else {
+                apply(&mut store, Action::CreateConversation {
+                    contact_id: contact_id.clone(),
+                    title: format!("Parallel {index}"),
+                }).entity_id
+            };
+            let response = begin(&mut store, &conversation);
+            store.finish(&response, Ok(reply("Hola"))).unwrap();
+        }
+        let mut active = Vec::new();
+        for _ in 0..crate::admission::NETWORK_CAPACITY {
+            assert!(store.has_ready_work().unwrap());
+            let work = store.dispatch().unwrap().expect("idle capacity must be used");
+            assert!(work.messages[0].content.contains("Translate"));
+            active.push(work);
+        }
+        assert!(store.has_ready_work().unwrap());
+        assert!(store.dispatch().unwrap().is_none(), "shared limit still applies");
+        let conversation = apply(&mut store, Action::CreateConversation {
+            contact_id,
+            title: "Foreground while busy".into(),
+        }).entity_id;
+        store.execute(send(&store, &conversation)).unwrap();
+        store.finish(&active[0], Ok(reply("Hello"))).unwrap();
+        assert!(store.dispatch().unwrap().is_none()); // Local context preparation.
+        let response = store.dispatch().unwrap().expect("reply gets the released slot");
+        assert!(!response.messages[0].content.contains("Translate"));
+        // Other translations remain in flight; no sibling-completion barrier.
+        for work in active.iter().skip(1) {
+            assert!(store.attempt_active(&work.attempt).unwrap());
+        }
+    }
+
     #[test]
     fn conversations_have_separate_snapshots_and_app_concurrency_is_bounded() {
         let (_dir, mut store, first) = setup();

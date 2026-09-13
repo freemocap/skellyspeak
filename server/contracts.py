@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import model_routing
 from dataclasses import dataclass
 from typing import NoReturn
 
@@ -26,7 +27,7 @@ def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...],
     if payload.keys() - allowed:
         reject("Unsupported request fields.")
     model = payload.get("model")
-    if not isinstance(model, str) or model not in allowed_models or model not in {"google/gemini-2.5-flash", "openai/gpt-audio-mini"}:
+    if not isinstance(model, str) or model not in allowed_models or model not in model_routing.TEXT_MODELS | {"openai/gpt-audio-mini"}:
         reject("This model has no hosted pricing contract.")
     audio = model == "openai/gpt-audio-mini"
     cap = min(max_tokens, 2_000 if audio else max_tokens)
@@ -81,7 +82,7 @@ def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...],
     input_bound = len(json.dumps(payload, ensure_ascii=False).encode("utf-8")) + 1024
     if input_bound > (16_384 if audio else 100_000):
         reject("The hosted input is too long. Shorten the conversation or message.")
-    prompt_price, completion_price = (1, 24) if audio else (1, 3)
+    prompt_price, completion_price = (1, 24) if audio else model_routing.PRICES[model]
     outbound = dict(payload)
     outbound["max_tokens"] = requested
     outbound["provider"] = {
@@ -89,6 +90,8 @@ def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...],
         "require_parameters": True,
         "max_price": {"prompt": prompt_price, "completion": completion_price, "request": 0},
     }
+    if model in {model_routing.FLASH, model_routing.LITE}:
+        outbound["provider"]["only"] = ["google-ai-studio"]
     return ChatRequest(
         payload=outbound,
         reserve_micros=math.ceil(input_bound * prompt_price + requested * completion_price),

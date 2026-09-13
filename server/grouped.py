@@ -15,6 +15,7 @@ from google.cloud import firestore
 
 import admission
 import contracts
+import model_routing
 import quota
 import work_admission as work
 
@@ -62,7 +63,7 @@ def parse(payload: object, *, allowed_models: tuple[str, ...], max_tokens: int) 
             raise HTTPException(400, "Duplicate identity within group.")
         operations.add(operation)
         attempts.add(attempt)
-        if not isinstance(request, dict) or request.get("stream", False) is not False or request.get("model") != "google/gemini-2.5-flash":
+        if not isinstance(request, dict) or request.get("stream", False) is not False or request.get("model") not in model_routing.TEXT_MODELS:
             raise HTTPException(400, "Grouped operations require non-streaming text chat requests.")
         contract = contracts.chat_request(request, allowed_models=allowed_models, max_tokens=max_tokens)
         canonical = json.dumps({"version": 1, "operation_id": operation, "request": contract.payload}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)

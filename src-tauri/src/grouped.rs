@@ -7,7 +7,8 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 const LINE_LIMIT: usize = 4 * 1024 * 1024 + 4096;
-const STREAM_LIMIT: usize = 8 * LINE_LIMIT + 1024;
+pub(crate) const MAX_ITEMS: usize = 8;
+const STREAM_LIMIT: usize = MAX_ITEMS * LINE_LIMIT + 1024;
 
 fn unknown() -> AppError {
     AppError::new(
@@ -59,7 +60,7 @@ impl Decoder {
             }
         }
         let count = pending.len();
-        if !(1..=8).contains(&count) {
+        if !(1..=MAX_ITEMS).contains(&count) {
             return Err(unknown());
         }
         Ok(Self {
@@ -213,7 +214,7 @@ pub async fn request_with_outputs(
         ));
     }
     let first = dispatches.first().ok_or_else(unknown)?;
-    if dispatches.len() > 8 || dispatches.iter().any(|d| !compatible(first, d)) {
+    if dispatches.len() > MAX_ITEMS || dispatches.iter().any(|d| !compatible(first, d)) {
         return Err(unknown());
     }
     let mut items = Vec::new();

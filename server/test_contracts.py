@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import math
 import wave
 
 import httpx
@@ -41,9 +42,9 @@ def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
     request = contracts.chat_request(payload(), allowed_models=MODELS, max_tokens=32768)
     assert request.payload["max_tokens"] == 32768
     assert request.payload["provider"] == {
-        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 1, "completion": 3, "request": 0},
+        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 0.3, "completion": 2.5, "request": 0}, "only": ["google-ai-studio"],
     }
-    assert request.reserve_micros >= 32768 * 3
+    assert request.reserve_micros >= 32768 * 2.5
 
 
 def structured_format() -> dict[str, object]:
@@ -61,7 +62,7 @@ def test_structured_schema_is_preserved_with_server_owned_routing() -> None:
     assert "provider" not in source
     assert accepted.payload["provider"]["allow_fallbacks"] is False
     assert accepted.payload["provider"]["require_parameters"] is True
-    assert accepted.reserve_micros == len(json.dumps(source, ensure_ascii=False).encode("utf-8")) + 1024 + 2048 * 3
+    assert accepted.reserve_micros == math.ceil((len(json.dumps(source, ensure_ascii=False).encode("utf-8")) + 1024) * 0.3 + 2048 * 2.5)
 
 
 @pytest.mark.parametrize("response_format", [

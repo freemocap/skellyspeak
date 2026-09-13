@@ -1,0 +1,18 @@
+{
+  "startedAt": "2026-09-13T19:42:17.762Z",
+  "model": "openai/gpt-oss-120b",
+  "reasoningEffort": "low",
+  "reservedUsd": 0.14041350000000002,
+  "repetitions": 3,
+  "variants": [
+    "whole",
+    "split-1",
+    "split-2",
+    "split-4"
+  ],
+  "pricePerToken": {
+    "input": 1.5e-7,
+    "output": 6e-7
+  },
+  "fixtureSha256": "c0ff4d9c0968e7ecb773b1395e2d68e8ba060f1325485488548b35b2ac4ebc43"
+}

@@ -39,7 +39,7 @@ edges describe required results, not a requirement to share a model or request.
 
 Current implementation sends one completion request per partner/coach reply.
 There is no queue-draining batcher or hosted bulk-inference endpoint. Ten eligible
-completion requests use at most four native network slots, with each completion
+completion requests use at most 32 native network slots, with each completion
 freeing its slot independently. This is a sliding window, not synchronized pairs.
 The hosted chat handler forwards one completion upstream per accepted request;
 direct/custom chat bypasses that handler and uses the same native capacity.
@@ -77,15 +77,24 @@ self-hosted authentication must be specified and tested before switching transpo
 Provider batch-job APIs, if later considered, require a separate capability and
 latency evaluation; no such support is assumed for current routes.
 
-Grouping remains a design/evaluation task. Current shared admission does not implement it.
+Grouped transport is implemented with per-item admission and independent publication.
 
 ### Capacity tuning and diagnostics
 
-The native inference default is four concurrent requests, with one additional
-transcription allowed to wait in memory. Four is provisional headroom, not a measured
-optimal value or provider entitlement. The audio waiting bound protects volatile
-recordings; it is not a batch size. Numbers such as eight batch items and four server
-workers in discussion remain examples, not implemented server settings.
+The native inference ceiling is 32 concurrent operations, with one additional
+transcription allowed to wait in memory. The durable outstanding-work ceiling is
+512 operations, including running and dependency-waiting work. These are development
+headroom, not measured optimal values or provider entitlements. The audio waiting
+bound protects volatile recordings; it is not a batch size.
+
+Hosted account admission allows 64 concurrent grouped inference operations. Transport
+envelopes still contain at most eight items; the scheduler opens multiple groups
+concurrently rather than building an oversized envelope. Hosted inference ingress
+allows 600 requests per minute per subject per process, and 2,400 per process.
+Audio transcription has eight slots per server process. Cloud Run deployment
+configuration uses 80 concurrent HTTP requests per instance, with up to four
+instances. These source settings take effect after the app rebuild/server deployment;
+they do not assert the configuration of the currently deployed revision.
 
 Native stderr emits fixed `WARN ai_admission` events for eligible chat work blocked
 by capacity, a full audio waiting queue and successful audio acquisition after at
@@ -183,6 +192,14 @@ so background work does not starve. Gate eligibility and capacity are checked at
 dispatch, without consuming a worker while waiting. Exact limits are configurable
 implementation policy; cancellation releases local capacity when work actually ends.
 
+Current native implementation: ready replies take priority at dispatch, but background
+operations may use all 32 shared network slots when no reply is ready. There is
+no permanently idle reserved slot. A newly ready reply waits for the next available
+slot; running requests are not preempted. Grouped results publish and release their
+individual permits as they arrive, without waiting for sibling results. The scheduler
+still polls at 100 ms; event-driven wakeups and sentence-level gloss chunks remain
+future work.
+
 ## Streaming and publication
 
 Provider bytes are untrusted candidate output. Partner and coach prose must pass
@@ -252,7 +269,7 @@ hosted incurred metering remains governed by its separate accounting contract.
 ### Shared admission contract — next implementation slice
 
 All paid capabilities must obtain a native app-wide permit before network dispatch,
-regardless of route, model or window. Use the provisional shared ceiling of four; do not
+regardless of route, model or window. Use the provisional shared ceiling of 32; do not
 create an additional pool for each adapter. Local-only graph work does not
 spend a network permit. Recording and provider submission are separate lifecycles.
 Transcription needs an attempt identity, cancellation/publication rules and unknown
@@ -282,7 +299,7 @@ Connection checks and status reads have a separate small native capacity bound a
 coalesce equivalent pending checks by configuration revision. They do not consume
 inference permits or bypass authentication. No automatic status-polling loop is added.
 
-Shared four-request network capacity and one waiting transcription are implemented.
+Shared 32-request network capacity and one waiting transcription are implemented.
 Matching submitted chat/coach turns also persist a visible hold on HTTP 429; known
 retry timing gates explicit recovery. No automatic queue replay follows expiry.
 New submissions and audio now consult durable shared target holds. Explicit recovery is
@@ -314,7 +331,7 @@ Review these alongside the AI strategy before specifying persistence and IPC.
 
 ## Accepted-work budgets
 
-Native chat and coach share a ceiling of 64 outstanding network operations, including
+Native chat and coach share a ceiling of 512 outstanding network operations, including
 paused and dependency-waiting operations as well as running requests. Local context
 operations do not consume this budget. Send and explicit Retry check capacity inside
 statement-owning command transactions, before inserting messages or reactivating work.
@@ -326,7 +343,7 @@ outcomes. Explicit Retry uses the durable attempt records; restarting or assigni
 new command ID does not reset the turn's budget. Starting a new exchange is a new
 explicit action, not a way to replay a turn automatically. These limits are local
 resource policy, not server abuse protection or provider quota guarantees. The
-network pool remains four slots; transcription retains its separate one-waiter cap.
+network pool has 32 slots; transcription retains its separate one-waiter cap.
 Saturation emits only a fixed event and numeric limits, at most once per minute.
 
 ## Hosted wire identity and decoding

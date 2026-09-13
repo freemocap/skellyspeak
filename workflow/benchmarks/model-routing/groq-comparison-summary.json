@@ -1,0 +1,74 @@
+[
+  {
+    "model": "deepseek/deepseek-v4-flash",
+    "source": "results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 1595.5,
+    "costUsd": 0.000321606,
+    "costBasis": "reported usage"
+  },
+  {
+    "model": "deepseek/deepseek-v4.1-flash",
+    "source": "results.jsonl",
+    "attempted": 10,
+    "completed": 9,
+    "medianCompletedMs": 2110,
+    "costUsd": 0.001021082,
+    "costBasis": "reported usage"
+  },
+  {
+    "model": "google/gemini-2.5-flash",
+    "source": "results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 823.0,
+    "costUsd": 0.0020568,
+    "costBasis": "reported usage"
+  },
+  {
+    "model": "google/gemini-2.5-flash-lite",
+    "source": "results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 499.5,
+    "costUsd": 0.0005430999999999999,
+    "costBasis": "reported usage"
+  },
+  {
+    "model": "qwen/qwen3.8-flash",
+    "source": "results.jsonl",
+    "attempted": 10,
+    "completed": 1,
+    "medianCompletedMs": 1798,
+    "costUsd": 5.152e-05,
+    "costBasis": "reported usage"
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "source": "groq-results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 282.5,
+    "costUsd": 0.0014397,
+    "costBasis": "published-price estimate"
+  },
+  {
+    "model": "openai/gpt-oss-20b",
+    "source": "groq-results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 174.5,
+    "costUsd": 0.00061695,
+    "costBasis": "published-price estimate"
+  },
+  {
+    "model": "qwen/qwen3.8-27b",
+    "source": "groq-results.jsonl",
+    "attempted": 10,
+    "completed": 10,
+    "medianCompletedMs": 220.5,
+    "costUsd": 0.0043272,
+    "costBasis": "published-price estimate"
+  }
+]

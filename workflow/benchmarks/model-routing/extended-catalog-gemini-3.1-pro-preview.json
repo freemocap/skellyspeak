@@ -1,0 +1,388 @@
+{
+  "data": {
+    "id": "google/gemini-3.1-pro-preview",
+    "name": "Google: Gemini 3.1 Pro Preview",
+    "created": 1771509627,
+    "description": "Gemini 3.1 Pro Preview is Google’s frontier reasoning model, delivering enhanced software engineering performance, improved agentic reliability, and more efficient token usage across complex workflows. Building on the multimodal foundation...",
+    "architecture": {
+      "tokenizer": "Gemini",
+      "instruct_type": null,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "audio",
+        "file",
+        "image",
+        "text",
+        "video"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "Google | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000001",
+          "completion": "0.000006",
+          "image": "0.000001",
+          "audio": "0.000001",
+          "input_audio_cache": "0.0000001",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000006",
+          "input_cache_read": "0.0000001",
+          "input_cache_write": "0.0000001875",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.000002",
+              "completion": "0.000009",
+              "audio": "0.000002",
+              "input_audio_cache": "0.0000002",
+              "input_cache_read": "0.0000002"
+            }
+          ]
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "stop",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 4.650416933932008,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000001",
+          "completion": "0.000006",
+          "image": "0.000001",
+          "audio": "0.000001",
+          "input_audio_cache": "0.0000001",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000006",
+          "input_cache_read": "0.0000001",
+          "input_cache_write": "0.0000001875",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.000002",
+              "completion": "0.000009",
+              "audio": "0.000002",
+              "input_audio_cache": "0.0000002",
+              "input_cache_read": "0.0000002"
+            }
+          ]
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.87945582917169,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Google | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000002",
+          "completion": "0.000012",
+          "image": "0.000002",
+          "audio": "0.000002",
+          "input_audio_cache": "0.0000002",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000012",
+          "input_cache_read": "0.0000002",
+          "input_cache_write": "0.000000375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.000004",
+              "completion": "0.000018",
+              "audio": "0.000004",
+              "input_audio_cache": "0.0000004",
+              "input_cache_read": "0.0000004"
+            }
+          ]
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "stop",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 98.92765736871092,
+        "uptime_last_5m": 99.38448912597457,
+        "uptime_last_1d": 97.98546598868408,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000002",
+          "completion": "0.000012",
+          "image": "0.000002",
+          "audio": "0.000002",
+          "input_audio_cache": "0.0000002",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000012",
+          "input_cache_read": "0.0000002",
+          "input_cache_write": "0.000000375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.000004",
+              "completion": "0.000018",
+              "audio": "0.000004",
+              "input_audio_cache": "0.0000004",
+              "input_cache_read": "0.0000004"
+            }
+          ]
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.71455756422455,
+        "uptime_last_5m": 99.59839357429718,
+        "uptime_last_1d": 99.43657616957682,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Google | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000036",
+          "completion": "0.0000216",
+          "image": "0.0000036",
+          "audio": "0.0000036",
+          "input_audio_cache": "0.00000036",
+          "web_search": "0.014",
+          "internal_reasoning": "0.0000216",
+          "input_cache_read": "0.00000036",
+          "input_cache_write": "0.000000675",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.0000072",
+              "completion": "0.0000324",
+              "audio": "0.0000072",
+              "input_audio_cache": "0.00000072",
+              "input_cache_read": "0.00000072"
+            }
+          ]
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global/priority",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "stop",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.82935153583618,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.1-pro-preview-20260219",
+        "model_id": "google/gemini-3.1-pro-preview",
+        "model_name": "Google: Gemini 3.1 Pro Preview",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000036",
+          "completion": "0.0000216",
+          "image": "0.0000036",
+          "audio": "0.0000036",
+          "input_audio_cache": "0.00000036",
+          "web_search": "0.014",
+          "internal_reasoning": "0.0000216",
+          "input_cache_read": "0.00000036",
+          "input_cache_write": "0.000000675",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 200000,
+              "prompt": "0.0000072",
+              "completion": "0.0000324",
+              "audio": "0.0000072",
+              "input_audio_cache": "0.00000072",
+              "input_cache_read": "0.00000072"
+            }
+          ]
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio/priority",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": null,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

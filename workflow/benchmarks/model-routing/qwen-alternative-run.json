@@ -1,0 +1,14 @@
+{
+  "startedAt": "2026-09-13T19:12:53.774Z",
+  "bindings": [
+    [
+      "qwen/qwen3.8-flash",
+      "makora/fp4"
+    ]
+  ],
+  "reservedUsd": 0.07208220000000001,
+  "fixtureSha256": "c3bc8ddda33b7205a2c96ed8787f44b7482ac8147201bb8e02c3da4d026a8701",
+  "concurrency": 2,
+  "reasoning": false,
+  "outputCap": 2048
+}

@@ -1,9 +1,12 @@
 # Provider selection and evaluation plan
 
-Status: proposed implementation targets and evaluation protocol. Source review:
-2026-09-09. No model benchmark, paid inference, dependency installation or application
-implementation has been performed. [AI-STRATEGY.md](./AI-STRATEGY.md) owns routing
-principles; this document makes the initial candidates and selection gates concrete.
+Status: the initial protocol below remains a proposed promotion standard. A bounded,
+user-authorized paid screening was completed on 2026-09-13: 79 OpenRouter synthetic attempts and a subsequent 42-attempt Groq screen,
+with provider, latency, cost and output review recorded in
+[the model-routing screen](workflow/benchmarks/model-routing/README.md).
+That screen does not satisfy the larger held-out/native acceptance protocol below;
+production defaults have not changed. The user's request expands the earlier
+bounded pair to Qwen, DeepSeek and a stronger-model comparison.
 
 ## Initial generation targets
 
@@ -201,3 +204,11 @@ do not silently add network inference or replace geometry with generative Vibe.
 Research has narrowed the targets; it has not established a winning Fast model or
 completed any application/provider test. [The build plan](./BUILD-PLAN.md) ties
 these acceptance checks to complete vertical slices of the product.
+
+## Repeated model screen
+
+The [384-call follow-up](workflow/benchmarks/model-routing/EXTENDED-RECOMMENDATIONS.md)
+compares task-level latency, known cost per accepted output and concrete quality
+failures. Prefer testing Flash-Lite for translations/reactions and Groq OSS 120B for
+conversation/glosses. No coaching model earns an automatic upgrade; resolve ambiguous
+intent and cue leakage before expanding model scope. Production routing is unchanged.

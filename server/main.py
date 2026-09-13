@@ -42,6 +42,7 @@ from google.cloud import firestore
 import audio_input
 import admission
 import grouped
+import model_routing
 import work_admission
 import budget
 import contracts
@@ -536,6 +537,8 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     if not isinstance(parsed, dict):
         raise HTTPException(status_code=400, detail="Request body must be an object.")
     contract = contracts.chat_request(parsed, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
+    if contract.payload["model"] == model_routing.OSS:
+        raise HTTPException(400, "Use the grouped operations endpoint for this model.")
     # Keep the reservation handle even if the request is cancelled while the
     # transaction is committing. Deliver pending cancellation before submission.
     with anyio.CancelScope(shield=True):
@@ -626,7 +629,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     return ReservedStreamResponse(relay(), media_type="text/event-stream")
 
 
-_audio_slots = asyncio.Semaphore(2)
+_audio_slots = asyncio.Semaphore(8)
 
 
 @app.post("/v1/audio/transcriptions")
@@ -688,13 +691,17 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
             async with httpx.AsyncClient(timeout=work_admission.WORK_SECONDS) as client:
                 cost = None
                 state = "unknown"
-                payload = await provider_json(client, f"{CFG.openrouter_base_url}/chat/completions",
-                    limit=4 * 1024 * 1024, json=item.contract.payload,
-                    headers={"Authorization": f"Bearer {CFG.openrouter_key}", "X-Title": "SkellySpeak"})
+                use_groq = item.contract.payload["model"] == model_routing.OSS
+                outbound = model_routing.groq_payload(item.contract.payload) if use_groq else item.contract.payload
+                base = CFG.groq_base_url if use_groq else CFG.openrouter_base_url
+                key = CFG.groq_key if use_groq else CFG.openrouter_key
+                payload = await provider_json(client, f"{base}/chat/completions",
+                    limit=4 * 1024 * 1024, json=outbound,
+                    headers={"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"})
         if payload.get("error"):
             raise HTTPException(502, "Invalid provider response.")
         provider_id = str(payload.get("id", ""))
-        cost, tokens = _usage_from(payload)
+        cost, tokens = model_routing.groq_usage(payload) if use_groq else _usage_from(payload)
         if cost is not None:
             state = "succeeded"
         return {"type": "result", "response": payload}
@@ -734,5 +741,5 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
 @app.get("/v1/protocol")
 def protocol(who: quota.Principal = Depends(diagnostic_user)) -> dict[str, object]:
     return {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
-            "chat_models": [model for model in CFG.allowed_models if model == "google/gemini-2.5-flash"],
+            "chat_models": [model for model in CFG.allowed_models if model in model_routing.TEXT_MODELS],
             "transcription_model": "whisper-large-v3"}

@@ -1,0 +1,29 @@
+{
+  "startedAt": "2026-09-13T19:21:38.055Z",
+  "bindings": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "reasoning": "none",
+      "input": 8e-7,
+      "output": 0.000004
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "reasoning": "low",
+      "input": 7.5e-8,
+      "output": 3e-7
+    },
+    {
+      "model": "openai/gpt-oss-120b",
+      "reasoning": "low",
+      "input": 1.5e-7,
+      "output": 6e-7
+    }
+  ],
+  "fixtureSha256": "2767de5430e427d3f3fa3241e1167e5faa63d2c8d8a748fb1a042b7fd65238a0",
+  "reservationUsd": 0.0262765,
+  "outputCap": 2048,
+  "concurrency": 2,
+  "compatibleGloss": true,
+  "pricesSource": "https://console.groq.com/docs/models"
+}

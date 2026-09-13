@@ -19,7 +19,7 @@ import quota
 import transactions
 from observability import Rejection
 
-MAX_INFLIGHT = 8
+MAX_INFLIGHT = 64
 WORK_SECONDS = 180
 LEASE_SECONDS = 300
 SUBMISSION_SECONDS = 600

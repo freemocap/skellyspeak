@@ -508,3 +508,11 @@ transcription and send flow, with only the microphone source substituted.
 These explicit live runs incur provider usage. `npm run e2e:android:preflight`
 checks access without inference. See [setup and verification limits](scripts/e2e/README.md).
 Missing devices and failed prerequisites fail the run; they are not passing tests.
+
+### AI model evaluation
+
+The [model-routing screen](workflow/benchmarks/model-routing/README.md) records
+paid synthetic comparisons, output defects and the proposed Fast/Standard/Strong
+task split. Production routing is unchanged. Run its offline checks with
+`node --test scripts/benchmarks/model-routing.test.ts`; paid execution is explicit
+and requires the ignored `server/local.env` OpenRouter key.

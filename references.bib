@@ -370,3 +370,64 @@
   review = {reviewed},
   claim = {synchronize_project_config lowercases the raw CODE_SIGN_STYLE value without removing quotes; build.rs merges computed export options over the provided ExportOptions.plist. Use a bare Manual pbxproj token to produce signingStyle manual.}
 }
+
+@misc{openrouterRoutingScreen20260913,
+  author = {{OpenRouter}}, title = {Provider routing},
+  url = {https://openrouter.ai/docs/guides/routing/provider-selection},
+  review = {reviewed},
+  claim = {Provider only, allow_fallbacks and require_parameters constrain routing; provider identity and availability must be included in model comparisons.}
+}
+@misc{openrouterQwen38Flash20260913,
+  author = {{OpenRouter}}, title = {Qwen3.8 Flash model catalog},
+  url = {https://openrouter.ai/qwen/qwen3.8-flash},
+  review = {reviewed},
+  claim = {The dated catalog lists Qwen3.8 Flash with schema output support and provider-dependent availability; catalog prices are not measured application costs.}
+}
+@misc{openrouterDeepseekFlash20260913,
+  author = {{OpenRouter}}, title = {DeepSeek V4 Flash model catalog},
+  url = {https://openrouter.ai/deepseek/deepseek-v4-flash},
+  review = {reviewed},
+  claim = {DeepSeek V4 Flash is offered through multiple provider endpoints with different prices and performance; the evaluation pins a provider and records reasoning usage.}
+}
+@misc{openrouterGeminiLite20260913,
+  author = {{OpenRouter}}, title = {Gemini 2.5 Flash Lite model catalog},
+  url = {https://openrouter.ai/google/gemini-2.5-flash-lite},
+  review = {reviewed},
+  claim = {Gemini 2.5 Flash Lite is a lower-price candidate for bounded tasks; fitness and latency require task-specific evaluation.}
+}
+@misc{openrouterGeminiPro20260913,
+  author = {{OpenRouter}}, title = {Gemini 3.1 Pro Preview model catalog},
+  url = {https://openrouter.ai/google/gemini-3.1-pro-preview},
+  review = {reviewed},
+  claim = {Gemini 3.1 Pro Preview offers structured outputs and configurable reasoning; its short-context standard input and output prices are 2 and 12 USD per million tokens at review time.}
+}
+@misc{groqModels20260913,
+  author = {{Groq}}, title = {Supported models},
+  url = {https://console.groq.com/docs/models},
+  review = {reviewed},
+  claim = {The dated catalog lists GPT-OSS 20B and 120B as production models and Qwen3.8 27B as preview; published token rates support a separately labelled estimated benchmark cost.}
+}
+@misc{groqStructured20260913,
+  author = {{Groq}}, title = {Structured outputs},
+  url = {https://console.groq.com/docs/structured-outputs},
+  review = {reviewed},
+  claim = {Groq supports strict schema outputs for GPT-OSS 20B, GPT-OSS 120B and Qwen3.8 27B, but individual schema constructs still require API compatibility testing.}
+}
+@misc{groqReasoning20260913,
+  author = {{Groq}}, title = {Reasoning},
+  url = {https://console.groq.com/docs/reasoning},
+  review = {reviewed},
+  claim = {Qwen3.8 27B supports reasoning_effort none; GPT-OSS models support low, medium and high rather than disabled reasoning.}
+}
+@misc{groqRateLimits20260913,
+  author = {{Groq}}, title = {Rate limits},
+  url = {https://console.groq.com/docs/rate-limits},
+  review = {reviewed},
+  claim = {Requests and tokens have separate rate limits applied at organization scope; increasing request concurrency can exhaust a request quota even when token usage remains low.}
+}
+@misc{openrouterLatency20260913,
+  author = {{OpenRouter}}, title = {Latency and performance},
+  url = {https://openrouter.ai/docs/guides/best-practices/latency-and-performance},
+  review = {reviewed},
+  claim = {Gateway and provider routing contribute to latency; observed full request time must be distinguished from model token generation speed.}
+}

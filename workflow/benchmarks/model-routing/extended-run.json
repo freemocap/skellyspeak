@@ -1,0 +1,40 @@
+{
+  "startedAt": "2026-09-13T20:39:08.207Z",
+  "bindings": [
+    {
+      "model": "google/gemini-2.5-flash",
+      "provider": "google-ai-studio",
+      "input": 3e-7,
+      "output": 0.0000025
+    },
+    {
+      "model": "google/gemini-2.5-flash-lite",
+      "provider": "google-ai-studio",
+      "input": 1e-7,
+      "output": 4e-7
+    },
+    {
+      "model": "openai/gpt-oss-120b",
+      "provider": "groq",
+      "input": 1.5e-7,
+      "output": 6e-7
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "provider": "groq",
+      "input": 7.5e-8,
+      "output": 3e-7
+    },
+    {
+      "model": "google/gemini-3.1-pro-preview",
+      "provider": "google-ai-studio",
+      "input": 0.000004,
+      "output": 0.000018
+    }
+  ],
+  "reservationUsd": 3.3041177250000002,
+  "fixtureSha256": "c0970f27dca995806ece7e140e137f0514caf2123386542da0aa480f2fcd24c6",
+  "trials": 3,
+  "concurrency": 4,
+  "retries": 0
+}

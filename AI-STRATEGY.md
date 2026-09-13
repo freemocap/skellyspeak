@@ -95,6 +95,24 @@ Select per operation, not per conversation or whole turn. The same learner messa
 can trigger a standard-model reply, fast-model title update and local Vibe matching.
 Each model receives only its operation's permitted context and output contract.
 
+### Evaluation update: fast work and demanding work
+
+The 2026-09-13 screen supports keeping the existing two-role design: Fast for
+bounded jobs and Standard for demanding interpretation. “Standard” is the stronger
+role, not a promise to keep the current Gemini binding. Groq GPT-OSS 120B is a
+candidate for the faster role despite its parameter count; hardware, provider,
+reasoning budget and required output matter more than names. Stronger coaching
+candidates still need task-specific evidence. Do not add an LLM classifier just
+to choose a model, or send every cheap result to an expensive reviewer.
+
+The [screen](workflow/benchmarks/model-routing/GROQ.md) and
+[native schema proof](workflow/benchmarks/model-routing/SCHEMA-FIX.md) are evaluation
+results, not deployed assignments. The latter demonstrates that a simpler provider
+grammar can retain strict native acceptance. Separate provider schema generation
+from canonical result validation; record adapter/schema versions in operation
+provenance when integrating it. Generated errors remain errors rather than being
+silently repaired into acceptable-looking results.
+
 ### Proposed task assignments
 
 Fast assignments are evaluation candidates, not established capabilities. Short
@@ -286,3 +304,43 @@ The next implementation and selection work is:
 The [execution contract](./EXECUTION.md#shared-admission-contract--next-implementation-slice)
 owns scheduling and recovery behavior. Provider adapters supply normalized facts;
 UI components do not independently decide to retry, fail over or fan out work.
+
+## Smaller operations and progressive results: evaluation update
+
+The [split-call experiment](workflow/benchmarks/model-routing/SPLIT-CALLS.md) found
+earlier validated pieces from sentence-sized gloss calls, at roughly twice the
+token cost in that workload. Existing per-task publication remains the foundation.
+Proposed next slice: bounded sentence chunks for longer gloss passages, immutable
+source/range identity, independent failure/retry and stable progressive publication.
+Keep coherent replies and coaching interpretation together. Interactive priority
+and provider rate limits must govern concurrency; no production limit or operation
+contract has changed based on this exploratory run.
+
+## Task routing implementation — 2026-09-13
+
+Hosted turns now capture `task-models-v1`. Persona replies/openings and word glosses
+select Groq GPT-OSS 120B; user/reply translations and partner reactions select Gemini
+2.5 Flash-Lite through Google AI Studio on OpenRouter. Coaching feedback, retry checks,
+suggestions and private coach replies retain Gemini 2.5 Flash. Speech/transcription
+keep their existing models. Grouped operations carry the selected model; the server
+owns provider selection and credential choice, and attempt receipts retain each model.
+This implements the [repeated-screen recommendation](workflow/benchmarks/model-routing/EXTENDED-RECOMMENDATIONS.md).
+
+Direct OpenRouter and custom profiles retain their explicitly selected Standard and
+Fast models. Translation/reaction tasks now use the saved Fast binding; other text
+tasks use Standard. The hosted Groq default does not secretly redirect a user's
+custom endpoint or reuse an OpenRouter credential at Groq. Direct Groq text selection
+is not implemented in the settings UI in this slice.
+
+The server simplifies only gloss endpoint enums for Groq, preserving the immutable
+canonical schema and native source validation. Groq token usage, including reasoning
+completion tokens, is priced at 0.15/0.60 dollars per million input/output tokens and
+rounded up to microdollars. Missing usage remains unknown; there is no zero-cost
+fallback. Flash/Lite routes are pinned with price caps and no provider fallback.
+[@groqModels20260913] [@openrouterGeminiLite20260913]
+
+Deployment order: server first, then rebuilt app. Extend ALLOWED_MODELS with
+`google/gemini-2.5-flash-lite` and `openai/gpt-oss-120b`; the deployment template now
+includes them. Existing Flash clients remain supported. This change is source-tested,
+not a statement that a live server has been deployed or a phone has been tested.
+The benchmark's coaching ambiguity and hint-leakage findings remain unresolved.

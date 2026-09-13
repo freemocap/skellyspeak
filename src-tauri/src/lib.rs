@@ -1,3 +1,4 @@
+mod model_routing;
 mod access;
 mod admission;
 #[cfg(desktop)]
@@ -975,7 +976,9 @@ async fn scheduler(state: Arc<Application>) {
                 if dispatch.speech_source.is_none()
                     && dispatch.route != ConnectionRoute::Openrouter
                     && let Some(group) = groups.iter_mut().find(|g| {
-                        g[0].0.speech_source.is_none() && grouped::compatible(&g[0].0, &dispatch)
+                        g.len() < grouped::MAX_ITEMS
+                            && g[0].0.speech_source.is_none()
+                            && grouped::compatible(&g[0].0, &dispatch)
                     })
                 {
                     group.push((dispatch, permit));

@@ -179,10 +179,10 @@ pub fn payload(
     messages: &[PromptMessage],
     route: ConnectionRoute,
 ) -> Result<serde_json::Value> {
-    if route == ConnectionRoute::Hosted && model != "google/gemini-2.5-flash" {
+    if route == ConnectionRoute::Hosted && !crate::model_routing::hosted_model(model) {
         return Err(AppError::new(
             ErrorCode::Validation,
-            "The hosted route only supports the approved Standard model.",
+            "The hosted route does not support this text model.",
         ));
     }
     let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":2048,"temperature":0.7,"reasoning":{"enabled":false}});
@@ -298,9 +298,9 @@ pub fn payload_with_output(
             "Structured requests require 1–64 text messages with supported roles.",
         ));
     }
-    if route != ConnectionRoute::Openrouter && model != "google/gemini-2.5-flash" {
+    if route == ConnectionRoute::Hosted && !crate::model_routing::hosted_model(model) {
         return Err(structured_error(
-            "The grouped route only supports the approved Standard model.",
+            "The hosted route does not support this structured model.",
         ));
     }
     // Reject already-oversized raw inputs before the payload builder clones them.
@@ -597,7 +597,7 @@ mod tests {
         };
         assert!(
             payload_with_output("chosen/model", &messages, ConnectionRoute::Custom, output)
-                .is_err()
+                .is_ok()
         );
         assert!(
             payload_with_output("chosen/model", &[], ConnectionRoute::Openrouter, output).is_err()
@@ -654,7 +654,7 @@ mod tests {
         assert!(hosted.get("provider").is_none());
         assert_eq!(hosted["max_tokens"], 2048);
         assert_eq!(hosted["stream"], false);
-        assert!(payload("google/gemini-2.5-flash-lite", &[], ConnectionRoute::Hosted).is_err());
+        assert!(payload("unsupported/model", &[], ConnectionRoute::Hosted).is_err());
         let direct = payload("chosen/model", &[], ConnectionRoute::Openrouter).unwrap();
         assert_eq!(direct["provider"]["allow_fallbacks"], false);
     }

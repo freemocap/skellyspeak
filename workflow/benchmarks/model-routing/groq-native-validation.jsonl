@@ -1,0 +1,12 @@
+{"fixture":"native-gloss-0","model":"openai/gpt-oss-20b","outcome":{"accepted":true,"coverage":"Complete","segments":4}}
+{"fixture":"native-gloss-0","model":"qwen/qwen3.8-27b","outcome":{"accepted":true,"coverage":"Complete","segments":4}}
+{"fixture":"native-gloss-0","model":"openai/gpt-oss-120b","outcome":{"accepted":true,"coverage":"Complete","segments":4}}
+{"fixture":"native-gloss-1","model":"openai/gpt-oss-20b","outcome":{"accepted":true,"coverage":"Complete","segments":8}}
+{"fixture":"native-gloss-1","model":"qwen/qwen3.8-27b","outcome":{"accepted":true,"coverage":"Complete","segments":8}}
+{"fixture":"native-gloss-1","model":"openai/gpt-oss-120b","outcome":{"accepted":true,"coverage":"Complete","segments":8}}
+{"fixture":"native-gloss-2","model":"openai/gpt-oss-120b","outcome":{"accepted":true,"coverage":"Complete","segments":5}}
+{"fixture":"native-gloss-2","model":"openai/gpt-oss-20b","outcome":{"accepted":true,"coverage":"Complete","segments":4}}
+{"fixture":"native-gloss-2","model":"qwen/qwen3.8-27b","outcome":{"accepted":true,"coverage":"Complete","segments":5}}
+{"fixture":"native-gloss-3","model":"qwen/qwen3.8-27b","outcome":{"accepted":true,"coverage":"Complete","segments":10}}
+{"fixture":"native-gloss-3","model":"openai/gpt-oss-20b","outcome":{"accepted":false,"error":"gloss_invalid_json_or_shape"}}
+{"fixture":"native-gloss-3","model":"openai/gpt-oss-120b","outcome":{"accepted":true,"coverage":"Complete","segments":10}}

@@ -45,15 +45,15 @@ def test_capacity_is_atomic_and_completion_cannot_release_another_slot(ledger: F
             assert error.status_code == 429
             return None
     with ThreadPoolExecutor(max_workers=12) as pool:
-        claims = [c for c in pool.map(acquire, range(24)) if c is not None]
+        claims = [c for c in pool.map(acquire, range(work.MAX_INFLIGHT * 2)) if c is not None]
     assert len(claims) == work.MAX_INFLIGHT
     first = claims[0]
     with pytest.raises(RuntimeError):
         work.finish(ledger, claim=replace(first, owner="wrong"), state="succeeded")
     work.finish(ledger, claim=first, state="succeeded")
     work.finish(ledger, claim=first, state="succeeded")
-    assert acquire(100) is not None
-    assert acquire(101) is None
+    assert acquire(work.MAX_INFLIGHT * 2 + 1) is not None
+    assert acquire(work.MAX_INFLIGHT * 2 + 2) is None
     duplicate = work.claim(ledger, user_id="one", attempt_id=first.attempt_id, digest=DIGEST)
     assert not duplicate.acquired and duplicate.state == "succeeded"
 

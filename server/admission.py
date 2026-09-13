@@ -40,8 +40,8 @@ class Ingress:
 
 
 IngressLane = Literal["inference", "control"]
-SUBJECT_LIMITS: dict[IngressLane, int] = {"inference": 60, "control": 30}
-PROCESS_LIMITS: dict[IngressLane, int] = {"inference": 240, "control": 60}
+SUBJECT_LIMITS: dict[IngressLane, int] = {"inference": 600, "control": 30}
+PROCESS_LIMITS: dict[IngressLane, int] = {"inference": 2400, "control": 60}
 MAX_ACTIVE_SUBJECTS = 128
 
 

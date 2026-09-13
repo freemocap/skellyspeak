@@ -1,0 +1,542 @@
+[
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-20b",
+    "task": "conversation",
+    "attempts": 30,
+    "mechanicallyValid": 30,
+    "medianMs": 130,
+    "p90Ms": 166,
+    "knownCostUsd": 0.0006377249999999999,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.0212575,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-20b",
+    "task": "reaction",
+    "attempts": 9,
+    "mechanicallyValid": 5,
+    "medianMs": 269,
+    "p90Ms": 291,
+    "knownCostUsd": 0.00029745,
+    "unmeteredAttempts": 4,
+    "usdPer1000MechanicallyValid": 0.05949,
+    "failures": [
+      {
+        "fixture": "reaction-es-confused",
+        "trial": 0,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "reaction-ar-concern",
+        "trial": 0,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "reaction-es-clear",
+        "trial": 1,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "reaction-ar-concern",
+        "trial": 1,
+        "errors": [
+          "http-400"
+        ]
+      }
+    ]
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-20b",
+    "task": "coach",
+    "attempts": 24,
+    "mechanicallyValid": 10,
+    "medianMs": 322,
+    "p90Ms": 385,
+    "knownCostUsd": 0.002930175,
+    "unmeteredAttempts": 4,
+    "usdPer1000MechanicallyValid": 0.29301750000000004,
+    "failures": [
+      {
+        "fixture": "coach-clear",
+        "trial": 0,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 0,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "coach-extra-Spanish-27",
+        "trial": 0,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 0,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-extra-Spanish-29",
+        "trial": 0,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "coach-clear",
+        "trial": 1,
+        "errors": [
+          "http-400"
+        ]
+      },
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 1,
+        "errors": [
+          "coach-voice",
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-extra-Mandarin-26",
+        "trial": 1,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 1,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-clear",
+        "trial": 2,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 2,
+        "errors": [
+          "coach-voice",
+          "coach-voice",
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-24",
+        "trial": 2,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 2,
+        "errors": [
+          "coach-voice"
+        ]
+      },
+      {
+        "fixture": "coach-extra-Spanish-29",
+        "trial": 2,
+        "errors": [
+          "http-400"
+        ]
+      }
+    ]
+  },
+  {
+    "completeNonemptyGlosses": 7,
+    "usdPer1000CompleteNonemptyGlosses": 0.36797142857142856,
+    "model": "openai/gpt-oss-20b",
+    "task": "native-gloss",
+    "attempts": 12,
+    "mechanicallyValid": 9,
+    "medianMs": 606,
+    "p90Ms": 923,
+    "knownCostUsd": 0.0025757999999999996,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.28619999999999995,
+    "failures": [
+      {
+        "fixture": "native-gloss-3",
+        "trial": 1,
+        "errors": [],
+        "native": {
+          "accepted": false,
+          "error": "gloss_invalid_json_or_shape"
+        }
+      },
+      {
+        "fixture": "native-gloss-0",
+        "trial": 2,
+        "errors": [],
+        "native": {
+          "accepted": false,
+          "error": "gloss_overlap_or_unordered"
+        }
+      },
+      {
+        "fixture": "native-gloss-3",
+        "trial": 2,
+        "errors": [],
+        "native": {
+          "accepted": false,
+          "error": "gloss_invalid_json_or_shape"
+        }
+      }
+    ]
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-20b",
+    "task": "translation",
+    "attempts": 15,
+    "mechanicallyValid": 15,
+    "medianMs": 135,
+    "p90Ms": 185,
+    "knownCostUsd": 0.00026647500000000007,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.017765000000000003,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-120b",
+    "task": "conversation",
+    "attempts": 30,
+    "mechanicallyValid": 30,
+    "medianMs": 183,
+    "p90Ms": 220,
+    "knownCostUsd": 0.0013288499999999997,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.04429499999999999,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-120b",
+    "task": "reaction",
+    "attempts": 9,
+    "mechanicallyValid": 7,
+    "medianMs": 446,
+    "p90Ms": 477,
+    "knownCostUsd": 0.0012055500000000001,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.17222142857142858,
+    "failures": [
+      {
+        "fixture": "reaction-ar-concern",
+        "trial": 0,
+        "errors": [
+          "reaction-meaning"
+        ]
+      },
+      {
+        "fixture": "reaction-ar-concern",
+        "trial": 1,
+        "errors": [
+          "reaction-meaning"
+        ]
+      }
+    ]
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-120b",
+    "task": "coach",
+    "attempts": 24,
+    "mechanicallyValid": 23,
+    "medianMs": 773,
+    "p90Ms": 1181,
+    "knownCostUsd": 0.008380499999999999,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.3643695652173912,
+    "failures": [
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 2,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      }
+    ]
+  },
+  {
+    "completeNonemptyGlosses": 12,
+    "usdPer1000CompleteNonemptyGlosses": 0.5039500000000001,
+    "model": "openai/gpt-oss-120b",
+    "task": "native-gloss",
+    "attempts": 12,
+    "mechanicallyValid": 12,
+    "medianMs": 1168,
+    "p90Ms": 1907,
+    "knownCostUsd": 0.0060474000000000005,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.5039500000000001,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "openai/gpt-oss-120b",
+    "task": "translation",
+    "attempts": 15,
+    "mechanicallyValid": 15,
+    "medianMs": 186,
+    "p90Ms": 254,
+    "knownCostUsd": 0.00064275,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.04285,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash-lite",
+    "task": "conversation",
+    "attempts": 30,
+    "mechanicallyValid": 30,
+    "medianMs": 327,
+    "p90Ms": 389,
+    "knownCostUsd": 0.0003999,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.013330000000000002,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash-lite",
+    "task": "reaction",
+    "attempts": 9,
+    "mechanicallyValid": 9,
+    "medianMs": 498,
+    "p90Ms": 581,
+    "knownCostUsd": 0.0003542,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.03935555555555556,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash-lite",
+    "task": "coach",
+    "attempts": 24,
+    "mechanicallyValid": 19,
+    "medianMs": 750,
+    "p90Ms": 1083,
+    "knownCostUsd": 0.0036079,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.1898894736842105,
+    "failures": [
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 0,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 1,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 1,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 2,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-extra-Mandarin-26",
+        "trial": 2,
+        "errors": [
+          "coach-voice"
+        ]
+      }
+    ]
+  },
+  {
+    "completeNonemptyGlosses": 8,
+    "usdPer1000CompleteNonemptyGlosses": 0.31706499999999993,
+    "model": "google/gemini-2.5-flash-lite",
+    "task": "native-gloss",
+    "attempts": 12,
+    "mechanicallyValid": 11,
+    "medianMs": 887,
+    "p90Ms": 1214,
+    "knownCostUsd": 0.0025365199999999996,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.23059272727272723,
+    "failures": [
+      {
+        "fixture": "native-gloss-1",
+        "trial": 1,
+        "errors": [],
+        "native": {
+          "accepted": false,
+          "error": "gloss_overlap_or_unordered"
+        }
+      }
+    ]
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash-lite",
+    "task": "translation",
+    "attempts": 15,
+    "mechanicallyValid": 15,
+    "medianMs": 314,
+    "p90Ms": 360,
+    "knownCostUsd": 0.0001087,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.007246666666666667,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash",
+    "task": "conversation",
+    "attempts": 30,
+    "mechanicallyValid": 30,
+    "medianMs": 510,
+    "p90Ms": 727,
+    "knownCostUsd": 0.0018868000000000005,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.06289333333333336,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash",
+    "task": "reaction",
+    "attempts": 9,
+    "mechanicallyValid": 9,
+    "medianMs": 802,
+    "p90Ms": 942,
+    "knownCostUsd": 0.0015828,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.17586666666666667,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash",
+    "task": "coach",
+    "attempts": 24,
+    "mechanicallyValid": 22,
+    "medianMs": 1029,
+    "p90Ms": 1738,
+    "knownCostUsd": 0.01183386,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.5379027272727273,
+    "failures": [
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 1,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      },
+      {
+        "fixture": "coach-extra-French-28",
+        "trial": 2,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      }
+    ]
+  },
+  {
+    "completeNonemptyGlosses": 11,
+    "usdPer1000CompleteNonemptyGlosses": 0.8902381818181818,
+    "model": "google/gemini-2.5-flash",
+    "task": "native-gloss",
+    "attempts": 12,
+    "mechanicallyValid": 11,
+    "medianMs": 1486,
+    "p90Ms": 1516,
+    "knownCostUsd": 0.00979262,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.8902381818181818,
+    "failures": [
+      {
+        "fixture": "native-gloss-0",
+        "trial": 0,
+        "errors": [
+          "schema"
+        ],
+        "native": {
+          "accepted": false,
+          "error": "gloss_invalid_json_or_shape"
+        }
+      }
+    ]
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-2.5-flash",
+    "task": "translation",
+    "attempts": 15,
+    "mechanicallyValid": 15,
+    "medianMs": 494,
+    "p90Ms": 846,
+    "knownCostUsd": 0.0005079,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 0.03386,
+    "failures": []
+  },
+  {
+    "usdPer1000CompleteNonemptyGlosses": null,
+    "model": "google/gemini-3.1-pro-preview",
+    "task": "coach",
+    "attempts": 24,
+    "mechanicallyValid": 23,
+    "medianMs": 5803,
+    "p90Ms": 8697,
+    "knownCostUsd": 0.19728600000000007,
+    "unmeteredAttempts": 0,
+    "usdPer1000MechanicallyValid": 8.577652173913046,
+    "failures": [
+      {
+        "fixture": "coach-ambiguous",
+        "trial": 2,
+        "errors": [
+          "hidden-answer-leak"
+        ]
+      }
+    ]
+  }
+]

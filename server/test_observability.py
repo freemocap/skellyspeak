@@ -147,7 +147,7 @@ async def test_anonymous_flood_cannot_consume_liveness_or_signed_lane(monkeypatc
 
 def test_authenticated_subject_limit_does_not_consume_another_subject():
     gate = admission.AuthenticatedIngress()
-    for _ in range(60):
+    for _ in range(admission.SUBJECT_LIMITS["inference"]):
         gate.take("first", lane="inference")
     with pytest.raises(observability.Rejection):
         gate.take("first", lane="inference")

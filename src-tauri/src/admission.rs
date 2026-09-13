@@ -5,7 +5,7 @@ use std::time::{Duration, Instant};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
 // Provisional policy, not a provider guarantee. Tune from actual queue waits.
-pub const NETWORK_CAPACITY: usize = 4;
+pub const NETWORK_CAPACITY: usize = 32;
 const AUDIO_WAITING_CAPACITY: usize = 1;
 /// OS keychain reads cannot be cancelled after their blocking call starts. Keep
 /// admission inside that call so dropping an IPC/provider await cannot free a

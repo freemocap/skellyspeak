@@ -159,5 +159,5 @@ def test_work_claims_coordinate_separate_server_processes() -> None:
     with ProcessPoolExecutor(max_workers=4) as pool:
         futures = [pool.submit(_claim_work, db.project, 1, issued) for _ in range(8)]
         assert sum(f.result(timeout=60) for f in futures) == 1
-        futures = [pool.submit(_claim_work, db.project, index, issued) for index in range(2, 18)]
+        futures = [pool.submit(_claim_work, db.project, index, issued) for index in range(2, work_admission.MAX_INFLIGHT * 2 + 2)]
         assert sum(f.result(timeout=60) for f in futures) == work_admission.MAX_INFLIGHT - 1

@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-09-13T19:11:42.652Z",
+  "bindings": [
+    [
+      "google/gemini-2.5-flash",
+      "google-ai-studio"
+    ],
+    [
+      "google/gemini-2.5-flash-lite",
+      "google-ai-studio"
+    ],
+    [
+      "qwen/qwen3.8-flash",
+      "alibaba"
+    ],
+    [
+      "deepseek/deepseek-v4-flash",
+      "deepinfra/fp8"
+    ],
+    [
+      "deepseek/deepseek-v4.1-flash",
+      "fireworks"
+    ]
+  ],
+  "reservedUsd": 0.36056940000000004,
+  "fixtureSha256": "c3bc8ddda33b7205a2c96ed8787f44b7482ac8147201bb8e02c3da4d026a8701",
+  "concurrency": 2,
+  "reasoning": false,
+  "outputCap": 2048
+}

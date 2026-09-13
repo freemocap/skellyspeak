@@ -832,3 +832,12 @@ specific reviewed reuse of the reference workflow, not adoption of the archived
 application. iOS failures remain explicit and independent of desktop/Android
 publication. The active frontend retains Node 24. Implementation and local tests
 do not imply a successful signed GitHub run or App Store Connect acceptance.
+
+### Task-specific hosted model policy
+
+The hosted service supplies task-specific defaults based on the repeated model
+screen; custom/direct profiles retain user-owned Standard/Fast bindings. Capture
+routing policy at turn acceptance and record actual per-operation requests rather
+than choosing models from prompt keywords. Provider schema adaptation is transport
+only: canonical source validation remains authoritative. See AI-STRATEGY.md for
+implemented bindings, accounting and the server-before-client deployment requirement.

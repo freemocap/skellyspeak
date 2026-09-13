@@ -1,0 +1,241 @@
+{
+  "attempts": 79,
+  "completed": 63,
+  "reportedCostUsd": 0.051018758000000004,
+  "unmeteredAttempts": 16,
+  "models": [
+    {
+      "model": "deepseek/deepseek-v4-flash",
+      "provider": "deepinfra/fp8",
+      "attempted": 12,
+      "completed": 12,
+      "mechanicalPass": 11,
+      "completedMedianMs": 2588.0,
+      "completedObservedMaxMs": 10864,
+      "reportedCostUsd": 0.00042744600000000005,
+      "unmeteredAttempts": 0,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 2,
+          "medianMs": 9392.5,
+          "reportedCostUsd": 0.000187776
+        },
+        "conversation": {
+          "completed": 5,
+          "medianMs": 911,
+          "reportedCostUsd": 5.544e-05
+        },
+        "gloss": {
+          "completed": 2,
+          "medianMs": 4274.5,
+          "reportedCostUsd": 0.00010584
+        },
+        "reaction": {
+          "completed": 3,
+          "medianMs": 3017,
+          "reportedCostUsd": 7.839e-05
+        }
+      }
+    },
+    {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "fireworks",
+      "attempted": 12,
+      "completed": 11,
+      "mechanicalPass": 11,
+      "completedMedianMs": 2110,
+      "completedObservedMaxMs": 5107,
+      "reportedCostUsd": 0.001459292,
+      "unmeteredAttempts": 1,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 2,
+          "medianMs": 3542.0,
+          "reportedCostUsd": 0.00060965
+        },
+        "conversation": {
+          "completed": 4,
+          "medianMs": 1134.5,
+          "reportedCostUsd": 0.00012276000000000002
+        },
+        "gloss": {
+          "completed": 2,
+          "medianMs": 1939.5,
+          "reportedCostUsd": 0.00043820999999999997
+        },
+        "reaction": {
+          "completed": 3,
+          "medianMs": 2348,
+          "reportedCostUsd": 0.000288672
+        }
+      }
+    },
+    {
+      "model": "google/gemini-2.5-flash",
+      "provider": "google-ai-studio",
+      "attempted": 12,
+      "completed": 12,
+      "mechanicalPass": 12,
+      "completedMedianMs": 840.5,
+      "completedObservedMaxMs": 1802,
+      "reportedCostUsd": 0.0029167,
+      "unmeteredAttempts": 0,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 2,
+          "medianMs": 1359.5,
+          "reportedCostUsd": 0.0012593
+        },
+        "conversation": {
+          "completed": 5,
+          "medianMs": 552,
+          "reportedCostUsd": 0.00032990000000000005
+        },
+        "gloss": {
+          "completed": 2,
+          "medianMs": 1233.5,
+          "reportedCostUsd": 0.0008599
+        },
+        "reaction": {
+          "completed": 3,
+          "medianMs": 857,
+          "reportedCostUsd": 0.0004676
+        }
+      }
+    },
+    {
+      "model": "google/gemini-2.5-flash-lite",
+      "provider": "google-ai-studio",
+      "attempted": 12,
+      "completed": 12,
+      "mechanicalPass": 12,
+      "completedMedianMs": 534.0,
+      "completedObservedMaxMs": 1173,
+      "reportedCostUsd": 0.0007714999999999999,
+      "unmeteredAttempts": 0,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 2,
+          "medianMs": 978.0,
+          "reportedCostUsd": 0.0003341
+        },
+        "conversation": {
+          "completed": 5,
+          "medianMs": 354,
+          "reportedCostUsd": 7.599999999999999e-05
+        },
+        "gloss": {
+          "completed": 2,
+          "medianMs": 850.5,
+          "reportedCostUsd": 0.0002284
+        },
+        "reaction": {
+          "completed": 3,
+          "medianMs": 535,
+          "reportedCostUsd": 0.000133
+        }
+      }
+    },
+    {
+      "model": "google/gemini-3.1-pro-preview",
+      "provider": "google-ai-studio",
+      "attempted": 7,
+      "completed": 7,
+      "mechanicalPass": 7,
+      "completedMedianMs": 5530,
+      "completedObservedMaxMs": 8759,
+      "reportedCostUsd": 0.044934,
+      "unmeteredAttempts": 0,
+      "reasoningTokens": 2721,
+      "tasks": {
+        "coach": {
+          "completed": 2,
+          "medianMs": 6793.0,
+          "reportedCostUsd": 0.01753
+        },
+        "gloss": {
+          "completed": 2,
+          "medianMs": 4211.0,
+          "reportedCostUsd": 0.01014
+        },
+        "reaction": {
+          "completed": 3,
+          "medianMs": 5951,
+          "reportedCostUsd": 0.017264
+        }
+      }
+    },
+    {
+      "model": "qwen/qwen3.8-flash",
+      "provider": "alibaba",
+      "attempted": 12,
+      "completed": 1,
+      "mechanicalPass": 1,
+      "completedMedianMs": 1798,
+      "completedObservedMaxMs": 1798,
+      "reportedCostUsd": 5.152e-05,
+      "unmeteredAttempts": 11,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 0,
+          "medianMs": null,
+          "reportedCostUsd": 0
+        },
+        "conversation": {
+          "completed": 0,
+          "medianMs": null,
+          "reportedCostUsd": 0
+        },
+        "gloss": {
+          "completed": 0,
+          "medianMs": null,
+          "reportedCostUsd": 0
+        },
+        "reaction": {
+          "completed": 1,
+          "medianMs": 1798,
+          "reportedCostUsd": 5.152e-05
+        }
+      }
+    },
+    {
+      "model": "qwen/qwen3.8-flash",
+      "provider": "makora/fp4",
+      "attempted": 12,
+      "completed": 8,
+      "mechanicalPass": 8,
+      "completedMedianMs": 3587.0,
+      "completedObservedMaxMs": 12744,
+      "reportedCostUsd": 0.00045829999999999997,
+      "unmeteredAttempts": 4,
+      "reasoningTokens": 0,
+      "tasks": {
+        "coach": {
+          "completed": 1,
+          "medianMs": 6136,
+          "reportedCostUsd": 0.00016406
+        },
+        "conversation": {
+          "completed": 4,
+          "medianMs": 7395.0,
+          "reportedCostUsd": 9.062e-05
+        },
+        "gloss": {
+          "completed": 1,
+          "medianMs": 5114,
+          "reportedCostUsd": 0.00010349
+        },
+        "reaction": {
+          "completed": 2,
+          "medianMs": 1807.0,
+          "reportedCostUsd": 0.00010013
+        }
+      }
+    }
+  ]
+}
