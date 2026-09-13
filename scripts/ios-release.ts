@@ -95,7 +95,10 @@ export function signingProject(source: string, certificate: string, uuid: string
       const key = line.trim().split(' = ')[0].replace(/^"|"$/g, '');
       return !(key in settings) && key !== 'PROVISIONING_PROFILE';
     });
-    const added = Object.entries(settings).map(([key, value]) => `\t\t\t\t${key.includes('[') ? JSON.stringify(key) : key} = ${JSON.stringify(value)};`);
+    // Tauri 2.11.4 lowercases CODE_SIGN_STYLE's raw pbxproj token without
+    // unquoting it, then overwrites ExportOptions.plist. Keep this enum bare;
+    // certificate names and other strings still require quoting. [@tauriIosStyle2114]
+    const added = Object.entries(settings).map(([key, value]) => `\t\t\t\t${key.includes('[') ? JSON.stringify(key) : key} = ${key === 'CODE_SIGN_STYLE' ? value : JSON.stringify(value)};`);
     return `buildSettings = {\n${[...retained, ...added].join('\n')}\n\t\t\t};`;
   });
   requireValue(count === 2, `Expected two app signing configurations, found ${count}`);

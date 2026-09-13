@@ -364,3 +364,9 @@
   review = {reviewed},
   claim = {Explicit ExportOptions.plist signing and provisioningProfiles entries work around the reported Tauri CLI reader failure for quoted manual-signing settings.}
 }
+@misc{tauriIosStyle2114,
+  author = {{Tauri Contributors}}, title = {Tauri CLI 2.11.4 iOS signing synchronization and export merge},
+  url = {https://github.com/tauri-apps/tauri/blob/tauri-cli-v2.11.4/crates/tauri-cli/src/mobile/ios/mod.rs},
+  review = {reviewed},
+  claim = {synchronize_project_config lowercases the raw CODE_SIGN_STYLE value without removing quotes; build.rs merges computed export options over the provided ExportOptions.plist. Use a bare Manual pbxproj token to produce signingStyle manual.}
+}

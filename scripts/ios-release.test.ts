@@ -47,11 +47,42 @@ test('manual signing replaces defaults in both app configurations only and is id
   assert.ok(!patched.includes('Automatic'));
   assert.ok(!patched.includes('Apple Development'));
   assert.ok(!patched.includes('old-profile'));
-  assert.equal(patched.match(/CODE_SIGN_STYLE = "Manual"/g)?.length, 2);
+  assert.equal(patched.match(/CODE_SIGN_STYLE = Manual;/g)?.length, 2);
   assert.equal(patched.match(/"PROVISIONING_PROFILE_SPECIFIER\[sdk=iphoneos\*\]" =/g)?.length, 2);
   assert.equal(signingProject(patched, certificate, validProfile.uuid), patched);
   assert.throws(() => signingProject(unrelated, certificate, validProfile.uuid));
   assert.throws(() => signingProject(appSettings, certificate, validProfile.uuid));
+});
+
+test('signing style survives Tauri raw-token export without embedded quotes', () => {
+  // Tauri CLI 2.11.4 synchronize_project_config lowercases the raw value, then
+  // merges it OVER our ExportOptions.plist. This reproduces the failing boundary.
+  const exportedStyles = (source: string) => [...source.matchAll(/^\s*CODE_SIGN_STYLE = ([^;]+);/gm)]
+    .map(match => match[1].toLowerCase());
+  const previous = appSettings.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = "Manual";');
+  assert.deepEqual(exportedStyles(previous), ['"manual"']);
+  const certificate = `Apple Distribution: Example & Company (${team})`;
+  const fixed = signingProject([previous, appSettings].join('\n'), certificate, validProfile.uuid);
+  assert.deepEqual(exportedStyles(fixed), ['manual', 'manual']);
+  assert.ok(fixed.includes(`CODE_SIGN_IDENTITY = ${JSON.stringify(certificate)};`));
+  assert.equal(signingProject(fixed, certificate, validProfile.uuid), fixed);
+});
+
+test('Apple plist parser still resolves the bare style and quoted certificate', { skip: process.platform !== 'darwin' }, () => {
+  const directory = mkdtempSync(join(tmpdir(), 'skellyspeak-signing-project-'));
+  try {
+    const file = join(directory, 'project.pbxproj');
+    const certificate = `Apple Distribution: Example & Company (${team})`;
+    writeFileSync(file, signingProject(`{ objects = { A = { ${appSettings} }; B = { ${appSettings} }; }; }`, certificate, validProfile.uuid));
+    const parsed = spawnSync('plutil', ['-convert', 'json', '-o', '-', file], { encoding: 'utf8' });
+    assert.equal(parsed.status, 0, parsed.stderr);
+    const project = JSON.parse(parsed.stdout);
+    for (const key of ['A', 'B']) {
+      assert.equal(project.objects[key].buildSettings.CODE_SIGN_STYLE, 'Manual');
+      assert.equal(project.objects[key].buildSettings.CODE_SIGN_IDENTITY, certificate);
+      assert.equal(project.objects[key].buildSettings.PROVISIONING_PROFILE_SPECIFIER, validProfile.uuid);
+    }
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
 test('configure stamps Cargo version and attempt before scaffolding, rejecting version mismatch', () => {
