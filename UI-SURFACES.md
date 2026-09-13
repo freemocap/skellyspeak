@@ -98,25 +98,25 @@ accessible name. Target language, difficulty and partner share a single grid row
 with the largest share reserved for the partner. Saving status remains announced
 without consuming a selector column.
 
-## Self-repair — wave-one source
+## Message revision — current source
 
-Edit & try again prefills the composer and submits a native revision using the
+Edit message prefills the composer and submits a native revision using the
 exchange's durable identity. The latest exchange needs no removal confirmation;
 an earlier edit names the later conversation and private-coach turns it removes.
 A stale snapshot or pending reply rejects the action explicitly and retains the
 draft. Delayed responses cannot overwrite another conversation's composer.
 
-The revised exchange is active. Earlier version is a collapsed inspection view of
-the exact retained learner and partner wording, with explicit bounded loading when
-history spans pages. Replaced exchanges do not feed current suggestions or automatic
-speech. Revision rewards use only newly credited native XP, with assistance and
-deduplication preserved; richer coaching policy and reward tiers remain later waves.
+The revised exchange is the only active version shown in the conversation. The
+chat does not display earlier-version history. Native revision records remain
+retained for evidence and ownership checks; that retention is not a visible history
+feature. Replaced exchanges do not feed current suggestions or automatic speech.
+Revision rewards use only newly credited native XP, with assistance and
+deduplication preserved.
 
-GuidedPage and history tests cover the real handlers with native contract fixtures.
-The isolated revision surfaces were inspected at desktop and narrow browser sizes,
-including confirmation and Escape dismissal. This is not a full native/device or
-live-provider verification. Current combined results live in
-`workflow/reports/coaching-w1-integration.md`.
+GuidedPage tests cover the real revision handlers with native contract fixtures.
+Historical wave-one verification, including the earlier history UI that has since
+been removed, is recorded in `workflow/reports/coaching-w1-integration.md`.
+That report does not establish current native/device or live-provider behavior.
 
 
 ## Coaching and conversation starts — wave-two source
@@ -199,3 +199,18 @@ language: variety filter, independent/assisted counts, estimate and uncertainty,
 last observed and review date, plus source-message inspection and reversible
 attempt exclusions. Insufficient evidence is explicit. The existing activity/XP
 view remains separate. Native rebuild required for `get_learner_profile`.
+
+### Learning evidence export — 2026-09-13
+
+Your learning evidence → View YAML opens a literal YAML preview; Save YAML writes a fresh native snapshot
+for the selected language to Downloads. It includes source observations, focus and
+exclusion choices, estimates and configuration hashes. The view's variety filter
+does not restrict the export. The app reports the resulting path or a write error;
+existing files are never replaced. Native rebuild is required for this command.
+
+Conversation settings (gear) → Conversation YAML opens View YAML / Save YAML,
+with independent unchecked options for coaching/private coach chat and backend
+activity (models, requests and token use). The export contains the full active
+transcript and excludes replaced messages. Each action reads current local data.
+The preview scrolls within the dialog; saving reports the new Downloads path.
+No AI request is made. These commands require a native rebuild.

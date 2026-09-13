@@ -256,6 +256,57 @@ pub(crate) fn export_learner_state(
         .map_err(|e| invalid(&format!("Learner-state export failed: {e}")))
 }
 
+/// Save a fresh native projection, never a frontend-supplied assessment.
+#[tauri::command]
+pub(crate) fn save_learner_state(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, Arc<crate::Application>>,
+    target: String,
+) -> Result<String> {
+    use tauri::Manager;
+    let model = get_learner_state(state, target)?;
+    let downloads = app.path().download_dir().map_err(|error| {
+        AppError::new(
+            ErrorCode::Storage,
+            format!("Could not locate Downloads: {error}"),
+        )
+    })?;
+    let path = downloads.join(format!(
+        "skellyspeak-learning-{}.yaml",
+        uuid::Uuid::new_v4()
+    ));
+    write_export(&path, &model)?;
+    Ok(path.display().to_string())
+}
+
+fn write_export(path: &std::path::Path, model: &LearnerState) -> Result<()> {
+    use std::io::Write;
+    let bytes = serde_yaml_ng::to_string(model).map_err(|error| {
+        AppError::new(
+            ErrorCode::Storage,
+            format!("Could not serialize learning evidence: {error}"),
+        )
+    })?;
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|error| {
+            AppError::new(
+                ErrorCode::Storage,
+                format!("Could not create learning evidence file: {error}"),
+            )
+        })?;
+    file.write_all(bytes.as_bytes())
+        .and_then(|_| file.sync_all())
+        .map_err(|error| {
+            AppError::new(
+                ErrorCode::Storage,
+                format!("Learning evidence file could not be completed: {error}"),
+            )
+        })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -265,6 +316,26 @@ mod tests {
     }
     fn evidence(records: Vec<Value>) -> Value {
         json!({"target":"es","learner_id":"l","records":records,"profile":{"choices":{"excluded_attempts":[]}}})
+    }
+    #[test]
+    fn export_round_trips_owned_evidence_and_never_overwrites_a_file() {
+        let r = Registry::bundled().unwrap();
+        let data = evidence(vec![record(&r, "a", "demonstrated", "none", 1)]);
+        let state = fold(&r, &data, 10).unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("learning.yaml");
+        write_export(&path, &state).unwrap();
+        let saved = std::fs::read_to_string(&path).unwrap();
+        let restored: LearnerState = serde_yaml_ng::from_str(&saved).unwrap();
+        assert_eq!(restored.learner_id, state.learner_id);
+        assert_eq!(restored.language_id, state.language_id);
+        assert_eq!(restored.observations, state.observations);
+        assert_eq!(restored.choices, state.choices);
+        assert_eq!(restored.estimator_hash, state.estimator_hash);
+        assert_eq!(restored.constructs[0].evidence_attempt_ids, vec!["a"]);
+        assert!(write_export(&path, &state).is_err());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), saved);
+        assert!(write_export(&directory.path().join("missing/learning.yaml"), &state).is_err());
     }
     #[test]
     fn ignores_absence_uncertainty_exclusions_and_old_registry_without_inventing_state() {

@@ -250,7 +250,7 @@ The approved coaching, learner-model and game-layer design is the
 - The model observes; versioned policy code decides what to show, credit and reward.
   The coach returns per-construct observations (quote, outcome, error tag, hint);
   there are no global correctness or understandability scores.
-- Feedback follows a hint-first ladder. Edit & try again produces a new revision
+- Feedback follows a hint-first ladder. Edit message produces a new revision
   turn; revisions are credited, weighted by how much help was needed.
 - One construct registry, tagged by lens (function, form, interaction, pragmatics,
   support, fluency), serves both the practical and the functional skill views.
@@ -766,9 +766,10 @@ OS changes. Missing stored preference means light. The desktop split is adjustab
 by pointer or keyboard, limited to 30–70%; this geometry does not change domain data.
 
 Preserve the existing functional components: source-anchored word help and Arabic
-joining, voice controls, revision history, auto coaching, consistent feedback
+joining, voice controls, durable message revisions, auto coaching, consistent feedback
 modals, on-demand suggestions, partner reactions and persisted reward events.
-The handoff’s relaxed small-text contrast threshold is not adopted; both palettes
+Only the active revision is shown in chat; retained native revision records do not
+imply an earlier-version inspection surface. The handoff’s relaxed small-text contrast threshold is not adopted; both palettes
 are checked at 4.5:1 for text on their actual surfaces. Its harness, remote scripts,
 mock data, font downloads and example application code are not imported.
 
@@ -788,3 +789,22 @@ all contributions of the attempt, including XP. Failed writes retain the evidenc
 and show the error. This uses the existing open-learner-model design, not a new
 proficiency claim. Lens summaries, partner-filtered estimates and complete choice
 export are still planned.
+
+### Inspectable learner-state export
+
+The learner profile can view a fresh native projection as YAML and save it in Downloads,
+using the same destination convention as the existing data-copy action. The
+frontend passes only the selected language, never computed estimates or a chosen
+filesystem path. A unique file is exclusively created; errors are surfaced. The
+export includes retained sanitized observations, focus/exclusion choices and
+configuration provenance. This does not yet implement the broader export of all
+conversation-level intensity choices or hidden correction targets.
+
+Conversation settings also offer View YAML and Save YAML for the complete active
+transcript, including messages beyond the visible page. Replaced messages stay
+excluded. Coaching observations, decisions and private coach chat are opt-in;
+backend activity is a separate opt-in containing model, operation, attempt, usage
+and version metadata. Raw internal context, credentials and provider payloads are
+excluded. Both actions use the same native serializer and read current saved data
+on demand, without an AI request. Preview renders literal text; saving creates a
+new file in Downloads and reports its path or an explicit error.

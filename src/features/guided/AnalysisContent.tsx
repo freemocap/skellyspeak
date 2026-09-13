@@ -33,13 +33,10 @@ export const AnalysisContent = memo(function AnalysisContent({
 }: AnalysisContentProps) {
   const { autoTranslate } = useReadingPreferences()
   const a = turn.assistant
-  if (!a) {
-    return (
-      <p className="center-note">
-        The breakdown of the tutor&apos;s latest reply lands here.
-      </p>
-    )
-  }
+  if (!a) return <>
+    {turn.user && <AnalysisSentence label="You said" text={turn.user} gloss={turn.userSavedGloss} translation={autoTranslate ? turn.userTranslation : null} />}
+    <p className="center-note">No partner reply yet.</p>
+  </>
 
   return (
     <>

@@ -324,19 +324,27 @@ it('edits through the real page handler, sends durable identity and renders reta
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(screen.getByText('Edit saved — updating conversation…')).toBeVisible()
   expect(commands()[0].action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
   const revised: ConversationSnapshot = { ...initial, revision: 32, messages: [
     ...initial.messages.map(message => ({ ...message, replacedBy: 'repair' })),
     { ...initial.messages[0], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-user', sequence: 3, text: 'Yo fui ayer' },
     { ...initial.messages[1], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-reply', sequence: 4, text: '¿Qué hiciste allí?' },
   ], revisionSuffixCounts: [{ turnId: 'repair', exchangeCount: 0, coachTurnCount: 0 }] }
-  await act(async () => watches[1].resolve(revised))
-  expect(screen.getByText('Yo fui ayer')).toBeVisible()
-  const earlier = screen.getByText('Earlier version').closest('details')!
-  expect(earlier).not.toHaveAttribute('open')
-  fireEvent.click(screen.getByText('Earlier version'))
-  expect(earlier).toHaveTextContent('Yo fue ayer')
-  expect(earlier).toHaveTextContent('¿Adónde fuiste?')
+  // The edited wording must replace the bubble as soon as native storage accepts
+  // it, before a regenerated partner reply or word help has arrived.
+  const pendingRevision = { ...revised, messages: revised.messages.filter(message => message.id !== 'repair-reply') }
+  await act(async () => watches[1].resolve(pendingRevision))
+  expect(screen.getAllByText('Yo fui ayer').some(element => element.closest('.msg.me'))).toBe(true)
+  expect(screen.queryByText('Edit saved — updating conversation…')).not.toBeInTheDocument()
+  expect(screen.queryByText('Yo fue ayer')).not.toBeInTheDocument()
+  expect(screen.queryByText('¿Adónde fuiste?')).not.toBeInTheDocument()
+  await waitFor(() => expect(watches).toHaveLength(3))
+  await act(async () => watches[2].resolve({ ...revised, revision: 33 }))
+  expect(screen.getAllByText('Yo fui ayer').some(element => element.closest('.msg.me'))).toBe(true)
+  expect(screen.queryByText('Edit saved — updating conversation…')).not.toBeInTheDocument()
+  expect(screen.queryByText('Yo fue ayer')).not.toBeInTheDocument()
+  expect(screen.queryByText('Earlier version')).not.toBeInTheDocument()
   expect(screen.getAllByRole('button', { name: 'Edit message' })).toHaveLength(1)
 })
 

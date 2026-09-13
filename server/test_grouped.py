@@ -51,6 +51,65 @@ async def test_group_forwards_structured_contract_and_retains_completion_metadat
 
 
 @pytest.mark.asyncio
+async def test_assistant_first_history_reaches_upstream_and_results_keep_identity(ledger, proxy, monkeypatch):
+    conversation = [
+        {"role": "system", "content": "Converse naturally in Spanish."},
+        {"role": "assistant", "content": "Hola. ¿Te gusta la música?"},
+        {"role": "user", "content": "No, no me gusta música."},
+    ]
+    helper = [
+        {"role": "system", "content": "Return a JSON description of the supplied word."},
+        {"role": "user", "content": "árbol"},
+    ]
+    release_conversation = asyncio.Event()
+    sent = []
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        sent.append(body)
+        if body["messages"] == conversation:
+            await release_conversation.wait()
+            text, identity = "¿Qué prefieres hacer?", "conversation-generation"
+        else:
+            assert body["messages"] == helper
+            text, identity = '{"spans":[]}', "helper-generation"
+        return httpx.Response(200, json={"id": identity, "model": "google/gemini-2.5-flash",
+            "choices": [{"finish_reason": "stop", "message": {"content": text}}],
+            "usage": {"cost": 0.00001, "prompt_tokens": 4, "completion_tokens": 3, "total_tokens": 7}})
+
+    upstream(monkeypatch, respond)
+    request = envelope()
+    request["items"][0]["request"]["messages"] = conversation
+    request["items"][1]["request"]["messages"] = helper
+    request["items"][1]["request"]["response_format"] = structured_format()
+    items = grouped.parse(request, allowed_models=("google/gemini-2.5-flash",), max_tokens=100)
+    who = main.quota.Principal("learner", 500_000, False)
+    # Use the route's actual upstream executor; hold the first completion until
+    # the second result is observed, without timing sleeps or real inference.
+    stream = grouped.results(items, db=ledger, who=who,
+        execute=partial(main.execute_grouped_item, who=who))
+    try:
+        first = json.loads(await anext(stream))
+    finally:
+        release_conversation.set()
+    rest = [json.loads(line) async for line in stream]
+    assert first["type"] == "result"
+    assert (first["operation_id"], first["attempt_id"]) == (items[1].operation_id, items[1].attempt_id)
+    assert first["response"]["id"] == "helper-generation"
+    assert first["response"]["choices"][0]["message"]["content"] == '{"spans":[]}'
+    assert rest[-1] == {"type": "complete", "count": 2}
+    assert len(rest) == 2
+    assert (rest[0]["operation_id"], rest[0]["attempt_id"]) == (items[0].operation_id, items[0].attempt_id)
+    assert rest[0]["response"]["id"] == "conversation-generation"
+    assert rest[0]["response"]["choices"][0]["message"]["content"] == "¿Qué prefieres hacer?"
+    assert len(sent) == 2
+    by_kind = {"helper" if "response_format" in body else "conversation": body for body in sent}
+    assert by_kind["conversation"]["messages"] == conversation
+    assert by_kind["helper"]["messages"] == helper
+    assert by_kind["helper"]["response_format"] == structured_format()
+
+
+@pytest.mark.asyncio
 async def test_invalid_structured_item_prevents_all_claims_and_upstream_calls(proxy, monkeypatch):
     calls = []
     upstream(monkeypatch, lambda request: calls.append(request))

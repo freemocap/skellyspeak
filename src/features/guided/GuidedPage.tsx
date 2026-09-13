@@ -1,9 +1,9 @@
+import { ConversationExport } from './ConversationExport'
 import { PracticeDivider } from './PracticeDivider'
 import { LiveCoachReview } from './LiveCoachReview'
 import { OpeningStatus } from './OpeningStatus'
 import { useNavigationStore } from '../../state/navigation'
 import { ConversationStart, type StartChoice } from './ConversationStart'
-import { EarlierVersions } from './EarlierVersions'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 import { ConversationHeader } from './ConversationHeader'
 import { PersonaProfile } from './PersonaProfile'
@@ -97,6 +97,7 @@ export default function GuidedPage({
   const inputEvidence = useRef<InputEvidence>(unreportedInput())
   // A repair retains its source and explicitly confirms removal of dependent turns.
   const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
+  const [acceptedEditSource, setAcceptedEditSource] = useState<string | null>(null)
   const [editRevision, setEditRevision] = useState<number | null>(null)
   const [revisionConfirmation, setRevisionConfirmation] = useState<{ text: string; input: InputEvidence; revision: number; exchangeCount: number; coachTurnCount: number } | null>(null)
   const connection = useSessionStore((state) => state.connection)
@@ -167,6 +168,7 @@ export default function GuidedPage({
     setError(null)
     setSending(false)
     setEditingTurnId(null)
+    setAcceptedEditSource(null)
     setRevisionConfirmation(null)
     stopSpeechRef.current()
     setThreadReload((v) => v + 1)
@@ -272,6 +274,7 @@ export default function GuidedPage({
   }, [turns])
 
   const isMobile = useIsMobile()
+  const [exportOpen, setExportOpen] = useState(false)
   const [analysisOpen, setAnalysisOpen] = useState(false)
   useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
 
@@ -283,12 +286,19 @@ export default function GuidedPage({
     []
   )
   const acceptingSend = useRef(false)
-  useEffect(() => setSending(pendingReply), [pendingReply, snapshotRevision])
+  useEffect(() => setSending(pendingReply || acceptedEditSource !== null), [pendingReply, snapshotRevision, acceptedEditSource])
+  useEffect(() => {
+    if (acceptedEditSource && turns.some(turn => turn.replacesTurnId === acceptedEditSource)) {
+      setAcceptedEditSource(null)
+      setEditingTurnId(null)
+    }
+  }, [acceptedEditSource, turns])
   async function submitText(text: string, provenance: InputEvidence, revision?: number) {
     if (acceptingSend.current) return
     acceptingSend.current = true
     const submittedChatId = currentChatId
     const submittedDraftRevision = inputRevision.current
+    let editedSource: string | null = null
     setSending(true)
     setError(null)
     try {
@@ -298,13 +308,15 @@ export default function GuidedPage({
         const turn = turns.find(item => item.id === editingTurnId)
         if (!turn?.turnId || !snapshot || revision === undefined) throw new Error('Revision source is unavailable. Reopen the message to edit it.')
         await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })
+        editedSource = turn.turnId
       } else await sendMessage(text, currentChatId, provenance)
       if (selectedChatRef.current !== submittedChatId) return
       if (inputRevision.current === submittedDraftRevision) {
         setInput('')
         inputEvidence.current = unreportedInput()
       }
-      setEditingTurnId(null)
+      if (editedSource) setAcceptedEditSource(editedSource)
+      else setEditingTurnId(null)
       setRevisionConfirmation(null)
     } catch (reason) {
       if (selectedChatRef.current !== submittedChatId) return
@@ -446,13 +458,13 @@ export default function GuidedPage({
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
-              <span>✎ Editing your message — send to replace it</span>
-              <button type="button" onClick={cancelEdit}>
+              <span>{acceptedEditSource ? 'Edit saved — updating conversation…' : '✎ Editing your message — send to replace it'}</span>
+              <button type="button" disabled={acceptedEditSource !== null} onClick={cancelEdit}>
                 Cancel
               </button>
             </div>
           )}
-          {editingTurn && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
+          {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
           } : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
@@ -510,6 +522,7 @@ export default function GuidedPage({
             <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
             {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
                 <div className="conversation-languages">{nativePicker}</div>
+                <button type="button" disabled={!currentChatId} onClick={() => { setExportOpen(true); setSettingsOpen(false) }}>Conversation YAML</button>
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
                 <div className="quick-toggles" role="group" aria-label="Reading and voice options">
@@ -606,7 +619,6 @@ export default function GuidedPage({
                 composer.current?.querySelector('textarea')?.focus()
               } : undefined}
             />
-            {turn.replacesTurnId && snapshot && <EarlierVersions key={`${turn.turnId}:${snapshot.revision}`} turn={turn} snapshot={snapshot} />}
             </Fragment>
           ))}
           {error && (
@@ -669,12 +681,13 @@ export default function GuidedPage({
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
       {revisionConfirmation && <DetailDialog title="Revise earlier message" onClose={() => setRevisionConfirmation(null)}>
-        <p>This revision removes {revisionConfirmation.exchangeCount} later conversation turns and {revisionConfirmation.coachTurnCount} private coach turns. Your earlier wording and its reply remain available.</p>
+        <p>This revision removes {revisionConfirmation.exchangeCount} later conversation turns and {revisionConfirmation.coachTurnCount} private coach turns. Your edited message replaces the original in this conversation.</p>
         <div className="lesson-actions">
           <button type="button" onClick={() => setRevisionConfirmation(null)}>Cancel</button>
           <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>Revise and remove later turns</button>
         </div>
       </DetailDialog>}
+      {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
         <h2>Message analysis</h2>
         {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>Select Analysis on a conversation reply to inspect that message.</p>}

@@ -433,6 +433,17 @@ mod tests {
         ] {
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
             let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
+            let conversation_messages = serde_json::json!([
+                {"role":"system","content":"Converse naturally in Spanish."},
+                {"role":"assistant","content":"Hola. ¿Te gusta la música?"},
+                {"role":"user","content":"No, no me gusta música."}
+            ]);
+            let helper_messages = serde_json::json!([
+                {"role":"system","content":"Return a JSON description of the supplied word."},
+                {"role":"user","content":"árbol"}
+            ]);
+            let expected_conversation = conversation_messages.clone();
+            let expected_helper = helper_messages.clone();
             let server = tokio::spawn(async move {
                 let (mut socket, _) = listener.accept().await.unwrap();
                 let mut input = Vec::new();
@@ -470,11 +481,23 @@ mod tests {
                         assert!(child.get("provider").is_none());
                         assert_eq!(child["max_tokens"], 2048);
                         if structured {
+                            assert_eq!(payload["items"].as_array().unwrap().len(), 2);
+                            assert_eq!(child["messages"], expected_helper);
+                            assert_eq!(
+                                payload["items"][1]["request"]["messages"],
+                                expected_conversation
+                            );
+                            assert!(
+                                payload["items"][1]["request"]
+                                    .get("response_format")
+                                    .is_none()
+                            );
                             assert_eq!(
                                 child["response_format"],
                                 serde_json::json!({"type":"json_schema","json_schema":{"name":"fixture","strict":true,"schema":{"type":"object"}}})
                             );
                         } else {
+                            assert_eq!(child["messages"], expected_conversation);
                             assert!(child.get("response_format").is_none());
                         }
                         assert_eq!(
@@ -527,10 +550,12 @@ mod tests {
                 operation: "11111111-1111-1111-1111-111111111111".into(),
                 credential: "opaque".into(),
                 model: "google/gemini-2.5-flash".into(),
-                messages: vec![provider::PromptMessage {
-                    role: "user".into(),
-                    content: "Hello".into(),
-                }],
+                messages: serde_json::from_value(if structured {
+                    helper_messages
+                } else {
+                    conversation_messages.clone()
+                })
+                .unwrap(),
                 route,
                 install_id: "test".into(),
             };
@@ -545,7 +570,7 @@ mod tests {
                     attempt: "2000000000-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
                     credential: dispatch.credential.clone(),
                     model: dispatch.model.clone(),
-                    messages: dispatch.messages.clone(),
+                    messages: serde_json::from_value(conversation_messages).unwrap(),
                     route,
                     install_id: dispatch.install_id.clone(),
                 };

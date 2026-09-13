@@ -114,3 +114,14 @@ def test_long_recording_is_rejected_without_truncating_it_into_a_billable_reques
     request = upload(121)
     with pytest.raises(HTTPException, match="120 seconds"):
         audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+
+@pytest.mark.parametrize("answer", ["Sí, me gusta la música.", "No, no me gusta la música."])
+def test_opening_role_and_human_answer_reach_upstream_unchanged(answer):
+    messages = [
+        {"role": "system", "content": "Converse in Spanish."},
+        {"role": "assistant", "content": "¿Te gusta la música?"},
+        {"role": "user", "content": answer},
+    ]
+    request = {"model": MODELS[0], "messages": messages}
+    validated = contracts.chat_request(request, allowed_models=MODELS, max_tokens=2048)
+    assert validated.payload["messages"] == messages

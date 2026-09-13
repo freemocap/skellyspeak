@@ -5567,8 +5567,16 @@ mod tests {
         let wire = captured["messages"].as_array().unwrap();
         assert_eq!(wire.len(), 3);
         assert_eq!(wire[1]["role"], "assistant");
+        assert_eq!(wire[1]["content"], "¿Qué te gusta cocinar?");
         assert_eq!(wire[2]["role"], "user");
         assert_eq!(wire[2]["content"], "Sí, me gusta cocinar en casa.");
+        let serialized = crate::provider::payload(
+            "google/gemini-2.5-flash",
+            &serde_json::from_value::<Vec<PromptMessage>>(captured["messages"].clone()).unwrap(),
+            ConnectionRoute::Hosted,
+        )
+        .unwrap();
+        assert_eq!(serialized["messages"], captured["messages"]);
         assert!(
             wire[0]["content"]
                 .as_str()
@@ -5576,6 +5584,22 @@ mod tests {
                 .contains("never answer your own question")
         );
         assert_eq!(captured["sourceIds"].as_array().unwrap().len(), 1);
+        finish_fixture_exchange(&mut store, &next, "¿Qué preparas?");
+        let edited = store
+            .execute(revision_command(
+                &store,
+                &conversation,
+                &next,
+                "No, no me gusta cocinar.",
+            ))
+            .unwrap()
+            .entity_id;
+        let revised = wave2_context(&store, &edited);
+        let revised_wire = revised["messages"].as_array().unwrap();
+        assert_eq!(revised_wire.len(), 3);
+        assert_eq!(revised_wire[1], wire[1]);
+        assert_eq!(revised_wire[2]["role"], "user");
+        assert_eq!(revised_wire[2]["content"], "No, no me gusta cocinar.");
         let repeated = Command {
             session_id: store.session_id.clone(),
             action_id: id(),

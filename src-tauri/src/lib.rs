@@ -4,6 +4,7 @@ mod admission;
 mod audio;
 pub mod coaching;
 pub mod config;
+mod conversation_export;
 mod conversation_prompt;
 pub mod credentials;
 pub mod diagnostics;
@@ -1245,6 +1246,9 @@ pub fn run() {
             learner_state::get_learner_profile,
             rewards::claim_reward_events,
             learner_state::export_learner_state,
+            learner_state::save_learner_state,
+            conversation_export::view_conversation_yaml,
+            conversation_export::save_conversation_yaml,
             reward_settings::get_reward_settings,
             reward_settings::get_playback_rate,
             reward_settings::save_playback_rate,

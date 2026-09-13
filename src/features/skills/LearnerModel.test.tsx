@@ -4,7 +4,7 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { LearnerModel } from './LearnerModel'
 import { skillDemo } from '../../domain/skills/skillDemo'
 import type { LearnerProfile } from '../../platform/ipc/learner-profile'
-const api = vi.hoisted(() => ({ getLearnerProfile: vi.fn(), saveSkillProfile: vi.fn(), reload: vi.fn() }))
+const api = vi.hoisted(() => ({ getLearnerProfile: vi.fn(), saveSkillProfile: vi.fn(), saveLearnerState: vi.fn(), learnerStateYaml: vi.fn(), reload: vi.fn() }))
 vi.mock('../../platform/ipc/learner-profile', () => api)
 vi.mock('../../platform/skill-evidence', () => api)
 vi.mock('../../state/skill-evidence', () => ({ useSkillEvidenceStore: { getState: () => ({ reload: api.reload }) } }))
@@ -20,6 +20,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.open = false }
   api.getLearnerProfile.mockResolvedValue(profile())
   api.saveSkillProfile.mockResolvedValue({})
+  api.saveLearnerState.mockResolvedValue('/Downloads/learning.yaml')
 })
 it('opens quotes from the estimate and shows uncertainty without calling it proficiency', async () => {
   const data = profile()
@@ -79,4 +80,44 @@ it('filters source evidence by variety without treating absent evidence as failu
   fireEvent.change(screen.getByLabelText('Inspect evidence'), { target: { value: second.constructId } })
   expect(screen.getByText('No recorded evidence for this skill.')).toBeVisible()
   expect(screen.queryByText('Hola.')).not.toBeInTheDocument()
+})
+
+it('exports the selected language rather than frontend estimates or a variety-filtered subset', async () => {
+  const data = profile()
+  render(<LearnerModel target={data.evidence.target} onClose={() => {}} />)
+  const save = await screen.findByRole('button', { name: 'Save YAML' })
+  fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'es-MX' } })
+  fireEvent.click(save)
+  expect(await screen.findByRole('status')).toHaveTextContent('Saved to /Downloads/learning.yaml')
+  expect(api.saveLearnerState).toHaveBeenCalledExactlyOnceWith(data.evidence.target)
+})
+it('previews saved learning YAML without creating a file', async () => {
+  const target = profile().evidence.target
+  api.learnerStateYaml.mockResolvedValue('languageId: es\nobservations: []\n')
+  render(<LearnerModel target={target} onClose={() => {}} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'View YAML' }))
+  fireEvent.click(screen.getByRole('button', { name: 'View YAML' }))
+  expect(await screen.findByLabelText('Learning evidence YAML content')).toHaveTextContent('languageId: es')
+  expect(api.learnerStateYaml).toHaveBeenCalledExactlyOnceWith(target)
+  expect(api.saveLearnerState).not.toHaveBeenCalled()
+})
+it('reports a failed export without claiming a file was saved', async () => {
+  api.saveLearnerState.mockRejectedValue(new Error('Downloads is unavailable'))
+  render(<LearnerModel target={profile().evidence.target} onClose={() => {}} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Save YAML' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Downloads is unavailable')
+  expect(screen.queryByText(/Saved to/)).not.toBeInTheDocument()
+})
+it('ignores a late export result after switching language', async () => {
+  let finish!: (path: string) => void
+  api.saveLearnerState.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
+  const view = render(<LearnerModel target={profile().evidence.target} onClose={() => {}} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Save YAML' }))
+  expect(screen.getByRole('button', { name: 'Saving evidence…' })).toBeDisabled()
+  const other = profile(); other.evidence.target = 'ar'; other.model.languageId = 'ar'
+  api.getLearnerProfile.mockResolvedValue(other)
+  view.rerender(<LearnerModel target="ar" onClose={() => {}} />)
+  await screen.findByRole('button', { name: 'Save YAML' })
+  finish('/Downloads/old-language.yaml')
+  await waitFor(() => expect(screen.queryByText(/old-language/)).not.toBeInTheDocument())
 })

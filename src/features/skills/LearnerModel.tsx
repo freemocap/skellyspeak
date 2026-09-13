@@ -1,6 +1,7 @@
+import { YamlExport } from '../../ui/YamlExport'
 import { nativeError } from '../../platform/ipc/workspace'
-import { useEffect, useState } from 'react'
-import { getLearnerProfile, type LearnerProfile } from '../../platform/ipc/learner-profile'
+import { useEffect, useRef, useState } from 'react'
+import { getLearnerProfile, learnerStateYaml, saveLearnerState, type LearnerProfile } from '../../platform/ipc/learner-profile'
 import { saveSkillProfile } from '../../platform/skill-evidence'
 import { DetailDialog } from '../../ui/DetailDialog'
 import { useSkillEvidenceStore } from '../../state/skill-evidence'
@@ -10,11 +11,26 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
   const [error, setError] = useState<string | null>(null)
   const [revision, refresh] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [yamlOpen, setYamlOpen] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [savedTo, setSavedTo] = useState<string | null>(null)
+  const scope = useRef(target)
+  scope.current = target
+  async function exportEvidence() {
+    if (exporting) return
+    const owner = target
+    setExporting(true); setSavedTo(null); setError(null)
+    try {
+      const path = await saveLearnerState(owner)
+      if (scope.current === owner) setSavedTo(path)
+    } catch (reason) { if (scope.current === owner) setError(nativeError(reason)) }
+    finally { if (scope.current === owner) setExporting(false) }
+  }
   const [variety, setVariety] = useState('*')
   const [selected, select] = useState<string | null>(null)
   useEffect(() => {
     let current = true
-    setData(null); setError(null)
+    setData(null); setError(null); setSavedTo(null); setExporting(false)
     getLearnerProfile(target).then(result => {
       if (result.model.languageId !== target || result.evidence.target !== target || result.model.learnerId !== result.evidence.learner_id) throw new Error('Profile ownership mismatch')
       if (current) setData(result)
@@ -34,6 +50,7 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
   }
   const states = data?.model.constructs.filter(item => variety === '*' || item.varietyId === variety) ?? []
   const records = data?.evidence.records.filter(record => (variety === '*' || (record.variety ?? '') === variety) && record.assessment?.judgments.some(item => item.skill_id === selected)) ?? []
+  if (yamlOpen) return <YamlExport title="Learning evidence YAML" scope={target} view={() => learnerStateYaml(target)} save={() => saveLearnerState(target)} onClose={() => setYamlOpen(false)} />
   return <DetailDialog title="Your learning evidence" onClose={onClose}>
     <section className="learner-model">
       <h2>Your learning evidence</h2>
@@ -41,7 +58,8 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
       {error && <div role="alert">{error}<button disabled={saving} onClick={() => refresh(value => value + 1)}>Reload evidence</button></div>}
       {!data && !error && <p role="status">Loading your evidence…</p>}
       {data && <>
-        <div className="learner-model-controls"><label>Variety <select value={variety} onChange={event => { setVariety(event.target.value); select(null) }}><option value="*">All varieties</option>{[...new Set([...data.model.constructs.map(item => item.varietyId), ...data.evidence.records.map(record => record.variety ?? '')])].sort().map(id => <option key={id} value={id}>{id || 'Unspecified variety'}</option>)}</select></label><span>{data.evidence.profile.xp} practice XP</span></div>
+        <div className="learner-model-controls"><label>Variety <select value={variety} onChange={event => { setVariety(event.target.value); select(null) }}><option value="*">All varieties</option>{[...new Set([...data.model.constructs.map(item => item.varietyId), ...data.evidence.records.map(record => record.variety ?? '')])].sort().map(id => <option key={id} value={id}>{id || 'Unspecified variety'}</option>)}</select></label><span>{data.evidence.profile.xp} practice XP</span><button disabled={exporting || saving} onClick={() => setYamlOpen(true)}>View YAML</button><button disabled={exporting || saving} onClick={() => void exportEvidence()}>{exporting ? 'Saving evidence…' : 'Save YAML'}</button></div>
+        {savedTo && <p role="status">Saved to {savedTo}</p>}
         {!states.length && <p>No usable learning evidence yet. Missing evidence does not mean you lack the skill.</p>}
         <div className="learner-model-table"><table><caption>Learning estimates · {target}</caption><thead><tr><th>Skill</th><th>Independent</th><th>Assisted</th><th>Estimate ± uncertainty</th><th>Last observed</th><th>Review</th></tr></thead><tbody>{states.map(item => <tr key={`${item.varietyId}:${item.constructId}`}><th><button onClick={() => select(item.constructId)}>{data.evidence.catalog.find(node => node.id === item.constructId)?.label ?? item.constructId}</button><small>{item.varietyId || 'Unspecified variety'}</small></th><td>{item.independentN}</td><td>{item.n - item.independentN}</td><td>{item.insufficientEvidence ? 'Not enough independent evidence' : `${item.rating.toFixed(2)} ± ${item.uncertainty.toFixed(2)}`}</td><td>{new Date(item.lastSeen * 1000).toLocaleDateString()}</td><td>{item.insufficientEvidence ? '—' : item.due ? 'Due for practice' : new Date(item.dueAt * 1000).toLocaleDateString()}</td></tr>)}</tbody></table></div>
         <label>Inspect evidence <select value={selected ?? ''} onChange={event => select(event.target.value || null)}><option value="">Choose a skill</option>{data.evidence.catalog.filter(node => node.kind === 'skill').map(node => <option key={node.id} value={node.id}>{node.label}</option>)}</select></label>
@@ -51,7 +69,7 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
           const excluded = data.evidence.profile.choices.excluded_attempts.includes(record.attempt_id)
           return <article className="practice-credit" key={record.attempt_id}><blockquote dir="auto">{record.source}</blockquote><p>{judgment.rationale}</p><small>{excluded ? 'Excluded' : counted ? 'Contributes to the selected estimates' : 'Not used in the selected estimates'} · {new Date(record.at_secs * 1000).toLocaleDateString()} · Conversation {record.chat_id}{record.replaces_message_id !== null && ' · Revised message'}</small><button disabled={saving} onClick={() => void exclude(record.attempt_id)}>{excluded ? 'Restore attempt' : 'Exclude attempt'}</button></article>
         })}</section>}
-        <details><summary>Calculation details</summary><p>Rating is on an internal logistic scale, not a percentage or language level. Uncertainty is a heuristic, not a statistical confidence interval. Review dates are heuristic. Time changes when practice is due; it does not remove your rating or XP. Repeated wording is counted conservatively. Assisted includes recorded coaching support and revisions.</p><p>Estimator version {data.model.estimatorVersion} · calculated {new Date(data.model.asOfSecs * 1000).toLocaleString()}</p></details>
+        <details><summary>Calculation details</summary><p>Save learning evidence writes a fresh YAML snapshot for this language to Downloads, including source observations, focus and exclusion choices, estimates and configuration hashes. View filters do not restrict the export.</p><p>Rating is on an internal logistic scale, not a percentage or language level. Uncertainty is a heuristic, not a statistical confidence interval. Review dates are heuristic. Time changes when practice is due; it does not remove your rating or XP. Repeated wording is counted conservatively. Assisted includes recorded coaching support and revisions.</p><p>Estimator version {data.model.estimatorVersion} · calculated {new Date(data.model.asOfSecs * 1000).toLocaleString()}</p></details>
       </>}
     </section>
   </DetailDialog>
