@@ -24,7 +24,7 @@
   font-size: var(--text-2xs);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .break-head .live { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--shell-text-faint); }
@@ -35,7 +35,7 @@
 
 .exp {
   border: var(--border-width) solid var(--shell-line);
-  border-left: var(--border-width-thick) solid var(--warning);
+  border-inline-start: var(--border-width-thick) solid var(--warning);
   border-radius: var(--radius-lg);
   padding: var(--space-6) var(--space-7);
   background: var(--shell-chrome);

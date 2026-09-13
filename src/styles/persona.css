@@ -60,7 +60,7 @@
 
 .persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--shell-sunken); }
 
-.persona-picker-item[aria-checked="true"] { color: var(--accent); }
+.persona-picker-item[aria-checked="true"] { color: var(--accent-ink); }
 
 .persona-avatar { flex: none; display: inline-block; width: 1.25em; text-align: center; line-height: 1; }
 
@@ -125,7 +125,7 @@
 
 .persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--shell-text); }
 
-.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--accent); }
+.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--accent-ink); }
 
 /* Persona control panel — the list on the left, one character on the right.
    Wider than the settings modal because the sketch is the point: it is what

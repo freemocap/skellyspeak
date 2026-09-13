@@ -321,7 +321,7 @@
   --overlay-scrim-strong: rgb(0 0 0 / 73%);
 
   /* ── Feedback: danger ─────────────────────────────────────────────────── */
-  --danger: var(--c-red-400);
+  --danger: var(--danger-ink);
   --danger-text: var(--di-questions);
   --danger-ink: var(--di-questions);
   --danger-deep: var(--di-questions);
@@ -331,7 +331,7 @@
   --danger-edge-soft: var(--c-red-450);
   --danger-fill: var(--c-red-600);
   --danger-fill-hover: var(--c-red-700);
-  --danger-on-dark: var(--c-red-350);
+  --danger-on-dark: var(--danger-ink);
   --danger-on-dark-line: var(--c-red-750);
   --danger-bar-bg: var(--c-red-900);
   --danger-bar-line: var(--c-red-850);
@@ -340,7 +340,7 @@
   --danger-dim: color-mix(in srgb, var(--c-red-400) 8%, transparent);
 
   /* ── Feedback: success ────────────────────────────────────────────────── */
-  --success: var(--c-green-500);
+  --success: var(--success-ink);
   --success-ink: var(--di-situating);
   --success-soft: var(--di-situating);
   --success-edge: var(--c-green-400);
@@ -504,7 +504,7 @@
   --node-scale: 1;
 }
 
-/* Same roles, warm-paper values. Muted text remains readable at small sizes. */
+/* Same roles, graphite values. Muted text remains readable at small sizes. */
 :root[data-theme='dark'] {
   --ink-on-domain: var(--c-spectrum-bg);
   --c-spectrum-bg: #141517;

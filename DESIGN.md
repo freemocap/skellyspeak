@@ -775,3 +775,16 @@ mock data, font downloads and example application code are not imported.
 This pass does not implement every prototype detail: new mobile peek navigation,
 logo/font replacement and additional reward choreography remain separate design
 work. Existing narrow-screen navigation and reward behavior remain active.
+
+## Open learner model: first presentation slice (2026-09-13)
+
+The profile's “Your learning evidence” view reads native estimates and their source
+snapshot together under the same store lock. It separates independent and assisted
+observation counts, experimental rating/uncertainty, last-observed and due dates
+from practice XP. Insufficient independent evidence suppresses the numeric estimate.
+Variety filters apply to estimates and source records. Exclusion and restoration
+reuse revision-checked profile choices and recompute the view; exclusion affects
+all contributions of the attempt, including XP. Failed writes retain the evidence
+and show the error. This uses the existing open-learner-model design, not a new
+proficiency claim. Lens summaries, partner-filtered estimates and complete choice
+export are still planned.

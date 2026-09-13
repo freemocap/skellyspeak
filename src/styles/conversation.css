@@ -242,7 +242,7 @@
 
 .wroman {
   font-size: var(--text-2xs);
-  color: var(--accent);
+  color: var(--accent-ink);
   line-height: var(--leading-tight);
   font-family: var(--font-mono);
   font-style: normal;
@@ -252,7 +252,7 @@
 
 .sentence.rtl { direction: rtl; font-size: var(--text-3xl); }
 
-.proman { font-size: var(--text-2xs); color: var(--accent); font-family: var(--font-mono); font-style: normal; }
+.proman { font-size: var(--text-2xs); color: var(--accent-ink); font-family: var(--font-mono); font-style: normal; }
 
 /* Flex layout overrides the Unicode bidi algorithm: for RTL targets the
    token line must run row-reverse so the first word (DOM order) appears
@@ -328,7 +328,7 @@
   margin-bottom: var(--space-7);
 }
 
-.sect-k.pending { color: var(--accent); margin-bottom: var(--space-6); }
+.sect-k.pending { color: var(--accent-ink); margin-bottom: var(--space-6); }
 
 .turn-stack { display: flex; flex-direction: column; gap: var(--space-3); }
 
@@ -748,7 +748,7 @@
 .wpronunciation {
   font-size: var(--text-xs);
   line-height: 1.4;
-  color: var(--accent);
+  color: var(--accent-ink);
   margin-block-start: var(--space-1);
   overflow-wrap: anywhere;
 }

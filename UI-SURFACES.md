@@ -191,3 +191,11 @@ can be adjusted by dragging the separator or focusing it and using arrow keys;
 Home/End choose the limits and double-click resets. Geometry stays presentation-only.
 The same existing conversation, coaching, voice and reward components use both
 palettes. See `workflow/reports/living-spectrum-integration.md` for verification.
+
+### Learning evidence profile — 2026-09-13
+
+Profile → Your learning evidence opens a separate detail view for the selected
+language: variety filter, independent/assisted counts, estimate and uncertainty,
+last observed and review date, plus source-message inspection and reversible
+attempt exclusions. Insufficient evidence is explicit. The existing activity/XP
+view remains separate. Native rebuild required for `get_learner_profile`.

@@ -23,6 +23,7 @@ export interface SkillJudgment {
   rationale: string
 }
 export interface SkillRecord {
+  variety?: string | null
   construct_registry_hash: string | null
   mapping_error: string | null
   support_step: import('../../contracts').CoachMove | null

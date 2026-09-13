@@ -32,7 +32,7 @@
 
 .wordmark { font-weight: var(--weight-bold); font-size: var(--text-2xl); letter-spacing: var(--tracking-wide); }
 
-.wordmark b { color: var(--accent); }
+.wordmark b { color: var(--accent-ink); }
 
 .tabs { display: flex; gap: var(--space-2); }
 
@@ -125,7 +125,7 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.mobile-nav-item.active { color: var(--accent); background: var(--shell-sunken); border-top-color: var(--accent); }
+.mobile-nav-item.active { color: var(--accent-ink); background: var(--shell-sunken); border-top-color: var(--accent); }
 
 @media (max-width: 860px) {
   .split { flex-direction: column; padding: var(--space-2); gap: 0; }

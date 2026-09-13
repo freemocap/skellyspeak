@@ -46,7 +46,7 @@
 .coach-send:disabled { opacity: 0.5; cursor: default; }
 
 .coach-card {
-  border: var(--border-width) solid var(--shell-line); border-left: var(--border-width-thick) solid var(--accent);
+  border: var(--border-width) solid var(--shell-line); border-inline-start: var(--border-width-thick) solid var(--accent);
   border-radius: var(--radius-md); padding: 8px 12px; background: var(--warning-dim);
 }
 
@@ -113,7 +113,7 @@
 }
 
 .coach-thread-head button {
-  margin-left: auto; background: none; border: none; color: var(--shell-text-muted);
+  margin-inline-start: auto; background: none; border: none; color: var(--shell-text-muted);
   cursor: pointer; font-size: var(--text-xl); line-height: 1; padding: 0 var(--space-2);
 }
 
@@ -165,7 +165,7 @@
   min-height: var(--control-height-sm);
 }
 
-.coach-dock .coach-collapse { margin-left: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+.coach-dock .coach-collapse { margin-inline-start: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; }
 
 .coach-dock .lesson-thread {
   flex: 1;

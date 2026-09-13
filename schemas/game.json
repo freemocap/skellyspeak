@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "base": {
+      "additionalProperties": {
+        "format": "uint32",
+        "minimum": 0.0,
+        "type": "integer"
+      },
+      "type": "object"
+    },
+    "difficulty": {
+      "additionalProperties": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "object"
+    },
+    "never_from": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "novelty": {
+      "additionalProperties": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "object"
+    },
+    "rules": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "support": {
+      "additionalProperties": {
+        "format": "double",
+        "type": "number"
+      },
+      "type": "object"
+    },
+    "tiers": {
+      "additionalProperties": {
+        "format": "uint8",
+        "minimum": 0.0,
+        "type": "integer"
+      },
+      "type": "object"
+    },
+    "version": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "base",
+    "difficulty",
+    "never_from",
+    "novelty",
+    "rules",
+    "sources",
+    "support",
+    "tiers",
+    "version"
+  ],
+  "title": "GamePolicy",
+  "type": "object"
+}

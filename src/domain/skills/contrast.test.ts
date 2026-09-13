@@ -47,6 +47,16 @@ for (const theme of ['dark', 'light'] as const) {
     expect(contrast(c('ink-on-fill'), c('accent-strong'))).toBeGreaterThanOrEqual(4.5)
     expect(contrast(c('danger-ink'), c('paper-raised'))).toBeGreaterThanOrEqual(4.5)
   })
+  it(`keeps links, status, recovery and destructive controls readable in ${theme}`, () => {
+    for (const ink of ['accent-ink', 'danger', 'danger-on-dark', 'success']) {
+      for (const background of ['shell-overlay', 'shell-chrome', 'shell-raised', 'paper-raised']) {
+        expect(contrast(c(ink), c(background)), `${ink} on ${background}`).toBeGreaterThanOrEqual(4.5)
+      }
+    }
+    for (const background of ['danger-fill', 'danger-fill-hover', 'danger-on-dark-line']) {
+      expect(contrast(c('ink-on-fill'), c(background)), `white on ${background}`).toBeGreaterThanOrEqual(4.5)
+    }
+  })
   it(`keeps evidence and XP badge text readable in ${theme}`, async () => {
     const { domainColors } = await import('./skill-domains')
     for (const domain of ['social', 'descriptions', 'statements', 'situating', 'questions', 'opinions']) {

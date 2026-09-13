@@ -17,12 +17,14 @@ pub struct ConstructState {
     pub variety_id: String,
     pub rating: f64,
     pub uncertainty: f64,
+    #[ts(type = "number")]
     pub last_seen: i64,
     pub half_life_days: f64,
     pub n: u32,
     pub independent_n: u32,
     pub effective_n: f64,
     pub recall: f64,
+    #[ts(type = "number")]
     pub due_at: i64,
     pub due: bool,
     pub insufficient_evidence: bool,
@@ -33,6 +35,7 @@ pub struct ConstructState {
 pub struct LearnerState {
     pub learner_id: String,
     pub language_id: String,
+    #[ts(type = "number")]
     pub as_of_secs: i64,
     pub config_hash: String,
     pub construct_registry_hash: String,
@@ -213,6 +216,21 @@ pub fn snapshot(store: &Store, target: &str, at: i64) -> Result<LearnerState> {
         &crate::progression::snapshot(store, target)?,
         at,
     )
+}
+/// Evidence and estimates share one locked read so exclusions cannot race the UI.
+#[tauri::command]
+pub(crate) fn get_learner_profile(
+    state: tauri::State<'_, Arc<crate::Application>>,
+    target: String,
+) -> Result<Value> {
+    let at = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_| invalid("System clock precedes epoch."))?
+        .as_secs() as i64;
+    let store = state.lock()?;
+    let evidence = crate::progression::snapshot(&store, &target)?;
+    let model = fold(&store.config, &evidence, at)?;
+    Ok(serde_json::json!({"evidence": evidence, "model": model}))
 }
 #[tauri::command]
 pub(crate) fn get_learner_state(

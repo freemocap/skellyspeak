@@ -24,7 +24,7 @@
 
 .inside-btn:hover { color: var(--shell-text); border-color: var(--accent); }
 
-.inside-btn.open { color: var(--accent); border-color: var(--accent); }
+.inside-btn.open { color: var(--accent-ink); border-color: var(--accent); }
 
 .inside-dot {
   width: 7px; height: 7px; border-radius: var(--radius-circle); flex: none;
@@ -87,7 +87,7 @@
 
 .logs-window-title em {
   font-style: normal;
-  color: var(--accent);
+  color: var(--accent-ink);
   text-transform: none;
   letter-spacing: var(--tracking-normal);
 }
