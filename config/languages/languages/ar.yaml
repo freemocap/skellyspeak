@@ -1,0 +1,18 @@
+id: "ar"
+name: "Arabic"
+native_name: "العربية"
+script: "Arab"
+orthography: "arabic-unvocalized"
+family: "afro-asiatic"
+romanization: "ala-lc-arabic"
+traits:
+  - "abjad-vowel-omission"
+  - "construct-state"
+default_variety: "ar-MSA"
+varieties:
+  -
+    id: "ar-MSA"
+    name: "Modern Standard Arabic"
+    guidance: []
+guidance: []
+review: "needs_review"

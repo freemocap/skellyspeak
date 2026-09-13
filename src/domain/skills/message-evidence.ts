@@ -38,7 +38,7 @@ export function createMessageEvidenceSelector() {
   return (snapshot: SkillSnapshot | null, chatId: string | null, messageId: number, source: string): MessageEvidence[] => {
     const index = snapshot ? skillIndex(snapshot) : null
     const records = index?.messages.get(JSON.stringify([chatId, messageId])) ?? []
-    const key = JSON.stringify([snapshot?.target, snapshot?.catalog_version, chatId, messageId, source, records.map(record => [record, index!.excluded.has(record.attempt_id), record.assessment?.judgments.map(judgment => index!.credits.get(`${record.attempt_id}:${judgment.skill_id}`))])])
+    const key = JSON.stringify([snapshot?.target, snapshot?.construct_registry_hash, snapshot?.catalog_version, chatId, messageId, source, records.map(record => [record, index!.excluded.has(record.attempt_id), record.assessment?.judgments.map(judgment => index!.credits.get(`${record.attempt_id}:${judgment.skill_id}`))])])
     if (key !== previousKey) { previousKey = key; previous = messageEvidence(snapshot, chatId, messageId, source) }
     return previous
   }

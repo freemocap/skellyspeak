@@ -1,8 +1,8 @@
+import { AnalysisSentence } from './AnalysisSentence'
 import { useReadingPreferences } from '../../ui/ReadingPreferences'
-import { needsSpaceBetween } from '../../domain/language/token-spacing'
-import { AnnotatedText, TargetText } from '../../ui/TargetText'
+import { TargetText } from '../../ui/TargetText'
 import { memo } from 'react'
-import type { GuidedToken, StoredTurn } from '../../types'
+import type { StoredTurn } from '../../types'
 
 export interface InspectTarget {
   turn: number
@@ -12,7 +12,7 @@ export interface InspectTarget {
 
 /// Just the parts of a turn this pane renders. Deriving from `StoredTurn` keeps
 /// this view synchronized with the canonical shape.
-export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant'>
+export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation'>
 
 interface AnalysisContentProps {
   turn: AnalysedTurn
@@ -26,12 +26,12 @@ interface AnalysisContentProps {
 /// gloss lists, grammar mechanics, and the analysis Q&A thread.
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
-  inspect,
+  inspect: _inspect,
   nativeLanguageName,
-  showRomanization,
-  rtl,
+  showRomanization: _showRomanization,
+  rtl: _rtl,
 }: AnalysisContentProps) {
-  const { autoTranslate, alwaysRomanize } = useReadingPreferences()
+  const { autoTranslate } = useReadingPreferences()
   const a = turn.assistant
   if (!a) {
     return (
@@ -41,30 +41,6 @@ export const AnalysisContent = memo(function AnalysisContent({
     )
   }
 
-  const highlighted = (side: 'me' | 'bot', i: number) =>
-    inspect?.turn === turn.id && inspect?.side === side && inspect.index === i
-      ? 'inspected'
-      : ''
-
-  const tokenSentence = (tokens: GuidedToken[]) => (
-    <p className={rtl ? 'sentence rtl' : 'sentence'}><AnnotatedText text={tokens.map((token, index) => `${index > 0 && needsSpaceBetween(tokens[index - 1].text, token.text) ? ' ' : ''}${token.text}`).join('')} tokens={tokens} /></p>
-  )
-
-  const glossList = (tokens: GuidedToken[], side: 'me' | 'bot') => (
-    <div className="gloss">
-      {tokens.map((tok, i) => (
-        <div key={i} className={`tok ${tok.notable ? 'key' : ''} ${highlighted(side, i)}`}>
-          <span className="sp" dir="auto"><AnnotatedText text={tok.text} tokens={[tok]} /></span>
-          {alwaysRomanize && showRomanization && tok.romanization && (
-            <span className="proman">{tok.romanization}</span>
-          )}
-          {tok.gloss && <span className="gl">{tok.gloss}</span>}
-          {tok.pos && <span className="po">{tok.pos}</span>}
-        </div>
-      ))}
-    </div>
-  )
-
   return (
     <>
       {turn.analysisState === 'pending' && (
@@ -73,37 +49,8 @@ export const AnalysisContent = memo(function AnalysisContent({
         </p>
       )}
 
-      <p className="sect-k">
-        You said
-      </p>
-      {a.user_tokens && a.user_tokens.length > 0 ? (
-        tokenSentence(a.user_tokens)
-      ) : turn.user ? (
-        <p className={rtl ? 'sentence rtl' : 'sentence'}><TargetText text={turn.user} /></p>
-      ) : null}
-      {autoTranslate && a.user_translation && <p className="trans-d">{a.user_translation}</p>}
-
-      <p className="sect-k">
-        Tutor replied
-      </p>
-      {a.tokens.length > 0
-        ? tokenSentence(a.tokens)
-        : <p className="sentence"><TargetText text={a.reply} /></p>}
-      {autoTranslate && a.translation && <p className="trans-d">{a.translation}</p>}
-
-      {a.tokens.length > 0 && (
-        <>
-          <p className="sect-k">Tutor words</p>
-          {glossList(a.tokens, 'bot')}
-        </>
-      )}
-
-      {a.user_tokens && a.user_tokens.length > 0 && (
-        <>
-          <p className="sect-k">Your words</p>
-          {glossList(a.user_tokens, 'me')}
-        </>
-      )}
+      {turn.user && <AnalysisSentence label="You said" text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={autoTranslate ? turn.userTranslation ?? a.user_translation : null} />}
+      <AnalysisSentence label="Partner replied" side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={autoTranslate ? a.translation : null} />
 
       {a.errors.length > 0 && (
         <div className="turn-errors">

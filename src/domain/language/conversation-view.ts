@@ -19,7 +19,7 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     if (message.role === 'user') {
       const feedback = message.feedback
       Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
-        ...(feedback ? { coach: feedback } : {}) })
+        ...(feedback ? { coach: feedback } : {}), ...(message.coachDecision ? { coachDecision: message.coachDecision } : {}) })
     } else if (message.role === 'assistant') {
       turn.assistant = {
         messageId: message.id,

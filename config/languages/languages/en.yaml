@@ -1,0 +1,20 @@
+id: "en"
+name: "English"
+native_name: "English"
+script: "Latn"
+orthography: "latin"
+family: "indo-european"
+romanization: null
+traits: []
+default_variety: "en-US"
+varieties:
+  -
+    id: "en-US"
+    name: "United States"
+    guidance: []
+  -
+    id: "en-GB"
+    name: "United Kingdom"
+    guidance: []
+guidance: []
+review: "needs_review"

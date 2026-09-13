@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { AppError } from '../../contracts'
 import { invoke } from '../../platform/ipc/tauri'
 import { nativeError } from '../../platform/ipc/workspace'
+import { ConfigurationRefusal } from './ConfigurationRefusal'
 import { SaveDataCopy } from '../../ui/SaveDataCopy'
 
 /// The workspace could not be opened, so there is no store and no shell to show.
@@ -19,11 +20,12 @@ export function StartupRefusal({ error }: { error: AppError }) {
     try { await invoke('factory_reset', { confirmation: 'DELETE' }) }
     catch (reason) { setFailure(nativeError(reason)); setBusy(false) }
   }
+  if (error.code === 'config_load') return <ConfigurationRefusal message={error.message} />
   return <main className="startup-refusal">
     <p role="alert">{error.message}</p>
     {!ownedElsewhere && <SaveDataCopy />}
     <button type="button" className="btn danger" disabled={busy || ownedElsewhere}
-      title="Deletes all local data, including conversations and saved keys, then closes the app."
+      title="Deletes all local data, including conversations, editable configuration files and saved keys, then closes the app."
       onClick={() => { void reset() }}>
       {busy ? 'Resetting…' : 'Factory Reset'}
     </button>

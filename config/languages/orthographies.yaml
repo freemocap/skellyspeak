@@ -1,0 +1,22 @@
+-
+  id: "latin"
+  script: "Latn"
+  guidance: []
+-
+  id: "arabic-unvocalized"
+  script: "Arab"
+  guidance: []
+-
+  id: "zh-hans"
+  script: "Hans"
+  guidance:
+    -
+      scope: "target_writing"
+      text: "Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation is requested."
+      sources:
+        - "pinyin_orthography2012"
+    -
+      scope: "explanation_writing"
+      text: "Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation is requested."
+      sources:
+        - "pinyin_orthography2012"

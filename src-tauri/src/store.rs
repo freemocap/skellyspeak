@@ -1,4 +1,6 @@
-use crate::{languages, model::*};
+#[cfg(test)]
+use crate::languages;
+use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
 use std::path::Path;
 use uuid::Uuid;
@@ -26,7 +28,7 @@ pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
 }
 
 /// Current development schema. Other versions require an explicit workspace reset.
-pub(crate) const SCHEMA_VERSION: i32 = 13;
+pub(crate) const SCHEMA_VERSION: i32 = 14;
 const GENERATION_SCHEMA: &str = include_str!("generation_schema.sql");
 
 /// The workspace database, inside the application data directory.
@@ -79,6 +81,7 @@ impl WorkspaceOwnership {
 }
 
 pub struct Store {
+    pub(crate) config: crate::config::Registry,
     pub(crate) connection: Connection,
     pub(crate) session_id: String,
     pub(crate) credential_writes: std::collections::HashSet<String>,
@@ -179,6 +182,18 @@ impl Store {
 
     pub fn open(path: &Path) -> Result<Self> {
         let ownership = WorkspaceOwnership::acquire(path)?;
+        let config = crate::config::initialize(
+            &path
+                .parent()
+                .ok_or_else(|| {
+                    AppError::new(
+                        ErrorCode::ConfigLoad,
+                        "Workspace has no configuration directory.",
+                    )
+                })?
+                .join("config"),
+        )
+        .map_err(|e| AppError::new(ErrorCode::ConfigLoad, e.to_string()))?;
         #[cfg(unix)]
         {
             use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
@@ -219,6 +234,7 @@ impl Store {
             tx.execute_batch(include_str!("schema.sql"))?;
             tx.execute_batch(GENERATION_SCHEMA)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
+            config.language("en")?;
             let preferences = Preferences {
                 explanation_language: "en".into(),
                 text_size: crate::model::TEXT_SIZE_DEFAULT,
@@ -247,6 +263,7 @@ impl Store {
         crate::progression::initialize(&connection)?;
         crate::reward_settings::initialize(&connection)?;
         let store = Self {
+            config,
             connection,
             session_id: id(),
             speech_cache: crate::speech::Cache::default(),
@@ -290,7 +307,7 @@ impl Store {
     }
 
     pub fn snapshot(&self) -> Result<Snapshot> {
-        read_snapshot(&self.connection, &self.session_id)
+        read_snapshot(&self.connection, &self.session_id, &self.config)
     }
 
     pub fn execute(&mut self, command: Command) -> Result<Receipt> {
@@ -320,7 +337,7 @@ impl Store {
             }
             return Ok(serde_json::from_str(&receipt)?);
         }
-        let snapshot = read_snapshot(&tx, &self.session_id)?;
+        let snapshot = read_snapshot(&tx, &self.session_id, &self.config)?;
         let revision = snapshot
             .revision
             .checked_add(1)
@@ -328,6 +345,41 @@ impl Store {
         let mut persona_scope: Option<String> = None;
         let mut conversation_scope: Option<String> = None;
         let entity_id = match command.action {
+            Action::StartConversation {
+                conversation_id,
+                opening,
+                expected_revision,
+            } => {
+                let id = crate::openers::accept(
+                    &tx,
+                    &snapshot,
+                    &self.config,
+                    &conversation_id,
+                    opening,
+                    expected_revision,
+                )?;
+                conversation_scope = Some(conversation_id);
+                id
+            }
+            Action::CoachControl {
+                turn_id,
+                control,
+                expected_revision,
+            } => {
+                let id = crate::coach_policy::control(
+                    &tx,
+                    &snapshot,
+                    &turn_id,
+                    control,
+                    expected_revision,
+                )?;
+                conversation_scope = Some(tx.query_row(
+                    "SELECT conversation_id FROM turns WHERE id=?1",
+                    [&turn_id],
+                    |r| r.get(0),
+                )?);
+                id
+            }
             Action::ReviseTurn {
                 conversation_id,
                 turn_id,
@@ -337,6 +389,7 @@ impl Store {
             } => {
                 let result = crate::revision::accept(
                     &tx,
+                    &self.config,
                     &snapshot,
                     &conversation_id,
                     &turn_id,
@@ -354,6 +407,7 @@ impl Store {
             } => {
                 let turn_id = crate::execution::accept_coach(
                     &tx,
+                    &self.config,
                     &snapshot,
                     &conversation_id,
                     &text,
@@ -370,6 +424,7 @@ impl Store {
             } => {
                 let turn_id = crate::execution::accept_send(
                     &tx,
+                    &self.config,
                     &snapshot,
                     &conversation_id,
                     &text,
@@ -409,6 +464,12 @@ impl Store {
                 conversation_scope = Some(tx.query_row("SELECT t.conversation_id FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.id=?1", [&operation], |r|r.get(0))?);
                 operation
             }
+            Action::RequestSuggestions { message_id } => {
+                let (conversation, operation) =
+                    crate::execution::request_suggestions(&tx, &message_id)?;
+                conversation_scope = Some(conversation);
+                operation
+            }
             Action::RetryGloss { operation_id } => {
                 conversation_scope = Some(crate::execution::retry_gloss(&tx, &operation_id)?);
                 operation_id
@@ -431,9 +492,14 @@ impl Store {
             }
             Action::StartChat { language_id } => {
                 let details = crate::persona::starter(&language_id)?;
-                let (persona_id, contact_id) =
-                    create_persona(&tx, &snapshot.learner.id, &language_id, details)?;
-                let settings = languages::defaults(
+                let (persona_id, contact_id) = create_persona(
+                    &tx,
+                    &self.config,
+                    &snapshot.learner.id,
+                    &language_id,
+                    details,
+                )?;
+                let settings = self.config.defaults(
                     &language_id,
                     &snapshot.learner.preferences.explanation_language,
                 )?;
@@ -452,9 +518,14 @@ impl Store {
                 language_id,
                 details,
             } => {
-                let (persona_id, contact_id) =
-                    create_persona(&tx, &snapshot.learner.id, &language_id, details)?;
-                let settings = languages::defaults(
+                let (persona_id, contact_id) = create_persona(
+                    &tx,
+                    &self.config,
+                    &snapshot.learner.id,
+                    &language_id,
+                    details,
+                )?;
+                let settings = self.config.defaults(
                     &language_id,
                     &snapshot.learner.preferences.explanation_language,
                 )?;
@@ -480,7 +551,10 @@ impl Store {
                     .find(|p| p.id == persona_id)
                     .ok_or_else(missing)?;
                 check_revision(persona.revision, expected_revision)?;
-                crate::persona::validate(&details, &persona.language_id)?;
+                crate::persona::validate_for_language(
+                    &details,
+                    &self.config.language(&persona.language_id)?,
+                )?;
                 tx.execute(
                     "UPDATE personas SET details=?1,revision=revision+1 WHERE id=?2",
                     params![serde_json::to_string(&details)?, persona_id],
@@ -546,7 +620,7 @@ impl Store {
                     .max_by(|a, b| a.last_used.cmp(&b.last_used).then(a.id.cmp(&b.id)));
                 let settings = match recent {
                     Some(c) => c.settings.clone(),
-                    None => languages::defaults(
+                    None => self.config.defaults(
                         &persona.language_id,
                         &snapshot.learner.preferences.explanation_language,
                     )?,
@@ -606,7 +680,8 @@ impl Store {
                     .find(|c| c.id == conversation_id)
                     .ok_or_else(missing)?;
                 check_revision(conversation.settings_revision, expected_revision)?;
-                languages::validate_settings(&conversation.language_id, &settings)?;
+                self.config
+                    .validate_settings(&conversation.language_id, &settings)?;
                 tx.execute("UPDATE conversation_settings SET settings=?1,revision=revision+1 WHERE conversation_id=?2", params![serde_json::to_string(&settings)?, conversation_id])?;
                 tx.execute(
                     "UPDATE conversations SET revision=revision+1 WHERE id=?1",
@@ -635,7 +710,7 @@ impl Store {
             } => {
                 check_revision(snapshot.learner.revision, expected_revision)?;
                 short_text(&name, "Learner name", 80)?;
-                languages::language(&preferences.explanation_language)?;
+                self.config.language(&preferences.explanation_language)?;
                 if !(crate::model::TEXT_SIZE_MIN..=crate::model::TEXT_SIZE_MAX)
                     .contains(&preferences.text_size)
                     || preferences.text_spacing > 12
@@ -689,7 +764,11 @@ fn decode<T: serde::de::DeserializeOwned>(
         rusqlite::Error::FromSqlConversionFailure(index, rusqlite::types::Type::Text, Box::new(e))
     })
 }
-fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> {
+fn read_snapshot(
+    connection: &Connection,
+    session_id: &str,
+    config: &crate::config::Registry,
+) -> Result<Snapshot> {
     let learner = connection.query_row(
         "SELECT id,name,revision,preferences FROM learner WHERE singleton=1",
         [],
@@ -702,6 +781,7 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             })
         },
     )?;
+    config.language(&learner.preferences.explanation_language)?;
     let language_profiles = connection
         .prepare("SELECT id,learner_id,language_id FROM language_profiles ORDER BY language_id")?
         .query_map([], |r| {
@@ -746,10 +826,13 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
         ));
     }
     for persona in &personas {
-        crate::persona::validate(&persona.details, &persona.language_id)?;
+        crate::persona::validate_for_language(
+            &persona.details,
+            &config.language(&persona.language_id)?,
+        )?;
     }
     for conversation in &conversations {
-        languages::validate_settings(&conversation.language_id, &conversation.settings)?;
+        config.validate_settings(&conversation.language_id, &conversation.settings)?;
     }
     Ok(Snapshot {
         session_id: session_id.into(),
@@ -759,7 +842,7 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
             |r| r.get(0),
         )?,
         learner,
-        languages: languages::registry(),
+        languages: config.language_projection(),
         language_profiles,
         personas,
         contacts,
@@ -771,11 +854,12 @@ fn read_snapshot(connection: &Connection, session_id: &str) -> Result<Snapshot> 
 /// a generated result. The language is validated here.
 fn create_persona(
     db: &Connection,
+    registry: &crate::config::Registry,
     learner: &str,
     language_id: &str,
     details: PersonaDetails,
 ) -> Result<(String, String)> {
-    crate::persona::validate(&details, language_id)?;
+    crate::persona::validate_for_language(&details, &registry.language(language_id)?)?;
     let persona_id = id();
     let contact_id = id();
     db.execute("INSERT INTO language_profiles SELECT ?1,?2,?3 WHERE NOT EXISTS(SELECT 1 FROM language_profiles WHERE learner_id=?2 AND language_id=?3)", params![id(), learner, language_id])?;
@@ -1249,7 +1333,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("skellyspeak.sqlite3");
         drop(Store::open(&path).unwrap());
-        for version in [3, 5, 8, 9, 10, 11, 12, SCHEMA_VERSION + 1] {
+        for version in [3, 5, 8, 9, 10, 11, 12, 13, SCHEMA_VERSION + 1] {
             let connection = Connection::open(&path).unwrap();
             connection
                 .pragma_update(None, "user_version", version)
@@ -1442,5 +1526,12 @@ mod tests {
                 SCHEMA_VERSION
             );
         }
+    }
+    #[test]
+    fn unavailable_saved_explanation_language_is_refused_on_snapshot() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.explanationLanguage','unknown_language')",[]).unwrap();
+        assert!(store.snapshot().is_err());
     }
 }

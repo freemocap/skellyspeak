@@ -1,47 +1,116 @@
 // @vitest-environment jsdom
 import { beforeEach, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MessageFeedback } from './MessageFeedback'
-import type { Feedback } from '../../contracts'
+import type { CoachDecision, CoachObservationView } from '../../contracts'
 vi.mock('../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function (): void { this.setAttribute('open', '') }
   HTMLDialogElement.prototype.close = function (): void { this.removeAttribute('open') }
 })
-const feedback = (over: Partial<Feedback> = {}): Feedback => ({ correctness: 5, understandability: 5, explanation: 'A clear, appropriate refusal.', correction: '', evidence: [], ...over })
-
-it('shows both model scores on the badge', () => {
-  render(<MessageFeedback id={1} text="No, gracias." feedback={feedback()} error={undefined} reviewing={false} onEdit={undefined} onAsk={vi.fn()} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Correctness 5/5 · Understanding 5/5')
+const feedback: CoachObservationView = { meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
+const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
+const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
+it('shows a qualitative chip and the policy hint without grades or an invented answer', () => {
+  render(<MessageFeedback {...base} />)
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Try again')
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  expect(screen.getByRole('dialog')).toHaveTextContent('Which form goes with yo?')
+  expect(screen.queryByText(/Correctness|Understanding|\/5/)).toBeNull()
+  expect(screen.queryByText('fui')).toBeNull()
 })
-
-it('opens everything the coach saved once, with no placeholder, and routes a question', () => {
-  const ask = vi.fn()
-  const saved = feedback({ correctness: 2, understandability: 4, explanation: 'Use fui for yo.', correction: 'Yo fui ayer.',
-    evidence: [{ skill_id: 'social_checkin', quote: 'Yo fue ayer', outcome: 'partial', rationale: 'Past reference with the wrong verb form.' }] })
-  render(<MessageFeedback id={3} text="Yo fue ayer" feedback={saved} error={undefined} reviewing={false} onEdit={undefined} onAsk={ask} />)
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Coach feedback for message 3' }))
-  const dialog = screen.getByRole('dialog')
-  expect(screen.getAllByText('Use fui for yo.')).toHaveLength(1)
-  expect(dialog).toHaveTextContent('Suggested version')
-  expect(dialog).toHaveTextContent('Yo fui ayer.')
-  expect(dialog).toHaveTextContent('Exchange social pleasantries')
-  expect(dialog).toHaveTextContent('Partly shown')
-  expect(dialog).toHaveTextContent('Past reference with the wrong verb form.')
-  expect(screen.queryByLabelText('Detailed analysis')).toBeNull()
-  expect(screen.queryByRole('button', { name: /Edit/ })).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Ask the coach' }))
-  expect(ask).toHaveBeenCalledWith('Help me understand the feedback on my message: “Yo fue ayer”')
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+it('persists Show answer before rendering the resulting native explicit correction', async () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  const view = render(<MessageFeedback {...base} onControl={control} />)
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Show answer' })))
+  expect(control).toHaveBeenCalledWith('show_answer')
+  expect(screen.queryByText('Yo fui ayer.')).toBeNull()
+  view.rerender(<MessageFeedback {...base} onControl={control} decision={{ ...decision, exposedMove: 'explicit', shown: { ...decision.shown!, move: 'explicit', text: 'Yo fui ayer.' } }} />)
+  expect(screen.getByText('Yo fui ayer.')).toBeVisible()
+  expect(screen.queryByRole('button', { name: 'Show answer' })).toBeNull()
 })
-
-it('distinguishes pending, failed, and missing feedback instead of inventing scores', () => {
-  const props = { id: 1, text: 'Hola', feedback: undefined, reviewing: true, error: undefined, onEdit: undefined, onAsk: vi.fn() }
+it('retains the card after a failed control and never retries automatically', async () => {
+  const control = vi.fn().mockRejectedValue(new Error('Review the changed feedback first.'))
+  render(<MessageFeedback {...base} onControl={control} />)
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Keep going' })))
+  expect(screen.getByRole('dialog')).toBeVisible()
+  expect(screen.getByRole('alert')).toHaveTextContent('Review the changed feedback first.')
+  expect(control).toHaveBeenCalledOnce()
+})
+it('renders only native Fixed text and keeps continuing optional', async () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  render(<MessageFeedback {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: 'Fixed: fui: first-person past', alsoNoticed: [] }} onControl={control} />)
+  expect(screen.getByRole('status')).toHaveTextContent('Fixed: fui: first-person past')
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Keep going' })))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(control).toHaveBeenCalledWith('keep_going')
+})
+it('distinguishes pending, failed, and missing feedback', () => {
+  const props = { ...base, feedback: undefined, decision: undefined, reviewing: true }
   const view = render(<MessageFeedback {...props} />)
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Analyzing')
   view.rerender(<MessageFeedback {...props} reviewing={false} error="Provider unavailable" />)
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback failed')
   view.rerender(<MessageFeedback {...props} reviewing={false} />)
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback unavailable')
+})
+
+it('reports uncertain repair without a Fixed claim or invented correction', () => {
+  render(<MessageFeedback {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: null, repairStatus: 'uncertain' }} />)
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Repair unconfirmed')
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  expect(screen.getByRole('status')).toHaveTextContent('The coach could not confirm this revision yet.')
+  expect(screen.queryByText(/Fixed:/)).toBeNull()
+  expect(screen.queryByLabelText('Coaching suggestion')).toBeNull()
+})
+
+it.each(['Coach feedback for message 3', 'Analyze your message'])('requires durable disclosure through %s before showing help', async label => {
+  let complete!: () => void
+  const control = vi.fn(() => new Promise<void>(resolve => { complete = resolve }))
+  const unexposed = { ...decision, exposedMove: null }
+  const view = render(<MessageFeedback {...base} decision={unexposed} onControl={control} />)
+  fireEvent.click(screen.getByRole('button', { name: label }))
+  expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  await act(async () => complete())
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  view.rerender(<MessageFeedback {...base} decision={decision} onControl={control} />)
+  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+})
+
+it('keeps an unexposed hint hidden on a stale disclosure failure and allows explicit retry', async () => {
+  const control = vi.fn().mockRejectedValue(new Error('Coaching changed. Review the current advice.'))
+  render(<MessageFeedback {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' })))
+  expect(screen.getByRole('dialog')).toBeVisible()
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  expect(screen.getByRole('alert')).toHaveTextContent('Coaching changed')
+  expect(control).toHaveBeenCalledOnce()
+  expect(screen.getByRole('button', { name: 'Analyze your message' })).toBeEnabled()
+})
+
+it('keeps newly arrived coaching hidden in an already open pending-analysis dialog', async () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  const view = render(<MessageFeedback {...base} decision={undefined} feedback={undefined} reviewing onControl={control} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  view.rerender(<MessageFeedback {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  expect(control).not.toHaveBeenCalled()
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'View coaching help' })))
+  expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  view.rerender(<MessageFeedback {...base} onControl={control} />)
+  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+})
+
+it('opens the same modal immediately and keeps errors inside it', async () => {
+  const control = vi.fn().mockRejectedValue(new Error('No correction is available.'))
+  render(<MessageFeedback {...base} decision={{...decision,shown:null}} onControl={control} analysis={<p>Me gusta means I like.</p>} />)
+  await act(async () => fireEvent.click(screen.getByRole('button', {name:'Analyze your message'})))
+  expect(screen.getByRole('dialog')).toHaveTextContent('Me gusta means I like.')
+  expect(screen.getByRole('dialog')).toHaveTextContent('No correction is available.')
+  expect(screen.getByRole('button', {name:'Coach feedback for message 3'})).not.toHaveTextContent('Reviewed')
 })

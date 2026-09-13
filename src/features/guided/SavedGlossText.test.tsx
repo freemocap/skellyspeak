@@ -84,3 +84,37 @@ it('opens saved word help in the top layer so no clipping host can cut it off', 
     Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
   }
 })
+
+it('shapes Arabic clitics as one source word while retaining each gloss anchor', () => {
+  const text = '  والكتاب،\nبالبيت؟'
+  const segments = [
+    { start: 2, end: 3, kind: 'gloss' as const, gloss: 'and' },
+    { start: 3, end: 5, kind: 'gloss' as const, gloss: 'the' },
+    { start: 5, end: 9, kind: 'gloss' as const, gloss: 'book' },
+    { start: 11, end: 12, kind: 'gloss' as const, gloss: 'in' },
+    { start: 12, end: 14, kind: 'gloss' as const, gloss: 'the' },
+    { start: 14, end: 17, kind: 'gloss' as const, gloss: 'house' },
+  ]
+  const markers = vi.fn(() => null)
+  const view = render(<SavedGlossText text={text} segments={segments} afterSegment={markers} />)
+  expect(view.container.textContent).toBe(text)
+  const word = screen.getByRole('button', { name: 'والكتاب' })
+  expect(word.childNodes).toHaveLength(1) // One shaping run, no flex boxes inside the word.
+  expect(screen.getAllByRole('button')).toHaveLength(2)
+  fireEvent.keyDown(word, { key: 'Enter' })
+  expect([...view.container.querySelectorAll('[data-gloss-start]')].map(node => [node.getAttribute('data-gloss-start'), node.getAttribute('data-gloss-end'), node.textContent])).toEqual([
+    ['2', '3', 'و: and'], ['3', '5', 'ال: the'], ['5', '9', 'كتاب: book'],
+  ])
+  expect(markers).toHaveBeenCalledWith(0, 9)
+  expect(markers).toHaveBeenCalledWith(9, 17)
+  fireEvent.click(word)
+  expect(view.container.textContent).toBe(text)
+})
+
+it('keeps uncovered Arabic letters, combining marks and joining controls in the same shaping run', () => {
+  const text = 'بِالكتاب ک\u200cتاب'
+  const view = render(<SavedGlossText text={text} segments={[{ start: 4, end: 8, kind: 'gloss', gloss: 'book' }, { start: 11, end: 14, kind: 'gloss', gloss: 'book' }]} />)
+  expect(view.container.textContent).toBe(text)
+  expect(screen.getByRole('button', { name: 'بِالكتاب' }).childNodes).toHaveLength(1)
+  expect(screen.getByRole('button', { name: 'ک\u200cتاب' }).childNodes).toHaveLength(1)
+})

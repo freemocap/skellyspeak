@@ -1,0 +1,12 @@
+-
+  scope: "assessment"
+  text: "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes; put corrections only in the correction field. Never invent errors."
+  sources:
+    - "hattie_timperley2007"
+-
+  scope: "pragmatics"
+  text: "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
+  sources:
+    - "freire1970"
+    - "hooks1994"
+    - "illich1973"

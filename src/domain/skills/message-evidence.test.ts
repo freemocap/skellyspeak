@@ -5,7 +5,7 @@ import { messageEvidence } from './message-evidence'
 
 function reviewed() {
   const snapshot = structuredClone(skillDemo)
-  snapshot.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+  snapshot.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
   snapshot.profile.credits = [{ attempt_id: 'a', skill_id: 'referent', xp: 2 }]
   return snapshot
 }
@@ -45,4 +45,21 @@ it('retains distinct quotes under one credit and removes duplicate quote entries
   expect(spans.map(item => item.quote)).toEqual(['Ese', 'café'])
   expect(spans.every(item => !item.ambiguous)).toBe(true)
   expect(new Set(spans.map(item => item.id)).size).toBe(1)
+})
+
+it('retains acknowledged unmapped observations without painting current credit', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].construct_registry_hash = 'earlier-registry'
+  snapshot.records[0].mapping_error = 'This observation uses a different construct registry.'
+  snapshot.records[0].assessment!.judgments[0].skill_id = 'removed-construct'
+  snapshot.profile.credits = []
+  expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
+  expect(snapshot.records[0].source).toBe('Ese café.')
+  expect(snapshot.records[0].assessment!.judgments[0].skill_id).toBe('removed-construct')
+})
+
+it('checks the full registry hash even when numeric catalog fingerprints match', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].construct_registry_hash = 'different-full-hash'
+  expect(() => messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toThrow('different construct registry')
 })

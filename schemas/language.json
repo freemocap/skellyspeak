@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "Guidance": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "sources",
+        "text"
+      ],
+      "type": "object"
+    },
+    "ScalarOverrides": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "font_scale": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "word_spacing": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Variety": {
+      "additionalProperties": false,
+      "properties": {
+        "guidance": {
+          "items": {
+            "$ref": "#/definitions/Guidance"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "scalars": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ScalarOverrides"
+            }
+          ],
+          "default": {
+            "direction": null,
+            "font_scale": null,
+            "word_spacing": null
+          }
+        }
+      },
+      "required": [
+        "guidance",
+        "id",
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "default_variety": {
+      "type": "string"
+    },
+    "family": {
+      "type": "string"
+    },
+    "guidance": {
+      "items": {
+        "$ref": "#/definitions/Guidance"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "native_name": {
+      "type": "string"
+    },
+    "orthography": {
+      "type": "string"
+    },
+    "review": {
+      "type": "string"
+    },
+    "romanization": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scalars": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ScalarOverrides"
+        }
+      ],
+      "default": {
+        "direction": null,
+        "font_scale": null,
+        "word_spacing": null
+      }
+    },
+    "script": {
+      "type": "string"
+    },
+    "traits": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "varieties": {
+      "items": {
+        "$ref": "#/definitions/Variety"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "default_variety",
+    "family",
+    "guidance",
+    "id",
+    "name",
+    "native_name",
+    "orthography",
+    "review",
+    "script",
+    "traits",
+    "varieties"
+  ],
+  "title": "Language",
+  "type": "object"
+}

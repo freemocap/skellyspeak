@@ -173,11 +173,21 @@ impl<'de> Deserialize<'de> for BoundedSpans {
 fn source_map<'a>(
     identity: &SourceIdentity,
     source: &'a str,
+    context: Option<&crate::config::LanguageContext>,
 ) -> Result<SourceMap<'a>, AdapterError> {
-    languages::language(&identity.target_language_id)
-        .map_err(|_| AdapterError::UnsupportedTargetLanguage)?;
-    languages::language(&identity.explanation_language_id)
-        .map_err(|_| AdapterError::UnsupportedExplanationLanguage)?;
+    if let Some(ctx) = context {
+        if ctx.language_id != identity.target_language_id {
+            return Err(AdapterError::UnsupportedTargetLanguage);
+        }
+        if ctx.explanation_language_id != identity.explanation_language_id {
+            return Err(AdapterError::UnsupportedExplanationLanguage);
+        }
+    } else {
+        languages::language(&identity.target_language_id)
+            .map_err(|_| AdapterError::UnsupportedTargetLanguage)?;
+        languages::language(&identity.explanation_language_id)
+            .map_err(|_| AdapterError::UnsupportedExplanationLanguage)?;
+    }
     // Reuse the accepted core's eligibility and version rules without inventing
     // a second source validator. An empty candidate is deliberately partial.
     super::validate(
@@ -213,10 +223,40 @@ pub fn decode_word_gloss(
     source: &str,
     raw: &str,
 ) -> Result<ValidatedAnalysis, AdapterError> {
+    decode_word_gloss_context(identity, source, raw, None)
+}
+
+pub fn decode_word_gloss_with_context(
+    identity: &SourceIdentity,
+    source: &str,
+    raw: &str,
+    context: &crate::config::LanguageContext,
+) -> Result<ValidatedAnalysis, AdapterError> {
+    decode_word_gloss_context(identity, source, raw, Some(context))
+}
+
+pub fn validate_word_gloss_completion_with_context(
+    identity: &SourceIdentity,
+    source: &str,
+    completion: &provider::Completion,
+    context: &crate::config::LanguageContext,
+) -> Result<ValidatedAnalysis, AdapterError> {
+    if completion.finish_reason != "stop" {
+        return Err(AdapterError::InvalidTermination);
+    }
+    decode_word_gloss_with_context(identity, source, &completion.text, context)
+}
+
+fn decode_word_gloss_context(
+    identity: &SourceIdentity,
+    source: &str,
+    raw: &str,
+    context: Option<&crate::config::LanguageContext>,
+) -> Result<ValidatedAnalysis, AdapterError> {
     if raw.len() > MAX_RESPONSE_BYTES {
         return Err(AdapterError::PayloadTooLarge);
     }
-    let map = source_map(identity, source)?;
+    let map = source_map(identity, source, context)?;
     let mut decoder = serde_json::Deserializer::from_str(raw);
     let wire =
         WireResponse::deserialize(&mut decoder).map_err(|_| AdapterError::InvalidJsonOrShape)?;
@@ -371,7 +411,23 @@ pub fn build_word_gloss_prompt(
     identity: &SourceIdentity,
     source: &str,
 ) -> Result<GlossPrompt, AdapterError> {
-    let map = source_map(identity, source)?;
+    build_word_gloss_prompt_context(identity, source, None)
+}
+
+pub fn build_word_gloss_prompt_with_context(
+    identity: &SourceIdentity,
+    source: &str,
+    context: &crate::config::LanguageContext,
+) -> Result<GlossPrompt, AdapterError> {
+    build_word_gloss_prompt_context(identity, source, Some(context))
+}
+
+fn build_word_gloss_prompt_context(
+    identity: &SourceIdentity,
+    source: &str,
+    context: Option<&crate::config::LanguageContext>,
+) -> Result<GlossPrompt, AdapterError> {
+    let map = source_map(identity, source, context)?;
     let catalog = grapheme_rows(&map);
     let rows = catalog
         .iter()
@@ -388,18 +444,42 @@ pub fn build_word_gloss_prompt(
         passage: source,
         graphemes: rows,
     };
-    let guidance = languages::writing_guidance(&identity.explanation_language_id, None)
-        .map_err(|_| AdapterError::UnsupportedExplanationLanguage)?;
-    let writing = guidance
-        .map(|text| format!("\nWriting guidance for generated explanations: {text}"))
-        .unwrap_or_default();
-    let romanization = languages::romanization_guidance(&identity.target_language_id)
-        .map_err(|_| AdapterError::UnsupportedTargetLanguage)?
-        .map(|text| format!("\n{text}"))
-        .unwrap_or_default();
+    let (writing, romanization, segmentation) = if let Some(ctx) = context {
+        (
+            ctx.guidance("explanation_writing").join("\n"),
+            ctx.guidance("romanization").join("\n"),
+            ctx.guidance("segmentation").join("\n"),
+        )
+    } else {
+        (
+            languages::writing_guidance(&identity.explanation_language_id, None)
+                .map_err(|_| AdapterError::UnsupportedExplanationLanguage)?
+                .unwrap_or_default()
+                .to_string(),
+            languages::romanization_guidance(&identity.target_language_id)
+                .map_err(|_| AdapterError::UnsupportedTargetLanguage)?
+                .unwrap_or_default(),
+            String::new(),
+        )
+    };
+    let writing = if writing.is_empty() {
+        writing
+    } else {
+        format!("\nWriting guidance for generated explanations: {writing}")
+    };
+    let romanization = if romanization.is_empty() {
+        romanization
+    } else {
+        format!("\n{romanization}")
+    };
+    let segmentation = if segmentation.is_empty() {
+        segmentation
+    } else {
+        format!("\n{segmentation}")
+    };
     let schema = source_schema(source)?;
     let system = format!(
-        "{INSTRUCTIONS}{writing}{romanization} Return at most {MAX_SPANS} spans and at most {MAX_GLOSS_SCALARS} Unicode scalars per gloss.\nOutput schema: {}",
+        "{INSTRUCTIONS}{writing}{romanization}{segmentation} Return at most {MAX_SPANS} spans and at most {MAX_GLOSS_SCALARS} Unicode scalars per gloss.\nOutput schema: {}",
         serde_json::to_string(&schema).map_err(|_| AdapterError::Serialization)?
     );
     let content = serde_json::to_string(&data).map_err(|_| AdapterError::Serialization)?;

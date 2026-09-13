@@ -9,7 +9,7 @@ title: Coaching plan
 
 How language knowledge, the learner model, coaching, progress, the game layer and new-chat starts fit together, mapped onto the app as it currently exists on disk.
 
-Status: **approved design plan, not implemented.** Execution is organised in the [coaching work plan](./coaching-work-plan) and the seams between agents in [coaching contracts](./coaching-contracts). Repo facts were checked on 2026-09-12 against the working tree. **Naming:** the conversation partner is called a *contact* in the UI and a *persona* in code (`persona_reply`, `persona_system`, `persona_word_gloss`); this plan says "partner" for the concept. Citations are listed at the end under their keys, e.g. `[lyster_saito2010]`. Items marked *needs review* are expert judgement or were checked only through abstracts.
+Status: **approved design plan; waves one and two implemented, wave one checkpointed, later waves planned.** The source and verification limits are recorded in `workflow/reports/coaching-w1-integration.md` and `workflow/reports/coaching-w2-integration.md`. Execution is organised in the [coaching work plan](./coaching-work-plan) and the seams between agents in [coaching contracts](./coaching-contracts). Repo facts were checked on 2026-09-12 against the working tree. **Naming:** the conversation partner is called a *contact* in the UI and a *persona* in code (`persona_reply`, `persona_system`, `persona_word_gloss`); this plan says "partner" for the concept. Citations are listed at the end under their keys, e.g. `[lyster_saito2010]`. Items marked *needs review* are expert judgement or were checked only through abstracts.
 
 ---
 
@@ -52,7 +52,7 @@ Every feature is checked against five questions before it ships:
 
 ## 2. Where the repo stands
 
-Checked against disk this session; the agent's latest verification agrees.
+Historical planning baseline before wave one. The table describes the problems that motivated the plan, not the current implementation; consult the wave handbacks for changes and verified behavior.
 
 | Area | State on disk | Consequence |
 |---|---|---|
@@ -630,3 +630,21 @@ The canonical list is `references.bib` (section 12). This table is a reading cop
 | `ryding2005` | Ryding, A Reference Grammar of Modern Standard Arabic (2005). *needs review* |
 
 Several sources were checked through abstracts and summaries only. Confirm against the full text before a rule is marked `reviewed`.
+
+## Product clarification: the coach beside the conversation
+
+The user’s Cyrano de Bergerac metaphor is the coaching relationship: a private,
+benevolent ally listening to the exchange and helping the learner express their
+own intentions beyond what they can currently manage unaided. The coach gives
+usable language, explanations and support for the next attempt. It neither
+becomes the conversation partner nor substitutes assessment jargon for help.
+The learner retains authorship. This makes the existing agency and conviviality
+principles concrete in the interface.
+
+Show the latest exchange’s coaching automatically below the skill map, alongside
+the private coach input. Keep requested analysis consistent in a modal, with
+language explanations and word meanings visible. Generate optional suggested
+replies only after “Show suggested replies” is selected; keep that panel collapsed
+initially. Internal candidate counts and construct identifiers are not coaching
+copy. These user-directed decisions supersede the earlier automatic-reply-tray
+presentation.

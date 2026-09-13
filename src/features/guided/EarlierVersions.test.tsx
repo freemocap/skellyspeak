@@ -7,7 +7,7 @@ import { conversationTurns } from '../../domain/language/conversation-view'
 const read = vi.hoisted(() => vi.fn())
 vi.mock('../../platform/ipc/workspace', () => ({ watchConversation: read, nativeError: (error: Error) => error.message }))
 function message(sequence: number, turnId: string, role: string, text: string, replacesTurnId: string | null, replacedBy: string | null): ChatMessage {
-  return { sequence, turnId, role, text, replacesTurnId, replacedBy, id: `message-${sequence}`, createdAt: '', wordGloss: null, glossState: null, glossError: null, glossOperationId: null, translationState: null, translation: null }
+  return { coachDecision: null, sequence, turnId, role, text, replacesTurnId, replacedBy, id: `message-${sequence}`, createdAt: '', wordGloss: null, glossState: null, glossError: null, glossOperationId: null, translationState: null, translation: null }
 }
 it('loads one bounded page and joins a predecessor split across the page boundary', async () => {
   const snapshot = { conversationId: 'chat', revision: 9, hasOlder: true, messages: [

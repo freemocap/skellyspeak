@@ -16,7 +16,7 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     if (!snapshot || !chatId || error) { previous.current = null; setQueue([]); return }
     const baseline = previous.current
     previous.current = { snapshot, chatId }
-    if (!baseline || baseline.chatId !== chatId || baseline.snapshot.target !== snapshot.target || baseline.snapshot.learner_id !== snapshot.learner_id || baseline.snapshot.catalog_version !== snapshot.catalog_version || baseline.snapshot.profile.choices.revision !== snapshot.profile.choices.revision) { setQueue([]); return }
+    if (!baseline || baseline.chatId !== chatId || baseline.snapshot.construct_registry_hash !== snapshot.construct_registry_hash || baseline.snapshot.target !== snapshot.target || baseline.snapshot.learner_id !== snapshot.learner_id || baseline.snapshot.catalog_version !== snapshot.catalog_version || baseline.snapshot.profile.choices.revision !== snapshot.profile.choices.revision) { setQueue([]); return }
     const rewards = skillRewards(baseline.snapshot, snapshot, chatId)
     if (!active) { setQueue([]); return }
     for (const reward of rewards) {

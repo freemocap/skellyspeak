@@ -1,0 +1,289 @@
+-
+  id: "food"
+  labels:
+    en: "Food and drink"
+    es: "Comida y bebida"
+    fr: "Manger et boire"
+    ar: "الطعام والشراب"
+    zh: "饮食"
+  previews:
+    en: "I would like tea."
+    es: "Quisiera té."
+    fr: "Je voudrais du thé."
+    ar: "أريد شايًا."
+    zh: "我想喝茶。"
+  translations:
+    en: "I would like tea."
+    es: "Quisiera té."
+    fr: "Je voudrais du thé."
+    ar: "أريد شايًا."
+    zh: "我想喝茶。"
+  functions:
+    - "question"
+    - "quantity"
+  constructs_any:
+    - "question"
+    - "quantity"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "food"
+    - "cooking"
+  opener_kind: "roleplay"
+  partner_brief: "You are serving at a café. Greet the learner and ask what they would like."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"
+-
+  id: "family"
+  labels:
+    en: "Your family"
+    es: "Tu familia"
+    fr: "Votre famille"
+    ar: "عائلتك"
+    zh: "你的家人"
+  previews:
+    en: "This is my family."
+    es: "Esta es mi familia."
+    fr: "Voici ma famille."
+    ar: "هذه عائلتي."
+    zh: "这是我的家人。"
+  translations:
+    en: "This is my family."
+    es: "Esta es mi familia."
+    fr: "Voici ma famille."
+    ar: "هذه عائلتي."
+    zh: "这是我的家人。"
+  functions:
+    - "possession"
+    - "referent"
+  constructs_any:
+    - "possession"
+    - "referent"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "family"
+  opener_kind: "chat"
+  partner_brief: "Ask about someone important to the learner. They may choose a friend or an invented person."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"
+-
+  id: "weekend"
+  labels:
+    en: "Weekend plans"
+    es: "Planes de fin de semana"
+    fr: "Projets du week-end"
+    ar: "خطط نهاية الأسبوع"
+    zh: "周末计划"
+  previews:
+    en: "I want to rest."
+    es: "Quiero descansar."
+    fr: "Je veux me reposer."
+    ar: "أريد أن أرتاح."
+    zh: "我想休息。"
+  translations:
+    en: "I want to rest."
+    es: "Quiero descansar."
+    fr: "Je veux me reposer."
+    ar: "أريد أن أرتاح."
+    zh: "我想休息。"
+  functions:
+    - "future_reference"
+  constructs_any:
+    - "future_reference"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "travel"
+    - "outdoors"
+  opener_kind: "chat"
+  partner_brief: "Ask what the learner would like to do this weekend and share a plan of your own."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"
+-
+  id: "place"
+  labels:
+    en: "A place you like"
+    es: "Un lugar que te gusta"
+    fr: "Un endroit que vous aimez"
+    ar: "مكان تحبه"
+    zh: "你喜欢的地方"
+  previews:
+    en: "I like this park."
+    es: "Me gusta este parque."
+    fr: "J’aime ce parc."
+    ar: "أحب هذه الحديقة."
+    zh: "我喜欢这个公园。"
+  translations:
+    en: "I like this park."
+    es: "Me gusta este parque."
+    fr: "J’aime ce parc."
+    ar: "أحب هذه الحديقة."
+    zh: "我喜欢这个公园。"
+  functions:
+    - "location"
+    - "property"
+  constructs_any:
+    - "location"
+    - "property"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "travel"
+    - "outdoors"
+  opener_kind: "chat"
+  partner_brief: "Talk about a place the learner likes. Invite a small detail about it."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"
+-
+  id: "day"
+  labels:
+    en: "Your day"
+    es: "Tu día"
+    fr: "Votre journée"
+    ar: "يومك"
+    zh: "你的一天"
+  previews:
+    en: "Today I am at home."
+    es: "Hoy estoy en casa."
+    fr: "Aujourd’hui, je suis chez moi."
+    ar: "أنا في البيت اليوم."
+    zh: "我今天在家。"
+  translations:
+    en: "Today I am at home."
+    es: "Hoy estoy en casa."
+    fr: "Aujourd’hui, je suis chez moi."
+    ar: "أنا في البيت اليوم."
+    zh: "我今天在家。"
+  functions:
+    - "event_roles"
+    - "past_reference"
+  constructs_any:
+    - "event_roles"
+    - "past_reference"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "daily-life"
+  opener_kind: "chat"
+  partner_brief: "Ask about something from the learner’s day. Keep the exchange open to their interests."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"
+-
+  id: "music"
+  labels:
+    en: "Music"
+    es: "Música"
+    fr: "Musique"
+    ar: "الموسيقى"
+    zh: "音乐"
+  previews:
+    en: "I like music."
+    es: "Me gusta la música."
+    fr: "J’aime la musique."
+    ar: "أحب الموسيقى."
+    zh: "我喜欢音乐。"
+  translations:
+    en: "I like music."
+    es: "Me gusta la música."
+    fr: "J’aime la musique."
+    ar: "أحب الموسيقى."
+    zh: "我喜欢音乐。"
+  functions:
+    - "property"
+    - "comparison"
+  constructs_any:
+    - "property"
+    - "comparison"
+  bands:
+    - "PreA1"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+  languages:
+    - "en"
+    - "es"
+    - "fr"
+    - "ar"
+    - "zh"
+  contact_tags:
+    - "music"
+  opener_kind: "chat"
+  partner_brief: "Ask about music the learner enjoys and share a preference."
+  sources:
+    - "cefr2020"
+    - "freire1970"
+  review: "needs_review"

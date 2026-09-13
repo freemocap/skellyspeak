@@ -1,0 +1,849 @@
+-
+  id: "courtesy"
+  label: "Thank, apologize or respond politely"
+  criterion: "Use an appropriate conventional thanks, apology, welcome or polite response."
+  opportunity: "Thank someone for a favor, apologize for a small mix-up, or respond to an offer."
+  band: "A1"
+  lens: "pragmatics"
+  language: null
+  requires: []
+  traits: []
+  tokens: ["thanks", "gracias", "merci", "شكرًا", "شكرا", "谢谢"]
+  nav:
+    practical: "social"
+    functional: "pragmatics"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "social_checkin"
+  label: "Exchange social pleasantries"
+  criterion: "Ask or answer a conventional wellbeing check-in, such as how are you or I am well."
+  opportunity: "Ask how someone’s day is going and share how you are doing."
+  band: "A1"
+  lens: "interaction"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "social"
+    functional: "interaction"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "greeting"
+  label: "Greet and say goodbye"
+  criterion: "Use a conventional greeting or farewell appropriate to the exchange."
+  opportunity: "Meet someone for the first time or end a friendly conversation."
+  band: "A1"
+  lens: "interaction"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "social"
+    functional: "interaction"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "referent"
+  label: "Identify a referent"
+  criterion: "Identify a particular person or thing so the listener can tell which is intended."
+  opportunity: "Point out a person or an object you want to talk about."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "track_referents"
+  label: "Track several referents"
+  criterion: "Keep multiple previously mentioned referents distinguishable across a connected statement."
+  opportunity: "Tell a story involving two friends and the different things they did."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "referent"
+  traits: []
+  tokens: []
+  nav:
+    practical: "referent"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "quantity"
+  label: "Express quantity"
+  criterion: "Express a quantity or distinction between one and more than one with enough precision for the context."
+  opportunity: "Order food for a few people or describe what is in your bag."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "quantify_sets"
+  label: "Qualify quantities"
+  criterion: "Express a scope-sensitive quantity such as some, all, neither or only, with the intended set clear."
+  opportunity: "Talk about which friends like an activity and how many would join."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "quantity"
+  traits: []
+  tokens: []
+  nav:
+    practical: "quantity"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "possession"
+  label: "Express possession"
+  criterion: "Make clear who something belongs to or its relevant part–whole relationship."
+  opportunity: "Talk about whose bag, keys, or bicycle you found."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "nested_reference"
+  label: "Specify a complex referent"
+  criterion: "Identify a referent through multiple linked possession, part–whole or descriptive relationships."
+  opportunity: "Help someone find a particular object among several similar ones."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "possession"
+  traits: []
+  tokens: []
+  nav:
+    practical: "possession"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "property"
+  label: "Attribute a property"
+  criterion: "Attribute a quality or state to the intended referent. Do not require an adjective word class or a copula."
+  opportunity: "Describe a person, a place, or an object you care about."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "descriptions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "qualified_property"
+  label: "Qualify a property"
+  criterion: "Restrict a property by circumstance or perspective, making its intended scope clear."
+  opportunity: "Explain what you like about a place and what could be better."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "property"
+  traits: []
+  tokens: []
+  nav:
+    practical: "property"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "comparison"
+  label: "Compare referents"
+  criterion: "Express a clear comparison between identifiable referents along a stated or contextually clear dimension."
+  opportunity: "Choose between two places to visit or two things to buy."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "descriptions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "comparison_standard"
+  label: "Specify a comparison standard"
+  criterion: "Express a comparison with a precise standard, degree or exception."
+  opportunity: "Compare a new experience with something familiar."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "comparison"
+  traits: []
+  tokens: []
+  nav:
+    practical: "comparison"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "degree"
+  label: "Express degree"
+  criterion: "Express the intensity or extent of a property in a way that fits the intended meaning."
+  opportunity: "Talk about how hot, busy, expensive, or enjoyable a place was."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "descriptions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "degree_consequence"
+  label: "Connect degree to consequence"
+  criterion: "Express a degree in relation to a limit or consequence, such as too hot to drink."
+  opportunity: "Describe weather or a busy day that changed what you could do."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "degree"
+  traits: []
+  tokens: []
+  nav:
+    practical: "degree"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "event_roles"
+  label: "Express who does what"
+  criterion: "Express an event with the actor and other relevant participants distinguishable. Do not require a fixed word order or case system."
+  opportunity: "Tell someone about an activity you did with a friend."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "perspective_roles"
+  label: "Change event perspective"
+  criterion: "Present an event from a non-default participant perspective while preserving who did what. Do not require a passive construction."
+  opportunity: "Discuss what happened to a lost item and who might have found it."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "event_roles"
+  traits: []
+  tokens: []
+  nav:
+    practical: "event_roles"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "transfer"
+  label: "Express transfer"
+  criterion: "Express a transfer with the thing transferred, source or giver, and recipient clear where relevant."
+  opportunity: "Describe giving a gift, lending a book, or sending a message."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "complex_transfer"
+  label: "Express a constrained transfer"
+  criterion: "Describe transfer with additional beneficiary, instrument or condition while keeping participant roles clear."
+  opportunity: "Plan how to get a package to a friend who will be away."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "transfer"
+  traits: []
+  tokens: []
+  nav:
+    practical: "transfer"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "causation"
+  label: "Express causation"
+  criterion: "Express that a participant or event brings about another event or state."
+  opportunity: "Talk about something that made you change your plans."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "causal_chain"
+  label: "Distinguish causation and agency"
+  criterion: "Distinguish causing, allowing or arranging an event from directly performing it."
+  opportunity: "Explain how a small event led to several changes in your day."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "causation"
+  traits: []
+  tokens: []
+  nav:
+    practical: "causation"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "past_reference"
+  label: "Refer to past events"
+  criterion: "Locate an event before the relevant present using target-language wording and context. Do not require tense inflection."
+  opportunity: "Tell someone about something you did yesterday."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "past_sequence"
+  label: "Order past events"
+  criterion: "Make the relative order of multiple past events clear, including an event preceding another past reference point."
+  opportunity: "Tell the story of a trip from its start to its finish."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "past_reference"
+  traits: []
+  tokens: []
+  nav:
+    practical: "past_reference"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "future_reference"
+  label: "Refer to future events"
+  criterion: "Locate an event after the relevant present or reference point. Do not require a future-tense form."
+  opportunity: "Share something you would like to do this weekend."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "future_conditions"
+  label: "Relate future possibilities"
+  criterion: "Distinguish a future intention, prediction or conditional event with the relevant timing clear."
+  opportunity: "Make a plan together and consider what to do if it rains."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "future_reference"
+  traits: []
+  tokens: []
+  nav:
+    practical: "future_reference"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "event_phase"
+  label: "Express event phase or repetition"
+  criterion: "Distinguish ongoing, completed or habitual events where the distinction is supported by the current wording and context."
+  opportunity: "Discuss a habit you started, stopped, or want to keep."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "aspect_contrast"
+  label: "Contrast event structure"
+  criterion: "Relate contrasting event phases or repetition patterns without confusing completion, duration or habituality."
+  opportunity: "Talk about what you were doing when something unexpected happened."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "event_phase"
+  traits: []
+  tokens: []
+  nav:
+    practical: "event_phase"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "location"
+  label: "Locate an entity"
+  criterion: "Locate an entity relative to an identifiable place or reference object."
+  opportunity: "Help someone find a café, a room, or an item in your home."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "spatial_frame"
+  label: "Coordinate spatial frames"
+  criterion: "Describe a spatial relation where the viewpoint or frame of reference matters and keep it clear."
+  opportunity: "Give directions from a station to a place you know."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "location"
+  traits: []
+  tokens: []
+  nav:
+    practical: "location"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "motion"
+  label: "Describe movement"
+  criterion: "Express movement with relevant source, path or destination distinguishable."
+  opportunity: "Describe a walk or a journey through your neighborhood."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "motion_path"
+  label: "Describe a multi-stage path"
+  criterion: "Describe a path with multiple spatial relations or changes of direction in a followable sequence."
+  opportunity: "Explain a route with several stops or changes of transport."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "motion"
+  traits: []
+  tokens: []
+  nav:
+    practical: "motion"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "spatial_deixis"
+  label: "Use spatial reference"
+  criterion: "Use context-appropriate here/there or proximal/distal reference with a recoverable intended location or referent."
+  opportunity: "Choose where to sit or which nearby object to pick up."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "situating"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "shift_deixis"
+  label: "Shift spatial viewpoint"
+  criterion: "Maintain clear spatial reference when describing a different speaker’s or participant’s viewpoint."
+  opportunity: "Describe a place from your viewpoint and from a visitor’s viewpoint."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "spatial_deixis"
+  traits: []
+  tokens: []
+  nav:
+    practical: "spatial_deixis"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "negation"
+  label: "Negate a proposition"
+  criterion: "Express what does not hold with the intended event, property or participant scope clear."
+  opportunity: "Explain a preference or correct an assumption about your plans."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "statements"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "negation_scope"
+  label: "Control negation scope"
+  criterion: "Distinguish materially different scopes of negation, such as not all versus none."
+  opportunity: "Clear up a misunderstanding about which people did something."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "negation"
+  traits: []
+  tokens: []
+  nav:
+    practical: "negation"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "question"
+  label: "Ask a question"
+  criterion: "Request confirmation or missing information with the intended question recoverable. Do not require inversion or a question particle."
+  opportunity: "Find out more about a partner’s hobby or daily routine."
+  band: "A1"
+  lens: "interaction"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "questions"
+    functional: "interaction"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "embedded_question"
+  label: "Embed a question"
+  criterion: "Express an indirect or embedded question while keeping the requested information clear."
+  opportunity: "Ask someone to help you find out where or when an event happens."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "question"
+  traits: []
+  tokens: []
+  nav:
+    practical: "question"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "modality"
+  label: "Express possibility or necessity"
+  criterion: "Express ability, possibility, desire, permission or obligation with the intended force clear in context."
+  opportunity: "Discuss what you can do, need to do, or might do on a trip."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "opinions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "modal_distinctions"
+  label: "Distinguish modal meanings"
+  criterion: "Distinguish a relevant difference in certainty, permission, obligation or ability rather than leaving the modal force ambiguous."
+  opportunity: "Plan an outing with choices, practical limits, and obligations."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "modality"
+  traits: []
+  tokens: []
+  nav:
+    practical: "modality"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "reason"
+  label: "Connect a reason"
+  criterion: "Connect a proposition with a relevant reason or purpose so their relationship is clear."
+  opportunity: "Explain why you chose a hobby, a meal, or a place to live."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "opinions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "concession"
+  label: "Express concession"
+  criterion: "Relate an outcome to a counterexpectation without confusing concession with cause."
+  opportunity: "Talk about enjoying something despite a difficulty."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "reason"
+  traits: []
+  tokens: []
+  nav:
+    practical: "reason"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "condition"
+  label: "Express a condition"
+  criterion: "Express that an outcome depends on an identifiable condition."
+  opportunity: "Make an agreement about what to do if a situation changes."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "opinions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "counterfactual"
+  label: "Express a counterfactual"
+  criterion: "Distinguish an imagined contrary-to-fact condition and its consequence from an actual event."
+  opportunity: "Imagine how a past trip would have changed with more time."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "condition"
+  traits: []
+  tokens: []
+  nav:
+    practical: "condition"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "reported_content"
+  label: "Report speech or thought"
+  criterion: "Attribute speech, belief or thought to its source without confusing the source with the learner."
+  opportunity: "Share something a friend told you about their day."
+  band: "A1"
+  lens: "function"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "opinions"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "nested_report"
+  label: "Maintain perspective in reports"
+  criterion: "Keep speaker, time and reference clear through an embedded or perspective-shifting report."
+  opportunity: "Discuss a story you heard through a friend and what each person believes."
+  band: "B1"
+  lens: "function"
+  language: null
+  requires:
+    - "reported_content"
+  traits: []
+  tokens: []
+  nav:
+    practical: "reported_content"
+    functional: "function"
+  sources:
+    - "cefr2020"
+    - "actfl2024"
+  review: "needs_review"
+-
+  id: "ix.self_repair"
+  label: "Repair your own wording"
+  criterion: "Revise your earlier wording to resolve the identified problem while preserving the intended meaning."
+  opportunity: "Clarify what you meant after noticing a misunderstanding."
+  band: "A1"
+  lens: "interaction"
+  language: null
+  requires: []
+  traits: []
+  tokens: []
+  nav:
+    practical: "social"
+    functional: "interaction"
+  sources:
+    - "aljaafreh_lantolf1994"
+    - "lyster_ranta1997"
+  review: "needs_review"

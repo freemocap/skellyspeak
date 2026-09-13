@@ -31,7 +31,7 @@ vi.mock('@xyflow/react', () => ({
 
 const handlers = () => ({ refresh: vi.fn(), save: vi.fn().mockResolvedValue(undefined), saving: false, onPractice: vi.fn() })
 const currentRecord: SkillRecord = {
-  attempt_id: 'attempt-a', session_id: 'session-a', turn_id: 42, message_id: 7, replaces_message_id: null,
+  attempt_id: 'attempt-a', session_id: 'session-a', turn_id: 42, message_id: 7, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null,
   chat_id: 'chat-a', learner_id: 'local', target: 'ar', native: 'en', source: 'هذا الكتاب.',
   input: { ...unreportedInput(), suggestion: true }, at_secs: 123, model: 'evaluation-model', provider_mode: 'hosted',
   catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'skill-evidence-4', status: 'complete', error: null,

@@ -5,7 +5,16 @@ This document assigns current work and integration ownership. Plans are not work
 features. The integration task coordinates domain tasks, reviews handoffs, resolves
 technical dependencies and validates combined work.
 
-## Authorization and communication
+## Active coaching implementation
+
+The current assignment is coaching wave two, authorized after the user checkpointed
+wave one at `bdb664e`. Follow [the coaching work plan](../skellyspeak-docs/docs/coaching-work-plan.md)
+and [the wave-two integration report](reports/coaching-w2-integration.md) for the
+three domain assignments, ownership, contracts and verification. The older rounds
+below are historical and do not narrow this authorization. Git remains read-only.
+Development application data is disposable under AGENTS.md; no migration is required.
+
+## Earlier authorization and communication
 
 The user approved Language and Reliability implementation and the reference-based
 conversation UI. Continue finite work within those domains without repeated approval

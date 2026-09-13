@@ -1,0 +1,32 @@
+{
+  "source": "macOS synthetic voices; software-path fixtures, not human speech",
+  "cases": [
+    {
+      "language": "es",
+      "text": "Ayer fui al parque con mi familia.",
+      "words": [
+        "parque",
+        "familia"
+      ],
+      "voice": "Paulina"
+    },
+    {
+      "language": "ar",
+      "text": "قرأت الكتاب في البيت.",
+      "words": [
+        "الكتاب",
+        "البيت"
+      ],
+      "voice": "Majed"
+    },
+    {
+      "language": "zh",
+      "text": "今天我想和朋友一起喝茶。",
+      "words": [
+        "朋友",
+        "喝茶"
+      ],
+      "voice": "Tingting"
+    }
+  ]
+}

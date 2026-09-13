@@ -3,6 +3,7 @@ mod admission;
 #[cfg(desktop)]
 mod audio;
 pub mod coaching;
+pub mod config;
 mod conversation_prompt;
 pub mod credentials;
 pub mod diagnostics;
@@ -586,7 +587,7 @@ async fn run_persona_generation(
         )
         .await??;
         validate()?;
-        let language = languages::language(&request.language_id)?;
+        let language = &request.language;
         let schema = persona::output_schema();
         let dispatch = execution::Dispatch {
             target: request.target.clone(),
@@ -596,7 +597,11 @@ async fn run_persona_generation(
             model: request.target.model.clone(),
             route: request.target.route,
             install_id: request.install_id.clone(),
-            messages: persona_prompt::messages(&language.name, request.brief.as_deref()),
+            messages: persona_prompt::messages_with_context(
+                &language.name,
+                request.brief.as_deref(),
+                &request.language_context,
+            ),
             coaching_schema: None,
             gloss_source: None,
             speech_source: None,
@@ -631,7 +636,7 @@ async fn run_persona_generation(
             .expect("provider outcome was captured");
         generation::accept_completion(&mut *state.lock()?, request, completed)?;
         let completion = completed.as_ref().map_err(Clone::clone)?;
-        let details = generated_persona(&completion.text, &request.language_id)?;
+        let details = generated_persona_for_language(&completion.text, &request.language)?;
         validate()?;
         Ok(details)
     }
@@ -683,9 +688,16 @@ fn generation_identity() -> (String, String) {
 
 /// Parse and validate one completion. Pure, so both outcomes are covered without
 /// a provider and a rejected response cannot have written anything.
+#[cfg(test)]
 fn generated_persona(text: &str, language_id: &str) -> Result<PersonaDetails> {
+    generated_persona_for_language(text, &languages::language(language_id)?)
+}
+fn generated_persona_for_language(
+    text: &str,
+    language: &model::Language,
+) -> Result<PersonaDetails> {
     let details = persona_prompt::parse(text)?;
-    persona::validate(&details, language_id)?;
+    persona::validate_for_language(&details, language)?;
     Ok(details)
 }
 
@@ -1397,3 +1409,7 @@ mod credential_io_tests {
 }
 
 mod revision;
+
+mod coach_observation;
+mod coach_policy;
+mod openers;

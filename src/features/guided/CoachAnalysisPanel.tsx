@@ -10,7 +10,8 @@ import { type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { CoachDock } from './CoachDock'
 import { Markdown } from '../../ui/Markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, personaProfile }: {
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, personaProfile, coachingContent }: {
+  coachingContent?: ReactNode
   conversationBusy: boolean; chatId: string; personaProfile: ReactNode; tab: 'lesson' | 'profile'; onTab: (tab: 'lesson' | 'profile') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
@@ -96,7 +97,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>Persona</button>
     </div>
     <div className="analysis-scroll" hidden={tab !== 'profile'}>{personaProfile}</div>
-    {tab === 'lesson' && <ConversationProgress chatId={chatId} />}
+    {tab === 'lesson' && <ConversationProgress chatId={chatId}>{coachingContent}</ConversationProgress>}
     {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
   </>
 }

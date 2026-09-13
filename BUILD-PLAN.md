@@ -1,5 +1,15 @@
 # Build plan and architecture review
 
+## Coaching wave two — source implemented and verified
+
+Wave one was checkpointed by the user at `bdb664e`. Wave two now implements
+validated readable configuration, deterministic hint-first coaching and repair
+checks, and learner-chosen conversation starts. See the
+[wave-two integration report](workflow/reports/coaching-w2-integration.md).
+The combined gate passes 551 frontend tests and 285 native tests, with formatting,
+strict Clippy, generated contracts/catalog, builds and docs checks passing. Native
+startup inspection and its limits are recorded separately in the report.
+
 ## Coaching wave one — source implemented and verified
 
 The implemented coaching checkpoint is wave one of
@@ -11,8 +21,8 @@ frontend tests and 269 native tests pass. Native startup succeeded; interactive
 native/provider verification remains incomplete. Earlier checkpoints below retain
 their historical verification scope.
 
-Development data is disposable by explicit user authorization. The current coaching
-schema targets v13 without a migration requirement. Source implementation, combined
+Development data is disposable by explicit user authorization. The wave-one coaching
+schema targeted v13 without a migration requirement. Source implementation, combined
 verification and actual native/provider QA are recorded separately in
 [`coaching-w1-integration.md`](workflow/reports/coaching-w1-integration.md).
 

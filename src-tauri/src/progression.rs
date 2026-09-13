@@ -9,10 +9,17 @@ pub fn initialize(db: &Connection) -> Result<()> {
     Ok(())
 }
 pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
-    crate::languages::language(target)?;
-    snapshot_db(&store.connection, &store.session_id, target)
+    store.config.language(target)?;
+    snapshot_db(&store.connection, &store.config, &store.session_id, target)
 }
-pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Result<Value> {
+pub(crate) fn snapshot_db(
+    db: &Connection,
+    registry: &crate::config::Registry,
+    session: &str,
+    target: &str,
+) -> Result<Value> {
+    let construct_hash = crate::coaching::construct_hash(registry);
+    let catalog_version = crate::coaching::version_for(registry);
     let learner: String = db.query_row("SELECT id FROM learner", [], |r| r.get(0))?;
     let choice: Option<(i32, Option<String>, String)> = db
         .query_row(
@@ -23,19 +30,48 @@ pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Resul
         .optional()?;
     let (revision, focus, excluded) = choice.unwrap_or((0, None, "[]".into()));
     let excluded: Vec<String> = serde_json::from_str(&excluded)?;
-    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),o.state FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' JOIN operations o ON o.turn_id=t.id AND o.kind='coach_feedback' WHERE c.language_id=?1 ORDER BY m.created_at,t.id")?.query_map([target],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),o.state FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' JOIN operations o ON o.turn_id=t.id AND o.kind IN ('coach_feedback','coach_retry_check') WHERE c.language_id=?1 ORDER BY m.created_at,t.id")?.query_map([target],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let mut records = vec![];
     for (turn, chat, sequence, source, model, route, context, time, state) in rows {
         let context: Value = serde_json::from_str(&context)?;
-        let assessment = context.get("coachFeedback");
+        let assessment = context.get("coachObservation");
         let attempt = context
-            .get("coachFeedbackAttempt")
+            .get("coachObservationAttempt")
             .and_then(Value::as_str)
             .unwrap_or(&turn);
-        let judgments:Vec<Value>=assessment.and_then(|a|a["evidence"].as_array()).map(|items|items.iter().map(|i|json!({"skill_id":i["skill_id"],"outcome":i["outcome"],"quotes":[i["quote"]],"rationale":i["rationale"]})).collect()).unwrap_or_default();
-        records.push(json!({"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"native":context["translationLanguage"],"source":source,"input":context["input"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
+        let mut judgments:Vec<Value>=assessment.and_then(|a|a["items"].as_array()).map(|items|items.iter().map(|i|json!({"skill_id":i["construct"],"outcome":i["outcome"],"quotes":[i["quote"]],"rationale":""})).collect()).unwrap_or_default();
+        if let Some(repair) = context
+            .get("nativeRepairObservation")
+            .filter(|r| r.is_object())
+        {
+            judgments.retain(|j| j["skill_id"] != repair["construct"]);
+            judgments.push(json!({"skill_id":repair["construct"],"source":"native_repair_check","support_step":repair["support_step"],"outcome":repair["outcome"],"quotes":[repair["quote"]],"rationale":""}));
+        }
+        records.push(json!({"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else{Value::Null},"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
     }
-    let catalog = crate::coaching::catalog();
+    let source_catalog = registry.catalog();
+    let mut visible = Vec::new();
+    for node in source_catalog.as_array().ok_or_else(|| {
+        AppError::new(
+            ErrorCode::ConfigLoad,
+            "Construct navigation must be an array.",
+        )
+    })? {
+        if node["kind"] == "skill" {
+            let construct = registry.construct(node["id"].as_str().ok_or_else(|| {
+                AppError::new(ErrorCode::ConfigLoad, "Missing construct identity.")
+            })?)?;
+            if construct
+                .language
+                .as_deref()
+                .is_some_and(|language| language != target)
+            {
+                continue;
+            }
+        }
+        visible.push(node.clone());
+    }
+    let catalog = Value::Array(visible);
     let mut skills = vec![];
     let mut credits = vec![];
     for node in catalog
@@ -57,7 +93,8 @@ pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Resul
                     .join(" ")
                     .to_lowercase();
                 let id = record["attempt_id"].as_str().unwrap();
-                if record["catalog_version"] != crate::coaching::catalog_version()
+                if record["construct_registry_hash"] != construct_hash
+                    || record["catalog_version"] != catalog_version
                     || excluded.iter().any(|e| e == id)
                     || (record["input"]["suggestion"] == true
                         || record["input"]["scaffold"] == true
@@ -67,7 +104,9 @@ pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Resul
                         .as_array()
                         .is_some_and(|j| {
                             j.iter().any(|j| {
-                                j["skill_id"] == node["id"] && j["outcome"] == "demonstrated"
+                                j["skill_id"] == node["id"]
+                                    && j["outcome"] == "demonstrated"
+                                    && j["source"] != "native_repair_check"
                             })
                         })
                 {
@@ -107,7 +146,7 @@ pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Resul
         |r| r.get(0),
     )?;
     Ok(
-        json!({"catalog":catalog,"catalog_version":crate::coaching::catalog_version(),"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":1,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
+        json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":1,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
     )
 }
 #[tauri::command]
@@ -182,8 +221,13 @@ pub(crate) fn save_skill_profile(
 }
 
 /// Freeze the learner-selected or transparent recommended focus into each turn.
-pub(crate) fn capture_focus(db: &Connection, session: &str, target: &str) -> Result<Value> {
-    let snapshot = snapshot_db(db, session, target)?;
+pub(crate) fn capture_focus(
+    db: &Connection,
+    registry: &crate::config::Registry,
+    session: &str,
+    target: &str,
+) -> Result<Value> {
+    let snapshot = snapshot_db(db, registry, session, target)?;
     let focus = &snapshot["profile"]["active_focus"];
     if focus.is_null() {
         return Ok(Value::Null);
@@ -196,6 +240,6 @@ pub(crate) fn capture_focus(db: &Connection, session: &str, target: &str) -> Res
         .ok_or_else(|| AppError::new(ErrorCode::Storage, "Unknown active practice focus."))?;
     let chosen = snapshot["profile"]["choices"]["focus"].is_string();
     Ok(
-        json!({"id":focus,"label":node["label"],"opportunity":node["criterion"],"source":if chosen {"learner"} else {"recommended"},"reason":if chosen {"Chosen by the learner."} else {"Available skill with the fewest direct demonstrations."}}),
+        json!({"id":focus,"label":node["label"],"opportunity":registry.construct(focus.as_str().ok_or_else(||AppError::new(ErrorCode::Storage,"Invalid focus identity."))?)?.opportunity,"source":if chosen {"learner"} else {"recommended"},"reason":if chosen {"Chosen by the learner."} else {"Available skill with the fewest direct demonstrations."}}),
     )
 }

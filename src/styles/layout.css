@@ -328,3 +328,5 @@
   border-color: var(--accent-line-strong);
   color: var(--accent-ink-deep);
 }
+
+.configuration-error { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -7,28 +7,34 @@ pub struct Declaration {
 }
 pub const PLAN: &[Declaration] = &[
     Declaration {
+        kind: "coach_retry_check",
+        dependencies: &["persona_context"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
         kind: "coach_feedback",
         dependencies: &["persona_context"],
         role: "standard",
-        contract_version: 2,
+        contract_version: 3,
     },
     Declaration {
         kind: "coach_suggestions",
         dependencies: &["persona_reply"],
         role: "standard",
-        contract_version: 2,
+        contract_version: 3,
     },
     Declaration {
         kind: "persona_context",
         dependencies: &[],
         role: "local",
-        contract_version: 2,
+        contract_version: 3,
     },
     Declaration {
         kind: "persona_reply",
         dependencies: &["persona_context"],
         role: "standard",
-        contract_version: 2,
+        contract_version: 3,
     },
     Declaration {
         kind: "persona_word_gloss",
@@ -67,12 +73,51 @@ pub const COACH_PLAN: &[Declaration] = &[
         kind: "coach_context",
         dependencies: &[],
         role: "local",
-        contract_version: 2,
+        contract_version: 3,
     },
     Declaration {
         kind: "coach_reply",
         dependencies: &["coach_context"],
         role: "standard",
-        contract_version: 2,
+        contract_version: 3,
+    },
+];
+
+pub const OPENING_PLAN: &[Declaration] = &[
+    Declaration {
+        kind: "persona_context",
+        dependencies: &[],
+        role: "local",
+        contract_version: 3,
+    },
+    Declaration {
+        kind: "persona_opening",
+        dependencies: &["persona_context"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "coach_suggestions",
+        dependencies: &["persona_opening"],
+        role: "standard",
+        contract_version: 3,
+    },
+    Declaration {
+        kind: "persona_word_gloss",
+        dependencies: &["persona_opening"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "persona_speech",
+        dependencies: &["persona_opening"],
+        role: "speech",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "reply_translation",
+        dependencies: &["persona_opening"],
+        role: "standard",
+        contract_version: 1,
     },
 ];

@@ -505,3 +505,14 @@ or (at your option) any later version (**AGPL-3.0-or-later**). See [LICENSE](LIC
 for the full license text.
 
 Third-party components and materials retain their respective licenses and notices.
+
+### Real app smoke suite
+
+`npm run e2e:android` drives the installed Android development app through Spanish,
+Arabic and Chinese chats using its configured live AI route. It checks partner
+starts, sent text, replies, feedback, glosses and Arabic joining. Add voice with
+`npm run e2e:android:voice`; prerecorded speech goes through the real recording,
+transcription and send flow, with only the microphone source substituted.
+These explicit live runs incur provider usage. `npm run e2e:android:preflight`
+checks access without inference. See [setup and verification limits](scripts/e2e/README.md).
+Missing devices and failed prerequisites fail the run; they are not passing tests.

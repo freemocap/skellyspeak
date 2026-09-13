@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Guidance": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "sources",
+        "text"
+      ],
+      "type": "object"
+    },
+    "ScalarOverrides": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "font_scale": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "word_spacing": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Trait": {
+      "additionalProperties": false,
+      "properties": {
+        "guidance": {
+          "items": {
+            "$ref": "#/definitions/Guidance"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requires": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "review": {
+          "type": "string"
+        },
+        "scalars": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ScalarOverrides"
+            }
+          ],
+          "default": {
+            "direction": null,
+            "font_scale": null,
+            "word_spacing": null
+          }
+        }
+      },
+      "required": [
+        "guidance",
+        "id",
+        "requires",
+        "review"
+      ],
+      "type": "object"
+    }
+  },
+  "items": {
+    "$ref": "#/definitions/Trait"
+  },
+  "title": "Array_of_Trait",
+  "type": "array"
+}

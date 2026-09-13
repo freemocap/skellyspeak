@@ -18,6 +18,9 @@ const PENDING_TTL: Duration = Duration::from_secs(30);
 pub struct Request {
     pub id: String,
     pub language_id: String,
+    pub language: Language,
+    pub config_hash: String,
+    pub language_context: crate::config::LanguageContext,
     pub brief: Option<String>,
     pub target: access::ResolvedTarget,
     pub credential: String,
@@ -32,7 +35,7 @@ pub struct Request {
 }
 impl Request {
     pub fn capture(store: &Store, language_id: String, brief: Option<String>) -> Result<Self> {
-        crate::languages::language(&language_id)?;
+        let language = store.config.language(&language_id)?;
         if brief
             .as_deref()
             .is_some_and(|brief| brief.chars().count() > persona::BRIEF_MAX || brief.contains('\0'))
@@ -55,7 +58,14 @@ impl Request {
         let (attempt, operation) = crate::generation_identity();
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
+            language_context: store.config.resolve(
+                &language_id,
+                None,
+                &store.snapshot()?.learner.preferences.explanation_language,
+            )?,
             language_id,
+            language,
+            config_hash: store.config.hash().into(),
             brief,
             target,
             credential,
@@ -100,6 +110,9 @@ impl Request {
         }
     }
     pub fn validate(&self, store: &Store) -> Result<()> {
+        if self.config_hash != store.config.hash() {
+            return Err(self.stopped("language configuration changed"));
+        }
         self.check_cancelled()?;
         let config = execution::config(&store.connection)?;
         if config.paused {

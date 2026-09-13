@@ -117,3 +117,56 @@ The isolated revision surfaces were inspected at desktop and narrow browser size
 including confirmation and Escape dismissal. This is not a full native/device or
 live-provider verification. Current combined results live in
 `workflow/reports/coaching-w1-integration.md`.
+
+
+## Coaching and conversation starts — wave-two source
+
+Empty chats show one “You start” button and an optional topic dropdown, defaulting
+to “Any topic.” Topic selection alone does not start a conversation. The composer
+remains usable throughout. Cards, previews and the description form are removed
+from the first screen. Partner-first starts create no learner message. Their
+pending, paused and failed state remains visible before any reply exists.
+
+Message chips open a compact coach card with exact source text, policy-selected
+help, Edit & try again, Show answer and Keep going. Native Open card acknowledgement
+records help exposure before displaying a hint. Pencil editing alone does not
+reveal one. Numeric message grading is removed. Fixed notes require checked repair
+evidence; uncertain checks explicitly say the repair could not be confirmed.
+
+Configuration errors stop startup before normal store projections load, name the
+file and require correction followed by a native restart. This screen offers no
+data-deletion remedy. Retained observations from a changed construct registry have
+an inspectable mapping notice, source quotes and registry identities. Existing data
+copy exports database/supporting files only; factory reset also removes editable
+configuration.
+
+Production GuidedPage components were inspected with a test-only transport at
+desktop and 360px Arabic/enlarged-reading widths. This is browser layout evidence,
+not a live provider or native persistence session. See
+`workflow/reports/coaching-w2-integration.md` for current verification status.
+
+Arabic-script reading preserves each original orthographic word as one shaping
+run, even when saved glosses divide it into clitics or morphemes. Word disclosure
+shows the individual source fragments and glosses with their saved anchors.
+Analysis sentences retain original punctuation and whitespace; they are never
+reconstructed by inserting spaces between gloss tokens.
+
+Requested message analysis shows language explanations immediately, with no nested
+observation disclosure or internal counters/construct IDs. Correct forms carry
+plain explanations of their use. Explicit answers show original → corrected
+wording and the reason. The editing panel stays expanded and offers help/answer
+controls in place. Requested analysis may select observed errors that automatic
+interruption policy skipped; this disclosure is recorded natively. Historical
+records with no explanation report that absence rather than inventing advice.
+
+The latest exchange's coaching and saved language analysis appear automatically
+beneath the skill map. The private coach follows each response; detailed XP
+records sit in a separate disclosure. Visible hints record exposure through the
+native coaching control; hidden or collapsed panels do not count as viewed.
+Every message feedback button opens the same dialog, including no-correction
+results and failures. Saved translations and word meanings remain inspectable.
+Message actions follow expanding content in normal layout flow.
+
+Suggested replies start collapsed behind “Show suggested replies.” Opening that
+control explicitly requests generation; sending a message does not schedule
+suggestion generation. Repeated requests share the existing operation.

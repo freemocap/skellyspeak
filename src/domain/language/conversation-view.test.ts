@@ -3,11 +3,11 @@ import type { ChatMessage, ConversationSnapshot } from '../../contracts'
 import { conversationTurns } from './conversation-view'
 
 function message(sequence: number, role: string, text: string, translation: string | null = null): ChatMessage {
-  return { turnId: `turn-${Math.ceil(sequence / 2)}`, replacesTurnId: null, replacedBy: null, wordGloss: null, glossError: null, glossState: null, glossOperationId: null, sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
+  return { coachDecision: null, turnId: `turn-${Math.ceil(sequence / 2)}`, replacesTurnId: null, replacedBy: null, wordGloss: null, glossError: null, glossState: null, glossOperationId: null, sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
 }
 function snapshot(messages: ChatMessage[]): ConversationSnapshot {
   return {
-    revisionSuffixCounts: [], messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
+    opening: null, starterCards: [], revisionSuffixCounts: [], messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
     conversationId: 'conversation', sessionId: 'session', revision: 1, hasOlder: false,
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
   }
@@ -63,7 +63,7 @@ describe('durable conversation projection', () => {
 
 it('passes native feedback through unchanged and projects suggestion state and failure', () => {
   const user: ChatMessage = { ...message(1, 'user', 'Yo fue ayer'), feedbackState: 'succeeded',
-    feedback: { correctness: 2, understandability: 4, explanation: 'Use fui for yo.', correction: 'Yo fui ayer.', evidence: [] } }
+    feedback: { meaningRecovered: 'full', items: [], candidatesSent: 18, itemsReturned: 0 } }
   const reply: ChatMessage = { ...message(2, 'assistant', '¿Adónde fuiste?'), suggestedReplies: [{ text: 'Fui al mercado.', segments: [] }], suggestionsState: 'failed', suggestionsError: 'Coach feedback rejected: suggestions_schema.' }
   const [turn] = conversationTurns(snapshot([user, reply]))
   expect(turn.coach).toBe(user.feedback)

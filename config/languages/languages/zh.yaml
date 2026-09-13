@@ -1,0 +1,18 @@
+id: "zh"
+name: "Mandarin"
+native_name: "中文（简体）"
+script: "Hans"
+orthography: "zh-hans"
+family: "sino-tibetan"
+romanization: "pinyin"
+traits:
+  - "tones"
+  - "unspaced-words"
+default_variety: "zh-CN"
+varieties:
+  -
+    id: "zh-CN"
+    name: "Mainland China"
+    guidance: []
+guidance: []
+review: "needs_review"

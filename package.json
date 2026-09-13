@@ -24,7 +24,12 @@
     "logs:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/run-log.ts scripts/dev-run.ts scripts/run-log.test.ts",
     "graph": "node scripts/import-graph.ts",
     "move": "node scripts/refactor-move.ts",
-    "graph:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/import-graph.ts scripts/refactor-move.ts scripts/prune-styles.ts"
+    "graph:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/import-graph.ts scripts/refactor-move.ts scripts/prune-styles.ts",
+    "e2e:android:preflight": "node scripts/e2e/android.ts",
+    "e2e:android": "node scripts/e2e/android.ts --live",
+    "e2e:android:voice": "node scripts/e2e/android.ts --live --voice",
+    "e2e:fixtures": "node scripts/e2e/speech-fixtures.ts",
+    "e2e:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/e2e/android.ts scripts/e2e/android.test.ts scripts/e2e/speech-fixtures.ts && node --test scripts/e2e/android.test.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",

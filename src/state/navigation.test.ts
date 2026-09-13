@@ -15,11 +15,11 @@ describe('navigation store', () => {
   })
 
   it('folds and unfolds the reply suggestions', () => {
-    expect(store().suggestionsCollapsed).toBe(false)
-    store().toggleSuggestions()
     expect(store().suggestionsCollapsed).toBe(true)
     store().toggleSuggestions()
     expect(store().suggestionsCollapsed).toBe(false)
+    store().toggleSuggestions()
+    expect(store().suggestionsCollapsed).toBe(true)
   })
 
   it('shows one dialog at a time', () => {

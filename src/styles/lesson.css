@@ -170,8 +170,6 @@
 
 .detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
 
-.detail-dialog .coach-correction { margin-top: var(--space-6); }
-
 @media (pointer: coarse) {
   .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
 }

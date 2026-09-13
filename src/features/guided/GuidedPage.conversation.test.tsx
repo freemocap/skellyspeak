@@ -79,8 +79,8 @@ function directory(): Snapshot {
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
-    revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
-    messages: text === undefined ? [] : [{ wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
+    opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
+    messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
   }
@@ -318,7 +318,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   const edit = screen.getByRole('button', { name: 'Edit this message and try again' })
   expect(edit).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Edit & try again' }))
+  fireEvent.click(screen.getByRole('button', { name: /Edit (message|& try again)/ }))
   const composer = screen.getByPlaceholderText(/Write in/)
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
@@ -398,4 +398,107 @@ it('shows a raced native pending-turn rejection without dropping the repair draf
   expect(screen.getByText('A partner reply is pending.')).toBeVisible()
   expect(screen.getByPlaceholderText(/Write in/)).toHaveValue('Yo fue ayer')
   expect(commands()).toHaveLength(1)
+})
+
+it('starts with a native card as a partner-first exchange while the composer remains usable', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = snapshot('a', 41)
+  value.starterCards = [{ id: 'food', label: 'Ordering food', preview: 'Quiero café.', translation: 'I want coffee.', reason: 'From your focus' }]
+  await act(async () => watches[0].resolve(value))
+  expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
+  fireEvent.change(screen.getByRole('combobox', { name: 'Topic' }), { target: { value: 'food' } })
+  fireEvent.click(screen.getByRole('button', { name: 'You start' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'starter', starterId: 'food' } })
+  expect(screen.queryByText('¿Qué quieres beber?')).toBeNull()
+  const response = snapshot('a', 42)
+  response.messages = [{ ...exchangeSnapshot().messages[1], text: '¿Qué quieres beber?' }]
+  await act(async () => watches[1].resolve(response))
+  expect(screen.getByText('¿Qué quieres beber?')).toBeVisible()
+  expect(document.querySelector('.msg.me')).toBeNull()
+})
+
+it('shows a failed partner start without blocking the composer', async () => {
+  submit = async () => { throw { code: 'conflict', message: 'This conversation already started.' } }
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot('a', 41)))
+  fireEvent.click(screen.getByRole('button', { name: 'You start' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'surprise' } })
+  expect(await screen.findByRole('alert')).toHaveTextContent('This conversation already started.')
+  expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
+})
+
+it('persists Show answer through the real handler and renders only the returned native correction', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = exchangeSnapshot()
+  value.messages[0].feedback = { meaningRecovered: 'full', items: [{ construct: 'past', quote: 'fue', outcome: 'partial', rationale: 'Past reference' }], candidatesSent: 18, itemsReturned: 1 }
+  value.messages[0].coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
+  await act(async () => watches[0].resolve(value))
+  fireEvent.click(screen.getByRole('button', { name: 'Coach feedback for message 1' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'open_card', expectedRevision: 31 })
+  expect(screen.queryByText('Which form goes with yo?')).toBeNull()
+  const exposed = structuredClone(value)
+  exposed.revision++
+  exposed.messages[0].coachDecision!.exposedMove = 'hint'
+  await act(async () => watches[1].resolve(exposed))
+  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+  expect(screen.queryByText('Yo fui ayer.')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Show answer' }))
+  await waitFor(() => expect(commands()).toHaveLength(2))
+  expect(commands()[1].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'show_answer', expectedRevision: 32 })
+  expect(screen.queryByText('Yo fui ayer.')).toBeNull()
+  const next = structuredClone(exposed)
+  next.revision++
+  next.messages[0].coachDecision!.exposedMove = 'explicit'
+  next.messages[0].coachDecision!.shown = { ...value.messages[0].coachDecision!.shown!, move: 'explicit', text: 'Yo fui ayer.' }
+  await act(async () => watches[2].resolve(next))
+  expect(screen.getByText('Yo fui ayer.')).toBeVisible()
+  expect(screen.queryByRole('button', { name: 'Show answer' })).toBeNull()
+})
+
+it('opens empty starter content at the top but scrolls real messages to the bottom', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const stream = document.querySelector<HTMLDivElement>('.stream')!
+  Object.defineProperty(stream, 'scrollHeight', { value: 1500, configurable: true })
+  stream.scrollTop = 300
+  await act(async () => watches[0].resolve(snapshot()))
+  expect(stream.scrollTop).toBe(0)
+  await act(async () => watches[1].resolve(exchangeSnapshot()))
+  expect(stream.scrollTop).toBe(1500)
+})
+
+it('hides starters after accepting an opening and surfaces failure without a learner bubble', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = snapshot('a', 41)
+  value.opening = { kind: 'surprise' }
+  value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [], operations: [{ id: 'opening-operation', kind: 'persona_opening', state: 'ready', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
+  await act(async () => watches[0].resolve(value))
+  expect(screen.queryByRole('button', { name: 'You start' })).toBeNull()
+  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
+  const paused = structuredClone(value)
+  paused.revision++
+  paused.connection.paused = true
+  await act(async () => watches[1].resolve(paused))
+  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Conversation opening is paused.')
+  expect(screen.getByLabelText('Conversation opening')).not.toHaveTextContent('Starting conversation')
+  const resumed = structuredClone(paused)
+  resumed.revision++
+  resumed.connection.paused = false
+  await act(async () => watches[2].resolve(resumed))
+  expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
+  const failed = structuredClone(resumed)
+  failed.revision++
+  failed.turns[0].state = 'failed'
+  failed.turns[0].hold = { code: 'credential', message: 'Opening provider refused access.', refusal: null }
+  await act(async () => watches[3].resolve(failed))
+  expect(screen.getByRole('alert')).toHaveTextContent('Opening provider refused access.')
+  expect(screen.getByRole('button', { name: 'Open AI activity' })).toBeEnabled()
+  expect(document.querySelector('.msg.me')).toBeNull()
 })

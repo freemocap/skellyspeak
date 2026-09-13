@@ -268,14 +268,16 @@ Statistics remain numerical; garden geometry owns no evidence or scores.
 
 Coaching is split by input readiness, with two automatic inference nodes as the
 initial design. Learner feedback starts from the saved learner message and already
-available context. The current implementation uses message-level correctness and
-contextual understandability scores; wave two replaces those with meaning recovery,
-per-construct observations and deterministic feedback policy. Response-dependent
+available context. Wave-two source uses meaning recovery, per-construct observations
+and deterministic feedback policy in place of message-level scores. The exact
+selected correction and actually exposed help are separate records: opening a card
+acknowledges disclosure, and independent pencil editing does not count an unseen
+hint as assistance. Response-dependent
 help and next-reply suggestions start
 when the partner text is available. Responsiveness takes precedence over saving one
 inference request. Neither coaching node depends on completion of the other; both
 publish independently without waiting for speech, glosses or complete turn hydration.
-Understandability is estimated from available context, not claimed as observed
+Meaning recovery is estimated from available context, not claimed as observed
 comprehension by a partner whose reply does not yet exist.
 
 The graph dispatches ready nodes subject to capacity and foreground responsiveness;
@@ -689,3 +691,34 @@ text is retained in the receipts. They belong to the workspace and language, not
 a conversation or an existing persona; deleting a conversation does not erase
 this separate usage. Factory Reset clears them. Opening activity reads metadata
 and settles expired local ownership; it does not dispatch inference.
+
+### Learner-facing analysis after the v0 comparison
+
+Adopt the useful v0 interaction principle: opening analysis immediately shows a
+concrete explanation tied to the learner's words, and explicit corrections show
+original wording, corrected wording and why. Do not show internal construct IDs,
+meaning-recovery categories or candidate counts as language help. Keep technical
+records in the domain model. Do not reintroduce numeric grades. Hint disclosure
+remains learner-controlled, and explicit correction explanations stay private
+until the answer is requested. Editing keeps already viewed help expanded and
+provides help controls in place. This adopts a design principle from reference
+material; no archived application code was reused or run.
+
+### The private coach: Cyrano in the earpiece
+
+The user defines the coaching relationship as a benevolent Cyrano de Bergerac:
+listening alongside the exchange and helping the learner express their own
+intentions beyond their current unaided ability. The coach is present, practical
+and private. Understanding the partner, offering a usable phrase or a concrete
+explanation, and supporting the next attempt are its product purpose. Taxonomy,
+scoring and pipeline diagnostics are implementation evidence, not the help itself.
+The learner keeps authorship and can decline help; the partner remains a separate
+conversation participant. This is a user-specified design metaphor, not a new
+research claim or permission to impersonate the learner.
+
+The latest exchange and coaching appear automatically beneath the skill map.
+Requested feedback uses one consistent modal even while help is pending or fails.
+Suggested replies remain collapsed behind “Show suggested replies” and are
+computed only on explicit request. Automatic coach feedback is separate from
+optional generated replies. Visible hint exposure is recorded for assistance
+accounting; hidden mobile panels do not count as help viewed.

@@ -1,0 +1,33 @@
+max_corrections_per_turn: 1
+correct_only: "focus_and_meaning_blocking"
+skip_sources:
+  - "developmental"
+  - "slip"
+ladder:
+  - "partner_clarify"
+  - "hint"
+  - "elicit"
+  - "metalinguistic"
+  - "explicit"
+intensity:
+  light:
+    start_at: "hint"
+    max_revisions: 1
+    show_logged: false
+  standard:
+    start_at: "hint"
+    max_revisions: 2
+    show_logged: true
+  thorough:
+    start_at: "elicit"
+    max_revisions: 3
+    show_logged: true
+never:
+  - "praise_the_person"
+  - "correct_in_partner_voice"
+  - "block_continuing"
+sources:
+  - "lyster_ranta1997"
+  - "lyster_saito2010"
+  - "aljaafreh_lantolf1994"
+  - "hattie_timperley2007"

@@ -74,9 +74,14 @@ fn list(values: &[String], label: &str, max: usize) -> Result<()> {
 /// non-Latin script has a romanization system, and its personas carry their name
 /// in Latin letters; every other language's personas carry none.
 pub fn validate(details: &PersonaDetails, language_id: &str) -> Result<()> {
-    let romanized = crate::languages::language(language_id)?
-        .romanization
-        .is_some();
+    validate_for_language(details, &crate::languages::language(language_id)?)
+}
+/// Live validation uses the workspace's resolved language, not bundled defaults.
+pub fn validate_for_language(
+    details: &PersonaDetails,
+    language: &crate::model::Language,
+) -> Result<()> {
+    let romanized = language.romanization.is_some();
     text(&details.name, "Name", NAME_MAX, false)?;
     match (&details.romanized_name, romanized) {
         (Some(name), true) => text(name, "Romanized name", NAME_MAX, false)?,

@@ -1,3 +1,6 @@
+import { AnalysisSentence } from './AnalysisSentence'
+import { anchoredTokenGlosses, hasArabicScript } from '../../domain/language/gloss-display'
+import { EvidenceMappingNotice } from '../../ui/EvidenceMappingNotice'
 import { ErrorDetails } from '../../ui/ErrorDetails'
 import { GlossAssistance } from './GlossAssistance'
 import { SavedGlossText } from './SavedGlossText'
@@ -13,7 +16,7 @@ import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import { PersonaReaction } from './PersonaReaction'
 import type { GuidedToken, GuidedTurnResult } from '../../types'
-import type { Feedback } from '../../contracts'
+import type { CoachControl, CoachDecision, CoachObservationView } from '../../contracts'
 import { popupAnchor, type PopupState } from './GlossPopup'
 import { groupSentences, splitSentences } from '../../domain/language/sentences'
 import { sourceToken } from '../../domain/language/source-token'
@@ -31,7 +34,8 @@ export interface TurnShape {
   user: string | null
   assistant: GuidedTurnResult | null
   pendingText: string
-  coach?: Feedback
+  coach?: CoachObservationView
+  coachDecision?: CoachDecision
   coachError?: string
   reaction?: import('../../types').PersonaReaction
   reactionError?: string
@@ -74,6 +78,7 @@ export interface TurnViewProps {
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
   onRetryGloss?: (operationId: string) => Promise<void>
+  onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
   editDisabled?: boolean
   onEditUser?: (turn: TurnShape) => void
 }
@@ -101,6 +106,7 @@ export const TurnView = memo(function TurnView({
   onHold,
   onToggleReveal,
   onEditUser,
+  onCoachControl,
   editDisabled,
   onRetryGloss,
 }: TurnViewProps) {
@@ -191,6 +197,11 @@ export const TurnView = memo(function TurnView({
     translation: string | null,
     rawText: string
   ) => {
+    if (hasArabicScript(rawText)) return <SavedGlossText text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
+      decorateSegment={(node, start, end) => {
+        const matches = side === 'me' ? evidence.filter(item => item.start < end && item.end > start) : []
+        return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+      }} afterSegment={(start, end) => side === 'me' ? creditMarkers(evidence.filter(item => item.end > start && item.end <= end)) : null} />
     let cursor = 0
     return (
     <span className={rtl ? 'line rtl-line' : 'line'}>
@@ -268,7 +279,8 @@ export const TurnView = memo(function TurnView({
             : plainEvidence}
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
-          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
+          <MessageFeedback analysis={<AnalysisSentence label="Your message" text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
           </MessageFeedback>
           {onEditUser && (
@@ -309,10 +321,6 @@ export const TurnView = memo(function TurnView({
             <TargetText text={assistant.reply} />
           )}
           {turn.user && <PersonaReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
-          <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate persona message" aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>Translate</button>}
-          <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
-          </div>
           {(showPersonaTranslation) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
@@ -324,6 +332,10 @@ export const TurnView = memo(function TurnView({
           {assistant.translationState === 'invalidated' && <div className="trans" role="status">Translation unavailable</div>}
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
           {speechError && <ErrorDetails label="Speech" errorKey={speechError}>{speechError}</ErrorDetails>}
+          <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
+          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate persona message" aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>Translate</button>}
+          <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
+          </div>
           {ttsReady && onSpeak && (
             <button
               type="button"

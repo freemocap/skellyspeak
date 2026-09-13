@@ -1,0 +1,20 @@
+id: "es"
+name: "Spanish"
+native_name: "Español"
+script: "Latn"
+orthography: "latin"
+family: "indo-european"
+romanization: null
+traits: []
+default_variety: "es-ES"
+varieties:
+  -
+    id: "es-ES"
+    name: "Spain"
+    guidance: []
+  -
+    id: "es-MX"
+    name: "Mexico"
+    guidance: []
+guidance: []
+review: "needs_review"

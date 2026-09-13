@@ -72,7 +72,7 @@ const initialState = {
   skillsOpened: false,
   settingsBusy: false,
   newChatAction: null as (() => void) | null,
-  suggestionsCollapsed: false,
+  suggestionsCollapsed: true,
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({

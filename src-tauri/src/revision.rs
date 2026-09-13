@@ -20,6 +20,7 @@ pub(crate) fn suffix_counts(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn accept(
     db: &Connection,
+    registry: &crate::config::Registry,
     snapshot: &Snapshot,
     conversation: &str,
     turn: &str,
@@ -65,7 +66,7 @@ pub(crate) fn accept(
     db.execute("DELETE FROM receipts WHERE conversation_id=?1 AND (json_extract(receipt,'$.entityId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2) OR json_extract(request,'$.turnId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
     // Exclusions are choices about retained observations. Remove only references
     // whose evidence is deleted with this suffix; keep predecessor exclusions.
-    db.execute("UPDATE skill_choices SET excluded=(SELECT coalesce(json_group_array(value),'[]') FROM json_each(skill_choices.excluded) WHERE value NOT IN (SELECT coalesce(json_extract(context,'$.coachFeedbackAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2)),revision=revision+1 WHERE language_id=(SELECT language_id FROM conversations WHERE id=?1) AND EXISTS(SELECT 1 FROM json_each(skill_choices.excluded) WHERE value IN (SELECT coalesce(json_extract(context,'$.coachFeedbackAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
+    db.execute("UPDATE skill_choices SET excluded=(SELECT coalesce(json_group_array(value),'[]') FROM json_each(skill_choices.excluded) WHERE value NOT IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2)),revision=revision+1 WHERE language_id=(SELECT language_id FROM conversations WHERE id=?1) AND EXISTS(SELECT 1 FROM json_each(skill_choices.excluded) WHERE value IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
     db.execute(
         "DELETE FROM turns WHERE conversation_id=?1 AND rowid>?2",
         params![conversation, order],
@@ -77,12 +78,21 @@ pub(crate) fn accept(
         .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Conversation no longer exists."))?;
     let replacement = crate::execution::accept_revision_send(
         db,
+        registry,
         snapshot,
         conversation,
         text,
         current.revision,
         turn,
     )?;
+    let retry: bool = db.query_row(
+        "SELECT json_type(context,'$.coachRetry')='object' FROM turns WHERE id=?1",
+        [&replacement],
+        |r| r.get(0),
+    )?;
+    if retry {
+        db.execute("UPDATE operations SET kind='coach_retry_check' WHERE turn_id=?1 AND kind='coach_feedback'",[&replacement])?;
+    }
     input.revision = true;
     db.execute("UPDATE turns SET replaces_turn_id=?2,context=json_set(context,'$.input',json(?3)) WHERE id=?1", params![replacement,turn,serde_json::to_string(&input)?])?;
     Ok(replacement)

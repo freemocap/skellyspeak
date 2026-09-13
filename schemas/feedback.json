@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "Intensity": {
+      "additionalProperties": false,
+      "properties": {
+        "max_revisions": {
+          "format": "uint8",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "show_logged": {
+          "type": "boolean"
+        },
+        "start_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_revisions",
+        "show_logged",
+        "start_at"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "correct_only": {
+      "type": "string"
+    },
+    "intensity": {
+      "additionalProperties": {
+        "$ref": "#/definitions/Intensity"
+      },
+      "type": "object"
+    },
+    "ladder": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "max_corrections_per_turn": {
+      "format": "uint",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "never": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "skip_sources": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "correct_only",
+    "intensity",
+    "ladder",
+    "max_corrections_per_turn",
+    "never",
+    "skip_sources",
+    "sources"
+  ],
+  "title": "FeedbackPolicy",
+  "type": "object"
+}

@@ -7,7 +7,7 @@ title: Coaching contracts
 
 The seams between the three work areas in the [coaching work plan](./coaching-work-plan). Each contract names who provides it, who consumes it, and the wave it lands in. A provider may refine a signature; the change must be reported as **contract drift** in its hand-back and then updated here by the integration agent.
 
-Status: wave 1 contracts are specified; later waves are named and sketched, and get specified at the start of their wave.
+Status: wave 1 is implemented and checkpointed at bdb664e. Wave 2 source and combined automated verification are complete; its integration decisions below specify the boundaries, while generated native types remain the exact wire authority. Wave 3 remains planned.
 
 ## Wave 1
 
@@ -99,7 +99,22 @@ These refine wave one; B must publish the generated field names and action shape
 - It's rendered as the L3 block (coaching plan §7) into the `persona_reply` system prompt and the `coach_feedback` / `coach_suggestions` prompts. With no focus, the block is absent.
 - Snapshot tests cover both cases.
 
-## Wave 2 (sketch)
+## Wave 2 — integration decisions
+
+The user checkpointed wave one and authorized wave two. Wave two uses fresh schema v14 for durable conversation openings; schema v13 remains the wave-one checkpoint. Older development data may be reset under the existing authorization, with no migration. Configuration belongs to the learner: first startup seeds bundled YAML into `config/` beside the workspace database only when that directory is absent. Existing incomplete or invalid configuration is a blocking `config_load` startup refusal with an actionable path/message; it is never replaced by bundled defaults and does not offer database deletion as a remedy. Native initialization completes before opening the store or loading frontend projections. Restart reloads edits; no hot reload is promised.
+
+Language resolution, construct and policy hashes are captured with accepted work. Language context resolves universal → ordered traits → language → variety, by scope, including the explanation language. Candidate selection is deterministic and preserves focus/prerequisites and mandatory function/interaction constructs; the 15–25 size is a target, not permission to silently omit required candidates. Missing IDs/citations, invalid references and cycles fail validation.
+
+`StartConversation` carries the reviewed global snapshot revision. Partner-first starts require an empty conversation and no pending work, and create a real `persona_opening` without a learner message. Described topics retain assistance provenance and earn no skill credit. Mechanical cards are local; AI coach-openers remain wave three. The composer remains usable without selecting a card.
+
+`CoachControl` provides durable, idempotent local Open card, Show answer and Keep going choices with the reviewed revision. The card is shown only after `open_card` acknowledges disclosure. `CoachDecision.exposedMove` starts null and resets for a new rung; editing directly does not silently count a hint as shown. Retry support records this exposure separately from the selected correction. Only the policy-approved correction text crosses into the displayed card; an unrevealed target hypothesis remains private. A revision with an active prior correction captures that exact item and shown move for `coach_retry_check`. Fixed notes require validated repair evidence; simply revising is insufficient. Partner replies do not wait for coach analysis, and coaching never blocks continuing.
+
+The Registry is owned by each Store; runtime language projections and prompts use that workspace instance. Explicit bundled helpers serve contract export and standalone tests. Candidate selection now takes the difficulty band explicitly, and starter reasons are resolved from localized YAML.
+
+The initial observation also provides explanation-language elicitation and metalinguistic cues alongside its hint and private target hypothesis. Policy chooses among these saved cues without another inference call. Exact target leakage in cues is rejected; this structural check cannot prove semantic hint quality. Retry checks return their own `meaning_recovered`; repairing a form does not imply fully recovered meaning.
+
+B publishes the generated action, snapshot and safe observation/decision shapes for C. Full observation persistence and the frontend projection may differ to protect graduated help; these distinctions must be reported in the handback. Wave-three support-weighted XP and proficiency estimation remain deferred.
+
 
 | Contract | Provider → consumer | Shape |
 |---|---|---|
@@ -107,7 +122,7 @@ These refine wave one; B must publish the generated field names and action shape
 | `Constructs::candidates(ctx, focus, due, tokens) -> Vec<ConstructRef>`; `Constructs::get(id)`; `.hash()` | A → B | §6.2 candidate rule |
 | `Policy::feedback() / estimator() / game()` | A → B | typed from YAML (§6.4, §11.6) |
 | `starters(ctx, band, focus, contact_tags, recent) -> Vec<Starter>` | A (data) → B (selection) | §10.3 |
-| Startup `ConfigLoadError` event | A → B → C | blocking error screen |
+| Startup `ConfigLoadError` → `StartupState.refusal` with `config_load` | A → B → C | blocking error screen before normal stores mount; fix files and restart |
 | `StartConversation { conversation_id, opening: Opening }`; `persona_opening` op | B → C | §10.4; Surprise reveals only when asked |
 | `CoachObservation`, `CoachDecision`, `Correction`, chip state | B → C | §6.3, §8.2 |
 

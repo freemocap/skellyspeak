@@ -1,0 +1,24 @@
+focus:
+  en: "From your focus"
+  es: "Según tu objetivo"
+  fr: "Selon votre objectif"
+  ar: "من هدفك الحالي"
+  zh: "来自你的练习重点"
+due:
+  en: "Due for review"
+  es: "Pendiente de repaso"
+  fr: "À revoir"
+  ar: "حان وقت المراجعة"
+  zh: "待复习"
+contact:
+  en: "From your contact’s interests"
+  es: "Según los intereses de tu contacto"
+  fr: "Selon les intérêts de votre contact"
+  ar: "من اهتمامات شريك المحادثة"
+  zh: "来自对话伙伴的兴趣"
+general:
+  en: "Conversation topic"
+  es: "Tema de conversación"
+  fr: "Sujet de conversation"
+  ar: "موضوع للمحادثة"
+  zh: "对话话题"

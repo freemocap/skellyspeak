@@ -19,7 +19,7 @@ it('silently loads history, announces new credit, and clears it on chat changes'
   try {
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     const next = structuredClone(snapshot)
-    next.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+    next.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
     next.profile.credits = [{ attempt_id: 'a', skill_id: 'referent', xp: 10 }]
     next.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 10
     view.rerender(ui(next))
@@ -40,7 +40,7 @@ it('presents assisted revision credit once and does not replay it after reopenin
   const arrive = vi.fn()
   const baseline = structuredClone(skillDemo)
   const earned = structuredClone(skillDemo)
-  earned.records = [{ attempt_id: 'repair', session_id: 's', turn_id: 2, message_id: 3, replaces_message_id: 1, chat_id: 'chat', learner_id: earned.learner_id, target: earned.target, native: 'en', source: 'Ese café.', input: { ...unreportedInput(), revision: true }, at_secs: 1, model: 'fixture', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'fixture', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+  earned.records = [{ attempt_id: 'repair', session_id: 's', turn_id: 2, message_id: 3, replaces_message_id: 1, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: earned.learner_id, target: earned.target, native: 'en', source: 'Ese café.', input: { ...unreportedInput(), revision: true }, at_secs: 1, model: 'fixture', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'fixture', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
   earned.profile.credits = [{ attempt_id: 'repair', skill_id: 'referent', xp: 2 }]
   earned.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 2
   earned.profile.xp = 2

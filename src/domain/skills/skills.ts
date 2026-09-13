@@ -23,6 +23,9 @@ export interface SkillJudgment {
   rationale: string
 }
 export interface SkillRecord {
+  construct_registry_hash: string | null
+  mapping_error: string | null
+  support_step: import('../../contracts').CoachMove | null
   attempt_id: string
   session_id: string
   turn_id: number
@@ -46,12 +49,14 @@ export interface SkillRecord {
 /// A snapshot is written by exactly one rubric. A record from another catalog is
 /// a defect to report, never a record to filter out quietly.
 export function requireCatalogVersion(snapshot: SkillSnapshot, record: SkillRecord): void {
+  if (record.construct_registry_hash !== snapshot.construct_registry_hash) throw new Error('Evidence uses a different construct registry without a native mapping error.')
   if (record.catalog_version !== snapshot.catalog_version) {
     throw new Error(`Evidence uses catalog ${record.catalog_version}, and this snapshot uses ${snapshot.catalog_version}`)
   }
 }
 
 export interface SkillSnapshot {
+  construct_registry_hash: string
   catalog: TreeNode[]
   catalog_version: number
   learner_id: string

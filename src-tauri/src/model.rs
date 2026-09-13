@@ -210,6 +210,16 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
+    StartConversation {
+        conversation_id: String,
+        opening: Opening,
+        expected_revision: i32,
+    },
+    CoachControl {
+        turn_id: String,
+        control: crate::coaching::CoachControl,
+        expected_revision: i32,
+    },
     ReviseTurn {
         conversation_id: String,
         turn_id: String,
@@ -236,6 +246,9 @@ pub enum Action {
     },
     CancelMessageSpeech {
         operation_id: String,
+    },
+    RequestSuggestions {
+        message_id: String,
     },
     RetryGloss {
         operation_id: String,
@@ -322,6 +335,7 @@ pub enum ErrorCode {
     Provider,
     AdmissionHeld,
     PendingTurn,
+    ConfigLoad,
     UnknownOutcome,
     Credential,
     Internal,
@@ -447,10 +461,24 @@ pub fn bindings() -> String {
         crate::diagnostics::DiagnosticCommand::decl(&config),
         crate::reward_settings::RewardSettings::decl(&config),
         crate::coaching::InputEvidence::decl(&config),
-        crate::coaching::Evidence::decl(&config),
         crate::coaching::Outcome::decl(&config),
         RevisionSuffixCount::decl(&config),
-        crate::coaching::Feedback::decl(&config),
+        crate::coaching::MeaningLevel::decl(&config),
+        crate::coaching::ErrorOp::decl(&config),
+        crate::coaching::ErrorSource::decl(&config),
+        crate::coaching::ErrorTag::decl(&config),
+        crate::coaching::ObservedItem::decl(&config),
+        crate::coaching::CoachObservation::decl(&config),
+        crate::coaching::ObservedItemSummary::decl(&config),
+        crate::coaching::CoachObservationView::decl(&config),
+        crate::coaching::CoachMove::decl(&config),
+        crate::coaching::Correction::decl(&config),
+        crate::coaching::CoachDecision::decl(&config),
+        crate::coaching::CoachControl::decl(&config),
+        crate::coaching::RetryCheck::decl(&config),
+        crate::coaching::RepairStatus::decl(&config),
+        Opening::decl(&config),
+        StarterCard::decl(&config),
         crate::coaching::SuggestedReply::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
@@ -561,11 +589,12 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    pub coach_decision: Option<crate::coaching::CoachDecision>,
     pub turn_id: String,
     pub replaces_turn_id: Option<String>,
     pub replaced_by: Option<String>,
     #[ts(optional)]
-    pub feedback: Option<crate::coaching::Feedback>,
+    pub feedback: Option<crate::coaching::CoachObservationView>,
     #[ts(optional)]
     pub feedback_state: Option<String>,
     #[ts(optional)]
@@ -630,6 +659,8 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    pub starter_cards: Vec<StarterCard>,
+    pub opening: Option<Opening>,
     pub revision_suffix_counts: Vec<RevisionSuffixCount>,
     pub transcription_attempts: Vec<TranscriptionAttempt>,
     pub holds: Vec<InferenceHold>,
@@ -813,4 +844,27 @@ pub struct RevisionSuffixCount {
     pub turn_id: String,
     pub exchange_count: i32,
     pub coach_turn_count: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase",
+    deny_unknown_fields
+)]
+pub enum Opening {
+    Learner,
+    Starter { starter_id: String },
+    Surprise,
+    Described { text: String },
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct StarterCard {
+    pub id: String,
+    pub label: String,
+    pub preview: Option<String>,
+    pub translation: Option<String>,
+    pub reason: String,
 }

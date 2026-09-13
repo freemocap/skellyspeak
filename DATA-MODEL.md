@@ -400,3 +400,20 @@ indices, state-library APIs, graph scheduler mechanics, scoring constants and vi
 layouts remain outside this proposal. [The execution contract](./EXECUTION.md)
 and [AI strategy](./AI-STRATEGY.md) develop the next proposals using these ownership
 and source-reference rules. Review them together before storage/state design.
+
+
+## Coaching wave-two source records
+
+Fresh schema v14 adds conversation-owned opening selection linked to the real
+partner-first turn. The learner's topic description is captured as expression-help
+provenance, not as a learner message or assessed language production. Turns capture
+the workspace config hash, resolved language context, full construct registry hash,
+candidate set and returned-item count alongside the existing source identities.
+
+Validated CoachObservation and deterministic CoachDecision are retained with the
+turn. Selected correction and exposed help are distinct: Open card/Show answer
+record actual disclosure; a new revision captures that support separately from the
+prior target item. Checked repair retains a native self-repair observation without
+manufacturing an extra wave-two reward. Richer support-weighted XP and the learner
+estimator remain wave three. Registry-incompatible observations retain their source
+and mapping error, while current credit requires matching registry identity.

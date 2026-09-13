@@ -42,6 +42,7 @@ function buildIndex(snapshot: SkillSnapshot) {
   const skills = new Map<string, EvidenceEntry[]>()
   const entries = new Map<string, EvidenceEntry>()
   for (const record of snapshot.records) {
+    if (record.mapping_error) continue // Retained and rendered by EvidenceMappingNotice; never current credit.
     requireCatalogVersion(snapshot, record)
     const key = JSON.stringify([record.chat_id, record.message_id])
     const records = messages.get(key) ?? []

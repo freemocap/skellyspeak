@@ -41,3 +41,10 @@ it('leaves noninteractive reading text inert', () => {
   expect(screen.queryByRole('button')).toBeNull()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
+
+it('preserves joined Arabic source words across semantic token boundaries', () => {
+  const text = 'الكتاب  هنا؟'
+  const view = render(<AnnotatedText text={text} tokens={[{ ...token, text: 'ال', gloss: 'the' }, { ...token, text: 'كتاب', gloss: 'book' }]} />)
+  expect(view.container.textContent).toBe(text)
+  expect(screen.getByRole('button', { name: 'الكتاب' }).childNodes).toHaveLength(1)
+})

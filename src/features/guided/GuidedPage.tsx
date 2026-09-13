@@ -1,3 +1,7 @@
+import { LiveCoachReview } from './LiveCoachReview'
+import { OpeningStatus } from './OpeningStatus'
+import { useNavigationStore } from '../../state/navigation'
+import { ConversationStart, type StartChoice } from './ConversationStart'
 import { EarlierVersions } from './EarlierVersions'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 import { ConversationHeader } from './ConversationHeader'
@@ -263,7 +267,7 @@ export default function GuidedPage({
 
   useEffect(() => {
     const el = streamRef.current
-    if (el) el.scrollTop = el.scrollHeight
+    if (el) el.scrollTop = turns.length ? el.scrollHeight : 0
   }, [turns])
 
   const isMobile = useIsMobile()
@@ -308,6 +312,23 @@ export default function GuidedPage({
       setRevisionConfirmation(null)
       setEditRevision(null)
       setSending(false)
+    } finally { acceptingSend.current = false }
+  }
+
+  async function startConversation(opening: StartChoice) {
+    if (acceptingSend.current || sending) throw new Error('A conversation action is already pending.')
+    if (!snapshot || snapshot.conversationId !== currentChatId) throw new Error('The conversation is not ready.')
+    const reviewed = snapshot
+    const owner = currentChatId
+    acceptingSend.current = true
+    setSending(true)
+    try {
+      await details.beforeSend()
+      if (selectedChatRef.current !== owner) throw new Error('The conversation changed before starting.')
+      await executeAction(reviewed, { kind: 'startConversation', conversationId: reviewed.conversationId, opening, expectedRevision: reviewed.revision })
+    } catch (reason) {
+      if (selectedChatRef.current === owner) setSending(false)
+      throw reason
     } finally { acceptingSend.current = false }
   }
 
@@ -430,7 +451,9 @@ export default function GuidedPage({
               </button>
             </div>
           )}
-          {editingTurn && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
+          {editingTurn && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
+            await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
+          } : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
             {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
           </div>
@@ -438,6 +461,9 @@ export default function GuidedPage({
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
           {<ComposerHelp
+            onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
+              await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
+            } : undefined}
             key={`${currentChatId}:${activeTurns.at(-1)?.id}`}
             busy={sending}
             replies={activeTurns.at(-1)?.assistant?.scaffolds.replies ?? []}
@@ -539,13 +565,11 @@ export default function GuidedPage({
                 {signingIn ? 'Signing in…' : 'Sign in with Google'}
               </button>
             </div>
-          ) : turns.length === 0 && !error && !sending && (
-            <p className="center-note on-paper">
-              Say hello to start the conversation.
-            </p>
+          ) : turns.length === 0 && !error && (
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} />)
           )}
           {activeTurns.map((turn) => (
-            <Fragment key={turn.id}><TurnView
+            <Fragment key={turn.turnId}><TurnView
               turn={turn}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
@@ -566,6 +590,10 @@ export default function GuidedPage({
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onToggleReveal={words.toggleReveal}
+              onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
+                if (!selected.turnId) throw new Error('Coaching source is unavailable.')
+                await executeAction(snapshot, { kind: 'coachControl', turnId: selected.turnId, control, expectedRevision: snapshot.revision })
+              } : undefined}
               editDisabled={sending || pendingReply}
               onEditUser={turn.turnId && turn.user !== null ? selected => {
                 setEditingTurnId(selected.id)
@@ -608,6 +636,12 @@ export default function GuidedPage({
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
+          coachingContent={<LiveCoachReview turn={activeTurns.at(-1)} visible={panelTab === 'lesson' && (isMobile ? mobileSurface === 'panel' : breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+            const latest = activeTurns.at(-1)
+            if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
+            const current = await readWorkspace()
+            await executeAction(current, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: current.revision })
+          }} />}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
           personaProfile={personaProfile}

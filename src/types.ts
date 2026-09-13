@@ -90,7 +90,8 @@ export interface StoredTurn {
   /// reports per-section problems in `assistant.errors`, which the analysis
   /// pane renders.
   analysisState: AnalysisState
-  coach?: import('./contracts').Feedback
+  coach?: import('./contracts').CoachObservationView
+  coachDecision?: import('./contracts').CoachDecision
   reaction?: PersonaReaction
   reactionError?: string
   coachError?: string

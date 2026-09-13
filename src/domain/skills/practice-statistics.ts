@@ -44,6 +44,7 @@ export function practiceStatistics(snapshot: SkillSnapshot) {
     const key = JSON.stringify([credit.attempt_id, credit.skill_id])
     if (!record || !seen.has(credit.skill_id) || creditKeys.has(key)) throw new Error('Invalid practice credit provenance')
     const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
+    if (record.mapping_error) throw new Error('Current credit refers to unmapped evidence.')
     requireCatalogVersion(snapshot, record)
     if (record.status !== 'complete' || snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) || !record.assessment?.judgments.some(judgment => judgment.skill_id === credit.skill_id && judgment.outcome === 'demonstrated') || credit.xp !== (assisted ? 2 : 10)) throw new Error('Practice credit does not match eligible source evidence')
     creditKeys.add(key)

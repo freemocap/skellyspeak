@@ -82,10 +82,10 @@ fn parse_bib(source: &str) -> std::result::Result<BTreeSet<String>, String> {
 fn bibliography_is_complete_and_every_scheme_source_exists() {
     let keys = parse_bib(include_str!("../../references.bib")).unwrap();
     assert!(!keys.is_empty());
-    for scheme in SCHEMES {
+    for scheme in &bundled().romanizations {
         assert!(!scheme.sources.is_empty());
-        for key in scheme.sources {
-            assert!(keys.contains(*key), "Missing citation {key}");
+        for key in &scheme.sources {
+            assert!(keys.contains(key), "Missing citation {key}");
         }
     }
 }

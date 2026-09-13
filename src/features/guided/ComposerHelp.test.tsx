@@ -17,6 +17,7 @@ const base = { replies, pending: false, busy: false, errors: [] }
 it('shows every saved reply and inserts only from its arrow', () => {
   const onUse = vi.fn()
   const view = render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(view.container.querySelector('section .help-replies')).toHaveAttribute('aria-label', 'Suggested replies')
   expect(view.container.querySelectorAll('.help-reply')).toHaveLength(2)
   fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我很好。' }))
@@ -29,6 +30,7 @@ it('shows every saved reply and inserts only from its arrow', () => {
 it('reveals the saved gloss of a tapped word without inserting or requesting analysis', () => {
   const onUse = vi.fn()
   render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(screen.queryByText('very')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: '很' }))
   expect(screen.getByText('very')).toBeVisible()
@@ -39,6 +41,7 @@ it('reveals the saved gloss of a tapped word without inserting or requesting ana
 it('distinguishes loading reply ideas from a failed suggestions job', () => {
   const props = { replies: [], busy: false, onUse: vi.fn() }
   const { rerender } = render(<ComposerHelp {...props} pending errors={[]} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(screen.getByRole('status')).toHaveTextContent('Finding reply ideas…')
   rerender(<ComposerHelp {...props} pending={false} errors={['Coach feedback rejected: suggestion_token_not_in_reply.']} />)
   expect(screen.getByRole('alert')).toHaveTextContent('Reply ideas')
@@ -49,20 +52,22 @@ it('distinguishes loading reply ideas from a failed suggestions job', () => {
 
 it('disables only insertion during a conversation request', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} busy onUse={vi.fn()} /></ReadingProvider>)
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeDisabled()
   expect(screen.getByRole('button', { name: '很' })).toBeEnabled()
 })
 
 it('folds to one button that reopens the reply ideas', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={vi.fn()} /></ReadingProvider>)
-  fireEvent.click(screen.getByRole('button', { name: 'Hide reply ideas' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Hide suggested replies' }))
   expect(screen.queryByRole('button', { name: 'Insert reply: 我很好。' })).toBeNull()
-  const reopen = screen.getByRole('button', { name: 'Show reply ideas' })
+  const reopen = screen.getByRole('button', { name: 'Show suggested replies' })
   expect(reopen).toHaveAttribute('aria-expanded', 'false')
-  expect(reopen).toHaveTextContent('2')
+  expect(reopen).toHaveTextContent('Show suggested replies')
   fireEvent.click(reopen)
   expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeEnabled()
-  expect(screen.getByRole('button', { name: 'Hide reply ideas' })).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByRole('button', { name: 'Hide suggested replies' })).toHaveAttribute('aria-expanded', 'true')
 })
 
 it('renders nothing when there are no reply ideas, pending work or failures', () => {
@@ -70,4 +75,14 @@ it('renders nothing when there are no reply ideas, pending work or failures', ()
   const { container } = render(<ComposerHelp replies={[]} pending={false} busy={false} errors={[]} onUse={onUse} />)
   expect(container).toBeEmptyDOMElement()
   expect(onUse).not.toHaveBeenCalled()
+})
+
+it('starts collapsed and requests generation only when explicitly opened', async () => {
+  const onRequest = vi.fn().mockResolvedValue(undefined)
+  const view = render(<ComposerHelp replies={[]} pending={false} busy={false} errors={[]} onUse={vi.fn()} onRequest={onRequest} />)
+  expect(onRequest).not.toHaveBeenCalled()
+  expect(screen.getByRole('button', {name:'Show suggested replies'})).toHaveAttribute('aria-expanded','false')
+  expect(view.container.textContent).not.toMatch(/💬|2/)
+  fireEvent.click(screen.getByRole('button', {name:'Show suggested replies'}))
+  expect(onRequest).toHaveBeenCalledOnce()
 })

@@ -42,20 +42,45 @@ pub fn validate(
 ) -> Result<WordGlossView> {
     let analysis =
         adapter::validate_word_gloss_completion(&source.identity, &source.text, completion)
-            .map_err(|error| {
-                let location = error
-                    .span_index()
-                    .map(|index| format!("; span {index}"))
-                    .unwrap_or_default();
-                AppError::new(
-                    ErrorCode::Provider,
-                    format!(
-                        "Word meanings rejected: {}{}. No new word meanings were saved.",
-                        error.diagnostic_code(),
-                        location
-                    ),
-                )
-            })?;
+            .map_err(gloss_error)?;
+    project(source, analysis, operation, attempt)
+}
+pub fn validate_with_context(
+    source: &Source,
+    completion: &Completion,
+    operation: &str,
+    attempt: &str,
+    context: &crate::config::LanguageContext,
+) -> Result<WordGlossView> {
+    let analysis = adapter::validate_word_gloss_completion_with_context(
+        &source.identity,
+        &source.text,
+        completion,
+        context,
+    )
+    .map_err(gloss_error)?;
+    project(source, analysis, operation, attempt)
+}
+fn gloss_error(error: adapter::AdapterError) -> AppError {
+    let location = error
+        .span_index()
+        .map(|index| format!("; span {index}"))
+        .unwrap_or_default();
+    AppError::new(
+        ErrorCode::Provider,
+        format!(
+            "Word meanings rejected: {}{}. No new word meanings were saved.",
+            error.diagnostic_code(),
+            location
+        ),
+    )
+}
+fn project(
+    source: &Source,
+    analysis: linguistics::ValidatedAnalysis,
+    operation: &str,
+    attempt: &str,
+) -> Result<WordGlossView> {
     let map = SourceMap::new(&source.text).map_err(|_| validation_error())?;
     let segments = analysis
         .segments()

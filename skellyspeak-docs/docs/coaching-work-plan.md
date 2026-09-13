@@ -32,6 +32,13 @@ One integration agent plans, writes reports, reviews and verifies. Three domain 
 - B owns any new revision schema SQL and Rust revision module needed for this wave. Changes to module declarations or other files outside its assignment require a concrete change request; integration assigns the file before editing.
 - These exceptions take precedence over the broad ownership rows for wave one only.
 
+## Current integration checkpoint
+
+The user committed wave one at `bdb664e` and authorized wave two. Active assignments
+and ownership exceptions are in `workflow/reports/coaching-w2-integration.md`;
+wave-one exceptions below do not automatically carry forward. Integration relays
+all dependencies in the existing three-agent team.
+
 ## Wave-one integration checkpoint
 
 The launch brief is `workflow/reports/coaching-w1-integration.md`. The user has authorized erasing and recreating SkellySpeak development data as needed. B can implement the current schema directly; no migration or preservation gate remains. Coordinate native runs for workspace ownership.
@@ -93,7 +100,7 @@ Inferred vs read: label any file:line not read during this wave
 - The coaching plan, this work plan, contracts, `references.bib`, a static reading view (`skellyspeak-docs/static/coaching-plan.html`), and pointers in `AGENTS.md`, `DESIGN.md` and `BUILD-PLAN.md`.
 - The wave 1 reports are in `workflow/reports/coaching-w1-*.md`.
 
-### Wave 1 · Fix what's broken (§14 wave 1)
+### Wave 1 · Fix what's broken (§14 wave 1) — checkpointed
 
 | A | B | C |
 |---|---|---|
@@ -108,7 +115,7 @@ Inferred vs read: label any file:line not read during this wave
 - `revision = true` reaches the evidence records.
 - Focus text appears in the persona prompt snapshot.
 
-### Wave 2 · Config as data; coach contract; conversation starts (§4–6, §10)
+### Wave 2 · Config as data; coach contract; conversation starts (§4–6, §10) — source verified, awaiting user checkpoint
 
 | A | B | C |
 |---|---|---|

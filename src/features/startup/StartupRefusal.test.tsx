@@ -49,3 +49,11 @@ it('disables recovery while another instance owns the workspace', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Factory Reset' }))
   expect(backend.invoke).not.toHaveBeenCalled()
 })
+
+it('handles native config_load refusal without offering data deletion or ineffective reload', () => {
+  render(<StartupRefusal error={{ code: 'config_load', message: '/workspace/config/policy/feedback.yaml: invalid ladder.', refusal: null }} />)
+  expect(screen.getByRole('alert')).toHaveTextContent('/workspace/config/policy/feedback.yaml: invalid ladder.')
+  expect(screen.getByText('Fix the named configuration file, then quit and reopen SkellySpeak.')).toBeVisible()
+  expect(screen.queryByRole('button')).toBeNull()
+  expect(backend.invoke).not.toHaveBeenCalled()
+})
