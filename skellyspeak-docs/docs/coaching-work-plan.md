@@ -115,7 +115,7 @@ Inferred vs read: label any file:line not read during this wave
 - `revision = true` reaches the evidence records.
 - Focus text appears in the persona prompt snapshot.
 
-### Wave 2 · Config as data; coach contract; conversation starts (§4–6, §10) — source verified, awaiting user checkpoint
+### Wave 2 · Config as data; coach contract; conversation starts (§4–6, §10) — accepted for continuation
 
 | A | B | C |
 |---|---|---|
@@ -123,7 +123,13 @@ Inferred vs read: label any file:line not read during this wave
 
 A delivers a loader API stub (types plus a hardcoded implementation) at the start of the wave, so B can code against it while A builds the real loader.
 
-### Wave 3 · Learner model, fluency, game layer (§5.1, §7, §9, §11)
+### Wave 3 · Learner model, fluency, game layer (§5.1, §7, §9, §11) — in progress
+
+User accepted Wave 2 for continuation on 2026-09-13. UI polish is owned by separate
+work. First structural slice: editable estimator policy, deterministic construct
+state projection, and native learner-state read/YAML-export commands. Reward
+policy/events, fluency, profile presentation, openers and session review remain
+planned. See `workflow/reports/coaching-w3-foundation.md`.
 
 | A | B | C |
 |---|---|---|

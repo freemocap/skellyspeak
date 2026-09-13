@@ -729,3 +729,14 @@ nor a claim of measured emotion or privileged access to the partner's mind.
 The small understanding/confusion sound follows existing sound settings and only
 plays on a newly arriving reaction, not snapshot refreshes. Coaching addresses
 you directly, with short practical advice; yellow calls out feedback and help.
+
+### Wave 3 structural continuation
+
+Wave 2 is accepted for continuation; parallel design work owns visual polish.
+Learner-state reads fold retained evidence without mutating it or conflating
+proficiency with XP. The initial logistic rating / half-life review projection
+is an inspectable, uncalibrated product heuristic: support reduces an update,
+uncertain or absent evidence makes none, and elapsed time marks reviews due
+without reducing rating or earned rewards. No CEFR band is inferred in this
+foundation. Profile presentation and calibrated lens-level assessment remain
+separate work. [@pelanek2016] [@settles_meeder2016]

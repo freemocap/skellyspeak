@@ -7,7 +7,7 @@ title: Coaching contracts
 
 The seams between the three work areas in the [coaching work plan](./coaching-work-plan). Each contract names who provides it, who consumes it, and the wave it lands in. A provider may refine a signature; the change must be reported as **contract drift** in its hand-back and then updated here by the integration agent.
 
-Status: wave 1 is implemented and checkpointed at bdb664e. Wave 2 source and combined automated verification are complete; its integration decisions below specify the boundaries, while generated native types remain the exact wire authority. Wave 3 remains planned.
+Status: wave 1 is implemented and checkpointed at bdb664e. Wave 2 source and combined automated verification are complete; its integration decisions below specify the boundaries, while generated native types remain the exact wire authority. Wave 2 was accepted for continuation on 2026-09-13; Wave 3 learner-state foundation is in progress.
 
 ## Wave 1
 
@@ -134,3 +134,24 @@ B publishes the generated action, snapshot and safe observation/decision shapes 
 | `RewardEvent { kind, tier, xp, copy_params, cause }` | B → C (presentation per `game.yaml`) |
 | `FluencyRecord` per learner message (regions, pauses, clipped words, removed words) | B → C |
 | `OpenerSet`, `SessionReview` | B → C |
+
+### Wave 3 foundation: implemented native seam
+
+`get_learner_state(target)` returns generated `LearnerState` / `ConstructState`
+types. `export_learner_state(target)` returns YAML with retained evidence
+projections, focus/exclusion choices, derived states, timestamps and registry /
+estimator hashes. No inference, XP change or evidence mutation occurs on read.
+The evidence and choices retain the existing JSON projection shape (typed as
+unknown in the new contract); construct state is explicitly typed.
+
+State is scoped to learner, language, variety and construct. Uncertain and
+not-observed outcomes, excluded attempts, registry mismatches and future records
+make no update. Registry mismatches remain in exported observations. Repeated
+exact wording after whitespace normalization does not add independent evidence.
+Time affects review due / heuristic recall only, never rating or XP. Numeric
+uncertainty is an evidence-weight heuristic, not a calibrated probability or
+confidence interval; calibration is explicitly labeled. No CEFR bands are emitted.
+
+`config/policy/estimator.yaml` is required, validated, seeded on fresh startup,
+and included in configuration provenance. An existing configuration needs this
+file explicitly installed; missing/invalid files still refuse startup.

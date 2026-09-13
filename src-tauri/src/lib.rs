@@ -17,6 +17,7 @@ pub mod grouped;
 mod holds;
 pub mod hosted;
 pub mod languages;
+pub mod learner_state;
 pub mod linguistics;
 pub mod model;
 pub mod partner_reaction;
@@ -1239,6 +1240,8 @@ pub fn run() {
             get_profile,
             get_persona_generation_activity,
             progression::get_skill_evidence,
+            learner_state::get_learner_state,
+            learner_state::export_learner_state,
             reward_settings::get_reward_settings,
             reward_settings::get_playback_rate,
             reward_settings::save_playback_rate,

@@ -297,3 +297,29 @@ fn contact_starter_tags_normalize_case_and_whitespace_but_require_exact_meaning_
             .all(|card| card.reason != "From your contact’s interests")
     );
 }
+
+#[test]
+fn estimator_policy_rejects_invalid_bounds_and_changes_hash() {
+    let files: BTreeMap<_, _> = SEEDS
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+    let baseline = Registry::from_files(files.clone()).unwrap();
+    for (from, to) in [
+        ("learning_rate: 0.4", "learning_rate: .nan"),
+        ("due_recall: 0.7", "due_recall: 1.0"),
+        ("explicit: 0.1", "explicit: 2.0"),
+    ] {
+        let mut bad = files.clone();
+        let text = bad.get_mut("policy/estimator.yaml").unwrap();
+        *text = text.replace(from, to);
+        assert!(Registry::from_files(bad).is_err());
+    }
+    let mut changed = files;
+    let text = changed.get_mut("policy/estimator.yaml").unwrap();
+    *text = text.replace("learning_rate: 0.4", "learning_rate: 0.3");
+    assert_ne!(
+        baseline.estimator_hash(),
+        Registry::from_files(changed).unwrap().estimator_hash()
+    );
+}

@@ -365,6 +365,59 @@ impl Registry {
                 .map(|n| (n.id.clone(), n.parent.iter().cloned().collect()))
                 .collect(),
         )?;
+        let e = &self.estimator;
+        let steps = [
+            "none",
+            "partner_clarify",
+            "hint",
+            "elicit",
+            "metalinguistic",
+            "suggestion",
+            "revision",
+            "explicit",
+        ];
+        if e.version != 1
+            || !e.initial_rating.is_finite()
+            || e.initial_rating.abs() > 10.0
+            || !e.learning_rate.is_finite()
+            || !(0.0..=1.0).contains(&e.learning_rate)
+            || e.learning_rate == 0.0
+            || ![
+                e.min_half_life_days,
+                e.initial_half_life_days,
+                e.max_half_life_days,
+                e.success_growth,
+                e.failure_shrink,
+                e.due_recall,
+            ]
+            .iter()
+            .all(|x| x.is_finite())
+            || e.min_half_life_days <= 0.0
+            || e.initial_half_life_days < e.min_half_life_days
+            || e.max_half_life_days < e.initial_half_life_days
+            || e.max_half_life_days > 36500.0
+            || e.success_growth < 1.0
+            || e.success_growth > 10.0
+            || e.failure_shrink <= 0.0
+            || e.failure_shrink > 1.0
+            || e.due_recall <= 0.0
+            || e.due_recall >= 1.0
+            || e.minimum_independent_observations == 0
+            || e.support.len() != steps.len()
+            || steps.iter().any(|key| {
+                e.support
+                    .get(*key)
+                    .is_none_or(|v| !v.is_finite() || *v <= 0.0 || *v > 1.0)
+            })
+            || e.support.get("none") != Some(&1.0)
+        {
+            return Err(error(
+                "policy/estimator.yaml",
+                "estimator",
+                "Invalid estimator bounds or support weights.",
+            ));
+        }
+        citations("policy/estimator.yaml", &e.sources, &keys)?;
         let p = &self.feedback;
         let ladder = [
             "partner_clarify",

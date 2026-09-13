@@ -5912,6 +5912,30 @@ mod tests {
     }
 
     #[test]
+    fn learner_projection_reads_published_evidence_without_new_work_and_survives_restart() {
+        let (dir, mut store, conversation) = setup();
+        let command = send(&store, &conversation);
+        store.execute(command).unwrap();
+        assert!(store.dispatch().unwrap().is_none());
+        let _persona = store.dispatch().unwrap().unwrap();
+        let feedback = store.dispatch().unwrap().unwrap();
+        store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"You asked how your partner is."}]}"#))).unwrap();
+        let revision = store.snapshot().unwrap().revision;
+        let at = 2000000000;
+        let before = crate::learner_state::snapshot(&store, "es", at).unwrap();
+        assert_eq!(before.constructs.len(), 1);
+        assert_eq!(before.constructs[0].independent_n, 1);
+        assert_eq!(revision, store.snapshot().unwrap().revision);
+        drop(store);
+        let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        let after = crate::learner_state::snapshot(&reopened, "es", at).unwrap();
+        assert_eq!(
+            serde_json::to_value(before.constructs).unwrap(),
+            serde_json::to_value(after.constructs).unwrap()
+        );
+    }
+
+    #[test]
     fn reaction_waits_for_reply_and_publishes_on_its_message() {
         let (_dir, mut store, conversation) = setup();
         let command = send(&store, &conversation);

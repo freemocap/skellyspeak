@@ -443,6 +443,8 @@ pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
         RecordingStarted::decl(&config),
+        crate::learner_state::LearnerState::decl(&config),
+        crate::learner_state::ConstructState::decl(&config),
         ConnectionRoute::decl(&config),
         AccessSettings::decl(&config),
         CustomEndpoint::decl(&config),

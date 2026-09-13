@@ -202,12 +202,12 @@
   author = {Pel{\'a}nek, Radek}, title = {Applications of the Elo rating system in adaptive educational systems},
   journal = {Computers \& Education}, year = {2016},
   url = {https://www.fi.muni.cz/~xpelanek/publications/CAE-elo.pdf},
-  review = {abstract}, claim = {Elo gives simple online estimates of learner skill and item difficulty without heavy calibration.}, used-by = {policy/estimator.yaml}
+  review = {full-text}, review-notes = {Section 2.1 equations checked 2026-09-13; remaining sections not reviewed for implementation.}, claim = {Logistic expected success and an outcome-minus-expectation update support an online rating. SkellySpeak support weights and fixed reference difficulty are product defaults, not calibrated estimates.}, used-by = {policy/estimator.yaml}
 }
 @inproceedings{settles_meeder2016,
   author = {Settles, Burr and Meeder, Brendan}, title = {A Trainable Spaced Repetition Model for Language Learning}, booktitle = {Proceedings of ACL}, year = {2016},
   url = {https://research.duolingo.com/papers/settles.acl16.pdf},
-  review = {abstract}, claim = {Half-life regression predicts recall decay; correct answers extend half-life, errors shrink it.}, used-by = {decay; due reviews}
+  review = {full-text}, review-notes = {Section 3.3 equations 1-3 checked 2026-09-13; learned HLR is not implemented.}, claim = {Recall is modeled as 2 to the power of negative elapsed time divided by half-life; HLR learns half-life parameters from data. SkellySpeak currently uses this decay shape with untrained product multipliers, not fitted HLR.}, used-by = {decay; due reviews}
 }
 @inproceedings{bull_kay_olm,
   author = {Bodily, Robert and others}, title = {Open learner models and learning analytics dashboards: a systematic review}, booktitle = {Proceedings of LAK}, year = {2018},

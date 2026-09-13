@@ -43,6 +43,7 @@ pub struct Registry {
     constructs: Vec<Construct>,
     navigation: Vec<NavigationNode>,
     feedback: FeedbackPolicy,
+    estimator: EstimatorPolicy,
     starter_config: Vec<Starter>,
     reasons: BTreeMap<String, BTreeMap<String, String>>,
     hash: String,
@@ -159,6 +160,7 @@ impl Registry {
             "languages/universal.yaml",
             "constructs/navigation.yaml",
             "policy/feedback.yaml",
+            "policy/estimator.yaml",
             "references.bib",
             "starters/reasons.yaml",
         ];
@@ -194,6 +196,7 @@ impl Registry {
             constructs,
             navigation: parse(&files, singles[6])?,
             feedback: parse(&files, singles[7])?,
+            estimator: parse(&files, "policy/estimator.yaml")?,
             starter_config: starters,
             reasons: parse(&files, "starters/reasons.yaml")?,
             hash: String::new(),
@@ -214,6 +217,12 @@ impl Registry {
             .iter()
             .find(|c| c.id == id)
             .ok_or_else(|| error("constructs", "unknown_construct", id))
+    }
+    pub fn estimator_policy(&self) -> &EstimatorPolicy {
+        &self.estimator
+    }
+    pub fn estimator_hash(&self) -> String {
+        fingerprint(&self.estimator)
     }
     pub fn feedback_policy(&self) -> &FeedbackPolicy {
         &self.feedback
@@ -655,6 +664,7 @@ pub fn schemas() -> BTreeMap<String, serde_json::Value> {
         schema!("constructs.json", Vec<Construct>),
         schema!("navigation.json", Vec<NavigationNode>),
         schema!("feedback.json", FeedbackPolicy),
+        schema!("estimator.json", EstimatorPolicy),
         schema!("starters.json", Vec<Starter>),
         schema!("starter-reasons.json",BTreeMap<String,BTreeMap<String,String>>),
     ])

@@ -192,3 +192,20 @@ pub struct NavigationNode {
     pub description: String,
     pub criterion: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct EstimatorPolicy {
+    pub version: u32,
+    pub initial_rating: f64,
+    pub learning_rate: f64,
+    pub initial_half_life_days: f64,
+    pub min_half_life_days: f64,
+    pub max_half_life_days: f64,
+    pub success_growth: f64,
+    pub failure_shrink: f64,
+    pub due_recall: f64,
+    pub minimum_independent_observations: u32,
+    pub support: BTreeMap<String, f64>,
+    pub sources: Vec<String>,
+}

@@ -13,6 +13,7 @@ const SEEDS: &[(&str, &str)] = &[
     ("languages/scripts.yaml", include_str!("../../../config/languages/scripts.yaml")),
     ("languages/traits.yaml", include_str!("../../../config/languages/traits.yaml")),
     ("languages/universal.yaml", include_str!("../../../config/languages/universal.yaml")),
+    ("policy/estimator.yaml", include_str!("../../../config/policy/estimator.yaml")),
     ("policy/feedback.yaml", include_str!("../../../config/policy/feedback.yaml")),
     ("starters/everyday.yaml", include_str!("../../../config/starters/everyday.yaml")),
     ("starters/reasons.yaml", include_str!("../../../config/starters/reasons.yaml")),

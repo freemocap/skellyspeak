@@ -1,5 +1,7 @@
 // Generated from Rust contracts. Run npm run contracts.
 export type RecordingStarted = { recordingId: string, samplesPerSecond: number, };
+export type LearnerState = { learnerId: string, languageId: string, asOfSecs: bigint, configHash: string, constructRegistryHash: string, estimatorHash: string, estimatorVersion: number, calibration: string, choices: unknown, observations: unknown[], constructs: Array<ConstructState>, };
+export type ConstructState = { constructId: string, varietyId: string, rating: number, uncertainty: number, lastSeen: bigint, halfLifeDays: number, n: number, independentN: number, effectiveN: number, recall: number, dueAt: bigint, due: boolean, insufficientEvidence: boolean, evidenceAttemptIds: Array<string>, };
 export type ConnectionRoute = "hosted" | "openrouter" | "custom";
 export type AccessSettings = { customUrlIsUnsavedDefault: boolean, revision: number, groqKeyConfigured: boolean, customKeyConfigured: boolean, custom: CustomEndpoint, };
 export type CustomEndpoint = { baseUrl: string, standardModel: string, fastModel: string, bearerAuth: boolean, transcriptionModel: string | null, };
