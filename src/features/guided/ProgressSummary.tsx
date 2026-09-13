@@ -64,7 +64,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       </section>
       <details className="practice-methods"><summary>How these numbers are calculated</summary>
         <p>Scope: saved records for {snapshot.target} on this learner profile, across {snapshot.conversation_count} saved conversations. Deleted or edited messages and excluded evidence can change totals; this is the current projection, not an immutable history.</p>
-        <p>Rules version {snapshot.profile.rules_version}; catalog version {snapshot.catalog_version}. Current rules award 10 XP per distinct unassisted wording–skill demonstration and 2 XP per assisted one. Repeated wording is normalized for whitespace and letter case. Unassisted evidence takes precedence over assisted evidence for the same wording and skill. Three distinct unassisted demonstrations earn an app star; that is a practice milestone, not proof of mastery.</p>
+        <p>Rules version {snapshot.profile.rules_version}; catalog version {snapshot.catalog_version}. {snapshot.profile.rules_version >= 2 ? 'XP comes from persisted evidence awards using the support, difficulty and novelty policy captured for each attempt. Repeated wording cannot earn duplicate credit for the same construct.' : 'Legacy rules award 10 XP per distinct unassisted wording–skill demonstration and 2 XP per assisted one. Repeated wording is normalized for whitespace and letter case; unassisted evidence takes precedence.'} Three distinct unassisted demonstrations earn an app star; that is a practice milestone, not proof of mastery.</p>
         <p>“Assisted” means a suggestion, scaffold, or revision was recorded by the app. Assistance outside the app is not observed. Speech inputs are transcripts, not acoustic pronunciation assessments.</p>
         <p>Snapshot counts cover retained source messages, not a lifetime activity log. Only completed, non-excluded records from the current catalog contribute credit. Assessments are model judgments, not independent human validation. No proficiency estimate, learning-rate claim, or statistical confidence interval is inferred here.</p>
         <dl className="practice-record-counts"><div><dt>Complete records</dt><dd>{stats.statuses.complete}</dd></div><div><dt>Pending</dt><dd>{stats.statuses.pending}</dd></div><div><dt>Failed</dt><dd>{stats.statuses.failed}</dd></div><div><dt>Superseded</dt><dd>{stats.statuses.superseded}</dd></div><div><dt>Stored exclusions</dt><dd>{snapshot.profile.choices.excluded_attempts.length}</dd></div></dl>
@@ -74,7 +74,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
     </div>
 }
 
-export function ProgressSummary({ snapshot, onClose }: { snapshot: SkillSnapshot; onClose: () => void }) {
+export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: SkillSnapshot; onClose: () => void; onLearning?: (target: string) => void }) {
   const [selected, setSelected] = useState(snapshot.target)
   const [attempt, setAttempt] = useState(0)
   const [loaded, setLoaded] = useState<{ status: 'loading' } | { status: 'ready'; overview: PracticeOverview } | { status: 'error'; error: string }>({ status: 'loading' })
@@ -102,7 +102,7 @@ export function ProgressSummary({ snapshot, onClose }: { snapshot: SkillSnapshot
   const practiceDates = new Set(records.map(record => new Date(record.at_secs * 1000).toISOString().slice(0, 10)))
   return <DetailDialog title="Practice progress" onClose={onClose}>
     <div className="practice-overview">
-      <header className="practice-statistics-header"><h2>App activity</h2></header>
+      <header className="practice-statistics-header"><h2>App activity</h2>{onLearning && <button onClick={() => onLearning(selected)}>Your learning evidence</button>}</header>
       {loaded.status === 'loading' && <p role="status">Loading language profiles…</p>}
       {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="lesson-action" onClick={() => setAttempt(value => value + 1)}>Retry profiles</button></div>}
       {overview && <>

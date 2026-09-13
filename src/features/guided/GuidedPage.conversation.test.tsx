@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
-import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../contracts'
 import type { Settings } from '../../types'
@@ -315,10 +315,10 @@ it('edits through the real page handler, sends durable identity and renders reta
   await waitFor(() => expect(watches).toHaveLength(1))
   const initial = exchangeSnapshot()
   await act(async () => watches[0].resolve(initial))
-  const edit = screen.getByRole('button', { name: 'Edit this message and try again' })
+  const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
-  fireEvent.click(screen.getByRole('button', { name: /Edit (message|& try again)/ }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit message' }))
   const composer = screen.getByPlaceholderText(/Write in/)
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
@@ -337,7 +337,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   fireEvent.click(screen.getByText('Earlier version'))
   expect(earlier).toHaveTextContent('Yo fue ayer')
   expect(earlier).toHaveTextContent('¿Adónde fuiste?')
-  expect(screen.getAllByRole('button', { name: 'Edit this message and try again' })).toHaveLength(1)
+  expect(screen.getAllByRole('button', { name: 'Edit message' })).toHaveLength(1)
 })
 
 it('confirms native suffix scope and retains the edit draft after a stale admission', async () => {
@@ -345,7 +345,7 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot(true)))
-  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   const composer = screen.getByPlaceholderText(/Write in/)
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
@@ -364,7 +364,7 @@ it('disables editing while a native partner reply is pending', async () => {
   const value = exchangeSnapshot()
   value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, operations: [], attempts: [] }]
   await act(async () => watches[0].resolve(value))
-  expect(screen.getByRole('button', { name: 'Edit this message and try again' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled()
 })
 
 it.each(['resolve', 'reject'] as const)('ignores late revision %s after switching conversations', async outcome => {
@@ -374,7 +374,7 @@ it.each(['resolve', 'reject'] as const)('ignores late revision %s after switchin
   render(<GuidedPage learningPicker={null} nativePicker={null} mobileSurface="chat" active onNewChatReady={action => { if (action) newChat = action }} />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
-  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   await act(async () => newChat!())
@@ -391,7 +391,7 @@ it('shows a raced native pending-turn rejection without dropping the repair draf
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
-  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   fireEvent.click(await screen.findByText('⚠ Request failed'))

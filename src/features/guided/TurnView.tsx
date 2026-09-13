@@ -290,8 +290,8 @@ export const TurnView = memo(function TurnView({
               type="button"
               className="edit-btn"
               disabled={editDisabled}
-              title="Edit this message and try again"
-              aria-label="Edit this message and try again"
+              title="Edit message"
+              aria-label="Edit message"
               onClick={(e) => {
                 e.stopPropagation()
                 onEditUser(turn)

@@ -181,3 +181,18 @@ No retroactive awards are synthesized for earlier exchanges lacking this policy.
 
 Reward effects, secured constructs, goals and partner milestones remain subsequent
 work; the structural event tier does not claim their presentation is implemented.
+
+### Latest-message editing and feedback labels (2026-09-13)
+
+A workspace revision can advance when coaching, disclosure or rewards change.
+`ReviseTurn` accepts an older workspace revision for the current latest exchange
+when no later turn would be removed. Current-version ownership and pending-reply
+checks remain transactional. A suffix edit still requires a current reviewed
+revision, and superseded targets remain invalid. This prevents background work
+from making a normal edit look like a history conflict.
+
+The learner-facing chip is “Feedback” for every available observation; it is not
+a pass/fail badge. “Feedback failed” describes a generation failure only. Editing
+is labelled “Edit message.” Persona prompt v8 explicitly distinguishes a learner
+answer from a question and forbids answering the partner's own previous question;
+coach observation prompt v5 requests descriptive, nonjudgmental wording.

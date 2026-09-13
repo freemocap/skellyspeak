@@ -193,14 +193,14 @@
   cursor: pointer;
 }
 
-.settings-version:hover, .settings-version:focus-visible { color: var(--accent); text-decoration: underline; }
+.settings-version:hover, .settings-version:focus-visible { color: var(--accent-ink); text-decoration: underline; }
 
 .settings-group-k {
   font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--accent); margin: var(--space-1) 0 var(--space-2);
+  text-transform: uppercase; color: var(--accent-ink); margin: var(--space-1) 0 var(--space-2);
 }
 
-.settings-close { margin-left: auto; }
+.settings-close { margin-inline-start: auto; }
 
 @media (max-width: 860px) {
   /* Settings on a phone: nav becomes a scrolling strip along the top, and the
@@ -260,14 +260,14 @@
   box-sizing: border-box;
   padding: var(--space-5);
   background: var(--shell-bg);
-  color: var(--ink-on-fill);
+  color: var(--shell-text);
   border: var(--border-width) solid var(--detail-input-line);
   border-radius: var(--radius-xs);
 }
 
 .factory-reset-dialog .modal-actions { flex-wrap: wrap; padding-bottom: 0; }
 
-.factory-reset-dialog [role=alert] { color: var(--danger-bar-strong); }
+.factory-reset-dialog [role=alert] { color: var(--danger-ink); }
 
 .settings-modal .form-row { margin-bottom: var(--space-5); }
 
@@ -292,7 +292,7 @@
 
 .settings-section > summary { cursor: pointer; padding: var(--space-6) 0; font-weight: var(--weight-semibold); }
 
-.settings-section[open] > summary { color: var(--accent); }
+.settings-section[open] > summary { color: var(--accent-ink); }
 
 .settings-section .settings-entry { padding-inline: var(--space-2); }
 

@@ -2,13 +2,13 @@
    control rather than more prose. */
 
 .err-action {
-  flex: none; background: var(--danger-text); border: var(--border-width) solid var(--danger-fill); border-radius: var(--radius-sm);
+  flex: none; background: var(--danger-fill); border: var(--border-width) solid var(--danger-fill); border-radius: var(--radius-sm);
   color: var(--ink-on-fill); cursor: pointer; font-size: var(--text-sm); padding: var(--space-2) var(--space-5); white-space: nowrap;
 }
 
 .err-action:hover { background: var(--danger-fill-hover); }
 
-.popup-roman { color: var(--accent); font-family: var(--font-mono); font-style: normal; }
+.popup-roman { color: var(--accent-ink); font-family: var(--font-mono); font-style: normal; }
 
 /* Unified panel tabs (Coach / Analysis) */
 
@@ -29,7 +29,7 @@
 .panel-tab:hover { color: var(--shell-text); }
 
 .panel-tab.active {
-  color: var(--accent);
+  color: var(--accent-ink);
   border-color: var(--accent);
   border-bottom-color: var(--shell-sunken);
   background: var(--shell-sunken);
@@ -78,7 +78,7 @@
 
 .update-text { margin-right: auto; }
 
-.update-bar b { color: var(--accent); }
+.update-bar b { color: var(--accent-ink); }
 
 /* Every failure in the app lands here, at the top of the window, above all
    other chrome. Nothing that goes wrong is allowed to stay in a log file. */
@@ -201,7 +201,7 @@
 .shortcut-label { flex: 1; font-size: var(--text-md); color: var(--shell-text-muted); }
 
 .shortcut-input {
-  width: 170px; background: var(--shell-sunken); color: var(--accent); text-align: center;
+  width: 170px; background: var(--shell-sunken); color: var(--accent-ink); text-align: center;
   border: var(--border-width) solid var(--shell-line-strong); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-4);
   font-family: var(--font-mono); font-size: var(--text-sm); cursor: pointer; outline: none;
 }

@@ -36,7 +36,7 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
     catch (reason) { setFailure(nativeError(reason)) }
     finally { pending.current = false; setBusy(false) }
   }
-  const label = decision?.repairStatus === 'uncertain' ? 'Repair unconfirmed' : decision?.fixed ? '✓ Fixed' : decision?.keptGoing ? 'Feedback' : decision?.retryInvited ? '↻ Try again' : decision?.shown ? '• One suggestion' : decision ? 'Feedback' : null
+  const label = decision ? 'Feedback' : null
   return <>
     <button type="button" className={`feedback-badge${error ? ' feedback-error' : ''}`} aria-haspopup="dialog" aria-label={`Coach feedback for message ${id}`} disabled={busy} onClick={() => void openCard()}>
       {error ? 'Feedback failed' : label ?? (reviewing ? <ActivityIndicator label="Analyzing…" /> : 'Feedback unavailable')} <span aria-hidden="true">↗</span>
@@ -51,7 +51,7 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
       <div className="lesson-actions">
         {error && onRetry && <button type="button" className="lesson-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>Retry failed help</button>}
         {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="lesson-action" onClick={() => void openCard()}>View coaching help</button>}
-        {onEdit && <button type="button" disabled={busy} className="lesson-action" onClick={() => { close(); onEdit() }}>{decision?.retryInvited ? 'Edit & try again' : 'Edit message'}</button>}
+        {onEdit && <button type="button" disabled={busy} className="lesson-action" onClick={() => { close(); onEdit() }}>Edit message</button>}
         {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="lesson-action" onClick={() => void control('show_answer')}>Show answer</button>}
         {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="lesson-action" onClick={() => void control('keep_going')}>Keep going</button>}
         <button type="button" className="lesson-action" onClick={() => { close(); onAsk(`Help me understand the feedback on my message: “${text}”`) }}>Ask the coach</button>

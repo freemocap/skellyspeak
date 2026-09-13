@@ -127,7 +127,10 @@ pub(crate) fn decide(
                 i.construct == target && i.outcome == Outcome::Demonstrated && i.error.is_none()
             })
             .ok_or_else(|| invalid("Repair has no demonstrated target evidence."))?;
-        decision.fixed = Some(format!("Fixed: {}. {}", item.quote, item.rationale));
+        decision.fixed = Some(format!(
+            "Updated wording: {}. {}",
+            item.quote, item.rationale
+        ));
     } else {
         let selected = if repaired == Some(false) {
             observation.items.iter().find(|i| {

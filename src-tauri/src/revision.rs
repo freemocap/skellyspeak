@@ -28,12 +28,6 @@ pub(crate) fn accept(
     mut input: InputEvidence,
     expected: i32,
 ) -> Result<String> {
-    if snapshot.revision != expected {
-        return Err(AppError::new(
-            ErrorCode::Conflict,
-            "Conversation history changed. Review the revision again.",
-        ));
-    }
     let order: Option<i64> = db.query_row("SELECT rowid FROM turns t WHERE id=?1 AND conversation_id=?2 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind='persona_reply')", params![turn,conversation], |r| r.get(0)).optional()?;
     let order = order.ok_or_else(|| {
         AppError::new(
@@ -41,6 +35,20 @@ pub(crate) fn accept(
             "Only the current version of a conversation exchange can be revised.",
         )
     })?;
+    // Background analysis, disclosure and rewards advance the workspace revision.
+    // They do not make replacing the latest exchange a stale history edit.
+    // For a destructive suffix edit the reviewed global revision still guards scope.
+    let has_suffix: bool = db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM turns WHERE conversation_id=?1 AND rowid>?2)",
+        params![conversation, order],
+        |r| r.get(0),
+    )?;
+    if expected > snapshot.revision || (snapshot.revision != expected && has_suffix) {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "Newer conversation content is present. Review which later turns this edit removes.",
+        ));
+    }
     if db.query_row(
         "SELECT EXISTS(SELECT 1 FROM turns WHERE conversation_id=?1 AND state='pending')",
         [conversation],

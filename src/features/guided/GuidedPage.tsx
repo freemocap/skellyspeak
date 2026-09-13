@@ -446,7 +446,7 @@ export default function GuidedPage({
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
-              <span>✎ Editing your message — send or record to try again</span>
+              <span>✎ Editing your message — send to replace it</span>
               <button type="button" onClick={cancelEdit}>
                 Cancel
               </button>

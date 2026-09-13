@@ -499,7 +499,7 @@ fn accept_turn(
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":7,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"persona-reply-standard-v1"});
+    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":8,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"persona-reply-standard-v1"});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
@@ -4778,6 +4778,36 @@ mod tests {
         .unwrap();
     }
     #[test]
+    fn latest_revision_survives_background_updates_but_not_a_replacement() {
+        let (_dir, mut store, conversation) = setup();
+        let first = store
+            .execute(send(&store, &conversation))
+            .unwrap()
+            .entity_id;
+        finish_fixture_exchange(&mut store, &first, "First reply.");
+        let edit = revision_command(&store, &conversation, &first, "Updated wording");
+        let obsolete = revision_command(&store, &conversation, &first, "Obsolete wording");
+        bump(&store.connection).unwrap();
+        let replacement = store.execute(edit).unwrap().entity_id;
+        let captured = wave2_context(&store, &replacement);
+        assert_eq!(
+            captured["messages"].as_array().unwrap().last().unwrap()["content"],
+            "Updated wording"
+        );
+        assert!(
+            !captured["messages"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|m| m["content"] == "First reply.")
+        );
+        finish_fixture_exchange(&mut store, &replacement, "New reply.");
+        assert_eq!(
+            store.execute(obsolete).unwrap_err().code,
+            ErrorCode::Conflict
+        );
+    }
+    #[test]
     fn revisions_regenerate_preserve_chain_credit_and_restart() {
         let (dir, mut store, conversation) = setup();
         let original = store
@@ -5521,10 +5551,11 @@ mod tests {
                 .len(),
             0
         );
-        let next = store
-            .execute(send(&store, &conversation))
-            .unwrap()
-            .entity_id;
+        let mut answer = send(&store, &conversation);
+        if let Action::SendMessage { text, .. } = &mut answer.action {
+            *text = "Sí, me gusta cocinar en casa.".into();
+        }
+        let next = store.execute(answer).unwrap().entity_id;
         let captured = wave2_context(&store, &next);
         assert!(
             captured["messages"]
@@ -5532,6 +5563,17 @@ mod tests {
                 .unwrap()
                 .iter()
                 .any(|m| m["role"] == "assistant" && m["content"] == "¿Qué te gusta cocinar?")
+        );
+        let wire = captured["messages"].as_array().unwrap();
+        assert_eq!(wire.len(), 3);
+        assert_eq!(wire[1]["role"], "assistant");
+        assert_eq!(wire[2]["role"], "user");
+        assert_eq!(wire[2]["content"], "Sí, me gusta cocinar en casa.");
+        assert!(
+            wire[0]["content"]
+                .as_str()
+                .unwrap()
+                .contains("never answer your own question")
         );
         assert_eq!(captured["sourceIds"].as_array().unwrap().len(), 1);
         let repeated = Command {
