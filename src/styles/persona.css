@@ -164,7 +164,7 @@
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
-.reaction-details h3 { font-size: var(--text-md); margin: var(--space-10) 0 var(--space-3); }
+.reaction-details h3 { font-size: var(--text-md); margin: 12px 0 4px; color: var(--warning); }
 
 .reaction-details blockquote {
   margin: 0;
@@ -172,13 +172,13 @@
   border-inline-start: var(--border-width-strong) solid var(--reaction-line);
 }
 
-.reaction-details p { line-height: 1.55; }
+.reaction-details p { line-height: 1.45; margin: 4px 0 8px; }
 
 .reaction-exchange {
   display: flex;
   flex-direction: column;
-  gap: var(--space-7);
-  padding: var(--space-7) 0 var(--space-1);
+  gap: 8px;
+  padding: 8px 0 4px;
 }
 
 .reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: var(--space-2); }
@@ -198,3 +198,5 @@
   line-height: 1.45;
   font-family: var(--font-serif);
 }
+
+.reaction-details h2 { margin: 8px 0; font-size: var(--text-xl); color: var(--warning); }
