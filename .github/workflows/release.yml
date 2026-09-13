@@ -243,8 +243,9 @@ jobs:
           releaseBody: |
             Windows artifacts use Azure Artifact Signing, macOS artifacts use
             Developer ID signing and notarization, and Android artifacts use
-            the configured upload key. Each build job verifies its required
-            output before attaching it.
+            the configured upload key. The iOS IPA uses App Store distribution
+            signing and is ready for manual upload to App Store Connect.
+            Each build job verifies its required output before attaching it.
 
             Installed desktop copies offer this version automatically once the
             release is published.
@@ -431,9 +432,76 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "${{ needs.version.outputs.tag }}" dist-android/* --clobber
 
+  ios:
+    name: iOS (App Store IPA)
+    needs: [version, release-draft]
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      APPLE_DEVELOPMENT_TEAM: U8LBJLBYPR
+      RELEASE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-ios
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: ios-release
+      - run: npm ci
+      - name: Configure version and scaffold Xcode project
+        run: |
+          node scripts/ios-release.ts configure
+          npm run build
+          npx tauri ios init --ci --config src-tauri/tauri.release.conf.json
+          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+      - name: Check iOS Rust before loading signing credentials
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml --target aarch64-apple-ios --lib --features tauri/custom-protocol
+      - name: Prepare App Store signing
+        env:
+          SIGNING_P12: ${{ secrets.IOS_CERTIFICATE_P12 }}
+          SIGNING_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          SIGNING_PROFILE: ${{ secrets.IOS_PROVISION_PROFILE }}
+        run: node scripts/ios-release.ts stage
+      # Do not pass IOS_CERTIFICATE / IOS_MOBILE_PROVISION to Tauri: our
+      # helper owns manual signing settings and the ExportOptions workaround.
+      - name: Build App Store IPA
+        run: npx tauri ios build --ci --target aarch64 --config src-tauri/tauri.release.conf.json --export-method app-store-connect
+      - name: Verify signature, profile, identity and versions; collect IPA
+        run: node scripts/ios-release.ts verify
+      - name: Remove signing credentials
+        if: always()
+        run: node scripts/ios-release.ts cleanup
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ios-ipa
+          path: dist-ios/*.ipa
+          retention-days: 14
+          if-no-files-found: error
+      - name: Attach verified IPA to the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          [ "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = true ] || { echo "::error::Expected a draft release"; exit 1; }
+          gh release upload "$TAG" "dist-ios/SkellySpeak_${RELEASE_VERSION}.ipa" --clobber
+
   publish-release:
     name: Publish release as latest
-    needs: [version, release-draft, desktop, android]
+    needs: [version, release-draft, desktop, android, ios]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -445,6 +513,10 @@ jobs:
           TAG: ${{ needs.version.outputs.tag }}
         run: |
           set -euo pipefail
+          # Assert the required iOS attachment at publication, too. A build
+          # job being green must never imply a missing asset is acceptable.
+          gh release view "$TAG" --repo "$GH_REPO" --json assets --jq '.assets[].name' > /tmp/release-assets.txt
+          grep -Fx "SkellySpeak_${TAG#v}.ipa" /tmp/release-assets.txt
           gh release list --repo "$GH_REPO" --limit 1000 --json tagName,isDraft,isPrerelease > /tmp/releases.json
           python3 - <<'PYTHON'
           import json, os, re

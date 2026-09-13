@@ -1,0 +1,36 @@
+## Hand-back: B · wave 1
+
+Status: B wave-one source implementation complete and native fixture verification passed. Root owns the final combined gate and running-application inspection.
+
+Done:
+
+- Revision action, durable message/turn identity and snapshot suffix preview: `model.rs`, `revision.rs`, `execution.rs`. `ReviseTurn` accepts conversationId, turnId, text, input and expectedRevision. expectedRevision is the global ConversationSnapshot revision; action receipts replay before this check. The precondition is intentionally conservative: any global durable revision change requires reviewing the preview again.
+- `revision.rs` creates a fresh normal operation graph with Rust-owned revision provenance, preserves the entire predecessor chain, deletes all later turns in the same conversation (including private coach turns and their operations/attempts/messages and content-bearing action receipts), prunes only deleted observations from profile exclusions, and invalidates outstanding selected-version work. No unrelated conversation or standalone persona-generation receipt is removed. The action is transactional, including validation/admission failures. Pending replies return `pending_turn`; stale/noncurrent/cross-conversation/private-coach targets return `conflict`.
+- `ChatMessage` now includes turnId, replacesTurnId and replacedBy; `TurnView` includes replacement fields. A snapshot's revisionSuffixCounts contains exchangeCount and coachTurnCount for eligible learner messages on its bounded page, computed by an ordered window scan. Existing `before` message-sequence pagination includes exact earlier versions and replacement metadata in pages of at most 100; the operation list need not contain the predecessor for its message to be inspected.
+- Partner context excludes replaced versions; private coaching stays separate. Late completion publication checks retained operation/attempt authority. Superseded observations that never completed project a terminal failed state with a reason. Already completed predecessor observations remain inspectable and eligible for credit.
+- Current v13 schema creation retains the generation-receipt feature, enforces unique predecessor links and cross-conversation/cycle guards, and validates current DDL before startup writes. Older versions are refused with explicit Factory Reset guidance; no historical upgrade machinery remains. No actual user data was erased.
+- Five-value Rust Outcome drives serialization, strict schema enumeration and TS generation. Only demonstrated earns XP now; uncertain/not_observed do not update the future estimator, and not_demonstrated denotes negative evidence for that later estimator.
+- Every catalog skill code now matches its parent. Numeric SKILL_CATALOG_VERSION = 2742549041 is a deterministic FNV-1a fingerprint of exact embedded JSON bytes, captured on new turns. Evidence retains its captured version; only matching-version evidence is credited. There is no fabricated historical version relabel.
+- Focus capture contains ID, label, opportunity, source and reason. Wave-one opportunity uses the current skill criterion; the richer construct opportunity registry remains wave two. The frozen L3 block reaches partner, private coach, feedback and suggestion prompts, while absent focus renders no block. Existing captures do not change when the learner changes focus.
+- Language prompts consume A's romanization_guidance and assessment_guidance APIs. Arabic-specific assessment prose moved out of the generic task. Changed coach prompt IDs are coach-feedback-2 and coach-suggestions-2, captured at acceptance; the captured context template is v5 and changed graph declarations are v2.
+
+Verification:
+
+- `cargo test --manifest-path src-tauri/Cargo.toml --lib` passed **268/268**, with escalation permitting local loopback fixture servers. A subsequently finished guidance adjustments and its focused tests; the final current source compiles cleanly.
+- Added one final explicit assisted-revision assertion and ran `cargo test --manifest-path src-tauri/Cargo.toml --lib revised_wording_alone_awards_two_xp_without_a_direct_proficiency_mark`: **1/1 passed** (268 filtered). The current suite therefore contains 269 tests; root will run it as the combined gate.
+- `cargo clippy --manifest-path src-tauri/Cargo.toml --lib -- -D warnings` passed. The initial nested-format lint was fixed without suppressing the lint.
+- `cargo run --manifest-path src-tauri/Cargo.toml --bin export-contracts -- --check` passed after generation. Generated constant and all native revision fields are on disk.
+- `cargo fmt --manifest-path src-tauri/Cargo.toml` completed for the whole Rust tree under integration's assignment; `git diff --check` passed.
+- Initial sandbox-only run had 250 passes, 13 loopback permission failures, and A's old v4 template expectation. Loopback-enabled rerun and A's corrected expectation resolved those failures. One transient compile attempt hit A's declaration before its citation-test file existed; the file is now present and covered by the passing suite.
+- Regressions cover latest/repeated/earlier revisions, exact suffix/private-coach/receipt/exclusion scope, rollback, stale preconditions, pending rejection, wrong targets, repeated receipt delivery, all auxiliary late-publication families, bounded history/restart, conversation deletion/standalone receipts, revision XP/deduplication/exclusions/no direct marks, five outcomes, frozen focus, language prompt guidance, catalog hierarchy, and damaged-current-schema refusal.
+- Frontend `npm test` and `npm run build` are integration-owned combined checks; B did not run them against C's moving tree. No source tests establish a running native UI or live linguistic quality.
+
+Paid inference: none. No runtime launch, deployment, Git writes or actual development-data reset.
+
+Contract drift: the action adds conversationId and expectedRevision; PendingTurn serializes as pending_turn. Earlier-version retrieval reuses bounded existing conversation pagination rather than adding another IPC command. Catalog identity is a numeric content fingerprint exposed as a generated constant. The feedback prompt version is captured rather than relabelled from the currently compiled template.
+
+Change requests: none outstanding for B. Integration assigned and B corrected the generation_schema.sql header mentioning the removed 11→12 upgrade. C consumes the generated Outcome and SKILL_CATALOG_VERSION, shows the two suffix counts, preserves durable identity through pagination and earlier versions, and removes the blanket revision-reward exclusion with the native credit tests now passing.
+
+Agency: exact earlier wording remains inspectable; the learner controls repair and its deletion scope, practice focus creates natural conversational opportunities without turning the partner into an examiner, and assisted wording cannot manufacture direct proficiency evidence. XP remains mechanical evidence accounting, separate from proficiency.
+
+Inferred vs read: read AGENTS.md, coaching plan core/focus/revision sections, work plan, contracts, integration report, EXECUTION.md and STATE-AND-STORAGE.md, plus edited native sources and relevant fixture helpers. Provider-fixture behavior is not a claim of live model quality or linguistic validity.

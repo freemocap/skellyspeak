@@ -39,8 +39,8 @@ export async function createContact(languageId: string, details: PersonaDetails)
   return receipt.entityId
 }
 
-export function watchConversation(conversationId: string, afterRevision = -1): Promise<ConversationSnapshot> {
-  return invoke<ConversationSnapshot>('watch_conversation', { conversationId, afterRevision, before: null })
+export function watchConversation(conversationId: string, afterRevision = -1, before: number | null = null): Promise<ConversationSnapshot> {
+  return invoke<ConversationSnapshot>('watch_conversation', { conversationId, afterRevision, before })
 }
 
 export function selectedConversation(snapshot: Snapshot, languageId?: string): Conversation | null {

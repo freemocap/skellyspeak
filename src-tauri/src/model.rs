@@ -210,6 +210,13 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
+    ReviseTurn {
+        conversation_id: String,
+        turn_id: String,
+        text: String,
+        input: crate::coaching::InputEvidence,
+        expected_revision: i32,
+    },
     AskCoach {
         conversation_id: String,
         text: String,
@@ -314,6 +321,7 @@ pub enum ErrorCode {
     Storage,
     Provider,
     AdmissionHeld,
+    PendingTurn,
     UnknownOutcome,
     Credential,
     Internal,
@@ -440,6 +448,8 @@ pub fn bindings() -> String {
         crate::reward_settings::RewardSettings::decl(&config),
         crate::coaching::InputEvidence::decl(&config),
         crate::coaching::Evidence::decl(&config),
+        crate::coaching::Outcome::decl(&config),
+        RevisionSuffixCount::decl(&config),
         crate::coaching::Feedback::decl(&config),
         crate::coaching::SuggestedReply::decl(&config),
         ChatMessage::decl(&config),
@@ -478,7 +488,11 @@ pub fn bindings() -> String {
     format!(
         "// Generated from Rust contracts. Run npm run contracts.\n{}\n{}\n{}\n",
         declarations.map(|line| format!("export {line}")).join("\n"),
-        persona_limits(),
+        format_args!(
+            "{}\nexport const SKILL_CATALOG_VERSION = {} as const",
+            persona_limits(),
+            crate::coaching::catalog_version()
+        ),
         text_size_limits()
     )
 }
@@ -547,6 +561,9 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    pub turn_id: String,
+    pub replaces_turn_id: Option<String>,
+    pub replaced_by: Option<String>,
     #[ts(optional)]
     pub feedback: Option<crate::coaching::Feedback>,
     #[ts(optional)]
@@ -600,6 +617,8 @@ pub struct AttemptView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct TurnView {
+    pub replaces_turn_id: Option<String>,
+    pub replaced_by: Option<String>,
     pub route: ConnectionRoute,
     pub id: String,
     pub state: String,
@@ -611,6 +630,7 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    pub revision_suffix_counts: Vec<RevisionSuffixCount>,
     pub transcription_attempts: Vec<TranscriptionAttempt>,
     pub holds: Vec<InferenceHold>,
     pub coach_messages: Vec<ChatMessage>,
@@ -785,4 +805,12 @@ mod difficulty_tests {
             assert!(serde_json::from_value::<PracticeSettings>(settings).is_err());
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct RevisionSuffixCount {
+    pub turn_id: String,
+    pub exchange_count: i32,
+    pub coach_turn_count: i32,
 }

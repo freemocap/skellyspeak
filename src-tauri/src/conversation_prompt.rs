@@ -250,3 +250,28 @@ mod tests {
         assert!(!next.contains("Fixture contact"));
     }
 }
+
+/// Render the frozen L3 block. Focus is opportunity, never a demand to drill.
+pub(crate) fn focus_block(focus: &serde_json::Value) -> Result<String> {
+    if focus.is_null() {
+        return Ok(String::new());
+    }
+    let label = focus["label"]
+        .as_str()
+        .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing focus label."))?;
+    let opportunity = focus["opportunity"]
+        .as_str()
+        .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing focus opportunity."))?;
+    Ok(format!(
+        "\nPractice focus (do not mention or drill): {label}.\nCreate natural moments that need it — {opportunity}\nIf the learner's last message was not understood, ask one short natural clarification question."
+    ))
+}
+
+#[cfg(test)]
+mod focus_tests {
+    #[test]
+    fn l3_focus_block_snapshot_and_absence() {
+        assert_eq!(super::focus_block(&serde_json::Value::Null).unwrap(), "");
+        assert_eq!(super::focus_block(&serde_json::json!({"label":"Ask a question","opportunity":"Request missing information."})).unwrap(), "\nPractice focus (do not mention or drill): Ask a question.\nCreate natural moments that need it — Request missing information.\nIf the learner's last message was not understood, ask one short natural clarification question.");
+    }
+}

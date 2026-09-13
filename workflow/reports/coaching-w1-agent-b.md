@@ -21,10 +21,12 @@ You are **Agent B**, the Coach & Learner Core agent for SkellySpeak's coaching w
 
 `languages.rs` and `adapter.rs` belong to A. Frontend files belong to C.
 
+**Integration update:** read `workflow/reports/coaching-w1-integration.md` and the contracts' Revision integration requirements. You own the bounded `src/assets/skill-catalogs/catalog.json` correction and any new revision SQL. C owns `src/domain/skills/**`, `src/types.ts` and the conversation presentation adapter; send their needed changes in your hand-back. The user explicitly authorizes erasing all SkellySpeak development user data as needed. No migration, preservation or repeat data-reset approval is required. Report any actual reset; coordinate workspace ownership and native runs.
+
 ## Background (verified by integration on 2026-09-12; re-check line numbers)
 
 - **Naming:** the partner is `persona` in code (`persona_reply`, `persona_word_gloss`, `persona_system` in `conversation_prompt.rs`).
-- **Schema:** one `schema.sql` at `user_version=11`, and `store.rs` `SCHEMA_VERSION = 11` opens only that version (no upgrade path; fresh data).
+- **Schema (updated after the audit):** `store.rs` has `SCHEMA_VERSION = 12`. Fresh creation composes the released v11 `schema.sql` with `generation_schema.sql`; the authorized additive 11 → 12 upgrade preserves conversations and generation receipts. Coaching targets **v13**, as specified in `coaching-contracts.md`. This describes the baseline only. The user now authorizes discarding development data: implement v13 directly, with no requirement to retain the v11/v12 upgrade path.
   - `operations UNIQUE(turn_id, kind)`, `messages UNIQUE(turn_id, role)`, and the unique index `one_pending_reply` all hold.
   - `turns` has no parent link.
 - **`coaching.rs`:**
@@ -49,8 +51,8 @@ You are **Agent B**, the Coach & Learner Core agent for SkellySpeak's coaching w
 2. **Five outcomes.** Add a Rust `Outcome` enum (five values, as in the contracts), exported via ts-rs, used in the schema enum and validation. Decide the prompt wording for when each applies. Document the estimator semantics in a doc comment.
 3. **Catalog.** Renumber the codes so they match their hierarchy. Make the catalog version real: either derive it from a content hash, or name the embedded file by its version and use that constant everywhere. Update the evidence filter semantics accordingly, and tell C if anything there changes.
 4. **Focus into prompts.** Capture focus in the turn context, and render the §7 L3 block into `persona_system` and the coach prompts; with no focus, there's no block. Snapshot tests for both cases.
-5. **Schema v12 + `ReviseTurn`.**
-   - Add `turns.replaces_turn_id` (nullable FK) and bump `schema.sql` and `SCHEMA_VERSION` to 12.
+5. **Planned schema v13 + `ReviseTurn`.**
+   - Add `turns.replaces_turn_id` (nullable FK), with effective `user_version` and `SCHEMA_VERSION` both 13. You may replace the historical base/upgrade composition with a clean current schema and update its tests. Existing user data need not survive. Verify fresh creation, correct schema validation, restart and revision lifecycle; retain the current generation-receipt feature for new data. Do not silently reset a production workspace on startup failure.
    - Add the `Action::ReviseTurn` behaviour exactly as in the contracts, including the earlier-turn removal per EXECUTION.md, the typed error while a turn is pending, and `revision = true` set in Rust.
    - Populate `replaces_message_id` in `progression.rs` from `replaces_turn_id`.
    - Expose `replacesTurnId` / `replacedBy` in the snapshot.
@@ -61,6 +63,8 @@ You are **Agent B**, the Coach & Learner Core agent for SkellySpeak's coaching w
      - revise while pending → typed error,
      - evidence carries `replaces_message_id` and `revision`.
 6. **Milestone order:** land the `ReviseTurn` contract and snapshot types first (C builds against them), then the rest.
+
+7. **Integration cases:** add durable message-to-turn identity, stale-confirmation protection, repeated revision-chain handling and bounded earlier-version retrieval under the revised contracts. Verify exact suffix removal, retained-chain evidence, source invalidation and idempotency. Confirm native 2-XP revision credit, deduplication and exclusions in the hand-back so C can remove the blanket reward exclusion. Generated API delivery is a milestone, not evidence that persistence/execution is complete.
 
 ## Paid inference
 

@@ -10,7 +10,9 @@ pub fn initialize(db: &Connection) -> Result<()> {
 }
 pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
     crate::languages::language(target)?;
-    let db = &store.connection;
+    snapshot_db(&store.connection, &store.session_id, target)
+}
+pub(crate) fn snapshot_db(db: &Connection, session: &str, target: &str) -> Result<Value> {
     let learner: String = db.query_row("SELECT id FROM learner", [], |r| r.get(0))?;
     let choice: Option<(i32, Option<String>, String)> = db
         .query_row(
@@ -31,7 +33,7 @@ pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
             .and_then(Value::as_str)
             .unwrap_or(&turn);
         let judgments:Vec<Value>=assessment.and_then(|a|a["evidence"].as_array()).map(|items|items.iter().map(|i|json!({"skill_id":i["skill_id"],"outcome":i["outcome"],"quotes":[i["quote"]],"rationale":i["rationale"]})).collect()).unwrap_or_default();
-        records.push(json!({"attempt_id":attempt,"session_id":store.session_id,"turn_id":sequence,"message_id":sequence,"replaces_message_id":null,"chat_id":chat,"learner_id":learner,"target":target,"native":context["translationLanguage"],"source":source,"input":context["input"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":4,"prompt_version":"coach-feedback-1","status":if assessment.is_some(){"complete"}else if state=="failed"||state=="unknown"{"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":null}));
+        records.push(json!({"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"native":context["translationLanguage"],"source":source,"input":context["input"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
     }
     let catalog = crate::coaching::catalog();
     let mut skills = vec![];
@@ -55,7 +57,8 @@ pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
                     .join(" ")
                     .to_lowercase();
                 let id = record["attempt_id"].as_str().unwrap();
-                if excluded.iter().any(|e| e == id)
+                if record["catalog_version"] != crate::coaching::catalog_version()
+                    || excluded.iter().any(|e| e == id)
                     || (record["input"]["suggestion"] == true
                         || record["input"]["scaffold"] == true
                         || record["input"]["revision"] == true)
@@ -104,7 +107,7 @@ pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
         |r| r.get(0),
     )?;
     Ok(
-        json!({"catalog":catalog,"catalog_version":4,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":1,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
+        json!({"catalog":catalog,"catalog_version":crate::coaching::catalog_version(),"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":1,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
     )
 }
 #[tauri::command]
@@ -176,4 +179,23 @@ pub(crate) fn save_skill_profile(
     }
     store.connection.execute("INSERT INTO skill_choices VALUES(?1,?2,?3,?4) ON CONFLICT(language_id) DO UPDATE SET revision=excluded.revision,focus=excluded.focus,excluded=excluded.excluded",params![target,expected_revision+1,focus,serde_json::to_string(&excluded)?])?;
     snapshot(&store, &target)
+}
+
+/// Freeze the learner-selected or transparent recommended focus into each turn.
+pub(crate) fn capture_focus(db: &Connection, session: &str, target: &str) -> Result<Value> {
+    let snapshot = snapshot_db(db, session, target)?;
+    let focus = &snapshot["profile"]["active_focus"];
+    if focus.is_null() {
+        return Ok(Value::Null);
+    }
+    let node = snapshot["catalog"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|n| n["id"] == *focus)
+        .ok_or_else(|| AppError::new(ErrorCode::Storage, "Unknown active practice focus."))?;
+    let chosen = snapshot["profile"]["choices"]["focus"].is_string();
+    Ok(
+        json!({"id":focus,"label":node["label"],"opportunity":node["criterion"],"source":if chosen {"learner"} else {"recommended"},"reason":if chosen {"Chosen by the learner."} else {"Available skill with the fewest direct demonstrations."}}),
+    )
 }

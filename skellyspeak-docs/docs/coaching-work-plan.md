@@ -9,7 +9,7 @@ How the [coaching plan](./coaching-plan) gets built. The seams between work area
 
 ## Team
 
-One integration agent plans, writes reports, reviews and verifies. Three domain agents build. The user carries reports between them; agents never talk to each other directly.
+One integration agent plans, writes reports, reviews and verifies. Three domain agents build. For this wave the user's instruction to execute is handled in the current task: integration dispatches the three bounded assignments and relays their reports. Domain agents do not communicate directly with each other. The user performs Git checkpoints.
 
 | Agent | Domain | Owns (edits only these) | Consumes |
 |---|---|---|---|
@@ -24,14 +24,28 @@ One integration agent plans, writes reports, reviews and verifies. Three domain 
 - An agent that needs a change outside its area writes a **change request** in its hand-back instead of making the edit.
 - A owns *language* guidance text and exposes it through functions. B owns *task* prompts and calls those functions. Neither edits the other's prompt text.
 
+**Wave-one ownership exceptions (integration assignment):**
+
+- C owns `src/domain/skills/**`, `src/types.ts`, and `src/domain/language/conversation-view.ts` plus its tests for revision identity, grouping and rendering. A retains the rest of `src/domain/language/**`, including sentence punctuation. C adapts skill types to B's generated Outcome; it does not author a second enum or compute native credit.
+- C also owns the bounded `src/platform/ipc/workspace.ts` change exposing the existing conversation pagination argument, with tests. B may register its new revision module in `src-tauri/src/lib.rs`; unrelated app lifecycle code stays outside this assignment.
+- B owns `src/assets/skill-catalogs/catalog.json` for the bounded catalog code/version correction. C does not edit this file during wave one. B reports the chosen version representation before C changes evidence consumers.
+- B owns any new revision schema SQL and Rust revision module needed for this wave. Changes to module declarations or other files outside its assignment require a concrete change request; integration assigns the file before editing.
+- These exceptions take precedence over the broad ownership rows for wave one only.
+
+## Wave-one integration checkpoint
+
+The launch brief is `workflow/reports/coaching-w1-integration.md`. The user has authorized erasing and recreating SkellySpeak development data as needed. B can implement the current schema directly; no migration or preservation gate remains. Coordinate native runs for workspace ownership.
+
+Every hand-back must explain how its behavior supports the learner's agency: guidance is inspectable and language-specific, focus creates natural opportunities without turning the partner into an examiner, revisions preserve the learner's exact earlier wording, and rewards name valid evidence. Do not claim linguistic validity from prompt snapshots or proficiency from XP.
+
 ## Cycle
 
 For each wave:
 
 1. The integration agent writes one report per agent: brief, contract excerpt, acceptance checks.
-2. The user pastes each report into its agent.
+2. Integration dispatches each report to its assigned agent in this task.
 3. The agents work in parallel, each only in its own files.
-4. Each agent ends with a hand-back report, which the user copies to the integration agent.
+4. Each agent returns a hand-back report to integration, which relays dependent contract changes.
 5. The integration agent reviews the diffs on disk, runs the gate, and reconciles contract drift.
 6. The user commits (agents never touch git), and the next wave begins.
 
@@ -67,7 +81,7 @@ Inferred vs read: label any file:line not read during this wave
 - No git writes.
 - No fallbacks, and every error reaches the UI.
 - No fake UI.
-- The authorized additive 11 → 12 generation-receipt upgrade preserves current conversations. It does not authorize further migrations. Planned coaching changes target v13; keep `user_version` and `SCHEMA_VERSION` aligned and explicitly settle any subsequent upgrade policy.
+- Development user data is disposable, including conversations, progress and generation receipts. Resets needed for development are authorized without repeat confirmation. Do not build migrations or compatibility solely to preserve it. Planned coaching changes target v13; keep `user_version` and `SCHEMA_VERSION` aligned. Report actual resets in the hand-back.
 - Never listen for Tauri close requests.
 - Cite research by `references.bib` key.
 - Linguistic content starts at `review: needs_review`.

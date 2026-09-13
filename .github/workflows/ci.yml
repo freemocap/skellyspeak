@@ -26,9 +26,41 @@ jobs:
       - run: npm run docs:test
       - run: npm run styles:check
       - run: node --test scripts/version.test.ts
+      - run: npm run ios:check
+      - run: npm run ios:test
       - run: npm run logs:check
       - run: npm run logs:test
       - run: npm run build
+
+  ios:
+    name: iOS simulator build
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-ios-sim
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: src-tauri
+          key: ios-simulator
+      - run: npm ci
+      - run: npm run build
+      - run: npx tauri ios init --ci --config src-tauri/tauri.release.conf.json
+      - name: Prepare App Store icons
+        run: |
+          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+      - name: Compile and link iOS without release credentials
+        run: npx tauri ios build --ci --target aarch64-sim --no-sign --config src-tauri/tauri.release.conf.json
 
   rust:
     runs-on: windows-latest

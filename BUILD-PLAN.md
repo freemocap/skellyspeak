@@ -1,5 +1,21 @@
 # Build plan and architecture review
 
+## Coaching wave one — source implemented and verified
+
+The implemented coaching checkpoint is wave one of
+[`coaching-work-plan.md`](skellyspeak-docs/docs/coaching-work-plan.md): explicit
+language guidance, five evidence outcomes, captured practice focus, catalog identity
+and real edit-and-regenerate revisions with inspectable earlier versions.
+Integration reviewed the three domain handbacks and ran the combined checks: 528
+frontend tests and 269 native tests pass. Native startup succeeded; interactive
+native/provider verification remains incomplete. Earlier checkpoints below retain
+their historical verification scope.
+
+Development data is disposable by explicit user authorization. The current coaching
+schema targets v13 without a migration requirement. Source implementation, combined
+verification and actual native/provider QA are recorded separately in
+[`coaching-w1-integration.md`](workflow/reports/coaching-w1-integration.md).
+
 ## Current checkpoint — rebuild, 2026-09-11
 
 Voice, reading assistance, file observability, conversation controls and Contacts

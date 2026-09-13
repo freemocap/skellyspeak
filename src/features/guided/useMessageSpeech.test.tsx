@@ -110,3 +110,16 @@ it.each([false, true])('suppresses a delayed audio result after suspension (resu
   expect(view.result.current.messageId).toBeNull()
   expect(native.execute).toHaveBeenCalledWith({ sessionId: 'session' }, { kind: 'cancelMessageSpeech', operationId: 'speech-new' })
 })
+
+it('stops a superseded reply and never autoplays a retained version', async () => {
+  const view = renderHook(({ state }) => useMessageSpeech(state, 'chat', true, true), { initialProps: { state: snapshot(['old']) } })
+  view.rerender({ state: snapshot(['old', 'new']) })
+  await waitFor(() => expect(native.play).toHaveBeenCalledTimes(1))
+  const revised = snapshot(['old', 'new'])
+  revised.messages[1].replacedBy = 'replacement'
+  revised.turns[1].replacedBy = 'replacement'
+  view.rerender({ state: revised })
+  expect(native.stop).toHaveBeenCalledTimes(1)
+  expect(view.result.current.messageId).toBeNull()
+  expect(native.play).toHaveBeenCalledTimes(1)
+})

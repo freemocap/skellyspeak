@@ -1,6 +1,91 @@
 use crate::model::*;
 use std::sync::OnceLock;
 
+/// Named, inspectable romanization rules shared by all emitting tasks.
+pub struct RomanizationScheme {
+    pub id: &'static str,
+    pub label: &'static str,
+    pub instructions: &'static str,
+    pub examples: &'static [(&'static str, &'static str)],
+    pub sources: &'static [&'static str],
+}
+
+const SCHEMES: &[RomanizationScheme] = &[
+    // review: needs_review — project lead validates linguistic content.
+    // [@ala_lc_arabic] Rules 6–8, 12–14, 17, 19, 21.
+    RomanizationScheme {
+        id: "ala-lc-arabic",
+        label: "ALA-LC Arabic",
+        instructions: "Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source.",
+        examples: &[
+            ("كتاب", "kitāb"),
+            ("صورة", "ṣūrah"),
+            ("على", "‘alá"),
+            ("مسألة", "mas’alah"),
+            ("إيمان", "īmān"),
+            ("الشمس", "al-shams"),
+            ("وزارة التربية", "Wizārat al-Tarbiyah"),
+            ("فجأةً", "faj’atan"),
+            ("قاضٍ", "qāḍin"),
+            ("أدهم", "Adʹham"),
+        ],
+        sources: &["ala_lc_arabic"],
+    },
+    // review: needs_review — project lead validates linguistic content.
+    // [@pinyin_orthography2012] §6.5. App policy always marks lexical tones.
+    RomanizationScheme {
+        id: "pinyin",
+        label: "Hanyu Pinyin",
+        instructions: "Always mark lexical tones 1–4 with vowel diacritics (ā, á, ǎ, à); never use tone numbers or omit lexical tone marks. Neutral-tone syllables remain unmarked. Put the mark on the main vowel; in iu and ui mark the last vowel. Preserve ü where required (nǚ, lǜ), never v or u:. Use lexical tones, including yī and bù, rather than contextual tone sandhi. Keep standard word joining and syllable-separating apostrophes. Never alter the Chinese source.",
+        examples: &[
+            ("妈", "mā"),
+            ("麻", "má"),
+            ("马", "mǎ"),
+            ("骂", "mà"),
+            ("吗", "ma"),
+            ("女", "nǚ"),
+            ("流水", "liúshuǐ"),
+            ("西安", "Xī'ān"),
+        ],
+        sources: &["pinyin_orthography2012"],
+    },
+];
+
+/// Unknown languages fail; a supported language without a scheme returns None.
+pub fn romanization(language_id: &str) -> Result<Option<&'static RomanizationScheme>> {
+    let config = resolve(language_id)?;
+    Ok(config.romanization.map(|id| {
+        SCHEMES
+            .iter()
+            .find(|scheme| scheme.id == id)
+            .expect("validated romanization scheme")
+    }))
+}
+
+pub fn romanization_guidance(language_id: &str) -> Result<Option<String>> {
+    Ok(romanization(language_id)?.map(|scheme| {
+        let examples = scheme
+            .examples
+            .iter()
+            .map(|(source, text)| format!("{source} → {text}"))
+            .collect::<Vec<_>>()
+            .join("; ");
+        format!(
+            "Romanization: {} ({}). {} Examples: {}. Sources: {}.",
+            scheme.label,
+            scheme.id,
+            scheme.instructions,
+            examples,
+            scheme.sources.join(", ")
+        )
+    }))
+}
+
+pub fn assessment_guidance(language_id: &str) -> Result<Option<&'static str>> {
+    let config = resolve(language_id)?;
+    Ok((config.id == "ar").then_some("For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."))
+}
+
 #[derive(Clone, Copy)]
 enum Direction {
     Ltr,
@@ -68,7 +153,7 @@ const CONFIGS: &[LanguageConfig] = &[
         native_name: "العربية",
         font_scale: 1.5,
         direction: Direction::Rtl,
-        romanization: Some("ALA-LC"),
+        romanization: Some("ala-lc-arabic"),
         varieties: &[("ar-MSA", "Modern Standard Arabic")],
         default_variety: "ar-MSA",
         writing_guidance: None,
@@ -79,7 +164,7 @@ const CONFIGS: &[LanguageConfig] = &[
         native_name: "中文（简体）",
         font_scale: 1.3,
         direction: Direction::Ltr,
-        romanization: Some("PINYIN"),
+        romanization: Some("pinyin"),
         varieties: &[("zh-CN", "Mainland China")],
         default_variety: "zh-CN",
         writing_guidance: Some(
@@ -110,9 +195,9 @@ fn validate_configs(configs: &[LanguageConfig]) -> std::result::Result<(), &'sta
         }
         if config
             .romanization
-            .is_some_and(|scheme| scheme.trim().is_empty())
+            .is_some_and(|id| !SCHEMES.iter().any(|scheme| scheme.id == id))
         {
-            return Err("Romanization scheme is empty.");
+            return Err("Romanization scheme is unknown.");
         }
         if !config
             .varieties
@@ -238,6 +323,39 @@ pub fn defaults(language_id: &str, explanation_language: &str) -> Result<Practic
 #[cfg(test)]
 mod tests {
     #[test]
+    fn schemes_resolve_and_guidance_includes_all_examples() {
+        for config in CONFIGS {
+            let scheme = romanization(config.id).unwrap();
+            assert_eq!(scheme.map(|s| s.id), config.romanization);
+            if let Some(scheme) = scheme {
+                let guidance = romanization_guidance(config.id).unwrap().unwrap();
+                assert!(guidance.contains(scheme.label));
+                assert!(scheme.examples.len() >= 5);
+                for (source, romanized) in scheme.examples {
+                    assert!(guidance.contains(&format!("{source} → {romanized}")));
+                }
+            } else {
+                assert!(romanization_guidance(config.id).unwrap().is_none());
+            }
+        }
+        for scheme in SCHEMES {
+            assert!(CONFIGS.iter().any(|c| c.romanization == Some(scheme.id)));
+        }
+        assert!(romanization("unknown").is_err());
+        assert!(romanization_guidance("unknown").is_err());
+        assert!(assessment_guidance("unknown").is_err());
+        assert!(
+            assessment_guidance("ar")
+                .unwrap()
+                .unwrap()
+                .contains("never add diacritics")
+        );
+        for id in ["en", "es", "fr", "zh"] {
+            assert_eq!(assessment_guidance(id).unwrap(), None);
+        }
+    }
+
+    #[test]
     fn every_language_starts_at_beginner() {
         for language in super::CONFIGS {
             assert_eq!(
@@ -304,7 +422,7 @@ mod tests {
                 "Arabic",
                 "العربية",
                 "rtl",
-                Some("ALA-LC"),
+                Some("ala-lc-arabic"),
                 vec![("ar-MSA", "Modern Standard Arabic")],
             ),
             (
@@ -312,7 +430,7 @@ mod tests {
                 "Mandarin",
                 "中文（简体）",
                 "ltr",
-                Some("PINYIN"),
+                Some("pinyin"),
                 vec![("zh-CN", "Mainland China")],
             ),
         ];
@@ -434,3 +552,7 @@ mod tests {
         assert!(validate_settings("es", &settings).is_err());
     }
 }
+
+#[cfg(test)]
+#[path = "languages_citation_tests.rs"]
+mod citation_tests;

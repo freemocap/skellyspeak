@@ -81,8 +81,9 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
 
   useEffect(() => {
     if (!snapshot || snapshot.conversationId !== conversationId) return
-    const messages = snapshot.messages.filter(item => item.role === 'assistant')
-    const operations = snapshot.turns.flatMap(turn => turn.operations).filter(item => item.kind === 'persona_speech')
+    const messages = snapshot.messages.filter(item => item.role === 'assistant' && !item.replacedBy)
+    if (current.current && snapshot.messages.some(item => item.id === current.current?.messageId && item.replacedBy)) stop()
+    const operations = snapshot.turns.filter(turn => !turn.replacedBy).flatMap(turn => turn.operations).filter(item => item.kind === 'persona_speech')
     if (!baseline.current || baseline.current.conversation !== conversationId) {
       baseline.current = { conversation: conversationId, messages: new Set(messages.map(item => item.id)), eligible: new Set(), operations: new Set(operations.filter(item => item.sourceMessageId).map(item => item.id)) }
       return
@@ -99,7 +100,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (!seen.eligible.delete(operation.sourceMessageId) || current.current?.messageId === operation.sourceMessageId) continue
       void start(operation.sourceMessageId, operation.id)
     }
-  }, [snapshot, conversationId, enabled, active, start])
+  }, [snapshot, conversationId, enabled, active, start, stop])
 
   const toggle = useCallback((sourceId: string) => {
     if (current.current?.messageId === sourceId) stop()

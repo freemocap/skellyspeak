@@ -12,17 +12,12 @@ function props(): TurnViewProps {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
   return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: true, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
 }
-it('places the persona reaction on the reply and routes editing to its own turn', () => {
+it('places the persona reaction on the reply', () => {
   const input = props()
   input.turn.reaction = { kind: 'confused', interpretation: 'Uncertain meaning', explanation: 'Please clarify the reference.' }
-  input.onEditUser = vi.fn()
   const view = render(<TurnView {...input} />)
   expect(view.container.querySelector('.msg.bot .persona-reaction')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .persona-reaction')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Persona is unsure' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Edit & try again' }))
-  expect(input.onEditUser).toHaveBeenCalledWith(input.turn)
-  expect(input.onBubbleTap).not.toHaveBeenCalled()
 })
 it('keeps sentence translation buttons independent of token preferences', () => {
   const input = props()

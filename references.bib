@@ -129,6 +129,8 @@
   review = {abstract}, claim = {Teach fusha and a dialect together to match native practice.}, used-by = {varieties; pragmatics}
 }
 @book{ryding2005,
+  url = {https://www.cambridge.org/core/books/reference-grammar-of-modern-standard-arabic/207FA6CB610D541184C4B8CB10A4084A},
+  doi = {10.1017/CBO9780511486975},
   author = {Ryding, Karin C.}, title = {A Reference Grammar of Modern Standard Arabic}, publisher = {Cambridge University Press}, year = {2005},
   review = {abstract}, claim = {Reference for MSA constructions (e.g. idafa).}, used-by = {constructs/form.ar.yaml}
 }
@@ -192,7 +194,7 @@
   booktitle = {Proceedings of ACM FAccT}, year = {2024}, doi = {10.1145/3630106.3658996},
   url = {https://arxiv.org/abs/2402.08021},
   review = {abstract}, claim = {About 1% of Whisper transcriptions contain wholly hallucinated phrases; longer non-speech periods raise hallucination likelihood.},
-  used-by = {fluency: local VAD gates Whisper words; fixture whisper-sample.json shows a hallucinated "Gracias." in trailing silence}
+  used-by = {plan §5.1 hallucination gate; fluency: local VAD gates Whisper words; fixture whisper-sample.json shows a hallucinated "Gracias." in trailing silence}
 }
 
 % ---------------------------------------------------------------- learner modelling
@@ -325,10 +327,33 @@
 }
 
 % ---------------------------------------------------------------- speech recognition
-@inproceedings{koenecke2024,
-  author = {Koenecke, Allison and Choi, Anna Seo Gyeong and Mei, Katelyn X. and Schellmann, Hilke and Sloane, Mona},
-  title = {Careless Whisper: Speech-to-Text Hallucination Harms}, booktitle = {Proceedings of ACM FAccT}, year = {2024},
-  url = {https://arxiv.org/abs/2402.08021},
-  review = {abstract}, claim = {Whisper hallucinates text, disproportionately during silences and non-vocal durations.},
-  used-by = {plan §5.1 hallucination gate}
+
+
+% Primary romanization tables. Content examples remain needs_review by the project lead.
+@misc{ala_lc_arabic,
+  author = {{Library of Congress}}, title = {ALA-LC Romanization Tables: Arabic},
+  url = {https://www.loc.gov/catdir/cpso/romanization/arabic.docx},
+  review = {abstract},
+  claim = {Named Arabic romanization uses marked long vowels and consonants, distinct ayn and hamzah signs, unassimilated al-, contextual ta marbutah, and explicit rules for case endings and tanwin.},
+  used-by = {languages.rs romanization registry}
+}
+@misc{pinyin_orthography2012,
+  author = {{Standardization Administration of China}}, title = {GB/T 16159-2012: Basic Rules of the Chinese Phonetic Alphabet Orthography}, year = {2012},
+  url = {https://www.moe.gov.cn/ewebeditor/uploadfile/2015/01/13/20150113091717604.pdf},
+  review = {abstract},
+  claim = {Section 6.5 places tone marks on the main vowel, the final vowel of iu/ui, leaves neutral tones unmarked, and normally records lexical tones for yi and bu. SkellySpeak chooses mandatory diacritics for lexical tones rather than numeric or unmarked alternatives.},
+  used-by = {languages.rs romanization registry}
+}
+
+@misc{tauriIosSigning,
+  author = {{Tauri Contributors}}, title = {iOS Code Signing},
+  url = {https://v2.tauri.app/distribute/sign/ios/},
+  review = {reviewed},
+  claim = {App Store iOS distribution requires an appropriate distribution certificate and an App Store provisioning profile bound to the application bundle identifier.}
+}
+@misc{tauriIosExport15741,
+  author = {{Tauri Contributors}}, title = {iOS export options computed from the pbxproj miss provisioningProfiles, issue 15741},
+  url = {https://github.com/tauri-apps/tauri/issues/15741},
+  review = {reviewed},
+  claim = {Explicit ExportOptions.plist signing and provisioningProfiles entries work around the reported Tauri CLI reader failure for quoted manual-signing settings.}
 }

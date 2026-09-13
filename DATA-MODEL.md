@@ -274,8 +274,9 @@ Proposed metrics rule: retain participation and observed practice, since the sou
 conversation remains; a correction declaring an observation invalid removes that
 observation from practice measures too. Report filters make this distinction visible.
 
-A renderer maps these metrics to a view. The garden renderer maps participation to
-stalk/foliage and domain practice to petals. A table, timeline, network or another
+A renderer maps these metrics to a view. Under the approved coaching plan,
+evidence-caused XP drives the flower and domain stars; participation remains a
+separate measured quantity, and proficiency remains a separate projection. A table, timeline, network or another
 visualization can consume the same metric snapshot without regenerating evidence,
 changing domain records or interpreting flower geometry.
 

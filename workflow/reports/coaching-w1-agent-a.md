@@ -21,6 +21,8 @@ You are **Agent A**, the Language & Config agent for SkellySpeak's coaching work
 
 Anything else goes into a change request. In particular, `coaching.rs` belongs to B: B will call your functions there.
 
+**Integration update:** `src/domain/language/conversation-view.ts` and its tests are reserved for C's revision grouping work. Your domain ownership excludes those two files this wave. Read `workflow/reports/coaching-w1-integration.md` before starting.
+
 ## Background (verified by integration on 2026-09-12; re-check line numbers)
 
 - `languages.rs` declares `romanization: Some("ALA-LC")` for `ar` and `Some("PINYIN")` for `zh`, but there is **no accessor**. Its public functions are `registry`, `language`, `writing_guidance`, `validate_settings` and `defaults`. Nothing sends the scheme to a model.
@@ -32,7 +34,7 @@ Anything else goes into a change request. In particular, `coaching.rs` belongs t
 
 1. **Scheme registry.** In `languages.rs`, add `RomanizationScheme` and the functions `romanization`, `romanization_guidance` and `assessment_guidance`, exactly as in the contracts.
    - Scheme ids are table-level: `ala-lc-arabic`, `pinyin`. Update the `Language` table to reference ids, and keep the frontend projection field carrying the id.
-   - Write the `ala-lc-arabic` instructions: macrons for long vowels (ā ī ū), dots below for emphatics (ḥ ṣ ḍ ṭ ẓ), ʿ for ʿayn and ʾ for hamza (never ASCII `'`), digraphs th dh kh sh gh, sun-letter assimilation of al-, tāʾ marbūṭa, nunation.
+   - Verify the named ALA-LC Arabic scheme against its primary published table before writing instructions. Cover long vowels, marked consonants, ʿayn/hamza, digraphs, article treatment, tāʾ marbūṭa and case endings where that scheme specifies them. The original brief's assumed article assimilation and symbols are checks to resolve, not authority to mislabel a hybrid scheme. Report any correction to the proposed guidance and cite the table in `references.bib`.
    - Add **at least 5 examples** covering those hard cases.
    - Do the same for `pinyin`: tone marks always, never tone numbers or toneless.
    - Mark each scheme's content `needs_review` in a comment. The project lead validates Spanish, Arabic and Chinese.

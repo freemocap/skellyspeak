@@ -1,3 +1,4 @@
+import { SKILL_CATALOG_VERSION } from '../../contracts'
 import { skillIndex } from '../../domain/skills/skill-index'
 // @vitest-environment jsdom
 import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'
@@ -33,7 +34,7 @@ const currentRecord: SkillRecord = {
   attempt_id: 'attempt-a', session_id: 'session-a', turn_id: 42, message_id: 7, replaces_message_id: null,
   chat_id: 'chat-a', learner_id: 'local', target: 'ar', native: 'en', source: 'هذا الكتاب.',
   input: { ...unreportedInput(), suggestion: true }, at_secs: 123, model: 'evaluation-model', provider_mode: 'hosted',
-  catalog_version: 4, prompt_version: 'skill-evidence-4', status: 'complete', error: null,
+  catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'skill-evidence-4', status: 'complete', error: null,
   assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['هذا الكتاب.'], rationale: 'Identifiable referent using suggested wording.' }] },
 }
 function fixture(): SkillSnapshot {

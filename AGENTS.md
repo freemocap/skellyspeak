@@ -25,6 +25,14 @@ application as part of design work.
 The rebuild starts from empty application data. No compatibility layers, imports,
 backups or data-conversion work.
 
+Development application data is disposable. The user explicitly authorizes agents
+to erase and recreate SkellySpeak user data as needed during development, without
+repeat confirmation. Existing conversations, progress and generation receipts need
+not survive schema changes. Prefer a clean current schema over preservation or
+migration work. This is development authorization, not permission for silent
+production data loss; retain explicit errors and correct workspace ownership.
+This does not authorize deleting source code, Git history or unrelated app data.
+
 ## Collaboration
 
 Keep communication concrete and concise. Product UI uses plain functional labels:

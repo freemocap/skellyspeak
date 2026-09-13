@@ -1,3 +1,4 @@
+import { EarlierVersions } from './EarlierVersions'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 import { ConversationHeader } from './ConversationHeader'
 import { PersonaProfile } from './PersonaProfile'
@@ -89,10 +90,10 @@ export default function GuidedPage({
   const inputRevision = useRef(0)
   const setInput = useCallback((value: string | ((previous: string) => string)) => { inputRevision.current += 1; setInputState(value) }, [])
   const inputEvidence = useRef<InputEvidence>(unreportedInput())
-  // Set while the learner is retrying a past message: the composer is
-  // pre-filled with what they said, and sending it discards that turn and
-  // everything after it, then regenerates from the edited text.
+  // A repair retains its source and explicitly confirms removal of dependent turns.
   const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
+  const [editRevision, setEditRevision] = useState<number | null>(null)
+  const [revisionConfirmation, setRevisionConfirmation] = useState<{ text: string; input: InputEvidence; revision: number; exchangeCount: number; coachTurnCount: number } | null>(null)
   const connection = useSessionStore((state) => state.connection)
   const signingIn = useSessionStore((state) => state.signingIn)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)
@@ -161,6 +162,7 @@ export default function GuidedPage({
     setError(null)
     setSending(false)
     setEditingTurnId(null)
+    setRevisionConfirmation(null)
     stopSpeechRef.current()
     setThreadReload((v) => v + 1)
   }, [])
@@ -184,6 +186,8 @@ export default function GuidedPage({
     resetView,
   })
 
+  const selectedChatRef = useRef(currentChatId)
+  selectedChatRef.current = currentChatId
   const details = useConversationDetails(currentChatId, snapshotRevision)
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
   const [creatingConversation, setCreatingConversation] = useState(false)
@@ -275,36 +279,55 @@ export default function GuidedPage({
   )
   const acceptingSend = useRef(false)
   useEffect(() => setSending(pendingReply), [pendingReply, snapshotRevision])
-  const requestTurn = useCallback(async (body: { message?: string; replacesMessageId?: number; inputEvidence?: InputEvidence }) => {
-    if (body.replacesMessageId !== undefined) {
-      setError('This action is not connected yet.')
-      return
-    }
-    const text = body.message?.trim()
-    if (!text || acceptingSend.current) return
+  async function submitText(text: string, provenance: InputEvidence, revision?: number) {
+    if (acceptingSend.current) return
     acceptingSend.current = true
+    const submittedChatId = currentChatId
     const submittedDraftRevision = inputRevision.current
     setSending(true)
     setError(null)
     try {
       await details.beforeSend()
-      await sendMessage(text, currentChatId, body.inputEvidence)
-    } catch (error) {
-      setError(nativeError(error))
+      if (selectedChatRef.current !== submittedChatId) return
+      if (editingTurnId !== null) {
+        const turn = turns.find(item => item.id === editingTurnId)
+        if (!turn?.turnId || !snapshot || revision === undefined) throw new Error('Revision source is unavailable. Reopen the message to edit it.')
+        await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })
+      } else await sendMessage(text, currentChatId, provenance)
+      if (selectedChatRef.current !== submittedChatId) return
+      if (inputRevision.current === submittedDraftRevision) {
+        setInput('')
+        inputEvidence.current = unreportedInput()
+      }
+      setEditingTurnId(null)
+      setRevisionConfirmation(null)
+    } catch (reason) {
+      if (selectedChatRef.current !== submittedChatId) return
+      setError(nativeError(reason))
       if (inputRevision.current === submittedDraftRevision) setInput(text)
+      setRevisionConfirmation(null)
+      setEditRevision(null)
       setSending(false)
     } finally { acceptingSend.current = false }
-  }, [sendMessage, details.beforeSend, currentChatId])
+  }
 
   async function send(text: string) {
     const message = text.trim()
     if (!message || sending) return
     const provenance = { ...inputEvidence.current, revision: editingTurnId !== null }
-    inputEvidence.current = unreportedInput()
-    setInput('')
-    stopSpeechRef.current() // new turn: silence any ongoing playback
-    const replacesMessageId = editingTurnId ?? undefined
-    await requestTurn({ message, replacesMessageId, inputEvidence: provenance })
+    stopSpeechRef.current()
+    if (editingTurnId !== null) {
+      const turn = turns.find(item => item.id === editingTurnId)
+      const scope = snapshot?.revisionSuffixCounts.find(item => item.turnId === turn?.turnId)
+      if (!scope || !snapshot) { setError('Revision source is unavailable. Reopen the message to edit it.'); return }
+      // A failed admission requires a fresh native preview; the draft stays intact.
+      const revision = editRevision ?? snapshot.revision
+      if (scope.exchangeCount || scope.coachTurnCount) {
+        setRevisionConfirmation({ text: message, input: provenance, revision, exchangeCount: scope.exchangeCount, coachTurnCount: scope.coachTurnCount })
+        return
+      }
+      await submitText(message, provenance, revision)
+    } else await submitText(message, provenance)
   }
   sendRef.current = send
 
@@ -339,8 +362,9 @@ export default function GuidedPage({
     return () => window.removeEventListener('keydown', onKey)
   }, [settings?.shortcuts])
 
+  const activeTurns = turns.filter(turn => !turn.replacedBy)
   const editingTurn = turns.find((turn) => turn.id === editingTurnId)
-  const latestAssistantId = latestAnswered(turns)?.id ?? null
+  const latestAssistantId = latestAnswered(activeTurns)?.id ?? null
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
   const showRomanization =
@@ -366,7 +390,7 @@ export default function GuidedPage({
   const targetLanguageName = targetLanguage ? languageLabel(targetLanguage) : ''
   const nativeLanguageName = nativeLanguage ? languageLabel(nativeLanguage) : ''
   const romanized = Boolean(targetLanguage?.romanization)
-  const pinnedTurn = turns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
+  const pinnedTurn = activeTurns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
   clearWordsRef.current = words.clear
 
@@ -408,17 +432,17 @@ export default function GuidedPage({
           )}
           {editingTurn && <EditFeedback key={editingTurn.id} id={editingTurn.id} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || turns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
+            {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
           </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
           {<ComposerHelp
-            key={`${currentChatId}:${turns.at(-1)?.id}`}
+            key={`${currentChatId}:${activeTurns.at(-1)?.id}`}
             busy={sending}
-            replies={turns.at(-1)?.assistant?.scaffolds.replies ?? []}
-            pending={['ready', 'running', 'waiting_dependencies'].includes(turns.at(-1)?.assistant?.suggestionsState ?? '')}
-            errors={turns.at(-1)?.assistant?.errors ?? []}
+            replies={activeTurns.at(-1)?.assistant?.scaffolds.replies ?? []}
+            pending={['ready', 'running', 'waiting_dependencies'].includes(activeTurns.at(-1)?.assistant?.suggestionsState ?? '')}
+            errors={activeTurns.at(-1)?.assistant?.errors ?? []}
             onUse={(text, source) => {
               inputEvidence.current = { ...inputEvidence.current, [source]: true }
               setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
@@ -520,7 +544,7 @@ export default function GuidedPage({
               Say hello to start the conversation.
             </p>
           )}
-          {turns.map((turn) => (
+          {activeTurns.map((turn) => (
             <Fragment key={turn.id}><TurnView
               turn={turn}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
@@ -542,8 +566,17 @@ export default function GuidedPage({
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onToggleReveal={words.toggleReveal}
-              onEditUser={undefined}
+              editDisabled={sending || pendingReply}
+              onEditUser={turn.turnId && turn.user !== null ? selected => {
+                setEditingTurnId(selected.id)
+                setEditRevision(snapshot?.revision ?? null)
+                setInput(selected.user ?? '')
+                setError(null)
+                inputEvidence.current = unreportedInput()
+                composer.current?.querySelector('textarea')?.focus()
+              } : undefined}
             />
+            {turn.replacesTurnId && snapshot && <EarlierVersions key={`${turn.turnId}:${snapshot.revision}`} turn={turn} snapshot={snapshot} />}
             </Fragment>
           ))}
           {error && (
@@ -597,6 +630,13 @@ export default function GuidedPage({
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
+      {revisionConfirmation && <DetailDialog title="Revise earlier message" onClose={() => setRevisionConfirmation(null)}>
+        <p>This revision removes {revisionConfirmation.exchangeCount} later conversation turns and {revisionConfirmation.coachTurnCount} private coach turns. Your earlier wording and its reply remain available.</p>
+        <div className="lesson-actions">
+          <button type="button" onClick={() => setRevisionConfirmation(null)}>Cancel</button>
+          <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>Revise and remove later turns</button>
+        </div>
+      </DetailDialog>}
       {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
         <h2>Message analysis</h2>
         {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>Select Analysis on a conversation reply to inspect that message.</p>}

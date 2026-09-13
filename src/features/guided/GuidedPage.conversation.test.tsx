@@ -23,7 +23,6 @@ vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi
 vi.mock('./useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => null }))
 vi.mock('./RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
-vi.mock('./TurnView', () => ({ TurnView: () => null }))
 vi.mock('./SkillRewards', () => ({ SkillRewards: () => null }))
 
 import GuidedPage from './GuidedPage'
@@ -80,8 +79,8 @@ function directory(): Snapshot {
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
-    conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
-    messages: text === undefined ? [] : [{ wordGloss: null, glossState: null, glossError: null, glossOperationId: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
+    revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
+    messages: text === undefined ? [] : [{ wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
   }
@@ -96,6 +95,8 @@ function commands(): Command[] {
   return ipc.invoke.mock.calls.filter(([name]) => name === 'execute_command').map(([, args]) => args.command as Command)
 }
 beforeEach(async () => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
   vi.clearAllMocks()
   localStorage.clear()
   workspace = directory()
@@ -200,7 +201,7 @@ describe('native conversation ownership', () => {
     const { result } = renderHook(() => useSubject())
     await waitFor(() => expect(watches).toHaveLength(1))
     const assisting = snapshot()
-    assisting.turns = [{ id: 'turn', route: 'hosted', state: 'assisting', paused: false, hold: null, operations: [], attempts: [] }]
+    assisting.turns = [{ id: 'turn', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'assisting', paused: false, hold: null, operations: [], attempts: [] }]
     await act(async () => watches[0].resolve(assisting))
     expect(result.current.pendingReply).toBe(false)
     await act(async () => watches[1].resolve({ ...assisting, revision: 2, turns: [{ ...assisting.turns[0], state: 'pending' }] }))
@@ -300,4 +301,101 @@ it('auto-sends one native transcript and retains a later transcript while a repl
   expect(commands()).toHaveLength(1)
   await act(async () => pending.reject(new Error('Rejected')))
   expect(input).toHaveValue('Guardar esta frase')
+})
+
+function exchangeSnapshot(earlier = false): ConversationSnapshot {
+  const value = snapshot('a', 31, 'Yo fue ayer')
+  value.messages.push({ ...value.messages[0], id: 'reply', sequence: 2, role: 'assistant', text: '¿Adónde fuiste?' })
+  value.revisionSuffixCounts = [{ turnId: 'a-turn', exchangeCount: earlier ? 1 : 0, coachTurnCount: earlier ? 2 : 0 }]
+  return value
+}
+
+it('edits through the real page handler, sends durable identity and renders retained wording', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const initial = exchangeSnapshot()
+  await act(async () => watches[0].resolve(initial))
+  const edit = screen.getByRole('button', { name: 'Edit this message and try again' })
+  expect(edit).toBeEnabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit & try again' }))
+  const composer = screen.getByPlaceholderText(/Write in/)
+  expect(composer).toHaveValue('Yo fue ayer')
+  fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
+  const revised: ConversationSnapshot = { ...initial, revision: 32, messages: [
+    ...initial.messages.map(message => ({ ...message, replacedBy: 'repair' })),
+    { ...initial.messages[0], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-user', sequence: 3, text: 'Yo fui ayer' },
+    { ...initial.messages[1], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-reply', sequence: 4, text: '¿Qué hiciste allí?' },
+  ], revisionSuffixCounts: [{ turnId: 'repair', exchangeCount: 0, coachTurnCount: 0 }] }
+  await act(async () => watches[1].resolve(revised))
+  expect(screen.getByText('Yo fui ayer')).toBeVisible()
+  const earlier = screen.getByText('Earlier version').closest('details')!
+  expect(earlier).not.toHaveAttribute('open')
+  fireEvent.click(screen.getByText('Earlier version'))
+  expect(earlier).toHaveTextContent('Yo fue ayer')
+  expect(earlier).toHaveTextContent('¿Adónde fuiste?')
+  expect(screen.getAllByRole('button', { name: 'Edit this message and try again' })).toHaveLength(1)
+})
+
+it('confirms native suffix scope and retains the edit draft after a stale admission', async () => {
+  submit = async () => { throw { code: 'conflict', message: 'Conversation changed; review the revision again.' } }
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot(true)))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  const composer = screen.getByPlaceholderText(/Write in/)
+  fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  expect(screen.getByRole('dialog', { name: 'Revise earlier message' })).toHaveTextContent('1 later conversation turns and 2 private coach turns')
+  expect(commands()).toHaveLength(0)
+  fireEvent.click(screen.getByRole('button', { name: 'Revise and remove later turns' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(composer).toHaveValue('Yo fui ayer')
+  expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
+  expect(commands()[0].action).toMatchObject({ expectedRevision: 31 })
+})
+
+it('disables editing while a native partner reply is pending', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = exchangeSnapshot()
+  value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, operations: [], attempts: [] }]
+  await act(async () => watches[0].resolve(value))
+  expect(screen.getByRole('button', { name: 'Edit this message and try again' })).toBeDisabled()
+})
+
+it.each(['resolve', 'reject'] as const)('ignores late revision %s after switching conversations', async outcome => {
+  const pending = deferred<Receipt>()
+  submit = async command => command.action.kind === 'reviseTurn' ? pending.promise : { actionId: command.actionId, entityId: 'b', revision: 40 }
+  let newChat: (() => void) | null = null
+  render(<GuidedPage learningPicker={null} nativePicker={null} mobileSurface="chat" active onNewChatReady={action => { if (action) newChat = action }} />)
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  await act(async () => newChat!())
+  await waitFor(() => expect(watches.some(watch => watch.conversationId === 'b')).toBe(true))
+  const composer = screen.getByPlaceholderText(/Write in/)
+  fireEvent.change(composer, { target: { value: 'New conversation draft' } })
+  await act(async () => outcome === 'resolve' ? pending.resolve({ actionId: 'revision', entityId: 'repair', revision: 41 }) : pending.reject(new Error('Old conversation failed')))
+  expect(composer).toHaveValue('New conversation draft')
+  expect(screen.queryByRole('alert')).toBeNull()
+})
+
+it('shows a raced native pending-turn rejection without dropping the repair draft', async () => {
+  submit = async () => { throw { code: 'pending_turn', message: 'A partner reply is pending.' } }
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit this message and try again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  fireEvent.click(await screen.findByText('⚠ Request failed'))
+  expect(screen.getByText('A partner reply is pending.')).toBeVisible()
+  expect(screen.getByPlaceholderText(/Write in/)).toHaveValue('Yo fue ayer')
+  expect(commands()).toHaveLength(1)
 })

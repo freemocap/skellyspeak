@@ -156,8 +156,8 @@ explicit action; an identity edit does not automatically create another person.
 
 | Measure | Meaning | Presentation |
 | --- | --- | --- |
-| Participation | Time and meaningful contributions invested in a conversation | Stalk and foliage growth |
-| Practice | Language skills exercised, including with assistance | Six petals showing practice across the domains |
+| Participation | Measured activity and meaningful contributions invested in a conversation | Factual usage reports, separate from reward eligibility |
+| Practice | Language skills exercised, including with assistance | Evidence-caused XP fills domain stars and the flower under the coaching plan |
 | Demonstrated ability | What learner messages support saying about proficiency, with uncertainty | Language report card with examples across conversations |
 
 Assisted practice contributes to flower growth. Mistakes do not damage the flower,
@@ -165,9 +165,10 @@ and time away does not make it wilt. A flourishing flower represents valuable
 practice at any difficulty; it does not imply advanced proficiency.
 
 The report card explains demonstrated ability separately from participation and
-practice. Exact participation measurements, repetition handling, XP rules, growth
-curves and assessment criteria remain design questions. These quantities must not
-be silently converted into one another.
+practice. The approved coaching plan defines evidence-based reward eligibility;
+participation alone does not earn XP. Exact measurement and calibration details
+remain wave-specific implementation work. These quantities must not be silently
+converted into one another.
 
 ## Agreed learner journey and onboarding
 
@@ -267,8 +268,10 @@ Statistics remain numerical; garden geometry owns no evidence or scores.
 
 Coaching is split by input readiness, with two automatic inference nodes as the
 initial design. Learner feedback starts from the saved learner message and already
-available context: correctness, contextual understandability, source-linked skill
-evidence and corrections. Response-dependent help and next-reply suggestions start
+available context. The current implementation uses message-level correctness and
+contextual understandability scores; wave two replaces those with meaning recovery,
+per-construct observations and deterministic feedback policy. Response-dependent
+help and next-reply suggestions start
 when the partner text is available. Responsiveness takes precedence over saving one
 inference request. Neither coaching node depends on completion of the other; both
 publish independently without waiting for speech, glosses or complete turn hydration.
@@ -280,8 +283,8 @@ readiness is not a promise of unlimited simultaneous requests. Retry/failure is 
 to each node. Late results remain bound to their source; old suggestions cannot
 replace current-exchange suggestions. Reuse common captured context and deterministic
 work where appropriate, without adding an inference dependency between coach nodes.
-AI and Reliability own the bounded scheduling proposal. UI, schema, category
-definitions and progression rules remain proposal work at this stage.
+The coaching work plan assigns the current implementation waves and their owners.
+Later-wave estimator and game calibration remain distinct from implemented behavior.
 
 ## Agreed turn flow
 
@@ -340,6 +343,17 @@ progressive display must honor the emoji-free generated-prose requirement.
 Keep the desktop/mobile platform scope: Windows, macOS, Linux, Android and iOS.
 Platform packaging and verification are implementation tasks, not reasons to
 reopen the product definition.
+
+Release packaging decision (2026-09-12): iOS signing and IPA attachment belong to
+the same release gate as desktop and Android. An incomplete platform build keeps
+the GitHub release in draft. The IPA is an artifact for the user to upload to App
+Store Connect; building it does not submit an app for review. Following a focused
+review of the archived iOS workflows, retain the existing Apple team/application
+identity, disposable signing keychain, profile/signature validation, opaque app
+icons, and explicit manual-signing/export settings for Tauri's provisioning bug
+[@tauriIosExport15741]. The active workflow/helper are newly integrated source;
+archived automation is not restored as a second release owner. First signed-run
+and Apple acceptance verification remain outstanding.
 
 AI-dependent work requires a reachable configured AI service. Provide three access
 routes: hosted access through sign-in, the learner's own API key, and a custom URL
@@ -660,6 +674,13 @@ The user authorized a narrow, transactional schema 11 → 12 upgrade to preserve
 existing conversations while adding persona-generation receipts. This is a specific
 exception to the rebuild's no-upgrade policy, not authorization for archived-data
 imports or unrelated migrations. Unknown schemas remain refused.
+
+For subsequent coaching development, the user explicitly made all SkellySpeak
+development data disposable. Agents may reset it as needed without repeat approval
+and implement the current schema without migration or compatibility work. This
+supersedes preservation requirements for development; it does not introduce silent
+production resets on startup errors. The receipt feature remains part of the current
+application even when its previous data is discarded.
 
 Proposals remain volatile until Create. Durable receipts contain request identity,
 language, route/model, captured authority revision, lifecycle timestamps/state,

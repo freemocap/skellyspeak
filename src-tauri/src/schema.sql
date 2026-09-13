@@ -1,7 +1,4 @@
--- Base workspace DDL at version 11. Store::open creates fresh version 12 by
--- applying this base plus generation_schema.sql in the same transaction, then
--- setting user_version=12. Existing version 11 upgrades use that same addition.
--- No other historical schema is upgraded.
+-- Current v13 core schema; generation_schema.sql adds current receipt tables.
 CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL CHECK(revision>=0));
 INSERT INTO metadata VALUES(1,0);
 CREATE TABLE learner (id TEXT PRIMARY KEY, singleton INTEGER NOT NULL UNIQUE CHECK(singleton=1), name TEXT NOT NULL, revision INTEGER NOT NULL, preferences TEXT NOT NULL CHECK(json_valid(preferences)));
@@ -23,7 +20,8 @@ PRAGMA application_id=1397443659;
 CREATE TABLE credential_cleanup(id TEXT PRIMARY KEY);
 CREATE TABLE ai_config(singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, credential_id TEXT, standard_model TEXT NOT NULL, fast_model TEXT NOT NULL, paused INTEGER NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), hosted_credential_id TEXT, hosted_email TEXT NOT NULL, groq_credential_id TEXT, custom_credential_id TEXT, custom_config TEXT NOT NULL CHECK(json_valid(custom_config)));
 INSERT INTO ai_config VALUES(1,1,NULL,'google/gemini-2.5-flash','google/gemini-2.5-flash-lite',0,'hosted',NULL,'',NULL,NULL,'{"baseUrl":"http://127.0.0.1:8765/v1","standardModel":"google/gemini-2.5-flash","fastModel":"google/gemini-2.5-flash","bearerAuth":true,"transcriptionModel":"whisper-large-v3"}');
-CREATE TABLE turns(id TEXT PRIMARY KEY, refusal_hold TEXT CHECK(refusal_hold IS NULL OR json_valid(refusal_hold)), conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, state TEXT NOT NULL, paused INTEGER NOT NULL, profile_revision INTEGER NOT NULL, credential_id TEXT NOT NULL, route TEXT NOT NULL, model TEXT NOT NULL, context TEXT NOT NULL CHECK(json_valid(context)), created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')));
+CREATE TABLE turns(id TEXT PRIMARY KEY, replaces_turn_id TEXT UNIQUE REFERENCES turns(id) ON DELETE CASCADE, refusal_hold TEXT CHECK(refusal_hold IS NULL OR json_valid(refusal_hold)), conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, state TEXT NOT NULL, paused INTEGER NOT NULL, profile_revision INTEGER NOT NULL, credential_id TEXT NOT NULL, route TEXT NOT NULL, model TEXT NOT NULL, context TEXT NOT NULL CHECK(json_valid(context)), created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')));
+CREATE INDEX turns_conversation ON turns(conversation_id);
 CREATE UNIQUE INDEX one_pending_reply ON turns(conversation_id) WHERE state='pending';
 CREATE TABLE messages(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE, sequence INTEGER NOT NULL, role TEXT NOT NULL CHECK(role IN ('user','assistant')), text TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), UNIQUE(conversation_id,sequence), UNIQUE(turn_id,role));
 CREATE TABLE operations(id TEXT PRIMARY KEY, turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE, kind TEXT NOT NULL, state TEXT NOT NULL, permit INTEGER NOT NULL DEFAULT 0, UNIQUE(turn_id,kind));
@@ -31,4 +29,7 @@ CREATE TABLE attempts(id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES
 CREATE TABLE inference_holds(id TEXT PRIMARY KEY, generation TEXT NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), error TEXT NOT NULL CHECK(json_valid(error)));
 CREATE TABLE transcription_attempts(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), model TEXT NOT NULL, profile_revision INTEGER NOT NULL, state TEXT NOT NULL CHECK(state IN ('running','succeeded','failed','unknown')), started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, error TEXT);
 CREATE INDEX transcription_conversation ON transcription_attempts(conversation_id);
-PRAGMA user_version=11;
+PRAGMA user_version=13;
+
+CREATE TRIGGER revision_link_insert BEFORE INSERT ON turns WHEN NEW.replaces_turn_id IS NOT NULL AND (NEW.replaces_turn_id=NEW.id OR NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id)) BEGIN SELECT RAISE(ABORT,'Invalid revision ownership'); END;
+CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns WHEN OLD.replaces_turn_id IS NOT NULL OR NEW.replaces_turn_id=NEW.id OR (NEW.replaces_turn_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id AND rowid<OLD.rowid)) BEGIN SELECT RAISE(ABORT,'Invalid revision chain'); END;

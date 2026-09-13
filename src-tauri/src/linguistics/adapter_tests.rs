@@ -458,7 +458,7 @@ fn explicit_catalog_endpoints_select_repeated_and_single_grapheme_words() {
         ("我", vec![(0, 0)], vec![Span { start: 0, end: 1 }]),
     ] {
         let prompt = build_word_gloss_prompt(&identity(), text).unwrap();
-        assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v4");
+        assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v5");
         let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
         let rows = data["graphemes"].as_array().unwrap();
         let spans: Vec<_> = selections

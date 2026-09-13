@@ -25,8 +25,8 @@ pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-/// Current shape; the only supported upgrade is the additive 11 -> 12 receipt table.
-pub(crate) const SCHEMA_VERSION: i32 = 12;
+/// Current development schema. Other versions require an explicit workspace reset.
+pub(crate) const SCHEMA_VERSION: i32 = 13;
 const GENERATION_SCHEMA: &str = include_str!("generation_schema.sql");
 
 /// The workspace database, inside the application data directory.
@@ -141,58 +141,34 @@ fn validate_database(connection: &Connection) -> Result<()> {
     Ok(())
 }
 
-/// Recognize the actual released base, not merely its numeric version marker.
-/// Independent runtime settings tables may coexist with it and are left intact.
-fn validate_v11_schema(connection: &Connection) -> Result<()> {
+/// Check current DDL, including revision constraints, before startup writes.
+fn validate_current_schema(connection: &Connection) -> Result<()> {
     let reference = Connection::open_in_memory()?;
     reference.execute_batch(include_str!("schema.sql"))?;
-    let mut statement = reference.prepare(
-        "SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'",
-    )?;
-    for expected in statement.query_map([], |row| {
+    reference.execute_batch(GENERATION_SCHEMA)?;
+    let mut statement = reference.prepare("SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'")?;
+    for row in statement.query_map([], |r| {
         Ok((
-            row.get::<_, String>(0)?,
-            row.get::<_, String>(1)?,
-            row.get::<_, String>(2)?,
+            r.get::<_, String>(0)?,
+            r.get::<_, String>(1)?,
+            r.get::<_, String>(2)?,
         ))
     })? {
-        let (kind, name, sql) = expected?;
+        let (kind, name, sql) = row?;
         let actual: Option<(String, String)> = connection
             .query_row(
                 "SELECT type,sql FROM sqlite_master WHERE name=?1",
                 [&name],
-                |row| Ok((row.get(0)?, row.get(1)?)),
+                |r| Ok((r.get(0)?, r.get(1)?)),
             )
             .optional()?;
         if actual != Some((kind, sql)) {
             return Err(AppError::new(
                 ErrorCode::Storage,
-                format!(
-                    "Workspace version 11 has an unexpected schema object: {name}. No upgrade was applied."
-                ),
+                format!("Unexpected current schema object: {name}. No data was changed."),
             ));
         }
     }
-    Ok(())
-}
-
-/// SQLite DDL and the version marker commit together. The schema argument is a
-/// fixed source constant in production; tests inject a late SQL failure to verify
-/// that a partially applied addition rolls back without changing existing rows.
-fn upgrade_v11(connection: &mut Connection, addition: &str) -> Result<()> {
-    let tx = connection.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
-    if tx.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))? != 11 {
-        return Err(AppError::new(
-            ErrorCode::Storage,
-            "Only workspace version 11 can use this upgrade.",
-        ));
-    }
-    validate_database(&tx)?;
-    validate_v11_schema(&tx)?;
-    tx.execute_batch(addition)?;
-    tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
-    validate_database(&tx)?;
-    tx.commit()?;
     Ok(())
 }
 
@@ -256,9 +232,9 @@ impl Store {
             )?;
             tx.commit()?;
         }
-        // The user authorized only the additive 11 -> 12 upgrade; refuse all others.
+        // Development data may be reset explicitly; startup never silently wipes it.
         let version: i32 = connection.pragma_query_value(None, "user_version", |r| r.get(0))?;
-        if version != 11 && version != SCHEMA_VERSION {
+        if version != SCHEMA_VERSION {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 format!(
@@ -266,11 +242,8 @@ impl Store {
                 ),
             ));
         }
-        if version == 11 {
-            upgrade_v11(&mut connection, GENERATION_SCHEMA)?;
-        } else {
-            validate_database(&connection)?;
-        }
+        validate_database(&connection)?;
+        validate_current_schema(&connection)?;
         crate::progression::initialize(&connection)?;
         crate::reward_settings::initialize(&connection)?;
         let store = Self {
@@ -355,6 +328,25 @@ impl Store {
         let mut persona_scope: Option<String> = None;
         let mut conversation_scope: Option<String> = None;
         let entity_id = match command.action {
+            Action::ReviseTurn {
+                conversation_id,
+                turn_id,
+                text,
+                input,
+                expected_revision,
+            } => {
+                let result = crate::revision::accept(
+                    &tx,
+                    &snapshot,
+                    &conversation_id,
+                    &turn_id,
+                    &text,
+                    input,
+                    expected_revision,
+                )?;
+                conversation_scope = Some(conversation_id);
+                result
+            }
             Action::AskCoach {
                 conversation_id,
                 text,
@@ -1257,7 +1249,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("skellyspeak.sqlite3");
         drop(Store::open(&path).unwrap());
-        for version in [3, 5, 8, 9, 10, SCHEMA_VERSION + 1] {
+        for version in [3, 5, 8, 9, 10, 11, 12, SCHEMA_VERSION + 1] {
             let connection = Connection::open(&path).unwrap();
             connection
                 .pragma_update(None, "user_version", version)
@@ -1288,190 +1280,6 @@ mod tests {
                     .unwrap(),
                 before
             );
-        }
-    }
-
-    fn populated_v11(path: &Path) -> Connection {
-        // Build real domain records with the normal native writes, then remove
-        // exactly the additive table to recover the unchanged version-11 shape.
-        let mut store = Store::open(path).unwrap();
-        let contact = contact(&mut store);
-        let chat = conversation(&mut store, &contact, "Preserved chat");
-        store.connection.execute(
-            "INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES('saved-turn',?1,'succeeded',0,1,'saved-credential','custom','saved-model','{}')", [&chat.id],
-        ).unwrap();
-        store.connection.execute(
-            "INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) VALUES('saved-message',?1,'saved-turn',1,'user','Preserve this conversation')", [&chat.id],
-        ).unwrap();
-        store.connection.execute_batch("INSERT INTO operations(id,turn_id,kind,state) VALUES('saved-operation','saved-turn','persona_reply','succeeded'); INSERT INTO attempts(id,operation_id,state,requested_model,actual_model,input_tokens,output_tokens) VALUES('saved-attempt','saved-operation','succeeded','saved-model','actual-model',12,34); INSERT INTO credential_cleanup VALUES('retained-reference'); DROP TABLE persona_generation_attempts; PRAGMA user_version=11;").unwrap();
-        drop(store);
-        let db = Connection::open(path).unwrap();
-        db.pragma_update(None, "foreign_keys", true).unwrap();
-        db
-    }
-
-    fn all_rows(
-        db: &Connection,
-    ) -> std::collections::BTreeMap<String, Vec<Vec<rusqlite::types::Value>>> {
-        let tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name!='persona_generation_attempts' ORDER BY name").unwrap()
-            .query_map([], |row| row.get::<_, String>(0)).unwrap().collect::<rusqlite::Result<Vec<_>>>().unwrap();
-        tables
-            .into_iter()
-            .map(|name| {
-                let mut statement = db
-                    .prepare(&format!(
-                        "SELECT * FROM \"{}\" ORDER BY rowid",
-                        name.replace('"', "\"\"")
-                    ))
-                    .unwrap();
-                let count = statement.column_count();
-                let rows = statement
-                    .query_map([], |row| {
-                        (0..count)
-                            .map(|index| row.get(index))
-                            .collect::<rusqlite::Result<Vec<rusqlite::types::Value>>>()
-                    })
-                    .unwrap()
-                    .collect::<rusqlite::Result<Vec<_>>>()
-                    .unwrap();
-                (name, rows)
-            })
-            .collect()
-    }
-
-    #[test]
-    fn v11_upgrade_preserves_every_existing_row_and_reopens_idempotently() {
-        let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("workspace.sqlite3");
-        let mut db = populated_v11(&path);
-        let before = all_rows(&db);
-        upgrade_v11(&mut db, GENERATION_SCHEMA).unwrap();
-        assert_eq!(all_rows(&db), before);
-        assert_eq!(
-            db.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
-                .unwrap(),
-            12
-        );
-        assert_eq!(
-            db.query_row(
-                "SELECT count(*) FROM persona_generation_attempts",
-                [],
-                |r| r.get::<_, i64>(0)
-            )
-            .unwrap(),
-            0
-        );
-        drop(db);
-        for _ in 0..2 {
-            let store = Store::open(&path).unwrap();
-            let after = all_rows(&store.connection);
-            // These are existing startup reconciliation policies, not migration:
-            // metadata advances and transient idempotency receipts are cleared.
-            for (table, rows) in &before {
-                if table != "metadata" && table != "receipts" {
-                    assert_eq!(&after[table], rows, "{table}");
-                }
-            }
-            assert_eq!(
-                store.snapshot().unwrap().conversations[0].title,
-                "Preserved chat"
-            );
-        }
-    }
-
-    #[test]
-    fn opening_v11_applies_only_the_additive_generation_upgrade() {
-        let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("workspace.sqlite3");
-        let db = populated_v11(&path);
-        let before = all_rows(&db);
-        drop(db);
-        let store = Store::open(&path).unwrap();
-        assert_eq!(
-            store
-                .connection
-                .pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
-                .unwrap(),
-            SCHEMA_VERSION
-        );
-        let after = all_rows(&store.connection);
-        for (table, rows) in &before {
-            if table != "metadata" && table != "receipts" {
-                assert_eq!(&after[table], rows, "{table}");
-            }
-        }
-    }
-
-    #[test]
-    fn failed_upgrade_rolls_back_added_table_version_and_existing_data() {
-        let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("workspace.sqlite3");
-        let mut db = populated_v11(&path);
-        let before = all_rows(&db);
-        let addition = format!(
-            "{GENERATION_SCHEMA} UPDATE learner SET name='must roll back'; INSERT INTO missing_migration_table VALUES(1);"
-        );
-        assert!(upgrade_v11(&mut db, &addition).is_err());
-        assert_eq!(all_rows(&db), before);
-        assert_eq!(
-            db.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
-                .unwrap(),
-            11
-        );
-        assert!(
-            !db.prepare("SELECT 1 FROM sqlite_master WHERE name='persona_generation_attempts'")
-                .unwrap()
-                .exists([])
-                .unwrap()
-        );
-        upgrade_v11(&mut db, GENERATION_SCHEMA).unwrap();
-    }
-
-    #[test]
-    fn v11_identity_integrity_and_foreign_key_failures_are_refused_before_upgrade() {
-        for damage in [
-            "PRAGMA application_id=42;",
-            "DROP TABLE credential_cleanup;",
-            "ALTER TABLE credential_cleanup ADD COLUMN unrecognized TEXT;",
-            "DROP TRIGGER persona_language_fixed;",
-            "PRAGMA ignore_check_constraints=ON; UPDATE metadata SET revision=-1;",
-            "PRAGMA foreign_keys=OFF; INSERT INTO language_profiles VALUES('orphan-profile','missing-learner','fr');",
-            "CREATE TABLE persona_generation_attempts(sentinel TEXT); INSERT INTO persona_generation_attempts VALUES('keep collision');",
-        ] {
-            let directory = tempfile::tempdir().unwrap();
-            let path = directory.path().join("workspace.sqlite3");
-            let db = populated_v11(&path);
-            db.execute_batch(damage).unwrap();
-            let before = all_rows(&db);
-            drop(db);
-            assert!(Store::open(&path).is_err(), "{damage}");
-            let db = Connection::open(&path).unwrap();
-            assert_eq!(
-                db.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
-                    .unwrap(),
-                11
-            );
-            assert_eq!(all_rows(&db), before);
-            if damage.starts_with("CREATE TABLE") {
-                assert_eq!(
-                    db.query_row(
-                        "SELECT sentinel FROM persona_generation_attempts",
-                        [],
-                        |r| r.get::<_, String>(0)
-                    )
-                    .unwrap(),
-                    "keep collision"
-                );
-            } else {
-                assert!(
-                    !db.prepare(
-                        "SELECT 1 FROM sqlite_master WHERE name='persona_generation_attempts'"
-                    )
-                    .unwrap()
-                    .exists([])
-                    .unwrap()
-                );
-            }
         }
     }
 
@@ -1603,5 +1411,36 @@ mod tests {
         let action = serde_json::json!({"kind":"updatePersona", "personaId":"id", "expectedRevision":1,
             "details":crate::persona::starter("es").unwrap(), "languageId":"fr"});
         assert!(serde_json::from_value::<Action>(action).is_err());
+    }
+    #[test]
+    fn current_schema_damage_is_refused_without_resetting_data() {
+        for damage in [
+            "DROP TRIGGER revision_link_update;",
+            "DROP TABLE credential_cleanup;",
+            "ALTER TABLE turns ADD COLUMN unexpected TEXT;",
+            "PRAGMA application_id=42;",
+        ] {
+            let dir = tempfile::tempdir().unwrap();
+            let path = dir.path().join("workspace.sqlite3");
+            let store = Store::open(&path).unwrap();
+            store
+                .connection
+                .execute("UPDATE learner SET name='Retained sentinel'", [])
+                .unwrap();
+            store.connection.execute_batch(damage).unwrap();
+            drop(store);
+            assert!(Store::open(&path).is_err(), "{damage}");
+            let db = Connection::open(&path).unwrap();
+            assert_eq!(
+                db.query_row("SELECT name FROM learner", [], |r| r.get::<_, String>(0))
+                    .unwrap(),
+                "Retained sentinel"
+            );
+            assert_eq!(
+                db.pragma_query_value(None, "user_version", |r| r.get::<_, i32>(0))
+                    .unwrap(),
+                SCHEMA_VERSION
+            );
+        }
     }
 }

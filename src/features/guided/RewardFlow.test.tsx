@@ -1,3 +1,4 @@
+import { SKILL_CATALOG_VERSION } from '../../contracts'
 // @vitest-environment jsdom
 import { useContext, useRef } from 'react'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
@@ -35,7 +36,7 @@ it.each(['new review', 'late credit'])('presents %s in a cramped viewport and op
   const initial = structuredClone(skillDemo)
   const earned = structuredClone(initial)
   const skills = earned.catalog.filter(item => item.kind === 'skill').slice(0, 2)
-  earned.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'this cup', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: 4, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: skills.map(skill => ({ skill_id: skill.id, outcome: 'demonstrated', quotes: ['this cup'], rationale: `Evidence for ${skill.label}` })) } }]
+  earned.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'this cup', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: skills.map(skill => ({ skill_id: skill.id, outcome: 'demonstrated', quotes: ['this cup'], rationale: `Evidence for ${skill.label}` })) } }]
   earned.profile.credits = skills.map(skill => ({ attempt_id: 'a', skill_id: skill.id, xp: 10 }))
   skills.forEach(skill => { earned.profile.skills.find(item => item.skill_id === skill.id)!.xp = 10 })
   earned.profile.xp = 20

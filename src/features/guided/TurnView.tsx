@@ -19,6 +19,8 @@ import { groupSentences, splitSentences } from '../../domain/language/sentences'
 import { sourceToken } from '../../domain/language/source-token'
 
 export interface TurnShape {
+  turnId?: string
+  replacedBy?: string | null
   userSavedGloss?: import('../../contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
@@ -72,6 +74,7 @@ export interface TurnViewProps {
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
   onRetryGloss?: (operationId: string) => Promise<void>
+  editDisabled?: boolean
   onEditUser?: (turn: TurnShape) => void
 }
 
@@ -98,6 +101,7 @@ export const TurnView = memo(function TurnView({
   onHold,
   onToggleReveal,
   onEditUser,
+  editDisabled,
   onRetryGloss,
 }: TurnViewProps) {
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -264,13 +268,14 @@ export const TurnView = memo(function TurnView({
             : plainEvidence}
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
-          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} onEdit={onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <MessageFeedback id={turn.id} text={turn.user} feedback={turn.coach} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
           </MessageFeedback>
           {onEditUser && (
             <button
               type="button"
               className="edit-btn"
+              disabled={editDisabled}
               title="Edit this message and try again"
               aria-label="Edit this message and try again"
               onClick={(e) => {
@@ -303,7 +308,7 @@ export const TurnView = memo(function TurnView({
           ) : (
             <TargetText text={assistant.reply} />
           )}
-          {turn.user && <PersonaReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={onEditUser ? () => onEditUser(turn) : undefined} />}
+          {turn.user && <PersonaReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
           {assistant.translation && <button type="button" className="message-translate" aria-label="Translate persona message" aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>Translate</button>}
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>

@@ -3,11 +3,11 @@ import type { ChatMessage, ConversationSnapshot } from '../../contracts'
 import { conversationTurns } from './conversation-view'
 
 function message(sequence: number, role: string, text: string, translation: string | null = null): ChatMessage {
-  return { wordGloss: null, glossError: null, glossState: null, glossOperationId: null, sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
+  return { turnId: `turn-${Math.ceil(sequence / 2)}`, replacesTurnId: null, replacedBy: null, wordGloss: null, glossError: null, glossState: null, glossOperationId: null, sequence, role, text, translation, translationState: translation ? 'succeeded' : null, id: `source-${sequence}`, createdAt: '2026-09-10' }
 }
 function snapshot(messages: ChatMessage[]): ConversationSnapshot {
   return {
-    messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
+    revisionSuffixCounts: [], messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
     conversationId: 'conversation', sessionId: 'session', revision: 1, hasOlder: false,
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
   }
@@ -106,4 +106,19 @@ it('projects human reading independently of the reply and rejects another source
   expect(result.assistant).toBeNull()
   human.wordGloss.sourceMessageId = 'different'
   expect(() => conversationTurns(snapshot([human]))).toThrow('Saved word meanings do not belong to this message.')
+})
+
+it('groups by durable identity despite interleaving and retains repeated revision links', () => {
+  const source = snapshot([
+    { ...message(1, 'user', 'Original'), turnId: 'first', replacedBy: 'second' },
+    { ...message(2, 'user', 'Repair'), turnId: 'second', replacesTurnId: 'first', replacedBy: 'third' },
+    { ...message(3, 'assistant', 'Original reply'), turnId: 'first', replacedBy: 'second' },
+    { ...message(4, 'assistant', 'Repair reply'), turnId: 'second', replacesTurnId: 'first', replacedBy: 'third' },
+    { ...message(5, 'user', 'Latest'), turnId: 'third', replacesTurnId: 'second' },
+  ])
+  expect(conversationTurns(source)).toMatchObject([
+    { turnId: 'first', user: 'Original', assistant: { reply: 'Original reply' }, replacedBy: 'second' },
+    { turnId: 'second', user: 'Repair', assistant: { reply: 'Repair reply' }, replacesTurnId: 'first', replacedBy: 'third' },
+    { turnId: 'third', user: 'Latest', replacesTurnId: 'second' },
+  ])
 })

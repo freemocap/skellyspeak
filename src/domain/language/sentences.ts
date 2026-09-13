@@ -3,7 +3,7 @@ import type { GuidedToken } from '../../types'
 // Tokens carry their trailing punctuation ("hoy?"), so a token ending in
 // terminal punctuation closes its sentence. Halfwidth (Latin) and fullwidth
 // (CJK) terminators both count — Chinese uses 。！？.
-const TERMINAL_PUNCT = /[.!?…。！？]$/
+const TERMINAL_PUNCT = /[.!?…。！？؟]$/
 
 export function groupSentences(tokens: GuidedToken[]): GuidedToken[][] {
   const sentences: GuidedToken[][] = [[]]
@@ -20,5 +20,5 @@ export function groupSentences(tokens: GuidedToken[]): GuidedToken[][] {
 // guarantee matching sentence counts, so callers must handle an index with
 // no counterpart; TurnView shows the whole translation in that case.
 export function splitSentences(text: string): string[] {
-  return (text.match(/[^.!?…。！？]+[.!?…。！？]*/g) ?? []).map((s) => s.trim()).filter(Boolean)
+  return (text.match(/[^.!?…。！？؟]+[.!?…。！？؟]*/g) ?? []).map((s) => s.trim()).filter(Boolean)
 }

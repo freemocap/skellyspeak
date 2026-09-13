@@ -63,3 +63,10 @@ describe('splitSentences', () => {
     expect(splitSentences('你好吗？我很好。')).toEqual(['你好吗？', '我很好。'])
   })
 })
+
+ it('splits Arabic questions in both tokens and translation text', () => {
+  expect(groupSentences(['كيف', 'حالك؟', 'أنا', 'بخير.'].map(t)).map((s) => s.map((t) => t.text)))
+    .toEqual([['كيف', 'حالك؟'], ['أنا', 'بخير.']])
+  expect(groupSentences(['كيف', 'حالك', '؟', 'بخير'].map(t))).toHaveLength(2)
+  expect(splitSentences('كيف حالك؟ أنا بخير.')).toEqual(['كيف حالك؟', 'أنا بخير.'])
+})

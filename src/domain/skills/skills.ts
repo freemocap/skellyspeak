@@ -15,7 +15,7 @@ export interface InputEvidence {
   revision: boolean
 }
 export const unreportedInput = (): InputEvidence => ({ modality: 'text', suggestion: false, scaffold: false, revision: false })
-export type SkillOutcome = 'demonstrated' | 'partial' | 'not_demonstrated' | 'not_observed' | 'uncertain'
+export type SkillOutcome = import('../../contracts').Outcome
 export interface SkillJudgment {
   skill_id: string
   outcome: SkillOutcome

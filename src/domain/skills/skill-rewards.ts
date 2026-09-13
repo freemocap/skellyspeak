@@ -10,7 +10,7 @@ export function skillRewards(previous: SkillSnapshot, current: SkillSnapshot, ch
   const rewards: SkillReward[] = []
   for (const record of current.records) {
     requireCatalogVersion(current, record)
-    if (record.chat_id !== chatId || record.status !== 'complete' || record.replaces_message_id !== null || current.profile.choices.excluded_attempts.includes(record.attempt_id)) continue
+    if (record.chat_id !== chatId || record.status !== 'complete' || current.profile.choices.excluded_attempts.includes(record.attempt_id)) continue
     for (const credit of current.profile.credits.filter(item => item.attempt_id === record.attempt_id)) {
       const increase = Math.max(0, credit.xp - (previousCredits.get(`${credit.attempt_id}:${credit.skill_id}`) ?? 0))
       const xp = Math.min(increase, remaining.get(credit.skill_id) ?? 0)

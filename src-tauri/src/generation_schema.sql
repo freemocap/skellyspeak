@@ -1,4 +1,4 @@
--- Shared by fresh workspaces and the explicitly authorized 11 -> 12 upgrade.
+-- Generation receipt DDL composed into fresh v13 workspaces.
 -- Request/proposal text and credentials never belong in these inference receipts.
 CREATE TABLE persona_generation_attempts (
     id TEXT PRIMARY KEY,

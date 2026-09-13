@@ -1,9 +1,10 @@
+import { SKILL_CATALOG_VERSION } from '../../contracts'
 import { expect, it } from 'vitest'
 import { skillRewards } from './skill-rewards'
 import { skillDemo } from './skillDemo'
 import { conversationEvidence, unreportedInput, type SkillRecord } from './skills'
 
-const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: 4, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }
+const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }
 function completed() {
   const snapshot = structuredClone(skillDemo)
   snapshot.records = [structuredClone(record)]
@@ -18,7 +19,7 @@ it('connects a new credit to the message, phrase, skill and actual catalog domai
   pending.records = [{ ...record, status: 'pending', assessment: null }]
   expect(skillRewards(pending, completed(), 'chat')).toHaveLength(1)
 })
-it('does not celebrate repeat snapshots, other chats, failed reviews, edits or profile changes', () => {
+it('does not celebrate repeat snapshots, other chats, failed reviews or profile changes', () => {
   const snapshot = completed()
   expect(skillRewards(snapshot, snapshot, 'chat')).toEqual([])
   expect(skillRewards(skillDemo, snapshot, 'other')).toEqual([])
@@ -27,9 +28,6 @@ it('does not celebrate repeat snapshots, other chats, failed reviews, edits or p
     expect(skillRewards(skillDemo, snapshot, 'chat')).toEqual([])
   }
   snapshot.records[0].status = 'complete'
-  snapshot.records[0].replaces_message_id = 99
-  expect(skillRewards(skillDemo, snapshot, 'chat')).toEqual([])
-  snapshot.records[0].replaces_message_id = null
   snapshot.profile.choices.revision++
   expect(skillRewards(skillDemo, snapshot, 'chat')).toEqual([])
 })
@@ -58,4 +56,26 @@ it('conversation XP attributes only its existing credits and preserves the langu
   expect(scoped.profile.skills.find(item => item.skill_id === 'referent')).toMatchObject({ xp: 2, assisted: 1, successes: 0 })
   expect(all.profile.xp).toBe(12)
   expect(conversationEvidence(all, 'empty').profile.xp).toBe(0)
+})
+
+it('celebrates native assisted revision credit only to its positive net increase', () => {
+  const current = completed()
+  current.records[0].replaces_message_id = 99
+  current.records[0].input.revision = true
+  current.profile.credits[0].xp = 2
+  current.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 2
+  current.profile.xp = 2
+  expect(skillRewards(skillDemo, current, 'chat')).toMatchObject([{ xp: 2, messageId: 1 }])
+  const previous = structuredClone(skillDemo)
+  previous.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 1
+  expect(skillRewards(previous, current, 'chat')).toMatchObject([{ xp: 1 }])
+  previous.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 10
+  expect(skillRewards(previous, current, 'chat')).toEqual([])
+  expect(skillRewards(current, structuredClone(current), 'chat')).toEqual([])
+  current.profile.choices.excluded_attempts.push('a')
+  expect(skillRewards(skillDemo, current, 'chat')).toEqual([])
+  current.profile.choices.excluded_attempts = []
+  // Native wording deduplication supplies no credit; the presenter invents none.
+  current.profile.credits = []
+  expect(skillRewards(skillDemo, current, 'chat')).toEqual([])
 })

@@ -97,3 +97,23 @@ The chat header omits the visible Learning label; the target selector retains it
 accessible name. Target language, difficulty and partner share a single grid row,
 with the largest share reserved for the partner. Saving status remains announced
 without consuming a selector column.
+
+## Self-repair — wave-one source
+
+Edit & try again prefills the composer and submits a native revision using the
+exchange's durable identity. The latest exchange needs no removal confirmation;
+an earlier edit names the later conversation and private-coach turns it removes.
+A stale snapshot or pending reply rejects the action explicitly and retains the
+draft. Delayed responses cannot overwrite another conversation's composer.
+
+The revised exchange is active. Earlier version is a collapsed inspection view of
+the exact retained learner and partner wording, with explicit bounded loading when
+history spans pages. Replaced exchanges do not feed current suggestions or automatic
+speech. Revision rewards use only newly credited native XP, with assistance and
+deduplication preserved; richer coaching policy and reward tiers remain later waves.
+
+GuidedPage and history tests cover the real handlers with native contract fixtures.
+The isolated revision surfaces were inspected at desktop and narrow browser sizes,
+including confirmation and Escape dismissal. This is not a full native/device or
+live-provider verification. Current combined results live in
+`workflow/reports/coaching-w1-integration.md`.

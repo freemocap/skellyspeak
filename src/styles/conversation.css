@@ -1013,3 +1013,16 @@
 }
 
 .saved-word-help > span { display: block; }
+
+.earlier-versions {
+  margin: 8px 0 16px;
+  padding: 8px;
+  border: var(--border-width) solid var(--paper-line);
+  border-radius: var(--radius-xs);
+  color: var(--paper-ink);
+}
+
+.earlier-versions > summary {
+  cursor: pointer;
+  padding: 8px;
+}

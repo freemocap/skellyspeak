@@ -73,6 +73,9 @@ export interface PersonaReaction {
 /// GuidedPage is this plus `pendingText`, the streaming buffer, which is
 /// transient by definition and never written to disk.
 export interface StoredTurn {
+  turnId?: string
+  replacesTurnId?: string | null
+  replacedBy?: string | null
   userSavedGloss?: import('./contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null

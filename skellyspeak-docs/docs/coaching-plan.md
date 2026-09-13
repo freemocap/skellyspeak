@@ -283,7 +283,7 @@ Revisions are **credited, weighted by support step**; they're not excluded. Fixi
 | **Fixed note** | "Fixed: *kitābu ṭ-ṭālibi*: article only on the second noun." | names the rule |
 | **Session review** | table of constructs used (quotes), repairs, open items; ≤3 notes; "set next goal?" | dense, mechanical (AGENTS.md) |
 | **Skills / profile** | per lens: construct, rating ± uncertainty, last seen, due, n; click → quotes and revisions; filter by language, variety, partner | open learner model |
-| **Seven-domain map / flower** | reads the same `ConstructState` through the `functional` navigation view | a renderer never changes scores (UI-SURFACES.md) |
+| **Domain map / flower** | reads evidence-caused XP through the chosen navigation view; profile proficiency reads `ConstructState` separately | a renderer never changes scores; XP is not proficiency (§11.5) |
 
 ## 10. New-chat start
 
@@ -630,4 +630,3 @@ The canonical list is `references.bib` (section 12). This table is a reading cop
 | `ryding2005` | Ryding, A Reference Grammar of Modern Standard Arabic (2005). *needs review* |
 
 Several sources were checked through abstracts and summaries only. Confirm against the full text before a rule is marked `reviewed`.
-

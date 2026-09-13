@@ -117,10 +117,46 @@ The script updates the Cargo versions, commits, tags and pushes. It refuses an
 existing tag. Merging alone does not publish.
 
 The tag starts the Release workflow: checks, signed desktop installers and updater
-artifacts, and signed Android APK/AAB. Publication as Latest requires all of those
-jobs to succeed. Android PR CI also builds a debug ARM64 APK without release secrets.
+artifacts, signed Android APK/AAB, and an App Store distribution-signed iOS IPA.
+Publication as Latest requires all of those jobs to succeed and verifies the IPA
+attachment exists. PR CI also builds an Android debug ARM64 APK and an unsigned
+iOS simulator app without release secrets.
 The website rebuilds after a successful release and its download page selects the
 current stable APK for Android visitors.
+
+### iOS release artifact
+
+Download `SkellySpeak_X.Y.Z.ipa` from the GitHub release for manual upload to App
+Store Connect using Transporter. The same verified file is retained for 14 days
+as the Release run's `ios-ipa` Actions artifact. The workflow builds and attaches
+the file; it does not upload to Apple or submit an App Store review.
+
+The iOS job uses the existing repository secrets `IOS_CERTIFICATE_P12` (base64
+distribution certificate with private key), `IOS_CERTIFICATE_PASSWORD`, and
+`IOS_PROVISION_PROFILE` (base64 App Store provisioning profile). The certificate
+and profile must belong to team `U8LBJLBYPR` and application
+`com.freemocap.skellyspeak`. Missing credentials, expired/wrong profiles, signing
+failures and missing or misversioned artifacts fail the release. Signing material
+is staged in a temporary keychain and removed with an always-run cleanup step.
+
+Cargo supplies the marketing version. `CFBundleVersion` is the Release workflow's
+run number plus attempt (`123.2`), so rerunning a failed job gives a fresh build
+number. Export preserves both values, and the final IPA is checked for both.
+The helper rejects run numbers above 9999 or attempts above 99; revising that
+scheme would require a deliberate change before reaching either limit.
+
+Recovery status: v1.1.1 was published without an IPA because the refactor moved
+the iOS workflows into `old/`. The integrated replacement has local helper tests,
+workflow lint and icon verification; its first GitHub signed build and App Store
+Connect acceptance remain unverified. Include these source changes in the next
+user-created release. Rerunning the original v1.1.1 workflow cannot pick up this
+fix, and the release workflow intentionally refuses to overwrite a published release.
+
+Build/sign/export follows Tauri's App Store distribution contract
+[@tauriIosSigning]. The explicit Xcode signing settings and `ExportOptions.plist`
+avoid the documented Tauri provisioning-profile reader problem
+[@tauriIosExport15741]. See [the iOS recovery report](workflow/reports/ios-release-recovery.md)
+for verification scope and the reference review.
 
 Desktop release builds install signed updates through the app. Android opens
 https://docs.freemocap.org/skellyspeak/download for APK installation. Debug builds
@@ -217,6 +253,8 @@ npm test
 npm run build
 npm run contracts:check
 npm run styles:check
+npm run ios:check
+npm run ios:test
 cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --lib --tests -- -D warnings
 cargo test --manifest-path src-tauri/Cargo.toml --lib
