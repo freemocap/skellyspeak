@@ -427,20 +427,23 @@ pub async fn check_access(
     ))
 }
 
-pub async fn transcribe(
-    client: &reqwest::Client,
+#[derive(Debug)]
+pub struct TranscriptionResponse {
+    pub text: String,
+    pub verbose: Option<crate::fluency::VerboseTranscript>,
+}
+fn transcription_form(
     target: &ResolvedTarget,
-    key: &str,
     wav: Vec<u8>,
     language: &str,
-    install: &str,
-) -> Result<String> {
-    if wav.is_empty() || wav.len() > 25 * 1024 * 1024 {
-        return Err(error("Recording must contain audio and be at most 25 MB."));
-    }
-    let form = reqwest::multipart::Form::new()
+) -> Result<reqwest::multipart::Form> {
+    let verbose = target.route == ConnectionRoute::Openrouter;
+    let mut form = reqwest::multipart::Form::new()
         .text("model", target.model.clone())
-        .text("response_format", "json")
+        .text(
+            "response_format",
+            if verbose { "verbose_json" } else { "json" },
+        )
         .text("language", language.to_owned())
         .part(
             "file",
@@ -449,6 +452,52 @@ pub async fn transcribe(
                 .mime_str("audio/wav")
                 .map_err(|_| error("Invalid audio type."))?,
         );
+    if verbose {
+        form = form
+            .text("timestamp_granularities[]", "word")
+            .text("timestamp_granularities[]", "segment");
+    }
+    Ok(form)
+}
+fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionResponse> {
+    let unknown = || {
+        AppError::new(
+            ErrorCode::UnknownOutcome,
+            "Endpoint returned an invalid transcription response. Processing may have incurred a charge; no automatic retry was made.",
+        )
+    };
+    let (text, verbose) = if verbose {
+        let raw = std::str::from_utf8(bytes).map_err(|_| unknown())?;
+        let parsed = crate::fluency::parse_verbose_json(raw).map_err(|_| unknown())?;
+        (parsed.text.clone(), Some(parsed))
+    } else {
+        #[derive(Deserialize)]
+        struct Transcript {
+            text: String,
+        }
+        let parsed: Transcript = serde_json::from_slice(bytes).map_err(|_| unknown())?;
+        (parsed.text, None)
+    };
+    if text.trim().is_empty() {
+        return Err(error("No speech was recognized. Try another recording."));
+    }
+    if text.chars().count() > 20000 || text.contains('\0') {
+        return Err(error("Transcription exceeds the message limits."));
+    }
+    Ok(TranscriptionResponse { text, verbose })
+}
+pub async fn transcribe(
+    client: &reqwest::Client,
+    target: &ResolvedTarget,
+    key: &str,
+    wav: Vec<u8>,
+    language: &str,
+    install: &str,
+) -> Result<TranscriptionResponse> {
+    if wav.is_empty() || wav.len() > 25 * 1024 * 1024 {
+        return Err(error("Recording must contain audio and be at most 25 MB."));
+    }
+    let form = transcription_form(target, wav, language)?;
     let request = client.post(&target.url);
     let request = if key.is_empty() {
         request
@@ -469,7 +518,7 @@ pub async fn transcribe(
     let bytes = if target.route == ConnectionRoute::Hosted {
         hosted::body(response).await
     } else {
-        response_bytes(response, "Transcription", 131072).await
+        response_bytes(response, "Transcription", 1_048_576).await
     }
     .map_err(|mut error| {
         if !status.is_client_error() {
@@ -477,19 +526,7 @@ pub async fn transcribe(
         }
         error
     })?;
-    #[derive(Deserialize)]
-    struct Transcript {
-        text: String,
-    }
-    let transcript: Transcript = serde_json::from_slice(&bytes)
-        .map_err(|_| AppError::new(ErrorCode::UnknownOutcome, "Endpoint returned an invalid transcription response. Processing may have incurred a charge; no automatic retry was made."))?;
-    if transcript.text.trim().is_empty() {
-        return Err(error("No speech was recognized. Try another recording."));
-    }
-    if transcript.text.chars().count() > 20000 || transcript.text.contains('\0') {
-        return Err(error("Transcription exceeds the message limits."));
-    }
-    Ok(transcript.text)
+    transcription_response(&bytes, target.route == ConnectionRoute::Openrouter)
 }
 
 #[cfg(test)]
@@ -813,6 +850,8 @@ mod tests {
             ] {
                 assert!(body.contains(expected), "{expected}");
             }
+            assert!(body.contains("name=\"response_format\"\r\n\r\njson"));
+            assert!(!body.contains("timestamp_granularities"));
             let body = r#"{"text":"Hola, ¿cómo estás?"}"#;
             write!(
                 stream,
@@ -838,7 +877,93 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(result, "Hola, ¿cómo estás?");
+        assert_eq!(result.text, "Hola, ¿cómo estás?");
+        assert!(result.verbose.is_none());
         worker.join().unwrap();
+    }
+    #[tokio::test]
+    async fn transcription_routes_explicitly_select_verbose_or_json_without_fallback() {
+        use std::io::{Read, Write};
+        for route in [ConnectionRoute::Openrouter, ConnectionRoute::Hosted] {
+            let verbose = route == ConnectionRoute::Openrouter;
+            let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+            let url = format!(
+                "http://{}/audio/transcriptions",
+                listener.local_addr().unwrap()
+            );
+            let worker = std::thread::spawn(move || {
+                let (mut stream, _) = listener.accept().unwrap();
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(5)))
+                    .unwrap();
+                let mut bytes = vec![];
+                let mut buffer = [0; 4096];
+                let end = loop {
+                    let count = stream.read(&mut buffer).unwrap();
+                    assert!(count > 0);
+                    bytes.extend_from_slice(&buffer[..count]);
+                    if let Some(i) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
+                        break i + 4;
+                    }
+                };
+                let headers = String::from_utf8_lossy(&bytes[..end]).to_lowercase();
+                let size: usize = headers
+                    .lines()
+                    .find_map(|l| l.strip_prefix("content-length:"))
+                    .unwrap()
+                    .trim()
+                    .parse()
+                    .unwrap();
+                while bytes.len() < end + size {
+                    let count = stream.read(&mut buffer).unwrap();
+                    assert!(count > 0);
+                    bytes.extend_from_slice(&buffer[..count]);
+                }
+                let body = String::from_utf8_lossy(&bytes[end..]);
+                if verbose {
+                    assert!(body.contains("name=\"response_format\"\r\n\r\nverbose_json"));
+                    for value in ["word", "segment"] {
+                        assert!(body.contains(&format!(
+                            "name=\"timestamp_granularities[]\"\r\n\r\n{value}"
+                        )));
+                    }
+                } else {
+                    assert!(body.contains("name=\"response_format\"\r\n\r\njson"));
+                    assert!(!body.contains("timestamp_granularities"));
+                }
+                let response = if verbose {
+                    r#"{"text":"Hola","duration":1,"words":[{"word":"Hola","start":0,"end":0.5}],"segments":[{"id":0,"start":0,"end":0.5,"text":"Hola","avg_logprob":-0.5,"no_speech_prob":0.1}],"x_groq":{"id":"metadata"}}"#
+                } else {
+                    r#"{"text":"Hola"}"#
+                };
+                write!(
+                    stream,
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{response}",
+                    response.len()
+                )
+                .unwrap();
+            });
+            let target = ResolvedTarget {
+                route,
+                revision: 1,
+                url,
+                model: "fixture".into(),
+                credential: None,
+            };
+            let response = transcribe(
+                &provider::client().unwrap(),
+                &target,
+                "",
+                b"RIFF-test".to_vec(),
+                "es",
+                "fixture-install",
+            )
+            .await
+            .unwrap();
+            assert_eq!(response.text, "Hola");
+            assert_eq!(response.verbose.is_some(), verbose);
+            worker.join().unwrap();
+        }
+        assert!(transcription_response(br#"{"text":"Hola"}"#, true).is_err());
     }
 }

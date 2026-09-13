@@ -24,7 +24,7 @@ def verify_decoder() -> None:
 @dataclass(frozen=True)
 class AudioInput:
     pcm: bytes
-    fields: dict[str, str]
+    fields: dict[str, str | list[str]]
     cost_micros: int
 
 
@@ -37,23 +37,32 @@ def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
     if not message.is_multipart() or message.defects:
         raise HTTPException(status_code=400, detail="Malformed multipart audio upload.")
     values: dict[str, bytes] = {}
+    granularities: list[str] = []
     for part in message.iter_parts():
         name = part.get_param("name", header="content-disposition")
-        if name not in {"file", "model", "language", "prompt", "response_format"} or name in values:
+        if name not in {"file", "model", "language", "prompt", "response_format", "timestamp_granularities[]"} or name in values:
             raise HTTPException(status_code=400, detail="Unknown or duplicate audio field.")
         value = part.get_payload(decode=True)
         if not isinstance(value, bytes) or part.defects or part.is_multipart():
             raise HTTPException(status_code=400, detail="Malformed audio field.")
         if name != "file" and len(value) > 4096:
             raise HTTPException(status_code=400, detail="Audio metadata is too long.")
+        if name == "timestamp_granularities[]":
+            if value not in {b"word", b"segment"} or value.decode() in granularities:
+                raise HTTPException(status_code=400, detail="Timestamp granularities must be unique word or segment values.")
+            granularities.append(value.decode())
+            continue
         values[str(name)] = value
     audio = values.pop("file", b"")
     try:
         fields = {key: value.decode("utf-8", errors="strict") for key, value in values.items()}
     except UnicodeError as exc:
         raise HTTPException(status_code=400, detail="Audio metadata must be UTF-8.") from exc
-    if fields.get("model") != "whisper-large-v3" or fields.get("response_format") != "json":
-        raise HTTPException(status_code=400, detail="Only whisper-large-v3 JSON transcription is supported.")
+    if fields.get("model") != "whisper-large-v3" or fields.get("response_format") not in {"json", "verbose_json"}:
+        raise HTTPException(status_code=400, detail="Only whisper-large-v3 json or verbose_json transcription is supported.")
+    # [@groq_transcription_api] Repeated multipart fields carry both granularities.
+    if granularities and fields.get("response_format") != "verbose_json":
+        raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")
     if not re.fullmatch(r"[a-z]{2}", fields.get("language", "")):
         raise HTTPException(status_code=400, detail="A two-letter audio language is required.")
     if audio.startswith(b"RIFF") and audio[8:12] == b"WAVE":
@@ -84,6 +93,6 @@ def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
     if duration <= 0 or duration > MAX_SECONDS:
         raise HTTPException(status_code=400, detail=f"Recording must contain 0–{MAX_SECONDS} seconds of audio.")
     return AudioInput(
-        pcm=pcm, fields=fields,
+        pcm=pcm, fields={**fields, **({"timestamp_granularities[]": granularities} if granularities else {})},
         cost_micros=math.ceil(max(10, math.ceil(duration)) * MICROS_PER_HOUR / 3600),
     )

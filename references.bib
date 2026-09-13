@@ -189,6 +189,13 @@
   review = {abstract}, claim = {LLM tutors give fluent feedback; humans remain better at accurate error identification.}, used-by = {human-labelled eval set}
 }
 
+@misc{groq_transcription_api,
+  author = {{Groq}}, title = {Speech transcription API reference}, year = {2026},
+  url = {https://console.groq.com/docs/api-reference},
+  review = {full-text}, review-notes = {Transcription request-parameter section reviewed 2026-09-13; no live provider validation.}, claim = {Transcription supports verbose_json and repeated timestamp_granularities[] values word and segment; word timestamps add latency.},
+  used-by = {server/audio_input.py; fluency timing transport foundation}
+}
+
 @inproceedings{koenecke2024,
   author = {Koenecke, Allison and Choi, Anna Seo Gyeong and Mei, Katelyn X. and Schellmann, Hilke and Sloane, Mona}, title = {Careless Whisper: Speech-to-Text Hallucination Harms},
   booktitle = {Proceedings of ACM FAccT}, year = {2024}, doi = {10.1145/3630106.3658996},

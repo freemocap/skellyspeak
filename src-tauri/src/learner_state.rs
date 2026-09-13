@@ -217,20 +217,59 @@ pub fn snapshot(store: &Store, target: &str, at: i64) -> Result<LearnerState> {
         at,
     )
 }
+/// Partner selection is resolved from durable conversation ownership before the
+/// estimator sees records. Global effort totals and choices remain language-wide.
+fn profile(store: &Store, target: &str, persona_id: Option<&str>, at: i64) -> Result<Value> {
+    let mut evidence = crate::progression::snapshot(store, target)?;
+    let learner = string(&evidence, "learner_id")?;
+    let partners=store.connection.prepare("SELECT p.id,json_extract(p.details,'$.name'),r.archived FROM personas p JOIN contacts r ON r.persona_id=p.id AND r.learner_id=p.learner_id WHERE p.language_id=?1 AND p.learner_id=?2 AND EXISTS(SELECT 1 FROM conversations c WHERE c.contact_id=r.id AND c.language_id=?1) ORDER BY p.id")?.query_map(rusqlite::params![target,learner],|r|Ok(serde_json::json!({"personaId":r.get::<_,String>(0)?,"name":r.get::<_,String>(1)?,"archived":r.get::<_,bool>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    if let Some(persona) = persona_id {
+        if !partners.iter().any(|p| p["personaId"] == persona) {
+            return Err(invalid(
+                "The selected partner does not belong to this learner and language, or has no retained conversations.",
+            ));
+        }
+        let chats=store.connection.prepare("SELECT c.id FROM conversations c JOIN contacts r ON r.id=c.contact_id WHERE r.persona_id=?1 AND r.learner_id=?2 AND c.language_id=?3")?.query_map(rusqlite::params![persona,learner,target],|r|r.get::<_,String>(0))?.collect::<rusqlite::Result<BTreeSet<_>>>()?;
+        let records = evidence["records"]
+            .as_array_mut()
+            .ok_or_else(|| invalid("Missing learner observations."))?;
+        let mut scoped = Vec::new();
+        for record in records.drain(..) {
+            if chats.contains(string(&record, "chat_id")?) {
+                scoped.push(record);
+            }
+        }
+        *records = scoped;
+    }
+    let model = fold(&store.config, &evidence, at)?;
+    let lenses: BTreeMap<_, _> = store
+        .config
+        .constructs()
+        .iter()
+        .filter(|c| {
+            c.language
+                .as_deref()
+                .is_none_or(|language| language == target)
+        })
+        .map(|c| (c.id.clone(), c.lens.clone()))
+        .collect();
+    Ok(
+        serde_json::json!({"evidence":evidence,"model":model,"partners":partners,"scope":{"languageId":target,"personaId":persona_id},"constructLenses":lenses}),
+    )
+}
 /// Evidence and estimates share one locked read so exclusions cannot race the UI.
 #[tauri::command]
 pub(crate) fn get_learner_profile(
     state: tauri::State<'_, Arc<crate::Application>>,
     target: String,
+    persona_id: Option<String>,
 ) -> Result<Value> {
     let at = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map_err(|_| invalid("System clock precedes epoch."))?
         .as_secs() as i64;
     let store = state.lock()?;
-    let evidence = crate::progression::snapshot(&store, &target)?;
-    let model = fold(&store.config, &evidence, at)?;
-    Ok(serde_json::json!({"evidence": evidence, "model": model}))
+    profile(&store, &target, persona_id.as_deref(), at)
 }
 #[tauri::command]
 pub(crate) fn get_learner_state(
@@ -414,5 +453,142 @@ mod tests {
         let state = fold(&r, &data, 10).unwrap();
         assert_eq!(state.constructs.len(), 2);
         assert!(state.constructs.iter().all(|s| s.n == 1));
+    }
+    fn partner_fixture() -> (tempfile::TempDir, Store, String, String) {
+        let dir = tempfile::tempdir().unwrap();
+        let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        store.prepare_chat().unwrap();
+        let snapshot = store.snapshot().unwrap();
+        let conversation = snapshot.conversations[0].id.clone();
+        let persona = snapshot.personas[0].id.clone();
+        store.connection.execute("INSERT INTO personas SELECT 'second-persona',learner_id,language_id,1,details FROM personas WHERE id=?1",[&persona]).unwrap();
+        store.connection.execute("INSERT INTO contacts SELECT 'second-contact',learner_id,'second-persona',0,1 FROM contacts WHERE persona_id=?1",[&persona]).unwrap();
+        store.connection.execute("INSERT INTO conversations(id,contact_id,language_id,title,archived,revision,last_used) VALUES('second-chat','second-contact','es','Second',0,1,0)",[]).unwrap();
+        for (turn, chat, source, outcome) in [
+            (
+                "first-turn",
+                conversation.as_str(),
+                "¿Dónde está la estación?",
+                "demonstrated",
+            ),
+            (
+                "second-turn",
+                "second-chat",
+                "¿Dónde estación?",
+                "not_demonstrated",
+            ),
+        ] {
+            let context = json!({"constructRegistryHash":crate::coaching::construct_hash(&store.config),"catalogVersion":crate::coaching::version_for(&store.config),"translationLanguage":"en","practiceSettings":{"varietyId":"es-ES"},"input":{},"coachObservationAttempt":turn,"coachObservation":{"meaning_recovered":"full","items":[{"construct":"question","quote":source,"outcome":outcome,"error":null,"rationale":"Fixture observation."}]}});
+            store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','custom','fixture',?3)",rusqlite::params![turn,chat,context.to_string()]).unwrap();
+            store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text,created_at) VALUES(?1,?2,?1,1,'user',?3,'2020-01-01T00:00:00Z')",rusqlite::params![turn,chat,source]).unwrap();
+            store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?1,'coach_feedback','succeeded')",[turn]).unwrap();
+        }
+        (dir, store, persona, conversation)
+    }
+    #[test]
+    fn partner_scope_filters_sources_before_fold_and_leaves_global_exports_unchanged() {
+        let (_dir, store, persona, chat) = partner_fixture();
+        let at = 2_000_000_000;
+        let export_before = serde_yaml_ng::to_string(&snapshot(&store, "es", at).unwrap()).unwrap();
+        let all = profile(&store, "es", None, at).unwrap();
+        let first = profile(&store, "es", Some(&persona), at).unwrap();
+        let second = profile(&store, "es", Some("second-persona"), at).unwrap();
+        assert_eq!(all["model"]["constructs"][0]["n"], 2);
+        assert_eq!(first["model"]["constructs"][0]["n"], 1);
+        assert_eq!(second["model"]["constructs"][0]["n"], 1);
+        assert!(first["model"]["constructs"][0]["rating"].as_f64().unwrap() > 0.0);
+        assert!(second["model"]["constructs"][0]["rating"].as_f64().unwrap() < 0.0);
+        assert_eq!(
+            first["model"]["constructs"][0]["evidenceAttemptIds"],
+            json!(["first-turn"])
+        );
+        assert_eq!(first["evidence"]["records"][0]["chat_id"], chat);
+        assert_eq!(
+            first["model"]["observations"][0]["source"],
+            "¿Dónde está la estación?"
+        );
+        assert_eq!(
+            second["model"]["observations"][0]["source"],
+            "¿Dónde estación?"
+        );
+        assert_eq!(first["evidence"]["profile"], all["evidence"]["profile"]);
+        assert_eq!(all["partners"].as_array().unwrap().len(), 2);
+        assert_eq!(
+            first["scope"],
+            json!({"languageId":"es","personaId":persona})
+        );
+        assert_eq!(all["scope"]["personaId"], Value::Null);
+        assert_eq!(
+            first["constructLenses"]["question"],
+            store.config.construct("question").unwrap().lens
+        );
+        assert!(first["constructLenses"].get("ar.idafa").is_none());
+        assert_eq!(
+            serde_yaml_ng::to_string(&snapshot(&store, "es", at).unwrap()).unwrap(),
+            export_before
+        );
+        assert_eq!(
+            all["model"],
+            serde_json::to_value(snapshot(&store, "es", at).unwrap()).unwrap()
+        );
+    }
+    #[test]
+    fn partner_exclusion_restore_and_archival_preserve_identity() {
+        let (_dir, store, persona, _) = partner_fixture();
+        let at = 2_000_000_000;
+        let initial = profile(&store, "es", Some(&persona), at).unwrap();
+        store.connection.execute("INSERT INTO skill_choices(language_id,revision,focus,excluded) VALUES('es',1,NULL,'[\"first-turn\"]')",[]).unwrap();
+        let excluded = profile(&store, "es", Some(&persona), at).unwrap();
+        assert!(
+            excluded["model"]["constructs"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            excluded["model"]["observations"].as_array().unwrap().len(),
+            1
+        );
+        assert_eq!(
+            profile(&store, "es", Some("second-persona"), at).unwrap()["model"]["constructs"][0]["n"],
+            1
+        );
+        store
+            .connection
+            .execute("UPDATE skill_choices SET excluded='[]',revision=2", [])
+            .unwrap();
+        store
+            .connection
+            .execute(
+                "UPDATE contacts SET archived=1 WHERE persona_id=?1",
+                [&persona],
+            )
+            .unwrap();
+        store.connection.execute("UPDATE personas SET details=json_set(details,'$.name','Renamed partner') WHERE id=?1",[&persona]).unwrap();
+        let restored = profile(&store, "es", Some(&persona), at).unwrap();
+        assert_eq!(
+            restored["model"]["constructs"],
+            initial["model"]["constructs"]
+        );
+        let selected = restored["partners"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["personaId"] == persona)
+            .unwrap();
+        assert_eq!(selected["name"], "Renamed partner");
+        assert_eq!(selected["archived"], true);
+    }
+    #[test]
+    fn invalid_partner_or_language_fails_instead_of_showing_global_estimates() {
+        let (_dir, store, persona, _) = partner_fixture();
+        for (language, selected) in [
+            ("es", "missing"),
+            ("es", ""),
+            ("ar", persona.as_str()),
+            ("missing", persona.as_str()),
+        ] {
+            assert!(profile(&store, language, Some(selected), 2_000_000_000).is_err());
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { TranscriptionInspector } from './TranscriptionInspector'
 import { ConversationExport } from './ConversationExport'
 import { PracticeDivider } from './PracticeDivider'
 import { LiveCoachReview } from './LiveCoachReview'
@@ -275,6 +276,8 @@ export default function GuidedPage({
 
   const isMobile = useIsMobile()
   const [exportOpen, setExportOpen] = useState(false)
+  const [inspectionOpen, setInspectionOpen] = useState(false)
+  useEffect(() => setInspectionOpen(false), [currentChatId, active])
   const [analysisOpen, setAnalysisOpen] = useState(false)
   useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
 
@@ -473,6 +476,7 @@ export default function GuidedPage({
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
+          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>Inspect recording</button>}
           {<ComposerHelp
             onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
               await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
@@ -680,6 +684,7 @@ export default function GuidedPage({
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
+      {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
       {revisionConfirmation && <DetailDialog title="Revise earlier message" onClose={() => setRevisionConfirmation(null)}>
         <p>This revision removes {revisionConfirmation.exchangeCount} later conversation turns and {revisionConfirmation.coachTurnCount} private coach turns. Your edited message replaces the original in this conversation.</p>
         <div className="lesson-actions">

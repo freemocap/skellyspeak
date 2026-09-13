@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/native'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from '../../domain/audio/browser-recording'
-import type { RecordingStarted } from '../../contracts'
+import type { RecordingStarted, TranscriptionInspectionResult } from '../../contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 interface MicRecorderOptions {
@@ -12,6 +12,7 @@ interface MicRecorderOptions {
 
 /** Recording is native-owned and bound to its conversation. Only explicit Stop transcribes. */
 export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOptions) {
+  const [lastTranscription, setLastTranscription] = useState<TranscriptionInspectionResult | null>(null)
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [waveSource, setWaveSource] = useState<WaveSource | null>(null)
@@ -40,7 +41,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
       if (recordingId) void invoke('mic_cancel', { recordingId }).catch(error => reportFault('Stopping the microphone', error))
     }
   }, [conversationId])
-  useEffect(() => { setRecording(false); setWaveSource(null) }, [conversationId])
+  useEffect(() => { setRecording(false); setWaveSource(null); setLastTranscription(null) }, [conversationId])
 
   // Drain native samples once into the copied time-axis renderer.
   useEffect(() => {
@@ -74,8 +75,13 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
         try { audioBase64 = await capture?.finish() }
         catch (error) { await invoke('mic_cancel', { recordingId }); throw error }
         if (generation.current !== scope) { await invoke('mic_cancel', { recordingId }); return }
-        const text = await invoke<string>('mic_transcribe', { recordingId, ...(audioBase64 ? { audioBase64 } : {}) })
-        if (generation.current === scope && text.trim()) callback.current(text)
+        const result = await invoke<TranscriptionInspectionResult>('mic_transcribe', { recordingId, ...(audioBase64 ? { audioBase64 } : {}) })
+        if (generation.current !== scope) return
+        if (result.inspection.recordingId !== recordingId || result.inspection.conversationId !== conversationId) {
+          throw new Error('Recording inspection belongs to a different recording or conversation.')
+        }
+        setLastTranscription(result)
+        if (result.text.trim()) callback.current(result.text)
       } else {
         if (!conversationId) throw new Error('Open a conversation before recording.')
         const { recordingId, samplesPerSecond } = await invoke<RecordingStarted>('mic_start', { conversationId })
@@ -103,5 +109,5 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
     finally { working.current = false; setTranscribing(false) }
   }, [conversationId, cancel])
 
-  return { recording, transcribing, waveSource, toggleMic, cancel }
+  return { recording, transcribing, waveSource, lastTranscription: lastTranscription?.inspection.conversationId === conversationId ? lastTranscription : null, toggleMic, cancel }
 }

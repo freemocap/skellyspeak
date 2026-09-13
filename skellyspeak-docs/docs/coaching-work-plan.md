@@ -130,8 +130,16 @@ work. First structural slice: editable estimator policy, deterministic construct
 state projection, and native learner-state read/YAML-export commands. Reward policy, persisted XP events and at-most-once display claims are now
 implemented. The first profile view now exposes construct estimates, variety filters,
 source inspection and reversible exclusions (see `workflow/reports/coaching-w3-profile.md`).
-Fluency, lens/partner profile summaries, openers, session review and remaining
+The next profile slice adds registry-lens grouping and partner-scoped estimates;
+verification is recorded in `workflow/reports/coaching-w3-partner-profile.md`.
+Fluency, calibrated per-lens assessments, openers, session review and remaining
 reward causes/effects remain planned. See `workflow/reports/coaching-w3-foundation.md`.
+
+The fluency foundation is being built separately from live recording integration:
+strict timestamp parsing, local signal analysis/alignment and hosted multipart
+field support. Status and the required transcript-ownership seam are recorded in
+`workflow/reports/coaching-w3-fluency-foundation.md`. Source support does not imply
+deployed service support or learner-visible fluency measurements.
 
 | A | B | C |
 |---|---|---|

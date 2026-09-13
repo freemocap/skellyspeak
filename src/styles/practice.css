@@ -567,3 +567,47 @@
 @media (pointer: coarse) {
   .yaml-export label, .yaml-export button { min-height: var(--touch-target); }
 }
+
+.learner-model-lens th { text-align: start; color: var(--accent-ink); background: var(--chrome); font-weight: var(--weight-semibold); }
+
+.learner-model-export-actions { display: inline-flex; flex-wrap: wrap; gap: var(--space-4); }
+
+
+/* Original recording inspection uses a shared time axis across audio layers. */
+.detail-dialog:has(.transcription-inspector) { width: min(920px, calc(100vw - 32px)); }
+.transcription-inspector { display: grid; gap: 8px; min-width: 0; }
+.transcription-inspector h2, .transcription-inspector h3, .transcription-inspector p { margin: 0; }
+.transcription-inspector h2 { font-size: var(--text-lg); }
+.transcription-inspector h3 { font-size: var(--text-sm); }
+.inspection-transcript { padding: 8px; background: var(--chip); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.inspection-row { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; }
+.inspection-row > h3 { display: flex; flex-direction: column; font-weight: normal; color: var(--shell-text-muted); }
+.inspection-row > h3 span { font-size: var(--text-xs); }
+.inspection-plot { position: relative; min-width: 0; background: var(--spectrogram-low); overflow: hidden; }
+.inspection-wave { display: block; width: 100%; height: 80px; background: var(--quiet); }
+.inspection-wave path { stroke: var(--accent-ink); stroke-width: 1; }
+.inspection-spectrogram { display: block; width: 100%; height: 160px; image-rendering: pixelated; }
+.inspection-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.inspection-word-band { fill: transparent; stroke: var(--spectrogram-high); stroke-width: 1; }
+.inspection-word-selected { fill: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); stroke: var(--spectrogram-high); stroke-width: 3; }
+.inspection-activity { width: 100%; height: 24px; background: var(--quiet); }
+.inspection-activity rect { fill: var(--accent-ink); }
+.inspection-axis { display: flex; justify-content: space-between; width: 100%; min-height: 28px; color: var(--shell-text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
+.inspection-legend, .inspection-word-toggle { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: var(--text-sm); }
+.inspection-heatmap-key { width: 100px; height: 12px; background: linear-gradient(to right, var(--spectrogram-low), var(--spectrogram-mid), var(--spectrogram-high)); }
+.inspection-words { display: flex; flex-wrap: wrap; gap: 4px; }
+.inspection-words button[aria-pressed='true'] { border-color: var(--accent-ink); background: var(--chip); }
+.inspection-word-detail { padding: 8px; border-inline-start: 3px solid var(--accent-ink); background: var(--quiet); }
+.transcription-inspector dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font-size: var(--text-sm); }
+.transcription-inspector dd { margin: 0; }
+.transcription-inspector details { font-size: var(--text-sm); overflow-wrap: anywhere; }
+.inspection-open { align-self: flex-end; font-size: var(--text-sm); }
+@media (max-width: 600px) {
+  .inspection-row { grid-template-columns: 72px minmax(0, 1fr); gap: 4px; }
+  .inspection-row > h3 { font-size: var(--text-xs); }
+  .inspection-spectrogram { height: 120px; }
+}
+
+.inspection-plot-word { position: absolute; top: 4px; max-width: 80%; overflow-wrap: anywhere; padding: 0 4px; background: var(--chip); color: var(--shell-text); font-size: var(--text-sm); border-radius: var(--radius-xs); }
+
+.inspection-row > h3 span:last-child { margin-top: auto; }

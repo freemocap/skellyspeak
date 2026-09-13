@@ -136,6 +136,28 @@ async def test_exhausted_audio_budget_never_decodes(
 
 
 @pytest.mark.asyncio
+async def test_audio_timestamps_survive_upstream_multipart_and_response(proxy, monkeypatch):
+    from email import policy
+    from email.parser import BytesParser
+    from test_contracts import timing_upload
+    import subprocess
+    monkeypatch.setattr(main.audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
+    payload = {"text": "Hola", "duration": 1.0, "words": [{"word": "Hola", "start": 0.1, "end": 0.7}], "segments": []}
+    def respond(sent):
+        message = BytesParser(policy=policy.default).parsebytes(
+            f"Content-Type: {sent.headers['content-type']}\r\nMIME-Version: 1.0\r\n\r\n".encode() + sent.content)
+        fields = [(part.get_param("name", header="content-disposition"), part.get_payload(decode=True)) for part in message.iter_parts()]
+        assert [value for name, value in fields if name == "timestamp_granularities[]"] == [b"word", b"segment"]
+        assert ("response_format", b"verbose_json") in fields
+        return httpx.Response(200, json=payload)
+    upstream(monkeypatch, respond)
+    upload = timing_upload()
+    response = await proxy.post("/v1/audio/transcriptions", content=upload.read(), headers={"Content-Type": upload.headers["content-type"]})
+    assert response.status_code == 200
+    assert response.json() == payload
+
+
+@pytest.mark.asyncio
 async def test_upstream_payment_failure_preserves_safe_status(proxy: httpx.AsyncClient, monkeypatch: pytest.MonkeyPatch) -> None:
     def respond(sent: httpx.Request) -> httpx.Response:
         return httpx.Response(status_code=402, text="PRIVATE_PROVIDER_BODY")

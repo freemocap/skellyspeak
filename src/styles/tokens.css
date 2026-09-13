@@ -27,6 +27,10 @@
    ========================================================================= */
 
 :root {
+  /* Recording spectrum intensity; independent of skill-domain colors. */
+  --spectrogram-low: #171b36;
+  --spectrogram-mid: #8056b5;
+  --spectrogram-high: #ffe071;
   /* ══ Palette primitives ══════════════════════════════════════════════════
      Raw values. Never referenced from a component rule. */
 

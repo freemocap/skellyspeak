@@ -787,8 +787,23 @@ Variety filters apply to estimates and source records. Exclusion and restoration
 reuse revision-checked profile choices and recompute the view; exclusion affects
 all contributions of the attempt, including XP. Failed writes retain the evidence
 and show the error. This uses the existing open-learner-model design, not a new
-proficiency claim. Lens summaries, partner-filtered estimates and complete choice
-export are still planned.
+proficiency claim. Partner selection now scopes source records before the native
+estimator fold; archived partners with retained conversations remain inspectable.
+Registry lenses group construct rows without inventing an aggregate score.
+Practice XP, exclusions and YAML export remain language-wide. Complete choice
+export and calibrated per-lens proficiency assessments are still planned.
+
+### Recording inspection
+
+The live recorder remains a simple waveform. The latest completed transcription
+can be inspected separately with a waveform envelope, bounded STFT spectrogram,
+audio activity regions and provider word timing when available. This volatile
+view belongs to the original recording/conversation, not the mutable text draft;
+it clears on navigation and does not retain raw audio. Spectral intensity and
+audio activity are signal measurements, never proficiency scores. Unsupported
+words are inspectable without automatic transcript deletion. Direct Groq requests
+timings; hosted/custom routes explicitly report unavailable timing until their
+capability seam is implemented. No automatic provider fallback is introduced.
 
 ### Inspectable learner-state export
 

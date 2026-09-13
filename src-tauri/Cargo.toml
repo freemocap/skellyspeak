@@ -29,6 +29,7 @@ unicode-segmentation = "=1.13.3"
 zeroize = "1"
 sha2 = "0.10"
 base64 = "0.22"
+hound = "3.5"
 getrandom = "0.3"
 tauri-plugin-opener = "2.5.5"
 
@@ -46,7 +47,6 @@ tempfile = "3"
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 cpal = "0.15"
-hound = "3.5"
 log = "0.4"
 
 [target.'cfg(target_os = "android")'.dependencies]

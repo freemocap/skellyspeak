@@ -1,7 +1,16 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import type { TranscriptionInspectionResult } from '../../contracts'
 import { useMicRecorder } from './useMicRecorder'
+const transcript: TranscriptionInspectionResult = {
+  text: 'fixture transcript',
+  inspection: { recordingId: 'fixture-recording', conversationId: 'fixture-conversation', duration: 1, sampleRate: 16000,
+    waveform: { binSeconds: 0.5, min: [-0.4, -0.2], max: [0.4, 0.2] },
+    spectrogram: { frameSeconds: 0.5, frameStartSeconds: [0, 0.5], windowSeconds: 0.025, fftSize: 512, frequencyBinHz: 100, maxFrequencyHz: 200, dbMin: -80, dbMax: 0, bins: [[-60, -30], [-70, -20]] },
+    activity: { algorithm: 'fixture', noiseFloorDbfs: -60, thresholdDbfs: -40, regions: [{ start: 0.1, end: 0.9 }], pauses: [], limitations: [] },
+    wordTiming: { status: 'unavailable', reason: 'Provider returned text only.', words: [], unsupported: [] } },
+}
 const invoke = vi.hoisted(() => vi.fn())
 const fault = vi.hoisted(() => vi.fn())
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
@@ -11,7 +20,7 @@ beforeEach(() => {
   invoke.mockImplementation(async (command: string) => {
     if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 689 }
     if (command === 'mic_wave') return []
-    if (command === 'mic_transcribe') return 'fixture transcript'
+    if (command === 'mic_transcribe') return transcript
     if (command === 'mic_cancel') return
     throw new Error(`Unexpected native command: ${command}`)
   })
@@ -34,6 +43,7 @@ it('transcribes the recording ID once on explicit Stop', async () => {
   await act(async () => { await result.current.toggleMic() })
   expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording' })
   expect(onTranscribe).toHaveBeenCalledExactlyOnceWith('fixture transcript')
+  expect(result.current.lastTranscription).toEqual(transcript)
 })
 it('cancels capture without transcription when the conversation changes', async () => {
   const { result, rerender, onTranscribe } = setup()
@@ -55,10 +65,10 @@ it('cancels a late capture startup after unmount', async () => {
   expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'late-recording' })
 })
 it('keeps transcription exclusive and does not insert a late result into another conversation', async () => {
-  let finish!: (text: string) => void
+  let finish!: (text: TranscriptionInspectionResult) => void
   invoke.mockImplementation((command: string) => {
     if (command === 'mic_start') return Promise.resolve({ recordingId: 'fixture-recording', samplesPerSecond: 689 })
-    if (command === 'mic_transcribe') return new Promise<string>(resolve => { finish = resolve })
+    if (command === 'mic_transcribe') return new Promise<TranscriptionInspectionResult>(resolve => { finish = resolve })
     return Promise.resolve([])
   })
   const { result, rerender, onTranscribe } = setup()
@@ -69,7 +79,7 @@ it('keeps transcription exclusive and does not insert a late result into another
   await act(async () => { await result.current.toggleMic() })
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_start')).toHaveLength(1)
   rerender({ conversationId: 'different-conversation' })
-  await act(async () => { finish('late transcript'); await pending })
+  await act(async () => { finish(transcript); await pending })
   expect(onTranscribe).not.toHaveBeenCalled()
   expect(result.current.transcribing).toBe(false)
 })
@@ -89,4 +99,31 @@ it('uses the native waveform rate and drains each sample once', async () => {
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_wave', { recordingId: 'fixture-recording' }))
   expect(result.current.waveSource?.read()).toEqual([0.1, -0.2])
   expect(result.current.waveSource?.read()).toEqual([])
+})
+
+it('clears the completed inspection when leaving its conversation', async () => {
+  const { result, rerender } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  await act(async () => { await result.current.toggleMic() })
+  rerender({ conversationId: 'different-conversation' })
+  expect(result.current.lastTranscription).toBeNull()
+  rerender({ conversationId: 'fixture-conversation' })
+  expect(result.current.lastTranscription).toBeNull()
+})
+it.each(['recordingId', 'conversationId'] as const)('rejects a result with the wrong %s', async field => {
+  const { result, onTranscribe } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  invoke.mockResolvedValue({ ...transcript, inspection: { ...transcript.inspection, [field]: 'wrong' } })
+  await act(async () => { await result.current.toggleMic() })
+  expect(onTranscribe).not.toHaveBeenCalled()
+  expect(result.current.lastTranscription).toBeNull()
+  expect(fault).toHaveBeenCalled()
+})
+it('keeps inspection of an empty transcript without changing the composer', async () => {
+  const { result, onTranscribe } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  invoke.mockResolvedValue({ ...transcript, text: '' })
+  await act(async () => { await result.current.toggleMic() })
+  expect(result.current.lastTranscription?.text).toBe('')
+  expect(onTranscribe).not.toHaveBeenCalled()
 })

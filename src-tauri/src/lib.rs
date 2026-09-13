@@ -2,6 +2,7 @@ mod access;
 mod admission;
 #[cfg(desktop)]
 mod audio;
+pub mod audio_inspection;
 pub mod coaching;
 pub mod config;
 mod conversation_export;
@@ -11,6 +12,7 @@ pub mod diagnostics;
 mod emoji;
 pub mod execution;
 mod factory_reset;
+pub mod fluency;
 mod generation;
 mod generation_receipts;
 pub mod gloss;

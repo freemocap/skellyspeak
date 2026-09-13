@@ -99,7 +99,7 @@ pub async fn mic_transcribe(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
     audio_base64: Option<String>,
-) -> Result<String> {
+) -> Result<crate::audio_inspection::TranscriptionInspectionResult> {
     let recording = {
         let mut slot = state
             .capture
@@ -145,6 +145,18 @@ pub async fn mic_transcribe(
         }
         bytes
     };
+    let inspection_recording = recording.id.clone();
+    let inspection_conversation = recording.conversation.clone();
+    let (wav, mut inspection, local) = tauri::async_runtime::spawn_blocking(move || {
+        let (inspection, local) = crate::audio_inspection::inspect_wav(
+            &wav,
+            &inspection_recording,
+            &inspection_conversation,
+        )?;
+        Ok::<_, AppError>((wav, inspection, local))
+    })
+    .await
+    .map_err(|_| fault("Audio inspection stopped unexpectedly."))??;
     let validate = || {
         let store = state.lock()?;
         crate::holds::check(&store.connection, &recording.target)?;
@@ -191,10 +203,15 @@ pub async fn mic_transcribe(
             }
         }
     };
-    state.lock()?.finish_transcription(
+    let result = result.and_then(|response| {
+        crate::audio_inspection::attach_words(&mut inspection, &local, response.verbose.as_ref())?;
+        Ok(response.text)
+    });
+    let text = state.lock()?.finish_transcription(
         &recording_id,
         &recording.conversation,
         &recording.target,
         result,
-    )
+    )?;
+    Ok(crate::audio_inspection::TranscriptionInspectionResult { text, inspection })
 }

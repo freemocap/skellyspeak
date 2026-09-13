@@ -156,6 +156,22 @@ confidence interval; calibration is explicitly labeled. No CEFR bands are emitte
 and included in configuration provenance. An existing configuration needs this
 file explicitly installed; missing/invalid files still refuse startup.
 
+### Partner-scoped profile seam
+
+`get_learner_profile(target, personaId?)` returns `{evidence, model, partners,
+scope, constructLenses}`. `scope` echoes `{languageId, personaId}`; null means all
+partners. `partners` contains `{personaId, name, archived}` for owned contacts with
+retained conversations in that language. `constructLenses` maps registry construct
+IDs to lens IDs. These labels organize evidence; they do not create aggregate
+proficiency scores.
+
+Native code selects conversation IDs by durable partner identity and filters source
+records before folding estimates, under one store lock. The returned records and
+model are partner-scoped; the existing evidence profile totals, choices and
+conversation count remain language-wide. Exclusion still affects the whole
+attempt. YAML export remains language-wide regardless of profile view filters.
+Consumers validate the echoed scope and discard late responses after switching.
+
 ### Wave 3 reward foundation
 
 Accepted learner turns capture `gamePolicy` and `gamePolicyHash`. Validated

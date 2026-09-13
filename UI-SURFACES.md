@@ -192,13 +192,26 @@ Home/End choose the limits and double-click resets. Geometry stays presentation-
 The same existing conversation, coaching, voice and reward components use both
 palettes. See `workflow/reports/living-spectrum-integration.md` for verification.
 
+### Transcription inspection
+
+Recording keeps the live waveform. After successful transcription, Inspect recording
+opens a separate dialog for the latest completed recording: waveform, spectrogram,
+detected audio activity and available word timestamps share a time axis. Selecting
+a word highlights its interval and exposes original/aligned timing. Unsupported
+words remain in the transcript and are identified separately. A route without
+timestamps explicitly shows their absence. The inspection is transient, cleared
+on navigation, and remains independent of subsequent text edits. No raw audio is
+saved. Native rebuild required for the structured transcription result.
+
 ### Learning evidence profile — 2026-09-13
 
 Profile → Your learning evidence opens a separate detail view for the selected
-language: variety filter, independent/assisted counts, estimate and uncertainty,
+language: partner and variety filters, registry-lens groups, independent/assisted counts, estimate and uncertainty,
 last observed and review date, plus source-message inspection and reversible
 attempt exclusions. Insufficient evidence is explicit. The existing activity/XP
-view remains separate. Native rebuild required for `get_learner_profile`.
+view remains separate. Partner estimates are recomputed natively from matching
+conversations. Archived partners remain selectable. Practice XP and YAML exports
+are language-wide. Native rebuild required for `get_learner_profile`.
 
 ### Learning evidence export — 2026-09-13
 

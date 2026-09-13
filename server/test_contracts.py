@@ -115,6 +115,38 @@ def test_long_recording_is_rejected_without_truncating_it_into_a_billable_reques
     with pytest.raises(HTTPException, match="120 seconds"):
         audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
 
+
+def timing_upload(format="verbose_json", granularities=("word", "segment")):
+    return httpx.Request("POST", "https://test.invalid", files=[
+        ("file", ("audio.wav", b"RIFF0000WAVE", "audio/wav")),
+        ("model", (None, "whisper-large-v3")),
+        ("language", (None, "es")),
+        ("response_format", (None, format)),
+        *(("timestamp_granularities[]", (None, value)) for value in granularities),
+    ])
+
+
+@pytest.mark.parametrize("granularities", [("word",), ("segment",), ("word", "segment"), ()])
+def test_verbose_audio_preserves_timestamp_fields(monkeypatch, granularities):
+    import subprocess
+    monkeypatch.setattr(audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
+    request = timing_upload(granularities=granularities)
+    decoded = audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+    assert decoded.fields["response_format"] == "verbose_json"
+    assert decoded.fields.get("timestamp_granularities[]", []) == list(granularities)
+    assert decoded.cost_micros == 309
+
+
+@pytest.mark.parametrize("format,granularities", [("json", ("word",)), ("verbose_json", ("word", "word")), ("verbose_json", ("sentence",)), ("text", ())])
+def test_invalid_timing_fields_rejected_before_decode(monkeypatch, format, granularities):
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Invalid fields must not reach the decoder")
+    monkeypatch.setattr(audio_input.subprocess, "run", forbidden)
+    request = timing_upload(format, granularities)
+    with pytest.raises(HTTPException) as error:
+        audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+    assert error.value.status_code == 400
+
 @pytest.mark.parametrize("answer", ["Sí, me gusta la música.", "No, no me gusta la música."])
 def test_opening_role_and_human_answer_reach_upstream_unchanged(answer):
     messages = [
