@@ -155,3 +155,29 @@ confidence interval; calibration is explicitly labeled. No CEFR bands are emitte
 `config/policy/estimator.yaml` is required, validated, seeded on fresh startup,
 and included in configuration provenance. An existing configuration needs this
 file explicitly installed; missing/invalid files still refuse startup.
+
+### Wave 3 reward foundation
+
+Accepted learner turns capture `gamePolicy` and `gamePolicyHash`. Validated
+observation publication saves `rewardEvents` in the same transaction. Each
+generated `RewardEvent` names its attempt, construct, exact quote, cause, tier,
+XP, support, difficulty, novelty, policy hash, timestamp and presentation claim.
+Current causes are construct_discovered, repair and xp_tick. No reward is
+created by a read, elapsed time, a login, a message count or coach prose.
+
+`claim_reward_events(target, ids)` atomically marks and returns previously
+unclaimed events for that language (maximum 100 IDs). UI claims before presenting;
+repeat claims and restart cannot replay the event. This is at-most-once display:
+a crash after claiming may omit celebration but never removes earned XP.
+
+Practice scoring rules version 2 reads saved awards instead of recomputing 10/2
+credit. The UI can still read version-1 snapshots from the running prior binary.
+New game configuration does not revalue saved events. Whole-message wording is
+normalized for whitespace/case and awarded once per learner/language/construct.
+Novelty is first accepted award, first award in a Monday-based UTC week, or routine.
+XP is rounded to the nearest whole number. Exclusions and explicit source deletion
+remove those contributions from active totals; time and policy edits never do.
+No retroactive awards are synthesized for earlier exchanges lacking this policy.
+
+Reward effects, secured constructs, goals and partner milestones remain subsequent
+work; the structural event tier does not claim their presentation is implemented.

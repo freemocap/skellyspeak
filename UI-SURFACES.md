@@ -182,3 +182,12 @@ on the bubble opens the interpretation and its evidence; missing results do not
 imply understanding. Reaction sounds respect existing settings. A failed coaching
 review offers Retry failed help, using the bounded native turn retry: successful
 reply/content remain intact and failed assistance operations are retried.
+
+### Living Spectrum integration — 2026-09-13
+
+Settings → Reading now includes Appearance (Dark / Light / System), persisted on
+the native learner. System follows OS appearance. Desktop conversation/coach width
+can be adjusted by dragging the separator or focusing it and using arrow keys;
+Home/End choose the limits and double-click resets. Geometry stays presentation-only.
+The same existing conversation, coaching, voice and reward components use both
+palettes. See `workflow/reports/living-spectrum-integration.md` for verification.

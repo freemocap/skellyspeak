@@ -1,5 +1,7 @@
 // Generated from Rust contracts. Run npm run contracts.
 export type RecordingStarted = { recordingId: string, samplesPerSecond: number, };
+export type Theme = "light" | "dark" | "system";
+export type RewardEvent = { id: string, attemptId: string, constructId: string, kind: string, tier: number, xp: number, quote: string, support: string, difficulty: string, novelty: string, policyHash: string, atSecs: bigint, claimed: boolean, };
 export type LearnerState = { learnerId: string, languageId: string, asOfSecs: bigint, configHash: string, constructRegistryHash: string, estimatorHash: string, estimatorVersion: number, calibration: string, choices: unknown, observations: unknown[], constructs: Array<ConstructState>, };
 export type ConstructState = { constructId: string, varietyId: string, rating: number, uncertainty: number, lastSeen: bigint, halfLifeDays: number, n: number, independentN: number, effectiveN: number, recall: number, dueAt: bigint, due: boolean, insufficientEvidence: boolean, evidenceAttemptIds: Array<string>, };
 export type ConnectionRoute = "hosted" | "openrouter" | "custom";
@@ -53,7 +55,7 @@ export type PracticeSettings = { difficulty: Difficulty, explanationLanguage: st
 export type SpeechUnavailableReason = "notRequested" | "cancelled" | "failed" | "unknownOutcome" | "expired";
 export type SpeechAudioState = { "status": "pending", operationId: string, messageId: string, } | { "status": "ready", operationId: string, attemptId: string, messageId: string, mime: string, audioBase64: string, } | { "status": "unavailable", operationId: string, messageId: string, reason: SpeechUnavailableReason, };
 export type OnboardingStatus = "not_started" | "in_progress" | "skipped" | "completed";
-export type Preferences = { explanationLanguage: string, textSize: number, textSpacing: number, highContrast: boolean, onboarding: OnboardingStatus, };
+export type Preferences = { theme: Theme, explanationLanguage: string, textSize: number, textSpacing: number, highContrast: boolean, onboarding: OnboardingStatus, };
 export type Learner = { id: string, name: string, revision: number, preferences: Preferences, };
 export type LanguageProfile = { id: string, learnerId: string, languageId: string, };
 export type PersonaDetails = { name: string, 

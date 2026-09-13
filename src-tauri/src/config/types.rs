@@ -209,3 +209,17 @@ pub struct EstimatorPolicy {
     pub support: BTreeMap<String, f64>,
     pub sources: Vec<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct GamePolicy {
+    pub version: u32,
+    pub rules: Vec<String>,
+    pub base: BTreeMap<String, u32>,
+    pub support: BTreeMap<String, f64>,
+    pub difficulty: BTreeMap<String, f64>,
+    pub novelty: BTreeMap<String, f64>,
+    pub tiers: BTreeMap<String, u8>,
+    pub never_from: Vec<String>,
+    pub sources: Vec<String>,
+}

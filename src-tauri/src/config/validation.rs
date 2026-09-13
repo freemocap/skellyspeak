@@ -365,6 +365,67 @@ impl Registry {
                 .map(|n| (n.id.clone(), n.parent.iter().cloned().collect()))
                 .collect(),
         )?;
+        let g = &self.game;
+        let same = |values: &[String], required: &[&str]| {
+            values.len() == required.len()
+                && required.iter().all(|key| values.iter().any(|v| v == key))
+        };
+        let keys_match = |map: &std::collections::BTreeMap<String, f64>, keys: &[&str]| {
+            map.len() == keys.len()
+                && keys.iter().all(|key| {
+                    map.get(*key)
+                        .is_some_and(|v| v.is_finite() && *v > 0.0 && *v <= 10.0)
+                })
+        };
+        if g.version != 1
+            || !same(
+                &g.rules,
+                &["evidence_caused", "truthful", "never_punish_stopping"],
+            )
+            || !same(
+                &g.never_from,
+                &["time", "message_count", "login", "coach_output"],
+            )
+            || g.base.len() != 3
+            || ["demonstrated", "partial", "repair"]
+                .iter()
+                .any(|k| g.base.get(*k).is_none_or(|v| *v == 0 || *v > 100))
+            || !keys_match(
+                &g.support,
+                &[
+                    "none",
+                    "partner_clarify",
+                    "hint",
+                    "elicit",
+                    "metalinguistic",
+                    "suggestion",
+                    "revision",
+                    "explicit",
+                ],
+            )
+            || !keys_match(
+                &g.difficulty,
+                &[
+                    "absolute_zero",
+                    "beginner",
+                    "intermediate",
+                    "advanced",
+                    "fluent",
+                ],
+            )
+            || !keys_match(&g.novelty, &["first_ever", "first_this_week", "routine"])
+            || g.tiers.len() != 3
+            || ["construct_discovered", "repair", "xp_tick"]
+                .iter()
+                .any(|k| g.tiers.get(*k).is_none_or(|v| *v > 3))
+        {
+            return Err(error(
+                "policy/game.yaml",
+                "game",
+                "Reward rules, evidence causes, tiers or numeric bounds are invalid.",
+            ));
+        }
+        citations("policy/game.yaml", &g.sources, &keys)?;
         let e = &self.estimator;
         let steps = [
             "none",

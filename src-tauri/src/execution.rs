@@ -499,7 +499,7 @@ fn accept_turn(
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let captured = serde_json::json!({"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":7,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"persona-reply-standard-v1"});
+    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":7,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"persona-reply-standard-v1"});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,profile.standard_model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
@@ -4537,7 +4537,7 @@ mod tests {
         store.finish(&feedback, Ok(reply(candidate))).unwrap();
         store.finish(&feedback, Ok(reply(candidate))).unwrap();
         let first = crate::progression::snapshot(&store, "es").unwrap();
-        assert_eq!(first["profile"]["xp"], 10);
+        assert_eq!(first["profile"]["xp"], 30);
         assert_eq!(
             store
                 .conversation_snapshot(&conversation, None)
@@ -4583,7 +4583,7 @@ mod tests {
         assert!(view.messages[1].suggestions_error.is_none());
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-            10
+            30
         );
         let next = send(&store, &conversation);
         store.execute(next).unwrap();
@@ -4687,7 +4687,7 @@ mod tests {
         let feedback = store.dispatch().unwrap().unwrap();
         store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"Test"}]}"#))).unwrap();
         let view = crate::progression::snapshot(&store, "es").unwrap();
-        assert_eq!(view["profile"]["xp"], 2);
+        assert_eq!(view["profile"]["xp"], 10);
         assert_eq!(view["records"][0]["input"]["modality"], "speech_transcript");
         assert_eq!(view["records"][0]["input"]["scaffold"], true);
     }
@@ -4814,7 +4814,7 @@ mod tests {
         store.finish(&feedback, Ok(reply(&evidence))).unwrap();
         store.finish(&feedback, Ok(reply(&evidence))).unwrap();
         let xp = crate::progression::snapshot(&store, "es").unwrap();
-        assert_eq!(xp["profile"]["xp"], 12);
+        assert_eq!(xp["profile"]["xp"], 35);
         let record = xp["records"]
             .as_array()
             .unwrap()
@@ -4836,7 +4836,7 @@ mod tests {
         fixture_evidence(&store, &second, "¿Cómo está tu hermana?");
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-            12,
+            35,
             "Repeated wording earns nothing further"
         );
         let record = crate::progression::snapshot(&store, "es").unwrap();
@@ -4864,7 +4864,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-            10
+            30
         );
         drop(store);
         let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
@@ -4876,7 +4876,7 @@ mod tests {
         );
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-            10
+            30
         );
     }
     #[test]
@@ -5237,6 +5237,14 @@ mod tests {
             )
             .unwrap();
             assert_eq!(value["observation"]["items"][0]["outcome"], outcome);
+            // Each variant is an isolated publication fixture, not a rewrite of earned XP.
+            store
+                .connection
+                .execute(
+                    "UPDATE turns SET context=json_remove(context,'$.rewardEvents') WHERE id=?1",
+                    [&turn],
+                )
+                .unwrap();
             crate::coaching::publish(
                 &store.connection,
                 &turn,
@@ -5247,7 +5255,11 @@ mod tests {
             .unwrap();
             assert_eq!(
                 crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-                if outcome == "demonstrated" { 10 } else { 0 }
+                match outcome {
+                    "demonstrated" => 30,
+                    "partial" => 12,
+                    _ => 0,
+                }
             );
         }
     }
@@ -5274,7 +5286,7 @@ mod tests {
         store.connection.execute("INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','es','custom','fixture',1,'succeeded')",[]).unwrap();
         assert_eq!(
             crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
-            12
+            35
         );
         let revision = store
             .snapshot()
@@ -5394,7 +5406,7 @@ mod tests {
         );
     }
     #[test]
-    fn revised_wording_alone_awards_two_xp_without_a_direct_proficiency_mark() {
+    fn revised_wording_awards_weighted_xp_without_a_direct_proficiency_mark() {
         let (_dir, mut store, conversation) = setup();
         let first = store
             .execute(send(&store, &conversation))
@@ -5413,7 +5425,7 @@ mod tests {
         finish_fixture_exchange(&mut store, &second, "Second.");
         fixture_evidence(&store, &second, "¿Qué hora es?");
         let profile = crate::progression::snapshot(&store, "es").unwrap();
-        assert_eq!(profile["profile"]["xp"], 2);
+        assert_eq!(profile["profile"]["xp"], 10);
         let skill = profile["profile"]["skills"]
             .as_array()
             .unwrap()
@@ -5657,7 +5669,7 @@ mod tests {
                 .contains("linking verb")
         );
         let profile = crate::progression::snapshot(&store, "es").unwrap();
-        assert_eq!(profile["profile"]["xp"], 2);
+        assert_eq!(profile["profile"]["xp"], 28);
     }
 
     #[test]
@@ -5908,6 +5920,100 @@ mod tests {
         assert_eq!(
             wave2_context(&store, &turn)["coachDecision"]["shown"]["explanation"],
             "Hidden corrected wording must not leak."
+        );
+    }
+
+    #[test]
+    fn reward_difficulty_and_calendar_week_novelty_use_captured_evidence() {
+        let (_dir, mut store, conversation) = setup();
+        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.difficulty','advanced') WHERE conversation_id=?1",[&conversation]).unwrap();
+        for (wording, date, expected) in [
+            ("¿Dónde está Ana?", "2026-09-07T12:00:00Z", 42),
+            ("¿Dónde está Luis?", "2026-09-08T12:00:00Z", 21),
+            ("¿Dónde está Juan?", "2026-09-14T12:00:00Z", 25),
+        ] {
+            let mut command = send(&store, &conversation);
+            if let Action::SendMessage { text, .. } = &mut command.action {
+                *text = wording.into();
+            }
+            let turn = store.execute(command).unwrap().entity_id;
+            finish_fixture_exchange(&mut store, &turn, "En casa.");
+            store
+                .connection
+                .execute(
+                    "UPDATE messages SET created_at=?2 WHERE turn_id=?1 AND role='user'",
+                    params![turn, date],
+                )
+                .unwrap();
+            fixture_evidence(&store, &turn, wording);
+            let snapshot = crate::progression::snapshot(&store, "es").unwrap();
+            let credits = snapshot["profile"]["credits"].as_array().unwrap();
+            let credit = credits
+                .iter()
+                .find(|credit| credit["attempt_id"] == format!("evidence-{turn}"))
+                .unwrap();
+            assert_eq!(credit["xp"], expected);
+        }
+    }
+
+    #[test]
+    fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
+        let (dir, mut store, conversation) = setup();
+        let first = store
+            .execute(send(&store, &conversation))
+            .unwrap()
+            .entity_id;
+        finish_fixture_exchange(&mut store, &first, "Hello.");
+        fixture_evidence(&store, &first, "¿cómo estás?");
+        let before = crate::progression::snapshot(&store, "es").unwrap();
+        assert_eq!(before["profile"]["xp"], 30);
+        let id = before["profile"]["credits"][0]["event"]["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        assert!(
+            crate::rewards::claim(&mut store.connection, "ar", std::slice::from_ref(&id))
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            crate::rewards::claim(&mut store.connection, "es", std::slice::from_ref(&id))
+                .unwrap()
+                .len(),
+            1
+        );
+        assert!(
+            crate::rewards::claim(&mut store.connection, "es", std::slice::from_ref(&id))
+                .unwrap()
+                .is_empty()
+        );
+        let duplicate = store
+            .execute(send(&store, &conversation))
+            .unwrap()
+            .entity_id;
+        finish_fixture_exchange(&mut store, &duplicate, "Hello again.");
+        fixture_evidence(&store, &duplicate, "¿cómo estás?");
+        assert_eq!(
+            crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            30
+        );
+        // A changed current policy cannot rewrite a captured earned award.
+        store.connection.execute("UPDATE turns SET context=json_set(context,'$.gamePolicy.base.demonstrated',99) WHERE id=?1",[&first]).unwrap();
+        crate::rewards::publish(&store.connection, &first, "replay").unwrap();
+        assert_eq!(
+            crate::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            30
+        );
+        drop(store);
+        let mut reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+        assert!(
+            crate::rewards::claim(&mut reopened.connection, "es", &[id])
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            crate::progression::snapshot(&reopened, "es").unwrap()["profile"]["xp"],
+            30
         );
     }
 

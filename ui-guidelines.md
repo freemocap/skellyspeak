@@ -18,8 +18,10 @@
   opens a confirmation; deletion requires a separate Delete key action.
   Keep the feature inventory in `UI-SURFACES.md` current as functionality ships.
 
-- Use a dark navy shell and analysis pane, a light paper chat canvas, blue accents,
-  compact controls and the SkellySpeak logo. Chat is the primary surface.
+- Use the Living Spectrum palette: warm light by default, with graphite dark
+  and system appearance preferences. Chat is a raised sheet; coaching is a recessed
+  well. Six skill-domain accents keep consistent meanings across both themes.
+  Keep compact controls and the SkellySpeak logo. Chat is the primary surface.
 - The toolbar opens a partner chooser in place of chat history. Desktop uses
   adjacent chat and lesson/analysis panes; narrow windows use Chat and Lesson tabs.
 - Flowers belong only to evidence visualization in the analysis pane. Do not use
@@ -68,7 +70,7 @@
   Its selected option names the value; the accessible name is Difficulty. Do not
   add a heading, slider, stop labels, bold selection layout or vertical padding.
 - Give the controls strip its own existing chrome surface and visible boundary
-  against the paper conversation canvas, without increasing its geometry. Use
+  against the conversation canvas, without increasing its geometry. Use
   common region and contrast to separate controls from message content (see
   [NN/g visual-design principles](https://www.nngroup.com/articles/principles-visual-design/)).
 - Keep Learning, Native and Difficulty in one compact row at the reference

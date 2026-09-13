@@ -92,9 +92,20 @@ pub const TEXT_SIZE_MIN: u16 = 75;
 pub const TEXT_SIZE_MAX: u16 = 150;
 pub const TEXT_SIZE_STEP: u16 = 5;
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize, TS, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum Theme {
+    #[default]
+    Light,
+    Dark,
+    System,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Preferences {
+    #[serde(default)]
+    pub theme: Theme,
     pub explanation_language: String,
     pub text_size: u16,
     pub text_spacing: u8,
@@ -443,6 +454,8 @@ pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
         RecordingStarted::decl(&config),
+        Theme::decl(&config),
+        crate::rewards::RewardEvent::decl(&config),
         crate::learner_state::LearnerState::decl(&config),
         crate::learner_state::ConstructState::decl(&config),
         ConnectionRoute::decl(&config),
@@ -875,4 +888,24 @@ pub struct StarterCard {
     pub preview: Option<String>,
     pub translation: Option<String>,
     pub reason: String,
+}
+
+#[cfg(test)]
+mod appearance_tests {
+    use super::*;
+    #[test]
+    fn appearance_defaults_and_rejects_unknown_values() {
+        let original = serde_json::json!({"explanationLanguage":"en","textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
+        let preferences: Preferences = serde_json::from_value(original.clone()).unwrap();
+        assert_eq!(preferences.theme, Theme::Light);
+        for theme in ["light", "dark", "system"] {
+            let mut value = original.clone();
+            value["theme"] = theme.into();
+            let decoded: Preferences = serde_json::from_value(value.clone()).unwrap();
+            assert_eq!(serde_json::to_value(decoded).unwrap(), value);
+        }
+        let mut invalid = original;
+        invalid["theme"] = "unknown".into();
+        assert!(serde_json::from_value::<Preferences>(invalid).is_err());
+    }
 }

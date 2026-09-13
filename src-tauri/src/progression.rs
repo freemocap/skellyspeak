@@ -2,7 +2,7 @@
 use crate::{model::*, store::Store};
 use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::{Value, json};
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
 
 pub fn initialize(db: &Connection) -> Result<()> {
     db.execute_batch("CREATE TABLE IF NOT EXISTS skill_choices(language_id TEXT PRIMARY KEY,revision INTEGER NOT NULL,focus TEXT,excluded TEXT NOT NULL CHECK(json_valid(excluded)));")?;
@@ -47,7 +47,7 @@ pub(crate) fn snapshot_db(
             judgments.retain(|j| j["skill_id"] != repair["construct"]);
             judgments.push(json!({"skill_id":repair["construct"],"source":"native_repair_check","support_step":repair["support_step"],"outcome":repair["outcome"],"quotes":[repair["quote"]],"rationale":""}));
         }
-        records.push(json!({"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else{Value::Null},"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
+        records.push(json!({"reward_credits":crate::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
     }
     let source_catalog = registry.catalog();
     let mut visible = Vec::new();
@@ -80,53 +80,46 @@ pub(crate) fn snapshot_db(
         .iter()
         .filter(|n| n["kind"] == "skill")
     {
-        let mut direct = HashSet::new();
-        let mut assisted = HashSet::new();
-        // Direct evidence owns identical text before assisted evidence, irrespective of arrival order.
-        for assistance in [false, true] {
-            for record in &records {
-                let key = record["source"]
-                    .as_str()
-                    .unwrap()
-                    .split_whitespace()
-                    .collect::<Vec<_>>()
-                    .join(" ")
-                    .to_lowercase();
-                let id = record["attempt_id"].as_str().unwrap();
-                if record["construct_registry_hash"] != construct_hash
-                    || record["catalog_version"] != catalog_version
-                    || excluded.iter().any(|e| e == id)
-                    || (record["input"]["suggestion"] == true
-                        || record["input"]["scaffold"] == true
-                        || record["input"]["revision"] == true)
-                        != assistance
-                    || !record["assessment"]["judgments"]
+        let mut direct = 0;
+        let mut assisted = 0;
+        let mut skill_xp = 0_u64;
+        for record in &records {
+            if record["construct_registry_hash"] != construct_hash
+                || excluded.iter().any(|id| record["attempt_id"] == *id)
+            {
+                continue;
+            }
+            for credit in record["reward_credits"]
+                .as_array()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing reward ledger."))?
+            {
+                if credit["skill_id"] != node["id"] {
+                    continue;
+                }
+                skill_xp += credit["xp"]
+                    .as_u64()
+                    .ok_or_else(|| AppError::new(ErrorCode::Storage, "Invalid reward XP."))?;
+                let demonstrated =
+                    record["assessment"]["judgments"]
                         .as_array()
-                        .is_some_and(|j| {
-                            j.iter().any(|j| {
-                                j["skill_id"] == node["id"]
-                                    && j["outcome"] == "demonstrated"
-                                    && j["source"] != "native_repair_check"
+                        .is_some_and(|items| {
+                            items.iter().any(|j| {
+                                j["skill_id"] == node["id"] && j["outcome"] == "demonstrated"
                             })
-                        })
-                {
-                    continue;
+                        });
+                if demonstrated {
+                    if credit["event"]["support"] == "none" {
+                        direct += 1;
+                    } else {
+                        assisted += 1;
+                    }
                 }
-                if direct.contains(&key) || assisted.contains(&key) {
-                    continue;
-                }
-                if assistance {
-                    assisted.insert(key);
-                } else {
-                    direct.insert(key);
-                }
-                credits.push(
-                    json!({"attempt_id":id,"skill_id":node["id"],"xp":if assistance{2}else{10}}),
-                );
+                credits.push(credit.clone());
             }
         }
-        skills.push(json!({"skill_id":node["id"],"successes":direct.len(),"assisted":assisted.len(),"xp":direct.len()*10+assisted.len()*2,"checked":!direct.is_empty(),"star":direct.len()>=3}));
+        skills.push(json!({"skill_id":node["id"],"successes":direct,"assisted":assisted,"xp":skill_xp,"checked":direct>0,"star":direct>=3}));
     }
+
     let branches:Vec<_>=catalog.as_array().unwrap().iter().filter(|n|n["kind"]=="skill").map(|n|json!({"skill_id":n["id"],"available":catalog.as_array().unwrap().iter().any(|p|p["id"]==n["parent"]&&p["kind"]=="domain")||skills.iter().any(|p|p["skill_id"]==n["parent"]&&p["star"]==true)})).collect();
     let recommended = skills
         .iter()
@@ -146,7 +139,7 @@ pub(crate) fn snapshot_db(
         |r| r.get(0),
     )?;
     Ok(
-        json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":1,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
+        json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":2,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
     )
 }
 #[tauri::command]

@@ -6,6 +6,7 @@ export interface Shortcuts {
 }
 
 export interface Settings {
+  theme?: 'light' | 'dark' | 'system'
   scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
   /// 'hosted' (the project's service, signed in with Google), 'cloud'
   /// (OpenRouter with the user's key) or 'custom' (their own

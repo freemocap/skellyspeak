@@ -740,3 +740,38 @@ uncertain or absent evidence makes none, and elapsed time marks reviews due
 without reducing rating or earned rewards. No CEFR band is inferred in this
 foundation. Profile presentation and calibrated lens-level assessment remain
 separate work. [@pelanek2016] [@settles_meeder2016]
+
+### Durable reward foundation
+
+Rewards capture policy at accepted work and publish atomically with validated
+evidence. Saved XP does not change when policy tuning changes. The three rules
+remain evidence-caused, truthful and never punishment for stopping. A separate
+presentation claim prevents replay across refresh/restart; a crash after claim
+may omit an effect while the award remains inspectable. No raw observation is
+replaced by an award, and reward XP never alters the learner-state rating.
+
+This slice implements discovery, repair and XP tick causes. Secured constructs,
+goals, domain-star events, milestones and richer tiered effects remain future
+work. Pre-policy exchanges are not awarded retroactively.
+
+## Adopted Living Spectrum presentation (2026-09-13)
+
+The external “Reviving the app’s soul” handoff is visual reference, not a replacement
+application or a source of domain contracts. Adopt its Living Spectrum direction:
+a warm light default and optional graphite dark palette, raised conversation
+sheet, recessed coaching well, and consistent domain hues (social orange,
+questions red, opinions pink, statements blue, descriptions purple, situating teal).
+Native learner preferences own `theme` (`dark`, `light`, `system`); system follows
+OS changes. Missing stored preference means light. The desktop split is adjustable
+by pointer or keyboard, limited to 30–70%; this geometry does not change domain data.
+
+Preserve the existing functional components: source-anchored word help and Arabic
+joining, voice controls, revision history, auto coaching, consistent feedback
+modals, on-demand suggestions, partner reactions and persisted reward events.
+The handoff’s relaxed small-text contrast threshold is not adopted; both palettes
+are checked at 4.5:1 for text on their actual surfaces. Its harness, remote scripts,
+mock data, font downloads and example application code are not imported.
+
+This pass does not implement every prototype detail: new mobile peek navigation,
+logo/font replacement and additional reward choreography remain separate design
+work. Existing narrow-screen navigation and reward behavior remain active.

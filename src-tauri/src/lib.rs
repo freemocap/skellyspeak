@@ -28,6 +28,7 @@ pub mod progression;
 pub mod provider;
 mod refusal;
 mod reward_settings;
+pub mod rewards;
 pub mod speech;
 pub mod speech_provider;
 pub mod store;
@@ -1241,6 +1242,7 @@ pub fn run() {
             get_persona_generation_activity,
             progression::get_skill_evidence,
             learner_state::get_learner_state,
+            rewards::claim_reward_events,
             learner_state::export_learner_state,
             reward_settings::get_reward_settings,
             reward_settings::get_playback_rate,

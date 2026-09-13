@@ -1,3 +1,4 @@
+import { PracticeDivider } from './PracticeDivider'
 import { LiveCoachReview } from './LiveCoachReview'
 import { OpeningStatus } from './OpeningStatus'
 import { useNavigationStore } from '../../state/navigation'
@@ -624,6 +625,8 @@ export default function GuidedPage({
 
         {!isMobile && chatComposer}
       </section>
+
+      {!isMobile && breakOpen && <PracticeDivider workspace={workspace} />}
 
       {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
 

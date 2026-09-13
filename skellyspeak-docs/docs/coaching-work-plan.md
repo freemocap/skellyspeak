@@ -127,9 +127,9 @@ A delivers a loader API stub (types plus a hardcoded implementation) at the star
 
 User accepted Wave 2 for continuation on 2026-09-13. UI polish is owned by separate
 work. First structural slice: editable estimator policy, deterministic construct
-state projection, and native learner-state read/YAML-export commands. Reward
-policy/events, fluency, profile presentation, openers and session review remain
-planned. See `workflow/reports/coaching-w3-foundation.md`.
+state projection, and native learner-state read/YAML-export commands. Reward policy, persisted XP events and at-most-once display claims are now
+implemented. Fluency, profile presentation, openers, session review and remaining
+reward causes/effects remain planned. See `workflow/reports/coaching-w3-foundation.md`.
 
 | A | B | C |
 |---|---|---|

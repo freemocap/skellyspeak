@@ -4,6 +4,7 @@ import { RewardInspectionContext } from './RewardInspectionContext'
 import { act, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { SkillRewards } from './SkillRewards'
+vi.mock('../../platform/ipc/rewards', () => ({claimRewardEvents: vi.fn()}))
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { skillDemo } from '../../domain/skills/skillDemo'
 import { unreportedInput, type SkillSnapshot } from '../../domain/skills/skills'
@@ -55,4 +56,22 @@ it('presents assisted revision credit once and does not replay it after reopenin
   render(ui(earned))
   expect(screen.getByRole('status')).toBeEmptyDOMElement()
   expect(arrive).toHaveBeenCalledOnce()
+})
+
+it('waits for a durable claim and suppresses events another window already consumed', async () => {
+  const { claimRewardEvents } = await import('../../platform/ipc/rewards')
+  const claim=vi.mocked(claimRewardEvents)
+  claim.mockResolvedValue([])
+  const arrive=vi.fn()
+  const baseline=structuredClone(skillDemo)
+  baseline.profile.rules_version=2
+  const earned=structuredClone(baseline)
+  earned.records=[{attempt_id:'partial',session_id:'s',turn_id:1,message_id:1,replaces_message_id:null,construct_registry_hash:'fixture-registry',mapping_error:null,support_step:null,chat_id:'chat',learner_id:earned.learner_id,target:earned.target,native:'en',source:'Ese café.',input:unreportedInput(),at_secs:1,model:'fixture',provider_mode:'hosted',catalog_version:SKILL_CATALOG_VERSION,prompt_version:'fixture',status:'complete',error:null,assessment:{judgments:[{skill_id:'referent',outcome:'partial',quotes:['Ese café'],rationale:'Reference is partly clear.'}]}}]
+  earned.profile.credits=[{attempt_id:'partial',skill_id:'referent',xp:12}]
+  earned.profile.skills.find(s=>s.skill_id==='referent')!.xp=12
+  const ui=(snapshot:SkillSnapshot)=><SkillEvidenceContext value={{snapshot,error:null}}><RewardInspectionContext value={{arrive,open:vi.fn()}}><SkillRewards chatId="chat" active /></RewardInspectionContext></SkillEvidenceContext>
+  const view=render(ui(baseline))
+  await act(async()=>view.rerender(ui(earned)))
+  expect(claim).toHaveBeenCalledWith(earned.target,['partial:referent'])
+  expect(arrive).not.toHaveBeenCalled()
 })

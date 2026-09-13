@@ -236,6 +236,7 @@ impl Store {
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             config.language("en")?;
             let preferences = Preferences {
+                theme: Theme::Light,
                 explanation_language: "en".into(),
                 text_size: crate::model::TEXT_SIZE_DEFAULT,
                 text_spacing: 0,

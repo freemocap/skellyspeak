@@ -82,7 +82,7 @@ export interface SkillProgress {
   star: boolean
 }
 export interface LearnerProfile {
-  credits: { attempt_id: string; skill_id: string; xp: number }[]
+  credits: { attempt_id: string; skill_id: string; xp: number; event?: import('../../contracts').RewardEvent }[]
   rules_version: number
   choices: ProfileChoices
   xp: number
@@ -102,8 +102,9 @@ export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): S
   const credits = snapshot.profile.credits.filter(credit => ids.has(credit.attempt_id))
   const skills = snapshot.profile.skills.map(skill => {
     const own = credits.filter(credit => credit.skill_id === skill.skill_id)
-    const successes = own.filter(credit => credit.xp === 10).length
-    const assisted = own.filter(credit => credit.xp === 2).length
+    const demonstrated = own.filter(credit => records.some(record => record.attempt_id === credit.attempt_id && record.assessment?.judgments.some(j => j.skill_id === credit.skill_id && j.outcome === 'demonstrated')))
+    const successes = snapshot.profile.rules_version === 2 ? demonstrated.filter(credit => credit.event?.support === 'none').length : own.filter(credit => credit.xp === 10).length
+    const assisted = snapshot.profile.rules_version === 2 ? demonstrated.filter(credit => credit.event?.support !== 'none').length : own.filter(credit => credit.xp === 2).length
     return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), successes, assisted, checked: successes > 0, star: successes >= 3 }
   })
   return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) } }

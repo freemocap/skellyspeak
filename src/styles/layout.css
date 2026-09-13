@@ -86,7 +86,7 @@
 
 .guided-workspace { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
 
-.split { flex: 1; min-height: 0; display: flex; }
+.split { flex: 1; min-height: 0; display: flex; padding: var(--space-6); gap: var(--space-4); background: var(--bg); }
 
 /* Overflow guards: flex's default min-width/min-height:auto lets wide
    token/gloss columns and long chats blow past the viewport — break the
@@ -128,7 +128,7 @@
 .mobile-nav-item.active { color: var(--accent); background: var(--shell-sunken); border-top-color: var(--accent); }
 
 @media (max-width: 860px) {
-  .split { flex-direction: column; }
+  .split { flex-direction: column; padding: var(--space-2); gap: 0; }
   .nav-item { white-space: nowrap; }
 }
 
@@ -330,3 +330,9 @@
 }
 
 .configuration-error { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.practice-divider { flex: 0 0 8px; cursor: col-resize; touch-action: none; background: transparent; border: 0; border-radius: var(--radius-pill); align-self: stretch; }
+.practice-divider:hover, .practice-divider:focus-visible { background: var(--accent-dim); outline: var(--focus-width) solid var(--accent); }
+@media (max-width: 860px) {
+  .practice-divider { display: none; }
+}

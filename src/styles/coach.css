@@ -133,7 +133,7 @@
   max-height: max(160px, calc(100% - 120px));
   display: flex;
   flex-direction: column;
-  background: var(--shell-raised);
+  background: var(--dock);
   overflow: hidden;
 }
 

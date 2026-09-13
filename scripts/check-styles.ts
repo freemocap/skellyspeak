@@ -42,16 +42,24 @@ const where = (path: string, node: { source?: { start?: { line: number } } }) =>
 
 // ── Custom properties: declared once, in tokens.css :root ──────────────────
 const declared = new Set<string>();
+const scoped = new Set<string>();
+const overrides: { prop: string; at: string }[] = [];
 for (const { name, path, css } of parsed) {
   css.walkDecls((decl) => {
     if (!decl.prop.startsWith("--")) return;
     const parent = decl.parent;
-    if (name !== tokens || parent?.type !== "rule" || (parent as { selector?: string }).selector !== ":root")
-      errors.push(`${where(path, decl)}: ${decl.prop} is declared outside ${tokens} :root; declare it there`);
-    if (declared.has(decl.prop)) errors.push(`${where(path, decl)}: ${decl.prop} is declared twice`);
-    declared.add(decl.prop);
+    const selector = parent?.type === "rule" ? (parent as {selector:string}).selector : "";
+    const theme = /^:root\[data-theme=['"](?:light|dark)['"]\]$/.test(selector);
+    if (name !== tokens || (selector !== ":root" && !theme))
+      errors.push(`${where(path, decl)}: ${decl.prop} must be a root token or theme override in ${tokens}`);
+    const key = `${selector}:${decl.prop}`;
+    if (scoped.has(key)) errors.push(`${where(path, decl)}: ${decl.prop} is declared twice in ${selector}`);
+    scoped.add(key);
+    if (selector === ":root") declared.add(decl.prop);
+    else overrides.push({prop:decl.prop,at:where(path,decl)});
   });
 }
+for (const {prop,at} of overrides) if (!declared.has(prop)) errors.push(`${at}: theme override ${prop} has no root default`);
 
 /// Every var() must name a declared token and carry no fallback: tokens.css
 /// gives each one a default, so a fallback can only hide a typo.

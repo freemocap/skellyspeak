@@ -16,7 +16,7 @@ export interface DomainStatistics {
 /** Descriptive counts from the saved credit projection, never an ability estimate. */
 export function practiceStatistics(snapshot: SkillSnapshot) {
   if (snapshot.profile.choices.target !== snapshot.target || snapshot.profile.choices.learner_id !== snapshot.learner_id || snapshot.records.some(record => record.target !== snapshot.target || record.learner_id !== snapshot.learner_id)) throw new Error('Practice evidence belongs to another language or learner')
-  if (snapshot.profile.rules_version !== 1) throw new Error('Unsupported practice scoring rules')
+  if (![1, 2].includes(snapshot.profile.rules_version)) throw new Error('Unsupported practice scoring rules')
   const domains: DomainStatistics[] = snapshot.catalog.filter(node => node.kind === 'domain').map(node => ({ node, xp: 0, unassisted: 0, assisted: 0, stars: 0, practiced: 0, skills: [] }))
   const seen = new Set<string>()
   for (const progress of snapshot.profile.skills) {
@@ -46,7 +46,7 @@ export function practiceStatistics(snapshot: SkillSnapshot) {
     const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
     if (record.mapping_error) throw new Error('Current credit refers to unmapped evidence.')
     requireCatalogVersion(snapshot, record)
-    if (record.status !== 'complete' || snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) || !record.assessment?.judgments.some(judgment => judgment.skill_id === credit.skill_id && judgment.outcome === 'demonstrated') || credit.xp !== (assisted ? 2 : 10)) throw new Error('Practice credit does not match eligible source evidence')
+    if (record.status !== 'complete' || snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) || !record.assessment?.judgments.some(judgment => judgment.skill_id === credit.skill_id && (judgment.outcome === 'demonstrated' || (snapshot.profile.rules_version === 2 && judgment.outcome === 'partial'))) || (snapshot.profile.rules_version === 1 ? credit.xp !== (assisted ? 2 : 10) : !credit.event || credit.event.xp !== credit.xp || credit.event.constructId !== credit.skill_id || credit.event.attemptId !== credit.attempt_id)) throw new Error('Practice credit does not match eligible source evidence')
     creditKeys.add(key)
     messages.add(JSON.stringify([record.chat_id, record.message_id]))
   }

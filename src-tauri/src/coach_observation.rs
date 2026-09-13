@@ -179,6 +179,7 @@ pub(crate) fn validate(
 }
 pub(crate) fn publish(db: &Connection, turn: &str, value: &Value, attempt: &str) -> Result<()> {
     db.execute("UPDATE turns SET context=json_set(context,'$.coachObservation',json(?2),'$.coachDecision',json(?3),'$.coachObservationAttempt',?4,'$.itemsReturned',?5,'$.nativeRepairObservation',json(?6)) WHERE id=?1",params![turn,value["observation"].to_string(),value["decision"].to_string(),attempt,value["observation"]["items"].as_array().ok_or_else(||rejected("missing validated items"))?.len() as i32,value["nativeRepair"].to_string()])?;
+    crate::rewards::publish(db, turn, attempt)?;
     Ok(())
 }
 

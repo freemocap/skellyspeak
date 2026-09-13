@@ -3,20 +3,14 @@
 }
 
 .chat {
-  flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column;
+  flex: 1 1 var(--chat-share); min-width: 0; display: flex; flex-direction: column;
   background: var(--paper-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sheet-shadow);
   /* The dev panel shrinks this pane; without clipping, the composer's
      controls bleed out over the panel below. */
   overflow: hidden;
 }
-
-/* One stripe hue per conversation. GuidedPage picks the index from the
-   conversation id; CHAT_STRIPES there is the number of rules here. */
-.chat[data-stripe='0'] { border-inline-start: var(--border-width-thick) solid var(--chat-stripe-0); }
-.chat[data-stripe='1'] { border-inline-start: var(--border-width-thick) solid var(--chat-stripe-1); }
-.chat[data-stripe='2'] { border-inline-start: var(--border-width-thick) solid var(--chat-stripe-2); }
-.chat[data-stripe='3'] { border-inline-start: var(--border-width-thick) solid var(--chat-stripe-3); }
-.chat[data-stripe='4'] { border-inline-start: var(--border-width-thick) solid var(--chat-stripe-4); }
 
 .stream {
   overflow-x: hidden;
@@ -141,7 +135,7 @@
 }
 
 .msg.bot {
-  align-self: flex-start; background: var(--paper-raised); border: var(--border-width) solid var(--paper-line);
+  align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
   border-bottom-left-radius: var(--radius-sm); color: var(--paper-ink); cursor: pointer; position: relative;
 }
 
@@ -149,6 +143,7 @@
 
 .msg.me {
   align-self: flex-end; background: var(--bubble-learner-bg); color: var(--bubble-learner-ink);
+  border: var(--border-width) solid var(--bubble-learner-line);
   border-bottom-right-radius: var(--radius-sm); font-family: var(--font-serif); position: relative;
 }
 
@@ -298,8 +293,8 @@
 
 .mic {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
-  flex: none; min-width: 112px; height: 52px; padding: 0 var(--space-8); border-radius: var(--radius-lg); border: var(--border-width-strong) solid var(--danger-fill);
-  background: var(--paper-raised); color: var(--danger-fill); cursor: pointer; font-family: var(--font-sans); font-size: var(--text-xl); font-weight: var(--weight-bold);
+  flex: none; min-width: 112px; height: 52px; padding: 0 var(--space-8); border-radius: var(--radius-lg); border: var(--border-width-strong) solid var(--danger-ink);
+  background: var(--paper-raised); color: var(--danger-ink); cursor: pointer; font-family: var(--font-sans); font-size: var(--text-xl); font-weight: var(--weight-bold);
 }
 
 .mic:hover:not(:disabled) { background: var(--danger-tint); }
@@ -606,7 +601,7 @@
   cursor: pointer;
 }
 
-.composer-help-toggle:hover { background: var(--success-soft); }
+.composer-help-toggle:hover { background: var(--tint-situating); }
 
 .composer-help-toggle:focus-visible { outline: var(--focus-width) solid var(--success-deep); outline-offset: 1px; }
 
@@ -624,7 +619,7 @@
   padding: 0 var(--space-hairline) 0 var(--space-3);
   border: var(--border-width) solid var(--success-edge);
   border-radius: var(--radius-sm);
-  background: var(--success-soft);
+  background: var(--tint-situating);
   color: var(--success-ink);
   text-align: start;
   overflow-wrap: anywhere;
@@ -774,13 +769,14 @@
   margin: 0;
   min-height: 24px;
   padding: var(--space-hairline) var(--space-3);
-  background: var(--paper-raised);
-  border-color: var(--paper-line);
+  background: transparent;
+  border-color: transparent;
   border-radius: var(--radius-sm);
-  font-size: var(--text-2xs);
+  color: var(--paper-ink-muted);
+  font-size: var(--text-xs);
 }
 
-.msg.me .message-actions .message-translate { background: var(--bubble-learner-bg); color: var(--bubble-learner-ink); }
+.msg.me .message-actions .message-translate { background: transparent; color: var(--bubble-learner-ink-muted); }
 
 .message-actions .message-translate:hover { border-color: var(--accent); }
 

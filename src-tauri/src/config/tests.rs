@@ -323,3 +323,22 @@ fn estimator_policy_rejects_invalid_bounds_and_changes_hash() {
         Registry::from_files(changed).unwrap().estimator_hash()
     );
 }
+
+#[test]
+fn game_enforces_evidence_truth_and_no_stopping_penalty() {
+    let files: BTreeMap<_, _> = SEEDS
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+    for (from, to) in [
+        ("never_punish_stopping", "streak_penalty"),
+        ("demonstrated: 10", "login: 10"),
+        ("explicit: 0.3", "explicit: -1.0"),
+        ("repair: 2", "repair: 9"),
+    ] {
+        let mut bad = files.clone();
+        let policy = bad.get_mut("policy/game.yaml").unwrap();
+        *policy = policy.replace(from, to);
+        assert!(Registry::from_files(bad).is_err());
+    }
+}
