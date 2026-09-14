@@ -16,3 +16,19 @@ varieties:
     guidance: []
 guidance: []
 review: "needs_review"
+starter_persona:
+  name: "نور"
+  romanizedName: "Nūr"
+  age: 29
+  location: "Amman, Jordan"
+  occupation: "Architect at a firm that restores old buildings"
+  background: "Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most of the cooking and all of the opinions."
+  currentSituation: "Documenting a 1930s house before it is renovated, and learning to make her grandmother's maqluba."
+  interests: ["sketching doorways", "old maps", "oud music", "walking the same hill every Friday"]
+  opinions: ["New buildings should be shorter.", "Mint belongs in almost everything."]
+  interestingFacts: ["Can read the decade a building was built from its stonework."]
+  favoriteBooks: ["Season of Migration to the North — Tayeb Salih", "The Cairo Trilogy — Naguib Mahfouz"]
+  favoriteMovies: ["Theeb (2014)", "Cairo Station (1958)"]
+  manner: "Curious and direct. Asks precise questions and laughs easily."
+  quirks: ["Photographs doors wherever she goes."]
+  vibe: ["🏛️", "🎻", "🌿"]

@@ -1,7 +1,9 @@
+import { useI18n } from '../../ui/i18n'
 import { useState, type RefObject } from 'react'
 
 /** Presentation-only split; never changes conversation or coaching state. */
 export function PracticeDivider({ workspace }: { workspace: RefObject<HTMLDivElement | null> }) {
+  const tr = useI18n()
   const [share, setShare] = useState(() => Number.parseFloat(workspace.current?.style.getPropertyValue('--chat-share') || '50'))
   function resize(value: number) {
     const next = Math.min(70, Math.max(30, Math.round(value)))
@@ -9,7 +11,7 @@ export function PracticeDivider({ workspace }: { workspace: RefObject<HTMLDivEle
     workspace.current?.style.setProperty('--chat-share', `${next}%`)
   }
   return <div className="practice-divider" role="separator" tabIndex={0}
-    aria-label="Conversation and coach width" aria-orientation="vertical"
+    aria-label={tr("Conversation and coach width")} aria-orientation="vertical"
     aria-valuemin={30} aria-valuemax={70} aria-valuenow={share}
     onDoubleClick={() => resize(50)}
     onKeyDown={event => {

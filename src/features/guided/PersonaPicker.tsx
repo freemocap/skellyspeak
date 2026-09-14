@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { PersonaAvatar } from '../../ui/PersonaAvatar'
 
@@ -15,6 +16,7 @@ export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCr
   onEdit: () => void
   onCreate: () => void
 }) {
+  const tr = useI18n()
   const [open, setOpen] = useState(false)
   const panel = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -32,17 +34,17 @@ export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCr
   const current = choices.find(choice => choice.id === currentId)
   return <div className="persona-picker" ref={panel}>
     <button type="button" className="persona-picker-toggle" aria-haspopup="menu" aria-expanded={open} disabled={busy}
-      title={current ? `Talking with ${current.name}` : 'No contact for this language yet'} onClick={() => setOpen(value => !value)}>
-      {current ? <><PersonaAvatar symbol={current.symbol} /><span>{current.name}</span></> : <span>No persona</span>}
+      title={current ? tr("Talking with {value0}", { value0: String(current.name) }) : tr("No contact for this language yet")} onClick={() => setOpen(value => !value)}>
+      {current ? <><PersonaAvatar symbol={current.symbol} /><span>{current.name}</span></> : <span>{tr("No persona")}</span>}
       <span aria-hidden="true">▾</span>
     </button>
-    {open && <div className="persona-picker-menu" role="menu" aria-label="Contacts">
+    {open && <div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
       {choices.map(choice => <button type="button" role="menuitemradio" aria-checked={choice.id === currentId} key={choice.id}
         className="persona-picker-item" onClick={() => { setOpen(false); if (choice.id !== currentId) onSelect(choice.id) }}>
         <PersonaAvatar symbol={choice.symbol} /><span>{choice.name}</span>{choice.id === currentId && <span aria-hidden="true">✓</span>}
       </button>)}
-      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>Edit persona</button>
-      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>+ New persona…</button>
+      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit persona")}</button>
+      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New persona…")}</button>
     </div>}
   </div>
 }

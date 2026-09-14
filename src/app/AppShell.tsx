@@ -1,3 +1,4 @@
+import { I18nProvider } from '../ui/i18n'
 import { useEffect } from 'react'
 import { useIsMobile } from '../ui/useIsMobile'
 import { useLoadSkillEvidence } from '../state/useSkillEvidence'
@@ -57,7 +58,7 @@ export function AppShell() {
   useAppShortcuts(shortcuts)
 
   return (
-    <ReadingProvider settings={settings}><div className="app">
+    <I18nProvider locale={settings?.native_language ?? 'en'}><ReadingProvider settings={settings}><div className="app">
       <UpdateBanner />
       <TopBar />
       <FaultBar />
@@ -67,6 +68,6 @@ export function AppShell() {
       <MoreDialog />
       <LogsOverlay open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
-    </div></ReadingProvider>
+    </div></ReadingProvider></I18nProvider>
   )
 }

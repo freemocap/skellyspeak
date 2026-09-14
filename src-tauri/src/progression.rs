@@ -132,14 +132,19 @@ pub(crate) fn snapshot_db(
         .min_by_key(|s| s["successes"].as_u64().unwrap())
         .unwrap_or(&skills[0])["skill_id"]
         .clone();
-    let xp: u64 = skills.iter().map(|s| s["xp"].as_u64().unwrap()).sum();
+    let quiz_credits = crate::lessons::quiz_credits(db, target)?;
+    let xp: u64 = skills
+        .iter()
+        .map(|s| s["xp"].as_u64().unwrap())
+        .sum::<u64>()
+        + quiz_credits.iter().map(|c| u64::from(c.xp)).sum::<u64>();
     let count: i64 = db.query_row(
         "SELECT count(*) FROM conversations WHERE language_id=?1",
         [target],
         |r| r.get(0),
     )?;
     Ok(
-        json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":2,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
+        json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":2,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"quiz_credits":quiz_credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
     )
 }
 #[tauri::command]

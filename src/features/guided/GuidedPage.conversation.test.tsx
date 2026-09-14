@@ -16,8 +16,8 @@ vi.mock('../../platform/diagnostics/log', () => ({ logDiagnostic: vi.fn(), logIn
 // workspace command builder and native snapshot projection run unchanged.
 vi.mock('../../platform/ipc/tauri', () => ({
   isTauri: true, getSettings: chrome.getSettings, saveSettings: chrome.saveSettings,
-  languages: () => [{ base: 'es', endonym: 'Español' }, { base: 'en', endonym: 'English' }],
-  languageFor: () => ({ endonym: 'Español' }),
+  languages: () => [{ code: 'es', base: 'es', name: 'Spanish', endonym: 'Español' }, { code: 'en', base: 'en', name: 'English', endonym: 'English' }],
+  languageFor: (code: string) => code === 'en' ? { code: 'en', name: 'English', endonym: 'English' } : { code: 'es', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
 vi.mock('./useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
@@ -79,7 +79,7 @@ function directory(): Snapshot {
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
-    opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
+    lessons: [], lessonChoices: [], opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
     messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },

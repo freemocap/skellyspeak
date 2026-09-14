@@ -516,3 +516,23 @@ paid synthetic comparisons, output defects and the proposed Fast/Standard/Strong
 task split. Production routing is unchanged. Run its offline checks with
 `node --test scripts/benchmarks/model-routing.test.ts`; paid execution is explicit
 and requires the ignored `server/local.env` OpenRouter key.
+
+## Adding languages
+
+See the [language authoring guide](workflow/reports/language-authoring.md) for the
+data checklist, workspace ownership and verification boundaries. Run
+`npm run languages:check` before the full verification suite. Configuration and
+locale files are discovered automatically; Portuguese and German are included in
+both language roles. Existing editable workspace config is not overwritten by a
+build and must explicitly receive the new records or be recreated.
+
+### Short lessons
+
+Use **Take a lesson** beside **You start** or in the coach area. Choose a suggested
+or custom topic in Practical situations, Grammar, About the language, or Reading.
+Reading lessons tailor phonetics and decoding guidance to the selected Native language. Read a
+short generated lesson, optionally answer two quiz questions (1 XP correct, 0 wrong), practise or ask the
+coach, then select **Try it in chat**. Saved lessons belong to the conversation.
+Task completion receives a private evidence-based recap; reading a lesson does not
+award proficiency. Lessons use the existing AI route and durable operation
+scheduler. See `workflow/reports/lessons.md` for verification status.

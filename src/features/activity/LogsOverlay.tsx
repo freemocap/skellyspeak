@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { openOverlay } from '../../domain/input/back'
@@ -27,6 +28,7 @@ interface LogsOverlayProps {
 }
 
 export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
+  const tr = useI18n()
   const [heightVh, setHeightVh] = useState<number>(storedHeight)
   const isMobile = useIsMobile()
   const dragging = useRef(false)
@@ -58,7 +60,7 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
     window.addEventListener('pointerup', up)
   }, [])
 
-  if (isMobile) return open ? <DetailDialog title="AI activity & tools" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><LiveActivity /></div></DetailDialog> : null
+  if (isMobile) return open ? <DetailDialog title={tr("AI activity & tools")} onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><LiveActivity /></div></DetailDialog> : null
 
   return (
     <>
@@ -68,13 +70,12 @@ export function LogsOverlay({ open, onOpenChange }: LogsOverlayProps) {
             className="logs-resize"
             onPointerDown={onPointerDown}
             role="separator"
-            aria-label="Resize panel"
-            title="Drag to resize"
+            aria-label={tr("Resize panel")}
+            title={tr("Drag to resize")}
           />
           <div className="logs-window-bar">
             <span className="logs-window-title">
-              AI activity
-            </span>
+              {tr("AI activity")}</span>
 
           </div>
           <LiveActivity />

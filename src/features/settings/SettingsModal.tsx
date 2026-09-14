@@ -1,3 +1,5 @@
+import { messageKey } from '../../domain/language/i18n'
+import { useI18n } from '../../ui/i18n'
 import { InfoTip } from '../../ui/InfoTip'
 import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
@@ -6,7 +8,7 @@ import type { Settings, Shortcuts } from '../../types'
 import { logInfo, languages } from '../../platform/ipc/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../../domain/input/keyboard'
 import { DialectField } from './DialectField'
-import { t, tOr, uiLangFromNative, type UiLang } from '../../domain/language/i18n'
+import { t, uiLangFromNative, type UiLang } from '../../domain/language/i18n'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { openOverlay } from '../../domain/input/back'
@@ -28,16 +30,16 @@ const AUTOSAVE_DEBOUNCE_MS = 500
 type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'data'
 
 function SaveStatus({ state }: { state: SaveState }) {
+  const tr = useI18n()
   if (state === 'error')
     return (
       <span className="save-status error" role="alert">
-        Not saved — check the logs
-      </span>
+        {tr("Not saved — check the logs")}</span>
     )
   if (state === 'saving' || state === 'pending')
-    return <span className="save-status">Saving…</span>
-  if (state === 'saved') return <span className="save-status saved">Saved ✓</span>
-  return <span className="save-status hint">Changes save automatically</span>
+    return <span className="save-status">{tr("Saving…")}</span>
+  if (state === 'saved') return <span className="save-status saved">{tr("Saved ✓")}</span>
+  return <span className="save-status hint">{tr("Changes save automatically")}</span>
 }
 
 /// Shortcut recorder: click to arm, press a combo. Esc resets to default.
@@ -57,14 +59,14 @@ function ShortcutField({
   const [recording, setRecording] = useState(false)
   // Shortcut labels localize via settings.sc.<action>; falls back to the
   // English label when the key is missing.
-  const displayLabel = tOr(ui, 'settings.sc.' + action, label)
+  const displayLabel = t(ui, label)
   return (
     <div className="shortcut-field">
       <span className="shortcut-label">{displayLabel}</span>
       <input
         data-shortcut-capture={recording || undefined}
         className="shortcut-input"
-        value={recording ? 'press keys…' : value || SHORTCUT_DEFAULTS[action]}
+        value={recording ? t(ui, 'press keys…') : value || SHORTCUT_DEFAULTS[action]}
         readOnly
         onFocus={() => setRecording(true)}
         onBlur={() => setRecording(false)}
@@ -87,38 +89,38 @@ function ShortcutField({
 }
 
 const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string }[] = [
-  { id: 'reading', labelKey: 'Reading & display', icon: 'Aa', descKey: 'Text size, spacing, and reading aids' },
+  { id: 'reading', labelKey: messageKey('Reading & display'), icon: 'Aa', descKey: messageKey('Text size, spacing, and reading aids') },
   {
     id: 'keys',
-    labelKey: 'AI access',
+    labelKey: messageKey('AI access'),
     icon: '🔑',
-    descKey: 'Hosted sign-in, API keys or a custom server',
+    descKey: messageKey('Hosted sign-in, API keys or a custom server'),
   },
   {
     id: 'languages',
-    labelKey: 'settings.section.languages',
+    labelKey: "Languages",
     icon: '🌐',
-    descKey: 'settings.desc.languages',
+    descKey: "What you're learning and what you already speak.",
   },
   {
     id: 'voice',
-    labelKey: 'settings.section.voice',
+    labelKey: "Audio & Voice",
     icon: '🎙',
-    descKey: 'settings.desc.voice',
+    descKey: "Microphone, speech playback, and transcription behavior.",
   },
   {
     id: 'shortcuts',
-    labelKey: 'settings.section.shortcuts',
+    labelKey: "Shortcuts",
     icon: '⌨',
-    descKey: 'settings.desc.shortcuts',
+    descKey: "Click a field and press the combo. Esc resets to default.",
   },
   {
     id: 'updates',
-    labelKey: 'settings.section.updates',
+    labelKey: "Updates",
     icon: '⬆',
-    descKey: 'settings.desc.updates',
+    descKey: "Application version and updates.",
   },
-  { id: 'data', labelKey: 'Your data', icon: '💾', descKey: 'Save a copy, or delete everything and start over' },
+  { id: 'data', labelKey: messageKey('Your data'), icon: '💾', descKey: messageKey('Save a copy, or delete everything and start over') },
 ]
 
 const SECTION_LABEL_KEY: Record<SectionId, string> = Object.fromEntries(
@@ -137,10 +139,10 @@ interface RowDef {
 }
 
 const SHORTCUT_ROWS: { action: ShortcutAction; label: string }[] = [
-  { action: 'mic', label: 'Toggle microphone' },
-  { action: 'speak', label: 'Speak last reply' },
-  { action: 'panel', label: 'Toggle analysis panel' },
-  { action: 'settings', label: 'Open settings' },
+  { action: 'mic', label: messageKey('Toggle microphone') },
+  { action: 'speak', label: messageKey('Speak last reply') },
+  { action: 'panel', label: messageKey('Toggle analysis panel') },
+  { action: 'settings', label: messageKey('Open settings') },
 ]
 
 export function SettingsModal({
@@ -150,6 +152,7 @@ export function SettingsModal({
   onClose: () => void
   onBusyChange?: (busy: boolean) => void
 }) {
+  const tr = useI18n()
   const [settings, setSettings] = useState<Settings | null>(null)
   useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -274,8 +277,8 @@ export function SettingsModal({
   if (!settings) {
     return (
       <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
-        <div className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings">
-          {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>Close</button></> : <p className="center-note">Loading…</p>}
+        <div className="settings-modal" role="dialog" aria-modal="true" aria-label={tr("Settings")}>
+          {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>{tr("Close")}</button></> : <p className="center-note">{tr("Loading…")}</p>}
         </div>
       </div>
     )
@@ -285,23 +288,22 @@ export function SettingsModal({
     setSettings({ ...settings, shortcuts: { ...settings.shortcuts, ...patch } })
 
   // Localized display label for a registry row (English label = search index).
-  const L = (id: string, fallback: string) => tOr(ui, 'settings.row.' + id, fallback)
 
   // ── Row registry: adding a setting = one entry here ──────────────────────
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
     provider_mode: {
-      section: 'keys', label: 'AI access', kw: 'provider server token key account models custom hosted openrouter groq',
+      section: 'keys', label: tr('AI access'), kw: 'provider server token key account models custom hosted openrouter groq',
       node: <SettingsAccess onBusyChange={setAccessBusy} onChanged={refreshFromBackend} />,
     },
     target_language: {
       section: 'languages',
-      label: L('target_language', 'I want to learn'),
+      label: tr('I want to learn'),
       kw: 'target language learn spanish studying',
       node: (
         <div className="form-row">
-          <label>I want to learn</label>
+          <label>{tr("I want to learn")}</label>
           <select
             value={settings.target_language}
             onChange={(e) => {
@@ -311,7 +313,7 @@ export function SettingsModal({
           >
             {languages().map((l) => (
               <option key={l.code} value={l.code}>
-                {languageLabel(l)}
+                {languageLabel(l, tr.locale)}
               </option>
             ))}
           </select>
@@ -320,11 +322,11 @@ export function SettingsModal({
     },
     target_dialect: {
       section: 'languages',
-      label: L('target_dialect', 'Regional variety'),
+      label: tr('Regional variety'),
       kw: 'dialect regional variety accent region levantine mexican',
       node: (
         <div className="form-row">
-          <label>Regional variety</label>
+          <label>{tr("Regional variety")}</label>
           <DialectField
             presets={
               languages().find((l) => l.code === settings.target_language)?.dialects ?? []
@@ -337,18 +339,18 @@ export function SettingsModal({
     },
     native_language: {
       section: 'languages',
-      label: L('native_language', 'My native language'),
+      label: tr('My native language'),
       kw: 'native language explanations mother tongue',
       node: (
         <div className="form-row">
-          <label>My native language</label>
+          <label>{tr("My native language")}</label>
           <select
             value={settings.native_language}
             onChange={(e) => setSettings({ ...settings, native_language: e.target.value })}
           >
             {languages().map((l) => (
               <option key={l.base} value={l.base}>
-                {languageLabel(l)}
+                {languageLabel(l, tr.locale)}
               </option>
             ))}
           </select>
@@ -356,29 +358,29 @@ export function SettingsModal({
       ),
     },
     audio_volume: {
-      section: 'voice', label: 'Volume', kw: 'audio master overall volume voice speech tts effects sound mute rewards',
+      section: 'voice', label: tr('Volume'), kw: 'audio master overall volume voice speech tts effects sound mute rewards',
       node: <div className="audio-volume-controls">
         {(['master_volume', 'voice_volume', 'effects_volume'] as const).map((key, index) => <div className={`audio-volume-row${index ? ' audio-volume-channel' : ''}`} key={key}>
-          <label htmlFor={key}>{['Overall volume', 'Voice volume', 'Sound effects volume'][index]}</label>
+          <label htmlFor={key}>{tr(['Overall volume', 'Voice volume', 'Sound effects volume'][index])}</label>
           <input id={key} type="range" min="0" max="100" step="1" value={settings[key]}
             onChange={event => setSettings({ ...settings, [key]: Number(event.target.value) })} />
           <output htmlFor={key}>{settings[key]}%</output>
         </div>)}
         <div className="audio-volume-channel audio-effects-toggles">
           <label className="check-label"><input type="checkbox" checked={settings.reward_sounds !== 'no'}
-            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'yes' : 'no' })} />Sound effects</label>
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'yes' : 'no' })} />{tr("Sound effects")}</label>
           {settings.reward_sounds !== 'no' && <label className="check-label"><input type="checkbox" checked={settings.reward_sounds === 'follow_tts'}
-            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'follow_tts' : 'yes' })} />Only with Read aloud</label>}
+            onChange={event => setSettings({ ...settings, reward_sounds: event.target.checked ? 'follow_tts' : 'yes' })} />{tr("Only with Read aloud")}</label>}
         </div>
       </div>,
     },
     microphone: {
       section: 'voice',
-      label: L('microphone', 'Microphone'),
+      label: tr('Microphone'),
       kw: 'microphone input device recording yeti',
       node: (
         <div className="form-row">
-          <label>Microphone</label>
+          <label>{tr("Microphone")}</label>
           <div className="microphone-row">
             <select
               value={settings.microphone_device_id ?? ''}
@@ -389,7 +391,7 @@ export function SettingsModal({
                 })
               }
             >
-              <option value="">System default</option>
+              <option value="">{tr("System default")}</option>
               {mics.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.label}
@@ -404,12 +406,12 @@ export function SettingsModal({
       ),
     },
     tts_rate: {
-      section: 'voice', label: 'Voice speed', kw: 'voice speech speed rate slower faster',
-      node: <div className="form-row"><label htmlFor="voice-speed">Voice speed</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
+      section: 'voice', label: tr('Voice speed'), kw: 'voice speech speed rate slower faster',
+      node: <div className="form-row"><label htmlFor="voice-speed">{tr("Voice speed")}</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
     },
     auto_speak: {
       section: 'voice',
-      label: L('auto_speak', 'Auto-speak tutor replies'),
+      label: tr('Auto-speak tutor replies'),
       kw: 'auto speak tts voice speech playback audio read aloud',
       node: (
         <div className="form-row check-row">
@@ -419,14 +421,14 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>Read persona replies aloud</span>
+            <span>{tr("Read persona replies aloud")}</span>
           </label>
         </div>
       ),
     },
     auto_send: {
       section: 'voice',
-      label: L('auto_send', 'Auto-send transcriptions'),
+      label: tr('Auto-send transcriptions'),
       kw: 'auto send transcription mic speech stt voice input',
       node: (
         <div className="form-row check-row">
@@ -436,25 +438,25 @@ export function SettingsModal({
               checked={settings.auto_send}
               onChange={(e) => setSettings({ ...settings, auto_send: e.target.checked })}
             />
-            <span>Send after stopping the microphone</span>
+            <span>{tr("Send after stopping the microphone")}</span>
           </label>
         </div>
       ),
     },
     theme: {
-      section: 'reading', label: 'Appearance', kw: 'theme light dark system appearance',
-      node: <div className="form-row"><label htmlFor="appearance-theme">Appearance</label><select id="appearance-theme" value={settings.theme ?? 'light'} onChange={event=>setSettings({...settings,theme:event.target.value as 'light'|'dark'|'system'})}><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></div>,
+      section: 'reading', label: tr('Appearance'), kw: 'theme light dark system appearance',
+      node: <div className="form-row"><label htmlFor="appearance-theme">{tr("Appearance")}</label><select id="appearance-theme" value={settings.theme ?? 'light'} onChange={event=>setSettings({...settings,theme:event.target.value as 'light'|'dark'|'system'})}><option value="light">{tr("Light")}</option><option value="dark">{tr("Dark")}</option><option value="system">{tr("System")}</option></select></div>,
     },
     text_size: {
-      section: 'reading', label: 'Text size', kw: 'font text size reading display accessibility',
-      node: <div className="form-row"><label htmlFor="reading-size">Text size · {settings.text_size}%</label>
+      section: 'reading', label: tr('Text size'), kw: 'font text size reading display accessibility',
+      node: <div className="form-row"><label htmlFor="reading-size">{tr("Text size · ")}{settings.text_size}%</label>
         <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
       </div>,
     },
 
     always_romanize: {
       section: 'reading',
-      label: L('always_romanize', 'Always show romanization'),
+      label: tr('Always show romanization'),
       kw: 'romanization always show latin arabic pinyin pronunciation',
       node: (
         <div className="form-row check-row">
@@ -464,34 +466,34 @@ export function SettingsModal({
               checked={settings.always_romanize}
               onChange={(e) => setSettings({ ...settings, always_romanize: e.target.checked })}
             />
-            <span>Show romanization</span>
+            <span>{tr("Show romanization")}</span>
           </label>
         </div>
       ),
     },
     fast_mode: {
       section: 'reading',
-      label: 'Fast mode',
+      label: tr('Fast mode'),
       kw: 'xp reward cards fast mode animation dismiss progress',
       node: <div className="form-row check-row"><label className="check-label">
         <input type="checkbox" checked={settings.fast_mode}
           onChange={event => setSettings({ ...settings, fast_mode: event.target.checked })} />
-        <span>Fast mode · dismiss XP cards automatically</span>
+        <span>{tr("Fast mode · dismiss XP cards automatically")}</span>
       </label></div>,
     },
     always_pronunciation: {
       section: 'reading',
-      label: 'Always show pronunciation',
+      label: tr('Always show pronunciation'),
       kw: 'pronunciation phonetic reading coach reply',
       node: <div className="form-row check-row"><label className="check-label">
         <input type="checkbox" checked={settings.always_pronunciation}
           onChange={event => setSettings({ ...settings, always_pronunciation: event.target.checked })} />
-        <span>Show pronunciation</span>
+        <span>{tr("Show pronunciation")}</span>
       </label></div>,
     },
     auto_translate: {
       section: 'reading',
-      label: 'Token translations',
+      label: tr('Token translations'),
       kw: 'translation always show native meaning under reply',
       node: (
         <div className="form-row check-row">
@@ -501,26 +503,26 @@ export function SettingsModal({
               checked={settings.auto_translate}
               onChange={(e) => setSettings({ ...settings, auto_translate: e.target.checked })}
             />
-            <span>Show token translations</span>
+            <span>{tr("Show token translations")}</span>
           </label>
         </div>
       ),
     },
     app_updates: {
       section: 'updates',
-      label: L('app_updates', 'Application updates'),
+      label: tr('Application updates'),
       kw: 'update updates upgrade version release install newer check',
-      node: <div className="update-controls"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>Check for updates</button><button type="button" className="btn" onClick={() => { void openDownloads().catch(error => reportFault('Opening downloads', error)) }}>Downloads</button><InfoTip>Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.</InfoTip></div>,
+      node: <div className="update-controls"><button type="button" className="btn" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))}>{tr("Check for updates")}</button><button type="button" className="btn" onClick={() => { void openDownloads().catch(error => reportFault('Opening downloads', error)) }}>{tr("Downloads")}</button><InfoTip>{tr("Desktop updates install in the app. Android updates open the APK download page. Development builds do not install updates.")}</InfoTip></div>,
     },
     data_copy: {
       section: 'data',
-      label: 'Save a copy of my data',
+      label: tr('Save a copy of my data'),
       kw: 'data export backup save copy download workspace conversations',
       node: <SaveDataCopy />,
     },
     data_reset: {
       section: 'data',
-      label: 'Delete my data',
+      label: tr('Delete my data'),
       kw: 'data delete erase factory reset wipe start over',
       node: <FactoryReset />,
     },
@@ -528,7 +530,7 @@ export function SettingsModal({
   for (const sr of SHORTCUT_ROWS) {
     rows[`shortcut_${sr.action}`] = {
       section: 'shortcuts',
-      label: sr.label,
+      label: t(ui, sr.label),
       kw: `keyboard shortcut hotkey key combo ${sr.label}`,
       node: (
         <div className="form-row">
@@ -546,7 +548,7 @@ export function SettingsModal({
 
   const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
-    if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">Not connected.</p>{row.node}</fieldset>
+    if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
   }
 
@@ -579,7 +581,7 @@ export function SettingsModal({
   return (
     <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
       <div
-        className="settings-modal" role="dialog" aria-modal="true" aria-label="Settings"
+        className="settings-modal" role="dialog" aria-modal="true" aria-label={tr("Settings")}
         onFocusCapture={(e) => {
           const t = e.target as HTMLElement
           if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
@@ -590,10 +592,10 @@ export function SettingsModal({
         <aside className="settings-nav">
           <input
             className="settings-search"
-            placeholder="Search settings…"
+            placeholder={tr("Search settings…")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search settings"
+            aria-label={tr("Search settings")}
             disabled={accessBusy || dirty || saveState === 'saving'}
           />
           {!isMobile && (
@@ -610,7 +612,7 @@ export function SettingsModal({
                   }}
                 >
                   <span className="nav-icon">{s.icon}</span>
-                  {tOr(ui, s.labelKey, s.labelKey)}
+                  {t(ui, s.labelKey)}
                 </button>
               ))}
             </nav>
@@ -618,41 +620,40 @@ export function SettingsModal({
         </aside>
         <main className="settings-content">
           <div className="settings-head">
-            <h2>{searching ? `“${search.trim()}”` : t(ui, 'settings.title')}</h2>
+            <h2>{searching ? `“${search.trim()}”` : t(ui, "Settings")}</h2>
             <p className="sub">
               {searching
-                ? `${visibleRows.length} ${t(ui, 'settings.matches')}`
+                ? t(ui, 'Search matches', { count: visibleRows.length })
                 : stacked
-                  ? tOr(ui, 'settings.subtitle', 'Expand a section to adjust its settings.')
-                  : tOr(ui, activeSection.descKey, activeSection.descKey)}
+                  ? tr('Expand a section to adjust its settings.')
+                  : t(ui, activeSection.descKey)}
             </p>
           </div>
           <div className="settings-scroll" inert={saveState === 'saving'}>
             {searching && visibleRows.length === 0 && (
-              <p className="center-note">Nothing matches “{search.trim()}”.</p>
+              <p className="center-note">{t(ui, "Nothing matches “{q}”.", { q: search.trim() })}</p>
             )}
             {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'reading'}>
-              <summary>{tOr(ui, group.labelKey, group.labelKey)}</summary>
+              <summary>{t(ui, group.labelKey)}</summary>
               {allRows.filter(([, row]) => row.section === group.id).map(([id, row]) => <div key={id} className="settings-entry">{row.node}</div>)}
             </details>) : renderRows.map(({ id, row, heading }) => (
               <div key={id} className="settings-entry">
                 {heading && (
-                  <p className="settings-group-k">{tOr(ui, SECTION_LABEL_KEY[heading], SECTION_LABEL_KEY[heading])}</p>
+                  <p className="settings-group-k">{t(ui, SECTION_LABEL_KEY[heading])}</p>
                 )}
                 {row.node}
               </div>
             ))}
             {!searching && visibleRows.length === 0 && (
-              <p className="center-note">Nothing here yet.</p>
+              <p className="center-note">{tr("Nothing here yet.")}</p>
             )}
           </div>
           <div className="modal-actions">
-            <button type="button" className="settings-version" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))} title="Check for updates">v{appVersion ?? '…'}</button>
+            <button type="button" className="settings-version" onClick={() => window.dispatchEvent(new Event('skellyspeak-check-update'))} title={tr("Check for updates")}>v{appVersion ?? '…'}</button>
             <SaveStatus state={dirty && saveState === 'idle' ? 'pending' : saveState} />
-            {saveState === 'error' && <button className="btn" onClick={() => setSaveState('idle')}>Retry save</button>}
+            {saveState === 'error' && <button className="btn" onClick={() => setSaveState('idle')}>{tr("Retry save")}</button>}
             <button type="button" className="btn settings-close" disabled={accessBusy || dirty || saveState === 'saving'} onClick={onClose}>
-              Close
-            </button>
+              {tr("Close")}</button>
           </div>
         </main>
       </div>

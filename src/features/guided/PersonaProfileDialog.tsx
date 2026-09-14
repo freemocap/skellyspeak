@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useRef } from 'react'
 import type { Persona, PersonaDetails } from '../../contracts'
 import { DetailDialog } from '../../ui/DetailDialog'
@@ -10,6 +11,7 @@ export function PersonaProfileDialog({ persona, language, romanized, onSave, onN
   onNewPersona: () => void
   onClose: () => void
 }) {
+  const tr = useI18n()
   const editor = useRef<PersonaProfileHandle>(null)
   const closing = useRef(false)
   const close = async (afterClose = onClose) => {
@@ -19,10 +21,10 @@ export function PersonaProfileDialog({ persona, language, romanized, onSave, onN
     catch { /* Validation/save failure stays visible with its draft. */ }
     finally { closing.current = false }
   }
-  return <DetailDialog title="Persona" onClose={() => { void close() }}>
+  return <DetailDialog title={tr("Persona")} onClose={() => { void close() }}>
     <div className="persona-dialog-head">
-      <h2>Persona</h2>
-      <button type="button" className="btn" onClick={() => { void close(onNewPersona) }}>New persona…</button>
+      <h2>{tr("Persona")}</h2>
+      <button type="button" className="btn" onClick={() => { void close(onNewPersona) }}>{tr("New persona…")}</button>
     </div>
     <PersonaProfile ref={editor} persona={persona} language={language} romanized={romanized} onSave={onSave} />
   </DetailDialog>

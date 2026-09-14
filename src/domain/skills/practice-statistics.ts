@@ -36,7 +36,14 @@ export function practiceStatistics(snapshot: SkillSnapshot) {
     domain.skills.push(progress)
   }
   const sum = (field: 'xp' | 'unassisted' | 'assisted' | 'stars' | 'practiced') => domains.reduce((total, domain) => total + domain[field], 0)
-  if (sum('xp') !== snapshot.profile.xp) throw new Error('Domain XP does not reconcile with profile XP')
+  const quizKeys = new Set<string>()
+  const quizXp = snapshot.profile.quiz_credits.reduce((sum, credit) => {
+    const key = JSON.stringify([credit.lessonId, credit.questionIndex])
+    if (!credit.lessonId || !credit.conversationId || ![0, 1].includes(credit.questionIndex) || ![0, 1].includes(credit.xp) || quizKeys.has(key)) throw new Error('Invalid lesson quiz credit')
+    quizKeys.add(key)
+    return sum + credit.xp
+  }, 0)
+  if (sum('xp') + quizXp !== snapshot.profile.xp) throw new Error('Domain XP does not reconcile with profile XP')
   const messages = new Set<string>()
   const creditKeys = new Set<string>()
   for (const credit of snapshot.profile.credits) {
@@ -50,8 +57,8 @@ export function practiceStatistics(snapshot: SkillSnapshot) {
     creditKeys.add(key)
     messages.add(JSON.stringify([record.chat_id, record.message_id]))
   }
-  if (snapshot.profile.credits.reduce((total, credit) => total + credit.xp, 0) !== snapshot.profile.xp) throw new Error('Credit ledger does not reconcile with profile XP')
+  if (snapshot.profile.credits.reduce((total, credit) => total + credit.xp, 0) + quizXp !== snapshot.profile.xp) throw new Error('Credit ledger does not reconcile with profile XP')
   const statuses = { complete: 0, pending: 0, failed: 0, superseded: 0 }
   for (const record of snapshot.records) statuses[record.status] += 1
-  return { domains, unassisted: sum('unassisted'), assisted: sum('assisted'), stars: sum('stars'), practiced: sum('practiced'), contributingMessages: messages.size, statuses }
+  return { quizXp, domains, unassisted: sum('unassisted'), assisted: sum('assisted'), stars: sum('stars'), practiced: sum('practiced'), contributingMessages: messages.size, statuses }
 }

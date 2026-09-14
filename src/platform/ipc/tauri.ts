@@ -1,3 +1,4 @@
+import { validateLanguageLocales } from '../../domain/language/i18n'
 import type { ConnectionConfig, AccessSettings, RewardSettings } from '../../contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'
@@ -50,6 +51,7 @@ let registry: LanguageInfo[] | null = null
 /// render a language picker it does not have.
 export async function loadLanguages(): Promise<void> {
   const snapshot = await readWorkspace()
+  validateLanguageLocales(snapshot.languages.map(language => language.id))
   registry = snapshot.languages.map(language => {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
     return { fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,

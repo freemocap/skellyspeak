@@ -163,3 +163,16 @@ deployed service support or learner-visible fluency measurements.
 | `execution.rs` size | Only B touches it; new behaviour goes in new modules. |
 | Other in-flight work | Each wave starts from a committed tree. |
 | Unverified claims | Hand-backs separate what was read from what was inferred; integration re-runs the gate. |
+
+## Explicit lessons addition
+
+Source implementation connects the chooser, structured lesson generation, optional
+private coach practice, conversation handoff, exposure accounting and quoted
+recaps. Lifecycle tests cover persistence, failures, duplicate actions, ownership,
+revision and deletion. The visual/live-provider checkpoint is distinct from those
+automated checks; see `workflow/reports/lessons.md`.
+
+Implemented lesson category selection and the optional two-question recall quiz.
+Native grading persists the first answer and projects separate 0/1 bonus XP without
+skill evidence. Verification and remaining visual/provider checks are recorded in
+`workflow/reports/lessons.md`.

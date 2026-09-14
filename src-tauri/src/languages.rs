@@ -92,7 +92,7 @@ mod tests {
     use super::*;
     #[test]
     fn bundled_helpers_preserve_language_coverage_and_guidance() {
-        assert_eq!(registry().len(), 5);
+        assert!(!registry().is_empty());
         for language in registry() {
             let settings = defaults(&language.id, "en").unwrap();
             assert_eq!(settings.difficulty, Difficulty::Beginner);

@@ -1,4 +1,4 @@
-//! Transient, bounded recording inspection. No raw audio is serialized or saved.
+//! Transient, bounded recording inspection. Audio is returned for temporary playback, never saved.
 use crate::{fluency, model::*};
 use serde::Serialize;
 use ts_rs::TS;
@@ -8,6 +8,8 @@ const MAX_BYTES: usize = 25 * 1024 * 1024;
 pub struct TranscriptionInspectionResult {
     pub text: String,
     pub inspection: AudioInspection,
+    pub audio_base64: String,
+    pub segments: Vec<fluency::Segment>,
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]

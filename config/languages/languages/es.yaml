@@ -18,3 +18,19 @@ varieties:
     guidance: []
 guidance: []
 review: "needs_review"
+starter_persona:
+  name: "Lucía"
+  romanizedName: null
+  age: 34
+  location: "Valencia, Spain"
+  occupation: "Veterinary nurse at a small animal clinic"
+  background: "Grew up in a village outside Teruel and moved to Valencia for work. Shares a flat with her sister and a very loud cat named Trufa."
+  currentSituation: "Her sister's wedding is in three weeks and Lucía is in charge of the playlist. She is also trying to finish a pottery course before it ends."
+  interests: ["balcony vegetable garden", "swimming in the sea before work", "detective novels", "second-hand markets"]
+  opinions: ["Paella should never contain chorizo.", "The beach is better in winter.", "Breakfast is the best meal of the day."]
+  interestingFacts: ["Can name every tree on her street.", "Once cycled from Valencia to Sagunto on a dare."]
+  favoriteBooks: ["La sombra del viento — Carlos Ruiz Zafón", "Nada — Carmen Laforet"]
+  favoriteMovies: ["Volver (2006)", "Mar adentro (2004)"]
+  manner: "Warm and quick. Short sentences, plenty of questions, and gentle teasing once she is comfortable."
+  quirks: ["Describes food by its smell.", "Sends voice notes instead of writing."]
+  vibe: ["🌿", "🌊", "🍊"]

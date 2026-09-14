@@ -1,44 +1,44 @@
 import { describe, expect, it } from 'vitest'
-import { LOCALES, uiLangFromNative } from './i18n'
+import { LOCALES, uiLangFromNative, validateLocales, validateLanguageLocales, t, formatNumber, formatDate } from './i18n'
 
-const enKeys = Object.keys(LOCALES.en).sort()
-
-describe('i18n locale completeness', () => {
-  it('every locale has exactly the same keys as English', () => {
-    const problems: string[] = []
-    for (const [lang, dict] of Object.entries(LOCALES)) {
-      const keys = Object.keys(dict)
-      const missing = enKeys.filter((k) => !keys.includes(k))
-      const extra = keys.filter((k) => !enKeys.includes(k))
-      if (missing.length) problems.push(`${lang} missing: ${missing.join(', ')}`)
-      if (extra.length) problems.push(`${lang} extra: ${extra.join(', ')}`)
-    }
-    expect(problems).toEqual([])
+const configs = import.meta.glob('../../../config/languages/languages/*.yaml', { eager: true, query: '?raw', import: 'default' })
+describe('language/locale contract', () => {
+  it('discovers one complete UI locale per bundled language', () => {
+    const ids = Object.values(configs).map(text => /^id: "([^"\n]+)"$/m.exec(String(text))![1]).sort()
+    expect(Object.keys(LOCALES).sort()).toEqual(ids)
+    expect(() => validateLanguageLocales(ids)).not.toThrow()
+    validateLocales(LOCALES)
   })
-
-  it('no locale has an empty translation', () => {
-    const empty: string[] = []
-    for (const [lang, dict] of Object.entries(LOCALES)) {
-      for (const [key, value] of Object.entries(dict)) {
-        if (value.trim() === '') empty.push(`${lang}.${key}`)
-      }
+  it('rejects missing, blank, extra and mismatched messages', () => {
+    for (const translated of ([{}, { greeting: '' }, { greeting: 'Olá {other}' }, { greeting: 'Olá {name}', extra: 'extra' }] as Record<string, string>[])) {
+      expect(() => validateLocales({ en: { greeting: 'Hello {name}' }, pt: translated })).toThrow()
     }
-    expect(empty).toEqual([])
+  })
+  it('resolves exact language IDs and fails for missing locale data', () => {
+    for (const id of Object.keys(LOCALES)) expect(uiLangFromNative(id)).toBe(id)
+    for (const id of ['xx', 'pt-BR', 'zh-Hant', 'DE', '']) expect(() => uiLangFromNative(id)).toThrow()
+    expect(uiLangFromNative(null)).toBe('en')
+    expect(uiLangFromNative(undefined)).toBe('en')
+    expect(() => validateLanguageLocales(['en', 'xx'])).toThrow()
+  })
+  it('interpolates literally and rejects missing messages and variables', () => {
+    expect(t('pt', 'Write in {value0}…', { value0: '$& {name}' })).toBe('Escreva em $& {name}…')
+    expect(() => t('pt', 'unknown')).toThrow()
+    expect(() => t('de', 'Write in {value0}…')).toThrow()
+  })
+  it('formats numbers and dates with the selected UI locale', () => {
+    expect(formatNumber('de', 1234.5)).toBe('1.234,5')
+    expect(formatNumber('pt', 1234.5)).toBe('1.234,5')
+    expect(formatDate('de', Date.UTC(2026, 8, 13), { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' })).toBe('13.09.2026')
   })
 })
 
-describe('uiLangFromNative', () => {
-  it('maps each native language to its UI locale', () => {
-    expect(uiLangFromNative('en')).toBe('en')
-    expect(uiLangFromNative('fr-CA')).toBe('fr')
-    expect(uiLangFromNative('es-MX')).toBe('es')
-    expect(uiLangFromNative('ar-LE')).toBe('ar')
-    expect(uiLangFromNative('zh-CN')).toBe('zh')
-  })
-
-  it('falls back to English for an unknown language', () => {
-    expect(uiLangFromNative('de')).toBe('en')
-    expect(uiLangFromNative(null)).toBe('en')
-    expect(uiLangFromNative(undefined)).toBe('en')
-  })
+it('selects locale plural categories and requires count', () => {
+  expect(t('de', 'Search matches', { count: 1 })).toBe('1 Ergebnis')
+  expect(t('de', 'Search matches', { count: 2 })).toBe('2 Ergebnisse')
+  expect(t('pt', 'Search matches', { count: 2 })).toBe('2 resultados')
+  expect(t('zh', 'Search matches', { count: 2 })).toBe('2 个结果')
+  expect(() => t('ar', 'Search matches')).toThrow('count')
+  expect(() => t('ar', 'Search matches', { count: NaN })).toThrow('count')
+  for (const count of [0, 1, 2, 3, 11, 100]) expect(t('ar', 'Search matches', { count })).not.toContain('{count}')
 })

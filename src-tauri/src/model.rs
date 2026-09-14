@@ -128,7 +128,7 @@ pub struct LanguageProfile {
     pub learner_id: String,
     pub language_id: String,
 }
-#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq, schemars::JsonSchema)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PersonaDetails {
     pub name: String,
@@ -221,6 +221,31 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
+    AnswerLessonQuiz {
+        conversation_id: String,
+        lesson_id: String,
+        question_index: u32,
+        option_index: u32,
+    },
+    GenerateLesson {
+        category: crate::lessons::LessonCategory,
+        choice_id: Option<String>,
+        conversation_id: String,
+        topic: String,
+        expected_revision: i32,
+    },
+    ControlLesson {
+        conversation_id: String,
+        lesson_id: String,
+        control: crate::lessons::LessonControl,
+        expected_revision: i32,
+    },
+    AskLessonCoach {
+        conversation_id: String,
+        lesson_id: String,
+        text: String,
+        expected_revision: i32,
+    },
     StartConversation {
         conversation_id: String,
         opening: Opening,
@@ -501,6 +526,16 @@ pub fn bindings() -> String {
         OperationView::decl(&config),
         AttemptView::decl(&config),
         TurnView::decl(&config),
+        crate::lessons::LessonCategory::decl(&config),
+        crate::lessons::LessonQuizQuestion::decl(&config),
+        crate::lessons::LessonQuizAnswer::decl(&config),
+        crate::lessons::LessonQuizCredit::decl(&config),
+        crate::lessons::LessonControl::decl(&config),
+        crate::lessons::LessonExample::decl(&config),
+        crate::lessons::LessonPlan::decl(&config),
+        crate::lessons::LessonEvidence::decl(&config),
+        crate::lessons::LessonRecap::decl(&config),
+        crate::lessons::LessonView::decl(&config),
         ConversationSnapshot::decl(&config),
         Difficulty::decl(&config),
         HelpAmount::decl(&config),
@@ -527,6 +562,7 @@ pub fn bindings() -> String {
         Refusal::decl(&config),
         InferenceHold::decl(&config),
         TranscriptionAttempt::decl(&config),
+        crate::fluency::Segment::decl(&config),
         crate::audio_inspection::TranscriptionInspectionResult::decl(&config),
         crate::audio_inspection::AudioInspection::decl(&config),
         crate::audio_inspection::InspectionWaveform::decl(&config),
@@ -691,6 +727,8 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    pub lessons: Vec<crate::lessons::LessonView>,
+    pub lesson_choices: Vec<StarterCard>,
     pub starter_cards: Vec<StarterCard>,
     pub opening: Option<Opening>,
     pub revision_suffix_counts: Vec<RevisionSuffixCount>,

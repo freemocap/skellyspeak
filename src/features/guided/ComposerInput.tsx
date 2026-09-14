@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 interface ComposerInputProps {
   input: string
   available: boolean
@@ -17,6 +18,7 @@ interface ComposerInputProps {
 export function ComposerInput({ input, available, sending, recording, transcribing, autoSend,
   targetLanguage, targetLanguageName, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
+  const tr = useI18n()
   return (
           <form
             className="crow"
@@ -29,7 +31,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
               className="field"
               value={input}
               onChange={(e) => onInput(e.target.value)}
-              placeholder={targetLanguageName ? `Write in ${targetLanguageName}…` : 'Write…'}
+              placeholder={targetLanguageName ? tr("Write in {value0}…", { value0: String(targetLanguageName) }) : tr("Write…")}
               disabled={!available}
               lang={targetLanguage}
               dir="auto"
@@ -42,29 +44,28 @@ export function ComposerInput({ input, available, sending, recording, transcribi
                 type="button"
                 className="mic-cancel"
                 onClick={onDiscardRecording}
-                title="Discard recording without transcribing"
-                aria-label="Discard recording"
+                title={tr("Discard recording without transcribing")}
+                aria-label={tr("Discard recording")}
               >
-                Discard
-              </button>
+                {tr("Discard")}</button>
             )}
             <button
               type="button"
               className={`mic ${recording ? 'recording' : ''}`}
               onClick={onToggleRecording}
               disabled={!available || sending || transcribing}
-              title={recording ? (autoSend ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
-              aria-label={recording ? (autoSend ? 'Stop and send recording' : 'Stop and transcribe recording') : 'Record audio'}
+              title={recording ? (autoSend ? tr("Stop and send recording") : tr("Stop and transcribe recording")) : tr("Record audio")}
+              aria-label={recording ? (autoSend ? tr("Stop and send recording") : tr("Stop and transcribe recording")) : tr("Record audio")}
             >
               <span aria-hidden="true">{recording ? '■' : '●'}</span>
-              <span>{recording ? 'Stop' : 'Record'}</span>
+              <span>{recording ? tr("Stop") : tr("Record")}</span>
             </button>
 
             <button
               type="submit"
               className="send"
               disabled={sending || !input.trim()}
-              aria-label="Send"
+              aria-label={tr("Send")}
             >
               ↑
             </button>

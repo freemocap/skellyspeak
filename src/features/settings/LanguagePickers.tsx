@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { languages } from '../../platform/ipc/tauri'
 import { languageLabel } from '../../domain/language/language-label'
 import { useNavigationStore } from '../../state/navigation'
@@ -20,15 +21,16 @@ function usePicker() {
 
 /// The target-language picker shown large in the conversation header.
 export function LearningPicker() {
+  const tr = useI18n()
   const { settings, saving, disabled, change } = usePicker()
   if (!settings) return null
   return <>
-    <select className="learning-picker" aria-label="Target language"
+    <select className="learning-picker" aria-label={tr("Target language")}
       value={settings.target_language} disabled={disabled}
       onChange={event => change('target_language', event.target.value)}>
-      {languages().map(language => <option lang={language.code} key={language.code} value={language.code}>{languageLabel(language)}</option>)}
+      {languages().map(language => <option lang={language.code} key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
     </select>
-    {saving && <span role="status" className="learning-saving">Saving…</span>}
+    {saving && <span role="status" className="learning-saving">{tr("Saving…")}</span>}
   </>
 }
 
@@ -36,12 +38,13 @@ export function LearningPicker() {
 /// Options are de-duplicated by base language: the registry holds one entry per
 /// variety, and the learner picks a language here, not a variety.
 export function NativePicker() {
+  const tr = useI18n()
   const { settings, disabled, change } = usePicker()
   if (!settings) return null
   return (
-    <label><span>Native</span><select className="chat-language-picker" aria-label="Native language" value={settings.native_language}
+    <label><span>{tr("Native")}</span><select className="chat-language-picker" aria-label={tr("Native language")} value={settings.native_language}
       disabled={disabled} onChange={event => change('native_language', event.target.value)}>
-      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} key={language.base} value={language.base}>{languageLabel(language)}</option>)}
+      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} key={language.base} value={language.base}>{languageLabel(language, tr.locale)}</option>)}
     </select></label>
   )
 }

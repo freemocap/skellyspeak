@@ -1,5 +1,7 @@
-/// A language named in its own script, followed by its name in the learner's
-/// language: "中文 (Chinese)". A language whose two names are the same is named once.
-export function languageLabel(language: { name: string; endonym: string }): string {
-  return language.endonym === language.name ? language.name : `${language.endonym} (${language.name})`
+import { t } from './i18n'
+
+/// Preserve the configured language identity, including distinctions such as Mandarin.
+export function languageLabel(language: { code?: string; name: string; endonym: string }, locale = 'en'): string {
+  const name = t(locale, language.name)
+  return language.endonym === name ? name : `${language.endonym} (${name})`
 }

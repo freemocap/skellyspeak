@@ -1,3 +1,4 @@
+import { useI18n } from './i18n'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DetailDialog } from './DetailDialog'
 import { nativeError } from '../platform/ipc/workspace'
@@ -7,6 +8,7 @@ export function YamlExport({ title, scope, view, save, children, onClose }: {
   title: string; scope: string; view: () => Promise<string>; save: () => Promise<string>
   children?: ReactNode; onClose: () => void
 }) {
+  const tr = useI18n()
   const [yaml, setYaml] = useState<string | null>(null)
   const [saved, setSaved] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -39,12 +41,12 @@ export function YamlExport({ title, scope, view, save, children, onClose }: {
     <h2>{title}</h2>
     <div className="yaml-export">
       {children}
-      <button disabled={busy !== null} onClick={() => void run('view')}>{busy === 'view' ? 'Loading YAML…' : 'View YAML'}</button>
-      <button disabled={busy !== null} onClick={() => void run('save')}>{busy === 'save' ? 'Saving YAML…' : 'Save YAML'}</button>
+      <button disabled={busy !== null} onClick={() => void run('view')}>{busy === 'view' ? tr("Loading YAML…") : tr("View YAML")}</button>
+      <button disabled={busy !== null} onClick={() => void run('save')}>{busy === 'save' ? tr("Saving YAML…") : tr("Save YAML")}</button>
     </div>
-    <p>Each action reads the latest saved data. Files are saved to Downloads.</p>
-    {saved && <p role="status">Saved to {saved}</p>}
+    <p>{tr("Each action reads the latest saved data. Files are saved to Downloads.")}</p>
+    {saved && <p role="status">{tr("Saved to ")}{saved}</p>}
     {error && <p role="alert">{error}</p>}
-    {yaml !== null && <pre className="yaml-viewer" dir="ltr" tabIndex={0} aria-label={`${title} content`}>{yaml}</pre>}
+    {yaml !== null && <pre className="yaml-viewer" dir="ltr" tabIndex={0} aria-label={tr("{value0} content", { value0: String(title) })}>{yaml}</pre>}
   </DetailDialog>
 }

@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { InfoTip } from '../../ui/InfoTip'
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/native'
@@ -14,6 +15,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
   onBusyChange: (busy: boolean) => void
   onChanged: () => Promise<void>
 }) {
+  const tr = useI18n()
   const [connection, setConnection] = useState<ConnectionConfig | null>(null)
   const [access, setAccess] = useState<AccessSettings | null>(null)
   const [endpoint, setEndpoint] = useState<CustomEndpoint | null>(null)
@@ -124,35 +126,35 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       <label htmlFor={`access-${provider}`}>{label}</label>
       <div className="key-row">
         <input id={`access-${provider}`} className="key-input" type="password" autoComplete="off"
-          value={keys[provider]} placeholder={configured ? 'Saved — enter replacement' : label}
+          value={keys[provider]} placeholder={configured ? tr("Saved — enter replacement") : label}
           disabled={busy || (dirty !== null && dirty !== provider)}
           onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)}
           onChange={event => { setKeys(current => ({ ...current, [provider]: event.target.value })); edit(provider) }} />
         {configured && <button type="button" className="access-key-status" disabled={busy || dirty !== null}
-          aria-label={`Delete ${label}`} title="Saved key · delete" onClick={() => setRemoving(provider)}>
+          aria-label={tr("Delete {value0}", { value0: String(label) })} title={tr("Saved key · delete")} onClick={() => setRemoving(provider)}>
           <span className="access-key-saved" aria-hidden="true">•</span><span className="access-key-delete" aria-hidden="true">×</span>
         </button>}
         {configured && <button type="button" className={`access-key-check ${checks[provider] ?? ''}`}
-          disabled={busy || dirty !== null} aria-label={provider === 'custom' ? 'Check connection' : `Check ${label}`}
-          title={checks[provider] === 'valid' ? 'Validated' : checks[provider] === 'invalid' ? 'Validation failed' : 'Check credential'}
+          disabled={busy || dirty !== null} aria-label={provider === 'custom' ? tr("Check connection") : tr("Check {value0}", { value0: String(label) })}
+          title={checks[provider] === 'valid' ? tr("Validated") : checks[provider] === 'invalid' ? tr("Validation failed") : tr("Check credential")}
           onClick={() => void run(() => check(provider))}>{checks[provider] === 'valid' ? '✓' : checks[provider] === 'invalid' ? '×' : checks[provider] === 'checking' ? '…' : '↻'}</button>}
       </div>
       {removing === provider && <div role="alert">
-        <p>Delete the saved {label}?</p>
-        <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>Delete key</button>
-        <button type="button" className="btn" disabled={busy} onClick={() => setRemoving(null)}>Cancel</button>
+        <p>{tr('Delete the saved {label}?', { label })}</p>
+        <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>{tr("Delete key")}</button>
+        <button type="button" className="btn" disabled={busy} onClick={() => setRemoving(null)}>{tr("Cancel")}</button>
       </div>}
     </div>
   }
   if (!connection || !access || !endpoint) return <div role="status">
-    {error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void run(read)}>Retry AI access</button></> : 'Loading AI access…'}
+    {error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void run(read)}>{tr("Retry AI access")}</button></> : tr("Loading AI access…")}
   </div>
   const locked = busy || dirty !== null
   const routes: { id: ConnectionRoute; label: string }[] = [
-    { id: 'hosted', label: 'Hosted sign-in' }, { id: 'openrouter', label: 'API keys' }, { id: 'custom', label: 'Custom URL' },
+    { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'openrouter', label: tr('API keys') }, { id: 'custom', label: tr('Custom URL') },
   ]
   return <section className="account-settings">
-    <div className="access-tabs" role="tablist" aria-label="Use for AI requests" onKeyDown={event => {
+    <div className="access-tabs" role="tablist" aria-label={tr("Use for AI requests")} onKeyDown={event => {
       const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
       const index = tabs.indexOf(document.activeElement as HTMLButtonElement)
       const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null
@@ -171,43 +173,43 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     <div className="access-route-panel" role="tabpanel" id={`access-panel-${connection.route}`}
       aria-labelledby={`access-tab-${connection.route}`} tabIndex={0}>
     {connection.route === 'hosted' && <div className="form-row">
-      <label>SkellySpeak account</label><p>{connection.signedIn ? connection.email : 'Not signed in'}</p>
+      <label>{tr("SkellySpeak account")}</label><p>{connection.signedIn ? connection.email : tr("Not signed in")}</p>
       <button className="btn" disabled={locked} onClick={() => void run(async () => {
         if (connection.signedIn) { await invoke('hosted_sign_out', { expectedRevision: connection.revision }); setAccount(null) }
         else setAccount(await invoke<HostedAccount>('hosted_sign_in'))
         await read(); await onChanged()
-      })}>{connection.signedIn ? 'Sign out' : 'Sign in with Google'}</button>
-      {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>Refresh account</button>}
-      {account && <p>{account.usedUsd.toFixed(4)} / {account.limitUsd.toFixed(4)} USD · {account.tokensToday} tokens · {account.requestsToday} requests</p>}
+      })}>{connection.signedIn ? tr("Sign out") : tr("Sign in with Google")}</button>
+      {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>{tr("Refresh account")}</button>}
+      {account && <p>{account.usedUsd.toFixed(4)} / {account.limitUsd.toFixed(4)} {tr(" USD · ")}{account.tokensToday} {tr(" tokens · ")}{account.requestsToday} {tr(" requests")}</p>}
     </div>}
     {connection.route === 'openrouter' && <>
-      {credential('openrouter', 'OpenRouter API key', connection.ownKeyConfigured)}
-      {credential('groq', 'Groq API key', access.groqKeyConfigured)}
-      <details><summary>Models</summary>{(['standardModel', 'fastModel'] as const).map(key =>
-        <div className="form-row" key={key}><label htmlFor={`access-${key}`}>{key === 'standardModel' ? 'Standard model' : 'Fast model'}</label>
+      {credential('openrouter', tr('OpenRouter API key'), connection.ownKeyConfigured)}
+      {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
+      <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel'] as const).map(key =>
+        <div className="form-row" key={key}><label htmlFor={`access-${key}`}>{key === 'standardModel' ? tr("Standard model") : tr("Fast model")}</label>
           <input id={`access-${key}`} className="field" value={models[key]} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy || (dirty !== null && dirty !== 'openrouter')}
             onChange={event => { setModels(current => ({ ...current, [key]: event.target.value })); edit('openrouter') }} /></div>)}</details>
     </>}
     {connection.route === 'custom' && <>
-      <div className="form-row"><label htmlFor="access-url">Server address</label>
+      <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>
         <input id="access-url" className="field" value={endpoint.baseUrl} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy}
-          placeholder="https://your-server.example/v1" onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
-        <InfoTip>Self-hosted SkellySpeak server. Include /v1. HTTPS is required except on loopback.</InfoTip>
+          placeholder={tr("https://your-server.example/v1")} onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
+        <InfoTip>{tr("Self-hosted SkellySpeak server. Include /v1. HTTPS is required except on loopback.")}</InfoTip>
       </div>
       <div className="form-row check-row"><label className="check-label"><input type="checkbox" checked={endpoint.bearerAuth} disabled={busy}
-        onChange={event => { setEndpoint({ ...endpoint, bearerAuth: event.target.checked }); edit('custom') }} />Use server session token</label></div>
-      {credential('custom', 'Server session token', access.customKeyConfigured)}
-      <details><summary>Models</summary>{(['standardModel', 'fastModel', 'transcriptionModel'] as const).map(key =>
-        <div className="form-row" key={key}><label htmlFor={`custom-${key}`}>{key === 'standardModel' ? 'Standard model' : key === 'fastModel' ? 'Fast model' : 'Transcription model'}</label>
+        onChange={event => { setEndpoint({ ...endpoint, bearerAuth: event.target.checked }); edit('custom') }} />{tr("Use server session token")}</label></div>
+      {credential('custom', tr('Server session token'), access.customKeyConfigured)}
+      <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel', 'transcriptionModel'] as const).map(key =>
+        <div className="form-row" key={key}><label htmlFor={`custom-${key}`}>{key === 'standardModel' ? tr("Standard model") : key === 'fastModel' ? tr("Fast model") : tr("Transcription model")}</label>
           <input id={`custom-${key}`} className="field" value={endpoint[key] ?? ''} disabled={busy}
             onFocus={() => setEditingField(true)}
             onBlur={() => { setEndpoint(current => current && ({ ...current, [key]: current[key]?.trim() || (key === 'transcriptionModel' ? CUSTOM_TRANSCRIPTION_MODEL : CUSTOM_CHAT_MODEL) })); setEditingField(false) }}
             onChange={event => { setEndpoint({ ...endpoint, [key]: event.target.value }); edit('custom') }} /></div>)}</details>
-      {!access.customKeyConfigured && <button className="btn" disabled={locked} onClick={() => void run(() => check('custom'))}>Check connection</button>}
+      {!access.customKeyConfigured && <button className="btn" disabled={locked} onClick={() => void run(() => check('custom'))}>{tr("Check connection")}</button>}
     </>}
     </div>
-    {dirty && <div className="access-pending"><span role="status">{busy ? 'Saving…' : editingField ? 'Editing — saves when you leave the field' : 'Unsaved changes'}</span><button type="button" className="btn" disabled={busy} title="Discard unsaved edits; saved credentials are kept" onClick={discard}>Discard changes</button></div>}
-    {error && <div role="alert">{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>Retry save</button>}</div>}
-    {status && <p role="status">{status}</p>}
+    {dirty && <div className="access-pending"><span role="status">{busy ? tr("Saving…") : editingField ? tr("Editing — saves when you leave the field") : tr("Unsaved changes")}</span><button type="button" className="btn" disabled={busy} title={tr("Discard unsaved edits; saved credentials are kept")} onClick={discard}>{tr("Discard changes")}</button></div>}
+    {error && <div role="alert">{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>{tr("Retry save")}</button>}</div>}
+    {status && <p role="status">{tr(status)}</p>}
   </section>
 }

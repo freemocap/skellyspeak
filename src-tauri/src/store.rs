@@ -346,6 +346,94 @@ impl Store {
         let mut persona_scope: Option<String> = None;
         let mut conversation_scope: Option<String> = None;
         let entity_id = match command.action {
+            Action::AnswerLessonQuiz {
+                conversation_id,
+                lesson_id,
+                question_index,
+                option_index,
+            } => {
+                crate::lessons::check(&snapshot, &conversation_id, snapshot.revision)?;
+                let id = crate::lessons::answer_quiz(
+                    &tx,
+                    &conversation_id,
+                    &lesson_id,
+                    question_index,
+                    option_index,
+                )?;
+                conversation_scope = Some(conversation_id);
+                id
+            }
+            Action::GenerateLesson {
+                category,
+                choice_id,
+                conversation_id,
+                topic,
+                expected_revision,
+            } => {
+                let id = crate::lessons::generate(
+                    &tx,
+                    &self.config,
+                    &snapshot,
+                    &conversation_id,
+                    crate::lessons::LessonRequest {
+                        topic: &topic,
+                        choice_id: choice_id.as_deref(),
+                        category,
+                        expected: expected_revision,
+                    },
+                )?;
+                conversation_scope = Some(conversation_id);
+                id
+            }
+            Action::ControlLesson {
+                conversation_id,
+                lesson_id,
+                control,
+                expected_revision,
+            } => {
+                let id = crate::lessons::control(
+                    &tx,
+                    &self.config,
+                    &snapshot,
+                    &conversation_id,
+                    &lesson_id,
+                    control,
+                    expected_revision,
+                )?;
+                conversation_scope = Some(conversation_id);
+                id
+            }
+            Action::AskLessonCoach {
+                conversation_id,
+                lesson_id,
+                text,
+                expected_revision,
+            } => {
+                crate::lessons::check(&snapshot, &conversation_id, expected_revision)?;
+                let lesson = crate::lessons::owned(&tx, &conversation_id, &lesson_id)?;
+                if lesson.plan.is_none() {
+                    return Err(AppError::new(
+                        ErrorCode::Validation,
+                        "The lesson is not ready.",
+                    ));
+                }
+                let current = snapshot
+                    .conversations
+                    .iter()
+                    .find(|c| c.id == conversation_id)
+                    .unwrap();
+                let turn = crate::execution::accept_coach(
+                    &tx,
+                    &self.config,
+                    &snapshot,
+                    &conversation_id,
+                    &text,
+                    current.revision,
+                )?;
+                crate::lessons::attach_question(&tx, &turn, &lesson)?;
+                conversation_scope = Some(conversation_id);
+                turn
+            }
             Action::StartConversation {
                 conversation_id,
                 opening,
@@ -418,7 +506,7 @@ impl Store {
                 turn_id
             }
             Action::SendMessage {
-                input,
+                mut input,
                 conversation_id,
                 text,
                 expected_revision,
@@ -431,6 +519,8 @@ impl Store {
                     &text,
                     expected_revision,
                 )?;
+                input.scaffold |=
+                    crate::lessons::capture_exposure(&tx, &conversation_id, &turn_id)?;
                 if !matches!(input.modality.as_str(), "text" | "speech_transcript") {
                     return Err(AppError::new(
                         ErrorCode::Validation,
@@ -492,7 +582,7 @@ impl Store {
                 hold_id
             }
             Action::StartChat { language_id } => {
-                let details = crate::persona::starter(&language_id)?;
+                let details = self.config.starter_persona(&language_id)?;
                 let (persona_id, contact_id) = create_persona(
                     &tx,
                     &self.config,

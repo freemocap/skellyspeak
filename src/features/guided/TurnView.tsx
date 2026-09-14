@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
 import { anchoredTokenGlosses, hasArabicScript } from '../../domain/language/gloss-display'
 import { EvidenceMappingNotice } from '../../ui/EvidenceMappingNotice'
@@ -112,6 +113,7 @@ export const TurnView = memo(function TurnView({
   onRetryGloss,
   onRetryHelp,
 }: TurnViewProps) {
+  const tr = useI18n()
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
   const selectEvidence = useMemo(createMessageEvidenceSelector, [])
@@ -282,16 +284,16 @@ export const TurnView = memo(function TurnView({
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
           <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
-          <MessageFeedback onRetry={onRetryHelp} analysis={<AnalysisSentence label="Your message" text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
-            {userTranslation && <button type="button" className="message-translate" aria-label="Translate your message" aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>Translate</button>}
+          <MessageFeedback onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+            {userTranslation && <button type="button" className="message-translate" aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
           </MessageFeedback>
           {onEditUser && (
             <button
               type="button"
               className="edit-btn"
               disabled={editDisabled}
-              title="Edit message"
-              aria-label="Edit message"
+              title={tr("Edit message")}
+              aria-label={tr("Edit message")}
               onClick={(e) => {
                 e.stopPropagation()
                 onEditUser(turn)
@@ -327,24 +329,24 @@ export const TurnView = memo(function TurnView({
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
           {['ready', 'running', 'waiting_dependencies'].includes(assistant.translationState ?? '') &&
-            <ActivityIndicator label="Translating…" />}
-          {assistant.translationState === 'failed' && <div className="trans" role="status">Translation failed</div>}
-          {assistant.translationState === 'unknown' && <div className="trans" role="status">Translation outcome unknown</div>}
-          {assistant.translationState === 'cancelled' && <div className="trans" role="status">Translation cancelled</div>}
-          {assistant.translationState === 'invalidated' && <div className="trans" role="status">Translation unavailable</div>}
+            <ActivityIndicator label={tr("Translating…")} />}
+          {assistant.translationState === 'failed' && <div className="trans" role="status">{tr("Translation failed")}</div>}
+          {assistant.translationState === 'unknown' && <div className="trans" role="status">{tr("Translation outcome unknown")}</div>}
+          {assistant.translationState === 'cancelled' && <div className="trans" role="status">{tr("Translation cancelled")}</div>}
+          {assistant.translationState === 'invalidated' && <div className="trans" role="status">{tr("Translation unavailable")}</div>}
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
-          {speechError && <ErrorDetails label="Speech" errorKey={speechError}>{speechError}</ErrorDetails>}
+          {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {assistant.translation && <button type="button" className="message-translate" aria-label="Translate persona message" aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>Translate</button>}
-          <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>Analysis</button>
+          {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
+          <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
           </div>
           {ttsReady && onSpeak && (
             <button
               type="button"
               className="speak-btn"
               onDoubleClick={event => event.stopPropagation()}
-              title={speaking ? 'Stop playback' : 'Speak reply'}
-              aria-label={speaking ? 'Stop playback' : 'Speak reply'}
+              title={speaking ? tr("Stop playback") : tr("Speak reply")}
+              aria-label={speaking ? tr("Stop playback") : tr("Speak reply")}
               onClick={(e) => {
                 e.stopPropagation()
                 onSpeak(assistant.reply, turn.id)
@@ -356,7 +358,7 @@ export const TurnView = memo(function TurnView({
         </div>
       )}
       {assistant === null && (
-        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator compact label={turn.pendingText ? "Replying…" : "Thinking…"} /></div>
+        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator compact label={turn.pendingText ? tr("Replying…") : tr("Thinking…")} /></div>
       )}
     </div>
   )

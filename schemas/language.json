@@ -25,6 +25,103 @@
       ],
       "type": "object"
     },
+    "PersonaDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "description": "Left blank until someone chooses one.",
+          "format": "uint8",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "background": {
+          "type": "string"
+        },
+        "currentSituation": {
+          "type": "string"
+        },
+        "favoriteBooks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "favoriteMovies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interestingFacts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interests": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "location": {
+          "type": "string"
+        },
+        "manner": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        },
+        "opinions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "quirks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "romanizedName": {
+          "description": "The name in Latin letters, present exactly when the persona's language has a romanization system.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "vibe": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "background",
+        "currentSituation",
+        "favoriteBooks",
+        "favoriteMovies",
+        "interestingFacts",
+        "interests",
+        "location",
+        "manner",
+        "name",
+        "occupation",
+        "opinions",
+        "quirks",
+        "vibe"
+      ],
+      "type": "object"
+    },
     "ScalarOverrides": {
       "additionalProperties": false,
       "properties": {
@@ -135,6 +232,9 @@
     "script": {
       "type": "string"
     },
+    "starter_persona": {
+      "$ref": "#/definitions/PersonaDetails"
+    },
     "traits": {
       "items": {
         "type": "string"
@@ -158,6 +258,7 @@
     "orthography",
     "review",
     "script",
+    "starter_persona",
     "traits",
     "varieties"
   ],

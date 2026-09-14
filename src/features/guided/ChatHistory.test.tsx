@@ -78,7 +78,7 @@ describe('the list', () => {
       chat({ id: 'c', title: 'Weather', updated_at: NOW - 30 * 3600 }),
       chat({ id: 'd', title: 'Untouched', updated_at: 0 }),
     ])
-    expect(screen.getByText(/just now/i)).toBeInTheDocument()
+    expect(screen.getByText(/now/i)).toBeInTheDocument()
     expect(screen.getByText(/3 hours ago/)).toBeInTheDocument()
     expect(screen.getByText(/yesterday/i)).toBeInTheDocument()
     expect(screen.getByText(/never opened/i)).toBeInTheDocument()

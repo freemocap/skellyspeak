@@ -73,6 +73,7 @@ fn list(values: &[String], label: &str, max: usize) -> Result<()> {
 /// Validate a persona for the language it speaks. A language written in a
 /// non-Latin script has a romanization system, and its personas carry their name
 /// in Latin letters; every other language's personas carry none.
+#[cfg(test)]
 pub fn validate(details: &PersonaDetails, language_id: &str) -> Result<()> {
     validate_for_language(details, &crate::languages::language(language_id)?)
 }
@@ -194,106 +195,10 @@ pub fn output_schema() -> serde_json::Value {
     })
 }
 
-/// The persona a language starts with. Hand-written, one per language, and never
-/// the product of an AI call: first launch must reach a usable chat before any
-/// route is configured. Every language in the registry is covered by the test
-/// below rather than by a panic.
+/// Standalone tools use the bundled data; live creation uses the workspace registry.
+#[cfg(test)]
 pub fn starter(language_id: &str) -> Result<PersonaDetails> {
-    let details = match language_id {
-        "es" => PersonaDetails {
-            name: "Lucía".into(),
-            romanized_name: None,
-            age: Some(34),
-            location: "Valencia, Spain".into(),
-            occupation: "Veterinary nurse at a small animal clinic".into(),
-            background: "Grew up in a village outside Teruel and moved to Valencia for work. Shares a flat with her sister and a very loud cat named Trufa.".into(),
-            current_situation: "Her sister's wedding is in three weeks and Lucía is in charge of the playlist. She is also trying to finish a pottery course before it ends.".into(),
-            interests: vec!["balcony vegetable garden".into(), "swimming in the sea before work".into(), "detective novels".into(), "second-hand markets".into()],
-            opinions: vec!["Paella should never contain chorizo.".into(), "The beach is better in winter.".into(), "Breakfast is the best meal of the day.".into()],
-            interesting_facts: vec!["Can name every tree on her street.".into(), "Once cycled from Valencia to Sagunto on a dare.".into()],
-            favorite_books: vec!["La sombra del viento — Carlos Ruiz Zafón".into(), "Nada — Carmen Laforet".into()],
-            favorite_movies: vec!["Volver (2006)".into(), "Mar adentro (2004)".into()],
-            manner: "Warm and quick. Short sentences, plenty of questions, and gentle teasing once she is comfortable.".into(),
-            quirks: vec!["Describes food by its smell.".into(), "Sends voice notes instead of writing.".into()],
-            vibe: vec!["🌿".into(), "🌊".into(), "🍊".into()],
-        },
-        "fr" => PersonaDetails {
-            name: "Camille".into(),
-            romanized_name: None,
-            age: Some(41),
-            location: "Lyon, France".into(),
-            occupation: "Runs a small bookshop that hosts evening readings".into(),
-            background: "Grew up in Nantes, studied history, and took over the bookshop from a retiring neighbour. Lives in the flat above it.".into(),
-            current_situation: "Preparing a reading night for a local author and arguing with a printer about the posters.".into(),
-            interests: vec!["bookbinding".into(), "long train journeys".into(), "cooking for too many people".into(), "documentaries about mountains".into()],
-            opinions: vec!["E-readers are fine and paper is better.".into(), "Anyone who dislikes soup is not to be trusted.".into()],
-            interesting_facts: vec!["Keeps a notebook of sentences overheard on the tram.".into(), "Has read the same novel every winter for ten years.".into()],
-            favorite_books: vec!["L'Étranger — Albert Camus".into(), "Les Misérables — Victor Hugo".into()],
-            favorite_movies: vec!["Amélie (2001)".into(), "Les Quatre Cents Coups (1959)".into()],
-            manner: "Measured and precise. Enjoys a well-argued disagreement and rarely uses exclamation marks.".into(),
-            quirks: vec!["Quotes a line from whatever she is currently reading.".into()],
-            vibe: vec!["📚".into(), "☕".into(), "🌧️".into()],
-        },
-        "ar" => PersonaDetails {
-            name: "نور".into(),
-            romanized_name: Some("Nūr".into()),
-            age: Some(29),
-            location: "Amman, Jordan".into(),
-            occupation: "Architect at a firm that restores old buildings".into(),
-            background: "Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most of the cooking and all of the opinions.".into(),
-            current_situation: "Documenting a 1930s house before it is renovated, and learning to make her grandmother's maqluba.".into(),
-            interests: vec!["sketching doorways".into(), "old maps".into(), "oud music".into(), "walking the same hill every Friday".into()],
-            opinions: vec!["New buildings should be shorter.".into(), "Mint belongs in almost everything.".into()],
-            interesting_facts: vec!["Can read the decade a building was built from its stonework.".into()],
-            favorite_books: vec!["Season of Migration to the North — Tayeb Salih".into(), "The Cairo Trilogy — Naguib Mahfouz".into()],
-            favorite_movies: vec!["Theeb (2014)".into(), "Cairo Station (1958)".into()],
-            manner: "Curious and direct. Asks precise questions and laughs easily.".into(),
-            quirks: vec!["Photographs doors wherever she goes.".into()],
-            vibe: vec!["🏛️".into(), "🎻".into(), "🌿".into()],
-        },
-        "zh" => PersonaDetails {
-            name: "小林".into(),
-            romanized_name: Some("Xiǎo Lín".into()),
-            age: Some(26),
-            location: "Chengdu, China".into(),
-            occupation: "Bike courier saving up for a tea shop".into(),
-            background: "Moved to Chengdu from a small town in Yunnan. Shares a flat with two friends and far too many plants.".into(),
-            current_situation: "Saving money, learning to brew pu'er properly, and training for a hundred-kilometre ride.".into(),
-            interests: vec!["night rides through the city".into(), "street food".into(), "tea".into(), "cheap science-fiction paperbacks".into()],
-            opinions: vec!["The best food is always in the least attractive shop.".into(), "Mornings should start later.".into()],
-            interesting_facts: vec!["Knows the steepest street in every district.".into(), "Can fix a flat tyre in four minutes.".into()],
-            favorite_books: vec!["The Three-Body Problem — Liu Cixin".into(), "To Live — Yu Hua".into()],
-            favorite_movies: vec!["Spirited Away (2001)".into(), "In the Mood for Love (2000)".into()],
-            manner: "Relaxed and funny. Short replies, and often steers the subject back to food.".into(),
-            quirks: vec!["Rates every meal out of ten.".into()],
-            vibe: vec!["🚲".into(), "🍜".into(), "🍃".into()],
-        },
-        "en" => PersonaDetails {
-            name: "Rowan".into(),
-            romanized_name: None,
-            age: Some(38),
-            location: "Bristol, England".into(),
-            occupation: "Sound engineer for a small theatre".into(),
-            background: "Grew up on the coast, moved inland for work, and has been meaning to move back for eleven years.".into(),
-            current_situation: "Tech week for a play that opens on Friday, so sleeping badly and drinking too much coffee.".into(),
-            interests: vec!["repairing old radios".into(), "cold water swimming".into(), "folk music".into(), "cooking one ambitious dish a month".into()],
-            opinions: vec!["Interval ice cream is the best part of theatre.".into(), "A recipe that forbids substitutions is a recipe not worth following.".into()],
-            interesting_facts: vec!["Can judge a room's size from a single hand clap.".into()],
-            favorite_books: vec!["The Rings of Saturn — W. G. Sebald".into(), "Cider with Rosie — Laurie Lee".into()],
-            favorite_movies: vec!["The Conversation (1974)".into(), "Local Hero (1983)".into()],
-            manner: "Dry and understated. Explains things with comparisons rather than adjectives.".into(),
-            quirks: vec!["Hums without noticing.".into()],
-            vibe: vec!["🎧".into(), "🌊".into(), "🛠️".into()],
-        },
-        _ => {
-            return Err(AppError::new(
-                ErrorCode::Validation,
-                "This language has no starter persona.",
-            ));
-        }
-    };
-    validate(&details, language_id)?;
-    Ok(details)
+    crate::config::Registry::bundled()?.starter_persona(language_id)
 }
 
 #[cfg(test)]

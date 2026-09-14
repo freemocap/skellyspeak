@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useEffect, useState } from 'react'
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -7,6 +8,7 @@ import type { ConversationSnapshot } from '../../contracts'
 
 /** Draw the actual durable operation dependencies; inspecting never dispatches inference. */
 export function LiveActivity() {
+  const tr = useI18n()
   const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
@@ -71,10 +73,10 @@ export function LiveActivity() {
   const edges: Edge[] = turn?.operations.flatMap(op => op.dependencies.map(dep => ({ id: `${dep}:${op.id}`, source: dep, target: op.id, animated: op.state === 'running' }))) ?? []
   return <section className="live-activity">
     {error && <p role="alert">{error}</p>}
-    <label>Exchange <select aria-label="AI exchange" value={turn?.id ?? ''} onChange={event => setSelected(event.target.value)}>{snapshot?.turns.map((item, index) => <option key={item.id} value={item.id}>{snapshot.turns.length - index} · {item.state}</option>)}</select></label>
+    <label>{tr("Exchange ")}<select aria-label={tr("AI exchange")} value={turn?.id ?? ''} onChange={event => setSelected(event.target.value)}>{snapshot?.turns.map((item, index) => <option key={item.id} value={item.id}>{snapshot.turns.length - index} · {item.state}</option>)}</select></label>
     <div className="live-operation-graph"><ReactFlow key={turn?.id} nodes={nodes} edges={edges} fitView nodesDraggable={false} nodesConnectable={false}><Background /><Controls showInteractive={false} /></ReactFlow></div>
-    {!turn && <p>No recorded AI operations.</p>}
-    {turn?.attempts.map(attempt => <details key={attempt.id}><summary>{turn.operations.find(op => op.id === attempt.operationId)?.kind} · {attempt.state}</summary><dl><dt>Model</dt><dd>{attempt.actualModel ?? attempt.requestedModel}</dd><dt>Tokens in / out</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd><dt>Started</dt><dd>{attempt.startedAt}</dd></dl>{attempt.error && <p>{attempt.error}</p>}</details>)}
+    {!turn && <p>{tr("No recorded AI operations.")}</p>}
+    {turn?.attempts.map(attempt => <details key={attempt.id}><summary>{turn.operations.find(op => op.id === attempt.operationId)?.kind} · {attempt.state}</summary><dl><dt>{tr("Model")}</dt><dd>{attempt.actualModel ?? attempt.requestedModel}</dd><dt>{tr("Tokens in / out")}</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd><dt>{tr("Started")}</dt><dd>{attempt.startedAt}</dd></dl>{attempt.error && <p>{attempt.error}</p>}</details>)}
     <GenerationActivity />
   </section>
 }

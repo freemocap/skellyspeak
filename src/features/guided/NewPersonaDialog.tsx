@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PersonaDetails } from '../../contracts'
 import { PERSONA_LIMITS } from '../../contracts'
@@ -19,6 +20,7 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
   onCreate: (details: PersonaDetails) => Promise<void>
   onClose: () => void
 }) {
+  const tr = useI18n()
   const form = useRef<PersonaFormHandle>(null)
   const [draft, setDraft] = useState<PersonaDetails>(() => blankPersona(romanized))
   // The form keeps its list text locally, so a generated or cleared draft remounts it.
@@ -41,7 +43,7 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
     return abandon
   }, [language, abandon])
   const close = () => { abandon(); onClose() }
-  const objection = personaObjection(draft, romanized)
+  const objection = personaObjection(draft, romanized, tr)
   const locked = busy || generating
   const replace = (next: PersonaDetails) => { setDraft(next); setRevision(value => value + 1) }
   const generate = async (text: string) => {
@@ -67,31 +69,31 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
     let next: PersonaDetails
     try { next = form.current?.flush() ?? draft }
     catch { return /* The form preserves and displays invalid pending input. */ }
-    if (!personaObjection(next, romanized)) void onCreate(next)
+    if (!personaObjection(next, romanized, tr)) void onCreate(next)
   }
   const clear = () => { replace(blankPersona(romanized)); setBrief(''); setGenerationError(null) }
-  return <DetailDialog title="New persona" onClose={close}>
-    <h2>New persona</h2>
+  return <DetailDialog title={tr("New persona")} onClose={close}>
+    <h2>{tr("New persona")}</h2>
     <div className="persona-generate">
-      <textarea className="field" rows={3} aria-label="Describe them" maxLength={PERSONA_LIMITS.briefMax} value={brief} disabled={locked} dir="auto"
-        placeholder="Describe them (optional), e.g. retired fisherman who distrusts tourists"
+      <textarea className="field" rows={3} aria-label={tr("Describe them")} maxLength={PERSONA_LIMITS.briefMax} value={brief} disabled={locked} dir="auto"
+        placeholder={tr("Describe them (optional), e.g. retired fisherman who distrusts tourists")}
         onChange={event => setBrief(event.target.value)} />
       <div className="persona-generate-actions">
-        <button type="button" className="btn" disabled={locked || !brief.trim()} onClick={() => void generate(brief)}>Generate</button>
-        <button type="button" className="btn" disabled={locked} onClick={() => void generate('')}>Surprise me</button>
-        {generating && <ActivityIndicator compact label="Generating a persona…" />}
+        <button type="button" className="btn" disabled={locked || !brief.trim()} onClick={() => void generate(brief)}>{tr("Generate")}</button>
+        <button type="button" className="btn" disabled={locked} onClick={() => void generate('')}>{tr("Surprise me")}</button>
+        {generating && <ActivityIndicator compact label={tr("Generating a persona…")} />}
       </div>
     </div>
-    {generationError && <ErrorDetails label="Generating a persona" errorKey={generationError}>{generationError}</ErrorDetails>}
-    <form className="persona-profile" aria-label="New persona" onSubmit={event => { event.preventDefault(); create() }}>
+    {generationError && <ErrorDetails label={tr("Generating a persona")} errorKey={generationError}>{generationError}</ErrorDetails>}
+    <form className="persona-profile" aria-label={tr("New persona")} onSubmit={event => { event.preventDefault(); create() }}>
       <fieldset disabled={locked}>
         <PersonaForm ref={form} key={revision} draft={draft} romanized={romanized} onChange={setDraft} onCommit={setDraft} />
       </fieldset>
       {objection && <p className="persona-hint" role="status">{objection}</p>}
       <div className="modal-actions">
-        <button type="button" className="btn" disabled={locked} onClick={clear}>Clear</button>
-        <button type="button" className="btn" disabled={busy} onClick={close}>Cancel</button>
-        <button type="submit" className="btn primary" disabled={locked || Boolean(objection)}>{busy ? 'Creating…' : 'Create'}</button>
+        <button type="button" className="btn" disabled={locked} onClick={clear}>{tr("Clear")}</button>
+        <button type="button" className="btn" disabled={busy} onClick={close}>{tr("Cancel")}</button>
+        <button type="submit" className="btn primary" disabled={locked || Boolean(objection)}>{busy ? tr("Creating…") : tr("Create")}</button>
       </div>
     </form>
   </DetailDialog>

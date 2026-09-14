@@ -424,6 +424,10 @@ fn accept_turn(
         &conversation.language_id,
     )?;
     system.push_str(&crate::conversation_prompt::focus_block(&focus)?);
+    let lesson = crate::lessons::active(db, conversation_id)?;
+    if let Some(lesson) = &lesson {
+        system.push_str(&crate::lessons::context_block(lesson, coach)?);
+    }
     let retry = if let Some(replaced) = replaced {
         crate::coach_policy::retry_context(db, replaced)?
     } else {
@@ -505,17 +509,21 @@ fn accept_turn(
                 node.role != "local"
                     && node.kind != "coach_suggestions"
                     && node.kind != "coach_retry_check"
+                    && (node.kind != "lesson_review" || lesson.is_some())
                     && (node.kind != "persona_speech" || speech_enabled)
             })
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let captured = serde_json::json!({"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":8,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
+    let captured = serde_json::json!({"activeLesson":lesson,"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"expressionHelp":match opening {Some(Opening::Described{text})=>serde_json::json!({"text":text,"targetLanguage":conversation.language_id,"explanationLanguage":conversation.settings.explanation_language,"kind":"topic_description"}),_=>serde_json::Value::Null},"practiceFocus":focus,"catalogVersion":crate::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":8,"coachFeedbackPromptVersion":crate::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }
     for node in plan {
+        if node.kind == "lesson_review" && lesson.is_none() {
+            continue;
+        }
         if node.kind == "coach_retry_check" || node.kind == "coach_suggestions" {
             continue;
         }
@@ -954,6 +962,13 @@ impl Store {
         let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         Ok(ConversationSnapshot {
+            lessons: crate::lessons::views(db, conversation)?,
+            lesson_choices: crate::lessons::choices(
+                db,
+                &self.config,
+                &self.snapshot()?,
+                conversation,
+            )?,
             starter_cards: crate::openers::choices(self, conversation)?
                 .into_iter()
                 .map(|(card, _)| card)
@@ -1071,7 +1086,9 @@ impl Store {
                 }
             }
         }
-        if kind != "persona_reply"
+        if kind != "lesson_generate"
+            && kind != "lesson_review"
+            && kind != "persona_reply"
             && kind != "persona_opening"
             && kind != "coach_retry_check"
             && kind != "coach_reply"
@@ -1087,7 +1104,9 @@ impl Store {
         }
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let mut gloss_source = None;
-        let coaching_schema = if kind.starts_with("coach_") && kind != "coach_reply" {
+        let coaching_schema = if kind.starts_with("lesson_") {
+            Some(crate::lessons::schema(&kind))
+        } else if kind.starts_with("coach_") && kind != "coach_reply" {
             Some(if kind == "coach_reaction" {
                 crate::partner_reaction::schema()
             } else if kind == crate::coaching::SUGGESTIONS {
@@ -1098,7 +1117,9 @@ impl Store {
         } else {
             None
         };
-        let messages = if kind == "coach_reaction" {
+        let messages = if kind.starts_with("lesson_") {
+            crate::lessons::prompt(&tx, &turn, &kind, &captured)?
+        } else if kind == "coach_reaction" {
             crate::partner_reaction::prompt(&tx, &turn, &captured)?
         } else if coaching_schema.is_some() {
             match crate::coaching::prompt(&tx, &turn, &kind, &captured) {
@@ -1303,6 +1324,11 @@ impl Store {
         let mut gloss = None;
         let mut coaching = None;
         let valid = match &result {
+            Ok(output) if kind.starts_with("lesson_") => {
+                crate::lessons::validate(&tx, &turn, &kind, output).map(|value| {
+                    coaching = Some(value);
+                })
+            }
             Ok(output)
                 if kind == "coach_feedback"
                     || kind == "coach_retry_check"
@@ -1402,11 +1428,13 @@ impl Store {
         )?;
         if state == "succeeded" {
             if kind == "persona_reply" || kind == "persona_opening" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction') AND state='waiting_dependencies'", [&turn])?;
+                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','lesson_review') AND state='waiting_dependencies'", [&turn])?;
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if kind == "coach_reaction" {
+                if kind.starts_with("lesson_") {
+                    crate::lessons::publish(&tx, &turn, &kind, &value)?;
+                } else if kind == "coach_reaction" {
                     tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1",params![turn,value.to_string()])?;
                 } else if kind == crate::coaching::SUGGESTIONS {
                     crate::coaching::publish(&tx, &turn, &kind, &value, &dispatch.attempt)?;
@@ -1437,7 +1465,7 @@ impl Store {
         Ok(())
     }
 }
-fn refresh_turn(db: &Connection, turn: &str) -> Result<()> {
+pub(crate) fn refresh_turn(db: &Connection, turn: &str) -> Result<()> {
     db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state IN ('ready','running')) THEN CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind IN ('persona_reply','persona_opening','coach_reply') AND state IN ('ready','waiting_dependencies','running')) THEN 'pending' ELSE 'assisting' END WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='unknown') THEN 'unknown' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='failed') THEN 'failed' WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND state='invalidated') THEN 'invalidated' ELSE 'succeeded' END WHERE id=?1", [turn])?;
     db.execute(
         "UPDATE turns SET refusal_hold=NULL WHERE id=?1 AND state='succeeded'",
@@ -1812,6 +1840,13 @@ impl Store {
 }
 
 fn plan_for(db: &Connection, turn: &str) -> Result<&'static [crate::turn_plan::Declaration]> {
+    if db.query_row(
+        "SELECT EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind='lesson_generate')",
+        [turn],
+        |r| r.get::<_, bool>(0),
+    )? {
+        return Ok(crate::turn_plan::LESSON_PLAN);
+    }
     let opening: bool = db.query_row(
         "SELECT EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind='persona_opening')",
         [turn],

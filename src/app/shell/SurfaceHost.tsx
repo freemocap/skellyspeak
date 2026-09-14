@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { lazy, Suspense } from 'react'
 import { ActiveSurfaceContext } from '../../ui/useOverlayLayer'
 import { SkillEvidenceContext, useSkillEvidence } from '../../state/useSkillEvidence'
@@ -17,6 +18,7 @@ const SkillsPage = lazy(() => import('../../features/skills/SkillsPage'))
 /// unmounted: unmounting the conversation on a tab switch destroyed it. That rule
 /// lives here with the markup it governs.
 export function SurfaceHost() {
+  const tr = useI18n()
   const evidence = useSkillEvidence()
   const page = useNavigationStore((state) => state.page)
   const mobileSurface = useNavigationStore((state) => state.mobileSurface)
@@ -37,7 +39,7 @@ export function SurfaceHost() {
   return (
     <div className="content" {...swipe}>
       {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
-        <PageBoundary><Suspense fallback={<p role="status">Loading skill tree…</p>}><SkillsPage onPractice={() => openPractice('chat')} /></Suspense></PageBoundary>
+        <PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={() => openPractice('chat')} /></Suspense></PageBoundary>
       </div>}
       {!isTauri ? (page !== 'skills' &&
         <NotTauriNotice />

@@ -1,9 +1,11 @@
+import { useI18n } from '../../ui/i18n'
 import { TranscriptionInspector } from './TranscriptionInspector'
 import { ConversationExport } from './ConversationExport'
 import { PracticeDivider } from './PracticeDivider'
 import { LiveCoachReview } from './LiveCoachReview'
 import { OpeningStatus } from './OpeningStatus'
 import { useNavigationStore } from '../../state/navigation'
+import { LessonDialog } from './LessonDialog'
 import { ConversationStart, type StartChoice } from './ConversationStart'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 import { ConversationHeader } from './ConversationHeader'
@@ -81,6 +83,7 @@ export default function GuidedPage({
   onNewChatReady?: (action: (() => void) | null) => void
   onOpenSettings?: () => void
 }) {
+  const tr = useI18n()
   const workspace = useRef<HTMLDivElement>(null)
   const composer = useRef<HTMLDivElement>(null)
   const stopSpeechRef = useRef<() => void>(() => {})
@@ -115,6 +118,7 @@ export default function GuidedPage({
   useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'lesson' | 'profile'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
+  const [lessonOwner, setLessonOwner] = useState<string | null>(null)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
@@ -164,6 +168,7 @@ export default function GuidedPage({
   const resetView = useCallback(() => {
     setPinnedId(null)
     setCoachDraft('')
+    setLessonOwner(null)
     setReviewing(new Set())
     clearWordsRef.current()
     setError(null)
@@ -244,11 +249,11 @@ export default function GuidedPage({
   // header picker, so nothing here can overwrite this one by accident.
   const personaProfile = details.persona ? <>
     <div className="persona-tab-actions">
-      <button type="button" className="btn" onClick={() => setEditingPersonaId(details.persona!.id)}>Edit persona</button>
+      <button type="button" className="btn" onClick={() => setEditingPersonaId(details.persona!.id)}>{tr("Edit persona")}</button>
     </div>
     <PersonaProfile key={details.persona.id} persona={details.persona}
       language={targetLanguageLabel(details.persona.languageId)} romanized={Boolean(languageFor(details.persona.languageId)?.romanization)} onSave={details.savePersona} />
-  </> : <p className="center-note">Persona is unavailable.</p>
+  </> : <p className="center-note">{tr("Persona is unavailable.")}</p>
   function targetLanguageLabel(id: string) { return details.directory?.languages.find(item => item.id === id)?.name ?? id }
 
 
@@ -424,8 +429,8 @@ export default function GuidedPage({
 
   const targetLanguage = settings ? languageFor(settings.target_language) : null
   const nativeLanguage = settings ? languageFor(settings.native_language) : null
-  const targetLanguageName = targetLanguage ? languageLabel(targetLanguage) : ''
-  const nativeLanguageName = nativeLanguage ? languageLabel(nativeLanguage) : ''
+  const targetLanguageName = targetLanguage ? languageLabel(targetLanguage, tr.locale) : ''
+  const nativeLanguageName = nativeLanguage ? languageLabel(nativeLanguage, tr.locale) : ''
   const romanized = Boolean(targetLanguage?.romanization)
   const pinnedTurn = activeTurns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
@@ -461,22 +466,21 @@ export default function GuidedPage({
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
-              <span>{acceptedEditSource ? 'Edit saved — updating conversation…' : '✎ Editing your message — send to replace it'}</span>
+              <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>
               <button type="button" disabled={acceptedEditSource !== null} onClick={cancelEdit}>
-                Cancel
-              </button>
+                {tr("Cancel")}</button>
             </div>
           )}
           {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
           } : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label="Transcribing…" /> : sending ? <ActivityIndicator label="Replying…" /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label="Analysing…" /> : null}
+            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
           </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
           )}
-          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>Inspect recording</button>}
+          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {<ComposerHelp
             onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
               await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
@@ -523,13 +527,13 @@ export default function GuidedPage({
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
           <div className="chat-heading-actions">
           <div className="chat-config" ref={settingsPanel}>
-            <button type="button" className="chat-config-toggle" aria-label="Settings & voice" aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? 'Hide chat settings' : 'Show chat settings'} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
-            {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label="Chat settings">
+            <button type="button" className="chat-config-toggle" aria-label={tr("Settings & voice")} aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? tr("Hide chat settings") : tr("Show chat settings")} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
+            {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label={tr("Chat settings")}>
                 <div className="conversation-languages">{nativePicker}</div>
-                <button type="button" disabled={!currentChatId} onClick={() => { setExportOpen(true); setSettingsOpen(false) }}>Conversation YAML</button>
+                <button type="button" disabled={!currentChatId} onClick={() => { setExportOpen(true); setSettingsOpen(false) }}>{tr("Conversation YAML")}</button>
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
-                <div className="quick-toggles" role="group" aria-label="Reading and voice options">
+                <div className="quick-toggles" role="group" aria-label={tr("Reading and voice options")}>
                   {(
                     [
                       ['auto_speak', 'Read aloud', 'Speak each reply automatically'],
@@ -552,15 +556,14 @@ export default function GuidedPage({
                       className={`quick-toggle ${settings?.[key] ? 'on' : ''}`}
                       onClick={() => void toggleSetting(key)}
                       aria-pressed={settings?.[key] ?? false}
-                      title={title}
+                      title={tr(title)}
                       disabled={!settings || savingReading}
                     >
-                      {settings?.[key] ? '☑' : '☐'} {label}
+                      {settings?.[key] ? '☑' : '☐'} {tr(label)}
                     </button>
                   ))}
                   <label className="speech-speed">
-                    Voice speed
-                    <select aria-label="Voice playback speed" value={settings?.tts_rate ?? 1} disabled={!settings || savingReading} onChange={event => void toggleSetting('tts_rate', Number(event.target.value))}>
+                    {tr("Voice speed")}<select aria-label={tr("Voice playback speed")} value={settings?.tts_rate ?? 1} disabled={!settings || savingReading} onChange={event => void toggleSetting('tts_rate', Number(event.target.value))}>
                       {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
                     </select>
                   </label>
@@ -578,13 +581,13 @@ export default function GuidedPage({
         <div className="stream" ref={streamRef}>
           {turns.length === 0 && !error && !sending && connection?.configured === false ? (
             <div className="access-start">
-              <p>You’re not signed in.</p>
+              <p>{tr("You’re not signed in.")}</p>
               <button type="button" className="btn primary" disabled={signingIn} onClick={() => void startHostedSignIn()}>
-                {signingIn ? 'Signing in…' : 'Sign in with Google'}
+                {signingIn ? tr("Signing in…") : tr("Sign in with Google")}
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} onLesson={() => setLessonOwner(currentChatId)} />)
           )}
           {activeTurns.map((turn) => (
             <Fragment key={turn.turnId}><TurnView
@@ -626,14 +629,13 @@ export default function GuidedPage({
             </Fragment>
           ))}
           {error && (
-            <ErrorDetails label="Request failed" errorKey={error}>
+            <ErrorDetails label={tr("Request failed")} errorKey={error}>
               <div>{error}</div>
               {/* A message that says "go to Settings" should take you there,
                   rather than making you find the gear yourself. */}
               {onOpenSettings && needsProviderSetup(error) && (
                 <button type="button" className="err-action" onClick={onOpenSettings}>
-                  Open Settings
-                </button>
+                  {tr("Open Settings")}</button>
               )}
             </ErrorDetails>
           )}
@@ -651,7 +653,7 @@ export default function GuidedPage({
         className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>Open XP &amp; coach ▸</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Open XP & coach ▸")}</button>}
 
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
@@ -662,6 +664,8 @@ export default function GuidedPage({
             const current = await readWorkspace()
             await executeAction(current, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: current.revision })
           }} />}
+          onLesson={() => setLessonOwner(currentChatId)}
+          lessonSummary={snapshot?.lessons?.find(lesson => lesson.status === 'practicing' || lesson.status === 'completed')}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
           personaProfile={personaProfile}
@@ -680,22 +684,23 @@ export default function GuidedPage({
 
     </div>
 
-      {contactError && <ErrorDetails label="Contact" errorKey={contactError}>{contactError}</ErrorDetails>}
+      {snapshot && lessonOwner === currentChatId && <LessonDialog key={currentChatId} snapshot={snapshot} busy={sending || details.saving} beforeAction={details.beforeSend} onPractice={() => useNavigationStore.getState().openPractice('chat')} onClose={() => setLessonOwner(null)} />}
+      {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
       {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
-      {revisionConfirmation && <DetailDialog title="Revise earlier message" onClose={() => setRevisionConfirmation(null)}>
-        <p>This revision removes {revisionConfirmation.exchangeCount} later conversation turns and {revisionConfirmation.coachTurnCount} private coach turns. Your edited message replaces the original in this conversation.</p>
+      {revisionConfirmation && <DetailDialog title={tr("Revise earlier message")} onClose={() => setRevisionConfirmation(null)}>
+        <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns and ")}{revisionConfirmation.coachTurnCount} {tr(" private coach turns. Your edited message replaces the original in this conversation.")}</p>
         <div className="lesson-actions">
-          <button type="button" onClick={() => setRevisionConfirmation(null)}>Cancel</button>
-          <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>Revise and remove later turns</button>
+          <button type="button" onClick={() => setRevisionConfirmation(null)}>{tr("Cancel")}</button>
+          <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>{tr("Revise and remove later turns")}</button>
         </div>
       </DetailDialog>}
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
-      {analysisOpen && <DetailDialog title="Message analysis" onClose={() => setAnalysisOpen(false)}>
-        <h2>Message analysis</h2>
-        {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>Select Analysis on a conversation reply to inspect that message.</p>}
+      {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
+        <h2>{tr("Message analysis")}</h2>
+        {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 

@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
 import { useReadingPreferences } from '../../ui/ReadingPreferences'
 import { TargetText } from '../../ui/TargetText'
@@ -31,23 +32,23 @@ export const AnalysisContent = memo(function AnalysisContent({
   showRomanization: _showRomanization,
   rtl: _rtl,
 }: AnalysisContentProps) {
+  const tr = useI18n()
   const { autoTranslate } = useReadingPreferences()
   const a = turn.assistant
   if (!a) return <>
-    {turn.user && <AnalysisSentence label="You said" text={turn.user} gloss={turn.userSavedGloss} translation={autoTranslate ? turn.userTranslation : null} />}
-    <p className="center-note">No partner reply yet.</p>
+    {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={autoTranslate ? turn.userTranslation : null} />}
+    <p className="center-note">{tr("No partner reply yet.")}</p>
   </>
 
   return (
     <>
       {turn.analysisState === 'pending' && (
         <p className="sect-k pending">
-          ⟳ Analyzing grammar…
-        </p>
+          {tr("⟳ Analyzing grammar…")}</p>
       )}
 
-      {turn.user && <AnalysisSentence label="You said" text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={autoTranslate ? turn.userTranslation ?? a.user_translation : null} />}
-      <AnalysisSentence label="Partner replied" side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={autoTranslate ? a.translation : null} />
+      {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={autoTranslate ? turn.userTranslation ?? a.user_translation : null} />}
+      <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={autoTranslate ? a.translation : null} />
 
       {a.errors.length > 0 && (
         <div className="turn-errors">
@@ -59,7 +60,7 @@ export const AnalysisContent = memo(function AnalysisContent({
 
       {a.mechanics.length > 0 && (
         <>
-          <p className="sect-k">What&apos;s happening</p>
+          <p className="sect-k">{tr("What's happening")}</p>
           {a.mechanics.map((mech) => (
             <div key={mech.title} className="exp">
               <div className="exp-top">
@@ -70,7 +71,7 @@ export const AnalysisContent = memo(function AnalysisContent({
               {mech.example && <p className="exp-ex"><TargetText text={mech.example} /></p>}
               {mech.contrast && (
                 <p className="exp-vs">
-                  <span>vs {nativeLanguageName || 'your language'}</span>
+                  <span>{tr("vs ")}{nativeLanguageName || tr("your language")}</span>
                   {mech.contrast}
                 </p>
               )}

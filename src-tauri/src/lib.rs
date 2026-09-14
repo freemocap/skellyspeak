@@ -21,6 +21,7 @@ mod holds;
 pub mod hosted;
 pub mod languages;
 pub mod learner_state;
+pub mod lessons;
 pub mod linguistics;
 pub mod model;
 mod model_routing;

@@ -1,3 +1,4 @@
+import { t } from './domain/language/i18n'
 import { reportDiagnosticBridgeFailure, reportFault, reportUnhandledError } from './platform/diagnostics/faults'
 import { installDiagnosticCapture, logDiagnostic } from './platform/diagnostics/log'
 import ReactDOM from 'react-dom/client'
@@ -66,8 +67,8 @@ void start().catch(async (error: unknown) => {
     : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <div className="not-tauri" role="alert">
-      <p>Could not open SkellySpeak: {message}</p>
-      <button className="btn" onClick={() => window.location.reload()}>Retry startup</button>
+      <p>{t('en', 'Could not open SkellySpeak: {message}', { message })}</p>
+      <button className="btn" onClick={() => window.location.reload()}>{t('en', 'Retry startup')}</button>
     </div>
   )
 })

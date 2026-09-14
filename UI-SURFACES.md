@@ -197,11 +197,16 @@ palettes. See `workflow/reports/living-spectrum-integration.md` for verification
 Recording keeps the live waveform. After successful transcription, Inspect recording
 opens a separate dialog for the latest completed recording: waveform, spectrogram,
 detected audio activity and available word timestamps share a time axis. Selecting
-a word highlights its interval and exposes original/aligned timing. Unsupported
+a word seeks playback, highlights its interval and exposes original/aligned timing
+and available segment log probability, no-speech probability and token IDs.
+Play/pause, restart, a position scrubber, timeline zoom, fit and optional playback
+following share the same time axis. Unsupported
 words remain in the transcript and are identified separately. A route without
 timestamps explicitly shows their absence. The inspection is transient, cleared
 on navigation, and remains independent of subsequent text edits. No raw audio is
-saved. Native rebuild required for the structured transcription result.
+saved; the latest WAV is returned for memory-only playback and released when
+replaced or leaving the conversation. Closing the dialog stops playback.
+Native rebuild required for playback audio and segment metadata.
 
 ### Learning evidence profile — 2026-09-13
 
@@ -227,3 +232,31 @@ activity (models, requests and token use). The export contains the full active
 transcript and excludes replaced messages. Each action reads current local data.
 The preview scrolls within the dialog; saving reports the new Downloads path.
 No AI request is made. These commands require a native rebuild.
+
+## Language controls and localization
+
+The native-language setting drives the shared UI translation context and locale
+number/date formatting. Language selectors use configured endonyms and translated
+configured names. All seven shipped languages appear in both roles. Variety
+selection is limited to the chosen language's configured presets; unsupported
+free-form varieties are no longer offered. Locale changes preserve component state.
+German/light, Portuguese/narrow/dark and Arabic/narrow/RTL component fixtures were
+inspected for this change; native session and provider evaluation remain separate.
+
+### Explicit lessons
+
+- **Take a lesson** beside **You start** and above the private coach input opens a
+  modal with three topic suggestions, **Request a topic**, and saved lessons.
+- The lesson shows its objective, short explanation and two translated examples;
+  saved romanization/pronunciation follows reading preferences. Optional exercise
+  and private coach questions are available before **Try it in chat**.
+- Handoff returns mobile users to Chat. The coach area retains access and shows a
+  concise completed-task recap; **End practice** leaves ordinary chat available.
+- Failed generation preserves the topic and offers explicit retry. Source status
+  and verification limits: `workflow/reports/lessons.md`.
+
+Lesson chooser: Practical situations / Grammar / About the language / Reading, category-specific
+suggestions and custom topic. Each saved lesson has an optional two-question
+**Test your understanding** quiz with answer explanations and persisted 0/1 XP;
+chat practice remains available without answering. Quiz XP is shown separately
+in conversation and language statistics and included in total XP.

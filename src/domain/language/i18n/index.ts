@@ -1,46 +1,41 @@
-// App UI localization. The NATIVE language doubles as the UI language:
-// buttons, labels, and chrome render in the learner's own language, while
-// the TARGET language drives the AI conversation and analysis.
-//
-// Dictionary-based (no i18n framework): flat keys, en as the source of
-// truth, fr/es/ar/zh translations alongside. t() interpolates {vars} and
-// falls back to English when a key is missing.
-
-
+import { placeholders, validateLocales } from './messages'
+export { validateLocales, messageKey } from './messages'
+// Locale files are bundled automatically. English defines the message contract;
+// an incomplete locale is an error, never an implicit English translation.
 import type { Dict } from './dict'
-import { en } from './locales/en'
-import { fr } from './locales/fr'
-import { es } from './locales/es'
-import { ar } from './locales/ar'
-import { zh } from './locales/zh'
-export type UiLang = 'en' | 'fr' | 'es' | 'ar' | 'zh'
+export type UiLang = string
+const modules = import.meta.glob<Dict>('./locales/*.json', { eager: true, import: 'default' })
+export const LOCALES: Record<string, Dict> = Object.fromEntries(Object.entries(modules).map(([path, dict]) => [path.slice('./locales/'.length, -'.json'.length), dict]))
+
+validateLocales(LOCALES)
 
 export function uiLangFromNative(native: string | null | undefined): UiLang {
-  const base = (native ?? 'en').split('-')[0].toLowerCase()
-  return base === 'fr' || base === 'es' || base === 'ar' || base === 'zh'
-    ? (base as UiLang)
-    : 'en'
+  // English is the explicit pre-settings startup locale only.
+  const locale = native ?? 'en'
+  if (!Object.hasOwn(LOCALES, locale)) throw new Error(`Missing UI locale: ${locale}`)
+  return locale
+}
+export function validateLanguageLocales(ids: readonly string[]): void {
+  for (const id of ids) uiLangFromNative(id)
+}
+export function t(lang: UiLang, key: string, vars: Record<string, string | number> = {}): string {
+  const locale = uiLangFromNative(lang)
+  const message = Object.hasOwn(LOCALES[locale], key) ? LOCALES[locale][key] : undefined
+  if (message === undefined) throw new Error(`Missing UI message: ${locale}.${key}`)
+  if (typeof message !== 'string' && (typeof vars.count !== 'number' || !Number.isFinite(vars.count))) throw new Error(`Plural message requires a finite count: ${locale}.${key}`)
+  const text = typeof message === 'string' ? message : message[new Intl.PluralRules(locale).select(vars.count as number)]
+  const expected = placeholders(text)
+  if (expected.some(name => !Object.hasOwn(vars, name))) throw new Error(`Missing UI interpolation: ${locale}.${key}`)
+  return text.replace(/\{([A-Za-z][A-Za-z0-9_]*)\}/g, (_, name: string) => typeof vars[name] === 'number' ? formatNumber(locale, vars[name] as number) : String(vars[name]))
 }
 
-
-
-export const LOCALES: Record<UiLang, Dict> = { en, fr, es, ar, zh }
-
-/// Like t(), but falls back to `fallback` when the key is missing in every
-/// locale — used for registry-driven labels whose English text lives at the
-/// call site.
-export function tOr(lang: UiLang, key: string, fallback: string): string {
-  const dict = LOCALES[lang] ?? en
-  return dict[key] ?? en[key] ?? fallback
+export function formatNumber(lang: UiLang, value: number, options?: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat(uiLangFromNative(lang), options).format(value)
+}
+export function formatDate(lang: UiLang, value: Date | number, options?: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat(uiLangFromNative(lang), options).format(value)
 }
 
-export function t(lang: UiLang, key: string, vars?: Record<string, string | number>): string {
-  const dict = LOCALES[lang] ?? en
-  let out = dict[key] ?? en[key] ?? key
-  if (vars) {
-    for (const [k, v] of Object.entries(vars)) {
-      out = out.split(`{${k}}`).join(String(v))
-    }
-  }
-  return out
+export function formatRelativeTime(lang: UiLang, value: number, unit: Intl.RelativeTimeFormatUnit): string {
+  return new Intl.RelativeTimeFormat(uiLangFromNative(lang), { numeric: 'auto' }).format(value, unit)
 }

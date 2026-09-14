@@ -237,6 +237,11 @@ impl Registry {
                 notes(&v.id, &v.guidance, &keys)?;
             }
             notes(&l.id, &l.guidance, &keys)?;
+            let projected = self
+                .language(&l.id)
+                .map_err(|e| error(&l.id, "language", e))?;
+            crate::persona::validate_for_language(&l.starter_persona, &projected)
+                .map_err(|e| error(&l.id, "starter_persona", e))?;
         }
         for c in &self.constructs {
             checked_review(&c.id, &c.review, &c.sources)?;

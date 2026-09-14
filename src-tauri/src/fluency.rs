@@ -19,7 +19,7 @@ pub struct Word {
     pub start: f64,
     pub end: f64,
 }
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(deny_unknown_fields)]
 pub struct Segment {
     pub id: u32,

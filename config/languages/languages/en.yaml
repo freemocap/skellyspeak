@@ -18,3 +18,19 @@ varieties:
     guidance: []
 guidance: []
 review: "needs_review"
+starter_persona:
+  name: "Rowan"
+  romanizedName: null
+  age: 38
+  location: "Bristol, England"
+  occupation: "Sound engineer for a small theatre"
+  background: "Grew up on the coast, moved inland for work, and has been meaning to move back for eleven years."
+  currentSituation: "Tech week for a play that opens on Friday, so sleeping badly and drinking too much coffee."
+  interests: ["repairing old radios", "cold water swimming", "folk music", "cooking one ambitious dish a month"]
+  opinions: ["Interval ice cream is the best part of theatre.", "A recipe that forbids substitutions is a recipe not worth following."]
+  interestingFacts: ["Can judge a room's size from a single hand clap."]
+  favoriteBooks: ["The Rings of Saturn — W. G. Sebald", "Cider with Rosie — Laurie Lee"]
+  favoriteMovies: ["The Conversation (1974)", "Local Hero (1983)"]
+  manner: "Dry and understated. Explains things with comparisons rather than adjectives."
+  quirks: ["Hums without noticing."]
+  vibe: ["🎧", "🌊", "🛠️"]

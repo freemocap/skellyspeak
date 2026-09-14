@@ -648,3 +648,43 @@ replies only after “Show suggested replies” is selected; keep that panel col
 initially. Internal candidate counts and construct identifiers are not coaching
 copy. These user-directed decisions supersede the earlier automatic-reply-tray
 presentation.
+
+## Explicit short lessons (September 2026 addition)
+
+Approved and implemented in source: **Take a lesson** before or during a chat,
+three contextual suggestions plus a requested topic, one small communicative
+objective, explanation, two translated examples and optional private coach
+practice. **Try it in chat** begins a concrete task with the current contact.
+The contact stays in character; the private coach offers a quoted-evidence recap
+when the task is achieved. Skipping an exercise or ending practice is allowed.
+
+The teaching-to-task connection follows [@british_council_task_based] and
+[@coe_action_oriented]. A 2–4 minute target and three suggestions are product
+choices. Due-skill suggestions reuse existing learner evidence; spaced-practice
+research supports revisiting skills without establishing a universal interval.
+[@kim_webb2022_spacing] See the contracts addition and
+`workflow/reports/lessons.md` for lifecycle and verification limits.
+
+### Lesson categories and optional recall quiz
+
+The lesson chooser offers **Practical situations**, **Grammar**, **About the
+language**, and **Reading**. Practical suggestions retain native difficulty/focus/contact matching;
+grammar and language-background suggestions are explicit topics, with custom
+requests available in every category. Generation adapts to the conversation's
+language and difficulty. Background lessons can cover history, family, alphabet,
+writing or sounds; they need not become a grammar or role-play lesson.
+
+Each generated lesson ends with **Test your understanding**: two multiple-choice
+questions, three options each, and a short explanation after answering. The first
+answer earns exactly 1 XP if correct and 0 otherwise, saved once per question.
+There is no pass threshold, penalty, quiz retry loop or gate before chat practice.
+Quiz XP contributes to the displayed total through a separate ledger; it creates
+no skill demonstrations, mastery, proficiency observations or difficulty changes.
+
+Reading lessons cover decoding, letter–sound correspondences, phonetics and
+pronunciation, tailored to the conversation's **Native** language (the existing
+explanation-language setting). Comparisons use that language's familiar sounds and
+spelling, identify inexact analogies and give articulatory cues where no equivalent
+exists. Target writing remains visible; Latin literacy and IPA knowledge are not
+assumed. Quiz questions reinforce taught text-readable patterns, not measured
+spoken pronunciation. The usual optional chat handoff and 0/1 quiz XP apply.

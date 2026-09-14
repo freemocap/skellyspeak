@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useRef } from 'react'
 import { useOverlayLayer } from '../../ui/useOverlayLayer'
 
@@ -20,11 +21,12 @@ export function popupAnchor(el: Element): { x: number; y: number } {
 }
 
 export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
+  const tr = useI18n()
   const host = useRef<HTMLDivElement>(null)
   useOverlayLayer(host, onClose, true)
 
   return (
-    <div ref={host} role="dialog" aria-label="Word help" data-gloss-popup="1" className="popup" style={{ left: popup.x, top: popup.y }}>
+    <div ref={host} role="dialog" aria-label={tr("Word help")} data-gloss-popup="1" className="popup" style={{ left: popup.x, top: popup.y }}>
       <div className="popup-card">
         <span>
           {popup.text}
@@ -32,7 +34,7 @@ export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () 
             <span className="popup-roman"> · {popup.romanization}</span>
           )}
         </span>
-        <button type="button" className="popup-x" onClick={onClose} aria-label="Close">
+        <button type="button" className="popup-x" onClick={onClose} aria-label={tr("Close")}>
           ✕
         </button>
       </div>

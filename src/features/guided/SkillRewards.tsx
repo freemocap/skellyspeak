@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { claimRewardEvents } from '../../platform/ipc/rewards'
 import { nativeError } from '../../platform/ipc/workspace'
 import { RewardInspectionContext } from './RewardInspectionContext'
@@ -8,6 +9,7 @@ import { messageEvidence } from '../../domain/skills/message-evidence'
 import type { SkillSnapshot } from '../../domain/skills/skills'
 
 export function SkillRewards({ chatId, active }: { chatId: string | null; active: boolean }) {
+  const tr = useI18n()
   const { snapshot, error } = useContext(SkillEvidenceContext)
   const inspection = useContext(RewardInspectionContext)
   if (!inspection) throw new Error('XP arrivals require their presentation provider')
@@ -49,6 +51,6 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     const timer = window.setTimeout(() => setQueue(items => items.slice(1)), 3000)
     return () => window.clearTimeout(timer)
   }, [reward])
-  if (claimError) return <span role="alert">Reward display failed: {claimError}</span>
-  return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{reward.xp} XP for {reward.label}: {reward.quote}</span></>}</span>
+  if (claimError) return <span role="alert">{tr("Reward display failed: ")}{claimError}</span>
+  return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{reward.xp} {tr(" XP for ")}{reward.label}: {reward.quote}</span></>}</span>
 }

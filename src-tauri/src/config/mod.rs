@@ -49,7 +49,7 @@ pub struct Registry {
     reasons: BTreeMap<String, BTreeMap<String, String>>,
     hash: String,
 }
-include!("seeds.rs");
+include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
 /// First launch installs the shipped editable seed only when the whole directory
 /// is absent. A interrupted seed leaves an explicit error on the next launch.
@@ -273,6 +273,9 @@ impl Registry {
                 })
                 .collect(),
         })
+    }
+    pub fn starter_persona(&self, id: &str) -> model::Result<model::PersonaDetails> {
+        Ok(self.language_config(id)?.starter_persona.clone())
     }
     pub fn language_projection(&self) -> Vec<model::Language> {
         self.languages
@@ -552,6 +555,12 @@ impl Registry {
             }
         }
         Ok(())
+    }
+    pub(crate) fn lesson_starter(&self, id: &str) -> Result<&Starter> {
+        self.starter_config
+            .iter()
+            .find(|s| s.id == id)
+            .ok_or_else(|| error("starters", "unknown_starter", id))
     }
     pub fn starters(
         &self,

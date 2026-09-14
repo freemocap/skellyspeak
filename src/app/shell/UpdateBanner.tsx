@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../../platform/updater'
 import { reportFault } from '../../platform/diagnostics/faults'
@@ -14,6 +15,7 @@ type Stage = 'idle' | 'offering' | 'installing' | 'ready' | 'notice'
 /// A failed check is reported through the fault bar like any other failure —
 /// silently never updating is exactly the outcome this is meant to prevent.
 export function UpdateBanner() {
+  const tr = useI18n()
   const [update, setUpdate] = useState<UpdateOffer | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [stage, setStage] = useState<Stage>('idle')
@@ -72,7 +74,7 @@ export function UpdateBanner() {
     return (
       <div className="update-bar" role="status">
         <span className="update-text">{notice}</span>
-        <button type="button" className="btn tiny" onClick={dismiss}>Dismiss</button>
+        <button type="button" className="btn tiny" onClick={dismiss}>{tr("Dismiss")}</button>
       </div>
     )
   }
@@ -89,12 +91,11 @@ export function UpdateBanner() {
       {stage === 'offering' && (
         <>
           <span className="update-text">
-            <b>SkellySpeak {update.version}</b> is available — you have {update.currentVersion}.
+            <b>{tr("SkellySpeak ")}{update.version}</b> {tr(" is available — you have ")}{update.currentVersion}.
           </span>
           {update.kind === 'install' ? (
             <button type="button" className="btn primary tiny" onClick={() => void install()}>
-              Install &amp; restart
-            </button>
+              {tr("Install & restart")}</button>
           ) : (
             // Mobile installs the package itself; the app can only take the
             // user to it.
@@ -105,18 +106,17 @@ export function UpdateBanner() {
                 void update.open().catch((e) => reportFault('Opening the download page', e))
               }
             >
-              Get {update.version}
+              {tr("Get ")}{update.version}
             </button>
           )}
           <button type="button" className="btn tiny" onClick={dismiss}>
-            Later
-          </button>
+            {tr("Later")}</button>
         </>
       )}
 
       {stage === 'installing' && (
         <span className="update-text">
-          Downloading {update.version}
+          {tr("Downloading ")}{update.version}
           {pct === null ? '…' : ` — ${pct}%`}
         </span>
       )}
@@ -124,15 +124,13 @@ export function UpdateBanner() {
       {stage === 'ready' && (
         <>
           <span className="update-text">
-            <b>{update.version}</b> is installed. Restart to use it.
-          </span>
+            <b>{update.version}</b> {tr(" is installed. Restart to use it.")}</span>
           <button
             type="button"
             className="btn primary tiny"
             onClick={() => void restartIntoUpdate().catch((e) => reportFault('Restarting', e))}
           >
-            Restart now
-          </button>
+            {tr("Restart now")}</button>
         </>
       )}
     </div>

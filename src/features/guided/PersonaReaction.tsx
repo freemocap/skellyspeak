@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { TargetText } from '../../ui/TargetText'
 import { useEffect, useRef, useState } from 'react'
 import { playRewardSound } from '../../platform/audio/reward-sounds'
@@ -22,6 +23,7 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit }: {
   reply: string
   onEdit: (() => void) | undefined
 }) {
+  const tr = useI18n()
   const [open, setOpen] = useState(false)
   const button = useRef<HTMLButtonElement>(null)
   const previous = useRef(JSON.stringify(reaction))
@@ -39,19 +41,19 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit }: {
       onDoubleClick={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setOpen(true) }}>
       <span aria-hidden="true">{display.icon}</span>
     </button>
-    {open && <DetailDialog title="Partner reaction" onClose={() => setOpen(false)}>
+    {open && <DetailDialog title={tr("Partner reaction")} onClose={() => setOpen(false)}>
       <div className="reaction-details">
         <h2><span aria-hidden="true">{display.icon} </span>{display.label}</h2>
-        <section className="reaction-exchange" aria-label="Conversation exchange">
-          <div className="reaction-excerpt learner"><span>Your message</span><div className="msg me plain" dir="auto"><TargetText text={message} /></div></div>
-          <div className="reaction-excerpt persona"><span>Partner reply</span><div className="msg bot" dir="auto"><TargetText text={reply} /></div></div>
+        <section className="reaction-exchange" aria-label={tr("Conversation exchange")}>
+          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto"><TargetText text={message} /></div></div>
+          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto"><TargetText text={reply} /></div></div>
         </section>
         {error ? <p role="alert">{error}</p> : <>
-          <h3>How your message came across</h3><p dir="auto">{reaction!.interpretation}</p>
-          <h3>{reaction!.kind === 'confused' ? 'What was unclear' : 'Why this reaction'}</h3><p dir="auto">{reaction!.explanation}</p>
+          <h3>{tr("How your message came across")}</h3><p dir="auto">{reaction!.interpretation}</p>
+          <h3>{reaction!.kind === 'confused' ? tr("What was unclear") : tr("Why this reaction")}</h3><p dir="auto">{reaction!.explanation}</p>
         </>}
-        <button type="button" className="lesson-action" disabled={!onEdit} onClick={() => { setOpen(false); onEdit?.() }}>Edit &amp; try again</button>
-        <p className="lesson-meta">This is an interpretation of the reply, not a measured emotion.</p>
+        <button type="button" className="lesson-action" disabled={!onEdit} onClick={() => { setOpen(false); onEdit?.() }}>{tr("Edit & try again")}</button>
+        <p className="lesson-meta">{tr("This is an interpretation of the reply, not a measured emotion.")}</p>
 
       </div>
     </DetailDialog>}

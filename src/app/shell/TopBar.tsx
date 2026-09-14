@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { ToolbarIcon } from '../../ui/ToolbarIcon'
 import { isTauri } from '../../platform/ipc/tauri'
@@ -12,6 +13,7 @@ import { useSkillEvidence } from '../../state/useSkillEvidence'
 /// state of its own — including the XP on the profile button, which is the
 /// evidence store's value for the active language.
 export function TopBar() {
+  const tr = useI18n()
   const evidence = useSkillEvidence()
   // A summary of the language profile: which language, and its XP. There is
   // nothing to show until evidence for the active language has landed.
@@ -37,23 +39,23 @@ export function TopBar() {
         <button
           type="button"
           className="hamburger"
-          aria-label="Contacts"
+          aria-label={tr("Contacts")}
           aria-expanded={historyOpen}
-          title="Contacts"
+          title={tr("Contacts")}
           onClick={toggleHistory}
         >
           ☰
         </button>
       )}
-      <button type="button" className="wordmark app-home" aria-label="SkellySpeak home — Chat" onClick={goHome}>
+      <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SKELLYSPEAK<b>·</b></span>
       </button>
-      {!isMobile && <div className="tabs" aria-label="Main navigation">
-        <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => showPage('guided')}>Guided conversation</button><button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={newChat}>+</button></div>
-        <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={openSkills}>Skill tree</button>
+      {!isMobile && <div className="tabs" aria-label={tr("Main navigation")}>
+        <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => showPage('guided')}>{tr("Guided conversation")}</button><button type="button" className="new-chat" aria-label={tr("New chat")} disabled={!newChatAction} onClick={newChat}>+</button></div>
+        <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={openSkills}>{tr("Skill tree")}</button>
       </div>}
-      <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label="New chat" disabled={!newChatAction} onClick={newChat}>+</button>}
+      <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label={tr("New chat")} disabled={!newChatAction} onClick={newChat}>+</button>}
       {!isMobile && (
         <button
           type="button"
@@ -61,7 +63,7 @@ export function TopBar() {
           onClick={() => toggleOverlay('activity')}
           aria-label="AI"
           aria-expanded={overlay === 'activity'}
-          title="AI — understand recent activity, inspect a pipeline, or open debugging tools"
+          title={tr("AI — understand recent activity, inspect a pipeline, or open debugging tools")}
         >
           <span className="inside-dot" aria-hidden="true" />
           AI
@@ -71,8 +73,8 @@ export function TopBar() {
         type="button"
         className="gear"
         onClick={() => window.location.reload()}
-        aria-label="Reload app"
-        title="Reload app (⌘/Ctrl+R)"
+        aria-label={tr("Reload app")}
+        title={tr("Reload app (⌘/Ctrl+R)")}
       >
         <ToolbarIcon name="reload" />
       </button>}
@@ -81,13 +83,13 @@ export function TopBar() {
         className="gear"
         onClick={() => showOverlay('settings')}
         disabled={savingLanguage}
-        aria-label="Settings"
-        title="Settings"
+        aria-label={tr("Settings")}
+        title={tr("Settings")}
       >
         <ToolbarIcon name="settings" />
       </button>
-      {isMobile && <button type="button" className="gear" aria-label="More" aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}>•••</button>}
-      {isTauri && <button type="button" className="gear profile-trigger" aria-label="Open language profile" title={profile ? `${profile.target} · ${profile.xp} XP` : "My language profile"} onClick={() => showOverlay('profile')}><ToolbarIcon name="profile" />{profile && <span>{profile.xp.toLocaleString()} XP</span>}</button>}
+      {isMobile && <button type="button" className="gear" aria-label={tr("More")} aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}>•••</button>}
+      {isTauri && <button type="button" className="gear profile-trigger" aria-label={tr("Open language profile")} title={profile ? tr("{value0} · {value1} XP", { value0: String(profile.target), value1: String(profile.xp) }) : tr("My language profile")} onClick={() => showOverlay('profile')}><ToolbarIcon name="profile" />{profile && <span>{profile.xp.toLocaleString(tr.locale)} {tr(" XP")}</span>}</button>}
       </div>
     </div>
   )

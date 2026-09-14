@@ -799,7 +799,11 @@ The live recorder remains a simple waveform. The latest completed transcription
 can be inspected separately with a waveform envelope, bounded STFT spectrogram,
 audio activity regions and provider word timing when available. This volatile
 view belongs to the original recording/conversation, not the mutable text draft;
-it clears on navigation and does not retain raw audio. Spectral intensity and
+it clears on navigation. The latest completed recording is retained in memory for
+explicit playback, replaced on the next completed recording and never saved to disk.
+Waveform, spectrogram and timed words share one zoomable, scrolling timeline;
+selection seeks playback and reveals original/aligned timing and provider segment
+metadata. Segment log probability is not a per-word confidence score. Spectral intensity and
 audio activity are signal measurements, never proficiency scores. Unsupported
 words are inspectable without automatic transcript deletion. Direct Groq requests
 timings; hosted/custom routes explicitly report unavailable timing until their
@@ -841,3 +845,75 @@ routing policy at turn acceptance and record actual per-operation requests rathe
 than choosing models from prompt keywords. Provider schema adaptation is transport
 only: canonical source validation remains authoritative. See AI-STRATEGY.md for
 implemented bindings, accounting and the server-before-client deployment requirement.
+
+## Data-driven language expansion
+
+Language YAML owns the starter persona as well as script, variety and linguistic
+metadata. Live persona creation uses the workspace registry. Bundled configuration
+is discovered recursively at build time; UI dictionaries are discovered by Vite.
+Every shipped native-language ID requires a complete UI dictionary, with explicit
+plural and interpolation validation. Missing translations fail instead of silently
+falling back to English. English is the explicit pre-settings locale.
+
+Portuguese (Brazil default) and German (Germany default) exercise both target and
+native roles. Their configuration remains `needs_review`; structural coverage does
+not establish linguistic or provider quality. Workspace configuration is never
+silently overwritten by a new build. See the [authoring guide](workflow/reports/language-authoring.md)
+for required data, checks and remaining localization boundaries.
+
+## Explicit lessons: approved behavior and implementation
+
+A conversation owns its saved short lessons. **Take a lesson** is available beside
+**You start** and in the coach area during an existing chat. The chooser offers
+four lesson categories, topic suggestions and a custom topic request. Practical topic selection uses
+the current difficulty, practice focus, contact interests and available due-skill
+evidence; it does not claim a measured level. Generated content teaches one
+focused objective with two examples, a brief explanation, a two-question quiz and an optional
+coach exercise. A 2–4 minute duration is a product target, not a measured optimum.
+
+**Try it in chat** introduces a concrete task through a real contact turn. It never
+creates a synthetic learner message or requires completing the exercise. The coach
+can explain the lesson privately; the contact sees only the situation and intended
+opportunity. One active task is allowed per conversation. Replacing or ending it
+cancels unfinished lesson reviews. A recap requires exact quoted learner evidence
+and describes practical communication separately from accuracy. Conversation
+continues without a pass/fail gate. [@british_council_task_based] [@coe_action_oriented]
+
+Lessons and exposure are stored in their originating durable turn context, using
+the existing action receipts and inference lifecycle; no new SQL schema or data
+migration is needed. Independent lesson content survives exchange revisions;
+dependent coach questions and chat practice follow normal revision rules. Recaps
+whose quoted evidence was revised or removed are no longer shown. Conversation
+deletion owns the lesson records. Opening a lesson marks the next learner send as assisted; active lesson practice
+marks its learner sends as assisted until completed or ended. Each accepted turn
+records the contributing lesson IDs. Reading never creates proficiency or XP
+evidence by itself.
+
+Later review uses existing due-skill evidence, with no new notification or spacing
+scheduler. [@kim_webb2022_spacing] Source and verification status are recorded in
+`workflow/reports/lessons.md`; a source implementation is not a claim of live
+provider quality or visual validation.
+
+### Lesson categories and optional recall quiz
+
+The lesson chooser offers **Practical situations**, **Grammar**, **About the
+language**, and **Reading**. Practical suggestions retain native difficulty/focus/contact matching;
+grammar and language-background suggestions are explicit topics, with custom
+requests available in every category. Generation adapts to the conversation's
+language and difficulty. Background lessons can cover history, family, alphabet,
+writing or sounds; they need not become a grammar or role-play lesson.
+
+Each generated lesson ends with **Test your understanding**: two multiple-choice
+questions, three options each, and a short explanation after answering. The first
+answer earns exactly 1 XP if correct and 0 otherwise, saved once per question.
+There is no pass threshold, penalty, quiz retry loop or gate before chat practice.
+Quiz XP contributes to the displayed total through a separate ledger; it creates
+no skill demonstrations, mastery, proficiency observations or difficulty changes.
+
+Reading lessons cover decoding, letter–sound correspondences, phonetics and
+pronunciation, tailored to the conversation's **Native** language (the existing
+explanation-language setting). Comparisons use that language's familiar sounds and
+spelling, identify inexact analogies and give articulatory cues where no equivalent
+exists. Target writing remains visible; Latin literacy and IPA knowledge are not
+assumed. Quiz questions reinforce taught text-readable patterns, not measured
+spoken pronunciation. The usual optional chat handoff and 0/1 quiz XP apply.

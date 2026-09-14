@@ -1,9 +1,11 @@
+import { useI18n } from '../../ui/i18n'
 import { useContext, useState, type CSSProperties } from 'react'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { PracticeContext } from './PracticeContext'
 import { domainColors, skillDomain } from '../../domain/skills/skill-domains'
 
 export function ConversationMap() {
+  const tr = useI18n()
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
   const [open, setOpen] = useState(true)
@@ -22,8 +24,8 @@ export function ConversationMap() {
     return { ...branch, skills, xp, stars: Math.floor(xp / 50), fill: (xp % 50) / 50 }
   })
   const recommended = branches.reduce((least, branch) => branch.xp < least.xp ? branch : least, branches[0])
-  return <aside className={`conversation-map ${open ? 'is-open' : ''}`} aria-label="Conversation skill map">
-    <button className="conversation-map-toggle" onClick={() => { setOpen(true); practice.select(selected.id) }} aria-label="Inspect skill map">
+  return <aside className={`conversation-map ${open ? 'is-open' : ''}`} aria-label={tr("Conversation skill map")}>
+    <button className="conversation-map-toggle" onClick={() => { setOpen(true); practice.select(selected.id) }} aria-label={tr("Inspect skill map")}>
       {open && <svg viewBox="0 0 180 180" aria-hidden="true">{branches.map((branch, i) => {
         const angle = -Math.PI / 2 + i * Math.PI * 2 / branches.length
         const x = 90 + 65 * Math.cos(angle), y = 90 + 65 * Math.sin(angle)
@@ -33,11 +35,11 @@ export function ConversationMap() {
           <circle cx={x} cy={y} r={active.id === branch.id ? 11 : 6} fill="currentColor" className={active.id === branch.id ? 'is-active' : undefined} stroke="none" strokeWidth="4" />
         </g>
       })}<circle data-reward-total="xp" cx="90" cy="90" r="22" /><text x="90" y="94" textAnchor="middle" fontSize="14">★</text></svg>}
-      <span>{snapshot.profile.xp} XP · Skill map</span>
+      <span>{snapshot.profile.xp} {tr(" XP · Skill map")}</span>
     </button>
-    <button className="lesson-action conversation-map-collapse" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Collapse map' : 'Expand map'}</button>
+    <button className="lesson-action conversation-map-collapse" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? tr("Collapse map") : tr("Expand map")}</button>
     {open && <div className="conversation-map-branches">{branches.map(branch => {
-      return <button key={branch.id} title={branch.description} aria-label={`${branch.label} ${branch.xp} XP`} data-reward-domain={branch.id} style={{ '--domain-color': branch.xp > 0 ? domainColors(branch.id).bright : domainColors(branch.id).muted } as CSSProperties} aria-pressed={active.id === branch.id} onClick={() => practice.select((branch.skills.find(node => node.id === snapshot.profile.active_focus) ?? branch.skills[0]).id)}>{branch.label}{branch.id === recommended.id && <span title="Recommended focus: least recorded XP" aria-label="Recommended focus">☆</span>}<small>{branch.xp} XP · {branch.stars} stars</small><progress aria-label={`${branch.label} practice XP`} title="Every 50 XP earns a domain star. The bar shows progress toward the next star." value={branch.fill} max={1} /></button>
+      return <button key={branch.id} title={branch.description} aria-label={tr("{value0} {value1} XP", { value0: String(branch.label), value1: String(branch.xp) })} data-reward-domain={branch.id} style={{ '--domain-color': branch.xp > 0 ? domainColors(branch.id).bright : domainColors(branch.id).muted } as CSSProperties} aria-pressed={active.id === branch.id} onClick={() => practice.select((branch.skills.find(node => node.id === snapshot.profile.active_focus) ?? branch.skills[0]).id)}>{branch.label}{branch.id === recommended.id && <span title={tr("Recommended focus: least recorded XP")} aria-label={tr("Recommended focus")}>☆</span>}<small>{branch.xp} {tr(" XP · ")}{branch.stars} {tr(" stars")}</small><progress aria-label={tr("{value0} practice XP", { value0: String(branch.label) })} title={tr("Every 50 XP earns a domain star. The bar shows progress toward the next star.")} value={branch.fill} max={1} /></button>
     })}</div>}
 
   </aside>

@@ -212,3 +212,51 @@ a pass/fail badge. “Feedback failed” describes a generation failure only. Ed
 is labelled “Edit message.” Persona prompt v8 explicitly distinguishes a learner
 answer from a question and forbids answering the partner's own previous question;
 coach observation prompt v5 requests descriptive, nonjudgmental wording.
+
+## Explicit lesson contract
+
+- `generateLesson` accepts conversation identity, reviewed workspace revision,
+  category (`practical`, `grammar`, `aboutLanguage`, `reading`), topic and nullable native choice ID. A selected choice is checked against current
+  suggestions and its skill/situation guidance is captured; a custom request uses
+  no choice ID. Only the selected lesson runs inference.
+- `controlLesson` supports `open`, `practice` and `end`; `askLessonCoach` binds a
+  private question or optional exercise attempt to the selected saved lesson.
+- Conversation snapshots expose lesson choices and saved lesson views. Plans
+  contain an objective, explanation, exactly two examples with translation and
+  optional reading aids, exercise, private feedback guidance, situation and
+  completion criteria, and exactly two quiz questions with three distinct options, a zero-based correct option and explanation. No provider JSON reaches the UI before validation.
+- `lesson_generate` uses a dedicated context/generation operation graph.
+  `lesson_review` is conditional on active practice and depends on the contact
+  reply. Both use the existing admission, route, receipt, pause and failure rules.
+- A handoff is an assistant-only contact turn. Subsequent contact context includes
+  the task situation/objective; selected-lesson coach context includes the teaching
+  material. Viewing content is recorded before revealing it; each opening marks
+  the next learner send assisted, and active practice marks its learner sends
+  assisted. Accepted turns retain the contributing lesson IDs. Reading and private
+  exercise attempts create no assessment events.
+- Completion requires 1–3 exact quotes from actual current learner messages in the
+  bounded post-handoff exchange. End/replacement cancels outstanding reviews;
+  duplicate or late results cannot repeat a recap. Removed/revised evidence hides
+  its recap. Independent lesson content survives a chat revision, while dependent
+  practice and private coach turns follow the existing suffix deletion rules.
+- Saved lessons are conversation-owned turn-context records, capped at 100 per
+  conversation. Reopening does not generate or hand off again. Difficulty/variety/
+  explanation-language changes require a fresh lesson before its first handoff.
+  Subsequent turns always retain the current difficulty ceiling.
+
+- `answerLessonQuiz` accepts conversation/lesson identity, question index and option
+  index. The native transaction validates ownership and indices and grades against
+  the saved plan. A repeated identical answer is idempotent; changing an answered
+  question is rejected. It makes no provider call. Answers remain with the lesson
+  across restarts and history revisions and are removed with the conversation.
+- `profile.quiz_credits` projects this separate, conversation-scoped 0/1 XP ledger.
+  Total XP includes it; skill credits, construct evidence and learner estimates do
+  not. Quiz outcomes are not proficiency observations. The quiz never gates chat.
+- Generation prompt version `lesson-3` captures category and requires bounded quiz
+  content. Invalid question counts, duplicate options or invalid answer indices
+  fail generation before publication.
+
+- Reading generation explicitly receives `nativeLanguage` from the captured
+  conversation `explanationLanguage`, the UI's Native selector. It never derives
+  learner sound comparisons from UI locale or assumes English. Existing saved
+  lesson context and changed-explanation-language handoff checks remain in force.

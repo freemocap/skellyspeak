@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { ErrorDetails } from '../../ui/ErrorDetails'
 import { ActivityIndicator } from '../../ui/ActivityIndicator'
 import { DetailDialog } from '../../ui/DetailDialog'
@@ -10,12 +11,15 @@ import { type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { CoachDock } from './CoachDock'
 import { Markdown } from '../../ui/Markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, personaProfile, coachingContent }: {
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, personaProfile, coachingContent, onLesson, lessonSummary }: {
+  onLesson?: () => void
+  lessonSummary?: import('../../contracts').LessonView
   coachingContent?: ReactNode
   conversationBusy: boolean; chatId: string; personaProfile: ReactNode; tab: 'lesson' | 'profile'; onTab: (tab: 'lesson' | 'profile') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
+  const tr = useI18n()
   const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
   const [input, setInput] = useState('')
   const [coachOpen, setCoachOpen] = useState(false)
@@ -76,28 +80,30 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     }
   }
   const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
-  const coachDock = <CoachDock presentation={coachOpen ? 'dialog' : 'dock'} actions={<button type="button" aria-label="Clear coach thread" disabled title="Coach thread clearing is not available yet.">Clear thread</button>}>
-    <div className="coach-thread lesson-thread" ref={threadRef} aria-label="Coach conversation" aria-live="polite">
+  const coachDock = <CoachDock presentation={coachOpen ? 'dialog' : 'dock'} actions={<button type="button" aria-label={tr("Clear coach thread")} disabled title={tr("Coach thread clearing is not available yet.")}>{tr("Clear thread")}</button>}>
+    <div className="coach-thread lesson-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
-      {busy && <ActivityIndicator compact label="Coach replying…" />}
+      {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>
-    {(error || executionError) && <ErrorDetails label="Coach" errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}
+    {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}
     <form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
           event.preventDefault(); event.currentTarget.form?.requestSubmit()
         }
-      }} value={input} onChange={event => setInput(event.target.value)} placeholder="Ask about a message or language usage…" aria-label="Message your coach" disabled={!isTauri || busy} />
-      <button type="submit" className="coach-send" aria-label="Send to coach" disabled={!currentSnapshot || !input.trim() || busy || conversationBusy}>↑</button>
+      }} value={input} onChange={event => setInput(event.target.value)} placeholder={tr("Ask about a message or language usage…")} aria-label={tr("Message your coach")} disabled={!isTauri || busy} />
+      <button type="submit" className="coach-send" aria-label={tr("Send to coach")} disabled={!currentSnapshot || !input.trim() || busy || conversationBusy}>↑</button>
     </form>
   </CoachDock>
   return <>
-    <div className="panel-tabs" role="tablist" aria-label="Learning panel">
-      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>Skill map</button>
-      <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>Persona</button>
+    <div className="panel-tabs" role="tablist" aria-label={tr("Learning panel")}>
+      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>{tr("Skill map")}</button>
+      <button type="button" role="tab" aria-selected={tab === 'profile'} className={`panel-tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => onTab('profile')}>{tr("Persona")}</button>
     </div>
     <div className="analysis-scroll" hidden={tab !== 'profile'}>{personaProfile}</div>
     {tab === 'lesson' && <ConversationProgress chatId={chatId}>{coachingContent}</ConversationProgress>}
-    {coachOpen ? <DetailDialog title="Coach conversation" onClose={() => setCoachOpen(false)}><h2>Coach conversation</h2>{coachDock}</DetailDialog> : coachDock}
+    {onLesson && <div className="lesson-entry"><button type="button" onClick={onLesson}>{tr("Take a lesson")}</button></div>}
+    {lessonSummary && <button className="lesson-coach-summary" type="button" onClick={onLesson}><span dir="auto">{lessonSummary.plan?.title}</span>{lessonSummary.recap && <span dir="auto">{lessonSummary.recap.text}</span>}{lessonSummary.error && <span role="alert">{lessonSummary.error}</span>}</button>}
+    {coachOpen ? <DetailDialog title={tr("Coach conversation")} onClose={() => setCoachOpen(false)}><h2>{tr("Coach conversation")}</h2>{coachDock}</DetailDialog> : coachDock}
   </>
 }

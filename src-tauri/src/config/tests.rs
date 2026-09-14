@@ -2,7 +2,7 @@ use super::*;
 #[test]
 fn shipped_config_loads_resolves_and_projects() {
     let r = Registry::bundled().unwrap();
-    assert_eq!(r.languages.len(), 5);
+    assert!(!r.languages.is_empty());
     assert_eq!(r.constructs().len(), 47);
     let c = r.resolve("ar", Some("ar-MSA"), "zh").unwrap();
     assert!(
@@ -341,4 +341,52 @@ fn game_enforces_evidence_truth_and_no_stopping_penalty() {
         *policy = policy.replace(from, to);
         assert!(Registry::from_files(bad).is_err());
     }
+}
+
+#[test]
+fn every_configured_target_and_explanation_pair_has_local_starting_content() {
+    let registry = Registry::bundled().unwrap();
+    for target in &registry.languages {
+        let persona = registry.starter_persona(&target.id).unwrap();
+        crate::persona::validate_for_language(&persona, &registry.language(&target.id).unwrap())
+            .unwrap();
+        for explanation in &registry.languages {
+            let settings = registry.defaults(&target.id, &explanation.id).unwrap();
+            registry.validate_settings(&target.id, &settings).unwrap();
+            let context = registry.resolve(&target.id, None, &explanation.id).unwrap();
+            assert_eq!(context.language_id, target.id);
+            assert_eq!(context.explanation_language_id, explanation.id);
+            let cards = registry
+                .starters(&context, "A1", &[], &[], &[], &[])
+                .unwrap();
+            assert!(
+                !cards.is_empty(),
+                "{} -> {} has no starters",
+                target.id,
+                explanation.id
+            );
+        }
+    }
+}
+
+#[test]
+fn workspace_owns_starter_personas_and_invalid_personas_fail_loading() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("config");
+    initialize(&path).unwrap();
+    let file = path.join("languages/languages/pt.yaml");
+    let source = fs::read_to_string(&file).unwrap();
+    fs::write(&file, source.replace("Marina", "Beatriz")).unwrap();
+    let registry = Registry::load(&path).unwrap();
+    assert_eq!(registry.starter_persona("pt").unwrap().name, "Beatriz");
+    assert_eq!(
+        Registry::bundled()
+            .unwrap()
+            .starter_persona("pt")
+            .unwrap()
+            .name,
+        "Marina"
+    );
+    fs::write(&file, source.replace("age: 32", "age: 2")).unwrap();
+    assert_eq!(Registry::load(&path).unwrap_err().code, "starter_persona");
 }

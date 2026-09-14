@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import type { ReactNode } from 'react'
 import type { Difficulty } from '../../contracts'
 import { ErrorDetails } from '../../ui/ErrorDetails'
@@ -9,14 +10,15 @@ export function ConversationHeader({ learning, persona, difficulty, saving, erro
   learning: ReactNode; persona?: ReactNode; difficulty?: Difficulty; saving: boolean; error: string | null
   onDifficulty: (value: Difficulty) => Promise<void>; children: ReactNode
 }) {
+  const tr = useI18n()
   return <div className="chat-head">
-    <div className="conversation-title" aria-label="Current conversation settings">
+    <div className="conversation-title" aria-label={tr("Current conversation settings")}>
       <div className="learning-line">
         {learning}
         {difficulty && <DifficultySelect value={difficulty} saving={saving} onChange={onDifficulty} />}
         {persona}
       </div>
-      {error && <ErrorDetails label="Conversation settings" errorKey={error}>{error}</ErrorDetails>}
+      {error && <ErrorDetails label={tr("Conversation settings")} errorKey={error}>{error}</ErrorDetails>}
     </div>
     {children}
   </div>

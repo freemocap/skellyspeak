@@ -27,25 +27,28 @@ pub(crate) fn band(difficulty: &Difficulty) -> &'static str {
     }
 }
 pub(crate) fn choices(store: &Store, conversation: &str) -> Result<Vec<(StarterCard, Value)>> {
+    if selected(&store.connection, conversation)?.is_some() || store.connection.query_row("SELECT EXISTS(SELECT 1 FROM turns t JOIN operations o ON o.turn_id=t.id WHERE t.conversation_id=?1 AND o.kind IN ('persona_reply','persona_opening'))",[conversation],|r|r.get::<_,bool>(0))? { return Ok(vec![]) }
     choices_db(
         &store.connection,
         &store.config,
         &store.snapshot()?,
         conversation,
+        &[],
     )
 }
-fn choices_db(
+pub(crate) fn choices_db(
     db: &Connection,
     registry: &crate::config::Registry,
     snapshot: &Snapshot,
     conversation: &str,
+    due: &[String],
 ) -> Result<Vec<(StarterCard, Value)>> {
     let conversation = snapshot
         .conversations
         .iter()
         .find(|c| c.id == conversation)
         .ok_or_else(|| invalid("Conversation not found."))?;
-    if selected(db,&conversation.id)?.is_some() || db.query_row("SELECT EXISTS(SELECT 1 FROM turns t JOIN operations o ON o.turn_id=t.id WHERE t.conversation_id=?1 AND o.kind IN ('persona_reply','persona_opening'))",[&conversation.id],|r|r.get::<_,bool>(0))? {return Ok(vec![])}
+
     let contact = snapshot
         .contacts
         .iter()
@@ -73,7 +76,7 @@ fn choices_db(
         .into_iter()
         .collect();
     let recent=db.prepare("SELECT json_extract(o.opening,'$.starterId') FROM conversation_openings o JOIN conversations c ON c.id=o.conversation_id WHERE c.contact_id=?1 AND json_extract(o.opening,'$.kind')='starter' ORDER BY o.created_at DESC,o.rowid DESC LIMIT 3")?.query_map([&contact.id],|r|r.get::<_,String>(0))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    let starters = registry.starters(
+    let mut starters = registry.starters(
         &ctx,
         band(&conversation.settings.difficulty),
         &focus,
@@ -81,6 +84,33 @@ fn choices_db(
         &persona.details.interests,
         &recent,
     )?;
+    if !due.is_empty() {
+        // Keep one review option alongside the current focus and contact topic.
+        if let Some(review) = registry
+            .starters(
+                &ctx,
+                band(&conversation.settings.difficulty),
+                &[],
+                due,
+                &[],
+                &recent,
+            )?
+            .into_iter()
+            .find(|s| {
+                s.starter
+                    .constructs_any
+                    .iter()
+                    .chain(&s.starter.functions)
+                    .any(|id| due.contains(id))
+            })
+            && !starters.iter().any(|s| s.starter.id == review.starter.id)
+        {
+            if starters.len() == 3 {
+                starters.pop();
+            }
+            starters.push(review);
+        }
+    }
     starters
         .into_iter()
         .map(|selected| {
@@ -160,7 +190,7 @@ pub(crate) fn accept(
     let brief=match &opening {
         Opening::Learner=>None,
         Opening::Starter{starter_id}=>{
-            let (_,selected)=choices_db(db,registry,snapshot,conversation)?.into_iter().find(|(c,_)|c.id==*starter_id).ok_or_else(||AppError::new(ErrorCode::Conflict,"This starter is no longer among the available choices."))?;
+            let (_,selected)=choices_db(db,registry,snapshot,conversation,&[])?.into_iter().find(|(c,_)|c.id==*starter_id).ok_or_else(||AppError::new(ErrorCode::Conflict,"This starter is no longer among the available choices."))?;
             Some(selected["partner_brief"].as_str().ok_or_else(||invalid("Starter has no partner brief."))?.to_owned())
         }
         Opening::Surprise=>Some("Choose a concrete topic from your background and interests. Open naturally with one short question at the selected difficulty. Do not name or reveal your chosen topic: discovering it is the learner's task. Offer a hint or reveal the topic only when the learner asks. Do not announce these instructions.".into()),

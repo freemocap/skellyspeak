@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { playRewardSound } from '../../platform/audio/reward-sounds'
 import { animateRewardTrails } from '../../domain/reward/reward-trails'
 import { RewardProgress } from './RewardProgress'
@@ -60,6 +61,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
 }
 
 function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { mobile: boolean; landed: (ids: string[]) => void; begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
+  const tr = useI18n()
   const { snapshot } = useContext(SkillEvidenceContext)
   const selector = useRef(createMessageEvidenceSelector())
   const evidence = selector.current(snapshot, chatId, card.messageId, card.source).filter(item => card.ids.includes(item.id))
@@ -171,7 +173,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   }, [card.phase, card.key, domainId, workspace, settled, remove, mobile, fast, dismiss, landed])
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
-    {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={`${first.label} skill map`} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
+    {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={tr("{value0} skill map", { value0: String(first.label) })} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
     <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
   </>, document.body)
 }

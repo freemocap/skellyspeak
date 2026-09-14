@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { Component, type ReactNode } from 'react'
 
 // Keeps a render crash from blanking the whole app.
@@ -8,21 +9,13 @@ export class PageBoundary extends Component<{ children: ReactNode }, { error: Er
   }
   render() {
     if (this.state.error) {
-      return (
-        <div className="not-tauri">
-          This view crashed: {this.state.error.message}
-          <br />
-          <br />
-          <button
-            type="button"
-            className="btn"
-            onClick={() => this.setState({ error: null })}
-          >
-            Reload view
-          </button>
-        </div>
-      )
+      return <CrashedView error={this.state.error} reload={() => this.setState({ error: null })} />
     }
     return this.props.children
   }
+}
+
+function CrashedView({ error, reload }: { error: Error; reload: () => void }) {
+  const tr = useI18n()
+  return <div className="not-tauri"><p>{tr('This view crashed: {message}', { message: error.message })}</p><button type="button" className="btn" onClick={reload}>{tr('Reload view')}</button></div>
 }

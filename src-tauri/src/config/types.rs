@@ -165,6 +165,7 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Language {
+    pub starter_persona: crate::model::PersonaDetails,
     #[serde(default)]
     pub scalars: ScalarOverrides,
     pub id: String,

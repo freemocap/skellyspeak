@@ -177,6 +177,9 @@ pub async fn mic_transcribe(
     state
         .lock()?
         .begin_transcription(&recording_id, &recording.conversation, &recording.target)?;
+    use base64::Engine;
+    let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
+    let mut segments = Vec::new();
     let request = access::transcribe(
         &client,
         &recording.target,
@@ -205,6 +208,7 @@ pub async fn mic_transcribe(
     };
     let result = result.and_then(|response| {
         crate::audio_inspection::attach_words(&mut inspection, &local, response.verbose.as_ref())?;
+        segments = response.verbose.as_ref().map(|value| value.segments.clone()).unwrap_or_default();
         Ok(response.text)
     });
     let text = state.lock()?.finish_transcription(
@@ -213,5 +217,5 @@ pub async fn mic_transcribe(
         &recording.target,
         result,
     )?;
-    Ok(crate::audio_inspection::TranscriptionInspectionResult { text, inspection })
+    Ok(crate::audio_inspection::TranscriptionInspectionResult { text, inspection, audio_base64, segments })
 }

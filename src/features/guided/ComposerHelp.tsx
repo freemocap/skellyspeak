@@ -1,3 +1,4 @@
+import { useI18n } from '../../ui/i18n'
 import { ErrorDetails } from '../../ui/ErrorDetails'
 import { ActivityIndicator } from '../../ui/ActivityIndicator'
 import { useState } from 'react'
@@ -14,6 +15,7 @@ export function ComposerHelp({ replies, pending, busy, errors, onUse, onRequest 
   replies: SuggestedReply[]; pending: boolean; busy: boolean; errors: string[]
   onUse: (text: string, source: 'suggestion') => void
 }) {
+  const tr = useI18n()
   const visibleReplies = replies.slice(0, 2)
   const [collapsed, setCollapsed] = useState(true)
   const [requesting, setRequesting] = useState(false)
@@ -27,18 +29,18 @@ export function ComposerHelp({ replies, pending, busy, errors, onUse, onRequest 
   }
   if (!onRequest && !replies.length && !pending && !errors.length) return null
   const toggleButton = <button type="button" className="composer-help-toggle" aria-expanded={!collapsed} aria-controls="composer-help-content"
-    onClick={() => void toggle()}>{collapsed ? 'Show suggested replies' : 'Hide suggested replies'}</button>
+    onClick={() => void toggle()}>{collapsed ? tr("Show suggested replies") : tr("Hide suggested replies")}</button>
   if (collapsed) return <div className="composer-help-folded">{toggleButton}</div>
-  return <section id="composer-help-content" className="composer-help-content" aria-label="Reply ideas" aria-live="polite" aria-busy={pending}>
+  return <section id="composer-help-content" className="composer-help-content" aria-label={tr("Reply ideas")} aria-live="polite" aria-busy={pending}>
     <div className="composer-help-head">{toggleButton}</div>
-    {replies.length > 0 && <div className="help-replies" aria-label="Suggested replies">
+    {replies.length > 0 && <div className="help-replies" aria-label={tr("Suggested replies")}>
       {visibleReplies.map(reply => <div className="help-reply" key={reply.text}>
         <span className="help-reply-text" dir="auto"><SavedGlossText text={reply.text} segments={reply.segments} /></span>
-        <button type="button" className="help-insert" aria-label={`Insert reply: ${reply.text}`} title="Insert reply" disabled={busy} onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>
+        <button type="button" className="help-insert" aria-label={tr("Insert reply: {value0}", { value0: String(reply.text) })} title={tr("Insert reply")} disabled={busy} onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>
       </div>)}
     </div>}
-    {(pending || requesting) && <ActivityIndicator compact label="Finding reply ideas…" />}
+    {(pending || requesting) && <ActivityIndicator compact label={tr("Finding reply ideas…")} />}
     {failure && <p role="alert">{failure}</p>}
-    {errors.length > 0 && <ErrorDetails label="Reply ideas" errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}
+    {errors.length > 0 && <ErrorDetails label={tr("Reply ideas")} errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}
   </section>
 }

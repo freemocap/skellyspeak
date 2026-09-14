@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useI18n } from '../../ui/i18n'
 
 interface DialectFieldProps {
   presets: { id: string; label: string }[]
@@ -6,41 +6,13 @@ interface DialectFieldProps {
   onChange: (v: string) => void
 }
 
-/// Dialect picker: preset dropdown + free-text input kept in sync. Choosing
-/// a preset fills the input; typing a custom value overrides it. The stored
-/// value is always the raw string passed to the AI prompts.
+/** Only the workspace's declared varieties can be saved. */
 export function DialectField({ presets, value, onChange }: DialectFieldProps) {
-  const isPreset = presets.some((d) => d.id === value)
-  const [mode, setMode] = useState<'preset' | 'custom'>(value && !isPreset ? 'custom' : 'preset')
-
-  return (
-    <div className="dialect-field">
-      <select
-        value={mode === 'preset' ? value : ''}
-        onChange={(e) => {
-          setMode('preset')
-          onChange(e.target.value)
-        }}
-        aria-label="Regional variety presets"
-      >
-        <option value="">Default</option>
-        {presets.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.label}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        value={mode === 'custom' ? value : ''}
-        placeholder="…or type a custom variety"
-        onFocus={() => setMode('custom')}
-        onChange={(e) => {
-          setMode('custom')
-          onChange(e.target.value)
-        }}
-        aria-label="Custom regional variety"
-      />
-    </div>
-  )
+  const tr = useI18n()
+  return <div className="dialect-field">
+    <select value={value} onChange={event => onChange(event.target.value)} aria-label={tr('Regional variety presets')}>
+      {!value && <option value="" disabled>{tr('Default')}</option>}
+      {presets.map(preset => <option key={preset.id} value={preset.id}>{preset.label}</option>)}
+    </select>
+  </div>
 }
