@@ -260,3 +260,23 @@ coach observation prompt v5 requests descriptive, nonjudgmental wording.
   conversation `explanationLanguage`, the UI's Native selector. It never derives
   learner sound comparisons from UI locale or assumes English. Existing saved
   lesson context and changed-explanation-language handoff checks remain in force.
+
+### Mystery partner discovery — 14 September design pass
+
+The user confirmed distinct guess and reveal actions. `guessMystery` validates the
+active partner and persona revision, stores a correct field once per partner and
+awards 1 XP, matching lesson recall quizzes. Wrong guesses are retryable with no
+penalty. `revealMystery` only reveals a previously correct field and cannot pay XP.
+`dismissMysteryNudge` is conversation-scoped; discovery state and XP are
+partner-scoped. A discovered fact is stable across later persona edits.
+
+`ConversationSnapshot.mystery` projects `hidden | guessed_unrevealed | revealed`.
+Only revealed rows carry the display value. `profile.mystery_credits` contributes
+to total XP without adding observations, construct estimates or skill credit.
+Deleting a conversation clears the award's conversation attribution; partner
+ownership retains the award. Deleting that partner deletes its discoveries.
+
+The frontend uses DetailDialog for the guess, existing sound controls for the
+correct-answer cue and separate reduced-motion-aware reveal animation. This does
+not change the language-evidence RewardEvent policy or claim behavior. The +3 XP
+shown in the supplied design is illustrative; the implemented award is 1 XP.

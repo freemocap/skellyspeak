@@ -34,4 +34,7 @@ if (typeof document !== 'undefined') {
 
   // Nothing under test scrolls, but the chat stream asks the DOM to.
   Element.prototype.scrollIntoView ??= vi.fn()
+  // jsdom has no top-layer popover implementation; layout is verified in-browser.
+  HTMLElement.prototype.showPopover ??= function () { this.style.display = 'block' }
+  HTMLElement.prototype.hidePopover ??= function () { this.style.display = 'none' }
 }

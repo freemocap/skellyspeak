@@ -22,7 +22,6 @@ _FAKE_ENV = {
     "PUBLIC_BASE_URL": "https://test.invalid",
     "OPENROUTER_API_KEY": "test-openrouter-key",
     "GROQ_API_KEY": "test-groq-key",
-    "ALLOWED_MODELS": "google/gemini-2.5-flash,openai/gpt-audio-mini",
     "MAX_COMPLETION_TOKENS": "32768",
     "FREE_DAILY_MICROS": "500000",
     "GLOBAL_DAILY_MICROS": "2000000",

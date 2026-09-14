@@ -3,7 +3,8 @@
 - Open directly into a usable chat. Create defaults automatically; never require a
   title, partner form or tutorial completion before composing.
 - Preserve the reference voice-first composer: inline text, prominent Record/Stop
-  and Send. Keep Lesson/Analysis with a docked Talk to your coach beside the chat.
+  and Send. Keep Coaching/Evidence beside Practice, with a pinned private-coach composer.
+  Learn presents lessons in the main pane; Review presents skill evidence.
 
 - AI and Profile are toolbar surfaces. AI supports a resizable dock and separate
   window. Keep account and token details in Settings → AI access.
@@ -23,7 +24,7 @@
   well. Six skill-domain accents keep consistent meanings across both themes.
   Keep compact controls and the SkellySpeak logo. Chat is the primary surface.
 - The toolbar opens a partner chooser in place of chat history. Desktop uses
-  adjacent chat and lesson/analysis panes; narrow windows use Chat and Lesson tabs.
+  rail/main/study zones; narrow windows use a bottom Practice/Learn/Review bar.
 - Flowers belong only to evidence visualization in the analysis pane. Do not use
   flower branding, decorative garden landing pages or lifestyle marketing copy.
 
@@ -95,9 +96,8 @@
 - Shared element defaults cover typography, focus and basic controls. Shared
   selector groups are intentional reuse, not a place to assign component geometry.
   Theme selectors must not unintentionally defeat component colors or states.
-- Do not use `!important`. The resizable coach dock height is measured in the
-  component and applied to that element, so media rules own the resulting
-  desktop/mobile geometry rather than a shared custom property. Custom properties
+- Do not use `!important`. PracticeDivider is the only chat/study resize edge. Nested study flex columns
+  need min-height: 0 and an inner scrolling region so the composer stays visible. Custom properties
   written from TypeScript are declared with their defaults in `tokens.css`; add a
   new one there, with the writer named in the comment, rather than leaving the
   contract implicit.

@@ -28,7 +28,7 @@ pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
 }
 
 /// Current development schema. Other versions require an explicit workspace reset.
-pub(crate) const SCHEMA_VERSION: i32 = 15;
+pub(crate) const SCHEMA_VERSION: i32 = 16;
 const GENERATION_SCHEMA: &str = include_str!("generation_schema.sql");
 
 /// The workspace database, inside the application data directory.
@@ -349,6 +349,37 @@ impl Store {
         let mut persona_scope: Option<String> = None;
         let mut conversation_scope: Option<String> = None;
         let entity_id = match command.action {
+            Action::GuessMystery {
+                conversation_id,
+                field,
+                value,
+                expected_persona_revision,
+            } => {
+                let id = crate::mystery::guess(
+                    &tx,
+                    &snapshot,
+                    &conversation_id,
+                    field,
+                    &value,
+                    expected_persona_revision,
+                )?;
+                conversation_scope = Some(conversation_id);
+                id
+            }
+            Action::RevealMystery {
+                conversation_id,
+                field,
+            } => {
+                crate::mystery::reveal(&tx, &snapshot, &conversation_id, field)?;
+                conversation_scope = Some(conversation_id.clone());
+                conversation_id
+            }
+            Action::DismissMysteryNudge { conversation_id } => {
+                crate::mystery::owner(&snapshot, &conversation_id)?;
+                crate::mystery::dismiss(&tx, &conversation_id)?;
+                conversation_scope = Some(conversation_id.clone());
+                conversation_id
+            }
             Action::AnswerLessonQuiz {
                 conversation_id,
                 lesson_id,
@@ -647,6 +678,7 @@ impl Store {
                     &details,
                     &self.config.language(&persona.language_id)?,
                 )?;
+                crate::mystery::validate_edit(&tx, &persona_id, &details)?;
                 tx.execute(
                     "UPDATE personas SET details=?1,revision=revision+1 WHERE id=?2",
                     params![serde_json::to_string(&details)?, persona_id],
@@ -1475,7 +1507,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("skellyspeak.sqlite3");
         drop(Store::open(&path).unwrap());
-        for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, SCHEMA_VERSION + 1] {
+        for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, 15, SCHEMA_VERSION + 1] {
             let connection = Connection::open(&path).unwrap();
             connection
                 .pragma_update(None, "user_version", version)

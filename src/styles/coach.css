@@ -47,7 +47,7 @@
 
 .coach-card {
   border: var(--border-width) solid var(--shell-line); border-inline-start: var(--border-width-thick) solid var(--accent);
-  border-radius: var(--radius-md); padding: 8px 12px; background: var(--warning-dim);
+  border-radius: var(--radius-md); padding: 8px 12px; background: var(--accent-dim);
 }
 
 .coach-remark { font-size: var(--text-base); color: var(--shell-text); line-height: 1.45; margin: 0; }
@@ -105,100 +105,15 @@
 
 /* Collapsible coach thread. */
 
-.coach-thread-head {
-  display: flex; align-items: center; gap: var(--space-4);
-  padding: var(--space-3) var(--space-7) var(--space-2);
-  font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--shell-text-faint); border-top: var(--border-width-strong) solid var(--accent); padding-top: var(--space-6); padding-bottom: var(--space-4);
-}
-
-.coach-thread-head button {
-  margin-inline-start: auto; background: none; border: none; color: var(--shell-text-muted);
-  cursor: pointer; font-size: var(--text-xl); line-height: 1; padding: 0 var(--space-2);
-}
-
-.coach-thread-head button:hover { color: var(--shell-text); }
-
 .coach-input-row textarea { resize: vertical; max-height: 140px; line-height: 1.4; }
 
 /* Coach conversation is visually distinct from the lesson and analysis. */
 
-.coach-thread-head, .lesson-thread, .coach-input-row { background: var(--shell-raised); }
+.lesson-thread, .coach-input-row { background: var(--shell-raised); }
 
 /* The coach dock keeps its composer accessible at every saved height. */
 
-.coach-dock {
-  flex: none;
-  min-height: 160px;
-  max-height: max(160px, calc(100% - 120px));
-  display: flex;
-  flex-direction: column;
-  background: var(--dock);
-  overflow: hidden;
-}
-
-.coach-resizer {
-  flex: none;
-  height: 8px;
-  cursor: ns-resize;
-  touch-action: none;
-  background: var(--shell-chrome);
-  border-top: var(--border-width) solid var(--accent);
-  display: grid;
-  place-items: center;
-}
-
-.coach-resizer::after {
-  content: '';
-  width: 38px;
-  height: 2px;
-  border-radius: var(--radius-xs);
-  background: var(--accent);
-}
-
-.coach-resizer:hover, .coach-resizer:focus-visible { background: var(--accent-strong); outline: none; }
-
-.coach-dock .coach-thread-head {
-  flex: none;
-  border-top: 0;
-  padding: var(--space-2) var(--space-6);
-  min-height: var(--control-height-sm);
-}
-
-.coach-dock .coach-collapse { margin-inline-start: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; }
-
-.coach-dock .lesson-thread {
-  flex: 1;
-  min-height: var(--control-height);
-  max-height: none;
-  padding: var(--space-2) var(--space-7);
-}
-
-.coach-dock.is-collapsed { min-height: 64px; }
-
-.coach-dock.is-collapsed:has(.turn-errors) { min-height: 112px; }
-
-.coach-dock.is-collapsed .lesson-thread { display: none; }
-
-.coach-dock .coach-input-row { margin-top: auto; }
-
-.coach-dock .coach-input { resize: none; }
-
-.coach-dock .turn-errors {
-  flex: 0 1 auto;
-  min-height: 0;
-  max-height: 35%;
-  margin-block: var(--space-2);
-  padding-block: var(--space-3);
-  overflow: auto;
-}
-
-.coach-dock .error-details { margin-block: 0; padding-block: var(--space-1); }
-
-.coach-dock .error-details:not([open]) { flex: none; max-height: none; overflow: hidden; }
-
 @media (max-width: 860px) {
-  .coach-resizer { height: 12px; }
 }
 
 .edit-feedback {
@@ -232,6 +147,44 @@
 
 .edit-feedback .coach-remark { font-size: var(--text-sm); }
 
+.coach-fixed { color: var(--success-soft); }
+
+
+
+
+
+.evidence-mapping-notice { margin: var(--space-3) 0; padding: var(--space-3); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-sm); font-size: var(--text-xs); overflow-wrap: anywhere; }
+
+.evidence-mapping-notice dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }
+
+.evidence-mapping-notice dd { margin: 0; }
+
+/* Coaching uses compact phrases and the conversation's interactive reading blocks. */
+.coach-card blockquote { margin: 0 0 8px; color: var(--interaction-ink); font-size: var(--text-lg); }
+.coach-card-help { border-inline-start-color: var(--warning); background: var(--warning-dim); }
+.coach-card-help blockquote { color: var(--warning); }
+.coach-entry { display: grid; gap: 8px; }
+.live-coach-review { display: grid; gap: 12px; }
+.live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--text-lg); }
+.live-coach-review > .lesson-action { justify-self: start; }
+.analysis-sentence { padding: 8px 12px; margin-block: 8px; border-radius: var(--radius-md); border-inline-start: 3px solid var(--analysis-accent); background: var(--accent-dim); }
+.analysis-sentence > h4 { margin: 0 0 4px; font-size: var(--text-xs); color: var(--analysis-accent-soft); }
+.analysis-sentence > .sentence { margin: 0; font-size: var(--text-lg); line-height: 1.5; color: var(--analysis-accent-soft); }
+.analysis-sentence > .trans-d { margin: 4px 0 0; font-style: normal; }
+.live-coach-review > .analysis-sentence { margin: 0; }
+.detail-dialog > .analysis-sentence { clear: both; margin-bottom: 12px; }
+
+.coach-card-explanation { border-inline-start-color: var(--interaction-ink); background: var(--accent-dim); }
+
+.study-coaching { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.study-coaching[hidden] { display: none; }
+.study-coaching-scroll { flex: 1; min-height: 0; overflow: auto; padding: var(--space-8); }
+.study-coaching .coach-thread { max-height: none; padding: var(--space-4) 0; border: 0; background: transparent; }
+.study-coaching .coach-input-row { background: transparent; }
+
+.study-credit-badges { display: flex; gap: var(--space-4); min-height: var(--control-height); }
+.study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }
+
 .coach-evidence { margin-top: var(--space-6); }
 
 .coach-evidence ul {
@@ -257,45 +210,15 @@
   color: var(--shell-text);
 }
 
-.coach-dock.is-collapsed .coach-thread-head { display: none; }
-
-.coach-dock.is-collapsed .coach-input-row { padding: var(--space-2) var(--space-5); gap: var(--space-3); }
-
-.coach-dock.is-collapsed .coach-input {
-  height: var(--control-height-lg);
-  min-height: var(--control-height-lg);
-  padding-block: var(--space-4);
-}
-
-.coach-fixed { color: var(--success-soft); }
-
-
-
-
-
-.evidence-mapping-notice { margin: var(--space-3) 0; padding: var(--space-3); border: var(--border-width) solid var(--warning); border-radius: var(--radius-sm); font-size: var(--text-xs); overflow-wrap: anywhere; }
-
-.evidence-mapping-notice dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }
-
-.evidence-mapping-notice dd { margin: 0; }
-
-/* Coaching uses compact phrases and the conversation's interactive reading blocks. */
-.coach-card blockquote { margin: 0 0 8px; color: var(--warning); font-size: var(--text-lg); }
-.coach-card-help { border-inline-start-color: var(--warning); background: var(--warning-dim); }
-.coach-card-help blockquote { color: var(--warning); }
-.coach-entry { display: grid; gap: 8px; }
-.live-coach-review { display: grid; gap: 12px; }
-.live-coach-review > h3 { margin: 0; color: var(--warning); font-size: var(--text-lg); }
-.live-coach-review > .lesson-action { justify-self: start; }
-.analysis-sentence { padding: 8px 12px; margin-block: 8px; border-radius: var(--radius-md); border-inline-start: 3px solid var(--analysis-accent); background: var(--accent-dim); }
 .analysis-sentence-bot { border-inline-start-color: var(--success-soft); background: color-mix(in srgb, var(--success-soft) 8%, var(--shell-sunken)); }
-.analysis-sentence > h4 { margin: 0 0 4px; font-size: var(--text-xs); color: var(--analysis-accent-soft); }
+
 .analysis-sentence-bot > h4 { color: var(--success-soft); }
-.analysis-sentence > .sentence { margin: 0; font-size: var(--text-lg); line-height: 1.5; color: var(--analysis-accent-soft); }
-.analysis-sentence > .trans-d { margin: 4px 0 0; font-style: normal; }
-.live-coach-review > .analysis-sentence { margin: 0; }
-.detail-dialog > .analysis-sentence { clear: both; margin-bottom: 12px; }
 
 .analysis-sentence-bot > .sentence { color: var(--success-soft); }
 
-.coach-card-explanation { border-inline-start-color: var(--warning); background: var(--warning-dim); }
+.rewards-ledger { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
+.rewards-ledger h3, .rewards-ledger p { margin: 0; }
+.rewards-ledger h3 { font-size: var(--type-title); }
+.reward-provenance { display: grid; gap: var(--space-4); font: var(--type-meta) var(--font-mono); }
+.reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
+.reward-provenance dd { margin: 0; overflow-wrap: anywhere; }

@@ -142,11 +142,16 @@ impl Decoder {
                 } => {
                     if !(400..=599).contains(&status)
                         || code.len() > 64
-                        || !code.bytes().all(|c| c.is_ascii_uppercase() || c == b'_')
+                        || !code.bytes().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == b'_')
                     {
                         return Err(unknown());
                     }
-                    let error = if status == 429 {
+                    let provider_message = (status == 502)
+                        .then(|| crate::hosted::provider_failure_message(&code))
+                        .flatten();
+                    let error = if let Some(message) = provider_message {
+                        AppError::new(ErrorCode::UnknownOutcome, message)
+                    } else if status == 429 {
                         AppError::new(
                             ErrorCode::Provider,
                             "Server admission refused this operation.",
@@ -335,6 +340,30 @@ pub async fn complete_with_output(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn provider_failures_identify_upstream_without_echoing_remote_text() {
+        for (code, expected) in [
+            ("OPENROUTER_HTTP_404", "OpenRouter HTTP 404"),
+            ("GROQ_HTTP_429", "Groq HTTP 429"),
+            ("GROQ_HTTP_401", "service's API credentials"),
+        ] {
+            let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
+            let event = serde_json::json!({"type":"error","operation_id":"one","attempt_id":"a","code":code,"status":502});
+            let bytes = format!("{event}\n{{\"type\":\"complete\",\"count\":1}}\n");
+            decoder
+                .push(bytes.as_bytes(), |_, result| {
+                    let error = result.unwrap_err();
+                    assert_eq!(error.code, ErrorCode::UnknownOutcome);
+                    assert!(error.message.contains(expected));
+                    assert!(error.message.contains("no automatic retry"));
+                    assert!(error.refusal.is_none());
+                    Ok(())
+                })
+                .unwrap();
+            decoder.finish().unwrap();
+        }
+    }
+
     fn response(operation: &str, attempt: &str) -> Vec<u8> {
         let mut bytes = serde_json::to_vec(&serde_json::json!({"type":"result", "operation_id":operation,"attempt_id":attempt,
             "response":{"id":"provider","model":"model","choices":[{"finish_reason":"stop","message":{"content":"¡Hola!"}}],"usage":{"prompt_tokens":2,"completion_tokens":3}}})).unwrap();

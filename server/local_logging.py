@@ -85,7 +85,7 @@ def safe_record(record: logging.LogRecord) -> dict:
                 event[field] = value
         if isinstance(data.get("route"), str) and data["route"] in ROUTES:
             event["route"] = data["route"]
-        if isinstance(data.get("code"), str) and data["code"] in CODES:
+        if isinstance(data.get("code"), str) and (data["code"] in CODES or re.fullmatch(r"(?:OPENROUTER|GROQ)_HTTP_[45][0-9]{2}", data["code"])):
             event["errorCode"] = data["code"]
         if isinstance(data.get("request_id"), str) and re.fullmatch(r"[0-9a-f]{32}", data["request_id"]):
             event["requestId"] = data["request_id"]

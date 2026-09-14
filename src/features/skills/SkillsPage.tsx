@@ -3,6 +3,7 @@ import { EvidenceMappingNotice } from '../../ui/EvidenceMappingNotice'
 import { ProgressRules } from './ProgressRules'
 import { DetailDialog } from '../../ui/DetailDialog'
 import { skillIndex } from '../../domain/skills/skill-index'
+import { DomainEvidenceTree } from '../../ui/DomainEvidenceTree'
 import { SkillDetailContent } from './SkillDetailContent'
 import { useSkillNavigationStore } from '../../state/skill-navigation'
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
@@ -59,7 +60,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
   const direction = useUiDirection()
   const layout: TreeLayout = layoutChoice === 'horizontal' ? direction === 'rtl' ? 'left' : 'right' : layoutChoice
   const [canBack, setCanBack] = useState(false)
-  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(true)
   const [detailModal, setDetailModal] = useState(false)
   const [mutationError, setMutationError] = useState<string | null>(null)
   const [demoFocus, setDemoFocus] = useState<string | null>(null)
@@ -110,18 +111,22 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
             recordControls={record => !demonstration && <button className="lesson-action" disabled={saving} onClick={() => void update({ ...profile.choices, excluded_attempts: profile.choices.excluded_attempts.includes(record.attempt_id) ? profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...profile.choices.excluded_attempts, record.attempt_id] }, false)}>{profile.choices.excluded_attempts.includes(record.attempt_id) ? tr("Excluded · restore attempt") : tr("Exclude attempt from progress")}</button>} />)
   return <main className="skills-page" onKeyDown={(event) => { if (event.key === 'Escape') setDetailOpen(false) }}>
     <header className="tree-header"><h1>{tr("LANGUAGE PROFILE ")}<span>/ {snapshot.target}</span></h1><span className="tree-fixture">{demonstration ? tr("DEMO · SAMPLE DATA") : tr("{value0} XP · ★ {value1}", { value0: String(profile.xp), value1: String(profile.skills.filter((s) => s.star).length) })}</span></header>
+    <div className="review-frame">
+    <aside className="review-rail" aria-label={tr("Review")}><div className="pane-header">{snapshot.target}</div>
     <div className="tree-toolbar">
       {graphVisible && <div className="tree-layouts" aria-label={tr("Tree layout")}>{([['horizontal', direction === 'rtl' ? 'Right-left' : 'Left-right'], ['radial', 'Radial'], ['down', 'Top-down']] as const).map(([value, label]) => <button key={value} aria-pressed={layoutChoice === value} onClick={() => { setLayoutChoice(value); setGraphVisible(true) }}>{tr(label)}</button>)}</div>}
       <button className="tree-refresh" onClick={() => setGraphVisible(v => !v)}>{graphVisible ? tr("Cards") : tr("Map")}</button>
       <label className="tree-jump">{tr("Inspect ")}<select value={selected} onChange={(e) => inspect(e.target.value)}>{skillTree.map((n) => <option key={n.id} value={n.id}>{n.code} / {n.label}</option>)}</select></label>
     </div>
     <div className="tree-focus-strip"><button onClick={() => inspect(focus)}>◆ {treeNode(focus).label}</button><span>{profile.choices.focus || demoFocus ? tr("Pinned focus") : tr("Recommended focus")}</span>{profile.choices.focus && <button disabled={saving} onClick={() => void update({ ...profile.choices, focus: null }, false)}>{tr("Follow recommendations")}</button>}</div>
+    </aside>
+    <div className="review-content">
     <EvidenceMappingNotice snapshot={snapshot} />
     {mutationError && <p className="tree-load" role="alert">{mutationError}</p>}
     <div className={`tree-workspace ${detailOpen ? 'details-open' : 'details-closed'}`}>
       <section className="tree-canvas" aria-label={tr("Language skill tree")}>
         <div className="tree-navigation"><button className="tree-back" disabled={!canBack} onClick={back}>{tr("← Back")}</button><button onClick={wholeTree}>{tr("Whole tree")}</button><nav aria-label={tr("Tree location")}>{ancestry(selected).map((n) => <button key={n.id} aria-current={n.id === selected ? 'location' : undefined} onClick={() => n.id === 'experience' ? wholeTree() : pick(n.id)}>{n.label}</button>)}</nav></div>
-        {!graphVisible ? <div className="tree-list">{catalog.nodes.filter(n => n.kind === 'domain').map(domain => <details key={domain.id} className="tree-domain-card" style={{ '--node-color': domain.color } as CSSProperties}>
+        {!graphVisible ? <div className="tree-list"><DomainEvidenceTree snapshot={snapshot} onSelect={inspect} />{catalog.nodes.filter(n => n.kind === 'domain').map(domain => <details key={domain.id} className="tree-domain-card" style={{ '--node-color': domain.color } as CSSProperties}>
           <summary>{domain.label}<small>{status(domain)}</small></summary>
           {catalog.nodes.filter(node => node.kind === 'skill' && catalog.domain(node.id).id === domain.id).map(node => <button key={node.id} aria-pressed={selected === node.id} onClick={() => pick(node.id)} onDoubleClick={() => setDetailModal(true)}><span>{node.label}</span><small>{status(node)}</small></button>)}
         </details>)}</div> : <ReactFlow nodes={nodes} onNodesChange={onNodesChange} edges={edges} nodeTypes={nodeTypes} nodeOrigin={[0.5, 0.5]} nodesDraggable={false} nodesConnectable={false} nodesFocusable={false} edgesFocusable={false} minZoom={0.08} maxZoom={3} onPaneClick={() => setDetailOpen(false)}><Background variant={BackgroundVariant.Dots} gap={24} color="var(--shell-line-strong)" /><Controls showInteractive={false} showFitView={false} /><MiniMap style={{ width: mobile ? 90 : 130, height: mobile ? 60 : 90 }} pannable zoomable nodeColor={(node) => (node.data as SkillNodeData).item.color} maskColor="var(--map-mask)" /><TreeCamera catalog={catalog} request={camera} layout={layout} onRestore={restore} onCanBackChange={setCanBack} /></ReactFlow>}
@@ -139,6 +144,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
         </div>
       </aside>
     </div>
+    </div></div>
     {detailModal && <DetailDialog title={item.label} onClose={() => setDetailModal(false)}>{detailContent}</DetailDialog>}
     <footer className="tree-footer"><span>{snapshot.learner_id} / {snapshot.target}</span><span>{demonstration ? tr("BROWSER DEMO") : tr("PROFILE & EVIDENCE SAVED LOCALLY")}</span></footer>
   </main>

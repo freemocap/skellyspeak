@@ -1,10 +1,21 @@
+import { useOverlayLayer } from './useOverlayLayer'
+import { useIsMobile } from './useIsMobile'
+import { useI18n } from './i18n'
 import { useReadingPreferences } from './ReadingPreferences'
 import { glossDisplayGroups } from '../domain/language/gloss-display'
-import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import type { GlossSegment } from '../contracts'
+
+function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement | null>; onClose: () => void }) {
+  useOverlayLayer(host, onClose, false)
+  return null
+}
 
 /** Saved UTF-16 anchors select exact source occurrences; reading never requests analysis. */
 export function SavedGlossText({ text, segments, afterSegment, decorateSegment, interactive = true }: { interactive?: boolean; text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
+  const tr = useI18n()
+  const isMobile = useIsMobile()
+  const [expanded, setExpanded] = useState<Set<number>>(() => new Set())
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set())
   const [hovered, setHovered] = useState<number | null>(null)
@@ -17,17 +28,35 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   useLayoutEffect(() => {
     const element = helper.current
     const word = hoveredWord.current
-    if (hovered === null || !element || !word) return
+    if (!element || !word) return
     element.showPopover()
-    const box = word.getBoundingClientRect()
-    const width = element.getBoundingClientRect().width
-    const start = getComputedStyle(word).direction === 'rtl' ? box.right - width : box.left
-    element.style.left = `${Math.max(8, Math.min(start, window.innerWidth - width - 8))}px`
-    const height = element.getBoundingClientRect().height
-    const above = box.top - height - 4
-    element.style.top = `${above >= 8 ? above : Math.max(8, Math.min(box.bottom + 4, window.innerHeight - height - 8))}px`
-    return () => { if (element.isConnected) element.hidePopover() }
-  }, [hovered])
+    const position = () => {
+      const box = word.getBoundingClientRect()
+      const width = element.getBoundingClientRect().width
+      const start = getComputedStyle(word).direction === 'rtl' ? box.right - width : box.left
+      element.style.left = `${Math.max(8, Math.min(start, window.innerWidth - width - 8))}px`
+      const height = element.getBoundingClientRect().height
+      const above = box.top - height - 4
+      element.style.top = `${above >= 8 ? above : Math.max(8, Math.min(box.bottom + 4, window.innerHeight - height - 8))}px`
+    }
+    position()
+    window.addEventListener('resize', position)
+    window.addEventListener('scroll', position, true)
+    const dismiss = (event: Event) => {
+      if (event instanceof KeyboardEvent ? event.key !== 'Escape' : word.contains(event.target as Node) || element.contains(event.target as Node)) return
+      setRevealed(new Set()); setExpanded(new Set()); setHovered(null)
+      if (event instanceof KeyboardEvent) word.focus()
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', dismiss)
+    return () => {
+      window.removeEventListener('resize', position); window.removeEventListener('scroll', position, true)
+      document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
+      if (element.isConnected && element.hasAttribute('popover')) element.hidePopover()
+    }
+  }, [hovered, revealed, expanded, isMobile, autoTranslate, alwaysRomanize, alwaysPronunciation])
+  useEffect(() => { setRevealed(new Set()); setExpanded(new Set()); setHovered(null) }, [text])
+  useEffect(() => { if (!isMobile) setRevealed(previous => new Set([...previous].slice(-1))) }, [isMobile])
   const pieces = []
   let cursor = 0
   for (const segment of glossDisplayGroups(text, segments)) {
@@ -37,24 +66,34 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     const source = text.slice(segment.start, segment.end)
     const open = revealed.has(segment.start)
     const hovering = hovered === segment.start && !open
-    const toggle = () => setRevealed(previous => {
-      const next = new Set(previous)
-      if (next.has(segment.start)) next.delete(segment.start)
+    const more = expanded.has(segment.start)
+    const hasMore = annotations.some(part => (!alwaysRomanize && part.romanization) || (!alwaysPronunciation && part.pronunciation))
+    const toggle = () => {
+      setHovered(null); setExpanded(previous => { const next = new Set(previous); next.delete(segment.start); return next })
+      setRevealed(previous => {
+      const next = new Set(isMobile ? previous : [])
+      if (previous.has(segment.start)) next.delete(segment.start)
       else next.add(segment.start)
       return next
     })
+    }
     const piece = interactive && annotations.length > 0
-      ? <span className="wu saved-word" key={segment.start} data-source-start={segment.start} data-source-end={segment.end} onPointerEnter={event => { if (event.pointerType === 'mouse') { hoveredWord.current = event.currentTarget; setHovered(segment.start) } }} onPointerLeave={() => setHovered(null)}>
+      ? <span className="wu saved-word" key={segment.start} data-source-start={segment.start} data-source-end={segment.end} onPointerEnter={event => { if (event.pointerType === 'mouse' && revealed.size === 0) { hoveredWord.current = event.currentTarget; setHovered(segment.start) } }} onPointerLeave={() => setHovered(null)}>
           <span className={`w tap${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open}
-            onClick={event => { event.stopPropagation(); toggle() }}
+            onClick={event => { event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() }}
             onDoubleClick={event => event.stopPropagation()}
-            onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); toggle() } }}>
+            onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
             {source}
           </span>
-          {hovering && <span ref={helper} className="saved-word-help" dir="auto" popover="manual">{!autoTranslate && values('gloss', 'wg')}{!alwaysRomanize && values('romanization', 'wroman')}{!alwaysPronunciation && values('pronunciation', 'wpronunciation')}</span>}
-          {(autoTranslate || open) && values('gloss', 'wg')}
-          {(alwaysRomanize || open) && values('romanization', 'wroman')}
-          {(alwaysPronunciation || open) && values('pronunciation', 'wpronunciation')}
+          {(hovering || open) && (!autoTranslate || hasMore) && <span ref={!isMobile || hovering ? helper : undefined} className={`${!isMobile || hovering ? 'saved-word-help' : 'saved-word-inline'}${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover={!isMobile || hovering ? 'manual' : undefined}>
+            {open && !isMobile && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setExpanded(new Set()); setHovered(null) }} />}
+            {!autoTranslate && values('gloss', 'wg')}
+            {hovering || more ? <>{!alwaysRomanize && values('romanization', 'wroman')}{!alwaysPronunciation && values('pronunciation', 'wpronunciation')}</> : null}
+            {open && hasMore && <button type="button" className="gloss-more" onKeyDown={event => event.stopPropagation()} aria-expanded={more} onClick={event => { event.stopPropagation(); setExpanded(previous => { const next = new Set(previous); if (more) next.delete(segment.start); else next.add(segment.start); return next }) }}>{more ? tr('Less') : tr('More')}</button>}
+          </span>}
+          {autoTranslate && values('gloss', 'wg')}
+          {alwaysRomanize && values('romanization', 'wroman')}
+          {alwaysPronunciation && values('pronunciation', 'wpronunciation')}
         </span>
       : <Fragment key={segment.start}>{source}</Fragment>
     pieces.push(decorateSegment ? <Fragment key={segment.start}>{decorateSegment(piece, segment.start, segment.end)}</Fragment> : piece)

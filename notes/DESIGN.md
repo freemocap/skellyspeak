@@ -18,6 +18,30 @@ Their status notes distinguish implemented contracts from broader planned operat
 [STATE-AND-STORAGE.md](./STATE-AND-STORAGE.md) proposes persistence authority,
 transaction boundaries, scoped frontend hydration and the typed application boundary.
 
+## Workspace redesign — adopted 14 September 2026
+
+Practice, Learn and Review share navigation and a rail/main/study frame. Practice
+retains conversation ownership; Learn presents the existing lesson workflow in the
+main pane. Coaching and Evidence are study tabs; Mystery partners add Persona.
+Use three surface roles, six type roles and a single interaction ink. Corrections
+sit below messages and open their turn in Coaching. XP remains separately
+inspectable in the study pane; tree geometry never becomes a domain metric.
+
+The user confirmed separate Mystery guess/reveal states and use of DetailDialog
+for guessing, plus optional Warm/Curious/Blunt/Playful/Formal chips extending Manner.
+A correct guess earns the existing recall-quiz amount (1 XP), once per partner
+field. It does not establish language proficiency. Revealing never pays again.
+Discoveries belong to the partner across conversations; nudges are dismissed per
+conversation. An already discovered value cannot be edited into a different fact;
+create another partner for a different identity. Switching to Standard makes the
+profile visible without clearing its discoveries.
+
+The supplied design documents guide presentation; illustrative XP values, provider
+contracts and research claims do not replace the active scoring policy. The 5pm
+addition informs calm corrections, separate guess/reveal feedback, a saved-award
+ledger and reuse of the tree per language. See [implementation and verification](./workspace-redesign-report.md)
+for implemented behavior, limitations and remaining work.
+
 ## Purpose
 
 Make language practice welcoming enough to return to and useful enough to build
@@ -940,3 +964,14 @@ Arabic defaults to Levantine, with MSA as another variety. Regional subdivision,
 linguistic review and live speech quality evaluation are deferred. See the
 [authoring guide](workflow/reports/language-authoring.md) for the implemented
 contract, verification and schema-15 activation boundary.
+
+## Reading refinement — adopted 14 September 2026
+
+Saved word help reveals translation first, then saved romanization/pronunciation
+through an explicit More control. Desktop uses the existing clamped top-layer
+helper; narrow layouts show the same tiers inline. Source fragments retain their
+exact anchors and grouped Arabic words remain one shaping/tap unit. Message-local
+translation overrides inherit the conversation default until explicitly toggled,
+then remain local to the mounted message. Reading settings expose word spacing
+and group read-aloud with the other reading controls. See the
+[refinement record](./2026-09-14-reading-refinement/README.md).

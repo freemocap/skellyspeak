@@ -153,6 +153,11 @@ pub struct PersonaDetails {
     pub manner: String,
     pub quirks: Vec<String>,
     pub vibe: Vec<String>,
+    // Product metadata; persona generation does not choose the game mode.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    #[schemars(skip)]
+    pub partner_type: Option<crate::mystery::PartnerType>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -230,6 +235,19 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
+    GuessMystery {
+        conversation_id: String,
+        field: crate::mystery::MysteryField,
+        value: String,
+        expected_persona_revision: i32,
+    },
+    RevealMystery {
+        conversation_id: String,
+        field: crate::mystery::MysteryField,
+    },
+    DismissMysteryNudge {
+        conversation_id: String,
+    },
     AnswerLessonQuiz {
         conversation_id: String,
         lesson_id: String,
@@ -535,6 +553,12 @@ pub fn bindings() -> String {
         OperationView::decl(&config),
         AttemptView::decl(&config),
         TurnView::decl(&config),
+        crate::mystery::PartnerType::decl(&config),
+        crate::mystery::MysteryField::decl(&config),
+        crate::mystery::RevealState::decl(&config),
+        crate::mystery::MysteryFieldView::decl(&config),
+        crate::mystery::MysteryView::decl(&config),
+        crate::mystery::MysteryCredit::decl(&config),
         crate::lessons::LessonCategory::decl(&config),
         crate::lessons::LessonQuizQuestion::decl(&config),
         crate::lessons::LessonQuizAnswer::decl(&config),
@@ -736,6 +760,7 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    pub mystery: Option<crate::mystery::MysteryView>,
     pub lessons: Vec<crate::lessons::LessonView>,
     pub lesson_choices: Vec<StarterCard>,
     pub starter_cards: Vec<StarterCard>,

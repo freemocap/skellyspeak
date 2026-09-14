@@ -1,4 +1,4 @@
-"""Explicit hosted text bindings; schema changes never weaken native validation."""
+"""Provider bindings and spending ceilings, independent of model availability."""
 from __future__ import annotations
 from copy import deepcopy
 import math
@@ -6,7 +6,11 @@ import math
 FLASH = "google/gemini-2.5-flash"
 LITE = "google/gemini-2.5-flash-lite"
 OSS = "openai/gpt-oss-120b"
-TEXT_MODELS = frozenset({FLASH, LITE, OSS})
+RECOMMENDED_TEXT_MODELS = (FLASH, LITE, OSS)
+# Other text IDs go unchanged to OpenRouter, which enforces this price ceiling.
+# This is a spending bound, not an estimate of an unknown model's actual price.
+# [@openrouterPriceRouting20260914]
+DEFAULT_TEXT_PRICE_CEILING = (0.3, 2.5)
 # USD per million tokens, numerically equal to microdollars per token.
 # [@groqModels20260913] [@openrouterGeminiLite20260913]
 PRICES = {FLASH: (0.3, 2.5), LITE: (0.1, 0.4), OSS: (0.15, 0.6)}

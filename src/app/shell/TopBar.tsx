@@ -26,9 +26,9 @@ export function TopBar() {
   const overlay = useNavigationStore((state) => state.overlay)
   const toggleHistory = useNavigationStore((state) => state.toggleHistory)
   const goHome = useNavigationStore((state) => state.goHome)
-  const showPage = useNavigationStore((state) => state.showPage)
+  const mode = useNavigationStore((state) => state.mode)
+  const setMode = useNavigationStore((state) => state.setMode)
   const openPractice = useNavigationStore((state) => state.openPractice)
-  const openSkills = useNavigationStore((state) => state.openSkills)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
   const toggleOverlay = useNavigationStore((state) => state.toggleOverlay)
   const newChat = () => { openPractice('chat'); newChatAction?.() }
@@ -51,10 +51,9 @@ export function TopBar() {
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SKELLYSPEAK<b>·</b></span>
       </button>
-      {!isMobile && <div className="tabs" aria-label={tr("Main navigation")}>
-        <div className={`tab-group ${page === 'guided' ? 'active' : ''}`}><button type="button" className={`tab ${page === 'guided' ? 'active' : ''}`} onClick={() => showPage('guided')}>{tr("Guided conversation")}</button><button type="button" className="new-chat" aria-label={tr("New chat")} disabled={!newChatAction} onClick={newChat}>+</button></div>
-        <button type="button" className={`tab ${page === 'skills' ? 'active' : ''}`} onClick={openSkills}>{tr("Skill tree")}</button>
-      </div>}
+      {!isMobile && <nav className="workspace-modes" aria-label={tr("Main navigation")}>
+        {(['practice', 'learn', 'review'] as const).map(item => <button key={item} data-mode={item} type="button" aria-current={mode === item ? 'page' : undefined} onClick={() => setMode(item)}>{tr(item === 'practice' ? 'Practice' : item === 'learn' ? 'Learn' : 'Review')}</button>)}
+      </nav>}
       <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label={tr("New chat")} disabled={!newChatAction} onClick={newChat}>+</button>}
       {!isMobile && (
         <button

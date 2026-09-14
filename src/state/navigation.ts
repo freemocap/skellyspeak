@@ -9,6 +9,7 @@ import { create } from 'zustand'
 
 /// The top-level surfaces the shell switches between.
 export type Page = 'guided' | 'skills'
+export type WorkspaceMode = 'practice' | 'learn' | 'review'
 
 /// Where the narrow-window layout puts the learner: the conversation or the
 /// learning panel.
@@ -19,6 +20,8 @@ export type Overlay = 'more' | 'profile' | 'settings' | 'activity'
 
 interface NavigationState {
   page: Page
+  mode: WorkspaceMode
+  setMode: (mode: WorkspaceMode) => void
   mobileSurface: MobileLocation
   /// The contacts drawer. Owned here because its control sits beside the
   /// wordmark while the conversations it lists belong to the guided page.
@@ -66,6 +69,7 @@ interface NavigationState {
 
 const initialState = {
   page: 'guided' as Page,
+  mode: 'practice' as WorkspaceMode,
   mobileSurface: 'chat' as MobileLocation,
   historyOpen: false,
   overlay: null as Overlay | null,
@@ -78,10 +82,11 @@ const initialState = {
 export const useNavigationStore = create<NavigationState>((set) => ({
   ...initialState,
 
-  showPage: (page) => set({ page }),
-  openPractice: (surface) => set({ page: 'guided', mobileSurface: surface, overlay: null }),
-  openSkills: () => set({ skillsOpened: true, page: 'skills' }),
-  goHome: () => set({ page: 'guided', mobileSurface: 'chat', overlay: null, historyOpen: false }),
+  setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
+  showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),
+  openPractice: (surface) => set({ mode: 'practice', page: 'guided', mobileSurface: surface, overlay: null }),
+  openSkills: () => set({ mode: 'review', skillsOpened: true, page: 'skills' }),
+  goHome: () => set({ mode: 'practice', page: 'guided', mobileSurface: 'chat', overlay: null, historyOpen: false }),
   toggleHistory: () => set((state) => ({ historyOpen: !state.historyOpen })),
   setHistoryOpen: (historyOpen) => set({ historyOpen }),
   showOverlay: (overlay) => set({ overlay }),

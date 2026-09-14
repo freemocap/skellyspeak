@@ -15,7 +15,6 @@ from google.cloud import firestore
 
 import admission
 import contracts
-import model_routing
 import quota
 import work_admission as work
 
@@ -41,7 +40,7 @@ class Item:
     digest: str
 
 
-def parse(payload: object, *, allowed_models: tuple[str, ...], max_tokens: int) -> list[Item]:
+def parse(payload: object, *, max_tokens: int) -> list[Item]:
     if not isinstance(payload, dict) or set(payload) != {"version", "items"} or type(payload["version"]) is not int or payload["version"] != 1:
         raise HTTPException(400, "Expected grouped protocol version 1.")
     entries = payload["items"]
@@ -63,9 +62,9 @@ def parse(payload: object, *, allowed_models: tuple[str, ...], max_tokens: int) 
             raise HTTPException(400, "Duplicate identity within group.")
         operations.add(operation)
         attempts.add(attempt)
-        if not isinstance(request, dict) or request.get("stream", False) is not False or request.get("model") not in model_routing.TEXT_MODELS:
+        if not isinstance(request, dict) or request.get("stream", False) is not False or request.get("model") == "openai/gpt-audio-mini":
             raise HTTPException(400, "Grouped operations require non-streaming text chat requests.")
-        contract = contracts.chat_request(request, allowed_models=allowed_models, max_tokens=max_tokens)
+        contract = contracts.chat_request(request, max_tokens=max_tokens)
         canonical = json.dumps({"version": 1, "operation_id": operation, "request": contract.payload}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         result.append(Item(operation, attempt, contract, hashlib.sha256(canonical.encode()).hexdigest()))
     return result

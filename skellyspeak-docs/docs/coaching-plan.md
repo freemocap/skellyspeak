@@ -688,3 +688,13 @@ spelling, identify inexact analogies and give articulatory cues where no equival
 exists. Target writing remains visible; Latin literacy and IPA knowledge are not
 assumed. Quiz questions reinforce taught text-readable patterns, not measured
 spoken pronunciation. The usual optional chat handoff and 0/1 quiz XP apply.
+
+### Mystery-partner recall — confirmed 14 September 2026
+
+The workspace redesign adds optional Mystery partners. A correct attribute guess
+receives the same 1 XP as a correct lesson recall answer; unlike a lesson's first
+answer rule, a wrong Mystery guess may be retried without penalty. Payment occurs
+once per partner field and remains separate from the deliberate Reveal action.
+These are game records, not evidence of a language construct or proficiency.
+Ownership and lifecycle details are in `coaching-contracts.md`. The existing
+language-evidence scoring formula and reward claims are unchanged.

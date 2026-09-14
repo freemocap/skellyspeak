@@ -21,7 +21,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
 vi.mock('./useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
-vi.mock('./CoachAnalysisPanel', () => ({ CoachAnalysisPanel: () => null }))
+vi.mock('./CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'lesson' ? coachingContent : null }))
 vi.mock('./RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./SkillRewards', () => ({ SkillRewards: () => null }))
 
@@ -79,7 +79,7 @@ function directory(): Snapshot {
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
-    lessons: [], lessonChoices: [], opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
+    mystery: null, lessons: [], lessonChoices: [], opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
     messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', paused: false },
@@ -416,14 +416,14 @@ it('starts with a native card as a partner-first exchange while the composer rem
   await act(async () => watches[0].resolve(value))
   expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
   fireEvent.change(screen.getByRole('combobox', { name: 'Topic' }), { target: { value: 'food' } })
-  fireEvent.click(screen.getByRole('button', { name: 'You start' }))
+  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'starter', starterId: 'food' } })
   expect(screen.queryByText('¿Qué quieres beber?')).toBeNull()
   const response = snapshot('a', 42)
   response.messages = [{ ...exchangeSnapshot().messages[1], text: '¿Qué quieres beber?' }]
   await act(async () => watches[1].resolve(response))
-  expect(screen.getByText('¿Qué quieres beber?')).toBeVisible()
+  expect(within(document.querySelector('.msg.bot') as HTMLElement).getByText('¿Qué quieres beber?')).toBeVisible()
   expect(document.querySelector('.msg.me')).toBeNull()
 })
 
@@ -432,7 +432,7 @@ it('shows a failed partner start without blocking the composer', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot('a', 41)))
-  fireEvent.click(screen.getByRole('button', { name: 'You start' }))
+  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'surprise' } })
   expect(await screen.findByRole('alert')).toHaveTextContent('This conversation already started.')
@@ -488,7 +488,7 @@ it('hides starters after accepting an opening and surfaces failure without a lea
   value.opening = { kind: 'surprise' }
   value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [], operations: [{ id: 'opening-operation', kind: 'persona_opening', state: 'ready', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
   await act(async () => watches[0].resolve(value))
-  expect(screen.queryByRole('button', { name: 'You start' })).toBeNull()
+  expect(screen.queryByRole('button', { name: /Let .* start/ })).toBeNull()
   expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
   const paused = structuredClone(value)
   paused.revision++

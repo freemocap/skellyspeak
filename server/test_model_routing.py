@@ -1,7 +1,6 @@
 """Real grouped endpoint, controlled upstream: route, auth, history, schema and cost."""
 import json
 from copy import deepcopy
-from dataclasses import replace
 from pathlib import Path
 import httpx
 import pytest
@@ -22,7 +21,6 @@ def test_groq_usage_counts_reasoning_and_rejects_invalid_counts():
 
 @pytest.mark.asyncio
 async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, monkeypatch):
-    monkeypatch.setattr(main, "CFG", replace(main.CFG, allowed_models=tuple(routing.TEXT_MODELS)))
     history = [{"role": "system", "content": "Speak Spanish."}, {"role": "assistant", "content": "¿Te gusta cocinar?"}, {"role": "user", "content": "No, prefiero leer."}]
     sent = []
     def respond(request):
@@ -45,7 +43,7 @@ async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, 
     response = await proxy.post('/v1/operations', json=request)
     events = [json.loads(line) for line in response.text.splitlines()]
     assert [e['type'] for e in events] == ['result', 'result', 'result', 'complete']
-    assert {e['response']['model'] for e in events[:-1]} == routing.TEXT_MODELS
+    assert {e['response']['model'] for e in events[:-1]} == set(routing.RECOMMENDED_TEXT_MODELS)
     assert len(sent) == 3
 
 
@@ -60,3 +58,67 @@ def test_native_gloss_schema_is_relaxed_only_at_groq_transport_boundary():
         for endpoint in ['first', 'last']:
             variant['properties'][endpoint] = {"type": "string"}
     assert outbound['response_format']['json_schema']['schema'] == expected
+
+
+@pytest.mark.asyncio
+async def test_unknown_model_is_delegated_without_poisoning_other_operations(proxy, ledger, monkeypatch):
+    import budget
+    sent = []
+    def respond(request):
+        body = json.loads(request.content)
+        sent.append(body)
+        if body['model'] == 'new-provider/new-model':
+            assert str(request.url).startswith(main.CFG.openrouter_base_url)
+            assert body['provider']['max_price'] == {'prompt': 0.3, 'completion': 2.5, 'request': 0}
+            return httpx.Response(404, text='PRIVATE_PROVIDER_BODY')
+        return httpx.Response(200, json={'id': 'ok', 'model': body['model'],
+            'choices': [{'message': {'content': 'Hola'}, 'finish_reason': 'stop'}],
+            'usage': {'cost': 0.00001, 'total_tokens': 5}})
+    upstream(monkeypatch, respond)
+    request = envelope(2)
+    request['items'][0]['request']['model'] = 'new-provider/new-model'
+    response = await proxy.post('/v1/operations', json=request)
+    assert response.status_code == 200
+    events = [json.loads(line) for line in response.text.splitlines()]
+    failed = next(e for e in events if e['type'] == 'error')
+    assert failed['operation_id'] == request['items'][0]['operation_id']
+    assert failed['code'] == 'OPENROUTER_HTTP_404'
+    assert failed['status'] == 502
+    assert len([e for e in events if e['type'] == 'result']) == 1
+    assert events[-1] == {'type': 'complete', 'count': 2}
+    assert len(sent) == 2
+    assert 'PRIVATE_PROVIDER_BODY' not in response.text
+    records = [v for k, v in ledger.store.items() if f'/{budget.RESERVATIONS}/' in k]
+    assert sorted(r['status'] for r in records) == ['settled', 'unknown']
+    unknown = next(r for r in records if r['status'] == 'unknown')
+    assert unknown['actual_micros'] == unknown['reserved_micros']
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('model,provider', [(routing.OSS, 'GROQ'), ('new/model', 'OPENROUTER')])
+@pytest.mark.parametrize('status', [400, 401, 402, 403, 404, 422, 429, 503])
+async def test_provider_rejections_preserve_provider_and_status(proxy, monkeypatch, model, provider, status):
+    upstream(monkeypatch, lambda _: httpx.Response(status, text='PRIVATE_PROVIDER_ERROR'))
+    request = envelope(1)
+    request['items'][0]['request']['model'] = model
+    response = await proxy.post('/v1/operations', json=request)
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert events[0]['code'] == f'{provider}_HTTP_{status}'
+    assert events[0]['status'] == 502
+    assert events[-1]['type'] == 'complete'
+    assert 'PRIVATE_PROVIDER_ERROR' not in response.text
+
+
+@pytest.mark.asyncio
+async def test_new_openrouter_model_can_succeed_without_server_catalog_edit(proxy, monkeypatch):
+    def respond(request):
+        body = json.loads(request.content)
+        assert body['model'] == 'new/model'
+        return httpx.Response(200, json={'id': 'ok', 'model': 'new/model',
+            'choices': [{'finish_reason': 'stop', 'message': {'content': 'Hola'}}],
+            'usage': {'cost': 0.00001, 'total_tokens': 5}})
+    upstream(monkeypatch, respond)
+    request = envelope(1)
+    request['items'][0]['request']['model'] = 'new/model'
+    response = await proxy.post('/v1/operations', json=request)
+    assert json.loads(response.text.splitlines()[0])['type'] == 'result'

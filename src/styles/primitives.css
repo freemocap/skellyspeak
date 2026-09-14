@@ -15,14 +15,14 @@
 .panel-tabs {
   display: flex;
   gap: var(--space-1);
-  padding: var(--space-2) var(--space-4) 0;
+  min-height: 40px; align-items: center; padding: 0 var(--space-8);
   border-bottom: var(--border-width) solid var(--shell-line-strong);
   flex: none;
 }
 
 .panel-tab {
   font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; padding: var(--space-3) var(--space-6); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  text-transform: uppercase; min-height: var(--control-height); padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   border: var(--border-width) solid var(--shell-line-strong); background: var(--shell-chrome); color: var(--shell-text-muted); cursor: pointer;
 }
 
@@ -51,8 +51,6 @@
   font-size: var(--text-md);
   padding: var(--space-13) 0;
 }
-
-.center-note.on-paper { color: var(--paper-ink-muted); }
 
 .btn {
   font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-caps);
@@ -122,9 +120,9 @@
 .popup-card {
   display: flex; align-items: center; gap: var(--space-4);
   max-width: min(340px, 90vw);
-  background: var(--shell-raised); border: var(--border-width) solid var(--warning-strong); border-radius: var(--radius-lg);
+  background: var(--shell-raised); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-6); box-shadow: var(--shadow-lg);
-  font-family: var(--font-serif); font-style: italic; font-size: var(--text-base); color: var(--warning);
+  font-family: var(--font-serif); font-style: italic; font-size: var(--text-base); color: var(--interaction-ink);
   line-height: var(--leading-normal);
 }
 
@@ -303,3 +301,8 @@
   font: var(--text-sm)/1.4 var(--font-sans);
   box-shadow: var(--shadow-tip);
 }
+
+.pane-header, .chat-head, .break-head, .settings-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 40px; padding: 0 var(--space-8); border-bottom: var(--border-width) solid var(--line-soft); color: var(--ink-3); font: var(--type-meta) var(--font-mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; flex: none; }
+.pane-header button { min-height: var(--control-height); margin-inline-start: auto; }
+
+.center-note.on-paper { color: var(--paper-ink-muted); }

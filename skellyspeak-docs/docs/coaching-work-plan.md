@@ -176,3 +176,12 @@ Implemented lesson category selection and the optional two-question recall quiz.
 Native grading persists the first answer and projects separate 0/1 bonus XP without
 skill evidence. Verification and remaining visual/provider checks are recorded in
 `workflow/reports/lessons.md`.
+
+### Workspace design pass — 14 September 2026
+
+Practice/Learn/Review source implementation places existing lessons in Learn,
+private coaching and evidence in study tabs, and saved reward provenance in a ledger.
+The confirmed Mystery-partner extension uses a separate 1 XP discovery ledger and
+never creates proficiency evidence. See `coaching-contracts.md` and
+`notes/workspace-redesign-report.md` at the repository root for behavior and
+verification limits. Live native inspection remains separate from automated checks.

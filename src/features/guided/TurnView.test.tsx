@@ -10,7 +10,7 @@ beforeEach(() => {
 
 function props(): TurnViewProps {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
-  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: true, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
+  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
 }
 it('places the persona reaction on the reply', () => {
   const input = props()
@@ -19,16 +19,16 @@ it('places the persona reaction on the reply', () => {
   expect(view.container.querySelector('.msg.bot .persona-reaction')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .persona-reaction')).toBeNull()
 })
-it('keeps sentence translation buttons independent of token preferences', () => {
+it('keeps an explicit message translation override when the default changes', () => {
   const input = props()
   const view = render(<TurnView {...input} />)
   expect(screen.queryByText('Learner translation')).toBeNull()
   expect(screen.queryByText('Persona translation')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
   expect(screen.getByText('Persona translation')).toBeVisible()
-  view.rerender(<TurnView {...input} autoTranslate={false} />)
+  view.rerender(<TurnView {...input} autoTranslate={true} />)
   expect(screen.getByText('Persona translation')).toBeVisible()
-  expect(screen.queryByText('Learner translation')).toBeNull()
+  expect(screen.getByText('Learner translation')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
   expect(screen.queryByText('Persona translation')).toBeNull()
 })
@@ -54,13 +54,13 @@ it('honors pronunciation even when token information is revealed', () => {
   expect(screen.getByText('Eh-lee-ah').closest('.wu')).not.toHaveTextContent('I am')
 })
 
-it('renders source punctuation once and anchors feedback inside the learner bubble', () => {
+it('renders source punctuation once and anchors feedback below the learner bubble', () => {
   const input = props()
   input.turn.assistant!.reply = '¡Hola! ¿Te gusta el sol?'
   input.turn.assistant!.tokens = ['¡', '¡Hola!', '!', '¿', '¿Te', 'gusta', 'el', 'sol?', '?'].map(text => ({text,gloss:null,pronunciation:null,romanization:null,pos:null,notable:false}))
   const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
   expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
-  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.message-feedback')).not.toBeNull()
 })
 
 it('does not expose playback without a connected action', () => {
@@ -167,13 +167,29 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'true')
   expect(view.container.querySelector('.msg.me .wg')).toHaveTextContent('Hello')
+  expect(view.container.querySelector('.msg.me .wpronunciation')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'More', expanded: false }))
   expect(view.container.querySelector('.msg.me .wpronunciation')).toHaveTextContent('OH-lah')
-  expect(view.container.querySelector('.saved-word-help')).toBeNull()
+  expect(view.container.querySelector('.saved-word-help')).toHaveAttribute('popover', 'manual')
   const grade = screen.getByRole('button', { name: 'Coach feedback for message 1' })
-  expect(grade.parentElement).toHaveClass('msg', 'me')
+  expect(grade.parentElement).toHaveClass('message-feedback')
+  expect(grade.closest('.msg.me')).toBeNull()
   expect(screen.getByRole('button', { name: 'Analyze your message' }).closest('.message-actions')).not.toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
+})
+
+it('lets a message hide translation while the conversation default stays on', () => {
+  const input = props()
+  const view = render(<TurnView {...input} autoTranslate />)
+  expect(screen.getByText('Persona translation')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  expect(screen.queryByText('Persona translation')).toBeNull()
+  expect(screen.getByText('Learner translation')).toBeVisible()
+  expect(screen.getByRole('button', { name: 'Translate persona message' })).toHaveAttribute('aria-pressed', 'false')
+  view.rerender(<TurnView {...input} autoTranslate={false} />)
+  view.rerender(<TurnView {...input} autoTranslate />)
+  expect(screen.queryByText('Persona translation')).toBeNull()
 })

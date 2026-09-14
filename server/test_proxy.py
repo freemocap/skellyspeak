@@ -221,3 +221,12 @@ async def test_provider_redirect_never_receives_credentials():
                                      headers={'Authorization': 'Bearer PRIVATE_SENTINEL'})
     assert len(seen) == 1
     assert 'PRIVATE_SENTINEL' not in str(error.value)
+
+
+@pytest.mark.asyncio
+async def test_nonstreaming_provider_error_survives_unknown_usage_settlement(proxy, monkeypatch):
+    upstream(monkeypatch, lambda _: httpx.Response(404, text='PRIVATE_PROVIDER_BODY'))
+    response = await proxy.post('/v1/chat/completions', json=request(stream=False))
+    assert response.status_code == 502
+    assert response.json()['code'] == 'OPENROUTER_HTTP_404'
+    assert 'PRIVATE_PROVIDER_BODY' not in response.text

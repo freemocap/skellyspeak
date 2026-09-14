@@ -6,7 +6,8 @@ import type { CoachControl, CoachDecision, CoachObservationView } from '../../co
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../platform/ipc/workspace'
 
-export function MessageFeedback({ id, text, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, onRetry }: {
+export function MessageFeedback({ id, text, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, onRetry, onOpenCoach }: {
+  onOpenCoach?: () => void
   onRetry?: () => Promise<void>
   analysis?: ReactNode
   children?: ReactNode
@@ -40,7 +41,7 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
   }
   const label = decision ? 'Feedback' : null
   return <>
-    <button type="button" className={`feedback-badge${error ? ' feedback-error' : ''}`} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
+    <button type="button" className={`feedback-badge${decision?.shown ? ' has-correction' : ''}${error ? ' feedback-error' : ''}`} aria-haspopup={onOpenCoach && decision?.shown ? undefined : "dialog"} aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => onOpenCoach && decision?.shown ? onOpenCoach() : void openCard()}>
       {error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
     </button>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}

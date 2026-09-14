@@ -85,11 +85,50 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
 /// Refusal messages can be persisted in attempts and turn context. Remote text
 /// is untrusted, including responses from Custom URL servers: only client-authored
 /// status/code guidance is allowed through this boundary.
+pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
+    let (provider, number) = if let Some(number) = code.strip_prefix("OPENROUTER_HTTP_") {
+        ("OpenRouter", number)
+    } else if let Some(number) = code.strip_prefix("GROQ_HTTP_") {
+        ("Groq", number)
+    } else {
+        return None;
+    };
+    if number.len() != 3 || !number.bytes().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    let status: u16 = number.parse().ok()?;
+    let detail = match status {
+        400 | 422 => "The provider rejected the model ID or request parameters.",
+        401 | 403 => {
+            "The provider refused the service's API credentials or model access. The server configuration needs checking."
+        }
+        402 => "The service's provider account has insufficient credit.",
+        404 => {
+            "The model is unavailable or no provider endpoint matches the request, required capabilities and price ceiling."
+        }
+        413 => "The request exceeds the provider's size limit.",
+        429 => {
+            "The provider rate limit was reached. This is separate from your SkellySpeak allowance."
+        }
+        500..=599 => "The provider could not complete the request.",
+        400..=499 => "The provider refused the request.",
+        _ => return None,
+    };
+    Some(format!(
+        "{provider} HTTP {status}: {detail} Usage is unconfirmed; no automatic retry was made."
+    ))
+}
+
 fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
     let parsed = body.and_then(|bytes| serde_json::from_slice::<serde_json::Value>(bytes).ok());
     let code = parsed
         .as_ref()
         .and_then(|value| value.get("code")?.as_str());
+    if status == 502
+        && let Some(message) = code.and_then(provider_failure_message)
+    {
+        return message;
+    }
     let guidance = match (status, code) {
         (401, _) => {
             "The service refused authentication. Check the selected connection in Settings and sign in again or replace its saved credential."

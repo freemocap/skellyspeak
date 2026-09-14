@@ -22,7 +22,7 @@ def payload() -> dict[str, object]:
 
 
 @pytest.mark.parametrize("field,value", [
-    ("models", [MODELS[1]]), ("model", []), ("model", "unpriced/model"),
+    ("models", [MODELS[1]]), ("model", []), ("model", ""),
     ("max_tokens", 0), ("max_tokens", True), ("max_tokens", 32769),
     ("temperature", float("nan")), ("temperature", True),
     ("stream", "true"), ("provider", {"order": ["expensive"]}),
@@ -34,12 +34,12 @@ def test_unsupported_requests_fail_with_400(field: str, value: object) -> None:
     request = payload()
     request[field] = value
     with pytest.raises(HTTPException) as error:
-        contracts.chat_request(request, allowed_models=MODELS, max_tokens=32768)
+        contracts.chat_request(request, max_tokens=32768)
     assert error.value.status_code == 400
 
 
 def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
-    request = contracts.chat_request(payload(), allowed_models=MODELS, max_tokens=32768)
+    request = contracts.chat_request(payload(), max_tokens=32768)
     assert request.payload["max_tokens"] == 32768
     assert request.payload["provider"] == {
         "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 0.3, "completion": 2.5, "request": 0}, "only": ["google-ai-studio"],
@@ -57,7 +57,7 @@ def structured_format() -> dict[str, object]:
 
 def test_structured_schema_is_preserved_with_server_owned_routing() -> None:
     source = {**payload(), "response_format": structured_format(), "max_tokens": 2048}
-    accepted = contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+    accepted = contracts.chat_request(source, max_tokens=32768)
     assert accepted.payload["response_format"] == source["response_format"]
     assert "provider" not in source
     assert accepted.payload["provider"]["allow_fallbacks"] is False
@@ -73,7 +73,7 @@ def test_structured_schema_is_preserved_with_server_owned_routing() -> None:
 ])
 def test_invalid_structured_envelope_is_rejected_without_echo(response_format: object) -> None:
     with pytest.raises(HTTPException) as error:
-        contracts.chat_request({**payload(), "response_format": response_format}, allowed_models=MODELS, max_tokens=32768)
+        contracts.chat_request({**payload(), "response_format": response_format}, max_tokens=32768)
     assert error.value.status_code == 400
     assert "private marker" not in str(error.value.detail)
 
@@ -84,10 +84,10 @@ def test_structured_schema_counts_toward_exact_utf8_request_limit() -> None:
     schema["description"] = "界"
     size = len(json.dumps(source, ensure_ascii=False).encode("utf-8")) + 1024
     schema["description"] += "x" * (100_000 - size)
-    contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+    contracts.chat_request(source, max_tokens=32768)
     schema["description"] += "x"
     with pytest.raises(HTTPException) as error:
-        contracts.chat_request(source, allowed_models=MODELS, max_tokens=32768)
+        contracts.chat_request(source, max_tokens=32768)
     assert error.value.status_code == 400
 
 
@@ -156,5 +156,14 @@ def test_opening_role_and_human_answer_reach_upstream_unchanged(answer):
         {"role": "user", "content": answer},
     ]
     request = {"model": MODELS[0], "messages": messages}
-    validated = contracts.chat_request(request, allowed_models=MODELS, max_tokens=2048)
+    validated = contracts.chat_request(request, max_tokens=2048)
     assert validated.payload["messages"] == messages
+
+
+def test_other_model_is_forwarded_with_matching_reservation_and_price_ceiling():
+    source = {**payload(), 'model': 'new/model', 'max_tokens': 2048}
+    result = contracts.chat_request(source, max_tokens=32768)
+    assert result.payload['model'] == 'new/model'
+    assert result.payload['provider']['max_price'] == {'prompt': 0.3, 'completion': 2.5, 'request': 0}
+    assert 'only' not in result.payload['provider']
+    assert result.reserve_micros == math.ceil((len(json.dumps(source, ensure_ascii=False).encode()) + 1024) * 0.3 + 2048 * 2.5)

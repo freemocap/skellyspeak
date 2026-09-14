@@ -82,7 +82,7 @@ async def test_assistant_first_history_reaches_upstream_and_results_keep_identit
     request["items"][0]["request"]["messages"] = conversation
     request["items"][1]["request"]["messages"] = helper
     request["items"][1]["request"]["response_format"] = structured_format()
-    items = grouped.parse(request, allowed_models=("google/gemini-2.5-flash",), max_tokens=100)
+    items = grouped.parse(request, max_tokens=100)
     who = main.quota.Principal("learner", 500_000, False)
     # Use the route's actual upstream executor; hold the first completion until
     # the second result is observed, without timing sleeps or real inference.
@@ -155,7 +155,7 @@ async def test_malformed_group_rejected_before_any_claim(proxy):
 
 @pytest.mark.asyncio
 async def test_results_arrive_independently(ledger):
-    items = grouped.parse(envelope(), allowed_models=("google/gemini-2.5-flash",), max_tokens=100)
+    items = grouped.parse(envelope(), max_tokens=100)
     slow = asyncio.Event()
     async def execute(item, held):
         if item.operation_id == items[0].operation_id:
@@ -197,7 +197,7 @@ async def test_disconnect_retains_unknown_claim_and_settles_reservation(ledger, 
         await anyio.sleep_forever()
     monkeypatch.setattr(main, "provider_json", provider)
     who = main.quota.Principal("learner", 500_000, False)
-    items = grouped.parse(envelope(1), allowed_models=("google/gemini-2.5-flash",), max_tokens=100)
+    items = grouped.parse(envelope(1), max_tokens=100)
     async def consume():
         async for _ in grouped.results(items, db=ledger, who=who, execute=partial(main.execute_grouped_item, who=who)):
             pass
@@ -226,7 +226,8 @@ async def test_protocol_capabilities_are_authenticated_and_match_grouped_contrac
     response = await proxy.get("/v1/protocol")
     assert response.status_code == 200
     assert response.json() == {"protocol": "skellyspeak", "version": 1, "max_items": 8,
-                               "chat_models": ["google/gemini-2.5-flash"], "transcription_model": "whisper-large-v3"}
+                               "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
+                               "accepts_other_text_models": True, "transcription_model": "whisper-large-v3"}
 
 
 @pytest.mark.asyncio

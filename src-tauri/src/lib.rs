@@ -25,6 +25,7 @@ pub mod lessons;
 pub mod linguistics;
 pub mod model;
 mod model_routing;
+pub mod mystery;
 pub mod partner_reaction;
 mod persona;
 mod persona_prompt;

@@ -423,7 +423,7 @@ export function SettingsModal({
       node: <div className="form-row"><label htmlFor="voice-speed">{tr("Voice speed")}</label><select id="voice-speed" value={settings.tts_rate} onChange={event => setSettings({ ...settings, tts_rate: Number(event.target.value) })}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></div>,
     },
     auto_speak: {
-      section: 'voice',
+      section: 'reading',
       label: tr('Auto-speak tutor replies'),
       kw: 'auto speak tts voice speech playback audio read aloud',
       node: (
@@ -467,6 +467,10 @@ export function SettingsModal({
       </div>,
     },
 
+    text_spacing: {
+      section: 'reading', label: tr('Word spacing'), kw: 'word spacing reading accessibility',
+      node: <div className="form-row"><label htmlFor="reading-spacing">{tr('Word spacing')} · {`${settings.text_spacing}px`}</label><input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} /></div>,
+    },
     always_romanize: {
       section: 'reading',
       label: tr('Always show romanization'),
@@ -506,7 +510,7 @@ export function SettingsModal({
     },
     auto_translate: {
       section: 'reading',
-      label: tr('Token translations'),
+      label: tr('Translation'),
       kw: 'translation always show native meaning under reply',
       node: (
         <div className="form-row check-row">
@@ -516,7 +520,7 @@ export function SettingsModal({
               checked={settings.auto_translate}
               onChange={(e) => setSettings({ ...settings, auto_translate: e.target.checked })}
             />
-            <span>{tr("Show token translations")}</span>
+            <span>{tr("Show word and message translations")}</span>
           </label>
         </div>
       ),
@@ -559,7 +563,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

@@ -1,5 +1,23 @@
 # Utility panel inventory
 
+## Workspace design pass — current additions, 14 September 2026
+
+- Shared Practice/Learn/Review navigation, desktop partners rail with language labels.
+- Coaching/Evidence study tabs; Persona only for Mystery partners. Correction taps
+  focus Coaching on that turn, without opening a dialog. XP badges live in study.
+- Existing lessons embedded in Learn with a saved-lesson rail, category/topic creation
+  and Objective/Examples/Exercise/Quiz/Practice steps. Answers survive step changes.
+- Optional Mystery partners: durable hidden/guessed_unrevealed/revealed fields,
+  once-only 1 XP per correct field, independent Reveal, conversation-scoped nudges.
+- Optional personality chips preserve the existing free-form Manner text.
+- Review and per-language progress reuse an observation-count tree. Saved awards
+  expose captured support/difficulty/novelty and policy identity in Rewards.
+- Offline IBM Plex and Newsreader fonts, shared dialog surfaces and compact Settings.
+
+See [the current verification report](./workspace-redesign-report.md). Historical
+inventory below predates these additions and the coaching waves; its “not implemented”
+entries do not override the active code or that report.
+
 These adopted interactions govern the active UI. Inspection of reference source
 informed the selection; active behavior is defined by the implementation.
 
@@ -137,7 +155,7 @@ Configuration errors stop startup before normal store projections load, name the
 file and require correction followed by a native restart. This screen offers no
 data-deletion remedy. Retained observations from a changed construct registry have
 an inspectable mapping notice, source quotes and registry identities. Existing data
-copy exports database/supporting files only; factory reset also removes editable
+copy exports the database, supporting files and editable configuration; factory reset also removes editable
 configuration.
 
 Production GuidedPage components were inspected with a test-only transport at
@@ -271,3 +289,17 @@ matching is not guaranteed. Target-script direction, scale and romanization foll
 the chosen variety. The no-starter state is explicit and leaves the start action
 available. German/light and Arabic/narrow/dark/RTL isolated fixtures were inspected;
 no native workspace was restarted for this change.
+
+## Reading companion refinement — 14 September 2026
+
+Saved gloss taps reveal translation first, then saved romanization/pronunciation
+through More/Less. Desktop uses a clamped top-layer popover with the app's existing
+Escape/back overlay handling; narrow views use inline content. Resizing preserves
+the active tier. Arabic fragments retain exact source labels and one word target.
+Always-visible fields are not duplicated. Hover remains a temporary mouse preview.
+
+Message translation controls inherit the conversation default until explicitly
+changed, then override it locally for that mounted message. Their pressed state
+shows current visibility. The saved word-spacing preference now has a 0–12px
+slider in Reading; read-aloud settings are grouped there too. This changes no native
+schema or generation contract. See `2026-09-14-reading-refinement/README.md`.

@@ -188,3 +188,22 @@ it('submission preserves invalid pending Vibe input without creating', async () 
   expect(add).toHaveValue('unfinished')
   expect(await screen.findByText('Each Vibe entry must be one emoji. unfinished is not an emoji.')).toBeInTheDocument()
 })
+
+it('preserves custom Manner text when personality chips are selected and removed', () => {
+  renderDialog()
+  const manner = screen.getByRole('textbox', { name: 'Manner' })
+  fireEvent.change(manner, { target: { value: 'Answers in short sentences.' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Curious' }))
+  expect(manner).toHaveValue('Answers in short sentences.; Curious')
+  fireEvent.click(screen.getByRole('button', { name: 'Curious' }))
+  expect(manner).toHaveValue('Answers in short sentences.')
+})
+
+it('keeps the chosen Mystery mode when Surprise me supplies the persona facts', async () => {
+  backend.run.mockResolvedValue(generated)
+  renderDialog()
+  fireEvent.click(screen.getByRole('button', { name: 'Mystery' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
+  await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
+  expect(screen.getByRole('button', { name: 'Mystery' })).toHaveAttribute('aria-pressed', 'true')
+})

@@ -394,9 +394,10 @@ pub async fn check_access(
         let models = value["chat_models"]
             .as_array()
             .ok_or_else(|| error("Server returned invalid protocol capabilities."))?;
-        if !models
-            .iter()
-            .any(|model| model.as_str() == Some(&access.custom.standard_model))
+        if value["accepts_other_text_models"].as_bool() != Some(true)
+            && !models
+                .iter()
+                .any(|model| model.as_str() == Some(&access.custom.standard_model))
         {
             return Err(error(
                 "The configured chat model is not supported by this server.",

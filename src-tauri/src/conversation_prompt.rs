@@ -111,6 +111,7 @@ mod tests {
 
     fn contact() -> PersonaDetails {
         PersonaDetails {
+            partner_type: None,
             name: "Fixture contact".into(),
             romanized_name: None,
             age: Some(44),

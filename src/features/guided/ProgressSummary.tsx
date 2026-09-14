@@ -1,3 +1,5 @@
+import { DomainEvidenceTree } from '../../ui/DomainEvidenceTree'
+import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../ui/i18n'
 import { InfoTip } from '../../ui/InfoTip'
 import { ConversationMap } from './ConversationMap'
@@ -24,6 +26,8 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
   return <div className="practice-statistics">
       <header className="practice-statistics-header"><h2>{name} {tr(" progress")}</h2><InfoTip>{tr("Trace every score back to the messages that contributed it.")}</InfoTip></header>
       <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: null, selectionVersion: 0, selected: domain?.skills[0]?.skill_id ?? focus.id, select: id => { const match = stats.domains.find(item => item.skills.some(skill => skill.skill_id === id)); setDomainId(match?.node.id ?? null) } }}><ConversationMap /></PracticeContext></SkillEvidenceContext>
+      <DomainEvidenceTree snapshot={snapshot} onSelect={setDomainId} />
+      <RewardsLedger snapshot={snapshot} />
       <dl className="practice-metrics">
         <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.locale)}</dd></div>
         <div><dt>{tr("Lesson quiz XP")}</dt><dd>{stats.quizXp}</dd></div>

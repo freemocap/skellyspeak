@@ -116,3 +116,19 @@ def test_cloud_failures_identify_operation_without_echoing_details(monkeypatch, 
     assert "operation=TTL_LIST" in str(error.value)
     assert f"category={category}" in str(error.value)
     assert "private" not in str(error.value)
+
+
+def test_all_local_runtime_imports_are_copied_into_container():
+    import ast
+    root = Path(__file__).parent
+    copied = {source for line in (root / 'Dockerfile').read_text().splitlines()
+              if line.startswith('COPY ') and '--from=' not in line
+              for source in line.split()[1:-1] if source.endswith('.py')}
+    for source in copied:
+        tree = ast.parse((root / source).read_text())
+        for node in ast.walk(tree):
+            modules = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module] if isinstance(node, ast.ImportFrom) and node.module else []
+            for module in modules:
+                filename = module.split('.')[0] + '.py'
+                if (root / filename).exists():
+                    assert filename in copied, f'{source} imports missing runtime module {filename}'

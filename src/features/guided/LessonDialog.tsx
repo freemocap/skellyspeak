@@ -9,11 +9,16 @@ import { TargetText } from '../../ui/TargetText'
 import { playRewardSound, unlockRewardAudio } from '../../platform/audio/reward-sounds'
 import { Markdown } from '../../ui/Markdown'
 
-export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice }: {
+export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice, embedded = false, onLessonSelected }: {
+  onLessonSelected?: (id: string) => void
+  embedded?: boolean
   snapshot: ConversationSnapshot; busy: boolean; beforeAction: () => Promise<void>; onClose: () => void; onPractice?: () => void
 }) {
   const tr = useI18n()
   const reading = useReadingPreferences()
+  const [step, setStep] = useState(0)
+  const [furthestStep, setFurthestStep] = useState(0)
+  const [creating, setCreating] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
   const [category, setCategory] = useState<LessonCategory>('practical')
   const [topic, setTopic] = useState('')
@@ -40,7 +45,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
       await beforeAction()
       if (!mounted.current) return
       const receipt = await executeAction(snapshot, { kind: 'generateLesson', category: requestedCategory, choiceId, conversationId: snapshot.conversationId, topic: value, expectedRevision: snapshot.revision })
-      if (mounted.current) { setSelected(receipt.entityId); setQuestion('') }
+      if (mounted.current) { setSelected(receipt.entityId); onLessonSelected?.(receipt.entityId); setQuestion(''); setStep(0); setFurthestStep(0); setCreating(false) }
     })
   }
   async function control(id: string, control: LessonControl) {
@@ -51,7 +56,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
     })
   }
   async function select(id: string) {
-    setSelected(id); setQuestion(''); setError(null)
+    setSelected(id); onLessonSelected?.(id); setQuestion(''); setError(null); setStep(0); setFurthestStep(0)
     const item = lessons.find(item => item.id === id)
     if (item?.plan) await control(id, 'open')
   }
@@ -65,10 +70,11 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
   const coachMessages = snapshot.coachMessages.filter(message => lesson?.coachTurnIds.includes(message.turnId))
   const coachTurns = snapshot.turns.filter(turn => lesson?.coachTurnIds.includes(turn.id))
   const coachError = coachTurns.flatMap(turn => turn.attempts).filter(attempt => attempt.error).at(-1)?.error
-  return <DetailDialog title={tr('Take a lesson')} onClose={onClose}>
-    <div className="explicit-lesson">
-      <h2>{tr('Take a lesson')}</h2>
-      {!selected ? <>
+  const content = <>
+    <div className={`explicit-lesson ${embedded ? 'embedded-lesson' : ''}`}>
+      <aside className="lesson-rail">
+      <div className="pane-header"><span>{tr('Learn')}</span><button type="button" aria-label={tr('Lesson type')} disabled={pending} aria-expanded={creating} onClick={() => setCreating(value => !value)}>+</button></div>
+      <div className="lesson-create" hidden={!creating && !!selected}>
         <fieldset className="lesson-categories"><legend>{tr('Lesson type')}</legend>
           {(['practical', 'grammar', 'aboutLanguage', 'reading'] as const).map(value => <label key={value}><input type="radio" name="lesson-category" value={value} checked={category === value} disabled={pending} onChange={() => setCategory(value)} />{tr(value === 'practical' ? 'Practical situations' : value === 'grammar' ? 'Grammar' : value === 'reading' ? 'Reading' : 'About the language')}</label>)}
         </fieldset>
@@ -83,6 +89,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
           <input id="lesson-topic" value={topic} maxLength={500} onChange={event => setTopic(event.target.value)} disabled={pending} />
           <button type="submit" disabled={disabled || !topic.trim()}>{tr('Create lesson')}</button>
         </form>
+      </div>
         {lessons.length > 0 && <section aria-label={tr('Saved lessons')}>
           <h3>{tr('Saved lessons')}</h3>
           <div className="lesson-choice-list">{lessons.map(item => <button key={item.id} type="button" disabled={pending} onClick={() => void select(item.id)}>
@@ -91,8 +98,13 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
             {item.status === 'completed' && <small>{tr('Task completed')}</small>}
           </button>)}</div>
         </section>}
-      </> : <>
-        <button type="button" disabled={pending} onClick={() => { setSelected(null); setError(null) }}>{tr('All lessons')}</button>
+      </aside>
+      <section className="lesson-main">
+      <div className="pane-header">{tr('Take a lesson')}</div>
+      {!selected ? <p>{tr('Request a topic')}</p> : <>
+        {embedded && <nav className="lesson-steps" aria-label={tr('Learn')}>
+          {['Objective', 'Examples', 'Exercise', 'Quiz', 'Practice'].map((label, index) => <button type="button" key={label} aria-label={tr(label)} disabled={index > furthestStep} aria-current={step === index ? 'step' : undefined} onClick={() => setStep(index)}><span aria-hidden="true">{index < furthestStep ? '✓' : index + 1}</span>{tr(label)}</button>)}
+        </nav>}
         {!lesson && <p role="status">{tr('Loading lesson…')}</p>}
         {lesson?.status === 'generating' && <p role="status">{tr('Creating lesson…')}</p>}
         {lesson && !lesson.plan && lesson.status !== 'generating' && <>
@@ -103,15 +115,15 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
         {plan && lesson && <>
           <h3 dir="auto">{plan.title}</h3>
           {lesson.error && <><p role="alert">{lesson.error}</p><button type="button" onClick={() => { onClose(); useNavigationStore.getState().showOverlay('activity') }}>{tr('Open AI activity')}</button></>}
-          <p className="lesson-objective" dir="auto">{plan.objective}</p>
+          <div hidden={embedded && step !== 0}><p className="lesson-objective" dir="auto">{plan.objective}</p>
           <p dir="auto">{plan.explanation}</p>
-          <div className="lesson-examples">{plan.examples.map((example, index) => <div key={index}>
+          </div>
+          <div hidden={embedded && step !== 1} className="lesson-examples">{plan.examples.map((example, index) => <div key={index}>
             <TargetText text={example.text} />{reading.alwaysRomanize && example.romanization && <p dir="auto">{example.romanization}</p>}{reading.alwaysPronunciation && example.pronunciation && <p dir="auto">{example.pronunciation}</p>}<p dir="auto">{example.translation}</p>
           </div>)}</div>
-          <details>
-            <summary>{tr('Practise with the coach')}</summary>
+          <div hidden={embedded && step !== 2}>
+            <h4>{tr('Practise with the coach')}</h4>
             <p dir="auto">{plan.exercise}</p>
-          </details>
           <form className="lesson-question-form" onSubmit={event => {
             event.preventDefault()
             void run(async () => {
@@ -126,7 +138,8 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
           {coachMessages.length > 0 && <div className="lesson-coach-messages" aria-live="polite">{coachMessages.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} /></div>)}</div>}
           {coachTurns.some(turn => turn.state === 'pending') && <p role="status">{tr('Coach replying…')}</p>}
           {coachError && <p role="alert">{coachError}</p>}
-          <section className="lesson-quiz" aria-label={tr('Test your understanding')}>
+          </div>
+          <section hidden={embedded && step !== 3} className="lesson-quiz" aria-label={tr('Test your understanding')}>
             <h3>{tr('Test your understanding')}</h3>
             {plan.quiz.map((quiz, questionIndex) => {
               const answer = lesson.quizAnswers.find(item => item.questionIndex === questionIndex)
@@ -145,6 +158,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
               </fieldset>
             })}
           </section>
+          <div hidden={embedded && step !== 4}>
           {lesson.status === 'ready' && <>
             {active && <p>{tr('Starting this lesson ends the current practice task.')}</p>}
             <button type="button" disabled={disabled} onClick={() => void control(lesson.id, 'practice')}>{tr('Try it in chat')}</button>
@@ -154,9 +168,13 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
             <button type="button" disabled={pending} onClick={() => void control(lesson.id, 'end')}>{tr('End practice')}</button>
           </div>}
           {lesson.recap && <section aria-label={tr('Lesson recap')}><h3>{tr('Lesson recap')}</h3><p dir="auto">{lesson.recap.text}</p>{lesson.recap.evidence.map((e, index) => <blockquote key={index}><TargetText text={e.quote} /></blockquote>)}</section>}
+          </div>
+          {embedded && step < 4 && <button type="button" className="lesson-next" onClick={() => { setStep(step + 1); setFurthestStep(Math.max(furthestStep, step + 1)) }}>{tr('Next step')}</button>}
         </>}
       </>}
       {error && <p role="alert">{error}</p>}
+      </section>
     </div>
-  </DetailDialog>
+  </>
+  return embedded ? content : <DetailDialog title={tr('Take a lesson')} onClose={onClose}>{content}</DetailDialog>
 }

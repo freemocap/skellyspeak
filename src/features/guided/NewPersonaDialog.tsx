@@ -57,7 +57,7 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
       // soon as its ID arrives, without starting provider work.
       if (pending.current !== request) { await cancel(request.id); return }
       const details = await runPersonaGeneration(request.id)
-      if (pending.current === request) replace(details)
+      if (pending.current === request) replace({ ...details, partnerType: draft.partnerType })
     } catch (reason) {
       if (pending.current === request) setGenerationError(nativeError(reason))
     } finally {

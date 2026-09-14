@@ -103,7 +103,7 @@ describe('meaning-domain profile', () => {
       await act(async () => { document.documentElement.dir = 'ltr' })
       await waitFor(() => expect(screen.getByRole('button', { name: 'Left-right' })).toHaveAttribute('aria-pressed', 'true'))
       fireEvent.click(screen.getByRole('button', { name: 'Radial' }))
-      expect(within(screen.getByRole('complementary')).getByRole('heading', { name: 'Refer to past events' })).toBeVisible()
+      expect(within(screen.getByRole('complementary', { name: 'Selected node' })).getByRole('heading', { name: 'Refer to past events' })).toBeVisible()
       await act(async () => { document.documentElement.dir = 'rtl' })
       expect(screen.getByRole('button', { name: 'Radial' })).toHaveAttribute('aria-pressed', 'true')
     } finally { await act(async () => { document.documentElement.dir = original }) }

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #e8e2d4; }
+  a { color: #1f4785; }
+  a:hover { color: #0e5c53; }
+</style>
+</helmet>
+
+<div style="font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1f1c17; background: #e8e2d4; padding: 40px 28px 96px; display: flex; flex-direction: column; gap: 56px; max-width: 1180px; margin: 0 auto; text-wrap: pretty;">
+
+  <header style="display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid #b4a991; padding-bottom: 28px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">SkellySpeak · design system companion · gloss + reading</div>
+    <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 36px; font-weight: 400; line-height: 1.15; letter-spacing: -0.01em; max-width: 26ch;">Understanding a word, in three depths</h1>
+    <p style="margin: 0; max-width: 68ch; font-size: 16px; line-height: 1.6; color: #3a3630;">This restyles real, already-working mechanics — <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">SavedGlossText.tsx</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">GlossPopup.tsx</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">TargetText.tsx</code> — under the laws from the main system doc, and adds the two pieces that were genuinely missing: a tiered reveal instead of everything at once, and a per-message override beside the existing global reading preferences.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid #b4a991; border-radius: 999px; color: #3a3630; background: #f3eee1;">Companion to SkellySpeak System.dc.html</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid #b4a991; border-radius: 999px; color: #3a3630; background: #f3eee1;">Grounded in real components, not invented</span>
+    </div>
+  </header>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">01 · what already exists</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">Three interactions on one word, already</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Reading the source made this a restyle, not a rebuild. A saved word already has a mouse-hover preview (an ephemeral floating card, positioned by <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">SavedGlossText</code>'s own layout effect), a tap that toggles a persistent inline reveal, and a right-click that jumps to the Analysis pane. Global reading preferences (<code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">autoTranslate</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">alwaysRomanize</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">alwaysPronunciation</code>) already suppress the reveal for whichever field is set to always-show. What's missing: the reveal shows every field at once instead of in tiers, and there's no way to override the global default for one message.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">Hover · mouse only</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #1f1c17;">An ephemeral floating card, anchored above the word, showing whichever fields aren't already always-on. Gone on pointer-leave.</span>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4e0a;">Tap · persistent</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #1f1c17;">Toggles a saved reveal — today, every field appears at once, inline, right after the word. This is the one this section retiers.</span>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 8px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #0e5c53;">Right-click · cross-reference</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #1f1c17;">Pins the turn and jumps the study pane to Analysis with this exact token highlighted. Untouched by this pass.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">02 · try it</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">Tap a word below — this is live</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Tier one is the translation, alone. A small "more ▾" control — not a second tap on the word itself, so it can't be mistaken for closing the reveal — expands romanization and a short usage note. Tap the word again to close everything. On desktop this renders as a popover, reusing <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">GlossPopup</code>'s existing anchor/clamp logic; wide-window here, so you're seeing that path.</p>
+    </div>
+
+    <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 32px; display: flex; justify-content: center;">
+      <div style="max-width: 460px; width: 100%; padding: 16px 20px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px; position: relative;">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 22px; line-height: 1.6; color: #1f1c17;">¿Sabes dónde puedo encontrar una <span style="{{ wordStyle }}" onClick="{{ toggleWord }}">farmacia</span> por aquí?</span>
+        <sc-if value="{{ popoverOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 10px); width: 240px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 10px; box-shadow: 0 8px 24px rgb(0 0 0 / 22%); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; z-index: 5;">
+            <div style="position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%) rotate(45deg); width: 12px; height: 12px; background: #fffdf8; border-right: 1px solid #b4a991; border-bottom: 1px solid #b4a991;"></div>
+            <span style="font-size: 15px; color: #1f1c17;">pharmacy</span>
+            <sc-if value="{{ tierTwoOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid #f3eee1;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #1f4785;">far·ma·cia</span>
+                <span style="font-size: 12px; line-height: 1.5; color: #3a3630;">Feminine despite the -a not being the only tell here — <i>farmacia</i> is one of the common "-ia" borrowings from Greek via Latin.</span>
+              </div>
+            </sc-if>
+            <button type="button" style="align-self: flex-start; border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;" onClick="{{ toggleTierTwo }}">{{ tierTwoLabel }}</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5c564b; text-align: center;">Underline = has a saved gloss. Tap toggles the popover; "more ▾" toggles the second tier independently.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">03 · same tiers, narrow width</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">Inline instead of floating — nothing else changes</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">No room to float a card without covering the next line, and no hover to preview first — so narrow width skips the popover shell and appends the same two tiers directly after the word, pushing the line. Same content, same two-tier structure, different container.</p>
+    </div>
+    <div style="display: flex; justify-content: center;">
+      <div style="width: 360px; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 16px 20px;">
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.7; color: #1f1c17;">¿Sabes dónde puedo encontrar una <span style="text-decoration: underline dotted #8a4e0a; text-decoration-thickness: 1px; text-underline-offset: 3px;">farmacia</span><span style="display: inline-flex; flex-direction: column; gap: 2px; vertical-align: top; margin: 0 4px; padding: 2px 8px; background: #f3eee1; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500;">pharmacy<button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; text-align: left;">more ▾</button></span> por aquí?</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">04 · multi-clitic words</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">One tap, every fragment together</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Arabic clitics are already grouped server-side — <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">glossDisplayGroups</code> keeps one orthographic word as one tap target even when it carries three separate glosses. Tapping it opens every fragment stacked, each labelled with the exact source substring it belongs to — never guessed positions, never re-split characters.</p>
+    </div>
+    <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 32px; display: flex; justify-content: center;">
+      <div style="max-width: 420px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+        <span dir="rtl" style="font-family: Newsreader, Georgia, serif; font-size: 26px; line-height: 1.8; color: #1f1c17;">و<span style="text-decoration: underline dotted #8a4e0a; text-decoration-thickness: 1px; text-underline-offset: 4px; background: rgb(199 138 47 / 10%); border-radius: 4px; padding: 0 2px;">سيكتبها</span> لك</span>
+        <div dir="ltr" style="width: 100%; background: #fbf8f0; border: 1px solid #cbb28e; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; gap: 8px; align-items: baseline;"><span dir="rtl" style="font-family: Newsreader, Georgia, serif; font-size: 15px; color: #8a4e0a;">و</span><span style="font-size: 13px; color: #3a3630;">and</span></div>
+          <div style="display: flex; gap: 8px; align-items: baseline;"><span dir="rtl" style="font-family: Newsreader, Georgia, serif; font-size: 15px; color: #8a4e0a;">سي</span><span style="font-size: 13px; color: #3a3630;">will (future marker)</span></div>
+          <div style="display: flex; gap: 8px; align-items: baseline;"><span dir="rtl" style="font-family: Newsreader, Georgia, serif; font-size: 15px; color: #8a4e0a;">كتب</span><span style="font-size: 13px; color: #3a3630;">write</span></div>
+          <div style="display: flex; gap: 8px; align-items: baseline;"><span dir="rtl" style="font-family: Newsreader, Georgia, serif; font-size: 15px; color: #8a4e0a;">ها</span><span style="font-size: 13px; color: #3a3630;">it (feminine object)</span></div>
+        </div>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: center;">one source span · one tap target · four saved glosses</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">05 · per-message override</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">The conversation sets a default. Any message can differ.</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Reading preferences stay global — that's still the useful default. What's new: a small icon in the message-action row overrides translation for just that reply, without touching the setting for every other message.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Conversation default: translation off</span>
+        <div style="padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 18px; line-height: 1.5; color: #1f1c17;">Claro. ¿Para tomar aquí o para llevar?</span></div>
+        <div style="display: flex; gap: 16px; padding-inline-start: 4px;">
+          <button type="button" style="display: flex; align-items: center; gap: 5px; border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;"><span style="width: 14px; height: 14px; border: 1.5px solid #1f4785; border-radius: 3px; display: inline-block;"></span>Translate</button>
+          <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Explain</button>
+        </div>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">This message, overridden on</span>
+        <div style="padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px; display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-family: Newsreader, Georgia, serif; font-size: 18px; line-height: 1.5; color: #1f1c17;">Claro. ¿Para tomar aquí o para llevar?</span>
+          <span style="font-size: 13px; font-style: italic; color: #5c564b; border-top: 1px dashed #dcd3be; padding-top: 6px;">Of course. For here or to take away?</span>
+        </div>
+        <div style="display: flex; gap: 16px; padding-inline-start: 4px;">
+          <button type="button" style="display: flex; align-items: center; gap: 5px; border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;"><span style="width: 14px; height: 14px; border: 1.5px solid #1f4785; border-radius: 3px; background: #1f4785; display: inline-block;"></span>Translate</button>
+          <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Explain</button>
+        </div>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5c564b;">The checkbox-style icon is the override state, not a new button — filled means "on for this message," and it sits in the same action row as Translate/Explain/Read aloud, same order as the main system doc.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">06 · settings › reading</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 400;">Every global default, in one place</h2>
+      <p style="margin: 0; max-width: 76ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The real fields, not invented ones — pulled from <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">GuidedPage.tsx</code>'s quick-toggles and <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">TargetText.tsx</code>'s reading-scale variables. Same dialog shell as the main system doc's Settings.</p>
+    </div>
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #3a3630; padding: 32px; display: flex; justify-content: center;">
+      <div style="width: 640px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 12px; box-shadow: 0 12px 35px rgb(0 0 0 / 40%); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+          <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Settings</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Reading</span>
+        </div>
+        <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3eee1;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; color: #1f1c17;">Translation</span><span style="font-size: 12px; color: #5c564b;">Always show the translation under each reply</span></div>
+            <span style="width: 36px; height: 20px; border-radius: 999px; background: #dcd3be; position: relative; display: inline-block; flex: none;"><span style="position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8;"></span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3eee1;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; color: #1f1c17;">Romanization</span><span style="font-size: 12px; color: #5c564b;">Always show romanization under each word</span></div>
+            <span style="width: 36px; height: 20px; border-radius: 999px; background: #1e9c8e; position: relative; display: inline-block; flex: none;"><span style="position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8;"></span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3eee1;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; color: #1f1c17;">Pronunciation</span><span style="font-size: 12px; color: #5c564b;">Show saved pronunciation in replies and coach advice</span></div>
+            <span style="width: 36px; height: 20px; border-radius: 999px; background: #dcd3be; position: relative; display: inline-block; flex: none;"><span style="position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8;"></span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f3eee1;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; color: #1f1c17;">Read aloud</span><span style="font-size: 12px; color: #5c564b;">Speak each reply automatically</span></div>
+            <span style="width: 36px; height: 20px; border-radius: 999px; background: #dcd3be; position: relative; display: inline-block; flex: none;"><span style="position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8;"></span></span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; color: #1f1c17;">Fast mode</span><span style="font-size: 12px; color: #5c564b;">Automatically dismiss new XP cards; point icons reopen them</span></div>
+            <span style="width: 36px; height: 20px; border-radius: 999px; background: #1e9c8e; position: relative; display: inline-block; flex: none;"><span style="position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8;"></span></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 8px; border-top: 1px solid #dcd3be;">
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="font-size: 14px; color: #1f1c17;">Text size</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5c564b;">115%</span></div>
+            <span style="height: 6px; border-radius: 999px; background: #e2dac6; position: relative; display: block;"><span style="position: absolute; inset: 0 42% 0 0; background: #1f4785; border-radius: 999px;"></span><span style="position: absolute; left: 58%; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8; border: 1px solid #1f4785;"></span></span>
+            <div style="display: flex; align-items: center; justify-content: space-between;"><span style="font-size: 14px; color: #1f1c17;">Word spacing</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5c564b;">0px</span></div>
+            <span style="height: 6px; border-radius: 999px; background: #e2dac6; position: relative; display: block;"><span style="position: absolute; inset: 0 100% 0 0; background: #1f4785; border-radius: 999px;"></span><span style="position: absolute; left: 0%; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8; border: 1px solid #1f4785;"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5c564b;">Text size and word spacing already drive real CSS variables (<code style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--reading-scale</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">--word-spacing</code>) — this just gives them sliders instead of whatever controlled them before.</p>
+  </section>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1180}}">
+class Component extends DCLogic {
+  state = { open: false, tierTwo: false }
+
+  renderVals() {
+    const open = this.state.open
+    return {
+      popoverOpen: open,
+      tierTwoOpen: open && this.state.tierTwo,
+      tierTwoLabel: this.state.tierTwo ? 'less ▾' : 'more ▾',
+      wordStyle: 'text-decoration: underline dotted #8a4e0a; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer;' + (open ? ' background: rgb(199 138 47 / 12%); border-radius: 3px;' : ''),
+      toggleWord: () => this.setState(s => ({ open: !s.open, tierTwo: s.open ? false : s.tierTwo })),
+      toggleTierTwo: (e) => { e.stopPropagation(); this.setState(s => ({ tierTwo: !s.tierTwo })) },
+    }
+  }
+}
+</script>
+</body>
+</html>

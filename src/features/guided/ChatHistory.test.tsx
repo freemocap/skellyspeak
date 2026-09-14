@@ -44,7 +44,7 @@ describe('the drawer', () => {
     // A Spanish list and an Arabic list are different practice; the header is
     // what stops them being mistaken for one another.
     setup([chat()])
-    expect(screen.getByText('Español')).toBeInTheDocument()
+    expect(screen.getAllByText('Español')).toHaveLength(2)
   })
 
   it('invites you to start talking when there is nothing yet', () => {

@@ -21,14 +21,14 @@ def reject(message: str) -> NoReturn:
     raise HTTPException(status_code=400, detail=message)
 
 
-def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...], max_tokens: int) -> ChatRequest:
+def chat_request(payload: dict[str, object], *, max_tokens: int) -> ChatRequest:
     allowed = {"model", "messages", "temperature", "stream", "max_tokens", "reasoning",
                "provider", "response_format", "modalities", "audio"}
     if payload.keys() - allowed:
         reject("Unsupported request fields.")
     model = payload.get("model")
-    if not isinstance(model, str) or model not in allowed_models or model not in model_routing.TEXT_MODELS | {"openai/gpt-audio-mini"}:
-        reject("This model has no hosted pricing contract.")
+    if not isinstance(model, str) or not model or len(model) > 256 or any(c.isspace() or ord(c) < 32 for c in model):
+        reject("model must be a nonempty identifier of at most 256 characters.")
     audio = model == "openai/gpt-audio-mini"
     cap = min(max_tokens, 2_000 if audio else max_tokens)
     requested = payload.get("max_tokens", cap)
@@ -82,7 +82,7 @@ def chat_request(payload: dict[str, object], *, allowed_models: tuple[str, ...],
     input_bound = len(json.dumps(payload, ensure_ascii=False).encode("utf-8")) + 1024
     if input_bound > (16_384 if audio else 100_000):
         reject("The hosted input is too long. Shorten the conversation or message.")
-    prompt_price, completion_price = (1, 24) if audio else model_routing.PRICES[model]
+    prompt_price, completion_price = (1, 24) if audio else model_routing.PRICES.get(model, model_routing.DEFAULT_TEXT_PRICE_CEILING)
     outbound = dict(payload)
     outbound["max_tokens"] = requested
     outbound["provider"] = {

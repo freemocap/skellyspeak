@@ -41,21 +41,21 @@ it('keeps Chat and Lesson reachable through Skill Tree and preserves the chat dr
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Coach'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Learn', 'Review'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  for (const destination of ['Chat', 'Coach']) {
+  for (const destination of ['Practice', 'Learn']) {
     fireEvent.click(screen.getByRole('button', { name: 'More' }))
     fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
     await screen.findByRole('button', { name: 'Practice this skill' })
     fireEvent.click(within(nav).getByRole('button', { name: destination }))
     expect(within(nav).getByRole('button', { name: destination })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
-    expect(screen.getByText(`Practice surface: ${destination === 'Chat' ? 'chat' : 'panel'}`)).toBeInTheDocument()
+    expect(screen.getByText(`Practice surface: chat`)).toBeInTheDocument()
   }
-  fireEvent.click(within(nav).getByRole('button', { name: 'Coach' }))
+  fireEvent.click(within(nav).getByRole('button', { name: 'Learn' }))
   fireEvent.click(screen.getByRole('button', { name: 'SkellySpeak home — Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('button', { name: 'Practice' })).toHaveAttribute('aria-current', 'page')
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
   fireEvent.click(screen.getByRole('button', { name: 'AI activity & tools' }))

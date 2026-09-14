@@ -158,13 +158,13 @@
   cursor: pointer;
 }
 
-.persona-reaction.is-confused { border-color: var(--warning-ink); box-shadow: 0 0 0 1px var(--warning-ink); }
+.persona-reaction.is-confused { border-color: var(--interaction-ink); box-shadow: 0 0 0 1px var(--interaction-ink); }
 
 .persona-reaction:focus-visible { outline: var(--focus-width) solid var(--focus-accent); outline-offset: 3px; }
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
-.reaction-details h3 { font-size: var(--text-md); margin: 12px 0 4px; color: var(--warning); }
+.reaction-details h3 { font-size: var(--text-md); margin: 12px 0 4px; color: var(--interaction-ink); }
 
 .reaction-details blockquote {
   margin: 0;
@@ -199,4 +199,25 @@
   font-family: var(--font-serif);
 }
 
-.reaction-details h2 { margin: 8px 0; font-size: var(--text-xl); color: var(--warning); }
+.reaction-details h2 { margin: 8px 0; font-size: var(--text-xl); color: var(--interaction-ink); }
+
+.persona-type, .personality-chips { display: flex; gap: var(--space-4); flex-wrap: wrap; border: 0; padding: var(--space-4) 0; }
+.persona-type button, .personality-chips button { min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; color: var(--ink); padding-inline: var(--space-6); }
+.persona-type button[aria-pressed=true], .personality-chips button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--accent-dim); }
+.persona-mystery .persona-group:not(.persona-identity), .persona-mystery .persona-private { display: none; }
+.detail-dialog:has(.persona-profile) { width: min(620px, calc(100vw - 24px)); }
+
+.mystery-panel { display: grid; gap: var(--space-6); padding: var(--space-8); }
+.mystery-field { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-6); border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); font-size: var(--type-ui); }
+.mystery-field strong { flex: 1; }
+.mystery-field button { min-height: var(--control-height); }
+.mystery-nudge { display: flex; gap: var(--space-4); }
+.mystery-options { display: grid; gap: var(--space-4); }
+.mystery-options button { min-height: var(--touch-target); text-align: start; white-space: normal; }
+
+.mystery-result { color: var(--interaction-ink); font-weight: var(--weight-semibold); }
+.mystery-field[data-celebration="guess"] { animation: mystery-confirm var(--dur-slow) var(--ease-out); }
+.mystery-field[data-celebration="reveal"] { animation: mystery-reveal var(--dur-slow) var(--ease-out); }
+@keyframes mystery-confirm { from { outline: var(--focus-width) solid var(--interaction-ink); outline-offset: var(--space-4); } to { outline: 0 solid transparent; outline-offset: 0; } }
+@keyframes mystery-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mystery-field[data-celebration] { animation: none; } }

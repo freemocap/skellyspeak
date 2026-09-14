@@ -115,7 +115,7 @@ it('offers working data controls: saving a copy and deleting', async () => {
   expect(screen.queryByText('Not connected.')).toBeNull()
   const save = screen.getByRole('button', { name: 'Save a copy of my data' })
   expect(save).toBeEnabled()
-  expect(screen.getAllByText(/Editable configuration files are separate/).length).toBeGreaterThan(0)
+  expect(screen.getAllByText('Copies the database, its supporting files and editable configuration to Downloads.').length).toBeGreaterThan(0)
   expect(screen.getByText(/permanently removes/)).toHaveTextContent('editable configuration files')
   expect(screen.getByRole('button', { name: 'Delete my data and close' })).toBeEnabled()
   fireEvent.click(save)

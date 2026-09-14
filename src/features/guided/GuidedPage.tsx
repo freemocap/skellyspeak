@@ -9,7 +9,7 @@ import { LessonDialog } from './LessonDialog'
 import { ConversationStart, type StartChoice } from './ConversationStart'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 import { ConversationHeader } from './ConversationHeader'
-import { PersonaProfile } from './PersonaProfile'
+import { MysteryPartnerPanel } from './MysteryPartnerPanel'
 import { NewPersonaDialog } from './NewPersonaDialog'
 import { PersonaPicker } from './PersonaPicker'
 import { useConversationDetails } from './useConversationDetails'
@@ -46,6 +46,7 @@ import { DetailDialog } from '../../ui/DetailDialog'
 import { AnalysisContent } from './AnalysisContent'
 import { CoachAnalysisPanel } from './CoachAnalysisPanel'
 import { logInfo, logWarn } from '../../platform/diagnostics/log'
+import { PartnersRail } from './PartnersRail'
 import { ChatHistory } from './ChatHistory'
 import { latestAnswered } from '../../domain/language/turns'
 import { useConversation } from './useConversation'
@@ -116,9 +117,11 @@ export default function GuidedPage({
     if (!active) stopRewardSounds()
   }, [settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'lesson' | 'profile'>('lesson')
+  const [panelTab, setPanelTab] = useState<'lesson' | 'evidence' | 'profile'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
-  const [lessonOwner, setLessonOwner] = useState<string | null>(null)
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
+  const mode = useNavigationStore(state => state.mode)
+  const setMode = useNavigationStore(state => state.setMode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
@@ -167,8 +170,8 @@ export default function GuidedPage({
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
     setPinnedId(null)
+    setSelectedLessonId(null)
     setCoachDraft('')
-    setLessonOwner(null)
     setReviewing(new Set())
     clearWordsRef.current()
     setError(null)
@@ -247,13 +250,7 @@ export default function GuidedPage({
   const [newPersonaOpen, setNewPersonaOpen] = useState(false)
   // The tab shows the persona being talked to. Creating another belongs to the
   // header picker, so nothing here can overwrite this one by accident.
-  const personaProfile = details.persona ? <>
-    <div className="persona-tab-actions">
-      <button type="button" className="btn" onClick={() => setEditingPersonaId(details.persona!.id)}>{tr("Edit persona")}</button>
-    </div>
-    <PersonaProfile key={details.persona.id} persona={details.persona}
-      language={targetLanguageLabel(details.persona.languageId)} romanized={Boolean(languageFor(details.persona.languageId)?.romanization)} onSave={details.savePersona} />
-  </> : <p className="center-note">{tr("Persona is unavailable.")}</p>
+  const personaProfile = details.persona && snapshot?.mystery ? <MysteryPartnerPanel key={details.persona.id} snapshot={snapshot} persona={details.persona} otherPersonas={details.directory?.personas} /> : null
   function targetLanguageLabel(id: string) { return details.directory?.languages.find(item => item.id === id)?.name ?? id }
 
 
@@ -508,10 +505,11 @@ export default function GuidedPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
+      className={`split ${mode === 'learn' ? 'workspace-learn' : ''} ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
     >
+      {mode !== 'learn' && !isMobile && <PartnersRail choices={contactChoices} currentId={activeContactId} languageName={targetLanguageName} busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onCreate={() => setNewPersonaOpen(true)} onHistory={() => setHistoryOpen(true)} />}
       <ChatHistory
-        open={historyOpen}
+        open={historyOpen && mode !== 'learn'}
         chats={contactChats}
 
         currentId={currentChatId}
@@ -521,6 +519,9 @@ export default function GuidedPage({
         onNewChat={() => void startNewConversation()}
         onDeleteChat={(id) => void removeChat(id)}
       />
+      {snapshot && <div className={`learn-workspace ${mode !== 'learn' ? 'hidden' : ''}`}>
+        <LessonDialog embedded onLessonSelected={setSelectedLessonId} key={currentChatId} snapshot={snapshot} busy={sending || details.saving} beforeAction={details.beforeSend} onPractice={() => useNavigationStore.getState().openPractice('chat')} onClose={() => setMode('practice')} />
+      </div>}
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
         <ConversationHeader learning={learningPicker} persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
@@ -587,7 +588,7 @@ export default function GuidedPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} onLesson={() => setLessonOwner(currentChatId)} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} onLesson={() => setMode('learn')} />)
           )}
           {activeTurns.map((turn) => (
             <Fragment key={turn.turnId}><TurnView
@@ -608,6 +609,7 @@ export default function GuidedPage({
               rtl={rtl}
               onReveal={words.reveal}
               onBubbleTap={onBubbleTap}
+              onOpenCoach={id => { setPinnedId(id); setPanelTab('lesson'); if (!breakOpen) toggleBreak() }}
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onToggleReveal={words.toggleReveal}
@@ -658,16 +660,17 @@ export default function GuidedPage({
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<LiveCoachReview turn={activeTurns.at(-1)} visible={panelTab === 'lesson' && (isMobile ? mobileSurface === 'panel' : breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
-            const latest = activeTurns.at(-1)
+          coachingContent={<LiveCoachReview turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'lesson' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+            const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
-            const current = await readWorkspace()
-            await executeAction(current, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: current.revision })
+            await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
           }} />}
-          onLesson={() => setLessonOwner(currentChatId)}
+          onLesson={mode === 'learn' ? undefined : () => setMode('learn')}
+          lessonContext={mode === 'learn' ? snapshot?.lessons.find(lesson => lesson.id === selectedLessonId) : undefined}
           lessonSummary={snapshot?.lessons?.find(lesson => lesson.status === 'practicing' || lesson.status === 'completed')}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
+          mysteryPartner={details.persona?.details.partnerType === 'mystery'}
           personaProfile={personaProfile}
           tab={panelTab}
           onTab={setPanelTab}
@@ -684,7 +687,6 @@ export default function GuidedPage({
 
     </div>
 
-      {snapshot && lessonOwner === currentChatId && <LessonDialog key={currentChatId} snapshot={snapshot} busy={sending || details.saving} beforeAction={details.beforeSend} onPractice={() => useNavigationStore.getState().openPractice('chat')} onClose={() => setLessonOwner(null)} />}
       {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}

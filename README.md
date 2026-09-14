@@ -539,6 +539,14 @@ scheduler. See `workflow/reports/lessons.md` for verification status.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the guide's **Varieties: current architecture** section.
-The current development database schema is **15**; older workspaces require an
+The current development database schema is **16**; older workspaces require an
 explicit reset and current configuration rather than a migration. Builds do not
 overwrite editable workspace configuration.
+
+The September 14 workspace redesign and its verification limits are recorded in
+[the design-pass report](notes/workspace-redesign-report.md).
+
+“Save a copy of my data” in Settings and schema-refusal recovery copies the database,
+SQLite sidecars and the complete editable `config/` directory (including bibliography
+and custom files) to Downloads. Configuration is copied verbatim, even when invalid
+or from an older format. Copy failures leave no published partial backup.

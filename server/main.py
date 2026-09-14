@@ -113,17 +113,17 @@ async def invalid_parameters(request: Request, error: RequestValidationError) ->
 
 
 class UpstreamHTTPError(HTTPException):
-    def __init__(self, status: int):
-        super().__init__(502, f"Upstream provider returned HTTP {status}.")
+    def __init__(self, status: int, provider: str = "UPSTREAM"):
+        super().__init__(502, f"{provider} returned HTTP {status}.")
         self.upstream_status = status
-        self.code = "UPSTREAM_FAILURE"
+        self.code = f"{provider}_HTTP_{status}" if provider in {"OPENROUTER", "GROQ"} else "UPSTREAM_FAILURE"
 
 
-async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, **kwargs) -> dict:
+async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, provider: str = "UPSTREAM", **kwargs) -> dict:
     """Bound decoded upstream bytes before buffering, including compressed responses."""
     async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
         if not response.is_success:
-            raise UpstreamHTTPError(response.status_code)
+            raise UpstreamHTTPError(response.status_code, provider)
         body = bytearray()
         async for chunk in response.aiter_bytes():
             if len(body) + len(chunk) > limit:
@@ -135,6 +135,10 @@ async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, **kw
         raise HTTPException(502, "Upstream returned invalid JSON.") from exc
     if not isinstance(payload, dict):
         raise HTTPException(502, "Upstream returned an invalid response.")
+    if provider in {"OPENROUTER", "GROQ"} and payload.get("error"):
+        error = payload["error"]
+        status = error.get("code") if isinstance(error, dict) else None
+        raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider)
     return payload
 
 
@@ -536,7 +540,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         raise HTTPException(status_code=400, detail="Malformed JSON request.") from exc
     if not isinstance(parsed, dict):
         raise HTTPException(status_code=400, detail="Request body must be an object.")
-    contract = contracts.chat_request(parsed, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
+    contract = contracts.chat_request(parsed, max_tokens=CFG.max_completion_tokens)
     if contract.payload["model"] == model_routing.OSS:
         raise HTTPException(400, "Use the grouped operations endpoint for this model.")
     # Keep the reservation handle even if the request is cancelled while the
@@ -555,18 +559,26 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         cost: int | None = None
         tokens = 0
         provider_id = ""
+        execution_error: BaseException | None = None
         try:
             async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
-                payload = await provider_json(client, url, limit=4 * 1024 * 1024,
+                payload = await provider_json(client, url, limit=4 * 1024 * 1024, provider="OPENROUTER",
                                               json=contract.payload, headers=headers)
             if not isinstance(payload, dict) or payload.get("error"):
                 raise HTTPException(status_code=502, detail="AI provider returned an invalid response.")
             provider_id = str(payload.get("id", ""))
             cost, tokens = _usage_from(payload)
             return JSONResponse(content=payload)
+        except BaseException as error:
+            execution_error = error
+            raise
         finally:
-            # Settlement is shielded from disconnect cancellation.
-            await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+            # Preserve the provider error after conservative accounting.
+            try:
+                await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
+            except UsageUnknown:
+                if not isinstance(execution_error, UpstreamHTTPError):
+                    raise
 
     relay_started = False
 
@@ -642,6 +654,7 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
             raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
         reservation: budget.Reservation | None = None
         cost: int | None = 0
+        execution_error: BaseException | None = None
         try:
             with anyio.CancelScope(shield=True):
                 reservation = await anyio.to_thread.run_sync(partial(_reserve, who, audio_input.MAX_COST_MICROS))
@@ -659,7 +672,7 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
             cost = None
             async with asyncio.timeout(60), httpx.AsyncClient(timeout=60) as client:
                 payload = await provider_json(client,
-                    f"{CFG.groq_base_url}/audio/transcriptions", limit=262144,
+                    f"{CFG.groq_base_url}/audio/transcriptions", limit=262144, provider="GROQ",
                     headers={"Authorization": f"Bearer {CFG.groq_key}"}, data=audio.fields,
                     files={"file": ("audio.wav", output.getvalue(), "audio/wav")},
                 )
@@ -667,9 +680,16 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
             if not isinstance(payload, dict) or not isinstance(payload.get("text"), str):
                 raise HTTPException(status_code=502, detail="Transcription provider returned invalid text.")
             return JSONResponse(content=payload)
+        except BaseException as error:
+            execution_error = error
+            raise
         finally:
             if reservation is not None:
-                await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
+                try:
+                    await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
+                except UsageUnknown:
+                    if not isinstance(execution_error, UpstreamHTTPError):
+                        raise
 
 
 
@@ -696,7 +716,7 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
                 base = CFG.groq_base_url if use_groq else CFG.openrouter_base_url
                 key = CFG.groq_key if use_groq else CFG.openrouter_key
                 payload = await provider_json(client, f"{base}/chat/completions",
-                    limit=4 * 1024 * 1024, json=outbound,
+                    limit=4 * 1024 * 1024, provider="GROQ" if use_groq else "OPENROUTER", json=outbound,
                     headers={"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"})
         if payload.get("error"):
             raise HTTPException(502, "Invalid provider response.")
@@ -733,7 +753,7 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
         payload = json.loads(body)
     except (ValueError, UnicodeError, RecursionError) as error:
         raise HTTPException(400, "Malformed operation group.") from error
-    items = grouped.parse(payload, allowed_models=CFG.allowed_models, max_tokens=CFG.max_completion_tokens)
+    items = grouped.parse(payload, max_tokens=CFG.max_completion_tokens)
     return StreamingResponse(grouped.results(items, db=db, who=who,
         execute=partial(execute_grouped_item, who=who)), media_type="application/x-ndjson")
 
@@ -741,5 +761,6 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
 @app.get("/v1/protocol")
 def protocol(who: quota.Principal = Depends(diagnostic_user)) -> dict[str, object]:
     return {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
-            "chat_models": [model for model in CFG.allowed_models if model in model_routing.TEXT_MODELS],
+            "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
+            "accepts_other_text_models": True,
             "transcription_model": "whisper-large-v3"}

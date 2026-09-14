@@ -13,7 +13,7 @@ export function LiveCoachReview({ turn, visible, onControl, nativeLanguageName, 
   const review = useRef<HTMLElement>(null)
   const attempted = useRef('')
   useEffect(() => {
-    if (visible) { const panel = review.current?.closest('.analysis-scroll'); if (panel) panel.scrollTop = 0 }
+    if (visible) { const panel = review.current?.closest('.study-coaching-scroll'); if (panel) panel.scrollTop = 0 }
   }, [turn?.id, visible])
   const [error, setError] = useState<string | null>(null)
   const decision = turn?.coachDecision

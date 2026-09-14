@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { invoke } from '@tauri-apps/api/core'
 import type { WordGlossView } from '../../contracts'
@@ -49,12 +49,12 @@ it('shows token translations from reading preferences without an inspection clic
 })
 
 
-it('click reveals inline values and never pins the floating hover helper', () => {
+it('click pins a desktop gloss until the word is clicked again', () => {
   const view = render(<SavedGlossText text={text} segments={result.segments} />)
   const word = screen.getAllByRole('button', { name: 'sí' })[0]
   fireEvent.click(word)
   expect(word.closest('.wu')).toHaveTextContent('yes')
-  expect(view.container.querySelector('.saved-word-help')).toBeNull()
+  expect(view.container.querySelector('.saved-word-help')).toHaveAttribute('popover', 'manual')
   fireEvent.click(word)
   expect(screen.queryByText('yes')).toBeNull()
 })
@@ -69,6 +69,7 @@ function hoverEvent(type: 'pointerover' | 'pointerout'): Event {
 
 it('opens saved word help in the top layer so no clipping host can cut it off', () => {
   const show = vi.fn()
+  const original = HTMLElement.prototype.showPopover
   HTMLElement.prototype.showPopover = show
   try {
     const view = render(<SavedGlossText text={text} segments={result.segments} />)
@@ -81,7 +82,7 @@ it('opens saved word help in the top layer so no clipping host can cut it off', 
     fireEvent(word, hoverEvent('pointerout'))
     expect(view.container.querySelector('.saved-word-help')).toBeNull()
   } finally {
-    Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
+    HTMLElement.prototype.showPopover = original
   }
 })
 
@@ -117,4 +118,64 @@ it('keeps uncovered Arabic letters, combining marks and joining controls in the 
   expect(view.container.textContent).toBe(text)
   expect(screen.getByRole('button', { name: 'بِالكتاب' }).childNodes).toHaveLength(1)
   expect(screen.getByRole('button', { name: 'ک\u200cتاب' }).childNodes).toHaveLength(1)
+})
+
+it('reveals translation first, expands saved details separately, and resets tiers on close', () => {
+  render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ', pronunciation: 'nee' }]} />)
+  const word = screen.getByRole('button', { name: '你' })
+  fireEvent.click(word)
+  expect(screen.getByText('you')).toBeVisible()
+  expect(screen.queryByText('nǐ')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'More' }))
+  expect(screen.getByText('nǐ')).toBeVisible()
+  expect(screen.getByText('nee')).toBeVisible()
+  expect(word).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(word)
+  fireEvent.click(word)
+  expect(screen.queryByText('nǐ')).toBeNull()
+  expect(screen.getByRole('button', { name: 'More' })).toBeVisible()
+})
+
+it('uses the same tiers inline on narrow screens without a popover', () => {
+  const original = window.matchMedia
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
+  try {
+    const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
+    fireEvent.click(screen.getByRole('button', { name: '你' }))
+    expect(view.container.querySelector('[popover]')).toBeNull()
+    expect(screen.getByText('you')).toBeVisible()
+    expect(screen.queryByText('nǐ')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'More' }))
+    expect(screen.getByText('nǐ')).toBeVisible()
+  } finally { media.mockRestore() }
+})
+
+it('does not duplicate always-visible fields or open an empty helper', () => {
+  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }}><SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} /></ReadingPreferencesContext>)
+  fireEvent.click(screen.getByRole('button', { name: '你' }))
+  expect(screen.getAllByText('you')).toHaveLength(1)
+  expect(screen.getAllByText('nǐ')).toHaveLength(1)
+  expect(view.container.querySelector('[popover]')).toBeNull()
+  expect(screen.queryByRole('button', { name: 'More' })).toBeNull()
+})
+
+it('keeps expanded help when a desktop popover becomes inline during resize', () => {
+  const original = window.matchMedia
+  let resize = (_matches: boolean) => {}
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: false,
+    addEventListener: (_type: string, listener: EventListenerOrEventListenerObject | ((event: MediaQueryListEvent) => void) | null) => { resize = matches => (listener as (event: MediaQueryListEvent) => void)({ matches } as MediaQueryListEvent) },
+  }))
+  const hide = vi.spyOn(HTMLElement.prototype, 'hidePopover').mockImplementation(function (this: HTMLElement) {
+    if (!this.hasAttribute('popover')) throw new Error('Cannot hide an inline element as a popover')
+    this.style.display = 'none'
+  })
+  try {
+    const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
+    fireEvent.click(screen.getByRole('button', { name: '你' }))
+    fireEvent.click(screen.getByRole('button', { name: 'More' }))
+    act(() => resize(true))
+    expect(view.container.querySelector('[popover]')).toBeNull()
+    expect(screen.getByText('nǐ')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Less' })).toBeVisible()
+  } finally { media.mockRestore(); hide.mockRestore() }
 })

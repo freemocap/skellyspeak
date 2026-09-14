@@ -13,11 +13,7 @@
   overflow: hidden;
 }
 
-.break-head {
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-5);
-  width: 100%; padding: var(--space-6) var(--space-9) var(--space-5); border: none; border-bottom: var(--border-width) solid var(--shell-line);
-  background: none; text-align: left; cursor: pointer; flex: none;
-}
+.break-head { width: 100%; background: none; text-align: left; cursor: pointer; }
 
 .break-head .k {
   font-family: var(--font-mono);
@@ -119,25 +115,14 @@
   overflow-y: auto;
   padding: var(--space-10);
   border: var(--border-width) solid var(--detail-line);
-  border-radius: var(--radius-xl);
-  background: var(--shell-chrome);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  background: var(--sheet);
   color: var(--shell-text);
   font: var(--text-lg)/1.55 var(--font-sans);
 }
 
 /* The conversation dialog owns its available height; saved side-dock sizes do not apply. */
-
-.detail-dialog[open]:has(> .coach-dock.is-dialog) {
-  display: flex;
-  flex-direction: column;
-  height: min(640px, 85dvh);
-  overflow: hidden;
-}
-
-.detail-dialog:has(> .coach-dock.is-dialog) > .detail-close,
-.detail-dialog:has(> .coach-dock.is-dialog) > h2 { flex: none; }
-
-.detail-dialog > .coach-dock.is-dialog { flex: 1; min-height: 0; max-height: none; }
 
 .detail-dialog::backdrop { background: var(--detail-scrim); }
 
@@ -253,3 +238,21 @@
 .lesson-categories label { display: flex; align-items: center; gap: .35rem; min-height: 44px; }
 .lesson-quiz fieldset { min-width: 0; margin-block: .75rem; padding: .75rem; border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-md); }
 .lesson-quiz button[aria-pressed="true"] { font-weight: var(--weight-bold); outline: 2px solid currentColor; }
+
+.embedded-lesson { display: flex; height: 100%; min-height: 0; gap: var(--space-6); padding: 0; }
+.lesson-rail { flex: 0 0 200px; min-width: 0; min-height: 0; padding: 0; overflow: auto; }
+.lesson-main { flex: 1; min-width: 0; min-height: 0; padding: var(--space-8); overflow: auto; background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); box-shadow: var(--sheet-shadow); }
+.lesson-create[hidden], .lesson-main [hidden] { display: none; }
+.lesson-steps { display: flex; gap: var(--space-4); margin-block: var(--space-8); flex-wrap: wrap; }
+.lesson-steps button { display: flex; align-items: center; gap: var(--space-2); border: 0; background: transparent; color: var(--ink-3); padding: var(--space-2); font-size: var(--type-meta); }
+.lesson-steps button span { display: grid; place-items: center; width: 20px; height: 20px; border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); }
+.lesson-steps button[aria-current=step] { color: var(--interaction-ink); }
+.lesson-steps button[aria-current=step] span { background: var(--interaction-ink); color: var(--ink-on-fill); }
+.lesson-next { margin-block: var(--space-8); }
+@media (max-width: 860px) {
+  .embedded-lesson { flex-direction: column; }
+  .lesson-rail { flex-basis: auto; max-height: 35%; border-inline-end: 0; border-bottom: var(--border-width) solid var(--line-soft); }
+}
+
+.lesson-main > h3 { font: var(--type-display)/1.2 var(--font-serif); }
+.lesson-main > div:not(.pane-header), .lesson-main > section { margin-block: var(--space-8); }

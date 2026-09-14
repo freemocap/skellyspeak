@@ -28,8 +28,8 @@ describe('native private coaching', () => {
     await waitFor(() => expect(screen.getByLabelText('Coach conversation')).toHaveTextContent('Saved private answer'))
     expect(backend.watch).toHaveBeenNthCalledWith(2, 'chat-1', 7)
     expect(backend.execute).not.toHaveBeenCalled()
-    expect(screen.getByRole('tab', { name: 'Skill map' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Clear coach thread' })).toBeDisabled()
+    expect(screen.getByRole('tab', { name: 'Coaching' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
+    expect(screen.getByRole('tab', { name: 'Evidence' })).toBeVisible()
   })
   it('submits once with current conversation revision and displays only saved replies', async () => {
     render(panel())
@@ -64,10 +64,9 @@ describe('native private coaching', () => {
     await waitFor(() => expect(backend.watch).toHaveBeenCalledWith('chat-2', 7))
     expect(screen.queryByText('Old private answer')).toBeNull()
   })
-  it('opens a supplied draft without dispatching or losing it when the dialog closes', async () => {
+  it('places a supplied draft in the study composer without dispatching or opening a dialog', async () => {
     render(panel('chat-1', 'Explain this phrase'))
-    expect(await screen.findByRole('dialog', { name: 'Coach conversation' })).toBeVisible()
-    fireEvent.click(screen.getByRole('button', { name: 'Close Coach conversation' }))
+    expect(screen.queryByRole('dialog')).toBeNull()
     expect(screen.getByLabelText('Message your coach')).toHaveValue('Explain this phrase')
     expect(backend.execute).not.toHaveBeenCalled()
   })

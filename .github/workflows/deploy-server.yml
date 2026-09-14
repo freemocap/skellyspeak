@@ -132,7 +132,6 @@ jobs:
             -e JWT_SIGNING_KEY=0123456789012345678901234567890123456789 \
             -e PUBLIC_BASE_URL=https://example.invalid \
             -e OPENROUTER_API_KEY=ci -e GROQ_API_KEY=ci \
-            -e ALLOWED_MODELS=google/gemini-2.5-flash,openai/gpt-audio-mini \
             -e MAX_COMPLETION_TOKENS=32768 \
             -e FREE_DAILY_MICROS=500000 -e GLOBAL_DAILY_MICROS=2000000 \
             -e MAX_USERS=6 \

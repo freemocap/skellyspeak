@@ -66,17 +66,23 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled, re
     const next = { ...draft, vibe: draft.vibe.filter(value => value !== symbol) }
     setVibeError(null); onChange(next); onCommit(next)
   }
-  return <>
+  const traits = ['Warm', 'Curious', 'Blunt', 'Playful', 'Formal']
+  const mannerParts = draft.manner.split(';').map(value => value.trim()).filter(Boolean)
+  return <div className={`persona-form ${draft.partnerType === 'mystery' ? 'persona-mystery' : ''}`}>
+    <fieldset className="persona-type"><legend>{tr('Partner type')}</legend>
+      {(['standard', 'mystery'] as const).map(type => <button type="button" key={type} disabled={disabled} aria-pressed={(draft.partnerType ?? 'standard') === type} onClick={() => { const next = { ...draft, partnerType: type }; onChange(next); onCommit(next) }}>{tr(type === 'standard' ? 'Standard' : 'Mystery')}</button>)}
+    </fieldset>
+    {draft.partnerType === 'mystery' && <p className="persona-hint">{tr('Occupation, manner, location, age and interests stay hidden until guessed and revealed. Changing to Standard shows the full profile.')}</p>}
     <fieldset className="persona-group persona-identity"><legend>{tr("Identity")}</legend>
       <label className="persona-field"><span>{tr("Name")}</span><input className="field" required maxLength={PERSONA_LIMITS.nameMax} value={draft.name} disabled={disabled} dir="auto"
         onChange={event => edit({ name: event.target.value })} onBlur={() => commit({})} /></label>
       {romanized && <label className="persona-field"><span>{tr("Romanized name ")}<em className="persona-field-hint">{tr("In Latin letters")}</em></span><input className="field" required maxLength={PERSONA_LIMITS.nameMax} value={draft.romanizedName ?? ''} disabled={disabled}
         onChange={event => edit({ romanizedName: event.target.value })} onBlur={() => commit({})} /></label>}
-      <label className="persona-field"><span>{tr("Age")}</span><input className="field" type="number" min={PERSONA_LIMITS.ageMin} max={PERSONA_LIMITS.ageMax} value={draft.age ?? ''} disabled={disabled}
+      <label className="persona-field persona-private"><span>{tr("Age")}</span><input className="field" type="number" min={PERSONA_LIMITS.ageMin} max={PERSONA_LIMITS.ageMax} value={draft.age ?? ''} disabled={disabled}
         onChange={event => edit({ age: event.target.value === '' ? null : Number(event.target.value) })} onBlur={() => commit({})} /></label>
-      <label className="persona-field"><span>{tr("Lives in")}</span><input className="field" maxLength={PERSONA_LIMITS.locationMax} value={draft.location} disabled={disabled} dir="auto"
+      <label className="persona-field persona-private"><span>{tr("Lives in")}</span><input className="field" maxLength={PERSONA_LIMITS.locationMax} value={draft.location} disabled={disabled} dir="auto"
         onChange={event => edit({ location: event.target.value })} onBlur={() => commit({})} /></label>
-      <label className="persona-field persona-wide"><span>{tr("Occupation")}</span><input className="field" maxLength={PERSONA_LIMITS.occupationMax} value={draft.occupation} disabled={disabled} dir="auto"
+      <label className="persona-field persona-wide persona-private"><span>{tr("Occupation")}</span><input className="field" maxLength={PERSONA_LIMITS.occupationMax} value={draft.occupation} disabled={disabled} dir="auto"
         onChange={event => edit({ occupation: event.target.value })} onBlur={() => commit({})} /></label>
     </fieldset>
     <fieldset className="persona-group"><legend>{tr("Background")}</legend>
@@ -100,6 +106,10 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled, re
       </label>)}
     </fieldset>
     <fieldset className="persona-group"><legend>{tr("Style")}</legend>
+      <div className="personality-chips">{traits.map(trait => <button type="button" key={trait} disabled={disabled || (!mannerParts.includes(trait) && draft.manner.length + trait.length + 2 > PERSONA_LIMITS.mannerMax)} aria-pressed={mannerParts.includes(trait)} onClick={() => {
+        const manner = mannerParts.includes(trait) ? mannerParts.filter(value => value !== trait).join('; ') : [draft.manner, trait].filter(Boolean).join('; ')
+        const next = { ...draft, manner }; onChange(next); onCommit(next)
+      }}>{tr(trait)}</button>)}</div>
       <label className="persona-field"><span>{tr("Manner")}</span><textarea className="field" rows={2} maxLength={PERSONA_LIMITS.mannerMax} value={draft.manner} disabled={disabled} dir="auto"
         onChange={event => edit({ manner: event.target.value })} onBlur={() => commit({})} /></label>
     </fieldset>
@@ -113,5 +123,5 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled, re
       </label>
       {vibeError && <p className="persona-inline-error" role="alert">{vibeError}</p>}
     </fieldset>
-  </>
+  </div>
 }

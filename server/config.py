@@ -51,19 +51,6 @@ def _required_int(name: str) -> int:
     return value
 
 
-def _required_list(name: str) -> tuple[str, ...]:
-    """A comma-separated allowlist. Empty entries are dropped; empty is refused.
-
-    An allowlist that silently ends up empty is an allowlist that permits
-    nothing or — far worse, if a later reader treats empty as "unset" —
-    everything.
-    """
-    items = tuple(part.strip() for part in _required(name).split(",") if part.strip())
-    if not items:
-        raise ConfigError(f"{name} contains no entries.")
-    return items
-
-
 @dataclass(frozen=True)
 class Config:
     # ── Identity ────────────────────────────────────────────────────────────
@@ -83,12 +70,6 @@ class Config:
     groq_key: str = field(repr=False)
     groq_base_url: str
 
-    # Which models this service will pay for. The request body is otherwise
-    # forwarded untouched, so without this the caller chooses what we are
-    # billed for — and prices across OpenRouter differ by two orders of
-    # magnitude. The app needs exactly one model to work; anything else is a
-    # misconfiguration, not a feature.
-    allowed_models: tuple[str, ...]
     # Refuses a request that asks for more than this many completion tokens.
     # One runaway generation should not be able to spend a whole day's budget.
     max_completion_tokens: int
@@ -126,7 +107,6 @@ def load() -> Config:
         groq_base_url=os.environ.get(
             "GROQ_BASE_URL", "https://api.groq.com/openai/v1"
         ).rstrip("/"),
-        allowed_models=_required_list("ALLOWED_MODELS"),
         max_completion_tokens=_required_int("MAX_COMPLETION_TOKENS"),
         free_daily_micros=_required_int("FREE_DAILY_MICROS"),
         global_daily_micros=_required_int("GLOBAL_DAILY_MICROS"),

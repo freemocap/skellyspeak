@@ -65,7 +65,7 @@ export function ChatHistory({
   return (
     <>
       <div className="drawer-scrim" onClick={onClose} aria-hidden="true" />
-      <aside className="chat-history" aria-label={tr("Contacts")}>
+      <aside className="chat-history" aria-label={tr("All conversations")}>
         <div className="chat-history-head">
           <span className="chat-history-lang">{languageName}</span>
           <button type="button" className="chat-history-new" onClick={onNewChat}>
@@ -88,6 +88,7 @@ export function ChatHistory({
                   <span className="chat-history-title">
                     {chat.title || <em>{tr("Empty conversation")}</em>}
                   </span>
+                  <span className="chat-history-meta">{languageName}</span>
                   <span className="chat-history-meta">
                     {whenever(chat.updated_at, tr.locale)}
                     {chat.turn_count !== undefined && chat.turn_count > 0 && tr("Conversation turns", { count: chat.turn_count })}
