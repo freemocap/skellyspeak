@@ -975,3 +975,20 @@ translation overrides inherit the conversation default until explicitly toggled,
 then remain local to the mounted message. Reading settings expose word spacing
 and group read-aloud with the other reading controls. See the
 [refinement record](./2026-09-14-reading-refinement/README.md).
+
+### Provider-owned text model availability (2026-09-14)
+
+Adopted from the user's request after diagnosing hosted HTTP 400s: the service
+must not maintain a text model-name allowlist. Provider availability validation
+belongs to OpenRouter/Groq. Preserve the existing GPT-OSS Groq transport binding;
+other text identifiers use OpenRouter. Model defaults and provider-specific
+adapters remain separate from admission. Spending admission, request bounds and
+price ceilings still apply; unknown OpenRouter models use the existing standard
+text ceiling, enforced upstream and used for reservation [@openrouterPriceRouting20260914].
+
+Source implementation removes `ALLOWED_MODELS` from configuration and grouped
+admission. Individual provider errors retain provider/status identity without
+copying arbitrary response bodies, and successful sibling operations can finish.
+The native client explains provider refusals separately from service admission.
+This records implemented source behavior, not a production deployment or live
+provider verification. See server/README.md for the contract and price limits.

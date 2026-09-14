@@ -88,10 +88,8 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
 pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
     let (provider, number) = if let Some(number) = code.strip_prefix("OPENROUTER_HTTP_") {
         ("OpenRouter", number)
-    } else if let Some(number) = code.strip_prefix("GROQ_HTTP_") {
-        ("Groq", number)
     } else {
-        return None;
+        ("Groq", code.strip_prefix("GROQ_HTTP_")?)
     };
     if number.len() != 3 || !number.bytes().all(|c| c.is_ascii_digit()) {
         return None;

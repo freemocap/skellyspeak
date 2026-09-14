@@ -88,3 +88,15 @@ def test_actual_refusal_and_grouped_failure_reasons_survive_redaction():
         "event": "operation_failure", "status": True, "upstream_status": 999,
         "category": "private provider text"})))
     assert "status" not in invalid and "upstream_status" not in invalid and "category" not in invalid
+
+
+def test_provider_status_code_is_preserved_without_remote_content():
+    import json
+    import logging
+    from local_logging import safe_record
+    record = logging.LogRecord('skellyspeak.requests', logging.INFO, '', 1, json.dumps({
+        'event': 'request_headers', 'code': 'OPENROUTER_HTTP_404', 'status': 502,
+        'detail': 'PRIVATE_ERROR'}), (), None)
+    result = safe_record(record)
+    assert result['errorCode'] == 'OPENROUTER_HTTP_404'
+    assert 'PRIVATE_ERROR' not in str(result)

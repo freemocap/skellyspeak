@@ -122,3 +122,12 @@ async def test_new_openrouter_model_can_succeed_without_server_catalog_edit(prox
     request['items'][0]['request']['model'] = 'new/model'
     response = await proxy.post('/v1/operations', json=request)
     assert json.loads(response.text.splitlines()[0])['type'] == 'result'
+
+
+@pytest.mark.asyncio
+async def test_provider_error_inside_success_status_is_still_surfaced(proxy, monkeypatch):
+    upstream(monkeypatch, lambda _: httpx.Response(200, json={'error': {'code': 404, 'message': 'PRIVATE_ERROR'}}))
+    response = await proxy.post('/v1/operations', json=envelope(1))
+    event = json.loads(response.text.splitlines()[0])
+    assert event['code'] == 'OPENROUTER_HTTP_404'
+    assert 'PRIVATE_ERROR' not in response.text

@@ -292,3 +292,41 @@ Development diagnostic coverage section for the full capture/redaction contract.
 Use the logged process launcher for the emulator too. A server restart refreshes
 `server/.local-server/session-token.txt`; update Custom URL's saved token before
 trying authenticated requests again. Tokens must never be printed in logs.
+
+## Model validation and provider failures
+
+Text model IDs are forwarded to providers without a server model-name allowlist.
+`openai/gpt-oss-120b` uses the existing Groq adapter; other text IDs go unchanged
+to OpenRouter. Providers determine availability and parameter support. The speech
+endpoint retains its separate audio contract. `ALLOWED_MODELS` is no longer read
+or required, so stale deployment values cannot reject a newly selected model.
+
+Spending controls remain separate from model availability. Known models retain
+their existing price bounds. Other OpenRouter text models use a ceiling of
+$0.30 per million input tokens and $2.50 per million output tokens, with no
+per-request surcharge. Reservations use those same ceilings; OpenRouter enforces
+`provider.max_price` and may reject models with no matching endpoint. A model
+being accepted by this service does not guarantee that it fits that price limit.
+Actual reported cost settles successful requests. Unconfirmed usage still retains
+its reservation. See [@openrouterPriceRouting20260914] in the root bibliography.
+
+`/v1/protocol` lists recommended bindings and reports
+`accepts_other_text_models: true`; the list is not an allowlist. Updated clients
+honor this in Custom URL connection checks.
+
+Grouped provider refusals affect their own operation, allowing siblings to finish.
+The existing error `code` carries `OPENROUTER_HTTP_<status>` or
+`GROQ_HTTP_<status>` with service status 502. Updated native clients explain the
+provider/status, including provider account failures versus SkellySpeak limits.
+Raw provider error bodies are not echoed into the UI, database or diagnostic logs.
+Provider errors survive conservative settlement instead of becoming a generic
+internal error. No automatic retry is added.
+
+Source tests use controlled provider responses; deployment and a real hosted chat
+are separate verification steps. Both server deployment and an app rebuild are
+needed for the complete behavior and improved error messages.
+
+Local verification (September 14, 2026): 259 server tests passed; seven Firestore
+emulator tests skipped. Native suite: 348 passed, one ignored. Rust formatting,
+Clippy with warnings denied, and diff whitespace checks passed. Container source
+inclusion is tested; Docker image startup and real provider execution were not run.
