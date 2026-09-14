@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #e8e2d4; }
+  a { color: #1f4785; }
+  a:hover { color: #0e5c53; }
+</style>
+</helmet>
+
+<div style="font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #1f1c17; background: #e8e2d4; padding: 40px 28px 96px; display: flex; flex-direction: column; gap: 72px; max-width: 1400px; margin: 0 auto; text-wrap: pretty;">
+
+  <header style="display: flex; flex-direction: column; gap: 20px; border-bottom: 1px solid #b4a991; padding-bottom: 28px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">SkellySpeak · design system · architecture pass</div>
+    <h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 40px; font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; max-width: 20ch;">One workspace, three modes, five laws.</h1>
+    <p style="margin: 0; max-width: 68ch; font-size: 16px; line-height: 1.6; color: #3a3630;">The app is not short of components — it is short of agreements. Five surface elevations compete, ten type sizes carry unclear roles, density changes between neighbours, and depth hides behind arbitrary disclosure. This pass fixes the bones: the spine every screen obeys, and the five laws that make adding lessons, coaching layers and audio inspection cheap instead of another special case.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid #b4a991; border-radius: 999px; color: #3a3630; background: #f3eee1;">Living Spectrum palette retained</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid #b4a991; border-radius: 999px; color: #3a3630; background: #f3eee1;">Light + graphite</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid #b4a991; border-radius: 999px; color: #3a3630; background: #f3eee1;">Desktop + narrow</span>
+    </div>
+  </header>
+
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">01 · the spine</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Practice · Learn · Review — three places, one chrome</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Today a lesson is a dialog, analysis is a pane, evidence is an overlay, and audio inspection is another dialog — each inventing its own relationship to the conversation. Name three modes instead. Each is the same three-zone frame, so a new depth layer has an obvious home rather than a new modal.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 8%);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #3d7bd6;"></span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">Practice</span>
+        </div>
+        <div style="font-size: 15px; line-height: 1.55; color: #1f1c17;">Talk to a partner. The conversation is the object; coaching is the reflection beside it.</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.7; color: #5c564b;">rail: partners · main: conversation · study: coach</div>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 8%);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #e08a2e;"></span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4e0a;">Learn</span>
+        </div>
+        <div style="font-size: 15px; line-height: 1.55; color: #1f1c17;">Take a lesson. The lesson is the object; the conversation waits beside it for the handoff.</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.7; color: #5c564b;">rail: lessons · main: lesson · study: coach</div>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 1px 3px rgb(0 0 0 / 8%);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #1e9c8e;"></span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #0e5c53;">Review</span>
+        </div>
+        <div style="font-size: 15px; line-height: 1.55; color: #1f1c17;">Read the evidence. The skill map is the object; a source message is the reflection.</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.7; color: #5c564b;">rail: languages · main: map · study: evidence</div>
+      </div>
+    </div>
+
+    <div style="background: #fbf8f0; border: 1px solid #dcd3be; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">The frame every mode fills</div>
+      <div style="display: grid; grid-template-columns: 180px 1fr 300px; gap: 8px; height: 190px;">
+        <div style="background: #f3eee1; border: 1px dashed #b4a991; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Rail</span>
+          <span style="font-size: 13px; line-height: 1.45; color: #3a3630;">What you can switch to. Collapsible, never modal.</span>
+        </div>
+        <div style="background: #fffdf8; border: 1px solid #b4a991; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 18%), 0 8px 24px rgb(0 0 0 / 10%);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #1f4785;">Main · sheet</span>
+          <span style="font-size: 13px; line-height: 1.45; color: #3a3630;">The thing you are doing, on the one raised surface. Reading lives here.</span>
+        </div>
+        <div style="background: #dbd4c5; border-radius: 8px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 20%); display: flex; flex-direction: column; justify-content: space-between; padding: 12px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Study · inset</span>
+          <span style="font-size: 13px; line-height: 1.45; color: #3a3630;">What the app noticed. Coaching, evidence, explanation. Always this well, in every mode.</span>
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #3a3630; max-width: 86ch;">Narrow windows keep the same three zones as one column with a bottom mode bar: rail becomes a drawer, main and study become two swipeable surfaces. Nothing is invented for mobile.</p>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">02 · law one</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Three surfaces, not five</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The palette ships eight surface values — <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">sheet, card, dock, quiet, chrome, chip, field, track</code> — and components pick between them by feel. Collapse them into three meanings and keep the rest as the same three roles in a different context.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      <div style="border-radius: 12px; overflow: hidden; border: 1px solid #dcd3be;">
+        <div style="background: #e8e2d4; padding: 28px 20px; display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Ground</span>
+          <span style="font-size: 15px; color: #1f1c17;">The desk. Holds panes; never holds text.</span>
+        </div>
+        <div style="background: #fffdf8; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5c564b; border-top: 1px solid #dcd3be;">#e8e2d4 · was bg, chrome, track</div>
+      </div>
+      <div style="border-radius: 12px; overflow: hidden; border: 1px solid #dcd3be;">
+        <div style="background: #fffdf8; padding: 28px 20px; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 1px 0 #fff;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">Sheet</span>
+          <span style="font-size: 15px; color: #1f1c17;">Where you read and act. One elevation, one shadow.</span>
+        </div>
+        <div style="background: #fffdf8; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5c564b; border-top: 1px solid #dcd3be;">#fffdf8 · was sheet, card, field</div>
+      </div>
+      <div style="border-radius: 12px; overflow: hidden; border: 1px solid #dcd3be;">
+        <div style="background: #dbd4c5; padding: 28px 20px; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 18%);">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #4e3590;">Inset</span>
+          <span style="font-size: 15px; color: #1f1c17;">Where the app reflects. Coaching, evidence, activity.</span>
+        </div>
+        <div style="background: #fffdf8; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5c564b; border-top: 1px solid #dcd3be;">well · was dock, quiet, chip</div>
+      </div>
+    </div>
+
+    <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 4px 0; display: flex; flex-direction: column;">
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #dcd3be; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">
+        <span>Old token</span><span>New role</span><span>Rule</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #f3eee1; font-size: 14px; align-items: baseline;">
+        <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #3a3630;">--card</code><span style="color: #1f1c17;">sheet</span><span style="color: #3a3630; line-height: 1.5;">A card is a sheet with a boundary, not a third elevation.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #f3eee1; font-size: 14px; align-items: baseline;">
+        <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #3a3630;">--dock</code><span style="color: #1f1c17;">inset</span><span style="color: #3a3630; line-height: 1.5;">The coach dock is the study well, docked. Same surface as analysis.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #f3eee1; font-size: 14px; align-items: baseline;">
+        <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #3a3630;">--quiet / --chip</code><span style="color: #1f1c17;">inset</span><span style="color: #3a3630; line-height: 1.5;">Learner bubbles, chips and trays are small insets on a sheet.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr 1.5fr; gap: 16px; padding: 12px 20px; font-size: 14px; align-items: baseline;">
+        <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #3a3630;">--chrome / --track</code><span style="color: #1f1c17;">ground</span><span style="color: #3a3630; line-height: 1.5;">Chrome is the desk showing through, not a surface of its own.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">03 · law two</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Six type roles, each with a job</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Ten sizes from 10px to 24px, chosen per component, is why neighbouring panels disagree. Six named roles, and the target language always in the serif at reading size.</p>
+    </div>
+    <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; overflow: hidden;">
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #dcd3be; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">
+        <span>Role</span><span>Specimen</span><span>Used for · replaces</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f3eee1; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">Display · 24/1.2 serif</span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; line-height: 1.2;">Asking for directions</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Lesson and mode titles only. One per screen.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f3eee1; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">Title · 18/1.35 sans 600</span>
+        <span style="font-size: 18px; font-weight: 600; line-height: 1.35;">Test your understanding</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Section heads inside a pane. Replaces text-2xl and text-3xl.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f3eee1; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">Reading · 20/1.55 serif</span>
+        <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55;">¿Dónde está la estación?</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Target language everywhere — bubbles, examples, quotes. Scales with reading preference.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f3eee1; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">Body · 15/1.6 sans</span>
+        <span style="font-size: 15px; line-height: 1.6;">Use the definite article when the place is known to both speakers.</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Explanation prose. Replaces text-base and text-lg drift.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f3eee1; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">UI · 13/1.45 sans 500</span>
+        <span style="font-size: 13px; font-weight: 500;">Try it in chat</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Every control label, every select. Replaces 11/12/13/14 in controls.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 200px 1fr 1.2fr; gap: 16px; padding: 16px 20px; align-items: baseline;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a3630;">Meta · 11 mono caps</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Saved · 2 min ago</span>
+        <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Pane labels, state, counts. The only mono, the only caps.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">04 · law three</div>
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Two densities</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3a3630;">Chrome is compact and consistent; content is comfortable and consistent. Nothing in between, and no component decides for itself.</p>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">Chrome density</span>
+          <span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Pane headers, control strips, rails, mode bar. Row height 40. Interior 12. Gap 8. Control height 32 (44 on touch).</span>
+        </div>
+        <div style="height: 1px; background: #dcd3be;"></div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #4e3590;">Content density</span>
+          <span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Messages, lessons, evidence, explanation. Interior 16. Block gap 16. Section gap 24. Bubble padding 12 / 16.</span>
+        </div>
+        <div style="height: 1px; background: #dcd3be;"></div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; color: #5c564b;">Ramp: 4 · 8 · 12 · 16 · 24 · 40. No 6, 10, 14, 18, 20, 32.</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">05 · law four</div>
+        <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Colour has one job each</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3a3630;">The six domain accents currently double as general accents, focus rings, tab colours and link colours, so hue stops meaning anything. Domains mean domains. Interaction is one ink. Amber is correction. Red is failure. Teal is confirmed.</p>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #e08a2e; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Social</b> · skill domain fill, evidence only</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #d9564f; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Questions</b> · skill domain fill, evidence only</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #c0519b; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Opinions</b> · skill domain fill, evidence only</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #3d7bd6; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Statements</b> · domain, and the one interaction ink (#1f4785)</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #7d5bd4; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Descriptions</b> · domain, and the study well's tint</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #1e9c8e; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Situating</b> · domain, and confirmed repair</span></div>
+        <div style="height: 1px; background: #dcd3be; margin: 4px 0;"></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #c78a2f; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Amber</b> · a correction is available. Never decoration.</span></div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 6px; background: #bd3038; flex: none;"></span><span style="font-size: 14px; color: #1f1c17;"><b style="font-weight: 600;">Red</b> · a request failed. Never emphasis.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">06 · law five</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Depth has three shapes, and only three</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Suggestions collapse, coaching collapses, the coach dock collapses, XP records collapse inside a collapsed coach entry, and a lesson lives behind a dialog containing its own disclosures. The rule: one level of collapse per pane, and the shape is decided by the content's relationship to the exchange — not by convenience.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">Inline · beside the words</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Belongs to one word or one message: glosses, translation, a correction chip. Expands in flow, closes on its own. Never more than one open per message.</span>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #4e3590;">Study pane · beside the exchange</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Belongs to the conversation: coaching, analysis, XP records, lesson recap. The pane swaps content; it does not stack collapses. This is where the lesson now lives.</span>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4e0a;">Dialog · needs the whole window</span>
+        <span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Only for inspection that cannot share space: recording inspector, YAML preview, settings, persona editor. Four dialogs in the app, and they say so in their title.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">07 · baseline</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Practice today, rebuilt from source</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Recreated from <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">layout.css</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">conversation.css</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">lesson.css</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">coach.css</code> and <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">TopBar.tsx</code> — the values, not an impression. Read it for the four symptoms: four elevations in one row, three type systems in the header, a correction badge fighting its bubble, and depth split across a well, a dock and a dialog.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4;">
+      <div style="width: 1280px; height: 720px; display: flex; flex-direction: column; background: #e8e2d4; font-size: 14px;">
+
+        <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-bottom: 1px solid #dcd3be; background: #f6f2e8; flex: none;">
+          <button type="button" style="background: none; border: 1px solid transparent; border-radius: 6px; color: #3a3630; cursor: pointer; padding: 4px 8px; font-size: 16px; line-height: 1; margin-right: 10px;">☰</button>
+          <div style="display: inline-flex; align-items: center; gap: 6px; color: #1f1c17; white-space: nowrap; margin-right: 12px;">
+            <img src="skellyspeak-logo.png" alt="" width="28" height="28" style="flex: none; object-fit: contain;">
+            <span style="font-weight: 700; font-size: 18px; letter-spacing: 0.02em;">SKELLYSPEAK<b style="color: #4e3590;">·</b></span>
+          </div>
+          <div style="display: flex; gap: 4px;">
+            <div style="display: flex; align-items: center; border: 1px solid #b4a991; border-radius: 6px 6px 0 0; background: #ffffff; border-bottom-color: #ffffff;">
+              <button type="button" style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 12px; border: 0; border-radius: 6px 6px 0 0; background: none; color: #1f1c17; cursor: pointer; box-shadow: inset 0 -3px #7d5bd4;">Guided conversation</button>
+              <button type="button" style="width: 28px; height: 28px; padding: 0; border: 1px solid #b4a991; border-radius: 6px; background: #ffffff; color: #1f1c17; font-size: 24px; line-height: 1; cursor: pointer; margin-inline-end: 2px;">+</button>
+            </div>
+            <button type="button" style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 12px; border: 1px solid #b4a991; border-radius: 6px 6px 0 0; background: none; color: #3a3630; cursor: pointer;">Skill tree</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px; margin-inline-start: auto;">
+            <button type="button" style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 4px 6px; border: 1px solid #b4a991; border-radius: 6px; background: none; color: #3a3630; font-family: 'IBM Plex Mono', monospace; font-size: 12px; cursor: pointer;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1e9c8e;"></span>AI</button>
+            <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 4px; border: 1px solid #b4a991; border-radius: 6px; background: none; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"></path><path d="M19 12a7 7 0 1 0-2 5M20 12l-3-5"></path></svg></button>
+            <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 4px; border: 1px solid #b4a991; border-radius: 6px; background: none; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+            <button type="button" style="display: inline-flex; align-items: center; gap: 6px; height: 30px; width: auto; padding-inline: 6px; border: 1px solid #b4a991; border-radius: 6px; background: none; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3"></circle><path d="M5 21v-3a7 7 0 0 1 14 0v3"></path></svg><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #4e3590; white-space: nowrap;">1,284 XP</span></button>
+          </div>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; padding: 12px; gap: 8px; background: #e8e2d4;">
+
+          <div style="flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column; background: #fffdf8; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 18%); overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 4px 10px; background: #fbf8f0; border-bottom: 1px solid #b4a991; flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f1c17;">
+              <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: center; gap: 4px; min-width: 0;">
+                  <select style="height: 26px; padding: 0 6px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; cursor: pointer;"><option>Español</option></select>
+                  <select style="height: 26px; padding: 0 6px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; cursor: pointer;"><option>Beginner</option></select>
+                  <button type="button" style="display: flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; cursor: pointer;">Marisol · barista<span style="margin-inline-start: auto;">▾</span></button>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; flex: none;">
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 1px solid #b4a991; border-radius: 6px; background: transparent; color: #1f1c17; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+                <button type="button" style="width: 32px; height: 32px; padding: 0; border: 1px solid #b4a991; border-radius: 6px; background: #ffffff; color: #1f1c17; font-size: 24px; line-height: 1; cursor: pointer;">+</button>
+              </div>
+            </div>
+
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 12px 8px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="align-self: flex-start; max-width: 90%; padding: 6px 8px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 3px; color: #1f1c17; position: relative;">
+                <span style="font-family: Newsreader, Georgia, serif; font-size: 16px; line-height: 1.5;">¡Buenos días! ¿Qué te <span style="text-decoration: underline dotted #8a4e0a; text-decoration-thickness: 1px; text-underline-offset: 2px;">apetece</span> tomar hoy?</span>
+                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px;">
+                  <button type="button" style="min-height: 24px; padding: 1px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #5c564b; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; cursor: pointer;">Translate</button>
+                  <button type="button" style="min-height: 24px; padding: 1px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #5c564b; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; cursor: pointer;">Analysis</button>
+                </div>
+              </div>
+
+              <div style="align-self: flex-end; max-width: 85%; margin-top: 14px; margin-bottom: 4px; padding: 6px 8px; background: #f3eee1; border: 1px solid #b4a991; border-radius: 12px 12px 3px 12px; color: #1f1c17; position: relative;">
+                <span style="position: absolute; top: -14px; right: 0; min-height: 24px; padding: 1px 4px; border: 1px solid #3d7bd6; border-radius: 6px; background: #8a4e0a; color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; font-size: 10px; line-height: 1.25; width: max-content;">1 correction · +2 XP</span>
+                <span style="font-family: Newsreader, Georgia, serif; font-size: 16px; line-height: 1.5;">Quiero un café con leche, por favor.</span>
+                <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 2px;">
+                  <button type="button" style="min-height: 24px; padding: 1px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #5c564b; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; cursor: pointer;">Translate</button>
+                  <button type="button" style="min-height: 24px; padding: 1px 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #5c564b; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; cursor: pointer;">Analysis</button>
+                </div>
+              </div>
+
+              <div style="align-self: flex-start; max-width: 90%; padding: 6px 8px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 3px; color: #1f1c17;">
+                <span style="font-family: Newsreader, Georgia, serif; font-size: 16px; line-height: 1.5;">Claro. ¿Para tomar aquí o para llevar?</span>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; padding: 8px; flex: none;">
+                <button type="button" style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; border: 1px solid #b4a991; background: none; color: #3a3630; border-radius: 8px; padding: 8px 16px; cursor: pointer;">Take a lesson</button>
+              </div>
+            </div>
+
+            <div style="flex: none; background: #f6f2e8; border-top: 1px solid #dcd3be; padding: 6px 10px 10px;">
+              <div style="display: flex; justify-content: flex-end; margin: 0 0 2px;">
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; min-width: 22px; min-height: 36px; padding: 0 4px; border: 1px solid #a6b9aa; border-radius: 3px; background: #f3eee1; color: #0e5c53; font-size: 12px; line-height: 1; cursor: pointer;">Show suggested replies ▾</button>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                <input placeholder="Escribe tu respuesta…" style="flex: 1; min-width: 0; background: #ffffff; border: 1px solid #dcd3be; border-radius: 12px; padding: 10px 12px; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 16px; outline: none;">
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; min-width: 112px; height: 52px; padding: 0 16px; border-radius: 12px; border: 2px solid #922c2a; background: #ffffff; color: #922c2a; font-family: 'IBM Plex Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer;">● Record</button>
+                <button type="button" style="flex: none; width: 38px; height: 38px; min-height: 40px; border-radius: 12px; border: none; background: #6240b5; color: #ffffff; font-weight: 700; font-size: 15px; cursor: pointer;">↑</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 0 0 8px; align-self: stretch; border-radius: 999px; background: transparent;"></div>
+
+          <div style="flex: 1 1 50%; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #dbd4c5; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 20%); overflow: hidden;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 18px 10px; border-bottom: 1px solid #dcd3be; flex: none;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #4e3590;">Understand the exchange</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5c564b;">live</span>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 18px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; margin: 0 0 4px;">Skill map · this conversation</div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <span style="padding: 6px 8px; border: 1px solid #b4a991; border-radius: 8px; background: #f6f2e8; font-size: 11px; color: #8a4e0a;">Social 3</span>
+                <span style="padding: 6px 8px; border: 1px solid #b4a991; border-radius: 8px; background: #f6f2e8; font-size: 11px; color: #922c2a;">Questions 1</span>
+                <span style="padding: 6px 8px; border: 1px solid #c78a2f; border-radius: 8px; background: rgb(199 138 47 / 10%); font-size: 11px; color: #8a4e0a;">Statements 2</span>
+                <span style="padding: 6px 8px; border: 1px solid #b4a991; border-radius: 8px; background: #f6f2e8; font-size: 11px; color: #5c564b;">Opinions —</span>
+              </div>
+              <div style="border: 1px solid #b4a991; border-inline-start: 3px solid #7d5bd4; border-radius: 8px; padding: 8px 12px; background: rgb(199 138 47 / 10%);">
+                <blockquote style="margin: 0 0 8px; color: #8a4e0a; font-size: 15px; font-family: Newsreader, Georgia, serif;">Quiero un café con leche</blockquote>
+                <p style="margin: 0; font-size: 14px; color: #1f1c17; line-height: 1.45;">Natural. A barista would more often hear <i>me pones</i> here — softer, and it is what regulars say.</p>
+                <p style="margin: 6px 0 0; font-size: 13px; color: #3a3630; line-height: 1.55;">Both are correct; the second is register, not grammar.</p>
+              </div>
+              <details style="padding: 4px 8px; font-size: 11px;"><summary style="cursor: pointer; color: #3a3630;">XP records (2)</summary></details>
+              <details style="padding: 4px 8px; font-size: 11px;"><summary style="cursor: pointer; color: #3a3630;">Saved word meanings</summary></details>
+            </div>
+
+            <div style="flex: none; height: 8px; background: #f6f2e8; border-top: 1px solid #7d5bd4; display: grid; place-items: center; cursor: ns-resize;"><span style="width: 38px; height: 2px; border-radius: 3px; background: #7d5bd4;"></span></div>
+            <div style="flex: none; min-height: 160px; display: flex; flex-direction: column; background: #f8f5ec; overflow: hidden;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 4px 12px; min-height: 26px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; background: #fbf8f0;">Talk to your coach<button type="button" style="margin-inline-start: auto; background: none; border: none; color: #3a3630; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px;">▾</button></div>
+              <div style="flex: 1; min-height: 32px; padding: 4px 14px; display: flex; flex-direction: column; gap: 8px; background: #fbf8f0; overflow-y: auto;">
+                <div style="align-self: flex-end; max-width: 88%; padding: 8px 12px; border-radius: 12px; background: #f3eee1; color: #1f1c17; font-size: 14px; line-height: 1.55;">Why not "tomar" there?</div>
+                <div style="align-self: flex-start; max-width: 88%; padding: 8px 12px; border-radius: 12px; background: #fbf8f0; border: 1px solid #dcd3be; color: #1f1c17; font-size: 14px; line-height: 1.55;">You can say it — but ordering usually uses <i>poner</i> or <i>querer</i>.</div>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; padding: 8px 12px; border-top: 1px solid #dcd3be; flex: none; background: #fbf8f0; margin-top: auto;">
+                <input placeholder="Ask the coach" style="flex: 1; min-width: 0; background: #ffffff; border: 1px solid #b4a991; border-radius: 8px; color: #1f1c17; font-size: 13px; padding: 6px 10px; outline: none;">
+                <button type="button" style="flex: none; width: 30px; height: 30px; border-radius: 50%; border: none; background: #6240b5; color: #ffffff; font-weight: 700; cursor: pointer;">↑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+      <div style="background: #fbf8f0; border: 1px solid #dcd3be; border-left: 3px solid #d9564f; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">Four elevations in one row.</b> Chat sheet, card header, well, dock — plus a 26px control strip in a fifth tone.</div>
+      <div style="background: #fbf8f0; border: 1px solid #dcd3be; border-left: 3px solid #d9564f; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">Three type systems in the header.</b> Mono caps label, 11px semibold selects, 24px glyph buttons, in 30px of height.</div>
+      <div style="background: #fbf8f0; border: 1px solid #dcd3be; border-left: 3px solid #d9564f; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">The correction shouts.</b> A filled dark-amber badge with a blue border overlaps the bubble it describes, and carries XP at the same time.</div>
+      <div style="background: #fbf8f0; border: 1px solid #dcd3be; border-left: 3px solid #d9564f; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">Depth is scattered.</b> Analysis in a well, coach in a dock, lesson in a dialog, evidence in an overlay — four homes for one idea.</div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">08 · practice mode</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">The same conversation under the laws</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Three surfaces, one pane-header treatment, one control height, corrections as a hairline note under the message that earned them, and all depth in the study well. The dock is gone: coaching and evidence are two states of one pane.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4;">
+      <div style="width: 1280px; height: 720px; display: flex; flex-direction: column; background: #e8e2d4; font-size: 14px;">
+
+        <div style="flex: none; display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; border-bottom: 1px solid #b4a991;">
+          <div style="display: flex; align-items: center; gap: 8px; color: #1f1c17;">
+            <img src="skellyspeak-logo.png" alt="" width="24" height="24" style="flex: none; object-fit: contain;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em;">SKELLYSPEAK</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 8px; background: #dcd3be;">
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: #fffdf8; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 12%);">Practice</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Learn</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Review</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-inline-start: auto;">
+            <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1e9c8e;"></span>Hosted</button>
+            <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">1,284 XP</button>
+            <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+          </div>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px 16px 16px;">
+
+          <div style="flex: none; width: 200px; display: flex; flex-direction: column; gap: 12px; min-height: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; height: 24px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Partners</span>
+              <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f4785; font-size: 15px; line-height: 1; cursor: pointer;">+</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; min-height: 0; overflow-y: auto;">
+              <button type="button" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; text-align: left;"><span style="width: 20px; height: 20px; flex: none; border-radius: 50%; background: #e08a2e;"></span><span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Marisol</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 400; letter-spacing: 0.04em; color: #5c564b;">Español</span></span></button>
+              <button type="button" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; text-align: left;"><span style="width: 20px; height: 20px; flex: none; border-radius: 50%; background: #3d7bd6;"></span><span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Ignacio</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; color: #5c564b;">Español</span></span></button>
+              <button type="button" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; cursor: pointer; text-align: left;"><span style="width: 20px; height: 20px; flex: none; border-radius: 50%; background: #1e9c8e;"></span><span style="display: flex; flex-direction: column; gap: 1px; min-width: 0;"><span style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Nadia</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; color: #5c564b;">العربية</span></span></button>
+              <div style="height: 1px; background: #dcd3be; margin: 8px 4px;"></div>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; padding: 4px 12px;">Marisol · 3 chats</span>
+              <button type="button" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border: 0; border-radius: 8px; background: #f3eee1; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left;">At the café<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">today</span></button>
+              <button type="button" style="display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border: 0; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left;">Ordering breakfast<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Tue</span></button>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 58%; min-width: 0; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+              <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Marisol</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Español · Beginner</span>
+              <div style="display: flex; align-items: center; gap: 8px; margin-inline-start: auto;">
+                <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Conversation settings</button>
+              </div>
+            </div>
+
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+              <div style="align-self: flex-start; max-width: 78%; display: flex; flex-direction: column; gap: 8px;">
+                <div style="padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;">
+                  <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #1f1c17;">¡Buenos días! ¿Qué te <span style="text-decoration: underline dotted #c78a2f; text-decoration-thickness: 1px; text-underline-offset: 3px;">apetece</span> tomar hoy?</span>
+                </div>
+                <div style="display: flex; gap: 16px; padding-inline-start: 4px;">
+                  <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Translate</button>
+                  <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Explain</button>
+                  <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Read aloud</button>
+                </div>
+              </div>
+
+              <div style="align-self: flex-end; max-width: 78%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div style="padding: 12px 16px; background: #f3eee1; border: 1px solid #dcd3be; border-radius: 12px 12px 4px 12px;">
+                  <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #1f1c17;">Quiero un café con leche, por favor.</span>
+                </div>
+                <button type="button" style="display: block; max-width: 100%; padding: 0 0 0 12px; border: 0; border-inline-start: 2px solid #c78a2f; background: none; color: #8a4e0a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; line-height: 1.5; text-align: start; cursor: pointer;">Understood. A barista would sooner hear <i>me pones</i> — register, not grammar. <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b; white-space: nowrap;">More</span></button>
+              </div>
+
+              <div style="align-self: flex-start; max-width: 78%; display: flex; flex-direction: column; gap: 8px;">
+                <div style="padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;">
+                  <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #1f1c17;">Claro. ¿Para tomar aquí o para llevar?</span>
+                  <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #dcd3be; font-size: 13px; font-style: italic; color: #5c564b;">Of course. For here or to take away?</div>
+                </div>
+                <div style="display: flex; gap: 16px; padding-inline-start: 4px;">
+                  <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Hide translation</button>
+                  <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Explain</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex: none; border-top: 1px solid #dcd3be; padding: 12px 16px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Reply ideas</span>
+                <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; font-family: Newsreader, Georgia, serif; font-size: 15px; color: #1f1c17; cursor: pointer;">Para llevar, gracias.</button>
+                <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; font-family: Newsreader, Georgia, serif; font-size: 15px; color: #1f1c17; cursor: pointer;">Aquí, por favor.</button>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input placeholder="Escribe tu respuesta…" style="flex: 1; min-width: 0; height: 44px; background: #ffffff; border: 1px solid #dcd3be; border-radius: 12px; padding: 0 16px; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; outline: none;">
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; height: 44px; padding: 0 16px; border: 1px solid #922c2a; border-radius: 12px; background: #fffdf8; color: #922c2a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #922c2a;"></span>Record</button>
+                <button type="button" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #1f4785; color: #ffffff; font-size: 16px; cursor: pointer;">↑</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 32%; min-width: 320px; display: flex; flex-direction: column; background: #dbd4c5; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 16%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border-bottom: 1px solid rgb(31 28 23 / 12%);">
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: #fffdf8; color: #4e3590; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Coaching</button>
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Evidence</button>
+              <span style="margin-inline-start: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Latest exchange</span>
+            </div>
+
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="font-family: Newsreader, Georgia, serif; font-size: 17px; line-height: 1.5; color: #3a3630; padding-inline-start: 12px; border-inline-start: 2px solid #c78a2f;">Quiero un café con leche, por favor.</div>
+                <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #1f1c17;">Correct and polite. In a café the habitual form is <i>¿Me pones un café con leche?</i> — present tense used as a request. Keep <i>quiero</i> when you want to be explicit.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #b4a991; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Try it again</button>
+                  <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Ask the coach</button>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Credited this conversation · 6 XP</span>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: #1f1c17;">Social</span>
+                    <span style="height: 6px; border-radius: 999px; background: rgb(31 28 23 / 10%); overflow: hidden;"><span style="display: block; height: 6px; width: 62%; background: #e08a2e;"></span></span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">3</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: #1f1c17;">Statements</span>
+                    <span style="height: 6px; border-radius: 999px; background: rgb(31 28 23 / 10%); overflow: hidden;"><span style="display: block; height: 6px; width: 40%; background: #3d7bd6;"></span></span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">2</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: #1f1c17;">Questions</span>
+                    <span style="height: 6px; border-radius: 999px; background: rgb(31 28 23 / 10%); overflow: hidden;"><span style="display: block; height: 6px; width: 18%; background: #d9564f;"></span></span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">1</span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: #5c564b;">Opinions</span>
+                    <span style="height: 6px; border-radius: 999px; background: rgb(31 28 23 / 10%);"></span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">—</span>
+                  </div>
+                </div>
+                <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">No evidence yet for Opinions, Descriptions or Situating in this conversation.</span>
+              </div>
+            </div>
+
+            <div style="flex: none; border-top: 1px solid rgb(31 28 23 / 12%); padding: 12px; display: flex; align-items: center; gap: 8px;">
+              <input placeholder="Ask the coach" style="flex: 1; min-width: 0; height: 40px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 8px; padding: 0 12px; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; outline: none;">
+              <button type="button" style="flex: none; width: 40px; height: 40px; border-radius: 8px; border: 0; background: #1f4785; color: #ffffff; font-size: 15px; cursor: pointer;">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-left: 3px solid #1e9c8e; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">One pane header.</b> 40px, meta label, controls at 32. Chat, study and lesson share it exactly.</div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-left: 3px solid #1e9c8e; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">Corrections read as prose.</b> An amber rule under the message, in the learner's reading direction — tappable for the full coaching entry. XP is counted in the study pane, not stuck on the bubble.</div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-left: 3px solid #1e9c8e; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">Message actions are text.</b> Translate · Explain · Read aloud in the one interaction ink, below the bubble, always in the same order.</div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-left: 3px solid #1e9c8e; border-radius: 8px; padding: 14px 16px; font-size: 14px; line-height: 1.55; color: #3a3630;"><b style="color: #1f1c17;">No dock, no resizer.</b> Coaching and Evidence are two states of the study pane; the divider between panes is the only draggable edge.</div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">09 · learn mode</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">A lesson that feels like a lesson</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The lesson leaves the dialog and becomes a mode: a visible spine — Objective, Examples, Exercise, Quiz, Practice — on the sheet, the coach in the study well beside it, and one persistent handoff at the foot. The chooser is the rail, so picking another lesson never loses your place.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4;">
+      <div style="width: 1280px; height: 760px; display: flex; flex-direction: column; background: #e8e2d4; font-size: 14px;">
+
+        <div style="flex: none; display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; border-bottom: 1px solid #b4a991;">
+          <div style="display: flex; align-items: center; gap: 8px; color: #1f1c17;">
+            <img src="skellyspeak-logo.png" alt="" width="24" height="24" style="flex: none; object-fit: contain;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em;">SKELLYSPEAK</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 8px; background: #dcd3be;">
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Practice</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: #fffdf8; color: #8a4e0a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 12%);">Learn</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Review</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-inline-start: auto;">
+            <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1e9c8e;"></span>Hosted</button>
+            <button type="button" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">1,284 XP</button>
+            <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+          </div>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px 16px 16px;">
+
+          <div style="flex: none; width: 200px; display: flex; flex-direction: column; gap: 12px; min-height: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; height: 24px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Lessons</span>
+              <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f4785; font-size: 15px; line-height: 1; cursor: pointer;">+</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; min-height: 0; overflow-y: auto;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; padding: 4px 12px;">In practice</span>
+              <button type="button" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid #cbb28e; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;">Asking for directions<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 400; color: #8a4e0a;">Step 4 of 5</span></button>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; padding: 12px 12px 4px;">Saved</span>
+              <button type="button" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left;">Ordering at a café<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #0e5c53;">Completed · 2 XP</span></button>
+              <button type="button" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left;">Past tense: pretérito<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Not started</span></button>
+              <button type="button" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: left;">Letters and sounds<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Not started</span></button>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 58%; min-width: 0; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Practical · Beginner · Español</span>
+              <button type="button" style="margin-inline-start: auto; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Reading preferences</button>
+            </div>
+
+            <div style="flex: none; display: flex; align-items: center; gap: 0; padding: 12px 16px; border-bottom: 1px solid #dcd3be;">
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0e5c53;"><span style="width: 20px; height: 20px; border-radius: 50%; background: #1e9c8e; color: #fffdf8; display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">✓</span>Objective</span>
+              <span style="flex: 1; height: 1px; background: #1e9c8e; margin: 0 12px;"></span>
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0e5c53;"><span style="width: 20px; height: 20px; border-radius: 50%; background: #1e9c8e; color: #fffdf8; display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">✓</span>Examples</span>
+              <span style="flex: 1; height: 1px; background: #1e9c8e; margin: 0 12px;"></span>
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0e5c53;"><span style="width: 20px; height: 20px; border-radius: 50%; background: #1e9c8e; color: #fffdf8; display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">✓</span>Exercise</span>
+              <span style="flex: 1; height: 1px; background: #c78a2f; margin: 0 12px;"></span>
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #8a4e0a;"><span style="width: 20px; height: 20px; border-radius: 50%; background: #c78a2f; color: #fffdf8; display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">4</span>Quiz</span>
+              <span style="flex: 1; height: 1px; background: #dcd3be; margin: 0 12px;"></span>
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5c564b;"><span style="width: 20px; height: 20px; border-radius: 50%; border: 1px solid #b4a991; color: #5c564b; display: grid; place-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px;">5</span>Practice</span>
+            </div>
+
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 24px; font-weight: 400; line-height: 1.2; color: #1f1c17;">Asking for directions</h3>
+                <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #1f1c17;">You will be able to stop a stranger politely and ask where something is, then follow a one-sentence answer.</p>
+                <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3a3630;">Spanish asks with <i>¿Dónde está…?</i> for a fixed place and <i>¿Hay… por aquí?</i> for any one nearby. Both take the definite article when the place is known to you both.</p>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Examples</span>
+                <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8;">
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.5; color: #1f1c17;">¿Dónde está la estación de tren?</span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #1f4785;">dón·de es·tá la es·ta·ción de tren</span>
+                    <span style="font-size: 13px; color: #3a3630;">Where is the train station?</span>
+                  </div>
+                  <div style="height: 1px; background: #f3eee1;"></div>
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.5; color: #1f1c17;">¿Hay una farmacia por aquí?</span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #1f4785;">ai u·na far·ma·cia por a·quí</span>
+                    <span style="font-size: 13px; color: #3a3630;">Is there a pharmacy near here?</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Exercise · answered with the coach</span>
+                <div style="padding: 16px; border: 1px solid #dcd3be; border-inline-start: 2px solid #1e9c8e; border-radius: 8px; background: #fffdf8; display: flex; flex-direction: column; gap: 8px;">
+                  <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #1f1c17;">Ask for the nearest bus stop, then ask how long it takes on foot.</p>
+                  <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #0e5c53;">Checked: both questions formed correctly, article used.</p>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <h4 style="margin: 0; font-size: 18px; font-weight: 600; color: #1f1c17;">Test your understanding</h4>
+                <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px;">
+                  <span style="font-size: 15px; line-height: 1.6; color: #1f1c17;">Which asks whether <i>any</i> pharmacy is nearby?</span>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button type="button" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #1e9c8e; border-radius: 8px; background: rgb(30 156 142 / 8%); color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; text-align: left; cursor: pointer;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #0e5c53; flex: none;">A</span>¿Hay una farmacia por aquí?</button>
+                    <button type="button" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; text-align: left; cursor: pointer;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; flex: none;">B</span>¿Dónde está la farmacia?</button>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 12px; font-size: 13px; line-height: 1.55; color: #0e5c53;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;">Correct · +1 XP</span><span style="color: #3a3630;"><i>Hay</i> asks about existence; <i>está</i> asks about the location of one known place.</span></div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px;">
+                  <span style="font-size: 15px; line-height: 1.6; color: #1f1c17;">Complete: ¿Dónde ____ el museo?</span>
+                  <div style="display: flex; gap: 8px;">
+                    <button type="button" style="padding: 12px 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; cursor: pointer;">hay</button>
+                    <button type="button" style="padding: 12px 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; cursor: pointer;">está</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid #dcd3be; background: #fffdf8;">
+              <span style="font-size: 13px; line-height: 1.5; color: #3a3630;">Practice sends you to Marisol with this lesson as the task. You can come back to any step.</span>
+              <button type="button" style="margin-inline-start: auto; flex: none; height: 44px; padding: 0 20px; border: 0; border-radius: 8px; background: #1f4785; color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Try it in chat →</button>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 32%; min-width: 320px; display: flex; flex-direction: column; background: #dbd4c5; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 16%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border-bottom: 1px solid rgb(31 28 23 / 12%);">
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: #fffdf8; color: #4e3590; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Coaching</button>
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Evidence</button>
+              <span style="margin-inline-start: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">This lesson</span>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+              <div style="align-self: flex-end; max-width: 88%; padding: 12px 16px; border-radius: 12px 12px 4px 12px; background: #fffdf8; border: 1px solid #dcd3be; color: #1f1c17; font-size: 15px; line-height: 1.6;">Is <i>por aquí</i> always needed?</div>
+              <div style="align-self: flex-start; max-width: 92%; display: flex; flex-direction: column; gap: 8px;">
+                <div style="padding: 12px 16px; border-radius: 12px 12px 12px 4px; background: rgb(255 253 248 / 62%); border: 1px solid rgb(31 28 23 / 10%); color: #1f1c17; font-size: 15px; line-height: 1.6;">No. <i>¿Hay una farmacia?</i> is fine indoors — in a station, say. <i>Por aquí</i> adds “around here”, which is what you want on the street.</div>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Coach · lesson scope</span>
+              </div>
+            </div>
+            <div style="flex: none; border-top: 1px solid rgb(31 28 23 / 12%); padding: 12px; display: flex; align-items: center; gap: 8px;">
+              <input placeholder="Ask about this lesson" style="flex: 1; min-width: 0; height: 40px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 8px; padding: 0 12px; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; outline: none;">
+              <button type="button" style="flex: none; width: 40px; height: 40px; border-radius: 8px; border: 0; background: #1f4785; color: #ffffff; font-size: 15px; cursor: pointer;">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">10 · review mode</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Evidence, in the same frame</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The skill map stops being a separate page with its own chrome and becomes Review: six domains on the sheet, the selected domain's source evidence in the study well. Counts and uncertainty stay numerical; nothing implies proficiency the data does not carry.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4;">
+      <div style="width: 1280px; height: 620px; display: flex; flex-direction: column; background: #e8e2d4; font-size: 14px;">
+        <div style="flex: none; display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; border-bottom: 1px solid #b4a991;">
+          <div style="display: flex; align-items: center; gap: 8px; color: #1f1c17;">
+            <img src="skellyspeak-logo.png" alt="" width="24" height="24" style="flex: none; object-fit: contain;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em;">SKELLYSPEAK</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 8px; background: #dcd3be;">
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Practice</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Learn</button>
+            <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: #fffdf8; color: #0e5c53; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 12%);">Review</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-inline-start: auto;">
+            <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Save YAML</button>
+            <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+          </div>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px 16px 16px;">
+          <div style="flex: none; width: 200px; display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; height: 24px; display: flex; align-items: center;">Language</span>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <button type="button" style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Español<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">1,284</span></button>
+              <button type="button" style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">العربية<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">210</span></button>
+              <div style="height: 1px; background: #dcd3be; margin: 8px 4px;"></div>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; padding: 4px 12px;">Filter</span>
+              <button type="button" style="display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">All partners<span>▾</span></button>
+              <button type="button" style="display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">All varieties<span>▾</span></button>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 58%; min-width: 0; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Skill domains · 41 observations</span>
+              <span style="margin-inline-start: auto; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Last observed today</span>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; margin-bottom: 8px; border-bottom: 1px solid #dcd3be;">
+                <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Skill tree</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">branch depth is earned: 1 · 6 · 12 credited observations</span></div>
+                <div style="border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; padding: 8px;">{{ skillTree }}</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+                  <span style="display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #3d7bd6;"></span>credited</span>
+                  <span style="display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;"><span style="width: 10px; height: 10px; border-radius: 50%; border: 1px dashed #b4a991;"></span>reachable, no evidence yet</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">stroke weight = distance from the trunk</span>
+                </div>
+              </div>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px solid #cbb28e; border-radius: 8px; background: rgb(224 138 46 / 8%); cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #1f1c17;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #e08a2e;"></span>Social</span>
+                <span style="height: 8px; border-radius: 999px; background: #e8e2d4; overflow: hidden;"><span style="display: block; height: 8px; width: 68%; background: #e08a2e;"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">14 independent · 3 assisted</span>
+              </button>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #1f1c17;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #d9564f;"></span>Questions</span>
+                <span style="height: 8px; border-radius: 999px; background: #e8e2d4; overflow: hidden;"><span style="display: block; height: 8px; width: 44%; background: #d9564f;"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">7 independent · 2 assisted</span>
+              </button>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #1f1c17;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #3d7bd6;"></span>Statements</span>
+                <span style="height: 8px; border-radius: 999px; background: #e8e2d4; overflow: hidden;"><span style="display: block; height: 8px; width: 52%; background: #3d7bd6;"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">9 independent · 1 assisted</span>
+              </button>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #1f1c17;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #c0519b;"></span>Opinions</span>
+                <span style="height: 8px; border-radius: 999px; background: #e8e2d4; overflow: hidden;"><span style="display: block; height: 8px; width: 16%; background: #c0519b;"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">2 independent</span>
+              </button>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #1f1c17;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #7d5bd4;"></span>Descriptions</span>
+                <span style="height: 8px; border-radius: 999px; background: #e8e2d4; overflow: hidden;"><span style="display: block; height: 8px; width: 26%; background: #7d5bd4;"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">3 independent · 1 assisted</span>
+              </button>
+              <button type="button" style="display: grid; grid-template-columns: 140px 1fr 150px; align-items: center; gap: 16px; padding: 16px; border: 1px dashed #b4a991; border-radius: 8px; background: #fffdf8; cursor: pointer; text-align: left;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #5c564b;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #1e9c8e;"></span>Situating</span>
+                <span style="font-size: 13px; color: #5c564b;">Not enough evidence to estimate</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; text-align: right;">0 observations</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="flex: 1 1 32%; min-width: 320px; display: flex; flex-direction: column; background: #dbd4c5; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 16%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-bottom: 1px solid rgb(31 28 23 / 12%);">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8a4e0a;">Social · evidence</span>
+              <button type="button" style="margin-inline-start: auto; height: 32px; padding: 0 12px; border: 1px solid #b4a991; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">View YAML</button>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 24px;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Estimate</span>
+                <span style="font-size: 15px; line-height: 1.6; color: #1f1c17;">17 observations across 4 conversations. Uncertainty ±3. Review due in 6 days.</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Source messages</span>
+                <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: rgb(255 253 248 / 62%); border: 1px solid rgb(31 28 23 / 10%);">
+                  <span style="font-family: Newsreader, Georgia, serif; font-size: 17px; line-height: 1.5; color: #1f1c17;">Buenos días, ¿qué tal?</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Marisol · today · independent</span>
+                  <button type="button" style="align-self: flex-start; border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Exclude this attempt</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: rgb(255 253 248 / 62%); border: 1px solid rgb(31 28 23 / 10%);">
+                  <span style="font-family: Newsreader, Georgia, serif; font-size: 17px; line-height: 1.5; color: #1f1c17;">Mucho gusto, soy Sam.</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Ignacio · Tue · assisted</span>
+                  <button type="button" style="align-self: flex-start; border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Exclude this attempt</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">11 · the one justified dialog</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Inspect recording</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Audio inspection earns a dialog: it needs one shared time axis wider than any pane. It is also the one place where the design must get out of the way of the data — this is the learner’s own voice, and they are owed the real instrument: a true peak envelope, the log-Mel features the transcription model actually consumes, and word intervals drawn at their measured positions on that axis. Everything below is computed here from signal data by the render path that will take the native WAV; the only placeholder is the signal itself.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #3a3630;">
+      <div style="width: 1100px; padding: 32px; background: rgb(31 28 23 / 55%); display: flex; justify-content: center;">
+        <div style="width: 1000px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 12px; box-shadow: 0 12px 35px rgb(0 0 0 / 40%); overflow: hidden; display: flex; flex-direction: column;">
+          <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+            <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Inspect recording</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Latest · 3.4 s · not saved</span>
+            <button type="button" style="margin-inline-start: auto; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 280px; min-height: 0;">
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px; border-inline-end: 1px solid #dcd3be;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: baseline; gap: 12px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Waveform</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">peak envelope · 16 kHz mono · 54,400 samples</span></div>
+                <div style="display: flex; gap: 8px; align-items: stretch;">
+                  <div style="flex: none; width: 34px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;"><span>+1.0</span><span>0</span><span>−1.0</span></div>
+                  <div style="flex: 1; min-width: 0; border: 1px solid #dcd3be; border-radius: 8px; background: #ffffff; overflow: hidden;"><canvas ref="{{ waveRef }}" width="1000" height="110" style="display: block; width: 100%; height: 110px;"></canvas></div>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">STFT magnitude</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">256 linear bins · 0–8 kHz · dB, 80 dB range</span></div>
+                <div style="display: flex; gap: 8px; align-items: stretch;">
+                  <div style="flex: none; width: 34px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;"><span>8k</span><span>6k</span><span>4k</span><span>2k</span><span>0 Hz</span></div>
+                  <div style="flex: 1; min-width: 0; border: 1px solid #dcd3be; border-radius: 8px; background: #171b36; overflow: hidden;"><canvas ref="{{ stftRef }}" style="display: block; width: 100%; height: 150px;"></canvas></div>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; padding-inline-start: 42px; flex-wrap: wrap;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Pipeline</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #3a3630;">samples → 25 ms Hann → 512-pt FFT → 80 mel filters → log₁₀ + clamp 8 decades → model input → tokens</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Log-Mel features</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">80 bands · 0–8 kHz · 25 ms Hann / 10 ms hop · 512-pt FFT</span></div>
+                <div style="display: flex; gap: 8px; align-items: stretch;">
+                  <div style="flex: none; width: 34px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;"><span>8.0k</span><span>3.8k</span><span>1.7k</span><span>610</span><span>0 Hz</span></div>
+                  <div style="flex: 1; min-width: 0; border: 1px solid #dcd3be; border-radius: 8px; background: #171b36; overflow: hidden;"><canvas ref="{{ specRef }}" style="display: block; width: 100%; height: 180px;"></canvas></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; padding-inline-start: 42px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">log magnitude</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 22px; height: 10px; background: #171b36;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">peak−8</span></span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 22px; height: 10px; background: #8056b5;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">peak−4</span></span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 22px; height: 10px; background: #ffe071;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">peak</span></span>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: baseline; gap: 12px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Word timings</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">same time axis · values as returned by the route</span></div>
+                <div style="display: flex; gap: 8px;">
+                  <div style="flex: none; width: 34px;"></div>
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="position: relative; height: 46px;"><div style="position: absolute; left: 21.76%; width: 13.53%; top: 0; bottom: 0; border: 1px solid #1f4785; border-radius: 4px; background: rgb(61 123 214 / 10%); padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">café</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #1f4785;">−0.21</div></div><div style="position: absolute; left: 3.53%; width: 13.53%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">Quiero</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.14</div></div><div style="position: absolute; left: 17.06%; width: 4.71%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">un</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.31</div></div><div style="position: absolute; left: 35.29%; width: 6.18%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">con</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.27</div></div><div style="position: absolute; left: 41.47%; width: 15%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">leche</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.18</div></div><div style="position: absolute; left: 60.29%; width: 6.76%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">por</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.44</div></div><div style="position: absolute; left: 67.06%; width: 17.06%; top: 0; bottom: 0; border: 1px solid #dcd3be; border-radius: 4px; background: #fffdf8; padding: 4px 6px; overflow: hidden; box-sizing: border-box;"><div style="font-family: Newsreader, Georgia, serif; font-size: 15px; line-height: 1.2; color: #1f1c17; white-space: nowrap;">favor</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">−0.52</div></div></div>
+                    <div style="position: relative; height: 16px; border-top: 1px solid #dcd3be;"><div style="position: absolute; left: 0%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 0%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">0</div><div style="position: absolute; left: 14.7%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 14.7%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">0.5</div><div style="position: absolute; left: 29.4%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 29.4%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">1.0</div><div style="position: absolute; left: 44.1%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 44.1%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">1.5</div><div style="position: absolute; left: 58.8%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 58.8%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">2.0</div><div style="position: absolute; left: 73.5%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 73.5%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">2.5</div><div style="position: absolute; left: 88.2%; top: 0; bottom: 0; width: 1px; background: #dcd3be;"></div><div style="position: absolute; left: 88.2%; bottom: 0; transform: translateX(2px); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">3.0 s</div></div>
+                  </div>
+                </div>
+                <p style="margin: 0; padding-inline-start: 42px; font-size: 13px; line-height: 1.55; color: #3a3630;">Measured, not illustrated: the envelope is the true per-column min/max of every sample, and the bands are the same log-Mel features the transcription model consumes. This render path takes the native WAV unchanged — a route that returns no word timings shows the strip empty and says so, rather than spacing words evenly.</p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 12px; padding-top: 4px;">
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f4785; font-size: 15px; cursor: pointer;">▶</button>
+                <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #3a3630; font-size: 15px; cursor: pointer;">⭯</button>
+                <div style="flex: 1; height: 6px; border-radius: 999px; background: #e2dac6; position: relative;"><span style="position: absolute; inset: 0 62% 0 0; background: #1f4785; border-radius: 999px;"></span><span style="position: absolute; left: 38%; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8; border: 1px solid #1f4785;"></span></div>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">1.28 / 3.40</span>
+                <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Fit</button>
+                <button type="button" style="height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Follow</button>
+              </div>
+            </div>
+
+            <div style="background: #dbd4c5; padding: 16px; display: flex; flex-direction: column; gap: 24px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 16%);">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Selected word</span>
+                <span style="font-family: Newsreader, Georgia, serif; font-size: 24px; color: #1f1c17;">café</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #1f1c17;"><span style="color: #3a3630;">Original</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">0.74 – 1.20 s</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #1f1c17;"><span style="color: #3a3630;">Aligned</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">0.76 – 1.18 s</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #1f1c17;"><span style="color: #3a3630;">Segment logprob</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">−0.21</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #1f1c17;"><span style="color: #3a3630;">No-speech</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">0.02</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #1f1c17;"><span style="color: #3a3630;">Token IDs</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">[2417, 331]</span></div>
+              </div>
+              <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #3a3630;">No audio is saved. This inspection clears when you leave the conversation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">12 · narrow + graphite</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Same frame, one column</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The mode bar moves to the bottom as the only navigation; the study well becomes the second surface, reachable by swipe or by tapping a correction. Graphite is the same three surfaces at the same rhythm — nothing is re-tuned per theme.</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 24px;">
+      <div style="flex: none; width: 390px; height: 760px; display: flex; flex-direction: column; background: #e8e2d4; border: 1px solid #b4a991; border-radius: 20px; overflow: hidden;">
+        <div style="flex: none; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border-bottom: 1px solid #b4a991;">
+          <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-size: 14px; cursor: pointer;">☰</button>
+          <div style="display: flex; flex-direction: column; min-width: 0;">
+            <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Marisol</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Español · Beginner</span>
+          </div>
+          <button type="button" style="margin-inline-start: auto; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; cursor: pointer;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h5m4 0h7M4 17h9m4 0h3"></path><circle cx="11" cy="7" r="2"></circle><circle cx="15" cy="17" r="2"></circle></svg></button>
+        </div>
+        <div style="flex: 1; min-height: 0; margin: 8px; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; overflow: hidden;">
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="align-self: flex-start; max-width: 88%; display: flex; flex-direction: column; gap: 8px;">
+              <div style="padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #1f1c17;">¿Qué te apetece tomar hoy?</span></div>
+              <div style="display: flex; gap: 16px; padding-inline-start: 4px;"><button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-size: 13px; cursor: pointer; min-height: 44px;">Translate</button><button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-size: 13px; cursor: pointer; min-height: 44px;">Explain</button></div>
+            </div>
+            <div style="align-self: flex-end; max-width: 88%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+              <div style="padding: 12px 16px; background: #f3eee1; border: 1px solid #dcd3be; border-radius: 12px 12px 4px 12px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #1f1c17;">Quiero un café con leche.</span></div>
+              <button type="button" style="display: block; padding: 0 0 0 12px; border: 0; border-inline-start: 2px solid #c78a2f; background: none; color: #8a4e0a; font-size: 13px; line-height: 1.5; text-align: start; cursor: pointer; min-height: 44px;">A barista would sooner hear <i>me pones</i> — tap for coaching</button>
+            </div>
+          </div>
+          <div style="flex: none; border-top: 1px solid #dcd3be; padding: 12px; display: flex; align-items: center; gap: 8px;">
+            <input placeholder="Escribe…" style="flex: 1; min-width: 0; height: 44px; background: #ffffff; border: 1px solid #dcd3be; border-radius: 12px; padding: 0 12px; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; outline: none;">
+            <button type="button" style="flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #922c2a; border-radius: 12px; background: #fffdf8; color: #922c2a; font-size: 14px; cursor: pointer;">●</button>
+            <button type="button" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #1f4785; color: #ffffff; font-size: 16px; cursor: pointer;">↑</button>
+          </div>
+        </div>
+        <div style="flex: none; display: flex; border-top: 1px solid #b4a991; background: #f3eee1;">
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid #1f4785; background: #fffdf8; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Practice</button>
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid transparent; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Learn</button>
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid transparent; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Review</button>
+        </div>
+      </div>
+
+      <div style="flex: none; width: 390px; height: 760px; display: flex; flex-direction: column; background: #e8e2d4; border: 1px solid #b4a991; border-radius: 20px; overflow: hidden;">
+        <div style="flex: none; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border-bottom: 1px solid #b4a991;">
+          <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-size: 14px; cursor: pointer;">☰</button>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Lesson · step 4 of 5</span>
+        </div>
+        <div style="flex: 1; min-height: 0; margin: 8px; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; overflow: hidden;">
+          <div style="flex: none; display: flex; align-items: center; gap: 4px; padding: 12px; border-bottom: 1px solid #dcd3be;">
+            <span style="flex: 1; height: 4px; border-radius: 999px; background: #1e9c8e;"></span><span style="flex: 1; height: 4px; border-radius: 999px; background: #1e9c8e;"></span><span style="flex: 1; height: 4px; border-radius: 999px; background: #1e9c8e;"></span><span style="flex: 1; height: 4px; border-radius: 999px; background: #c78a2f;"></span><span style="flex: 1; height: 4px; border-radius: 999px; background: #dcd3be;"></span>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <h3 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 24px; font-weight: 400; line-height: 1.2; color: #1f1c17;">Asking for directions</h3>
+            <h4 style="margin: 0; font-size: 18px; font-weight: 600; color: #1f1c17;">Test your understanding</h4>
+            <span style="font-size: 15px; line-height: 1.6; color: #1f1c17;">Which asks whether <i>any</i> pharmacy is nearby?</span>
+            <button type="button" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #1e9c8e; border-radius: 8px; background: rgb(30 156 142 / 8%); color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; text-align: left; cursor: pointer; min-height: 44px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #0e5c53;">A</span>¿Hay una farmacia por aquí?</button>
+            <button type="button" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; text-align: left; cursor: pointer; min-height: 44px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">B</span>¿Dónde está la farmacia?</button>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.55;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #0e5c53;">Correct · +1 XP</span><span style="color: #3a3630;"><i>Hay</i> asks about existence; <i>está</i> asks about one known place.</span></div>
+          </div>
+          <div style="flex: none; padding: 12px; border-top: 1px solid #dcd3be;">
+            <button type="button" style="width: 100%; min-height: 48px; border: 0; border-radius: 8px; background: #1f4785; color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Try it in chat →</button>
+          </div>
+        </div>
+        <div style="flex: none; display: flex; border-top: 1px solid #b4a991; background: #f3eee1;">
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid transparent; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Practice</button>
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid #c78a2f; background: #fffdf8; color: #8a4e0a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Learn</button>
+          <button type="button" style="flex: 1; min-height: 56px; border: 0; border-top: 2px solid transparent; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Review</button>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 420px; min-width: 340px; display: flex; flex-direction: column; background: #141517; border: 1px solid #454b53; border-radius: 12px; overflow: hidden;">
+        <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 16px; border-bottom: 1px solid #454b53;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.1em; color: #f0f1f3;">SKELLYSPEAK</span>
+          <div style="display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 8px; background: #2b2e33;">
+            <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: #24262a; color: #6fa3ea; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Practice</button>
+            <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #d3d6da; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Learn</button>
+            <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #d3d6da; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Review</button>
+          </div>
+        </div>
+        <div style="flex: 1; min-height: 0; display: flex; gap: 12px; padding: 12px;">
+          <div style="flex: 1 1 60%; min-width: 0; display: flex; flex-direction: column; background: #24262a; border: 1px solid #343a41; border-radius: 12px; overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #343a41;">
+              <span style="font-size: 13px; font-weight: 600; color: #f0f1f3;">Marisol</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #a3a8af;">Español · Beginner</span>
+            </div>
+            <div style="flex: 1; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
+              <div style="align-self: flex-start; max-width: 88%; padding: 12px 16px; background: #32291b; border: 1px solid #695339; border-radius: 12px 12px 12px 4px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #f0f1f3;">¿Qué te apetece tomar hoy?</span></div>
+              <div style="align-self: flex-end; max-width: 88%; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div style="padding: 12px 16px; background: #131416; border: 1px solid #343a41; border-radius: 12px 12px 4px 12px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 20px; line-height: 1.55; color: #f0f1f3;">Quiero un café con leche.</span></div>
+                <button type="button" style="display: block; padding: 0 0 0 12px; border: 0; border-inline-start: 2px solid #f0a957; background: none; color: #f0a957; font-size: 13px; line-height: 1.5; text-align: start; cursor: pointer;">A barista would sooner hear <i>me pones</i>.</button>
+              </div>
+            </div>
+            <div style="flex: none; border-top: 1px solid #343a41; padding: 12px; display: flex; gap: 8px; align-items: center;">
+              <input placeholder="Escribe…" style="flex: 1; min-width: 0; height: 44px; background: #111214; border: 1px solid #454b53; border-radius: 12px; padding: 0 12px; color: #f0f1f3; font-family: Newsreader, Georgia, serif; font-size: 17px; outline: none;">
+              <button type="button" style="flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #f07a72; border-radius: 12px; background: transparent; color: #f07a72; font-size: 14px; cursor: pointer;">●</button>
+              <button type="button" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #6fa3ea; color: #141517; font-size: 16px; cursor: pointer;">↑</button>
+            </div>
+          </div>
+          <div style="flex: 1 1 40%; min-width: 200px; display: flex; flex-direction: column; background: #131416; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 45%); overflow: hidden;">
+            <div style="flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border-bottom: 1px solid rgb(240 241 243 / 10%);">
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: #24262a; color: #bfa4f0; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Coaching</button>
+              <button type="button" style="height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #d3d6da; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Evidence</button>
+            </div>
+            <div style="flex: 1; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;">
+              <div style="font-family: Newsreader, Georgia, serif; font-size: 17px; line-height: 1.5; color: #d3d6da; padding-inline-start: 12px; border-inline-start: 2px solid #f0a957;">Quiero un café con leche.</div>
+              <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #f0f1f3;">Correct and polite. In a café the habitual request is <i>¿Me pones…?</i></p>
+              <button type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; border: 1px solid #454b53; border-radius: 6px; background: #24262a; color: #f0f1f3; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Try it again</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px; border-top: 1px solid #b4a991; padding-top: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">13 · adopting it</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">What this costs in the codebase</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The laws are mostly deletions, which is why they make future features cheaper. Suggested order — each step is shippable alone.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">1 · tokens.css</span><span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Alias <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">--card/--dock/--quiet/--chip</code> to the three surface roles and the six type roles to the scale. No component changes; the whole app gets quieter in one commit.</span></div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">2 · one pane header</span><span style="font-size: 14px; line-height: 1.55; color: #3a3630;">A single header rule shared by <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">.chat-head</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">.break-head</code>, <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">.coach-thread-head</code> and <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">.panel-tabs</code>. Deletes the tab-group chrome and the 26px control strip.</span></div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">3 · fold the dock</span><span style="font-size: 14px; line-height: 1.55; color: #3a3630;">The coach dock becomes a state of the study pane: drop the resizer, the collapsed variants and the dialog copy of the dock. The pane divider stays the only draggable edge.</span></div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">4 · lesson as a mode</span><span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Route <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">LessonDialog</code> into the main pane with the chooser in the rail and the step spine above it. The handoff to chat becomes a mode switch, not a dialog close.</span></div>
+      <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f4785;">5 · colour audit</span><span style="font-size: 14px; line-height: 1.55; color: #3a3630;">Repoint <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px;">--accent*</code> to the single interaction ink and leave the domain tokens to evidence. Amber only where a correction exists; red only where a request failed.</span></div>
+    </div>
+    <p style="margin: 0; max-width: 74ch; font-size: 14px; line-height: 1.6; color: #5c564b;">Resolved since: Review keeps both readings of the evidence (tree above, bars below, section 10). Contacts is renamed Partners and stays a rail. Sections 14–18 extend the same frame to the empty state, lesson creation, the persona editor, mystery partners and Settings — grounded in the current AI-access, Reading and lesson-chooser contracts, not invented.</p>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px; border-top: 1px solid #b4a991; padding-top: 32px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">14 · empty conversation</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">The three ways in</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">The main entry point most people hit most often. The composer is always the first path — it never moves, empty state or not. Before any message exists, two more paths sit under one "or" above it: let the partner take the first turn (one tap, dealer's choice — a topic is a secondary link, never a required step), or take a lesson. This matches the real contract: one "You start" button beside an optional topic dropdown defaulting to "Any topic," with Take a lesson alongside it — restyled, not reinvented.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4; padding: 20px;">
+      <div style="width: 720px; height: 520px; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%); overflow: hidden;">
+        <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+          <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Marisol</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Español · Beginner</span>
+          <button type="button" style="margin-inline-start: auto; height: 32px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Conversation settings</button>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 32px;">
+          <div style="display: flex; flex-direction: column; gap: 16px; width: 320px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b; text-align: center;">Start the conversation</span>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" style="flex: 1; height: 44px; padding: 0 12px; border: 1px solid #1f4785; border-radius: 8px; background: #fffdf8; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Let Marisol start</button>
+              <select style="flex: none; width: 128px; height: 44px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;"><option>Any topic</option><option>At a café</option><option>Meeting someone new</option></select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;"><span style="flex: 1; height: 1px; background: #dcd3be;"></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">or</span><span style="flex: 1; height: 1px; background: #dcd3be;"></span></div>
+            <button type="button" style="height: 44px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Take a lesson</button>
+          </div>
+        </div>
+
+        <div style="flex: none; border-top: 1px solid #dcd3be; padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
+          <input placeholder="Escribe tu respuesta…" style="flex: 1; min-width: 0; height: 44px; background: #ffffff; border: 1px solid #dcd3be; border-radius: 12px; padding: 0 16px; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 17px; outline: none;">
+          <button type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: none; height: 44px; padding: 0 16px; border: 1px solid #922c2a; border-radius: 12px; background: #fffdf8; color: #922c2a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #922c2a;"></span>Record</button>
+          <button type="button" style="flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0; background: #1f4785; color: #ffffff; font-size: 16px; cursor: pointer;">↑</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #fffdf8; border: 1px solid #dcd3be; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">After tapping "Let Marisol start"</span>
+      <div style="align-self: flex-start; max-width: 88%; display: flex; align-items: center; gap: 6px; padding: 12px 16px; background: #fbf8f0; border: 1px dashed #b4a991; border-radius: 12px 12px 12px 4px;">
+        <span style="width: 5px; height: 5px; border-radius: 50%; background: #b4a991;"></span><span style="width: 5px; height: 5px; border-radius: 50%; background: #8a7f6a;"></span><span style="width: 5px; height: 5px; border-radius: 50%; background: #5c564b;"></span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b; margin-inline-start: 6px;">Marisol is starting…</span>
+      </div>
+      <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #3a3630;">No learner message is created by this tap. The composer stays open the whole time — this pending state can be paused or fail before any reply exists, same as any other send.</p>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">15 · lesson creation</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">The rail is the chooser</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Saved lessons already live in the Learn rail (section 09) — confirmed, not standalone. What the rail was missing is starting a new one. Real source offers four categories — Practical situations, Grammar, About the language, Reading — with category suggestions or a typed topic. That step expands the rail's "+" in place, rather than opening a fifth dialog.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4; padding: 20px;">
+      <div style="width: 280px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; height: 24px;">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">New lesson</span>
+          <button type="button" style="background: none; border: 0; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;">Cancel</button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+          <button type="button" style="height: 28px; padding: 0 10px; border: 1px solid #1f4785; border-radius: 999px; background: rgb(31 71 133 / 8%); color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;">Practical situations</button>
+          <button type="button" style="height: 28px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;">Grammar</button>
+          <button type="button" style="height: 28px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;">About the language</button>
+          <button type="button" style="height: 28px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;">Reading</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <button type="button" style="padding: 8px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Ordering food</button>
+          <button type="button" style="padding: 8px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Asking prices</button>
+          <button type="button" style="padding: 8px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Small talk with strangers</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input placeholder="Or type your own topic…" style="flex: 1; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; outline: none;">
+          <button type="button" style="flex: none; height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #1f4785; color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Create</button>
+        </div>
+        <div style="height: 1px; background: #dcd3be; margin: 4px 0;"></div>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Saved · unchanged from section 09</span>
+        <button type="button" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid #cbb28e; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;">Asking for directions<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 400; color: #8a4e0a;">Step 4 of 5</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">16 · persona editor</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">New partner</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Source already supports manual editing and generated proposals before an explicit Create — this gives that a full sheet: identity, personality, voice, and now a type. "Surprise me" fills the whole sheet in one tap. Nothing here joins the Partners rail until Create is pressed.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #3a3630; padding: 32px; display: flex; justify-content: center;">
+      <div style="width: 620px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 12px; box-shadow: 0 12px 35px rgb(0 0 0 / 40%); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+          <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">New partner</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Draft · not saved</span>
+          <button type="button" style="margin-inline-start: auto; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-size: 13px; cursor: pointer;">✕</button>
+        </div>
+
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="width: 72px; height: 72px; flex: none; border-radius: 50%; border: 1px dashed #b4a991; background: #f3eee1;"></span>
+            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+              <input value="Diego" style="height: 40px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; font-weight: 600; outline: none;">
+              <button type="button" style="align-self: flex-start; height: 32px; padding: 0 12px; border: 1px solid #b4a991; border-radius: 6px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Surprise me — fill the whole sheet</button>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Type</span>
+            <div style="display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: #dcd3be; width: max-content;">
+              <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: #fffdf8; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Standard</button>
+              <button type="button" style="height: 32px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer;">Mystery</button>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Personality</span>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid #1e9c8e; border-radius: 999px; background: rgb(30 156 142 / 10%); color: #0e5c53; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Warm</button>
+              <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid #1e9c8e; border-radius: 999px; background: rgb(30 156 142 / 10%); color: #0e5c53; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Curious</button>
+              <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Blunt</button>
+              <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Playful</button>
+              <button type="button" style="height: 30px; padding: 0 12px; border: 1px solid #dcd3be; border-radius: 999px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Formal</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Voice</span><select style="height: 36px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;"><option>Warm, mid</option></select></div>
+            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Language</span><select style="height: 36px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;"><option>Español</option></select></div>
+            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Level</span><select style="height: 36px; padding: 0 10px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;"><option>Beginner</option></select></div>
+          </div>
+        </div>
+
+        <div style="flex: none; display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-top: 1px solid #dcd3be;">
+          <button type="button" style="margin-inline-start: auto; height: 40px; padding: 0 16px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Cancel</button>
+          <button type="button" style="height: 40px; padding: 0 20px; border: 0; border-radius: 8px; background: #1f4785; color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Create</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">17 · mystery partner, in practice</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">Guess before you're told</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">A Persona tab joins Coaching and Evidence in the study well: locked rows instead of prose. Guessing is always available, and the app nudges it after enough turns. A correct guess pays XP the moment you pick it — revealing the fact on the sheet is a separate, deliberate tap, so a correct guess doesn't spoil the read for you if you'd rather keep guessing blind.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4; padding: 20px;">
+      <div style="display: flex; gap: 12px; width: 880px;">
+        <div style="flex: 1 1 55%; min-width: 0; display: flex; flex-direction: column; background: #fffdf8; border: 1px solid #dcd3be; border-radius: 12px; box-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%); overflow: hidden; height: 460px;">
+          <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+            <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Diego</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #7d5bd4;">Mystery partner</span>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="align-self: flex-start; max-width: 82%; padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 18px; line-height: 1.5; color: #1f1c17;">Uf, qué semana. Menos mal que hoy tengo el día libre.</span></div>
+            <div style="align-self: flex-end; max-width: 82%; padding: 12px 16px; background: #f3eee1; border: 1px solid #dcd3be; border-radius: 12px 12px 4px 12px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 18px; line-height: 1.5; color: #1f1c17;">¿Trabajas los fines de semana normalmente?</span></div>
+            <div style="align-self: flex-start; max-width: 82%; padding: 12px 16px; background: #fff4e3; border: 1px solid #cbb28e; border-radius: 12px 12px 12px 4px;"><span style="font-family: Newsreader, Georgia, serif; font-size: 18px; line-height: 1.5; color: #1f1c17;">Sí, casi siempre. La gente no deja de tener hambre solo porque es sábado.</span></div>
+          </div>
+          <div style="flex: none; border-top: 1px solid #dcd3be; padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
+            <input placeholder="Escribe tu respuesta…" style="flex: 1; min-width: 0; height: 40px; background: #ffffff; border: 1px solid #dcd3be; border-radius: 10px; padding: 0 12px; color: #1f1c17; font-family: Newsreader, Georgia, serif; font-size: 16px; outline: none;">
+            <button type="button" style="flex: none; width: 40px; height: 40px; border-radius: 10px; border: 0; background: #1f4785; color: #ffffff; font-size: 15px; cursor: pointer;">↑</button>
+          </div>
+        </div>
+
+        <div style="flex: 1 1 45%; min-width: 300px; display: flex; flex-direction: column; background: #dbd4c5; border-radius: 12px; box-shadow: inset 0 2px 8px rgb(0 0 0 / 16%); overflow: hidden; height: 460px;">
+          <div style="flex: none; display: flex; align-items: center; gap: 4px; height: 40px; padding: 0 12px; border-bottom: 1px solid rgb(31 28 23 / 12%);">
+            <button type="button" style="height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Coaching</button>
+            <button type="button" style="height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Evidence</button>
+            <button type="button" style="height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: #fffdf8; color: #7d5bd4; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Persona</button>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">5 things to guess · 1 known</span>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8;">
+              <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Job</span><span style="font-size: 15px; color: #1f1c17;">Cook, at a busy weekend restaurant</span></div>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #0e5c53;">✓ revealed</span>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid #1e9c8e; border-radius: 8px; background: rgb(30 156 142 / 6%);">
+              <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Personality</span><span style="font-size: 15px; color: #5c564b;">? · guessed correctly · +3 XP</span></div>
+              <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; cursor: pointer;">Reveal</button>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px dashed #b4a991; border-radius: 8px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Where from</span><span style="font-size: 15px; color: #5c564b;">?</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px dashed #b4a991; border-radius: 8px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Age</span><span style="font-size: 15px; color: #5c564b;">?</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px dashed #b4a991; border-radius: 8px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c564b;">Interests</span><span style="font-size: 15px; color: #5c564b;">?</span>
+            </div>
+
+            <div style="margin-top: 4px; padding: 10px 12px; border: 1px dashed #c78a2f; border-radius: 8px; background: rgb(199 138 47 / 8%); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span style="font-size: 13px; line-height: 1.45; color: #8a4e0a;">You've talked for 8 turns — want to guess something about Diego?</span>
+              <button type="button" style="flex: none; border: 0; background: none; color: #8a4e0a; font-size: 14px; cursor: pointer;">✕</button>
+            </div>
+            <button type="button" style="height: 40px; border: 1px solid #c78a2f; border-radius: 8px; background: #fffdf8; color: #8a4e0a; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">I think I know them</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #e8e2d4; padding: 20px;">
+      <div style="width: 340px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 12px; box-shadow: 0 4px 16px rgb(0 0 0 / 16%); padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #7d5bd4;">Guess · Personality</span>
+        <span style="font-size: 15px; line-height: 1.5; color: #1f1c17;">Which best fits how Diego talks with strangers?</span>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button type="button" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid #1e9c8e; border-radius: 8px; background: rgb(30 156 142 / 8%); color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Warm and curious<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #0e5c53;">✓ +3 XP</span></button>
+          <button type="button" style="padding: 10px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Brisk and formal</button>
+          <button type="button" style="padding: 10px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Sarcastic</button>
+          <button type="button" style="padding: 10px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Shy and quiet</button>
+        </div>
+        <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #3a3630;">Correct answers pay XP the moment you pick them. Wrong answers cost nothing — guess again anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">18 · settings</div>
+      <h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-size: 28px; font-weight: 400;">AI access and Reading, in one shell</h2>
+      <p style="margin: 0; max-width: 74ch; font-size: 15px; line-height: 1.6; color: #3a3630;">Grounded in the current AI access (Hosted sign-in / API keys / Custom URL) and Reading (Appearance, conversation width) sections. Same dialog shell as Inspect recording and the persona editor — Settings is not a special case.</p>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 12px; border: 1px solid #b4a991; background: #3a3630; padding: 32px; display: flex; justify-content: center;">
+      <div style="width: 720px; height: 480px; background: #fffdf8; border: 1px solid #b4a991; border-radius: 12px; box-shadow: 0 12px 35px rgb(0 0 0 / 40%); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="flex: none; display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid #dcd3be;">
+          <span style="font-size: 13px; font-weight: 600; color: #1f1c17;">Settings</span>
+          <button type="button" style="margin-inline-start: auto; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #dcd3be; border-radius: 6px; background: #fffdf8; color: #3a3630; font-size: 13px; cursor: pointer;">✕</button>
+        </div>
+        <div style="flex: 1; min-height: 0; display: flex;">
+          <div style="flex: none; width: 160px; padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; border-inline-end: 1px solid #dcd3be;">
+            <button type="button" style="height: 36px; padding: 0 12px; border: 0; border-radius: 6px; background: #f3eee1; color: #1f1c17; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer;">AI access</button>
+            <button type="button" style="height: 36px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; text-align: left; cursor: pointer;">Reading</button>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 24px;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <h4 style="margin: 0; font-size: 18px; font-weight: 600; color: #1f1c17;">AI access</h4>
+              <div style="display: flex; gap: 0; border-bottom: 1px solid #dcd3be;">
+                <button type="button" style="height: 32px; padding: 0 4px; margin-inline-end: 16px; border: 0; background: none; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; box-shadow: inset 0 -2px #1f4785; cursor: pointer;">Hosted</button>
+                <button type="button" style="height: 32px; padding: 0 4px; margin-inline-end: 16px; border: 0; background: none; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">API keys</button>
+                <button type="button" style="height: 32px; padding: 0 4px; border: 0; background: none; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Custom URL</button>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid #dcd3be; border-radius: 8px; background: #fffdf8;">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #1f1c17;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1e9c8e;"></span>Signed in · sam@gmail.com</span>
+                <button type="button" style="border: 0; background: none; padding: 0; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Sign out</button>
+              </div>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">Standard model · hosted quota available</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid #dcd3be;">
+              <h4 style="margin: 0; font-size: 18px; font-weight: 600; color: #1f1c17;">Reading</h4>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Appearance</span>
+                <div style="display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: #dcd3be; width: max-content;">
+                  <button type="button" style="height: 30px; padding: 0 14px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">Dark</button>
+                  <button type="button" style="height: 30px; padding: 0 14px; border: 0; border-radius: 6px; background: #fffdf8; color: #1f4785; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;">Light</button>
+                  <button type="button" style="height: 30px; padding: 0 14px; border: 0; border-radius: 6px; background: transparent; color: #3a3630; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; cursor: pointer;">System</button>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #5c564b;">Conversation width</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="flex: 1; height: 6px; border-radius: 999px; background: #e2dac6; position: relative;"><span style="position: absolute; inset: 0 38% 0 0; background: #1f4785; border-radius: 999px;"></span><span style="position: absolute; left: 62%; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: #fffdf8; border: 1px solid #1f4785;"></span></span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5c564b;">62%</span>
+                </div>
+                <span style="font-size: 13px; color: #3a3630;">Drag the pane divider itself, or focus it and use arrow keys. Home/End jump to the limits.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1400}}">class Component extends DCLogic {
+  waveRef = React.createRef()
+  stftRef = React.createRef()
+  specRef = React.createRef()
+
+  // Word segmentation of the utterance the inspector is showing. These drive
+  // BOTH the synthesized signal and the alignment strip, so the picture and
+  // the table can never disagree. Replace `signal()` with the native WAV and
+  // every pixel below stays honest.
+  words = [
+    { text: 'Quiero', start: 0.12, end: 0.58, voiced: true, logprob: -0.14 },
+    { text: 'un', start: 0.58, end: 0.74, voiced: true, logprob: -0.31 },
+    { text: 'café', start: 0.74, end: 1.20, voiced: true, logprob: -0.21 },
+    { text: 'con', start: 1.20, end: 1.41, voiced: true, logprob: -0.27 },
+    { text: 'leche', start: 1.41, end: 1.92, voiced: true, logprob: -0.18 },
+    { text: 'por', start: 2.05, end: 2.28, voiced: true, logprob: -0.44 },
+    { text: 'favor', start: 2.28, end: 2.86, voiced: false, logprob: -0.52 },
+  ]
+  rate = 16000
+  duration = 3.4
+  // Whisper's front end: 25 ms Hann window (400 samples at 16 kHz) zero-padded
+  // to 512 for the radix-2 FFT, 10 ms hop, 80 log-Mel bands over 0–8 kHz,
+  // log10 magnitudes clamped to an 8 dB-decade dynamic range and scaled to
+  // [0,1] the way the model's own input features are.
+  windowSize = 400
+  fftSize = 512
+  hop = 160
+  melBands = 80
+  melMin = 0
+  melMax = 8000
+
+  // Slaney-style mel scale, as used by the reference feature extractor.
+  hzToMel(hz) { return 2595 * Math.log10(1 + hz / 700) }
+  melToHz(mel) { return 700 * (Math.pow(10, mel / 2595) - 1) }
+
+  melFilterbank(bins, rate) {
+    const lo = this.hzToMel(this.melMin), hi = this.hzToMel(this.melMax)
+    const points = []
+    for (let i = 0; i < this.melBands + 2; i++) {
+      const hz = this.melToHz(lo + (hi - lo) * i / (this.melBands + 1))
+      points.push(hz * (this.fftSize / rate))
+    }
+    const filters = []
+    for (let m = 1; m <= this.melBands; m++) {
+      const row = new Float32Array(bins)
+      const left = points[m - 1], centre = points[m], right = points[m + 1]
+      for (let b = 0; b < bins; b++) {
+        if (b >= left && b <= centre && centre > left) row[b] = (b - left) / (centre - left)
+        else if (b > centre && b <= right && right > centre) row[b] = (right - b) / (right - centre)
+      }
+      filters.push(row)
+    }
+    return filters
+  }
+
+  componentDidMount() { this.draw() }
+
+  // ── Signal ──────────────────────────────────────────────────────────────
+  // Placeholder source: a formant-synthesized utterance, not a drawing. It is
+  // generated once at this sample rate and then measured like real audio.
+  signal() {
+    const n = Math.round(this.rate * this.duration)
+    const x = new Float32Array(n)
+    let seed = 20260914
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x3fffffff - 1 }
+    const formants = [
+      [520, 1190, 2390], [700, 1220, 2600], [400, 1900, 2500],
+      [560, 1100, 2400], [480, 1700, 2450], [520, 1000, 2300], [600, 1400, 2500],
+    ]
+    this.words.forEach((word, index) => {
+      const from = Math.round(word.start * this.rate)
+      const to = Math.round(word.end * this.rate)
+      const span = to - from
+      const f = formants[index % formants.length]
+      const f0 = 118 + (index % 3) * 9
+      for (let i = 0; i < span; i++) {
+        const t = i / this.rate
+        const p = i / span
+        // Per-word amplitude envelope with a short onset and release.
+        const env = Math.min(1, p / 0.08) * Math.min(1, (1 - p) / 0.12) * (0.55 + 0.45 * Math.sin(Math.PI * p))
+        let s = 0
+        if (word.voiced || p < 0.6) {
+          for (let h = 1; h <= 14; h++) s += Math.sin(2 * Math.PI * f0 * h * t) / (h * h)
+          s *= 0.6
+          for (let k = 0; k < f.length; k++) {
+            s += 0.5 / (k + 1) * Math.sin(2 * Math.PI * f[k] * t) * (0.5 + 0.5 * Math.sin(2 * Math.PI * f0 * t))
+          }
+        }
+        // Fricative energy: broadband noise shaped toward the upper bands.
+        if (!word.voiced && p > 0.45) s += rnd() * 1.1 * Math.min(1, (p - 0.45) / 0.2)
+        x[from + i] = env * s * 0.28
+      }
+    })
+    for (let i = 0; i < n; i++) x[i] += rnd() * 0.0025
+    return x
+  }
+
+  // In-place iterative radix-2 FFT.
+  fft(re, im) {
+    const n = re.length
+    for (let i = 1, j = 0; i < n; i++) {
+      let bit = n >> 1
+      for (; j & bit; bit >>= 1) j ^= bit
+      j ^= bit
+      if (i < j) {
+        let t = re[i]; re[i] = re[j]; re[j] = t
+        t = im[i]; im[i] = im[j]; im[j] = t
+      }
+    }
+    for (let len = 2; len <= n; len <<= 1) {
+      const ang = -2 * Math.PI / len
+      const wr = Math.cos(ang), wi = Math.sin(ang)
+      for (let i = 0; i < n; i += len) {
+        let cr = 1, ci = 0
+        for (let k = 0; k < len / 2; k++) {
+          const ar = re[i + k], ai = im[i + k]
+          const br = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci
+          const bi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr
+          re[i + k] = ar + br; im[i + k] = ai + bi
+          re[i + k + len / 2] = ar - br; im[i + k + len / 2] = ai - bi
+          const nr = cr * wr - ci * wi
+          ci = cr * wi + ci * wr; cr = nr
+        }
+      }
+    }
+  }
+
+  // Intensity ramp from the app's own spectrogram tokens.
+  colour(t) {
+    const stops = [[0, [23, 27, 54]], [0.55, [128, 86, 181]], [1, [255, 224, 113]]]
+    for (let i = 1; i < stops.length; i++) {
+      if (t <= stops[i][0]) {
+        const [p0, c0] = stops[i - 1], [p1, c1] = stops[i]
+        const k = (t - p0) / (p1 - p0)
+        return [0, 1, 2].map(j => Math.round(c0[j] + (c1[j] - c0[j]) * k))
+      }
+    }
+    return stops[2][1]
+  }
+
+  draw() {
+    const x = this.signal()
+    const wave = this.waveRef.current
+    if (wave) {
+      const w = wave.width, h = wave.height
+      const ctx = wave.getContext('2d')
+      ctx.clearRect(0, 0, w, h)
+      ctx.strokeStyle = '#dcd3be'; ctx.lineWidth = 1
+      ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke()
+      // Peak envelope: true min/max of every sample falling in each column.
+      ctx.strokeStyle = '#1f4785'
+      const per = x.length / w
+      for (let c = 0; c < w; c++) {
+        let lo = 1, hi = -1
+        const from = Math.floor(c * per), to = Math.min(x.length, Math.floor((c + 1) * per))
+        for (let i = from; i < to; i++) { if (x[i] < lo) lo = x[i]; if (x[i] > hi) hi = x[i] }
+        if (hi < lo) continue
+        const y0 = h / 2 - hi * (h / 2) / 1.0
+        const y1 = h / 2 - lo * (h / 2) / 1.0
+        ctx.beginPath(); ctx.moveTo(c + 0.5, Math.max(0, y0)); ctx.lineTo(c + 0.5, Math.min(h, y1)); ctx.stroke()
+      }
+    }
+
+    // Stage two: the linear STFT the mel bands are pooled from. Same window,
+    // same hop — so this panel and the one below it are the same computation
+    // at two points in the chain, not two pictures.
+    const stft = this.stftRef.current
+    if (stft) {
+      const N = this.fftSize, W = this.windowSize, bins = N / 2
+      const frames = Math.max(1, Math.floor((x.length - W) / this.hop))
+      stft.width = frames; stft.height = bins
+      const ctx = stft.getContext('2d')
+      const image = ctx.createImageData(frames, bins)
+      const window = new Float32Array(W)
+      for (let i = 0; i < W; i++) window[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (W - 1))
+      const re = new Float64Array(N), im = new Float64Array(N)
+      for (let fr = 0; fr < frames; fr++) {
+        const off = fr * this.hop
+        for (let i = 0; i < N; i++) { re[i] = i < W ? x[off + i] * window[i] : 0; im[i] = 0 }
+        this.fft(re, im)
+        for (let b = 0; b < bins; b++) {
+          const mag = Math.sqrt(re[b] * re[b] + im[b] * im[b]) / (N / 2)
+          const db = 20 * Math.log10(mag + 1e-9)
+          const t = Math.max(0, Math.min(1, (db + 80) / 80))
+          const [r, g, bl] = this.colour(t)
+          const p = ((bins - 1 - b) * frames + fr) * 4
+          image.data[p] = r; image.data[p + 1] = g; image.data[p + 2] = bl; image.data[p + 3] = 255
+        }
+      }
+      ctx.putImageData(image, 0, 0)
+    }
+
+    const spec = this.specRef.current
+    if (spec) {
+      const N = this.fftSize, W = this.windowSize, bins = N / 2
+      const frames = Math.max(1, Math.floor((x.length - W) / this.hop))
+      spec.width = frames; spec.height = this.melBands
+      const ctx = spec.getContext('2d')
+      const image = ctx.createImageData(frames, this.melBands)
+      const window = new Float32Array(W)
+      for (let i = 0; i < W; i++) window[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (W - 1))
+      const filters = this.melFilterbank(bins, this.rate)
+      const re = new Float64Array(N), im = new Float64Array(N)
+      const power = new Float32Array(bins)
+      const feature = new Float32Array(frames * this.melBands)
+      let peak = -Infinity
+      for (let f = 0; f < frames; f++) {
+        const off = f * this.hop
+        for (let i = 0; i < N; i++) { re[i] = i < W ? x[off + i] * window[i] : 0; im[i] = 0 }
+        this.fft(re, im)
+        for (let b = 0; b < bins; b++) power[b] = re[b] * re[b] + im[b] * im[b]
+        for (let m = 0; m < this.melBands; m++) {
+          const row = filters[m]
+          let sum = 0
+          for (let b = 0; b < bins; b++) if (row[b]) sum += row[b] * power[b]
+          const value = Math.log10(Math.max(sum, 1e-10))
+          feature[f * this.melBands + m] = value
+          if (value > peak) peak = value
+        }
+      }
+      // Whisper's normalization: clamp to peak − 8 decades, then map to [0,1].
+      for (let f = 0; f < frames; f++) {
+        for (let m = 0; m < this.melBands; m++) {
+          const value = Math.max(feature[f * this.melBands + m], peak - 8)
+          const t = Math.max(0, Math.min(1, (value - (peak - 8)) / 8))
+          const [r, g, bl] = this.colour(t)
+          // Band 0 at the bottom: low mel frequencies read from the floor up.
+          const p = ((this.melBands - 1 - m) * frames + f) * 4
+          image.data[p] = r; image.data[p + 1] = g; image.data[p + 2] = bl; image.data[p + 3] = 255
+        }
+      }
+      ctx.putImageData(image, 0, 0)
+    }
+  }
+
+  // ── Branching skill tree ────────────────────────────────────────────────
+  // Structure grows out of the evidence counts: a domain earns another
+  // bifurcation for every few credited observations, so the silhouette IS the
+  // record. Nothing here invents a level the counts do not support.
+  tree() {
+    const domains = [
+      { name: 'Social', colour: '#e08a2e', credited: 14, assisted: 3 },
+      { name: 'Questions', colour: '#d9564f', credited: 7, assisted: 2 },
+      { name: 'Statements', colour: '#3d7bd6', credited: 9, assisted: 1 },
+      { name: 'Opinions', colour: '#c0519b', credited: 2, assisted: 0 },
+      { name: 'Descriptions', colour: '#7d5bd4', credited: 3, assisted: 1 },
+      { name: 'Situating', colour: '#1e9c8e', credited: 0, assisted: 0 },
+    ]
+    const W = 660, H = 420
+    const root = { x: W / 2, y: H - 28 }
+    const lines = [], nodes = [], labels = []
+    let key = 0
+    const grown = (credited) => credited >= 12 ? 3 : credited >= 6 ? 2 : credited >= 1 ? 1 : 0
+
+    const branch = (from, angle, length, depth, maxDepth, colour, reached) => {
+      const to = { x: from.x + Math.cos(angle) * length, y: from.y + Math.sin(angle) * length }
+      const live = reached && depth <= maxDepth
+      lines.push(React.createElement('line', {
+        key: 'l' + key++, x1: from.x, y1: from.y, x2: to.x, y2: to.y,
+        stroke: live ? colour : '#b4a991',
+        strokeWidth: live ? Math.max(1.2, 5 - depth) : 1,
+        strokeLinecap: 'round',
+        strokeDasharray: live ? undefined : '2 4',
+        opacity: live ? 1 : 0.55,
+      }))
+      nodes.push(React.createElement('circle', {
+        key: 'n' + key++, cx: to.x, cy: to.y, r: live ? Math.max(2.5, 6 - depth) : 2.5,
+        fill: live ? colour : 'none', stroke: live ? colour : '#b4a991',
+        strokeWidth: 1, strokeDasharray: live ? undefined : '2 3',
+      }))
+      if (depth < 4) {
+        const spread = 0.42 - depth * 0.05
+        branch(to, angle - spread, length * 0.68, depth + 1, maxDepth, colour, live)
+        branch(to, angle + spread, length * 0.68, depth + 1, maxDepth, colour, live)
+      }
+    }
+
+    domains.forEach((domain, i) => {
+      const angle = -Math.PI + (Math.PI * (i + 0.5)) / domains.length
+      const trunkTo = { x: root.x + Math.cos(angle) * 96, y: root.y + Math.sin(angle) * 96 }
+      const maxDepth = grown(domain.credited)
+      lines.push(React.createElement('line', {
+        key: 't' + i, x1: root.x, y1: root.y, x2: trunkTo.x, y2: trunkTo.y,
+        stroke: maxDepth ? domain.colour : '#b4a991', strokeWidth: maxDepth ? 6 : 1.5,
+        strokeLinecap: 'round', strokeDasharray: maxDepth ? undefined : '2 4', opacity: maxDepth ? 1 : 0.55,
+      }))
+      nodes.push(React.createElement('circle', {
+        key: 'tn' + i, cx: trunkTo.x, cy: trunkTo.y, r: maxDepth ? 7 : 4,
+        fill: maxDepth ? domain.colour : 'none', stroke: maxDepth ? domain.colour : '#b4a991', strokeWidth: 1.5,
+      }))
+      // Near-vertical branches get pushed further out and staggered, so two
+      // centred labels can never share a baseline.
+      const horizontal = Math.abs(Math.cos(angle))
+      const radius = 128 + (1 - horizontal) * 52
+      const stagger = horizontal < 0.3 ? (i % 2 ? 14 : -8) : 0
+      labels.push(React.createElement('text', {
+        key: 'x' + i,
+        x: root.x + Math.cos(angle) * radius, y: root.y + Math.sin(angle) * radius + stagger,
+        textAnchor: Math.cos(angle) < -0.3 ? 'end' : Math.cos(angle) > 0.3 ? 'start' : 'middle',
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: '0.08em',
+        fill: maxDepth ? '#1f1c17' : '#5c564b',
+      }, domain.credited ? domain.name.toUpperCase() + ' ' + domain.credited : domain.name.toUpperCase() + ' —'))
+      branch(trunkTo, angle - 0.3, 62, 1, maxDepth, domain.colour, maxDepth >= 1)
+      branch(trunkTo, angle + 0.3, 62, 1, maxDepth, domain.colour, maxDepth >= 1)
+    })
+
+    return React.createElement('svg', {
+      viewBox: '0 0 ' + W + ' ' + H, width: '100%', role: 'img',
+      'aria-label': 'Skill tree: branch depth follows credited observations per domain',
+      style: { display: 'block', maxHeight: '420px' },
+    }, [
+      React.createElement('g', { key: 'lines' }, lines),
+      React.createElement('g', { key: 'nodes' }, nodes),
+      React.createElement('g', { key: 'labels' }, labels),
+      React.createElement('circle', { key: 'root', cx: root.x, cy: root.y, r: 9, fill: '#1f1c17' }),
+      React.createElement('text', {
+        key: 'rootlabel', x: root.x, y: root.y + 24, textAnchor: 'middle',
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: '0.08em', fill: '#5c564b',
+      }, 'ESPAÑOL · 41'),
+    ])
+  }
+
+  renderVals() {
+    return { waveRef: this.waveRef, stftRef: this.stftRef, specRef: this.specRef, skillTree: this.tree() }
+  }
+}</script>
+</body>
+</html>
