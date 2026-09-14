@@ -260,3 +260,14 @@ suggestions and custom topic. Each saved lesson has an optional two-question
 **Test your understanding** quiz with answer explanations and persisted 0/1 XP;
 chat practice remains available without answering. Quiz XP is shown separately
 in conversation and language statistics and included in total XP.
+
+## Variety controls
+
+Settings groups the target language with its Variety, then the native/explanation
+language with its Explanation variety. Interface language is separate. A single
+variety displays its name without a redundant selector; multi-variety choices are
+localized and validated. The speech information control states that exact variety
+matching is not guaranteed. Target-script direction, scale and romanization follow
+the chosen variety. The no-starter state is explicit and leaves the start action
+available. German/light and Arabic/narrow/dark/RTL isolated fixtures were inspected;
+no native workspace was restarted for this change.

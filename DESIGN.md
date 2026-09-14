@@ -917,3 +917,26 @@ spelling, identify inexact analogies and give articulatory cues where no equival
 exists. Target writing remains visible; Latin literacy and IPA knowledge are not
 assumed. Quiz questions reinforce taught text-readable patterns, not measured
 spoken pronunciation. The usual optional chat handoff and 0/1 quiz XP apply.
+
+## Variety ownership and resolution
+
+The supported hierarchy is Language → Variety, with one explicit default per
+language. Target and explanation varieties are independent conversation settings;
+interface locale is a separate learner preference. Learner defaults seed new
+conversations without rewriting existing conversations. Navigation to an existing
+conversation restores its saved choices. Other practice settings retain their
+existing per-contact copy behavior.
+
+Varieties inherit language metadata and may explicitly override script,
+orthography, romanization and presentation. Guidance remains scoped and additive.
+Register and voice are distinct from variety. Application IDs have explicit
+external mappings; an ID is not assumed to be a provider tag. [@rfc5646_language_tags]
+Coaching distinguishes cross-variety differences from errors. [@asha_language_variation]
+
+Operations capture both selected varieties and resolved guidance. Static starter
+content declares compatibility for both roles; missing compatible content produces
+an explicit empty state, not an unusable conversation or mislabeled material.
+Arabic defaults to Levantine, with MSA as another variety. Regional subdivision,
+linguistic review and live speech quality evaluation are deferred. See the
+[authoring guide](workflow/reports/language-authoring.md) for the implemented
+contract, verification and schema-15 activation boundary.

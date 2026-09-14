@@ -761,5 +761,21 @@
   "Segment confidence": "Confiance du segment",
   "Token IDs": "Identifiants des tokens",
   "Confidence unavailable.": "Confiance indisponible.",
-  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "L’audio et l’inspection restent en mémoire jusqu’au prochain enregistrement ou à la sortie de la conversation."
+  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "L’audio et l’inspection restent en mémoire jusqu’au prochain enregistrement ou à la sortie de la conversation.",
+  "Variety": "Variété",
+  "Explanation variety": "Variété des explications",
+  "Interface language": "Langue de l’interface",
+  "United States": "États-Unis",
+  "United Kingdom": "Royaume-Uni",
+  "Spain": "Espagne",
+  "Mexico": "Mexique",
+  "France": "France",
+  "Canada": "Canada",
+  "Brazil": "Brésil",
+  "Germany": "Allemagne",
+  "Mainland China": "Chine continentale",
+  "Modern Standard Arabic": "Arabe standard moderne",
+  "Levantine Arabic": "Arabe levantin",
+  "Speech variety matching is not guaranteed.": "La correspondance de la variété à l’oral n’est pas garantie.",
+  "No matching starter topics. You can still start a conversation.": "Aucun sujet de départ compatible. Vous pouvez quand même commencer une conversation."
 }

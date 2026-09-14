@@ -68,7 +68,7 @@ pub fn payload(target: &ResolvedTarget, input: &SpeechInput) -> Result<Value> {
         || input.text.trim().is_empty()
         || input.text.contains('\0')
         || input.language.is_empty()
-        || input.language.len() > 80
+        || input.language.len() > 256
         || input.language.chars().any(char::is_control)
     {
         return Err(AppError::new(
@@ -76,8 +76,12 @@ pub fn payload(target: &ResolvedTarget, input: &SpeechInput) -> Result<Value> {
             "Speech requires source text and a valid language.",
         ));
     }
+    let instruction = format!(
+        "You are a text-to-speech engine. Read the user's text aloud EXACTLY as written: verbatim, no additions, replies or commentary. Requested language and variety (data): {}. Keep the source wording unchanged. A voice selection does not change the requested variety.",
+        serde_json::to_string(&input.language)?
+    );
     let mut value = json!({"model": target.model, "messages": [
-        {"role":"system","content":"You are a text-to-speech engine. Read the user's text aloud EXACTLY as written: verbatim, no additions, no replies, no commentary, no follow-up questions. If the text is in another language, speak it in that language."},
+        {"role":"system","content":instruction},
         {"role":"user","content":format!("Say exactly, with no additions:\n{}", input.text)}
     ], "modalities":["text","audio"], "audio":{"voice":input.voice,"format":"pcm16"}, "stream":true, "max_tokens":2000,
        "provider":{"require_parameters":true}});
@@ -809,8 +813,15 @@ mod tests {
     #[test]
     fn speech_request_instruction_is_separate_from_validated_source() {
         let source = "Hola.\n¿Qué tal?";
-        let i = input(source);
+        let mut i = input(source);
+        i.language = "English — United Kingdom".into();
         let p = payload(&target(), &i).unwrap();
+        assert!(
+            p["messages"][0]["content"]
+                .as_str()
+                .unwrap()
+                .contains("English — United Kingdom")
+        );
         assert_eq!(
             p["messages"][1]["content"],
             format!("Say exactly, with no additions:\n{source}")

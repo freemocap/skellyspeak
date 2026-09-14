@@ -59,10 +59,11 @@ pub(crate) fn choices_db(
         .iter()
         .find(|p| p.id == contact.persona_id)
         .ok_or_else(|| invalid("Persona not found."))?;
-    let ctx = registry.resolve(
+    let ctx = registry.resolve_pair(
         &conversation.language_id,
         Some(&conversation.settings.variety_id),
         &conversation.settings.explanation_language,
+        Some(&conversation.settings.explanation_variety_id),
     )?;
     let focus = crate::progression::capture_focus(
         db,

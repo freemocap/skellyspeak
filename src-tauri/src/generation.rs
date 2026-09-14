@@ -55,13 +55,18 @@ impl Request {
                 "Configure the selected AI connection before generating a contact.",
             )
         })?;
+        let preferences = store.snapshot()?.learner.preferences;
+        let settings = store
+            .config
+            .preference_defaults(&language_id, &preferences)?;
         let (attempt, operation) = crate::generation_identity();
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
-            language_context: store.config.resolve(
+            language_context: store.config.resolve_pair(
                 &language_id,
-                None,
-                &store.snapshot()?.learner.preferences.explanation_language,
+                Some(&settings.variety_id),
+                &settings.explanation_language,
+                Some(&settings.explanation_variety_id),
             )?,
             language_id,
             language,

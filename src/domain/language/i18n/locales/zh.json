@@ -761,5 +761,21 @@
   "Segment confidence": "片段置信度",
   "Token IDs": "词元 ID",
   "Confidence unavailable.": "置信度不可用。",
-  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "音频和检查数据保留在内存中，直到被新录音替换或离开对话。"
+  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "音频和检查数据保留在内存中，直到被新录音替换或离开对话。",
+  "Variety": "语言变体",
+  "Explanation variety": "解释语言变体",
+  "Interface language": "界面语言",
+  "United States": "美国",
+  "United Kingdom": "英国",
+  "Spain": "西班牙",
+  "Mexico": "墨西哥",
+  "France": "法国",
+  "Canada": "加拿大",
+  "Brazil": "巴西",
+  "Germany": "德国",
+  "Mainland China": "中国大陆",
+  "Modern Standard Arabic": "现代标准阿拉伯语",
+  "Levantine Arabic": "黎凡特阿拉伯语",
+  "Speech variety matching is not guaranteed.": "不保证语音与所选语言变体完全一致。",
+  "No matching starter topics. You can still start a conversation.": "没有匹配的开场话题。你仍然可以开始对话。"
 }

@@ -761,5 +761,21 @@
   "Segment confidence": "ثقة المقطع",
   "Token IDs": "معرّفات الرموز",
   "Confidence unavailable.": "الثقة غير متاحة.",
-  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "يبقى الصوت والفحص في الذاكرة حتى تسجيل آخر أو مغادرة المحادثة."
+  "Audio and inspection remain in memory until another recording replaces them or you leave the conversation.": "يبقى الصوت والفحص في الذاكرة حتى تسجيل آخر أو مغادرة المحادثة.",
+  "Variety": "التنوع اللغوي",
+  "Explanation variety": "تنوع لغة الشرح",
+  "Interface language": "لغة الواجهة",
+  "United States": "الولايات المتحدة",
+  "United Kingdom": "المملكة المتحدة",
+  "Spain": "إسبانيا",
+  "Mexico": "المكسيك",
+  "France": "فرنسا",
+  "Canada": "كندا",
+  "Brazil": "البرازيل",
+  "Germany": "ألمانيا",
+  "Mainland China": "بر الصين الرئيسي",
+  "Modern Standard Arabic": "العربية الفصحى المعاصرة",
+  "Levantine Arabic": "العربية الشامية",
+  "Speech variety matching is not guaranteed.": "لا يُضمن تطابق التنوع اللغوي في الصوت.",
+  "No matching starter topics. You can still start a conversation.": "لا توجد مواضيع بداية مطابقة. لا يزال بإمكانك بدء محادثة."
 }

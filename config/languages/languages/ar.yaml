@@ -1,5 +1,6 @@
 id: "ar"
 name: "Arabic"
+external_tags: {transcription: "ar"}
 native_name: "العربية"
 script: "Arab"
 orthography: "arabic-unvocalized"
@@ -8,11 +9,28 @@ romanization: "ala-lc-arabic"
 traits:
   - "abjad-vowel-omission"
   - "construct-state"
-default_variety: "ar-MSA"
+default_variety: "ar-levantine"
 varieties:
+  - id: "ar-levantine"
+    name: "Levantine Arabic"
+    description: "Conversational Levantine Arabic; regional coverage remains under review."
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
+    guidance: []
   -
     id: "ar-MSA"
     name: "Modern Standard Arabic"
+    description: "Modern Standard Arabic"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

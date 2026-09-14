@@ -1,5 +1,6 @@
 id: "es"
 name: "Spanish"
+external_tags: {transcription: "es"}
 native_name: "Español"
 script: "Latn"
 orthography: "latin"
@@ -11,10 +12,24 @@ varieties:
   -
     id: "es-ES"
     name: "Spain"
+    description: "Spain"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
   -
     id: "es-MX"
     name: "Mexico"
+    description: "Mexico"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

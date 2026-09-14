@@ -536,3 +536,9 @@ coach, then select **Try it in chat**. Saved lessons belong to the conversation.
 Task completion receives a private evidence-based recap; reading a lesson does not
 award proficiency. Lessons use the existing AI route and durable operation
 scheduler. See `workflow/reports/lessons.md` for verification status.
+
+Variety support uses separate target and explanation choices, plus an independent
+interface locale. See the guide's **Varieties: current architecture** section.
+The current development database schema is **15**; older workspaces require an
+explicit reset and current configuration rather than a migration. Builds do not
+overwrite editable workspace configuration.

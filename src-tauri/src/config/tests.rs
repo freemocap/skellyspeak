@@ -204,9 +204,9 @@ fn scoped_resolution_orders_traits_and_honors_leaf_scalar_overrides() {
     });
     let ctx = r.resolve("ar", None, "en").unwrap();
     let notes = ctx.guidance("assessment");
-    assert!(notes[0].contains("Copy evidence"));
-    assert!(notes[1].contains("never add diacritics"));
-    assert_eq!(&notes[2..], &["Language rule", "Variety rule"]);
+    assert!(notes[2].contains("Copy evidence"));
+    assert!(notes[3].contains("never add diacritics"));
+    assert_eq!(&notes[4..], &["Language rule", "Variety rule"]);
     assert_eq!(ctx.font_scale, 1.8);
     assert_eq!(r.language("ar").unwrap().font_scale, 1.8);
 }
@@ -344,7 +344,7 @@ fn game_enforces_evidence_truth_and_no_stopping_penalty() {
 }
 
 #[test]
-fn every_configured_target_and_explanation_pair_has_local_starting_content() {
+fn every_configured_pair_resolves_and_starters_respect_explicit_coverage() {
     let registry = Registry::bundled().unwrap();
     for target in &registry.languages {
         let persona = registry.starter_persona(&target.id).unwrap();
@@ -356,15 +356,22 @@ fn every_configured_target_and_explanation_pair_has_local_starting_content() {
             let context = registry.resolve(&target.id, None, &explanation.id).unwrap();
             assert_eq!(context.language_id, target.id);
             assert_eq!(context.explanation_language_id, explanation.id);
-            let cards = registry
-                .starters(&context, "A1", &[], &[], &[], &[])
-                .unwrap();
-            assert!(
-                !cards.is_empty(),
-                "{} -> {} has no starters",
-                target.id,
-                explanation.id
-            );
+            let compatible = registry.starter_config.iter().any(|starter| {
+                starter
+                    .compatible_varieties
+                    .get(&target.id)
+                    .is_some_and(|ids| ids.contains(&context.variety_id))
+                    && starter
+                        .compatible_varieties
+                        .get(&explanation.id)
+                        .is_some_and(|ids| ids.contains(&context.explanation_variety_id))
+            });
+            let cards = registry.starters(&context, "A1", &[], &[], &[], &[]);
+            if compatible {
+                assert!(!cards.unwrap().is_empty());
+            } else {
+                assert!(cards.unwrap().is_empty());
+            }
         }
     }
 }
@@ -389,4 +396,109 @@ fn workspace_owns_starter_personas_and_invalid_personas_fail_loading() {
     );
     fs::write(&file, source.replace("age: 32", "age: 2")).unwrap();
     assert_eq!(Registry::load(&path).unwrap_err().code, "starter_persona");
+}
+
+#[test]
+fn varieties_resolve_independently_with_script_overrides_and_owned_defaults() {
+    let mut registry = Registry::bundled().unwrap();
+    let en = registry
+        .languages
+        .iter_mut()
+        .find(|l| l.id == "en")
+        .unwrap();
+    for (variety, marker) in en.varieties.iter_mut().zip(["US fixture", "UK fixture"]) {
+        for scope in ["target_writing", "explanation_writing"] {
+            variety.guidance.push(Guidance {
+                scope: scope.into(),
+                text: marker.into(),
+                sources: vec!["ryding2005".into()],
+            });
+        }
+    }
+    let context = registry
+        .resolve_pair("en", Some("en-GB"), "en", Some("en-US"))
+        .unwrap();
+    assert!(
+        context
+            .guidance("target_writing")
+            .contains(&"UK fixture".into())
+    );
+    assert!(
+        !context
+            .guidance("target_writing")
+            .contains(&"US fixture".into())
+    );
+    assert!(
+        context
+            .guidance("explanation_writing")
+            .contains(&"US fixture".into())
+    );
+    let reverse = registry
+        .resolve_pair("en", Some("en-US"), "en", Some("en-GB"))
+        .unwrap();
+    assert_ne!(context.hash, reverse.hash);
+    assert!(
+        registry
+            .resolve_pair("en", None, "en", Some("fr-FR"))
+            .is_err()
+    );
+    let en = registry
+        .languages
+        .iter_mut()
+        .find(|l| l.id == "en")
+        .unwrap();
+    en.varieties[1].script = Some("Arab".into());
+    en.varieties[1].orthography = Some("arabic-unvocalized".into());
+    en.varieties[1].romanization = Some("ala-lc-arabic".into());
+    let overridden = registry
+        .resolve_pair("en", Some("en-GB"), "en", Some("en-US"))
+        .unwrap();
+    assert_eq!(overridden.direction, "rtl");
+    assert_eq!(overridden.script, "Arab");
+    assert!(
+        overridden
+            .guidance("romanization")
+            .join(" ")
+            .contains("ALA-LC")
+    );
+    assert_eq!(context.direction, "ltr"); // Captured context is independent of later config edits.
+    let en = registry
+        .languages
+        .iter_mut()
+        .find(|l| l.id == "en")
+        .unwrap();
+    en.varieties[1].romanization = None;
+    en.varieties[1].romanization_disabled = true;
+    assert!(
+        registry.language("en").unwrap().varieties[1]
+            .romanization
+            .is_none()
+    );
+    assert!(
+        !registry
+            .resolve("en", Some("en-GB"), "en")
+            .unwrap()
+            .guidance("romanization")
+            .join(" ")
+            .contains("ALA-LC")
+    );
+}
+
+#[test]
+fn variety_overrides_reject_unknown_and_mismatched_references() {
+    let files: BTreeMap<String, String> = SEEDS
+        .iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+    for (from, to) in [
+        ("    script: null", "    script: unknown"),
+        ("    script: null", "    script: Arab"),
+        ("    romanization: null", "    romanization: unknown"),
+        ("    review: \"needs_review\"", "    review: \"reviewed\""),
+    ] {
+        let mut bad = files.clone();
+        let en = bad.get_mut("languages/languages/en.yaml").unwrap();
+        *en = en.replace(from, to);
+        assert!(Registry::from_files(bad).is_err());
+    }
 }

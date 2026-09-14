@@ -9,17 +9,17 @@ export const LOCALES: Record<string, Dict> = Object.fromEntries(Object.entries(m
 
 validateLocales(LOCALES)
 
-export function uiLangFromNative(native: string | null | undefined): UiLang {
+export function requireUiLocale(value: string | null | undefined): UiLang {
   // English is the explicit pre-settings startup locale only.
-  const locale = native ?? 'en'
+  const locale = value ?? 'en'
   if (!Object.hasOwn(LOCALES, locale)) throw new Error(`Missing UI locale: ${locale}`)
   return locale
 }
 export function validateLanguageLocales(ids: readonly string[]): void {
-  for (const id of ids) uiLangFromNative(id)
+  for (const id of ids) requireUiLocale(id)
 }
 export function t(lang: UiLang, key: string, vars: Record<string, string | number> = {}): string {
-  const locale = uiLangFromNative(lang)
+  const locale = requireUiLocale(lang)
   const message = Object.hasOwn(LOCALES[locale], key) ? LOCALES[locale][key] : undefined
   if (message === undefined) throw new Error(`Missing UI message: ${locale}.${key}`)
   if (typeof message !== 'string' && (typeof vars.count !== 'number' || !Number.isFinite(vars.count))) throw new Error(`Plural message requires a finite count: ${locale}.${key}`)
@@ -30,12 +30,12 @@ export function t(lang: UiLang, key: string, vars: Record<string, string | numbe
 }
 
 export function formatNumber(lang: UiLang, value: number, options?: Intl.NumberFormatOptions): string {
-  return new Intl.NumberFormat(uiLangFromNative(lang), options).format(value)
+  return new Intl.NumberFormat(requireUiLocale(lang), options).format(value)
 }
 export function formatDate(lang: UiLang, value: Date | number, options?: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat(uiLangFromNative(lang), options).format(value)
+  return new Intl.DateTimeFormat(requireUiLocale(lang), options).format(value)
 }
 
 export function formatRelativeTime(lang: UiLang, value: number, unit: Intl.RelativeTimeFormatUnit): string {
-  return new Intl.RelativeTimeFormat(uiLangFromNative(lang), { numeric: 'auto' }).format(value, unit)
+  return new Intl.RelativeTimeFormat(requireUiLocale(lang), { numeric: 'auto' }).format(value, unit)
 }

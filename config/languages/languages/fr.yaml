@@ -1,5 +1,6 @@
 id: "fr"
 name: "French"
+external_tags: {transcription: "fr"}
 native_name: "Français"
 script: "Latn"
 orthography: "latin"
@@ -11,10 +12,24 @@ varieties:
   -
     id: "fr-FR"
     name: "France"
+    description: "France"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
   -
     id: "fr-CA"
     name: "Canada"
+    description: "Canada"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

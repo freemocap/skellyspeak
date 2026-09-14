@@ -3,11 +3,12 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { Settings } from '../../types'
 import { SettingsModal } from './SettingsModal'
+import { I18nProvider } from '../../ui/i18n'
 
 const backend = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn(), invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => ({ ...backend, isTauri: false, logInfo: vi.fn(), languages: () => [], languageFor: () => null }))
 vi.mock('./SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
-vi.mock('./DialectField', () => ({ DialectField: () => null }))
+vi.mock('./VarietyField', () => ({ VarietyField: () => null }))
 vi.mock('../../platform/audio/speech', () => ({ setVoiceVolume: vi.fn() }))
 vi.mock('../../platform/updater', async original => ({ ...await original<typeof import('../../platform/updater')>(), getUpdateChannel: async () => 'stable' }))
 vi.mock('@tauri-apps/api/app', () => ({ getVersion: async () => '0.13.4' }))
@@ -24,8 +25,8 @@ const SETTINGS: Settings = {
   openrouter_model: 'google/gemini-2.5-flash',
   observer_model: null,
   target_language: 'es-ES',
-  target_dialect: '',
-  native_language: 'en',
+  target_variety: '',
+  native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
   microphone_device_id: null,
   auto_speak: false,
   auto_send: false,
@@ -173,4 +174,11 @@ it('preserves a newer text-size edit while the first save completes', async () =
   backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '', text_size: 110 })
   await act(async () => finish())
   await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ text_size: 125 }), expect.any(Object)))
+})
+
+it('keeps the entire settings interface in its locale when the explanation language differs', async () => {
+  backend.getSettings.mockResolvedValue({ ...SETTINGS, native_language: 'fr', native_variety: 'fr-FR', interface_locale: 'de' })
+  render(<I18nProvider locale="de"><SettingsModal onClose={vi.fn()} /></I18nProvider>)
+  expect(await screen.findByRole('heading', { name: 'Einstellungen' })).toBeVisible()
+  expect(screen.queryByRole('heading', { name: 'Paramètres' })).toBeNull()
 })

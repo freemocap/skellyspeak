@@ -1,9 +1,9 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
-import { t, uiLangFromNative, formatNumber, formatDate } from '../domain/language/i18n'
+import { t, requireUiLocale, formatNumber, formatDate } from '../domain/language/i18n'
 
 const LocaleContext = createContext('en')
 export function I18nProvider({ locale, children }: { locale: string; children: ReactNode }) {
-  return <LocaleContext value={uiLangFromNative(locale)}>{children}</LocaleContext>
+  return <LocaleContext value={requireUiLocale(locale)}>{children}</LocaleContext>
 }
 export function useI18n() {
   const locale = useContext(LocaleContext)

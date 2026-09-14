@@ -150,6 +150,15 @@
     "Variety": {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "type": "string"
+        },
+        "external_tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
         "guidance": {
           "items": {
             "$ref": "#/definitions/Guidance"
@@ -162,6 +171,25 @@
         "name": {
           "type": "string"
         },
+        "orthography": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "review": {
+          "type": "string"
+        },
+        "romanization": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "romanization_disabled": {
+          "default": false,
+          "type": "boolean"
+        },
         "scalars": {
           "allOf": [
             {
@@ -173,12 +201,28 @@
             "font_scale": null,
             "word_spacing": null
           }
+        },
+        "script": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "required": [
+        "description",
+        "external_tags",
         "guidance",
         "id",
-        "name"
+        "name",
+        "review",
+        "sources"
       ],
       "type": "object"
     }
@@ -186,6 +230,12 @@
   "properties": {
     "default_variety": {
       "type": "string"
+    },
+    "external_tags": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
     },
     "family": {
       "type": "string"
@@ -250,6 +300,7 @@
   },
   "required": [
     "default_variety",
+    "external_tags",
     "family",
     "guidance",
     "id",

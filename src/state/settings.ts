@@ -1,6 +1,7 @@
+import { languages } from '../platform/ipc/tauri'
 import { create } from 'zustand'
 import { applyFontSizeAction, type FontSizeAction } from '../domain/input/font-size'
-import { uiLangFromNative } from '../domain/language/i18n'
+import { requireUiLocale } from '../domain/language/i18n'
 import { reportFault } from '../platform/diagnostics/faults'
 import { getSettings, languageFor, saveSettings } from '../platform/ipc/tauri'
 import type { Settings } from '../types'
@@ -17,12 +18,12 @@ export type PreferenceKey =
 export type LanguageField = 'target_language' | 'native_language'
 
 /// Mirror the native language onto the document: UI strings come from
-/// `uiLangFromNative` (domain/language/i18n) and text direction from the
+/// `requireUiLocale` (domain/language/i18n) and text direction from the
 /// registry, so an Arabic native gets a right-to-left UI rather than just
 /// Arabic words.
-function applyUiLanguage(native: string): void {
-  document.documentElement.dir = languageFor(native)?.direction ?? 'ltr'
-  document.documentElement.lang = uiLangFromNative(native)
+function applyUiLanguage(locale: string): void {
+  document.documentElement.dir = languageFor(locale)?.direction ?? 'ltr'
+  document.documentElement.lang = requireUiLocale(locale)
 }
 
 interface SettingsState {
@@ -83,7 +84,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
   /// Adopt a record Rust produced. `changed` is false for a plain read: the same
   /// record, described again.
   const adopt = (saved: Settings, changed: boolean) => {
-    applyUiLanguage(saved.native_language)
+    applyUiLanguage(saved.interface_locale)
     set((state) => ({ settings: saved, readRequest: null, revision: changed ? state.revision + 1 : state.revision }))
   }
   const read = async (changed: boolean): Promise<Settings> => {
@@ -123,7 +124,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       if (get().savingLanguage) return
       set({ savingLanguage: true })
       try {
-        await get().update(current => ({ ...current, [field]: value, ...(field === 'target_language' ? { target_dialect: '' } : {}) }), 'Saving language')
+        await get().update(current => ({ ...current, [field]: value, ...(field === 'native_language' ? { native_variety: languages().find(l => l.code === value)!.defaultVariety } : {}), ...(field === 'target_language' ? { target_variety: languages().find(l => l.code === value)!.defaultVariety } : {}) }), 'Saving language')
       } finally {
         set({ savingLanguage: false })
       }

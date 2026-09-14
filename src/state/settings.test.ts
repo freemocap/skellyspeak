@@ -6,7 +6,7 @@ import { SHORTCUT_DEFAULTS } from '../domain/input/keyboard'
 import type { Settings } from '../types'
 
 const native = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn() }))
-vi.mock('../platform/ipc/tauri', () => ({ getSettings: native.get, saveSettings: native.save, languageFor: () => null }))
+vi.mock('../platform/ipc/tauri', () => ({ getSettings: native.get, saveSettings: native.save, languageFor: () => null, languages: () => [{ code: 'fr', defaultVariety: 'fr-FR' }, { code: 'de', defaultVariety: 'de-DE' }] }))
 vi.mock('../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 
 /// The record Rust owns. Only the fields a test reads are meaningful; a write
@@ -14,7 +14,7 @@ vi.mock('../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 const record = (over: Partial<Settings> = {}): Settings => ({
   provider_mode: 'custom', hosted_token: '', hosted_email: '', install_id: '', openrouter_key: '',
   custom_base_url: '', custom_api_key: '', custom_model: '', groq_key: '', openrouter_model: '', observer_model: null,
-  target_language: 'es', target_dialect: '', native_language: 'en', microphone_device_id: null,
+  target_language: 'es', target_variety: '', native_language: 'en', native_variety: 'en-US', interface_locale: 'en', microphone_device_id: null,
   auto_speak: false, auto_send: false, always_romanize: false, auto_translate: false,
   text_size: 100, text_spacing: 100, always_pronunciation: false, fast_mode: true,
   reward_sounds: 'follow_tts', master_volume: 1, voice_volume: 1, effects_volume: 1,
@@ -56,18 +56,18 @@ it('writes a preference against a fresh read and adopts what Rust reports', asyn
   expect(useSettingsStore.getState().savingPreference).toBe(false)
 })
 
-it('clears the dialect when the target language changes', async () => {
-  const current = record({ target_dialect: 'es-419' })
+it('selects the configured variety when the target language changes', async () => {
+  const current = record({ target_variety: 'es-419' })
   native.get.mockResolvedValue(current)
   await useSettingsStore.getState().setLanguage('target_language', 'fr')
-  expect(native.save).toHaveBeenCalledWith({ ...current, target_language: 'fr', target_dialect: '' }, current)
+  expect(native.save).toHaveBeenCalledWith({ ...current, target_language: 'fr', target_variety: 'fr-FR' }, current)
 })
 
-it('keeps the dialect when the native language changes', async () => {
-  const current = record({ target_dialect: 'es-419' })
+it('keeps the target variety when the native language changes', async () => {
+  const current = record({ target_variety: 'es-419' })
   native.get.mockResolvedValue(current)
   await useSettingsStore.getState().setLanguage('native_language', 'de')
-  expect(native.save).toHaveBeenCalledWith({ ...current, native_language: 'de' }, current)
+  expect(native.save).toHaveBeenCalledWith({ ...current, native_language: 'de', native_variety: 'de-DE' }, current)
 })
 
 it('runs one language write at a time', async () => {
@@ -107,7 +107,7 @@ it('writes a text size only when the action changes it', async () => {
 it('keeps the newest read and UI language when an older read completes last', async () => {
   let finish!: (value: Settings) => void
   native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-    .mockResolvedValueOnce(record({ native_language: 'fr', target_language: 'fr' }))
+    .mockResolvedValueOnce(record({ native_language: 'fr', native_variety: 'fr-FR', interface_locale: 'fr', target_language: 'fr' }))
   const old = useSettingsStore.getState().load()
   await useSettingsStore.getState().load()
   finish(record({ native_language: 'es' }))

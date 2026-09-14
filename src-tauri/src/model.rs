@@ -31,6 +31,7 @@ pub struct PracticeSettings {
     pub difficulty: Difficulty,
     pub explanation_language: String,
     pub variety_id: String,
+    pub explanation_variety_id: String,
     pub composing_help: HelpAmount,
     pub coach_proactivity: CoachProactivity,
     pub translation: bool,
@@ -107,6 +108,9 @@ pub struct Preferences {
     #[serde(default)]
     pub theme: Theme,
     pub explanation_language: String,
+    pub explanation_variety_id: String,
+    pub interface_locale: String,
+    pub target_varieties: std::collections::BTreeMap<String, String>,
     pub text_size: u16,
     pub text_spacing: u8,
     pub high_contrast: bool,
@@ -186,8 +190,12 @@ pub struct Conversation {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Variety {
+    pub direction: String,
+    pub font_scale: f64,
+    pub romanization: Option<String>,
     pub id: String,
     pub name: String,
+    pub description: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -199,6 +207,7 @@ pub struct Language {
     pub name: String,
     pub native_name: String,
     pub varieties: Vec<Variety>,
+    pub default_variety: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -944,7 +953,7 @@ mod appearance_tests {
     use super::*;
     #[test]
     fn appearance_defaults_and_rejects_unknown_values() {
-        let original = serde_json::json!({"explanationLanguage":"en","textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
+        let original = serde_json::json!({"explanationLanguage":"en","explanationVarietyId":"en-US","interfaceLocale":"en","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
         let preferences: Preferences = serde_json::from_value(original.clone()).unwrap();
         assert_eq!(preferences.theme, Theme::Light);
         for theme in ["light", "dark", "system"] {

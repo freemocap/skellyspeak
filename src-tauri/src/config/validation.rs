@@ -205,6 +205,22 @@ impl Registry {
                 checked_review(&l.id, &l.review, &note.sources)?;
             }
             nonempty(&l.id, &[&l.name, &l.native_name])?;
+            for (provider, tag) in &l.external_tags {
+                nonempty(&l.id, &[provider, tag])?;
+            }
+            for tags in std::iter::once(&l.external_tags)
+                .chain(l.varieties.iter().map(|v| &v.external_tags))
+            {
+                if let Some(tag) = tags.get("transcription")
+                    && (tag.len() != 2 || !tag.bytes().all(|b| b.is_ascii_lowercase()))
+                {
+                    return Err(error(
+                        &l.id,
+                        "transcription_tag",
+                        "Current transcription routes require a two-letter language tag.",
+                    ));
+                }
+            }
             review(&l.id, &l.review)?;
             reference(&l.id, &l.script, &scripts)?;
             reference(&l.id, &l.orthography, &orth)?;
@@ -233,7 +249,49 @@ impl Registry {
             reference(&l.id, &l.default_variety, &varieties)?;
             for v in &l.varieties {
                 scalars(&v.id, &v.scalars)?;
-                nonempty(&v.id, &[&v.name])?;
+                nonempty(&v.id, &[&v.name, &v.description])?;
+                review(&v.id, &v.review)?;
+                if v.review == "reviewed" {
+                    citations(&v.id, &v.sources, &keys)?;
+                }
+                checked_review(&v.id, &v.review, &v.sources)?;
+                for source in &v.sources {
+                    reference(&v.id, source, &keys)?;
+                }
+                let script = v.script.as_ref().unwrap_or(&l.script);
+                let orthography = v.orthography.as_ref().unwrap_or(&l.orthography);
+                reference(&v.id, script, &scripts)?;
+                reference(&v.id, orthography, &orth)?;
+                if self
+                    .orthographies
+                    .iter()
+                    .find(|o| &o.id == orthography)
+                    .unwrap()
+                    .script
+                    != *script
+                {
+                    return Err(error(
+                        &v.id,
+                        "script_mismatch",
+                        "Variety orthography uses another script.",
+                    ));
+                }
+                if v.romanization_disabled && v.romanization.is_some() {
+                    return Err(error(
+                        &v.id,
+                        "romanization",
+                        "Choose a romanization override or disable it, not both.",
+                    ));
+                }
+                if let Some(scheme) = &v.romanization {
+                    reference(&v.id, scheme, &schemes)?;
+                }
+                for (provider, tag) in &v.external_tags {
+                    nonempty(&v.id, &[provider, tag])?;
+                }
+                for note in &v.guidance {
+                    checked_review(&v.id, &v.review, &note.sources)?;
+                }
                 notes(&v.id, &v.guidance, &keys)?;
             }
             notes(&l.id, &l.guidance, &keys)?;
@@ -576,6 +634,29 @@ impl Registry {
             }
         }
         for s in &self.starter_config {
+            for (language, varieties) in &s.compatible_varieties {
+                let language = self.language_config(language)?;
+                let valid = language.varieties.iter().map(|v| v.id.clone()).collect();
+                if varieties.is_empty() {
+                    return Err(error(
+                        &s.id,
+                        "varieties",
+                        "Starter compatibility must be explicit.",
+                    ));
+                }
+                for variety in varieties {
+                    reference(&s.id, variety, &valid)?;
+                }
+            }
+            for language in &s.languages {
+                if !s.compatible_varieties.contains_key(language) {
+                    return Err(error(
+                        &s.id,
+                        "varieties",
+                        "Missing starter variety coverage.",
+                    ));
+                }
+            }
             checked_review(&s.id, &s.review, &s.sources)?;
             nonempty(&s.id, &[&s.partner_brief])?;
             review(&s.id, &s.review)?;

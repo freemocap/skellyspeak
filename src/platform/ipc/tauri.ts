@@ -29,7 +29,10 @@ export async function invoke<T>(
 
 /// The language registry lives in Rust (`languages.rs`) and is fetched once
 /// at startup. There is no copy of it here: one table, one definition.
-export interface DialectInfo {
+export interface VarietyInfo {
+  direction: "ltr" | "rtl"
+  fontScale: number
+  romanization: string | null
   id: string
   label: string
 }
@@ -42,7 +45,8 @@ export interface LanguageInfo {
   endonym: string
   direction: 'ltr' | 'rtl'
   romanization: string | null
-  dialects: DialectInfo[]
+  varieties: VarietyInfo[]
+  defaultVariety: string
 }
 
 let registry: LanguageInfo[] | null = null
@@ -55,8 +59,8 @@ export async function loadLanguages(): Promise<void> {
   registry = snapshot.languages.map(language => {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
     return { fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
-      direction: language.direction, romanization: language.romanization,
-      dialects: language.varieties.map(variety => ({ id: variety.id, label: variety.name })) }
+      defaultVariety: language.defaultVariety, direction: language.direction, romanization: language.romanization,
+      varieties: language.varieties.map(variety => ({ id: variety.id, label: variety.name, direction: variety.direction as "ltr" | "rtl", fontScale: variety.fontScale, romanization: variety.romanization })) }
   })
   logInfo(`[lang] registry loaded: ${registry.map((l) => l.code).join(', ')}`)
 }
@@ -70,8 +74,13 @@ export function languages(): LanguageInfo[] {
 }
 
 /// The registry entry for a target-language code, or null if unknown.
-export function languageFor(code: string): LanguageInfo | null {
-  return languages().find(l => l.code === code || l.dialects.some(v => v.id === code)) ?? null
+export function languageFor(code: string, varietyId?: string): LanguageInfo | null {
+  const language = languages().find(l => l.code === code)
+  if (!language) return null
+  if (!varietyId) return language
+  const variety = language.varieties.find(v => v.id === varietyId)
+  if (!variety) throw new Error('The selected variety is unavailable.')
+  return { ...language, direction: variety.direction, fontScale: variety.fontScale, romanization: variety.romanization }
 }
 
 /** View settings combine native conversation choices and learner display preferences. */
@@ -88,8 +97,9 @@ export async function getSettings(): Promise<Settings> {
     hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
     custom_base_url: access.custom.baseUrl, custom_model: access.custom.standardModel,
     openrouter_model: connection.standardModel, observer_model: null,
-    target_language: conversation.languageId, target_dialect: conversation.settings.varietyId,
+    target_language: conversation.languageId, target_variety: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,
+    native_variety: conversation.settings.explanationVarietyId, interface_locale: preferences.interfaceLocale,
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
     theme: preferences.theme ?? 'light', auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
@@ -148,22 +158,24 @@ async function writeSettings(settings: Settings): Promise<void> {
   if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
   const currentRate = await invoke<number>('get_playback_rate')
   if (settings.tts_rate !== currentRate) await invoke('save_playback_rate', { rate: settings.tts_rate })
-  const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_dialect,
+  const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_variety, explanationVarietyId: settings.native_variety,
     autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: conversation.settings.speechVoice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
-  const preferences = { ...snapshot.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) }
+  const preferences = { ...snapshot.learner.preferences, interfaceLocale: settings.interface_locale,
+    ...(settings.native_language !== conversation.settings.explanationLanguage || settings.native_variety !== conversation.settings.explanationVarietyId ? { explanationLanguage: settings.native_language, explanationVarietyId: settings.native_variety } : {}),
+    targetVarieties: settings.target_variety !== conversation.settings.varietyId && settings.target_language === conversation.languageId ? { ...snapshot.learner.preferences.targetVarieties, [settings.target_language]: settings.target_variety } : snapshot.learner.preferences.targetVarieties, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)
   const displayChanged = JSON.stringify(preferences) !== JSON.stringify(snapshot.learner.preferences)
   if (settings.target_language !== conversation.languageId) {
     const selected = selectedConversation(snapshot, settings.target_language)
     await executeAction(snapshot, selected ? { kind: 'openConversation', conversationId: selected.id } : { kind: 'startChat', languageId: settings.target_language })
-    const nativeChanged = settings.native_language !== conversation.settings.explanationLanguage
+    const nativeChanged = settings.native_language !== conversation.settings.explanationLanguage || settings.native_variety !== conversation.settings.explanationVarietyId
     if (nativeChanged || displayChanged) {
       const fresh = await readWorkspace()
       const owner = selectedConversation(fresh, settings.target_language)
       if (!owner) throw new Error('The selected language conversation is unavailable.')
-      if (nativeChanged) await executeAction(fresh, { kind: 'updateSettings', conversationId: owner.id, expectedRevision: owner.settingsRevision, settings: { ...owner.settings, explanationLanguage: settings.native_language } })
-      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences: { ...fresh.learner.preferences, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) } })
+      if (nativeChanged) await executeAction(fresh, { kind: 'updateSettings', conversationId: owner.id, expectedRevision: owner.settingsRevision, settings: { ...owner.settings, explanationLanguage: settings.native_language, explanationVarietyId: settings.native_variety } })
+      if (displayChanged) await executeAction(fresh, { kind: 'updateLearner', expectedRevision: fresh.learner.revision, name: fresh.learner.name, preferences })
     }
     return
   }

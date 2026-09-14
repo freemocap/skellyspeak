@@ -27,7 +27,9 @@ export interface Settings {
   openrouter_model: string
   observer_model: string | null
   target_language: string
-  target_dialect: string
+  target_variety: string
+  native_variety: string
+  interface_locale: string
   native_language: string
   microphone_device_id: string | null
   auto_speak: boolean
@@ -257,7 +259,7 @@ export interface Usage {
 
 export interface RequestContext {
   chat_id: string; message_id: number | null; replaces_message_id: number | null; trigger: string
-  target: string; native: string; dialect: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced' | 'fluent'
+  target: string; native: string; variety: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced' | 'fluent'
   inferred_level_notes: string; topic: string | null; lesson_revision: number; persona: unknown; history_messages: number; history_available: number
 }
 export interface PromptBlock { id: string; source: string; content: string }

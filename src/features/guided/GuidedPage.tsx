@@ -410,11 +410,11 @@ export default function GuidedPage({
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
   const showRomanization =
-    settings != null && languageFor(settings.target_language)?.romanization != null
+    settings != null && languageFor(settings.target_language, settings.target_variety)?.romanization != null
 
   // RTL targets render token lines right-to-left.
   const rtl =
-    settings != null && languageFor(settings.target_language)?.direction === 'rtl'
+    settings != null && languageFor(settings.target_language, settings.target_variety)?.direction === 'rtl'
 
   // Romanization visibility: "always" setting OR a revealed token.
   const alwaysRomanize = settings?.always_romanize ?? false
@@ -427,8 +427,8 @@ export default function GuidedPage({
   const savingReading = useSettingsStore((state) => state.savingPreference)
   const toggleSetting = useSettingsStore((state) => state.setPreference)
 
-  const targetLanguage = settings ? languageFor(settings.target_language) : null
-  const nativeLanguage = settings ? languageFor(settings.native_language) : null
+  const targetLanguage = settings ? languageFor(settings.target_language, settings.target_variety) : null
+  const nativeLanguage = settings ? languageFor(settings.native_language, settings.native_variety) : null
   const targetLanguageName = targetLanguage ? languageLabel(targetLanguage, tr.locale) : ''
   const nativeLanguageName = nativeLanguage ? languageLabel(nativeLanguage, tr.locale) : ''
   const romanized = Boolean(targetLanguage?.romanization)

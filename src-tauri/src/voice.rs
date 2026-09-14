@@ -8,6 +8,7 @@ pub struct Recording {
     conversation: String,
     target: access::ResolvedTarget,
     language: String,
+    variety_hint: String,
     #[cfg(desktop)]
     capture: audio::Capture,
 }
@@ -41,12 +42,27 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         .iter()
         .find(|c| c.id == conversation_id && !c.archived)
         .ok_or_else(|| fault("Conversation is unavailable."))?;
+    let context = store.config.resolve_pair(
+        &conversation.language_id,
+        Some(&conversation.settings.variety_id),
+        &conversation.settings.explanation_language,
+        Some(&conversation.settings.explanation_variety_id),
+    )?;
+    let language = context
+        .external_tags
+        .get("transcription")
+        .cloned()
+        .ok_or_else(|| {
+            fault("Transcription has no configured language mapping for this variety.")
+        })?;
+    let variety_hint = format!("{} — {}", context.target_name, context.variety_name);
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
         conversation: conversation_id,
         target,
-        language: conversation.language_id.clone(),
+        language,
+        variety_hint,
         #[cfg(desktop)]
         capture: audio::start(None).map_err(fault)?,
     };
@@ -186,6 +202,7 @@ pub async fn mic_transcribe(
         &token,
         wav,
         &recording.language,
+        &recording.variety_hint,
         &install,
     );
     tokio::pin!(request);
@@ -208,7 +225,11 @@ pub async fn mic_transcribe(
     };
     let result = result.and_then(|response| {
         crate::audio_inspection::attach_words(&mut inspection, &local, response.verbose.as_ref())?;
-        segments = response.verbose.as_ref().map(|value| value.segments.clone()).unwrap_or_default();
+        segments = response
+            .verbose
+            .as_ref()
+            .map(|value| value.segments.clone())
+            .unwrap_or_default();
         Ok(response.text)
     });
     let text = state.lock()?.finish_transcription(
@@ -217,5 +238,10 @@ pub async fn mic_transcribe(
         &recording.target,
         result,
     )?;
-    Ok(crate::audio_inspection::TranscriptionInspectionResult { text, inspection, audio_base64, segments })
+    Ok(crate::audio_inspection::TranscriptionInspectionResult {
+        text,
+        inspection,
+        audio_base64,
+        segments,
+    })
 }

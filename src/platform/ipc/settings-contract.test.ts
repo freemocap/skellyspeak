@@ -11,12 +11,12 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 function directory(): Snapshot {
   return {
     sessionId: 'session', revision: 20,
-    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { theme: 'dark', explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
+    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'fr' : 'es', title: id,
       archived: false, revision: 5, settingsRevision: index + 6, lastUsed: 10 - index, createdAt: '2026-09-10',
-      settings: { difficulty: 'advanced', explanationLanguage: 'en', varietyId: index ? 'fr-FR' : 'es-MX', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
+      settings: { difficulty: 'advanced', explanationLanguage: 'en', varietyId: index ? 'fr-FR' : 'es-MX', explanationVarietyId: 'en-US', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }
@@ -53,7 +53,7 @@ describe('native settings projection', () => {
       scope: { sessionId: 'session', conversationId: 'a', settingsRevision: 6, learnerRevision: 9 },
       provider_mode: projected, hosted_email: 'person@example.invalid', openrouter_model: 'configured-model',
       custom_base_url: 'https://example.invalid/v1', custom_model: 'custom-model',
-      target_language: 'es', target_dialect: 'es-MX', native_language: 'en',
+      target_language: 'es', target_variety: 'es-MX', native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
       auto_translate: true, always_pronunciation: false, always_romanize: true, text_size: 125, text_spacing: 3,
     })
     for (const field of ['hosted_token', 'install_id', 'openrouter_key', 'groq_key', 'custom_api_key'] as const) expect(settings[field]).toBe('')
@@ -200,4 +200,21 @@ it.each(['light', 'dark', 'system'] as const)('saves %s appearance to the learne
     kind: 'updateLearner', expectedRevision: 9, name: 'Learner',
     preferences: { ...workspace.learner.preferences, theme },
   }])
+})
+
+
+it('saves explanation variety to the conversation and future defaults without changing interface locale', async () => {
+  const settings = await getSettings()
+  await saveSettings({ ...settings, native_variety: 'en-GB' })
+  const actions = commands().map(command => command.action)
+  expect(actions).toHaveLength(2)
+  expect(actions[0]).toMatchObject({ kind: 'updateSettings', settings: { varietyId: 'es-MX', explanationLanguage: 'en', explanationVarietyId: 'en-GB' } })
+  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { explanationVarietyId: 'en-GB', interfaceLocale: 'en' } })
+})
+it('saves an explicit target variety as the per-language default', async () => {
+  const settings = await getSettings()
+  await saveSettings({ ...settings, target_variety: 'es-ES' })
+  const actions = commands().map(command => command.action)
+  expect(actions[0]).toMatchObject({ kind: 'updateSettings', settings: { varietyId: 'es-ES', explanationVarietyId: 'en-US' } })
+  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { targetVarieties: { es: 'es-ES' } } })
 })

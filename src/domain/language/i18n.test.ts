@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LOCALES, uiLangFromNative, validateLocales, validateLanguageLocales, t, formatNumber, formatDate } from './i18n'
+import { LOCALES, requireUiLocale, validateLocales, validateLanguageLocales, t, formatNumber, formatDate } from './i18n'
 
 const configs = import.meta.glob('../../../config/languages/languages/*.yaml', { eager: true, query: '?raw', import: 'default' })
 describe('language/locale contract', () => {
@@ -15,10 +15,10 @@ describe('language/locale contract', () => {
     }
   })
   it('resolves exact language IDs and fails for missing locale data', () => {
-    for (const id of Object.keys(LOCALES)) expect(uiLangFromNative(id)).toBe(id)
-    for (const id of ['xx', 'pt-BR', 'zh-Hant', 'DE', '']) expect(() => uiLangFromNative(id)).toThrow()
-    expect(uiLangFromNative(null)).toBe('en')
-    expect(uiLangFromNative(undefined)).toBe('en')
+    for (const id of Object.keys(LOCALES)) expect(requireUiLocale(id)).toBe(id)
+    for (const id of ['xx', 'pt-BR', 'zh-Hant', 'DE', '']) expect(() => requireUiLocale(id)).toThrow()
+    expect(requireUiLocale(null)).toBe('en')
+    expect(requireUiLocale(undefined)).toBe('en')
     expect(() => validateLanguageLocales(['en', 'xx'])).toThrow()
   })
   it('interpolates literally and rejects missing messages and variables', () => {

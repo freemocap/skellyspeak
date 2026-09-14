@@ -1,5 +1,6 @@
 id: "de"
 name: "German"
+external_tags: {transcription: "de"}
 native_name: "Deutsch"
 script: "Latn"
 orthography: "latin"
@@ -10,6 +11,13 @@ default_variety: "de-DE"
 varieties:
   - id: "de-DE"
     name: "Germany"
+    description: "Germany"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

@@ -42,8 +42,8 @@ const SETTINGS: Settings = {
   openrouter_model: 'google/gemini-2.5-flash',
   observer_model: null,
   target_language: 'es',
-  target_dialect: '',
-  native_language: 'en',
+  target_variety: '',
+  native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
   microphone_device_id: null,
   auto_speak: false,
   auto_send: false,
@@ -68,12 +68,12 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { theme: 'dark', explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'es', title: id, archived: false,
       revision: 7 + index, settingsRevision: 1, createdAt: '2026-09-10', lastUsed: 2 - index,
-      settings: { difficulty: 'beginner', explanationLanguage: 'en', varietyId: '', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
+      settings: { difficulty: 'beginner', explanationLanguage: 'en', varietyId: '', explanationVarietyId: 'en-US', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }

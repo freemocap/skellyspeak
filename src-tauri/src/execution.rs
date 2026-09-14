@@ -381,10 +381,11 @@ fn accept_turn(
         fail("Sign in with Google or configure the selected connection in Settings before sending.")
     })?;
     let language = registry.language(&conversation.language_id)?;
-    let language_context = registry.resolve(
+    let language_context = registry.resolve_pair(
         &conversation.language_id,
         Some(&conversation.settings.variety_id),
         &conversation.settings.explanation_language,
+        Some(&conversation.settings.explanation_variety_id),
     )?;
     let settings = serde_json::to_string(&conversation.settings)?;
     let mut system = crate::conversation_prompt::persona_system(
@@ -1565,10 +1566,9 @@ fn prepare_speech(db: &Connection, operation: &str, turn: &str, context: &str) -
         .as_str()
         .ok_or_else(|| fail("Missing captured speech voice."))?
         .to_owned();
-    let language = captured["targetLanguage"]
-        .as_str()
-        .ok_or_else(|| fail("Missing captured speech language."))?
-        .to_owned();
+    let context: crate::config::LanguageContext =
+        serde_json::from_value(captured["languageContext"].clone())?;
+    let language = format!("{} — {}", context.target_name, context.variety_name);
     if text.is_empty() || text.chars().count() > 12000 || text.contains('\0') || voice.is_empty() {
         return Err(fail("Speech input exceeds its source contract."));
     }
@@ -2893,7 +2893,7 @@ mod tests {
         for gloss_first in [true, false] {
             let (_dir, mut store, conversation) = setup();
             let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
-            store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr') WHERE conversation_id=?1", [&conversation]).unwrap();
+            store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr','$.explanationVarietyId','fr-FR') WHERE conversation_id=?1", [&conversation]).unwrap();
             assert_eq!(
                 gloss
                     .gloss_source
@@ -3142,7 +3142,7 @@ mod tests {
     #[test]
     fn r1_translation_captures_language_and_step_admits_one_attempt() {
         let (_dir, mut store, conversation) = setup();
-        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr') WHERE conversation_id=?1", [&conversation]).unwrap();
+        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr','$.explanationVarietyId','fr-FR') WHERE conversation_id=?1", [&conversation]).unwrap();
         let first = begin(&mut store, &conversation);
         let turn = store
             .conversation_snapshot(&conversation, None)
@@ -3150,7 +3150,7 @@ mod tests {
             .turns[0]
             .id
             .clone();
-        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false'),'$.explanationLanguage','en') WHERE conversation_id=?1", [&conversation]).unwrap();
+        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false'),'$.explanationLanguage','en','$.explanationVarietyId','en-US') WHERE conversation_id=?1", [&conversation]).unwrap();
         apply(
             &mut store,
             Action::ControlTurn {
@@ -3577,6 +3577,97 @@ mod tests {
         );
     }
     #[test]
+    fn a_variety_without_authored_starters_still_has_a_usable_snapshot() {
+        let (_dir, mut store, _) = setup();
+        let conversation = apply(
+            &mut store,
+            Action::StartChat {
+                language_id: "ar".into(),
+            },
+        )
+        .entity_id;
+        let view = store.conversation_snapshot(&conversation, None).unwrap();
+        assert!(view.starter_cards.is_empty());
+        let snapshot = store.snapshot().unwrap();
+        assert_eq!(
+            snapshot
+                .conversations
+                .iter()
+                .find(|c| c.id == conversation)
+                .unwrap()
+                .settings
+                .variety_id,
+            "ar-levantine"
+        );
+    }
+
+    #[test]
+    fn captured_varieties_survive_settings_changes_for_deferred_operations() {
+        let (_dir, mut store, conversation) = setup();
+        let snapshot = store.snapshot().unwrap();
+        let current = snapshot
+            .conversations
+            .iter()
+            .find(|c| c.id == conversation)
+            .unwrap();
+        let mut settings = current.settings.clone();
+        settings.variety_id = "es-MX".into();
+        settings.explanation_variety_id = "en-GB".into();
+        apply(
+            &mut store,
+            Action::UpdateSettings {
+                conversation_id: conversation.clone(),
+                expected_revision: current.settings_revision,
+                settings,
+            },
+        );
+        let receipt = store.execute(send(&store, &conversation)).unwrap();
+        let before: String = store
+            .connection
+            .query_row(
+                "SELECT context FROM turns WHERE id=?1",
+                [&receipt.entity_id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let before: serde_json::Value = serde_json::from_str(&before).unwrap();
+        assert_eq!(before["languageContext"]["variety_id"], "es-MX");
+        assert_eq!(before["languageContext"]["explanation_variety_id"], "en-GB");
+        let snapshot = store.snapshot().unwrap();
+        let current = snapshot
+            .conversations
+            .iter()
+            .find(|c| c.id == conversation)
+            .unwrap();
+        let mut settings = current.settings.clone();
+        settings.variety_id = "es-ES".into();
+        settings.explanation_variety_id = "en-US".into();
+        apply(
+            &mut store,
+            Action::UpdateSettings {
+                conversation_id: conversation.clone(),
+                expected_revision: current.settings_revision,
+                settings,
+            },
+        );
+        let after: String = store
+            .connection
+            .query_row(
+                "SELECT context FROM turns WHERE id=?1",
+                [&receipt.entity_id],
+                |r| r.get(0),
+            )
+            .unwrap();
+        let after: serde_json::Value = serde_json::from_str(&after).unwrap();
+        assert_eq!(before["languageContext"], after["languageContext"]);
+        assert!(
+            after["languageContext"]["guidance"]["explanation_writing"]
+                .to_string()
+                .contains("United Kingdom")
+        );
+    }
+
+    #[test]
     fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captured() {
         for (target, explanation) in [("zh", "en"), ("es", "zh"), ("zh", "zh"), ("es", "en")] {
             for coach in [false, true] {
@@ -3596,8 +3687,8 @@ mod tests {
                     .entity_id
                 };
                 store.connection.execute(
-                    "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.readAloud',json('false'),'$.translation',json('true')) WHERE conversation_id=?1",
-                    params![conversation, explanation],
+                    "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3,'$.readAloud',json('false'),'$.translation',json('true')) WHERE conversation_id=?1",
+                    params![conversation, explanation, store.config.language(explanation).unwrap().default_variety],
                 ).unwrap();
                 let mut command = send(&store, &conversation);
                 if coach {
@@ -3621,8 +3712,8 @@ mod tests {
                 // either the already captured coach prompt or deferred translation.
                 let later = if explanation == "zh" { "en" } else { "zh" };
                 store.connection.execute(
-                    "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2) WHERE conversation_id=?1",
-                    params![conversation, later],
+                    "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3) WHERE conversation_id=?1",
+                    params![conversation, later, store.config.language(later).unwrap().default_variety],
                 ).unwrap();
                 assert!(store.dispatch().unwrap().is_none());
                 let primary = store.dispatch().unwrap().unwrap();

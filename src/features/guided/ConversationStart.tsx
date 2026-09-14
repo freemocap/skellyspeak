@@ -34,6 +34,7 @@ export function ConversationStart({ starters, busy, onStart, onLesson }: {
       <option value="">{tr("Any topic")}</option>
       {starters.map(starter => <option key={starter.id} value={starter.id}>{starter.label}</option>)}
     </select>}
+    {starters.length === 0 && <p>{tr('No matching starter topics. You can still start a conversation.')}</p>}
     {error && <p role="alert">{error}</p>}
   </section>
 }

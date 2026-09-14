@@ -61,11 +61,11 @@ export type ConversationSnapshot = { lessons: Array<LessonView>, lessonChoices: 
 export type Difficulty = "absolute_zero" | "beginner" | "intermediate" | "advanced" | "fluent";
 export type HelpAmount = "minimal" | "balanced" | "generous";
 export type CoachProactivity = "on_request" | "occasional" | "frequent";
-export type PracticeSettings = { difficulty: Difficulty, explanationLanguage: string, varietyId: string, composingHelp: HelpAmount, coachProactivity: CoachProactivity, translation: boolean, pronunciation: boolean, romanization: boolean, autoSend: boolean, readAloud: boolean, speechVoice: string, };
+export type PracticeSettings = { difficulty: Difficulty, explanationLanguage: string, varietyId: string, explanationVarietyId: string, composingHelp: HelpAmount, coachProactivity: CoachProactivity, translation: boolean, pronunciation: boolean, romanization: boolean, autoSend: boolean, readAloud: boolean, speechVoice: string, };
 export type SpeechUnavailableReason = "notRequested" | "cancelled" | "failed" | "unknownOutcome" | "expired";
 export type SpeechAudioState = { "status": "pending", operationId: string, messageId: string, } | { "status": "ready", operationId: string, attemptId: string, messageId: string, mime: string, audioBase64: string, } | { "status": "unavailable", operationId: string, messageId: string, reason: SpeechUnavailableReason, };
 export type OnboardingStatus = "not_started" | "in_progress" | "skipped" | "completed";
-export type Preferences = { theme: Theme, explanationLanguage: string, textSize: number, textSpacing: number, highContrast: boolean, onboarding: OnboardingStatus, };
+export type Preferences = { theme: Theme, explanationLanguage: string, explanationVarietyId: string, interfaceLocale: string, targetVarieties: { [key in string]: string }, textSize: number, textSpacing: number, highContrast: boolean, onboarding: OnboardingStatus, };
 export type Learner = { id: string, name: string, revision: number, preferences: Preferences, };
 export type LanguageProfile = { id: string, learnerId: string, languageId: string, };
 export type PersonaDetails = { name: string, 
@@ -81,8 +81,8 @@ age: number | null, location: string, occupation: string, background: string, cu
 export type Persona = { id: string, learnerId: string, languageId: string, revision: number, details: PersonaDetails, };
 export type Contact = { id: string, learnerId: string, personaId: string, archived: boolean, revision: number, };
 export type Conversation = { id: string, contactId: string, languageId: string, title: string, archived: boolean, revision: number, settingsRevision: number, settings: PracticeSettings, createdAt: string, lastUsed: number, };
-export type Variety = { id: string, name: string, };
-export type Language = { fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, };
+export type Variety = { direction: string, fontScale: number, romanization: string | null, id: string, name: string, description: string, };
+export type Language = { fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, defaultVariety: string, };
 export type Snapshot = { sessionId: string, revision: number, learner: Learner, languages: Array<Language>, languageProfiles: Array<LanguageProfile>, personas: Array<Persona>, contacts: Array<Contact>, conversations: Array<Conversation>, };
 export type StartupState = { 
 /**

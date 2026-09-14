@@ -1,5 +1,6 @@
 id: "en"
 name: "English"
+external_tags: {transcription: "en"}
 native_name: "English"
 script: "Latn"
 orthography: "latin"
@@ -11,10 +12,24 @@ varieties:
   -
     id: "en-US"
     name: "United States"
+    description: "United States"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
   -
     id: "en-GB"
     name: "United Kingdom"
+    description: "United Kingdom"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

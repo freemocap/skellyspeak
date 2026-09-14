@@ -28,7 +28,7 @@ pub(crate) fn prepare_private_directory(path: &Path) -> std::io::Result<()> {
 }
 
 /// Current development schema. Other versions require an explicit workspace reset.
-pub(crate) const SCHEMA_VERSION: i32 = 14;
+pub(crate) const SCHEMA_VERSION: i32 = 15;
 const GENERATION_SCHEMA: &str = include_str!("generation_schema.sql");
 
 /// The workspace database, inside the application data directory.
@@ -238,6 +238,9 @@ impl Store {
             let preferences = Preferences {
                 theme: Theme::Light,
                 explanation_language: "en".into(),
+                explanation_variety_id: config.language("en")?.default_variety,
+                interface_locale: "en".into(),
+                target_varieties: Default::default(),
                 text_size: crate::model::TEXT_SIZE_DEFAULT,
                 text_spacing: 0,
                 high_contrast: false,
@@ -590,10 +593,9 @@ impl Store {
                     &language_id,
                     details,
                 )?;
-                let settings = self.config.defaults(
-                    &language_id,
-                    &snapshot.learner.preferences.explanation_language,
-                )?;
+                let settings = self
+                    .config
+                    .preference_defaults(&language_id, &snapshot.learner.preferences)?;
                 let conversation_id = create_conversation(
                     &tx,
                     &contact_id,
@@ -616,10 +618,9 @@ impl Store {
                     &language_id,
                     details,
                 )?;
-                let settings = self.config.defaults(
-                    &language_id,
-                    &snapshot.learner.preferences.explanation_language,
-                )?;
+                let settings = self
+                    .config
+                    .preference_defaults(&language_id, &snapshot.learner.preferences)?;
                 let conversation_id = create_conversation(
                     &tx,
                     &contact_id,
@@ -704,18 +705,19 @@ impl Store {
                     .iter()
                     .find(|p| p.id == contact.persona_id)
                     .ok_or_else(missing)?;
-                let recent = snapshot
+                let defaults = self
+                    .config
+                    .preference_defaults(&persona.language_id, &snapshot.learner.preferences)?;
+                let mut settings = snapshot
                     .conversations
                     .iter()
                     .filter(|c| c.contact_id == contact_id)
-                    .max_by(|a, b| a.last_used.cmp(&b.last_used).then(a.id.cmp(&b.id)));
-                let settings = match recent {
-                    Some(c) => c.settings.clone(),
-                    None => self.config.defaults(
-                        &persona.language_id,
-                        &snapshot.learner.preferences.explanation_language,
-                    )?,
-                };
+                    .max_by(|a, b| a.last_used.cmp(&b.last_used).then(a.id.cmp(&b.id)))
+                    .map(|c| c.settings.clone())
+                    .unwrap_or_else(|| defaults.clone());
+                settings.variety_id = defaults.variety_id;
+                settings.explanation_language = defaults.explanation_language;
+                settings.explanation_variety_id = defaults.explanation_variety_id;
                 let conversation_id = create_conversation(
                     &tx,
                     &contact_id,
@@ -801,7 +803,7 @@ impl Store {
             } => {
                 check_revision(snapshot.learner.revision, expected_revision)?;
                 short_text(&name, "Learner name", 80)?;
-                self.config.language(&preferences.explanation_language)?;
+                self.config.validate_preferences(&preferences)?;
                 if !(crate::model::TEXT_SIZE_MIN..=crate::model::TEXT_SIZE_MAX)
                     .contains(&preferences.text_size)
                     || preferences.text_spacing > 12
@@ -872,7 +874,7 @@ fn read_snapshot(
             })
         },
     )?;
-    config.language(&learner.preferences.explanation_language)?;
+    config.validate_preferences(&learner.preferences)?;
     let language_profiles = connection
         .prepare("SELECT id,learner_id,language_id FROM language_profiles ORDER BY language_id")?
         .query_map([], |r| {
@@ -1230,6 +1232,55 @@ mod tests {
         assert_eq!(snapshot.language_profiles.len(), 1);
     }
     #[test]
+    fn language_preferences_seed_new_conversations_without_rewriting_existing_ones() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("workspace.sqlite3");
+        let mut store = Store::open(&path).unwrap();
+        let contact = contact(&mut store);
+        let first = conversation(&mut store, &contact, "First");
+        let learner = store.snapshot().unwrap().learner;
+        let mut preferences = learner.preferences;
+        preferences
+            .target_varieties
+            .insert("es".into(), "es-MX".into());
+        preferences.explanation_language = "en".into();
+        preferences.explanation_variety_id = "en-GB".into();
+        preferences.interface_locale = "de".into();
+        apply(
+            &mut store,
+            Action::UpdateLearner {
+                expected_revision: learner.revision,
+                name: learner.name,
+                preferences,
+            },
+        );
+        let second = conversation(&mut store, &contact, "Second");
+        assert_eq!(second.settings.variety_id, "es-MX");
+        assert_eq!(second.settings.explanation_variety_id, "en-GB");
+        drop(store);
+        let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
+        assert_eq!(snapshot.learner.preferences.interface_locale, "de");
+        assert_eq!(
+            snapshot
+                .conversations
+                .iter()
+                .find(|c| c.id == first.id)
+                .unwrap()
+                .settings,
+            first.settings
+        );
+        assert_eq!(
+            snapshot
+                .conversations
+                .iter()
+                .find(|c| c.id == second.id)
+                .unwrap()
+                .settings,
+            second.settings
+        );
+    }
+
+    #[test]
     fn duplicate_commands_are_idempotent_and_reusing_identity_with_other_payload_fails() {
         let directory = tempfile::tempdir().unwrap();
         let mut store = Store::open(&directory.path().join("db")).unwrap();
@@ -1424,7 +1475,7 @@ mod tests {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("skellyspeak.sqlite3");
         drop(Store::open(&path).unwrap());
-        for version in [3, 5, 8, 9, 10, 11, 12, 13, SCHEMA_VERSION + 1] {
+        for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, SCHEMA_VERSION + 1] {
             let connection = Connection::open(&path).unwrap();
             connection
                 .pragma_update(None, "user_version", version)

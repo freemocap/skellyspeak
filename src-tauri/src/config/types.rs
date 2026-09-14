@@ -23,6 +23,10 @@ pub struct LanguageContext {
     pub language_id: String,
     pub variety_id: String,
     pub explanation_language_id: String,
+    pub explanation_variety_id: String,
+    pub target_name: String,
+    pub variety_name: String,
+    pub external_tags: BTreeMap<String, String>,
     pub hash: String,
     pub guidance: BTreeMap<String, Vec<String>>,
     pub script: String,
@@ -76,6 +80,7 @@ pub struct FeedbackPolicy {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Starter {
+    pub compatible_varieties: BTreeMap<String, Vec<String>>,
     pub id: String,
     pub labels: BTreeMap<String, String>,
     pub previews: BTreeMap<String, String>,
@@ -157,6 +162,15 @@ pub struct Family {
 #[serde(deny_unknown_fields)]
 pub struct Variety {
     #[serde(default)]
+    pub romanization_disabled: bool,
+    pub description: String,
+    pub review: String,
+    pub sources: Vec<String>,
+    pub script: Option<String>,
+    pub orthography: Option<String>,
+    pub romanization: Option<String>,
+    pub external_tags: BTreeMap<String, String>,
+    #[serde(default)]
     pub scalars: ScalarOverrides,
     pub id: String,
     pub name: String,
@@ -165,6 +179,7 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Language {
+    pub external_tags: BTreeMap<String, String>,
     pub starter_persona: crate::model::PersonaDetails,
     #[serde(default)]
     pub scalars: ScalarOverrides,

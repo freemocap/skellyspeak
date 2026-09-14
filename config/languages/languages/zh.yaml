@@ -1,5 +1,6 @@
 id: "zh"
 name: "Mandarin"
+external_tags: {transcription: "zh"}
 native_name: "中文（简体）"
 script: "Hans"
 orthography: "zh-hans"
@@ -13,6 +14,13 @@ varieties:
   -
     id: "zh-CN"
     name: "Mainland China"
+    description: "Mainland China"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

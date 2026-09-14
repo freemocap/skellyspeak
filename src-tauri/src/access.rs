@@ -436,6 +436,7 @@ fn transcription_form(
     target: &ResolvedTarget,
     wav: Vec<u8>,
     language: &str,
+    variety_hint: &str,
 ) -> Result<reqwest::multipart::Form> {
     let verbose = target.route == ConnectionRoute::Openrouter;
     let mut form = reqwest::multipart::Form::new()
@@ -445,6 +446,7 @@ fn transcription_form(
             if verbose { "verbose_json" } else { "json" },
         )
         .text("language", language.to_owned())
+        .text("prompt", variety_hint.to_owned())
         .part(
             "file",
             reqwest::multipart::Part::bytes(wav)
@@ -492,12 +494,13 @@ pub async fn transcribe(
     key: &str,
     wav: Vec<u8>,
     language: &str,
+    variety_hint: &str,
     install: &str,
 ) -> Result<TranscriptionResponse> {
     if wav.is_empty() || wav.len() > 25 * 1024 * 1024 {
         return Err(error("Recording must contain audio and be at most 25 MB."));
     }
-    let form = transcription_form(target, wav, language)?;
+    let form = transcription_form(target, wav, language, variety_hint)?;
     let request = client.post(&target.url);
     let request = if key.is_empty() {
         request
@@ -845,6 +848,8 @@ mod tests {
                 "custom-whisper",
                 "name=\"language\"",
                 "es",
+                "Spanish — Spain",
+                "name=\"prompt\"",
                 "filename=\"audio.wav\"",
                 "RIFF-test-audio",
             ] {
@@ -873,6 +878,7 @@ mod tests {
             "",
             b"RIFF-test-audio".to_vec(),
             "es",
+            "Spanish — Spain",
             "private-install-id",
         )
         .await
@@ -956,6 +962,7 @@ mod tests {
                 "",
                 b"RIFF-test".to_vec(),
                 "es",
+                "Spanish — Spain",
                 "fixture-install",
             )
             .await

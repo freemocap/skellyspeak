@@ -10,6 +10,15 @@
           },
           "type": "array"
         },
+        "compatible_varieties": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
         "constructs_any": {
           "items": {
             "type": "string"
@@ -73,6 +82,7 @@
       },
       "required": [
         "bands",
+        "compatible_varieties",
         "constructs_any",
         "contact_tags",
         "functions",

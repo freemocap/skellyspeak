@@ -1,5 +1,6 @@
 id: "pt"
 name: "Portuguese"
+external_tags: {transcription: "pt"}
 native_name: "Português"
 script: "Latn"
 orthography: "latin"
@@ -10,6 +11,13 @@ default_variety: "pt-BR"
 varieties:
   - id: "pt-BR"
     name: "Brazil"
+    description: "Brazil"
+    review: "needs_review"
+    sources: []
+    script: null
+    orthography: null
+    romanization: null
+    external_tags: {}
     guidance: []
 guidance: []
 review: "needs_review"

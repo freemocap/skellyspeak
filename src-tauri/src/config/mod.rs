@@ -261,15 +261,27 @@ impl Registry {
             id: l.id.clone(),
             name: l.name.clone(),
             native_name: l.native_name.clone(),
+            default_variety: l.default_variety.clone(),
             font_scale: self.resolved_scalars(l, &l.default_variety).1,
             direction: self.resolved_scalars(l, &l.default_variety).0,
-            romanization: l.romanization.clone(),
+            romanization: Self::variety_romanization(
+                l,
+                l.varieties
+                    .iter()
+                    .find(|v| v.id == l.default_variety)
+                    .unwrap(),
+            )
+            .cloned(),
             varieties: l
                 .varieties
                 .iter()
                 .map(|v| model::Variety {
                     id: v.id.clone(),
+                    direction: self.resolved_scalars(l, &v.id).0,
+                    font_scale: self.resolved_scalars(l, &v.id).1,
+                    romanization: Self::variety_romanization(l, v).cloned(),
                     name: v.name.clone(),
+                    description: v.description.clone(),
                 })
                 .collect(),
         })
@@ -294,6 +306,7 @@ impl Registry {
             difficulty: model::Difficulty::Beginner,
             explanation_language: explanation.into(),
             variety_id: l.default_variety.clone(),
+            explanation_variety_id: self.language_config(explanation)?.default_variety.clone(),
             composing_help: model::HelpAmount::Balanced,
             coach_proactivity: model::CoachProactivity::OnRequest,
             translation: false,
@@ -304,15 +317,42 @@ impl Registry {
             speech_voice: "alloy".into(),
         })
     }
+    pub fn preference_defaults(
+        &self,
+        language: &str,
+        preferences: &model::Preferences,
+    ) -> model::Result<model::PracticeSettings> {
+        let mut settings = self.defaults(language, &preferences.explanation_language)?;
+        settings.explanation_variety_id = preferences.explanation_variety_id.clone();
+        if let Some(variety) = preferences.target_varieties.get(language) {
+            settings.variety_id = variety.clone();
+        }
+        self.validate_settings(language, &settings)?;
+        Ok(settings)
+    }
+    pub fn validate_preferences(&self, preferences: &model::Preferences) -> model::Result<()> {
+        self.language(&preferences.interface_locale)?;
+        self.resolve_pair(
+            &preferences.explanation_language,
+            None,
+            &preferences.explanation_language,
+            Some(&preferences.explanation_variety_id),
+        )?;
+        for (language, variety) in &preferences.target_varieties {
+            self.resolve(language, Some(variety), &preferences.explanation_language)?;
+        }
+        Ok(())
+    }
     pub fn validate_settings(
         &self,
         language: &str,
         settings: &model::PracticeSettings,
     ) -> model::Result<()> {
-        self.resolve(
+        self.resolve_pair(
             language,
             Some(&settings.variety_id),
             &settings.explanation_language,
+            Some(&settings.explanation_variety_id),
         )?;
         if settings.speech_voice != "alloy" {
             return Err(model::AppError::new(
@@ -324,7 +364,29 @@ impl Registry {
     }
     pub fn romanization_guidance(&self, id: &str) -> Result<Option<String>> {
         let l = self.language_config(id)?;
-        Ok(l.romanization.as_ref().map(|id| {
+        self.romanization_for(
+            l,
+            l.varieties
+                .iter()
+                .find(|v| v.id == l.default_variety)
+                .unwrap(),
+        )
+    }
+    fn variety_romanization<'a>(
+        language: &'a Language,
+        variety: &'a Variety,
+    ) -> Option<&'a String> {
+        if variety.romanization_disabled {
+            None
+        } else {
+            variety
+                .romanization
+                .as_ref()
+                .or(language.romanization.as_ref())
+        }
+    }
+    fn romanization_for(&self, language: &Language, variety: &Variety) -> Result<Option<String>> {
+        Ok(Self::variety_romanization(language, variety).map(|id| {
             let s = self
                 .romanizations
                 .iter()
@@ -352,8 +414,29 @@ impl Registry {
         variety: Option<&str>,
         explanation: &str,
     ) -> Result<LanguageContext> {
+        self.resolve_pair(language, variety, explanation, None)
+    }
+    pub fn resolve_pair(
+        &self,
+        language: &str,
+        variety: Option<&str>,
+        explanation: &str,
+        explanation_variety: Option<&str>,
+    ) -> Result<LanguageContext> {
         let target = self.language_config(language)?;
         let explanation = self.language_config(explanation)?;
+        let explanation_variety = explanation_variety.unwrap_or(&explanation.default_variety);
+        if !explanation
+            .varieties
+            .iter()
+            .any(|v| v.id == explanation_variety)
+        {
+            return Err(error(
+                "languages",
+                "unknown_explanation_variety",
+                explanation_variety,
+            ));
+        }
         let variety = variety.unwrap_or(&target.default_variety);
         if !target.varieties.iter().any(|v| v.id == variety) {
             return Err(error("languages", "unknown_variety", variety));
@@ -366,11 +449,23 @@ impl Registry {
                 target
             };
             let v = if *scope == "explanation_writing" {
-                &lang.default_variety
+                explanation_variety
             } else {
                 variety
             };
-            let mut rules = vec![];
+            let selected = lang
+                .varieties
+                .iter()
+                .find(|item| item.id == v)
+                .expect("validated variety");
+            let mut rules = vec![format!(
+                "Use {} — {} ({}). {}",
+                lang.name, selected.name, selected.id, selected.description
+            )];
+            // [@asha_language_variation]
+            if *scope == "assessment" {
+                rules.push("Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.".into());
+            }
             let mut add = |notes: &[Guidance]| {
                 rules.extend(
                     notes
@@ -391,7 +486,7 @@ impl Registry {
             add(&self
                 .orthographies
                 .iter()
-                .find(|o| o.id == lang.orthography)
+                .find(|o| o.id == *selected.orthography.as_ref().unwrap_or(&lang.orthography))
                 .expect("validated orthography")
                 .guidance);
             add(&lang.guidance);
@@ -402,7 +497,7 @@ impl Registry {
                 .expect("validated variety")
                 .guidance);
             if *scope == "romanization"
-                && let Some(text) = self.romanization_guidance(language)?
+                && let Some(text) = self.romanization_for(target, selected)?
             {
                 rules.push(text);
             }
@@ -410,13 +505,43 @@ impl Registry {
         }
         let (direction, font_scale, word_spacing) = self.resolved_scalars(target, variety);
         let mut ctx = LanguageContext {
-            script: target.script.clone(),
+            script: target
+                .varieties
+                .iter()
+                .find(|v| v.id == variety)
+                .unwrap()
+                .script
+                .as_ref()
+                .unwrap_or(&target.script)
+                .clone(),
             direction,
             font_scale,
             word_spacing,
             language_id: language.into(),
             variety_id: variety.into(),
             explanation_language_id: explanation.id.clone(),
+            explanation_variety_id: explanation_variety.into(),
+            target_name: target.name.clone(),
+            variety_name: target
+                .varieties
+                .iter()
+                .find(|v| v.id == variety)
+                .unwrap()
+                .name
+                .clone(),
+            external_tags: {
+                let mut tags = target.external_tags.clone();
+                tags.extend(
+                    target
+                        .varieties
+                        .iter()
+                        .find(|v| v.id == variety)
+                        .unwrap()
+                        .external_tags
+                        .clone(),
+                );
+                tags
+            },
             hash: String::new(),
             guidance,
         };
@@ -427,7 +552,16 @@ impl Registry {
         let script = self
             .scripts
             .iter()
-            .find(|s| s.id == language.script)
+            .find(|s| {
+                s.id == *language
+                    .varieties
+                    .iter()
+                    .find(|v| v.id == variety)
+                    .unwrap()
+                    .script
+                    .as_ref()
+                    .unwrap_or(&language.script)
+            })
             .expect("validated script");
         let mut result = (
             script.direction.clone(),
@@ -582,6 +716,12 @@ impl Registry {
             .iter()
             .filter(|s| {
                 s.languages.contains(&ctx.language_id)
+                    && s.compatible_varieties
+                        .get(&ctx.language_id)
+                        .is_some_and(|ids| ids.contains(&ctx.variety_id))
+                    && s.compatible_varieties
+                        .get(&ctx.explanation_language_id)
+                        .is_some_and(|ids| ids.contains(&ctx.explanation_variety_id))
                     && s.bands.iter().any(|b| b == band)
                     && !recent.iter().take(3).any(|id| *id == s.id)
             })

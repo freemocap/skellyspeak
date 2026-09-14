@@ -7,8 +7,8 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../../types'
 import { logInfo, languages } from '../../platform/ipc/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../../domain/input/keyboard'
-import { DialectField } from './DialectField'
-import { t, uiLangFromNative, type UiLang } from '../../domain/language/i18n'
+import { VarietyField } from './VarietyField'
+import { t, type UiLang } from '../../domain/language/i18n'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { openOverlay } from '../../domain/input/back'
@@ -177,7 +177,7 @@ export function SettingsModal({
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
   // The app's UI language follows the learner's NATIVE language.
-  const ui = uiLangFromNative(settings?.native_language)
+  const ui = tr.locale
 
   useEffect(() => {
     logInfo('[settings] modal opened')
@@ -307,8 +307,8 @@ export function SettingsModal({
           <select
             value={settings.target_language}
             onChange={(e) => {
-              // Changing language resets the dialect to that language's default.
-              setSettings({ ...settings, target_language: e.target.value, target_dialect: '' })
+              // New language choices start at their configured variety.
+              setSettings({ ...settings, target_language: e.target.value, target_variety: languages().find(l => l.code === e.target.value)!.defaultVariety })
             }}
           >
             {languages().map((l) => (
@@ -320,19 +320,19 @@ export function SettingsModal({
         </div>
       ),
     },
-    target_dialect: {
+    target_variety: {
       section: 'languages',
-      label: tr('Regional variety'),
+      label: tr('Variety'),
       kw: 'dialect regional variety accent region levantine mexican',
       node: (
         <div className="form-row">
-          <label>{tr("Regional variety")}</label>
-          <DialectField
+          <label>{tr("Variety")} <InfoTip>{tr('Speech variety matching is not guaranteed.')}</InfoTip></label>
+          <VarietyField
             presets={
-              languages().find((l) => l.code === settings.target_language)?.dialects ?? []
+              languages().find((l) => l.code === settings.target_language)?.varieties ?? []
             }
-            value={settings.target_dialect}
-            onChange={(v) => setSettings({ ...settings, target_dialect: v })}
+            value={settings.target_variety}
+            onChange={(v) => setSettings({ ...settings, target_variety: v })}
           />
         </div>
       ),
@@ -346,7 +346,7 @@ export function SettingsModal({
           <label>{tr("My native language")}</label>
           <select
             value={settings.native_language}
-            onChange={(e) => setSettings({ ...settings, native_language: e.target.value })}
+            onChange={(e) => setSettings({ ...settings, native_language: e.target.value, native_variety: languages().find(l => l.code === e.target.value)!.defaultVariety })}
           >
             {languages().map((l) => (
               <option key={l.base} value={l.base}>
@@ -356,6 +356,19 @@ export function SettingsModal({
           </select>
         </div>
       ),
+    },
+    native_variety: {
+      section: 'languages', label: tr('Explanation variety'), kw: 'native explanation variety dialect',
+      node: <div className="form-row"><label>{tr('Explanation variety')}</label><VarietyField label={tr('Explanation variety')}
+        presets={languages().find(l => l.code === settings.native_language)?.varieties ?? []}
+        value={settings.native_variety} onChange={native_variety => setSettings({ ...settings, native_variety })} /></div>,
+    },
+    interface_locale: {
+      section: 'languages', label: tr('Interface language'), kw: 'interface ui locale',
+      node: <div className="form-row"><label>{tr('Interface language')}</label><select value={settings.interface_locale}
+        onChange={event => setSettings({ ...settings, interface_locale: event.target.value })}>
+        {languages().map(language => <option key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
+      </select></div>,
     },
     audio_volume: {
       section: 'voice', label: tr('Volume'), kw: 'audio master overall volume voice speech tts effects sound mute rewards',
@@ -546,7 +559,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_dialect', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

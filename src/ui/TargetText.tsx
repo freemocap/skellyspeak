@@ -22,12 +22,12 @@ export function ReadingProvider({ settings, children }: { settings: Settings | n
   },[settings?.theme])
   useEffect(() => {
     const root = document.documentElement
-    root.style.setProperty('--script-scale', String(settings ? languageFor(settings.target_language)?.fontScale ?? 1 : 1))
+    root.style.setProperty('--script-scale', String(settings ? languageFor(settings.target_language, settings.target_variety)?.fontScale ?? 1 : 1))
     root.style.setProperty('--reading-scale', String((settings?.text_size ?? 100) / 100))
     // preference.text_spacing: the learner's word spacing in px (0-12).
     root.style.setProperty('--word-spacing', `${settings?.text_spacing ?? 0}px`)
     return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--script-scale'); root.style.removeProperty('--word-spacing') }
-  }, [settings?.text_size, settings?.text_spacing, settings?.target_language])
+  }, [settings?.text_size, settings?.text_spacing, settings?.target_language, settings?.target_variety])
   return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'en', language: settings?.target_language ?? 'en' }}>
     {children}
   </ReadingContext></ReadingPreferencesProvider>

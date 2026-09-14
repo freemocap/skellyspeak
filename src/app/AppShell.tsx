@@ -58,7 +58,7 @@ export function AppShell() {
   useAppShortcuts(shortcuts)
 
   return (
-    <I18nProvider locale={settings?.native_language ?? 'en'}><ReadingProvider settings={settings}><div className="app">
+    <I18nProvider locale={settings?.interface_locale ?? 'en'}><ReadingProvider settings={settings}><div className="app">
       <UpdateBanner />
       <TopBar />
       <FaultBar />

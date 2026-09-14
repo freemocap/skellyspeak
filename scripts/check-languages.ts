@@ -34,6 +34,9 @@ const languages = fs.readdirSync(path.join(root, 'config/languages/languages')).
   if (!id || file !== `${id}.yaml`) throw new Error(`${file}: filename must match the top-level quoted language id.`)
   const name = /^name: "([^"\n]+)"$/m.exec(text)?.[1]
   if (!name || !Object.hasOwn(locales.en, name)) errors.push(`${file}: configured name needs a message in every locale.`)
+  for (const match of text.matchAll(/^    name: "([^"\n]+)"$/gm)) {
+    if (!Object.hasOwn(locales.en, match[1])) errors.push(`${file}: variety name ${match[1]} needs a message in every locale.`)
+  }
   return id
 }).sort()
 if (languages.join() !== Object.keys(locales).sort().join()) errors.push(`Language and locale files differ: languages=[${languages}], locales=[${Object.keys(locales).sort()}]`)
