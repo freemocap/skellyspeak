@@ -1,0 +1,1 @@
+"""Server accounting app package."""

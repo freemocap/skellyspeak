@@ -100,7 +100,7 @@ jobs:
             if [ "$attempt" = 40 ]; then exit 1; fi
             sleep 0.5
           done
-          uv run --frozen --group dev pytest test_firestore.py -q
+          uv run --frozen --group dev pytest tests/integration/test_firestore.py -q
 
   # Passing tests do not mean a container that starts. A deploy of an image
   # that exits on boot costs a three-minute Cloud Build, fails at the Cloud Run
@@ -207,7 +207,7 @@ jobs:
         run: |
           gcloud beta builds submit \
             --project="$GCP_PROJECT" \
-            --config=server/cloudbuild.yaml \
+            --config=server/deployment/cloudbuild.yaml \
             --gcs-source-staging-dir="gs://${GCP_PROJECT}_cloudbuild/source" \
             --substitutions=_PUBLIC_BASE_URL="$PUBLIC_BASE_URL"
 

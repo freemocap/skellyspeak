@@ -132,7 +132,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: server/uv.lock
       - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
-      - run: python server/check_upload_manifest.py
+      - run: python server/deployment/check_upload_manifest.py
       - name: Install audio decoder
         run: |
           sudo apt-get update

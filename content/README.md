@@ -31,7 +31,7 @@ The following is a navigation index, not a claim that prompts are declarative YA
 | Lesson requests and validation | [lessons.rs](../native/src/learning/lessons.rs) |
 | Turn capture, dispatch and result publication | [execution.rs](../native/src/conversations/execution.rs), [turn_plan.rs](../native/src/conversations/turn_plan.rs) |
 | Native access and model selection | [access.rs](../native/src/ai/connections/access.rs), [model_routing.rs](../native/src/ai/connections/model_routing.rs) |
-| Hosted model routing | [server/model_routing.py](../server/model_routing.py) |
+| Hosted model routing | [server/app/inference/model_routing.py](../server/app/inference/model_routing.py) |
 | Configuration types and validation | [native/src/configuration/](../native/src/configuration/) |
 | Research citations | [references.bib](../references.bib) |
 

@@ -93,6 +93,33 @@ agreed pass. Preserve existing runtime ownership, synchronization, native comman
 names and serialized contracts during folder-only work. Update exporters and the
 UI command-registration test when their source locations move.
 
+## Server organization
+
+Follow [server/README.md](server/README.md). `server/app/` owns the hosted FastAPI
+runtime; `tests/` owns server tests and shared setup; `development/` owns the local
+launcher, local logging and example configuration; `operations/` owns service
+usage and reconciliation tools; `deployment/` owns Cloud Build configuration,
+deployment verification, retention provisioning and upload checks. Keep package
+metadata, Dockerfile and .dockerignore at the server root.
+
+Within `app/`, group authentication under `identity/`, request/work limits under
+`admission/`, AI contracts/routing/streaming/audio under `inference/`, budget/quota
+under `accounting/`, and account/request diagnostics under `diagnostics/`.
+Keep main.py, config.py and the shared transactions.py helper at the app root.
+Tests follow those subject groups, with integration, development, deployment and
+operations suites; shared conftest.py stays at the tests root. Existing cross-test
+fixture imports remain until a separately agreed extraction. The development
+entry point is `server.development.launcher`; its Python logging module is `logs.py`.
+These are whole-file groups; quota.py and main.py retain mixed responsibilities
+pending later decomposition, and logging consolidation is separate future work.
+
+Use explicit `server.<area>.<module>` Python imports and module entry points.
+Update Docker copies, upload allowlists, CI and root launchers when files move.
+Package only runtime code into the image. Preserve private local.env and
+.local-server locations when moving launcher source. Whole-file organization
+does not authorize splitting main.py, changing runtime behavior or running live
+administrative/deployment commands. Deeper server subfolders need a separate review.
+
 ## Source file size
 
 Prefer cohesive source files of roughly 200–500 lines; smaller files are fine.

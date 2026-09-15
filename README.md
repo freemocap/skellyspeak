@@ -492,7 +492,7 @@ attempt does not mean no failure occurred: capture, settings and admission can
 fail first. Report precisely which sources were read and any missing coverage.
 
 Logging checks: `npm run logs:check`, `npm run logs:test`, `npm test`, native
-`cargo test`, and `server/test_local_logging.py`. Node launcher tests are separate
+`cargo test`, and `server/tests/development/test_logs.py`. Node launcher tests are separate
 from the frontend Vitest suite. `.local/` is excluded from Vite's file watcher so
 log writes do not reload the webview.
 

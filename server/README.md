@@ -4,6 +4,42 @@ The active API source and deployment configuration live here. Authentication,
 request/body limits, model pricing ceilings, transactional budget reservation,
 settlement and session revocation apply to hosted AI calls.
 
+## Folder map
+
+| Folder | Responsibility |
+| --- | --- |
+| [app/](app/) | Hosted FastAPI application, authentication, AI proxying, admission, spending controls and diagnostics |
+| [tests/](tests/) | Server tests and shared test environment |
+| [development/](development/) | Local launcher, private logging and example environment configuration |
+| [operations/](operations/) | Administrative usage reports and reservation reconciliation |
+| [deployment/](deployment/) | Cloud Build configuration, deployment/revision verification, retention provisioning and upload checks |
+
+Python imports use the `server` package. The container starts
+`server.app.main:app`; root `npm run server:local` uses the local development
+launcher. From the repository root, administrative tools run with
+`uv run --project server python -m server.operations.stats` or
+`uv run --project server python -m server.operations.reconcile` and their arguments.
+
+### Application and test subfolders
+
+`app/identity/` owns authentication; `admission/` groups request limits and work
+claims; `inference/` groups AI contracts, routing, grouped execution, streaming and
+audio input; `accounting/` holds budget/quota; `diagnostics/` holds account reports
+and request logging. `main.py`, `config.py` and `transactions.py` remain at the app
+root. These groups preserve existing implementations and cross-domain calls.
+
+Tests use matching subject folders, plus `integration/`, `development/`,
+`deployment/` and `operations/`; `tests/conftest.py` sets up the fake environment.
+`development/launcher.py` starts the ordinary API against the emulator, while
+`development/logs.py` captures Python logs. Their logging ownership and the root
+process logger will be reviewed separately; this folder pass does not redesign them.
+
+Dockerfile, .dockerignore, pyproject.toml and uv.lock stay at this build-context
+root. The private `local.env`, `.local-server/` state and `.venv/` stay here too;
+only the public example moved into `development/`. Runtime files remain explicitly
+allowlisted for the image and source upload. Large-file splitting and deeper
+domain subfolders are deferred. Working notes belong in [docs/notes/](../docs/notes/).
+
 ## Diagnostics
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
@@ -72,7 +108,7 @@ local secrets, tests and administrative scripts are not included.
 `.github/workflows/deploy-server.yml` runs on main for
 server changes or manual dispatch, using configured Workload Identity Federation.
 `gcloud beta builds submit` surfaces build output from Cloud Logging. Build helpers
-are digest-pinned. `deploy_candidate.py` resolves the pushed image to an immutable
+are digest-pinned. `server/deployment/deploy_candidate.py` resolves the pushed image to an immutable
 digest and deploys a build-specific revision with no traffic. Only that exact ready
 revision with matching image/digest can be promoted explicitly to 100%; resulting
 traffic is verified. A failed deployment never promotes, even if its revision
@@ -83,7 +119,7 @@ The workflow also checks that unauthenticated diagnostics return 401.
 No production deployment or counter reset is performed by local tests. A green
 workflow must be followed by an authenticated diagnostic check and one hosted chat.
 
-Before any root-level Cloud Build submission, run `python server/check_upload_manifest.py`
+Before any root-level Cloud Build submission, run `python server/deployment/check_upload_manifest.py`
 with gcloud installed. It checks the actual gcloud upload manifest using harmless
 private-file sentinels and a temporary CLI config; it does not upload or authenticate.
 Both `.gcloudignore` (source archive) and `server/.dockerignore` (container context)
@@ -196,7 +232,7 @@ Then, from the repository root:
 
 ```sh
 FIRESTORE_EMULATOR_HOST=127.0.0.1:8787 SKELLYSPEAK_FIRESTORE_TEST=1 \
-  server/.venv/bin/python -m pytest server/test_firestore.py -q
+  server/.venv/bin/python -m pytest server/tests/integration/test_firestore.py -q
 ```
 
 The tests reject any other emulator address and use disposable project IDs. The
@@ -211,11 +247,11 @@ Put `OPENROUTER_API_KEY` and `GROQ_API_KEY` in `server/local.env` (one `KEY=valu
 per line; optional surrounding quotes, no shell expansion). The file must have
 mode 600. Both it and `server/.local-server/` are Git-ignored and excluded from the
 Docker allowlist. Never paste the keys into logs or command-line arguments.
-`server/local.env.sample` is the credential-free, committable template. For a fresh
+`server/development/local.env.sample` is the credential-free, committable template. For a fresh
 setup, create the private file without overwriting an existing one:
 
 ```sh
-test -e server/local.env || install -m 600 server/local.env.sample server/local.env
+test -e server/local.env || install -m 600 server/development/local.env.sample server/local.env
 ```
 
 With the loopback emulator running, start from the repository root:
@@ -351,7 +387,7 @@ with a `spans` field are forwarded unchanged. Once provider submission starts, u
 usage retains the conservative reservation as before.
 
 Unresolved reservations do not expire; daily usage ledgers retain their 90-day TTL.
-`reconcile.py settle` verifies the OpenRouter receipt before settlement. If daily
+`uv run --project server python -m server.operations.reconcile settle` verifies the OpenRouter receipt before settlement. If daily
 ledgers have already expired, reconciliation can explicitly finalize a reservation
 only after its UTC day plus 91 days. It corrects any surviving historical aggregate,
 never recreates a deleted one, marks the reservation `historical_finalization: true`,

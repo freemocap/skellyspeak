@@ -1,0 +1,1 @@
+"""Server diagnostics app package."""

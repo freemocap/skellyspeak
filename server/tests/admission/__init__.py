@@ -1,0 +1,1 @@
+"""Server admission tests package."""

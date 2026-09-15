@@ -1,0 +1,1 @@
+"""SkellySpeak app package."""

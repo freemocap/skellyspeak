@@ -6,9 +6,15 @@ RUN apt-get update && apt-get install --no-install-recommends -y ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
-COPY main.py config.py auth.py auth_store.py admission.py work_admission.py grouped.py model_routing.py quota.py budget.py transactions.py contracts.py audio_input.py streaming.py observability.py diagnostics.py ./
+COPY __init__.py ./server/
+COPY app/main.py app/config.py app/transactions.py app/__init__.py ./server/app/
+COPY app/identity/auth.py app/identity/auth_store.py app/identity/__init__.py ./server/app/identity/
+COPY app/admission/admission.py app/admission/work_admission.py app/admission/__init__.py ./server/app/admission/
+COPY app/inference/grouped.py app/inference/model_routing.py app/inference/contracts.py app/inference/audio_input.py app/inference/streaming.py app/inference/__init__.py ./server/app/inference/
+COPY app/accounting/quota.py app/accounting/budget.py app/accounting/__init__.py ./server/app/accounting/
+COPY app/diagnostics/observability.py app/diagnostics/diagnostics.py app/diagnostics/__init__.py ./server/app/diagnostics/
 RUN useradd --system --uid 10001 --no-create-home app \
     && chown -R app:app /app
 USER app
 # Launch the installed environment without resolving packages or creating a cache.
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]
+CMD ["/app/.venv/bin/uvicorn", "server.app.main:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]

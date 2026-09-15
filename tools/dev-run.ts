@@ -3,7 +3,7 @@ import { runLogged } from './run-log.ts'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const [mode, ...args] = process.argv.slice(2)
 if (mode === 'server') {
-  process.exitCode = await runLogged(root, 'server/.venv/bin/python', ['-u', 'server/local_server.py', ...args], 'server')
+  process.exitCode = await runLogged(root, 'server/.venv/bin/python', ['-u', '-m', 'server.development.launcher', ...args], 'server')
 } else if (mode === 'process') {
   const [command, ...parameters] = args
   if (!command) throw new Error('A process command is required.')
