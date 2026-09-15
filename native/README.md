@@ -36,10 +36,12 @@ modules and exports `application::run`. The application runtime lives intact in
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
 | `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
 | `storage/` | `schemas/` holds the database SQL; store and reset implementations remain intact |
+| `conversations/execution/` | Admission, holds, connections, turns, snapshots, dispatch, publication, reading retries, speech and recovery; behavior-based tests in `tests/` |
 
-These groups contain whole existing files. Some `mod.rs` files still contain the
-existing implementation; large-file decomposition is deferred until the repository
-folder reorganization is complete. See the source-size policy in root `AGENTS.md`.
+The first folder passes moved whole files. Large-file cleanup has now started with
+conversation execution; its implementation and test files are each under 500 lines.
+Other large modules await individual cleanup. Some `mod.rs` files still contain
+existing implementations. See the source-size policy in root `AGENTS.md`.
 
 These are responsibility groups, not newly independent crates or a redesigned
 layered architecture. Existing cross-domain calls remain. Keep tests with their

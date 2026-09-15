@@ -1,0 +1,4742 @@
+{
+  "date": "2026-09-15",
+  "thresholds": {
+    "good": "0\u2013499",
+    "danger": "500\u2013999",
+    "split": "1000+"
+  },
+  "files": [
+    {
+      "path": "docs/website/package-lock.json",
+      "lines": 19668,
+      "category": "lockfile or vendor wrapper",
+      "band": "split",
+      "area": "docs"
+    },
+    {
+      "path": "native/Cargo.lock",
+      "lines": 6722,
+      "category": "lockfile or vendor wrapper",
+      "band": "split",
+      "area": "native"
+    },
+    {
+      "path": "package-lock.json",
+      "lines": 3587,
+      "category": "lockfile or vendor wrapper",
+      "band": "split",
+      "area": "root"
+    },
+    {
+      "path": "native/src/storage/store.rs",
+      "lines": 1717,
+      "category": "source",
+      "band": "split",
+      "area": "native"
+    },
+    {
+      "path": "native/src/application/mod.rs",
+      "lines": 1501,
+      "category": "source",
+      "band": "split",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/lessons.rs",
+      "lines": 1437,
+      "category": "source",
+      "band": "split",
+      "area": "native"
+    },
+    {
+      "path": "server/uv.lock",
+      "lines": 1205,
+      "category": "lockfile or vendor wrapper",
+      "band": "split",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/conversation.css",
+      "lines": 1052,
+      "category": "source",
+      "band": "split",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/ai/transport/provider.rs",
+      "lines": 1017,
+      "category": "source",
+      "band": "split",
+      "area": "native"
+    },
+    {
+      "path": "native/src/model.rs",
+      "lines": 997,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/connections/access.rs",
+      "lines": 984,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/transport/speech_provider.rs",
+      "lines": 886,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "content/config/constructs/core.yaml",
+      "lines": 849,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/ar.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/de.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/en.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/es.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/fr.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/pt.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/locales/zh.json",
+      "lines": 842,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/configuration/mod.rs",
+      "lines": 830,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/linguistics/fixtures/GraphemeBreakTest-17.0.0.txt",
+      "lines": 796,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "server/app/main.py",
+      "lines": 771,
+      "category": "source",
+      "band": "danger",
+      "area": "server"
+    },
+    {
+      "path": "native/src/language/linguistics/adapter_tests.rs",
+      "lines": 739,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/ConversationPage.tsx",
+      "lines": 722,
+      "category": "source",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/configuration/validation.rs",
+      "lines": 714,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/hosted/mod.rs",
+      "lines": 713,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/docs/coaching-plan.md",
+      "lines": 700,
+      "category": "documentation or bibliography",
+      "band": "danger",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/static/coaching-plan.html",
+      "lines": 687,
+      "category": "source",
+      "band": "danger",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/ai/transport/grouped.rs",
+      "lines": 672,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/settings/SettingsModal.tsx",
+      "lines": 666,
+      "category": "source",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "LICENSE",
+      "lines": 661,
+      "category": "data or configuration",
+      "band": "danger",
+      "area": "root"
+    },
+    {
+      "path": "ui/src/styles/foundations/tokens.css",
+      "lines": 642,
+      "category": "source",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/storage/factory_reset.rs",
+      "lines": 635,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/practice.css",
+      "lines": 625,
+      "category": "source",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/diagnostics/mod.rs",
+      "lines": 601,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/learner/learner_state.rs",
+      "lines": 596,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "server/tests/accounting/test_quota.py",
+      "lines": 585,
+      "category": "source",
+      "band": "danger",
+      "area": "server"
+    },
+    {
+      "path": "docs/website/src/pages/download.css",
+      "lines": 565,
+      "category": "source",
+      "band": "danger",
+      "area": "docs"
+    },
+    {
+      "path": "README.md",
+      "lines": 558,
+      "category": "documentation or bibliography",
+      "band": "danger",
+      "area": "root"
+    },
+    {
+      "path": "ui/src/features/conversation/ConversationPage.conversation.test.tsx",
+      "lines": 552,
+      "category": "source",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/generated/skill-catalogs/catalog.json",
+      "lines": 542,
+      "category": "generated",
+      "band": "danger",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/learning/coaching/mod.rs",
+      "lines": 541,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/analysis/fluency.rs",
+      "lines": 541,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/linguistics/tests.rs",
+      "lines": 532,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/partners/generation/mod.rs",
+      "lines": 519,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/configuration/tests.rs",
+      "lines": 509,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/linguistics/adapter.rs",
+      "lines": 502,
+      "category": "source",
+      "band": "danger",
+      "area": "native"
+    },
+    {
+      "path": "content/config/constructs/navigation.yaml",
+      "lines": 484,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "references.bib",
+      "lines": 482,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "lines": 466,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".github"
+    },
+    {
+      "path": "native/src/speech/analysis/audio_inspection.rs",
+      "lines": 461,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/partners/generation/generation_receipts.rs",
+      "lines": 444,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/partners/mystery.rs",
+      "lines": 441,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": ".github/workflows/ios-distribute.yml",
+      "lines": 438,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".github"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/reading_gloss.rs",
+      "lines": 432,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/turns.rs",
+      "lines": 429,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/docs/architecture-redesign.md",
+      "lines": 419,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/translation.rs",
+      "lines": 418,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/README.md",
+      "lines": 402,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/language/linguistics/mod.rs",
+      "lines": 393,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/types.ts",
+      "lines": 388,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/starters/everyday.yaml",
+      "lines": 385,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/website/docs/overview.md",
+      "lines": 378,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/revision_history.rs",
+      "lines": 376,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/TurnView.tsx",
+      "lines": 376,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/architecture.md",
+      "lines": 357,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/speech_requests.rs",
+      "lines": 357,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/recording/audio.rs",
+      "lines": 344,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/partners/persona/mod.rs",
+      "lines": 336,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/styles/features/settings/settings.css",
+      "lines": 336,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/practice_feedback.rs",
+      "lines": 333,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/app/accounting/quota.py",
+      "lines": 333,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/styles/shell/layout.css",
+      "lines": 333,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/conversation_export.rs",
+      "lines": 324,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/speech.rs",
+      "lines": 322,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "content/schemas/language.json",
+      "lines": 318,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/src/speech/recording/transcription.rs",
+      "lines": 308,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/styles/components/primitives.css",
+      "lines": 308,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/dispatch.rs",
+      "lines": 306,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/import-graph.ts",
+      "lines": 304,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/public/skellysubs-logo.svg",
+      "lines": 302,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/language_context.rs",
+      "lines": 300,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/coaching/coach_policy.rs",
+      "lines": 299,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/policy/holds.rs",
+      "lines": 289,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/refusal_holds.rs",
+      "lines": 285,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/docs/platforms.md",
+      "lines": 283,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/conversation_prompt.rs",
+      "lines": 283,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/docs/coaching-contracts.md",
+      "lines": 282,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/tests/inference/test_grouped.py",
+      "lines": 276,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": ".github/workflows/deploy-server.yml",
+      "lines": 275,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".github"
+    },
+    {
+      "path": "native/src/ai/policy/admission.rs",
+      "lines": 268,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/fixtures.rs",
+      "lines": 263,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/styles/features/skills/skills.css",
+      "lines": 263,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/lesson.css",
+      "lines": 258,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/app/identity/auth.py",
+      "lines": 257,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/speech/recording/voice.rs",
+      "lines": 255,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/learner/progression.rs",
+      "lines": 252,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/work_budgets.rs",
+      "lines": 251,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": 249,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".github"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/speech_publication.rs",
+      "lines": 249,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/coaching.rs",
+      "lines": 247,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/publication.rs",
+      "lines": 245,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "AGENTS.md",
+      "lines": 244,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/turn_lifecycle.rs",
+      "lines": 243,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/macos-dev.ts",
+      "lines": 243,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "server/tests/identity/test_auth.py",
+      "lines": 242,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/configuration/types.rs",
+      "lines": 241,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/settings/access/SettingsAccess.test.tsx",
+      "lines": 241,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/privacy.md",
+      "lines": 237,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/learning/coaching/coach_observation.rs",
+      "lines": 233,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/tests/inference/test_proxy.py",
+      "lines": 232,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/conversations/openers.rs",
+      "lines": 229,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/docs/ontology.md",
+      "lines": 227,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "tools/release.ts",
+      "lines": 224,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "tools/verify-updater/Cargo.lock",
+      "lines": 224,
+      "category": "lockfile or vendor wrapper",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/coach.css",
+      "lines": 224,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/persona.css",
+      "lines": 223,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/settings-contract.test.ts",
+      "lines": 220,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/ui-substructure-moves.json",
+      "lines": 218,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/learning/rewards/mod.rs",
+      "lines": 216,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/settings/access/SettingsAccess.tsx",
+      "lines": 215,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/operations/stats.py",
+      "lines": 214,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/NewPersonaDialog.test.tsx",
+      "lines": 209,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/hosted-api.md",
+      "lines": 208,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaProfileDialog.test.tsx",
+      "lines": 208,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/snapshots.rs",
+      "lines": 207,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/development/logs.py",
+      "lines": 207,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "docs/website/docs/ai-instruction-audit-2026-09-06.md",
+      "lines": 203,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/connections.rs",
+      "lines": 202,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/notes/native/linguistics/adapter-proposal.md",
+      "lines": 201,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/connections.rs",
+      "lines": 199,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/gloss.rs",
+      "lines": 199,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/test-fixtures/emoji.json",
+      "lines": 198,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardPresentation.test.tsx",
+      "lines": 196,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/TurnView.test.tsx",
+      "lines": 195,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/tauri.ts",
+      "lines": 188,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/linguistics/annotation-contract.md",
+      "lines": 187,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/docs/coaching-work-plan.md",
+      "lines": 187,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/ai/connections/credentials.rs",
+      "lines": 187,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/e2e/android.ts",
+      "lines": 186,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/lessons/LessonDialog.tsx",
+      "lines": 186,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/SettingsModal.test.tsx",
+      "lines": 186,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tools/prune-styles.ts",
+      "lines": 186,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/gradlew",
+      "lines": 185,
+      "category": "lockfile or vendor wrapper",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/reading/Markdown.tsx",
+      "lines": 184,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/linguistics/grapheme-recommendation.md",
+      "lines": 181,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/SavedGlossText.test.tsx",
+      "lines": 181,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/reward-sounds.test.ts",
+      "lines": 181,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/tests/accounting/test_budget.py",
+      "lines": 179,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardPresentation.tsx",
+      "lines": 179,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/learner/LearnerModel.test.tsx",
+      "lines": 179,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/revision_publication.rs",
+      "lines": 178,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/tests/inference/test_model_routing.py",
+      "lines": 176,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "docs/website/docs/skill-progression-design.md",
+      "lines": 175,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/src/pages/download.tsx",
+      "lines": 173,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/tools/check-styles.ts",
+      "lines": 173,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/tests/integration/test_reservation_cancellation.py",
+      "lines": 171,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/styles/features/conversation/analysis.css",
+      "lines": 170,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/tests/inference/test_contracts.py",
+      "lines": 169,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/diagnostics/test_observability.py",
+      "lines": 168,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/integration/test_firestore.py",
+      "lines": 163,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/practice_openings.rs",
+      "lines": 162,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/TranscriptionInspector.tsx",
+      "lines": 159,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/snapshots.rs",
+      "lines": 158,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/scripts/image-size-patch.test.mts",
+      "lines": 156,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/platform/diagnostics/log.ts",
+      "lines": 155,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/settings/settings.ts",
+      "lines": 153,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/turn_plan.rs",
+      "lines": 151,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/skills/SkillsPage.tsx",
+      "lines": 151,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/observability.md",
+      "lines": 150,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ChatHistory.test.tsx",
+      "lines": 149,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/media/WaveformStrip.tsx",
+      "lines": 146,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/app/accounting/budget.py",
+      "lines": 145,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/state/settings/settings.test.ts",
+      "lines": 143,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/grouped_transport.rs",
+      "lines": 142,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/reading/Markdown.test.tsx",
+      "lines": 142,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/updates/updater.ts",
+      "lines": 142,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/ProgressSummary.tsx",
+      "lines": 140,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/refactor-move.ts",
+      "lines": 138,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/app/shell/UpdateBanner.tsx",
+      "lines": 138,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docusaurus.config.ts",
+      "lines": 137,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/app/inference/grouped.py",
+      "lines": 137,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/admission/test_admission.py",
+      "lines": 137,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/lessons/LessonDialog.test.tsx",
+      "lines": 137,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/personaLimits.ts",
+      "lines": 137,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/MessageFeedback.test.tsx",
+      "lines": 136,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/language/emoji.rs",
+      "lines": 135,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/languages_citation_tests.rs",
+      "lines": 135,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/tests/deployment/test_deployment.py",
+      "lines": 134,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/domain/conversation/conversation-view.test.ts",
+      "lines": 133,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/learning/useSkillEvidence.test.ts",
+      "lines": 133,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/benchmarks/model-routing.ts",
+      "lines": 130,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ChatHistory.tsx",
+      "lines": 129,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/useMicRecorder.test.ts",
+      "lines": 129,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/deeper-organization-proposal.md",
+      "lines": 128,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/language/languages.rs",
+      "lines": 128,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaForm.tsx",
+      "lines": 127,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/generated/contracts.ts",
+      "lines": 126,
+      "category": "generated",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/useMessageSpeech.test.tsx",
+      "lines": 125,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/useConversation.ts",
+      "lines": 124,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/learning/rewards/reward_settings.rs",
+      "lines": 122,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/bin/benchmark_gloss.rs",
+      "lines": 121,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/app/admission/work_admission.py",
+      "lines": 120,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/development/test_logs.py",
+      "lines": 120,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/rewards.rs",
+      "lines": 119,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/tests/architecture/boundaries.test.ts",
+      "lines": 117,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/evidence/skills.ts",
+      "lines": 116,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/future-work.md",
+      "lines": 115,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/skills/SkillsPage.test.tsx",
+      "lines": 115,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/app/config.py",
+      "lines": 114,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/speech-player.test.ts",
+      "lines": 113,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/useMicRecorder.ts",
+      "lines": 113,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/conversation/turns.test.ts",
+      "lines": 112,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/run-log.ts",
+      "lines": 111,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "server/development/launcher.py",
+      "lines": 110,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/useMessageSpeech.ts",
+      "lines": 110,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/revision.rs",
+      "lines": 109,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/website/src/lib/downloads.ts",
+      "lines": 108,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/app/admission/admission.py",
+      "lines": 108,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/components/reading/TokenSpan.tsx",
+      "lines": 108,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/starters.json",
+      "lines": 107,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/lesson_context.rs",
+      "lines": 107,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/cache.rs",
+      "lines": 106,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/reading/SavedGlossText.tsx",
+      "lines": 106,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/useConversationSnapshot.test.ts",
+      "lines": 106,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/coach.md",
+      "lines": 102,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/deployment/deploy_candidate.py",
+      "lines": 102,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/platform/audio/reward-sounds.ts",
+      "lines": 102,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/traits.json",
+      "lines": 100,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/features/activity/GenerationActivity.test.tsx",
+      "lines": 100,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx",
+      "lines": 100,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/NewPersonaDialog.tsx",
+      "lines": 100,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/TranscriptionInspector.test.tsx",
+      "lines": 99,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/app/inference/audio_input.py",
+      "lines": 98,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/inference/contracts.py",
+      "lines": 98,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "tools/version.test.ts",
+      "lines": 98,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/state/navigation/navigation.test.ts",
+      "lines": 98,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/navigation/navigation.ts",
+      "lines": 98,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/app/build.gradle.kts",
+      "lines": 97,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/policy/refusal.rs",
+      "lines": 97,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/app/shell/TopBar.tsx",
+      "lines": 95,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/media/WaveformStrip.test.tsx",
+      "lines": 95,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/partner_feedback.rs",
+      "lines": 94,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/state/learning/skill-evidence.ts",
+      "lines": 94,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/public/fonts/ibmplexmono-OFL.txt",
+      "lines": 93,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/public/fonts/ibmplexsans-OFL.txt",
+      "lines": 93,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/public/fonts/newsreader-OFL.txt",
+      "lines": 93,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/activity/LiveActivity.test.tsx",
+      "lines": 93,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/partners/persona/persona_prompt.rs",
+      "lines": 92,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/holds.rs",
+      "lines": 90,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/useWordInspection.ts",
+      "lines": 90,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/learner/LearnerModel.tsx",
+      "lines": 90,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/content.config.tsx",
+      "lines": 89,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/gen/android/gradlew.bat",
+      "lines": 89,
+      "category": "lockfile or vendor wrapper",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/session/useConversationSnapshot.ts",
+      "lines": 89,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/src/lib/downloads.test.ts",
+      "lines": 88,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/composer/ComposerHelp.test.tsx",
+      "lines": 88,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/playback-lifecycle.ts",
+      "lines": 88,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/constructs.json",
+      "lines": 87,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/state/session/session.test.ts",
+      "lines": 87,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/README.md",
+      "lines": 86,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/configuration/citations.rs",
+      "lines": 86,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/activity/LogsOverlay.tsx",
+      "lines": 86,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx",
+      "lines": 86,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/buildSrc/src/main/java/com/freemocap/skellyspeak/kotlin/RustPlugin.kt",
+      "lines": 85,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/live_provider.rs",
+      "lines": 85,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/AnalysisContent.tsx",
+      "lines": 85,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/docs/status.md",
+      "lines": 84,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/app/shortcuts/shortcuts.test.ts",
+      "lines": 84,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/mod.rs",
+      "lines": 83,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/tests/admission/test_work_admission.py",
+      "lines": 83,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/inference/test_limits.py",
+      "lines": 83,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaProfile.tsx",
+      "lines": 83,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/scripts/image-size-patch-hashes.json",
+      "lines": 82,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/README.md",
+      "lines": 82,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/activity/LiveActivity.tsx",
+      "lines": 82,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/reading.rs",
+      "lines": 81,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/learning/rewards/skill-rewards.test.ts",
+      "lines": 81,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/ios-release.test.ts",
+      "lines": 80,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/app/App.navigation.test.tsx",
+      "lines": 80,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/diagnostics/faults.ts",
+      "lines": 80,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/feedback.json",
+      "lines": 79,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/schemas/game.json",
+      "lines": 79,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/components/reading/TargetText.tsx",
+      "lines": 79,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaProfile.test.tsx",
+      "lines": 79,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/updates/mod.rs",
+      "lines": 78,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/check-languages.ts",
+      "lines": 78,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "content/schemas/estimator.json",
+      "lines": 77,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "tools/benchmarks/extended-routing.ts",
+      "lines": 77,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/SkillRewards.test.tsx",
+      "lines": 77,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/browser-recording.ts",
+      "lines": 77,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/operations/reconcile.py",
+      "lines": 76,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/app/main.tsx",
+      "lines": 76,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/buildSrc/src/main/java/com/freemocap/skellyspeak/kotlin/BuildTask.kt",
+      "lines": 75,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/app/AppShell.tsx",
+      "lines": 75,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/useConversationDetails.ts",
+      "lines": 75,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/contrast.test.ts",
+      "lines": 74,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/composer/ComposerInput.tsx",
+      "lines": 74,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/MysteryPartnerPanel.tsx",
+      "lines": 74,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/tauri.conf.json",
+      "lines": 73,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "docs/notes/server-subfolders-proposal.md",
+      "lines": 72,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/domain/reading/sentences.test.ts",
+      "lines": 72,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/diagnostics/log.test.ts",
+      "lines": 72,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/build.rs",
+      "lines": 71,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/benchmarks/groq-routing.ts",
+      "lines": 71,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/skill-index.ts",
+      "lines": 71,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/ai/connections/model_routing.rs",
+      "lines": 70,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/platform/updates/updater.test.ts",
+      "lines": 69,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/partners/partner_reaction.rs",
+      "lines": 68,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/app/diagnostics/observability.py",
+      "lines": 68,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "tools/benchmarks/split-calls.ts",
+      "lines": 68,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "docs/notes/native-top-level-moves.json",
+      "lines": 67,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/notes/server-top-level-proposal.md",
+      "lines": 67,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/tests/architecture/dead-code.test.ts",
+      "lines": 66,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": ".github/workflows/deploy-docs.yml",
+      "lines": 65,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".github"
+    },
+    {
+      "path": "ui/src/domain/learning/evidence/message-evidence.test.ts",
+      "lines": 65,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/MessageFeedback.tsx",
+      "lines": 65,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/ai/hosted/hosted_mobile.rs",
+      "lines": 64,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/statistics/mod.rs",
+      "lines": 64,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/learning/statistics/practice-statistics.ts",
+      "lines": 64,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/scripts/image-size-patch.mts",
+      "lines": 63,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "tools/version.ts",
+      "lines": 63,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/domain/update/semver.ts",
+      "lines": 63,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/activity/GenerationActivity.tsx",
+      "lines": 63,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardFlow.test.tsx",
+      "lines": 63,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/overview/TreeCamera.tsx",
+      "lines": 63,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/top-level-layout-verification.md",
+      "lines": 62,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/gen/android/app/src/main/AndroidManifest.xml",
+      "lines": 62,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/e2e/README.md",
+      "lines": 62,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/app/shell/SurfaceHost.tsx",
+      "lines": 62,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/tests/deployment/test_retention.py",
+      "lines": 61,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/app/navigation/usePracticeSwipe.test.tsx",
+      "lines": 61,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaReaction.tsx",
+      "lines": 61,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/ui-substructure-organization.md",
+      "lines": 60,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaReaction.test.tsx",
+      "lines": 60,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/Cargo.toml",
+      "lines": 59,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/deployment/check_upload_manifest.py",
+      "lines": 59,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaPicker.test.tsx",
+      "lines": 59,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/StartupRefusal.test.tsx",
+      "lines": 59,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/session/session.ts",
+      "lines": 59,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/romanizations.json",
+      "lines": 58,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "server/deployment/retention.py",
+      "lines": 58,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "content/config/README.md",
+      "lines": 57,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/notes/ui-top-level-organization.md",
+      "lines": 57,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "tools/run-log.test.ts",
+      "lines": 57,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/speech/speech-player.ts",
+      "lines": 57,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/orthographies.json",
+      "lines": 56,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/notes/native/folder-moves-proposal.md",
+      "lines": 56,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/SkillRewards.tsx",
+      "lines": 56,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/verify-updater/src/main.rs",
+      "lines": 55,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "server/tests/operations/test_reconcile.py",
+      "lines": 54,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/domain/learning/statistics/practice-statistics.test.ts",
+      "lines": 54,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/workspace.ts",
+      "lines": 54,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/languages/ar.yaml",
+      "lines": 52,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/schemas/navigation.json",
+      "lines": 52,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "server/app/inference/model_routing.py",
+      "lines": 52,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/components/persistence/YamlExport.tsx",
+      "lines": 52,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/languages/en.yaml",
+      "lines": 51,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/config/languages/languages/es.yaml",
+      "lines": 51,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/config/languages/languages/fr.yaml",
+      "lines": 51,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/src/storage/schemas/schema.sql",
+      "lines": 51,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/conversation/turns.ts",
+      "lines": 51,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": ".gitignore",
+      "lines": 50,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": "docs/notes/native-top-level-organization.md",
+      "lines": 50,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/admission.rs",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/reading/TargetText.test.tsx",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/update/semver.test.ts",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaPicker.tsx",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/language/LanguagePickers.tsx",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/learning/useSkillEvidence.ts",
+      "lines": 50,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": ".gcloudignore",
+      "lines": 49,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": "docs/website/docs/ux-audit-2026-09-06.md",
+      "lines": 49,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/platform/diagnostics/faults.test.ts",
+      "lines": 49,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/server-top-level-moves.json",
+      "lines": 48,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/notes/server-top-level-organization.md",
+      "lines": 48,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/deployment/cloudbuild.yaml",
+      "lines": 48,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "content/schemas/scripts.json",
+      "lines": 47,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/notes/ui-top-level-moves.json",
+      "lines": 47,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/domain/rewards/reward-trails.ts",
+      "lines": 47,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "package.json",
+      "lines": 46,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": "server/app/inference/streaming.py",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "tools/benchmarks/model-routing.test.ts",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/composer/ComposerHelp.tsx",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/ReplyStatus.test.tsx",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/MysteryPartnerPanel.test.tsx",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/ConversationMap.tsx",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/vite.config.ts",
+      "lines": 46,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/evidence/message-evidence.ts",
+      "lines": 45,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/package.json",
+      "lines": 44,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "tools/benchmarks/summarize-split.ts",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/skill-index.test.ts",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/i18n.test.ts",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/ConversationProgress.tsx",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/GlossPopup.tsx",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/playback-lifecycle.test.ts",
+      "lines": 44,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ConversationStart.tsx",
+      "lines": 43,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/languages/zh.yaml",
+      "lines": 42,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/state/navigation/skill-navigation.ts",
+      "lines": 42,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tests/mocks/zustand.ts",
+      "lines": 42,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/README.md",
+      "lines": 41,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "server/app/diagnostics/diagnostics.py",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/domain/input/back.ts",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/index.ts",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/rewards/reward-trails.test.ts",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/playback-lifecycle.browser.test.ts",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/styles/index.css",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tests/setup.ts",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "server/.dockerignore",
+      "lines": 40,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardBadge.tsx",
+      "lines": 40,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/workspace/FactoryReset.tsx",
+      "lines": 40,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/languages/de.yaml",
+      "lines": 39,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/config/languages/languages/pt.yaml",
+      "lines": 39,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/README.md",
+      "lines": 39,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/language/linguistics/fixtures/UNICODE-LICENSE.txt",
+      "lines": 39,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/conversation/conversation-view.ts",
+      "lines": 39,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ConversationStart.test.tsx",
+      "lines": 39,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/app/navigation/usePracticeSwipe.ts",
+      "lines": 38,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/persistence/YamlExport.test.tsx",
+      "lines": 38,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/gloss-display.ts",
+      "lines": 38,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/benchmarks/groq-schema.ts",
+      "lines": 37,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/package.json",
+      "lines": 37,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/learning/DomainEvidenceTree.tsx",
+      "lines": 37,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/ProgressSummary.test.tsx",
+      "lines": 37,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/styles/foundations/typography.css",
+      "lines": 37,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/server-subfolder-moves.json",
+      "lines": 36,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/LiveCoachReview.tsx",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/GlossAssistance.tsx",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/SettingsDialog.test.tsx",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/StartupRefusal.tsx",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tests/architecture/ipc-commands.test.ts",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt",
+      "lines": 35,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/app/transactions.py",
+      "lines": 35,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/development/test_launcher.py",
+      "lines": 35,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/InlineXpBadge.test.tsx",
+      "lines": 35,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/speech.ts",
+      "lines": 35,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/romanizations.yaml",
+      "lines": 34,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "server/app/identity/auth_store.py",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/conftest.py",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/inference/test_streaming.py",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/app/shortcuts/useTextSizeShortcut.ts",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/dialogs/useOverlayLayer.ts",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/ConversationMap.test.tsx",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardProgress.tsx",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/useConversationDetails.test.tsx",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/language/VarietyField.test.tsx",
+      "lines": 34,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/policy/feedback.yaml",
+      "lines": 33,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "content/schemas/universal.json",
+      "lines": 33,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/notes/server-development-cleanup.md",
+      "lines": 33,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/domain/learning/rewards/skill-rewards.ts",
+      "lines": 33,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/starters/reasons.yaml",
+      "lines": 32,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "docs/notes/server-subfolder-organization.md",
+      "lines": 32,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "server/deployment/verify_revision.py",
+      "lines": 32,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "tools/test-fixtures/speech/manifest.json",
+      "lines": 32,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardsLedger.tsx",
+      "lines": 32,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/workspace/FactoryReset.test.tsx",
+      "lines": 32,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/subfolder-moves.json",
+      "lines": 31,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "tools/ios-icons.swift",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/components/persistence/SaveDataCopy.tsx",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/access/providers.test.ts",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/CoachEntry.tsx",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PersonaProfileDialog.tsx",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/CredentialCleanup.tsx",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/init.ts",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/styles/foundations/reset.css",
+      "lines": 31,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/app/shell/FaultBar.tsx",
+      "lines": 30,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/skillTree.ts",
+      "lines": 30,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardProgress.test.tsx",
+      "lines": 30,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/CredentialCleanup.test.tsx",
+      "lines": 30,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/traits.yaml",
+      "lines": 29,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/app/proguard-rules.pro",
+      "lines": 29,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/skills/evidence/SkillDetailContent.tsx",
+      "lines": 29,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/persona-generation.test.ts",
+      "lines": 29,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tests/architecture/LogsOverlay.boundary.test.tsx",
+      "lines": 29,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/localization/messages.ts",
+      "lines": 28,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/EditFeedback.tsx",
+      "lines": 28,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/PracticeDivider.tsx",
+      "lines": 28,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/LanguageLocalization.test.tsx",
+      "lines": 28,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/subfolder-organization.md",
+      "lines": 27,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/components/controls/InfoTip.tsx",
+      "lines": 27,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/feedback/ErrorDetails.test.tsx",
+      "lines": 27,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/rewards/reward-anchors.ts",
+      "lines": 27,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/SettingsDialog.tsx",
+      "lines": 27,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/overview/TreeCamera.test.tsx",
+      "lines": 27,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/schemas/families.json",
+      "lines": 26,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/src/bin/export-contracts.rs",
+      "lines": 26,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/app/shell/ProfileOverlay.tsx",
+      "lines": 26,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/keyboard.ts",
+      "lines": 26,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/ReplyStatus.tsx",
+      "lines": 26,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/DifficultySelect.test.tsx",
+      "lines": 26,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/conversations/execution/tests/mod.rs",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/tauri.ts",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/components/controls/InfoTip.test.tsx",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/font-size.test.ts",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/LiveCoachReview.test.tsx",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/useConversationScroll.test.ts",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/useConversationScroll.ts",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ConversationExport.test.tsx",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ConversationHeader.tsx",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/DifficultySelect.tsx",
+      "lines": 25,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/scripts.yaml",
+      "lines": 24,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/gradle.properties",
+      "lines": 24,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/app/shell/MoreDialog.tsx",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/app/shortcuts/useAppShortcuts.ts",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/app/shortcuts/useSettingsShortcut.ts",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/learning/DomainEvidenceTree.test.tsx",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/sentences.ts",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/token-spacing.test.ts",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/rewards/reward-anchors.test.ts",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardBadge.test.tsx",
+      "lines": 24,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tsconfig.json",
+      "lines": 24,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/README.md",
+      "lines": 23,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/scripts/README.md",
+      "lines": 23,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/src/styles/foundations/motion.css",
+      "lines": 23,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/orthographies.yaml",
+      "lines": 22,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/buildSrc/build.gradle.kts",
+      "lines": 22,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/layout/useIsMobile.ts",
+      "lines": 22,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/conversation/reply-state.ts",
+      "lines": 22,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/skill-domains.ts",
+      "lines": 22,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/messages/PracticeDivider.test.tsx",
+      "lines": 22,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/policy/estimator.yaml",
+      "lines": 21,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/build.gradle.kts",
+      "lines": 21,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/app/shell/PageBoundary.tsx",
+      "lines": 21,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tools/reading-preview.tsx",
+      "lines": 21,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/capabilities/main.json",
+      "lines": 20,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/gen/android/.gitignore",
+      "lines": 20,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/storage/schemas/generation_schema.sql",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/Dockerfile",
+      "lines": 20,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/pyproject.toml",
+      "lines": 20,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "tools/e2e/speech-fixtures.ts",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/app/shell/MobileNav.tsx",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/feedback/ErrorDetails.tsx",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/reading/ReadingPreferences.tsx",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/reload.test.ts",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/gloss-display.test.ts",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/CoachEntry.test.tsx",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/settings/language/VarietyField.tsx",
+      "lines": 20,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/notes/native/arabic-romanization-content-follow-up.md",
+      "lines": 19,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/blog/2026-08-29_welcome.mdx",
+      "lines": 19,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/src/conversations/execution/recovery.rs",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/benchmarks/summarize-extended.ts",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/components/dialogs/DetailDialog.tsx",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/learning/EvidenceMappingNotice.test.tsx",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/learning/EvidenceMappingNotice.tsx",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/font-size.ts",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/OpeningStatus.tsx",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/evidence/SkillEvidenceRecord.tsx",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/skill-evidence.ts",
+      "lines": 19,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/layout/activity_main.xml",
+      "lines": 18,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/check-doc-links.ts",
+      "lines": 18,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/components/dialogs/DetailDialog.test.tsx",
+      "lines": 18,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/InlineXpBadge.tsx",
+      "lines": 18,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/native.test.ts",
+      "lines": 18,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tests/architecture/window-close.test.ts",
+      "lines": 18,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "tools/README.md",
+      "lines": 17,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/app/shortcuts/useReloadShortcut.ts",
+      "lines": 17,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/learning/catalog/skillDemo.ts",
+      "lines": 17,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/PartnersRail.tsx",
+      "lines": 17,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/AnalysisSentence.tsx",
+      "lines": 17,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/browser-recording.test.ts",
+      "lines": 17,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/Entitlements.plist",
+      "lines": 16,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/linguistics/fixtures/README.md",
+      "lines": 16,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/localization/i18n.tsx",
+      "lines": 16,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/persistence/usePersistentToggle.ts",
+      "lines": 16,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/back.test.ts",
+      "lines": 16,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/session/ConversationExport.tsx",
+      "lines": 16,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/tauri-logging.test.ts",
+      "lines": 16,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/lib.rs",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/vitest.docs.config.ts",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/components/localization/useUiDirection.ts",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/token-spacing.ts",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/coaching/EditFeedback.test.tsx",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/AnalysisSentence.test.tsx",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/learner-profile.ts",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/native.ts",
+      "lines": 15,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/src/pages/roadmap.tsx",
+      "lines": 14,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "ui/index.html",
+      "lines": 14,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/audio/waveform.ts",
+      "lines": 14,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/source-token.ts",
+      "lines": 14,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/overview/SkillOverview.tsx",
+      "lines": 14,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/constructs/form.ar.yaml",
+      "lines": 13,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/xml/data_extraction_rules.xml",
+      "lines": 13,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/dev-run.ts",
+      "lines": 13,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "tools/verify-updater/Cargo.toml",
+      "lines": 13,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/domain/audio/audio-settings.ts",
+      "lines": 13,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/window.ts",
+      "lines": 13,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": ".claude/launch.json",
+      "lines": 12,
+      "category": "data or configuration",
+      "band": "good",
+      "area": ".claude"
+    },
+    {
+      "path": "content/config/languages/universal.yaml",
+      "lines": 12,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/.editorconfig",
+      "lines": 12,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/rewards/reward-pulse.ts",
+      "lines": 12,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": ".gitattributes",
+      "lines": 11,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "root"
+    },
+    {
+      "path": "content/schemas/starter-reasons.json",
+      "lines": 11,
+      "category": "generated",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "ui/src/app/shell/NotTauriNotice.tsx",
+      "lines": 11,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/reading/source-token.test.ts",
+      "lines": 11,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/ConfigurationRefusal.test.tsx",
+      "lines": 11,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/reading-size.ts",
+      "lines": 11,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/state/navigation/skill-navigation.test.ts",
+      "lines": 11,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/policy/game.yaml",
+      "lines": 10,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/values/themes.xml",
+      "lines": 10,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "tools/e2e/android.test.ts",
+      "lines": 10,
+      "category": "source",
+      "band": "good",
+      "area": "tools"
+    },
+    {
+      "path": "ui/src/features/conversation/session/PracticeContext.ts",
+      "lines": 10,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/startup/ConfigurationRefusal.tsx",
+      "lines": 10,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/generated/README.md",
+      "lines": 10,
+      "category": "generated",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "content/config/languages/families.yaml",
+      "lines": 9,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "content"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/values/colors.xml",
+      "lines": 9,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/access/providers.ts",
+      "lines": 9,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/skills/learner/ProgressRules.tsx",
+      "lines": 9,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/appearance/css-token.ts",
+      "lines": 9,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/audio/audio-volume.ts",
+      "lines": 9,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/capabilities/desktop-updater.json",
+      "lines": 8,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/tauri.windows-signing.conf.json",
+      "lines": 8,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/public/fonts/README.md",
+      "lines": 8,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/controls/ToolbarIcon.tsx",
+      "lines": 8,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/sidebars.ts",
+      "lines": 7,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/values-night/themes.xml",
+      "lines": 7,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/conversations/mod.rs",
+      "lines": 7,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/language/language-label.ts",
+      "lines": 7,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/features/conversation/partners/personaLimits.test.ts",
+      "lines": 7,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "docs/website/src/pages/index.tsx",
+      "lines": 6,
+      "category": "source",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "docs/website/tsconfig.json",
+      "lines": 6,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "docs"
+    },
+    {
+      "path": "native/gen/android/app/.gitignore",
+      "lines": 6,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/gen/android/gradle/wrapper/gradle-wrapper.properties",
+      "lines": 6,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/features/conversation/progress/RewardInspectionContext.ts",
+      "lines": 6,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/rewards.ts",
+      "lines": 6,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "lines": 5,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "lines": 5,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/xml/file_paths.xml",
+      "lines": 5,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/main.rs",
+      "lines": 5,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/development/local.env.sample",
+      "lines": 5,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/app/App.tsx",
+      "lines": 5,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/app/windows/DevWindow.tsx",
+      "lines": 5,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/components/media/PersonaAvatar.tsx",
+      "lines": 5,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/gen/android/app/src/main/res/values/strings.xml",
+      "lines": 4,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/mod.rs",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/mod.rs",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/partners/mod.rs",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/recording/mod.rs",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/domain/localization/dict.ts",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/platform/ipc/conversation-export.ts",
+      "lines": 4,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/Info.plist",
+      "lines": 3,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/gen/android/settings.gradle",
+      "lines": 3,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/connections/mod.rs",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/policy/mod.rs",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/transport/mod.rs",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/mod.rs",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/mod.rs",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/tauri.release.conf.json",
+      "lines": 3,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "ui/src/components/feedback/ActivityIndicator.tsx",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/domain/input/reload.ts",
+      "lines": 3,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "native/src/learning/learner/mod.rs",
+      "lines": 2,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/speech/analysis/mod.rs",
+      "lines": 2,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/storage/mod.rs",
+      "lines": 2,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/language/fixtures/arabic-romanization-prompt.txt",
+      "lines": 1,
+      "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "server/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/accounting/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/admission/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/diagnostics/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/identity/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/app/inference/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/deployment/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/development/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/operations/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/accounting/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/admission/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/deployment/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/development/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/diagnostics/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/identity/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/inference/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/integration/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "server/tests/operations/__init__.py",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "server"
+    },
+    {
+      "path": "ui/src/features/conversation/reading/SavedGlossText.tsx",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/src/vite-env.d.ts",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    },
+    {
+      "path": "ui/tools/reading-preview.html",
+      "lines": 1,
+      "category": "source",
+      "band": "good",
+      "area": "ui"
+    }
+  ]
+}

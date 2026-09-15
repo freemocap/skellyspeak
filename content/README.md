@@ -29,7 +29,7 @@ The following is a navigation index, not a claim that prompts are declarative YA
 | Persona generation instructions | [persona_prompt.rs](../native/src/partners/persona/persona_prompt.rs) |
 | Coaching requests, evidence and deterministic help policy | [coaching.rs](../native/src/learning/coaching/mod.rs), [coach_observation.rs](../native/src/learning/coaching/coach_observation.rs), [coach_policy.rs](../native/src/learning/coaching/coach_policy.rs) |
 | Lesson requests and validation | [lessons.rs](../native/src/learning/lessons.rs) |
-| Turn capture, dispatch and result publication | [execution.rs](../native/src/conversations/execution.rs), [turn_plan.rs](../native/src/conversations/turn_plan.rs) |
+| Turn capture, dispatch and result publication | [execution/](../native/src/conversations/execution/), [turn_plan.rs](../native/src/conversations/turn_plan.rs) |
 | Native access and model selection | [access.rs](../native/src/ai/connections/access.rs), [model_routing.rs](../native/src/ai/connections/model_routing.rs) |
 | Hosted model routing | [server/app/inference/model_routing.py](../server/app/inference/model_routing.py) |
 | Configuration types and validation | [native/src/configuration/](../native/src/configuration/) |

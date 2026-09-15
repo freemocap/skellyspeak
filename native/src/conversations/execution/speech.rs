@@ -1,0 +1,322 @@
+use super::*;
+
+pub(super) fn speech_owner(
+    db: &Connection,
+    operation: &str,
+) -> Result<(String, String, String, String, String)> {
+    db.query_row("SELECT t.id,m.id,m.text,o.state,t.context FROM operations o JOIN turns t ON t.id=o.turn_id JOIN messages m ON m.turn_id=t.id AND m.role='assistant' JOIN conversations c ON c.id=t.conversation_id JOIN contacts r ON r.id=c.contact_id WHERE o.id=?1 AND o.kind='persona_speech' AND c.archived=0 AND r.archived=0 AND t.state NOT IN ('invalidated','cancelled')", [operation], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?))).optional()?.ok_or_else(|| AppError::new(ErrorCode::NotFound,"Speech source is unavailable."))
+}
+
+pub(super) fn speech_binding(
+    db: &Connection,
+    message: &str,
+    text: &str,
+    captured: &serde_json::Value,
+) -> Result<crate::ai::connections::access::ResolvedTarget> {
+    if captured["speechSourceId"].as_str() != Some(message)
+        || captured["speechSourceText"].as_str() != Some(text)
+    {
+        return Err(fail("Speech source changed."));
+    }
+    let target: crate::ai::connections::access::ResolvedTarget =
+        serde_json::from_value(captured["speechTarget"].clone())?;
+    if config(db)?.revision != target.revision {
+        return Err(fail("Speech connection changed."));
+    }
+    Ok(target)
+}
+
+pub(super) fn prepare_speech(
+    db: &Connection,
+    operation: &str,
+    turn: &str,
+    context: &str,
+) -> Result<Dispatch> {
+    let (_, message_id, text, _, _) = speech_owner(db, operation)?;
+    let captured: serde_json::Value = serde_json::from_str(context)?;
+    let target = speech_binding(db, &message_id, &text, &captured)?;
+    crate::ai::policy::holds::check(db, &target)?;
+    let attempts: i64 = db.query_row(
+        "SELECT count(*) FROM attempts WHERE operation_id=?1",
+        [operation],
+        |r| r.get(0),
+    )?;
+    if attempts >= crate::speech::cache::ATTEMPT_LIMIT {
+        return Err(budget_error("Speech has reached its three-attempt limit."));
+    }
+    let voice = captured["speechVoice"]
+        .as_str()
+        .ok_or_else(|| fail("Missing captured speech voice."))?
+        .to_owned();
+    let context: crate::configuration::LanguageContext =
+        serde_json::from_value(captured["languageContext"].clone())?;
+    let language = format!("{} — {}", context.target_name, context.variety_name);
+    if text.is_empty() || text.chars().count() > 12000 || text.contains('\0') || voice.is_empty() {
+        return Err(fail("Speech input exceeds its source contract."));
+    }
+    crate::ai::transport::speech_provider::payload(
+        &target,
+        &crate::ai::transport::speech_provider::SpeechInput {
+            text: text.clone(),
+            voice: voice.clone(),
+            language: language.clone(),
+        },
+    )?;
+    let attempt = new_attempt_id();
+    db.execute(
+        "UPDATE operations SET state='running',permit=0 WHERE id=?1",
+        [operation],
+    )?;
+    db.execute(
+        "INSERT INTO attempts(id,operation_id,state,requested_model) VALUES(?1,?2,'running',?3)",
+        params![attempt, operation, target.model],
+    )?;
+    db.execute(
+        "UPDATE turns SET context=json_remove(context,'$.speechError') WHERE id=?1",
+        [turn],
+    )?;
+    Ok(Dispatch {
+        credential: target.credential.clone().unwrap_or_default(),
+        model: target.model.clone(),
+        route: target.route,
+        target,
+        attempt,
+        operation: operation.into(),
+        messages: vec![],
+        coaching_schema: None,
+        gloss_source: None,
+        speech_source: Some(crate::speech::cache::Source {
+            message_id,
+            text,
+            language,
+            voice,
+        }),
+        install_id: db.query_row("SELECT id FROM learner LIMIT 1", [], |r| r.get(0))?,
+    })
+}
+
+pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -> Result<String> {
+    let (turn,text,context):(String,String,String)=db.query_row("SELECT t.id,m.text,t.context FROM messages m JOIN turns t ON t.id=m.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts r ON r.id=c.contact_id WHERE m.id=?1 AND m.role='assistant' AND c.archived=0 AND r.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind IN ('persona_reply','persona_opening') AND state='succeeded')",[message_id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?.ok_or_else(||fail("Speech requires an accepted persona message."))?;
+    let mut captured: serde_json::Value = serde_json::from_str(&context)?;
+    let original: crate::ai::connections::access::ResolvedTarget =
+        serde_json::from_value(captured["target"].clone())?;
+    if config(db)?.revision != original.revision {
+        return Err(fail("Speech connection changed. Start a new exchange."));
+    }
+    if captured["speechTarget"].is_null() {
+        captured["speechTarget"] = serde_json::to_value(crate::ai::connections::access::resolve(
+            db,
+            crate::ai::connections::access::Capability::Speech,
+        )?)?;
+    }
+    let target = speech_binding(db, message_id, &text, &captured)?;
+    let existing: Option<(String, String)> = db
+        .query_row(
+            "SELECT id,state FROM operations WHERE turn_id=?1 AND kind='persona_speech'",
+            [&turn],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .optional()?;
+    if let Some((operation, state)) = &existing
+        && (matches!(state.as_str(), "ready" | "running" | "waiting_dependencies")
+            || (state == "succeeded" && resident_audio))
+    {
+        return Ok(operation.clone());
+    }
+    if config(db)?.paused {
+        return Err(AppError::new(
+            ErrorCode::AdmissionHeld,
+            "AI execution is paused. Speech was not queued.",
+        ));
+    }
+    crate::ai::policy::holds::check(db, &target)?;
+    let operation = existing.map(|(id, _)| id).unwrap_or_else(id);
+    let attempts: i64 = db.query_row(
+        "SELECT count(*) FROM attempts WHERE operation_id=?1",
+        [&operation],
+        |r| r.get(0),
+    )?;
+    if attempts >= crate::speech::cache::ATTEMPT_LIMIT {
+        return Err(budget_error("Speech has reached its three-attempt limit."));
+    }
+    let spent:i64=db.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'",[&turn],|r|r.get(0))?;
+    let reserved:i64=db.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('ready','waiting_dependencies') AND kind NOT IN ('persona_context','coach_context')",[&turn],|r|r.get(0))?;
+    if spent + reserved + 1 > TURN_ATTEMPT_LIMIT {
+        return Err(budget_error(
+            "This turn has reached its network attempt budget.",
+        ));
+    }
+    admit_network_work(db, 1)?;
+    // Releasing a corrected hold may not resume any sibling.
+    let paused: bool = db.query_row("SELECT paused FROM turns WHERE id=?1", [&turn], |r| {
+        r.get(0)
+    })?;
+    db.execute("INSERT INTO operations(id,turn_id,kind,state,permit) VALUES(?1,?2,'persona_speech','ready',?3) ON CONFLICT(turn_id,kind) DO UPDATE SET state='ready',permit=excluded.permit",params![operation,turn,paused])?;
+    db.execute(
+        "UPDATE turns SET context=?2 WHERE id=?1",
+        params![turn, serde_json::to_string(&captured)?],
+    )?;
+    refresh_turn(db, &turn)?;
+    Ok(operation)
+}
+
+pub fn cancel_speech(db: &Connection, operation: &str) -> Result<String> {
+    let (turn, _, _, _, _) = speech_owner(db, operation)?;
+    db.execute(
+        "UPDATE operations SET state='cancelled',permit=0 WHERE id=?1",
+        [operation],
+    )?;
+    db.execute("UPDATE attempts SET state='unknown',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Speech cancelled locally; provider outcome may be unknown.' WHERE operation_id=?1 AND state='running'",[operation])?;
+    refresh_turn(db, &turn)?;
+    Ok(operation.into())
+}
+
+impl Store {
+    pub fn finish_speech(
+        &mut self,
+        dispatch: &Dispatch,
+        outcome: crate::ai::transport::speech_provider::SpeechOutcome,
+    ) -> Result<Option<crate::speech::cache::ReadyAudio>> {
+        let tx = self.connection.transaction()?;
+        let source = dispatch
+            .speech_source
+            .as_ref()
+            .ok_or_else(|| fail("Missing captured speech source."))?;
+        let tokens_in = outcome.input_tokens.and_then(|n| i32::try_from(n).ok());
+        let tokens_out = outcome.output_tokens.and_then(|n| i32::try_from(n).ok());
+        // Retain accounting even when cancellation already revoked publication.
+        tx.execute("UPDATE attempts SET actual_model=COALESCE(actual_model,?2),provider_id=COALESCE(provider_id,?3),input_tokens=COALESCE(input_tokens,?4),output_tokens=COALESCE(output_tokens,?5) WHERE id=?1 AND operation_id=?6 AND state IN ('running','unknown','invalidated')",params![dispatch.attempt,outcome.actual_model,outcome.provider_id,tokens_in,tokens_out,dispatch.operation])?;
+        if let Some(metered_turn)=tx.query_row("SELECT o.turn_id FROM operations o JOIN attempts a ON a.operation_id=o.id WHERE o.id=?1 AND a.id=?2",params![dispatch.operation,dispatch.attempt],|r|r.get::<_,String>(0)).optional()? {
+        let usage_path = format!("$.speechUsageByAttempt.\"{}\"", dispatch.attempt);
+        tx.execute("UPDATE turns SET context=json_set(context,?2,json(?3)) WHERE id=?1",params![metered_turn,usage_path,serde_json::json!({"inputTokens":outcome.input_tokens,"outputTokens":outcome.output_tokens,"costMicros":outcome.cost_micros,"finishReason":outcome.finish_reason}).to_string()])?;
+        }
+        let owner = speech_owner(&tx, &dispatch.operation);
+        let active:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE a.id=?1 AND o.id=?2 AND a.state='running' AND o.state='running')",params![dispatch.attempt,dispatch.operation],|r|r.get(0))?;
+        let (turn, message, text, _, context) = match owner {
+            Ok(owner) => owner,
+            Err(error) if error.code == ErrorCode::NotFound => {
+                // The source can disappear or be archived independently of the
+                // request future. Revoke publication AND release durable capacity.
+                tx.execute("UPDATE attempts SET state='invalidated',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Speech source is unavailable.' WHERE id=?1 AND state='running'",[&dispatch.attempt])?;
+                tx.execute("UPDATE operations SET state='invalidated',permit=0 WHERE id=?1 AND state='running'",[&dispatch.operation])?;
+                if let Some(turn)=tx.query_row("SELECT t.id FROM turns t JOIN operations o ON o.turn_id=t.id WHERE o.id=?1 AND t.state IN ('pending','assisting')",[&dispatch.operation],|r|r.get::<_,String>(0)).optional()? { refresh_turn(&tx,&turn)?; }
+                bump(&tx)?;
+                tx.commit()?;
+                return Ok(None);
+            }
+            Err(error) => return Err(error),
+        };
+        if !active {
+            bump(&tx)?;
+            tx.commit()?;
+            return Ok(None);
+        }
+        let captured: serde_json::Value = serde_json::from_str(&context)?;
+        let authority = speech_binding(&tx, &message, &text, &captured).and_then(|_| {
+            if message != source.message_id || text != source.text {
+                Err(fail("Speech source changed."))
+            } else {
+                Ok(())
+            }
+        });
+
+        let validation = authority.and_then(|_| {
+            // For audio only, the provider decoder can establish completion
+            // from its terminal audio marker plus DONE without a finish reason.
+            // audio Ok already requires that proof and exact transcript validation.
+            if outcome
+                .finish_reason
+                .as_deref()
+                .is_some_and(|reason| reason != "stop")
+            {
+                return Err(fail("Speech did not finish normally."));
+            }
+            if (outcome.input_tokens.is_some() && tokens_in.is_none())
+                || (outcome.output_tokens.is_some() && tokens_out.is_none())
+            {
+                return Err(fail("Speech usage exceeds supported counters."));
+            }
+            Ok(())
+        });
+        let audio = match outcome.audio {
+            Ok(wav) => validation.and_then(|_| {
+                if wav.is_empty() || wav.len() > crate::speech::cache::AUDIO_LIMIT {
+                    Err(fail("Speech audio exceeds its output limit."))
+                } else {
+                    Ok(wav)
+                }
+            }),
+            Err(error) => Err(error),
+        };
+        if let Err(error) = &audio {
+            pause_related(&tx, &dispatch.target, error)?;
+        }
+        let (state, error) = match &audio {
+            Ok(_) => ("succeeded", None),
+            Err(e) => (
+                if e.code == ErrorCode::UnknownOutcome {
+                    "unknown"
+                } else {
+                    "failed"
+                },
+                Some(e.message.as_str()),
+            ),
+        };
+        tx.execute("UPDATE attempts SET state=?2,error=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1",params![dispatch.attempt,state,error])?;
+        tx.execute(
+            "UPDATE operations SET state=?2,permit=0 WHERE id=?1",
+            params![dispatch.operation, state],
+        )?;
+        refresh_turn(&tx, &turn)?;
+        bump(&tx)?;
+        tx.commit()?;
+        Ok(audio.ok().map(|wav| crate::speech::cache::ReadyAudio {
+            operation_id: dispatch.operation.clone(),
+            attempt_id: dispatch.attempt.clone(),
+            message_id: source.message_id.clone(),
+            wav,
+        }))
+    }
+
+    pub fn speech_audio(
+        &self,
+        operation: &str,
+        cache: &crate::speech::cache::Cache,
+    ) -> Result<SpeechAudioState> {
+        use base64::Engine;
+        let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
+        let captured: serde_json::Value = serde_json::from_str(&context)?;
+        speech_binding(&self.connection, &message, &text, &captured)?;
+        let unavailable = |reason| SpeechAudioState::Unavailable {
+            operation_id: operation.into(),
+            message_id: message.clone(),
+            reason,
+        };
+        match state.as_str() {
+            "ready" | "waiting_dependencies" | "running" => Ok(SpeechAudioState::Pending {
+                operation_id: operation.into(),
+                message_id: message,
+            }),
+            "succeeded" => {
+                let attempt:String=self.connection.query_row("SELECT id FROM attempts WHERE operation_id=?1 AND state='succeeded' ORDER BY rowid DESC LIMIT 1",[operation],|r|r.get(0))?;
+                if let Some(audio) = cache
+                    .get(&attempt)
+                    .filter(|a| a.message_id == message && a.operation_id == operation)
+                {
+                    Ok(SpeechAudioState::Ready {
+                        operation_id: operation.into(),
+                        attempt_id: attempt,
+                        message_id: message,
+                        mime: "audio/wav".into(),
+                        audio_base64: base64::engine::general_purpose::STANDARD.encode(&audio.wav),
+                    })
+                } else {
+                    Ok(unavailable(SpeechUnavailableReason::Expired))
+                }
+            }
+            "cancelled" | "invalidated" => Ok(unavailable(SpeechUnavailableReason::Cancelled)),
+            "unknown" => Ok(unavailable(SpeechUnavailableReason::UnknownOutcome)),
+            _ => Ok(unavailable(SpeechUnavailableReason::Failed)),
+        }
+    }
+}

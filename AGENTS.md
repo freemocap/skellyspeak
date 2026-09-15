@@ -61,6 +61,11 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
   entry point. The runtime remains intact pending a separate subfolder pass.
 - `conversations/`: conversation turns, execution, prompts, opening choices,
   revisions, reading-result publication and conversation exports.
+  `execution/` separates admission, holds, connections, turns, snapshots, dispatch,
+  publication, reading retries, speech and recovery. Keep its stable public entry
+  points in mod.rs and behavior suites in execution/tests/; do not recombine them
+  into a single implementation or test file. Preserve transaction boundaries when
+  extending these modules.
 - `partners/`: persona definitions, generation, generation receipts, discovery and
   reactions. Group persona definitions/prompts in `persona/` and generation/receipts
   in `generation/`; discovery and reactions remain individual files.
@@ -122,18 +127,20 @@ administrative/deployment commands. Deeper server subfolders need a separate rev
 
 ## Source file size
 
-Prefer cohesive source files of roughly 200–500 lines; smaller files are fine.
-Above 500 through 1,000 lines is a danger zone: review ownership and plan a split
-before adding more responsibilities. Above 1,000 lines requires decomposition
+Prefer cohesive source files below 500 lines, generally around 200–499; smaller
+files are fine. 500–999 lines is a danger zone: review ownership and plan a split
+before adding more responsibilities. 1,000 or more lines requires decomposition
 into smaller, functionally coherent files. Include colocated tests in the count;
 do not evade the policy by compressing formatting or moving everything into one
 large test/helper file.
 
-During the current repository reorganization, record existing violations as
-follow-up work rather than splitting implementations. Complete the folder-moving
-pass across the repository first. Large-file decomposition and an automated size
-check are a separate follow-up; this policy does not authorize expanding the
-current pass into code refactoring. Generated files, lockfiles and vendored data
+The [repository size inventory](docs/notes/large-file-inventory.md) records the
+current scan baseline and separates authored source from generated/data/docs files.
+
+Large-file cleanup now proceeds one original file at a time, starting with the
+largest flagged source. Complete and verify each split, then check in before the
+next file. Preserve behavior and tests; automated CI enforcement is still a
+separate follow-up. Generated files, lockfiles and vendored data
 need separate treatment in that check rather than manual splitting.
 
 ## Working notes
