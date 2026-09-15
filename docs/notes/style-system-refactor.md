@@ -202,3 +202,13 @@ checks. The style manifest has 48 sheets and the dead-style scan reports zero
 unused-class candidates. Vite retains its existing large-bundle warning.
 Browser verification confirms changing Arabic's scale updates both Arabic
 specimens while leaving Spanish, Chinese, German and French scales unchanged.
+
+### Desktop conversation entry-point correction
+
+The first native walkthrough exposed a missing visible desktop creation action:
+TopBar rendered its new-chat button only on mobile, leaving desktop creation
+inside the Contacts drawer. New conversation is now a labeled desktop toolbar
+button; mobile retains a compact plus with the same accessible name. Both use
+the existing registered conversation action and remain disabled while it is
+unavailable. Regression coverage checks both layouts, navigation back from
+Review to Practice, dispatch and disabled state.

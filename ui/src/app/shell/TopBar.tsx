@@ -54,7 +54,15 @@ export function TopBar() {
       {!isMobile && <nav className="workspace-modes" aria-label={tr("Main navigation")}>
         {(['practice', 'learn', 'review'] as const).map(item => <button key={item} data-mode={item} type="button" aria-current={mode === item ? 'page' : undefined} onClick={() => setMode(item)}>{tr(item === 'practice' ? 'Practice' : item === 'learn' ? 'Learn' : 'Review')}</button>)}
       </nav>}
-      <div className="topbar-actions">{isMobile && <button type="button" className="new-chat" aria-label={tr("New chat")} disabled={!newChatAction} onClick={newChat}>+</button>}
+      <div className="topbar-actions">
+      <button
+        type="button"
+        className={isMobile ? 'new-chat' : 'btn'}
+        aria-label={tr("New conversation")}
+        title={tr("New conversation")}
+        disabled={!newChatAction}
+        onClick={newChat}
+      >{isMobile ? '+' : tr("New conversation")}</button>
       {!isMobile && (
         <button
           type="button"

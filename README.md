@@ -53,10 +53,16 @@ only one runs at a time: it owns the app identity and local data.
 Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and run:
 
 ```sh
+nvm install
+nvm use
 npm ci
 npm ci --prefix docs/website
 npm run macos:dev
 ```
+
+The repository's `.nvmrc` selects Node 24. Run `nvm use` when opening a new
+terminal here. If a launcher reports `ERR_UNKNOWN_FILE_EXTENSION` for a `.ts`
+file, check `node --version`: an older system Node may be taking precedence.
 
 On macOS, this builds a debug executable, creates **SkellySpeak Dev.app**, signs
 and verifies it with the existing **SkellySpeak Local Development** certificate,
