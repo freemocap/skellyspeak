@@ -89,6 +89,11 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
 - `ai/`: shared access, credentials, hosted connections, routing, admission, holds,
   refusal handling and provider transports. Use `connections/`, `hosted/`,
   `transport/` and `policy/` for these groups. Conversation execution stays with conversations.
+  `transport/provider/` separates key verification, prose/structured payloads,
+  HTTP requests and response decoding/validation, with matching test suites and
+  shared local HTTP fixtures. Keep its public interface in mod.rs. Preserve
+  route selection, input/response limits, redirect refusal, error redaction and
+  the existing no-automatic-retry behavior across these seams.
 - `storage/`: workspace ownership, database initialization, schemas, reset and workspace
   copy export. Feature-specific persistence remains with its feature; SQL alone is
   not a reason to move code here. Schema SQL files live in `schemas/`.

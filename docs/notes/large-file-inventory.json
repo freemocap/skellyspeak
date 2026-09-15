@@ -42,13 +42,6 @@
       "area": "ui"
     },
     {
-      "path": "native/src/ai/transport/provider.rs",
-      "lines": 1017,
-      "category": "source",
-      "band": "split",
-      "area": "native"
-    },
-    {
       "path": "native/src/model.rs",
       "lines": 997,
       "category": "source",
@@ -630,6 +623,13 @@
       "area": "native"
     },
     {
+      "path": "AGENTS.md",
+      "lines": 267,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "root"
+    },
+    {
       "path": "native/src/conversations/execution/tests/fixtures.rs",
       "lines": 263,
       "category": "source",
@@ -649,13 +649,6 @@
       "category": "source",
       "band": "good",
       "area": "ui"
-    },
-    {
-      "path": "AGENTS.md",
-      "lines": 262,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "root"
     },
     {
       "path": "ui/src/styles/features/conversation/lesson.css",
@@ -854,6 +847,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/ai/transport/provider/tests/payload.rs",
+      "lines": 215,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/settings/access/SettingsAccess.tsx",
       "lines": 215,
       "category": "source",
@@ -971,6 +971,13 @@
       "category": "data or configuration",
       "band": "good",
       "area": "tools"
+    },
+    {
+      "path": "native/src/ai/transport/provider/tests/request.rs",
+      "lines": 197,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/features/conversation/progress/RewardPresentation.test.tsx",
@@ -1211,6 +1218,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/ai/transport/provider/payload.rs",
+      "lines": 160,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/speech/TranscriptionInspector.tsx",
       "lines": 159,
       "category": "source",
@@ -1363,6 +1377,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/ai/transport/provider/request.rs",
+      "lines": 138,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/learning/lessons/results.rs",
@@ -1736,6 +1757,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/ai/transport/provider/tests/fixtures.rs",
+      "lines": 104,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/application/commands/workspace.rs",
       "lines": 103,
       "category": "source",
@@ -1863,7 +1891,7 @@
     },
     {
       "path": "native/README.md",
-      "lines": 95,
+      "lines": 96,
       "category": "documentation or bibliography",
       "band": "good",
       "area": "native"
@@ -2189,6 +2217,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/ai/transport/provider/response.rs",
+      "lines": 78,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/storage/store/workspace.rs",
@@ -2523,6 +2558,13 @@
       "path": "native/gen/android/app/src/main/AndroidManifest.xml",
       "lines": 62,
       "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/ai/transport/provider/keys.rs",
+      "lines": 62,
+      "category": "source",
       "band": "good",
       "area": "native"
     },
@@ -3052,6 +3094,13 @@
       "area": "ui"
     },
     {
+      "path": "docs/notes/lessons-file-split.md",
+      "lines": 43,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
       "path": "ui/src/features/conversation/session/ConversationStart.tsx",
       "lines": 43,
       "category": "source",
@@ -3085,6 +3134,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/ai/transport/provider/tests/keys.rs",
+      "lines": 41,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "server/app/diagnostics/diagnostics.py",
@@ -3304,6 +3360,13 @@
       "area": "ui"
     },
     {
+      "path": "docs/notes/provider-file-split.md",
+      "lines": 35,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
       "path": "native/gen/android/app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt",
       "lines": 35,
       "category": "source",
@@ -3451,6 +3514,13 @@
       "area": "docs"
     },
     {
+      "path": "native/src/ai/transport/provider/tests/response.rs",
+      "lines": 32,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "server/deployment/verify_revision.py",
       "lines": 32,
       "category": "source",
@@ -3540,6 +3610,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/ai/transport/provider/mod.rs",
+      "lines": 30,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/app/shell/FaultBar.tsx",

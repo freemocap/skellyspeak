@@ -1,6 +1,6 @@
 # Repository file-size inventory
 
-Status: scan snapshot, 2026-09-15, refreshed after the execution, store, application and lesson splits.
+Status: scan snapshot, 2026-09-15, refreshed after the execution, store, application, lesson and provider splits.
 
 ## Rules and scope
 
@@ -18,18 +18,17 @@ Status: scan snapshot, 2026-09-15, refreshed after the execution, store, applica
 | Area | Under 500 | 500–999 | 1,000+ | Total |
 | --- | ---: | ---: | ---: | ---: |
 | docs | 8 | 2 | 0 | 10 |
-| native | 136 | 17 | 1 | 154 |
+| native | 146 | 17 | 0 | 163 |
 | server | 62 | 2 | 0 | 64 |
 | tools | 27 | 0 | 0 | 27 |
 | ui | 289 | 5 | 1 | 295 |
-| **Total** | **522** | **26** | **2** | **550** |
+| **Total** | **532** | **26** | **1** | **559** |
 
 ## Priority review: 1,000+
 
 | Lines | File |
 | ---: | --- |
 | 1,052 | [ui/src/styles/features/conversation/conversation.css](../../ui/src/styles/features/conversation/conversation.css) |
-| 1,017 | [native/src/ai/transport/provider.rs](../../native/src/ai/transport/provider.rs) |
 
 ## Danger zone: 500–999
 
@@ -90,6 +89,11 @@ These are not automatic code-refactoring targets. Generated output must be chang
 
 Completed: [conversation execution](execution-file-split.md),
 [workspace store](store-file-split.md), [application runtime](application-file-split.md),
-and [lessons](lessons-file-split.md). This inventory reflects those splits.
+[lessons](lessons-file-split.md) and [provider transport](provider-file-split.md).
 
-Start with the 1,000+ list, then review the danger zone. Propose responsibility boundaries before extracting implementations; do not shorten files by compressing formatting or moving all tests into another giant file. Preserve existing tests and serialized contracts. These are guidelines, not hard limits: do not introduce artificial boundaries or substantial complexity just to meet a count. Record justified exceptions. This scan establishes a baseline, not a CI gate.
+The user has deferred conversation.css to the upcoming style-system cleanup.
+It is the only remaining 1,000+ authored source file. The working-code 1,000+
+pass is complete; review the stylesheet as part of that broader cleanup rather
+than splitting it independently. Danger-zone files remain future review candidates.
+
+Propose responsibility boundaries before extracting implementations; do not shorten files by compressing formatting or moving all tests into another giant file. Preserve existing tests and serialized contracts. These are guidelines, not hard limits: do not introduce artificial boundaries or substantial complexity just to meet a count. Record justified exceptions. This scan establishes a baseline, not a CI gate.
