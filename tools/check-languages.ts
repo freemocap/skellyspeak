@@ -1,11 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
-import { validateLocales } from '../ui/src/domain/language/i18n/messages.ts'
-import type { Dict } from '../ui/src/domain/language/i18n/dict.ts'
+import { validateLocales } from '../ui/src/domain/localization/messages.ts'
+import type { Dict } from '../ui/src/domain/localization/dict.ts'
 
 const root = path.resolve(import.meta.dirname, '..')
-const localeDir = path.join(root, 'ui/src/domain/language/i18n/locales')
+const localeDir = path.join(root, 'ui/src/domain/localization/locales')
 const locales: Record<string, Dict> = {}
 const errors: string[] = []
 for (const file of fs.readdirSync(localeDir).sort()) {

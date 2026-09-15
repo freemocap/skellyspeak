@@ -1,4 +1,4 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { Component, type ReactNode } from 'react'
 
 // Keeps a render crash from blanking the whole app.

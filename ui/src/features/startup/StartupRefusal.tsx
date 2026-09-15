@@ -1,10 +1,10 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { useState } from 'react'
 import type { AppError } from '../../generated/contracts'
 import { invoke } from '../../platform/ipc/tauri'
 import { nativeError } from '../../platform/ipc/workspace'
 import { ConfigurationRefusal } from './ConfigurationRefusal'
-import { SaveDataCopy } from '../../components/SaveDataCopy'
+import { SaveDataCopy } from '../../components/persistence/SaveDataCopy'
 
 /// The workspace could not be opened, so there is no store and no shell to show.
 /// The learner gets the exact reason, a way to keep a copy of their data, and the

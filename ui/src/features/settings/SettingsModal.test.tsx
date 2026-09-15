@@ -3,14 +3,14 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { Settings } from '../../types'
 import { SettingsModal } from './SettingsModal'
-import { I18nProvider } from '../../components/i18n'
+import { I18nProvider } from '../../components/localization/i18n'
 
 const backend = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn(), invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => ({ ...backend, isTauri: false, logInfo: vi.fn(), languages: () => [], languageFor: () => null }))
-vi.mock('./SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
-vi.mock('./VarietyField', () => ({ VarietyField: () => null }))
+vi.mock('./access/SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
+vi.mock('./language/VarietyField', () => ({ VarietyField: () => null }))
 vi.mock('../../platform/audio/speech', () => ({ setVoiceVolume: vi.fn() }))
-vi.mock('../../platform/updater', async original => ({ ...await original<typeof import('../../platform/updater')>(), getUpdateChannel: async () => 'stable' }))
+vi.mock('../../platform/updates/updater', async original => ({ ...await original<typeof import('../../platform/updates/updater')>(), getUpdateChannel: async () => 'stable' }))
 vi.mock('@tauri-apps/api/app', () => ({ getVersion: async () => '0.13.4' }))
 const SETTINGS: Settings = {
   provider_mode: 'hosted',

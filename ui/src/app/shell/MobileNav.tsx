@@ -1,6 +1,6 @@
-import { useI18n } from '../../components/i18n'
-import { useIsMobile } from '../../components/useIsMobile'
-import { useNavigationStore } from '../../state/navigation'
+import { useI18n } from '../../components/localization/i18n'
+import { useIsMobile } from '../../components/layout/useIsMobile'
+import { useNavigationStore } from '../../state/navigation/navigation'
 
 /// Narrow-window navigation between the conversation and the learning panel.
 export function MobileNav() {

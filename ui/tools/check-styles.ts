@@ -1,12 +1,12 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import postcss, { type Declaration, type Root } from "postcss";
+import postcss, { type AnyNode, type Declaration, type Root } from "postcss";
 
 /// The stylesheet root. `index.css` is the manifest and `tokens.css` is the only
 /// sheet that may hold literal values; every other sheet is owned by one surface.
 const root = "ui/src/styles";
 const manifest = "index.css";
-const tokens = "tokens.css";
+const tokens = "foundations/tokens.css";
 
 /// Media queries cannot read custom properties, so the breakpoint set lives
 /// here. A query on any other width or height fails the check.
@@ -15,14 +15,27 @@ const BREAKPOINTS = { width: [380, 480, 600, 860], height: [550] };
 /// The one source module allowed to hold hex colours: the skill-domain palette.
 /// Its values are data a component paints at runtime, and contrast.test.ts
 /// measures them directly.
-const PALETTE_MODULES = new Set(["ui/src/domain/skills/skill-domains.ts"]);
+const PALETTE_MODULES = new Set(["ui/src/domain/learning/catalog/skill-domains.ts"]);
 
 const errors: string[] = [];
-const sheets = readdirSync(root).filter((name) => name.endsWith(".css")).sort();
+function sheetNames(directory: string, prefix = ""): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const name = `${prefix}${entry.name}`;
+    if (entry.isDirectory()) return sheetNames(join(directory, entry.name), `${name}/`);
+    return entry.name.endsWith(".css") ? [name] : [];
+  }).sort();
+}
+const sheets = sheetNames(root);
 
 // ── Manifest ────────────────────────────────────────────────────────────────
 const index = readFileSync(join(root, manifest), "utf8");
-const imported = [...index.matchAll(/@import\s+'\.\/([\w.-]+\.css)'/g)].map((m) => m[1]);
+const imported: string[] = [];
+postcss.parse(index, { from: join(root, manifest) }).walkAtRules("import", (rule) => {
+  const match = /^['"]\.\/([\w./-]+\.css)['"]$/.exec(rule.params);
+  if (!match) errors.push(`${root}/${manifest}: expected a local stylesheet import, got ${rule.params}`);
+  else if (imported.includes(match[1])) errors.push(`${root}/${manifest}: imports ${match[1]} more than once`);
+  else imported.push(match[1]);
+});
 for (const name of sheets) {
   if (name !== manifest && !imported.includes(name))
     errors.push(`${root}/${name}: exists but ${manifest} does not import it, so nothing loads it`);
@@ -105,7 +118,7 @@ for (const { name, path, css } of parsed) {
   });
   css.walkRules((rule) => {
     const scope: string[] = [];
-    for (let parent = rule.parent; parent; parent = parent.parent) {
+    for (let parent: AnyNode | undefined = rule.parent; parent; parent = parent.parent) {
       if (parent.type === "atrule") scope.unshift(`@${parent.name} ${parent.params}`);
     }
     if (scope.some((s) => s.startsWith("@keyframes"))) return;

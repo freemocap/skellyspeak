@@ -22,7 +22,9 @@ const LIBRARY_PREFIXES = ['react-flow']
 function sheetFiles(repositoryRoot: string, stylesheet: string): string[] {
   const target = join(repositoryRoot, stylesheet)
   if (!statSync(target).isDirectory()) return [target]
-  return readdirSync(target).filter(name => name.endsWith('.css')).sort().map(name => join(target, name))
+  return readdirSync(target, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).flatMap(entry =>
+    entry.isDirectory() ? sheetFiles(repositoryRoot, join(stylesheet, entry.name))
+      : entry.name.endsWith('.css') ? [join(target, entry.name)] : [])
 }
 
 function sourceText(repositoryRoot: string, scan: string): string {

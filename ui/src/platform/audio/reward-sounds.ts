@@ -1,6 +1,6 @@
 import { reportFault } from '../diagnostics/faults'
-import { visibleRewardRect } from '../../domain/reward/reward-anchors'
-import { cssToken } from '../css-token'
+import { visibleRewardRect } from '../../domain/rewards/reward-anchors'
+import { cssToken } from '../appearance/css-token'
 export type RewardSoundMode = 'yes' | 'no' | 'follow_tts'
 export type SoundCue = { kind: 'xp'; xp: number } | { kind: 'confused' } | { kind: 'understood' } | { kind: 'pop' }
 export interface Beep { frequency: number; at: number; duration: number }

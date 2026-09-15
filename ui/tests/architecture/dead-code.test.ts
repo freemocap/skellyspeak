@@ -14,7 +14,7 @@ const graph = buildGraph(repositoryRoot)
 const CRITICAL = [
   'ui/src/app/main.tsx',
   'ui/src/app/App.tsx',
-  'ui/src/features/guided/GuidedPage.tsx',
+  'ui/src/features/conversation/ConversationPage.tsx',
   'ui/src/features/skills/SkillsPage.tsx',
   'ui/src/features/activity/LiveActivity.tsx',
   'ui/src/features/activity/LogsOverlay.tsx',

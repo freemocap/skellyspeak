@@ -2,12 +2,12 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { LogsOverlay } from '../../src/features/activity/LogsOverlay'
-import DevWindow from '../../src/app/DevWindow'
+import DevWindow from '../../src/app/windows/DevWindow'
 
 const mocks = vi.hoisted(() => ({ native: vi.fn(), mobile: false }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.native }))
-vi.mock('../../src/components/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
-vi.mock('../../src/components/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
+vi.mock('../../src/components/layout/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
+vi.mock('../../src/components/dialogs/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
 beforeEach(() => { vi.clearAllMocks(); mocks.mobile = false })
 it.each([false, true])('opens and reopens the existing AI frame without native graph work (mobile=%s)', mobile => {
   mocks.mobile = mobile

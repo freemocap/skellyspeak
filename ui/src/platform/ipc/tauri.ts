@@ -1,4 +1,4 @@
-import { validateLanguageLocales } from '../../domain/language/i18n'
+import { validateLanguageLocales } from '../../domain/localization'
 import type { ConnectionConfig, AccessSettings, RewardSettings } from '../../generated/contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'

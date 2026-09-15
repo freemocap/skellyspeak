@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import type { LearnerState } from '../../generated/contracts'
-import type { SkillSnapshot } from '../../domain/skills/skills'
+import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
 export interface LearnerProfile {
   evidence: SkillSnapshot
   model: LearnerState

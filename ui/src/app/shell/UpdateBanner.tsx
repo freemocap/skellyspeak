@@ -1,6 +1,6 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../../platform/updater'
+import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../../platform/updates/updater'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { logInfo } from '../../platform/diagnostics/log'
 

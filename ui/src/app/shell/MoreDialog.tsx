@@ -1,6 +1,6 @@
-import { useI18n } from '../../components/i18n'
-import { DetailDialog } from '../../components/DetailDialog'
-import { useNavigationStore } from '../../state/navigation'
+import { useI18n } from '../../components/localization/i18n'
+import { DetailDialog } from '../../components/dialogs/DetailDialog'
+import { useNavigationStore } from '../../state/navigation/navigation'
 
 /// The narrow-window overflow menu: the destinations that do not fit in the
 /// topbar as buttons.

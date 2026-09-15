@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { AppError, StartupState } from '../../generated/contracts'
 import { nativeError } from '../../platform/ipc/workspace'
 import { invoke } from '../../platform/ipc/tauri'
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 
 export const useCredentialCleanup = create<{ error: AppError | null }>(() => ({ error: null }))
 

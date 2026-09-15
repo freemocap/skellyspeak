@@ -1,13 +1,13 @@
 import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
-import { skillIndex } from '../../domain/skills/skill-index'
+import { skillIndex } from '../../domain/learning/catalog/skill-index'
 // @vitest-environment jsdom
 import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useState, type ComponentType, type ReactNode } from 'react'
 import { SkillTreeView } from './SkillsPage'
-import { unreportedInput, type SkillRecord, type SkillSnapshot } from '../../domain/skills/skills'
-import { skillDemo } from '../../domain/skills/skillDemo'
-import { nodePosition, type TreeLayout } from '../../domain/skills/skillTree'
+import { unreportedInput, type SkillRecord, type SkillSnapshot } from '../../domain/learning/evidence/skills'
+import { skillDemo } from '../../domain/learning/catalog/skillDemo'
+import { nodePosition, type TreeLayout } from '../../domain/learning/catalog/skillTree'
 
 // Canvas geometry is checked in the browser; these tests exercise the same
 // node buttons and inspector without jsdom's missing layout engine.

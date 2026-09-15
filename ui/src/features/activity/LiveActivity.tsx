@@ -1,4 +1,4 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { useEffect, useState } from 'react'
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'

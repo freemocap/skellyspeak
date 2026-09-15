@@ -1,4 +1,4 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { useEffect, useState } from 'react'
 import type { PersonaGenerationActivity } from '../../generated/contracts'
 import { nativeError, readPersonaGenerationActivity } from '../../platform/ipc/workspace'

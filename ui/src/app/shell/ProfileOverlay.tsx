@@ -1,10 +1,10 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 import { useState } from 'react'
-import { LearnerModel } from '../../features/skills/LearnerModel'
-import { DetailDialog } from '../../components/DetailDialog'
-import { ProgressSummary } from '../../features/guided/ProgressSummary'
-import { useNavigationStore } from '../../state/navigation'
-import { useSkillEvidence } from '../../state/useSkillEvidence'
+import { LearnerModel } from '../../features/skills/learner/LearnerModel'
+import { DetailDialog } from '../../components/dialogs/DetailDialog'
+import { ProgressSummary } from '../../features/conversation/progress/ProgressSummary'
+import { useNavigationStore } from '../../state/navigation/navigation'
+import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 
 /// The language profile, opened from the topbar, and the failure that stands in
 /// for it when evidence is not connected.

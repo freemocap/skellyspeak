@@ -14,6 +14,44 @@ behavior, verification results and unresolved questions distinct.
 Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
 
+## UI organization
+
+Follow the folder map in [ui/README.md](ui/README.md). Keep application code under
+`ui/src/` and respect these ownership boundaries:
+
+- `app/`: startup, composition, shell, windows, navigation gestures and shortcuts.
+- `features/`: product surfaces. `conversation/` owns session flow, messages,
+  composer, reading assistance, coaching, partners, lessons, progress/rewards and
+  speech interaction in named subfolders. `skills/` groups overview, evidence and
+  learner views; `settings/` groups access, language and workspace controls.
+  `activity/` and `startup/` remain small, cohesive features.
+- `components/`: reusable controls, dialogs, feedback, reading, learning, media,
+  localization, layout and persistence components. Feature-specific components
+  stay with their feature; shared components must not import feature/app state.
+- `state/`: shared navigation, session, settings and learning stores/hooks;
+  initialization stays at its root. Feature-local state stays with the feature.
+- `domain/`: React/Tauri-independent rules. Conversation state, reading logic,
+  language identity and interface localization are distinct owners. `learning/`
+  groups catalog, evidence, statistics and reward calculations. `rewards/` holds
+  presentation geometry, separate from learning evidence and credit calculations.
+- `platform/`: IPC adapters, audio/browser APIs, diagnostics, appearance access
+  and updates. Native calls belong in `ipc/`; browser recording and playback
+  lifecycle belong in `audio/`. Domain code must not import platform code.
+- `styles/`: foundations, shell, components and feature styles. Keep `index.css`
+  as the single ordered manifest; preserve cascade order when moving sheets.
+  Style tools must scan nested folders and reject unlisted or missing sheets.
+- `generated/`: Rust-generated outputs; update their source/exporter, not the
+  generated files by hand.
+
+Colocate implementation tests with their owner. Cross-cutting tests, shared setup
+and mocks belong in `ui/tests/`; UI-only tooling belongs in `ui/tools/`. Keep
+`public/` for directly served files and `assets/` for authored source artwork.
+Do not recreate flat catch-all folders or bypass the dependency checks with
+re-export aliases at old paths. Add subfolders for concrete responsibilities,
+not arbitrary file-count targets. The mixed `src/types.ts` and large components
+need separate, deliberate decomposition; folder moves do not authorize behavior
+changes or deletion of unused code.
+
 ## Working notes
 
 Put all new working notes, plans, investigations, verification reports, and

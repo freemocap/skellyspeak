@@ -1,7 +1,8 @@
 # UI top-level organization — September 15, 2026
 
-Status: agreed structure A implemented and automatically verified. Internal
-feature/module organization is the next pass; native organization follows UI.
+Status: agreed structure A implemented and automatically verified. The subsequent folder pass is recorded in
+[UI responsibility subfolders](ui-substructure-organization.md); this document
+retains the earlier checkpoint.
 
 ## Implemented layout
 

@@ -1,8 +1,8 @@
 import { configureAudioVolumes } from '../platform/audio/audio-volume'
 import { reportFault } from '../platform/diagnostics/faults'
 import { isTauri } from '../platform/ipc/tauri'
-import { useSessionStore } from './session'
-import { useSettingsStore } from './settings'
+import { useSessionStore } from './session/session'
+import { useSettingsStore } from './settings/settings'
 
 /// Start every store that needs work before the first render, from one place.
 ///

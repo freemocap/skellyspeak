@@ -112,7 +112,7 @@ it('plays the visible XP face inside a zero-height button and finishes after the
 
 it.each(['pointerup', 'touchend'])('unlocks on touch release (%s), recovers interrupted audio, and respects suspension and mute', async eventName => {
   const sound = await import('./reward-sounds')
-  const { installPlaybackLifecycle } = await import('../playback-lifecycle')
+  const { installPlaybackLifecycle } = await import('./playback-lifecycle')
   const audio = new Synth()
   audio.state = 'suspended'
   let activated = false

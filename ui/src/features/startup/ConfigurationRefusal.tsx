@@ -1,4 +1,4 @@
-import { useI18n } from '../../components/i18n'
+import { useI18n } from '../../components/localization/i18n'
 /** Configuration failure is recoverable by correcting files, never by erasing learner data. */
 export function ConfigurationRefusal({ message }: { message: string }) {
   const tr = useI18n()

@@ -1,7 +1,7 @@
 /* ============================================================================
    SkellySpeak stylesheet entry point.
 
-   This is the only stylesheet the application imports (src/main.tsx). It is a
+   This is the only stylesheet the application imports (src/app/main.tsx). It is a
    manifest, not a place for rules: the cascade order below is the contract, so
    add new rules to the file that owns the component, never here.
 
@@ -22,20 +22,20 @@
    instead; skills.css shows the pattern.
    ========================================================================= */
 
-@import './tokens.css';
-@import './reset.css';
-@import './typography.css';
-@import './layout.css';
-@import './primitives.css';
+@import './foundations/tokens.css';
+@import './foundations/reset.css';
+@import './foundations/typography.css';
+@import './shell/layout.css';
+@import './components/primitives.css';
 
 /* Feature surfaces, in the order the learner meets them. */
-@import './conversation.css';
-@import './coach.css';
-@import './lesson.css';
-@import './analysis.css';
-@import './settings.css';
-@import './persona.css';
-@import './practice.css';
-@import './skills.css';
+@import './features/conversation/conversation.css';
+@import './features/conversation/coach.css';
+@import './features/conversation/lesson.css';
+@import './features/conversation/analysis.css';
+@import './features/settings/settings.css';
+@import './features/conversation/persona.css';
+@import './features/conversation/practice.css';
+@import './features/skills/skills.css';
 
-@import './motion.css';
+@import './foundations/motion.css';

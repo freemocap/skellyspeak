@@ -3,10 +3,10 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { expect, it, vi } from 'vitest'
 import { useState } from 'react'
 import App from './App'
-import { useSessionStore } from '../state/session'
+import { useSessionStore } from '../state/session/session'
 
-vi.mock('../components/useIsMobile', () => ({ useIsMobile: () => true }))
-vi.mock('../state/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
+vi.mock('../components/layout/useIsMobile', () => ({ useIsMobile: () => true }))
+vi.mock('../state/learning/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/learning/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
 const { native, state } = vi.hoisted(() => {
   const state = { connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: '', fastModel: '', paused: false } }
   const native = vi.fn(async (command: string) => {
@@ -29,7 +29,7 @@ vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null
 vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
 // The page is replaced, but it reads access the way the real one does — from the
 // session store — rather than through props the shell no longer threads down.
-vi.mock('../features/guided/GuidedPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
+vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
   const [draft, setDraft] = useState('')
   const connection = useSessionStore((state) => state.connection)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)

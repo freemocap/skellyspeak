@@ -24,7 +24,7 @@
     "logs:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/run-log.ts tools/dev-run.ts tools/run-log.test.ts",
     "graph": "node tools/import-graph.ts",
     "move": "node tools/refactor-move.ts",
-    "graph:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/import-graph.ts tools/refactor-move.ts ui/tools/prune-styles.ts",
+    "graph:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/import-graph.ts tools/refactor-move.ts ui/tools/prune-styles.ts ui/tools/check-styles.ts",
     "e2e:android:preflight": "node tools/e2e/android.ts",
     "e2e:android": "node tools/e2e/android.ts --live",
     "e2e:android:voice": "node tools/e2e/android.ts --live --voice",

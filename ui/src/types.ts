@@ -73,10 +73,10 @@ export interface PersonaReaction {
 }
 
 /// One exchange, as stored. This is the canonical turn shape: the live turn in
-/// GuidedPage is this plus `pendingText`, the streaming buffer, which is
+/// ConversationPage is this plus `pendingText`, the streaming buffer, which is
 /// transient by definition and never written to disk.
 export interface StoredTurn {
-  replyState?: import('./domain/language/reply-state').ReplyState
+  replyState?: import('./domain/conversation/reply-state').ReplyState
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null

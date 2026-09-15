@@ -1,10 +1,10 @@
-import { useI18n } from '../../components/i18n'
-import { useIsMobile } from '../../components/useIsMobile'
-import { ToolbarIcon } from '../../components/ToolbarIcon'
+import { useI18n } from '../../components/localization/i18n'
+import { useIsMobile } from '../../components/layout/useIsMobile'
+import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { isTauri } from '../../platform/ipc/tauri'
-import { useNavigationStore } from '../../state/navigation'
-import { useSettingsStore } from '../../state/settings'
-import { useSkillEvidence } from '../../state/useSkillEvidence'
+import { useNavigationStore } from '../../state/navigation/navigation'
+import { useSettingsStore } from '../../state/settings/settings'
+import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 
 /// The app's fixed chrome: contacts toggle, wordmark, surface tabs and the
 /// action cluster.
