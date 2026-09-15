@@ -10,6 +10,10 @@ const DIFFICULTIES = [
   { value: 'fluent', label: messageKey('Fluent') },
 ] as const satisfies ReadonlyArray<{ value: Difficulty; label: string }>
 
+export function difficultyLabel(value: Difficulty): string {
+  return DIFFICULTIES.find(item => item.value === value)!.label
+}
+
 /** An explicit selection saves settings; the caller owns persistence and errors. */
 export function DifficultySelect({ value, saving, onChange }: {
   value: Difficulty; saving: boolean; onChange: (value: Difficulty) => Promise<void>

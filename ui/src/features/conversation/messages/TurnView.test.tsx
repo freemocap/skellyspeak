@@ -193,3 +193,19 @@ it('lets a message hide translation while the conversation default stays on', ()
   view.rerender(<TurnView {...input} autoTranslate />)
   expect(screen.queryByText('Persona translation')).toBeNull()
 })
+
+it('reveals saved word meanings without starting inference or changing whole-message translation', () => {
+  const input = props()
+  input.turn.assistant!.tokens = []
+  input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'template', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
+  const view = render(<TurnView {...input} />)
+  const words = screen.getByRole('button', {name:/Word by word/})
+  expect(words).toBeEnabled()
+  expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
+  fireEvent.click(words)
+  expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
+  expect(screen.queryByText('Persona translation')).toBeNull()
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  fireEvent.click(words)
+  expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
+})

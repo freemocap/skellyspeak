@@ -1,18 +1,15 @@
-/* Shared picker recipe with two placement variants:
-   .learning-line: compact, equal-height difficulty/language/partner row.
-   .conversation-languages: labeled settings rows with a custom select arrow.
-   Variants own placement, sizing and text treatment; the base owns the common
-   border, surface, state and font family. */
+/* Conversation identity and settings controls; language selection lives in the shell. */
 .chat-head { position: relative; z-index: var(--z-sticky); }
 
 .conversation-title { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 
 .chat > .chat-head {
-  background: var(--card);
+  background: var(--sheet);
   color: var(--ink);
   border-bottom: var(--border-width) solid var(--line);
   flex-shrink: 0;
-  padding: 0 var(--space-8);
+  padding: var(--space-7) var(--space-10);
+  text-transform: none; letter-spacing: normal; font-family: var(--font-sans);
   gap: var(--space-4);
 }
 
@@ -42,27 +39,6 @@
 }
 
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
-.learning-line {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.4fr); align-items: center;
-  gap: var(--space-2); min-width: 0;
-}
-
-.learning-line > .learning-picker,
-.learning-line > .chat-language-picker,
-.learning-line .persona-picker-toggle {
-  width: 100%;
-  text-overflow: ellipsis; white-space: nowrap;
-  letter-spacing: var(--tracking-normal); text-transform: none;
-  height: var(--control-height-sm); min-height: var(--control-height-sm); max-height: var(--control-height-sm);
-  padding: 0 var(--space-3); font-size: var(--type-meta);
-  line-height: var(--leading-snug);
-}
-
-.learning-line > .persona-picker { min-width: 0; }
-
-.learning-line .persona-picker-toggle { gap: var(--space-2); }
-
-.learning-line .persona-picker-toggle > span:last-child { margin-inline-start: auto; flex: none; }
 
 .learning-picker:hover:not(:disabled) { border-color: var(--accent); }
 
@@ -122,7 +98,7 @@
 }
 
 @media (max-width: 860px) {
-  .chat > .chat-head { flex-wrap: nowrap; }
+  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-3) var(--space-4); }
   .chat > .chat-head .conversation-title { flex: 1; min-width: 0; }
   .conversation-languages { grid-template-columns: 1fr; }
   .chat-heading-actions { margin-inline-start: auto; }
@@ -134,13 +110,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--control-height-sm);
-  height: var(--control-height-sm);
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-3);
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink);
-  font-size: var(--type-display);
+  font-size: var(--type-ui);
   cursor: pointer;
 }
 
@@ -166,3 +143,13 @@
 }
 
 .chat-config-toggle:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 2px; }
+
+.chat-head .persona-picker-toggle { max-width: 100%; border: 0; border-radius: var(--radius-pill); background: transparent; gap: var(--space-5); padding: var(--space-2); height: auto; }
+.chat-head .persona-picker-toggle:hover { background: var(--bubble-learner-bg); }
+.chat-head .persona-avatar { width: 44px; height: 44px; border-radius: var(--radius-circle); background: var(--partner-top); border: var(--border-width) solid var(--partner-line); font-size: calc(var(--type-display) * 1.25); }
+.partner-identity { white-space: normal; display: grid; gap: var(--space-2); text-align: start; min-width: 0; }
+.partner-identity strong { font-size: var(--type-title); font-weight: var(--weight-semibold); overflow: hidden; text-overflow: ellipsis; }
+.partner-status { font-size: var(--type-ui); color: var(--ink-3); font-weight: var(--weight-regular); }
+.chat-new { min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; white-space: nowrap; }
+@media (max-width: 860px) { .partner-status, .chat-config-toggle > span, .chat-new > span { display: none; } }
+@media (pointer: coarse) { .chat-new, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }

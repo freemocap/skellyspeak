@@ -1,4 +1,5 @@
 /** Real component/CSS review fixture. Local sample state; no native calls or saving. */
+import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
 import { YamlExport } from '../src/components/persistence/YamlExport'
 import { createRoot } from 'react-dom/client'
 import { useEffect, useState } from 'react'
@@ -12,6 +13,7 @@ import '../src/styles/index.css'
 
 function Preview() {
   const [settings, setSettings] = useState(PREVIEW_SETTINGS)
+  const [draft, setDraft] = useState('')
   const [yamlOpen, setYamlOpen] = useState(false)
   useAppearance(settings)
   useEffect(() => { document.documentElement.style.setProperty("--reading-scale", String(settings.text_size / 100)) }, [settings.text_size])
@@ -38,12 +40,12 @@ function Preview() {
     <div className="form-row"><label>Example field<input placeholder="Enter text"/></label></div>
     <div className="chat">
       <header className="chat-head"><div className="conversation-title">Conversation fixture</div></header>
-      <div className="learning-line"><select className="learning-picker" aria-label="Difficulty"><option>Beginner</option></select><select className="chat-language-picker" aria-label="Language"><option>Spanish</option></select><button className="persona-picker-toggle">Partner</button></div>
+      <div className="conversation-languages"><select className="learning-picker" aria-label="Difficulty"><option>Beginner</option></select><select className="chat-language-picker" aria-label="Language"><option>Spanish</option></select><button className="persona-picker-toggle">Partner</button></div>
       <div className="stream"><div className="msg chat-message me plain with-edit">Learner message</div>
       <div className="msg chat-message bot"><SavedGlossText text="¿Hay una farmacia por aquí?" segments={[{start:9,end:17,kind:'gloss',gloss:'pharmacy',pronunciation:'far-MA-sya'}]}/></div>
       <div className="msg chat-message bot rtl"><SavedGlossText text="والكتاب" segments={[{start:0,end:1,kind:'gloss',gloss:'and',romanization:'wa'},{start:1,end:3,kind:'gloss',gloss:'the',romanization:'al'},{start:3,end:7,kind:'gloss',gloss:'book',romanization:'kitāb'}]}/></div>
     </div>
-      <div className="composer"><div className="crow"><input className="field composer-input" aria-label="Message" placeholder="Write a message"/><button className="mic">Record</button><button className="send" aria-label="Send">↑</button></div></div>
+      <div className="composer"><ComposerInput input={draft} onInput={setDraft} available sending={false} recording={false} transcribing={false} autoSend={false} targetLanguage="es" targetLanguageName="Spanish" onSend={() => setDraft('')} onToggleRecording={() => {}} onDiscardRecording={() => {}} /></div>
     </div>
     <div className="reaction-excerpt"><div className="msg bot">Partner excerpt outside the chat</div></div>
     <p><button className="btn" onClick={()=>document.querySelector('dialog')!.showModal()}>Open dialog</button></p>

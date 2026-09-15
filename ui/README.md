@@ -123,8 +123,8 @@ Shared activity indicators and waveform framing are under `styles/components/`.
 The `.msg` base is shared by stream bubbles and partner excerpts.
 `.msg.chat-message` explicitly adds stream padding, width caps, focus borders and
 corners. Excerpt layout remains under `.reaction-excerpt .msg` in persona styles.
-The `.field.composer-input` variant adds reading typography and input geometry
-to the shared field. Picker variants distinguish the compact `.learning-line`
+The `.field.composer-input` variant uses body-size input typography, independent
+of reading size, while retaining language script scale. Picker variants distinguish the compact `.learning-line`
 from labeled `.conversation-languages` rows. Preserve these real differences;
 avoid identical declarations in the base and variant.
 
@@ -172,3 +172,12 @@ Type-check these Vite-served tools separately from the application build:
 ```sh
 npx tsc -p ui/tools/tsconfig.previews.json
 ```
+
+### Conversation workspace review
+
+The global target-language picker and header partner picker have separate scopes.
+The voice composer, two-tab coach pane and responsive layout are documented in
+[the UX rebuild note](../docs/notes/conversation-ux-rebuild.md).
+Open `/tools/conversation-preview.html` through the existing development server
+for a production-component layout fixture with sample data; it does not call AI,
+record audio or save preferences.

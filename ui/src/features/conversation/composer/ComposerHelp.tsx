@@ -17,7 +17,7 @@ export function ComposerHelp({ replies, pending, busy, errors, onUse, onRequest 
 }) {
   const tr = useI18n()
   const visibleReplies = replies.slice(0, 2)
-  const [collapsed, setCollapsed] = useState(true)
+  const [collapsed, setCollapsed] = useState(replies.length === 0)
   const [requesting, setRequesting] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   async function toggle() {

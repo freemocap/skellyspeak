@@ -11,7 +11,7 @@
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-3) var(--space-4); line-height: var(--leading-snug); }
+.msg.chat-message { padding: var(--space-8) var(--space-9); line-height: var(--leading-normal); border: 0; }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -39,18 +39,6 @@
 }
 
 .msg.me.rtl .edit-btn { right: auto; left: 5px; }
-
-.msg.bot.with-speak { margin-top: var(--space-10); }
-
-.speak-btn {
-  position: absolute; top: -20px; right: 8px; border: var(--border-width) solid var(--line-soft);
-  background: var(--field); border-radius: var(--radius-lg);
-  min-width: 36px; min-height: var(--control-height);
-  font-size: var(--type-body); line-height: 1; cursor: pointer; padding: var(--space-3) var(--space-4);
-  color: var(--ink);
-}
-
-.speak-btn:hover { border-color: var(--accent); background: var(--quiet); }
 
 .msg.me .wg { color: var(--bubble-learner-ink-muted); }
 
@@ -154,7 +142,7 @@
 
 .message-actions .message-translate {
   margin: 0;
-  min-height: 24px;
+  min-height: var(--control-height-xs);
   padding: var(--space-hairline) var(--space-3);
   background: transparent;
   border-color: transparent;
@@ -178,15 +166,18 @@
 .message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
 
 .msg.chat-message.bot {
+  border: 0;
   border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
-  max-width: 90%;
+  max-width: 88%;
+  box-shadow: var(--bubble-shadow);
 }
 
 .msg.chat-message.bot.focused { border-color: var(--bubble-partner-line-focus); }
 
 .msg.chat-message.me {
+  border: 0;
   border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
-  max-width: 85%;
+  max-width: 82%;
 }
 
 .message-feedback > .feedback-badge {
@@ -215,3 +206,9 @@
 .message-feedback { align-self: flex-end; max-width: 85%; min-width: 0; }
 .message-translate[aria-pressed]::before { content: '□'; margin-inline-end: var(--space-2); }
 .message-translate[aria-pressed=true]::before { content: '▣'; }
+
+/* Reply actions sit below the bubble; the wrapper keeps their width and direction. */
+.partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 88%; gap: var(--space-2); }
+.partner-turn > .msg.chat-message.bot { max-width: 100%; margin-bottom: 0; }
+.partner-turn > .message-actions { justify-content: flex-start; margin: 0; gap: var(--space-2); }
+.feedback-badge.has-correction { white-space: normal; }

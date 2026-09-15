@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { CoachControl } from '../../../generated/contracts'
 import type { StoredTurn } from '../../../types'
 import { CoachEntry } from './CoachEntry'
-import { AnalysisContent } from '../reading/AnalysisContent'
 import { nativeError } from '../../../platform/ipc/workspace'
 
-export function LiveCoachReview({ turn, visible, onControl, nativeLanguageName, rtl }: {
+export function LiveCoachReview({ turn, visible, onControl }: {
   turn: StoredTurn | undefined; visible: boolean; onControl: (control: CoachControl) => Promise<void>; nativeLanguageName: string; rtl: boolean
 }) {
   const tr = useI18n()
@@ -25,12 +24,11 @@ export function LiveCoachReview({ turn, visible, onControl, nativeLanguageName, 
     setError(null)
     void onControl('open_card').catch(reason => setError(nativeError(reason)))
   }, [visible, turn, decision, onControl])
-  if (!turn) return <p className="lesson-meta">{tr("Your coach will follow the conversation here.")}</p>
+  if (!turn) return null
   return <section ref={review} className="live-coach-review" aria-label={tr("Conversation coaching")}>
-    <h3>{tr("Your coach")}</h3>
+    <h3>{tr("On your message")}</h3>
     <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />
     {error && <p role="alert">{error}</p>}
     {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="lesson-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
-    <AnalysisContent turn={turn} inspect={null} nativeLanguageName={nativeLanguageName} showRomanization rtl={rtl} />
   </section>
 }

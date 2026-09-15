@@ -17,7 +17,6 @@ const base = { replies, pending: false, busy: false, errors: [] }
 it('shows every saved reply and inserts only from its arrow', () => {
   const onUse = vi.fn()
   const view = render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
-  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(view.container.querySelector('section .help-replies')).toHaveAttribute('aria-label', 'Suggested replies')
   expect(view.container.querySelectorAll('.help-reply')).toHaveLength(2)
   fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我很好。' }))
@@ -30,7 +29,6 @@ it('shows every saved reply and inserts only from its arrow', () => {
 it('reveals the saved gloss of a tapped word without inserting or requesting analysis', () => {
   const onUse = vi.fn()
   render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={onUse} /></ReadingProvider>)
-  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(screen.queryByText('very')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: '很' }))
   expect(screen.getByText('very')).toBeVisible()
@@ -52,14 +50,12 @@ it('distinguishes loading reply ideas from a failed suggestions job', () => {
 
 it('disables only insertion during a conversation request', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} busy onUse={vi.fn()} /></ReadingProvider>)
-  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   expect(screen.getByRole('button', { name: 'Insert reply: 我很好。' })).toBeDisabled()
   expect(screen.getByRole('button', { name: '很' })).toBeEnabled()
 })
 
 it('folds to one button that reopens the reply ideas', () => {
   render(<ReadingProvider settings={null}><ComposerHelp {...base} onUse={vi.fn()} /></ReadingProvider>)
-  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
   fireEvent.click(screen.getByRole('button', { name: 'Hide suggested replies' }))
   expect(screen.queryByRole('button', { name: 'Insert reply: 我很好。' })).toBeNull()
   const reopen = screen.getByRole('button', { name: 'Show suggested replies' })

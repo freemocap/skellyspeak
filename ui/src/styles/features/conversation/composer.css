@@ -1,16 +1,18 @@
 /* Composer layout and recording controls.
    .field is the shared form-field base; .composer-input adds reading typography
-   and composer geometry. Recording/stop controls retain their distinct states. */
+   and composer geometry. Input text uses body size with script scaling; the
+   learner reading-size multiplier applies to conversation content. Recording/stop
+   controls retain their distinct states. */
 .field.composer-input {
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
-  font-size: var(--type-reading);
-  font-family: var(--font-serif);
+  font-size: calc(var(--type-body) * var(--script-scale));
+  font-family: var(--font-sans);
   min-width: 0;
 }
 
 .field.composer-input:dir(rtl) {
-  font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
+  font-size: calc(var(--type-body) * var(--script-scale));
   line-height: 1.7;
 }
 
@@ -19,11 +21,11 @@
 }
 
 .composer {
-  background: var(--chrome);
+  background: var(--sheet);
   flex: 0 0 auto;
   min-height: 0;
-  padding: var(--space-3) var(--space-5) var(--space-5);
-  border-top: var(--border-width) solid var(--line-soft);
+  width: 100%; max-width: calc(var(--measure-thread) + 2 * var(--space-12)); margin-inline: auto;
+  padding: var(--space-8) var(--space-12) var(--space-10);
 }
 
 .edit-banner {
@@ -38,10 +40,14 @@
   cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
 }
 
-.crow { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
+.crow { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-2); padding: var(--space-4); background: var(--field); border: var(--border-width) solid var(--partner-line); border-radius: var(--radius-field); box-shadow: var(--bubble-shadow); }
+.composer-field-row { display: flex; align-items: flex-end; gap: var(--space-4); width: 100%; }
+.crow .field.composer-input { flex: 1; resize: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-height: var(--touch-target); max-height: 160px; padding: var(--space-3); line-height: var(--leading-normal); font-size: calc(var(--type-body) * var(--script-scale)); word-spacing: var(--word-spacing); }
+.composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-4); font: var(--type-meta) var(--font-mono); color: var(--ink-3); }
+@media (max-width: 860px) { .composer-shortcuts { display: none; } }
 
 .send {
-  flex: none; width: 38px; height: 38px; border: none;
+  flex: none; width: var(--touch-target); height: var(--touch-target); border: none;
   background: var(--accent-strong); color: var(--ink-on-fill); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-body); border-radius: var(--radius-lg); min-height: var(--control-height-lg);
 }
 
@@ -49,8 +55,8 @@
 
 .mic {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
-  flex: none; min-width: 112px; height: 52px; padding: 0 var(--space-8); border: var(--border-width-strong) solid var(--danger-ink);
-  background: var(--field); color: var(--danger-ink); cursor: pointer; font-family: var(--font-sans); font-size: var(--type-reading); font-weight: var(--weight-bold); border-radius: var(--radius-lg); min-height: var(--control-height-lg);
+  flex: none; min-width: 0; height: var(--touch-target); padding: 0 var(--space-5); border: var(--border-width) solid var(--partner-line);
+  background: var(--field); color: var(--danger-ink); cursor: pointer; font-family: var(--font-sans); font-size: var(--type-ui); font-weight: var(--weight-semibold); border-radius: var(--radius-lg); min-height: var(--control-height-lg);
 }
 
 .mic:hover:not(:disabled) { background: var(--danger-tint); }

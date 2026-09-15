@@ -20,8 +20,8 @@
 
 .coach-msg.coach {
   align-self: flex-start;
-  background: var(--card); color: var(--ink);
-  border: var(--border-width) solid var(--line-soft);
+  background: transparent; color: var(--ink-2);
+  padding-inline: 0;
 }
 
 .coach-input-row {
@@ -47,7 +47,7 @@
 
 .coach-card {
   border: var(--border-width) solid var(--line-soft); border-inline-start: var(--border-width-thick) solid var(--accent);
-  border-radius: var(--radius-md); padding: 8px 12px; background: var(--accent-dim);
+  border-radius: var(--radius-md); padding: 8px 12px; background: var(--sheet);
 }
 
 .coach-remark { font-size: var(--type-body); color: var(--ink); line-height: 1.45; margin: 0; }
@@ -117,8 +117,8 @@
 .coach-fixed { color: var(--success-soft); }
 
 /* Coaching uses compact phrases and the conversation's interactive reading blocks. */
-.coach-card blockquote { margin: 0 0 8px; color: var(--interaction-ink); font-size: var(--type-body); }
-.coach-card-help { border-inline-start-color: var(--warning); background: var(--warning-dim); }
+.coach-card blockquote { margin: 0 0 8px; font-size: var(--type-body); color: var(--ink-3); }
+.coach-card-help { border-inline-start-color: var(--warning); background: var(--sheet); }
 .coach-card-help blockquote { color: var(--warning); }
 .coach-entry { display: grid; gap: 8px; }
 .live-coach-review { display: grid; gap: 12px; }
@@ -143,3 +143,6 @@
 .study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }
 
 .detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
+
+.coach-group-label, .live-coach-review > h3 { font: var(--type-meta) var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--ink-3); }
+@media (pointer: coarse) { .message-actions .message-translate, .mic, .send, .coach-send, .help-insert { min-width: var(--touch-target); min-height: var(--touch-target); } }

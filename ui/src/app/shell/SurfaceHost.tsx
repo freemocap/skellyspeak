@@ -5,7 +5,7 @@ import { SkillEvidenceContext, useSkillEvidence } from '../../state/learning/use
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { isTauri } from '../../platform/ipc/tauri'
 import ConversationPage from '../../features/conversation/ConversationPage'
-import { LearningPicker, NativePicker } from '../../features/settings/language/LanguagePickers'
+import { NativePicker } from '../../features/settings/language/LanguagePickers'
 import { usePracticeSwipe } from '../navigation/usePracticeSwipe'
 import { NotTauriNotice } from './NotTauriNotice'
 import { PageBoundary } from './PageBoundary'
@@ -47,7 +47,6 @@ export function SurfaceHost() {
         <div className={`page-holder ${page === 'guided' ? '' : 'hidden'}`} aria-hidden={page !== 'guided'}>
           <PageBoundary>
             <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><ConversationPage active={page === 'guided'} mobileSurface={mobileSurface}
-              learningPicker={<LearningPicker />}
               nativePicker={<NativePicker />}
               historyOpen={historyOpen}
               onHistoryOpenChange={setHistoryOpen}

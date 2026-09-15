@@ -862,5 +862,22 @@
   "Sample button": "Beispielschaltfläche",
   "Reading preview": "Lesevorschau",
   "Appearance changes save automatically.": "Darstellungsänderungen werden automatisch gespeichert.",
-  "Reset appearance": "Darstellung zurücksetzen"
+  "Reset appearance": "Darstellung zurücksetzen",
+  "Conversations": "Gespräche",
+  "Progress": "Fortschritt",
+  "Configured": "Konfiguriert",
+  "Not configured": "Nicht konfiguriert",
+  "Listening": "Hört zu",
+  "Reading aloud": "Liest vor",
+  "Conversation": "Gespräch",
+  "New": "Neu",
+  "You asked": "Deine Frage",
+  "Close coach": "Coach schließen",
+  "On your message": "Zu deiner Nachricht",
+  "Enter: send": "Enter: senden",
+  "Shift+Enter: new line": "Umschalt+Enter: neue Zeile",
+  "Listen": "Anhören",
+  "Word by word": "Wort für Wort",
+  "or send a message below": "oder sende unten eine Nachricht",
+  "or pick a topic": "oder wähle ein Thema"
 }

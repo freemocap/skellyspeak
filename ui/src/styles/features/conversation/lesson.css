@@ -78,12 +78,6 @@
   white-space: normal;
   margin: 8px;
 }
-.lesson-entry {
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px;
-  flex: none;
-}
 
 .lesson-categories { display: flex; flex-wrap: wrap; gap: .75rem; border: 0; padding: 0; }
 .lesson-categories label { display: flex; align-items: center; gap: .35rem; min-height: 44px; }

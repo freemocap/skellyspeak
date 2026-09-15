@@ -862,5 +862,22 @@
   "Sample button": "زر تجريبي",
   "Reading preview": "معاينة القراءة",
   "Appearance changes save automatically.": "تُحفظ تغييرات المظهر تلقائيًا.",
-  "Reset appearance": "إعادة ضبط المظهر"
+  "Reset appearance": "إعادة ضبط المظهر",
+  "Conversations": "المحادثات",
+  "Progress": "التقدم",
+  "Configured": "تم الإعداد",
+  "Not configured": "لم يتم الإعداد",
+  "Listening": "جارٍ الاستماع",
+  "Reading aloud": "قراءة بصوت عالٍ",
+  "Conversation": "المحادثة",
+  "New": "جديدة",
+  "You asked": "سؤالك",
+  "Close coach": "إغلاق المدرب",
+  "On your message": "حول رسالتك",
+  "Enter: send": "Enter: إرسال",
+  "Shift+Enter: new line": "Shift+Enter: سطر جديد",
+  "Listen": "استمع",
+  "Word by word": "كلمة بكلمة",
+  "or send a message below": "أو أرسل رسالة أدناه",
+  "or pick a topic": "أو اختر موضوعًا"
 }

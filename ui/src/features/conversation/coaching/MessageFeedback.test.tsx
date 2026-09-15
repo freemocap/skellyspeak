@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, expect, it, vi } from 'vitest'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MessageFeedback } from './MessageFeedback'
 import type { CoachDecision, CoachObservationView } from '../../../generated/contracts'
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
@@ -13,7 +13,7 @@ const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
   render(<MessageFeedback {...base} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Which form goes with yo?')
   fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
   expect(screen.getByRole('dialog')).toHaveTextContent('Which form goes with yo?')
   expect(screen.queryByText(/Correctness|Understanding|\/5/)).toBeNull()
@@ -27,7 +27,7 @@ it('persists Show answer before rendering the resulting native explicit correcti
   expect(control).toHaveBeenCalledWith('show_answer')
   expect(screen.queryByText('Yo fui ayer.')).toBeNull()
   view.rerender(<MessageFeedback {...base} onControl={control} decision={{ ...decision, exposedMove: 'explicit', shown: { ...decision.shown!, move: 'explicit', text: 'Yo fui ayer.' } }} />)
-  expect(screen.getByText('Yo fui ayer.')).toBeVisible()
+  expect(within(screen.getByRole('dialog')).getByText('Yo fui ayer.')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Show answer' })).toBeNull()
 })
 it('retains the card after a failed control and never retries automatically', async () => {
@@ -78,7 +78,7 @@ it.each(['Coach feedback for message 3', 'Analyze your message'])('requires dura
   await act(async () => complete())
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   view.rerender(<MessageFeedback {...base} decision={decision} onControl={control} />)
-  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+  expect(within(screen.getByRole('dialog')).getByText('Which form goes with yo?')).toBeVisible()
 })
 
 it('keeps an unexposed hint hidden on a stale disclosure failure and allows explicit retry', async () => {
@@ -103,7 +103,7 @@ it('keeps newly arrived coaching hidden in an already open pending-analysis dial
   expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   view.rerender(<MessageFeedback {...base} onControl={control} />)
-  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+  expect(within(screen.getByRole('dialog')).getByText('Which form goes with yo?')).toBeVisible()
 })
 
 it('opens the same modal immediately and keeps errors inside it', async () => {
@@ -127,7 +127,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent(/^Feedback ↗$/)
+  expect(chip).toHaveTextContent(currentDecision.shown ? 'Which form goes with yo?' : 'Feedback')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))

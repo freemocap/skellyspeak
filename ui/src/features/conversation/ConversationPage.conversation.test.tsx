@@ -212,7 +212,7 @@ describe('native conversation ownership', () => {
 })
 
 function page() {
-  return <ConversationPage learningPicker={null} nativePicker={null} mobileSurface="chat" active />
+  return <ConversationPage nativePicker={null} mobileSurface="chat" active />
 }
 describe('native composer admission', () => {
   it.each(['Enter', 'Send'])('types into the extracted composer and submits once with %s', async (action) => {
@@ -380,7 +380,7 @@ it.each(['resolve', 'reject'] as const)('ignores late revision %s after switchin
   const pending = deferred<Receipt>()
   submit = async command => command.action.kind === 'reviseTurn' ? pending.promise : { actionId: command.actionId, entityId: 'b', revision: 40 }
   let newChat: (() => void) | null = null
-  render(<ConversationPage learningPicker={null} nativePicker={null} mobileSurface="chat" active onNewChatReady={action => { if (action) newChat = action }} />)
+  render(<ConversationPage nativePicker={null} mobileSurface="chat" active onNewChatReady={action => { if (action) newChat = action }} />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
@@ -416,8 +416,7 @@ it('starts with a native card as a partner-first exchange while the composer rem
   value.starterCards = [{ id: 'food', label: 'Ordering food', preview: 'Quiero café.', translation: 'I want coffee.', reason: 'From your focus' }]
   await act(async () => watches[0].resolve(value))
   expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
-  fireEvent.change(screen.getByRole('combobox', { name: 'Topic' }), { target: { value: 'food' } })
-  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
+  fireEvent.click(screen.getByRole('button', { name: /Ordering food/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'starter', starterId: 'food' } })
   expect(screen.queryByText('¿Qué quieres beber?')).toBeNull()
@@ -455,7 +454,7 @@ it('persists Show answer through the real handler and renders only the returned 
   exposed.revision++
   exposed.messages[0].coachDecision!.exposedMove = 'hint'
   await act(async () => watches[1].resolve(exposed))
-  expect(screen.getByText('Which form goes with yo?')).toBeVisible()
+  expect(within(screen.getByRole('region', { name: 'Conversation coaching' })).getByText('Which form goes with yo?')).toBeVisible()
   expect(screen.queryByText('Yo fui ayer.')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Show answer' }))
   await waitFor(() => expect(commands()).toHaveLength(2))
@@ -466,7 +465,7 @@ it('persists Show answer through the real handler and renders only the returned 
   next.messages[0].coachDecision!.exposedMove = 'explicit'
   next.messages[0].coachDecision!.shown = { ...value.messages[0].coachDecision!.shown!, move: 'explicit', text: 'Yo fui ayer.' }
   await act(async () => watches[2].resolve(next))
-  expect(screen.getByText('Yo fui ayer.')).toBeVisible()
+  expect(within(screen.getByRole('region', { name: 'Conversation coaching' })).getByText('Yo fui ayer.')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Show answer' })).toBeNull()
 })
 
@@ -519,23 +518,25 @@ it('keeps the committed contact selection after failed navigation and follows an
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot()))
-  const rail = () => within(screen.getByRole('complementary', { name: 'Partners' }))
-  const partner = (name: string) => rail().getByRole('button', { name: new RegExp(`^${name}Español`) })
-  expect(partner('A')).toHaveAttribute('aria-pressed', 'true')
+  const partner = (name: string) => {
+    if (!screen.queryByRole('menu', { name: 'Contacts' })) fireEvent.click(document.querySelector('.persona-picker-toggle')!)
+    return screen.getByRole('menuitemradio', { name: new RegExp(`^${name}`) })
+  }
+  expect(partner('A')).toHaveAttribute('aria-checked', 'true')
   submit = async () => { throw new Error('Navigation refused') }
   fireEvent.click(partner('B'))
   await screen.findByText('Navigation refused')
-  expect(partner('A')).toHaveAttribute('aria-pressed', 'true')
-  expect(partner('B')).toHaveAttribute('aria-pressed', 'false')
+  expect(partner('A')).toHaveAttribute('aria-checked', 'true')
+  expect(partner('B')).toHaveAttribute('aria-checked', 'false')
   submit = async command => ({ actionId: command.actionId, entityId: 'accepted', revision: 11 })
   fireEvent.click(partner('B'))
   await waitFor(() => expect(watches.some(watch => watch.conversationId === 'b')).toBe(true))
   await act(async () => watches.find(watch => watch.conversationId === 'b')!.resolve(snapshot('b')))
-  expect(partner('B')).toHaveAttribute('aria-pressed', 'true')
+  expect(partner('B')).toHaveAttribute('aria-checked', 'true')
   fireEvent.click(partner('C'))
   await waitFor(() => expect(watches.some(watch => watch.conversationId === 'c')).toBe(true))
   await act(async () => watches.find(watch => watch.conversationId === 'c')!.resolve(snapshot('c')))
-  expect(partner('C')).toHaveAttribute('aria-pressed', 'true')
+  expect(partner('C')).toHaveAttribute('aria-checked', 'true')
   fireEvent.click(partner('B'))
   await waitFor(() => expect(commands().filter(command => command.action.kind === 'openConversation' && command.action.conversationId === 'b')).toHaveLength(3))
 })

@@ -62,7 +62,7 @@
 
 .persona-picker-item[aria-checked="true"] { color: var(--accent-ink); }
 
-.persona-avatar { flex: none; display: inline-block; width: 1.25em; text-align: center; line-height: 1; }
+.persona-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); font-size: var(--type-display); aspect-ratio: 1; text-align: center; line-height: 1; }
 
 .persona-tab-actions { display: flex; justify-content: flex-end; padding: var(--space-4) var(--space-6) 0; }
 

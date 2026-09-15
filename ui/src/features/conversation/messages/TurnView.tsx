@@ -1,3 +1,4 @@
+import { ReadingPreferencesContext, useReadingPreferences } from '../../../components/reading/ReadingPreferences'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
@@ -122,6 +123,9 @@ export const TurnView = memo(function TurnView({
   onActivity,
 }: TurnViewProps) {
   const tr = useI18n()
+  const reading = useReadingPreferences()
+  const [savedWordsOverride, setSavedWordsOverride] = useState<boolean | null>(null)
+  const savedWordsOpen = savedWordsOverride ?? reading.autoTranslate
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
   const selectEvidence = useMemo(createMessageEvidenceSelector, [])
@@ -316,14 +320,15 @@ export const TurnView = memo(function TurnView({
         </>
       )}
       {assistant && (
+        <div className="partner-turn">
         <div
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))
           }
-          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
+          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${rtl ? ' rtl' : ''}`}
         >
           {assistant.savedGloss ? (
-            <SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} />
+            <ReadingPreferencesContext value={{ ...reading, autoTranslate: savedWordsOpen }}><SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} /></ReadingPreferencesContext>
           ) : assistant.tokens.length > 0 ? (
             renderTokens(
               replyEntries,
@@ -347,25 +352,14 @@ export const TurnView = memo(function TurnView({
           {assistant.translationState === 'invalidated' && <div className="trans" role="status">{tr("Translation unavailable")}</div>}
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
           {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}
+        </div>
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
+          {ttsReady && onSpeak && <button type="button" className="message-translate" aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onClick={() => onSpeak(assistant.reply, turn.id)}>{speaking ? tr("Stop") : tr("Listen")}</button>}
           {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
+          <button type="button" className="message-translate" disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={assistant.savedGloss ? savedWordsOpen : assistant.tokens.length > 0 && assistant.tokens.every((_, i) => revealed.has(`${turn.id}:bot:${i}`))} onClick={() => assistant.savedGloss ? setSavedWordsOverride(!savedWordsOpen) : onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))}>{tr("Word by word")}</button>
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
           </div>
-          {ttsReady && onSpeak && (
-            <button
-              type="button"
-              className="speak-btn"
-              onDoubleClick={event => event.stopPropagation()}
-              title={speaking ? tr("Stop playback") : tr("Speak reply")}
-              aria-label={speaking ? tr("Stop playback") : tr("Speak reply")}
-              onClick={(e) => {
-                e.stopPropagation()
-                onSpeak(assistant.reply, turn.id)
-              }}
-            >
-              {speaking ? '⏹' : '🔊'}
-            </button>
-          )}
+
         </div>
       )}
       {assistant === null && (

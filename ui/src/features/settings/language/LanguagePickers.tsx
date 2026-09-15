@@ -19,7 +19,7 @@ function usePicker() {
   return { settings, saving, disabled: saving || settingsOverlay, change }
 }
 
-/// The target-language picker shown large in the conversation header.
+/// Global target-language selection; native save selects or creates its conversation.
 export function LearningPicker() {
   const tr = useI18n()
   const { settings, saving, disabled, change } = usePicker()

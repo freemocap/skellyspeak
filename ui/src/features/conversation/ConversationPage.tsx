@@ -8,6 +8,7 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { LessonDialog } from './lessons/LessonDialog'
 import { ConversationStart, type StartChoice } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
+import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
 import { ConversationHeader } from './session/ConversationHeader'
 import { MysteryPartnerPanel } from './partners/MysteryPartnerPanel'
 import { NewPersonaDialog } from './partners/NewPersonaDialog'
@@ -46,7 +47,6 @@ import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
 import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
 import { logInfo, logWarn } from '../../platform/diagnostics/log'
-import { PartnersRail } from './partners/PartnersRail'
 import { ChatHistory } from './session/ChatHistory'
 import { latestAnswered } from '../../domain/conversation/turns'
 import { useConversation } from './session/useConversation'
@@ -64,7 +64,6 @@ const CHAT_STRIPES = 5
 
 export default function ConversationPage({
   active,
-  learningPicker,
   nativePicker,
   mobileSurface,
   historyOpen = false,
@@ -73,8 +72,6 @@ export default function ConversationPage({
   onNewChatReady,
 }: {
   active: boolean
-  /// The target-language picker shown large in the conversation header.
-  learningPicker: ReactNode
   /// The explanation-language picker, kept in the conversation settings panel.
   nativePicker: ReactNode
   mobileSurface: MobileLocation
@@ -118,7 +115,7 @@ export default function ConversationPage({
     if (!active) stopRewardSounds()
   }, [settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'lesson' | 'evidence' | 'profile'>('lesson')
+  const [panelTab, setPanelTab] = useState<'lesson' | 'evidence'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
   const mode = useNavigationStore(state => state.mode)
@@ -282,6 +279,13 @@ export default function ConversationPage({
   const onStreamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns)
 
   const isMobile = useIsMobile()
+  function openCoach(id?: number) {
+    if (id !== undefined) setPinnedId(id)
+    setPanelTab('lesson')
+    if (!breakOpen) toggleBreak()
+    if (isMobile) useNavigationStore.getState().openPractice('panel')
+    requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus())
+  }
   const [exportOpen, setExportOpen] = useState(false)
   const [inspectionOpen, setInspectionOpen] = useState(false)
   useEffect(() => setInspectionOpen(false), [currentChatId, active])
@@ -479,9 +483,6 @@ export default function ConversationPage({
           <div className="composer-activity" aria-live="polite">
             {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
           </div>
-          {mic.recording && mic.waveSource && (
-            <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
-          )}
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {<ComposerHelp
             onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
@@ -495,9 +496,9 @@ export default function ConversationPage({
             onUse={(text, source) => {
               inputEvidence.current = { ...inputEvidence.current, [source]: true }
               setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
-              composer.current?.querySelector<HTMLInputElement>('.field')?.focus()
+              composer.current?.querySelector<HTMLTextAreaElement>('.field')?.focus()
             }} />}
-          <ComposerInput input={input} available={isTauri} sending={sending}
+          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri} sending={sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguage={settings?.target_language ?? 'es-ES'} targetLanguageName={targetLanguageName}
             onInput={setInput} onSend={text => { void send(text) }}
@@ -512,7 +513,6 @@ export default function ConversationPage({
       ref={workspace}
       className={`split ${mode === 'learn' ? 'workspace-learn' : ''} ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
     >
-      {mode !== 'learn' && !isMobile && <PartnersRail choices={contactChoices} currentId={activeContactId} languageName={targetLanguageName} busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onCreate={() => setNewPersonaOpen(true)} onHistory={() => setHistoryOpen(true)} />}
       <ChatHistory
         open={historyOpen && mode !== 'learn'}
         chats={contactChats}
@@ -529,13 +529,13 @@ export default function ConversationPage({
       </div>}
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
-        <ConversationHeader learning={learningPicker} persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
-          busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} difficulty={details.conversation?.settings.difficulty} saving={details.saving} error={details.error} onDifficulty={details.saveDifficulty}>
+        <ConversationHeader persona={<PersonaPicker status={[targetLanguageName, details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, mic.recording ? tr("Listening") : settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} choices={contactChoices} currentId={activeContactId}
+          busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
           <div className="chat-config" ref={settingsPanel}>
-            <button type="button" className="chat-config-toggle" aria-label={tr("Settings & voice")} aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? tr("Hide chat settings") : tr("Show chat settings")} onClick={() => setSettingsOpen(open => !open)}>⚙</button>
+            <button type="button" className="chat-config-toggle" aria-label={tr("Settings & voice")} aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? tr("Hide chat settings") : tr("Show chat settings")} onClick={() => setSettingsOpen(open => !open)}>⚙ <span>{tr("Conversation")}</span></button>
             {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label={tr("Chat settings")}>
-                <div className="conversation-languages">{nativePicker}</div>
+                <div className="conversation-languages">{nativePicker}{details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />}</div>
                 <button type="button" disabled={!currentChatId} onClick={() => { setExportOpen(true); setSettingsOpen(false) }}>{tr("Conversation YAML")}</button>
                 {/* The same Settings record the modal edits — Rust owns it,
                     these are a second VIEW of one variable, not a copy. */}
@@ -581,6 +581,7 @@ export default function ConversationPage({
 
 
 
+          <button type="button" className="chat-new" aria-label={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}>＋ <span>{tr("New")}</span></button>
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
@@ -596,7 +597,7 @@ export default function ConversationPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} onLesson={() => setMode('learn')} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} />)
           )}
           {activeTurns.map((turn) => (
             <Fragment key={turn.turnId}><TurnView
@@ -605,7 +606,7 @@ export default function ConversationPage({
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
-              onAskCoach={setCoachDraft}
+              onAskCoach={question => { setCoachDraft(question); openCoach() }}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
@@ -619,7 +620,7 @@ export default function ConversationPage({
               rtl={rtl}
               onReveal={words.reveal}
               onBubbleTap={onBubbleTap}
-              onOpenCoach={id => { setPinnedId(id); setPanelTab('lesson'); if (!breakOpen) toggleBreak() }}
+              onOpenCoach={openCoach}
               onPopup={words.setPopup}
               onInspect={words.inspectWord}
               onToggleReveal={words.toggleReveal}
@@ -665,7 +666,7 @@ export default function ConversationPage({
         className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Open XP & coach ▸")}</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Coach")}</button>}
 
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
@@ -680,8 +681,7 @@ export default function ConversationPage({
           lessonSummary={snapshot?.lessons?.find(lesson => lesson.status === 'practicing' || lesson.status === 'completed')}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
-          mysteryPartner={details.persona?.details.partnerType === 'mystery'}
-          personaProfile={personaProfile}
+          onCollapse={!isMobile ? toggleBreak : undefined}
           tab={panelTab}
           onTab={setPanelTab}
           draftQuestion={coachDraft}
@@ -700,7 +700,7 @@ export default function ConversationPage({
       {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
-      {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
+      {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)}>{personaProfile}</PersonaProfileDialog>}
       {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
       {revisionConfirmation && <DetailDialog title={tr("Revise earlier message")} onClose={() => setRevisionConfirmation(null)}>
         <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns and ")}{revisionConfirmation.coachTurnCount} {tr(" private coach turns. Your edited message replaces the original in this conversation.")}</p>

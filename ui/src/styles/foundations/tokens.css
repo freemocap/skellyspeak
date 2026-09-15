@@ -395,7 +395,12 @@
      The reading values are set on documentElement, so the defaults below are
      what a surface reads before any settings have loaded. */
   /* Guided split width, written by ConversationPage’s keyboard/pointer divider. */
-  --chat-share: 50%;
+  --chat-share: calc(100% - 360px);
+  --radius-field: 20px;
+  --measure-thread: 680px;
+  --coach-surface: var(--chrome);
+  --control-height-xs: 28px;
+  --bubble-shadow: var(--shadow-sm);
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;

@@ -1,23 +1,15 @@
-import { useI18n } from '../../../components/localization/i18n'
 import type { ReactNode } from 'react'
-import type { Difficulty } from '../../../generated/contracts'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
-import { DifficultySelect } from './DifficultySelect'
+import { useI18n } from '../../../components/localization/i18n'
 
-/// The target language, the persona this conversation speaks through, and this
-/// conversation's difficulty.
-export function ConversationHeader({ learning, persona, difficulty, saving, error, onDifficulty, children }: {
-  learning: ReactNode; persona?: ReactNode; difficulty?: Difficulty; saving: boolean; error: string | null
-  onDifficulty: (value: Difficulty) => Promise<void>; children: ReactNode
+/** Partner identity leads; editing controls live in the conversation popover. */
+export function ConversationHeader({ persona, error, children }: {
+  persona: ReactNode; error: string | null; children: ReactNode
 }) {
   const tr = useI18n()
   return <div className="chat-head">
-    <div className="conversation-title" aria-label={tr("Current conversation settings")}>
-      <div className="learning-line">
-        {learning}
-        {difficulty && <DifficultySelect value={difficulty} saving={saving} onChange={onDifficulty} />}
-        {persona}
-      </div>
+    <div className="conversation-title">
+      {persona}
       {error && <ErrorDetails label={tr("Conversation settings")} errorKey={error}>{error}</ErrorDetails>}
     </div>
     {children}

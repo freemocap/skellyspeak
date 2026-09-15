@@ -1,5 +1,8 @@
+import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 interface ComposerInputProps {
+  waveform?: ReactNode
+  micShortcut?: string
   input: string
   available: boolean
   sending: boolean
@@ -16,18 +19,34 @@ interface ComposerInputProps {
 
 /** Message-entry controls; recording and request ownership stay with the caller. */
 export function ComposerInput({ input, available, sending, recording, transcribing, autoSend,
-  targetLanguage, targetLanguageName, onInput, onSend, onDiscardRecording, onToggleRecording,
+  targetLanguage, targetLanguageName, waveform, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const field = inputRef.current
+    if (field) { field.style.height = 'auto'; field.style.height = `${Math.min(field.scrollHeight, 160)}px` }
+  }, [input])
   return (
+          <>
           <form
             className="crow"
             onSubmit={(e) => {
               e.preventDefault()
-              onSend(input)
+              if (available && !sending && !recording && !transcribing && input.trim()) onSend(input)
             }}
           >
-            <input
+            {waveform}
+            <div className="composer-field-row">
+            <textarea
+              ref={inputRef}
+              rows={1}
+              aria-label={tr("Message")}
+              onKeyDown={event => {
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+                  event.preventDefault(); event.currentTarget.form?.requestSubmit()
+                }
+              }}
               className="field composer-input"
               value={input}
               onChange={(e) => onInput(e.target.value)}
@@ -64,11 +83,14 @@ export function ComposerInput({ input, available, sending, recording, transcribi
             <button
               type="submit"
               className="send"
-              disabled={sending || !input.trim()}
+              disabled={!available || sending || recording || transcribing || !input.trim()}
               aria-label={tr("Send")}
             >
               ↑
             </button>
+            </div>
           </form>
+          <div className="composer-shortcuts"><span>{tr("Enter: send")}</span><span>{tr("Shift+Enter: new line")}</span>{micShortcut && <span>{micShortcut} · {tr("Record")}</span>}</div>
+          </>
   )
 }

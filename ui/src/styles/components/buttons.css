@@ -6,7 +6,7 @@
   flex: none;
 }
 
-.btn, .inside-btn, .panel-tab {
+.btn, .panel-tab {
   min-height: var(--control-height);
   font-family: var(--font-sans);
   font-size: var(--type-ui);
@@ -67,40 +67,9 @@
 
 @media (pointer: coarse) { .new-chat { width: var(--touch-target); height: var(--touch-target); } }
 
-.inside-btn {
-  display: inline-flex; align-items: center; gap: var(--space-3);
-  background: none; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);
-  color: var(--ink-2); cursor: pointer; padding: var(--space-3) var(--space-6);
-  white-space: nowrap;
-}
-
-.inside-btn:hover { color: var(--ink); border-color: var(--accent); }
-
-.inside-btn.open { color: var(--accent-ink); border-color: var(--accent); }
-
-.inside-dot {
-  width: 7px; height: 7px; border-radius: var(--radius-circle); flex: none;
-  background: var(--line);
-}
-
-.inside-btn:hover .inside-dot { background: var(--accent); }
-
-.inside-btn.busy {
-  color: var(--warning-strong);
-  border-color: var(--warning);
-  animation: inside-glow var(--dur-loop) ease-in-out infinite;
-}
-
-.inside-btn.busy .inside-dot {
-  background: var(--warning);
-  animation: inside-pulse var(--dur-loop-fast) ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .inside-btn.busy,
-  .inside-btn.busy .inside-dot { animation: none; }
 }
 
 @media (pointer: coarse) {
-  .btn, .inside-btn, .panel-tab { min-height: var(--touch-target); }
+  .btn, .panel-tab { min-height: var(--touch-target); }
 }

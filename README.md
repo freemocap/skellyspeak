@@ -28,14 +28,15 @@ playback, a separate coach thread, Google sign-in and own-key/custom-server exec
 messages, conversation settings and validated replies. The integrated conversation UI
 reads those native records and uses native commands for sends and settings changes.
 
-The interface pairs a light chat canvas with a dark coach pane containing the skill
-map and persona profile. The partner chooser selects partners and conversations;
-narrow windows expose the chat and coach surfaces separately. Unsent drafts are
-session-only. AI activity displays retained operation dependencies, states and attempt
-metadata in the dock, pop-out and mobile dialog. The graph is inspection-only;
-native Pause/Step/Cancel controls still need UI wiring. Source implementation and
-automated checks do not establish native-device behavior; verification evidence and
-limits are recorded below.
+The interface centers the conversation in a continuous chat/coach workspace.
+The global target-language selector switches language independently of the
+partner picker in the conversation header. Record and Send share the composer;
+coaching and evidence occupy a collapsible side pane. Narrow windows expose Chat
+and Coach separately. History, progress, settings and secondary tools remain
+available from the top bar. Unsent drafts are session-only. See the
+[UX implementation and verification notes](docs/notes/conversation-ux-rebuild.md).
+AI activity remains available under More → AI activity & tools. Its graph is
+inspection-only; native Pause/Step/Cancel controls still need UI wiring.
 
 Saved partner-reply translation and whole-message word glosses are implemented through
 the scheduler. Structured coaching and source-derived XP now feed the skill map and practice
@@ -184,7 +185,7 @@ remote state; `--no-push` performs local Git writes only.
 
 Opening the app resumes the most recent active conversation. A fresh workspace
 creates a Spanish partner and conversation automatically. The composer is immediately
-available; no title or setup form is required. The plus button starts another
+available; no title or setup form is required. The New button in the conversation header starts another
 conversation with copied preferences. The partner chooser opens a partner's latest
 active chat or creates one. Names and settings remain editable afterward.
 
@@ -200,11 +201,12 @@ preferences save per conversation. Desktop voice interaction has prior user
 verification. Mobile capture code and Android build checks do not establish device
 login/voice/update behavior; those checks and general speech fidelity remain separate.
 
-The right pane contains the skill map, persona profile and a resizable coach dock.
-Coach exchanges persist separately from partner messages and use the same gated
-execution machinery. Partner prompts never include coach messages. The coach can
-explain or suggest phrasing; it cannot apply lesson/settings changes. Detailed lesson
-editing remains pending; saved word glosses are available in the conversation.
+The right pane contains Coaching and Evidence tabs, with lesson access beside
+the Coach heading. Partner details open from the header picker. Coach exchanges
+persist separately from partner messages and use the same gated execution
+machinery. Partner prompts never include coach messages. The coach can explain
+or suggest phrasing; it cannot apply lesson/settings changes. Saved word glosses
+remain available in the conversation.
 
 ## Configure and use AI
 

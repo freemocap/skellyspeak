@@ -862,5 +862,22 @@
   "Sample button": "Sample button",
   "Reading preview": "Reading preview",
   "Appearance changes save automatically.": "Appearance changes save automatically.",
-  "Reset appearance": "Reset appearance"
+  "Reset appearance": "Reset appearance",
+  "Conversations": "Conversations",
+  "Progress": "Progress",
+  "Configured": "Configured",
+  "Not configured": "Not configured",
+  "Listening": "Listening",
+  "Reading aloud": "Reading aloud",
+  "Conversation": "Conversation",
+  "New": "New",
+  "You asked": "You asked",
+  "Close coach": "Close coach",
+  "On your message": "On your message",
+  "Enter: send": "Enter: send",
+  "Shift+Enter: new line": "Shift+Enter: new line",
+  "Listen": "Listen",
+  "Word by word": "Word by word",
+  "or send a message below": "or send a message below",
+  "or pick a topic": "or pick a topic"
 }

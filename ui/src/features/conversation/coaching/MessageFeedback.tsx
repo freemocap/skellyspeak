@@ -39,10 +39,11 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
     catch (reason) { setFailure(nativeError(reason)) }
     finally { pending.current = false; setBusy(false) }
   }
+  const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = decision ? 'Feedback' : null
   return <>
     <button type="button" data-feedback-state={error ? 'failed' : decision && feedback ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${decision?.shown ? ' has-correction' : ''}${error ? ' feedback-error' : ''}`} aria-haspopup={onOpenCoach && decision?.shown ? undefined : "dialog"} aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => onOpenCoach && decision?.shown ? onOpenCoach() : void openCard()}>
-      {error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
+      {shown ? <><span dir="auto">{shown.text}</span> <span>{tr("Ask the coach")}</span></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
     </button>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>{children}<button type="button" className="message-translate" aria-label={tr("Analyze your message")} aria-haspopup="dialog" disabled={busy} onClick={() => void openCard()}>{tr("Analysis")}</button></div>

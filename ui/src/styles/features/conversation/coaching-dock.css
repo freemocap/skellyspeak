@@ -1,14 +1,13 @@
 /* Resizable coaching dock. Collapsed and narrow-layout variants alter layout only. */
 
 .break {
-  flex: 1 1 calc(100% - var(--chat-share));
+  flex: 0 0 clamp(320px, calc(100% - var(--chat-share)), 520px);
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--surface-bg);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--surface-shadow), var(--surface-glow);
+  background: var(--coach-surface);
+  border-inline-start: var(--border-width) solid var(--line-soft);
   position: relative;
   overflow: hidden;
 }
@@ -27,10 +26,19 @@
 
 .break.collapsed { flex: 0 0 auto; min-width: 0; }
 
-.break.collapsed .break-head { border-bottom: none; padding: var(--space-5) var(--space-9); }
+.break.collapsed .break-head { border: 0; writing-mode: vertical-rl; width: var(--control-height-xs); min-height: 100px; padding: var(--space-5) 0; text-transform: none; letter-spacing: normal; }
 
 @media (max-width: 860px) {
-  .break { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  .break { flex: 1 1 auto; min-height: 0; overflow: hidden; border-inline-start: 0; }
 }
 
 .break.collapsed > :not(.break-head) { display: none; }
+
+.coach-heading { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-7) var(--space-8) var(--space-3); color: var(--ink); }
+.coach-heading strong { margin-inline-end: auto; font-size: var(--type-body); }
+.coach-heading button { min-height: var(--control-height-xs); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); padding: 0 var(--space-4); cursor: pointer; }
+.break > .panel-tabs { padding: 0 var(--space-8); gap: var(--space-8); background: transparent; border-bottom: var(--border-width) solid var(--line-soft); }
+.break .panel-tab { background: transparent; border: 0; border-radius: 0; font-family: var(--font-sans); font-size: var(--type-ui); letter-spacing: normal; text-transform: none; padding: var(--space-4) 0; color: var(--ink-3); }
+.break .panel-tab.active { color: var(--accent); box-shadow: inset 0 -2px var(--accent); }
+@media (max-width: 860px) { }
+@media (pointer: coarse) { .coach-heading button, .break.collapsed .break-head { min-height: var(--touch-target); min-width: var(--touch-target); } }

@@ -862,5 +862,22 @@
   "Sample button": "Bouton d’exemple",
   "Reading preview": "Aperçu de lecture",
   "Appearance changes save automatically.": "Les changements d’apparence sont enregistrés automatiquement.",
-  "Reset appearance": "Réinitialiser l’apparence"
+  "Reset appearance": "Réinitialiser l’apparence",
+  "Conversations": "Conversations",
+  "Progress": "Progression",
+  "Configured": "Configuré",
+  "Not configured": "Non configuré",
+  "Listening": "Écoute en cours",
+  "Reading aloud": "Lecture à voix haute",
+  "Conversation": "Conversation",
+  "New": "Nouvelle",
+  "You asked": "Votre question",
+  "Close coach": "Fermer le coach",
+  "On your message": "À propos de votre message",
+  "Enter: send": "Entrée : envoyer",
+  "Shift+Enter: new line": "Maj+Entrée : nouvelle ligne",
+  "Listen": "Écouter",
+  "Word by word": "Mot à mot",
+  "or send a message below": "ou envoyez un message ci-dessous",
+  "or pick a topic": "ou choisissez un sujet"
 }

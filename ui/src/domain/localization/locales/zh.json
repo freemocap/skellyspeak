@@ -862,5 +862,22 @@
   "Sample button": "示例按钮",
   "Reading preview": "阅读预览",
   "Appearance changes save automatically.": "外观更改会自动保存。",
-  "Reset appearance": "重置外观"
+  "Reset appearance": "重置外观",
+  "Conversations": "对话",
+  "Progress": "进度",
+  "Configured": "已配置",
+  "Not configured": "未配置",
+  "Listening": "正在聆听",
+  "Reading aloud": "朗读中",
+  "Conversation": "对话",
+  "New": "新建",
+  "You asked": "你的提问",
+  "Close coach": "关闭教练",
+  "On your message": "关于你的消息",
+  "Enter: send": "Enter：发送",
+  "Shift+Enter: new line": "Shift+Enter：换行",
+  "Listen": "收听",
+  "Word by word": "逐词查看",
+  "or send a message below": "或在下方发送消息",
+  "or pick a topic": "或选择话题"
 }
