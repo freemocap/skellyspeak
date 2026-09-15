@@ -36,7 +36,7 @@ vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobile
   return <><p>Practice surface: {mobileSurface}</p><input aria-label="Draft" value={draft} onChange={event => setDraft(event.target.value)} />{connection?.configured === false && <button type="button" onClick={() => void startHostedSignIn()}>Sign in with Google</button>}</>
 } }))
 
-it('keeps Chat and Lesson reachable through Skill Tree and preserves the chat draft', async () => {
+it('keeps navigation reachable and preserves the mounted page stub across destinations', async () => {
   HTMLDialogElement.prototype.showModal = function () { this.open = true }
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
@@ -67,7 +67,7 @@ it('keeps Chat and Lesson reachable through Skill Tree and preserves the chat dr
 
 vi.mock('../features/activity/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))
 
-it('starts hosted sign-in directly when no AI access is configured', async () => {
+it('connects the page stub to hosted sign-in through the session store', async () => {
   state.connection = { route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }
   native.mockClear()
   // Startup loads the session store; a test that asserts on what it holds seeds

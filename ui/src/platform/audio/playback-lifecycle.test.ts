@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { expect, it, vi } from 'vitest'
 import { installNativePlaybackLifecycle } from './playback-lifecycle'
 import capabilities from '../../../../native/capabilities/main.json'
@@ -34,8 +33,6 @@ it('never listens for a window close request', async () => {
   native.listen.mockClear()
   await installNativePlaybackLifecycle({ focus: vi.fn(), close: vi.fn(), suspend: vi.fn(), resume: vi.fn(), dispose: vi.fn() })
   expect(native.listen.mock.calls.map(([name]) => name)).not.toContain('tauri://close-requested')
-  const source = readFileSync(new URL('./playback-lifecycle.ts', import.meta.url), 'utf8')
-  expect(source).not.toMatch(/onCloseRequested\(|WINDOW_CLOSE_REQUESTED/)
 })
 
 it('limits external navigation to the download page', () => {

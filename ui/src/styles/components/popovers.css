@@ -28,8 +28,6 @@
 
 .popup-x:hover { color: var(--ink); }
 
-.popup-actions { margin-bottom: 0; }
-
 .info-tip { display: inline-block; position: relative; margin-inline: var(--space-2); vertical-align: middle; }
 
 .info-tip > button {
@@ -54,3 +52,5 @@
   font: var(--type-ui)/1.4 var(--font-sans);
   box-shadow: var(--floating-shadow), var(--appearance-glow);
 }
+
+.popup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }

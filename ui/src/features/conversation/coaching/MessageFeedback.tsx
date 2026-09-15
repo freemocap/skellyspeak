@@ -41,7 +41,7 @@ export function MessageFeedback({ id, text, feedback, decision, error, reviewing
   }
   const label = decision ? 'Feedback' : null
   return <>
-    <button type="button" className={`feedback-badge${decision?.shown ? ' has-correction' : ''}${error ? ' feedback-error' : ''}`} aria-haspopup={onOpenCoach && decision?.shown ? undefined : "dialog"} aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => onOpenCoach && decision?.shown ? onOpenCoach() : void openCard()}>
+    <button type="button" data-feedback-state={error ? 'failed' : decision && feedback ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${decision?.shown ? ' has-correction' : ''}${error ? ' feedback-error' : ''}`} aria-haspopup={onOpenCoach && decision?.shown ? undefined : "dialog"} aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => onOpenCoach && decision?.shown ? onOpenCoach() : void openCard()}>
       {error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
     </button>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}

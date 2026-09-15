@@ -1,0 +1,172 @@
+/* Reward card base and presentation variants. The dock inspection card compacts
+the same badge; .floating-reward adds transient overlay layout. Keep motion,
+color meaning and reduced-motion behavior unchanged until the reward explorer review. */
+
+.skill-reward-status { position: absolute; width: 0; height: 0; }.skill-reward-status .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.reward-badge {
+  background: var(--analysis-surface);
+  border: var(--border-width-strong) solid;
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+  color: var(--analysis-ink);
+  font: var(--type-body) var(--font-sans);
+}
+
+.reward-badge-heading { display: flex; align-items: center; gap: var(--space-4); }
+
+.reward-badge-heading > span:not(.reward-domain-dot) { flex: 1; font-weight: var(--weight-semibold); }
+
+.reward-badge-heading strong {
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font: var(--weight-bold) var(--type-reading) var(--font-mono);
+  color: var(--ink-on-domain);
+}
+
+.reward-domain-dot { width: 9px; height: 9px; border-radius: var(--radius-circle); flex-shrink: 0; }
+
+.reward-badge blockquote {
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  border: 0;
+  font-size: var(--type-title);
+  line-height: var(--leading-normal);
+}
+
+.reward-rationale { margin: var(--space-8) var(--space-1) var(--space-5); }
+
+.reward-credit-note {
+  display: block;
+  margin: 0 var(--space-1) var(--space-6);
+  color: var(--analysis-ink-dim);
+  font-size: var(--type-meta);
+}
+
+.floating-reward {
+  position: fixed;
+  z-index: var(--z-reward);
+  overflow: auto;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--chrome);
+  color: var(--ink);
+  box-shadow: var(--shadow-xl);
+  transform-origin: center;
+}
+
+.floating-reward.departing { pointer-events: none; }
+
+.floating-reward .reward-badge-heading { font-size: var(--type-ui); }
+
+.floating-reward .reward-badge blockquote { font-size: var(--type-ui); margin-block: var(--space-2); }
+
+.reward-map-destination {
+  position: fixed;
+  top: 82px;
+  right: 12px;
+  z-index: var(--z-reward-path);
+  border: var(--border-width-strong) solid currentColor;
+  border-radius: var(--radius-circle);
+  background: var(--chrome);
+  width: var(--control-height);
+  height: var(--control-height);
+  font-size: var(--type-display);
+}
+
+.reward-progress-toast {
+  position: fixed;
+  z-index: var(--z-reward-toast);
+  pointer-events: none;
+  inset-inline: max(16px, env(safe-area-inset-left));
+  top: calc(env(safe-area-inset-top) + 76px);
+  max-width: 360px;
+  margin-inline: auto;
+  padding: var(--space-8);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--chrome);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  gap: var(--space-6);
+  animation: reward-receipt var(--dur-loop-slow) ease both;
+}
+
+.reward-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  font-size: var(--type-ui);
+}
+
+.reward-progress-track {
+  height: 8px;
+  background: var(--field);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-3);
+  overflow: hidden;
+}
+
+.reward-progress-track > span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width var(--dur-deliberate) ease-out;
+}
+
+.reward-progress-toast small { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reward-progress-toast { animation: none; }
+  .reward-progress-track > span { transition: none; }
+}
+
+.reward-path-trace { position: fixed; pointer-events: none; opacity: 0; transform-origin: center; }
+
+.reward-path-outline {
+  width: 100%;
+  height: 100%;
+  border: var(--border-width) solid var(--field);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  box-shadow: 0 0 5px var(--field);
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) { .reward-path-trace { display: none; } }
+
+.rewards-ledger { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
+.rewards-ledger h3, .rewards-ledger p { margin: 0; }
+.rewards-ledger h3 { font-size: var(--type-title); }
+.reward-provenance { display: grid; gap: var(--space-4); font: var(--type-meta) var(--font-mono); }
+.reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
+.reward-provenance dd { margin: 0; overflow-wrap: anywhere; }.reward-inspection-card {
+  position: relative;
+  padding: var(--space-5) var(--space-12) var(--space-5) var(--space-6);
+  border-top: var(--border-width) solid var(--line);
+  font: var(--type-ui)/1.4 var(--font-sans);
+}.reward-inspection-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--type-display);
+}.reward-inspection-card .reward-badge { padding: var(--space-3) var(--space-4); }.reward-inspection-card .reward-rationale { margin: var(--space-3) 0; }.floating-reward .reward-inspection-card {
+  border-top: 0;
+  padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
+  line-height: var(--leading-snug);
+}

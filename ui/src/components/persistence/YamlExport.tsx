@@ -37,12 +37,12 @@ export function YamlExport({ title, scope, view, save, children, onClose }: {
       if (request === generation.current && source === owner.current) setBusy(null)
     }
   }
-  return <DetailDialog title={title} onClose={onClose}>
+  return <DetailDialog size="wide" title={title} onClose={onClose}>
     <h2>{title}</h2>
     <div className="yaml-export">
       {children}
-      <button disabled={busy !== null} onClick={() => void run('view')}>{busy === 'view' ? tr("Loading YAML…") : tr("View YAML")}</button>
-      <button disabled={busy !== null} onClick={() => void run('save')}>{busy === 'save' ? tr("Saving YAML…") : tr("Save YAML")}</button>
+      <button className="inspection-action" disabled={busy !== null} onClick={() => void run('view')}>{busy === 'view' ? tr("Loading YAML…") : tr("View YAML")}</button>
+      <button className="inspection-action" disabled={busy !== null} onClick={() => void run('save')}>{busy === 'save' ? tr("Saving YAML…") : tr("Save YAML")}</button>
     </div>
     <p>{tr("Each action reads the latest saved data. Files are saved to Downloads.")}</p>
     {saved && <p role="status">{tr("Saved to ")}{saved}</p>}

@@ -134,7 +134,7 @@ an old unused palette ramp has a different maintenance cost.
   conversation messages.
 - [primitives.css](style-system-refactor.md) mixes buttons,
   fields, dialogs, word popovers, app fault/update bars and settings-specific rows.
-- [practice.css](../../ui/src/styles/features/conversation/practice.css) mixes
+- [practice.css](style-system-refactor.md) mixes
   maps/rewards with learner inspection, YAML export and transcription inspection.
 
 **Recommendation:** shared component bases belong to shared component styles;

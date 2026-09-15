@@ -93,3 +93,57 @@ links and all 667 UI tests pass. Dead-style scan reports zero candidates.
 
 Next: coaching/lesson and practice/inspection composition. The language/reward
 explorer remains a dedicated follow-up, including state and accessibility review.
+
+## Coaching, lessons, progress and inspection pass
+
+Implemented: separated the 625-line practice sheet into progress maps, reward
+presentation, numeric reports, learner-model tables, YAML export and speech
+inspection. Coaching dock/explanation layout and skill evidence no longer belong
+to lesson flow. Shared error details have a component owner.
+
+Consolidated identical inspection controls using the explicit `inspection-action`
+class. Wide report dialogs now select `size="wide"` rather than duplicate width
+rules keyed to their contents. Retained and documented meaningful variants:
+study coaching versus bounded threads, dock versus floating reward cards, boxed
+learner records versus conversation evidence, and transparent table-heading
+buttons versus ordinary actions. Removed superseded declarations and restored
+keyboard focus visibility on the coach input. Reward timing, language treatment,
+plot geometry, persistence and data behavior were not redesigned.
+
+Verification: production build and stylesheet checks pass; zero dead-style
+candidates; all 667 UI tests pass. The existing Vite bundle-size warning remains.
+Browser fixture checks exercised the production YAML dialog, its 40px actions,
+preserved YAML indentation, Escape dismissal and a 390×500 viewport (354px dialog,
+no horizontal overflow). Keyboard navigation to the coach textarea shows a solid
+2px outline; the sample evidence table and document fit the narrow viewport.
+These are fixture checks, not a full native application/device visual matrix.
+
+Remaining: final Settings/Skills composition audit and cross-surface consistency
+review, then the agreed detailed language/reward style explorer.
+
+## Settings and Skills consistency pass
+
+Implemented: split Settings into shell, access, audio and reset owners, keeping
+form variants with forms. Split Skills graph/vendor rendering, inspector and
+review composition from page/list layout. Removed superseded mobile Settings
+padding and duplicate form declarations. Restored search keyboard focus.
+
+Fixed the page-level Skills font selector that overrode control typography.
+Settings search, access tabs, checkbox-row spacing and Skills toolbar controls
+now consume the control-density role. Preserved joined route tabs, destructive
+reset presentation, scoped vendor overrides and the recessed inspector as
+documented variants. No graph geometry or reward/domain colors were redesigned.
+
+Verification: production build and the current full suite (664 tests) pass.
+Browser fixture measurements: Settings search and Skills action/select controls
+use 13px text and 40px standard / 32px compact heights. Search keyboard focus has
+a solid 2px outline. Compact dark rendering at 390px fits without horizontal
+overflow. These checks do not constitute a full native Settings workflow or
+interactive React Flow visual regression.
+
+The planned ownership passes are complete. Remaining verification includes a
+full native-app walkthrough across supported layouts, real data, graph navigation,
+overlay stacking and accessibility states. Some retained semantic aliases and
+specialized controls can be evaluated during those focused reviews. Next design
+work is the agreed language-specific and reward-detail explorer; do not describe
+all visual inconsistencies as resolved merely because static checks pass.

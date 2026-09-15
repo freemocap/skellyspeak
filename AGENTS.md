@@ -62,6 +62,20 @@ under `components/`. Keep variants explicit: `.msg.chat-message` is the stream
 bubble variant, `.reaction-excerpt .msg` is the partner excerpt layout, and
 `.field.composer-input` adds reading typography to a shared field. Retained
 contextual variants must explain their purpose and own only their differences.
+Coaching dock and explanation cards have separate owners from lesson flow.
+Conversation progress uses `progress-map`, `progress-report` and
+`reward-presentation` sheets; speech timelines use `speech-inspection.css`.
+Skills owns `learner-model.css` and `evidence.css`. Shared error details,
+YAML export and `inspection-action` controls belong under component styles.
+Settings separates shell/navigation, access-route controls, audio layout, reset
+confirmation, forms and Appearance. Skills separates page/list layout, graph/vendor
+styling, inspector layout and review-frame variants. Keep React Flow overrides
+scoped in `features/skills/graph.css`; don't restore a high-specificity page-wide
+font rule that defeats shared control typography. Deliberate variants (joined
+access tabs, destructive confirmation, recessed inspector) retain distinct roles.
+Use DetailDialog's `size="wide"` for wide data reports; retain content-specific
+variants for genuinely different layouts such as audio timelines. Reward dock
+cards and floating overlays share a badge base and document only their differences.
 See [ui/README.md](ui/README.md) and the
 [refactor checkpoint](docs/notes/style-system-refactor.md). Feature-specific
 composition still needs subsequent passes. Pruning reports candidates and refuses

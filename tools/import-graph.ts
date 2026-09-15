@@ -301,4 +301,8 @@ if (isEntry) {
   for (const edge of graph.unresolved) console.log(`  ${edge.from} -> ${edge.spec}`)
   console.log(`production modules unreachable from ${PRODUCTION_ROOTS.join(', ')}: ${dead.length}`)
   for (const file of dead) console.log(`  ${file}`)
+  const unused = unusedExports(graph)
+  console.log(`exports with no detected consumers: ${unused.length}`)
+  for (const item of unused) console.log(`  ${item.module}: ${item.name}`)
+  if (graph.unresolved.length) process.exitCode = 1
 }

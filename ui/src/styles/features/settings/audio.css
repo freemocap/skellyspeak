@@ -1,0 +1,35 @@
+/* Audio settings layout: channel volumes, device selection and playback controls. */
+
+.microphone-row { display: flex; gap: var(--space-3); }
+
+.speech-speed { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--type-ui); }
+
+.speech-speed select { padding: var(--space-2); font: inherit; }
+
+.audio-volume-controls { display: grid; gap: var(--space-4); }
+
+.audio-volume-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(70px, 1fr) 4ch;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.audio-volume-row label { margin: 0; font-size: var(--type-ui); }
+
+.audio-volume-row input { width: 100%; min-width: 0; margin: 0; }
+
+.audio-volume-row output { text-align: end; font-size: var(--type-ui); font-variant-numeric: tabular-nums; }
+
+.audio-volume-channel {
+  margin-inline-start: var(--space-5);
+  padding-inline-start: var(--space-5);
+  border-inline-start: var(--border-width-strong) solid var(--line);
+}
+
+.audio-effects-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-7);
+  font-size: var(--type-ui);
+}

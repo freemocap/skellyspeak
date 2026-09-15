@@ -1,7 +1,7 @@
 // Repeated synthetic task comparison; never changes production routing.
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { checks } from './model-routing.ts';
+import { checks } from './screening.ts';
 import { groqGlossShape } from './groq-schema.ts';
 const dir = 'workflow/benchmarks/model-routing';
 const base = JSON.parse(readFileSync(`${dir}/fixtures.json`, 'utf8'));

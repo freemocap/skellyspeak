@@ -1,138 +1,4 @@
-.access-start {
-  display: grid; justify-items: center; gap: var(--space-6);
-  width: min(100%, 280px); margin: var(--space-13) auto; padding: var(--space-8);
-  border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--chrome);
-  color: var(--ink-2); text-align: center;
-}
-
-.access-start p { margin: 0; font: var(--type-ui)/1.4 var(--font-sans); }
-
-.access-start .btn { min-height: var(--control-height-lg); padding-inline: var(--space-10); }
-
-.access-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: end;
-  gap: var(--space-1);
-  position: relative;
-  z-index: var(--z-raised);
-}
-
-.access-tabs [role="tab"] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
-  position: relative;
-  min-width: 0;
-  min-height: 42px;
-  padding: var(--space-4) var(--space-5);
-  border: var(--border-width) solid var(--line-soft);
-  border-bottom: 0;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  color: var(--ink-2);
-  background: var(--field);
-  font-size: var(--type-ui);
-  font-weight: var(--weight-semibold);
-}
-
-.access-route-indicator {
-  flex: 0 0 14px;
-  width: 14px;
-  height: 14px;
-  border: var(--border-width-strong) solid currentColor;
-  border-radius: var(--radius-circle);
-}
-
-.access-tabs [aria-selected="true"] .access-route-indicator {
-  background: var(--accent);
-  box-shadow: inset 0 0 0 3px var(--card);
-  border-color: var(--accent);
-}
-
-.access-tabs [role="tab"][aria-selected="true"] {
-  background: var(--card);
-  border-color: var(--line);
-  color: var(--ink);
-}
-
-.access-tabs [role="tab"][aria-selected="true"]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--card);
-}
-
-.access-tabs [role="tab"]:focus-visible {
-  outline-offset: -4px;
-}
-
-.access-tabs [role="tab"]:hover:not(:disabled) {
-  color: var(--ink);
-}
-
-.access-route-panel {
-  padding: var(--space-6);
-  min-width: 0;
-  border: var(--border-width) solid var(--line);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  background: var(--card);
-}
-
-.access-route-panel:focus {
-  outline: none;
-}
-
-.access-route-panel:focus-visible {
-  outline: var(--focus-width) solid var(--accent);
-  outline-offset: 5px;
-}
-
-.account-settings { min-width: 0; }
-
-.access-pending {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-  font-size: var(--type-ui);
-}
-
-.access-route-panel .check-label input[type="checkbox"] { flex: none; width: auto; }
-
-.access-key-status, .access-key-check {
-  flex: none;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--ink-2);
-  font-size: var(--type-reading);
-  cursor: pointer;
-}
-
-.access-key-delete { display: none; }
-
-.access-key-status:hover .access-key-saved, .access-key-status:focus-visible .access-key-saved { display: none; }
-
-.access-key-status:hover .access-key-delete, .access-key-status:focus-visible .access-key-delete {
-  display: inline;
-  color: var(--danger);
-}
-
-.access-key-check.valid { color: var(--success); }
-
-.access-key-check.invalid { color: var(--danger); }
-
-@media (max-width: 600px) {
-  .access-tabs [role="tab"] { gap: var(--space-2); padding: var(--space-4) var(--space-2); font-size: var(--type-meta); }
-  .access-route-panel { padding: var(--space-4); }
-}
+/* Settings shell: navigation, scrolling content and fixed footer. Mobile uses stacked sections; content must shrink without pushing the footer outside the safe area. */
 
 .settings-modal {
   width: min(720px, 100%); height: min(660px, 100%);
@@ -147,8 +13,9 @@
 }
 
 .settings-search {
+  min-height: var(--control-height);
   background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-md);
-  color: var(--ink); font-size: var(--type-ui); padding: var(--space-3) var(--space-5); outline: none;
+  color: var(--ink); font-size: var(--type-ui); padding: var(--space-3) var(--space-5);
   margin-bottom: var(--space-4); width: 100%;
 }
 
@@ -202,7 +69,7 @@
 @media (max-width: 860px) {
   /* Settings on a phone: nav becomes a scrolling strip along the top, and the
      shell fills the safe area exactly. The content column stays a flex column
-     so `.modal-actions` is pinned in view — Save must never scroll away. */
+     so `.modal-actions` is pinned in view — the footer must remain reachable. */
   .settings-modal { flex-direction: column; height: 100%; }
   .settings-nav {
     width: 100%; flex: none; flex-direction: row; align-items: center;
@@ -211,9 +78,6 @@
   }
   .settings-tree { flex-direction: row; gap: var(--space-2); }
   .settings-search { flex: none; width: 100%; }
-  .settings-head { padding: var(--space-6) var(--space-8) var(--space-4); }
-  .settings-scroll { padding: var(--space-6) var(--space-8); }
-  .settings-content .modal-actions { padding: var(--space-5) var(--space-8); }
   /* Every section is rendered at once here, so the nav strip is gone and only
      the search box remains along the top. */
   /* Headings carry the whole burden of orientation in one long scroll — make
@@ -226,65 +90,6 @@
   .settings-entry:first-child .settings-group-k { margin-top: 0; }
 }
 
-.microphone-row { display: flex; gap: var(--space-3); }
-
-.speech-speed { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--type-ui); }
-
-.speech-speed select { padding: var(--space-2); font: inherit; }
-
-.factory-reset-dialog {
-  width: min(520px, calc(100vw - 32px));
-  max-height: calc(100dvh - 32px);
-  box-sizing: border-box;
-  overflow-y: auto;
-  border: var(--border-width) solid var(--danger-edge-soft);
-  border-radius: var(--radius-lg);
-  padding: var(--space-10);
-  background: var(--card);
-  color: var(--detail-ink);
-}
-
-.factory-reset-dialog::backdrop { background: var(--overlay-scrim-strong); }
-
-.factory-reset-dialog h2 { margin: 0 0 var(--space-8); font-size: var(--type-display); }
-
-.factory-reset-dialog p { font-size: var(--type-body); line-height: var(--leading-normal); }
-
-.factory-reset-dialog label { display: block; margin: var(--space-9) 0 var(--space-4); }
-
-.factory-reset-dialog input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: var(--space-5);
-  background: var(--bg);
-  color: var(--ink);
-  border: var(--border-width) solid var(--detail-input-line);
-  border-radius: var(--radius-xs);
-}
-
-.factory-reset-dialog .modal-actions { flex-wrap: wrap; padding-bottom: 0; }
-
-.factory-reset-dialog [role=alert] { color: var(--danger-ink); }
-
-.settings-modal .form-row { margin-bottom: var(--space-5); }
-
-.settings-modal .form-row label {
-  letter-spacing: var(--tracking-label);
-  text-transform: none;
-  font-size: var(--type-ui);
-}
-
-.settings-modal .form-row input, .settings-modal .form-row select {
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
-}
-
-.settings-modal .form-row input[type="range"] { width: 100%; padding: 0; min-height: var(--control-height); }
-
-.settings-modal .check-label { display: flex; align-items: center; gap: var(--space-4); min-height: 36px; }
-
-.settings-modal .field-note { margin: var(--space-2) 0 0; }
-
 .settings-section { border-bottom: var(--border-width) solid var(--line); padding: 0 0 var(--space-3); }
 
 .settings-section > summary { cursor: pointer; padding: var(--space-6) 0; font-weight: var(--weight-semibold); }
@@ -296,36 +101,7 @@
 @media (max-width: 860px) {
   .settings-modal .settings-head { padding: var(--space-5) var(--space-7); }
   .settings-modal .settings-scroll { padding: 0 var(--space-7) var(--space-6); }
-  .settings-modal .form-row { margin-bottom: var(--space-4); }
   .settings-modal .modal-actions { gap: var(--space-3); padding: var(--space-5) var(--space-7); }
-}
-
-.audio-volume-controls { display: grid; gap: var(--space-4); }
-
-.audio-volume-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(70px, 1fr) 4ch;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.audio-volume-row label { margin: 0; font-size: var(--type-ui); }
-
-.audio-volume-row input { width: 100%; min-width: 0; margin: 0; }
-
-.audio-volume-row output { text-align: end; font-size: var(--type-ui); font-variant-numeric: tabular-nums; }
-
-.audio-volume-channel {
-  margin-inline-start: var(--space-5);
-  padding-inline-start: var(--space-5);
-  border-inline-start: var(--border-width-strong) solid var(--line);
-}
-
-.audio-effects-toggles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-7);
-  font-size: var(--type-ui);
 }
 
 /* Full viewport native modal retains the existing safe-area panel layout. */

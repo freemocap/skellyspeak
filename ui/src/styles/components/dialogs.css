@@ -65,3 +65,4 @@
 @media (pointer: coarse) {
   .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
 }
+.detail-dialog.dialog-wide { width: min(880px, calc(100vw - 24px)); padding: var(--space-6); }

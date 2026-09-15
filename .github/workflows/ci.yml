@@ -23,12 +23,14 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix docs/website
       - run: npm test
+      - run: npm run benchmarks:test
+      - run: npm run e2e:check
+      - run: npm run test:reports
       - run: npm run docs:links
       - run: npm run docs:test
       - run: npm run styles:check
       - run: node --test tools/version.test.ts
       - run: npm run ios:check
-      - run: npm run ios:test
       - run: npm run logs:check
       - run: npm run logs:test
       - run: npm run build
@@ -54,6 +56,7 @@ jobs:
           workspaces: native
           key: ios-simulator
       - run: npm ci
+      - run: npm run ios:test
       - run: npm run build
       - run: npm run tauri -- ios init --ci --config native/tauri.release.conf.json
       - name: Prepare App Store icons
@@ -79,6 +82,8 @@ jobs:
       - run: cargo clippy --lib -- -D warnings
         working-directory: native
       - run: cargo run --locked --bin export-contracts -- --check
+        working-directory: native
+      - run: cargo run --locked --bin benchmark_gloss -- export --check
         working-directory: native
       - run: cargo fmt -- --check
         working-directory: native

@@ -1,0 +1,33 @@
+/* Learner evidence tables and boxed record inspection. Shared inspection-action buttons retain the transparent table-heading variant below. */
+
+.learner-model { min-width: 0; color: var(--ink); font-size: var(--type-ui); line-height: var(--leading-normal); }
+.learner-model h2 { margin: var(--space-2) 0 var(--space-4); font-size: var(--type-reading); }
+.learner-model h3 { margin: var(--space-6) 0 var(--space-4); font-size: var(--type-body); }
+.learner-model p { margin: var(--space-4) 0; color: var(--ink-2); }
+.learner-model label { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); min-width: 0; }
+.learner-model select { min-width: 0; max-width: 100%; min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--field); color: var(--ink); padding: var(--space-2) var(--space-4); font: inherit; }
+.learner-model-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-block: var(--space-6); }
+.learner-model-controls > span { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.learner-model-table { overflow-x: auto; max-width: 100%; margin-block: var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); }
+.learner-model-table table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.learner-model-table caption { padding: var(--space-4); text-align: start; font-weight: var(--weight-semibold); background: var(--chrome); }
+.learner-model-table th, .learner-model-table td { padding: var(--space-4); border-block-end: var(--border-width) solid var(--line-soft); text-align: end; vertical-align: top; }
+.learner-model-table thead th { font-size: var(--type-meta); color: var(--ink-2); font-weight: var(--weight-medium); }
+.learner-model-table th:first-child { text-align: start; min-width: 128px; }
+.learner-model-table td { min-width: 64px; }
+.learner-model-table th button { border-color: transparent; color: var(--accent-ink); background: transparent; padding: 0; text-align: start; font-weight: var(--weight-semibold); }
+.learner-model-table th small { display: block; color: var(--ink-2); font-weight: var(--weight-regular); font-size: var(--type-meta); }
+.learner-model .practice-credit { padding: var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--card); }
+.learner-model .practice-credit > small { display: block; overflow-wrap: anywhere; color: var(--ink-2); font-size: var(--type-meta); }
+.learner-model .practice-credit > button { margin-block-start: var(--space-4); }
+.learner-model > details { margin-block-start: var(--space-6); border-block-start: var(--border-width) solid var(--line-soft); padding-block-start: var(--space-4); }
+.learner-model summary { cursor: pointer; color: var(--ink-2); }
+.learner-model [role=alert] { padding: var(--space-4); border: var(--border-width) solid var(--danger); border-radius: var(--radius-sm); color: var(--danger-ink); overflow-wrap: anywhere; }
+.learner-model [role=alert] button { margin-inline-start: var(--space-4); }
+@media (pointer: coarse) {
+  .learner-model button, .learner-model select { min-height: var(--touch-target); }
+}
+
+.learner-model-lens th { text-align: start; color: var(--accent-ink); background: var(--chrome); font-weight: var(--weight-semibold); }
+
+.learner-model-export-actions { display: inline-flex; flex-wrap: wrap; gap: var(--space-4); }

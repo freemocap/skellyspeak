@@ -1,0 +1,225 @@
+/* Numeric progress reports and inspectable practice records.
+.practice-credit is the record base. Conversation evidence uses compact padding;
+the learner model adds its own boxed inspection variant in skills/learner-model.css. */
+
+.practice-statistics { max-width: 760px; color: var(--ink); }
+
+.practice-statistics-header > p:first-child {
+  color: var(--analysis-accent);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tag);
+  font-size: var(--type-meta);
+}
+
+.practice-statistics-header h2 { font-size: var(--type-title); margin: 0; }
+
+.practice-statistics-header > p:last-child { color: var(--ink-2); font-size: var(--type-ui); }
+
+.practice-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.practice-metrics > div {
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--line);
+  border-top: var(--border-width-thick) solid var(--analysis-accent);
+  border-radius: var(--radius-md);
+  background: var(--analysis-surface);
+}
+
+.practice-metrics dt { color: var(--analysis-ink-dim); font-size: var(--type-meta); }
+
+.practice-metrics dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-title);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.practice-metrics dd small {
+  font-size: var(--type-ui);
+  color: var(--ink-2);
+  font-weight: var(--weight-regular);
+}
+
+.practice-statistics section { margin-block: var(--space-4); }
+
+.practice-demonstrations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+  border-block: var(--border-width) solid var(--line);
+  padding: var(--space-2) 0;
+}
+
+.practice-demonstrations > div { display: flex; gap: var(--space-5); align-items: center; }
+
+.practice-demonstrations strong {
+  color: var(--analysis-accent-soft);
+  font-size: var(--type-reading);
+  font-variant-numeric: tabular-nums;
+}
+
+.practice-demonstrations span { font-size: var(--type-ui); }
+
+.practice-demonstrations p {
+  grid-column: 1 / -1;
+  margin: var(--space-2) 0 0;
+  color: var(--ink-2);
+  font-size: var(--type-meta);
+  line-height: var(--leading-normal);
+}
+
+.practice-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.practice-section-title h3 { margin: 0; font-size: var(--type-reading); }
+
+.practice-section-title > span { font: var(--type-meta) var(--font-mono); color: var(--ink-2); }
+
+.practice-unpracticed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-7) 0;
+  font-size: var(--type-ui);
+}
+
+.practice-skill-list { display: grid; gap: var(--space-3); }
+
+.practice-skill {
+  padding: var(--space-5) var(--space-6);
+  background: var(--card);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.practice-skill summary { display: list-item; cursor: pointer; font-size: var(--type-ui); }
+
+.practice-skill summary > strong { float: inline-end; font: var(--type-ui) var(--font-mono); }
+
+.practice-skill summary > small {
+  display: block;
+  color: var(--ink-2);
+  margin-top: var(--space-2);
+  padding-inline-start: var(--space-7);
+}
+
+.practice-star { color: var(--analysis-star); }
+
+.practice-credit {
+  border-top: var(--border-width) solid var(--line);
+  padding-top: var(--space-6);
+  margin-top: var(--space-7);
+}
+
+.practice-credit header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--type-ui);
+}
+
+.practice-credit time, .practice-credit small {
+  color: var(--ink-2);
+  font-size: var(--type-meta);
+  overflow-wrap: anywhere;
+}
+
+.practice-credit blockquote {
+  margin: var(--space-6) 0;
+  padding-inline-start: var(--space-6);
+  border-inline-start: var(--border-width-strong) solid var(--analysis-accent-line);
+  font-size: var(--type-reading);
+}
+
+.practice-credit p { font-size: var(--type-ui); line-height: 1.6; }
+
+.practice-methods {
+  padding: var(--space-7) 0;
+  border-block: var(--border-width) solid var(--line);
+  font-size: var(--type-ui);
+  line-height: var(--leading-relaxed);
+}
+
+.practice-methods summary { cursor: pointer; font-weight: var(--weight-semibold); }
+
+.practice-record-counts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-10);
+}
+
+.practice-record-counts > div { display: flex; justify-content: space-between; gap: var(--space-4); }
+
+.practice-record-counts dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.practice-focus { font-size: var(--type-ui); }
+
+@media (max-width: 600px) {
+  .practice-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+}
+
+.practice-overview { max-width: 760px; }
+
+.practice-language-tabs {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  padding-bottom: 0;
+  margin: var(--space-3) 0 0;
+  border-bottom: var(--border-width) solid var(--line);
+}
+
+.practice-language-tabs > button {
+  flex: none;
+  display: grid;
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--field);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  text-align: start;
+}
+
+.practice-language-tabs > button[aria-selected=true] {
+  border-color: var(--analysis-accent);
+  background: var(--analysis-accent-deep);
+  box-shadow: inset 0 -2px var(--analysis-accent);
+}
+
+.practice-language-tabs small { color: var(--analysis-accent-dim); font-variant-numeric: tabular-nums; }
+
+.practice-language-empty { padding: var(--space-10) 0; }
+
+.practice-language-empty p { font-size: var(--type-ui); color: var(--ink-2); line-height: 1.6; }
+
+.conversation-evidence .practice-credit { padding: var(--space-3); }
+
+#practice-language-panel {
+  border: var(--border-width) solid var(--line);
+  border-top: 0;
+  padding: var(--space-3);
+}
+
+.practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+
+.detail-dialog:has(.practice-overview) {
+  width: min(820px, calc(100vw - 24px));
+  height: 85dvh;
+  padding: var(--space-5);
+  font-size: var(--type-ui);
+}
+
+.detail-dialog:has(.practice-overview) > .detail-close { float: right; padding: var(--space-1) var(--space-3); }

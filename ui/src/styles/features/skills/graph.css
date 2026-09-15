@@ -1,0 +1,51 @@
+/* Graph nodes and vendor controls. React Flow loads lazily; scope vendor overrides under tree-canvas/tree-node so specificity, not loading order, controls the result. */
+
+.tree-node {
+  width: calc(230px * var(--node-scale));
+  min-height: calc(88px * var(--node-scale));
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  color: var(--ink);
+  background: var(--chrome);
+  border: var(--border-width-strong) solid var(--node-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.tree-node-code {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--ink-2);
+  font-size: var(--type-meta);
+}
+.tree-node strong { font-size: var(--type-body); line-height: 1.3; }
+.tree-node-status { font-size: var(--type-ui); color: var(--ink-2); }
+.tree-node.selected {
+  outline: var(--focus-width-thick) solid var(--ink);
+  outline-offset: 5px;
+  background: var(--card);
+}
+.tree-node:hover { background: var(--card); }
+.tree-node .react-flow__handle {
+  width: 5px;
+  height: 5px;
+  background: var(--node-color);
+  border: var(--border-width) solid var(--bg);
+}
+.tree-canvas .react-flow__controls { box-shadow: none; border: var(--border-width) solid var(--line); }
+.tree-canvas .react-flow__controls-button {
+  background: var(--card);
+  color: var(--ink);
+  fill: currentColor;
+  border-bottom: var(--border-width) solid var(--line);
+  width: 36px;
+  height: 36px;
+}
+.tree-canvas .react-flow__minimap {
+  bottom: 38px;
+  background: var(--chrome);
+  border: var(--border-width) solid var(--line);
+}

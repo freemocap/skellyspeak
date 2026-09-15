@@ -1,7 +1,7 @@
 // Direct Groq comparison: same frozen fixtures, no production integration.
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { checks } from './model-routing.ts';
+import { checks } from './screening.ts';
 import { groqSchema, groqGlossShape } from './groq-schema.ts';
 const nativeGloss = process.argv.includes('--native-gloss');
 const compatibleGloss = process.argv.includes('--compatible-gloss');

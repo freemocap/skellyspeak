@@ -1,51 +1,38 @@
 /** Real component/CSS review fixture. Local sample state; no native calls or saving. */
+import { YamlExport } from '../src/components/persistence/YamlExport'
 import { createRoot } from 'react-dom/client'
 import { useEffect, useState } from 'react'
+import { PREVIEW_SETTINGS } from './preview-settings'
 import type { Settings } from '../src/types'
 import { AppearanceSettings } from '../src/features/settings/appearance/AppearanceSettings'
 import { useAppearance } from '../src/platform/appearance/useAppearance'
 import { ReadingPreferencesProvider } from '../src/components/reading/ReadingPreferences'
 import { SavedGlossText } from '../src/components/reading/SavedGlossText'
 import '../src/styles/index.css'
-const SETTINGS: Settings = {
-  provider_mode: 'hosted',
-  hosted_token: '',
-  hosted_email: 'me@example.com',
-  install_id: '',
-  openrouter_key: '',
-  custom_base_url: '',
-  custom_api_key: '',
-  custom_model: '',
-  groq_key: '',
-  openrouter_model: 'google/gemini-2.5-flash',
-  observer_model: null,
-  target_language: 'es',
-  target_variety: '',
-  native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
-  microphone_device_id: null,
-  auto_speak: false,
-  auto_send: false,
-  always_romanize: false,
-  auto_translate: false,
-  always_pronunciation: false,
-  text_size: 100,
-  text_spacing: 2,
-  fast_mode: true, reward_sounds: 'follow_tts',
-  master_volume: 100, voice_volume: 100, effects_volume: 100,
-  tts_rate: 1,
-  shortcuts: { mic: 'ctrl+m', speak: 'ctrl+l', panel: 'ctrl+b', settings: 'ctrl+,' },
-}
+
 function Preview() {
-  const [settings, setSettings] = useState(SETTINGS)
+  const [settings, setSettings] = useState(PREVIEW_SETTINGS)
+  const [yamlOpen, setYamlOpen] = useState(false)
   useAppearance(settings)
   useEffect(() => { document.documentElement.style.setProperty("--reading-scale", String(settings.text_size / 100)) }, [settings.text_size])
   return <ReadingPreferencesProvider settings={settings}><main className="modal">
     <h1>Application style review</h1>
+    <p><a href="/tools/detail-style-preview.html">Language and reward detail explorer →</a></p>
     <p>Real components and styles. Sample state only; preferences are not saved.</p>
     <label>Theme<select value={settings.theme ?? 'light'} onChange={e => setSettings({...settings, theme:e.target.value as Settings['theme']})}><option>light</option><option>dark</option><option>system</option></select></label>
     <label>Reading size<input type="range" min="75" max="160" value={settings.text_size} onChange={e=>setSettings({...settings,text_size:Number(e.target.value)})}/></label>
     <AppearanceSettings settings={settings} onChange={setSettings}/>
     <hr/>
+    <label>Settings search fixture<input className="settings-search" aria-label="Settings search fixture" placeholder="Search settings"/></label>
+    <section className="skills-page" style={{height:'auto'}}><div className="tree-toolbar"><button className="tree-refresh">Refresh skills fixture</button><label className="tree-jump">Jump to skill<select aria-label="Jump to skill fixture"><option>Descriptions</option></select></label></div></section>
+
+    <section className="study-coaching">
+      <div className="coach-entry"><section className="coach-card coach-card-help"><p className="coach-remark">Coaching suggestion fixture</p></section><section className="coach-card coach-card-explanation"><p className="coach-remark">Language explanation fixture</p></section></div>
+      <div className="coach-input-row"><textarea className="coach-input" aria-label="Ask the coach" placeholder="Ask the coach"/><button className="coach-send" aria-label="Send to coach">↑</button></div>
+    </section>
+    <section className="learner-model"><h2>Evidence table fixture</h2><button className="inspection-action" onClick={()=>setYamlOpen(true)}>Review sample YAML</button><div className="learner-model-table"><table><thead><tr><th>Skill</th><th>Independent</th><th>Assisted</th><th>Estimate</th></tr></thead><tbody><tr><th><button className="inspection-action">Descriptions</button></th><td>12</td><td>4</td><td>0.75 ± 0.12</td></tr></tbody></table></div></section>
+    {yamlOpen && <YamlExport scope="sample" title="Sample YAML" onClose={()=>setYamlOpen(false)} view={async()=> 'language: es\nrecords:\n  - skill: descriptions\n    observations: 12'} save={async()=> { throw new Error('Sample fixture does not save files.') }} />}
+
     <div className="panel-tabs"><button className="panel-tab active">Conversation</button><button className="panel-tab">Coach</button></div>
     <p><button className="btn primary">Primary action</button> <button className="btn" disabled>Disabled</button></p>
     <div className="form-row"><label>Example field<input placeholder="Enter text"/></label></div>

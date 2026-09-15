@@ -1,4 +1,4 @@
-"""End-to-end proxy admission and settlement with a controlled upstream."""
+"""ASGI route integration with fake authentication/storage and a controlled upstream."""
 
 from __future__ import annotations
 

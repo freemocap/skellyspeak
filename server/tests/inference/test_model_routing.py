@@ -47,15 +47,20 @@ async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, 
     assert len(sent) == 3
 
 
-def test_native_gloss_schema_is_relaxed_only_at_groq_transport_boundary():
-    fixtures = json.loads((Path(__file__).resolve().parents[3] / 'workflow/benchmarks/model-routing/native-gloss-fixtures.json').read_text())
-    original = {"model": routing.OSS, "max_tokens": 2048, "response_format": {"json_schema": {"name": "word_gloss_v1", "schema": fixtures[0]['schema']}}}
+NATIVE_GLOSS_FIXTURES = json.loads((Path(__file__).resolve().parents[3] /
+    'tools/test-fixtures/model-routing/native-gloss-fixtures.json').read_text())
+
+
+@pytest.mark.parametrize('fixture', NATIVE_GLOSS_FIXTURES, ids=lambda fixture: fixture['id'])
+def test_native_gloss_schema_is_relaxed_only_at_groq_transport_boundary(fixture):
+    original = {"model": routing.OSS, "max_tokens": 2048, "response_format": {"json_schema": {"name": "word_gloss_v1", "schema": fixture['schema']}}}
     saved = deepcopy(original)
     outbound = routing.groq_payload(original)
     assert original == saved
     expected = deepcopy(saved['response_format']['json_schema']['schema'])
     for variant in expected['properties']['spans']['items']['oneOf']:
         for endpoint in ['first', 'last']:
+            assert variant['properties'][endpoint]['enum'], 'Fixture must exercise source-bound endpoints'
             variant['properties'][endpoint] = {"type": "string"}
     assert outbound['response_format']['json_schema']['schema'] == expected
 

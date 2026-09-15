@@ -9,8 +9,11 @@ beforeEach(() => { HTMLDialogElement.prototype.showModal = function () { this.se
 it('renders and reopens distinct reading fragments without requesting annotations', () => {
   const content = <>{Array.from({ length: 70 }, (_, i) => <TargetText key={i} text={`Suggestion ${i}`} />)}</>
   const view = render(<ReadingProvider settings={null}>{content}</ReadingProvider>)
+  for (let i = 0; i < 70; i++) expect(screen.getByText(`Suggestion ${i}`)).toBeInTheDocument()
   view.rerender(<ReadingProvider settings={null}><span /></ReadingProvider>)
+  expect(screen.queryByText('Suggestion 0')).not.toBeInTheDocument()
   view.rerender(<ReadingProvider settings={null}>{content}</ReadingProvider>)
+  for (let i = 0; i < 70; i++) expect(screen.getByText(`Suggestion ${i}`)).toBeInTheDocument()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 it('preserves punctuation without AI preparation', () => {

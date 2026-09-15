@@ -1,0 +1,22 @@
+/* Scoped explorer layout and explicitly experimental reading face. Not app CSS. */
+html:has(.detail-lab), body:has(.detail-lab), body:has(.detail-lab) #root { height: auto; overflow: auto; }
+.detail-lab { max-width: 1180px; margin: auto; padding: 24px; }
+.detail-lab header, .detail-lab section { margin-bottom: 32px; scroll-margin-top: 16px; }
+.detail-lab h1 { font-size: var(--type-display); }
+.detail-lab h2 { font-size: var(--type-title); }
+.detail-lab h3 { font-size: var(--type-body); margin-top: 0; }
+.detail-lab p, .detail-lab li { line-height: 1.55; }
+.detail-lab a { color: var(--accent-ink); }
+.detail-lab nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.detail-lab > details { margin-block: 24px; padding: 16px; background: var(--chrome); border: 1px solid var(--line); border-radius: 8px; }
+.detail-lab summary { cursor: pointer; }
+.lab-controls { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; margin-block: 16px; background: var(--chrome); border: 1px solid var(--line); border-radius: 8px; }
+.lab-controls label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 40px; font-size: 13px; }
+.detail-lab select { min-height: 40px; max-width: 100%; padding: 6px; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; }
+.lab-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.lab-grid article { min-width: 0; padding: 20px; background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; }
+.lab-reading { min-width: 0; overflow-wrap: anywhere; padding-block: 12px; }
+.lab-reading .target-text, .lab-reading .w { font-family: var(--lab-reading-font); }
+.detail-lab .reward-inspection-card { padding: 12px; }
+.detail-lab small { color: var(--ink-2); }
+@media(max-width:640px) { .detail-lab { padding: 12px; } .lab-grid { grid-template-columns: 1fr; } .lab-grid article { padding: 12px; } .lab-controls { gap: 8px; } }

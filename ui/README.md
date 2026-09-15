@@ -127,3 +127,34 @@ The `.field.composer-input` variant adds reading typography and input geometry
 to the shared field. Picker variants distinguish the compact `.learning-line`
 from labeled `.conversation-languages` rows. Preserve these real differences;
 avoid identical declarations in the base and variant.
+
+### Coaching, progress and inspection styling
+
+- Conversation owns `coaching-dock.css`, `explanations.css`, `coach.css` and
+  `lesson.css` for dock geometry, explanations, coaching and lesson flow.
+- `progress-map.css`, `progress-report.css` and `reward-presentation.css`
+  separate maps, numeric reports and reward presentation.
+- `features/skills/{learner-model,evidence}.css` owns learner tables and evidence.
+- `features/conversation/speech-inspection.css` owns audio timeline inspection.
+- Shared error details, YAML viewing and `inspection-action` controls live in
+  `components/{errors,yaml-export,inspection-controls}.css`.
+
+DetailDialog's `size="wide"` option gives YAML and learner reports the same wide
+layout. The audio timeline retains its larger content-specific layout.
+Inspection table-heading buttons intentionally override the common action base
+with transparent backgrounds and no padding. Dock and floating reward cards
+share their badge recipe, with explicit layout variants; their motion and
+learning meaning remain separate from general surface depth.
+
+### Settings and Skills composition
+
+Settings styles separate `settings.css` (shell/navigation/scrolling/footer),
+`access.css`, `audio.css`, `reset.css`, `forms.css` and `appearance.css`.
+Joined route tabs and destructive reset confirmation are intentional variants.
+Mobile shell rules own footer/scroll geometry; form rules own control spacing.
+
+Skills styles separate `skills.css` (page, toolbar and list), `graph.css`
+(nodes and scoped React Flow overrides), `inspector.css` and `review.css`.
+Evidence and learner-model styles keep their existing feature owners.
+The review inspector's recessed well remains distinct from the graph sheet.
+Page-level font inheritance has low specificity so explicit control roles win.

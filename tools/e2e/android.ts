@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { completedExchange, readDisclosure, disclosureOpened, type Disclosure } from './assertions.ts'
 
 export const cases = [
   { language: 'es', text: 'Ayer fui al parque con mi familia.', words: ['parque', 'familia'] },
@@ -106,10 +107,13 @@ async function main() {
     if (!page) throw new Error('Expected the real local app page; refusing fixtures or unrelated WebViews.')
     devtools = new Devtools(page.webSocketDebuggerUrl)
     await devtools.connect()
+    await devtools.wait(`!!document.querySelector('.app .topbar') && !!document.documentElement.lang`, 'app shell and interface locale', 20000)
+    const locale = await devtools.evaluate('document.documentElement.lang')
+    if (locale !== 'en') throw new Error('Set Interface language to English before running this harness; target languages are tested separately.')
     await devtools.wait(`!!document.querySelector('[aria-label="New chat"]')`, 'app shell', 20000)
     if (!await devtools.evaluate(`!!window.__TAURI_INTERNALS__`)) throw new Error('Native Tauri bridge is absent; this is not a device app test.')
     if (await devtools.evaluate(`document.body.innerText.includes('Sign in with Google')`)) throw new Error('Device AI access is not configured. Sign in once or configure the local test server; credentials are never copied by this runner.')
-    report.results.push({case:'native-app-preflight',status:'passed'})
+    report.results.push({case:'native-app-preflight',status:'passed',interfaceLocale:locale})
     if (live) for (const scenario of cases) {
       console.log(`Testing ${scenario.language}: real chat, feedback and glosses`)
       const languageSelect = '[aria-label="Target language"]'
@@ -119,12 +123,29 @@ async function main() {
       await devtools.wait(`document.querySelector('.crow input')?.lang===${JSON.stringify(scenario.language)} && !document.querySelector(${JSON.stringify(languageSelect)})?.disabled`, 'language saved')
       await devtools.click('[aria-label="New chat"]')
       await devtools.wait(`!!document.querySelector('.start-conversation-button') && !document.querySelector('.msg')`, 'empty chat')
+      // Inspect the selected route and disable always-visible translations through
+      // real settings controls so the subsequent disclosure assertion has a baseline.
+      await devtools.click('[aria-label="Settings"]')
+      await devtools.wait(`!!document.querySelector('.settings-search')`, 'settings')
+      await devtools.fill('.settings-search', 'AI access')
+      await devtools.wait(`!!document.querySelector('.access-tabs [aria-selected="true"]')`, 'selected AI route')
+      const route = await devtools.evaluate(`document.querySelector('.access-tabs [aria-selected="true"]').id.replace('access-tab-', '')`)
+      if (!['hosted', 'openrouter', 'custom'].includes(route)) throw new Error('Unknown selected AI route')
+      await devtools.fill('.settings-search', 'translation')
+      const translationControl = `Array.from(document.querySelectorAll('.settings-dialog label')).find(label=>label.textContent.trim()==='Show word and message translations')?.querySelector('input[type="checkbox"]')`
+      await devtools.wait(`!!(${translationControl})`, 'translation preference')
+      const previouslyVisible = await devtools.evaluate(`(${translationControl}).checked`)
+      if (previouslyVisible) await devtools.evaluate(`(${translationControl}).click()`)
+      await devtools.wait(`!(${translationControl})?.checked && !document.querySelector('.settings-close')?.disabled`, 'saved translation preference')
+      await devtools.click('.settings-close')
+      await devtools.wait(`!document.querySelector('.settings-dialog')`, 'settings closed')
+      report.results.push({case:`${scenario.language}-preconditions`,status:'passed',route,interfaceLocale:locale,alwaysVisibleTranslations:false,previouslyVisible})
       await devtools.click('.start-conversation-button')
       await devtools.wait(`!!document.querySelector('.msg.bot:not(.pending)')`, 'partner opening')
       if (await devtools.evaluate(`!!document.querySelector('.msg.me')`)) throw new Error('Partner opening fabricated a learner message.')
       await devtools.fill('.crow input', scenario.text)
       await devtools.click('[aria-label="Send"]')
-      await devtools.wait(`document.querySelectorAll('.msg.bot:not(.pending)').length>=2 && [...document.querySelectorAll('.feedback-badge')].some(e=>/Feedback|Try again|One suggestion/.test(e.textContent))`, 'reply and feedback')
+      await devtools.wait(`(${completedExchange.toString()})(document, 1)`, 'reply and completed feedback for the sent message')
       await devtools.wait(`!document.querySelector('.activity-indicator')`, 'all generation stages', 180000)
       const failure = await devtools.evaluate(`document.querySelector('.feedback-error, [aria-label="Word meanings"] .error-details, [role="alert"]')?.textContent || document.body.innerText.match(/Feedback failed|Word meanings failed|Word meanings rejected|Could not|failed:/i)?.[0]`)
       if (failure) {
@@ -134,8 +155,13 @@ async function main() {
       if (!await devtools.evaluate(`!!document.querySelector('.msg.bot .saved-word')`)) throw new Error('No partner gloss was published.')
       if (!await devtools.evaluate(`!!document.querySelector('.msg.me .saved-word')`)) throw new Error('No learner gloss was published.')
       if (scenario.language === 'ar' && !await devtools.evaluate(`[...document.querySelectorAll('.msg.me .saved-word > .w')].some(e=>e.textContent==='الكتاب' && e.childNodes.length===1)`)) throw new Error('Arabic source word is not a single shaping run.')
-      await devtools.click('.msg.me .saved-word > .w')
-      if (!await devtools.evaluate(`!!document.querySelector('.msg.me .wg')`)) throw new Error('Gloss disclosure did not open.')
+      const selected = await devtools.evaluate(`(()=>{const message=Array.from(document.querySelectorAll('.stream .msg.me[data-reward-message]')).at(-1); const word=message?.querySelector('.saved-word'); return word ? {message:message.getAttribute('data-reward-message'),start:word.getAttribute('data-source-start')} : null})()`)
+      if (!selected) throw new Error('No source-bound word available for disclosure')
+      const readWord = `(${readDisclosure.toString()})(document, ${JSON.stringify(selected.message)}, ${JSON.stringify(selected.start)})`
+      const before = await devtools.evaluate(readWord) as Disclosure | null
+      if (!before || before.expanded !== 'false' || before.meaningVisible) throw new Error('Gloss must start closed with its meaning hidden; check translation settings.')
+      await devtools.evaluate(`(()=>{const message=Array.from(document.querySelectorAll('.stream .msg.me[data-reward-message]')).find(node=>node.getAttribute('data-reward-message')===${JSON.stringify(selected.message)});const word=Array.from(message.querySelectorAll('.saved-word')).find(node=>node.getAttribute('data-source-start')===${JSON.stringify(selected.start)});word.querySelector('[role="button"][aria-expanded]').click()})()`)
+      await devtools.wait(`(${disclosureOpened.toString()})(${JSON.stringify(before)}, ${readWord})`, 'the clicked word to expand and reveal its own meaning', 15000)
       if (voice) {
         const audio = await readFile(resolve('tools/test-fixtures/speech', `${scenario.language}.wav`))
         // A test-only MediaStream replaces just the microphone source. The real
@@ -151,7 +177,7 @@ async function main() {
           const transcript = await devtools.evaluate(`document.querySelector('.crow input').value || [...document.querySelectorAll('.msg.me')].at(-1).innerText`) as string
           if (!scenario.words.every(word => transcript.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().includes(word.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase()))) throw new Error(`Transcription missed expected ${scenario.language} content`)
           if (await devtools.evaluate(`!!document.querySelector('.crow input').value`)) await devtools.click('[aria-label="Send"]')
-          await devtools.wait(`document.querySelectorAll('.msg.bot:not(.pending)').length>=3 && [...document.querySelectorAll('.feedback-badge')].filter(e=>/Feedback|Try again|One suggestion/.test(e.textContent)).length>=2 && !document.querySelector('.activity-indicator')`, 'voice reply and feedback', 180000)
+          await devtools.wait(`(${completedExchange.toString()})(document, 2) && !document.querySelector('.activity-indicator')`, 'voice reply and completed feedback for the voice message', 180000)
           if (await devtools.evaluate(`!!document.querySelector('.feedback-error, [aria-label="Word meanings"] .error-details, [role="alert"]')`)) throw new Error('Voice exchange reported a feedback, gloss or application failure.')
         } finally {
           await devtools.evaluate(`navigator.mediaDevices.getUserMedia=window.__smokeAudio.original;window.__smokeAudio.context.close();delete window.__smokeAudio`)

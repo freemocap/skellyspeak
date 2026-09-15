@@ -1,0 +1,49 @@
+/* Skill relations, evidence records and progress rules owned by the Skills feature. */
+
+.practice-rules > summary {
+  padding: var(--space-6) 0;
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: var(--type-ui);
+}.practice-rules { color: var(--ink-2); font-size: var(--type-ui); }.practice-rules summary { cursor: pointer; padding: var(--space-4) 0; }
+
+.skill-relations { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }
+
+.skill-evidence-record {
+  border-top: var(--border-width) solid var(--line);
+  padding: var(--space-8) 0;
+  overflow-wrap: anywhere;
+  font: var(--type-body)/1.55 var(--font-sans);
+}
+
+.skill-evidence-record header { display: flex; justify-content: space-between; gap: var(--space-6); }
+
+.skill-evidence-record blockquote {
+  margin: var(--space-6) 0;
+  padding-inline-start: var(--space-6);
+  border-inline-start: var(--border-width-strong) solid var(--line);
+  font-size: var(--type-title);
+}
+
+.skill-evidence-record dd { margin-inline-start: 0; }
+
+.skill-overview {
+  border-inline-start: 4px solid var(--ink);
+  padding-inline-start: var(--space-7);
+  margin: var(--space-8) 0;
+}
+.skill-overview h2 { margin: var(--space-3) 0; font: var(--weight-semibold) var(--type-display) var(--font-sans); }
+.skill-overview small { color: var(--ink-2); }
+.skill-overview-progress { display: flex; gap: var(--space-6); flex-wrap: wrap; font: var(--type-ui) var(--font-sans); }
+.skill-connections { margin-block: var(--space-8); }
+.skill-connections summary { cursor: pointer; }
+
+.domain-evidence-tree { padding: var(--space-8); background: var(--sheet); border-radius: var(--radius-lg); }
+.domain-evidence-tree svg { display: block; width: 100%; max-height: 220px; }
+.domain-evidence-tree path { stroke: var(--node-color); stroke-width: 2; fill: none; }
+.domain-evidence-tree .unobserved { stroke-dasharray: 4 4; }
+.domain-evidence-tree circle { fill: var(--node-color); }
+.domain-evidence-row { display: grid; width: 100%; grid-template-columns: 1fr auto; gap: var(--space-4); text-align: start; padding: var(--space-6); border: 0; border-bottom: var(--border-width) solid var(--line-soft); background: transparent; color: var(--ink); cursor: pointer; }
+.domain-evidence-row small { font: var(--type-meta) var(--font-mono); color: var(--ink-3); }
+.domain-evidence-row meter { grid-column: 1 / -1; width: 100%; height: 8px; accent-color: var(--node-color); }
+.domain-evidence-row:not(:has(meter)) { border: var(--border-width) dashed var(--line); }

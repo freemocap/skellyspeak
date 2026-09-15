@@ -1,0 +1,35 @@
+/* Destructive reset confirmation. Its danger border and stronger backdrop are intentional confirmation variants. */
+
+.factory-reset-dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  border: var(--border-width) solid var(--danger-edge-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-10);
+  background: var(--card);
+  color: var(--detail-ink);
+}
+
+.factory-reset-dialog::backdrop { background: var(--overlay-scrim-strong); }
+
+.factory-reset-dialog h2 { margin: 0 0 var(--space-8); font-size: var(--type-display); }
+
+.factory-reset-dialog p { font-size: var(--type-body); line-height: var(--leading-normal); }
+
+.factory-reset-dialog label { display: block; margin: var(--space-9) 0 var(--space-4); }
+
+.factory-reset-dialog input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-5);
+  background: var(--bg);
+  color: var(--ink);
+  border: var(--border-width) solid var(--detail-input-line);
+  border-radius: var(--radius-xs);
+}
+
+.factory-reset-dialog .modal-actions { flex-wrap: wrap; padding-bottom: 0; }
+
+.factory-reset-dialog [role=alert] { color: var(--danger-ink); }

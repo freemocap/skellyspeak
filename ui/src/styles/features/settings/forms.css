@@ -30,3 +30,23 @@
 @media (max-width: 860px) {
   .save-status { margin-left: var(--space-4); font-size: var(--type-meta); }
 }
+
+.settings-modal .form-row label {
+  letter-spacing: var(--tracking-label);
+  text-transform: none;
+}
+
+.settings-modal .form-row input, .settings-modal .form-row select {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+
+.settings-modal .form-row input[type="range"] { width: 100%; padding: 0; min-height: var(--control-height); }
+
+.settings-modal .check-label { display: flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); }
+
+.settings-modal .field-note { margin: var(--space-2) 0 0; }
+
+@media (max-width: 860px) {
+  .settings-modal .form-row { margin-bottom: var(--space-4); }
+}

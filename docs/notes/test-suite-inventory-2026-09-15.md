@@ -1,6 +1,6 @@
 # Test suite inventory — 2026-09-15
 
-Status: static inventory accompanying [the audit](test-suite-audit-2026-09-15.md). Includes the current working tree; excludes `old/`, build output and dependencies. File inclusion uses test filename conventions and Rust test attributes. This is discovery evidence, not a per-file quality score. Runtime counts are in the audit; parameterization and loops mean declaration counts do not equal executed cases. Rust line counts include colocated production code.
+Status: static inventory accompanying [the audit](test-suite-audit-2026-09-15.md). Includes the current working tree; excludes `old/`, build output and dependencies. File inclusion uses test filename conventions and Rust test attributes. This is discovery evidence, not a per-file quality score. The screening and playback-DOM test links follow their subsequent renames; labels retain the inventoried names. Runtime counts are in the audit; parameterization and loops mean declaration counts do not equal executed cases. Rust line counts include colocated production code.
 
 Source inspection covered runner/CI configuration and cross-suite patterns; detailed assertion review concentrated on product workflows, trust boundaries, failures and identified debt. No claim is made that every assertion received an individual semantic review.
 
@@ -96,7 +96,7 @@ Source inspection covered runner/CI configuration and cross-suite patterns; deta
 | [ui/src/features/startup/StartupRefusal.test.tsx](../../ui/src/features/startup/StartupRefusal.test.tsx) | 59 | jsdom; module mocks |
 | [ui/src/platform/appearance/useAppearance.test.tsx](../../ui/src/platform/appearance/useAppearance.test.tsx) | 31 | jsdom |
 | [ui/src/platform/audio/browser-recording.test.ts](../../ui/src/platform/audio/browser-recording.test.ts) | 17 | Node |
-| [ui/src/platform/audio/playback-lifecycle.browser.test.ts](../../ui/src/platform/audio/playback-lifecycle.browser.test.ts) | 41 | jsdom; module mocks |
+| [ui/src/platform/audio/playback-lifecycle.browser.test.ts](../../ui/src/platform/audio/playback-lifecycle.dom.test.ts) | 41 | jsdom; module mocks |
 | [ui/src/platform/audio/playback-lifecycle.test.ts](../../ui/src/platform/audio/playback-lifecycle.test.ts) | 44 | Node; module mocks; reads files |
 | [ui/src/platform/audio/reward-sounds.test.ts](../../ui/src/platform/audio/reward-sounds.test.ts) | 181 | jsdom |
 | [ui/src/platform/diagnostics/faults.test.ts](../../ui/src/platform/diagnostics/faults.test.ts) | 49 | Node; module mocks |
@@ -228,7 +228,7 @@ Source inspection covered runner/CI configuration and cross-suite patterns; deta
 
 | File | Lines | Structural signals |
 | --- | ---: | --- |
-| [tools/benchmarks/model-routing.test.ts](../../tools/benchmarks/model-routing.test.ts) | 46 | Node; reads files |
+| [tools/benchmarks/model-routing.test.ts](../../tools/benchmarks/screening.test.ts) | 46 | Node; reads files |
 | [tools/e2e/android.test.ts](../../tools/e2e/android.test.ts) | 10 | Node |
 | [tools/ios-release.test.ts](../../tools/ios-release.test.ts) | 80 | Node; reads files; skip/ignore syntax; inspect condition |
 | [tools/run-log.test.ts](../../tools/run-log.test.ts) | 57 | Node; reads files |

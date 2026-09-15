@@ -75,7 +75,27 @@ fn main() {
         Some("export-split") => {
             println!("{}", serde_json::to_string_pretty(&split_cases()).unwrap())
         }
-        Some("export") => println!("{}", serde_json::to_string_pretty(&cases()).unwrap()),
+        Some("export") => {
+            let output = format!("{}\n", serde_json::to_string_pretty(&cases()).unwrap());
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../tools/test-fixtures/model-routing/native-gloss-fixtures.json");
+            match args.get(2).map(String::as_str) {
+                Some("--write") => {
+                    fs::create_dir_all(path.parent().unwrap()).unwrap();
+                    fs::write(path, output).unwrap();
+                }
+                Some("--check") => {
+                    let saved = fs::read_to_string(path)
+                        .expect("Missing native gloss fixtures; run npm run benchmarks:fixtures");
+                    assert!(
+                        saved == output,
+                        "Native gloss fixtures are stale; run npm run benchmarks:fixtures"
+                    );
+                }
+                None => print!("{output}"),
+                _ => panic!("Usage: benchmark_gloss export [--write|--check]"),
+            }
+        }
         Some("validate") => {
             let input = fs::read_to_string(args.get(2).expect("results JSONL path")).unwrap();
             let mut fixtures = cases();

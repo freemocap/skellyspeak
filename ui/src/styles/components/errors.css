@@ -1,0 +1,31 @@
+/* Shared error details: expandable diagnostics and dismissal, also used in coaching. */
+
+.turn-errors {
+  border: var(--border-width) solid var(--danger); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
+  background: var(--danger-dim); color: var(--danger);
+  font-family: var(--font-mono); font-size: var(--type-meta); line-height: 1.7;
+  margin-bottom: var(--space-6);
+}
+
+.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-meta); }
+
+.error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
+
+.error-dismiss {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: var(--type-reading)/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.error-details:not([open]) { flex: none; }

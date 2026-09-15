@@ -1,0 +1,6 @@
+/* Shared inspection action: learner evidence and YAML export use the same control. Table-heading links override only appearance and padding. */
+
+.inspection-action { min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--chrome); color: var(--ink); font: inherit; cursor: pointer; }
+.inspection-action:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-ink); }
+.inspection-action:disabled { opacity: .5; cursor: default; }
+@media (pointer: coarse) { .inspection-action { min-height: var(--touch-target); } }

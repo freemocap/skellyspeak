@@ -49,7 +49,7 @@ for (const theme of Object.keys(themes)) {
   const c = (name: string) => color(theme, name)
   it(`keeps primary, secondary and action text readable in ${theme}`, () => {
     for (const text of ['ink', 'ink-2', 'ink-3']) {
-      for (const background of ['bg', 'field', 'card', 'chrome', 'card', 'card', 'well-top', 'well-bottom']) {
+      for (const background of ['bg', 'field', 'card', 'chrome', 'well-top', 'well-bottom']) {
         expect(contrast(c(text), c(background)), `${text} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }
@@ -65,7 +65,7 @@ for (const theme of Object.keys(themes)) {
   })
   it(`keeps links, status, recovery and destructive controls readable in ${theme}`, () => {
     for (const ink of ['accent-ink', 'danger', 'danger-on-dark', 'success']) {
-      for (const background of ['card', 'chrome', 'card', 'field']) {
+      for (const background of ['card', 'chrome', 'field']) {
         expect(contrast(c(ink), c(background)), `${ink} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }

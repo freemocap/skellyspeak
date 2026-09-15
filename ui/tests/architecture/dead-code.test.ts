@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
-import { buildGraph, PRODUCTION_ROOTS, reachable, unreachableModules, unusedExports } from '../../../tools/import-graph'
-import { analyseStyles } from '../../tools/prune-styles'
+import { buildGraph, PRODUCTION_ROOTS, reachable } from '../../../tools/import-graph'
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const graph = buildGraph(repositoryRoot)
@@ -29,38 +28,4 @@ it('reaches the application from its entry points', () => {
   expect(graph.unresolved, 'unresolvable relative imports').toEqual([])
   expect(graph.edges.some(edge => edge.from === 'ui/src/app/main.tsx' && edge.to === 'ui/src/styles/index.css'),
     'the startup stylesheet side-effect import must be part of the graph').toBe(true)
-})
-
-/// Warning only, by decision: unreachable production code is worth knowing about
-/// but a reorganization deletes it in deliberate batches, and failing here would
-/// block a legitimate intermediate state. The list should be empty; when it is
-/// not, the offender is named below.
-it('warns about production modules no entry point reaches', () => {
-  const unreachable = unreachableModules(graph)
-  if (unreachable.length) {
-    console.warn(`${unreachable.length} production module(s) unreachable from ${PRODUCTION_ROOTS.join(', ')}:\n` +
-      unreachable.map((module) => `  ${module}`).join('\n'))
-  }
-  // The walk itself is asserted above; this test exists to report, and reports
-  // through the console rather than by failing.
-})
-
-/// Warning only, for a stronger reason than the module list: an export may be a
-/// seam kept for a caller that has not landed yet. The list should be empty; when
-/// it is not, the offender is named below.
-it('warns about exports no other module mentions', () => {
-  const unused = unusedExports(graph)
-  if (unused.length) {
-    console.warn(unused.length + " export(s) no other module mentions:\n" +
-      unused.map((item) => "  " + item.module + ": " + item.name).join("\n"))
-  }
-})
-
-/// Warning only, for the same reason. `npm run styles:dead` reports the same
-/// candidate list. Pruning is conservative and refuses duplicate relocation.
-it('warns about stylesheet classes no source file references', () => {
-  const { unused } = analyseStyles(repositoryRoot)
-  if (unused.length) {
-    console.warn(`${unused.length} stylesheet class(es) appear nowhere in src:\n  ${unused.join('\n  ')}`)
-  }
 })

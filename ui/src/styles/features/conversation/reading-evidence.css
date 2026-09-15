@@ -42,3 +42,13 @@
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+
+
+
+
+
+.evidence-mapping-notice { margin: var(--space-3) 0; padding: var(--space-3); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-sm); font-size: var(--type-meta); overflow-wrap: anywhere; }
+
+.evidence-mapping-notice dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }
+
+.evidence-mapping-notice dd { margin: 0; }

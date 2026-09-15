@@ -32,7 +32,7 @@
 .coach-input {
   flex: 1; min-width: 0;
   background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-md);
-  color: var(--ink); font-size: var(--type-ui); padding: var(--space-3) var(--space-5); outline: none;
+  color: var(--ink); font-size: var(--type-ui); padding: var(--space-3) var(--space-5);
 }
 
 .coach-input:focus { border-color: var(--accent); }
@@ -73,36 +73,6 @@
   background: var(--field); border-radius: var(--radius-xs); padding: var(--space-hairline) var(--space-2);
 }
 
-.turn-errors {
-  border: var(--border-width) solid var(--danger); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
-  background: var(--danger-dim); color: var(--danger);
-  font-family: var(--font-mono); font-size: var(--type-meta); line-height: 1.7;
-  margin-bottom: var(--space-6);
-}
-
-.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-meta); }
-
-.error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
-
-.error-dismiss {
-  position: absolute;
-  inset-inline-end: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: var(--type-reading)/1 var(--font-sans);
-  cursor: pointer;
-}
-
-.error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }
-
-.error-details:not([open]) { flex: none; }
-
 /* Collapsible coach thread. */
 
 .coach-input-row textarea { resize: vertical; max-height: 140px; line-height: 1.4; }
@@ -112,9 +82,6 @@
 .lesson-thread, .coach-input-row { background: var(--card); }
 
 /* The coach dock keeps its composer accessible at every saved height. */
-
-@media (max-width: 860px) {
-}
 
 .edit-feedback {
   background: var(--field);
@@ -149,16 +116,6 @@
 
 .coach-fixed { color: var(--success-soft); }
 
-
-
-
-
-.evidence-mapping-notice { margin: var(--space-3) 0; padding: var(--space-3); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-sm); font-size: var(--type-meta); overflow-wrap: anywhere; }
-
-.evidence-mapping-notice dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2); }
-
-.evidence-mapping-notice dd { margin: 0; }
-
 /* Coaching uses compact phrases and the conversation's interactive reading blocks. */
 .coach-card blockquote { margin: 0 0 8px; color: var(--interaction-ink); font-size: var(--type-body); }
 .coach-card-help { border-inline-start-color: var(--warning); background: var(--warning-dim); }
@@ -174,7 +131,7 @@
 .live-coach-review > .analysis-sentence { margin: 0; }
 .detail-dialog > .analysis-sentence { clear: both; margin-bottom: 12px; }
 
-.coach-card-explanation { border-inline-start-color: var(--interaction-ink); background: var(--accent-dim); }
+.coach-card-explanation { border-inline-start-color: var(--interaction-ink); }
 
 .study-coaching { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
 .study-coaching[hidden] { display: none; }
@@ -185,9 +142,4 @@
 .study-credit-badges { display: flex; gap: var(--space-4); min-height: var(--control-height); }
 .study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }
 
-.rewards-ledger { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
-.rewards-ledger h3, .rewards-ledger p { margin: 0; }
-.rewards-ledger h3 { font-size: var(--type-title); }
-.reward-provenance { display: grid; gap: var(--space-4); font: var(--type-meta) var(--font-mono); }
-.reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
-.reward-provenance dd { margin: 0; overflow-wrap: anywhere; }
+.detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
