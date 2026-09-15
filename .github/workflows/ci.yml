@@ -21,12 +21,12 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm ci --prefix skellyspeak-docs
+      - run: npm ci --prefix docs/website
       - run: npm test
       - run: npm run docs:links
       - run: npm run docs:test
       - run: npm run styles:check
-      - run: node --test scripts/version.test.ts
+      - run: node --test tools/version.test.ts
       - run: npm run ios:check
       - run: npm run ios:test
       - run: npm run logs:check
@@ -51,17 +51,17 @@ jobs:
           targets: aarch64-apple-ios-sim
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
           key: ios-simulator
       - run: npm ci
       - run: npm run build
-      - run: npx tauri ios init --ci --config src-tauri/tauri.release.conf.json
+      - run: npm run tauri -- ios init --ci --config native/tauri.release.conf.json
       - name: Prepare App Store icons
         run: |
-          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
-          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+          npm run tauri -- icon ui/public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift tools/ios-icons.swift native/gen/apple/Assets.xcassets/AppIcon.appiconset
       - name: Compile and link iOS without release credentials
-        run: npx tauri ios build --ci --target aarch64-sim --no-sign --config src-tauri/tauri.release.conf.json
+        run: npm run tauri -- ios build --ci --target aarch64-sim --no-sign --config native/tauri.release.conf.json
 
   rust:
     runs-on: windows-latest
@@ -75,16 +75,16 @@ jobs:
           components: clippy, rustfmt
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
       - run: cargo clippy --lib -- -D warnings
-        working-directory: src-tauri
+        working-directory: native
       - run: cargo run --locked --bin export-contracts -- --check
-        working-directory: src-tauri
+        working-directory: native
       - run: cargo fmt -- --check
-        working-directory: src-tauri
+        working-directory: native
       - run: cargo test --locked --lib
-        working-directory: src-tauri
-      - run: cargo test --locked --manifest-path scripts/verify-updater/Cargo.toml
+        working-directory: native
+      - run: cargo test --locked --manifest-path tools/verify-updater/Cargo.toml
 
   # The Rust core also has to COMPILE on Linux, which the Windows job above
   # cannot tell you. Native dependencies differ per platform: cpal links
@@ -110,9 +110,9 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
       - run: cargo check --lib
-        working-directory: src-tauri
+        working-directory: native
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 24
@@ -151,11 +151,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: skellyspeak-docs/package-lock.json
+          cache-dependency-path: docs/website/package-lock.json
       - run: npm ci
-        working-directory: skellyspeak-docs
+        working-directory: docs/website
       - run: npm run build
-        working-directory: skellyspeak-docs
+        working-directory: docs/website
 
   # The Android resource merger parses these, but only 4 minutes into a release
   # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec
@@ -171,7 +171,7 @@ jobs:
           python3 - <<'EOF'
           import pathlib, sys, xml.dom.minidom as md
           failed = []
-          root = pathlib.Path('src-tauri/gen/android')
+          root = pathlib.Path('native/gen/android')
           required = [root / 'app/src/main/AndroidManifest.xml', root / 'app/build.gradle.kts', root / 'app/proguard-rules.pro', root / 'app/src/main/java/com/freemocap/skellyspeak/MainActivity.kt']
           for path in required:
               if not path.is_file():
@@ -224,7 +224,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
           key: android-check
 
       - run: npm ci
@@ -237,13 +237,13 @@ jobs:
       # everything git tracks immediately afterwards.
       - name: Scaffold gen/android, then restore our tracked customisations
         run: |
-          npx tauri android init --config src-tauri/tauri.release.conf.json
-          git checkout -- src-tauri/gen/android
-          git status --porcelain src-tauri/gen/android
+          npm run tauri -- android init --config native/tauri.release.conf.json
+          git checkout -- native/gen/android
+          git status --porcelain native/gen/android
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
       - name: Build Android ARM64 debug APK without release credentials
-        run: npx tauri android build --config src-tauri/tauri.release.conf.json --debug --apk --target aarch64 --ci
+        run: npm run tauri -- android build --config native/tauri.release.conf.json --debug --apk --target aarch64 --ci
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}

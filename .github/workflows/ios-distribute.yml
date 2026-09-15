@@ -7,7 +7,7 @@ name: iOS distribute
 # runner and produces the .ipa via `tauri ios build`, the canonical command:
 # it starts the internal JSON-RPC "options" server that the Xcode "Build Rust
 # Code" phase connects to (a raw xcodebuild invocation cannot) and exports the
-# signed .ipa. The .ipa lands at src-tauri/gen/apple/build/arm64/SkellySpeak.ipa.
+# signed .ipa. The .ipa lands at native/gen/apple/build/arm64/SkellySpeak.ipa.
 #
 # Signing is staged MANUALLY (keychain + profile + pbxproj settings) instead of
 # via Tauri's IOS_CERTIFICATE/IOS_MOBILE_PROVISION env vars: those trigger a
@@ -63,12 +63,12 @@ jobs:
       # committed from Windows, exactly like the Android scaffold is regenerated
       # on CI.
       - name: Scaffold the Xcode project
-        run: npx tauri ios init
+        run: npm run tauri -- ios init
 
       - name: Apply the SkellySpeak app icon
         run: |
-          npx tauri icon public/skellyspeak-logo.png --ios-color '#f3f1ea'
-          swift scripts/ios-icons.swift src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset
+          npm run tauri -- icon ui/public/skellyspeak-logo.png --ios-color '#f3f1ea'
+          swift tools/ios-icons.swift native/gen/apple/Assets.xcassets/AppIcon.appiconset
 
       # App Store Connect permanently consumes each CFBundleVersion. Keep the
       # user-facing version from Cargo.toml, but give every workflow attempt a
@@ -83,7 +83,7 @@ jobs:
           import pathlib
           import sys
 
-          path = pathlib.Path("src-tauri/tauri.conf.json")
+          path = pathlib.Path("native/tauri.conf.json")
           config = json.loads(path.read_text())
           config["bundle"]["iOS"]["bundleVersion"] = sys.argv[1]
           path.write_text(json.dumps(config, indent=2) + "\n")
@@ -91,7 +91,7 @@ jobs:
           echo "CFBundleVersion: $BUILD_NUMBER"
 
       - name: Check iOS Rust code before loading signing credentials
-        run: cargo check --locked --manifest-path src-tauri/Cargo.toml --target aarch64-apple-ios --lib --features tauri/custom-protocol
+        run: cargo check --locked --manifest-path native/Cargo.toml --target aarch64-apple-ios --lib --features tauri/custom-protocol
 
       # Stage signing assets ourselves: temp keychain (full non-interactive
       # recipe, mirrors tauri-macos-sign/src/keychain.rs) + profile installed
@@ -191,7 +191,7 @@ jobs:
           python3 - <<'PY'
           import glob, os
 
-          proj = glob.glob("src-tauri/gen/apple/*.xcodeproj/project.pbxproj")[0]
+          proj = glob.glob("native/gen/apple/*.xcodeproj/project.pbxproj")[0]
           cert = os.environ["CERT_NAME"]
           team = os.environ["APPLE_DEVELOPMENT_TEAM"]
           uuid = os.environ["PROFILE_UUID"]
@@ -232,8 +232,8 @@ jobs:
           open(proj, "w").write("\n".join(out) + "\n")
           print(f"patched {patched} build configurations in {proj}")
           PY
-          plutil -lint src-tauri/gen/apple/*.xcodeproj/project.pbxproj
-          grep -n 'PROVISIONING_PROFILE_SPECIFIER' src-tauri/gen/apple/*.xcodeproj/project.pbxproj
+          plutil -lint native/gen/apple/*.xcodeproj/project.pbxproj
+          grep -n 'PROVISIONING_PROFILE_SPECIFIER' native/gen/apple/*.xcodeproj/project.pbxproj
 
       # Insurance for the export phase: tauri merges gen/apple/ExportOptions.plist
       # into its computed export options (tauri#15741 — its reader can miss the
@@ -242,7 +242,7 @@ jobs:
       - name: Write ExportOptions.plist
         run: |
           set -euo pipefail
-          cat > src-tauri/gen/apple/ExportOptions.plist <<EOF
+          cat > native/gen/apple/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -263,7 +263,7 @@ jobs:
           </dict>
           </plist>
           EOF
-          plutil -lint src-tauri/gen/apple/ExportOptions.plist
+          plutil -lint native/gen/apple/ExportOptions.plist
 
       # Build + sign + export the .ipa in one step. Deliberately NO
       # IOS_CERTIFICATE/IOS_MOBILE_PROVISION here (see note at top). CI=true is
@@ -271,14 +271,14 @@ jobs:
       - name: Build the signed .ipa
         env:
           APPLE_DEVELOPMENT_TEAM: U8LBJLBYPR
-        run: npx tauri ios build --export-method app-store-connect
+        run: npm run tauri -- ios build --export-method app-store-connect
 
       # A green build that produced an unsigned or wrong-team .ipa must not
       # ship: assert the signature explicitly.
       - name: Verify the .ipa is signed for the right team
         run: |
           set -euo pipefail
-          ipa=$(find src-tauri/gen/apple/build -name '*.ipa' | head -1)
+          ipa=$(find native/gen/apple/build -name '*.ipa' | head -1)
           [ -n "$ipa" ] || { echo "::error::no .ipa produced"; exit 1; }
           echo "built: $ipa"
           ls -lh "$ipa"
@@ -304,8 +304,8 @@ jobs:
 
       - name: Collect the .ipa
         run: |
-          ipa=$(find src-tauri/gen/apple/build -name '*.ipa' | head -1)
-          v=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
+          ipa=$(find native/gen/apple/build -name '*.ipa' | head -1)
+          v=$(grep -m1 '^version = ' native/Cargo.toml | cut -d'"' -f2)
           mkdir -p dist-ios
           cp "$ipa" "dist-ios/SkellySpeak_${v}.ipa"
           ls -lh dist-ios

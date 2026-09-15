@@ -3,10 +3,25 @@
 A convivial tool for learning languages through welcoming conversations,
 useful assistance and understandable progress.
 
-This checkout is the application: the React/TypeScript interface, the Tauri Rust core
-and the optional hosted service. [The build plan](notes/BUILD-PLAN.md) tracks phases and
-checkpoints; [release recovery](notes/RELEASE-RECOVERY-PLAN.md) records how the earlier
-published release was recovered.
+## Repository layout
+
+| Folder | Responsibility |
+| --- | --- |
+| [ui/](ui/) | React/TypeScript interface and frontend build configuration |
+| [native/](native/) | Rust/Tauri application running on the user's device |
+| [server/](server/) | Python/FastAPI hosted service |
+| [content/](content/) | Editable language, learning-policy and starter data; AI behavior index |
+| [docs/](docs/) | Documentation status, guides and existing website |
+| [tools/](tools/) | Development, verification and release tooling |
+| [old/](old/) | Historical reference; potentially outdated and untrustworthy |
+
+The root npm package coordinates tools and the UI workspace. Dependencies are
+installed with `npm ci`; the UI owns its own package manifest. Internal module
+reorganization will follow this top-level move.
+
+**Documentation audit pending:** the detailed descriptions below and the existing
+website have not all been checked against current code. Links to `old/` are
+historical context, not current specifications. See [documentation status](docs/).
 
 **Current source implementation: immediate chat, recording/transcription and speech
 playback, a separate coach thread, Google sign-in and own-key/custom-server execution.** Rust persists
@@ -28,11 +43,10 @@ statistics. Vibe computation and measured garden rendering remain planned. Stand
 Fast has no active assignments until evaluated. Hosted access uses the service's
 approved Gemini 2.5 Flash model.
 
-## Parallel development
+## Development coordination
 
-Read [domain assignments and integration rules](workflow/README.md) before starting
-a domain task. Work happens in a single working tree. Coordinate native app runs
-because only one runs at a time: it owns the app identity and local data.
+Follow [the working agreement](AGENTS.md). Coordinate native app runs because
+only one runs at a time: it owns the app identity and local data.
 
 ## Run locally
 
@@ -40,7 +54,7 @@ Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and ru
 
 ```sh
 npm ci
-npm ci --prefix skellyspeak-docs
+npm ci --prefix docs/website
 npm run macos:dev
 ```
 
@@ -61,7 +75,7 @@ credential, **Always Allow** can remember access for this signed app; switching
 from a previously unsigned build may require that initial grant.
 
 `npm run macos:dev-bundle` and `npm run macos:dev-sign` are also available
-separately after `cargo build --manifest-path src-tauri/Cargo.toml --bin skellyspeak`.
+separately after `cargo build --manifest-path native/Cargo.toml --bin skellyspeak`.
 For other desktop platforms use `npm run tauri dev`. On macOS, that direct Tauri
 command bypasses the certificate-signing launcher and may prompt again for Keychain
 access after rebuilds.
@@ -71,15 +85,15 @@ local storage requires the native Tauri application. Quit an already-running
 SkellySpeak workspace before launching another instance of the same database.
 The app fails explicitly if the workspace is locked, invalid or incompatible.
 
-The authoritative application version is in `src-tauri/Cargo.toml`. Dependencies
-are locked in `package-lock.json` and `src-tauri/Cargo.lock`.
+The authoritative application version is in `native/Cargo.toml`. Dependencies
+are locked in `package-lock.json` and `native/Cargo.lock`.
 
 Build an unsigned local macOS inspection bundle (use the signed launcher above
 when testing saved credentials):
 
 ```sh
 npm run tauri -- build --debug --bundles app --config '{"productName":"SkellySpeak Workspace","bundle":{"active":true}}'
-open 'src-tauri/target/debug/bundle/macos/SkellySpeak Workspace.app'
+open 'native/target/debug/bundle/macos/SkellySpeak Workspace.app'
 ```
 
 The distinct inspection bundle name makes the running workspace identifiable.
@@ -109,8 +123,8 @@ From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
 ```sh
 next_version="X.Y.Z"
-node scripts/release.ts "$next_version" --dry-run
-node scripts/release.ts "$next_version"
+node tools/release.ts "$next_version" --dry-run
+node tools/release.ts "$next_version"
 ```
 
 The script updates the Cargo versions, commits, tags and pushes. It refuses an
@@ -148,14 +162,14 @@ The v1.21.1 signed archive and export succeeded; its added verification helper
 failed on a dotted entitlement key. The restored workflow uses v0's codesign
 team check instead. Local verification does not establish that the restored
 workflow has passed on GitHub or that Apple has accepted a new build. See
-[the restoration report](workflow/reports/ios-v0-workflow-restoration.md).
+[the restoration report](old/notes/workflow/reports/ios-v0-workflow-restoration.md).
 
 Desktop release builds install signed updates through the app. Android opens
 https://docs.freemocap.org/skellyspeak/download for APK installation. Debug builds
-do not install updates. Release builds use `src-tauri/tauri.release.conf.json` to
+do not install updates. Release builds use `native/tauri.release.conf.json` to
 retain the distributed application's identity and signing continuity.
 
-For subsequent releases, run `node scripts/release.ts patch` on a clean, current
+For subsequent releases, run `node tools/release.ts patch` on a clean, current
 `main` checkout with Node 24, Cargo and authenticated Git access. It bumps both
 Cargo files, commits, tags and pushes. `--dry-run` skips writes except fetching
 remote state; `--no-push` performs local Git writes only.
@@ -232,11 +246,11 @@ resent. Accepted messages and conversation preferences remain independently owne
    scope before confirmation and removes dependent local records.
 
 The app stores `skellyspeak.sqlite3` in its platform application-data directory under
-identifier `com.freemocap.skellyspeak`, as configured in `src-tauri/tauri.conf.json`
-and `src-tauri/tauri.release.conf.json`. On macOS this is
+identifier `com.freemocap.skellyspeak`, as configured in `native/tauri.conf.json`
+and `native/tauri.release.conf.json`. On macOS this is
 `~/Library/Application Support/com.freemocap.skellyspeak/`. No application data is
 synchronized. Send transmits selected context through the selected hosted or own-key route;
-see [privacy and data flow](notes/privacy.md).
+see [privacy and data flow](old/notes/privacy.md).
 
 ## Verification
 
@@ -247,9 +261,9 @@ npm run contracts:check
 npm run styles:check
 npm run ios:check
 npm run ios:test
-cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-cargo clippy --manifest-path src-tauri/Cargo.toml --lib --tests -- -D warnings
-cargo test --manifest-path src-tauri/Cargo.toml --lib
+cargo fmt --manifest-path native/Cargo.toml -- --check
+cargo clippy --manifest-path native/Cargo.toml --lib --tests -- -D warnings
+cargo test --manifest-path native/Cargo.toml --lib
 ```
 
 Rust integration-style tests use disposable SQLite files for persistence, revision
@@ -292,7 +306,7 @@ other devices and providers still require capability-specific checks.
 Hosted deployment passed its test, container and exact-revision traffic checks,
 and the user confirmed hosted chat works. The client preserves documented
 rate/allowance/spending-pause reasons and request IDs. See the
-[security audit](notes/SECURITY-AUDIT.md) for additional local hardening and remaining
+[security audit](old/notes/SECURITY-AUDIT.md) for additional local hardening and remaining
 repository/cloud checks; source changes require deployment or native restart.
 
 The signed macOS development launcher passed local build, bundle/signature
@@ -308,18 +322,10 @@ Windows, Linux and Android builds remain unverified.
 
 ## Architecture and roadmap
 
-[Implemented architecture](notes/architecture.md) records ownership and tooling.
-[AI request architecture](notes/AI-ARCHITECTURE.md) is a practical companion guide to
-chat messages, structured results, routes, and operation workflows.
-[The build plan](notes/BUILD-PLAN.md) tracks phases and user checkpoints.
-[The design brief](notes/DESIGN.md), [data model](notes/DATA-MODEL.md),
-[execution contract](notes/EXECUTION.md), [AI strategy](notes/AI-STRATEGY.md),
-[state/storage contract](notes/STATE-AND-STORAGE.md) and
-[model evaluation plan](notes/AI-EVALUATION.md) define the approved direction and
-remaining work. Design intent does not imply implemented behavior.
-
-[Working rules](./AGENTS.md) and [UI rules](notes/ui-guidelines.md) govern development.
-`old/` is reference-only and is excluded from active tests and builds.
+See [the repository map and documentation status](docs/README.md). Existing
+architecture notes and plans in [the archive](old/notes/) are historical reference,
+not authoritative descriptions of current behavior. The documentation content
+audit and internal layer organization remain future work.
 
 ## Hosted service development
 
@@ -351,7 +357,7 @@ all seven local Firestore emulator tests passed. Recheck the native development
 session when resuming this branch; no new runtime check is implied by this summary.
 
 Saved API keys remain in the platform credential store; no session-only or plain-file
-storage option was added. See [credential decisions and sources](notes/SECURITY.md).
+storage option was added. See [credential decisions and sources](old/notes/SECURITY.md).
 Direct-key and Custom URL chat were user-verified. Groq-specific inference and
 microphone permission still need capability-specific verification. Restart the
 signed native development app after Rust changes; frontend reload alone is insufficient.
@@ -386,7 +392,7 @@ Changing Translation toggles display and applies to future sends; it does not
 backfill existing replies. Panel hydration and reopening only read saved results.
 
 Basic hosted translation has user QA and durable receipt verification: one reply
-and one translation per exchange. See BUILD-PLAN.md for the current checkpoint;
+and one translation per exchange. The historical build plan is archived;
 this does not establish every route or cancellation/restart scenario in live use.
 
 ## Word gloss slice
@@ -429,8 +435,8 @@ The user reports working desktop voice interaction. Latest local Custom URL
 receipts show three successful transcriptions/replies/speech generations, with
 speech and gloss running independently. General speech fidelity, stop/replay and
 other devices still need their own checks. Current automated results and next
-work are in BUILD-PLAN.md; detailed evidence is in
-[the integration report](workflow/reports/integration-logging.md).
+work were recorded in the archived build plan; detailed evidence is in
+[the integration report](old/notes/workflow/reports/integration-logging.md).
 
 The local server must allow the speech model. A restart refreshes its session token;
 save the new token before authenticated Custom URL testing. Hosted access remains
@@ -456,7 +462,7 @@ credential-redacted text; structured files preserve reviewed diagnostic fields.
 reuse a run directory for a second process of the same type.
 
 For other local development tools, including the Firestore emulator, use
-`node scripts/dev-run.ts process <executable> <arguments...>` to capture their
+`node tools/dev-run.ts process <executable> <arguments...>` to capture their
 inherited output. Running a tool directly bypasses that outer capture. Native
 app runs started independently still create structured files under `.local/logs/`
 in debug builds; release builds use the platform app log directory. Cloud-hosted
@@ -506,20 +512,20 @@ starts, sent text, replies, feedback, glosses and Arabic joining. Add voice with
 `npm run e2e:android:voice`; prerecorded speech goes through the real recording,
 transcription and send flow, with only the microphone source substituted.
 These explicit live runs incur provider usage. `npm run e2e:android:preflight`
-checks access without inference. See [setup and verification limits](scripts/e2e/README.md).
+checks access without inference. See [setup and verification limits](tools/e2e/README.md).
 Missing devices and failed prerequisites fail the run; they are not passing tests.
 
 ### AI model evaluation
 
-The [model-routing screen](workflow/benchmarks/model-routing/README.md) records
+The [model-routing screen](old/notes/workflow/benchmarks/model-routing/README.md) records
 paid synthetic comparisons, output defects and the proposed Fast/Standard/Strong
 task split. Production routing is unchanged. Run its offline checks with
-`node --test scripts/benchmarks/model-routing.test.ts`; paid execution is explicit
+`node --test tools/benchmarks/model-routing.test.ts`; paid execution is explicit
 and requires the ignored `server/local.env` OpenRouter key.
 
 ## Adding languages
 
-See the [language authoring guide](workflow/reports/language-authoring.md) for the
+See the [language authoring guide](old/notes/workflow/reports/language-authoring.md) for the
 data checklist, workspace ownership and verification boundaries. Run
 `npm run languages:check` before the full verification suite. Configuration and
 locale files are discovered automatically; Portuguese and German are included in
@@ -535,7 +541,7 @@ short generated lesson, optionally answer two quiz questions (1 XP correct, 0 wr
 coach, then select **Try it in chat**. Saved lessons belong to the conversation.
 Task completion receives a private evidence-based recap; reading a lesson does not
 award proficiency. Lessons use the existing AI route and durable operation
-scheduler. See `workflow/reports/lessons.md` for verification status.
+scheduler. See `old/notes/workflow/reports/lessons.md` for verification status.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the guide's **Varieties: current architecture** section.
@@ -544,7 +550,7 @@ explicit reset and current configuration rather than a migration. Builds do not
 overwrite editable workspace configuration.
 
 The September 14 workspace redesign and its verification limits are recorded in
-[the design-pass report](notes/workspace-redesign-report.md).
+[the design-pass report](old/notes/workspace-redesign-report.md).
 
 “Save a copy of my data” in Settings and schema-refusal recovery copies the database,
 SQLite sidecars and the complete editable `config/` directory (including bibliography

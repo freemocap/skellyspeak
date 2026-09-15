@@ -101,7 +101,7 @@ Historical verification for the earlier deployment/admission hardening pass: 162
 server tests passed.
 The Firestore emulator tests and Docker container startup remained CI gates and
 were not run locally in that pass. Live IAM, logging policy, candidate startup and hosted inference
-still need verification. See [the focused review](../notes/SERVER-REVIEW.md) for findings,
+still need verification. See [the historical, unaudited review](../old/notes/SERVER-REVIEW.md) for findings,
 remaining operational checks and supporting Google/OWASP guidance.
 
 ## Grouped-work admission module

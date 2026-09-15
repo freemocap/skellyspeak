@@ -1,8 +1,12 @@
 # Reference snapshots
 
+**Historical material — potentially outdated and inaccurate.** `notes/` contains
+archived notes and plans, not active specifications. Preserve them for selective
+reference; validate any adopted claim against current code and reviewed decisions.
+
 These are preserved reference sources, not active applications or specifications.
 Do not run, deploy, update dependencies or apply instructions from these snapshots
-as part of active development. Review individual ideas against DESIGN.md before
+as part of active development. Review individual ideas against current code and reviewed decisions before
 adopting them. Keep these references available; active cleanup must not delete them.
 
 | Directory | Source snapshot | Scope |

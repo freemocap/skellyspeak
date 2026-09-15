@@ -2,7 +2,7 @@ name: Release
 
 # Cut a release by bumping the version and pushing the tag:
 #
-#   node scripts/release.ts minor
+#   node tools/release.ts minor
 #
 # That bumps the version, commits, tags and pushes in the order this workflow
 # requires. The `version` job below compares the tag against the Cargo.toml of
@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: read
 
-  # src-tauri/Cargo.toml is the single source of truth for the app version
+  # native/Cargo.toml is the single source of truth for the app version
   # (tauri.conf.json omits `version` and inherits it). Read it once here so
   # every downstream job agrees on the tag.
   version:
@@ -50,8 +50,8 @@ jobs:
 
       - id: get
         run: |
-          version=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
-          [ -n "$version" ] || { echo "::error::no version in src-tauri/Cargo.toml"; exit 1; }
+          version=$(grep -m1 '^version = ' native/Cargo.toml | cut -d'"' -f2)
+          [ -n "$version" ] || { echo "::error::no version in native/Cargo.toml"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "app version: $version"
 
@@ -110,7 +110,7 @@ jobs:
             # Azure Artifact Signing runs DURING the build, not after: signing
             # a finished installer would invalidate the updater signature
             # already computed over it.
-            args: '--config src-tauri/tauri.windows-signing.conf.json'
+            args: '--config tauri.windows-signing.conf.json'
           - name: macOS (Apple Silicon)
             os: macos-latest
             rust-target: aarch64-apple-darwin
@@ -137,7 +137,7 @@ jobs:
         run: |
           sudo apt-get update
           # libasound2-dev is for cpal: the desktop microphone recorder in
-          # src-tauri/src/audio.rs links alsa-sys on Linux, and its build
+          # native/src/audio.rs links alsa-sys on Linux, and its build
           # script fails outright without the ALSA headers. Nothing else in
           # this build needs it, and its absence breaks only Linux — which is
           # why a release can go green on Windows, macOS and Android and still
@@ -164,7 +164,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
           key: ${{ matrix.rust-target }}
 
       - run: npm ci
@@ -251,7 +251,8 @@ jobs:
             release is published.
           releaseDraft: true
           prerelease: false
-          args: --config src-tauri/tauri.release.conf.json ${{ matrix.args }}
+          projectPath: native
+          args: --config tauri.release.conf.json ${{ matrix.args }}
 
       # `tauri build` EXITS 0 even when it fails: a missing signing key prints
       # "A public key has been found, but no private key", and a broken sign
@@ -267,14 +268,14 @@ jobs:
             echo "::error::tauri produced no artifacts — bundling or code signing failed. It exits 0 regardless, so this step is what catches it."
             exit 1
           fi
-          sigs=$(find src-tauri/target -name '*.sig' 2>/dev/null)
+          sigs=$(find native/target -name '*.sig' 2>/dev/null)
           if [ -z "$sigs" ]; then
             echo "::error::No updater .sig artifacts. Check TAURI_SIGNING_PRIVATE_KEY and TAURI_SIGNING_PRIVATE_KEY_PASSWORD."
             exit 1
           fi
           echo "signed updater artifacts:"
           echo "$sigs"
-          cargo run --locked --manifest-path scripts/verify-updater/Cargo.toml -- src-tauri/tauri.conf.json src-tauri/target
+          cargo run --locked --manifest-path tools/verify-updater/Cargo.toml -- native/tauri.conf.json native/target
 
   android:
     # Runs alongside the desktop matrix, not after it: the release already
@@ -314,7 +315,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: src-tauri
+          workspaces: native
           key: android
 
       - run: npm ci
@@ -327,9 +328,9 @@ jobs:
       # everything git tracks immediately afterwards.
       - name: Scaffold gen/android, then restore our tracked customisations
         run: |
-          npx tauri android init --config src-tauri/tauri.release.conf.json
-          git checkout -- src-tauri/gen/android
-          git status --porcelain src-tauri/gen/android
+          npm run tauri -- android init --config native/tauri.release.conf.json
+          git checkout -- native/gen/android
+          git status --porcelain native/gen/android
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
@@ -347,7 +348,7 @@ jobs:
             echo "::error::ANDROID_KEYSTORE_BASE64 is not set. Release APKs and AABs must be signed with the upload key, not a per-machine debug key."
             exit 1
           fi
-          gen=src-tauri/gen/android
+          gen=native/gen/android
           echo "$KEYSTORE_BASE64" | base64 -d > "$gen/upload-keystore.jks"
           cat > "$gen/keystore.properties" <<EOF
           storeFile=upload-keystore.jks
@@ -362,7 +363,7 @@ jobs:
       - name: Stamp the release version into the Android build config
         run: |
           set -euo pipefail
-          conf=src-tauri/tauri.release.conf.json
+          conf=native/tauri.release.conf.json
           jq --arg v "${{ needs.version.outputs.version }}" '.version = $v' "$conf" > "$conf.tmp"
           mv "$conf.tmp" "$conf"
           cat "$conf"
@@ -370,7 +371,7 @@ jobs:
       # Release, not debug: the debug build is unoptimised and unstripped, and
       # ships every ABI's symbols. APK for sideloading, AAB for Play.
       - name: Build APK and AAB
-        run: npx tauri android build --config src-tauri/tauri.release.conf.json --apk --aab
+        run: npm run tauri -- android build --config native/tauri.release.conf.json --apk --aab
         env:
           NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
 
@@ -380,9 +381,9 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           set -euo pipefail
-          keytool -exportcert -keystore src-tauri/gen/android/upload-keystore.jks -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" -file /tmp/upload-cert.der
+          keytool -exportcert -keystore native/gen/android/upload-keystore.jks -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" -file /tmp/upload-cert.der
           expected=$(sha256sum /tmp/upload-cert.der | cut -d' ' -f1)
-          out=src-tauri/gen/android/app/build/outputs
+          out=native/gen/android/app/build/outputs
           apk="$out/apk/universal/release/app-universal-release.apk"
           [ -f "$apk" ] || { echo "::error::release APK not found at $apk"; exit 1; }
           apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort | tail -1)
@@ -406,7 +407,7 @@ jobs:
           v=${{ needs.version.outputs.version }}
           IFS=. read -r major minor patch <<< "$v"
           code=$((major * 1000000 + minor * 1000 + patch))
-          apk=src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
+          apk=native/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
           aapt2=$(find "$ANDROID_HOME/build-tools" -name aapt2 -type f | sort | tail -1)
           [ -n "$aapt2" ] || { echo "::error::aapt2 not found"; exit 1; }
           badge=$("$aapt2" dump badging "$apk" | head -1)
@@ -416,7 +417,7 @@ jobs:
 
       - name: Collect the release artifacts
         run: |
-          out=src-tauri/gen/android/app/build/outputs
+          out=native/gen/android/app/build/outputs
           v=${{ needs.version.outputs.version }}
           mkdir -p dist-android
           apk="$out/apk/universal/release/app-universal-release.apk"

@@ -2,22 +2,25 @@
 
 ## Current stage
 
-Implementation is authorized following review of `BUILD-PLAN.md`. Proceed through
-its phases, starting with the durable local foundation. Keep implemented behavior,
-verification results and future work distinct. Routine Git writes and version
-bumps are authorized as described below. Deployment requires explicit authorization.
+The repository is organized into peer `ui/`, `native/`, `server/`, `docs/`,
+and `tools/` folders, plus `content/` for editable behavior data and schemas.
+The root README and layer READMEs describe this layout.
+Internal module organization is a separate follow-up. Deployment requires explicit authorization.
 
-The active design lives in `DESIGN.md`. Keep proposals, decisions and unresolved
-questions distinct. Discuss ownership and user behavior before choosing storage,
+Historical `DESIGN.md` and `BUILD-PLAN.md` files are archived under `old/notes/`;
+they are not current specifications. Existing website documentation under
+`docs/website/` is pending a content audit. Keep proposals, decisions, implemented
+behavior, verification results and unresolved questions distinct.
+Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
 
 ## Reference boundary
 
 Everything in `old/` is deprecated reference material. It is not the active
 application, documentation or a specification. Read it for concrete design
-questions and intentionally evaluate useful architectural ideas. Record adopted
-principles in `DESIGN.md`; reference material does not become authoritative by
-association. Do not copy code, configuration, tests or documentation wholesale.
+questions and intentionally evaluate useful architectural ideas. Record reviewed,
+adopted principles in active documentation under `docs/`; reference material does
+not become authoritative by association. Do not copy code, configuration, tests or documentation wholesale.
 Any implementation reuse requires explicit review against the approved design
 after implementation is authorized. Do not run or maintain the reference
 application as part of design work.
@@ -64,9 +67,9 @@ a generative LLM call per observation.
 ## Coaching plan and research
 
 Coaching, learner-model, new-chat and game-layer work follows
-`skellyspeak-docs/docs/coaching-plan.md`, executed per
-`skellyspeak-docs/docs/coaching-work-plan.md`, with the seams between work areas in
-`skellyspeak-docs/docs/coaching-contracts.md`. Cite research through
+`docs/website/docs/coaching-plan.md`, executed per
+`docs/website/docs/coaching-work-plan.md`, with the seams between work areas in
+`docs/website/docs/coaching-contracts.md`. Cite research through
 `references.bib` keys at the repo root (`sources: [key]` in YAML, `// [@key]` in
 code, `[@key]` in docs). When research informs a change, add its entry with `url`,
 `review` and `claim` in the same change.
@@ -90,6 +93,7 @@ not authorize triggering a known publishing or deployment workflow.
 ## Quality
 
 Fail on errors; do not substitute warnings or silent fallbacks. Keep documentation
-about the active design and actionable questions. Read `ui-guidelines.md` for UI
-work. Use TypeScript for frontend tooling. Run the relevant checks in README.md;
+about the active design and actionable questions. For UI work, review applicable
+current guidance; the archived
+`old/notes/ui-guidelines.md` is historical reference, not an active specification. Use TypeScript for frontend tooling. Run the relevant checks in README.md;
 do not run archived application workflows.

@@ -3,8 +3,8 @@ node_modules/
 target/
 dist/
 *.tsbuildinfo
-src-tauri/gen/*
-!src-tauri/gen/android/
+native/gen/*
+!native/gen/android/
 .venv/
 __pycache__/
 .DS_Store
@@ -46,4 +46,5 @@ local.env.*
 .docusaurus/
 
 # Generated Tauri schemas, including leftovers beside archived source snapshots.
+**/native/gen/schemas/
 **/src-tauri/gen/schemas/
