@@ -1,3 +1,4 @@
+import { CredentialCleanup } from '../features/startup/CredentialCleanup'
 import { I18nProvider } from '../ui/i18n'
 import { useEffect } from 'react'
 import { useIsMobile } from '../ui/useIsMobile'
@@ -62,6 +63,7 @@ export function AppShell() {
       <UpdateBanner />
       <TopBar />
       <FaultBar />
+      <CredentialCleanup />
       <ProfileOverlay />
       <SurfaceHost />
       <MobileNav />

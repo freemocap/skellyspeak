@@ -94,9 +94,27 @@ def safe_record(record: logging.LogRecord) -> dict:
             data = json.loads(record.msg)
         except (ValueError, TypeError):
             return event
-        if not isinstance(data, dict) or data.get("event") != "operation_failure":
+        if not isinstance(data, dict) or data.get("event") not in {"operation_failure", "group_finished"}:
             return event
-        event["code"] = "operation_failure"
+        event["code"] = data["event"]
+        if isinstance(data.get("request_id"), str) and re.fullmatch(r"[0-9a-f]{32}", data["request_id"]):
+            event["requestId"] = data["request_id"]
+        for field in ("item_index", "item_count", "delivered", "failures"):
+            value = data.get(field)
+            if type(value) is int and 0 <= value <= 8:
+                event[field] = value
+        if type(data.get("complete")) is bool:
+            event["complete"] = data["complete"]
+        code = data.get("code")
+        if isinstance(code, str) and (code in CODES | {"UNKNOWN_OUTCOME", "OTHER"} or re.fullmatch(r"(?:OPENROUTER|GROQ)_HTTP_[45][0-9]{2}", code)):
+            event["errorCode"] = code
+        kind = data.get("exception_type")
+        if isinstance(kind, str) and kind in {
+            "HTTPException", "UpstreamHTTPError", "Rejection", "UsageUnknown", "ValueError",
+            "TypeError", "KeyError", "RuntimeError", "TimeoutError", "ReadTimeout",
+            "ConnectTimeout", "ConnectError", "ReadError", "RemoteProtocolError", "OtherException",
+        }:
+            event["exceptionType"] = kind
         for field in ("status", "upstream_status"):
             value = data.get(field)
             if type(value) is int and 100 <= value <= 599:

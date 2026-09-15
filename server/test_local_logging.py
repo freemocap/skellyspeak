@@ -100,3 +100,21 @@ def test_provider_status_code_is_preserved_without_remote_content():
     result = safe_record(record)
     assert result['errorCode'] == 'OPENROUTER_HTTP_404'
     assert 'PRIVATE_ERROR' not in str(result)
+
+
+def test_operation_correlation_survives_private_log_filter():
+    payload = {'event': 'operation_failure', 'request_id': 'b' * 32, 'item_index': 2,
+               'code': 'GROQ_HTTP_422', 'exception_type': 'UpstreamHTTPError',
+               'status': 502, 'detail': 'PRIVATE_PROVIDER_BODY'}
+    safe = safe_record(record('skellyspeak.operations', json.dumps(payload)))
+    assert safe['requestId'] == 'b' * 32 and safe['item_index'] == 2
+    assert safe['errorCode'] == 'GROQ_HTTP_422' and safe['exceptionType'] == 'UpstreamHTTPError'
+    assert 'PRIVATE_' not in json.dumps(safe)
+    payload.update(request_id='PRIVATE_ID', item_index=999, exception_type='PRIVATE_CLASS')
+    invalid = safe_record(record('skellyspeak.operations', json.dumps(payload)))
+    assert 'requestId' not in invalid and 'item_index' not in invalid and 'exceptionType' not in invalid
+    summary = safe_record(record('skellyspeak.operations', json.dumps({
+        'event': 'group_finished', 'request_id': 'b' * 32, 'item_count': 2,
+        'delivered': 1, 'failures': 1, 'complete': False})))
+    assert summary['code'] == 'group_finished' and summary['complete'] is False
+    assert summary['delivered'] == 1 and summary['requestId'] == 'b' * 32

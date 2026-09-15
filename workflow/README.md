@@ -1,3 +1,14 @@
+# Coordination and historical handoffs
+
+Current authority is [AGENTS.md](../AGENTS.md), the user’s active request,
+[design](../notes/DESIGN.md) and [build plan](../notes/BUILD-PLAN.md).
+The September audit is [here](reports/audit-2026-09-14-integration.md).
+Routine Git writes are authorized by AGENTS.md; deployment requires explicit
+authorization. The dated assignments and read-only Git restrictions below are
+historical records, not current instructions.
+
+## Historical coordination record
+
 # Domain coordination and integration
 
 Product intent lives in DESIGN.md; implementation order lives in BUILD-PLAN.md.

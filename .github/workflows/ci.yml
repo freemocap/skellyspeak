@@ -23,6 +23,7 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix skellyspeak-docs
       - run: npm test
+      - run: npm run docs:links
       - run: npm run docs:test
       - run: npm run styles:check
       - run: node --test scripts/version.test.ts
@@ -77,6 +78,8 @@ jobs:
           workspaces: src-tauri
       - run: cargo clippy --lib -- -D warnings
         working-directory: src-tauri
+      - run: cargo run --locked --bin export-contracts -- --check
+        working-directory: src-tauri
       - run: cargo fmt -- --check
         working-directory: src-tauri
       - run: cargo test --locked --lib
@@ -128,6 +131,8 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: server/uv.lock
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+      - run: python server/check_upload_manifest.py
       - name: Install audio decoder
         run: |
           sudo apt-get update

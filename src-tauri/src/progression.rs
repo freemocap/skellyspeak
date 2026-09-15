@@ -228,6 +228,12 @@ pub(crate) fn capture_focus(
     target: &str,
 ) -> Result<Value> {
     let snapshot = snapshot_db(db, registry, session, target)?;
+    focus_from_snapshot(registry, &snapshot)
+}
+pub(crate) fn focus_from_snapshot(
+    registry: &crate::config::Registry,
+    snapshot: &Value,
+) -> Result<Value> {
     let focus = &snapshot["profile"]["active_focus"];
     if focus.is_null() {
         return Ok(Value::Null);

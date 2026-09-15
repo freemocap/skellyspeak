@@ -2,7 +2,7 @@
 
 Status: approved product direction with implementation proceeding by build phase.
 Tauri, React and Rust provide the local foundation; SQLite and typed Rust/TypeScript
-contracts are selected. See [README.md](./README.md) for verified current behavior
+contracts are selected. See [README.md](../README.md) for verified current behavior
 and [architecture.md](./architecture.md) for implementation authority. Conversation
 graph execution and desktop hosted/own-key access are implemented; learning analysis
 remains planned. Native and live verification limits are explicit in README.md.
@@ -265,8 +265,8 @@ Marta can coexist without changing the learner's general accessibility preferenc
 ## Coaching and progression direction
 
 The approved coaching, learner-model and game-layer design is the
-[coaching plan](skellyspeak-docs/docs/coaching-plan.md); its execution is the
-[coaching work plan](skellyspeak-docs/docs/coaching-work-plan.md). Summary:
+[coaching plan](../skellyspeak-docs/docs/coaching-plan.md); its execution is the
+[coaching work plan](../skellyspeak-docs/docs/coaching-work-plan.md). Summary:
 
 - SkellySpeak is a convivial tool: dialogue with partners is the core activity, the
   coach poses problems before giving answers, and the learner owns and can inspect
@@ -882,7 +882,7 @@ falling back to English. English is the explicit pre-settings locale.
 Portuguese (Brazil default) and German (Germany default) exercise both target and
 native roles. Their configuration remains `needs_review`; structural coverage does
 not establish linguistic or provider quality. Workspace configuration is never
-silently overwritten by a new build. See the [authoring guide](workflow/reports/language-authoring.md)
+silently overwritten by a new build. See the [authoring guide](../workflow/reports/language-authoring.md)
 for required data, checks and remaining localization boundaries.
 
 ## Explicit lessons: approved behavior and implementation
@@ -962,7 +962,7 @@ content declares compatibility for both roles; missing compatible content produc
 an explicit empty state, not an unusable conversation or mislabeled material.
 Arabic defaults to Levantine, with MSA as another variety. Regional subdivision,
 linguistic review and live speech quality evaluation are deferred. See the
-[authoring guide](workflow/reports/language-authoring.md) for the implemented
+[authoring guide](../workflow/reports/language-authoring.md) for the implemented
 contract, verification and schema-15 activation boundary.
 
 ## Reading refinement — adopted 14 September 2026

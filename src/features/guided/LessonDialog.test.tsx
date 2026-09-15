@@ -117,3 +117,21 @@ it('keeps an embedded exercise draft while visiting completed steps and never mo
   expect(screen.getByLabelText('Ask the coach or try the exercise')).toHaveValue('My unsent exercise')
   expect(backend.execute).toHaveBeenCalledTimes(1)
 })
+
+it('preserves a newer lesson question while the submitted receipt is pending', async () => {
+  let resolve!: (receipt: { entityId: string }) => void
+  backend.execute.mockResolvedValueOnce({ entityId: 'lesson' }).mockImplementationOnce(() => new Promise(done => { resolve = done }))
+  render(ui({ ...base, lessons: [lesson] }))
+  fireEvent.click(screen.getByRole('button', { name: 'Arrange a meeting' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Ask the coach' })).toBeDisabled())
+  const input = screen.getByLabelText('Ask the coach or try the exercise')
+  fireEvent.change(input, { target: { value: 'First question' } })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Ask the coach' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Ask the coach' }))
+  await waitFor(() => expect(backend.execute).toHaveBeenCalledTimes(2))
+  fireEvent.change(input, { target: { value: 'Next draft' } })
+  resolve({ entityId: 'lesson' })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Ask the coach' })).toBeEnabled())
+  expect(input).toHaveValue('Next draft')
+  expect(backend.execute).toHaveBeenLastCalledWith(expect.anything(), expect.objectContaining({ text: 'First question' }))
+})

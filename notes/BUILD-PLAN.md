@@ -5,7 +5,7 @@
 Wave one was checkpointed by the user at `bdb664e`. Wave two now implements
 validated readable configuration, deterministic hint-first coaching and repair
 checks, and learner-chosen conversation starts. See the
-[wave-two integration report](workflow/reports/coaching-w2-integration.md).
+[wave-two integration report](../workflow/reports/coaching-w2-integration.md).
 The combined gate passes 551 frontend tests and 285 native tests, with formatting,
 strict Clippy, generated contracts/catalog, builds and docs checks passing. Native
 startup inspection and its limits are recorded separately in the report.
@@ -13,7 +13,7 @@ startup inspection and its limits are recorded separately in the report.
 ## Coaching wave one — source implemented and verified
 
 The implemented coaching checkpoint is wave one of
-[`coaching-work-plan.md`](skellyspeak-docs/docs/coaching-work-plan.md): explicit
+[`coaching-work-plan.md`](../skellyspeak-docs/docs/coaching-work-plan.md): explicit
 language guidance, five evidence outcomes, captured practice focus, catalog identity
 and real edit-and-regenerate revisions with inspectable earlier versions.
 Integration reviewed the three domain handbacks and ran the combined checks: 528
@@ -24,7 +24,7 @@ their historical verification scope.
 Development data is disposable by explicit user authorization. The wave-one coaching
 schema targeted v13 without a migration requirement. Source implementation, combined
 verification and actual native/provider QA are recorded separately in
-[`coaching-w1-integration.md`](workflow/reports/coaching-w1-integration.md).
+[`coaching-w1-integration.md`](../workflow/reports/coaching-w1-integration.md).
 
 ## Current checkpoint — rebuild, 2026-09-11
 
@@ -49,7 +49,7 @@ and mobile behavior still need user/device checks.
 Fresh integrated verification: 386 frontend tests, 191 native tests, 221 server
 unit tests and four launcher tests pass. Build, generated contracts, CSS checks,
 launcher type-check, formatting and Clippy pass. See the
-[integration checkpoint](workflow/reports/integration-checkpoint-2026-09-11.md)
+[integration checkpoint](../workflow/reports/integration-checkpoint-2026-09-11.md)
 for database checks and remaining work. Earlier reports retain their own bounded
 run evidence; their counts are not the current suite totals.
 
@@ -331,7 +331,7 @@ The shared prompts, declarative language properties, strict source validation,
 compact inline meanings and explicit scoped retry are integrated. Reopening saved
 meanings must cause no inference; retry must not regenerate the reply or siblings.
 Speech and translation remain independently publishable. The bounded voice check
-is recorded in [reading evidence](workflow/reports/integration-reading-checkpoint.md).
+is recorded in [reading evidence](../workflow/reports/integration-reading-checkpoint.md).
 
 Continue measuring linguistic usefulness separately from structural coverage.
 No automatic repair/retry loop, new language catalog, configuration editor or paid
@@ -443,10 +443,10 @@ Domain progress earns a display star per 50 XP; subskill mastery milestones rema
 separate evidence-based measures. Unpracticed domains are gray. Collapse is compact.
 
 Partner-initiated opening turns are specified in the
-[coaching plan](skellyspeak-docs/docs/coaching-plan.md) §10 (`StartConversation`
+[coaching plan](../skellyspeak-docs/docs/coaching-plan.md) §10 (`StartConversation`
 with a `persona_opening` operation; never a fabricated learner message) and
 scheduled in wave 2 of the
-[coaching work plan](skellyspeak-docs/docs/coaching-work-plan.md). Single-word audio
+[coaching work plan](../skellyspeak-docs/docs/coaching-work-plan.md). Single-word audio
 and live provider validation of this checkpoint remain follow-ups.
 
 ## Conversation XP and compact controls

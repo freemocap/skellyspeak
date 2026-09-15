@@ -31,7 +31,8 @@
     "e2e:fixtures": "node scripts/e2e/speech-fixtures.ts",
     "e2e:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions scripts/e2e/android.ts scripts/e2e/android.test.ts scripts/e2e/speech-fixtures.ts && node --test scripts/e2e/android.test.ts",
     "prebuild": "node scripts/check-languages.ts",
-    "languages:check": "node scripts/check-languages.ts && cargo test --manifest-path src-tauri/Cargo.toml --lib config::tests"
+    "languages:check": "node scripts/check-languages.ts && cargo test --manifest-path src-tauri/Cargo.toml --lib config::tests",
+    "docs:links": "node scripts/check-doc-links.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",

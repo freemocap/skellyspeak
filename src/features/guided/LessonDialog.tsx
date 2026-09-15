@@ -23,6 +23,10 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
   const [category, setCategory] = useState<LessonCategory>('practical')
   const [topic, setTopic] = useState('')
   const [question, setQuestion] = useState('')
+  const questionRevision = useRef(0)
+  const questionOwner = useRef('')
+  questionOwner.current = `${snapshot.conversationId}:${selected}`
+  const updateQuestion = (value: string) => { questionRevision.current++; setQuestion(value) }
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState<string[]>([])
@@ -45,7 +49,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
       await beforeAction()
       if (!mounted.current) return
       const receipt = await executeAction(snapshot, { kind: 'generateLesson', category: requestedCategory, choiceId, conversationId: snapshot.conversationId, topic: value, expectedRevision: snapshot.revision })
-      if (mounted.current) { setSelected(receipt.entityId); onLessonSelected?.(receipt.entityId); setQuestion(''); setStep(0); setFurthestStep(0); setCreating(false) }
+      if (mounted.current) { setSelected(receipt.entityId); onLessonSelected?.(receipt.entityId); updateQuestion(''); setStep(0); setFurthestStep(0); setCreating(false) }
     })
   }
   async function control(id: string, control: LessonControl) {
@@ -56,7 +60,7 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
     })
   }
   async function select(id: string) {
-    setSelected(id); onLessonSelected?.(id); setQuestion(''); setError(null); setStep(0); setFurthestStep(0)
+    setSelected(id); onLessonSelected?.(id); updateQuestion(''); setError(null); setStep(0); setFurthestStep(0)
     const item = lessons.find(item => item.id === id)
     if (item?.plan) await control(id, 'open')
   }
@@ -126,13 +130,15 @@ export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice
             <p dir="auto">{plan.exercise}</p>
           <form className="lesson-question-form" onSubmit={event => {
             event.preventDefault()
+            const revision = questionRevision.current
+            const owner = questionOwner.current
             void run(async () => {
               await executeAction(snapshot, { kind: 'askLessonCoach', conversationId: snapshot.conversationId, lessonId: lesson.id, text: question.trim(), expectedRevision: snapshot.revision })
-              if (mounted.current) setQuestion('')
+              if (mounted.current && questionRevision.current === revision && questionOwner.current === owner) updateQuestion('')
             })
           }}>
             <label htmlFor="lesson-question">{tr('Ask the coach or try the exercise')}</label>
-            <textarea id="lesson-question" rows={2} value={question} maxLength={20000} onChange={event => setQuestion(event.target.value)} />
+            <textarea id="lesson-question" rows={2} value={question} maxLength={20000} onChange={event => updateQuestion(event.target.value)} />
             <button type="submit" disabled={disabled || !question.trim()}>{tr('Ask the coach')}</button>
           </form>
           {coachMessages.length > 0 && <div className="lesson-coach-messages" aria-live="polite">{coachMessages.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} /></div>)}</div>}

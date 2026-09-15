@@ -4,8 +4,8 @@ import { ActivityIndicator } from '../../ui/ActivityIndicator'
 import { ConversationProgress } from './ConversationProgress'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../platform/ipc/tauri'
-import { executeAction, nativeError, readWorkspace, watchConversation } from '../../platform/ipc/workspace'
-import type { ConversationSnapshot } from '../../contracts'
+import { executeAction, nativeError, readWorkspace } from '../../platform/ipc/workspace'
+import { useConversationSnapshot } from './useConversationSnapshot'
 import { type AnalysedTurn, type InspectTarget } from './AnalysisContent'
 import { Markdown } from '../../ui/Markdown'
 
@@ -20,7 +20,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
   const tr = useI18n()
-  const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
+  const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)
   const [input, setInput] = useState('')
   useEffect(() => { if (!mysteryPartner && tab === 'profile') onTab('lesson') }, [mysteryPartner, tab, onTab])
   const [submitting, setSubmitting] = useState(false)
@@ -31,21 +31,8 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   const threadRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const current = ++generation.current
-    setSnapshot(null); setInput(''); setError(null); setSubmitting(false); sending.current = false
-    if (!isTauri || !chatId) return
-    let stopped = false
-    void (async () => {
-      let revision = -1
-      while (!stopped) {
-        const next = await watchConversation(chatId, revision)
-        if (stopped) return
-        setSnapshot(next)
-        revision = next.revision
-      }
-    })().catch((failure: unknown) => {
-      if (!stopped) setError(nativeError(failure))
-    })
-    return () => { stopped = true; if (generation.current === current) generation.current++ }
+    setInput(''); setError(null); setSubmitting(false); sending.current = false
+    return () => { if (generation.current === current) generation.current++ }
   }, [chatId])
   useEffect(() => {
     if (!draftQuestion) return
@@ -87,6 +74,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>
     </div>
+    {readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
     {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}
     <form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {

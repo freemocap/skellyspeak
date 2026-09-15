@@ -49,7 +49,7 @@ async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, 
 
 def test_native_gloss_schema_is_relaxed_only_at_groq_transport_boundary():
     fixtures = json.loads((Path(__file__).resolve().parents[1] / 'workflow/benchmarks/model-routing/native-gloss-fixtures.json').read_text())
-    original = {"model": routing.OSS, "max_tokens": 2048, "response_format": {"json_schema": {"schema": fixtures[0]['schema']}}}
+    original = {"model": routing.OSS, "max_tokens": 2048, "response_format": {"json_schema": {"name": "word_gloss_v1", "schema": fixtures[0]['schema']}}}
     saved = deepcopy(original)
     outbound = routing.groq_payload(original)
     assert original == saved
@@ -131,3 +131,46 @@ async def test_provider_error_inside_success_status_is_still_surfaced(proxy, mon
     event = json.loads(response.text.splitlines()[0])
     assert event['code'] == 'OPENROUTER_HTTP_404'
     assert 'PRIVATE_ERROR' not in response.text
+
+
+@pytest.mark.asyncio
+async def test_non_gloss_union_is_delegated_without_app_schema_assumptions(proxy, ledger, monkeypatch):
+    schema = {"type": "object", "properties": {"spans": {"type": "array", "items": {
+        "oneOf": [{"type": "string"}, {"type": "integer"}]}}}}
+    sent = []
+    def respond(request):
+        body = json.loads(request.content)
+        sent.append(body)
+        assert body['response_format']['json_schema']['schema'] == schema
+        return httpx.Response(200, json={'id': 'groq-ok', 'choices': [],
+            'usage': {'prompt_tokens': 10, 'completion_tokens': 10}})
+    upstream(monkeypatch, respond)
+    request = envelope(1)
+    request['items'][0]['request'].update(model=routing.OSS, response_format={
+        'type': 'json_schema', 'json_schema': {'name': 'unrelated', 'strict': True, 'schema': schema}})
+    response = await proxy.post('/v1/operations', json=request)
+    assert json.loads(response.text.splitlines()[0])['type'] == 'result'
+    assert len(sent) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('schema', [
+    {'properties': {'spans': {'items': {'oneOf': [{'type': 'string'}, {'type': 'integer'}]}}}},
+    {'properties': None},
+    {'properties': {}, 'minimum': float('nan')},
+])
+async def test_preparation_failure_never_reserves_or_submits(proxy, ledger, monkeypatch, schema):
+    submitted = []
+    upstream(monkeypatch, lambda request: submitted.append(request) or httpx.Response(200, json={}))
+    request = envelope(1)
+    request['items'][0]['request'].update(model=routing.OSS, response_format={
+        'type': 'json_schema', 'json_schema': {'name': 'word_gloss_v1', 'strict': True, 'schema': schema}})
+    # Raw JSON also exercises rejecting nonfinite schema values before dispatch.
+    response = await proxy.post('/v1/operations', content=json.dumps(request), headers={'Content-Type': 'application/json'})
+    event = json.loads(response.text.splitlines()[0])
+    assert event['type'] == 'error' and event['status'] == 400
+    assert event['code'] == 'REQUEST_REJECTED'
+    assert not submitted
+    assert not any('/reservations/' in key for key in ledger.store)
+    assert ledger.store['users/learner/work_control/slots']['active'] == {}
+    assert next(v for k, v in ledger.store.items() if '/work_attempts/' in k)['state'] == 'failed'

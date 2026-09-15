@@ -1,5 +1,6 @@
 import type { ConversationSnapshot } from '../../contracts'
 import type { StoredTurn } from '../../types'
+import { replyState } from './reply-state'
 
 /** Read-only presentation of durable messages. Empty assistance is absent, never a completed analysis. */
 export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] {
@@ -12,7 +13,7 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     }
     let turn = byIdentity.get(message.turnId)
     if (!turn) {
-      turn = { id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, user: null, assistant: null, analysisState: null }
+      turn = { replyState: replyState(snapshot.turns.find(item => item.id === message.turnId), snapshot), id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, user: null, assistant: null, analysisState: null }
       byIdentity.set(message.turnId, turn)
       turns.push(turn)
     }

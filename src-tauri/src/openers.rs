@@ -34,6 +34,7 @@ pub(crate) fn choices(store: &Store, conversation: &str) -> Result<Vec<(StarterC
         &store.snapshot()?,
         conversation,
         &[],
+        None,
     )
 }
 pub(crate) fn choices_db(
@@ -42,6 +43,7 @@ pub(crate) fn choices_db(
     snapshot: &Snapshot,
     conversation: &str,
     due: &[String],
+    evidence: Option<&Value>,
 ) -> Result<Vec<(StarterCard, Value)>> {
     let conversation = snapshot
         .conversations
@@ -65,12 +67,15 @@ pub(crate) fn choices_db(
         &conversation.settings.explanation_language,
         Some(&conversation.settings.explanation_variety_id),
     )?;
-    let focus = crate::progression::capture_focus(
-        db,
-        registry,
-        &snapshot.session_id,
-        &conversation.language_id,
-    )?;
+    let focus = match evidence {
+        Some(evidence) => crate::progression::focus_from_snapshot(registry, evidence)?,
+        None => crate::progression::capture_focus(
+            db,
+            registry,
+            &snapshot.session_id,
+            &conversation.language_id,
+        )?,
+    };
     let focus: Vec<String> = focus["id"]
         .as_str()
         .map(str::to_owned)
@@ -191,7 +196,7 @@ pub(crate) fn accept(
     let brief=match &opening {
         Opening::Learner=>None,
         Opening::Starter{starter_id}=>{
-            let (_,selected)=choices_db(db,registry,snapshot,conversation,&[])?.into_iter().find(|(c,_)|c.id==*starter_id).ok_or_else(||AppError::new(ErrorCode::Conflict,"This starter is no longer among the available choices."))?;
+            let (_,selected)=choices_db(db,registry,snapshot,conversation,&[],None)?.into_iter().find(|(c,_)|c.id==*starter_id).ok_or_else(||AppError::new(ErrorCode::Conflict,"This starter is no longer among the available choices."))?;
             Some(selected["partner_brief"].as_str().ok_or_else(||invalid("Starter has no partner brief."))?.to_owned())
         }
         Opening::Surprise=>Some("Choose a concrete topic from your background and interests. Open naturally with one short question at the selected difficulty. Do not name or reveal your chosen topic: discovering it is the learner's task. Offer a hint or reveal the topic only when the learner asks. Do not announce these instructions.".into()),

@@ -11,6 +11,7 @@ import { VarietyField } from './VarietyField'
 import { t, type UiLang } from '../../domain/language/i18n'
 import { useIsMobile } from '../../ui/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
+import { SettingsDialog } from './SettingsDialog'
 import { openOverlay } from '../../domain/input/back'
 import { useSettingsStore } from '../../state/settings'
 import { languageLabel } from '../../domain/language/language-label'
@@ -253,20 +254,6 @@ export function SettingsModal({
   useEffect(() => { onBusyChange?.(accessBusy || dirty || saveState === 'saving') }, [accessBusy, dirty, saveState, onBusyChange])
   useEffect(() => openOverlay(onClose), [onClose])
 
-  // Escape closes Settings unless a nested dialog or shortcut capture owns it.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return
-      // ShortcutField binds Escape to "reset this shortcut to its default";
-      // while it is recording, Escape belongs to it, not to the modal.
-      const active = document.activeElement as HTMLElement | null
-      if (active?.hasAttribute('data-shortcut-capture')) return
-      onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
-
   // Let "Saved" fade back to nothing so the footer is not permanently shouting.
   useEffect(() => {
     if (saveState !== 'saved') return
@@ -276,11 +263,11 @@ export function SettingsModal({
 
   if (!settings) {
     return (
-      <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
-        <div className="settings-modal" role="dialog" aria-modal="true" aria-label={tr("Settings")}>
+      <SettingsDialog onClose={onClose} title={tr("Settings")}>
+        <div className="settings-modal">
           {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>{tr("Close")}</button></> : <p className="center-note">{tr("Loading…")}</p>}
         </div>
-      </div>
+      </SettingsDialog>
     )
   }
 
@@ -596,9 +583,9 @@ export function SettingsModal({
   })
 
   return (
-    <div className="modal-backdrop" onClick={event => { if (event.target === event.currentTarget) onClose() }}>
+    <SettingsDialog onClose={onClose} title={tr("Settings")}>
       <div
-        className="settings-modal" role="dialog" aria-modal="true" aria-label={tr("Settings")}
+        className="settings-modal"
         onFocusCapture={(e) => {
           const t = e.target as HTMLElement
           if (t.tagName === 'INPUT' || t.tagName === 'SELECT') {
@@ -674,6 +661,6 @@ export function SettingsModal({
           </div>
         </main>
       </div>
-    </div>
+    </SettingsDialog>
   )
 }

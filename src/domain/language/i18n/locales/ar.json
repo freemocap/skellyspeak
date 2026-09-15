@@ -824,5 +824,19 @@
   "Policy": "السياسة",
   "Less": "أقل",
   "Word spacing": "تباعد الكلمات",
-  "Show word and message translations": "عرض ترجمة الكلمات والرسائل"
+  "Show word and message translations": "عرض ترجمة الكلمات والرسائل",
+  "Conversation updates stopped.": "توقفت تحديثات المحادثة.",
+  "Retry reading conversation": "إعادة محاولة تحميل المحادثة",
+  "Loading older messages…": "جارٍ تحميل الرسائل السابقة…",
+  "Load older messages": "تحميل الرسائل السابقة",
+  "Partner reply failed.": "فشل رد الشريك.",
+  "Partner reply outcome is unknown. Retrying may repeat provider work and charges.": "نتيجة رد الشريك غير معروفة. قد تؤدي إعادة المحاولة إلى تكرار عمل المزود والرسوم.",
+  "Partner reply was cancelled. Send a new message to continue.": "أُلغي رد الشريك. أرسل رسالة جديدة للمتابعة.",
+  "Partner reply is held.": "رد الشريك معلّق.",
+  "Partner reply is paused.": "رد الشريك متوقف مؤقتًا.",
+  "Partner reply is unavailable.": "رد الشريك غير متاح.",
+  "Retry exchange": "إعادة محاولة التبادل",
+  "Resume exchange": "استئناف التبادل",
+  "Saved credential cleanup failed.": "فشل تنظيف بيانات الاعتماد المحفوظة.",
+  "Retry credential cleanup": "إعادة محاولة تنظيف بيانات الاعتماد"
 }

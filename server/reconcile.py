@@ -48,7 +48,7 @@ def settle(db: firestore.Client, *, user_id: str, request_id: str, api_key: str)
     actual, tokens = receipt(response.json(), provider_id=provider_id)
     budget.settle(db, reservation=budget.Reservation(user_id=user_id, request_id=request_id,
                   day=stored["day"], micros=stored["reserved_micros"]), actual_micros=actual,
-                  tokens=tokens, status="settled", provider_id=provider_id)
+                  tokens=tokens, status="settled", provider_id=provider_id, allow_expired_ledgers=True)
 
 
 def main() -> None:

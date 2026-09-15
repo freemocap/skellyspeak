@@ -24,7 +24,10 @@ def groq_payload(payload: dict) -> dict:
     result.pop("reasoning", None)
     result["max_completion_tokens"] = result.pop("max_tokens")
     result["reasoning_effort"] = "low"
-    schema = result.get("response_format", {}).get("json_schema", {}).get("schema", {})
+    output = result.get("response_format", {}).get("json_schema", {})
+    if output.get("name") != "word_gloss_v1":
+        return result
+    schema = output.get("schema", {})
     variants = schema.get("properties", {}).get("spans", {}).get("items", {}).get("oneOf")
     if variants is not None:
         if len(variants) != 2 or sorted(v.get("properties", {}).get("kind", {}).get("enum", []) for v in variants) != [["gloss"], ["literal"]]:

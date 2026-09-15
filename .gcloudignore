@@ -1,5 +1,6 @@
 *
 !server/
+server/*
 !server/main.py
 !server/config.py
 !server/auth.py
@@ -7,6 +8,7 @@
 !server/admission.py
 !server/work_admission.py
 !server/grouped.py
+!server/model_routing.py
 !server/quota.py
 !server/budget.py
 !server/transactions.py

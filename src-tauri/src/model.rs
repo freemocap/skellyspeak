@@ -483,6 +483,8 @@ pub struct StartupState {
     /// Set when directories a previous reset recorded still could not be cleared.
     /// The app is usable; that leftover data is not cleared.
     pub cleanup: Option<AppError>,
+    // A stale keychain entry still needs deletion. The healthy workspace remains usable.
+    pub credential_cleanup: Option<AppError>,
 }
 
 /// The limits the persona editor validates against, generated so the frontend

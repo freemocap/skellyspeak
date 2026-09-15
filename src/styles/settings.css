@@ -327,3 +327,10 @@
   gap: var(--space-3) var(--space-7);
   font-size: var(--text-sm);
 }
+
+/* Full viewport native modal retains the existing safe-area panel layout. */
+.settings-dialog {
+  width: 100%; height: 100%; max-width: none; max-height: none;
+  margin: 0; border: 0; color: var(--shell-text);
+}
+.settings-dialog::backdrop { background: transparent; }

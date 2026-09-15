@@ -180,7 +180,7 @@ async def test_partial_failure_keeps_unknown_lease_without_blocking_sibling(prox
     response = await proxy.post("/v1/operations", json=envelope())
     assert "private upstream content" not in response.text + caplog.text
     diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
-    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 502, "upstream_status": 502, "category": "http"}
+    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 502, "upstream_status": 502, "category": "http", "request_id": response.headers["x-request-id"], "item_index": 0, "code": "OPENROUTER_HTTP_502", "exception_type": "UpstreamHTTPError"}
     events = [json.loads(line) for line in response.text.splitlines()]
     assert sorted(e["type"] for e in events) == ["complete", "error", "result"]
     assert next(e for e in events if e["type"] == "error")["status"] == 502
@@ -249,4 +249,28 @@ async def test_internal_failure_diagnostic_never_logs_exception_text(proxy, monk
     failure = next(json.loads(line) for line in response.text.splitlines() if json.loads(line)["type"] == "error")
     assert failure["status"] == 500
     diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
-    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 500, "upstream_status": None, "category": "internal"}
+    assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 500, "upstream_status": None, "category": "internal", "request_id": response.headers["x-request-id"], "item_index": 0, "code": "UNKNOWN_OUTCOME", "exception_type": "ValueError"}
+
+
+@pytest.mark.asyncio
+async def test_concurrent_groups_correlate_failure_and_finish_without_client_data(proxy, monkeypatch, caplog):
+    import logging
+    caplog.set_level(logging.INFO, logger='skellyspeak.operations')
+    caplog.set_level(logging.INFO, logger='skellyspeak.requests')
+    upstream(monkeypatch, lambda request: httpx.Response(422, text='PRIVATE_PROVIDER_BODY'))
+    requests = [envelope(1), envelope(1)]
+    requests[1]['items'][0]['attempt_id'] = requests[1]['items'][0]['attempt_id'][:-1] + 'a'
+    responses = await asyncio.gather(*(proxy.post('/v1/operations', json=request,
+        headers={'X-Request-ID': 'PRIVATE_CLIENT_REQUEST_ID'}) for request in requests))
+    ids = {response.headers['x-request-id'] for response in responses}
+    assert len(ids) == 2
+    rows = [json.loads(record.message) for record in caplog.records if record.name == 'skellyspeak.operations']
+    for request_id in ids:
+        related = [row for row in rows if row['request_id'] == request_id]
+        failure = next(row for row in related if row['event'] == 'operation_failure')
+        assert failure['item_index'] == 0 and failure['code'] == 'OPENROUTER_HTTP_422'
+        assert failure['exception_type'] == 'UpstreamHTTPError'
+        finished = next(row for row in related if row['event'] == 'group_finished')
+        assert finished == {'event': 'group_finished', 'request_id': request_id,
+            'item_count': 1, 'delivered': 1, 'failures': 1, 'complete': True}
+    assert 'PRIVATE_' not in caplog.text

@@ -70,6 +70,7 @@ struct Application {
     refusal: Mutex<Option<AppError>>,
     /// A cleanup a previous reset recorded that this launch could not finish.
     cleanup: Mutex<Option<AppError>>,
+    credential_cleanup: Mutex<Option<AppError>>,
     credential_operations: Mutex<()>,
     fatal: Mutex<Option<AppError>>,
     signing_in: tokio::sync::Mutex<()>,
@@ -104,6 +105,7 @@ impl Application {
             store: Mutex::new(store),
             refusal: Mutex::new(refusal),
             cleanup: Mutex::new(cleanup),
+            credential_cleanup: Mutex::new(None),
             credential_operations: Mutex::new(()),
             fatal: Mutex::new(None),
             signing_in: tokio::sync::Mutex::new(()),
@@ -117,6 +119,11 @@ impl Application {
         StartupState {
             refusal: self.refusal(),
             cleanup: self.cleanup.lock().ok().and_then(|value| value.clone()),
+            credential_cleanup: self
+                .credential_cleanup
+                .lock()
+                .ok()
+                .and_then(|value| value.clone()),
         }
     }
     fn lock(&self) -> Result<StoreGuard<'_>> {
@@ -150,6 +157,19 @@ impl Application {
     }
     fn clean_credentials(&self) -> Result<()> {
         self.clean_credentials_with(credentials::remove)
+    }
+    fn recover_credential_cleanup_with(
+        &self,
+        remove: impl Fn(&str) -> Result<()>,
+    ) -> Result<StartupState> {
+        let _operation = self.credential_operation()?;
+        let error = match self.clean_credentials_with(remove) {
+            Ok(()) => None,
+            Err(error) if error.code == ErrorCode::Credential => Some(error),
+            Err(error) => return Err(error),
+        };
+        *self.credential_cleanup.lock().map_err(|_| internal())? = error;
+        Ok(self.startup_state())
     }
     fn write_credential_with<T>(
         &self,
@@ -190,6 +210,17 @@ fn internal() -> AppError {
 #[tauri::command]
 fn get_startup_state(state: tauri::State<'_, Arc<Application>>) -> StartupState {
     state.startup_state()
+}
+#[tauri::command]
+async fn retry_credential_cleanup(
+    state: tauri::State<'_, Arc<Application>>,
+) -> Result<StartupState> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        state.recover_credential_cleanup_with(credentials::remove)
+    })
+    .await
+    .map_err(|_| internal())?
 }
 #[tauri::command]
 fn get_snapshot(state: tauri::State<'_, Arc<Application>>) -> Result<Snapshot> {
@@ -500,10 +531,12 @@ async fn watch_conversation(
 ) -> Result<ConversationSnapshot> {
     let deadline = tokio::time::Instant::now() + Duration::from_secs(20);
     loop {
-        let snapshot = state
-            .lock()?
-            .conversation_snapshot(&conversation_id, before)?;
-        if snapshot.revision > after_revision || tokio::time::Instant::now() >= deadline {
+        if let Some(snapshot) = state.lock()?.conversation_snapshot_since(
+            &conversation_id,
+            before,
+            after_revision,
+            tokio::time::Instant::now() >= deadline,
+        )? {
             return Ok(snapshot);
         }
         tokio::time::sleep(Duration::from_millis(150)).await;
@@ -1207,7 +1240,7 @@ pub fn run() {
             // A refused workspace has nothing to clean or prepare; the window still
             // opens, the reason reaches the screen, and the reset stays reachable.
             if state.refusal().is_none() {
-                state.clean_credentials()?;
+                state.recover_credential_cleanup_with(credentials::remove)?;
                 state.lock()?.prepare_chat()?;
             }
             app.manage(state.clone());
@@ -1227,6 +1260,7 @@ pub fn run() {
             factory_reset::factory_reset,
             factory_reset::export_workspace,
             get_startup_state,
+            retry_credential_cleanup,
             get_snapshot,
             execute_command,
             access::get_access_settings,
@@ -1277,6 +1311,62 @@ mod credential_io_tests {
         let app = Application::start(path, None);
         assert!(app.refusal().is_none(), "the fixture workspace must open");
         app
+    }
+
+    #[test]
+    fn audit_stale_credential_cleanup_is_recoverable_without_blocking_store() {
+        let directory = tempfile::tempdir().unwrap();
+        let app = application(&directory.path().join("skellyspeak.sqlite3"));
+        app.lock()
+            .unwrap()
+            .connection
+            .execute("INSERT INTO credential_cleanup(id) VALUES('stale')", [])
+            .unwrap();
+        let denied = || AppError::new(ErrorCode::Credential, "Fixture keychain denied");
+        let status = app
+            .recover_credential_cleanup_with(|_| Err(denied()))
+            .unwrap();
+        assert!(status.refusal.is_none());
+        assert_eq!(
+            status.credential_cleanup.unwrap().message,
+            "Fixture keychain denied"
+        );
+        app.lock().unwrap().prepare_chat().unwrap();
+        assert!(
+            !app.lock()
+                .unwrap()
+                .snapshot()
+                .unwrap()
+                .conversations
+                .is_empty()
+        );
+        assert_eq!(
+            app.lock()
+                .unwrap()
+                .connection
+                .query_row("SELECT count(*) FROM credential_cleanup", [], |r| r
+                    .get::<_, i32>(0))
+                .unwrap(),
+            1
+        );
+        let status = app
+            .recover_credential_cleanup_with(|id| {
+                assert_eq!(id, "stale");
+                Ok(())
+            })
+            .unwrap();
+        assert!(status.credential_cleanup.is_none());
+        assert_eq!(
+            app.lock()
+                .unwrap()
+                .connection
+                .query_row("SELECT count(*) FROM credential_cleanup", [], |r| r
+                    .get::<_, i32>(0))
+                .unwrap(),
+            0
+        );
+        app.recover_credential_cleanup_with(|_| panic!("Successful cleanup must not repeat"))
+            .unwrap();
     }
 
     /// An older workspace is refused by design; the application must survive it so

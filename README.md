@@ -4,8 +4,8 @@ A convivial tool for learning languages through welcoming conversations,
 useful assistance and understandable progress.
 
 This checkout is the application: the React/TypeScript interface, the Tauri Rust core
-and the optional hosted service. [The build plan](BUILD-PLAN.md) tracks phases and
-checkpoints; [release recovery](RELEASE-RECOVERY-PLAN.md) records how the earlier
+and the optional hosted service. [The build plan](notes/BUILD-PLAN.md) tracks phases and
+checkpoints; [release recovery](notes/RELEASE-RECOVERY-PLAN.md) records how the earlier
 published release was recovered.
 
 **Current source implementation: immediate chat, recording/transcription and speech
@@ -236,7 +236,7 @@ identifier `com.freemocap.skellyspeak`, as configured in `src-tauri/tauri.conf.j
 and `src-tauri/tauri.release.conf.json`. On macOS this is
 `~/Library/Application Support/com.freemocap.skellyspeak/`. No application data is
 synchronized. Send transmits selected context through the selected hosted or own-key route;
-see [privacy and data flow](./privacy.md).
+see [privacy and data flow](notes/privacy.md).
 
 ## Verification
 
@@ -292,7 +292,7 @@ other devices and providers still require capability-specific checks.
 Hosted deployment passed its test, container and exact-revision traffic checks,
 and the user confirmed hosted chat works. The client preserves documented
 rate/allowance/spending-pause reasons and request IDs. See the
-[security audit](SECURITY-AUDIT.md) for additional local hardening and remaining
+[security audit](notes/SECURITY-AUDIT.md) for additional local hardening and remaining
 repository/cloud checks; source changes require deployment or native restart.
 
 The signed macOS development launcher passed local build, bundle/signature
@@ -308,17 +308,17 @@ Windows, Linux and Android builds remain unverified.
 
 ## Architecture and roadmap
 
-[Implemented architecture](./architecture.md) records ownership and tooling.
-[AI request architecture](./AI-ARCHITECTURE.md) is a practical companion guide to
+[Implemented architecture](notes/architecture.md) records ownership and tooling.
+[AI request architecture](notes/AI-ARCHITECTURE.md) is a practical companion guide to
 chat messages, structured results, routes, and operation workflows.
-[The build plan](./BUILD-PLAN.md) tracks phases and user checkpoints.
-[The design brief](./DESIGN.md), [data model](./DATA-MODEL.md),
-[execution contract](./EXECUTION.md), [AI strategy](./AI-STRATEGY.md),
-[state/storage contract](./STATE-AND-STORAGE.md) and
-[model evaluation plan](./AI-EVALUATION.md) define the approved direction and
+[The build plan](notes/BUILD-PLAN.md) tracks phases and user checkpoints.
+[The design brief](notes/DESIGN.md), [data model](notes/DATA-MODEL.md),
+[execution contract](notes/EXECUTION.md), [AI strategy](notes/AI-STRATEGY.md),
+[state/storage contract](notes/STATE-AND-STORAGE.md) and
+[model evaluation plan](notes/AI-EVALUATION.md) define the approved direction and
 remaining work. Design intent does not imply implemented behavior.
 
-[Working rules](./AGENTS.md) and [UI rules](./ui-guidelines.md) govern development.
+[Working rules](./AGENTS.md) and [UI rules](notes/ui-guidelines.md) govern development.
 `old/` is reference-only and is excluded from active tests and builds.
 
 ## Hosted service development
@@ -351,7 +351,7 @@ all seven local Firestore emulator tests passed. Recheck the native development
 session when resuming this branch; no new runtime check is implied by this summary.
 
 Saved API keys remain in the platform credential store; no session-only or plain-file
-storage option was added. See [credential decisions and sources](SECURITY.md).
+storage option was added. See [credential decisions and sources](notes/SECURITY.md).
 Direct-key and Custom URL chat were user-verified. Groq-specific inference and
 microphone permission still need capability-specific verification. Restart the
 signed native development app after Rust changes; frontend reload alone is insufficient.

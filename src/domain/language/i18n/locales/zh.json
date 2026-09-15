@@ -824,5 +824,19 @@
   "Policy": "规则",
   "Less": "收起",
   "Word spacing": "词间距",
-  "Show word and message translations": "显示词语和消息翻译"
+  "Show word and message translations": "显示词语和消息翻译",
+  "Conversation updates stopped.": "会话更新已停止。",
+  "Retry reading conversation": "重试加载会话",
+  "Loading older messages…": "正在加载较早的消息…",
+  "Load older messages": "加载较早的消息",
+  "Partner reply failed.": "伙伴回复失败。",
+  "Partner reply outcome is unknown. Retrying may repeat provider work and charges.": "伙伴回复结果未知。重试可能重复提供商的处理和收费。",
+  "Partner reply was cancelled. Send a new message to continue.": "伙伴回复已取消。请发送新消息以继续。",
+  "Partner reply is held.": "伙伴回复已暂缓。",
+  "Partner reply is paused.": "伙伴回复已暂停。",
+  "Partner reply is unavailable.": "伙伴回复不可用。",
+  "Retry exchange": "重试对话",
+  "Resume exchange": "继续对话",
+  "Saved credential cleanup failed.": "清理已保存的凭据失败。",
+  "Retry credential cleanup": "重试清理凭据"
 }

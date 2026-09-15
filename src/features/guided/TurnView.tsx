@@ -1,3 +1,4 @@
+import { ActivityIndicator } from '../../ui/ActivityIndicator'
 import { useI18n } from '../../ui/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
 import { anchoredTokenGlosses, hasArabicScript } from '../../domain/language/gloss-display'
@@ -8,7 +9,7 @@ import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from '../../ui/TargetText'
 import { TokenSpan } from '../../ui/TokenSpan'
 import { RewardInspectionContext } from './RewardInspectionContext'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { ReplyStatus } from './ReplyStatus'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { PracticeContext } from './PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../domain/skills/message-evidence'
@@ -22,6 +23,7 @@ import { groupSentences, splitSentences } from '../../domain/language/sentences'
 import { sourceToken } from '../../domain/language/source-token'
 
 export interface TurnShape {
+  replyState?: import('../../domain/language/reply-state').ReplyState
   turnId?: string
   replacedBy?: string | null
   userSavedGloss?: import('../../contracts').WordGlossView | null
@@ -78,6 +80,8 @@ export interface TurnViewProps {
   onToggleReveal: (keys: string[]) => void
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
+  onReplyControl?: (control: 'retry' | 'resume') => Promise<void>
+  onActivity?: () => void
   onRetryHelp?: () => Promise<void>
   onRetryGloss?: (operationId: string) => Promise<void>
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
@@ -114,6 +118,8 @@ export const TurnView = memo(function TurnView({
   editDisabled,
   onRetryGloss,
   onRetryHelp,
+  onReplyControl,
+  onActivity,
 }: TurnViewProps) {
   const tr = useI18n()
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -363,7 +369,7 @@ export const TurnView = memo(function TurnView({
         </div>
       )}
       {assistant === null && (
-        <div className="msg bot pending">{turn.pendingText}<ActivityIndicator compact label={turn.pendingText ? tr("Replying…") : tr("Thinking…")} /></div>
+        <ReplyStatus reply={turn.replyState} onControl={onReplyControl} onActivity={onActivity} />
       )}
     </div>
   )

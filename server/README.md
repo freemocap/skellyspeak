@@ -15,10 +15,10 @@ Signed-session short-window admission has two lanes per process:
 
 | Lane | Per subject/minute | Per process/minute |
 | --- | ---: | ---: |
-| Chat and transcription | 60 | 240 |
+| Chat and transcription | 600 | 2,400 |
 | Account status and diagnostics | 30 | 60 |
 
-A combined 300/minute ceiling remains, with at most 128 active subject windows.
+A combined 2,460/minute ceiling remains, with at most 128 active subject windows.
 An inference flood cannot consume the control lane's reserved capacity. Identity
 storage exhaustion or infrastructure saturation can still prevent diagnostics;
 these process-local gates are not distributed in-flight admission. Anonymous
@@ -69,7 +69,7 @@ It also builds the container, checks liveness and unauthenticated rejection befo
 deploying. The runtime image includes an explicit list of application modules;
 local secrets, tests and administrative scripts are not included.
 
-The user pushes changes. `.github/workflows/deploy-server.yml` runs on main for
+`.github/workflows/deploy-server.yml` runs on main for
 server changes or manual dispatch, using configured Workload Identity Federation.
 `gcloud beta builds submit` surfaces build output from Cloud Logging. Build helpers
 are digest-pinned. `deploy_candidate.py` resolves the pushed image to an immutable
@@ -83,6 +83,12 @@ The workflow also checks that unauthenticated diagnostics return 401.
 No production deployment or counter reset is performed by local tests. A green
 workflow must be followed by an authenticated diagnostic check and one hosted chat.
 
+Before any root-level Cloud Build submission, run `python server/check_upload_manifest.py`
+with gcloud installed. It checks the actual gcloud upload manifest using harmless
+private-file sentinels and a temporary CLI config; it does not upload or authenticate.
+Both `.gcloudignore` (source archive) and `server/.dockerignore` (container context)
+must include runtime/build inputs and exclude credentials, tokens, tests and tooling.
+
 ## Local review result
 
 Security regression coverage includes unauthenticated/invalid-token denial before
@@ -91,10 +97,11 @@ account-scoped reports, read-only snapshots, secret-free error/log output, disti
 budget codes and deployment metadata redaction. No separate GitHub probe workflow,
 GCS report bucket or diagnostic service account is added.
 
-Local verification for deployment/admission hardening: 162 server tests pass.
-The Firestore emulator tests and Docker container startup remain CI gates and
-were not run locally. Live IAM, logging policy, candidate startup and hosted inference
-still need verification. See [the focused review](../SERVER-REVIEW.md) for findings,
+Historical verification for the earlier deployment/admission hardening pass: 162
+server tests passed.
+The Firestore emulator tests and Docker container startup remained CI gates and
+were not run locally in that pass. Live IAM, logging policy, candidate startup and hosted inference
+still need verification. See [the focused review](../notes/SERVER-REVIEW.md) for findings,
 remaining operational checks and supporting Google/OWASP guidance.
 
 ## Grouped-work admission module
@@ -102,7 +109,7 @@ remaining operational checks and supporting Google/OWASP guidance.
 `POST /v1/operations` uses account-scoped transactional claims after authenticated
 per-item infrastructure admission and before spending reservation/provider dispatch.
 The native hosted scheduler groups ready operations for this endpoint, saving
-individual results as they arrive. Custom URL integration remains unfinished. Chat-completion and audio
+individual results as they arrive. Custom URL supports the grouped protocol after its connection check. Chat-completion and audio
 routes do not use these claims; complete client/protocol integration before treating
 duplicate protection as a property of every app request.
 
@@ -115,7 +122,7 @@ duplicates return state without an owner token or permission to dispatch. Reusin
 an identity with a different fingerprint is a conflict. No result text is retained
 in these admission receipts; duplicate success does not imply result recovery.
 
-One account may hold eight leases across server instances. Leases expire after five
+One account may hold 64 leases across server instances. Leases expire after five
 minutes. Grouped execution enforces a 180-second work deadline and checks that a full
 work deadline fits inside the lease after spending reservation, before dispatch.
 No transaction remains open during inference. A known terminal outcome releases its
@@ -126,7 +133,7 @@ Receipts contain fingerprint, internal ownership token, state, expiry and a TTL
 24 hours after the timestamp embedded in the identity. Deployment provisions and verifies Firestore TTL for
 `work_attempts.ttl` before promoting the service. TTL is cleanup, not deduplication
 correctness: the immutable submission window rejects the same expired identity even
-if its receipt has been deleted. Account slot records contain at most eight active
+if its receipt has been deleted. Account slot records contain at most 64 active
 identities when claimed. No prompts, results, API keys or endpoint URLs are stored
 or logged by this module. Existing daily admission must bound receipt creation per
 item; batching must not debit it once per envelope.
@@ -135,7 +142,7 @@ Fake-ledger tests cover ownership, capacity, account scope, fingerprint conflict
 uncertain outcomes, expiry and late/duplicate completion. The cross-process test in
 `test_firestore.py` requires the explicitly enabled local emulator; it is not a
 verified Cloud Run result. Grouped execution shields spending settlement and claim completion during cancellation.
-Native client and self-hosted authentication integration remain required work.
+Native client grouped integration is implemented; full live-provider and disconnect QA remains separate from these fake-ledger tests.
 
 ### Grouped HTTP contract
 
@@ -143,8 +150,8 @@ The authenticated POST body has exactly `version: 1` and `items` (1–8), capped
 1 MiB for the whole envelope. Each item has `operation_id` (32 lowercase hex),
 `attempt_id` (the timestamped identity above) and `request` (the validated text-chat
 payload). Operation and attempt identities must be unique within the envelope.
-This endpoint currently supports Gemini text chat only, with provider token
-streaming disabled. Audio is not encoded in these JSON groups.
+This endpoint supports non-streaming text chat; GPT-OSS uses Groq and other
+text model IDs use OpenRouter under the price ceilings documented below. Audio is not encoded in these JSON groups.
 
 Responses are newline-delimited JSON (`application/x-ndjson`). Each item independently
 produces an event containing its operation/attempt identities and one of:
@@ -230,7 +237,7 @@ Use these Custom URL settings in the native app:
 - Authentication: Bearer session token
 - Token: the contents of `server/.local-server/session-token.txt`
 - Standard model: `google/gemini-2.5-flash`
-- Fast model: `google/gemini-2.5-flash` (fast task routing is unassigned)
+- Fast model: `google/gemini-2.5-flash-lite`
 - Transcription model, when enabled: `whisper-large-v3`
 
 A session token is generated through the server's normal signing code for the
@@ -278,11 +285,15 @@ request and spending controls. Existing registrations can still check in at the
 ceiling. Registration is performed by `/v1/me` after authentication; a 409 there
 can therefore follow successful authentication.
 
-Grouped item failures emit `operation_failure` log records with HTTP status,
-optional bounded upstream HTTP status and a fixed `http`/`internal` category.
+Grouped item failures emit `operation_failure` log records with the server-generated
+request ID, zero-based item index, allowlisted error code and exception class, HTTP
+status, optional bounded upstream status and a fixed `http`/`internal` category.
 These records omit bodies, URLs, identities, exception messages and tracebacks.
 The outer streaming request may return 200 while an item fails; inspect item
-records when diagnosing grouped requests. Unknown-usage settlement retains its
+records by request ID when diagnosing grouped requests. A correlated `group_finished`
+record reports item count, delivered outcomes, errors and whether iteration completed;
+it does not prove receipt by the client. Local private logs preserve the same safe
+correlation fields. Unknown-usage settlement retains its
 conservative reservation without replacing an existing upstream error. Storage
 settlement failures remain failures.
 
@@ -326,7 +337,30 @@ Source tests use controlled provider responses; deployment and a real hosted cha
 are separate verification steps. Both server deployment and an app rebuild are
 needed for the complete behavior and improved error messages.
 
-Local verification (September 14, 2026): 259 server tests passed; seven Firestore
+Pre-audit model-routing verification (September 14, 2026): 259 server tests passed; seven Firestore
 emulator tests skipped. Native suite: 348 passed, one ignored. Rust formatting,
 Clippy with warnings denied, and diff whitespace checks passed. Container source
 inclusion is tested; Docker image startup and real provider execution were not run.
+
+## Reservation preparation and historical reconciliation
+
+Grouped provider adaptation and JSON serialization checks run before money is reserved.
+Invalid preparation fails its item without a charge or retained lease. Groq's source
+endpoint relaxation applies only to the named `word_gloss_v1` schema; unrelated schemas
+with a `spans` field are forwarded unchanged. Once provider submission starts, unknown
+usage retains the conservative reservation as before.
+
+Unresolved reservations do not expire; daily usage ledgers retain their 90-day TTL.
+`reconcile.py settle` verifies the OpenRouter receipt before settlement. If daily
+ledgers have already expired, reconciliation can explicitly finalize a reservation
+only after its UTC day plus 91 days. It corrects any surviving historical aggregate,
+never recreates a deleted one, marks the reservation `historical_finalization: true`,
+and gives that settled record the normal retention TTL. Ordinary settlement still
+refuses missing ledgers, as does reconciliation before the retention boundary.
+A verified price-ceiling overage still pauses spending even in historical finalization.
+Groq outcomes or refusals without an OpenRouter generation ID remain manual
+investigation work; this command does not infer a zero provider charge.
+
+Audit repair verification (September 14, 2026): 272 server tests passed; seven
+Firestore emulator tests skipped. The actual gcloud manifest sentinel check passed.
+These checks do not deploy, test live provider billing, or exercise Cloud Run.

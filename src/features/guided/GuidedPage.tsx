@@ -50,6 +50,7 @@ import { PartnersRail } from './PartnersRail'
 import { ChatHistory } from './ChatHistory'
 import { latestAnswered } from '../../domain/language/turns'
 import { useConversation } from './useConversation'
+import { useConversationScroll } from './useConversationScroll'
 import { useWordInspection } from './useWordInspection'
 import { useMicRecorder } from './useMicRecorder'
 import { usePersistentToggle } from '../../ui/usePersistentToggle'
@@ -194,7 +195,9 @@ export default function GuidedPage({
     removeChat,
     sendMessage,
     pendingReply,
+    replyActive,
     snapshotRevision,
+    readError, retryRead, olderError, loadingOlder, loadOlder,
     snapshot,
   } = useConversation({
     settings,
@@ -205,7 +208,6 @@ export default function GuidedPage({
   const selectedChatRef = useRef(currentChatId)
   selectedChatRef.current = currentChatId
   const details = useConversationDetails(currentChatId, snapshotRevision)
-  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
   const [creatingConversation, setCreatingConversation] = useState(false)
   const creatingContactConversation = useRef(false)
   const [contactError, setContactError] = useState<string | null>(null)
@@ -216,7 +218,7 @@ export default function GuidedPage({
       ? [{ id: contact.id, name: personaName(persona.details), symbol: persona.details.vibe[0] }]
       : []
   })
-  const activeContactId = selectedContactId ?? details.contact?.id ?? contactChoices[0]?.id ?? ''
+  const activeContactId = details.contact?.id ?? ''
   const contactChats = chats.filter(chat => details.directory?.conversations.some(item => item.id === chat.id && item.contactId === activeContactId))
   async function createContactConversation(contactId: string) {
     if (creatingContactConversation.current) return
@@ -231,7 +233,13 @@ export default function GuidedPage({
     if (contactId === activeContactId || creatingContactConversation.current) return
     const conversations = (details.directory?.conversations ?? []).filter(item => item.contactId === contactId && !item.archived)
     const recent = conversations.sort((a, b) => b.lastUsed - a.lastUsed)[0]
-    if (recent) { setSelectedContactId(contactId); await openChat(recent.id); return }
+    if (recent) {
+      creatingContactConversation.current = true; setCreatingConversation(true); setContactError(null)
+      try { await details.beforeSend(); await openChat(recent.id) }
+      catch (reason) { setContactError(nativeError(reason)) }
+      finally { creatingContactConversation.current = false; setCreatingConversation(false) }
+      return
+    }
     await createContactConversation(contactId)
   }
   async function createPersona(next: PersonaDetails) {
@@ -271,10 +279,7 @@ export default function GuidedPage({
     void useSettingsStore.getState().load().catch((error: unknown) => reportFault('Loading settings', error))
   }, [currentChatId])
 
-  useEffect(() => {
-    const el = streamRef.current
-    if (el) el.scrollTop = turns.length ? el.scrollHeight : 0
-  }, [turns])
+  const onStreamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns)
 
   const isMobile = useIsMobile()
   const [exportOpen, setExportOpen] = useState(false)
@@ -452,7 +457,7 @@ export default function GuidedPage({
   const toggleMic = () => { speech.stop(); void mic.toggleMic() }
   toggleMicRef.current = toggleMic
 
-  const aiBusy = pendingReply
+  const aiBusy = replyActive
 
   useEffect(() => { if (words.inspect) setAnalysisOpen(true) }, [words.inspect])
 
@@ -472,7 +477,7 @@ export default function GuidedPage({
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
           } : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
+            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
           </div>
           {mic.recording && mic.waveSource && (
             <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} />
@@ -579,7 +584,10 @@ export default function GuidedPage({
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
-        <div className="stream" ref={streamRef}>
+        <div className="stream" ref={streamRef} onScroll={onStreamScroll}>
+          {readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
+          {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}
+          {olderError && <p role="alert">{olderError}</p>}
           {turns.length === 0 && !error && !sending && connection?.configured === false ? (
             <div className="access-start">
               <p>{tr("You’re not signed in.")}</p>
@@ -593,6 +601,8 @@ export default function GuidedPage({
           {activeTurns.map((turn) => (
             <Fragment key={turn.turnId}><TurnView
               turn={turn}
+              onActivity={() => useNavigationStore.getState().showOverlay('activity')}
+              onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
               onAskCoach={setCoachDraft}

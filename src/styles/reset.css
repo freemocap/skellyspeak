@@ -20,7 +20,7 @@ button, input, select { touch-action: manipulation; }
   outline-offset: 3px;
 }
 
-.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: var(--brand-line); }
+.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: var(--focus-accent); }
 
 input::placeholder, textarea::placeholder { color: var(--shell-text-muted); opacity: 1; }
 

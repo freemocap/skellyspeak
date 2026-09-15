@@ -6,6 +6,7 @@ import App from './App'
 import DevWindow from './DevWindow'
 import { isTauri, invoke, loadLanguages } from './platform/ipc/tauri'
 import type { AppError, StartupState } from './contracts'
+import { useCredentialCleanup } from './features/startup/CredentialCleanup'
 import { StartupRefusal } from './features/startup/StartupRefusal'
 import './styles/index.css'
 import { installNativePlaybackLifecycle, installPlaybackLifecycle } from './platform/playback-lifecycle'
@@ -56,6 +57,7 @@ async function start() {
     if (startup.refusal) { mountRefusal(startup.refusal); return }
     // A reset that could not finish clearing is reported rather than discarded.
     if (startup.cleanup) reportFault('Finishing the factory reset', new Error(startup.cleanup.message))
+    useCredentialCleanup.setState({ error: startup.credentialCleanup })
     await loadLanguages()
     await initStores()
   }

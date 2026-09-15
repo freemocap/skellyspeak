@@ -42,6 +42,8 @@ const SETTINGS: Settings = {
 }
 
 beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
   vi.clearAllMocks()
   backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '' })
   backend.saveSettings.mockResolvedValue(undefined)
@@ -80,7 +82,7 @@ it('dismisses on the backdrop but keeps settings open for clicks inside', async 
   const search = await screen.findByLabelText('Search settings')
   fireEvent.click(search)
   expect(close).not.toHaveBeenCalled()
-  fireEvent.click(view.container.querySelector('.modal-backdrop')!)
+  fireEvent.click(view.baseElement.querySelector('.modal-backdrop')!)
   expect(close).toHaveBeenCalledOnce()
 })
 
@@ -98,12 +100,12 @@ it('groups mobile settings into collapsible sections and searches inside closed 
   try {
     const view = render(<SettingsModal onClose={vi.fn()} />)
     await screen.findByLabelText('Search settings')
-    const groups = view.container.querySelectorAll('details.settings-section')
+    const groups = view.baseElement.querySelectorAll('details.settings-section')
     expect(groups.length).toBeGreaterThan(1)
     expect(groups[0]).toHaveAttribute('open')
     expect(groups[1]).not.toHaveAttribute('open')
     fireEvent.change(screen.getByLabelText('Search settings'), { target: { value: 'microphone' } })
-    expect(view.container.querySelector('details.settings-section')).toBeNull()
+    expect(view.baseElement.querySelector('details.settings-section')).toBeNull()
     expect(screen.getByText('Microphone')).toBeVisible()
   } finally { window.matchMedia = original }
 })

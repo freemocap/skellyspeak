@@ -283,6 +283,7 @@
   /* ── Accent ───────────────────────────────────────────────────────────── */
   --accent: var(--interaction-ink);
   --accent-strong: var(--interaction-fill);
+  --accent-strong-hover: var(--c-blue-900);
   --accent-ink: var(--interaction-ink);
   --accent-ink-deep: var(--interaction-ink);
   --accent-soft: var(--chip);

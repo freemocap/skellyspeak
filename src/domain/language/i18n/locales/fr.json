@@ -824,5 +824,19 @@
   "Policy": "Règles",
   "Less": "Moins",
   "Word spacing": "Espacement des mots",
-  "Show word and message translations": "Afficher les traductions des mots et des messages"
+  "Show word and message translations": "Afficher les traductions des mots et des messages",
+  "Conversation updates stopped.": "Les mises à jour de la conversation sont arrêtées.",
+  "Retry reading conversation": "Réessayer de charger la conversation",
+  "Loading older messages…": "Chargement des anciens messages…",
+  "Load older messages": "Charger les anciens messages",
+  "Partner reply failed.": "La réponse du partenaire a échoué.",
+  "Partner reply outcome is unknown. Retrying may repeat provider work and charges.": "Le résultat de la réponse est inconnu. Réessayer peut répéter le travail et les frais du fournisseur.",
+  "Partner reply was cancelled. Send a new message to continue.": "La réponse a été annulée. Envoyez un nouveau message pour continuer.",
+  "Partner reply is held.": "La réponse est suspendue.",
+  "Partner reply is paused.": "La réponse est en pause.",
+  "Partner reply is unavailable.": "La réponse est indisponible.",
+  "Retry exchange": "Réessayer l’échange",
+  "Resume exchange": "Reprendre l’échange",
+  "Saved credential cleanup failed.": "Le nettoyage des identifiants enregistrés a échoué.",
+  "Retry credential cleanup": "Réessayer le nettoyage des identifiants"
 }

@@ -76,6 +76,7 @@ export interface PersonaReaction {
 /// GuidedPage is this plus `pendingText`, the streaming buffer, which is
 /// transient by definition and never written to disk.
 export interface StoredTurn {
+  replyState?: import('./domain/language/reply-state').ReplyState
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null
@@ -88,10 +89,8 @@ export interface StoredTurn {
   id: number
   user: string | null
   assistant: GuidedTurnResult | null
-  /// null before analysis starts, 'pending' while it runs, 'done' when it
-  /// lands. There is no 'failed': the core always finishes with a result and
-  /// reports per-section problems in `assistant.errors`, which the analysis
-  /// pane renders.
+  /// Saved feedback determines completion; operation errors remain independent
+  /// in coachError and replyState, including when no reply exists.
   analysisState: AnalysisState
   coach?: import('./contracts').CoachObservationView
   coachDecision?: import('./contracts').CoachDecision

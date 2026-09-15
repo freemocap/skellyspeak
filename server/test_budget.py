@@ -129,3 +129,51 @@ def test_invalid_verifier_does_not_burn_a_code_and_only_one_exchange_wins(ledger
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         assert sum(pool.map(exchange, range(2))) == 1
+
+
+@pytest.mark.parametrize('missing', [('personal',), ('global',), ('personal', 'global')])
+def test_verified_historical_settlement_does_not_recreate_expired_ledgers(ledger, monkeypatch, missing):
+    monkeypatch.setattr(quota, 'utc_day', lambda: '2026-01-01')
+    reservation = reserve(ledger)
+    budget.settle(ledger, reservation=reservation, actual_micros=100, tokens=2,
+                  status='unknown', provider_id='gen-history')
+    paths = {'personal': 'users/google:1/usage/2026-01-01', 'global': 'global_usage/2026-01-01'}
+    for key in missing:
+        del ledger.store[paths[key]]
+    monkeypatch.setattr(quota, 'utc_day', lambda: '2026-05-01')
+    with pytest.raises(RuntimeError, match='Daily ledger is missing'):
+        budget.settle(ledger, reservation=reservation, actual_micros=30, tokens=5,
+                      status='settled', provider_id='gen-history')
+    for _ in range(2):
+        budget.settle(ledger, reservation=reservation, actual_micros=30, tokens=5,
+                      status='settled', provider_id='gen-history', allow_expired_ledgers=True)
+    for key, path in paths.items():
+        if key in missing:
+            assert path not in ledger.store
+        else:
+            assert ledger.store[path]['micros'] == 30
+            assert ledger.store[path]['tokens'] == 5
+    record = ledger.store[f'users/google:1/reservations/{reservation.request_id}']
+    assert record['historical_finalization'] is True
+    assert record['status'] == 'settled' and 'ttl' in record
+
+
+def test_historical_opt_in_does_not_excuse_young_missing_ledger(ledger):
+    reservation = reserve(ledger)
+    del ledger.store[f'global_usage/{reservation.day}']
+    with pytest.raises(RuntimeError, match='Daily ledger is missing'):
+        budget.settle(ledger, reservation=reservation, actual_micros=30, tokens=5,
+                      status='settled', provider_id='gen-history', allow_expired_ledgers=True)
+
+
+def test_historical_overage_still_pauses_spending_without_recreating_ledger(ledger, monkeypatch):
+    monkeypatch.setattr(quota, 'utc_day', lambda: '2026-01-01')
+    reservation = reserve(ledger)
+    del ledger.store['global_usage/2026-01-01']
+    del ledger.store['users/google:1/usage/2026-01-01']
+    monkeypatch.setattr(quota, 'utc_day', lambda: '2026-05-01')
+    with pytest.raises(RuntimeError, match='exceeded its reserved price ceiling'):
+        budget.settle(ledger, reservation=reservation, actual_micros=101, tokens=5,
+                      status='settled', provider_id='gen-history', allow_expired_ledgers=True)
+    assert ledger.store['service_controls/spending']['blocked'] is True
+    assert not any('/usage/' in key or key.startswith('global_usage/') for key in ledger.store)

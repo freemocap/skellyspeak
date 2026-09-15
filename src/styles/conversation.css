@@ -994,7 +994,7 @@
   cursor: pointer;
 }
 
-.start-conversation-button:hover:not(:disabled) { background: var(--accent-ink); }
+.start-conversation-button:hover:not(:disabled) { background: var(--accent-strong-hover); }
 
 .start-topic {
   width: 128px;

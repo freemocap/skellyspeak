@@ -117,9 +117,9 @@
 
 ## Compact conversation surfaces
 
-Conversation chrome summarizes Learning, Native and difficulty; editable selectors
-live in the expandable gear controls. Keep gear and new-chat actions on the same
-row on mobile. The dark Coach pane has XP and Persona tabs; no Analysis tab.
+Conversation chrome keeps Learning, Native and Difficulty selectors visible. Other
+practice controls live in the expandable gear panel. Keep gear and new-chat actions
+on the same row on mobile. The study pane uses Coaching and Evidence tabs.
 Conversation XP attributes existing credit to that conversation. Language progression
 uses the same map over all selected-language evidence. Maps start expanded on mobile.
 Static explanatory copy belongs behind an accessible information control (hover,

@@ -45,6 +45,10 @@ for (const theme of ['dark', 'light'] as const) {
       expect(contrast(c('paper-ink-muted'), c(background))).toBeGreaterThanOrEqual(4.5)
     }
     expect(contrast(c('ink-on-fill'), c('accent-strong'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(c('ink-on-fill'), c('accent-strong-hover'))).toBeGreaterThanOrEqual(4.5)
+    for (const background of ['paper-bg', 'paper-raised', 'bubble-learner-bg', 'partner-top']) {
+      expect(contrast(c('focus-accent'), c(background)), `focus on ${background}`).toBeGreaterThanOrEqual(3)
+    }
     expect(contrast(c('danger-ink'), c('paper-raised'))).toBeGreaterThanOrEqual(4.5)
   })
   it(`keeps links, status, recovery and destructive controls readable in ${theme}`, () => {

@@ -702,6 +702,13 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
     state = "failed"
     execution_error: BaseException | None = None
     try:
+        # Preparation cannot incur provider charges. Fail before reserving money.
+        use_groq = item.contract.payload["model"] == model_routing.OSS
+        try:
+            outbound = model_routing.groq_payload(item.contract.payload) if use_groq else item.contract.payload
+            json.dumps(outbound, allow_nan=False)
+        except (ValueError, TypeError, KeyError, AttributeError) as error:
+            raise HTTPException(400, "Invalid structured request for the selected provider.") from error
         with anyio.CancelScope(shield=True):
             reservation = await anyio.to_thread.run_sync(partial(_reserve, who, item.contract.reserve_micros))
         # Leave a full work deadline inside the lease, including after slow ledger work.
@@ -711,8 +718,6 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
             async with httpx.AsyncClient(timeout=work_admission.WORK_SECONDS) as client:
                 cost = None
                 state = "unknown"
-                use_groq = item.contract.payload["model"] == model_routing.OSS
-                outbound = model_routing.groq_payload(item.contract.payload) if use_groq else item.contract.payload
                 base = CFG.groq_base_url if use_groq else CFG.openrouter_base_url
                 key = CFG.groq_key if use_groq else CFG.openrouter_key
                 payload = await provider_json(client, f"{base}/chat/completions",
@@ -754,7 +759,7 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
     except (ValueError, UnicodeError, RecursionError) as error:
         raise HTTPException(400, "Malformed operation group.") from error
     items = grouped.parse(payload, max_tokens=CFG.max_completion_tokens)
-    return StreamingResponse(grouped.results(items, db=db, who=who,
+    return StreamingResponse(grouped.results(items, db=db, who=who, request_id=request.state.request_id,
         execute=partial(execute_grouped_item, who=who)), media_type="application/x-ndjson")
 
 

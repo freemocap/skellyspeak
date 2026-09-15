@@ -1,11 +1,13 @@
 import { useSkillEvidenceStore } from '../../state/skill-evidence'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChatSummary, Settings, StoredTurn } from '../../types'
-import type { ConversationSnapshot, Snapshot } from '../../contracts'
+import type { Snapshot } from '../../contracts'
 import { conversationTurns } from '../../domain/language/conversation-view'
-import { executeAction, nativeError, readWorkspace, selectedConversation, watchConversation } from '../../platform/ipc/workspace'
+import { replyState } from '../../domain/language/reply-state'
+import { executeAction, nativeError, readWorkspace, selectedConversation } from '../../platform/ipc/workspace'
 import { unreportedInput, type InputEvidence } from '../../domain/skills/skills'
 import { reportFault } from '../../platform/diagnostics/faults'
+import { useConversationSnapshot } from './useConversationSnapshot'
 
 export type Turn = StoredTurn & { pendingText: string }
 interface Options {
@@ -16,11 +18,13 @@ interface Options {
 
 /** Native snapshots own messages. Mounting observes; only explicit commands create work. */
 export function useConversation({ settings, setHistoryOpen, resetView }: Options) {
-  const [turns, setTurns] = useState<Turn[]>([])
   const [chats, setChats] = useState<ChatSummary[]>([])
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [openingFailed, setOpeningFailed] = useState(false)
-  const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null)
+  const observation = useConversationSnapshot(currentChatId)
+  const { snapshot } = observation
+  const turns = useMemo(() => snapshot ? conversationTurns(snapshot).map(t => ({ ...t, pendingText: '' })) : [], [snapshot])
+  useEffect(() => { if (snapshot) useSkillEvidenceStore.getState().reload() }, [snapshot?.revision, currentChatId])
   const turnsRef = useRef<Turn[]>([])
   turnsRef.current = turns
   const chatIdRef = useRef<{ target: string; native: string; id: string } | null>(null)
@@ -44,8 +48,6 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     let disposed = false
     chatIdRef.current = null
     setCurrentChatId(null)
-    setSnapshot(null)
-    setTurns([])
     if (!target || !native) return
     void refresh().then(directory => {
       if (disposed) return
@@ -59,29 +61,6 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     })
     return () => { disposed = true }
   }, [target, native, refresh])
-
-  useEffect(() => {
-    let disposed = false
-    setSnapshot(null)
-    setTurns([])
-    if (!currentChatId) return
-    void (async () => {
-      let revision = -1
-      while (!disposed) {
-        const next = await watchConversation(currentChatId, revision)
-        if (disposed) return
-        if (next.conversationId !== currentChatId) throw new Error('Conversation snapshot scope mismatch.')
-        if (next.revision !== revision) {
-          setSnapshot(next)
-          // Evidence moves with the conversation; the store re-reads it.
-          useSkillEvidenceStore.getState().reload()
-          setTurns(conversationTurns(next).map(t => ({ ...t, pendingText: '' })))
-        }
-        revision = next.revision
-      }
-    })().catch(error => { if (!disposed) reportFault('Reading conversation', nativeError(error)) })
-    return () => { disposed = true }
-  }, [currentChatId])
 
   const openChat = useCallback(async (id: string) => {
     const directory = await refresh()
@@ -135,10 +114,11 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     await executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
   }, [])
 
-  return { turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,
+  return { ...observation, turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,
     snapshot: snapshot?.conversationId === currentChatId ? snapshot : null,
     snapshotRevision: snapshot?.revision ?? -1,
     pendingReply: snapshot?.turns.some(t => t.state === 'pending') ?? false,
+    replyActive: snapshot?.turns.some(turn => replyState(turn, snapshot).state === 'pending') ?? false,
     flush: async () => { if (!chatIdRef.current) throw new Error('No conversation is open.') },
   }
 }

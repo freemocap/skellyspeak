@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import secrets
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Literal
 
 from google.cloud import firestore
@@ -73,7 +74,14 @@ def reserve(
 def settle(
     db: firestore.Client, *, reservation: Reservation, actual_micros: int,
     tokens: int, status: Literal["settled", "unknown"], provider_id: str,
+    allow_expired_ledgers: bool = False,
 ) -> None:
+    # Only receipt-verified reconciliation opts into historical finalization.
+    # A whole extra day ensures every timestamp in the UTC day has expired.
+    historical = allow_expired_ledgers and status == "settled" and (
+        date.fromisoformat(reservation.day) + timedelta(days=quota.USAGE_RETENTION_DAYS + 1)
+        <= date.fromisoformat(quota.utc_day())
+    )
     if actual_micros < 0 or tokens < 0:
         raise ValueError("Usage cannot be negative.")
     if status == "unknown" and actual_micros != reservation.micros:
@@ -101,25 +109,33 @@ def settle(
             return
         if stored["status"] == "unknown" and status == "unknown":
             return
-        if personal is None or global_usage is None:
+        missing_ledgers = personal is None or global_usage is None
+        if missing_ledgers and not historical:
             raise RuntimeError("Daily ledger is missing; refusing to create a negative settlement balance.")
         previous_tokens = int(stored.get("tokens", 0))
         correction = {
             "micros": firestore.Increment(actual_micros - reservation.micros),
             "tokens": firestore.Increment(tokens - previous_tokens),
         }
-        if min(int(personal["micros"]), int(global_usage["micros"])) + actual_micros - reservation.micros < 0:
-            raise RuntimeError("Settlement would make a daily balance negative.")
-        transaction.set(usage, correction, merge=True)
-        transaction.set(shared, correction, merge=True)
+        # Retained historical ledgers still receive their exact correction. TTL
+        # deleted ledgers stay deleted; a verified receipt finalizes only the
+        # surviving reservation and any surviving aggregates.
+        for reference, data in ((usage, personal), (shared, global_usage)):
+            if data is not None:
+                if int(data["micros"]) + actual_micros - reservation.micros < 0:
+                    raise RuntimeError("Settlement would make a daily balance negative.")
+                transaction.set(reference, correction, merge=True)
         if actual_micros > reservation.micros:
-            transaction.set(shared, {"blocked": True, "block_reason": "Provider price ceiling exceeded"}, merge=True)
+            if global_usage is not None:
+                transaction.set(shared, {"blocked": True, "block_reason": "Provider price ceiling exceeded"}, merge=True)
             transaction.set(control, {"blocked": True, "reason": "Provider price ceiling exceeded",
                                       "request_id": reservation.request_id, "updated_at": firestore.SERVER_TIMESTAMP}, merge=True)
         result: dict[str, object] = {
             "status": status, "actual_micros": actual_micros, "tokens": tokens,
             "provider_id": provider_id, "updated_at": firestore.SERVER_TIMESTAMP,
         }
+        if historical and missing_ledgers:
+            result["historical_finalization"] = True
         if status == "settled":
             result["ttl"] = quota.ttl_after(quota.USAGE_RETENTION_DAYS)
         transaction.set(record, result, merge=True)

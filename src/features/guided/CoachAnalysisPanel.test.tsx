@@ -9,7 +9,7 @@ vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true }))
 vi.mock('../../platform/ipc/workspace', () => ({ readWorkspace: backend.read, executeAction: backend.execute, watchConversation: backend.watch, nativeError: (error: unknown) => String(error) }))
 vi.mock('../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('./ConversationMap', () => ({ ConversationMap: () => null }))
-const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [] } as unknown as ConversationSnapshot
+const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], hasOlder: false } as unknown as ConversationSnapshot
 function panel(chatId = 'chat-1', draftQuestion = '') {
   return <CoachAnalysisPanel chatId={chatId} conversationBusy={false} personaProfile={null} tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }
@@ -70,4 +70,17 @@ describe('native private coaching', () => {
     expect(screen.getByLabelText('Message your coach')).toHaveValue('Explain this phrase')
     expect(backend.execute).not.toHaveBeenCalled()
   })
+})
+
+it('offers read-only reconnection after coach observation fails without losing the draft', async () => {
+  backend.watch.mockReset().mockRejectedValueOnce(new Error('Read disconnected')).mockImplementation(() => new Promise(() => {}))
+  render(panel())
+  await screen.findByText(/Read disconnected/)
+  fireEvent.change(screen.getByLabelText('Message your coach'), { target: { value: 'Keep my draft' } })
+  backend.watch.mockResolvedValueOnce(snapshot)
+  fireEvent.click(screen.getByRole('button', { name: 'Retry reading conversation' }))
+  await waitFor(() => expect(backend.watch).toHaveBeenCalledTimes(3))
+  expect(screen.queryByText(/Read disconnected/)).toBeNull()
+  expect(screen.getByLabelText('Message your coach')).toHaveValue('Keep my draft')
+  expect(backend.execute).not.toHaveBeenCalled()
 })

@@ -824,5 +824,19 @@
   "Policy": "Policy",
   "Less": "Less",
   "Word spacing": "Word spacing",
-  "Show word and message translations": "Show word and message translations"
+  "Show word and message translations": "Show word and message translations",
+  "Conversation updates stopped.": "Conversation updates stopped.",
+  "Retry reading conversation": "Retry reading conversation",
+  "Loading older messages…": "Loading older messages…",
+  "Load older messages": "Load older messages",
+  "Partner reply failed.": "Partner reply failed.",
+  "Partner reply outcome is unknown. Retrying may repeat provider work and charges.": "Partner reply outcome is unknown. Retrying may repeat provider work and charges.",
+  "Partner reply was cancelled. Send a new message to continue.": "Partner reply was cancelled. Send a new message to continue.",
+  "Partner reply is held.": "Partner reply is held.",
+  "Partner reply is paused.": "Partner reply is paused.",
+  "Partner reply is unavailable.": "Partner reply is unavailable.",
+  "Retry exchange": "Retry exchange",
+  "Resume exchange": "Resume exchange",
+  "Saved credential cleanup failed.": "Saved credential cleanup failed.",
+  "Retry credential cleanup": "Retry credential cleanup"
 }

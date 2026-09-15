@@ -824,5 +824,19 @@
   "Policy": "Política",
   "Less": "Menos",
   "Word spacing": "Espacio entre palabras",
-  "Show word and message translations": "Mostrar traducciones de palabras y mensajes"
+  "Show word and message translations": "Mostrar traducciones de palabras y mensajes",
+  "Conversation updates stopped.": "Las actualizaciones de la conversación se detuvieron.",
+  "Retry reading conversation": "Reintentar cargar la conversación",
+  "Loading older messages…": "Cargando mensajes anteriores…",
+  "Load older messages": "Cargar mensajes anteriores",
+  "Partner reply failed.": "La respuesta del compañero falló.",
+  "Partner reply outcome is unknown. Retrying may repeat provider work and charges.": "Se desconoce el resultado de la respuesta. Reintentar puede repetir el trabajo y los cargos del proveedor.",
+  "Partner reply was cancelled. Send a new message to continue.": "La respuesta se canceló. Envía un nuevo mensaje para continuar.",
+  "Partner reply is held.": "La respuesta está retenida.",
+  "Partner reply is paused.": "La respuesta está pausada.",
+  "Partner reply is unavailable.": "La respuesta no está disponible.",
+  "Retry exchange": "Reintentar intercambio",
+  "Resume exchange": "Reanudar intercambio",
+  "Saved credential cleanup failed.": "No se pudieron eliminar las credenciales guardadas.",
+  "Retry credential cleanup": "Reintentar eliminar credenciales"
 }

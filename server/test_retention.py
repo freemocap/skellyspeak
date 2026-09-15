@@ -31,9 +31,11 @@ def test_cloud_upload_is_an_explicit_allowlist():
     from pathlib import Path
     lines = (Path(__file__).parent.parent / ".gcloudignore").read_text().splitlines()
     assert lines[0] == "*"
-    assert not any("*" in line for line in lines[1:])
+    assert lines[1:3] == ["!server/", "server/*"]
+    assert not any("*" in line for line in lines[3:])
     assert "!server/retention.py" in lines
     assert "!server/work_admission.py" in lines
+    assert "!server/model_routing.py" in lines
     assert not any("local" in line or "test_" in line for line in lines)
 
 

@@ -122,3 +122,12 @@ it('groups by durable identity despite interleaving and retains repeated revisio
     { turnId: 'third', user: 'Latest', replacesTurnId: 'second' },
   ])
 })
+
+it('retains reply failure and pause state independently of successful saved assistance', () => {
+  const source = snapshot([message(1, 'user', 'Question')])
+  source.turns = [{ id: 'turn-1', state: 'failed', paused: false, hold: null, route: 'hosted', replacesTurnId: null, replacedBy: null, operations: [{ id: 'reply', kind: 'persona_reply', state: 'failed', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }], attempts: [] }]
+  source.messages[0].feedback = { meaningRecovered: 'full', items: [], candidatesSent: 1, itemsReturned: 0 }
+  expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', assistant: null, replyState: { state: 'failed', control: 'retry' } })
+  source.turns[0].state = 'pending'; source.turns[0].operations[0].state = 'ready'; source.turns[0].paused = true
+  expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', replyState: { state: 'paused', control: 'resume' } })
+})
