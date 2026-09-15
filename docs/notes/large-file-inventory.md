@@ -1,6 +1,6 @@
 # Repository file-size inventory
 
-Status: scan snapshot, 2026-09-15, refreshed after the execution, store and application splits.
+Status: scan snapshot, 2026-09-15, refreshed after the execution, store, application and lesson splits.
 
 ## Rules and scope
 
@@ -18,17 +18,16 @@ Status: scan snapshot, 2026-09-15, refreshed after the execution, store and appl
 | Area | Under 500 | 500–999 | 1,000+ | Total |
 | --- | ---: | ---: | ---: | ---: |
 | docs | 8 | 2 | 0 | 10 |
-| native | 122 | 17 | 2 | 141 |
+| native | 136 | 17 | 1 | 154 |
 | server | 62 | 2 | 0 | 64 |
 | tools | 27 | 0 | 0 | 27 |
 | ui | 289 | 5 | 1 | 295 |
-| **Total** | **508** | **26** | **3** | **537** |
+| **Total** | **522** | **26** | **2** | **550** |
 
 ## Priority review: 1,000+
 
 | Lines | File |
 | ---: | --- |
-| 1,437 | [native/src/learning/lessons.rs](../../native/src/learning/lessons.rs) |
 | 1,052 | [ui/src/styles/features/conversation/conversation.css](../../ui/src/styles/features/conversation/conversation.css) |
 | 1,017 | [native/src/ai/transport/provider.rs](../../native/src/ai/transport/provider.rs) |
 
@@ -90,7 +89,7 @@ These are not automatic code-refactoring targets. Generated output must be chang
 ## Next cleanup planning
 
 Completed: [conversation execution](execution-file-split.md),
-[workspace store](store-file-split.md), and [application runtime](application-file-split.md).
-This inventory reflects those splits.
+[workspace store](store-file-split.md), [application runtime](application-file-split.md),
+and [lessons](lessons-file-split.md). This inventory reflects those splits.
 
 Start with the 1,000+ list, then review the danger zone. Propose responsibility boundaries before extracting implementations; do not shorten files by compressing formatting or moving all tests into another giant file. Preserve existing tests and serialized contracts. These are guidelines, not hard limits: do not introduce artificial boundaries or substantial complexity just to meet a count. Record justified exceptions. This scan establishes a baseline, not a CI gate.

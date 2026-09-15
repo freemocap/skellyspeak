@@ -77,7 +77,11 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
   in `generation/`; discovery and reactions remain individual files.
 - `learning/`: coaching, validated observations, learner state, progression, lessons,
   rewards and reward settings. Use `coaching/`, `learner/` and `rewards/` for those
-  groups; lessons remain in `lessons.rs`. Keep evidence independent of presentation metaphors.
+  groups. `lessons/` separates types, repository access, lifecycle, quiz credit,
+  prompt/context assembly and validated result publication. Lesson tests are grouped
+  by generation, lifecycle, review, quiz and prompts. Keep durable turn ownership,
+  one-time credit, evidence checks and serialized contracts intact across these seams.
+  Keep evidence independent of presentation metaphors.
 - `speech/`: capture, recording commands, transcription receipts, audio inspection,
   fluency timing and speech cache. Use `recording/` for capture/commands/transcription,
   `analysis/` for inspection/fluency, and `cache.rs` for playback cache.

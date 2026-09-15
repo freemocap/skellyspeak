@@ -28,13 +28,6 @@
       "area": "root"
     },
     {
-      "path": "native/src/learning/lessons.rs",
-      "lines": 1437,
-      "category": "source",
-      "band": "split",
-      "area": "native"
-    },
-    {
       "path": "server/uv.lock",
       "lines": 1205,
       "category": "lockfile or vendor wrapper",
@@ -644,6 +637,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/learning/lessons/lifecycle.rs",
+      "lines": 263,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/styles/features/skills/skills.css",
       "lines": 263,
       "category": "source",
@@ -652,7 +652,7 @@
     },
     {
       "path": "AGENTS.md",
-      "lines": 258,
+      "lines": 262,
       "category": "documentation or bibliography",
       "band": "good",
       "area": "root"
@@ -1127,6 +1127,13 @@
       "area": "docs"
     },
     {
+      "path": "native/src/learning/lessons/tests/lifecycle.rs",
+      "lines": 174,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "docs/website/src/pages/download.tsx",
       "lines": 173,
       "category": "source",
@@ -1288,6 +1295,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/learning/lessons/tests/review.rs",
+      "lines": 147,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/components/media/WaveformStrip.tsx",
       "lines": 146,
       "category": "source",
@@ -1300,6 +1314,13 @@
       "category": "source",
       "band": "good",
       "area": "server"
+    },
+    {
+      "path": "native/src/learning/lessons/prompts.rs",
+      "lines": 144,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/state/settings/settings.test.ts",
@@ -1342,6 +1363,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/learning/lessons/results.rs",
+      "lines": 138,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "tools/refactor-move.ts",
@@ -1575,6 +1603,13 @@
       "area": "docs"
     },
     {
+      "path": "native/src/learning/lessons/tests/fixtures.rs",
+      "lines": 115,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/skills/SkillsPage.test.tsx",
       "lines": 115,
       "category": "source",
@@ -1615,6 +1650,13 @@
       "category": "source",
       "band": "good",
       "area": "tools"
+    },
+    {
+      "path": "native/src/learning/lessons/tests/generation.rs",
+      "lines": 110,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "server/development/launcher.py",
@@ -1813,6 +1855,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/learning/lessons/types.rs",
+      "lines": 97,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/README.md",
       "lines": 95,
       "category": "documentation or bibliography",
@@ -1995,6 +2044,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/learning/lessons/tests/quiz.rs",
+      "lines": 85,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/reading/AnalysisContent.tsx",
       "lines": 85,
       "category": "source",
@@ -2049,6 +2105,13 @@
       "category": "data or configuration",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/learning/lessons/tests/prompts.rs",
+      "lines": 82,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/README.md",
@@ -2387,6 +2450,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/learning/lessons/repository.rs",
+      "lines": 64,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/statistics/mod.rs",
       "lines": 64,
       "category": "source",
@@ -2548,6 +2618,13 @@
       "area": "content"
     },
     {
+      "path": "native/src/learning/lessons/quiz.rs",
+      "lines": 58,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/storage/store/schema.rs",
       "lines": 58,
       "category": "source",
@@ -2637,6 +2714,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/learning/lessons/mod.rs",
+      "lines": 53,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "content/config/languages/languages/ar.yaml",
@@ -2814,6 +2898,13 @@
       "area": "content"
     },
     {
+      "path": "docs/notes/application-file-split.md",
+      "lines": 47,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
       "path": "docs/notes/store-file-split.md",
       "lines": 47,
       "category": "documentation or bibliography",
@@ -2968,6 +3059,13 @@
       "area": "ui"
     },
     {
+      "path": "content/README.md",
+      "lines": 42,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "content"
+    },
+    {
       "path": "content/config/languages/languages/zh.yaml",
       "lines": 42,
       "category": "data or configuration",
@@ -2987,13 +3085,6 @@
       "category": "source",
       "band": "good",
       "area": "ui"
-    },
-    {
-      "path": "content/README.md",
-      "lines": 41,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "content"
     },
     {
       "path": "server/app/diagnostics/diagnostics.py",
@@ -4385,6 +4476,13 @@
       "path": "native/gen/android/app/src/main/res/values/themes.xml",
       "lines": 10,
       "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/learning/lessons/tests/mod.rs",
+      "lines": 10,
+      "category": "source",
       "band": "good",
       "area": "native"
     },

@@ -34,7 +34,7 @@ their shared imports and application entry points.
 | Area | Current groups |
 | --- | --- |
 | `application/` | Startup/command registration, shared state and scheduler; `commands/` groups workspace, connection, hosted and persona-generation handlers; existing suites live in `tests/` |
-| `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings); `lessons.rs` remains intact |
+| `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings), `lessons/` (types, repository, lifecycle, quizzes, prompts/context and validated results) |
 | `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts); mystery and reactions remain individual files |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
 | `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
