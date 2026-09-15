@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/native'
-import type { ConversationSnapshot, SpeechAudioState } from '../../contracts'
+import type { ConversationSnapshot, SpeechAudioState } from '../../generated/contracts'
 import { executeAction, nativeError } from '../../platform/ipc/workspace'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { speechPlaybackPermit } from '../../platform/audio/speech'

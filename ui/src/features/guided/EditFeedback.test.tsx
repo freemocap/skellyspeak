@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import type { CoachDecision } from '../../contracts'
+import type { CoachDecision } from '../../generated/contracts'
 import { EditFeedback } from './EditFeedback'
 
 it('does not expose a generated hint merely by editing and displays only recorded exposure', () => {

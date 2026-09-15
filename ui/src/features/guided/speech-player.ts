@@ -1,4 +1,4 @@
-import type { SpeechAudioState } from '../../contracts'
+import type { SpeechAudioState } from '../../generated/contracts'
 import { registerSpeechPlayback, speechPlaybackPermit } from '../../platform/audio/speech'
 
 /** Playback only: this module cannot request speech generation. */

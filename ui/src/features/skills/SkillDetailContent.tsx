@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useState, type ReactNode } from 'react'
 import type { SkillSnapshot, SkillRecord } from '../../domain/skills/skills'
 import type { TreeNode } from '../../domain/skills/skillTree'

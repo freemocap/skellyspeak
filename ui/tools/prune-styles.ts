@@ -173,7 +173,7 @@ async function prune(repositoryRoot: string, stylesheet: string): Promise<string
 
 const isEntry = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href
 if (isEntry) {
-  const root = fileURLToPath(new URL('../', import.meta.url))
+  const root = fileURLToPath(new URL('../../', import.meta.url))
   if (process.argv.includes('--write')) {
     console.log(await prune(root, 'ui/src/styles'))
   } else {

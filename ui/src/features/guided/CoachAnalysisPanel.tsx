@@ -1,19 +1,19 @@
-import { useI18n } from '../../ui/i18n'
-import { ErrorDetails } from '../../ui/ErrorDetails'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
+import { ErrorDetails } from '../../components/ErrorDetails'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
 import { ConversationProgress } from './ConversationProgress'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../platform/ipc/tauri'
 import { executeAction, nativeError, readWorkspace } from '../../platform/ipc/workspace'
 import { useConversationSnapshot } from './useConversationSnapshot'
 import { type AnalysedTurn, type InspectTarget } from './AnalysisContent'
-import { Markdown } from '../../ui/Markdown'
+import { Markdown } from '../../components/Markdown'
 
 export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, personaProfile, coachingContent, onLesson, lessonSummary, mysteryPartner = false, lessonContext }: {
-  lessonContext?: import('../../contracts').LessonView
+  lessonContext?: import('../../generated/contracts').LessonView
   mysteryPartner?: boolean
   onLesson?: () => void
-  lessonSummary?: import('../../contracts').LessonView
+  lessonSummary?: import('../../generated/contracts').LessonView
   coachingContent?: ReactNode
   conversationBusy: boolean; chatId: string; personaProfile: ReactNode; tab: 'lesson' | 'evidence' | 'profile'; onTab: (tab: 'lesson' | 'evidence' | 'profile') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null

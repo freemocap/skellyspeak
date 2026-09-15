@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import type { SkillSnapshot } from '../../domain/skills/skills'
 import type { TreeNode } from '../../domain/skills/skillTree'
 import { domainColors, skillDomain } from '../../domain/skills/skill-domains'

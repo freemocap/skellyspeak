@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { checkForUpdate, restartIntoUpdate, type UpdateOffer } from '../../platform/updater'
 import { reportFault } from '../../platform/diagnostics/faults'

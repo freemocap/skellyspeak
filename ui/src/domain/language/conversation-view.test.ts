@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ChatMessage, ConversationSnapshot } from '../../contracts'
+import type { ChatMessage, ConversationSnapshot } from '../../generated/contracts'
 import { conversationTurns } from './conversation-view'
 
 function message(sequence: number, role: string, text: string, translation: string | null = null): ChatMessage {

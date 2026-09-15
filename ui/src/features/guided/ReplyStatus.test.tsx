@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import type { ConversationSnapshot, TurnView } from '../../contracts'
+import type { ConversationSnapshot, TurnView } from '../../generated/contracts'
 import { replyState } from '../../domain/language/reply-state'
 import { ReplyStatus } from './ReplyStatus'
 function execution(state: string, turnState = state): TurnView {

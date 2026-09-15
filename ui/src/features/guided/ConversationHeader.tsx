@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import type { ReactNode } from 'react'
-import type { Difficulty } from '../../contracts'
-import { ErrorDetails } from '../../ui/ErrorDetails'
+import type { Difficulty } from '../../generated/contracts'
+import { ErrorDetails } from '../../components/ErrorDetails'
 import { DifficultySelect } from './DifficultySelect'
 
 /// The target language, the persona this conversation speaks through, and this

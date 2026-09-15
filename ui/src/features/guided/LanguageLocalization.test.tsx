@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { I18nProvider, useI18n } from '../../ui/i18n'
+import { I18nProvider, useI18n } from '../../components/i18n'
 import { DifficultySelect } from './DifficultySelect'
 import { languageLabel } from '../../domain/language/language-label'
 

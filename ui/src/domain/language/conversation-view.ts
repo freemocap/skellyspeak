@@ -1,4 +1,4 @@
-import type { ConversationSnapshot } from '../../contracts'
+import type { ConversationSnapshot } from '../../generated/contracts'
 import type { StoredTurn } from '../../types'
 import { replyState } from './reply-state'
 

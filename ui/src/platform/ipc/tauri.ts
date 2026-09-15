@@ -1,5 +1,5 @@
 import { validateLanguageLocales } from '../../domain/language/i18n'
-import type { ConnectionConfig, AccessSettings, RewardSettings } from '../../contracts'
+import type { ConnectionConfig, AccessSettings, RewardSettings } from '../../generated/contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'
 import { invoke as nativeInvoke } from './native'

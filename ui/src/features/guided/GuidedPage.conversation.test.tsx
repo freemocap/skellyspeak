@@ -3,7 +3,7 @@ import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../contracts'
+import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../generated/contracts'
 import type { Settings } from '../../types'
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))

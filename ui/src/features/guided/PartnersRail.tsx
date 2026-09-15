@@ -1,5 +1,5 @@
-import { useI18n } from '../../ui/i18n'
-import { PersonaAvatar } from '../../ui/PersonaAvatar'
+import { useI18n } from '../../components/i18n'
+import { PersonaAvatar } from '../../components/PersonaAvatar'
 import type { PersonaChoice } from './PersonaPicker'
 
 export function PartnersRail({ choices, currentId, languageName, busy, onSelect, onCreate, onHistory }: {

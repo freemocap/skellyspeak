@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { AppError } from '../../contracts'
+import type { AppError } from '../../generated/contracts'
 import { CredentialCleanup, useCredentialCleanup } from './CredentialCleanup'
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => backend)

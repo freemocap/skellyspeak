@@ -2,7 +2,7 @@
 import { beforeEach, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MessageFeedback } from './MessageFeedback'
-import type { CoachDecision, CoachObservationView } from '../../contracts'
+import type { CoachDecision, CoachObservationView } from '../../generated/contracts'
 vi.mock('../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function (): void { this.setAttribute('open', '') }

@@ -1,4 +1,4 @@
-import { SKILL_CATALOG_VERSION } from '../../contracts'
+import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
 import { RewardInspectionContext } from './RewardInspectionContext'
 // @vitest-environment jsdom
 import { act, render, screen } from '@testing-library/react'

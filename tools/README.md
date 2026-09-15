@@ -1,8 +1,8 @@
 # Development tools
 
 Repository development, verification, release and cross-layer integration tools.
-The existing script layout is retained for this top-level move; layer-specific
-helpers can move alongside their owners during the subsequent internal organization.
+UI-only style tools and previews live under `ui/tools/`. The import graph and
+move tool stay here because they resolve references across application layers.
 
 Run tools from the repository root using the scripts in `package.json`.
 `tauri.ts` selects `native/` explicitly and resolves file arguments to `--config`

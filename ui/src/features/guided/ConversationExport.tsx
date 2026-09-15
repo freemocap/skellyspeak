@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useState } from 'react'
-import { YamlExport } from '../../ui/YamlExport'
+import { YamlExport } from '../../components/YamlExport'
 import { conversationYaml, saveConversationYaml } from '../../platform/ipc/conversation-export'
 
 export function ConversationExport({ conversationId, onClose }: { conversationId: string; onClose: () => void }) {

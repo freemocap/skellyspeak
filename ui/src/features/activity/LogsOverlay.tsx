@@ -1,8 +1,8 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useIsMobile } from '../../ui/useIsMobile'
+import { useIsMobile } from '../../components/useIsMobile'
 import { openOverlay } from '../../domain/input/back'
-import { DetailDialog } from '../../ui/DetailDialog'
+import { DetailDialog } from '../../components/DetailDialog'
 import { LiveActivity } from './LiveActivity'
 
 // The docked observability panel: a toggle button that pulls a resizable

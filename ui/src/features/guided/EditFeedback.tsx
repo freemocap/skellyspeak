@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useState } from 'react'
 import { nativeError } from '../../platform/ipc/workspace'
-import type { CoachControl, CoachDecision, CoachObservationView } from '../../contracts'
+import type { CoachControl, CoachDecision, CoachObservationView } from '../../generated/contracts'
 import { CoachEntry } from './CoachEntry'
 
 export function EditFeedback({ decision, feedback, error, reviewing, onControl }: {

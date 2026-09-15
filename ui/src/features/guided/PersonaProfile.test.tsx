@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import type { Persona, PersonaDetails } from '../../contracts'
+import type { Persona, PersonaDetails } from '../../generated/contracts'
 import { PersonaProfile } from './PersonaProfile'
 const persona: Persona = { id: 'persona', learnerId: 'learner', languageId: 'ar', revision: 2, details: { name: 'ريم', romanizedName: 'Rīm', age: 31, location: 'Cairo', occupation: 'Engineer', background: 'Reads.', currentSituation: 'Moving house.', interests: ['Books'], opinions: ['Tea first'], interestingFacts: ['Recites poetry'], favoriteBooks: [], favoriteMovies: [], manner: 'Curious', quirks: ['Hums'], vibe: ['🌿', '🌊'] } }
 

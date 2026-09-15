@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
-import type { Persona, PersonaDetails } from '../../contracts'
-import { ErrorDetails } from '../../ui/ErrorDetails'
+import type { Persona, PersonaDetails } from '../../generated/contracts'
+import { ErrorDetails } from '../../components/ErrorDetails'
 import { PersonaForm, type PersonaFormHandle } from './PersonaForm'
 import { blankPersona, personaObjection } from './personaLimits'
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { PersonaDetails } from '../../contracts'
+import type { PersonaDetails } from '../../generated/contracts'
 import { NewPersonaDialog } from './NewPersonaDialog'
 
 const backend = vi.hoisted(() => ({ begin: vi.fn(), run: vi.fn(), cancel: vi.fn(), fault: vi.fn() }))

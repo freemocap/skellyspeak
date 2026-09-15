@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useImperativeHandle, useState, type Ref } from 'react'
-import type { PersonaDetails } from '../../contracts'
-import { PERSONA_LIMITS } from '../../contracts'
+import type { PersonaDetails } from '../../generated/contracts'
+import { PERSONA_LIMITS } from '../../generated/contracts'
 import { PERSONA_LISTS, isEmoji, itemsToLines, linesToItems } from './personaLimits'
 
 export interface PersonaFormHandle { flush: () => PersonaDetails }

@@ -1,5 +1,5 @@
-import { SKILL_CATALOG_VERSION } from '../../contracts'
-import catalog from '../../assets/skill-catalogs/catalog.json'
+import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
+import catalog from '../../generated/skill-catalogs/catalog.json'
 import { createSkillCatalog } from './skill-index'
 import type { TreeNode } from './skillTree'
 const skillTree = createSkillCatalog(catalog as TreeNode[]).nodes

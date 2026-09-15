@@ -1,10 +1,10 @@
-import { useI18n } from '../../ui/i18n'
-import { YamlExport } from '../../ui/YamlExport'
+import { useI18n } from '../../components/i18n'
+import { YamlExport } from '../../components/YamlExport'
 import { nativeError } from '../../platform/ipc/workspace'
 import { useEffect, useRef, useState } from 'react'
 import { getLearnerProfile, learnerStateYaml, saveLearnerState, type LearnerProfile } from '../../platform/ipc/learner-profile'
 import { saveSkillProfile } from '../../platform/skill-evidence'
-import { DetailDialog } from '../../ui/DetailDialog'
+import { DetailDialog } from '../../components/DetailDialog'
 import { useSkillEvidenceStore } from '../../state/skill-evidence'
 
 export function LearnerModel({ target, onClose }: { target: string; onClose: () => void }) {

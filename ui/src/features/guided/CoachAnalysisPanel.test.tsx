@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { CoachAnalysisPanel } from './CoachAnalysisPanel'
-import type { ConversationSnapshot, Snapshot } from '../../contracts'
+import type { ConversationSnapshot, Snapshot } from '../../generated/contracts'
 
 const backend = vi.hoisted(() => ({ read: vi.fn(), execute: vi.fn(), watch: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true }))

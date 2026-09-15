@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useFaultStore } from '../../platform/diagnostics/faults'
 
 /// Everything that has gone wrong anywhere in the app, shown at the very top of

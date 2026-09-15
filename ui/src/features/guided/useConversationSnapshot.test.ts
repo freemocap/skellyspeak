@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { ChatMessage, ConversationSnapshot } from '../../contracts'
+import type { ChatMessage, ConversationSnapshot } from '../../generated/contracts'
 import { watchConversation } from '../../platform/ipc/workspace'
 import { mergeConversationPages, useConversationSnapshot } from './useConversationSnapshot'
 vi.mock('../../platform/ipc/workspace', () => ({ watchConversation: vi.fn(), nativeError: String }))

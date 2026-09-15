@@ -3,7 +3,10 @@
 The repository has three application layers: [UI](../ui/), [native](../native/),
 and [server](../server/). Their internal organization is unchanged by the top-level move.
 
-See the [top-level move verification](top-level-layout-verification.md) for checks
+Use [working notes](notes/README.md) for plans, investigations, reports, and handoffs
+that do not belong in maintained guides or the published website.
+
+See the [top-level move verification](notes/top-level-layout-verification.md) for checks
 and remaining limits.
 
 ## Status

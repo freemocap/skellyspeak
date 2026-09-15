@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
-import type { ConversationSnapshot } from '../../contracts'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
+import type { ConversationSnapshot } from '../../generated/contracts'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
 
 /** Partner-first work has no learner bubble on which to attach its state. */
 export function OpeningStatus({ snapshot, onActivity }: { snapshot: ConversationSnapshot; onActivity: () => void }) {

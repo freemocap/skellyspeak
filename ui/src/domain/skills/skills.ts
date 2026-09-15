@@ -15,7 +15,7 @@ export interface InputEvidence {
   revision: boolean
 }
 export const unreportedInput = (): InputEvidence => ({ modality: 'text', suggestion: false, scaffold: false, revision: false })
-export type SkillOutcome = import('../../contracts').Outcome
+export type SkillOutcome = import('../../generated/contracts').Outcome
 export interface SkillJudgment {
   skill_id: string
   outcome: SkillOutcome
@@ -26,7 +26,7 @@ export interface SkillRecord {
   variety?: string | null
   construct_registry_hash: string | null
   mapping_error: string | null
-  support_step: import('../../contracts').CoachMove | null
+  support_step: import('../../generated/contracts').CoachMove | null
   attempt_id: string
   session_id: string
   turn_id: number
@@ -83,9 +83,9 @@ export interface SkillProgress {
   star: boolean
 }
 export interface LearnerProfile {
-  mystery_credits: import('../../contracts').MysteryCredit[]
-  quiz_credits: import('../../contracts').LessonQuizCredit[]
-  credits: { attempt_id: string; skill_id: string; xp: number; event?: import('../../contracts').RewardEvent }[]
+  mystery_credits: import('../../generated/contracts').MysteryCredit[]
+  quiz_credits: import('../../generated/contracts').LessonQuizCredit[]
+  credits: { attempt_id: string; skill_id: string; xp: number; event?: import('../../generated/contracts').RewardEvent }[]
   rules_version: number
   choices: ProfileChoices
   xp: number

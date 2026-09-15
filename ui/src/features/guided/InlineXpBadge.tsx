@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useRef, useState } from 'react'
 import { playRewardSound } from '../../platform/audio/reward-sounds'
 import { domainColors } from '../../domain/skills/skill-domains'

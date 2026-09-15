@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { languages } from '../../platform/ipc/tauri'
 import { languageLabel } from '../../domain/language/language-label'
 import { useNavigationStore } from '../../state/navigation'

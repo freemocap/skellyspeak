@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useState, type RefObject } from 'react'
 
 /** Presentation-only split; never changes conversation or coaching state. */

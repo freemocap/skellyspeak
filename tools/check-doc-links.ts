@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 
 // Current entry points only: historical reports retain their original context.
-const documents = ['README.md', 'AGENTS.md', 'ui/README.md', 'native/README.md', 'docs/README.md', 'content/README.md', 'tools/README.md', 'server/README.md']
+const documents = ['README.md', 'AGENTS.md', 'ui/README.md', 'native/README.md', 'docs/README.md', 'docs/notes/README.md', 'content/README.md', 'tools/README.md', 'server/README.md']
 const failures: string[] = []
 for (const file of documents) {
   const source = readFileSync(file, 'utf8').replace(/```[\s\S]*?```/g, '')

@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useRef, useState } from 'react'
-import { PersonaAvatar } from '../../ui/PersonaAvatar'
+import { PersonaAvatar } from '../../components/PersonaAvatar'
 
 /// One contact as the picker shows it: the persona's display name and its first
 /// vibe emoji, when it has one.

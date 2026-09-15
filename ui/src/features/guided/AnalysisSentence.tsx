@@ -1,6 +1,6 @@
 import type { GuidedToken } from '../../types'
-import type { WordGlossView } from '../../contracts'
-import { AnnotatedText } from '../../ui/TargetText'
+import type { WordGlossView } from '../../generated/contracts'
+import { AnnotatedText } from '../../components/TargetText'
 import { SavedGlossText } from './SavedGlossText'
 
 /** The same saved, interactive words as the conversation, kept in sentence order. */

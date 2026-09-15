@@ -3,10 +3,10 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { expect, it, vi } from 'vitest'
 import { useState } from 'react'
 import App from './App'
-import { useSessionStore } from './state/session'
+import { useSessionStore } from '../state/session'
 
-vi.mock('./ui/useIsMobile', () => ({ useIsMobile: () => true }))
-vi.mock('./state/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('./state/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
+vi.mock('../components/useIsMobile', () => ({ useIsMobile: () => true }))
+vi.mock('../state/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
 const { native, state } = vi.hoisted(() => {
   const state = { connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: '', fastModel: '', paused: false } }
   const native = vi.fn(async (command: string) => {
@@ -23,13 +23,13 @@ const { native, state } = vi.hoisted(() => {
   })
   return { native, state }
 })
-vi.mock('./platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'en', native_variety: 'en-US', interface_locale: 'en', target_language: 'es', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
-vi.mock('./app/shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
-vi.mock('./features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
-vi.mock('./features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
+vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'en', native_variety: 'en-US', interface_locale: 'en', target_language: 'es', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
+vi.mock('./shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
+vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
+vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
 // The page is replaced, but it reads access the way the real one does — from the
 // session store — rather than through props the shell no longer threads down.
-vi.mock('./features/guided/GuidedPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
+vi.mock('../features/guided/GuidedPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
   const [draft, setDraft] = useState('')
   const connection = useSessionStore((state) => state.connection)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)
@@ -65,7 +65,7 @@ it('keeps Chat and Lesson reachable through Skill Tree and preserves the chat dr
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
 })
 
-vi.mock('./features/activity/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))
+vi.mock('../features/activity/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))
 
 it('starts hosted sign-in directly when no AI access is configured', async () => {
   state.connection = { route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { PersonaGenerationActivity, PersonaGenerationAttempt } from '../../contracts'
+import type { PersonaGenerationActivity, PersonaGenerationAttempt } from '../../generated/contracts'
 import { GenerationActivity } from './GenerationActivity'
 
 const api = vi.hoisted(() => ({ read: vi.fn() }))

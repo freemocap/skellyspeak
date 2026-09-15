@@ -1,6 +1,6 @@
 import { messageKey } from '../../domain/language/i18n'
-import { useI18n } from '../../ui/i18n'
-import { InfoTip } from '../../ui/InfoTip'
+import { useI18n } from '../../components/i18n'
+import { InfoTip } from '../../components/InfoTip'
 import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
@@ -9,7 +9,7 @@ import { logInfo, languages } from '../../platform/ipc/tauri'
 import { comboFromEvent, SHORTCUT_DEFAULTS, type ShortcutAction } from '../../domain/input/keyboard'
 import { VarietyField } from './VarietyField'
 import { t, type UiLang } from '../../domain/language/i18n'
-import { useIsMobile } from '../../ui/useIsMobile'
+import { useIsMobile } from '../../components/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { SettingsDialog } from './SettingsDialog'
 import { openOverlay } from '../../domain/input/back'
@@ -19,7 +19,7 @@ import { appVersion as loadAppVersion, openDownloads } from '../../platform/upda
 
 import { SettingsAccess } from './SettingsAccess'
 import { FactoryReset } from './FactoryReset'
-import { SaveDataCopy } from '../../ui/SaveDataCopy'
+import { SaveDataCopy } from '../../components/SaveDataCopy'
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 

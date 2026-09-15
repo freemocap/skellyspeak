@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
-import { useReadingPreferences } from '../../ui/ReadingPreferences'
-import { TargetText } from '../../ui/TargetText'
+import { useReadingPreferences } from '../../components/ReadingPreferences'
+import { TargetText } from '../../components/TargetText'
 import { memo } from 'react'
 import type { StoredTurn } from '../../types'
 

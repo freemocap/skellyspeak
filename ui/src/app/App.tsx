@@ -1,4 +1,4 @@
-import { AppShell } from './app/AppShell'
+import { AppShell } from './AppShell'
 
 /// The entry point composes the shell and nothing else: the shell reads the
 /// stores itself, so there is nothing to assemble here first.

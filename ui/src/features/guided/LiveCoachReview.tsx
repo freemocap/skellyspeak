@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useRef, useState } from 'react'
-import type { CoachControl } from '../../contracts'
+import type { CoachControl } from '../../generated/contracts'
 import type { StoredTurn } from '../../types'
 import { CoachEntry } from './CoachEntry'
 import { AnalysisContent } from './AnalysisContent'

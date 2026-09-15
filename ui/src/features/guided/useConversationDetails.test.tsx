@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { Snapshot } from '../../contracts'
+import type { Snapshot } from '../../generated/contracts'
 import { useConversationDetails } from './useConversationDetails'
 import { executeAction, readWorkspace } from '../../platform/ipc/workspace'
 vi.mock('../../platform/ipc/workspace', () => ({ readWorkspace: vi.fn(), executeAction: vi.fn(), nativeError: String }))

@@ -5,7 +5,7 @@ import { reportFault, useFaultStore } from './faults'
 vi.mock('./log', () => ({ logDiagnostic: vi.fn().mockResolvedValue(true) }))
 
 /// Publication is synchronous, so a test reads the store rather than subscribing
-/// to watch a value arrive. `__mocks__/zustand.ts` empties it between tests.
+/// to watch a value arrive. `tests/mocks/zustand.ts` empties it between tests.
 const faults = () => useFaultStore.getState().faults
 
 describe('the fault bus', () => {

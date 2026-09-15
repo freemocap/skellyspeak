@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { Persona, PersonaDetails } from '../../contracts'
+import type { Persona, PersonaDetails } from '../../generated/contracts'
 import { PersonaProfileDialog } from './PersonaProfileDialog'
 
 const persona: Persona = { id: 'persona', learnerId: 'learner', languageId: 'es', revision: 1, details: { name: 'Carmen', romanizedName: null, age: 44, location: 'Sevilla', occupation: 'Teacher', background: '', currentSituation: '', interests: [], opinions: [], interestingFacts: [], favoriteBooks: [], favoriteMovies: [], manner: '', quirks: [], vibe: ['🌿', '🌊'] } }

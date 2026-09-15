@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useRef } from 'react'
-import type { Persona, PersonaDetails } from '../../contracts'
-import { DetailDialog } from '../../ui/DetailDialog'
+import type { Persona, PersonaDetails } from '../../generated/contracts'
+import { DetailDialog } from '../../components/DetailDialog'
 import { PersonaProfile, type PersonaProfileHandle } from './PersonaProfile'
 
 export function PersonaProfileDialog({ persona, language, romanized, onSave, onNewPersona, onClose }: {

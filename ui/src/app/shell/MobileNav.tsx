@@ -1,5 +1,5 @@
-import { useI18n } from '../../ui/i18n'
-import { useIsMobile } from '../../ui/useIsMobile'
+import { useI18n } from '../../components/i18n'
+import { useIsMobile } from '../../components/useIsMobile'
 import { useNavigationStore } from '../../state/navigation'
 
 /// Narrow-window navigation between the conversation and the learning panel.

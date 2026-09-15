@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { Settings } from '../../types'
 import { SettingsModal } from './SettingsModal'
-import { I18nProvider } from '../../ui/i18n'
+import { I18nProvider } from '../../components/i18n'
 
 const backend = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn(), invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => ({ ...backend, isTauri: false, logInfo: vi.fn(), languages: () => [], languageFor: () => null }))

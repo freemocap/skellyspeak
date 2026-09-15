@@ -1,4 +1,4 @@
-import type { ConversationSnapshot, TurnView } from '../../contracts'
+import type { ConversationSnapshot, TurnView } from '../../generated/contracts'
 
 export interface ReplyState {
   state: 'pending' | 'paused' | 'held' | 'failed' | 'unknown' | 'cancelled' | 'unavailable'

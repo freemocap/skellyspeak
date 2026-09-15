@@ -1,4 +1,4 @@
-import { SKILL_CATALOG_VERSION } from '../../contracts'
+import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'

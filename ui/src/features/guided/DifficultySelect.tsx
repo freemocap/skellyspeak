@@ -1,6 +1,6 @@
 import { messageKey } from '../../domain/language/i18n'
-import { useI18n } from '../../ui/i18n'
-import type { Difficulty } from '../../contracts'
+import { useI18n } from '../../components/i18n'
+import type { Difficulty } from '../../generated/contracts'
 
 const DIFFICULTIES = [
   { value: 'absolute_zero', label: messageKey('Absolute zero') },

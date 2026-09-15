@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { ConversationSnapshot } from '../../contracts'
+import type { ConversationSnapshot } from '../../generated/contracts'
 import { setPlaybackAllowed } from '../../platform/audio/speech'
 import { useMessageSpeech } from './useMessageSpeech'
 const native = vi.hoisted(() => ({ invoke: vi.fn(), execute: vi.fn(), fault: vi.fn(), play: vi.fn(), stop: vi.fn() }))

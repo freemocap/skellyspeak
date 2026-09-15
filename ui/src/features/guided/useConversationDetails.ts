@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Difficulty, Persona, PersonaDetails, Snapshot } from '../../contracts'
+import type { Difficulty, Persona, PersonaDetails, Snapshot } from '../../generated/contracts'
 import { executeAction, nativeError, readWorkspace } from '../../platform/ipc/workspace'
 
 /** Directory reads and explicit edits; no inference or automatic retries. */

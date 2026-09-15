@@ -1,4 +1,4 @@
-import type { GlossSegment } from '../../contracts'
+import type { GlossSegment } from '../../generated/contracts'
 import type { GuidedToken } from '../../types'
 import { sourceToken } from './source-token'
 

@@ -1,4 +1,4 @@
-import { SKILL_CATALOG_VERSION } from '../../contracts'
+import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
 import { skillIndex } from '../../domain/skills/skill-index'
 // @vitest-environment jsdom
 import { act, fireEvent, render as testingRender, screen, waitFor, within } from '@testing-library/react'

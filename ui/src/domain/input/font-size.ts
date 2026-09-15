@@ -1,4 +1,4 @@
-import { TEXT_SIZE } from '../../contracts'
+import { TEXT_SIZE } from '../../generated/contracts'
 
 export type FontSizeAction = 'increase' | 'decrease' | 'reset'
 

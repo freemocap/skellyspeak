@@ -3,13 +3,12 @@
 // A Zustand store is a module-level singleton, so state written by one test is
 // visible to the next. This wraps `create`/`createStore` to remember each store's
 // initial state and restore it in `afterEach` — the pattern Zustand's own
-// testing guide documents. Vitest loads this automatically for the `zustand`
-// package because `__mocks__` sits beside `node_modules`, so no store has to
-// carry a reset hook, export an initial-state constant, or know it is tested.
+// testing guide documents. tests/setup.ts registers it explicitly, so no store
+// needs to carry test-only reset machinery.
 import { afterEach, vi } from 'vitest'
 import type * as ZustandTypes from 'zustand'
 
-export * from 'zustand'
+export type * from 'zustand'
 
 const { create: actualCreate, createStore: actualCreateStore } =
   await vi.importActual<typeof ZustandTypes>('zustand')

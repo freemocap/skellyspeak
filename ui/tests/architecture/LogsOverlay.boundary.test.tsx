@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import { LogsOverlay } from './LogsOverlay'
-import DevWindow from '../../DevWindow'
+import { LogsOverlay } from '../../src/features/activity/LogsOverlay'
+import DevWindow from '../../src/app/DevWindow'
 
 const mocks = vi.hoisted(() => ({ native: vi.fn(), mobile: false }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.native }))
-vi.mock('../../ui/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
-vi.mock('../../ui/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
+vi.mock('../../src/components/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
+vi.mock('../../src/components/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
 beforeEach(() => { vi.clearAllMocks(); mocks.mobile = false })
 it.each([false, true])('opens and reopens the existing AI frame without native graph work (mobile=%s)', mobile => {
   mocks.mobile = mobile
@@ -26,4 +26,4 @@ it('opens the separate AI window without mounting trace or gate controllers', ()
   expect(mocks.native).not.toHaveBeenCalled()
 })
 
-vi.mock('./LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))
+vi.mock('../../src/features/activity/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))

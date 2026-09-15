@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { claimRewardEvents } from '../../platform/ipc/rewards'
 import { nativeError } from '../../platform/ipc/workspace'
 import { RewardInspectionContext } from './RewardInspectionContext'

@@ -1,5 +1,5 @@
 import type { SkillSnapshot } from '../../domain/skills/skills'
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 
 /** Saved awards only: do not infer multipliers from today's policy or fabricate dates. */
 export function RewardsLedger({ snapshot }: { snapshot: SkillSnapshot }) {

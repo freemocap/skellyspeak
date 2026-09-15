@@ -1,10 +1,10 @@
-import { useI18n } from '../../ui/i18n'
-import { ErrorDetails } from '../../ui/ErrorDetails'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
+import { ErrorDetails } from '../../components/ErrorDetails'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
 import { useState } from 'react'
 import { nativeError } from '../../platform/ipc/workspace'
 import { SavedGlossText } from './SavedGlossText'
-import type { SuggestedReply } from '../../contracts'
+import type { SuggestedReply } from '../../generated/contracts'
 
 /// Reply ideas for the latest persona message, with saved word glosses. Inserting
 /// fills the draft; it never sends. The panel folds down to one button at the

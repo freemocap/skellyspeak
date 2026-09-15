@@ -1,10 +1,10 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useSkillNavigationStore } from '../../state/skill-navigation'
 import { useContext, useRef, type RefObject } from 'react'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { domainColors } from '../../domain/skills/skill-domains'
 import type { MessageEvidence } from '../../domain/skills/message-evidence'
-import { useOverlayLayer } from '../../ui/useOverlayLayer'
+import { useOverlayLayer } from '../../components/useOverlayLayer'
 
 export function RewardBadge({ domainId, label, xp, quote, creditKind }: { domainId: string; label: string; xp: number; quote: string; creditKind: 'earned' | 'stored' }) {
   const tr = useI18n()

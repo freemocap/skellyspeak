@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
 import { buildGraph, PRODUCTION_ROOTS, reachable, unreachableModules, unusedExports } from '../../../tools/import-graph'
-import { analyseStyles } from '../../../tools/prune-styles'
+import { analyseStyles } from '../../tools/prune-styles'
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const graph = buildGraph(repositoryRoot)
@@ -12,8 +12,8 @@ const graph = buildGraph(repositoryRoot)
 /// understands `import ... from` gets wrong. Asserting them is a guard on the
 /// tool, not on the application.
 const CRITICAL = [
-  'ui/src/main.tsx',
-  'ui/src/App.tsx',
+  'ui/src/app/main.tsx',
+  'ui/src/app/App.tsx',
   'ui/src/features/guided/GuidedPage.tsx',
   'ui/src/features/skills/SkillsPage.tsx',
   'ui/src/features/activity/LiveActivity.tsx',
@@ -27,6 +27,8 @@ it('reaches the application from its entry points', () => {
   const missing = CRITICAL.filter((module) => !live.has(module))
   expect(missing, 'reachability walk lost these modules').toEqual([])
   expect(graph.unresolved, 'unresolvable relative imports').toEqual([])
+  expect(graph.edges.some(edge => edge.from === 'ui/src/app/main.tsx' && edge.to === 'ui/src/styles/index.css'),
+    'the startup stylesheet side-effect import must be part of the graph').toBe(true)
 })
 
 /// Warning only, by decision: unreachable production code is worth knowing about

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import type { ConversationSnapshot, Persona, RevealState } from '../../contracts'
+import type { ConversationSnapshot, Persona, RevealState } from '../../generated/contracts'
 import { blankPersona } from './personaLimits'
 import { MysteryPartnerPanel } from './MysteryPartnerPanel'
 const backend = vi.hoisted(() => ({ execute: vi.fn(), sound: vi.fn(), reload: vi.fn() }))

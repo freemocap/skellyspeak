@@ -2,8 +2,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { invoke } from '@tauri-apps/api/core'
-import type { WordGlossView } from '../../contracts'
-import { ReadingPreferencesContext } from '../../ui/ReadingPreferences'
+import type { WordGlossView } from '../../generated/contracts'
+import { ReadingPreferencesContext } from '../../components/ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
 const text = '  sí, sí!\ne\u0301 👩🏽‍💻 مرحبا  '

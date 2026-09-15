@@ -4,7 +4,7 @@ import { useI18n } from './i18n'
 import { useReadingPreferences } from './ReadingPreferences'
 import { glossDisplayGroups } from '../domain/language/gloss-display'
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
-import type { GlossSegment } from '../contracts'
+import type { GlossSegment } from '../generated/contracts'
 
 function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement | null>; onClose: () => void }) {
   useOverlayLayer(host, onClose, false)

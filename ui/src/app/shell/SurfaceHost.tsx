@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { lazy, Suspense } from 'react'
-import { ActiveSurfaceContext } from '../../ui/useOverlayLayer'
+import { ActiveSurfaceContext } from '../../components/useOverlayLayer'
 import { SkillEvidenceContext, useSkillEvidence } from '../../state/useSkillEvidence'
 import { useNavigationStore } from '../../state/navigation'
 import { isTauri } from '../../platform/ipc/tauri'

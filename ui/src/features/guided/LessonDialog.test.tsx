@@ -2,7 +2,7 @@
 import { beforeEach, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { LessonDialog } from './LessonDialog'
-import type { ConversationSnapshot, LessonView } from '../../contracts'
+import type { ConversationSnapshot, LessonView } from '../../generated/contracts'
 
 const backend = vi.hoisted(() => ({ execute: vi.fn() }))
 vi.mock('../../platform/ipc/workspace', () => ({ executeAction: backend.execute, nativeError: (error: unknown) => String(error) }))

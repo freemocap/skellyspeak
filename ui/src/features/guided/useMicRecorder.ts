@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/native'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from '../../domain/audio/browser-recording'
-import type { RecordingStarted, TranscriptionInspectionResult } from '../../contracts'
+import type { RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 interface MicRecorderOptions {

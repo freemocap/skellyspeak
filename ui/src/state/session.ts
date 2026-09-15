@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { reportFault } from '../platform/diagnostics/faults'
 import { invoke } from '../platform/ipc/tauri'
-import type { ConnectionConfig } from '../contracts'
+import type { ConnectionConfig } from '../generated/contracts'
 
 /// AI access: which route the core is using, and whether a hosted sign-in is in
 /// flight. Rust owns the route; this is the projection every surface reads,

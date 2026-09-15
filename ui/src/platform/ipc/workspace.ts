@@ -1,5 +1,5 @@
 import { invoke } from './native'
-import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot } from '../../contracts'
+import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot } from '../../generated/contracts'
 
 export function readWorkspace(): Promise<Snapshot> {
   return invoke<Snapshot>('get_snapshot')

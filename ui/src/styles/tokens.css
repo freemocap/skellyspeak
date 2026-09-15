@@ -2,7 +2,7 @@
    Design tokens — the single source of truth for colour, type, space, radius,
    elevation, motion and layering.
 
-   Rules of the house (enforced by tools/check-styles.ts):
+   Rules of the house (enforced by ui/tools/check-styles.ts):
      1. Component rules never contain a literal colour, font size, font weight,
         radius, duration or layer. They reference a semantic token from this
         file. Geometry that belongs to one component — a width, an offset, a
@@ -18,7 +18,7 @@
         and paper names remain semantic aliases so every surface changes
         together. Domain fill and readable domain ink are separate roles.
      5. Media queries cannot read custom properties, so breakpoints are not
-        tokens. The permitted set is BREAKPOINTS in tools/check-styles.ts.
+        tokens. The permitted set is BREAKPOINTS in ui/tools/check-styles.ts.
      6. Every custom property is declared here, including the ones TypeScript
         writes at runtime, so no consumer ever needs a var() fallback.
 

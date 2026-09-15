@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ConversationSnapshot, MysteryField, Persona } from '../../contracts'
+import type { ConversationSnapshot, MysteryField, Persona } from '../../generated/contracts'
 import { useSkillEvidenceStore } from '../../state/skill-evidence'
 import { executeAction, nativeError } from '../../platform/ipc/workspace'
-import { DetailDialog } from '../../ui/DetailDialog'
-import { useI18n } from '../../ui/i18n'
+import { DetailDialog } from '../../components/DetailDialog'
+import { useI18n } from '../../components/i18n'
 import { playRewardSound, unlockRewardAudio } from '../../platform/audio/reward-sounds'
 
 const labels: Record<MysteryField, string> = { occupation: 'Occupation', manner: 'Manner', location: 'Lives in', age: 'Age', interests: 'Interests' }

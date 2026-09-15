@@ -1,10 +1,10 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useState } from 'react'
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { readWorkspace, selectedConversation, watchConversation, nativeError } from '../../platform/ipc/workspace'
 import { GenerationActivity } from './GenerationActivity'
-import type { ConversationSnapshot } from '../../contracts'
+import type { ConversationSnapshot } from '../../generated/contracts'
 
 /** Draw the actual durable operation dependencies; inspecting never dispatches inference. */
 export function LiveActivity() {

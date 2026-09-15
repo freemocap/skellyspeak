@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/tauri'
-import { SaveDataCopy } from '../../ui/SaveDataCopy'
+import { SaveDataCopy } from '../../components/SaveDataCopy'
 
 export function FactoryReset() {
   const tr = useI18n()

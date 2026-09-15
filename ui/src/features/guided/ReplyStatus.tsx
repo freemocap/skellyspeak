@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import type { ReplyState } from '../../domain/language/reply-state'
 import { nativeError } from '../../platform/ipc/workspace'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
-import { useI18n } from '../../ui/i18n'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
 
 export function ReplyStatus({ reply, onControl, onActivity }: { reply?: ReplyState; onControl?: (control: 'retry' | 'resume') => Promise<void>; onActivity?: () => void }) {
   const tr = useI18n()

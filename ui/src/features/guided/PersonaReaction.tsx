@@ -1,9 +1,9 @@
-import { useI18n } from '../../ui/i18n'
-import { TargetText } from '../../ui/TargetText'
+import { useI18n } from '../../components/i18n'
+import { TargetText } from '../../components/TargetText'
 import { useEffect, useRef, useState } from 'react'
 import { playRewardSound } from '../../platform/audio/reward-sounds'
 import type { PersonaReaction as Reaction } from '../../types'
-import { DetailDialog } from '../../ui/DetailDialog'
+import { DetailDialog } from '../../components/DetailDialog'
 
 const reactions: Record<Reaction['kind'], { icon: string; label: string }> = {
   happy: { icon: '😊', label: 'Partner seems happy' },

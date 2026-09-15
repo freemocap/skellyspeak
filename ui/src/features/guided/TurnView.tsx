@@ -1,13 +1,13 @@
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
-import { useI18n } from '../../ui/i18n'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
 import { anchoredTokenGlosses, hasArabicScript } from '../../domain/language/gloss-display'
-import { EvidenceMappingNotice } from '../../ui/EvidenceMappingNotice'
-import { ErrorDetails } from '../../ui/ErrorDetails'
+import { EvidenceMappingNotice } from '../../components/EvidenceMappingNotice'
+import { ErrorDetails } from '../../components/ErrorDetails'
 import { GlossAssistance } from './GlossAssistance'
 import { SavedGlossText } from './SavedGlossText'
-import { TargetText } from '../../ui/TargetText'
-import { TokenSpan } from '../../ui/TokenSpan'
+import { TargetText } from '../../components/TargetText'
+import { TokenSpan } from '../../components/TokenSpan'
 import { RewardInspectionContext } from './RewardInspectionContext'
 import { ReplyStatus } from './ReplyStatus'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
@@ -17,7 +17,7 @@ import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from './MessageFeedback'
 import { PersonaReaction } from './PersonaReaction'
 import type { GuidedToken, GuidedTurnResult } from '../../types'
-import type { CoachControl, CoachDecision, CoachObservationView } from '../../contracts'
+import type { CoachControl, CoachDecision, CoachObservationView } from '../../generated/contracts'
 import { popupAnchor, type PopupState } from './GlossPopup'
 import { groupSentences, splitSentences } from '../../domain/language/sentences'
 import { sourceToken } from '../../domain/language/source-token'
@@ -26,7 +26,7 @@ export interface TurnShape {
   replyState?: import('../../domain/language/reply-state').ReplyState
   turnId?: string
   replacedBy?: string | null
-  userSavedGloss?: import('../../contracts').WordGlossView | null
+  userSavedGloss?: import('../../generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
   userGlossState?: string | null

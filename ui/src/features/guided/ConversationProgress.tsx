@@ -1,6 +1,6 @@
 import { RewardsLedger } from './RewardsLedger'
-import { useI18n } from '../../ui/i18n'
-import { EvidenceMappingNotice } from '../../ui/EvidenceMappingNotice'
+import { useI18n } from '../../components/i18n'
+import { EvidenceMappingNotice } from '../../components/EvidenceMappingNotice'
 import { useContext, useState, type ReactNode } from 'react'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { conversationEvidence } from '../../domain/skills/skills'
@@ -11,7 +11,7 @@ import { ProgressSummary } from './ProgressSummary'
 import { InlineXpBadge } from './InlineXpBadge'
 import { RewardInspectionContext } from './RewardInspectionContext'
 import { messageEvidence } from '../../domain/skills/message-evidence'
-import { InfoTip } from '../../ui/InfoTip'
+import { InfoTip } from '../../components/InfoTip'
 
 export function ConversationProgress({ chatId, children }: { chatId: string; children?: ReactNode }) {
   const tr = useI18n()

@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest'
 import { useSessionStore } from './session'
 import { reportFault } from '../platform/diagnostics/faults'
-import type { ConnectionConfig } from '../contracts'
+import type { ConnectionConfig } from '../generated/contracts'
 
 const native = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../platform/ipc/tauri', () => ({ invoke: native.invoke }))

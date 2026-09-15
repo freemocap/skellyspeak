@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { TEXT_SIZE } from '../../contracts'
+import { TEXT_SIZE } from '../../generated/contracts'
 import { applyFontSizeAction, fontSizeActionFromShortcut } from './font-size'
 
 describe('font size actions', () => {

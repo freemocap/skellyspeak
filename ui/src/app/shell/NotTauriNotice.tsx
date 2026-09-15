@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 /// Shown when the interface is loaded without the Rust core. The app is a
 /// desktop webview: AI calls, storage and speech-to-text all live behind IPC.
 export function NotTauriNotice() {

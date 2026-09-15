@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useContext, useState, type CSSProperties } from 'react'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { PracticeContext } from './PracticeContext'

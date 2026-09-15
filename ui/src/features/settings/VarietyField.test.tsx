@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, it } from 'vitest'
-import { I18nProvider } from '../../ui/i18n'
+import { I18nProvider } from '../../components/i18n'
 import { VarietyField } from './VarietyField'
 
 const presets = [{ id: 'en-US', label: 'United States' }, { id: 'en-GB', label: 'United Kingdom' }]

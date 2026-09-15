@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { DiagnosticCommand } from '../../contracts'
+import type { DiagnosticCommand } from '../../generated/contracts'
 import { isTauri } from '../ipc/tauri'
 
 type Level = 'debug' | 'info' | 'warn' | 'error'

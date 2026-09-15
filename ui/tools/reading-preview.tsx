@@ -1,8 +1,8 @@
 /** Manual visual fixture. Sample text only; no IPC, generation or saved app data. */
 import { createRoot } from 'react-dom/client'
 import { useState } from 'react'
-import { SavedGlossText } from '../src/ui/SavedGlossText'
-import { ReadingPreferencesContext } from '../src/ui/ReadingPreferences'
+import { SavedGlossText } from '../src/components/SavedGlossText'
+import { ReadingPreferencesContext } from '../src/components/ReadingPreferences'
 import '../src/styles/index.css'
 
 function Preview() {

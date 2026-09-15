@@ -1,7 +1,7 @@
 import { useSkillEvidenceStore } from '../../state/skill-evidence'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChatSummary, Settings, StoredTurn } from '../../types'
-import type { Snapshot } from '../../contracts'
+import type { Snapshot } from '../../generated/contracts'
 import { conversationTurns } from '../../domain/language/conversation-view'
 import { replyState } from '../../domain/language/reply-state'
 import { executeAction, nativeError, readWorkspace, selectedConversation } from '../../platform/ipc/workspace'

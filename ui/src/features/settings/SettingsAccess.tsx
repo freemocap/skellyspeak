@@ -1,8 +1,8 @@
-import { useI18n } from '../../ui/i18n'
-import { InfoTip } from '../../ui/InfoTip'
+import { useI18n } from '../../components/i18n'
+import { InfoTip } from '../../components/InfoTip'
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../platform/ipc/native'
-import type { AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../contracts'
+import type { AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../generated/contracts'
 
 const CUSTOM_CHAT_MODEL = 'google/gemini-2.5-flash'
 const CUSTOM_TRANSCRIPTION_MODEL = 'whisper-large-v3'

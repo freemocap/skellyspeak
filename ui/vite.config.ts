@@ -41,6 +41,6 @@ export default defineConfig({
     // environments keep the fast majority fast — opt in with
     // `// @vitest-environment jsdom` at the top of a component test.
     environment: 'node',
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./tests/setup.ts'],
   },
 })

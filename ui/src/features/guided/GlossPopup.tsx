@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useRef } from 'react'
-import { useOverlayLayer } from '../../ui/useOverlayLayer'
+import { useOverlayLayer } from '../../components/useOverlayLayer'
 
 export interface PopupState {
   actions: { label: string; run: () => void }[]

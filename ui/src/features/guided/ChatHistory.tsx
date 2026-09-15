@@ -1,5 +1,5 @@
 import { t, formatDate, formatRelativeTime } from '../../domain/language/i18n'
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useState } from 'react'
 import type { ChatSummary } from '../../types'
 

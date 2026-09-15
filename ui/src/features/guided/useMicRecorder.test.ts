@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { TranscriptionInspectionResult } from '../../contracts'
+import type { TranscriptionInspectionResult } from '../../generated/contracts'
 import { useMicRecorder } from './useMicRecorder'
 const transcript: TranscriptionInspectionResult = {
   text: 'fixture transcript', audioBase64: '', segments: [],

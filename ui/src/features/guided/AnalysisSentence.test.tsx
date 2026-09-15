@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import type { WordGlossView } from '../../contracts'
+import type { WordGlossView } from '../../generated/contracts'
 import { AnalysisSentence } from './AnalysisSentence'
 
 it('keeps saved Arabic clitics joined in a sentence and reveals their help on request', () => {

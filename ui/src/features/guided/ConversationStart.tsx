@@ -1,5 +1,5 @@
-import { useI18n } from '../../ui/i18n'
-import type { Opening, StarterCard } from '../../contracts'
+import { useI18n } from '../../components/i18n'
+import type { Opening, StarterCard } from '../../generated/contracts'
 import { useRef, useState } from 'react'
 import { nativeError } from '../../platform/ipc/workspace'
 

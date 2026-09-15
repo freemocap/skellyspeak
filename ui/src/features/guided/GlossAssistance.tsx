@@ -1,8 +1,8 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useRef, useState } from 'react'
 import type { GuidedTurnResult } from '../../types'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
-import { ErrorDetails } from '../../ui/ErrorDetails'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
+import { ErrorDetails } from '../../components/ErrorDetails'
 
 /** Saved-assistance status; only an explicit retry delegates work to the caller. */
 export function GlossAssistance({ assistant, onRetryGloss }: {

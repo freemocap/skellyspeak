@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AccessSettings, Command, ConnectionConfig, Snapshot } from '../../contracts'
+import type { AccessSettings, Command, ConnectionConfig, Snapshot } from '../../generated/contracts'
 import type { Settings } from '../../types'
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => backend)

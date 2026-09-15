@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 export function ProgressRules() {
   const tr = useI18n()
   return <details className="practice-rules"><summary>{tr("How XP works")}</summary>

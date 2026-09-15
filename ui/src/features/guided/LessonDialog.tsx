@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ConversationSnapshot, LessonControl, LessonCategory } from '../../contracts'
+import type { ConversationSnapshot, LessonControl, LessonCategory } from '../../generated/contracts'
 import { executeAction, nativeError } from '../../platform/ipc/workspace'
-import { DetailDialog } from '../../ui/DetailDialog'
-import { useI18n } from '../../ui/i18n'
+import { DetailDialog } from '../../components/DetailDialog'
+import { useI18n } from '../../components/i18n'
 import { useNavigationStore } from '../../state/navigation'
-import { useReadingPreferences } from '../../ui/ReadingPreferences'
-import { TargetText } from '../../ui/TargetText'
+import { useReadingPreferences } from '../../components/ReadingPreferences'
+import { TargetText } from '../../components/TargetText'
 import { playRewardSound, unlockRewardAudio } from '../../platform/audio/reward-sounds'
-import { Markdown } from '../../ui/Markdown'
+import { Markdown } from '../../components/Markdown'
 
 export function LessonDialog({ snapshot, busy, beforeAction, onClose, onPractice, embedded = false, onLessonSelected }: {
   onLessonSelected?: (id: string) => void

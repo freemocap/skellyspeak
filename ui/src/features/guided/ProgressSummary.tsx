@@ -1,7 +1,7 @@
-import { DomainEvidenceTree } from '../../ui/DomainEvidenceTree'
+import { DomainEvidenceTree } from '../../components/DomainEvidenceTree'
 import { RewardsLedger } from './RewardsLedger'
-import { useI18n } from '../../ui/i18n'
-import { InfoTip } from '../../ui/InfoTip'
+import { useI18n } from '../../components/i18n'
+import { InfoTip } from '../../components/InfoTip'
 import { ConversationMap } from './ConversationMap'
 import { SkillEvidenceContext } from '../../state/useSkillEvidence'
 import { PracticeContext } from './PracticeContext'
@@ -10,7 +10,7 @@ import { getPracticeOverview } from '../../platform/skill-evidence'
 import type { PracticeOverview, SkillSnapshot } from '../../domain/skills/skills'
 import { practiceStatistics } from '../../domain/skills/practice-statistics'
 import { useSkillNavigationStore } from '../../state/skill-navigation'
-import { DetailDialog } from '../../ui/DetailDialog'
+import { DetailDialog } from '../../components/DetailDialog'
 
 function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot; name: string; onClose: () => void }) {
   const tr = useI18n()

@@ -1,1 +1,1 @@
-export { SavedGlossText } from '../../ui/SavedGlossText'
+export { SavedGlossText } from '../../components/SavedGlossText'

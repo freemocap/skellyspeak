@@ -51,6 +51,7 @@ export interface Specifier {
 export const SCAN_ROOT = 'ui/src'
 
 const STATIC = /\bfrom\s*(['"])([^'"]+)\1/g
+const SIDE_EFFECT = /\bimport\s*(['"])([^'"]+)\1/g
 const CALL = /\b(?:import|importActual|mock|unmock|doMock)\s*(?:<[^()]*>)?\s*\(\s*(['"])([^'"]+)\1/g
 const URL_ARGUMENT = /\bnew\s+URL\s*\(\s*(['"])([^'"]+)\1/g
 
@@ -75,6 +76,7 @@ export function extractSpecifiers(source: string): Specifier[] {
     }
   }
   scan(STATIC, 'static')
+  scan(SIDE_EFFECT, 'static')
   scan(CALL, 'dynamic')
   scan(URL_ARGUMENT, 'url')
   found.sort((a, b) => a.start - b.start)
@@ -200,7 +202,7 @@ const EXPORT_DECLARATION = /export[ ]+(?:async[ ]+)?(function|const|let|var|clas
 const EXPORT_LIST = /export[ ]*(?:type[ ]*)?[{]([^}]*)[}]/g
 
 /// Files that are generated, so pruning them is not an option.
-const GENERATED = new Set(["ui/src/contracts.ts"])
+const GENERATED = new Set(["ui/src/generated/contracts.ts"])
 
 /// Names a module exports that a caller could fail to use. A re-export star and
 /// a default export name no identifier, so neither is collected.
@@ -273,14 +275,13 @@ export function reachable(graph: Graph, roots: string[]): Set<string> {
   return seen
 }
 
-/// Roots an application can actually start from. `ui/src/test/setup.ts` is loaded
-/// by vitest configuration rather than imported, so it is a root too.
-export const PRODUCTION_ROOTS = ['ui/src/main.tsx', 'ui/src/test/setup.ts']
+/// Production startup only. Shared test setup lives outside application source.
+export const PRODUCTION_ROOTS = ['ui/src/app/main.tsx']
 
 /// Test infrastructure is not shipped and is not reachable from the application
 /// entry point by design, so it is never reported as dead.
 export function isTestInfrastructure(path: string): boolean {
-  return path.startsWith('ui/src/test/')
+  return path.startsWith('ui/tests/')
 }
 
 /// Production modules nothing reaches from a root. Test files are excluded: a

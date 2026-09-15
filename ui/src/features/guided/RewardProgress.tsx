@@ -1,4 +1,4 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { domainColors } from '../../domain/skills/skill-domains'

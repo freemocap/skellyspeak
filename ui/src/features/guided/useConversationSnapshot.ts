@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { ConversationSnapshot } from '../../contracts'
+import type { ConversationSnapshot } from '../../generated/contracts'
 import { nativeError, watchConversation } from '../../platform/ipc/workspace'
 
 /** Merge bounded pages by durable identity; newer page data wins independently of arrival order. */

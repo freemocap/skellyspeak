@@ -14,6 +14,19 @@ behavior, verification results and unresolved questions distinct.
 Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
 
+## Working notes
+
+Put all new working notes, plans, investigations, verification reports, and
+handoffs in `docs/notes/`, following [its README](docs/notes/README.md). Do not
+scatter these files across the repository root, source folders, or documentation
+website. Use descriptive names, group related topics when useful, and distinguish
+proposals, agreed decisions, implemented behavior, and verification results.
+Update existing notes for continuing work and mark superseded material clearly.
+Maintained user/developer guides and module READMEs stay with their documentation
+or code owners; promote settled information there when appropriate. Notes do not
+become authoritative merely by being recorded. Leave historical `old/notes/`
+material in the archive unless individual content is reviewed and adopted.
+
 ## Reference boundary
 
 Everything in `old/` is deprecated reference material. It is not the active

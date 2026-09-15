@@ -1,6 +1,6 @@
 import { messageKey, t } from '../../domain/language/i18n'
-import { PERSONA_LIMITS } from '../../contracts'
-import type { PersonaDetails } from '../../contracts'
+import { PERSONA_LIMITS } from '../../generated/contracts'
+import type { PersonaDetails } from '../../generated/contracts'
 
 type Translate = (key: string, vars?: Record<string, string | number>) => string
 const english: Translate = (key, vars) => t('en', key, vars)

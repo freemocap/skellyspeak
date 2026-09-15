@@ -1,5 +1,5 @@
-import { useI18n } from '../../ui/i18n'
-import { DetailDialog } from '../../ui/DetailDialog'
+import { useI18n } from '../../components/i18n'
+import { DetailDialog } from '../../components/DetailDialog'
 import { useNavigationStore } from '../../state/navigation'
 
 /// The narrow-window overflow menu: the destinations that do not fit in the

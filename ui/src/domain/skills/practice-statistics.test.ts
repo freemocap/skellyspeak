@@ -1,4 +1,4 @@
-import { SKILL_CATALOG_VERSION } from '../../contracts'
+import { SKILL_CATALOG_VERSION } from '../../generated/contracts'
 import { expect, it } from 'vitest'
 import { skillDemo } from './skillDemo'
 import { practiceStatistics } from './practice-statistics'

@@ -39,13 +39,13 @@ const rules: Rule[] = [
       const bare = g.bareImports.get(module) ?? new Set<string>()
       if (importsReact(bare)) found.push({ detail: `${module} imports React` })
       if (importsTauri(bare)) found.push({ detail: `${module} imports Tauri` })
-      found.push(...edgesFrom(g, [module], ['ui/src/ui/', 'ui/src/features/', 'ui/src/app/', 'ui/src/state/', 'ui/src/platform/']))
+      found.push(...edgesFrom(g, [module], ['ui/src/components/', 'ui/src/features/', 'ui/src/app/', 'ui/src/state/', 'ui/src/platform/']))
       return found
     }),
   },
   {
-    name: 'ui primitives do not reach up into features, the shell or state',
-    find: (g) => edgesFrom(g, ['ui/src/ui/'], ['ui/src/features/', 'ui/src/app/', 'ui/src/state/']),
+    name: 'shared components do not reach up into features, the shell or state',
+    find: (g) => edgesFrom(g, ['ui/src/components/'], ['ui/src/features/', 'ui/src/app/', 'ui/src/state/']),
   },
   {
     name: 'only platform touches Tauri',
@@ -56,7 +56,7 @@ const rules: Rule[] = [
   },
   {
     name: 'platform does not reach up into the layers above it',
-    find: (g) => edgesFrom(g, ['ui/src/platform/'], ['ui/src/ui/', 'ui/src/features/', 'ui/src/app/', 'ui/src/state/']),
+    find: (g) => edgesFrom(g, ['ui/src/platform/'], ['ui/src/components/', 'ui/src/features/', 'ui/src/app/', 'ui/src/state/']),
   },
   {
     name: 'features do not reach up into the shell',
@@ -79,8 +79,8 @@ const rules: Rule[] = [
     },
   },
   {
-    name: 'ui and domain do not depend on state',
-    find: (g) => edgesFrom(g, ['ui/src/ui/', 'ui/src/domain/'], ['ui/src/state/']),
+    name: 'components and domain do not depend on state',
+    find: (g) => edgesFrom(g, ['ui/src/components/', 'ui/src/domain/'], ['ui/src/state/']),
   },
 ]
 

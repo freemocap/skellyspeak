@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useState } from 'react'
-import type { PersonaGenerationActivity } from '../../contracts'
+import type { PersonaGenerationActivity } from '../../generated/contracts'
 import { nativeError, readPersonaGenerationActivity } from '../../platform/ipc/workspace'
 
 /** Global receipts have no conversation owner. Poll metadata without starting AI work. */

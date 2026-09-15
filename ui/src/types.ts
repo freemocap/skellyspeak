@@ -80,7 +80,7 @@ export interface StoredTurn {
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null
-  userSavedGloss?: import('./contracts').WordGlossView | null
+  userSavedGloss?: import('./generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
   userGlossError?: string | null
@@ -92,8 +92,8 @@ export interface StoredTurn {
   /// Saved feedback determines completion; operation errors remain independent
   /// in coachError and replyState, including when no reply exists.
   analysisState: AnalysisState
-  coach?: import('./contracts').CoachObservationView
-  coachDecision?: import('./contracts').CoachDecision
+  coach?: import('./generated/contracts').CoachObservationView
+  coachDecision?: import('./generated/contracts').CoachDecision
   reaction?: PersonaReaction
   reactionError?: string
   coachError?: string
@@ -138,7 +138,7 @@ export interface Mechanic {
 }
 
 export interface Scaffolds {
-  replies: import('./contracts').SuggestedReply[]
+  replies: import('./generated/contracts').SuggestedReply[]
   frames: string[]
   starters: string[]
 }
@@ -148,7 +148,7 @@ export interface GuidedTurnResult {
   suggestionsState?: string | null
   translationState?: string | null
   messageId?: string
-  savedGloss?: import('./contracts').WordGlossView | null
+  savedGloss?: import('./generated/contracts').WordGlossView | null
   glossError?: string | null
   glossState?: string | null
   glossOperationId?: string | null

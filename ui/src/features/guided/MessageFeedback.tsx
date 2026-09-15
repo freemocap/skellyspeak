@@ -1,8 +1,8 @@
-import { useI18n } from '../../ui/i18n'
-import { ActivityIndicator } from '../../ui/ActivityIndicator'
+import { useI18n } from '../../components/i18n'
+import { ActivityIndicator } from '../../components/ActivityIndicator'
 import { useRef, useState, type ReactNode } from 'react'
-import { DetailDialog } from '../../ui/DetailDialog'
-import type { CoachControl, CoachDecision, CoachObservationView } from '../../contracts'
+import { DetailDialog } from '../../components/DetailDialog'
+import type { CoachControl, CoachDecision, CoachObservationView } from '../../generated/contracts'
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../platform/ipc/workspace'
 

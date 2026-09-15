@@ -2,8 +2,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ComposerHelp } from './ComposerHelp'
-import { ReadingProvider } from '../../ui/TargetText'
-import type { SuggestedReply } from '../../contracts'
+import { ReadingProvider } from '../../components/TargetText'
+import type { SuggestedReply } from '../../generated/contracts'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => backend)

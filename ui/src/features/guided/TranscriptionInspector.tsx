@@ -1,7 +1,7 @@
-import { useI18n } from '../../ui/i18n'
+import { useI18n } from '../../components/i18n'
 import { useEffect, useRef, useState } from 'react'
-import type { TranscriptionInspectionResult } from '../../contracts'
-import { DetailDialog } from '../../ui/DetailDialog'
+import type { TranscriptionInspectionResult } from '../../generated/contracts'
+import { DetailDialog } from '../../components/DetailDialog'
 import { cssToken } from '../../platform/css-token'
 
 type Inspection = TranscriptionInspectionResult['inspection']

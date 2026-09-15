@@ -1,6 +1,6 @@
-import { useI18n } from '../../ui/i18n'
-import { TargetText } from '../../ui/TargetText'
-import type { CoachDecision, CoachObservationView } from '../../contracts'
+import { useI18n } from '../../components/i18n'
+import { TargetText } from '../../components/TargetText'
+import type { CoachDecision, CoachObservationView } from '../../generated/contracts'
 
 /** Learner-facing explanations only. Native diagnostics never substitute for help. */
 export function CoachEntry({ decision, feedback, source, error }: {
