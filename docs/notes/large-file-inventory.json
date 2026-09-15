@@ -28,13 +28,6 @@
       "area": "root"
     },
     {
-      "path": "native/src/storage/store.rs",
-      "lines": 1717,
-      "category": "source",
-      "band": "split",
-      "area": "native"
-    },
-    {
       "path": "native/src/application/mod.rs",
       "lines": 1501,
       "category": "source",
@@ -686,6 +679,13 @@
       "area": "native"
     },
     {
+      "path": "AGENTS.md",
+      "lines": 252,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "root"
+    },
+    {
       "path": "native/src/learning/learner/progression.rs",
       "lines": 252,
       "category": "source",
@@ -726,13 +726,6 @@
       "category": "source",
       "band": "good",
       "area": "native"
-    },
-    {
-      "path": "AGENTS.md",
-      "lines": 244,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "root"
     },
     {
       "path": "native/src/conversations/execution/tests/turn_lifecycle.rs",
@@ -805,6 +798,13 @@
       "area": "docs"
     },
     {
+      "path": "native/src/storage/store/commands/mod.rs",
+      "lines": 224,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "tools/release.ts",
       "lines": 224,
       "category": "source",
@@ -868,6 +868,13 @@
       "area": "server"
     },
     {
+      "path": "native/src/storage/store/tests/lifecycle.rs",
+      "lines": 211,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/partners/NewPersonaDialog.test.tsx",
       "lines": 209,
       "category": "source",
@@ -908,6 +915,13 @@
       "category": "documentation or bibliography",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/storage/store/commands/conversations.rs",
+      "lines": 203,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/conversations/execution/connections.rs",
@@ -1022,6 +1036,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/storage/store/tests/preferences.rs",
+      "lines": 184,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/components/reading/Markdown.tsx",
       "lines": 184,
       "category": "source",
@@ -1120,11 +1141,25 @@
       "area": "ui"
     },
     {
+      "path": "native/src/storage/store/tests/schema.rs",
+      "lines": 169,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "server/tests/inference/test_contracts.py",
       "lines": 169,
       "category": "source",
       "band": "good",
       "area": "server"
+    },
+    {
+      "path": "native/src/storage/store/commands/learning.rs",
+      "lines": 168,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "server/tests/diagnostics/test_observability.py",
@@ -1167,6 +1202,13 @@
       "category": "data or configuration",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/storage/store/commands/partners.rs",
+      "lines": 156,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/platform/diagnostics/log.ts",
@@ -1253,6 +1295,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/storage/store/tests/transactions.rs",
+      "lines": 140,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/progress/ProgressSummary.tsx",
       "lines": 140,
       "category": "source",
@@ -1335,6 +1384,13 @@
       "category": "source",
       "band": "good",
       "area": "server"
+    },
+    {
+      "path": "native/src/storage/store/startup.rs",
+      "lines": 133,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/domain/conversation/conversation-view.test.ts",
@@ -1589,6 +1645,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/storage/store/snapshot.rs",
+      "lines": 103,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "docs/website/docs/coach.md",
       "lines": 102,
       "category": "documentation or bibliography",
@@ -1750,6 +1813,13 @@
       "area": "ui"
     },
     {
+      "path": "native/README.md",
+      "lines": 92,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/partners/persona/persona_prompt.rs",
       "lines": 92,
       "category": "source",
@@ -1832,13 +1902,6 @@
       "category": "source",
       "band": "good",
       "area": "ui"
-    },
-    {
-      "path": "native/README.md",
-      "lines": 86,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "native"
     },
     {
       "path": "native/src/configuration/citations.rs",
@@ -2009,6 +2072,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/storage/store/workspace.rs",
+      "lines": 78,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/updates/mod.rs",
       "lines": 78,
       "category": "source",
@@ -2163,6 +2233,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/storage/store/mod.rs",
+      "lines": 70,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/platform/updates/updater.test.ts",
       "lines": 69,
       "category": "source",
@@ -2203,6 +2280,13 @@
       "category": "documentation or bibliography",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/storage/store/commands/assistance.rs",
+      "lines": 66,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/tests/architecture/dead-code.test.ts",
@@ -2401,6 +2485,13 @@
       "area": "content"
     },
     {
+      "path": "native/src/storage/store/schema.rs",
+      "lines": 58,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "server/deployment/retention.py",
       "lines": 58,
       "category": "source",
@@ -2534,6 +2625,13 @@
       "area": "content"
     },
     {
+      "path": "docs/notes/execution-file-split.md",
+      "lines": 51,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
+    },
+    {
       "path": "native/src/storage/schemas/schema.sql",
       "lines": 51,
       "category": "source",
@@ -2658,6 +2756,20 @@
       "category": "data or configuration",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/storage/store/creation.rs",
+      "lines": 47,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/storage/store/tests/mod.rs",
+      "lines": 47,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/domain/rewards/reward-trails.ts",
@@ -2987,6 +3099,13 @@
       "category": "data or configuration",
       "band": "good",
       "area": "docs"
+    },
+    {
+      "path": "native/src/storage/store/tests/workspace.rs",
+      "lines": 36,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/features/conversation/coaching/LiveCoachReview.tsx",

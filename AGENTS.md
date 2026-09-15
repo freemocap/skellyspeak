@@ -82,6 +82,11 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
 - `storage/`: workspace ownership, database initialization, schemas, reset and workspace
   copy export. Feature-specific persistence remains with its feature; SQL alone is
   not a reason to move code here. Schema SQL files live in `schemas/`.
+  `store/` separates workspace locking, schema validation, startup, snapshots and
+  record creation. Its `commands/` coordinator owns the single command transaction,
+  replay checks and receipt commit; partner, learning, conversation and assistance
+  handlers borrow that transaction and must not commit independently. Keep store
+  tests grouped by workspace, schema, preferences, transactions and lifecycle.
 - `language/`: language lookup, emoji/Unicode handling, linguistics and local fixtures.
 - `configuration/`: loading and validating editable source defaults from root
   `content/`. Editable data stays in `content/`; executable prompt assembly stays
@@ -127,10 +132,13 @@ administrative/deployment commands. Deeper server subfolders need a separate rev
 
 ## Source file size
 
-Prefer cohesive source files below 500 lines, generally around 200–499; smaller
-files are fine. 500–999 lines is a danger zone: review ownership and plan a split
-before adding more responsibilities. 1,000 or more lines requires decomposition
-into smaller, functionally coherent files. Include colocated tests in the count;
+Prefer cohesive source files below 500 lines; smaller files are fine. 500–999
+lines is a danger zone for responsibility review, and 1,000+ is almost always a
+strong signal to split. These are guidelines, not hard limits or CI failure
+thresholds. A cohesive file may legitimately be larger: preserve correctness and
+readability rather than adding artificial boundaries or substantial complexity
+solely to meet a count. Record the reason when keeping a flagged file large.
+Include colocated tests in the count;
 do not evade the policy by compressing formatting or moving everything into one
 large test/helper file.
 
@@ -139,7 +147,7 @@ current scan baseline and separates authored source from generated/data/docs fil
 
 Large-file cleanup now proceeds one original file at a time, starting with the
 largest flagged source. Complete and verify each split, then check in before the
-next file. Preserve behavior and tests; automated CI enforcement is still a
+next file. Preserve behavior and tests; automated size reporting is still a
 separate follow-up. Generated files, lockfiles and vendored data
 need separate treatment in that check rather than manual splitting.
 

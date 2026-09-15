@@ -1,12 +1,12 @@
 # Repository file-size inventory
 
-Status: scan snapshot, 2026-09-15. No implementation changes or file splits.
+Status: scan snapshot, 2026-09-15, refreshed after the execution and store splits.
 
 ## Rules and scope
 
 - **Under 500 lines:** good by size; this does not certify cohesion or correctness.
 - **500–999 lines:** danger zone; review responsibilities before further growth.
-- **1,000+ lines:** requires decomposition into coherent files.
+- **1,000+ lines:** strong priority for decomposition review; a cohesive larger file may be justified.
 - Counts include blank lines, comments and colocated tests; an unterminated final line counts.
 - Enumerated with `rg --files --hidden -g '!.git/**' -g '!old/**'`, respecting ignore rules. Archived old/, dependencies, build outputs and ignored private files are excluded.
 - Authored source includes code, styles, SQL and build scripts. Android Kotlin/build customizations are included; generated UI/schema outputs and vendor wrappers are separate.
@@ -18,17 +18,16 @@ Status: scan snapshot, 2026-09-15. No implementation changes or file splits.
 | Area | Under 500 | 500–999 | 1,000+ | Total |
 | --- | ---: | ---: | ---: | ---: |
 | docs | 8 | 2 | 0 | 10 |
-| native | 94 | 17 | 4 | 115 |
+| native | 111 | 17 | 3 | 131 |
 | server | 62 | 2 | 0 | 64 |
 | tools | 27 | 0 | 0 | 27 |
 | ui | 289 | 5 | 1 | 295 |
-| **Total** | **480** | **26** | **5** | **511** |
+| **Total** | **497** | **26** | **4** | **527** |
 
-## Requires decomposition: 1,000+
+## Priority review: 1,000+
 
 | Lines | File |
 | ---: | --- |
-| 1,717 | [native/src/storage/store.rs](../../native/src/storage/store.rs) |
 | 1,501 | [native/src/application/mod.rs](../../native/src/application/mod.rs) |
 | 1,437 | [native/src/learning/lessons.rs](../../native/src/learning/lessons.rs) |
 | 1,052 | [ui/src/styles/features/conversation/conversation.css](../../ui/src/styles/features/conversation/conversation.css) |
@@ -91,7 +90,7 @@ These are not automatic code-refactoring targets. Generated output must be chang
 
 ## Next cleanup planning
 
-First cleanup implemented: [conversation execution split](execution-file-split.md).
-Its 33 replacement files are all under 500 lines; this inventory reflects that split.
+Completed: [conversation execution](execution-file-split.md) and
+[workspace store](store-file-split.md). This inventory reflects both splits.
 
-Start with the 1,000+ list, then review the danger zone. Propose responsibility boundaries before extracting implementations; do not shorten files by compressing formatting or moving all tests into another giant file. Preserve existing tests and serialized contracts. This scan establishes a baseline, not a CI gate.
+Start with the 1,000+ list, then review the danger zone. Propose responsibility boundaries before extracting implementations; do not shorten files by compressing formatting or moving all tests into another giant file. Preserve existing tests and serialized contracts. These are guidelines, not hard limits: do not introduce artificial boundaries or substantial complexity just to meet a count. Record justified exceptions. This scan establishes a baseline, not a CI gate.

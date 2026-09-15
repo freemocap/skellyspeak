@@ -35,13 +35,19 @@ modules and exports `application::run`. The application runtime lives intact in
 | `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts); mystery and reactions remain individual files |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
 | `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
-| `storage/` | `schemas/` holds the database SQL; store and reset implementations remain intact |
+| `storage/` | `schemas/` holds database SQL; `store/` groups locking, schema validation, startup, snapshots and transactional commands; reset remains in factory_reset.rs |
 | `conversations/execution/` | Admission, holds, connections, turns, snapshots, dispatch, publication, reading retries, speech and recovery; behavior-based tests in `tests/` |
 
 The first folder passes moved whole files. Large-file cleanup has now started with
 conversation execution; its implementation and test files are each under 500 lines.
 Other large modules await individual cleanup. Some `mod.rs` files still contain
 existing implementations. See the source-size policy in root `AGENTS.md`.
+
+The store command coordinator retains session/replay checks and a single receipt
+transaction. Domain handlers under `store/commands/` borrow its transaction; they
+do not commit independently. Tests under `store/tests/` cover workspace/schema,
+preferences, command rollback/replay and record lifecycle. File-size bands are
+review guidelines: prefer cohesive code over splitting solely to satisfy a count.
 
 These are responsibility groups, not newly independent crates or a redesigned
 layered architecture. Existing cross-domain calls remain. Keep tests with their
