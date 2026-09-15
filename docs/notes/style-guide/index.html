@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-palette="cool" data-density="standard" data-spacing="tight">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkellySpeak · Visual vocabulary review</title>
+<link rel="stylesheet" href="guide.css">
+<link rel="stylesheet" href="depth.css">
+</head>
+<body>
+<header class="page-head">
+  <div><p class="eyebrow">SKELLYSPEAK / DESIGN REVIEW 01</p><h1>A smaller visual vocabulary.</h1>
+  <p class="intro">Choose the surfaces, type and controls we want to repeat throughout the app.</p></div>
+  <span class="draft">Proposal · not app styling</span>
+</header>
+<main>
+<section class="review-controls" aria-label="Review settings">
+  <label>Appearance<select id="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  <label>Surface palette<select id="palette"><option value="cool">Cool neutral · proposed</option><option value="warm">Warm · alternative</option></select></label>
+  <label>Control density<select id="density"><option value="standard">Standard · 40px</option><option value="compact">Compact · 32px</option></select></label>
+  <label>Reading size <output id="scale-value" for="scale">100%</output><input id="scale" aria-label="Reading size" type="range" min="85" max="160" value="100" step="5"></label>
+  <label>Layout spacing<select id="spacing"><option value="roomy">Roomy · 24px panels</option><option value="balanced">Balanced · 18px panels</option><option value="tight" selected>Tight · 12px panels</option><option value="extra-tight">Extra tight · 6px panels</option></select></label>
+  <button id="reset" class="button quiet">Reset choices</button>
+</section>
+<div class="live-preview" aria-label="Live size preview">
+  <div><span class="metadata">CONTROL PREVIEW · <output id="control-measure">40px high</output></span><button class="button primary demo-action" id="preview-control">Sample button</button></div>
+  <div><span class="metadata">READING PREVIEW · <output id="reading-measure">20px text</output></span><p class="reading" lang="es" id="preview-reading">Me gusta caminar por la costa.</p></div>
+</div>
+<p class="review-note">Control density changes sample buttons and fields; reading size changes reading text. Watch the live examples above. The settings panel and guide headings stay the same size. Tighter spacing reduces panel padding and layout gaps without shrinking text or controls. Warm light samples existing surface colors; warm dark is an exploratory variant. This is not an exact before/after reproduction. Both options use the proposed component rules. Touch controls keep a 44px minimum.</p>
+<nav class="section-nav" aria-label="Guide sections"><a href="#surfaces">01 Surfaces</a><a href="#type">02 Type</a><a href="#controls">03 Controls</a><a href="#context">04 In context</a><a href="#depth">05 Depth & panels</a><a href="#decisions">06 Decisions</a></nav>
+<section id="surfaces" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">01 / SURFACES & COLOR</p><h2>Quiet structure. Specific uses for color.</h2></div><p>Four surface roles, three text roles. Color identifies actions, states and learning domains.</p></div>
+  <div class="swatches">
+    <div class="swatch" data-color="--canvas"><span>Canvas</span><small>Behind the workspace</small><code></code></div>
+    <div class="swatch" data-color="--surface"><span>Panel</span><small>Main content surface</small><code></code></div>
+    <div class="swatch" data-color="--subtle"><span>Subtle</span><small>Secondary grouping</small><code></code></div>
+    <div class="swatch" data-color="--field"><span>Field</span><small>Editable content</small><code></code></div>
+  </div>
+  <div class="two-up color-details">
+    <div class="panel"><h3>Text hierarchy</h3><p>Primary — the content you came to read.</p><p class="secondary">Secondary — context that helps you act.</p><p class="muted">Muted — metadata, timestamps and units.</p><div class="role-legend"><span class="action">Action / blue</span><span class="success">Success / teal</span><span class="warning">Correction / amber</span><span class="failure">Failure / red</span></div></div>
+    <div class="panel"><h3>Learning domains keep their own colors</h3><div class="domain-list"><span class="domain social">Social phrases</span><span class="domain questions">Questions</span><span class="domain opinions">Opinions</span><span class="domain statements">Statements</span><span class="domain descriptions">Descriptions</span><span class="domain situating">Time & place</span></div><p class="annotation">A shared hue can have different meanings. Preserve labels and distinct action/status roles even when colors coincide.</p></div>
+  </div>
+  <p class="decision-prompt">Discuss: cool-neutral or warm surfaces? Are borders enough to separate panels, with shadows reserved for overlays?</p>
+</section>
+<section id="type" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">02 / TYPOGRAPHY</p><h2>Name text by its job.</h2></div><p>Sans for the interface, serif for reading, mono for compact metadata. Reading size changes only the reading examples.</p></div>
+  <div class="panel type-table">
+    <div><code>Heading / 24</code><h2>Conversation settings</h2></div>
+    <div><code>Section / 18</code><h3>Language and partner</h3></div>
+    <div><code>Body / 15</code><p>Choose the language you want to practice.</p></div>
+    <div><code>Control / 13</code><span class="control-type">Show suggested replies</span></div>
+    <div><code>Metadata / 11</code><span class="metadata">ES · 14 REPLIES · 08:42</span></div>
+    <div><code>Reading / 20 × scale</code><p class="reading" lang="es">Me gusta caminar por la costa.</p></div>
+  </div>
+  <p class="decision-prompt">Discuss: reserve uppercase and monospaced text for small labels and metadata? Keep ordinary buttons in sentence case?</p>
+</section>
+<section id="controls" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">03 / CONTROL FAMILIES</p><h2>Repeat a few dependable patterns.</h2></div><p>Try Tab to inspect keyboard focus. Hover the controls. Selected, disabled and busy states should remain distinct.</p></div>
+  <div class="two-up">
+    <div class="panel"><h3>Actions</h3><div class="specimen-row"><button class="button primary demo-action">Primary action</button><button class="button demo-action">Secondary action</button><button class="button quiet demo-action">Quiet action</button><button class="button danger demo-action">Destructive action</button></div><div class="specimen-row"><button class="button" disabled>Unavailable</button><button class="button" aria-disabled="true" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Working…</button><button class="button icon demo-action" aria-label="Settings">⚙</button></div><p class="annotation">One shared shape, height and focus treatment. Strong fill is reserved for the primary action.</p><p id="action-status" class="sample-status" role="status">Example controls only; no app actions run.</p></div>
+    <div class="panel"><h3>Selection</h3><div class="segments" role="group" aria-label="Sample workspace mode"><button class="mode" data-mode="practice" aria-pressed="true">Practice</button><button class="mode" data-mode="learn" aria-pressed="false">Learn</button><button class="mode" data-mode="review" aria-pressed="false">Review</button></div><p class="annotation" id="mode-status" role="status">Practice selected. This changes only the sample selection.</p><div class="specimen-row"><label class="check"><input type="checkbox" checked> Show word help</label><label class="check"><input type="checkbox"> Always show pronunciation</label></div></div>
+    <div class="panel"><h3>Fields and reading input</h3><label>Target language<select><option>Español</option><option>العربية</option><option>中文</option></select></label><label>Topic<input placeholder="For example, a weekend walk"></label><label>Your reply<textarea class="reading" lang="es" placeholder="Escribe tu respuesta…"></textarea></label><p class="annotation">Settings fields use UI type. The conversation input uses reading type. These are explicit roles, not accidental context overrides.</p></div>
+    <div class="panel"><h3>Feedback</h3><div class="notice success"><strong>Saved</strong><span>Reading preferences updated.</span></div><div class="notice warning"><strong>Suggested correction</strong><span>Use “fui” for this completed action.</span></div><div class="notice failure"><strong>Connection failed</strong><span>Check your connection and try again.</span></div><p class="annotation">State has a label as well as a color. Large filled alert boxes are reserved for states that need that level of emphasis.</p></div>
+  </div>
+  <p class="decision-prompt">Discuss: standard or compact desktop controls? Is the distinction between primary, secondary and quiet strong enough?</p>
+</section>
+<section id="context" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">04 / IN CONTEXT</p><h2>Does the vocabulary hold together?</h2></div><p>A small conversation specimen and reading edge cases. This is a style review, not a proposed navigation redesign.</p></div>
+  <div class="context-grid">
+    <div class="conversation panel">
+      <header class="specimen-header"><div><h3>Lucía</h3><span class="metadata">ESPAÑOL · INTERMEDIATE</span></div><button id="word-help" class="button quiet" aria-pressed="true">Word help</button></header>
+      <div class="messages">
+        <div class="message partner"><span class="metadata">LUCÍA</span><p class="reading" lang="es">¿Has visitado alguna <span class="word">playa<small class="gloss" lang="en">beach</small></span> cercana?</p><p class="translation">Have you visited a nearby beach?</p></div>
+        <div class="message learner"><span class="metadata">YOU</span><p class="reading" lang="es">Sí, fui a la playa el domingo.</p><div class="message-meta"><span class="success">Reviewed</span><span class="domain social">+4 XP · Social phrases</span></div></div>
+      </div>
+      <details class="reply-help"><summary>Suggested replies</summary><p class="reading" lang="es">Hacía buen tiempo y caminé por la costa.</p></details>
+      <div class="composer"><label class="sr-only" for="sample-reply">Sample reply</label><textarea id="sample-reply" class="reading" lang="es" placeholder="Escribe tu respuesta…"></textarea><div class="specimen-row"><span class="annotation">Sample only</span><button id="record" class="button" aria-pressed="false">Record</button><button id="send" class="button primary">Send</button></div><p id="conversation-status" class="sample-status" role="status">No recording or messages leave this guide.</p></div>
+    </div>
+    <div class="reading-cases panel"><h3>Reading stress cases</h3><p class="annotation">Check wrapping and spacing at 160%. Arabic and Chinese use available system fallback fonts.</p><div><span class="metadata">ARABIC / RIGHT TO LEFT</span><p class="reading" lang="ar" dir="rtl">أحب المشي بالقرب من البحر عندما يكون الطقس جميلاً.</p></div><div><span class="metadata">CHINESE / CONTINUOUS TEXT</span><p class="reading" lang="zh">今天天气很好，我们一起去海边散步吧。</p></div><div><span class="metadata">LONG ANNOTATION</span><p class="reading" lang="es">Vamos a <span class="word">aprovechar<small class="gloss" lang="en">make the most of the opportunity</small></span> el día.</p></div><div><span class="metadata">DENSE EVIDENCE / SAME PANEL ROLE</span><table><thead><tr><th scope="col">Skill</th><th scope="col">Independent</th><th scope="col">Assisted</th></tr></thead><tbody><tr><th scope="row">Social phrases</th><td>14</td><td>3</td></tr><tr><th scope="row">Questions</th><td>6</td><td>4</td></tr><tr><th scope="row">Descriptions</th><td>2</td><td>1</td></tr></tbody></table></div></div>
+  </div>
+  <p class="decision-prompt">Discuss: does the reading area stand out without making every surrounding control loud? Should partner messages keep their warm tint?</p>
+</section>
+<section id="depth" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">05 / DEPTH & PANELS</p><h2>Separate spaces without surrounding everything in boxes.</h2></div><p>Compare the same workspace with four surface treatments. Open the overlays to see the full hierarchy.</p></div>
+  <div class="depth-controls"><label>Depth treatment<select id="depth-treatment"><option value="flat">Flat · borders and contrast</option><option value="subtle" selected>Subtle · light panel shadows</option><option value="raised">Raised · panel shadows</option><option value="recessed">Recessed · inset panels</option></select></label><label class="check"><input id="glow-enabled" type="checkbox">Colored glow</label><label>Glow color<input id="glow-color" type="color" value="#7c5cff" disabled></label><label>Glow strength <output id="glow-value">30%</output><input id="glow-strength" aria-label="Glow strength" type="range" min="0" max="70" step="5" value="30" disabled></label><button class="button" id="open-modal">Open settings modal</button><button class="button quiet" id="reset-split">Reset split</button><output id="split-value">Conversation 60% / Details 40%</output></div>
+  <div class="depth-comparison" aria-label="Depth treatments side by side"><div class="depth-swatch flat"><strong>Flat</strong><span>Border only</span></div><div class="depth-swatch subtle"><strong>Subtle</strong><span>Light lift</span></div><div class="depth-swatch raised"><strong>Raised</strong><span>Outer shadow</span></div><div class="depth-swatch recessed"><strong>Recessed</strong><span>Inset shadow</span></div></div>
+  <p class="annotation">Compare all four above; the selected treatment applies to the workspace below. Colored glow is a separate visual effect: outer on raised surfaces, inner on recessed ones. Modals and popovers always float.</p>
+  <div id="depth-stage" class="depth-stage" data-depth="subtle">
+    <div class="depth-topbar"><strong>Workspace</strong><span class="metadata" id="depth-description">Quiet panels · recessed fields · floating overlays</span></div>
+    <div id="depth-split" class="depth-split">
+      <section id="depth-conversation" class="depth-panel"><header><h3>Conversation</h3><button class="button quiet" id="open-popover" popovertarget="depth-popover">Panel options</button></header><div class="depth-body"><span class="metadata">LUCÍA · ESPAÑOL</span><p class="reading" lang="es">¿Qué te gustaría hacer este fin de semana?</p><p class="secondary">What would you like to do this weekend?</p><div class="depth-well"><label>Reply<textarea class="reading depth-input" lang="es" placeholder="Escribe tu respuesta…"></textarea></label></div></div><footer class="depth-panel-footer">A main panel contains content; the input reads as an editable surface.</footer></section>
+      <div id="depth-divider" class="depth-divider" tabindex="0" role="separator" aria-label="Resize conversation panel" aria-orientation="vertical" aria-controls="depth-conversation depth-details" aria-valuemin="30" aria-valuemax="70" aria-valuenow="60" aria-describedby="divider-help"><span></span></div>
+      <section id="depth-details" class="depth-panel"><header><h3>Details</h3><span class="metadata">CONVERSATION</span></header><div class="depth-body"><h4>Recent evidence</h4><table><tbody><tr><th scope="row">Reviewed replies</th><td>14</td></tr><tr><th scope="row">Independent uses</th><td>11</td></tr><tr><th scope="row">Assisted uses</th><td>3</td></tr></tbody></table><h4>Suggested phrasing</h4><p class="reading" lang="es">Me gustaría caminar por la costa.</p><p class="annotation">The details panel has the same depth as the conversation. Its contents use spacing and rules rather than nested cards.</p></div></section>
+    </div>
+  </div>
+  <p id="divider-help" class="annotation">The 6px divider expands to 16px on hover, keyboard focus or drag. Drag the divider, or focus it and use Left/Right (2%), Shift + arrow (10%), Home/End. Double-click to reset. Escape cancels an active drag. On narrow screens, panels stack and resizing is disabled.</p>
+  <p class="decision-prompt">Discuss: which surfaces should appear raised? Do fields need an inset shadow? How much dimming should a modal add?</p>
+  <div class="depth-overlay depth-popover" id="depth-popover" popover aria-labelledby="popover-title"><h3 id="popover-title">Panel options</h3><p class="annotation">A small floating surface, anchored to its trigger. Click outside or press Escape to dismiss.</p><label class="check"><input type="checkbox" checked> Show translations</label><button class="button quiet" popovertarget="depth-popover" popovertargetaction="hide">Close options</button></div>
+  <dialog id="depth-modal" class="depth-overlay depth-modal" aria-labelledby="modal-title"><header><div><span class="metadata">MODAL EXAMPLE</span><h3 id="modal-title">Reading settings</h3></div><button class="button" id="close-modal" autofocus>Close</button></header><div class="modal-scroll"><p class="secondary">The workspace stays behind the backdrop. These fields demonstrate appearance only.</p><label>Language<select><option>Español</option><option>العربية</option><option>中文</option></select></label><label class="check"><input type="checkbox" checked> Show saved word help</label><label class="check"><input type="checkbox"> Always show pronunciation</label><h4>Reading preview</h4><div class="depth-well"><p class="reading" lang="es">Me gusta caminar cerca del mar cuando hace buen tiempo.</p></div><h4>When the window is short</h4><p>The body scrolls inside the modal. The title, close control and footer remain visible.</p><p class="annotation">Try increasing reading size, then narrowing the window. Escape closes the modal and focus returns to its opening button. Background controls cannot be reached while this modal is open.</p></div><div class="modal-footer"><span class="annotation">Preview only · nothing saved</span><button class="button primary" id="done-modal">Done</button></div></dialog>
+</section>
+<section id="decisions" class="chapter">
+  <div class="chapter-head"><div><p class="eyebrow">06 / REVIEW NOTES</p><h2>Decide the basics before migrating.</h2></div><p>Start with palette and typography, then controls. We can change this guide before touching the app.</p></div>
+  <div class="panel"><ol class="decision-list"><li><strong>Surfaces:</strong> cool neutral or warm; restrained borders; overlay-only shadows.</li><li><strong>Typography:</strong> sans UI, serif reading, mono metadata; role-based sizes.</li><li><strong>Controls:</strong> standard or compact desktop; shared states and focus treatment.</li><li><strong>Conversation:</strong> partner tint, word-help density and reading/input scale.</li></ol><label>Current preview settings<textarea id="summary" readonly rows="3"></textarea></label><p class="annotation">Settings reset when you reload. Nothing is stored or transmitted. Tell me section numbers and what feels right or wrong.</p></div>
+</section>
+<footer>Review artifact · 2026-09-15 · Adapted from the supplied workspace reference and the style audit. Dark mode and interactive states are proposals. Final native, touch and accessibility verification remains part of implementation.</footer>
+</main>
+<script>
+const root = document.documentElement;
+const controls = ['theme', 'palette', 'density', 'spacing'];
+const scale = document.getElementById('scale');
+function refresh() {
+  for (const name of controls) root.dataset[name] = document.getElementById(name).value;
+  root.style.setProperty('--reading-scale', Number(scale.value) / 100);
+  document.getElementById('scale-value').textContent = scale.value + '%';
+  document.getElementById('control-measure').textContent = Math.round(document.getElementById('preview-control').getBoundingClientRect().height) + 'px high';
+  document.getElementById('reading-measure').textContent = parseFloat(getComputedStyle(document.getElementById('preview-reading')).fontSize) + 'px text';
+  for (const swatch of document.querySelectorAll('[data-color]')) {
+    const color = getComputedStyle(root).getPropertyValue(swatch.dataset.color).trim();
+    swatch.style.backgroundColor = color;
+    swatch.querySelector('code').textContent = color;
+  }
+  document.getElementById('summary').value = `Appearance: ${root.dataset.theme} · Surfaces: ${root.dataset.palette === 'cool' ? 'cool neutral' : 'warm'}\nSpacing: ${root.dataset.spacing.replace('-', ' ')} · Desktop controls: ${root.dataset.density === 'standard' ? '40px' : '32px'} · Reading: ${scale.value}%\nDepth: ${document.getElementById('depth-treatment').value} · Glow: ${document.getElementById('glow-enabled').checked ? document.getElementById('glow-color').value + ' at ' + document.getElementById('glow-strength').value + '%' : 'off'} · Draft preference only — no application changes.`;
+}
+for (const name of controls) document.getElementById(name).addEventListener('change', refresh);
+scale.addEventListener('input', refresh);
+window.addEventListener('resize', refresh);
+document.getElementById('reset').addEventListener('click', () => {
+  document.getElementById('theme').value = 'light'; document.getElementById('palette').value = 'cool';
+  document.getElementById('density').value = 'standard'; scale.value = '100'; document.getElementById('spacing').value = 'roomy'; refresh();
+});
+for (const button of document.querySelectorAll('.mode')) button.addEventListener('click', () => {
+  for (const mode of document.querySelectorAll('.mode')) mode.setAttribute('aria-pressed', String(mode === button));
+  document.getElementById('mode-status').textContent = button.textContent + ' selected. This changes only the sample selection.';
+});
+for (const button of document.querySelectorAll('.demo-action')) button.addEventListener('click', () => {
+  document.getElementById('action-status').textContent = (button.getAttribute('aria-label') || button.textContent) + ' example activated. No app action ran.';
+});
+document.getElementById('word-help').addEventListener('click', event => {
+  const enabled = event.currentTarget.getAttribute('aria-pressed') !== 'true';
+  event.currentTarget.setAttribute('aria-pressed', String(enabled));
+  document.querySelector('.conversation').classList.toggle('hide-help', !enabled);
+});
+document.getElementById('record').addEventListener('click', event => {
+  const recording = event.currentTarget.getAttribute('aria-pressed') !== 'true';
+  event.currentTarget.setAttribute('aria-pressed', String(recording));
+  event.currentTarget.classList.toggle('recording', recording);
+  event.currentTarget.textContent = recording ? 'Stop' : 'Record';
+  document.getElementById('conversation-status').textContent = recording ? 'Recording state preview — microphone is not active.' : 'Recording preview stopped.';
+});
+document.getElementById('send').addEventListener('click', () => {
+  document.getElementById('conversation-status').textContent = 'Send state preview — no message was sent.';
+});
+refresh();
+</script>
+<script src="depth.js"></script>
+</body>
+</html>

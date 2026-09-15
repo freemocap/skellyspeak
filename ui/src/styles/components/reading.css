@@ -1,0 +1,127 @@
+.line {
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  user-select: none;
+  gap: var(--space-1) var(--word-spacing);
+}
+
+.wu {
+  max-width: 100%;
+  min-width: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-hairline);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-xs);
+}
+.wu:has(.wg), .wu:has(.wroman), .wu:has(.wpronunciation) { min-width: 2em; }
+.wu:has(.wg) > .w {
+  text-decoration: underline dotted var(--interaction-ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.wu:hover, .wu:focus-within { border-color: var(--line); }
+
+.wu > .wg, .wu > .wroman, .wu > .wpronunciation { contain: inline-size; width: 100%; overflow-wrap: anywhere; }
+
+.wg {
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+  line-height: var(--leading-tight);
+  margin-block-start: var(--space-hairline);
+}
+
+.w { font-family: var(--font-serif); font-size: var(--type-reading); line-height: var(--leading-normal); }
+
+.w.notice { border-bottom: var(--border-width-strong) dotted var(--interaction-ink); }
+
+.w.tap {
+  cursor: pointer;
+  border-bottom: var(--border-width-strong) dotted transparent;
+  border-radius: var(--radius-xs);
+}
+
+.w.tap:hover { border-bottom-color: var(--interaction-ink); }
+
+.wroman {
+  font-size: var(--type-meta);
+  color: var(--accent-ink);
+  line-height: var(--leading-tight);
+  font-family: var(--font-mono);
+  font-style: normal;
+}
+
+.w.holding { background: var(--accent-dim); }
+
+.line.rtl-line { flex-direction: row-reverse; }
+
+.line.rtl-line .wu { direction: rtl; }
+
+.trans-d {
+  font-size: var(--type-ui);
+  color: var(--ink-2);
+  font-style: italic;
+  margin-bottom: var(--space-7);
+}
+
+.w[role=button]:focus-visible { outline: var(--focus-width) solid var(--ink); outline-offset: 3px; }
+
+@media (pointer: coarse) {
+  .w[role=button] { display: inline-block; padding-block: var(--space-4); }
+}
+
+.wpronunciation {
+  font-size: var(--type-meta);
+  line-height: 1.4;
+  color: var(--accent-ink);
+  margin-block-start: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.w, .target-text { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
+
+.w.preserve-space { white-space: pre-wrap; }
+
+.target-text .wu { vertical-align: top; margin-inline-end: var(--word-spacing); }
+
+.target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
+
+.wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); }
+
+.trans { font-size: calc(var(--type-ui) * var(--reading-scale)); color: var(--ink-3); font-style: italic;
+  margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--border-width) dashed var(--line-soft); }
+
+.target-text .w { font-size: inherit; }
+
+.saved-word { position: relative; }
+
+.saved-word-help {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  max-width: min(220px, 65vw);
+  padding: var(--space-4) var(--space-6);
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-xs);
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--floating-shadow), var(--appearance-glow);
+}
+
+.saved-word-help > span { display: block; }
+
+.saved-word-inline { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin-inline: var(--space-2); }
+.saved-word-inline .wg, .saved-word-inline .wroman, .saved-word-inline .wpronunciation { display: inline; font: var(--type-ui) var(--font-sans); }
+.gloss-more { color: var(--interaction-ink); background: transparent; border: none; font: var(--type-ui) var(--font-sans); padding: var(--space-2); }
+
+.saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
+.saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
+
+.saved-word:has(.saved-word-inline) { display: inline; border: none; padding: 0; }
+.saved-word-inline.gloss-fragments { display: inline-grid; vertical-align: top; text-align: start; }

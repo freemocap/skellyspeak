@@ -28,7 +28,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
             }}
           >
             <input
-              className="field"
+              className="field composer-input"
               value={input}
               onChange={(e) => onInput(e.target.value)}
               placeholder={targetLanguageName ? tr("Write in {value0}…", { value0: String(targetLanguageName) }) : tr("Write…")}

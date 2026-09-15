@@ -276,7 +276,7 @@ export const TurnView = memo(function TurnView({
         <>
         <div
           data-reward-message={turn.id}
-          className={`msg me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''} with-actions`}
+          className={`msg chat-message me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''} with-actions`}
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
           }
@@ -320,7 +320,7 @@ export const TurnView = memo(function TurnView({
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))
           }
-          className={`msg bot with-actions ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
+          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${ttsReady ? ' with-speak' : ''}${rtl ? ' rtl' : ''}`}
         >
           {assistant.savedGloss ? (
             <SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} />

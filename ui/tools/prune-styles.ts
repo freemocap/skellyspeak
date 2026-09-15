@@ -1,3 +1,4 @@
+import postcss from 'postcss'
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { join } from 'node:path'
@@ -58,24 +59,12 @@ function references(haystack: string, name: string, cache: Map<string, RegExp>):
   return pattern.test(haystack)
 }
 
-/// Structural views of the postcss tree. `postcss` is imported dynamically
-/// inside the prune, so its types are not in scope here; these describe exactly
-/// the nodes this module reads and touches.
-interface NodeLike {
-  type?: string
-  name?: string
-  params?: string
-  prop?: string
-  parent?: NodeLike
-  clone?: () => NodeLike
-}
-
-interface RuleNode {
-  selector: string
-  parent?: NodeLike
-  each: (callback: (node: NodeLike) => void) => void
-  append: (node: NodeLike) => void
-  remove: () => void
+// Inspect selectors only: URLs, comments and declaration values are not classes.
+// Quoted attribute values are deliberately ignored. Escaped selectors require
+// a full selector parser and are kept conservatively by the write operation.
+function classes(selector: string): string[] {
+  const unquoted = selector.replace(/(["'])(?:\\.|(?!\1).)*\1/g, '')
+  return [...unquoted.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map(match => match[1])
 }
 
 export interface DeadCss {
@@ -88,14 +77,19 @@ export interface DeadCss {
 }
 
 export function analyseStyles(repositoryRoot: string, scan = 'ui/src', stylesheet = 'ui/src/styles'): DeadCss {
-  const css = sheetFiles(repositoryRoot, stylesheet).map(file => readFileSync(file, 'utf8')).join('\n')
+  const names = new Set<string>()
+  for (const file of sheetFiles(repositoryRoot, stylesheet)) {
+    postcss.parse(readFileSync(file, 'utf8')).walkRules(rule => {
+      for (const name of classes(rule.selector)) names.add(name)
+    })
+  }
   const haystack = sourceText(repositoryRoot, scan)
   const prefixes = dynamicPrefixes(haystack)
   const cache = new Map<string, RegExp>()
   const unused: string[] = []
   const library: string[] = []
   const dynamic: string[] = []
-  for (const name of new Set([...css.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map(m => m[1]))) {
+  for (const name of names) {
     if (references(haystack, name, cache)) continue
     if (LIBRARY_PREFIXES.some(prefix => name.startsWith(prefix))) { library.push(name); continue }
     if (prefixes.some(prefix => name.startsWith(prefix))) { dynamic.push(name); continue }
@@ -107,8 +101,7 @@ export function analyseStyles(repositoryRoot: string, scan = 'ui/src', styleshee
 /// Remove selector parts whose class can never match, and rules left empty.
 /// Nothing is written until every sheet has been processed, so a refusal leaves
 /// the stylesheets untouched.
-async function prune(repositoryRoot: string, stylesheet: string): Promise<string> {
-  const { default: postcss } = await import('postcss')
+export async function prune(repositoryRoot: string, stylesheet = 'ui/src/styles'): Promise<string> {
   const haystack = sourceText(repositoryRoot, 'ui/src')
   const prefixes = dynamicPrefixes(haystack)
   const cache = new Map<string, RegExp>()
@@ -116,61 +109,40 @@ async function prune(repositoryRoot: string, stylesheet: string): Promise<string
     !references(haystack, name, cache) && !LIBRARY_PREFIXES.some(p => name.startsWith(p)) && !prefixes.some(p => name.startsWith(p))
   let parts = 0
   let rules = 0
-  let merged = 0
   const sheets = sheetFiles(repositoryRoot, stylesheet).map(file => ({ file, parsed: postcss.parse(readFileSync(file, 'utf8'), { from: file }) }))
   for (const { parsed } of sheets) {
     parsed.walkRules((rule) => {
-      const before = rule.selector.split(',').map(p => p.trim()).filter(Boolean)
+      // Pseudo-class alternatives/negation and escapes need semantic analysis.
+      // A missing class inside :not() or :is() does not make a selector dead.
+      if (/[()\\]/.test(rule.selector)) return
+      const before = rule.selectors
       const kept = before.filter((part) => {
-        const classes = [...part.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map(m => m[1])
-        return classes.length === 0 || classes.every(name => !dead(name))
+        const names = classes(part)
+        return names.every(name => !dead(name))
       })
       if (kept.length === 0) { rules++; rule.remove(); return }
       if (kept.length !== before.length) { parts += before.length - kept.length; rule.selector = kept.join(', ') }
     })
   }
 
-  // Dropping a part can leave a selector that another rule already uses. Within
-  // one sheet, merge into the LATER rule: that is where the cascade already gave
-  // precedence, so moving the earlier rule's remaining declarations there
-  // changes nothing, and a property the later rule already sets keeps its
-  // winning value. Across sheets the two rules have different owners, so the
-  // prune refuses and names both instead of choosing one.
-  const scopeOf = (rule: RuleNode): string => {
-    const chain: string[] = []
-    let node = rule.parent
-    while (node && node.type !== 'root') {
-      chain.unshift(`${node.name ?? ''} ${node.params ?? ''}`)
-      node = node.parent
-    }
-    return chain.join(' / ')
-  }
-  const pairs: { earlier: RuleNode; later: RuleNode }[] = []
-  const seen = new Map<string, { file: string; node: RuleNode }>()
+  // Never relocate declarations across intervening rules. Duplicate selectors
+  // require a deliberate owner/cascade review, even within a single sheet.
+  const seen = new Set<string>()
   for (const { file, parsed } of sheets) {
-    parsed.walkRules((rule) => {
-      const node = rule as unknown as RuleNode
-      const key = `${scopeOf(node)} | ${node.selector}`
-      const earlier = seen.get(key)
-      seen.set(key, { file, node })
-      if (earlier === undefined) return
-      if (earlier.file !== file)
-        throw new Error(`${node.selector} is defined in both ${earlier.file} and ${file}; give it one owner, then prune`)
-      pairs.push({ earlier: earlier.node, later: node })
+    parsed.walkRules(rule => {
+      const chain: string[] = []
+      let parent = rule.parent
+      while (parent && parent.type !== 'root') {
+        chain.unshift(parent.toString().split('{')[0].trim())
+        parent = parent.parent
+      }
+      const key = chain.join('/') + '|' + rule.selector
+      if (seen.has(key)) throw new Error(file + ': duplicate selector ' + rule.selector + '; no files written; review cascade manually')
+      seen.add(key)
     })
-  }
-  for (const { earlier, later } of pairs) {
-    const mine = new Set<string>()
-    later.each((decl) => { if (decl.type === 'decl' && decl.prop) mine.add(decl.prop) })
-    earlier.each((decl) => {
-      if (decl.type !== 'decl' || !decl.prop || mine.has(decl.prop) || !decl.clone) return
-      later.append(decl.clone() as never)
-    })
-    earlier.remove()
-    merged++
   }
   for (const { file, parsed } of sheets) writeFileSync(file, parsed.toString())
-  return `removed ${rules} rule(s) and ${parts} selector part(s); merged ${merged} duplicate selector(s)`
+  return `removed ${rules} rule(s) and ${parts} selector part(s)`
 }
 
 const isEntry = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href

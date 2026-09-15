@@ -1,0 +1,23 @@
+/* activity — conversation style owner. */
+.activity-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  font: var(--type-ui) var(--font-sans);
+  color: inherit;
+  max-width: 100%;
+}
+
+.activity-spinner {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: var(--border-width-strong) solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-circle);
+  animation: activity-spin var(--dur-spin) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) { .activity-spinner { border-style: dotted; animation: none; } }

@@ -1,5 +1,6 @@
 //! Readable local configuration. Existing directories are never repaired or
 //! replaced on error; callers expose ConfigLoadError as a blocking startup state.
+pub mod appearance;
 mod citations;
 mod types;
 use crate::model;
@@ -331,6 +332,7 @@ impl Registry {
         Ok(settings)
     }
     pub fn validate_preferences(&self, preferences: &model::Preferences) -> model::Result<()> {
+        preferences.appearance.validate()?;
         self.language(&preferences.interface_locale)?;
         self.resolve_pair(
             &preferences.explanation_language,

@@ -1,0 +1,217 @@
+/* Message base: role colors, annotations and actions shared with excerpts.
+   .chat-message is the conversation-stream variant: compact padding, bubble
+   corners, focused border and width caps. It does not depend on a .chat ancestor.
+   Partner excerpt layout is owned by persona.css (.reaction-excerpt .msg). */
+.msg {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  max-width: 88%;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-size: var(--type-body);
+}
+
+.msg.chat-message { padding: var(--space-3) var(--space-4); line-height: var(--leading-snug); }
+
+.msg.bot {
+  align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
+  border-bottom-left-radius: var(--radius-sm); color: var(--ink); cursor: pointer; position: relative;
+}
+
+.msg.bot.focused { border-color: var(--ink-3); }
+
+.msg.me {
+  align-self: flex-end; background: var(--bubble-learner-bg); color: var(--bubble-learner-ink);
+  border: var(--border-width) solid var(--bubble-learner-line);
+  border-bottom-right-radius: var(--radius-sm); font-family: var(--font-serif); position: relative;
+}
+
+.msg.pending { opacity: 0.6; font-style: italic; }
+
+.msg.me.with-edit { padding-inline-end: var(--space-5); }
+
+.msg.me.with-edit > .w, .msg.me.with-edit > .line { padding-inline-end: var(--space-7); }
+
+.msg.me .edit-btn {
+  position: absolute; top: 12px; right: 5px; border: none; background: none;
+  color: var(--bubble-learner-ink); opacity: 1; cursor: pointer; font-size: var(--type-ui);
+  line-height: 1; padding: var(--space-1);
+}
+
+.msg.me.rtl .edit-btn { right: auto; left: 5px; }
+
+.msg.bot.with-speak { margin-top: var(--space-10); }
+
+.speak-btn {
+  position: absolute; top: -20px; right: 8px; border: var(--border-width) solid var(--line-soft);
+  background: var(--field); border-radius: var(--radius-lg);
+  min-width: 36px; min-height: var(--control-height);
+  font-size: var(--type-body); line-height: 1; cursor: pointer; padding: var(--space-3) var(--space-4);
+  color: var(--ink);
+}
+
+.speak-btn:hover { border-color: var(--accent); background: var(--quiet); }
+
+.msg.me .wg { color: var(--bubble-learner-ink-muted); }
+
+.msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
+  font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
+  line-height: 1.7;
+}
+
+.msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }
+
+.msg.rtl .wroman, .line.rtl-line .wroman { font-size: var(--type-meta); }
+
+.msg.me.rtl { align-self: flex-end; }
+
+.msg.bot.rtl .line { flex-direction: row-reverse; }
+
+.msg.bot.rtl .line .wu { direction: rtl; }
+
+.msg.bot.rtl { text-align: right; }
+
+@media (max-width: 860px) {
+  .msg { max-width: 94%; }
+}
+
+.feedback-badge {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--accent-edge);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  background: var(--accent-surface);
+  color: var(--accent-label);
+  font: inherit;
+  font-size: var(--type-meta);
+  cursor: pointer;
+  max-width: 95%;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.feedback-badge:hover { border-color: var(--accent-label); }
+
+.feedback-badge.feedback-error {
+  background: var(--sheet);
+  color: var(--danger-ink);
+  border-color: var(--danger-edge);
+}
+
+.message-evidence {
+  border-bottom: var(--border-width-thick) solid;
+  border-radius: var(--radius-xs);
+  background: var(--field);
+  cursor: pointer;
+}
+
+.evidence-phrase { font: inherit; padding: 0; border: 0; border-bottom: var(--border-width-thick) solid; }
+
+.message-translate {
+  display: inline-block;
+  margin: 0 0 0 var(--space-3);
+  padding: var(--space-hairline) var(--space-2);
+  border: var(--border-width) solid var(--ink-3);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--ink-2);
+  font: var(--type-meta) var(--font-sans);
+  cursor: pointer;
+  min-height: 0;
+  font-size: var(--type-meta);
+  line-height: 1.4;
+  vertical-align: baseline;
+}
+
+.msg .line { display: inline; }
+
+.msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
+
+.msg .line .wu { vertical-align: top; margin-block-end: var(--space-hairline); margin-inline-end: var(--word-spacing); }
+
+.msg .activity-indicator { display: flex; }
+
+.msg .feedback-badge .activity-indicator {
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.msg.with-actions { margin-bottom: var(--space-2); min-width: 140px; }
+
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  gap: var(--space-3);
+}
+
+.message-actions .message-translate {
+  margin: 0;
+  min-height: 24px;
+  padding: var(--space-hairline) var(--space-3);
+  background: transparent;
+  border-color: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink-3);
+  font-size: var(--type-meta);
+}
+
+.msg.me .message-actions .message-translate { background: transparent; color: var(--bubble-learner-ink-muted); }
+
+.message-actions .message-translate:hover { border-color: var(--accent); }
+
+.msg.rtl .message-actions { direction: rtl; }
+
+.msg:not(.rtl) .message-actions { direction: ltr; }
+
+.msg.plain, .msg.pending { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
+
+.message-evidence.token-evidence { border: 0; background: none; }
+
+.message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
+
+.msg.chat-message.bot {
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
+  max-width: 90%;
+}
+
+.msg.chat-message.bot.focused { border-color: var(--bubble-partner-line-focus); }
+
+.msg.chat-message.me {
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+  max-width: 85%;
+}
+
+.message-feedback > .feedback-badge {
+  position: static; display: block; margin-top: var(--space-4); padding: var(--space-2) var(--space-4);
+  border: 0; border-inline-start: var(--border-width-strong) solid var(--line); border-radius: 0;
+  background: transparent; color: var(--interaction-ink); font: var(--type-ui)/1.45 var(--font-sans);
+  max-width: 100%; text-align: start;
+}
+.message-feedback > .feedback-badge.has-correction { border-inline-start-color: var(--correction-line); color: var(--correction-ink); }
+
+.message-feedback > .feedback-badge:hover { background: var(--field); border-color: var(--accent-edge-deep); }
+
+.message-feedback > .feedback-badge.feedback-error {
+  background: var(--sheet);
+  color: var(--danger-ink);
+  border-color: var(--danger-edge);
+}
+
+.message-fixed {
+  display: block;
+  color: var(--success-ink);
+  font-size: var(--type-meta);
+  margin-top: var(--space-3);
+}
+
+.message-feedback { align-self: flex-end; max-width: 85%; min-width: 0; }
+.message-translate[aria-pressed]::before { content: '□'; margin-inline-end: var(--space-2); }
+.message-translate[aria-pressed=true]::before { content: '▣'; }

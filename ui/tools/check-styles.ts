@@ -12,10 +12,9 @@ const tokens = "foundations/tokens.css";
 /// here. A query on any other width or height fails the check.
 const BREAKPOINTS = { width: [380, 480, 600, 860], height: [550] };
 
-/// The one source module allowed to hold hex colours: the skill-domain palette.
-/// Its values are data a component paints at runtime, and contrast.test.ts
-/// measures them directly.
-const PALETTE_MODULES = new Set(["ui/src/domain/learning/catalog/skill-domains.ts"]);
+/// Runtime color data: the skill-domain palette and Rust-generated appearance
+/// defaults. Literal stylesheet colors still belong in tokens.css.
+const PALETTE_MODULES = new Set(["ui/src/domain/learning/catalog/skill-domains.ts", "ui/src/generated/contracts.ts"]);
 
 const errors: string[] = [];
 function sheetNames(directory: string, prefix = ""): string[] {
@@ -62,10 +61,16 @@ for (const { name, path, css } of parsed) {
     if (!decl.prop.startsWith("--")) return;
     const parent = decl.parent;
     const selector = parent?.type === "rule" ? (parent as {selector:string}).selector : "";
-    const theme = /^:root\[data-theme=['"](?:light|dark)['"]\]$/.test(selector);
+    const theme = /^:root(?:\[data-(?:theme|palette|density|spacing|depth)='[a-z_]+'\])+$/.test(selector);
     if (name !== tokens || (selector !== ":root" && !theme))
       errors.push(`${where(path, decl)}: ${decl.prop} must be a root token or theme override in ${tokens}`);
-    const key = `${selector}:${decl.prop}`;
+    const context: string[] = [];
+    let ancestor = parent?.parent;
+    while (ancestor && ancestor.type !== "root") {
+      if (ancestor.type === "atrule") context.unshift(`@${ancestor.name} ${ancestor.params}`);
+      ancestor = ancestor.parent;
+    }
+    const key = `${context.join("/") }:${selector}:${decl.prop}`;
     if (scoped.has(key)) errors.push(`${where(path, decl)}: ${decl.prop} is declared twice in ${selector}`);
     scoped.add(key);
     if (selector === ":root") declared.add(decl.prop);

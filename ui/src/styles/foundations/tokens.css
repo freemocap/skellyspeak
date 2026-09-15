@@ -1,32 +1,20 @@
-/* ============================================================================
-   Design tokens — the single source of truth for colour, type, space, radius,
-   elevation, motion and layering.
-
-   Rules of the house (enforced by ui/tools/check-styles.ts):
-     1. Component rules never contain a literal colour, font size, font weight,
-        radius, duration or layer. They reference a semantic token from this
-        file. Geometry that belongs to one component — a width, an offset, a
-        minimap size — may stay literal in that component's rule.
-     2. Palette primitives (the --c-* ramps) are private to this file. Every hex
-        colour lives in the palette, and every semantic colour references a
-        primitive, directly or through color-mix(). The only other colour
-        literals are the darkness of scrims and shadows, which belong to no ramp.
-     3. Semantic tokens are named for the ROLE they play, not the value they
-        hold, so a value can change without touching a component. Two roles may
-        share one primitive.
-     4. Surface roles share a graphite or warm-paper theme. Historical shell
-        and paper names remain semantic aliases so every surface changes
-        together. Domain fill and readable domain ink are separate roles.
-     5. Media queries cannot read custom properties, so breakpoints are not
-        tokens. The permitted set is BREAKPOINTS in ui/tools/check-styles.ts.
-     6. Every custom property is declared here, including the ones TypeScript
-        writes at runtime, so no consumer ever needs a var() fallback.
-
-   Order: palette -> semantic roles -> scales -> runtime contracts.
-   Ramp steps are ordered by lightness: a lower number is always lighter.
-   ========================================================================= */
+/* Shared vocabulary: palette, surfaces/text, controls, reading, status/domain
+   colors, geometry scales and runtime preferences. Components consume roles;
+   raw palette ramps are private. check-styles.ts validates declarations and
+   references, not semantic correctness. See ui/README.md for ownership.
+   Runtime appearance selects palette, density, spacing and depth independently.
+   Reading scale/script scale and domain colors retain their own contracts. */
 
 :root {
+  --layout-scale: .5;
+  --surface-shadow: 0 1px 2px rgb(0 0 0 / 14%), 0 3px 8px rgb(0 0 0 / 10%);
+  --input-shadow: inset 0 1px 3px rgb(0 0 0 / 12%);
+  --floating-shadow: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%);
+  --appearance-scrim: rgb(0 0 0 / 38%);
+  --appearance-glow: 0 0 0 transparent;
+  --appearance-glow-inset: inset 0 0 0 transparent;
+  --surface-glow: var(--appearance-glow);
+  --surface-bg: var(--sheet);
   /* Recording spectrum intensity; independent of skill-domain colors. */
   --spectrogram-low: #171b36;
   --spectrogram-mid: #8056b5;
@@ -34,106 +22,37 @@
   /* ══ Palette primitives ══════════════════════════════════════════════════
      Raw values. Never referenced from a component rule. */
 
-  /* Navy — the dark shell. */
-  --c-navy-950: #0c1420;
-  --c-navy-900: #132133;
-  --c-navy-850: #14202e;
-  --c-navy-800: #1a2838;
-  --c-navy-700: #26374a;
-  --c-navy-650: #233a56;
-  --c-navy-600: #303c49;
-  --c-navy-550: #24405f;
-  --c-navy-500: #394859;
-  --c-navy-400: #38506a;
-  --c-navy-300: #617184;
+
 
   /* Paper — the light conversation canvas. */
   --c-paper-50: #ffffff;
-  --c-paper-80: #fffdf7;
-  --c-paper-90: #fffcf2;
-  --c-paper-100: #f3f1ea;
-  --c-paper-150: #eeebe1;
-  --c-paper-300: #e0ddd2;
-  --c-paper-400: #d8d3c4;
 
-  /* Ink — cool greys for text, marks and quiet lines. */
-  --c-ink-0: #f4f6f8;
-  --c-ink-20: #f1f5fa;
-  --c-ink-50: #e8eef7;
-  --c-ink-100: #e1e7ef;
-  --c-ink-150: #c1cddd;
-  --c-ink-180: #b9c8df;
-  --c-ink-200: #b0bfd2;
-  --c-ink-250: #aab3bf;
-  --c-ink-300: #9bacc2;
-  --c-ink-350: #8da1b9;
-  --c-ink-400: #8c969c;
-  --c-ink-600: #505d6e;
-  --c-ink-700: #405469;
-  --c-ink-900: #1d242e;
+
 
   /* Blue — the accent. */
-  --c-blue-100: #e9f1ff;
-  --c-blue-150: #d5e7fa;
-  --c-blue-200: #d3e3fa;
-  --c-blue-250: #bdd6ff;
-  --c-blue-300: #b8d2ff;
-  --c-blue-350: #a9cbff;
-  --c-blue-400: #9ac3ff;
-  --c-blue-450: #8badde;
-  --c-blue-470: #7fa3ce;
   --c-blue-500: #6f9bff;
-  --c-blue-520: #839bd1;
-  --c-blue-540: #718eea;
-  --c-blue-560: #6286b9;
-  --c-blue-580: #6384b1;
-  --c-blue-600: #3c78b5;
-  --c-blue-650: #6240b5;
-  --c-blue-660: #3d5a80;
-  --c-blue-680: #35557b;
-  --c-blue-700: #294f84;
-  --c-blue-800: #17446f;
-  --c-blue-830: #173f68;
-  --c-blue-850: #213e68;
   --c-blue-900: #12395e;
 
   /* Green — success, and the partner's voice. */
-  --c-green-100: #f3f7f1;
-  --c-green-200: #e3eee0;
   --c-green-300: #c5dcc0;
   --c-green-400: #a6b9aa;
-  --c-green-500: #58c98b;
-  --c-green-600: #75816e;
-  --c-green-650: #53634a;
-  --c-green-700: #315943;
-  --c-green-800: #224f34;
-  --c-green-900: #243a2b;
 
   /* Red — failure and destructive actions. */
-  --c-red-100: #fff0f1;
   --c-red-200: #ffd7d7;
   --c-red-300: #ffb4b4;
-  --c-red-350: #f08a8a;
   --c-red-400: #e06c6c;
   --c-red-450: #c97973;
   --c-red-500: #d84a4a;
-  --c-red-550: #b34a4a;
   --c-red-600: #bd3038;
   --c-red-700: #a2262d;
-  --c-red-720: #923737;
   --c-red-750: #8a3a3a;
-  --c-red-800: #8b3422;
   --c-red-850: #7a3535;
   --c-red-900: #3a1a1a;
 
   /* Amber — attention and earned rewards. */
-  --c-amber-100: #fff0e8;
-  --c-amber-150: #f4d780;
-  --c-amber-200: #f5ca7c;
   --c-amber-300: #e6b357;
   --c-amber-400: #daa693;
   --c-amber-500: #c78a2f;
-  --c-amber-700: #ba790d;
 
   /* Stripes — one hue per conversation, chosen by id. */
   --c-stripe-teal: #3d9699;
@@ -225,44 +144,15 @@
   --dm-situating: color-mix(in srgb, var(--d-situating) 65%, var(--sheet));
   --tint-situating: color-mix(in srgb, var(--d-situating) 16%, transparent);
 
-  /* ── Shell surfaces (dark chrome) ─────────────────────────────────────── */
-  --shell-bg: var(--bg);
-  --shell-sunken: var(--field);
-  --shell-well: var(--card);
-  --shell-chrome: var(--chrome);
-  --shell-overlay: var(--card);
-  --shell-raised: var(--card);
   --shell-scrim: rgb(5 9 15 / 72%);
 
-  /* ── Shell lines ──────────────────────────────────────────────────────── */
-  --shell-line: var(--line-soft);
-  --shell-line-strong: var(--line);
   --brand-line: var(--line);
 
-  /* ── Shell text ───────────────────────────────────────────────────────── */
-  --shell-text-strong: var(--ink);
-  --shell-text: var(--ink);
-  --shell-text-muted: var(--ink-2);
-  --shell-text-faint: var(--ink-3);
   --ink-on-fill: var(--c-paper-50);
   --ink-on-domain: var(--c-paper-50);
 
-  /* ── Paper surfaces (light canvas) ────────────────────────────────────── */
-  --paper-raised: var(--field);
-  --paper-highlight: var(--quiet);
-  --paper-bg: var(--sheet);
-  --paper-sunken: var(--chrome);
 
-  /* ── Paper lines ──────────────────────────────────────────────────────── */
-  --paper-line: var(--line-soft);
-  --paper-line-strong: var(--line);
-  --paper-line-quiet: var(--line);
-  --paper-line-deep: var(--ink-3);
 
-  /* ── Paper text ───────────────────────────────────────────────────────── */
-  --paper-ink: var(--ink);
-  --paper-ink-soft: var(--ink-2);
-  --paper-ink-muted: var(--ink-3);
 
   /* ── Conversation bubbles ─────────────────────────────────────────────── */
   --bubble-partner-bg: var(--partner-top);
@@ -390,16 +280,6 @@
   --mode-review-ink: #0e5c53;
   --correction-ink: #8a4e0a;
   --correction-line: #c78a2f;
-  --text-2xs: var(--type-meta);
-  --text-xs: var(--type-meta);
-  --text-sm: var(--type-ui);
-  --text-md: var(--type-ui);
-  --text-base: var(--type-body);
-  --text-lg: var(--type-body);
-  --text-xl: var(--type-reading);
-  --text-2xl: var(--type-title);
-  --text-3xl: var(--type-display);
-  --text-4xl: var(--type-display);
 
   --leading-tight: 1.2;
   --leading-snug: 1.35;
@@ -421,22 +301,23 @@
   --tracking-caps: 0.14em;
 
   /* ── Space ──────────────────────────────────────────────────────────────
-     A 2px grid up to 20px, then wider steps. 1px is not a step: it is a
-     hairline. */
+     Base steps use a 2px grid up to 20px, then wider steps. All steps scale
+     together, so their ordering stays meaningful at every density. Hairlines,
+     reading size and minimum control heights are independent. */
   --space-hairline: 1px;
-  --space-1: 2px;
-  --space-2: 4px;
-  --space-3: 6px;
-  --space-4: 8px;
-  --space-5: 10px;
-  --space-6: 12px;
-  --space-7: 14px;
-  --space-8: 16px;
-  --space-9: 18px;
-  --space-10: 20px;
-  --space-11: 24px;
-  --space-12: 32px;
-  --space-13: 40px;
+  --space-1: calc(2px * var(--layout-scale));
+  --space-2: calc(4px * var(--layout-scale));
+  --space-3: calc(6px * var(--layout-scale));
+  --space-4: calc(8px * var(--layout-scale));
+  --space-5: calc(10px * var(--layout-scale));
+  --space-6: calc(12px * var(--layout-scale));
+  --space-7: calc(14px * var(--layout-scale));
+  --space-8: calc(16px * var(--layout-scale));
+  --space-9: calc(18px * var(--layout-scale));
+  --space-10: calc(20px * var(--layout-scale));
+  --space-11: calc(24px * var(--layout-scale));
+  --space-12: calc(32px * var(--layout-scale));
+  --space-13: calc(40px * var(--layout-scale));
 
   /* ── Radius ───────────────────────────────────────────────────────────── */
   --radius-xs: 3px;
@@ -504,9 +385,9 @@
      component value. They are declared so the contract is documented in one
      place and so every consumer has a default without repeating a fallback.
 
-       --reading-scale   text_size / 100          src/ui/TargetText.tsx
-       --script-scale    language fontScale       src/ui/TargetText.tsx
-       --word-spacing    preference.text_spacing  src/ui/TargetText.tsx
+       --reading-scale   text_size / 100          ui/src/components/reading/TargetText.tsx
+       --script-scale    language fontScale       ui/src/components/reading/TargetText.tsx
+       --word-spacing    preference.text_spacing  ui/src/components/reading/TargetText.tsx
        --domain-color    skill-domain colour      src/features/conversation/progress/ConversationMap.tsx
        --node-color      skill-map node colour    src/features/skills/SkillsPage.tsx
        --node-scale      skill-map node scale     src/features/skills/SkillsPage.tsx
@@ -639,4 +520,37 @@
   font-weight: 500;
   font-display: swap;
   src: url(/fonts/newsreader-500.ttf) format('truetype');
+}
+
+/* Appearance roles: selected on the root by the learner preference owner. */
+
+:root[data-spacing='roomy'] { --layout-scale: 1; }
+:root[data-spacing='balanced'] { --layout-scale: .75; }
+:root[data-spacing='tight'] { --layout-scale: .5; }
+:root[data-spacing='extra_tight'] { --layout-scale: .25; }
+:root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
+:root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
+:root[data-depth='flat'] { --surface-shadow: 0 0 0 transparent; --input-shadow: inset 0 0 0 transparent; --floating-shadow: 0 0 0 transparent; --appearance-scrim: rgb(0 0 0 / 25%); }
+:root[data-depth='raised'] { --surface-shadow: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --floating-shadow: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --appearance-scrim: rgb(0 0 0 / 55%); }
+:root[data-depth='recessed'] { --surface-shadow: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
+:root[data-palette='cool'] {
+  --c-spectrum-bg: #eceef0; --c-spectrum-chrome: #f3f4f5; --c-spectrum-sheet: #ffffff;
+  --c-spectrum-field: #ffffff; --c-spectrum-line: #cdd2d8; --c-spectrum-line-soft: #e1e4e8;
+  --c-spectrum-ink: #1c1f24; --c-spectrum-ink-2: #454a52; --c-spectrum-ink-3: #565d66;
+}
+:root[data-theme='dark'][data-palette='cool'] {
+  --c-spectrum-bg: #141517; --c-spectrum-chrome: #1b1d20; --c-spectrum-sheet: #24262a;
+  --c-spectrum-field: #111214; --c-spectrum-line: #59616b; --c-spectrum-line-soft: #3b4149;
+  --c-spectrum-ink: #f0f1f3; --c-spectrum-ink-2: #d3d6da; --c-spectrum-ink-3: #a3a8af;
+}
+:root[data-theme='dark'][data-palette='warm'] {
+  --c-spectrum-bg: #191714; --c-spectrum-chrome: #201e19; --c-spectrum-sheet: #292620;
+  --c-spectrum-field: #15130f; --c-spectrum-line: #6b6051; --c-spectrum-line-soft: #463f34;
+  --c-spectrum-ink: #f5f0e6; --c-spectrum-ink-2: #ded6c8; --c-spectrum-ink-3: #b8ad9b;
+}
+
+/* Density never reduces touch targets below the platform minimum. */
+@media (pointer: coarse) {
+  :root[data-density='standard'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+  :root[data-density='compact'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
 }

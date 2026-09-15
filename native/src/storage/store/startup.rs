@@ -58,6 +58,7 @@ impl Store {
             config.language("en")?;
             let preferences = Preferences {
                 theme: Theme::Light,
+                appearance: Default::default(),
                 explanation_language: "en".into(),
                 explanation_variety_id: config.language("en")?.default_variety,
                 interface_locale: "en".into(),

@@ -1,0 +1,67 @@
+.modal-backdrop {
+  position: fixed; inset: 0; background: var(--shell-scrim); z-index: var(--z-modal);
+  display: grid; place-items: center;
+  /* Safe-area insets, and every child below sizes against THIS box (100%),
+     never against dvh. A dvh-sized modal plus this padding was taller than the
+     viewport, and `place-items: center` then clipped it at both ends at once —
+     which put the section nav off the top of the screen and the Save button
+     off the bottom, with no scroll to reach either. */
+  padding: max(var(--space-8), env(safe-area-inset-top))
+    max(var(--space-8), env(safe-area-inset-right))
+    max(var(--space-8), env(safe-area-inset-bottom))
+    max(var(--space-8), env(safe-area-inset-left));
+}
+
+.modal {
+  width: min(480px, 100%); background: var(--chrome); border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-lg); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+}
+
+.modal h2 { margin: 0 0 var(--space-2); font-size: var(--type-title); }
+
+.modal .sub {
+  color: var(--ink-2);
+  font-size: var(--type-ui);
+  margin-bottom: var(--space-6);
+  line-height: var(--leading-normal);
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-top: var(--space-9);
+}
+
+.detail-dialog {
+  box-sizing: border-box;
+  width: min(580px, calc(100vw - 28px));
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: var(--space-10);
+  border: var(--border-width) solid var(--detail-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--floating-shadow), var(--appearance-glow);
+  background: var(--sheet);
+  color: var(--ink);
+  font: var(--type-body)/1.55 var(--font-sans);
+}
+
+.detail-dialog::backdrop { background: var(--appearance-scrim); }
+
+.detail-close {
+  display: block;
+  margin-inline-start: auto;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
+}

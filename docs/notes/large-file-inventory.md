@@ -28,7 +28,7 @@ Status: scan snapshot, 2026-09-15, refreshed after the execution, store, applica
 
 | Lines | File |
 | ---: | --- |
-| 1,052 | [ui/src/styles/features/conversation/conversation.css](../../ui/src/styles/features/conversation/conversation.css) |
+| 1,052 | [ui/src/styles/features/conversation/conversation.css](style-system-refactor.md) |
 
 ## Danger zone: 500–999
 

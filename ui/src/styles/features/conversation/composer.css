@@ -1,0 +1,93 @@
+/* Composer layout and recording controls.
+   .field is the shared form-field base; .composer-input adds reading typography
+   and composer geometry. Recording/stop controls retain their distinct states. */
+.field.composer-input {
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  font-size: var(--type-reading);
+  font-family: var(--font-serif);
+  min-width: 0;
+}
+
+.field.composer-input:dir(rtl) {
+  font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
+  line-height: 1.7;
+}
+
+@media(max-width:860px) {
+  .chat .composer { padding: var(--space-2) var(--space-3) max(var(--space-3), env(safe-area-inset-bottom)); }
+}
+
+.composer {
+  background: var(--chrome);
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  border-top: var(--border-width) solid var(--line-soft);
+}
+
+.edit-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+  margin: var(--space-2) var(--space-1) var(--space-3); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md);
+  background: var(--field); border: var(--border-width) solid var(--interaction-ink);
+  font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink);
+}
+
+.edit-banner button {
+  flex: none; border: none; background: none; color: var(--interaction-ink);
+  cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
+}
+
+.crow { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-2); }
+
+.send {
+  flex: none; width: 38px; height: 38px; border: none;
+  background: var(--accent-strong); color: var(--ink-on-fill); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-body); border-radius: var(--radius-lg); min-height: var(--control-height-lg);
+}
+
+.send:disabled { opacity: 0.5; cursor: default; }
+
+.mic {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
+  flex: none; min-width: 112px; height: 52px; padding: 0 var(--space-8); border: var(--border-width-strong) solid var(--danger-ink);
+  background: var(--field); color: var(--danger-ink); cursor: pointer; font-family: var(--font-sans); font-size: var(--type-reading); font-weight: var(--weight-bold); border-radius: var(--radius-lg); min-height: var(--control-height-lg);
+}
+
+.mic:hover:not(:disabled) { background: var(--danger-tint); }
+
+.mic.recording { background: var(--danger-fill); color: var(--ink-on-fill); border-color: var(--danger-fill); }
+
+.mic.recording:hover:not(:disabled) { background: var(--danger-fill-hover); border-color: var(--danger-fill-hover); }
+
+.mic:disabled { opacity: 0.5; cursor: default; }
+
+.mic-cancel {
+  flex: none; width: 28px; height: 28px; border-radius: var(--radius-circle);
+  border: var(--border-width) solid var(--danger-line); background: var(--field); color: var(--danger-line);
+  cursor: pointer; font-size: var(--type-ui);
+}
+
+.mic-cancel:hover { background: var(--danger-line); color: var(--ink-on-fill); }
+
+.crow .mic-cancel {
+  width: auto;
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  flex: none;
+  font-size: var(--type-ui);
+  color: var(--danger-deep);
+  border-color: var(--danger-deep);
+  border-radius: var(--radius-md);
+}
+
+.crow .mic-cancel:hover { background: var(--danger-deep); color: var(--ink-on-fill); }
+
+@media (pointer: coarse) { .crow .mic-cancel { min-height: var(--touch-target); } }
+
+.composer > .activity-indicator { margin-inline: var(--space-5); }
+
+.composer-activity:empty { display: none; }
+
+.composer-activity { padding: var(--space-1) var(--space-5); color: var(--ink); }
+
+.composer-activity .activity-spinner { width: 16px; height: 16px; }

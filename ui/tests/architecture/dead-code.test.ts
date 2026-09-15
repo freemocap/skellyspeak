@@ -57,7 +57,7 @@ it('warns about exports no other module mentions', () => {
 })
 
 /// Warning only, for the same reason. `npm run styles:dead` reports the same
-/// list, and `npm run styles:prune` removes them.
+/// candidate list. Pruning is conservative and refuses duplicate relocation.
 it('warns about stylesheet classes no source file references', () => {
   const { unused } = analyseStyles(repositoryRoot)
   if (unused.length) {

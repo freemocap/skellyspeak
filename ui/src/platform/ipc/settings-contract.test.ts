@@ -1,3 +1,4 @@
+import { DEFAULT_APPEARANCE } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AccessSettings, Command, ConnectionConfig, Snapshot } from '../../generated/contracts'
@@ -11,7 +12,7 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 function directory(): Snapshot {
   return {
     sessionId: 'session', revision: 20,
-    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
+    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'fr' : 'es', title: id,
@@ -209,7 +210,7 @@ it('saves explanation variety to the conversation and future defaults without ch
   const actions = commands().map(command => command.action)
   expect(actions).toHaveLength(2)
   expect(actions[0]).toMatchObject({ kind: 'updateSettings', settings: { varietyId: 'es-MX', explanationLanguage: 'en', explanationVarietyId: 'en-GB' } })
-  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { explanationVarietyId: 'en-GB', interfaceLocale: 'en' } })
+  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'en-GB', interfaceLocale: 'en' } })
 })
 it('saves an explicit target variety as the per-language default', async () => {
   const settings = await getSettings()
@@ -217,4 +218,15 @@ it('saves an explicit target variety as the per-language default', async () => {
   const actions = commands().map(command => command.action)
   expect(actions[0]).toMatchObject({ kind: 'updateSettings', settings: { varietyId: 'es-ES', explanationVarietyId: 'en-US' } })
   expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { targetVarieties: { es: 'es-ES' } } })
+})
+
+it('saves appearance on the learner without changing conversation settings', async () => {
+  const settings = await getSettings()
+  const appearance = { ...DEFAULT_APPEARANCE, depth: 'recessed' as const, glowEnabled: true }
+  await saveSettings({ ...settings, appearance })
+  expect(commands()).toHaveLength(1)
+  expect(commands()[0].action).toEqual({
+    kind: 'updateLearner', expectedRevision: 9, name: 'Learner',
+    preferences: { ...workspace.learner.preferences, appearance },
+  })
 })

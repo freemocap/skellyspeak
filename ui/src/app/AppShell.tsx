@@ -1,3 +1,4 @@
+import { useAppearance } from '../platform/appearance/useAppearance'
 import { CredentialCleanup } from '../features/startup/CredentialCleanup'
 import { I18nProvider } from '../components/localization/i18n'
 import { useEffect } from 'react'
@@ -40,6 +41,8 @@ export function AppShell() {
   // Derived, not copied: editing the shortcut in Settings takes effect at once
   // rather than at the next start.
   const shortcuts = useSettingsStore((state) => state.settings?.shortcuts ?? SHORTCUT_DEFAULTS)
+
+  useAppearance(settings)
 
   // A skill-map request from anywhere opens the tree.
   const mapRequest = useSkillNavigationStore((state) => state.mapRequest)

@@ -93,7 +93,7 @@ it('reports a failed write and leaves the record it had', async () => {
 })
 
 it('writes a text size only when the action changes it', async () => {
-  native.get.mockResolvedValue(record({ text_size: 150 }))
+  native.get.mockResolvedValue(record({ text_size: 160 }))
   useSettingsStore.getState().changeTextSize('increase')
   await vi.waitFor(() => expect(native.get).toHaveBeenCalled())
   // Already at the limit: there is nothing to write.

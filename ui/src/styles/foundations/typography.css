@@ -25,12 +25,12 @@
 
 .md-code {
   margin: var(--space-3) 0; padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm);
-  background: var(--shell-sunken); border: var(--border-width) solid var(--shell-line-strong);
-  font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-normal);
+  background: var(--field); border: var(--border-width) solid var(--line);
+  font-family: var(--font-mono); font-size: var(--type-ui); line-height: var(--leading-normal);
   overflow-x: auto; white-space: pre;
 }
 
-.md-p, .md-list { font-size: calc(var(--text-base) * var(--reading-scale)); }
+.md-p, .md-list { font-size: calc(var(--type-body) * var(--reading-scale)); }
 
 .md-p .target-text, .md-list .target-text { font-size: inherit; font-family: inherit; }
 

@@ -1,0 +1,32 @@
+.shortcut-field { display: flex; align-items: center; gap: var(--space-5); }
+
+.shortcut-label { flex: 1; font-size: var(--type-ui); color: var(--ink-2); }
+
+.shortcut-input {
+  width: 170px; background: var(--field); color: var(--accent-ink); text-align: center;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-4);
+  font-family: var(--font-mono); font-size: var(--type-ui); cursor: pointer; outline: none;
+}
+
+.shortcut-input:focus { border-color: var(--accent); color: var(--ink); }
+
+.key-row { display: flex; align-items: center; gap: var(--space-4); }
+
+.key-row input { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: var(--type-ui); }
+
+.key-row input[readonly] { color: var(--ink-2); cursor: default; }
+
+.save-status {
+  margin: 0 0 0 var(--space-2); font-family: var(--font-mono); font-size: var(--type-meta);
+  letter-spacing: var(--tracking-tag); text-transform: uppercase; color: var(--ink-2);
+}
+
+.save-status.hint { color: var(--ink-3); }
+
+.save-status.saved { color: var(--success); }
+
+.save-status.error { color: var(--danger); }
+
+@media (max-width: 860px) {
+  .save-status { margin-left: var(--space-4); font-size: var(--type-meta); }
+}

@@ -10,7 +10,7 @@
      2. reset       — element defaults; lowest specificity, must not win later
      3. typography  — prose and reading roles shared by several surfaces
      4. layout      — the shell: app frame, toolbar, panes, navigation
-     5. primitives  — buttons, fields, dialogs, notices: the shared vocabulary
+     5. components  — panel headers, controls, overlays and reading primitives
      6. features    — one file per product surface, in surface order
      7. motion      — @keyframes only; names are order-independent, so last
 
@@ -26,16 +26,34 @@
 @import './foundations/reset.css';
 @import './foundations/typography.css';
 @import './shell/layout.css';
-@import './components/primitives.css';
+@import './components/panels.css';
+@import './components/buttons.css';
+@import './components/fields.css';
+@import './components/dialogs.css';
+@import './components/popovers.css';
+@import './components/reading.css';
+@import './components/activity.css';
+@import './components/waveform.css';
+@import './shell/notices.css';
 
 /* Feature surfaces, in the order the learner meets them. */
-@import './features/conversation/conversation.css';
+@import './features/conversation/workspace.css';
+@import './features/conversation/messages.css';
+@import './features/conversation/composer.css';
+@import './features/conversation/reply-help.css';
+@import './features/conversation/header.css';
+@import './features/conversation/start.css';
+@import './features/conversation/reading-evidence.css';
+@import './features/conversation/inline-rewards.css';
 @import './features/conversation/coach.css';
 @import './features/conversation/lesson.css';
 @import './features/conversation/analysis.css';
+@import './features/settings/forms.css';
 @import './features/settings/settings.css';
+@import './features/settings/appearance.css';
 @import './features/conversation/persona.css';
 @import './features/conversation/practice.css';
 @import './features/skills/skills.css';
+
 
 @import './foundations/motion.css';

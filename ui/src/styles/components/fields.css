@@ -1,0 +1,53 @@
+
+.field, .form-row input:not([type='checkbox']):not([type='range']), .form-row select {
+  min-height: var(--control-height);
+  box-shadow: var(--input-shadow);
+}
+
+.field {
+  flex: 1; background: var(--field); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-7); color: var(--ink); font-family: var(--font-sans); font-size: var(--type-ui);
+}
+
+.field:focus { border-color: var(--accent); }
+
+.field::placeholder { color: var(--ink-3); }
+
+.form-row { margin-bottom: var(--space-5); }
+
+.field-note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-ui);
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.form-row label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--type-ui);
+  color: var(--ink-2);
+  margin-bottom: var(--space-2);
+}
+
+.form-row input, .form-row select {
+  width: 100%; background: var(--field); color: var(--ink);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5); font-family: var(--font-sans); font-size: var(--type-ui);
+}
+
+.form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+
+.check-row .check-label {
+  display: flex; align-items: center; gap: var(--space-4); cursor: pointer;
+  font-family: var(--font-sans); font-size: var(--type-ui); color: var(--ink);
+}
+
+.check-row input[type='checkbox'] { width: auto; accent-color: var(--accent-strong); }
+
+@media (max-width: 860px) {
+  .field, .form-row input, .form-row select { font-size: var(--type-reading); }
+}
+
+@media (pointer: coarse) {
+  .field, .form-row input:not([type='checkbox']):not([type='range']), .form-row select { min-height: var(--touch-target); }
+}

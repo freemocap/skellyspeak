@@ -6,9 +6,9 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--well);
+  background: var(--surface-bg);
   border-radius: var(--radius-lg);
-  box-shadow: var(--well-shadow);
+  box-shadow: var(--surface-shadow), var(--surface-glow);
   position: relative;
   overflow: hidden;
 }
@@ -17,34 +17,34 @@
 
 .break-head .k {
   font-family: var(--font-mono);
-  font-size: var(--text-2xs);
+  font-size: var(--type-meta);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--accent-ink);
 }
 
-.break-head .live { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--shell-text-faint); }
+.break-head .live { font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-3); }
 
 .break.collapsed { flex: 0 0 auto; min-width: 0; }
 
 .break.collapsed .break-head { border-bottom: none; padding: var(--space-5) var(--space-9); }
 
 .exp {
-  border: var(--border-width) solid var(--shell-line);
+  border: var(--border-width) solid var(--line-soft);
   border-inline-start: var(--border-width-thick) solid var(--warning);
   border-radius: var(--radius-lg);
   padding: var(--space-6) var(--space-7);
-  background: var(--shell-chrome);
+  background: var(--chrome);
   margin-top: var(--space-3);
 }
 
 .exp-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
 
-.exp-title { font-weight: var(--weight-semibold); font-size: var(--text-lg); }
+.exp-title { font-weight: var(--weight-semibold); font-size: var(--type-body); }
 
 .exp-cefr {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  font-size: var(--type-meta);
   color: var(--warning);
   border: var(--border-width) solid var(--warning-strong);
   border-radius: var(--radius-pill);
@@ -52,33 +52,33 @@
 }
 
 .exp-body {
-  font-size: var(--text-base);
-  color: var(--shell-text-muted);
+  font-size: var(--type-body);
+  color: var(--ink-2);
   line-height: 1.55;
   margin-top: var(--space-4);
 }
 
 .exp-ex {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--type-body);
   color: var(--warning);
   margin-top: var(--space-4);
   line-height: 1.45;
 }
 
 .exp-vs {
-  font-size: var(--text-md);
-  color: var(--shell-text-muted);
+  font-size: var(--type-ui);
+  color: var(--ink-2);
   margin-top: var(--space-4);
   line-height: var(--leading-normal);
 }
 
 .exp-vs span {
   font-family: var(--font-mono);
-  font-size: var(--text-2xs);
+  font-size: var(--type-meta);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--shell-text-faint);
+  color: var(--ink-3);
   display: block;
   margin-bottom: var(--space-1);
 }
@@ -87,17 +87,17 @@
   .break { flex: 1 1 auto; min-height: 0; overflow: hidden; }
 }
 
-.lesson-meta { color: var(--shell-text-muted); font-size: var(--text-sm); line-height: var(--leading-normal); }
+.lesson-meta { color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }
 
 .lesson-action {
-  border: var(--border-width) solid var(--shell-line-strong);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--shell-sunken);
-  color: var(--shell-text);
+  background: var(--field);
+  color: var(--ink);
   cursor: pointer;
   padding: var(--space-3) var(--space-5);
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--type-ui);
 }
 
 .lesson-action:hover { border-color: var(--accent); }
@@ -108,40 +108,13 @@
 
 .break.collapsed > :not(.break-head) { display: none; }
 
-.detail-dialog {
-  box-sizing: border-box;
-  width: min(580px, calc(100vw - 28px));
-  max-height: 85dvh;
-  overflow-y: auto;
-  padding: var(--space-10);
-  border: var(--border-width) solid var(--detail-line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
-  background: var(--sheet);
-  color: var(--shell-text);
-  font: var(--text-lg)/1.55 var(--font-sans);
-}
-
 /* The conversation dialog owns its available height; saved side-dock sizes do not apply. */
 
-.detail-dialog::backdrop { background: var(--detail-scrim); }
-
-.detail-close {
-  display: block;
-  margin-inline-start: auto;
-  border: var(--border-width) solid var(--shell-line-strong);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-5);
-  color: var(--shell-text);
-  background: transparent;
-  cursor: pointer;
-}
-
 .skill-evidence-record {
-  border-top: var(--border-width) solid var(--shell-line-strong);
+  border-top: var(--border-width) solid var(--line);
   padding: var(--space-8) 0;
   overflow-wrap: anywhere;
-  font: var(--text-base)/1.55 var(--font-sans);
+  font: var(--type-body)/1.55 var(--font-sans);
 }
 
 .skill-evidence-record header { display: flex; justify-content: space-between; gap: var(--space-6); }
@@ -149,23 +122,19 @@
 .skill-evidence-record blockquote {
   margin: var(--space-6) 0;
   padding-inline-start: var(--space-6);
-  border-inline-start: var(--border-width-strong) solid var(--shell-line-strong);
-  font-size: var(--text-2xl);
+  border-inline-start: var(--border-width-strong) solid var(--line);
+  font-size: var(--type-title);
 }
 
 .skill-evidence-record dd { margin-inline-start: 0; }
 
 .detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
 
-@media (pointer: coarse) {
-  .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
-}
-
 .detail-dialog:has(.practice-overview) {
   width: min(820px, calc(100vw - 24px));
   height: 85dvh;
   padding: var(--space-5);
-  font-size: var(--text-md);
+  font-size: var(--type-ui);
 }
 
 .detail-dialog:has(.practice-overview) > .detail-close { float: right; padding: var(--space-1) var(--space-3); }
@@ -204,7 +173,7 @@
   display: grid;
   gap: 12px;
   padding: 12px;
-  border: var(--border-width) solid var(--shell-line);
+  border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-md);
 }
 .lesson-examples > div {
@@ -236,7 +205,7 @@
 
 .lesson-categories { display: flex; flex-wrap: wrap; gap: .75rem; border: 0; padding: 0; }
 .lesson-categories label { display: flex; align-items: center; gap: .35rem; min-height: 44px; }
-.lesson-quiz fieldset { min-width: 0; margin-block: .75rem; padding: .75rem; border: var(--border-width) solid var(--shell-line); border-radius: var(--radius-md); }
+.lesson-quiz fieldset { min-width: 0; margin-block: .75rem; padding: .75rem; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
 .lesson-quiz button[aria-pressed="true"] { font-weight: var(--weight-bold); outline: 2px solid currentColor; }
 
 .embedded-lesson { display: flex; height: 100%; min-height: 0; gap: var(--space-6); padding: 0; }

@@ -101,7 +101,7 @@ export async function getSettings(): Promise<Settings> {
     native_language: conversation.settings.explanationLanguage,
     native_variety: conversation.settings.explanationVarietyId, interface_locale: preferences.interfaceLocale,
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
-    theme: preferences.theme ?? 'light', auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
+    theme: preferences.theme ?? 'light', appearance: preferences.appearance, auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
     microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
     reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
@@ -163,7 +163,7 @@ async function writeSettings(settings: Settings): Promise<void> {
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
   const preferences = { ...snapshot.learner.preferences, interfaceLocale: settings.interface_locale,
     ...(settings.native_language !== conversation.settings.explanationLanguage || settings.native_variety !== conversation.settings.explanationVarietyId ? { explanationLanguage: settings.native_language, explanationVarietyId: settings.native_variety } : {}),
-    targetVarieties: settings.target_variety !== conversation.settings.varietyId && settings.target_language === conversation.languageId ? { ...snapshot.learner.preferences.targetVarieties, [settings.target_language]: settings.target_variety } : snapshot.learner.preferences.targetVarieties, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}) }
+    targetVarieties: settings.target_variety !== conversation.settings.varietyId && settings.target_language === conversation.languageId ? { ...snapshot.learner.preferences.targetVarieties, [settings.target_language]: settings.target_variety } : snapshot.learner.preferences.targetVarieties, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}), ...(settings.appearance ? {appearance:settings.appearance} : {}) }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)
   const displayChanged = JSON.stringify(preferences) !== JSON.stringify(snapshot.learner.preferences)
   if (settings.target_language !== conversation.languageId) {

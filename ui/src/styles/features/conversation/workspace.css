@@ -1,0 +1,62 @@
+/* workspace — conversation style owner. */
+.chat {
+  flex: 1 1 var(--chat-share); min-width: 0; display: flex; flex-direction: column;
+  background: var(--surface-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--surface-shadow), var(--surface-glow);
+  /* The dev panel shrinks this pane; without clipping, the composer's
+     controls bleed out over the panel below. */
+  overflow: hidden;
+}
+
+.stream {
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-6) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  overscroll-behavior: contain;
+}
+
+.chat .stream {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+@media(max-width:860px) {
+  .chat .stream { padding: var(--space-4) var(--space-4); }
+}
+
+@media (max-width: 860px) {
+  .chat { flex: 1 1 auto; min-height: 0; }
+  .mobile-conversation {
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .mobile-conversation .chat { display: flex; flex: none; overflow: visible; min-height: 65dvh; }
+  .mobile-conversation .stream {
+    overflow: visible;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-6);
+  }
+  .mobile-conversation .mobile-composer {
+    top: 0;
+    bottom: 0;
+    z-index: var(--z-raised);
+    position: static;
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+  .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 220px; display: flex; }
+  .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
+  .mobile-conversation.mobile-lesson > .chat { display: none; }
+  .mobile-conversation.mobile-lesson .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
+  .mobile-conversation.workspace-learn > .chat { display: none; }
+}

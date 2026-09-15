@@ -43,6 +43,30 @@ Follow the folder map in [ui/README.md](ui/README.md). Keep application code und
 - `generated/`: Rust-generated outputs; update their source/exporter, not the
   generated files by hand.
 
+Appearance preferences are learner-owned: native validation/defaults live in
+`native/src/configuration/appearance.rs`, settings controls in
+`features/settings/appearance/`, and global theme/surface application in
+`platform/appearance/useAppearance.ts`. Reading scale stays with the reading
+provider. Generate contracts from Rust; do not duplicate appearance defaults.
+Shared CSS owners are `components/{buttons,fields,panels,dialogs,popovers,reading}.css`;
+shell notices and settings forms stay with their owners. Use `--type-meta/ui/body/
+reading/title/display` for text roles and `--bg/chrome/sheet/field`, `--ink/ink-2/
+ink-3`, `--line/line-soft` for general surfaces, text and borders. Do not restore
+retired size or shell/paper aliases. Domain and status colors remain distinct.
+Depth/shadow roles belong in each component base; do not recreate a global
+appearance override sheet. Spacing scales independently of reading size and
+control minimums; coarse pointers retain 44px controls.
+Conversation CSS follows `workspace/messages/composer/reply-help/header/start/
+reading-evidence/inline-rewards.css`. Shared activity and waveform styles live
+under `components/`. Keep variants explicit: `.msg.chat-message` is the stream
+bubble variant, `.reaction-excerpt .msg` is the partner excerpt layout, and
+`.field.composer-input` adds reading typography to a shared field. Retained
+contextual variants must explain their purpose and own only their differences.
+See [ui/README.md](ui/README.md) and the
+[refactor checkpoint](docs/notes/style-system-refactor.md). Feature-specific
+composition still needs subsequent passes. Pruning reports candidates and refuses
+duplicate relocation; review source ownership before using write mode.
+
 Colocate implementation tests with their owner. Cross-cutting tests, shared setup
 and mocks belong in `ui/tests/`; UI-only tooling belongs in `ui/tools/`. Keep
 `public/` for directly served files and `assets/` for authored source artwork.

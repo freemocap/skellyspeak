@@ -182,3 +182,38 @@ fn unavailable_saved_explanation_language_is_refused_on_snapshot() {
     store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.explanationLanguage','unknown_language')",[]).unwrap();
     assert!(store.snapshot().is_err());
 }
+
+#[test]
+fn appearance_survives_restart_without_changing_conversation_settings() {
+    use crate::configuration::appearance::{
+        ControlDensity, LayoutSpacing, SurfaceDepth, SurfacePalette,
+    };
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("workspace.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    store.prepare_chat().unwrap();
+    let before = store.snapshot().unwrap();
+    let mut preferences = before.learner.preferences.clone();
+    preferences.appearance.palette = SurfacePalette::Warm;
+    preferences.appearance.control_density = ControlDensity::Compact;
+    preferences.appearance.layout_spacing = LayoutSpacing::ExtraTight;
+    preferences.appearance.depth = SurfaceDepth::Recessed;
+    preferences.appearance.glow_enabled = true;
+    preferences.appearance.glow_strength = 65;
+    preferences.text_size = 160;
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: before.learner.revision,
+            name: before.learner.name,
+            preferences: preferences.clone(),
+        },
+    );
+    drop(store);
+    let after = Store::open(&path).unwrap().snapshot().unwrap();
+    assert_eq!(after.learner.preferences, preferences);
+    assert_eq!(
+        after.conversations[0].settings,
+        before.conversations[0].settings
+    );
+}

@@ -11,7 +11,19 @@ if (!defaults || !dark) throw new Error('Missing theme tables')
 function table(source: string) {
   return new Map([...source.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)].map(match => [match[1], match[2].trim()]))
 }
-const themes = { light: table(defaults), dark: table(defaults + dark) }
+const themes: Record<string, Map<string, string>> = {}
+for (const theme of ['light', 'dark']) {
+  for (const palette of ['cool', 'warm']) {
+    const overrides = [...tokens.matchAll(/(:root[^{}]*)\{([^{}]*)\}/g)]
+      .filter(([, selector]) => {
+        const attrs = [...selector.matchAll(/data-([a-z]+)='([a-z_]+)'/g)]
+        return attrs.length > 0 && attrs.every(([, key, value]) =>
+          (key === 'theme' && value === theme) || (key === 'palette' && value === palette))
+      })
+      .map(([, , body]) => body).join('\n')
+    themes[theme + '-' + palette] = table(defaults + overrides)
+  }
+}
 const aliasPattern = /^var\(\s*--([\w-]+)\s*\)$/
 function color(theme: keyof typeof themes, name: string, depth = 0): string {
   const value = themes[theme].get(name.match(aliasPattern)?.[1] ?? name)
@@ -33,27 +45,27 @@ function contrast(a: string, b: string): number {
   const values = [luminance(a), luminance(b)].sort((x, y) => x - y)
   return (values[1] + 0.05) / (values[0] + 0.05)
 }
-for (const theme of ['dark', 'light'] as const) {
+for (const theme of Object.keys(themes)) {
   const c = (name: string) => color(theme, name)
   it(`keeps primary, secondary and action text readable in ${theme}`, () => {
-    for (const text of ['shell-text', 'shell-text-muted', 'shell-text-faint']) {
-      for (const background of ['shell-bg', 'shell-sunken', 'shell-well', 'shell-chrome', 'shell-overlay', 'shell-raised', 'well-top', 'well-bottom']) {
+    for (const text of ['ink', 'ink-2', 'ink-3']) {
+      for (const background of ['bg', 'field', 'card', 'chrome', 'card', 'card', 'well-top', 'well-bottom']) {
         expect(contrast(c(text), c(background)), `${text} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }
-    for (const background of ['paper-bg', 'paper-sunken', 'bubble-learner-bg', 'partner-top']) {
-      expect(contrast(c('paper-ink-muted'), c(background))).toBeGreaterThanOrEqual(4.5)
+    for (const background of ['sheet', 'chrome', 'bubble-learner-bg', 'partner-top']) {
+      expect(contrast(c('ink-3'), c(background))).toBeGreaterThanOrEqual(4.5)
     }
     expect(contrast(c('ink-on-fill'), c('accent-strong'))).toBeGreaterThanOrEqual(4.5)
     expect(contrast(c('ink-on-fill'), c('accent-strong-hover'))).toBeGreaterThanOrEqual(4.5)
-    for (const background of ['paper-bg', 'paper-raised', 'bubble-learner-bg', 'partner-top']) {
+    for (const background of ['sheet', 'field', 'bubble-learner-bg', 'partner-top']) {
       expect(contrast(c('focus-accent'), c(background)), `focus on ${background}`).toBeGreaterThanOrEqual(3)
     }
-    expect(contrast(c('danger-ink'), c('paper-raised'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(c('danger-ink'), c('field'))).toBeGreaterThanOrEqual(4.5)
   })
   it(`keeps links, status, recovery and destructive controls readable in ${theme}`, () => {
     for (const ink of ['accent-ink', 'danger', 'danger-on-dark', 'success']) {
-      for (const background of ['shell-overlay', 'shell-chrome', 'shell-raised', 'paper-raised']) {
+      for (const background of ['card', 'chrome', 'card', 'field']) {
         expect(contrast(c(ink), c(background)), `${ink} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }
@@ -65,7 +77,7 @@ for (const theme of ['dark', 'light'] as const) {
     const { domainColors } = await import('./skill-domains')
     for (const domain of ['social', 'descriptions', 'statements', 'situating', 'questions', 'opinions']) {
       const palette = domainColors(domain)
-      for (const background of ['paper-bg', 'bubble-learner-bg', 'shell-raised']) {
+      for (const background of ['sheet', 'bubble-learner-bg', 'card']) {
         expect(contrast(c(palette.ink), c(background)), `${domain} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
       expect(contrast(c('ink-on-domain'), c(palette.ink)), `${domain} XP badge`).toBeGreaterThanOrEqual(4.5)

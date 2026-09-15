@@ -1,3 +1,4 @@
+import { DEFAULT_APPEARANCE } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
@@ -68,7 +69,7 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'es', title: id, archived: false,

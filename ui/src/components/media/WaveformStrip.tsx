@@ -33,11 +33,11 @@ export function WaveformStrip({
 
     // A canvas cannot read var(), so the colours are resolved from the design
     // tokens once per source; opacity is a drawing parameter, not a colour.
-    const backgroundColor = cssToken('--shell-sunken')
+    const backgroundColor = cssToken('--field')
     const waveColor = cssToken('--accent')
     const gridColor = cssToken('--ink-on-fill')
     const nowColor = cssToken('--warning')
-    const labelColor = cssToken('--shell-text')
+    const labelColor = cssToken('--ink')
 
     const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 

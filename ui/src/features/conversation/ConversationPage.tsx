@@ -59,7 +59,7 @@ import { reportFault } from '../../platform/diagnostics/faults'
 import { needsProviderSetup } from '../../domain/access/providers'
 
 /// Number of conversation stripe hues: the .chat[data-stripe] rules in
-/// conversation.css and the --chat-stripe-* tokens in tokens.css.
+/// conversation/message styles and the --chat-stripe-* tokens in tokens.css.
 const CHAT_STRIPES = 5
 
 export default function ConversationPage({

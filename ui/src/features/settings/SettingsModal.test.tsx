@@ -184,3 +184,17 @@ it('keeps the entire settings interface in its locale when the explanation langu
   expect(await screen.findByRole('heading', { name: 'Einstellungen' })).toBeVisible()
   expect(screen.queryByRole('heading', { name: 'Paramètres' })).toBeNull()
 })
+
+it('exposes appearance controls and autosaves their combined values', async () => {
+  render(<SettingsModal onClose={vi.fn()} />)
+  fireEvent.click(await screen.findByRole('button', { name: /Appearance/ }))
+  expect(screen.getByLabelText('Glow color')).toBeDisabled()
+  fireEvent.change(screen.getByLabelText('Surface depth'), { target: { value: 'recessed' } })
+  fireEvent.change(screen.getByLabelText('Layout spacing'), { target: { value: 'extra_tight' } })
+  fireEvent.click(screen.getByLabelText('Enable glow'))
+  expect(screen.getByLabelText('Glow color')).not.toBeDisabled()
+  fireEvent.change(screen.getByLabelText('Glow strength'), { target: { value: '55' } })
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({
+    appearance: expect.objectContaining({ depth: 'recessed', layoutSpacing: 'extra_tight', glowEnabled: true, glowStrength: 55 }),
+  }), expect.any(Object)))
+})

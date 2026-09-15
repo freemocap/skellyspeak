@@ -90,7 +90,7 @@ pub enum OnboardingStatus {
 /// generated contracts.
 pub const TEXT_SIZE_DEFAULT: u16 = 85;
 pub const TEXT_SIZE_MIN: u16 = 75;
-pub const TEXT_SIZE_MAX: u16 = 150;
+pub const TEXT_SIZE_MAX: u16 = 160;
 pub const TEXT_SIZE_STEP: u16 = 5;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, TS, PartialEq)]
@@ -107,6 +107,8 @@ pub enum Theme {
 pub struct Preferences {
     #[serde(default)]
     pub theme: Theme,
+    #[serde(default)]
+    pub appearance: crate::configuration::appearance::AppearancePreferences,
     pub explanation_language: String,
     pub explanation_variety_id: String,
     pub interface_locale: String,
@@ -513,6 +515,11 @@ pub fn bindings() -> String {
         crate::learning::learner::learner_state::LearnerState::decl(&config),
         crate::learning::learner::learner_state::ConstructState::decl(&config),
         ConnectionRoute::decl(&config),
+        crate::configuration::appearance::SurfacePalette::decl(&config),
+        crate::configuration::appearance::ControlDensity::decl(&config),
+        crate::configuration::appearance::LayoutSpacing::decl(&config),
+        crate::configuration::appearance::SurfaceDepth::decl(&config),
+        crate::configuration::appearance::AppearancePreferences::decl(&config),
         AccessSettings::decl(&config),
         CustomEndpoint::decl(&config),
         HostedAccount::decl(&config),
@@ -620,7 +627,14 @@ pub fn bindings() -> String {
             persona_limits(),
             crate::learning::coaching::catalog_version()
         ),
-        text_size_limits()
+        format_args!(
+            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}",
+            text_size_limits(),
+            serde_json::to_string(
+                &crate::configuration::appearance::AppearancePreferences::default()
+            )
+            .expect("appearance defaults serialize")
+        )
     )
 }
 
@@ -984,10 +998,18 @@ mod appearance_tests {
         let original = serde_json::json!({"explanationLanguage":"en","explanationVarietyId":"en-US","interfaceLocale":"en","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
         let preferences: Preferences = serde_json::from_value(original.clone()).unwrap();
         assert_eq!(preferences.theme, Theme::Light);
+        assert_eq!(
+            preferences.appearance,
+            crate::configuration::appearance::AppearancePreferences::default()
+        );
         for theme in ["light", "dark", "system"] {
             let mut value = original.clone();
             value["theme"] = theme.into();
             let decoded: Preferences = serde_json::from_value(value.clone()).unwrap();
+            value["appearance"] = serde_json::to_value(
+                crate::configuration::appearance::AppearancePreferences::default(),
+            )
+            .unwrap();
             assert_eq!(serde_json::to_value(decoded).unwrap(), value);
         }
         let mut invalid = original;

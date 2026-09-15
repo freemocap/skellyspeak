@@ -1,4 +1,4 @@
-.persona-profile { padding: var(--space-2) var(--space-1); color: var(--shell-text); }
+.persona-profile { padding: var(--space-2) var(--space-1); color: var(--ink); }
 
 .persona-profile fieldset { border: 0; padding: 0; margin: var(--space-3) 0 0; min-width: 0; }
 
@@ -6,12 +6,12 @@
   width: 100%;
   min-width: 0;
   resize: vertical;
-  border: var(--border-width) solid var(--shell-line-strong);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
-  background: var(--shell-raised);
-  color: var(--shell-text);
-  font: var(--text-base)/1.4 var(--font-sans);
+  background: var(--card);
+  color: var(--ink);
+  font: var(--type-body)/1.4 var(--font-sans);
 }
 
 /* The header's persona control: one compact control that opens the contact list. */
@@ -37,9 +37,9 @@
   flex-direction: column;
   min-width: 190px;
   padding: var(--space-2);
-  border: var(--border-width) solid var(--shell-line-strong);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--shell-raised);
+  background: var(--card);
   box-shadow: var(--shadow-menu);
 }
 
@@ -52,13 +52,13 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: none;
-  color: var(--shell-text);
+  color: var(--ink);
   font: inherit;
   text-align: start;
   cursor: pointer;
 }
 
-.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--shell-sunken); }
+.persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--field); }
 
 .persona-picker-item[aria-checked="true"] { color: var(--accent-ink); }
 
@@ -95,37 +95,37 @@
 
 .persona-group > legend {
   margin-bottom: var(--space-2);
-  font: var(--weight-semibold) var(--text-sm) var(--font-sans);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--shell-text-faint);
+  color: var(--ink-3);
 }
 
-.persona-field-hint { font-style: normal; font-size: var(--text-xs); color: var(--shell-text-faint); }
+.persona-field-hint { font-style: normal; font-size: var(--type-meta); color: var(--ink-3); }
 
 .persona-vibe-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-1) var(--space-1) var(--space-4);
-  border: var(--border-width) solid var(--shell-line-strong);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-pill);
-  font-size: var(--text-xl);
+  font-size: var(--type-reading);
   line-height: 1.4;
 }
 
 .persona-vibe-chip button {
   border: 0;
   background: none;
-  color: var(--shell-text-faint);
+  color: var(--ink-3);
   cursor: pointer;
   padding: var(--space-1) var(--space-2);
-  font-size: var(--text-xs);
+  font-size: var(--type-meta);
 }
 
-.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--shell-text); }
+.persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--ink); }
 
-.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--accent-ink); }
+.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--type-ui); color: var(--accent-ink); }
 
 /* Persona control panel — the list on the left, one character on the right.
    Wider than the settings modal because the sketch is the point: it is what
@@ -136,11 +136,11 @@
 
 .persona-field > span {
   display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--shell-text-muted); margin-bottom: var(--space-2);
+  font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-caps);
+  text-transform: uppercase; color: var(--ink-2); margin-bottom: var(--space-2);
 }
 
-.persona-hint { margin: 0; font-size: var(--text-sm); line-height: 1.45; color: var(--shell-text-faint); }
+.persona-hint { margin: 0; font-size: var(--type-ui); line-height: 1.45; color: var(--ink-3); }
 
 .persona-reaction {
   position: absolute;
@@ -149,11 +149,11 @@
   min-width: var(--control-height);
   height: 28px;
   padding: var(--space-hairline) var(--space-3);
-  border: var(--border-width) solid var(--shell-line);
+  border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-lg);
-  background: var(--paper-bg);
-  color: var(--paper-ink);
-  font-size: var(--text-2xl);
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: var(--type-title);
   line-height: 1;
   cursor: pointer;
 }
@@ -164,7 +164,7 @@
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
-.reaction-details h3 { font-size: var(--text-md); margin: 12px 0 4px; color: var(--interaction-ink); }
+.reaction-details h3 { font-size: var(--type-ui); margin: 12px 0 4px; color: var(--interaction-ink); }
 
 .reaction-details blockquote {
   margin: 0;
@@ -183,7 +183,7 @@
 
 .reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: var(--space-2); }
 
-.reaction-excerpt > span { font-size: var(--text-xs); color: var(--shell-text-muted); }
+.reaction-excerpt > span { font-size: var(--type-meta); color: var(--ink-2); }
 
 .reaction-excerpt.learner { align-self: flex-end; align-items: flex-end; }
 
@@ -194,12 +194,12 @@
   max-width: 100%;
   min-width: 0;
   padding: var(--space-4) var(--space-6);
-  font-size: var(--text-xl);
+  font-size: var(--type-reading);
   line-height: 1.45;
   font-family: var(--font-serif);
 }
 
-.reaction-details h2 { margin: 8px 0; font-size: var(--text-xl); color: var(--interaction-ink); }
+.reaction-details h2 { margin: 8px 0; font-size: var(--type-reading); color: var(--interaction-ink); }
 
 .persona-type, .personality-chips { display: flex; gap: var(--space-4); flex-wrap: wrap; border: 0; padding: var(--space-4) 0; }
 .persona-type button, .personality-chips button { min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; color: var(--ink); padding-inline: var(--space-6); }

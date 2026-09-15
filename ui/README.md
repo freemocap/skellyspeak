@@ -32,7 +32,7 @@ infrastructure.
 | `app/` | `shell/`, `windows/`, `navigation/`, `shortcuts/`; startup and composition remain at the root |
 | `features/conversation/` | `session/`, `messages/`, `composer/`, `reading/`, `coaching/`, `partners/`, `lessons/`, `progress/`, `speech/`; composed by `ConversationPage.tsx` |
 | `features/skills/` | `overview/`, `evidence/`, `learner/`; composed by `SkillsPage.tsx` |
-| `features/settings/` | `access/`, `language/`, `workspace/`; composed by the settings dialog/modal |
+| `features/settings/` | `access/`, `appearance/`, `language/`, `workspace/`; composed by the settings dialog/modal |
 | `features/activity/`, `features/startup/` | Small cohesive groups, kept flat |
 | `components/` | `controls/`, `dialogs/`, `feedback/`, `reading/`, `learning/`, `media/`, `localization/`, `layout/`, `persistence/` |
 | `state/` | `navigation/`, `session/`, `settings/`, `learning/`; shared initialization at the root |
@@ -80,3 +80,50 @@ belongs to [server](../server/). `src/generated/contracts.ts` and
 these generated files by hand.
 
 Working notes and verification reports belong in [docs/notes/](../docs/notes/).
+
+## Shared style vocabulary
+
+The reviewed explorer is in `docs/notes/style-guide/`. The real-component fixture
+is `tools/style-preview.html` (open through `npm run dev`); it uses local sample
+state, without native calls or persistence.
+
+| Need | Canonical basis |
+| --- | --- |
+| Text | `--type-meta` 11px, `--type-ui` 13px, `--type-body` 15px, `--type-title` 18px, `--type-reading` 20px, `--type-display` 24px |
+| General surfaces | `--bg`, `--chrome`, `--sheet`, `--field`; text `--ink`, `--ink-2`, `--ink-3`; borders `--line`, `--line-soft` |
+| Layout spacing | Ordered `--space-*` steps scale together using `--layout-scale` |
+| Controls | `--control-height` selects 40px/32px; coarse pointers enforce 44px |
+| Depth | `--surface-bg/shadow/glow`, `--input-shadow`, `--floating-shadow`, `--appearance-scrim` |
+| Reading | Independent reading/script scale, word spacing, serif/script fonts and annotation roles |
+| Status and learning | Distinct interaction, error, warning, success and domain fill/ink roles |
+
+These roles describe different needs; equal current colors do not justify merging
+status, learning or selected-state meanings. Retired `--text-*` size aliases and
+shell/paper surface/text aliases should not return.
+
+Shared rules live in `styles/components/{buttons,fields,panels,dialogs,popovers,
+reading}.css`. Feature CSS owns composition and explicit feature variants.
+`styles/shell/notices.css` owns fault/update notices; `styles/features/settings/
+{forms,appearance}.css` owns Settings-specific controls. Apply depth within the
+component base, rather than adding a global override sheet after all features.
+
+Appearance settings are learner preferences, validated/defaulted in Rust and
+applied by `platform/appearance/useAppearance.ts`. Reading preferences retain their
+own provider. The complete app restyle remains an incremental effort; the current
+status and detailed language/reward exploration follow-up are recorded in
+[the checkpoint](../docs/notes/style-system-refactor.md).
+
+### Conversation styling
+
+`styles/features/conversation/` separates workspace/mobile layout, messages,
+composer/recording, reply help, header/pickers, startup, reading evidence and
+inline rewards into named sheets. Each remains in the ordered manifest.
+Shared activity indicators and waveform framing are under `styles/components/`.
+
+The `.msg` base is shared by stream bubbles and partner excerpts.
+`.msg.chat-message` explicitly adds stream padding, width caps, focus borders and
+corners. Excerpt layout remains under `.reaction-excerpt .msg` in persona styles.
+The `.field.composer-input` variant adds reading typography and input geometry
+to the shared field. Picker variants distinguish the compact `.learning-line`
+from labeled `.conversation-languages` rows. Preserve these real differences;
+avoid identical declarations in the base and variant.

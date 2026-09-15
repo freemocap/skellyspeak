@@ -1,3 +1,5 @@
+import { TEXT_SIZE } from '../../generated/contracts'
+import { AppearanceSettings } from './appearance/AppearanceSettings'
 import { messageKey } from '../../domain/localization'
 import { useI18n } from '../../components/localization/i18n'
 import { InfoTip } from '../../components/controls/InfoTip'
@@ -28,7 +30,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'data'
+type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'appearance' | 'data'
 
 function SaveStatus({ state }: { state: SaveState }) {
   const tr = useI18n()
@@ -90,6 +92,7 @@ function ShortcutField({
 }
 
 const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string }[] = [
+  { id: 'appearance', labelKey: messageKey('Appearance'), icon: 'Aa', descKey: messageKey('Colors, spacing, depth and reading size') },
   { id: 'reading', labelKey: messageKey('Reading & display'), icon: 'Aa', descKey: messageKey('Text size, spacing, and reading aids') },
   {
     id: 'keys',
@@ -443,19 +446,20 @@ export function SettingsModal({
         </div>
       ),
     },
+    appearance: { section: 'appearance', label: tr('Appearance'), kw: 'palette color glow density spacing panels depth appearance', node: <AppearanceSettings settings={settings} onChange={setSettings} /> },
     theme: {
-      section: 'reading', label: tr('Appearance'), kw: 'theme light dark system appearance',
+      section: 'appearance', label: tr('Appearance'), kw: 'theme light dark system appearance',
       node: <div className="form-row"><label htmlFor="appearance-theme">{tr("Appearance")}</label><select id="appearance-theme" value={settings.theme ?? 'light'} onChange={event=>setSettings({...settings,theme:event.target.value as 'light'|'dark'|'system'})}><option value="light">{tr("Light")}</option><option value="dark">{tr("Dark")}</option><option value="system">{tr("System")}</option></select></div>,
     },
     text_size: {
-      section: 'reading', label: tr('Text size'), kw: 'font text size reading display accessibility',
+      section: 'appearance', label: tr('Text size'), kw: 'font text size reading display accessibility',
       node: <div className="form-row"><label htmlFor="reading-size">{tr("Text size · ")}{settings.text_size}%</label>
-        <input id="reading-size" type="range" min="75" max="150" step="5" value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
+        <input id="reading-size" type="range" min={TEXT_SIZE.min} max={TEXT_SIZE.max} step={TEXT_SIZE.step} value={settings.text_size} onChange={event => setSettings({ ...settings, text_size: Number(event.target.value) })} />
       </div>,
     },
 
     text_spacing: {
-      section: 'reading', label: tr('Word spacing'), kw: 'word spacing reading accessibility',
+      section: 'appearance', label: tr('Word spacing'), kw: 'word spacing reading accessibility',
       node: <div className="form-row"><label htmlFor="reading-spacing">{tr('Word spacing')} · {`${settings.text_spacing}px`}</label><input id="reading-spacing" type="range" min="0" max="12" step="1" value={settings.text_spacing} onChange={event => setSettings({ ...settings, text_spacing: Number(event.target.value) })} /></div>,
     },
     always_romanize: {
@@ -550,7 +554,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['appearance', 'theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
@@ -637,7 +641,7 @@ export function SettingsModal({
             {searching && visibleRows.length === 0 && (
               <p className="center-note">{t(ui, "Nothing matches “{q}”.", { q: search.trim() })}</p>
             )}
-            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'reading'}>
+            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'appearance'}>
               <summary>{t(ui, group.labelKey)}</summary>
               {allRows.filter(([, row]) => row.section === group.id).map(([id, row]) => <div key={id} className="settings-entry">{row.node}</div>)}
             </details>) : renderRows.map(({ id, row, heading }) => (

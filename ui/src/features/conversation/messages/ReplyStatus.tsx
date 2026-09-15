@@ -10,9 +10,9 @@ export function ReplyStatus({ reply, onControl, onActivity }: { reply?: ReplySta
   const [error, setError] = useState<string | null>(null)
   const locked = useRef(false)
   const state = reply?.state ?? 'unavailable'
-  if (state === 'pending') return <div className="msg bot pending"><ActivityIndicator compact label={tr('Thinking…')} /></div>
+  if (state === 'pending') return <div className="msg chat-message bot pending"><ActivityIndicator compact label={tr('Thinking…')} /></div>
   const label = state === 'failed' ? tr('Partner reply failed.') : state === 'unknown' ? tr('Partner reply outcome is unknown. Retrying may repeat provider work and charges.') : state === 'cancelled' ? tr('Partner reply was cancelled. Send a new message to continue.') : state === 'held' ? tr('Partner reply is held.') : state === 'paused' ? tr('Partner reply is paused.') : tr('Partner reply is unavailable.')
-  return <div className="msg bot">
+  return <div className="msg chat-message bot">
     <p role={state === 'failed' || state === 'unknown' || state === 'unavailable' ? 'alert' : 'status'}>{label}</p>
     {reply?.error && <p>{reply.error}</p>}
     {reply?.control && onControl && <button type="button" disabled={pending} onClick={() => {

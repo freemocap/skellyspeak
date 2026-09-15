@@ -6,6 +6,7 @@ export interface Shortcuts {
 }
 
 export interface Settings {
+  appearance?: import('./generated/contracts').AppearancePreferences
   theme?: 'light' | 'dark' | 'system'
   scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
   /// 'hosted' (the project's service, signed in with Google), 'cloud'

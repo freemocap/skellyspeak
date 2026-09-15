@@ -1,0 +1,43 @@
+/* start — conversation style owner. */
+.conversation-start {
+  color: var(--ink);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-8);
+  padding: var(--space-11) var(--space-8);
+}
+
+.start-conversation-button {
+  min-height: var(--touch-target);
+  flex: 1;
+  padding: var(--space-3) var(--space-5);
+  background: var(--accent-strong);
+  color: var(--ink-on-fill);
+  border: var(--border-width) solid var(--accent-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.start-conversation-button:hover:not(:disabled) { background: var(--accent-strong-hover); }
+
+.start-topic {
+  width: 128px;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  background: var(--field);
+  color: var(--ink-3);
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-ui);
+}
+
+.opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
+
+.opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
+
+.start-partner-row { display: flex; width: min(100%, 360px); gap: var(--space-4); }
+.start-label, .start-or { font: var(--type-meta) var(--font-mono); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--ink-3); }
+.start-or { display: flex; align-items: center; width: min(100%, 360px); gap: var(--space-6); }
+.start-or::before, .start-or::after { content: ''; height: 1px; flex: 1; background: var(--line-soft); }

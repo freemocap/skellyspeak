@@ -15,12 +15,6 @@ const ReadingContext = createContext<{
 
 export function ReadingProvider({ settings, children }: { settings: Settings | null; children: ReactNode }) {
   useEffect(() => {
-    const media=window.matchMedia('(prefers-color-scheme: dark)')
-    const update=()=>{document.documentElement.dataset.theme=settings?.theme==='system' ? (media.matches?'dark':'light') : settings?.theme ?? 'light'}
-    update(); media.addEventListener('change',update)
-    return ()=>media.removeEventListener('change',update)
-  },[settings?.theme])
-  useEffect(() => {
     const root = document.documentElement
     root.style.setProperty('--script-scale', String(settings ? languageFor(settings.target_language, settings.target_variety)?.fontScale ?? 1 : 1))
     root.style.setProperty('--reading-scale', String((settings?.text_size ?? 100) / 100))

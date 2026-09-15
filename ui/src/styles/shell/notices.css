@@ -1,0 +1,40 @@
+.err-action {
+  flex: none; background: var(--danger-fill); border: var(--border-width) solid var(--danger-fill); border-radius: var(--radius-sm);
+  color: var(--ink-on-fill); cursor: pointer; font-size: var(--type-ui); padding: var(--space-2) var(--space-5); white-space: nowrap;
+}
+
+.err-action:hover { background: var(--danger-fill-hover); }
+
+.update-bar {
+  flex: none; display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap;
+  background: var(--chrome); border-bottom: var(--border-width) solid var(--accent);
+  color: var(--ink); padding: var(--space-4) var(--space-7); font-size: var(--type-ui);
+}
+
+.update-text { margin-right: auto; }
+
+.update-bar b { color: var(--accent-ink); }
+
+.fault-bar {
+  flex: none; background: var(--danger-bar-bg); border-bottom: var(--border-width) solid var(--danger-bar-line);
+  color: var(--danger-bar-ink); padding: var(--space-5) var(--space-7); font-size: var(--type-ui); line-height: var(--leading-normal);
+  display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start;
+  max-height: min(120px, 18dvh); overflow-y: auto; overscroll-behavior: contain;
+}
+
+.fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
+
+.fault-bar .fault { margin: 0; padding-right: var(--space-10); position: relative; width: 100%; }
+
+.fault-bar .fault b { color: var(--danger-bar-strong); }
+
+.fault-dismiss {
+  position: absolute; top: -2px; right: 0; border: none; background: none;
+  color: var(--danger-bar-ink); cursor: pointer; font-size: var(--type-ui); line-height: 1; padding: var(--space-1) var(--space-2);
+}
+
+.fault-dismiss:hover { color: var(--ink-on-fill); }
+
+.update-controls { display: flex; align-items: center; gap: var(--space-4); }
+
+.update-controls .btn { padding: var(--space-3) var(--space-5); }
