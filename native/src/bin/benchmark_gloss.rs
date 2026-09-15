@@ -1,10 +1,10 @@
 //! Offline benchmark boundary: build real app prompts and validate saved completions.
 //! No network, credentials, database or app state is accessed.
 use serde_json::{Value, json};
-use skellyspeak_core::{
-    linguistics::{ANALYSIS_VERSION, SourceIdentity, adapter},
-    provider::Completion,
-};
+use skellyspeak_core::ai::transport::provider::Completion;
+use skellyspeak_core::language::linguistics::ANALYSIS_VERSION;
+use skellyspeak_core::language::linguistics::SourceIdentity;
+use skellyspeak_core::language::linguistics::adapter;
 use std::{env, fs};
 fn cases() -> Vec<Value> {
     [("Arabic", "ar", "أحب الكتب."), ("Arabic", "ar", "أُحِبُّ القراءةَ في البيتِ."),

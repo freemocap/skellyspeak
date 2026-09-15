@@ -52,6 +52,63 @@ not arbitrary file-count targets. The mixed `src/types.ts` and large components
 need separate, deliberate decomposition; folder moves do not authorize behavior
 changes or deletion of unused code.
 
+## Native organization
+
+Follow [native/README.md](native/README.md). Native code stays under `native/src/`:
+
+- `application/`: startup, shared runtime state, command registration and background
+  scheduling. `lib.rs` declares modules and exposes `run`; `main.rs` is the executable
+  entry point. The runtime remains intact pending a separate subfolder pass.
+- `conversations/`: conversation turns, execution, prompts, opening choices,
+  revisions, reading-result publication and conversation exports.
+- `partners/`: persona definitions, generation, generation receipts, discovery and
+  reactions. Group persona definitions/prompts in `persona/` and generation/receipts
+  in `generation/`; discovery and reactions remain individual files.
+- `learning/`: coaching, validated observations, learner state, progression, lessons,
+  rewards and reward settings. Use `coaching/`, `learner/` and `rewards/` for those
+  groups; lessons remain in `lessons.rs`. Keep evidence independent of presentation metaphors.
+- `speech/`: capture, recording commands, transcription receipts, audio inspection,
+  fluency timing and speech cache. Use `recording/` for capture/commands/transcription,
+  `analysis/` for inspection/fluency, and `cache.rs` for playback cache.
+  Network adapters belong in `ai/transport/`.
+- `ai/`: shared access, credentials, hosted connections, routing, admission, holds,
+  refusal handling and provider transports. Use `connections/`, `hosted/`,
+  `transport/` and `policy/` for these groups. Conversation execution stays with conversations.
+- `storage/`: workspace ownership, database initialization, schemas, reset and workspace
+  copy export. Feature-specific persistence remains with its feature; SQL alone is
+  not a reason to move code here. Schema SQL files live in `schemas/`.
+- `language/`: language lookup, emoji/Unicode handling, linguistics and local fixtures.
+- `configuration/`: loading and validating editable source defaults from root
+  `content/`. Editable data stays in `content/`; executable prompt assembly stays
+  with the responsible native domain.
+- `statistics/`, `diagnostics/`, `updates/`: usage reports, diagnostic records and
+  application update discovery respectively. `bin/` holds the existing CLI entry points.
+
+Keep unit tests and fixtures with their owning module. Use explicit module paths;
+allow cross-domain access only with the visibility required by current callers.
+Do not restore the old flat root through compatibility re-exports. `run` is the
+intentional library entry-point export. `model.rs` is a temporary mixed-type file;
+its decomposition, large-file splitting and deeper subfolders require a separate
+agreed pass. Preserve existing runtime ownership, synchronization, native command
+names and serialized contracts during folder-only work. Update exporters and the
+UI command-registration test when their source locations move.
+
+## Source file size
+
+Prefer cohesive source files of roughly 200–500 lines; smaller files are fine.
+Above 500 through 1,000 lines is a danger zone: review ownership and plan a split
+before adding more responsibilities. Above 1,000 lines requires decomposition
+into smaller, functionally coherent files. Include colocated tests in the count;
+do not evade the policy by compressing formatting or moving everything into one
+large test/helper file.
+
+During the current repository reorganization, record existing violations as
+follow-up work rather than splitting implementations. Complete the folder-moving
+pass across the repository first. Large-file decomposition and an automated size
+check are a separate follow-up; this policy does not authorize expanding the
+current pass into code refactoring. Generated files, lockfiles and vendored data
+need separate treatment in that check rather than manual splitting.
+
 ## Working notes
 
 Put all new working notes, plans, investigations, verification reports, and
@@ -61,7 +118,10 @@ website. Use descriptive names, group related topics when useful, and distinguis
 proposals, agreed decisions, implemented behavior, and verification results.
 Update existing notes for continuing work and mark superseded material clearly.
 Maintained user/developer guides and module READMEs stay with their documentation
-or code owners; promote settled information there when appropriate. Notes do not
+or code owners; promote settled information there when appropriate. Keep fixture
+provenance and third-party license notices beside their data. Design proposals,
+research recommendations and historical contract snapshots belong in `docs/notes/`,
+even when they describe a single source module. Notes do not
 become authoritative merely by being recorded. Leave historical `old/notes/`
 material in the archive unless individual content is reviewed and adopted.
 

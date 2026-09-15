@@ -43,7 +43,7 @@ not establish expert linguistic review or provider quality.
 JSON schemas under `content/schemas/` derive from the loader's strict Rust types. The
 loader additionally checks references, cycles, localization coverage, citation
 metadata and supported policy semantics. `cargo test --manifest-path
-native/Cargo.toml --lib config::` verifies them. To intentionally regenerate
+native/Cargo.toml --lib configuration::` verifies them. To intentionally regenerate
 schema files after changing types, run the `export_schemas` test with
 `SKELLY_WRITE_CONFIG_SCHEMAS=1`; ordinary tests check for drift without writing.
 

@@ -4,14 +4,62 @@ The application code running on the user's device: persistence, credentials,
 AI execution, recording, and native integration. This is separate from the
 remote [Python server](../server/).
 
-- `src/`: existing Rust source layout; domain reorganization is the next pass.
-- [../content/config/](../content/config/): bundled editable language, construct, starter, and policy defaults.
-- [../content/schemas/](../content/schemas/): generated configuration schemas, verified by Rust tests.
+## Source folder map
+
+| Folder | Responsibility |
+| --- | --- |
+| [src/application/](src/application/) | Startup, runtime state, native command registration and background scheduling |
+| [src/conversations/](src/conversations/) | Conversation turns and execution, prompts, opening choices, revisions, reading results and conversation export |
+| [src/partners/](src/partners/) | Persona definitions and prompts, generation and its receipts, discovery and reactions |
+| [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, lessons, rewards and reward settings |
+| [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and speech cache |
+| [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, hosted connections and provider transports |
+| [src/storage/](src/storage/) | Workspace ownership, database initialization and schemas, reset and workspace-copy export |
+| [src/language/](src/language/) | Language lookup, Unicode/emoji handling, existing linguistics code and its fixtures |
+| [src/configuration/](src/configuration/) | Configuration loading, validation, types, citations and schema checks |
+| [src/statistics/](src/statistics/) | Mechanical usage summaries, formerly in `profile.rs` |
+| [src/diagnostics/](src/diagnostics/) | Logging and diagnostic records |
+| [src/updates/](src/updates/) | Application update discovery |
+| [src/bin/](src/bin/) | Contract exporter and offline gloss benchmark entry points |
+
+`src/main.rs` is the executable entry point. `src/lib.rs` declares the native
+modules and exports `application::run`. The application runtime lives intact in
+`src/application/mod.rs`; its internal decomposition is a later pass.
+`src/model.rs` retains mixed types pending a separate ownership-based split.
+
+### Subfolder groups
+
+| Area | Current groups |
+| --- | --- |
+| `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings); `lessons.rs` remains intact |
+| `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts); mystery and reactions remain individual files |
+| `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
+| `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
+| `storage/` | `schemas/` holds the database SQL; store and reset implementations remain intact |
+
+These groups contain whole existing files. Some `mod.rs` files still contain the
+existing implementation; large-file decomposition is deferred until the repository
+folder reorganization is complete. See the source-size policy in root `AGENTS.md`.
+
+These are responsibility groups, not newly independent crates or a redesigned
+layered architecture. Existing cross-domain calls remain. Keep tests with their
+module and feature-specific database operations with their feature. General
+workspace/schema mechanics belong in storage. Network transport belongs in AI;
+conversation execution and speech lifecycle keep their respective domain owners.
+
+## Content and packaging
+
+- [../content/config/](../content/config/): editable language, construct, starter,
+  and policy defaults. The [AI behavior index](../content/README.md) links prompt code.
+- [../content/schemas/](../content/schemas/): generated configuration schemas,
+  verified by Rust tests.
 - `capabilities/`, `icons/`, Tauri configuration and platform property lists:
   native permissions and packaging.
 - `gen/`: platform projects and generated support files; Android customizations
   are tracked, while other generated output follows `.gitignore`.
 - `target/`: ignored Cargo build output.
+
+## Verification
 
 From the repository root:
 
@@ -20,8 +68,17 @@ npm run tauri -- info
 cargo fmt --manifest-path native/Cargo.toml -- --check
 cargo clippy --manifest-path native/Cargo.toml --lib --tests -- -D warnings
 cargo test --manifest-path native/Cargo.toml --lib
+cargo check --manifest-path native/Cargo.toml --bins
+npm run contracts:check
+npm run languages:check
+npm test -- tests/architecture
 ```
 
-The root Tauri launcher selects this directory explicitly. Moving this folder
-can invalidate cached build-script paths; `cargo clean --manifest-path native/Cargo.toml`
-clears build output without touching source or application data.
+Transport tests use local loopback servers; allow localhost binding when running
+inside a sandbox. They do not need live AI providers. The UI registration check
+reads `src/application/mod.rs`, where the `generate_handler!` list lives.
+
+The root Tauri launcher selects this directory explicitly. Moving the native
+project root can invalidate cached build-script paths;
+`cargo clean --manifest-path native/Cargo.toml` clears build output without touching
+source or application data. Working notes belong in [docs/notes/](../docs/notes/).

@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .join("../ui/src/generated/skill-catalogs/catalog.json");
     let catalog = format!(
         "{}\n",
-        serde_json::to_string_pretty(&skellyspeak_core::coaching::catalog())?
+        serde_json::to_string_pretty(&skellyspeak_core::learning::coaching::catalog())?
     );
     if std::env::args().any(|arg| arg == "--check") {
         if std::fs::read_to_string(catalog_path)? != catalog {

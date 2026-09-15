@@ -157,7 +157,7 @@ pub struct PersonaDetails {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     #[schemars(skip)]
-    pub partner_type: Option<crate::mystery::PartnerType>,
+    pub partner_type: Option<crate::partners::mystery::PartnerType>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -237,13 +237,13 @@ pub struct Snapshot {
 pub enum Action {
     GuessMystery {
         conversation_id: String,
-        field: crate::mystery::MysteryField,
+        field: crate::partners::mystery::MysteryField,
         value: String,
         expected_persona_revision: i32,
     },
     RevealMystery {
         conversation_id: String,
-        field: crate::mystery::MysteryField,
+        field: crate::partners::mystery::MysteryField,
     },
     DismissMysteryNudge {
         conversation_id: String,
@@ -255,7 +255,7 @@ pub enum Action {
         option_index: u32,
     },
     GenerateLesson {
-        category: crate::lessons::LessonCategory,
+        category: crate::learning::lessons::LessonCategory,
         choice_id: Option<String>,
         conversation_id: String,
         topic: String,
@@ -264,7 +264,7 @@ pub enum Action {
     ControlLesson {
         conversation_id: String,
         lesson_id: String,
-        control: crate::lessons::LessonControl,
+        control: crate::learning::lessons::LessonControl,
         expected_revision: i32,
     },
     AskLessonCoach {
@@ -280,14 +280,14 @@ pub enum Action {
     },
     CoachControl {
         turn_id: String,
-        control: crate::coaching::CoachControl,
+        control: crate::learning::coaching::CoachControl,
         expected_revision: i32,
     },
     ReviseTurn {
         conversation_id: String,
         turn_id: String,
         text: String,
-        input: crate::coaching::InputEvidence,
+        input: crate::learning::coaching::InputEvidence,
         expected_revision: i32,
     },
     AskCoach {
@@ -299,7 +299,7 @@ pub enum Action {
         language_id: String,
     },
     SendMessage {
-        input: crate::coaching::InputEvidence,
+        input: crate::learning::coaching::InputEvidence,
         conversation_id: String,
         text: String,
         expected_revision: i32,
@@ -490,7 +490,7 @@ pub struct StartupState {
 /// The limits the persona editor validates against, generated so the frontend
 /// cannot drift from the rules the store enforces.
 fn persona_limits() -> String {
-    use crate::persona::*;
+    use crate::partners::persona::*;
     format!(
         "export const PERSONA_LIMITS = {{ nameMax: {NAME_MAX}, ageMin: {AGE_MIN}, ageMax: {AGE_MAX}, locationMax: {LOCATION_MAX}, occupationMax: {OCCUPATION_MAX}, backgroundMax: {BACKGROUND_MAX}, currentSituationMax: {CURRENT_SITUATION_MAX}, mannerMax: {MANNER_MAX}, itemMax: {ITEM_MAX}, interestsMax: {INTERESTS_MAX}, opinionsMax: {OPINIONS_MAX}, factsMax: {FACTS_MAX}, booksMax: {BOOKS_MAX}, moviesMax: {MOVIES_MAX}, quirksMax: {QUIRKS_MAX}, vibeMin: {VIBE_MIN}, vibeMax: {VIBE_MAX}, briefMax: {BRIEF_MAX} }} as const"
     )
@@ -509,9 +509,9 @@ pub fn bindings() -> String {
     let declarations = [
         RecordingStarted::decl(&config),
         Theme::decl(&config),
-        crate::rewards::RewardEvent::decl(&config),
-        crate::learner_state::LearnerState::decl(&config),
-        crate::learner_state::ConstructState::decl(&config),
+        crate::learning::rewards::RewardEvent::decl(&config),
+        crate::learning::learner::learner_state::LearnerState::decl(&config),
+        crate::learning::learner::learner_state::ConstructState::decl(&config),
         ConnectionRoute::decl(&config),
         AccessSettings::decl(&config),
         CustomEndpoint::decl(&config),
@@ -528,49 +528,49 @@ pub fn bindings() -> String {
         GlossSegment::decl(&config),
         WordGlossView::decl(&config),
         crate::diagnostics::DiagnosticCommand::decl(&config),
-        crate::reward_settings::RewardSettings::decl(&config),
-        crate::coaching::InputEvidence::decl(&config),
-        crate::coaching::Outcome::decl(&config),
+        crate::learning::rewards::reward_settings::RewardSettings::decl(&config),
+        crate::learning::coaching::InputEvidence::decl(&config),
+        crate::learning::coaching::Outcome::decl(&config),
         RevisionSuffixCount::decl(&config),
-        crate::coaching::MeaningLevel::decl(&config),
-        crate::coaching::ErrorOp::decl(&config),
-        crate::coaching::ErrorSource::decl(&config),
-        crate::coaching::ErrorTag::decl(&config),
-        crate::coaching::ObservedItem::decl(&config),
-        crate::coaching::CoachObservation::decl(&config),
-        crate::coaching::ObservedItemSummary::decl(&config),
-        crate::coaching::CoachObservationView::decl(&config),
-        crate::coaching::CoachMove::decl(&config),
-        crate::coaching::Correction::decl(&config),
-        crate::coaching::CoachDecision::decl(&config),
-        crate::coaching::CoachControl::decl(&config),
-        crate::coaching::RetryCheck::decl(&config),
-        crate::partner_reaction::PartnerReaction::decl(&config),
-        crate::partner_reaction::ReactionKind::decl(&config),
-        crate::coaching::RepairStatus::decl(&config),
+        crate::learning::coaching::MeaningLevel::decl(&config),
+        crate::learning::coaching::ErrorOp::decl(&config),
+        crate::learning::coaching::ErrorSource::decl(&config),
+        crate::learning::coaching::ErrorTag::decl(&config),
+        crate::learning::coaching::ObservedItem::decl(&config),
+        crate::learning::coaching::CoachObservation::decl(&config),
+        crate::learning::coaching::ObservedItemSummary::decl(&config),
+        crate::learning::coaching::CoachObservationView::decl(&config),
+        crate::learning::coaching::CoachMove::decl(&config),
+        crate::learning::coaching::Correction::decl(&config),
+        crate::learning::coaching::CoachDecision::decl(&config),
+        crate::learning::coaching::CoachControl::decl(&config),
+        crate::learning::coaching::RetryCheck::decl(&config),
+        crate::partners::partner_reaction::PartnerReaction::decl(&config),
+        crate::partners::partner_reaction::ReactionKind::decl(&config),
+        crate::learning::coaching::RepairStatus::decl(&config),
         Opening::decl(&config),
         StarterCard::decl(&config),
-        crate::coaching::SuggestedReply::decl(&config),
+        crate::learning::coaching::SuggestedReply::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
         AttemptView::decl(&config),
         TurnView::decl(&config),
-        crate::mystery::PartnerType::decl(&config),
-        crate::mystery::MysteryField::decl(&config),
-        crate::mystery::RevealState::decl(&config),
-        crate::mystery::MysteryFieldView::decl(&config),
-        crate::mystery::MysteryView::decl(&config),
-        crate::mystery::MysteryCredit::decl(&config),
-        crate::lessons::LessonCategory::decl(&config),
-        crate::lessons::LessonQuizQuestion::decl(&config),
-        crate::lessons::LessonQuizAnswer::decl(&config),
-        crate::lessons::LessonQuizCredit::decl(&config),
-        crate::lessons::LessonControl::decl(&config),
-        crate::lessons::LessonExample::decl(&config),
-        crate::lessons::LessonPlan::decl(&config),
-        crate::lessons::LessonEvidence::decl(&config),
-        crate::lessons::LessonRecap::decl(&config),
-        crate::lessons::LessonView::decl(&config),
+        crate::partners::mystery::PartnerType::decl(&config),
+        crate::partners::mystery::MysteryField::decl(&config),
+        crate::partners::mystery::RevealState::decl(&config),
+        crate::partners::mystery::MysteryFieldView::decl(&config),
+        crate::partners::mystery::MysteryView::decl(&config),
+        crate::partners::mystery::MysteryCredit::decl(&config),
+        crate::learning::lessons::LessonCategory::decl(&config),
+        crate::learning::lessons::LessonQuizQuestion::decl(&config),
+        crate::learning::lessons::LessonQuizAnswer::decl(&config),
+        crate::learning::lessons::LessonQuizCredit::decl(&config),
+        crate::learning::lessons::LessonControl::decl(&config),
+        crate::learning::lessons::LessonExample::decl(&config),
+        crate::learning::lessons::LessonPlan::decl(&config),
+        crate::learning::lessons::LessonEvidence::decl(&config),
+        crate::learning::lessons::LessonRecap::decl(&config),
+        crate::learning::lessons::LessonView::decl(&config),
         ConversationSnapshot::decl(&config),
         Difficulty::decl(&config),
         HelpAmount::decl(&config),
@@ -597,18 +597,18 @@ pub fn bindings() -> String {
         Refusal::decl(&config),
         InferenceHold::decl(&config),
         TranscriptionAttempt::decl(&config),
-        crate::fluency::Segment::decl(&config),
-        crate::audio_inspection::TranscriptionInspectionResult::decl(&config),
-        crate::audio_inspection::AudioInspection::decl(&config),
-        crate::audio_inspection::InspectionWaveform::decl(&config),
-        crate::audio_inspection::InspectionSpectrogram::decl(&config),
-        crate::audio_inspection::InspectionActivity::decl(&config),
-        crate::audio_inspection::InspectionRegion::decl(&config),
-        crate::audio_inspection::InspectionPause::decl(&config),
-        crate::audio_inspection::InspectionWordTiming::decl(&config),
-        crate::audio_inspection::InspectionWord::decl(&config),
-        crate::audio_inspection::InspectionUnsupportedWord::decl(&config),
-        crate::audio_inspection::InspectionTimingStatus::decl(&config),
+        crate::speech::analysis::fluency::Segment::decl(&config),
+        crate::speech::analysis::audio_inspection::TranscriptionInspectionResult::decl(&config),
+        crate::speech::analysis::audio_inspection::AudioInspection::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionWaveform::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionSpectrogram::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionActivity::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionRegion::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionPause::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionWordTiming::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionWord::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionUnsupportedWord::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionTimingStatus::decl(&config),
         RefusalReason::decl(&config),
         AppError::decl(&config),
     ];
@@ -618,7 +618,7 @@ pub fn bindings() -> String {
         format_args!(
             "{}\nexport const SKILL_CATALOG_VERSION = {} as const",
             persona_limits(),
-            crate::coaching::catalog_version()
+            crate::learning::coaching::catalog_version()
         ),
         text_size_limits()
     )
@@ -689,21 +689,21 @@ pub struct WordGlossView {
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
     #[ts(optional)]
-    pub reaction: Option<crate::partner_reaction::PartnerReaction>,
+    pub reaction: Option<crate::partners::partner_reaction::PartnerReaction>,
     #[ts(optional)]
     pub reaction_error: Option<String>,
-    pub coach_decision: Option<crate::coaching::CoachDecision>,
+    pub coach_decision: Option<crate::learning::coaching::CoachDecision>,
     pub turn_id: String,
     pub replaces_turn_id: Option<String>,
     pub replaced_by: Option<String>,
     #[ts(optional)]
-    pub feedback: Option<crate::coaching::CoachObservationView>,
+    pub feedback: Option<crate::learning::coaching::CoachObservationView>,
     #[ts(optional)]
     pub feedback_state: Option<String>,
     #[ts(optional)]
     pub feedback_error: Option<String>,
     #[ts(optional)]
-    pub suggested_replies: Option<Vec<crate::coaching::SuggestedReply>>,
+    pub suggested_replies: Option<Vec<crate::learning::coaching::SuggestedReply>>,
     #[ts(optional)]
     pub suggestions_state: Option<String>,
     #[ts(optional)]
@@ -762,8 +762,8 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
-    pub mystery: Option<crate::mystery::MysteryView>,
-    pub lessons: Vec<crate::lessons::LessonView>,
+    pub mystery: Option<crate::partners::mystery::MysteryView>,
+    pub lessons: Vec<crate::learning::lessons::LessonView>,
     pub lesson_choices: Vec<StarterCard>,
     pub starter_cards: Vec<StarterCard>,
     pub opening: Option<Opening>,
@@ -937,7 +937,8 @@ mod difficulty_tests {
         }
         for previous in ["gentle", "balanced", "challenging", "zero"] {
             let mut settings =
-                serde_json::to_value(crate::languages::defaults("es", "en").unwrap()).unwrap();
+                serde_json::to_value(crate::language::languages::defaults("es", "en").unwrap())
+                    .unwrap();
             settings["difficulty"] = serde_json::json!(previous);
             assert!(serde_json::from_value::<PracticeSettings>(settings).is_err());
         }
