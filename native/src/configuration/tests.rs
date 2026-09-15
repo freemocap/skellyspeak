@@ -1,5 +1,21 @@
 use super::*;
 #[test]
+fn script_scale_defaults_to_standard_and_language_overrides_remain_effective() {
+    let mut r = Registry::bundled().unwrap();
+    assert!(r.scripts.iter().all(|script| script.font_scale == 1.0));
+    assert_eq!(r.language("en").unwrap().font_scale, 1.0);
+    assert_eq!(r.language("ar").unwrap().font_scale, 1.5);
+    assert_eq!(r.language("zh").unwrap().font_scale, 1.3);
+    let ar = r
+        .languages
+        .iter_mut()
+        .find(|language| language.id == "ar")
+        .unwrap();
+    ar.scalars.font_scale = None;
+    assert_eq!(r.language("ar").unwrap().font_scale, 1.0);
+}
+
+#[test]
 fn shipped_config_loads_resolves_and_projects() {
     let r = Registry::bundled().unwrap();
     assert!(!r.languages.is_empty());

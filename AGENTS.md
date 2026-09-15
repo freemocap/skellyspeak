@@ -48,6 +48,10 @@ Appearance preferences are learner-owned: native validation/defaults live in
 `features/settings/appearance/`, and global theme/surface application in
 `platform/appearance/useAppearance.ts`. Reading scale stays with the reading
 provider. Generate contracts from Rust; do not duplicate appearance defaults.
+Language script scale uses the existing `scalars.font_scale` configuration field
+under `content/config/languages/languages/`. Shared script defaults are `1.0`;
+language/variety overrides tune script size independently of learner reading size.
+Do not add a competing global Appearance setting for this multiplier.
 Shared CSS owners are `components/{buttons,fields,panels,dialogs,popovers,reading}.css`;
 shell notices and settings forms stay with their owners. Use `--type-meta/ui/body/
 reading/title/display` for text roles and `--bg/chrome/sheet/field`, `--ink/ink-2/

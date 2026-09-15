@@ -158,3 +158,17 @@ Skills styles separate `skills.css` (page, toolbar and list), `graph.css`
 Evidence and learner-model styles keep their existing feature owners.
 The review inspector's recessed well remains distinct from the graph sheet.
 Page-level font inheritance has low specificity so explicit control roles win.
+
+### Style review tools
+
+With `npm run dev` running, open `/tools/style-preview.html` for shared app
+components or `/tools/detail-style-preview.html` for language and reward details.
+Both use production CSS and sample data; they do not save workspace settings.
+Experimental choices are labeled and scoped to the preview. Keep review-only
+layout and controls under `ui/tools/`, and record decisions in `docs/notes/`.
+
+Type-check these Vite-served tools separately from the application build:
+
+```sh
+npx tsc -p ui/tools/tsconfig.previews.json
+```

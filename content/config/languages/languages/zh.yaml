@@ -6,6 +6,9 @@ script: "Hans"
 orthography: "zh-hans"
 family: "sino-tibetan"
 romanization: "pinyin"
+# Script scale relative to the standard reading size (1.0).
+scalars:
+  font_scale: 1.3
 traits:
   - "tones"
   - "unspaced-words"

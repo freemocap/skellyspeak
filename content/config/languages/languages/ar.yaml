@@ -6,6 +6,9 @@ script: "Arab"
 orthography: "arabic-unvocalized"
 family: "afro-asiatic"
 romanization: "ala-lc-arabic"
+# Script scale relative to the standard reading size (1.0).
+scalars:
+  font_scale: 1.5
 traits:
   - "abjad-vowel-omission"
   - "construct-state"

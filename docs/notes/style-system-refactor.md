@@ -147,3 +147,58 @@ overlay stacking and accessibility states. Some retained semantic aliases and
 specialized controls can be evaluated during those focused reviews. Next design
 work is the agreed language-specific and reward-detail explorer; do not describe
 all visual inconsistencies as resolved merely because static checks pass.
+
+## Language and reward detail explorer
+
+Review artifact: `ui/tools/detail-style-preview.html`, served by the UI dev
+server at `/tools/detail-style-preview.html`. The shared-component preview links
+to it. Both previews share sample settings in `ui/tools/preview-settings.ts`.
+
+Implemented in the explorer only: six language specimens, gloss/romanization/
+pronunciation toggles, independent reading and script scales, serif/sans choices,
+domain-colored reward badges, three existing sound tiers, stored versus new
+credit, full and compact inspection cards, and a real evidence dialog.
+Audio is opt-in and starts off. Stored evidence does not replay a celebration.
+The proposed entrance respects the system reduced-motion preference.
+
+The reading components, badges, sound patterns and dialog use production code.
+The reading-face override, specimen-wide script scale, gentle entrance and
+pending/no-credit wording are explicitly exploratory. No learner data is read,
+written or credited, and preview choices do not save application preferences.
+Font selection per language, annotation hierarchy, reward motion and native
+haptics remain review decisions, not implemented product changes.
+
+Verification: production build and the separate preview TypeScript check pass.
+At 390px width, combined 160% reading and 160% script scales produce 51.2px
+annotated text without horizontal overflow in any of the six specimens.
+The evidence dialog fits the narrow viewport and closes with Escape. Stored
+credit suppresses replay; opt-in audio successfully schedules the existing
+sound helper. This is browser fixture verification, not an auditory assessment
+or a full native reward, font, touch or screen-reader test.
+
+## Refactor closeout and script-scale decision
+
+Agreed: script scale belongs to language configuration, with `1.0` as the
+standard. The existing `scalars.font_scale` field already resolves through Rust
+to the UI's `fontScale` and CSS `--script-scale`; no second setting or contract
+was added. Arabic's `1.5` and Mandarin's `1.3` moved from shared script defaults
+into their language YAML files, preserving their effective sizes. Shared script
+defaults are now `1.0`. Existing workspace configs remain workspace-owned.
+
+The detail explorer now exposes a separate scale per language, initialized with
+those bundled examples. Both Arabic specimens share the same control state.
+This supersedes the specimen-wide script slider described above. Preview changes
+are still temporary and do not edit YAML or app preferences.
+
+The agreed CSS ownership/consolidation pass is complete. The detail explorer is
+available for future focused design work. Full native-app walkthroughs, actual
+reward travel and haptics, speech/audio mixing, script font selection and assistive
+technology checks remain explicit follow-up work. These are not claims of
+completed validation, nor reasons to keep expanding this refactor's scope.
+
+Closeout verification: all 672 UI tests and 18 configuration tests pass, as do
+the production build, preview TypeScript check, stylesheet and documentation-link
+checks. The style manifest has 48 sheets and the dead-style scan reports zero
+unused-class candidates. Vite retains its existing large-bundle warning.
+Browser verification confirms changing Arabic's scale updates both Arabic
+specimens while leaving Spanish, Chinese, German and French scales unchanged.

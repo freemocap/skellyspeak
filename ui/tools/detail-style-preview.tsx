@@ -38,7 +38,8 @@ function Explorer() {
   const [roman, setRoman] = useState(false)
   const [pronunciation, setPronunciation] = useState(false)
   const [scale, setScale] = useState(100)
-  const [scriptScale, setScriptScale] = useState(100)
+  // Review fixtures mirror the bundled language overrides; no workspace config is loaded.
+  const [scriptScales, setScriptScales] = useState<Record<string, number>>({ ar: 1.5, zh: 1.3 })
   const [font, setFont] = useState('serif')
   const [domain, setDomain] = useState('descriptions')
   const [xp, setXp] = useState(10)
@@ -65,18 +66,17 @@ function Explorer() {
   return <main className="detail-lab">
     <header><a href="/tools/style-preview.html">← Shared components</a><h1>Language & reward details</h1><p>Interactive design review · sample data only. These choices do not save app preferences or award XP.</p><nav><a href="#reading">Reading</a><a href="#rewards">Rewards</a><a href="#questions">Review checklist</a></nav></header>
     <details><summary>Shared appearance</summary><label>Theme<select value={settings.theme ?? 'light'} onChange={e => setSettings({ ...settings, theme: e.target.value as 'light' | 'dark' | 'system' })}><option>light</option><option>dark</option><option>system</option></select></label><AppearanceSettings settings={settings} onChange={setSettings} /></details>
-    <section id="reading"><h2>01 · Reading and annotations</h2><p><strong>Baseline:</strong> production saved-word interaction. <strong>Exploration:</strong> adjustable reading face and local script scale. Arabic/CJK glyphs use available system fallback fonts; this does not establish a bundled font choice.</p>
+    <section id="reading"><h2>01 · Reading and annotations</h2><p><strong>Baseline:</strong> production saved-word interaction. <strong>Exploration:</strong> adjustable reading face and per-language script scale. Script scale belongs to language configuration (`scalars.font_scale`), with a standard value of 1.0. Arabic/CJK glyphs use available system fallback fonts; this does not establish a bundled font choice.</p>
       <div className="lab-controls">
         <label>Reading size · {scale}%<input aria-label="Reading size" type="range" min="85" max="160" step="5" value={scale} onChange={e => setScale(Number(e.target.value))} /></label>
-        <label>Script scale · {scriptScale}%<input aria-label="Script scale" type="range" min="85" max="160" step="5" value={scriptScale} onChange={e => setScriptScale(Number(e.target.value))} /></label>
         <label>Reading face<select value={font} onChange={e => setFont(e.target.value)}><option value="serif">Serif</option><option value="sans">Sans serif</option></select></label>
         <label><input type="checkbox" checked={help} onChange={e => setHelp(e.target.checked)} />Always show glosses</label>
         <label><input type="checkbox" checked={roman} onChange={e => setRoman(e.target.checked)} />Always show romanization</label>
         <label><input type="checkbox" checked={pronunciation} onChange={e => setPronunciation(e.target.checked)} />Always show pronunciation</label>
       </div>
       <ReadingPreferencesContext value={{ autoTranslate: help, alwaysRomanize: roman, alwaysPronunciation: pronunciation }}>
-        <div className="lab-grid" style={{ '--reading-scale': scale / 100, '--script-scale': scriptScale / 100, '--lab-reading-font': font === 'serif' ? 'var(--font-serif)' : 'var(--font-sans)' } as CSSProperties}>
-          {samples.map(sample => <article key={sample.lang + sample.label}><h3>{sample.label}</h3><div className="lab-reading" lang={sample.lang} dir="auto"><SavedGlossText text={sample.text} segments={sample.segments} /></div><p>{sample.note}</p></article>)}
+        <div className="lab-grid" style={{ '--reading-scale': scale / 100, '--lab-reading-font': font === 'serif' ? 'var(--font-serif)' : 'var(--font-sans)' } as CSSProperties}>
+          {samples.map(sample => <article key={sample.lang + sample.label} style={{ '--script-scale': scriptScales[sample.lang] ?? 1 } as CSSProperties}><h3>{sample.label}</h3><label>Script scale · {(scriptScales[sample.lang] ?? 1).toFixed(2)}<input aria-label={`${sample.label} script scale`} type="range" min="0.5" max="3" step="0.05" value={scriptScales[sample.lang] ?? 1} onChange={e => setScriptScales({ ...scriptScales, [sample.lang]: Number(e.target.value) })} /></label><div className="lab-reading" lang={sample.lang} dir="auto"><SavedGlossText text={sample.text} segments={sample.segments} /></div><p>{sample.note}</p></article>)}
         </div>
       </ReadingPreferencesContext>
     </section>

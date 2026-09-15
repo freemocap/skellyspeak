@@ -72,3 +72,15 @@ while floating overlays retain an outer glow. Reset restores Subtle with glow of
 The workspace divider rests at 6px and expands to 16px on hover, keyboard focus
 or active drag. Resize calculations use the actual divider width, so the split
 remains proportional when the handle expands.
+
+## Production-component companion explorers
+
+The UI development server now serves `/tools/style-preview.html` for shared
+components and `/tools/detail-style-preview.html` for language and reward
+details. These TypeScript previews use current app CSS and real components with
+sample data. Start them with `npm run dev` from the repository root; they require
+Vite and are not part of this standalone guide's file server.
+
+The detail explorer separates production baselines from proposals for reading
+faces, script scale and reward entrance motion. See the
+[refactor checkpoint](../style-system-refactor.md) for scope and verification.

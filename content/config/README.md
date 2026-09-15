@@ -40,6 +40,24 @@ All linguistic content is `needs_review`. Marking content `reviewed` while its
 citations remain `abstract` fails. Structural validation and prompt fixtures do
 not establish expert linguistic review or provider quality.
 
+## Language script scale
+
+The script-size multiplier is the existing `scalars.font_scale` setting in
+`languages/languages/<language>.yaml`. For example:
+
+```yaml
+scalars:
+  font_scale: 1.5
+```
+
+`1.0` is standard size. Shared script defaults are all `1.0`; Arabic explicitly
+uses `1.5` and Mandarin `1.3` in their language files. Omitting the language
+override inherits the script/trait value; varieties may override it further.
+Values must be finite and between `0.5` and `3.0`. The app multiplies this by
+the learner's independent reading-size preference. This is configuration data,
+not another global Appearance preference. Bundled edits affect newly initialized
+workspaces; edit an existing workspace's configuration and restart to change it.
+
 JSON schemas under `content/schemas/` derive from the loader's strict Rust types. The
 loader additionally checks references, cycles, localization coverage, citation
 metadata and supported policy semantics. `cargo test --manifest-path

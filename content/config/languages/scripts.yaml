@@ -13,7 +13,7 @@
   shaping: true
   has_case: false
   word_spacing: true
-  font_scale: 1.5
+  font_scale: 1.0
 -
   id: "Hans"
   direction: "ltr"
@@ -21,4 +21,4 @@
   shaping: false
   has_case: false
   word_spacing: false
-  font_scale: 1.3
+  font_scale: 1.0
