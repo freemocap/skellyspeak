@@ -58,7 +58,13 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
 
 - `application/`: startup, shared runtime state, command registration and background
   scheduling. `lib.rs` declares modules and exposes `run`; `main.rs` is the executable
-  entry point. The runtime remains intact pending a separate subfolder pass.
+  entry point. `startup.rs` owns Tauri setup/menu construction and the ordered
+  command registration list; `state.rs` owns Application, its store guard and
+  credential synchronization; `scheduler.rs` owns the dispatch loop. Group native
+  command handlers in `commands/{workspace,connections,hosted,partners}.rs`.
+  State/credential and persona-generation tests live under application/tests/,
+  registered by their owning modules. Preserve lock scope, sign-in cancellation
+  and command names when changing these seams.
 - `conversations/`: conversation turns, execution, prompts, opening choices,
   revisions, reading-result publication and conversation exports.
   `execution/` separates admission, holds, connections, turns, snapshots, dispatch,

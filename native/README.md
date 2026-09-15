@@ -23,14 +23,17 @@ remote [Python server](../server/).
 | [src/bin/](src/bin/) | Contract exporter and offline gloss benchmark entry points |
 
 `src/main.rs` is the executable entry point. `src/lib.rs` declares the native
-modules and exports `application::run`. The application runtime lives intact in
-`src/application/mod.rs`; its internal decomposition is a later pass.
+modules and exports `application::run`. Application composition lives in
+`src/application/startup.rs`, runtime state in `state.rs`, the dispatch loop in
+`scheduler.rs`, and command handlers in `commands/`. `application/mod.rs` provides
+their shared imports and application entry points.
 `src/model.rs` retains mixed types pending a separate ownership-based split.
 
 ### Subfolder groups
 
 | Area | Current groups |
 | --- | --- |
+| `application/` | Startup/command registration, shared state and scheduler; `commands/` groups workspace, connection, hosted and persona-generation handlers; existing suites live in `tests/` |
 | `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings); `lessons.rs` remains intact |
 | `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts); mystery and reactions remain individual files |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
@@ -84,7 +87,7 @@ npm test -- tests/architecture
 
 Transport tests use local loopback servers; allow localhost binding when running
 inside a sandbox. They do not need live AI providers. The UI registration check
-reads `src/application/mod.rs`, where the `generate_handler!` list lives.
+reads `src/application/startup.rs`, where the `generate_handler!` list lives.
 
 The root Tauri launcher selects this directory explicitly. Moving the native
 project root can invalidate cached build-script paths;

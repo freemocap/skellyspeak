@@ -28,13 +28,6 @@
       "area": "root"
     },
     {
-      "path": "native/src/application/mod.rs",
-      "lines": 1501,
-      "category": "source",
-      "band": "split",
-      "area": "native"
-    },
-    {
       "path": "native/src/learning/lessons.rs",
       "lines": 1437,
       "category": "source",
@@ -658,6 +651,13 @@
       "area": "ui"
     },
     {
+      "path": "AGENTS.md",
+      "lines": 258,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "root"
+    },
+    {
       "path": "ui/src/styles/features/conversation/lesson.css",
       "lines": 258,
       "category": "source",
@@ -677,13 +677,6 @@
       "category": "source",
       "band": "good",
       "area": "native"
-    },
-    {
-      "path": "AGENTS.md",
-      "lines": 252,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "root"
     },
     {
       "path": "native/src/learning/learner/progression.rs",
@@ -833,6 +826,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/application/tests/generation.rs",
+      "lines": 221,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/platform/ipc/settings-contract.test.ts",
       "lines": 220,
       "category": "source",
@@ -875,6 +875,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/application/tests/credential_io.rs",
+      "lines": 210,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/partners/NewPersonaDialog.test.tsx",
       "lines": 209,
       "category": "source",
@@ -894,6 +901,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/application/commands/partners.rs",
+      "lines": 207,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/conversations/execution/snapshots.rs",
@@ -1134,6 +1148,13 @@
       "area": "server"
     },
     {
+      "path": "native/src/application/scheduler.rs",
+      "lines": 170,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/styles/features/conversation/analysis.css",
       "lines": 170,
       "category": "source",
@@ -1188,6 +1209,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/application/startup.rs",
+      "lines": 158,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/conversations/execution/tests/snapshots.rs",
@@ -1251,6 +1279,13 @@
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/application/state.rs",
+      "lines": 148,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "ui/src/components/media/WaveformStrip.tsx",
@@ -1358,11 +1393,25 @@
       "area": "ui"
     },
     {
+      "path": "native/src/application/commands/hosted.rs",
+      "lines": 136,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/features/conversation/coaching/MessageFeedback.test.tsx",
       "lines": 136,
       "category": "source",
       "band": "good",
       "area": "ui"
+    },
+    {
+      "path": "native/src/application/commands/connections.rs",
+      "lines": 135,
+      "category": "source",
+      "band": "good",
+      "area": "native"
     },
     {
       "path": "native/src/language/emoji.rs",
@@ -1645,6 +1694,13 @@
       "area": "ui"
     },
     {
+      "path": "native/src/application/commands/workspace.rs",
+      "lines": 103,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/storage/store/snapshot.rs",
       "lines": 103,
       "category": "source",
@@ -1757,6 +1813,13 @@
       "area": "native"
     },
     {
+      "path": "native/README.md",
+      "lines": 95,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "ui/src/app/shell/TopBar.tsx",
       "lines": 95,
       "category": "source",
@@ -1811,13 +1874,6 @@
       "category": "source",
       "band": "good",
       "area": "ui"
-    },
-    {
-      "path": "native/README.md",
-      "lines": 92,
-      "category": "documentation or bibliography",
-      "band": "good",
-      "area": "native"
     },
     {
       "path": "native/src/partners/persona/persona_prompt.rs",
@@ -2324,6 +2380,13 @@
       "area": "native"
     },
     {
+      "path": "native/src/application/mod.rs",
+      "lines": 64,
+      "category": "source",
+      "band": "good",
+      "area": "native"
+    },
+    {
       "path": "native/src/statistics/mod.rs",
       "lines": 64,
       "category": "source",
@@ -2749,6 +2812,13 @@
       "category": "generated",
       "band": "good",
       "area": "content"
+    },
+    {
+      "path": "docs/notes/store-file-split.md",
+      "lines": 47,
+      "category": "documentation or bibliography",
+      "band": "good",
+      "area": "docs"
     },
     {
       "path": "docs/notes/ui-top-level-moves.json",
@@ -4476,6 +4546,13 @@
       "path": "native/gen/android/gradle/wrapper/gradle-wrapper.properties",
       "lines": 6,
       "category": "data or configuration",
+      "band": "good",
+      "area": "native"
+    },
+    {
+      "path": "native/src/application/commands/mod.rs",
+      "lines": 6,
+      "category": "source",
       "band": "good",
       "area": "native"
     },

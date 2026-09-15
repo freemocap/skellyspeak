@@ -14,9 +14,9 @@ const INVOKE = /\b(?:nativeInvoke|invoke)\s*(?:<[^(]*?>)?\s*\(\s*(['"])([^'"]+)\
 /// The bare names `tauri::generate_handler!` registers, however they are
 /// qualified. The list is the authority: a name absent from it cannot be called.
 function registeredCommands(): Set<string> {
-  const source = readFileSync(new URL('../../../native/src/application/mod.rs', import.meta.url), 'utf8')
+  const source = readFileSync(new URL('../../../native/src/application/startup.rs', import.meta.url), 'utf8')
   const block = /tauri::generate_handler!\[([\s\S]*?)\]/.exec(source)
-  if (!block) throw new Error('application/mod.rs declares no generate_handler! list')
+  if (!block) throw new Error('application/startup.rs declares no generate_handler! list')
   return new Set(block[1].split(',').map((entry) => entry.trim().split('::').pop()?.trim() ?? '').filter(Boolean))
 }
 
@@ -30,7 +30,7 @@ it('every command the frontend invokes is registered natively', () => {
   // A scan that finds almost nothing would pass for the wrong reason.
   expect(invoked.size, 'the invoke scan found no call sites').toBeGreaterThan(8)
   const known = registeredCommands()
-  expect(known.size, 'application/mod.rs registered no commands').toBeGreaterThan(20)
+  expect(known.size, 'application/startup.rs registered no commands').toBeGreaterThan(20)
   const missing = [...invoked].flatMap(([module, names]) => names.filter((name) => !known.has(name)).map((name) => `${module}: ${name}`))
   expect(missing.sort(), 'the frontend invokes a command the native side does not register').toEqual([])
 })
