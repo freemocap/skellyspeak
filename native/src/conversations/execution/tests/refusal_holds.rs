@@ -39,7 +39,7 @@ async fn custom_server_refusal_redacts_remote_content_before_persistence() {
             socket.write_all(response.as_bytes()).await.unwrap();
         });
         let (dir, mut store, conversation) = setup();
-        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'),'$.standardModel','fixture','$.fastModel','fixture')", [&url]).unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&url]).unwrap();
         let dispatch = begin(&mut store, &conversation);
         assert_eq!(dispatch.route, ConnectionRoute::Custom);
         let error = crate::ai::transport::grouped::complete(

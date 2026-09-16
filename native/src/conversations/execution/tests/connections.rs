@@ -1,6 +1,49 @@
 use super::*;
 
 #[test]
+fn model_selection_is_shared_across_routes_without_changing_credentials() {
+    let (_dir, mut store, _) = setup();
+    let credentials: (Option<String>, Option<String>, Option<String>) = store
+        .connection
+        .query_row(
+            "SELECT credential_id,hosted_credential_id,custom_credential_id FROM ai_config",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .unwrap();
+    let revision = store.connection_config().unwrap().revision;
+    store
+        .set_models(
+            revision,
+            "shared-standard",
+            "shared-fast",
+            "shared-transcription",
+        )
+        .unwrap();
+    for route in [
+        ConnectionRoute::Hosted,
+        ConnectionRoute::Openrouter,
+        ConnectionRoute::Custom,
+    ] {
+        let revision = store.connection_config().unwrap().revision;
+        store.select_route(revision, route).unwrap();
+        let config = store.connection_config().unwrap();
+        assert_eq!(config.standard_model, "shared-standard");
+        assert_eq!(config.fast_model, "shared-fast");
+        assert_eq!(config.transcription_model, "shared-transcription");
+    }
+    let after: (Option<String>, Option<String>, Option<String>) = store
+        .connection
+        .query_row(
+            "SELECT credential_id,hosted_credential_id,custom_credential_id FROM ai_config",
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(after, credentials);
+}
+
+#[test]
 fn credential_changes_never_select_a_route() {
     let (_dir, mut store, _) = setup();
     store.select_route(2, ConnectionRoute::Custom).unwrap();
@@ -113,7 +156,7 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
     store.execute(send(&store, &conversation)).unwrap();
     assert!(store.dispatch().unwrap().is_none());
     let reply_work = store.dispatch().unwrap().unwrap();
-    assert_eq!(reply_work.model, crate::ai::connections::model_routing::OSS);
+    assert_eq!(reply_work.model, "google/gemini-2.5-flash");
     assert_eq!(reply_work.target.model, reply_work.model);
     assert_eq!(reply_work.credential, "hosted-token");
     assert_eq!(reply_work.messages.last().unwrap().role, "user");
@@ -132,10 +175,11 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             .unwrap();
         let expected = match kind.as_str() {
             "user_translation" | "reply_translation" | "coach_reaction" => {
-                crate::ai::connections::model_routing::LITE
+                "google/gemini-2.5-flash-lite"
             }
-            "user_word_gloss" | "persona_word_gloss" => crate::ai::connections::model_routing::OSS,
-            "coach_feedback" => crate::ai::connections::model_routing::FLASH,
+            "user_word_gloss" | "persona_word_gloss" | "coach_feedback" => {
+                "google/gemini-2.5-flash"
+            }
             _ => panic!("Unexpected automatic task: {kind}"),
         };
         assert_eq!(work.model, expected);
@@ -168,10 +212,7 @@ fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
     let (_dir, mut store, conversation) = setup();
     let custom = CustomEndpoint {
         base_url: "http://localhost:1234/v1".into(),
-        standard_model: "local-model".into(),
-        fast_model: "fast-model".into(),
         bearer_auth: false,
-        transcription_model: None,
     };
     store
         .connection
@@ -183,7 +224,7 @@ fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
     store.select_route(2, ConnectionRoute::Custom).unwrap();
     let dispatched = begin(&mut store, &conversation);
     assert_eq!(dispatched.target.url, "http://localhost:1234/v1/operations");
-    assert_eq!(dispatched.model, "local-model");
+    assert_eq!(dispatched.model, "google/gemini-2.5-flash");
     assert!(dispatched.credential.is_empty());
     assert!(dispatched.target.credential.is_none());
     invalidate(&store.connection, Some(ConnectionRoute::Custom)).unwrap();

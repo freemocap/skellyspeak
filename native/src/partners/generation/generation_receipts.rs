@@ -180,7 +180,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let mut store = Store::open(&dir.path().join("workspace.sqlite3")).unwrap();
         store.prepare_chat().unwrap();
-        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8765/v1','$.bearerAuth',json('false'),'$.standardModel','fixture','$.fastModel','fixture')", []).unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8765/v1','$.bearerAuth',json('false'))", []).unwrap();
         (dir, store)
     }
     fn request(store: &Store, language: &str) -> Request {

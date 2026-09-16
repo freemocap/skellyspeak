@@ -98,6 +98,7 @@ pub enum DiagnosticCommand {
     CheckAccess,
     GetConnection,
     SaveConnection,
+    SaveModels,
     VerifyOpenrouterKey,
     Disconnect,
     WatchConversation,

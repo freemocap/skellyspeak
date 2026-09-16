@@ -123,6 +123,7 @@ pub fn run() {
             access::check_access,
             commands::connections::get_connection,
             commands::connections::save_connection,
+            commands::connections::save_models,
             commands::connections::verify_openrouter_key,
             commands::connections::disconnect,
             commands::workspace::watch_conversation,

@@ -649,6 +649,7 @@ pub struct ConnectionConfig {
     pub configured: bool,
     pub standard_model: String,
     pub fast_model: String,
+    pub transcription_model: String,
     pub paused: bool,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -914,10 +915,7 @@ pub struct PersonaGenerationActivity {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CustomEndpoint {
     pub base_url: String,
-    pub standard_model: String,
-    pub fast_model: String,
     pub bearer_auth: bool,
-    pub transcription_model: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

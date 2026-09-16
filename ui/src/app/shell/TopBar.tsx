@@ -45,7 +45,12 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
       <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}>★ {profile ? `${profile.xp.toLocaleString(tr.locale)} XP · ${profile.target}` : tr("Progress")}</button>
-      {!isMobile && <span className="connection-state" data-configured={connection?.configured ?? false}>{connection?.configured ? tr("Configured") : tr("Not configured")}</span>}
+      {!isMobile && connection && (connection.configured
+        ? <span className="connection-state" data-configured="true">{tr("Configured")}</span>
+        : <button type="button" className="connection-state connection-setup" data-configured="false"
+            onClick={() => showOverlay('settings')}>
+            {connection.route === 'hosted' ? tr('Sign in to use AI') : connection.route === 'openrouter' ? tr('Add API key') : tr('Connect a custom server')}
+          </button>)}
 
       <button
         type="button"

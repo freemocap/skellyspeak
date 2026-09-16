@@ -4,6 +4,7 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { TopBar } from './TopBar'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
+import { useSessionStore } from '../../state/session/session'
 import type { Settings } from '../../types'
 
 const viewport = vi.hoisted(() => ({ mobile: false }))
@@ -15,7 +16,21 @@ vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
 beforeEach(() => {
   viewport.mobile = false
   useNavigationStore.setState(useNavigationStore.getInitialState())
+  useSessionStore.setState(useSessionStore.getInitialState())
   useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {target_language:'es'} as Settings})
+})
+it.each([
+  ['hosted', 'Sign in to use AI'],
+  ['openrouter', 'Add API key'],
+  ['custom', 'Connect a custom server'],
+] as const)('opens AI access from the %s setup status', (route, label) => {
+  useSessionStore.setState({ connection: {
+    route, signedIn: false, ownKeyConfigured: false, email: '', revision: 1,
+    configured: false, standardModel: 'standard', fastModel: 'fast', transcriptionModel: 'whisper-large-v3', paused: false,
+  } })
+  render(<TopBar />)
+  fireEvent.click(screen.getByRole('button', { name: label }))
+  expect(useNavigationStore.getState().overlay).toBe('settings')
 })
 it.each([false, true])('keeps history and target language reachable with mobile=%s', mobile => {
   viewport.mobile = mobile

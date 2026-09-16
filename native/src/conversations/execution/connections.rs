@@ -1,7 +1,15 @@
 use super::*;
 
+fn valid_model_id(model: &str) -> bool {
+    !model.is_empty()
+        && model.len() <= 160
+        && model
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"/._:-".contains(&b))
+}
+
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {
-    let (revision,key,standard,fast,paused,route,hosted,email):(i32,bool,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?)))?;
+    let (revision,key,standard,fast,transcription,paused,route,hosted,email):(i32,bool,String,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,transcription_model,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?,r.get(8)?)))?;
     let route = ConnectionRoute::parse(&route)?;
     let access = crate::ai::connections::access::settings(db)?;
     Ok(ConnectionConfig {
@@ -14,18 +22,9 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
         } else {
             key
         },
-        standard_model: if route == ConnectionRoute::Hosted {
-            "google/gemini-2.5-flash".into()
-        } else if route == ConnectionRoute::Custom {
-            access.custom.standard_model
-        } else {
-            standard
-        },
-        fast_model: if route == ConnectionRoute::Custom {
-            access.custom.fast_model
-        } else {
-            fast
-        },
+        standard_model: standard,
+        fast_model: fast,
+        transcription_model: transcription,
         paused,
         route,
         signed_in: hosted,
@@ -116,15 +115,7 @@ impl Store {
         standard: &str,
         fast: &str,
     ) -> Result<()> {
-        if standard.len() > 160
-            || fast.len() > 160
-            || [standard, fast].iter().any(|s| {
-                s.is_empty()
-                    || !s
-                        .bytes()
-                        .all(|c| c.is_ascii_alphanumeric() || b"/._:-".contains(&c))
-            })
-        {
+        if ![standard, fast].iter().all(|model| valid_model_id(model)) {
             return Err(fail(
                 "Provide explicit valid model IDs for Standard and Fast.",
             ));
@@ -142,6 +133,35 @@ impl Store {
         }
         tx.execute("UPDATE ai_config SET revision=revision+1,credential_id=?1,standard_model=?2,fast_model=?3",params![credential,standard,fast])?;
         invalidate(&tx, Some(ConnectionRoute::Openrouter))?;
+        bump(&tx)?;
+        tx.commit()?;
+        Ok(())
+    }
+
+    pub fn set_models(
+        &mut self,
+        expected: i32,
+        standard: &str,
+        fast: &str,
+        transcription: &str,
+    ) -> Result<()> {
+        if ![standard, fast, transcription]
+            .iter()
+            .all(|model| valid_model_id(model))
+        {
+            return Err(fail(
+                "Provide explicit valid model IDs for Standard, Fast and Transcription.",
+            ));
+        }
+        let tx = self.connection.transaction()?;
+        if config(&tx)?.revision != expected {
+            return Err(AppError::new(
+                ErrorCode::Conflict,
+                "AI settings changed. Reload before saving models.",
+            ));
+        }
+        tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,transcription_model=?3", params![standard,fast,transcription])?;
+        invalidate(&tx, None)?;
         bump(&tx)?;
         tx.commit()?;
         Ok(())

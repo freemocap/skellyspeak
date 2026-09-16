@@ -5,7 +5,10 @@
   width: min(100%, 280px); margin: var(--space-13) auto; padding: var(--space-8);
   border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--chrome);
   color: var(--ink-2); text-align: center;
-}.access-start p { margin: 0; font: var(--type-ui)/1.4 var(--font-sans); }.access-start .btn { min-height: var(--control-height-lg); padding-inline: var(--space-10); }.access-tabs {
+}.access-start p { margin: 0; font: var(--type-ui)/1.4 var(--font-sans); }.access-start .btn { min-height: var(--control-height-lg); padding-inline: var(--space-10); }
+.access-alternative { min-height: var(--control-height-lg); padding: var(--space-2); border: 0; background: transparent; color: var(--accent-ink); font: var(--type-ui) var(--font-sans); text-decoration: underline; cursor: pointer; }
+.access-alternative:hover { color: var(--ink); }
+.access-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;

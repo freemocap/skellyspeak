@@ -30,8 +30,8 @@ function commands(): Command[] {
 beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
-  connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, standardModel: 'configured-model', fastModel: 'fast-model', paused: false }
-  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', standardModel: 'custom-model', fastModel: 'custom-fast-model', bearerAuth: true, transcriptionModel: null } }
+  connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, standardModel: 'configured-model', fastModel: 'fast-model', transcriptionModel: 'whisper-large-v3', paused: false }
+  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
     if (name === 'get_snapshot') return workspace
     if (name === 'get_connection') return connection
@@ -53,7 +53,7 @@ describe('native settings projection', () => {
     expect(settings).toMatchObject({
       scope: { sessionId: 'session', conversationId: 'a', settingsRevision: 6, learnerRevision: 9 },
       provider_mode: projected, hosted_email: 'person@example.invalid', openrouter_model: 'configured-model',
-      custom_base_url: 'https://example.invalid/v1', custom_model: 'custom-model',
+      custom_base_url: 'https://example.invalid/v1', custom_model: 'configured-model',
       target_language: 'es', target_variety: 'es-MX', native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
       auto_translate: true, always_pronunciation: false, always_romanize: true, text_size: 125, text_spacing: 3,
     })

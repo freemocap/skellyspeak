@@ -4,9 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/native'
 import type { AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../../generated/contracts'
 
-const CUSTOM_CHAT_MODEL = 'google/gemini-2.5-flash'
-const CUSTOM_TRANSCRIPTION_MODEL = 'whisper-large-v3'
-
 const message = (error: unknown): string => error instanceof Error ? error.message :
   typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
 
@@ -19,9 +16,9 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
   const [connection, setConnection] = useState<ConnectionConfig | null>(null)
   const [access, setAccess] = useState<AccessSettings | null>(null)
   const [endpoint, setEndpoint] = useState<CustomEndpoint | null>(null)
-  const [models, setModels] = useState({ standardModel: '', fastModel: '' })
+  const [models, setModels] = useState({ standardModel: '', fastModel: '', transcriptionModel: '' })
   const [keys, setKeys] = useState({ openrouter: '', groq: '', custom: '' })
-  const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
+  const [dirty, setDirty] = useState<'models' | 'openrouter' | 'groq' | 'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,13 +35,11 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     ])
     const custom = nextAccess.custom
     setConnection(nextConnection); setAccess(nextAccess)
-    const displayedEndpoint = { ...custom,
-      standardModel: custom.standardModel || CUSTOM_CHAT_MODEL,
-      fastModel: custom.fastModel || CUSTOM_CHAT_MODEL,
-      transcriptionModel: custom.transcriptionModel || CUSTOM_TRANSCRIPTION_MODEL }
+    const displayedEndpoint = custom
     setEndpoint(displayedEndpoint)
-    savedDraft.current = { endpoint: displayedEndpoint, models: { standardModel: nextConnection.standardModel, fastModel: nextConnection.fastModel } }
-    setModels({ standardModel: nextConnection.standardModel, fastModel: nextConnection.fastModel })
+    const displayedModels = { standardModel: nextConnection.standardModel, fastModel: nextConnection.fastModel, transcriptionModel: nextConnection.transcriptionModel }
+    savedDraft.current = { endpoint: displayedEndpoint, models: displayedModels }
+    setModels(displayedModels)
   }
   useEffect(() => { void read().catch(error => setError(message(error))) }, [])
   useEffect(() => { onBusyChange(busy || dirty !== null); return () => onBusyChange(false) }, [busy, dirty, onBusyChange])
@@ -52,9 +47,8 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
   useEffect(() => {
     const saved = savedDraft.current
     if (!dirty || busy || !saved) return
-    const changed = keys[dirty].trim() !== '' || (dirty === 'custom'
-      ? JSON.stringify(endpoint) !== JSON.stringify(saved.endpoint)
-      : dirty === 'openrouter' && JSON.stringify(models) !== JSON.stringify(saved.models))
+    const changed = dirty === 'models' ? JSON.stringify(models) !== JSON.stringify(saved.models) :
+      keys[dirty].trim() !== '' || (dirty === 'custom' && JSON.stringify(endpoint) !== JSON.stringify(saved.endpoint))
     if (!changed) { setDirty(null); setError(null) }
   }, [dirty, busy, keys, endpoint, models])
 
@@ -73,12 +67,14 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     catch (error) { setError(message(error)) }
     finally { writing.current = false; setBusy(false) }
   }
-  async function save(provider: 'openrouter' | 'groq' | 'custom', removeKey = false) {
+  async function save(provider: 'models' | 'openrouter' | 'groq' | 'custom', removeKey = false) {
     if (!connection || !access || !endpoint) throw new Error('AI access has not loaded.')
-    if (provider === 'openrouter') {
+    if (provider === 'models') {
+      await invoke('save_models', { expectedRevision: connection.revision, ...models })
+    } else if (provider === 'openrouter') {
       if (removeKey) await invoke('disconnect', { expectedRevision: connection.revision })
       else await invoke('save_connection', {
-        expectedRevision: connection.revision, apiKey: keys.openrouter.trim() || null, ...models,
+        expectedRevision: connection.revision, apiKey: keys.openrouter.trim() || null,
       })
     } else {
       await invoke('save_access_settings', {
@@ -86,7 +82,8 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
         apiKey: removeKey ? null : keys[provider].trim() || null, removeKey,
       })
     }
-    setKeys(current => ({ ...current, [provider]: '' })); setDirty(null); setRemoving(null)
+    if (provider !== 'models') setKeys(current => ({ ...current, [provider]: '' }))
+    setDirty(null); setRemoving(null)
     await read(); await onChanged(); setStatus('Saved')
   }
   useEffect(() => {
@@ -95,7 +92,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     return () => clearTimeout(timer)
   }, [dirty, keys, endpoint, models, editingField, busy, error])
 
-  function edit(provider: 'openrouter' | 'groq' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
+  function edit(provider: 'models' | 'openrouter' | 'groq' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
   async function check(provider: 'openrouter' | 'groq' | 'custom') {
     if (!connection || !access) throw new Error('AI access has not loaded.')
     setChecks(current => ({ ...current, [provider]: 'checking' }))
@@ -128,7 +125,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
         <input id={`access-${provider}`} className="key-input" type="password" autoComplete="off"
           value={keys[provider]} placeholder={configured ? tr("Saved — enter replacement") : label}
           disabled={busy || (dirty !== null && dirty !== provider)}
-          onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)}
+          onFocus={() => setEditingField(true)} onBlur={() => { setKeys(current => ({ ...current, [provider]: current[provider].trim() })); setEditingField(false) }}
           onChange={event => { setKeys(current => ({ ...current, [provider]: event.target.value })); edit(provider) }} />
         {configured && <button type="button" className="access-key-status" disabled={busy || dirty !== null}
           aria-label={tr("Delete {value0}", { value0: String(label) })} title={tr("Saved key · delete")} onClick={() => setRemoving(provider)}>
@@ -185,10 +182,6 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     {connection.route === 'openrouter' && <>
       {credential('openrouter', tr('OpenRouter API key'), connection.ownKeyConfigured)}
       {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
-      <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel'] as const).map(key =>
-        <div className="form-row" key={key}><label htmlFor={`access-${key}`}>{key === 'standardModel' ? tr("Standard model") : tr("Fast model")}</label>
-          <input id={`access-${key}`} className="field" value={models[key]} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy || (dirty !== null && dirty !== 'openrouter')}
-            onChange={event => { setModels(current => ({ ...current, [key]: event.target.value })); edit('openrouter') }} /></div>)}</details>
     </>}
     {connection.route === 'custom' && <>
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>
@@ -199,15 +192,14 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       <div className="form-row check-row"><label className="check-label"><input type="checkbox" checked={endpoint.bearerAuth} disabled={busy}
         onChange={event => { setEndpoint({ ...endpoint, bearerAuth: event.target.checked }); edit('custom') }} />{tr("Use server session token")}</label></div>
       {credential('custom', tr('Server session token'), access.customKeyConfigured)}
-      <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel', 'transcriptionModel'] as const).map(key =>
-        <div className="form-row" key={key}><label htmlFor={`custom-${key}`}>{key === 'standardModel' ? tr("Standard model") : key === 'fastModel' ? tr("Fast model") : tr("Transcription model")}</label>
-          <input id={`custom-${key}`} className="field" value={endpoint[key] ?? ''} disabled={busy}
-            onFocus={() => setEditingField(true)}
-            onBlur={() => { setEndpoint(current => current && ({ ...current, [key]: current[key]?.trim() || (key === 'transcriptionModel' ? CUSTOM_TRANSCRIPTION_MODEL : CUSTOM_CHAT_MODEL) })); setEditingField(false) }}
-            onChange={event => { setEndpoint({ ...endpoint, [key]: event.target.value }); edit('custom') }} /></div>)}</details>
       {!access.customKeyConfigured && <button className="btn" disabled={locked} onClick={() => void run(() => check('custom'))}>{tr("Check connection")}</button>}
     </>}
     </div>
+    <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel', 'transcriptionModel'] as const).map(key =>
+      <div className="form-row" key={key}><label htmlFor={`access-${key}`}>{key === 'standardModel' ? tr("Standard model") : key === 'fastModel' ? tr("Fast model") : tr("Transcription model")}</label>
+        <input id={`access-${key}`} className="field" value={models[key]} disabled={busy || (dirty !== null && dirty !== 'models')}
+          onFocus={() => setEditingField(true)} onBlur={() => { setModels(current => ({ ...current, [key]: current[key].trim() })); setEditingField(false) }}
+          onChange={event => { setModels(current => ({ ...current, [key]: event.target.value })); edit('models') }} /></div>)}</details>
     {dirty && <div className="access-pending"><span role="status">{busy ? tr("Saving…") : editingField ? tr("Editing — saves when you leave the field") : tr("Unsaved changes")}</span><button type="button" className="btn" disabled={busy} title={tr("Discard unsaved edits; saved credentials are kept")} onClick={discard}>{tr("Discard changes")}</button></div>}
     {error && <div role="alert">{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>{tr("Retry save")}</button>}</div>}
     {status && <p role="status">{tr(status)}</p>}

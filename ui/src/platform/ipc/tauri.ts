@@ -95,7 +95,7 @@ export async function getSettings(): Promise<Settings> {
     scope: { sessionId: snapshot.sessionId, conversationId: conversation.id, settingsRevision: conversation.settingsRevision, learnerRevision: snapshot.learner.revision, rewardRevision: rewards.revision },
     provider_mode: connection.route === 'openrouter' ? 'cloud' : connection.route,
     hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
-    custom_base_url: access.custom.baseUrl, custom_model: access.custom.standardModel,
+    custom_base_url: access.custom.baseUrl, custom_model: connection.standardModel,
     openrouter_model: connection.standardModel, observer_model: null,
     target_language: conversation.languageId, target_variety: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,

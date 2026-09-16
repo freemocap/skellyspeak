@@ -3,7 +3,7 @@ use super::*;
 fn generation_app() -> (tempfile::TempDir, Arc<Application>) {
     let directory = tempfile::tempdir().unwrap();
     let app = Application::start(&directory.path().join("generation.sqlite3"), None);
-    app.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8765/v1','$.bearerAuth',json('false'),'$.standardModel','fixture','$.fastModel','fixture')", []).unwrap();
+    app.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8765/v1','$.bearerAuth',json('false'))", []).unwrap();
     (directory, app)
 }
 

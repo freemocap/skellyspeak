@@ -23,7 +23,7 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("skellyspeak.sqlite3");
     drop(Store::open(&path).unwrap());
-    for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, 15, SCHEMA_VERSION + 1] {
+    for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, SCHEMA_VERSION + 1] {
         let connection = Connection::open(&path).unwrap();
         connection
             .pragma_update(None, "user_version", version)

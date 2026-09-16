@@ -13,7 +13,7 @@ const STREAM_LIMIT: usize = 16 * 1024 * 1024;
 const EVENT_LIMIT: usize = 1024 * 1024;
 const TRANSCRIPT_LIMIT: usize = 32 * 1024;
 #[cfg(test)]
-const MODEL: &str = "openai/gpt-audio-mini";
+const MODEL: &str = crate::ai::connections::model_routing::SPEECH_MODEL;
 
 pub struct SpeechInput {
     pub text: String,

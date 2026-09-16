@@ -12,8 +12,6 @@ pub(in crate::application) async fn save_connection(
     state: tauri::State<'_, Arc<Application>>,
     expected_revision: i32,
     api_key: Option<String>,
-    standard_model: String,
-    fast_model: String,
 ) -> Result<ConnectionConfig> {
     let key = api_key.map(Zeroizing::new);
     if let Some(key) = &key {
@@ -35,11 +33,12 @@ pub(in crate::application) async fn save_connection(
                 },
                 |id| credentials::save(id, key.trim()),
                 |store, id| {
+                    let config = store.connection_config()?;
                     store.set_connection(
                         expected_revision,
                         Some(id),
-                        standard_model.trim(),
-                        fast_model.trim(),
+                        &config.standard_model,
+                        &config.fast_model,
                     )?;
                     store.connection_config()
                 },
@@ -54,11 +53,12 @@ pub(in crate::application) async fn save_connection(
                         "Enter an OpenRouter API key before saving.",
                     )
                 })?;
+                let config = store.connection_config()?;
                 store.set_connection(
                     expected_revision,
                     Some(&id),
-                    standard_model.trim(),
-                    fast_model.trim(),
+                    &config.standard_model,
+                    &config.fast_model,
                 )?;
                 store.connection_config()
             };
@@ -68,6 +68,24 @@ pub(in crate::application) async fn save_connection(
     })
     .await
     .map_err(|_| internal())?
+}
+
+#[tauri::command]
+pub(in crate::application) fn save_models(
+    state: tauri::State<'_, Arc<Application>>,
+    expected_revision: i32,
+    standard_model: String,
+    fast_model: String,
+    transcription_model: String,
+) -> Result<ConnectionConfig> {
+    let mut store = state.lock()?;
+    store.set_models(
+        expected_revision,
+        standard_model.trim(),
+        fast_model.trim(),
+        transcription_model.trim(),
+    )?;
+    store.connection_config()
 }
 
 #[tauri::command]

@@ -591,9 +591,12 @@ export default function ConversationPage({
           {olderError && <p role="alert">{olderError}</p>}
           {turns.length === 0 && !error && !sending && connection?.configured === false ? (
             <div className="access-start">
-              <p>{tr("You’re not signed in.")}</p>
+              <p>{tr("Choose how to connect to AI.")}</p>
               <button type="button" className="btn primary" disabled={signingIn} onClick={() => void startHostedSignIn()}>
                 {signingIn ? tr("Signing in…") : tr("Sign in with Google")}
+              </button>
+              <button type="button" className="access-alternative" onClick={onOpenSettings ?? (() => useNavigationStore.getState().showOverlay('settings'))}>
+                {tr("Or set up AI access in another way")}
               </button>
             </div>
           ) : turns.length === 0 && !error && (

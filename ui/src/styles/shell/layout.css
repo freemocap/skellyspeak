@@ -333,6 +333,9 @@
 .connection-state { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
 .connection-state::before { content: ''; width: 7px; height: 7px; border-radius: var(--radius-circle); background: var(--ink-3); }
 .connection-state[data-configured=true]::before { background: var(--success-ink); }
+.connection-setup { min-height: var(--control-height-lg); border: 0; background: transparent; cursor: pointer; text-align: start; }
+.connection-setup:hover { color: var(--accent-ink); text-decoration: underline; }
+.connection-setup:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 2px; }
 @media (max-width: 860px) { .hamburger > span { display: none; } }
 @media (max-width: 480px) { .app-home > span { display: none; } }
 

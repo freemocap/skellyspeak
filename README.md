@@ -354,12 +354,18 @@ version and configured chat/transcription capabilities, and performs no inferenc
 Our server requires a session token issued by that server. Selecting no authentication
 cannot bypass server authentication. Hosted session credentials are never reused for
 Custom URL; its token is stored separately and bound to the saved destination.
-Groq key verification uses its `/models` endpoint. Fast task routing remains unimplemented. Read-aloud uses the selected route and
+Groq key verification uses its `/models` endpoint. Simple translation and reaction tasks use the Fast model; other chat tasks use Standard. Read-aloud uses the selected route and
 the dedicated speech model; actual playback requires device verification. A protocol check does not establish live inference quality.
+
+Standard, Fast and Transcription model IDs are shared across Hosted, API keys and
+Custom URL access. AI access edits them once, outside the route tabs. Custom URL
+stores only its address and authentication choice; changing routes does not change
+the selected models. The development schema is v17, so older workspaces require
+Factory Reset.
 
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
-Transcription remains a separate multipart request using the configured server model.
+Transcription remains a separate multipart request using the shared Transcription model.
 The user verified local Custom URL chat with real configured inference keys;
 all seven local Firestore emulator tests passed. Recheck the native development
 session when resuming this branch; no new runtime check is implied by this summary.

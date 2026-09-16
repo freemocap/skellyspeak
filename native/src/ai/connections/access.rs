@@ -48,16 +48,6 @@ pub fn settings(db: &Connection) -> Result<AccessSettings> {
 }
 pub fn validate_custom(value: &CustomEndpoint) -> Result<()> {
     base_url(&value.base_url)?;
-    for model in [&value.standard_model, &value.fast_model]
-        .into_iter()
-        .chain(value.transcription_model.iter())
-    {
-        if model.is_empty() || model.len() > 160 || !model.bytes().all(|b| b.is_ascii_graphic()) {
-            return Err(error(
-                "Enter explicit model IDs without whitespace (at most 160 bytes).",
-            ));
-        }
-    }
     Ok(())
 }
 pub fn base_url(value: &str) -> Result<reqwest::Url> {
@@ -114,12 +104,12 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         ),
         (ConnectionRoute::Hosted, Capability::Speech) => (
             format!("{}/v1", hosted::ORIGIN),
-            "openai/gpt-audio-mini".into(),
+            super::model_routing::SPEECH_MODEL.into(),
             "hosted_credential_id",
         ),
         (ConnectionRoute::Hosted, Capability::Transcription) => (
             format!("{}/v1", hosted::ORIGIN),
-            "whisper-large-v3".into(),
+            config.transcription_model.clone(),
             "hosted_credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Chat) => (
@@ -129,20 +119,20 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         ),
         (ConnectionRoute::Openrouter, Capability::Speech) => (
             "https://openrouter.ai/api/v1".into(),
-            "openai/gpt-audio-mini".into(),
+            super::model_routing::SPEECH_MODEL.into(),
             "credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Transcription) => (
             "https://api.groq.com/openai/v1".into(),
-            "whisper-large-v3".into(),
+            config.transcription_model.clone(),
             "groq_credential_id",
         ),
         (ConnectionRoute::Custom, _) => {
             validate_custom(&access.custom)?;
             let model = match capability {
-                Capability::Chat => access.custom.standard_model.clone(),
-                Capability::Speech => "openai/gpt-audio-mini".into(),
-                Capability::Transcription => access.custom.transcription_model.clone().ok_or_else(|| error("This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings."))?,
+                Capability::Chat => config.standard_model.clone(),
+                Capability::Speech => super::model_routing::SPEECH_MODEL.into(),
+                Capability::Transcription => config.transcription_model.clone(),
             };
             (
                 access.custom.base_url.clone(),
@@ -272,7 +262,7 @@ fn validate_save_input(
 ) -> std::result::Result<(), (&'static str, AppError)> {
     if let Some(value) = custom {
         base_url(&value.base_url).map_err(|e| ("access_save_url_invalid", e))?;
-        validate_custom(value).map_err(|e| ("access_save_model_invalid", e))?;
+        validate_custom(value).map_err(|e| ("access_save_endpoint_invalid", e))?;
     }
     if let Some(key) = key {
         provider::validate_key_format(key).map_err(|e| ("access_save_key_invalid", e))?;
@@ -527,10 +517,7 @@ mod tests {
     fn save_validation_reports_allowlisted_reason_without_private_input() {
         let mut custom = crate::model::CustomEndpoint {
             base_url: String::new(),
-            standard_model: "fixture".into(),
-            fast_model: "fixture".into(),
             bearer_auth: true,
-            transcription_model: Some("fixture".into()),
         };
         assert_eq!(
             super::validate_save_input(Some(&custom), None, false)
@@ -540,11 +527,6 @@ mod tests {
         );
         custom.base_url = "http://127.0.0.1:8765/v1".into();
         assert!(super::validate_save_input(Some(&custom), Some("fixture-secret"), false).is_ok());
-        custom.standard_model = "PRIVATE MODEL".into();
-        let (code, error) = super::validate_save_input(Some(&custom), None, false).unwrap_err();
-        assert_eq!(code, "access_save_model_invalid");
-        assert!(!error.message.contains("PRIVATE"));
-        custom.standard_model = "fixture".into();
         let (code, error) =
             super::validate_save_input(Some(&custom), Some("PRIVATE KEY"), false).unwrap_err();
         assert_eq!(code, "access_save_key_invalid");
@@ -567,19 +549,15 @@ mod tests {
         db
     }
     #[test]
-    fn fresh_custom_setup_has_server_models_and_voice_enabled() {
+    fn fresh_custom_setup_uses_shared_models_and_voice_enabled() {
         let database = db();
-        let mut endpoint = settings(&database).unwrap().custom;
-        assert_eq!(endpoint.standard_model, "google/gemini-2.5-flash");
-        assert_eq!(endpoint.fast_model, "google/gemini-2.5-flash");
-        assert_eq!(
-            endpoint.transcription_model.as_deref(),
-            Some("whisper-large-v3")
-        );
+        let endpoint = settings(&database).unwrap().custom;
+        let models = execution::config(&database).unwrap();
+        assert_eq!(models.standard_model, "google/gemini-2.5-flash");
+        assert_eq!(models.fast_model, "google/gemini-2.5-flash-lite");
+        assert_eq!(models.transcription_model, "whisper-large-v3");
         assert!(endpoint.bearer_auth);
         assert_eq!(endpoint.base_url, DEFAULT_CUSTOM_BASE_URL);
-        validate_custom(&endpoint).unwrap();
-        endpoint.transcription_model = None;
         validate_custom(&endpoint).unwrap();
     }
     #[test]
@@ -646,13 +624,10 @@ mod tests {
                 .is_empty()
         );
     }
-    fn custom(db: &Connection, auth: bool, audio: bool) {
+    fn custom(db: &Connection, auth: bool) {
         let value = CustomEndpoint {
             base_url: "http://127.0.0.1:1234/v1/".into(),
-            standard_model: "local-chat".into(),
-            fast_model: "local-fast".into(),
             bearer_auth: auth,
-            transcription_model: audio.then(|| "local-whisper".into()),
         };
         db.execute(
             "UPDATE ai_config SET route='custom',custom_config=?1",
@@ -685,13 +660,11 @@ mod tests {
     #[test]
     fn saved_custom_key_cannot_follow_a_changed_destination() {
         let db = db();
-        custom(&db, true, false);
+        custom(&db, true);
         db.execute("UPDATE ai_config SET custom_credential_id='saved-key'", [])
             .unwrap();
         let saved = settings(&db).unwrap();
         let mut next = saved.custom.clone();
-        validate_key_destination(&saved, Some(&next), false).unwrap();
-        next.standard_model = "another-model".into();
         validate_key_destination(&saved, Some(&next), false).unwrap();
         for destination in [
             "https://other.example/v1",
@@ -747,12 +720,12 @@ mod tests {
             assert_eq!(speech.url, format!("{prefix}/chat/completions"));
             assert_eq!(speech.model, "openai/gpt-audio-mini");
         }
-        custom(&db, false, false);
+        custom(&db, false);
         let speech = resolve(&db, Capability::Speech).unwrap();
         assert!(speech.credential.is_none());
         assert_eq!(speech.url, "http://127.0.0.1:1234/v1/chat/completions");
         assert_eq!(speech.model, "openai/gpt-audio-mini");
-        custom(&db, true, false);
+        custom(&db, true);
         assert!(resolve(&db, Capability::Speech).is_err());
         db.execute("UPDATE ai_config SET custom_credential_id='custom-key'", [])
             .unwrap();
@@ -766,9 +739,9 @@ mod tests {
     }
 
     #[test]
-    fn custom_no_auth_and_missing_audio_are_explicit() {
+    fn custom_no_auth_uses_shared_chat_and_transcription_models() {
         let db = db();
-        custom(&db, false, false);
+        custom(&db, false);
         db.execute(
             "UPDATE ai_config SET credential_id='other-key',custom_credential_id='unused-secret'",
             [],
@@ -777,16 +750,14 @@ mod tests {
         let chat = resolve(&db, Capability::Chat).unwrap();
         assert!(chat.credential.is_none());
         assert_eq!(chat.url, "http://127.0.0.1:1234/v1/operations");
-        assert_eq!(chat.model, "local-chat");
-        assert!(
-            resolve(&db, Capability::Transcription)
-                .unwrap_err()
-                .message
-                .contains("chat only")
+        assert_eq!(chat.model, "google/gemini-2.5-flash");
+        assert_eq!(
+            resolve(&db, Capability::Transcription).unwrap().model,
+            "whisper-large-v3"
         );
-        custom(&db, true, true);
+        custom(&db, true);
         let audio = resolve(&db, Capability::Transcription).unwrap();
-        assert_eq!(audio.model, "local-whisper");
+        assert_eq!(audio.model, "whisper-large-v3");
         assert_eq!(audio.credential.as_deref(), Some("unused-secret"));
         db.execute("UPDATE ai_config SET custom_credential_id=NULL", [])
             .unwrap();

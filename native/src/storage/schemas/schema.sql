@@ -1,4 +1,4 @@
--- Current v16 core schema; generation_schema.sql adds current receipt tables.
+-- Current v17 core schema; generation_schema.sql adds current receipt tables.
 CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL CHECK(revision>=0));
 INSERT INTO metadata VALUES(1,0);
 CREATE TABLE learner (id TEXT PRIMARY KEY, singleton INTEGER NOT NULL UNIQUE CHECK(singleton=1), name TEXT NOT NULL, revision INTEGER NOT NULL, preferences TEXT NOT NULL CHECK(json_valid(preferences)));
@@ -18,8 +18,8 @@ BEGIN SELECT RAISE(ABORT,'Persona language is fixed'); END;
 CREATE TABLE receipts (action_id TEXT PRIMARY KEY, request TEXT NOT NULL, receipt TEXT NOT NULL, persona_id TEXT REFERENCES personas(id) ON DELETE CASCADE, conversation_id TEXT REFERENCES conversations(id) ON DELETE CASCADE);
 PRAGMA application_id=1397443659;
 CREATE TABLE credential_cleanup(id TEXT PRIMARY KEY);
-CREATE TABLE ai_config(singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, credential_id TEXT, standard_model TEXT NOT NULL, fast_model TEXT NOT NULL, paused INTEGER NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), hosted_credential_id TEXT, hosted_email TEXT NOT NULL, groq_credential_id TEXT, custom_credential_id TEXT, custom_config TEXT NOT NULL CHECK(json_valid(custom_config)));
-INSERT INTO ai_config VALUES(1,1,NULL,'google/gemini-2.5-flash','google/gemini-2.5-flash-lite',0,'hosted',NULL,'',NULL,NULL,'{"baseUrl":"http://127.0.0.1:8765/v1","standardModel":"google/gemini-2.5-flash","fastModel":"google/gemini-2.5-flash","bearerAuth":true,"transcriptionModel":"whisper-large-v3"}');
+CREATE TABLE ai_config(singleton INTEGER PRIMARY KEY CHECK(singleton=1), revision INTEGER NOT NULL, credential_id TEXT, standard_model TEXT NOT NULL, fast_model TEXT NOT NULL, transcription_model TEXT NOT NULL, paused INTEGER NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), hosted_credential_id TEXT, hosted_email TEXT NOT NULL, groq_credential_id TEXT, custom_credential_id TEXT, custom_config TEXT NOT NULL CHECK(json_valid(custom_config)));
+INSERT INTO ai_config VALUES(1,1,NULL,'google/gemini-2.5-flash','google/gemini-2.5-flash-lite','whisper-large-v3',0,'hosted',NULL,'',NULL,NULL,'{"baseUrl":"http://127.0.0.1:8765/v1","bearerAuth":true}');
 CREATE TABLE turns(id TEXT PRIMARY KEY, replaces_turn_id TEXT UNIQUE REFERENCES turns(id) ON DELETE CASCADE, refusal_hold TEXT CHECK(refusal_hold IS NULL OR json_valid(refusal_hold)), conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, state TEXT NOT NULL, paused INTEGER NOT NULL, profile_revision INTEGER NOT NULL, credential_id TEXT NOT NULL, route TEXT NOT NULL, model TEXT NOT NULL, context TEXT NOT NULL CHECK(json_valid(context)), created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')));
 CREATE INDEX turns_conversation ON turns(conversation_id);
 CREATE UNIQUE INDEX one_pending_reply ON turns(conversation_id) WHERE state='pending';
