@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=../schemas/language-foundations.json
+scripts:
+- id: latin
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: true
+  word_spacing: true
+  font_scale: 1.0
+- id: arabic
+  direction: rtl
+  cursive: true
+  shaping: true
+  has_case: false
+  word_spacing: true
+  font_scale: 1.0
+- id: simplified-chinese
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: false
+  word_spacing: false
+  font_scale: 1.0
+families:
+- id: indo-european
+  label: Indo-European
+- id: afro-asiatic
+  label: Afro-Asiatic
+- id: sino-tibetan
+  label: Sino-Tibetan
+traits:
+- id: abjad-vowel-omission
+  review: needs_review
+- id: tones
+  review: needs_review
+- id: unspaced-words
+  review: needs_review
+- id: construct-state
+  review: needs_review
+orthographies:
+  latin:
+    script: latin
+    guidance: []
+romanization_schemes: {}

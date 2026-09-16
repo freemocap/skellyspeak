@@ -2,10 +2,8 @@ use super::*;
 
 fn valid_model_id(model: &str) -> bool {
     !model.is_empty()
-        && model.len() <= 160
-        && model
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"/._:-".contains(&b))
+        && model.len() <= 256
+        && !model.chars().any(|c| c.is_whitespace() || c.is_control())
 }
 
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {

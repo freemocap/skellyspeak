@@ -61,8 +61,8 @@ conversation execution and speech lifecycle keep their respective domain owners.
 
 ## Content and packaging
 
-- [../content/config/](../content/config/): editable language, construct, starter,
-  and policy defaults. The [AI behavior index](../content/README.md) links prompt code.
+- [../content/](../content/): app-owned language documents, shared learning goals,
+  conversation topics and teaching policy. The [AI behavior index](../content/README.md) links prompt code.
 - [../content/schemas/](../content/schemas/): generated configuration schemas,
   verified by Rust tests.
 - `capabilities/`, `icons/`, Tauri configuration and platform property lists:

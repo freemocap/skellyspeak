@@ -8,7 +8,7 @@ const backend = vi.hoisted(() => ({ execute: vi.fn(), sound: vi.fn(), reload: vi
 vi.mock('../../../platform/ipc/workspace', () => ({ executeAction: backend.execute, nativeError: String }))
 vi.mock('../../../platform/audio/reward-sounds', () => ({ playRewardSound: backend.sound, unlockRewardAudio: vi.fn() }))
 vi.mock('../../../state/learning/skill-evidence', () => ({ useSkillEvidenceStore: { getState: () => ({ reload: backend.reload }) } }))
-const persona: Persona = { id: 'partner', learnerId: 'learner', languageId: 'es', revision: 2, details: { ...blankPersona(false), name: 'Alex', occupation: 'Architect', partnerType: 'mystery' } }
+const persona: Persona = { id: 'partner', learnerId: 'learner', languageId: 'spanish', revision: 2, details: { ...blankPersona(false), name: 'Alex', occupation: 'Architect', partnerType: 'mystery' } }
 function snapshot(state: RevealState): ConversationSnapshot {
   return { sessionId: 'session', conversationId: 'chat', revision: 4, messages: [], mystery: { personaId: 'partner', personaRevision: 2, nudgeDismissed: false, fields: [{ field: 'occupation', state, xp: state === 'hidden' ? 0 : 1, value: state === 'revealed' ? 'Architect' : null }] } } as unknown as ConversationSnapshot
 }

@@ -17,8 +17,8 @@ vi.mock('../../platform/diagnostics/log', () => ({ logDiagnostic: vi.fn(), logIn
 // workspace command builder and native snapshot projection run unchanged.
 vi.mock('../../platform/ipc/tauri', () => ({
   isTauri: true, getSettings: chrome.getSettings, saveSettings: chrome.saveSettings,
-  languages: () => [{ code: 'es', base: 'es', name: 'Spanish', endonym: 'Español' }, { code: 'en', base: 'en', name: 'English', endonym: 'English' }],
-  languageFor: (code: string) => code === 'en' ? { code: 'en', name: 'English', endonym: 'English' } : { code: 'es', name: 'Spanish', endonym: 'Español' },
+  languages: () => [{ code: 'spanish', base: 'spanish', name: 'Spanish', endonym: 'Español' }, { code: 'english', base: 'english', name: 'English', endonym: 'English' }],
+  languageFor: (code: string) => code === 'english' ? { code: 'english', name: 'English', endonym: 'English' } : { code: 'spanish', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
 vi.mock('./speech/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
@@ -43,9 +43,9 @@ const SETTINGS: Settings = {
   groq_key: '',
   openrouter_model: 'google/gemini-2.5-flash',
   observer_model: null,
-  target_language: 'es',
+  target_language: 'spanish',
   target_variety: '',
-  native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
+  native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english',
   microphone_device_id: null,
   auto_speak: false,
   auto_send: false,
@@ -70,12 +70,12 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'en-US', interfaceLocale: 'en', targetVarieties: {}, theme: 'dark', explanationLanguage: 'en', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
-      id, contactId: 'contact', languageId: 'es', title: id, archived: false,
+      id, contactId: 'contact', languageId: 'spanish', title: id, archived: false,
       revision: 7 + index, settingsRevision: 1, createdAt: '2026-09-10', lastUsed: 2 - index,
-      settings: { difficulty: 'beginner', explanationLanguage: 'en', varietyId: '', explanationVarietyId: 'en-US', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
+      settings: { difficulty: 'beginner', explanationLanguage: 'english', varietyId: '', explanationVarietyId: 'english-united-states', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }
@@ -529,7 +529,7 @@ it('hides starters after accepting an opening and surfaces failure without a lea
 
 it('keeps the committed contact selection after failed navigation and follows another opened contact', async () => {
   workspace.contacts = ['a', 'b', 'c'].map(id => ({ id: `contact-${id}`, learnerId: 'learner', personaId: `persona-${id}`, archived: false, revision: 1, createdAt: 'today' }))
-  workspace.personas = ['a', 'b', 'c'].map(id => ({ id: `persona-${id}`, languageId: 'es', revision: 1, details: { name: id.toUpperCase(), vibe: [] } } as unknown as Snapshot['personas'][number]))
+  workspace.personas = ['a', 'b', 'c'].map(id => ({ id: `persona-${id}`, languageId: 'spanish', revision: 1, details: { name: id.toUpperCase(), vibe: [] } } as unknown as Snapshot['personas'][number]))
   workspace.conversations = ['a', 'b', 'c'].map((id, index) => ({ ...directory().conversations[0], id, contactId: `contact-${id}`, lastUsed: 3 - index }))
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))

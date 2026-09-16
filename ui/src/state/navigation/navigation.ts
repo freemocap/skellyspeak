@@ -16,7 +16,7 @@ export type WorkspaceMode = 'practice' | 'learn' | 'review'
 export type MobileLocation = 'chat' | 'panel'
 
 /// The dialogs that sit over a surface.
-export type Overlay = 'more' | 'profile' | 'settings' | 'activity'
+export type Overlay = 'more' | 'profile' | 'settings' | 'activity' | 'languages'
 
 interface NavigationState {
   page: Page

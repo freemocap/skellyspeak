@@ -38,3 +38,9 @@ app/diagnostics/*
 !app/diagnostics/__init__.py
 !app/diagnostics/diagnostics.py
 !app/diagnostics/observability.py
+
+!app/diagnostics/runtime.py
+
+!app/diagnostics/provider_errors.py
+
+!app/diagnostics/provider_health.py

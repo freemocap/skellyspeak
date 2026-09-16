@@ -69,8 +69,8 @@ void start().catch(async (error: unknown) => {
     : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <div className="not-tauri" role="alert">
-      <p>{t('en', 'Could not open SkellySpeak: {message}', { message })}</p>
-      <button className="btn" onClick={() => window.location.reload()}>{t('en', 'Retry startup')}</button>
+      <p>{t('english', 'Could not open SkellySpeak: {message}', { message })}</p>
+      <button className="btn" onClick={() => window.location.reload()}>{t('english', 'Retry startup')}</button>
     </div>
   )
 })

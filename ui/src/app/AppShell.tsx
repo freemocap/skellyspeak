@@ -1,3 +1,4 @@
+import { LanguageBrowser } from '../features/languages/LanguageBrowser'
 import { useAppearance } from '../platform/appearance/useAppearance'
 import { CredentialCleanup } from '../features/startup/CredentialCleanup'
 import { I18nProvider } from '../components/localization/i18n'
@@ -21,6 +22,7 @@ import { MoreDialog } from './shell/MoreDialog'
 import { ProfileOverlay } from './shell/ProfileOverlay'
 import { SurfaceHost } from './shell/SurfaceHost'
 import { TopBar } from './shell/TopBar'
+import { useConnectionHealthChecks } from './useConnectionHealthChecks'
 import { useAppShortcuts } from './shortcuts/useAppShortcuts'
 
 /// The application shell: the effects that belong to the application rather than
@@ -58,11 +60,12 @@ export function AppShell() {
 
   // Keep evidence read for the active language. The surfaces read the store
   // themselves, so the shell only has to say which language is current.
+  useConnectionHealthChecks()
   useLoadSkillEvidence()
   useAppShortcuts(shortcuts)
 
   return (
-    <I18nProvider locale={settings?.interface_locale ?? 'en'}><ReadingProvider settings={settings}><div className="app">
+    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingProvider settings={settings}><div className="app">
       <UpdateBanner />
       <TopBar />
       <FaultBar />
@@ -71,6 +74,7 @@ export function AppShell() {
       <SurfaceHost />
       <MobileNav />
       <MoreDialog />
+      {overlay === 'languages' && <LanguageBrowser onClose={closeOverlay} />}
       <LogsOverlay open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
     </div></ReadingProvider></I18nProvider>

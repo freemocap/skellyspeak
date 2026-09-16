@@ -16,7 +16,7 @@ fn failed_durable_begin_releases_volatile_ownership_and_cancel_is_idempotent() {
         .execute_batch("PRAGMA query_only=ON")
         .unwrap();
     for _ in 0..5 {
-        let error = reserve_persona_generation(&app, "es".into(), None).unwrap_err();
+        let error = reserve_persona_generation(&app, "spanish".into(), None).unwrap_err();
         assert_eq!(error.code, ErrorCode::Storage);
     }
     app.lock()
@@ -25,21 +25,21 @@ fn failed_durable_begin_releases_volatile_ownership_and_cancel_is_idempotent() {
         .execute_batch("PRAGMA query_only=OFF")
         .unwrap();
     let ids: Vec<_> = (0..4)
-        .map(|_| reserve_persona_generation(&app, "es".into(), None).unwrap())
+        .map(|_| reserve_persona_generation(&app, "spanish".into(), None).unwrap())
         .collect();
     for id in ids {
         cancel_owned_persona_generation(&app, &id).unwrap();
         cancel_owned_persona_generation(&app, &id).unwrap();
         assert!(app.generations.claim(&id).is_err());
     }
-    assert!(reserve_persona_generation(&app, "es".into(), None).is_ok());
+    assert!(reserve_persona_generation(&app, "spanish".into(), None).is_ok());
 }
 
 #[test]
 fn cancellation_or_authority_change_cannot_adopt_a_completed_proposal() {
     for cancel in [true, false] {
         let (_directory, app) = generation_app();
-        let id = reserve_persona_generation(&app, "es".into(), None).unwrap();
+        let id = reserve_persona_generation(&app, "spanish".into(), None).unwrap();
         let run = {
             let mut store = app.lock().unwrap();
             let run = app.generations.claim(&id).unwrap();
@@ -56,7 +56,7 @@ fn cancellation_or_authority_change_cannot_adopt_a_completed_proposal() {
                 .execute("UPDATE ai_config SET revision=revision+1", [])
                 .unwrap();
         }
-        let proposed = persona::starter("es").unwrap();
+        let proposed = persona::starter("spanish").unwrap();
         let completion = provider::Completion {
             text: serde_json::to_string(&proposed).unwrap(),
             actual_model: "fixture".into(),
@@ -75,8 +75,8 @@ fn cancellation_or_authority_change_cannot_adopt_a_completed_proposal() {
 fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adopt() {
     for reject_write in [true, false] {
         let (_directory, app) = generation_app();
-        let id =
-            reserve_persona_generation(&app, "es".into(), Some("private brief".into())).unwrap();
+        let id = reserve_persona_generation(&app, "spanish".into(), Some("private brief".into()))
+            .unwrap();
         let run = {
             let mut store = app.lock().unwrap();
             let run = app.generations.claim(&id).unwrap();
@@ -98,9 +98,9 @@ fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adop
                 .connection
                 .execute_batch("PRAGMA query_only=ON")
                 .unwrap();
-            Ok(persona::starter("es").unwrap())
+            Ok(persona::starter("spanish").unwrap())
         } else {
-            generated_persona(&completion.text, "es")
+            generated_persona(&completion.text, "spanish")
         };
         let error =
             finish_persona_generation(&app, &run.request, Some(&completion), outcome).unwrap_err();
@@ -128,7 +128,7 @@ fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adop
 fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
     for finish in ["length", "content_filter", "tool_calls", ""] {
         let (_directory, app) = generation_app();
-        let id = reserve_persona_generation(&app, "es".into(), None).unwrap();
+        let id = reserve_persona_generation(&app, "spanish".into(), None).unwrap();
         let run = {
             let mut store = app.lock().unwrap();
             let run = app.generations.claim(&id).unwrap();
@@ -136,7 +136,7 @@ fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
             run.request.mark_submitted();
             run
         };
-        let proposed = persona::starter("es").unwrap();
+        let proposed = persona::starter("spanish").unwrap();
         let completed = Ok(provider::Completion {
             text: serde_json::to_string(&proposed).unwrap(),
             actual_model: "fixture".into(),
@@ -183,8 +183,8 @@ fn a_valid_response_becomes_a_reviewable_persona_and_writes_nothing() {
     let directory = tempfile::tempdir().unwrap();
     let store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
     let before = store.snapshot().unwrap();
-    let proposed = persona::starter("fr").unwrap();
-    let details = generated_persona(&serde_json::to_string(&proposed).unwrap(), "fr").unwrap();
+    let proposed = persona::starter("french").unwrap();
+    let details = generated_persona(&serde_json::to_string(&proposed).unwrap(), "french").unwrap();
     assert_eq!(details.name, proposed.name);
     assert_eq!(details.vibe, proposed.vibe);
     // A proposal is not a contact: nothing is written until the learner creates one.
@@ -201,14 +201,14 @@ fn an_unusable_response_is_refused_and_writes_nothing() {
     let store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
     let before = store.snapshot().unwrap().revision;
     assert_eq!(
-        generated_persona("not json", "fr").unwrap_err().code,
+        generated_persona("not json", "french").unwrap_err().code,
         ErrorCode::Provider
     );
     // Well-shaped but outside a limit: refused by the same rules an edit obeys.
-    let mut oversized = persona::starter("fr").unwrap();
+    let mut oversized = persona::starter("french").unwrap();
     oversized.vibe = vec!["🌿".into()];
     assert_eq!(
-        generated_persona(&serde_json::to_string(&oversized).unwrap(), "fr")
+        generated_persona(&serde_json::to_string(&oversized).unwrap(), "french")
             .unwrap_err()
             .code,
         ErrorCode::Validation

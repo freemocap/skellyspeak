@@ -3,18 +3,8 @@ use super::*;
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
         let ownership = WorkspaceOwnership::acquire(path)?;
-        let config = crate::configuration::initialize(
-            &path
-                .parent()
-                .ok_or_else(|| {
-                    AppError::new(
-                        ErrorCode::ConfigLoad,
-                        "Workspace has no configuration directory.",
-                    )
-                })?
-                .join("config"),
-        )
-        .map_err(|e| AppError::new(ErrorCode::ConfigLoad, e.to_string()))?;
+        let config = crate::configuration::Registry::bundled()
+            .map_err(|e| AppError::new(ErrorCode::ConfigLoad, e.to_string()))?;
         #[cfg(unix)]
         {
             use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
@@ -55,13 +45,13 @@ impl Store {
             tx.execute_batch(include_str!("../schemas/schema.sql"))?;
             tx.execute_batch(GENERATION_SCHEMA)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
-            config.language("en")?;
+            config.language("english")?;
             let preferences = Preferences {
                 theme: Theme::Light,
                 appearance: Default::default(),
-                explanation_language: "en".into(),
-                explanation_variety_id: config.language("en")?.default_variety,
-                interface_locale: "en".into(),
+                explanation_language: "english".into(),
+                explanation_variety_id: config.language("english")?.default_variety,
+                interface_locale: "english".into(),
                 target_varieties: Default::default(),
                 text_size: crate::model::TEXT_SIZE_DEFAULT,
                 text_spacing: 0,
@@ -121,7 +111,7 @@ impl Store {
                 title: "New conversation".into(),
             },
             None => Action::StartChat {
-                language_id: "es".into(),
+                language_id: "spanish".into(),
             },
         };
         self.execute(Command {

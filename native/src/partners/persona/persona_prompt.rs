@@ -76,7 +76,7 @@ mod tests {
     fn captured_context_supplies_generation_writing_and_romanization() {
         let mut context = crate::configuration::Registry::bundled()
             .unwrap()
-            .resolve("ar", None, "en")
+            .resolve("arabic", None, "english")
             .unwrap();
         context.guidance.insert(
             "romanization".into(),

@@ -10,8 +10,8 @@ fn captured_varieties_survive_settings_changes_for_deferred_operations() {
         .find(|c| c.id == conversation)
         .unwrap();
     let mut settings = current.settings.clone();
-    settings.variety_id = "es-MX".into();
-    settings.explanation_variety_id = "en-GB".into();
+    settings.variety_id = "spanish-mexico".into();
+    settings.explanation_variety_id = "english-united-kingdom".into();
     apply(
         &mut store,
         Action::UpdateSettings {
@@ -30,8 +30,11 @@ fn captured_varieties_survive_settings_changes_for_deferred_operations() {
         )
         .unwrap();
     let before: serde_json::Value = serde_json::from_str(&before).unwrap();
-    assert_eq!(before["languageContext"]["variety_id"], "es-MX");
-    assert_eq!(before["languageContext"]["explanation_variety_id"], "en-GB");
+    assert_eq!(before["languageContext"]["variety_id"], "spanish-mexico");
+    assert_eq!(
+        before["languageContext"]["explanation_variety_id"],
+        "english-united-kingdom"
+    );
     let snapshot = store.snapshot().unwrap();
     let current = snapshot
         .conversations
@@ -39,8 +42,8 @@ fn captured_varieties_survive_settings_changes_for_deferred_operations() {
         .find(|c| c.id == conversation)
         .unwrap();
     let mut settings = current.settings.clone();
-    settings.variety_id = "es-ES".into();
-    settings.explanation_variety_id = "en-US".into();
+    settings.variety_id = "spanish-spain".into();
+    settings.explanation_variety_id = "english-united-states".into();
     apply(
         &mut store,
         Action::UpdateSettings {
@@ -68,10 +71,15 @@ fn captured_varieties_survive_settings_changes_for_deferred_operations() {
 
 #[test]
 fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captured() {
-    for (target, explanation) in [("zh", "en"), ("es", "zh"), ("zh", "zh"), ("es", "en")] {
+    for (target, explanation) in [
+        ("mandarin", "english"),
+        ("spanish", "mandarin"),
+        ("mandarin", "mandarin"),
+        ("spanish", "english"),
+    ] {
         for coach in [false, true] {
             let (_dir, mut store, existing) = setup();
-            let conversation = if target == "es" {
+            let conversation = if target == "spanish" {
                 existing
             } else {
                 // Creating a contact also creates its first conversation, which is
@@ -109,7 +117,11 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
             isolate_coaching(&mut store);
             // Later settings must not substitute a new explanation language in
             // either the already captured coach prompt or deferred translation.
-            let later = if explanation == "zh" { "en" } else { "zh" };
+            let later = if explanation == "mandarin" {
+                "english"
+            } else {
+                "mandarin"
+            };
             store.connection.execute(
                 "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3) WHERE conversation_id=?1",
                 params![conversation, later, store.config.language(later).unwrap().default_variety],
@@ -117,8 +129,8 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
             assert!(store.dispatch().unwrap().is_none());
             let primary = store.dispatch().unwrap().unwrap();
             let instruction = &primary.messages[0].content;
-            assert_eq!(instruction.contains("Target-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), target == "zh");
-            assert_eq!(instruction.contains("Explanation-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), coach && explanation == "zh");
+            assert_eq!(instruction.contains("Target-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), target == "mandarin");
+            assert_eq!(instruction.contains("Explanation-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), coach && explanation == "mandarin");
             if coach {
                 assert_eq!(
                     primary.messages.last().unwrap().content,
@@ -137,7 +149,7 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
             let translation = translation.unwrap();
             let instruction = &translation.messages[0].content;
             assert!(instruction.contains(&format!("passage into {explanation}.")));
-            assert_eq!(instruction.contains("Destination-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), explanation == "zh");
+            assert_eq!(instruction.contains("Destination-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), explanation == "mandarin");
             assert!(!instruction.contains("Target-language writing:"));
             assert_eq!(translation.messages[1].content, "漢字。");
         }
@@ -150,7 +162,7 @@ fn focus_is_frozen_and_reaches_partner_and_both_coach_prompts() {
     store
         .connection
         .execute(
-            "INSERT INTO skill_choices VALUES('es',1,'question','[]')",
+            "INSERT INTO skill_choices VALUES('spanish',1,'question','[]')",
             [],
         )
         .unwrap();
@@ -225,7 +237,8 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
     for language in crate::language::languages::registry() {
         captured["targetLanguage"] = serde_json::json!(language.id);
         captured["languageContext"] =
-            serde_json::to_value(store.config.resolve(&language.id, None, "en").unwrap()).unwrap();
+            serde_json::to_value(store.config.resolve(&language.id, None, "english").unwrap())
+                .unwrap();
         let suggestions = crate::learning::coaching::prompt(
             &store.connection,
             &turn,
@@ -252,7 +265,7 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         {
             assert!(feedback[0].content.contains(guidance));
         }
-        if language.id != "ar" {
+        if language.id != "arabic" {
             assert!(!feedback[0].content.contains("normalize Arabic"));
         }
     }
@@ -289,7 +302,8 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         )
         .unwrap();
         assert_eq!(
-            crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
+                ["xp"],
             match outcome {
                 "demonstrated" => 30,
                 "partial" => 12,

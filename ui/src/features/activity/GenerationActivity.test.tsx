@@ -8,7 +8,7 @@ const api = vi.hoisted(() => ({ read: vi.fn() }))
 vi.mock('../../platform/ipc/workspace', () => ({ readPersonaGenerationActivity: api.read, nativeError: String }))
 
 const attempt: PersonaGenerationAttempt = {
-  id: 'generation-id', attemptId: 'attempt-id', operationId: 'operation-id', languageId: 'es',
+  id: 'generation-id', attemptId: 'attempt-id', operationId: 'operation-id', languageId: 'spanish',
   route: 'custom', requestedModel: 'requested-model', profileRevision: 4, state: 'failed',
   createdAt: '2026-09-12T12:00:00Z', dispatchedAt: '2026-09-12T12:00:01Z', finishedAt: '2026-09-12T12:00:02Z',
   actualModel: 'actual-model', providerId: 'provider-request-id', inputTokens: null, outputTokens: null, error: 'Provider request failed',
@@ -35,7 +35,7 @@ it('renders global dispatched usage and inspectable IDs without inventing missin
   expect(screen.getByRole('row', { name: 'Attempts 8' })).toBeInTheDocument()
   expect(screen.getByRole('row', { name: 'Reported input tokens 120' })).toBeInTheDocument()
   expect(screen.getByRole('row', { name: 'Attempts with unknown usage 2' })).toBeInTheDocument()
-  fireEvent.click(screen.getByText('failed · es · 2026-09-12T12:00:00Z'))
+  fireEvent.click(screen.getByText('failed · spanish · 2026-09-12T12:00:00Z'))
   expect(screen.getByText('generation-id')).toBeInTheDocument()
   expect(screen.getByText('attempt-id')).toBeInTheDocument()
   expect(screen.getByText('operation-id')).toBeInTheDocument()
@@ -58,7 +58,7 @@ it('serializes slow polling and adopts the next native revision', async () => {
   await act(async () => { await vi.advanceTimersByTimeAsync(5000) })
   expect(api.read).toHaveBeenCalledTimes(2)
   await act(async () => second.resolve({ ...snapshot(2), attempts: [{ ...attempt, state: 'succeeded', error: null, inputTokens: 10, outputTokens: 5 }] }))
-  expect(screen.getByText('succeeded · es · 2026-09-12T12:00:00Z')).toBeInTheDocument()
+  expect(screen.getByText('succeeded · spanish · 2026-09-12T12:00:00Z')).toBeInTheDocument()
 })
 
 it('shows a poll failure, removes stale totals, and requires explicit retry', async () => {
@@ -87,7 +87,7 @@ it.each(['resolve', 'reject'] as const)('ignores an unmounted read that later %s
   await act(async () => { if (settle === 'resolve') old.resolve({ ...snapshot(), attempts: [] }); else old.reject(new Error('Obsolete failure')) })
   expect(screen.queryByRole('alert')).toBeNull()
   expect(screen.queryByText('No recorded persona generations.')).toBeNull()
-  expect(screen.getByText('failed · es · 2026-09-12T12:00:00Z')).toBeInTheDocument()
+  expect(screen.getByText('failed · spanish · 2026-09-12T12:00:00Z')).toBeInTheDocument()
   expect(api.read).toHaveBeenCalledTimes(2)
 })
 

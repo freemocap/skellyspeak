@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "Family": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "type": "object"
+    },
+    "Guidance": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "$ref": "#/definitions/GuidanceScope"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "sources",
+        "text"
+      ],
+      "type": "object"
+    },
+    "GuidanceScope": {
+      "enum": [
+        "target_writing",
+        "explanation_writing",
+        "segmentation",
+        "reading",
+        "romanization",
+        "assessment",
+        "pragmatics"
+      ],
+      "type": "string"
+    },
+    "OrthographyDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "guidance": {
+          "items": {
+            "$ref": "#/definitions/Guidance"
+          },
+          "type": "array"
+        },
+        "script": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "guidance",
+        "script"
+      ],
+      "type": "object"
+    },
+    "ReviewStatus": {
+      "enum": [
+        "needs_review",
+        "reviewed"
+      ],
+      "type": "string"
+    },
+    "RomanizationDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "examples": {
+          "items": {
+            "$ref": "#/definitions/RomanizationExample"
+          },
+          "type": "array"
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "review": {
+          "$ref": "#/definitions/ReviewStatus"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "examples",
+        "instructions",
+        "label",
+        "review",
+        "sources"
+      ],
+      "type": "object"
+    },
+    "RomanizationExample": {
+      "additionalProperties": false,
+      "properties": {
+        "original": {
+          "type": "string"
+        },
+        "romanized": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "original",
+        "romanized"
+      ],
+      "type": "object"
+    },
+    "Script": {
+      "additionalProperties": false,
+      "properties": {
+        "cursive": {
+          "type": "boolean"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "font_scale": {
+          "format": "double",
+          "type": "number"
+        },
+        "has_case": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "shaping": {
+          "type": "boolean"
+        },
+        "word_spacing": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cursive",
+        "direction",
+        "font_scale",
+        "has_case",
+        "id",
+        "shaping",
+        "word_spacing"
+      ],
+      "type": "object"
+    },
+    "TraitDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "review": {
+          "$ref": "#/definitions/ReviewStatus"
+        }
+      },
+      "required": [
+        "id",
+        "review"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "families": {
+      "items": {
+        "$ref": "#/definitions/Family"
+      },
+      "type": "array"
+    },
+    "orthographies": {
+      "additionalProperties": {
+        "$ref": "#/definitions/OrthographyDefinition"
+      },
+      "type": "object"
+    },
+    "romanization_schemes": {
+      "additionalProperties": {
+        "$ref": "#/definitions/RomanizationDefinition"
+      },
+      "type": "object"
+    },
+    "scripts": {
+      "items": {
+        "$ref": "#/definitions/Script"
+      },
+      "type": "array"
+    },
+    "traits": {
+      "items": {
+        "$ref": "#/definitions/TraitDefinition"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "families",
+    "orthographies",
+    "romanization_schemes",
+    "scripts",
+    "traits"
+  ],
+  "title": "Foundations",
+  "type": "object"
+}

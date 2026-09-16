@@ -23,7 +23,7 @@ fn reward_difficulty_and_calendar_week_novelty_use_captured_evidence() {
             )
             .unwrap();
         fixture_evidence(&store, &turn, wording);
-        let snapshot = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+        let snapshot = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
         let credits = snapshot["profile"]["credits"].as_array().unwrap();
         let credit = credits
             .iter()
@@ -42,27 +42,35 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
         .entity_id;
     finish_fixture_exchange(&mut store, &first, "Hello.");
     fixture_evidence(&store, &first, "¿cómo estás?");
-    let before = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let before = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(before["profile"]["xp"], 30);
     let id = before["profile"]["credits"][0]["event"]["id"]
         .as_str()
         .unwrap()
         .to_owned();
     assert!(
-        crate::learning::rewards::claim(&mut store.connection, "ar", std::slice::from_ref(&id))
+        crate::learning::rewards::claim(&mut store.connection, "arabic", std::slice::from_ref(&id))
             .unwrap()
             .is_empty()
     );
     assert_eq!(
-        crate::learning::rewards::claim(&mut store.connection, "es", std::slice::from_ref(&id))
-            .unwrap()
-            .len(),
+        crate::learning::rewards::claim(
+            &mut store.connection,
+            "spanish",
+            std::slice::from_ref(&id)
+        )
+        .unwrap()
+        .len(),
         1
     );
     assert!(
-        crate::learning::rewards::claim(&mut store.connection, "es", std::slice::from_ref(&id))
-            .unwrap()
-            .is_empty()
+        crate::learning::rewards::claim(
+            &mut store.connection,
+            "spanish",
+            std::slice::from_ref(&id)
+        )
+        .unwrap()
+        .is_empty()
     );
     let duplicate = store
         .execute(send(&store, &conversation))
@@ -71,25 +79,25 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
     finish_fixture_exchange(&mut store, &duplicate, "Hello again.");
     fixture_evidence(&store, &duplicate, "¿cómo estás?");
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         30
     );
     // A changed current policy cannot rewrite a captured earned award.
     store.connection.execute("UPDATE turns SET context=json_set(context,'$.gamePolicy.base.demonstrated',99) WHERE id=?1",[&first]).unwrap();
     crate::learning::rewards::publish(&store.connection, &first, "replay").unwrap();
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         30
     );
     drop(store);
     let mut reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     assert!(
-        crate::learning::rewards::claim(&mut reopened.connection, "es", &[id])
+        crate::learning::rewards::claim(&mut reopened.connection, "spanish", &[id])
             .unwrap()
             .is_empty()
     );
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&reopened, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&reopened, "spanish").unwrap()["profile"]["xp"],
         30
     );
 }
@@ -105,13 +113,14 @@ fn learner_projection_reads_published_evidence_without_new_work_and_survives_res
     store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"You asked how your partner is."}]}"#))).unwrap();
     let revision = store.snapshot().unwrap().revision;
     let at = 2000000000;
-    let before = crate::learning::learner::learner_state::snapshot(&store, "es", at).unwrap();
+    let before = crate::learning::learner::learner_state::snapshot(&store, "spanish", at).unwrap();
     assert_eq!(before.constructs.len(), 1);
     assert_eq!(before.constructs[0].independent_n, 1);
     assert_eq!(revision, store.snapshot().unwrap().revision);
     drop(store);
     let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
-    let after = crate::learning::learner::learner_state::snapshot(&reopened, "es", at).unwrap();
+    let after =
+        crate::learning::learner::learner_state::snapshot(&reopened, "spanish", at).unwrap();
     assert_eq!(
         serde_json::to_value(before.constructs).unwrap(),
         serde_json::to_value(after.constructs).unwrap()

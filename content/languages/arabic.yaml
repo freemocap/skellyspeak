@@ -1,0 +1,198 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: arabic
+  name: Arabic
+  native_name: العربية
+  family: afro-asiatic
+  review: needs_review
+integrations:
+  language_tag: ar
+  transcription: ar
+definitions:
+  orthographies:
+    arabic-unvocalized:
+      script: arabic
+      guidance: []
+  romanization_schemes:
+    ala-lc-arabic:
+      label: ALA-LC Arabic
+      instructions: Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use
+        th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct
+        signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable
+        prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state,
+        t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal
+        suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and
+        adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw,
+        medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph.
+        Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration
+        rules, not a pronunciation respelling. Never alter the Arabic source.
+      examples:
+      - original: كتاب
+        romanized: kitāb
+      - original: صورة
+        romanized: ṣūrah
+      - original: على
+        romanized: ‘alá
+      - original: مسألة
+        romanized: mas’alah
+      - original: إيمان
+        romanized: īmān
+      - original: الشمس
+        romanized: al-shams
+      - original: وزارة التربية
+        romanized: Wizārat al-Tarbiyah
+      - original: فجأةً
+        romanized: faj’atan
+      - original: قاضٍ
+        romanized: qāḍin
+      - original: أدهم
+        romanized: Adʹham
+      sources:
+      - ala_lc_arabic
+      review: needs_review
+defaults:
+  variety: arabic-levantine
+  orthography:
+    local: arabic-unvocalized
+  scalars:
+    font_scale: 1.5
+  romanization:
+    mode: scheme
+    scheme:
+      local: ala-lc-arabic
+  supported_romanizations:
+  - local: ala-lc-arabic
+traits:
+- abjad-vowel-omission
+- construct-state
+varieties:
+- id: arabic-levantine
+  name: Levantine Arabic
+  description: Conversational Levantine Arabic; regional coverage remains under review.
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+- id: arabic-modern-standard
+  name: Modern Standard Arabic
+  description: Modern Standard Arabic
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance:
+- scope: assessment
+  text: 'For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize
+    letters, correct spelling, or translate quotes. Put corrections only in correction.'
+  sources:
+  - ryding2005
+learning:
+  goals:
+  - id: arabic.idafa
+    label: Possessive construct (iḍāfa)
+    criterion: Join a possessed noun to its possessor in a construct phrase, placing a definite article
+      only on the possessor when needed.
+    opportunity: Talk about whose bag or keys you found, or describe a room in a friend’s home.
+    band: A2
+    lens: form
+    language: arabic
+    requires:
+    - possession
+    traits:
+    - construct-state
+    tokens:
+    - كتاب
+    - بيت
+    - باب
+    nav:
+      practical: possession
+      functional: form
+    sources:
+    - ryding2005
+    review: needs_review
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: نور
+    romanizedName: Nūr
+    age: 29
+    location: Amman, Jordan
+    occupation: Architect at a firm that restores old buildings
+    background: Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most
+      of the cooking and all of the opinions.
+    currentSituation: Documenting a 1930s house before it is renovated, and learning to make her grandmother's
+      maqluba.
+    interests:
+    - sketching doorways
+    - old maps
+    - oud music
+    - walking the same hill every Friday
+    opinions:
+    - New buildings should be shorter.
+    - Mint belongs in almost everything.
+    interestingFacts:
+    - Can read the decade a building was built from its stonework.
+    favoriteBooks:
+    - Season of Migration to the North — Tayeb Salih
+    - The Cairo Trilogy — Naguib Mahfouz
+    favoriteMovies:
+    - Theeb (2014)
+    - Cairo Station (1958)
+    manner: Curious and direct. Asks precise questions and laughs easily.
+    quirks:
+    - Photographs doors wherever she goes.
+    vibe:
+    - 🏛️
+    - 🎻
+    - 🌿
+  starters:
+    food:
+      label: الطعام والشراب
+      preview: أريد شايًا.
+      translation: أريد شايًا.
+      varieties:
+      - arabic-modern-standard
+    family:
+      label: عائلتك
+      preview: هذه عائلتي.
+      translation: هذه عائلتي.
+      varieties:
+      - arabic-modern-standard
+    weekend:
+      label: خطط نهاية الأسبوع
+      preview: أريد أن أرتاح.
+      translation: أريد أن أرتاح.
+      varieties:
+      - arabic-modern-standard
+    place:
+      label: مكان تحبه
+      preview: أحب هذه الحديقة.
+      translation: أحب هذه الحديقة.
+      varieties:
+      - arabic-modern-standard
+    day:
+      label: يومك
+      preview: أنا في البيت اليوم.
+      translation: أنا في البيت اليوم.
+      varieties:
+      - arabic-modern-standard
+    music:
+      label: الموسيقى
+      preview: أحب الموسيقى.
+      translation: أحب الموسيقى.
+      varieties:
+      - arabic-modern-standard
+  starter_reasons:
+    focus: من هدفك الحالي
+    due: حان وقت المراجعة
+    contact: من اهتمامات شريك المحادثة
+    general: موضوع للمحادثة

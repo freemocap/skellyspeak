@@ -31,7 +31,7 @@
     "e2e:fixtures": "node tools/e2e/speech-fixtures.ts",
     "e2e:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/e2e/android.ts tools/e2e/android.test.ts tools/e2e/speech-fixtures.ts && node --test tools/e2e/android.test.ts",
     "prebuild": "node tools/check-languages.ts",
-    "languages:check": "node tools/check-languages.ts && cargo test --manifest-path native/Cargo.toml --lib configuration::tests",
+    "languages:check": "node tools/check-languages.ts && cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --check && cargo test --manifest-path native/Cargo.toml --lib configuration::",
     "docs:links": "node tools/check-doc-links.ts",
     "benchmarks:test": "node --test tools/benchmarks/screening.test.ts",
     "benchmarks:fixtures": "cargo run --locked --manifest-path native/Cargo.toml --bin benchmark_gloss -- export --write",

@@ -44,7 +44,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         .finish(&opening, Ok(reply("¿Qué te gusta cocinar?")))
         .unwrap();
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["records"]
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["records"]
             .as_array()
             .unwrap()
             .len(),
@@ -154,7 +154,7 @@ fn wave2_cancelled_opening_cannot_publish_late_result() {
         0
     );
     assert!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["records"]
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["records"]
             .as_array()
             .unwrap()
             .is_empty()

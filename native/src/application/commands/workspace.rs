@@ -101,3 +101,20 @@ pub(in crate::application) async fn watch_conversation(
         tokio::time::sleep(Duration::from_millis(150)).await;
     }
 }
+
+/// Inspect bundled teaching content without mutating learner settings.
+#[tauri::command]
+pub(in crate::application) fn inspect_language(
+    state: tauri::State<'_, Arc<Application>>,
+    language: String,
+    variety: Option<String>,
+    explanation: String,
+    explanation_variety: Option<String>,
+) -> Result<crate::configuration::LanguageInspection> {
+    Ok(state.lock()?.config.inspect_language(
+        &language,
+        variety.as_deref(),
+        &explanation,
+        explanation_variety.as_deref(),
+    )?)
+}

@@ -99,7 +99,7 @@ it.each([null, 'ready', 'waiting_dependencies', 'running', 'succeeded', 'failed'
 
 it('projects human reading independently of the reply and rejects another source', () => {
   const human = message(1, 'user', 'Hola', 'Hello')
-  human.wordGloss = { sourceMessageId: human.id, targetLanguageId:'es', explanationLanguageId:'en', formatVersion:'v1', templateVersion:'v1', boundaryPolicy:'v1', operationId:'human-gloss', attemptId:'attempt', coverage:'complete', segments:[{ start:0, end:4, kind:'gloss', gloss:'hello' }] }
+  human.wordGloss = { sourceMessageId: human.id, targetLanguageId:'spanish', explanationLanguageId:'english', formatVersion:'v1', templateVersion:'v1', boundaryPolicy:'v1', operationId:'human-gloss', attemptId:'attempt', coverage:'complete', segments:[{ start:0, end:4, kind:'gloss', gloss:'hello' }] }
   const result = conversationTurns(snapshot([human]))[0]
   expect(result.userSavedGloss).toBe(human.wordGloss)
   expect(result.userTranslation).toBe('Hello')

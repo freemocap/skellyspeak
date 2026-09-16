@@ -82,8 +82,8 @@ fn duplicate_commands_are_idempotent_and_reusing_identity_with_other_payload_fai
     let cmd = command(
         &store,
         Action::CreateContact {
-            language_id: "es".into(),
-            details: crate::partners::persona::starter("es").unwrap(),
+            language_id: "spanish".into(),
+            details: crate::partners::persona::starter("spanish").unwrap(),
         },
     );
     let first = store.execute(cmd.clone()).unwrap();
@@ -92,8 +92,8 @@ fn duplicate_commands_are_idempotent_and_reusing_identity_with_other_payload_fai
     assert_eq!(store.snapshot().unwrap().personas.len(), 1);
     let mut other = cmd;
     other.action = Action::CreateContact {
-        language_id: "fr".into(),
-        details: crate::partners::persona::starter("fr").unwrap(),
+        language_id: "french".into(),
+        details: crate::partners::persona::starter("french").unwrap(),
     };
     assert_eq!(store.execute(other).unwrap_err().code, ErrorCode::Conflict);
 }
@@ -105,7 +105,7 @@ fn stale_settings_and_invalid_language_do_not_partially_write() {
     let contact = contact(&mut store);
     let convo = conversation(&mut store, &contact, "Plans");
     let mut invalid = convo.settings.clone();
-    invalid.variety_id = "fr-FR".into();
+    invalid.variety_id = "french-france".into();
     let before = store.snapshot().unwrap().revision;
     let invalid_cmd = command(
         &store,

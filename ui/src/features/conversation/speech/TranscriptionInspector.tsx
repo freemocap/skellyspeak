@@ -115,7 +115,7 @@ export function TranscriptionInspector({ result, onClose }: { result: Transcript
   return <DetailDialog title={tr("Recording inspection")} onClose={onClose}>
     <section className="transcription-inspector">
       <h2>{tr("Recording inspection")}</h2>
-      <p>{tr("Original recording · ")}{seconds(duration)} · {inspection.sampleRate.toLocaleString(tr.locale)} {tr(" Hz")}</p>
+      <p>{tr("Original recording · ")}{seconds(duration)} · {inspection.sampleRate.toLocaleString(tr.browserLocale)} {tr(" Hz")}</p>
       <p className="inspection-transcript" dir="auto">{result.text || tr("No transcript text.")}</p>
       <div className="inspection-transport">
         <button disabled={!audioUrl} onClick={() => void togglePlayback()}>{tr(playing ? "Pause" : "Play")}</button>

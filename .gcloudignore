@@ -47,3 +47,9 @@ server/app/diagnostics/*
 !server/deployment/deploy_candidate.py
 !server/deployment/verify_revision.py
 !server/deployment/retention.py
+
+!server/app/diagnostics/runtime.py
+
+!server/app/diagnostics/provider_errors.py
+
+!server/app/diagnostics/provider_health.py

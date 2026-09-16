@@ -23,7 +23,21 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("skellyspeak.sqlite3");
     drop(Store::open(&path).unwrap());
-    for version in [3, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, SCHEMA_VERSION + 1] {
+    for version in [
+        3,
+        5,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        SCHEMA_VERSION + 1,
+    ] {
         let connection = Connection::open(&path).unwrap();
         connection
             .pragma_update(None, "user_version", version)
@@ -61,7 +75,7 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
 fn generation_receipt_schema_enforces_identity_state_and_nonnegative_usage() {
     let directory = tempfile::tempdir().unwrap();
     let store = Store::open(&directory.path().join("workspace.sqlite3")).unwrap();
-    let insert = "INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state,input_tokens,output_tokens) VALUES(?1,?2,?3,'es','custom','fixture',1,?4,?5,?6)";
+    let insert = "INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state,input_tokens,output_tokens) VALUES(?1,?2,?3,'spanish','custom','fixture',1,?4,?5,?6)";
     store
         .connection
         .execute(

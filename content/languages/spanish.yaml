@@ -1,0 +1,135 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: spanish
+  name: Spanish
+  native_name: Español
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: es
+  transcription: es
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: spanish-spain
+  orthography:
+    shared: latin
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: spanish-spain
+  name: Spain
+  description: Spain
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+- id: spanish-mexico
+  name: Mexico
+  description: Mexico
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: Lucía
+    romanizedName: null
+    age: 34
+    location: Valencia, Spain
+    occupation: Veterinary nurse at a small animal clinic
+    background: Grew up in a village outside Teruel and moved to Valencia for work. Shares a flat with
+      her sister and a very loud cat named Trufa.
+    currentSituation: Her sister's wedding is in three weeks and Lucía is in charge of the playlist. She
+      is also trying to finish a pottery course before it ends.
+    interests:
+    - balcony vegetable garden
+    - swimming in the sea before work
+    - detective novels
+    - second-hand markets
+    opinions:
+    - Paella should never contain chorizo.
+    - The beach is better in winter.
+    - Breakfast is the best meal of the day.
+    interestingFacts:
+    - Can name every tree on her street.
+    - Once cycled from Valencia to Sagunto on a dare.
+    favoriteBooks:
+    - La sombra del viento — Carlos Ruiz Zafón
+    - Nada — Carmen Laforet
+    favoriteMovies:
+    - Volver (2006)
+    - Mar adentro (2004)
+    manner: Warm and quick. Short sentences, plenty of questions, and gentle teasing once she is comfortable.
+    quirks:
+    - Describes food by its smell.
+    - Sends voice notes instead of writing.
+    vibe:
+    - 🌿
+    - 🌊
+    - 🍊
+  starters:
+    food:
+      label: Comida y bebida
+      preview: Quisiera té.
+      translation: Quisiera té.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+    family:
+      label: Tu familia
+      preview: Esta es mi familia.
+      translation: Esta es mi familia.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+    weekend:
+      label: Planes de fin de semana
+      preview: Quiero descansar.
+      translation: Quiero descansar.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+    place:
+      label: Un lugar que te gusta
+      preview: Me gusta este parque.
+      translation: Me gusta este parque.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+    day:
+      label: Tu día
+      preview: Hoy estoy en casa.
+      translation: Hoy estoy en casa.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+    music:
+      label: Música
+      preview: Me gusta la música.
+      translation: Me gusta la música.
+      varieties:
+      - spanish-spain
+      - spanish-mexico
+  starter_reasons:
+    focus: Según tu objetivo
+    due: Pendiente de repaso
+    contact: Según los intereses de tu contacto
+    general: Tema de conversación

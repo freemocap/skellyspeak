@@ -16,7 +16,7 @@ export function RewardsLedger({ snapshot }: { snapshot: SkillSnapshot }) {
       const date = event ? Number(event.atSecs) : record?.at_secs
       return <details key={`${credit.attempt_id}:${credit.skill_id}`} className="practice-credit">
         <summary><strong>+{credit.xp} {tr(' XP')}</strong> · {snapshot.catalog.find(node => node.id === credit.skill_id)?.label ?? credit.skill_id}</summary>
-        {date !== undefined && <time dateTime={new Date(date * 1000).toISOString()}>{new Date(date * 1000).toLocaleString(tr.locale)}</time>}
+        {date !== undefined && <time dateTime={new Date(date * 1000).toISOString()}>{new Date(date * 1000).toLocaleString(tr.browserLocale)}</time>}
         <blockquote dir="auto">{event?.quote ?? record?.source}</blockquote>
         {event && <dl className="reward-provenance">
           <div><dt>{tr('Support')}</dt><dd>{event.support}</dd></div>

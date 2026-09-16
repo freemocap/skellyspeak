@@ -1,5 +1,5 @@
 //! Bundled registry helpers for standalone tools and fixtures. Live operations
-//! use Store's independently loaded config::Registry and captured contexts.
+//! use Store's validated bundled registry and captured contexts.
 use crate::configuration as config;
 use crate::model::*;
 use std::sync::OnceLock;
@@ -62,7 +62,7 @@ pub fn writing_guidance(
     let orth = config
         .orthographies
         .iter()
-        .find(|o| o.id == lang.orthography)
+        .find(|o| o.id == *variety.orthography.as_ref().unwrap_or(&lang.orthography))
         .expect("validated orthography");
     Ok(variety
         .guidance
@@ -81,10 +81,8 @@ pub fn assessment_guidance(language_id: &str) -> Result<Option<&'static str>> {
         .find(|l| l.id == language_id)
         .expect("validated language");
     Ok(lang
-        .traits
+        .guidance
         .iter()
-        .filter_map(|id| config.traits.iter().find(|t| t.id == *id))
-        .flat_map(|t| &t.guidance)
         .find(|g| g.scope == "assessment")
         .map(|g| g.text.as_str()))
 }
@@ -95,7 +93,7 @@ mod tests {
     fn bundled_helpers_preserve_language_coverage_and_guidance() {
         assert!(!registry().is_empty());
         for language in registry() {
-            let settings = defaults(&language.id, "en").unwrap();
+            let settings = defaults(&language.id, "english").unwrap();
             assert_eq!(settings.difficulty, Difficulty::Beginner);
             validate_settings(&language.id, &settings).unwrap();
             if let Some(scheme) = romanization(&language.id).unwrap() {
@@ -108,18 +106,18 @@ mod tests {
             }
         }
         assert!(
-            writing_guidance("zh", None)
+            writing_guidance("mandarin", None)
                 .unwrap()
                 .unwrap()
                 .contains("Simplified Chinese")
         );
         assert!(
-            assessment_guidance("ar")
+            assessment_guidance("arabic")
                 .unwrap()
                 .unwrap()
                 .contains("never add diacritics")
         );
-        assert!(writing_guidance("ar", Some("zh-CN")).is_err());
+        assert!(writing_guidance("arabic", Some("mandarin-mainland-china")).is_err());
         assert!(romanization("unknown").is_err());
     }
 }

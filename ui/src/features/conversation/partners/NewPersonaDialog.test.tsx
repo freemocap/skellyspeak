@@ -32,7 +32,7 @@ beforeEach(() => {
 
 function renderDialog(romanized = false) {
   const handlers = { onCreate: vi.fn().mockResolvedValue(undefined), onClose: vi.fn() }
-  render(<NewPersonaDialog language="es" romanized={romanized} busy={false} {...handlers} />)
+  render(<NewPersonaDialog language="spanish" romanized={romanized} busy={false} {...handlers} />)
   return handlers
 }
 
@@ -43,7 +43,7 @@ it('Surprise me fills the form from a generation with no brief, and writes nothi
   const { onCreate } = renderDialog()
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
-  expect(backend.begin).toHaveBeenCalledExactlyOnceWith('es', '')
+  expect(backend.begin).toHaveBeenCalledExactlyOnceWith('spanish', '')
   expect(screen.getByRole('textbox', { name: 'Interests' })).toHaveValue('- tides')
   expect(onCreate).not.toHaveBeenCalled()
 })
@@ -55,7 +55,7 @@ it('Describe and generate sends the brief and fills the form', async () => {
   fireEvent.change(screen.getByRole('textbox', { name: /Describe them/ }), { target: { value: 'a blunt fisher' } })
   fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
-  expect(backend.begin).toHaveBeenCalledExactlyOnceWith('es', 'a blunt fisher')
+  expect(backend.begin).toHaveBeenCalledExactlyOnceWith('spanish', 'a blunt fisher')
 })
 
 it('a persona written by hand is created once, with what was typed', async () => {
@@ -147,7 +147,7 @@ it('closing cancels a running generation and discards its late result', async ()
 it('unmount cancels a running generation and reports cancellation failure globally', async () => {
   backend.run.mockImplementationOnce(() => new Promise(() => {}))
   backend.cancel.mockRejectedValueOnce(new Error('Cancellation persistence failed'))
-  const view = render(<NewPersonaDialog language="es" romanized={false} busy={false} onCreate={vi.fn()} onClose={vi.fn()} />)
+  const view = render(<NewPersonaDialog language="spanish" romanized={false} busy={false} onCreate={vi.fn()} onClose={vi.fn()} />)
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(backend.run).toHaveBeenCalledOnce())
   view.unmount()
@@ -158,7 +158,7 @@ it('unmount cancels a running generation and reports cancellation failure global
 it('unmount before admission cancels the delayed receipt without running', async () => {
   let finish!: (id: string) => void
   backend.begin.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-  const view = render(<NewPersonaDialog language="es" romanized={false} busy={false} onCreate={vi.fn()} onClose={vi.fn()} />)
+  const view = render(<NewPersonaDialog language="spanish" romanized={false} busy={false} onCreate={vi.fn()} onClose={vi.fn()} />)
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   view.unmount()
   await act(async () => finish('late-generation'))

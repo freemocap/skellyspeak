@@ -142,8 +142,8 @@ mod tests {
         Source {
             identity: SourceIdentity {
                 message_id: "message".into(),
-                target_language_id: "es".into(),
-                explanation_language_id: "en".into(),
+                target_language_id: "spanish".into(),
+                explanation_language_id: "english".into(),
                 analysis_version: linguistics::ANALYSIS_VERSION.into(),
             },
             text: "𐐀 sí sí!".into(),
@@ -178,7 +178,7 @@ mod tests {
     fn projection_preserves_readings_for_the_exact_source_span() {
         let mut source = source();
         source.text = "你好".into();
-        source.identity.target_language_id = "zh".into();
+        source.identity.target_language_id = "mandarin".into();
         let mut output = completion();
         output.text = r#"{"spans":[{"first":"g0000","last":"g0001","kind":"gloss","gloss":"hello","romanization":"nǐ hǎo","pronunciation":null}]}"#.into();
         let view = validate(&source, &output, "operation", "attempt").unwrap();

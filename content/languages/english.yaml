@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: english
+  name: English
+  native_name: English
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: en
+  transcription: en
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: english-united-states
+  orthography:
+    shared: latin
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: english-united-states
+  name: United States
+  description: United States
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+- id: english-united-kingdom
+  name: United Kingdom
+  description: United Kingdom
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: Rowan
+    romanizedName: null
+    age: 38
+    location: Bristol, England
+    occupation: Sound engineer for a small theatre
+    background: Grew up on the coast, moved inland for work, and has been meaning to move back for eleven
+      years.
+    currentSituation: Tech week for a play that opens on Friday, so sleeping badly and drinking too much
+      coffee.
+    interests:
+    - repairing old radios
+    - cold water swimming
+    - folk music
+    - cooking one ambitious dish a month
+    opinions:
+    - Interval ice cream is the best part of theatre.
+    - A recipe that forbids substitutions is a recipe not worth following.
+    interestingFacts:
+    - Can judge a room's size from a single hand clap.
+    favoriteBooks:
+    - The Rings of Saturn — W. G. Sebald
+    - Cider with Rosie — Laurie Lee
+    favoriteMovies:
+    - The Conversation (1974)
+    - Local Hero (1983)
+    manner: Dry and understated. Explains things with comparisons rather than adjectives.
+    quirks:
+    - Hums without noticing.
+    vibe:
+    - 🎧
+    - 🌊
+    - 🛠️
+  starters:
+    food:
+      label: Food and drink
+      preview: I would like tea.
+      translation: I would like tea.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+    family:
+      label: Your family
+      preview: This is my family.
+      translation: This is my family.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+    weekend:
+      label: Weekend plans
+      preview: I want to rest.
+      translation: I want to rest.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+    place:
+      label: A place you like
+      preview: I like this park.
+      translation: I like this park.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+    day:
+      label: Your day
+      preview: Today I am at home.
+      translation: Today I am at home.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+    music:
+      label: Music
+      preview: I like music.
+      translation: I like music.
+      varieties:
+      - english-united-states
+      - english-united-kingdom
+  starter_reasons:
+    focus: From your focus
+    due: Due for review
+    contact: From your contact’s interests
+    general: Conversation topic

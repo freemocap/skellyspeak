@@ -26,12 +26,12 @@ fn quiz_grades_once_and_awards_only_one_bonus_xp_without_skill_evidence() {
     let lesson = owned(&store.connection, &chat, &id).unwrap();
     assert_eq!(lesson.quiz_answers.len(), 2);
     assert_eq!(lesson.quiz_answers.iter().map(|a| a.xp).sum::<u32>(), 1);
-    let profile = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(profile["profile"]["xp"], 1);
     assert_eq!(profile["profile"]["credits"], json!([]));
     assert_eq!(profile["records"], json!([]));
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "en").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "english").unwrap()["profile"]["xp"],
         0
     );
     for (question, option) in [(0, 1), (2, 0), (1, 3)] {
@@ -56,7 +56,7 @@ fn quiz_grades_once_and_awards_only_one_bonus_xp_without_skill_evidence() {
         2
     );
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         1
     );
 }

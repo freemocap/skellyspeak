@@ -307,7 +307,7 @@ mod tests {
         (directory, store)
     }
     fn capture(store: &Store) -> Request {
-        Request::capture(store, "es".into(), Some("A quiet librarian".into())).unwrap()
+        Request::capture(store, "spanish".into(), Some("A quiet librarian".into())).unwrap()
     }
 
     #[test]
@@ -478,7 +478,7 @@ mod tests {
             ErrorCode::UnknownOutcome
         );
         assert!(matches!(
-            Request::capture(&store, "es".into(), None),
+            Request::capture(&store, "spanish".into(), None),
             Err(AppError {
                 code: ErrorCode::AdmissionHeld,
                 ..
@@ -494,7 +494,7 @@ mod tests {
             .execute("UPDATE ai_config SET paused=1", [])
             .unwrap();
         assert!(matches!(
-            Request::capture(&store, "es".into(), None),
+            Request::capture(&store, "spanish".into(), None),
             Err(AppError {
                 code: ErrorCode::AdmissionHeld,
                 ..
@@ -509,7 +509,7 @@ mod tests {
             .with_refusal(crate::ai::policy::refusal::classify(None, Some(60), None));
         holds::record(&store.connection, &request.target, &error).unwrap();
         assert!(matches!(
-            Request::capture(&store, "es".into(), None),
+            Request::capture(&store, "spanish".into(), None),
             Err(AppError {
                 code: ErrorCode::AdmissionHeld,
                 ..

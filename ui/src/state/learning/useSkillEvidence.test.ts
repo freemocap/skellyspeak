@@ -66,20 +66,20 @@ it('hides evidence read under settings that no longer apply', async () => {
 
 it('ignores a late answer for the language that was left', async () => {
   let finishOld: (value: SkillSnapshot) => void = () => { throw new Error('Request not started') }
-  const arabic = { ...skillDemo, target: 'ar' }
+  const arabic = { ...skillDemo, target: 'arabic' }
   backend.get.mockImplementationOnce(() => new Promise<SkillSnapshot>(resolve => { finishOld = resolve })).mockResolvedValueOnce(arabic)
   const view = mount()
   await waitFor(() => expect(backend.get).toHaveBeenCalledTimes(1))
-  act(() => { seed('ar', 1) })
-  await waitFor(() => expect(view.result.current.snapshot?.target).toBe('ar'))
+  act(() => { seed('arabic', 1) })
+  await waitFor(() => expect(view.result.current.snapshot?.target).toBe('arabic'))
   await act(async () => { finishOld(skillDemo) })
-  expect(view.result.current.snapshot?.target).toBe('ar')
+  expect(view.result.current.snapshot?.target).toBe('arabic')
 })
 
 it('shows a snapshot only for the language and settings revision it was read for', () => {
   const state = { ...useSkillEvidenceStore.getState(), snapshot: skillDemo, scope: 3 }
   expect(selectSkillSnapshot(state, skillDemo.target, 3)).toEqual(skillDemo)
-  expect(selectSkillSnapshot(state, 'fr', 3)).toBeNull()
+  expect(selectSkillSnapshot(state, 'french', 3)).toBeNull()
   expect(selectSkillSnapshot(state, skillDemo.target, 4)).toBeNull()
   expect(selectSkillSnapshot(state, undefined, 3)).toBeNull()
 })
@@ -91,10 +91,10 @@ it('returning to cached evidence abandons a different language and reloads the d
     .mockResolvedValueOnce(skillDemo)
   useSkillEvidenceStore.getState().load(skillDemo.target, 0)
   await waitFor(() => expect(useSkillEvidenceStore.getState().snapshot).toEqual(skillDemo))
-  useSkillEvidenceStore.getState().load('fr', 0)
+  useSkillEvidenceStore.getState().load('french', 0)
   useSkillEvidenceStore.getState().reload()
   useSkillEvidenceStore.getState().load(skillDemo.target, 0)
-  await act(async () => finish({ ...skillDemo, target: 'fr' }))
+  await act(async () => finish({ ...skillDemo, target: 'french' }))
   expect(useSkillEvidenceStore.getState().snapshot).toEqual(skillDemo)
   expect(backend.get).toHaveBeenCalledTimes(2)
   useSkillEvidenceStore.getState().reload()
@@ -107,17 +107,17 @@ it('an abandoned request cannot consume the current scope’s trailing reload', 
   let finishNew!: (value: SkillSnapshot) => void
   backend.get.mockImplementationOnce(() => new Promise(resolve => { finishOld = resolve }))
     .mockImplementationOnce(() => new Promise(resolve => { finishNew = resolve }))
-    .mockResolvedValueOnce({ ...skillDemo, target: 'fr' })
+    .mockResolvedValueOnce({ ...skillDemo, target: 'french' })
   useSkillEvidenceStore.getState().load(skillDemo.target, 0)
   useSkillEvidenceStore.getState().reload()
-  useSkillEvidenceStore.getState().load('fr', 0)
+  useSkillEvidenceStore.getState().load('french', 0)
   useSkillEvidenceStore.getState().reload()
   await act(async () => finishOld(skillDemo))
   expect(backend.get).toHaveBeenCalledTimes(2)
-  await act(async () => finishNew({ ...skillDemo, target: 'fr' }))
+  await act(async () => finishNew({ ...skillDemo, target: 'french' }))
   expect(backend.get).toHaveBeenCalledTimes(3)
-  expect(backend.get).toHaveBeenLastCalledWith('fr')
-  expect(useSkillEvidenceStore.getState().snapshot?.target).toBe('fr')
+  expect(backend.get).toHaveBeenLastCalledWith('french')
+  expect(useSkillEvidenceStore.getState().snapshot?.target).toBe('french')
 })
 
 it('resets desired scope, requests and queued reloads with the public store state', async () => {

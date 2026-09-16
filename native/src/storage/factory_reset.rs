@@ -235,16 +235,6 @@ pub(crate) fn export_to(
             std::fs::copy(source, staging.join(name))
                 .map_err(|error| storage_error(format!("Could not copy workspace: {error}")))?;
         }
-        let config = data.join("config");
-        match std::fs::symlink_metadata(&config) {
-            Ok(_) => copy_configuration(&config, &staging.join("config"))?,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-            Err(error) => {
-                return Err(storage_error(format!(
-                    "Could not inspect configuration: {error}"
-                )));
-            }
-        }
         std::fs::rename(&staging, &folder)
             .map_err(|error| storage_error(format!("Could not publish backup: {error}")))?;
         Ok(())
@@ -258,39 +248,6 @@ pub(crate) fn export_to(
         return Err(error);
     }
     Ok(folder)
-}
-
-/// Copy workspace-authored files verbatim, including invalid or older formats.
-fn copy_configuration(source: &Path, destination: &Path) -> Result<()> {
-    let copy = || -> std::io::Result<()> {
-        let metadata = std::fs::symlink_metadata(source)?;
-        if metadata.file_type().is_symlink() {
-            return Err(std::io::Error::other(
-                "Configuration must not contain symbolic links.",
-            ));
-        }
-        if metadata.is_dir() {
-            std::fs::create_dir(destination)?;
-            for entry in std::fs::read_dir(source)? {
-                let entry = entry?;
-                copy_configuration(&entry.path(), &destination.join(entry.file_name()))
-                    .map_err(|error| std::io::Error::other(error.to_string()))?;
-            }
-        } else if metadata.is_file() {
-            std::fs::copy(source, destination)?;
-        } else {
-            return Err(std::io::Error::other(
-                "Configuration entries must be regular files or directories.",
-            ));
-        }
-        Ok(())
-    };
-    copy().map_err(|error| {
-        storage_error(format!(
-            "Could not copy configuration {}: {error}",
-            source.display()
-        ))
-    })
 }
 
 /// Save a copy of the workspace to the Downloads folder: from Settings at any time,
@@ -543,44 +500,16 @@ mod tests {
     }
 
     #[test]
-    fn backup_preserves_editable_configuration_verbatim() {
-        let data = tempfile::tempdir().unwrap();
-        let downloads = tempfile::tempdir().unwrap();
-        let guard = ownership(data.path());
-        std::fs::write(data.path().join(WORKSPACE_FILE), "old database").unwrap();
-        let config = data.path().join("config");
-        std::fs::create_dir_all(config.join("languages/custom/empty")).unwrap();
-        for (name, content) in [
-            ("languages/custom/ar.yaml", "invalid: ["),
-            ("references.bib", "custom bibliography"),
-            (".notes", "user notes"),
-        ] {
-            std::fs::write(config.join(name), content).unwrap();
-        }
-        let backup = export_to(data.path(), downloads.path(), 1, &guard).unwrap();
-        for name in ["languages/custom/ar.yaml", "references.bib", ".notes"] {
-            assert_eq!(
-                std::fs::read(backup.join("config").join(name)).unwrap(),
-                std::fs::read(config.join(name)).unwrap()
-            );
-        }
-        assert!(backup.join("config/languages/custom/empty").is_dir());
-        assert!(!backup.join(WORKSPACE_LOCK).exists());
-    }
-
-    #[cfg(unix)]
-    #[test]
-    fn configuration_copy_failure_does_not_publish_partial_backup() {
+    fn backup_contains_workspace_not_obsolete_teaching_content() {
         let data = tempfile::tempdir().unwrap();
         let downloads = tempfile::tempdir().unwrap();
         let guard = ownership(data.path());
         std::fs::write(data.path().join(WORKSPACE_FILE), "database").unwrap();
         std::fs::create_dir(data.path().join("config")).unwrap();
-        std::os::unix::fs::symlink("missing", data.path().join("config/link")).unwrap();
-        let error = export_to(data.path(), downloads.path(), 1, &guard).unwrap_err();
-        assert!(error.to_string().contains("symbolic links"));
-        assert_eq!(std::fs::read_dir(downloads.path()).unwrap().count(), 0);
-        assert!(data.path().join(WORKSPACE_FILE).exists());
+        std::fs::write(data.path().join("config/old.yaml"), "obsolete").unwrap();
+        let backup = export_to(data.path(), downloads.path(), 1, &guard).unwrap();
+        assert!(!backup.join("config").exists());
+        assert!(data.path().join("config/old.yaml").exists());
     }
 
     #[test]

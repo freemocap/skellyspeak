@@ -115,13 +115,13 @@ fn arabic_gloss_prompt_snapshot_has_explicit_scheme_and_preserves_source() {
     let source = "كيف حالك؟";
     let identity = SourceIdentity {
         message_id: "arabic-fixture".into(),
-        target_language_id: "ar".into(),
-        explanation_language_id: "en".into(),
+        target_language_id: "arabic".into(),
+        explanation_language_id: "english".into(),
         analysis_version: ANALYSIS_VERSION.into(),
     };
     let prompt = adapter::build_word_gloss_prompt(&identity, source).unwrap();
     let system = &prompt.messages[0].content;
-    let guidance = romanization_guidance("ar").unwrap().unwrap();
+    let guidance = romanization_guidance("arabic").unwrap().unwrap();
     assert!(system.contains(&guidance));
     assert_eq!(
         guidance,

@@ -212,7 +212,7 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
     for gloss_first in [true, false] {
         let (_dir, mut store, conversation) = setup();
         let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
-        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr','$.explanationVarietyId','fr-FR') WHERE conversation_id=?1", [&conversation]).unwrap();
+        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','french','$.explanationVarietyId','french-france') WHERE conversation_id=?1", [&conversation]).unwrap();
         assert_eq!(
             gloss
                 .gloss_source
@@ -220,7 +220,7 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
                 .unwrap()
                 .identity
                 .explanation_language_id,
-            "en"
+            "english"
         );
         if gloss_first {
             store.finish(&gloss, Ok(gloss_reply())).unwrap();
@@ -245,7 +245,7 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
             assert_eq!(snapshot.turns[0].state, "succeeded");
             let view = snapshot.messages[1].word_gloss.as_ref().unwrap();
             assert_eq!(view.source_message_id, snapshot.messages[1].id);
-            assert_eq!(view.explanation_language_id, "en");
+            assert_eq!(view.explanation_language_id, "english");
             assert_eq!(snapshot.messages[1].translation.as_deref(), Some("Hello."));
             assert!(store.dispatch().unwrap().is_none());
         }

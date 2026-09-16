@@ -107,7 +107,7 @@ pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
         }
         402 => "The service's provider account has insufficient credit.",
         404 => {
-            "The model is unavailable or no provider endpoint matches the request, required capabilities and price ceiling."
+            "The model is unavailable or no provider endpoint matches the request, required capabilities."
         }
         413 => "The request exceeds the provider's size limit.",
         429 => {

@@ -360,7 +360,7 @@ the dedicated speech model; actual playback requires device verification. A prot
 Standard, Fast and Transcription model IDs are shared across Hosted, API keys and
 Custom URL access. AI access edits them once, outside the route tabs. Custom URL
 stores only its address and authentication choice; changing routes does not change
-the selected models. The development schema is v17, so older workspaces require
+the selected models. The development schema is v18, so older workspaces require
 Factory Reset.
 
 Hosted and custom chat batch only operations sharing captured destination and
@@ -539,12 +539,13 @@ and requires the ignored `server/local.env` OpenRouter key.
 
 ## Adding languages
 
-See the [language authoring guide](old/notes/workflow/reports/language-authoring.md) for the
-data checklist, workspace ownership and verification boundaries. Run
-`npm run languages:check` before the full verification suite. Configuration and
-locale files are discovered automatically; Portuguese and German are included in
-both language roles. Existing editable workspace config is not overwritten by a
-build and must explicitly receive the new records or be recreated.
+See the [language content guide](content/README.md) for typed YAML authoring,
+local/shared definitions and inspection. The app bundles teaching content;
+workspace data contains learner preferences and history. Learning-language IDs
+use readable names and are independent of browser locales and UI translations.
+Use **Browse languages** beside the compact selector or in **More** to inspect
+varieties, romanization examples, guidance and the complete definitions.
+Run `npm run languages:check` and `npm run contracts:check` after content changes.
 
 ### Short lessons
 
@@ -558,15 +559,13 @@ award proficiency. Lessons use the existing AI route and durable operation
 scheduler. See `old/notes/workflow/reports/lessons.md` for verification status.
 
 Variety support uses separate target and explanation choices, plus an independent
-interface locale. See the guide's **Varieties: current architecture** section.
-The current development database schema is **16**; older workspaces require an
-explicit reset and current configuration rather than a migration. Builds do not
-overwrite editable workspace configuration.
+interface locale. See the [content guide](content/README.md).
+The current development database schema is **18**; older workspaces require an
+explicit reset rather than a migration. App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in
 [the design-pass report](old/notes/workspace-redesign-report.md).
 
 “Save a copy of my data” in Settings and schema-refusal recovery copies the database,
-SQLite sidecars and the complete editable `config/` directory (including bibliography
-and custom files) to Downloads. Configuration is copied verbatim, even when invalid
-or from an older format. Copy failures leave no published partial backup.
+SQLite sidecars to Downloads. App-owned teaching content is not workspace data.
+Copy failures leave no published partial backup.

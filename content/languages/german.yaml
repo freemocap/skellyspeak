@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: german
+  name: German
+  native_name: Deutsch
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: de
+  transcription: de
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: german-germany
+  orthography:
+    shared: latin
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: german-germany
+  name: Germany
+  description: Germany
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: Jonas
+    romanizedName: null
+    age: 35
+    location: Leipzig, Deutschland
+    occupation: Fahrradmechaniker
+    background: Ist in Erfurt aufgewachsen und arbeitet in einer kleinen Fahrradwerkstatt in Leipzig.
+      Wohnt mit einem Freund zusammen.
+    currentSituation: Plant eine Radtour am Wochenende und repariert ein altes Radio.
+    interests:
+    - Radtouren
+    - Kochen
+    - Live-Musik
+    opinions:
+    - Gute Werkzeuge sollten reparierbar sein.
+    interestingFacts:
+    - Hat einen Tisch aus altem Holz gebaut.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Spricht ruhig und direkt und fragt nach konkreten Einzelheiten.
+    quirks:
+    - Zeichnet Pläne auf Briefumschläge.
+    vibe:
+    - 🚲
+    - 🔧
+    - 🎵
+  starters:
+    food:
+      label: Essen und Trinken
+      preview: Ich hätte gern einen Tee.
+      translation: Ich hätte gern einen Tee.
+      varieties:
+      - german-germany
+    family:
+      label: Deine Familie
+      preview: Das ist meine Familie.
+      translation: Das ist meine Familie.
+      varieties:
+      - german-germany
+    weekend:
+      label: Wochenendpläne
+      preview: Ich möchte mich ausruhen.
+      translation: Ich möchte mich ausruhen.
+      varieties:
+      - german-germany
+    place:
+      label: Ein Ort, den du magst
+      preview: Ich mag diesen Park.
+      translation: Ich mag diesen Park.
+      varieties:
+      - german-germany
+    day:
+      label: Dein Tag
+      preview: Heute bin ich zu Hause.
+      translation: Heute bin ich zu Hause.
+      varieties:
+      - german-germany
+    music:
+      label: Musik
+      preview: Ich mag Musik.
+      translation: Ich mag Musik.
+      varieties:
+      - german-germany
+  starter_reasons:
+    focus: Aus deinem Übungsschwerpunkt
+    due: Zur Wiederholung fällig
+    contact: Aus den Interessen deines Kontakts
+    general: Gesprächsthema

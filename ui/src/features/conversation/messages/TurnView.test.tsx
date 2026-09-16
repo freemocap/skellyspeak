@@ -157,7 +157,7 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   input.turn.assistant = null
   input.turn.userTranslation = 'Hello there'
   input.turn.userSavedGloss = {
-    sourceMessageId: 'human', targetLanguageId: 'es', explanationLanguageId: 'en',
+    sourceMessageId: 'human', targetLanguageId: 'spanish', explanationLanguageId: 'english',
     formatVersion: 'v1', templateVersion: 'v1', boundaryPolicy: 'v1',
     operationId: 'human-gloss', attemptId: 'attempt', coverage: 'complete',
     segments: [{ start: 0, end: 4, kind: 'gloss', gloss: 'Hello', pronunciation: 'OH-lah' }],

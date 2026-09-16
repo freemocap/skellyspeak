@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { LearningPicker } from '../../features/settings/language/LanguagePickers'
 import { useI18n } from '../../components/localization/i18n'
-import { useIsMobile } from '../../components/layout/useIsMobile'
+import { useConnectionHealth } from '../../state/session/connection-health'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useSessionStore } from '../../state/session/session'
 import { useNavigationStore } from '../../state/navigation/navigation'
@@ -18,7 +18,11 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
   const connection = useSessionStore(state => state.connection)
-  const isMobile = useIsMobile()
+  const health = useConnectionHealth(state => connection ? state.routes[connection.route] : undefined)
+  const connected = connection?.configured && health?.revision === connection.revision && health.status === 'connected'
+  const checking = health?.revision === connection?.revision && health?.status === 'checking'
+  const connectionDetail = checking ? tr('Checking AI connection…') : health?.revision === connection?.revision && health?.error
+    ? health.error : health?.revision === connection?.revision && health?.checkedAt ? `${tr('Last checked')}: ${tr.dateTime(health.checkedAt)}` : tr('Connection not checked yet')
   const openPractice = useNavigationStore((state) => state.openPractice)
   const historyOpen = useNavigationStore((state) => state.historyOpen)
   const overlay = useNavigationStore((state) => state.overlay)
@@ -44,13 +48,11 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       </button>
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
-      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}>★ {profile ? `${profile.xp.toLocaleString(tr.locale)} XP · ${profile.target}` : tr("Progress")}</button>
-      {!isMobile && connection && (connection.configured
-        ? <span className="connection-state" data-configured="true">{tr("Configured")}</span>
-        : <button type="button" className="connection-state connection-setup" data-configured="false"
-            onClick={() => showOverlay('settings')}>
-            {connection.route === 'hosted' ? tr('Sign in to use AI') : connection.route === 'openrouter' ? tr('Add API key') : tr('Connect a custom server')}
-          </button>)}
+      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}>★ {profile ? `${profile.xp.toLocaleString(tr.browserLocale)} XP · ${profile.target}` : tr("Progress")}</button>
+      <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
+        aria-busy={checking} title={connectionDetail} onClick={() => showOverlay('settings')}>
+        {connected ? tr('AI Connected') : tr('AI Not Connected')}
+      </button>
 
       <button
         type="button"

@@ -3,8 +3,8 @@ use super::*;
 fn identity() -> SourceIdentity {
     SourceIdentity {
         message_id: "synthetic-message".into(),
-        target_language_id: "es".into(),
-        explanation_language_id: "en".into(),
+        target_language_id: "spanish".into(),
+        explanation_language_id: "english".into(),
         analysis_version: ANALYSIS_VERSION.into(),
     }
 }

@@ -6,7 +6,7 @@ import { unreportedInput, type SkillSnapshot } from '../evidence/skills'
 
 function snapshot(size: number): SkillSnapshot {
   const value = structuredClone(skillDemo)
-  value.records = Array.from({ length: size }, (_, i) => ({ attempt_id: `a-${i}`, session_id: 's', turn_id: i, message_id: i, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'es-ES', native: 'en', source: `Ese café ${i}.`, input: unreportedInput(), at_secs: i, model: 'test', provider_mode: 'hosted', catalog_version: value.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Ese identifies a particular referent.' }] } }))
+  value.records = Array.from({ length: size }, (_, i) => ({ attempt_id: `a-${i}`, session_id: 's', turn_id: i, message_id: i, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: `Ese café ${i}.`, input: unreportedInput(), at_secs: i, model: 'test', provider_mode: 'hosted', catalog_version: value.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Ese identifies a particular referent.' }] } }))
   value.profile.credits = value.records.map(record => ({ attempt_id: record.attempt_id, skill_id: 'referent', xp: 10 }))
   return value
 }

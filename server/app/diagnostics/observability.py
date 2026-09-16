@@ -40,7 +40,7 @@ def error_response(request: Request, error: HTTPException) -> JSONResponse:
 
 async def observe(request: Request, call_next, ingress, admit=None):
     # Ignore client-provided IDs: they can contain secrets, log injection or collisions.
-    request.state.request_id = uuid.uuid4().hex
+    request.state.request_id = getattr(request.state, "request_id", None) or uuid.uuid4().hex
     request.state.error_code = None
     started = time.monotonic()
     try:

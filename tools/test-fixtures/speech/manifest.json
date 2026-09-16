@@ -2,7 +2,7 @@
   "source": "macOS synthetic voices; software-path fixtures, not human speech",
   "cases": [
     {
-      "language": "es",
+      "language": "spanish",
       "text": "Ayer fui al parque con mi familia.",
       "words": [
         "parque",
@@ -11,7 +11,7 @@
       "voice": "Paulina"
     },
     {
-      "language": "ar",
+      "language": "arabic",
       "text": "قرأت الكتاب في البيت.",
       "words": [
         "الكتاب",
@@ -20,7 +20,7 @@
       "voice": "Majed"
     },
     {
-      "language": "zh",
+      "language": "mandarin",
       "text": "今天我想和朋友一起喝茶。",
       "words": [
         "朋友",

@@ -8,9 +8,9 @@ import { pathToFileURL } from 'node:url'
 import { completedExchange, readDisclosure, disclosureOpened, type Disclosure } from './assertions.ts'
 
 export const cases = [
-  { language: 'es', text: 'Ayer fui al parque con mi familia.', words: ['parque', 'familia'] },
-  { language: 'ar', text: 'قرأت الكتاب في البيت.', words: ['الكتاب', 'البيت'] },
-  { language: 'zh', text: '今天我想和朋友一起喝茶。', words: ['朋友', '喝茶'] },
+  { language: 'spanish', text: 'Ayer fui al parque con mi familia.', words: ['parque', 'familia'] },
+  { language: 'arabic', text: 'قرأت الكتاب في البيت.', words: ['الكتاب', 'البيت'] },
+  { language: 'mandarin', text: '今天我想和朋友一起喝茶。', words: ['朋友', '喝茶'] },
 ]
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export function deviceFromList(output: string, requested?: string): string {
@@ -109,7 +109,7 @@ async function main() {
     await devtools.connect()
     await devtools.wait(`!!document.querySelector('.app .topbar') && !!document.documentElement.lang`, 'app shell and interface locale', 20000)
     const locale = await devtools.evaluate('document.documentElement.lang')
-    if (locale !== 'en') throw new Error('Set Interface language to English before running this harness; target languages are tested separately.')
+    if (locale !== 'english') throw new Error('Set Interface language to English before running this harness; target languages are tested separately.')
     await devtools.wait(`!!document.querySelector('[aria-label="New chat"]')`, 'app shell', 20000)
     if (!await devtools.evaluate(`!!window.__TAURI_INTERNALS__`)) throw new Error('Native Tauri bridge is absent; this is not a device app test.')
     if (await devtools.evaluate(`document.body.innerText.includes('Sign in with Google')`)) throw new Error('Device AI access is not configured. Sign in once or configure the local test server; credentials are never copied by this runner.')
@@ -117,10 +117,10 @@ async function main() {
     if (live) for (const scenario of cases) {
       console.log(`Testing ${scenario.language}: real chat, feedback and glosses`)
       const languageSelect = '[aria-label="Target language"]'
-      const value = await devtools.evaluate(`(()=>{const s=document.querySelector(${JSON.stringify(languageSelect)});return [...s.options].find(o=>o.lang===${JSON.stringify(scenario.language)})?.value})()`)
+      const value = await devtools.evaluate(`(()=>{const s=document.querySelector(${JSON.stringify(languageSelect)});return [...s.options].find(o=>o.value===${JSON.stringify(scenario.language)})?.value})()`)
       if (!value) throw new Error(`Missing language ${scenario.language}`)
       await devtools.fill(languageSelect, value, true)
-      await devtools.wait(`document.querySelector('.crow input')?.lang===${JSON.stringify(scenario.language)} && !document.querySelector(${JSON.stringify(languageSelect)})?.disabled`, 'language saved')
+      await devtools.wait(`document.querySelector(${JSON.stringify(languageSelect)})?.value===${JSON.stringify(scenario.language)} && !document.querySelector(${JSON.stringify(languageSelect)})?.disabled`, 'language saved')
       await devtools.click('[aria-label="New chat"]')
       await devtools.wait(`!!document.querySelector('.start-conversation-button') && !document.querySelector('.msg')`, 'empty chat')
       // Inspect the selected route and disable always-visible translations through
@@ -154,7 +154,7 @@ async function main() {
       }
       if (!await devtools.evaluate(`!!document.querySelector('.msg.bot .saved-word')`)) throw new Error('No partner gloss was published.')
       if (!await devtools.evaluate(`!!document.querySelector('.msg.me .saved-word')`)) throw new Error('No learner gloss was published.')
-      if (scenario.language === 'ar' && !await devtools.evaluate(`[...document.querySelectorAll('.msg.me .saved-word > .w')].some(e=>e.textContent==='الكتاب' && e.childNodes.length===1)`)) throw new Error('Arabic source word is not a single shaping run.')
+      if (scenario.language === 'arabic' && !await devtools.evaluate(`[...document.querySelectorAll('.msg.me .saved-word > .w')].some(e=>e.textContent==='الكتاب' && e.childNodes.length===1)`)) throw new Error('Arabic source word is not a single shaping run.')
       const selected = await devtools.evaluate(`(()=>{const message=Array.from(document.querySelectorAll('.stream .msg.me[data-reward-message]')).at(-1); const word=message?.querySelector('.saved-word'); return word ? {message:message.getAttribute('data-reward-message'),start:word.getAttribute('data-source-start')} : null})()`)
       if (!selected) throw new Error('No source-bound word available for disclosure')
       const readWord = `(${readDisclosure.toString()})(document, ${JSON.stringify(selected.message)}, ${JSON.stringify(selected.start)})`

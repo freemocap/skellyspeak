@@ -62,17 +62,18 @@ async def test_rejected_routing_never_reserves(proxy: httpx.AsyncClient, ledger:
 
 
 @pytest.mark.asyncio
-async def test_success_settles_reported_cost(proxy: httpx.AsyncClient, ledger: FakeDb, monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("cost_micros", [35, 100_000])
+async def test_success_settles_reported_cost(proxy: httpx.AsyncClient, ledger: FakeDb, monkeypatch: pytest.MonkeyPatch, cost_micros: int) -> None:
     def respond(sent: httpx.Request) -> httpx.Response:
         body = json.loads(sent.content)
-        assert body["provider"]["max_price"]["request"] == 0
+        assert "max_price" not in body["provider"]
         return httpx.Response(status_code=200, json={"id": "generation-1", "choices": [],
-                                                   "usage": {"cost": 0.000035, "total_tokens": 10}})
+                                                   "usage": {"cost": cost_micros / 1_000_000, "total_tokens": 10}})
 
     upstream(monkeypatch, respond)
     assert (await proxy.post("/v1/chat/completions", json=request(stream=False))).status_code == 200
     balance = quota.read_balance(ledger, "learner", limit=500_000)
-    assert (balance.used, balance.tokens, balance.requests) == (35, 10, 1)
+    assert (balance.used, balance.tokens, balance.requests) == (cost_micros, 10, 1)
 
 
 @pytest.mark.asyncio

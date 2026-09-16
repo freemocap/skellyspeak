@@ -215,13 +215,7 @@ fn rejected(reason: &str) -> AppError {
 }
 /// Numeric display identity for the active registry; full hash accompanies evidence.
 pub fn construct_hash(registry: &crate::configuration::Registry) -> String {
-    use sha2::{Digest, Sha256};
-    format!(
-        "{:x}",
-        Sha256::digest(
-            serde_json::to_vec(registry.constructs()).expect("Validated constructs serialize")
-        )
-    )
+    registry.learning_content_hash()
 }
 pub fn version_for(registry: &crate::configuration::Registry) -> u32 {
     construct_hash(registry)

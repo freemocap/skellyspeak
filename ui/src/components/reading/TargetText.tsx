@@ -22,7 +22,7 @@ export function ReadingProvider({ settings, children }: { settings: Settings | n
     root.style.setProperty('--word-spacing', `${settings?.text_spacing ?? 0}px`)
     return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--script-scale'); root.style.removeProperty('--word-spacing') }
   }, [settings?.text_size, settings?.text_spacing, settings?.target_language, settings?.target_variety])
-  return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'en', language: settings?.target_language ?? 'en' }}>
+  return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'english', language: settings?.target_language ?? 'english' }}>
     {children}
   </ReadingContext></ReadingPreferencesProvider>
 }

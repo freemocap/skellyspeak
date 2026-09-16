@@ -81,7 +81,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
       const owner = directory.conversations.find(c => c.id === chatIdRef.current?.id)
       const receipt = await executeAction(directory, owner
         ? { kind: 'createConversation', contactId: owner.contactId, title: 'Conversation' }
-        : { kind: 'startChat', languageId: target ?? 'es' })
+        : { kind: 'startChat', languageId: target ?? 'spanish' })
       if (!receipt.entityId) throw new Error('No new conversation identity was returned.')
       await openChat(receipt.entityId)
       await refresh()

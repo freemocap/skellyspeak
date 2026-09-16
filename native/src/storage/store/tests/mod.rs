@@ -22,8 +22,8 @@ pub(super) fn contact(store: &mut Store) -> Contact {
     apply(
         store,
         Action::CreateContact {
-            language_id: "es".into(),
-            details: crate::partners::persona::starter("es").unwrap(),
+            language_id: "spanish".into(),
+            details: crate::partners::persona::starter("spanish").unwrap(),
         },
     );
     store.snapshot().unwrap().contacts.last().unwrap().clone()

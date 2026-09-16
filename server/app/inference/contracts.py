@@ -81,13 +81,12 @@ def chat_request(payload: dict[str, object], *, max_tokens: int) -> ChatRequest:
     input_bound = len(json.dumps(payload, ensure_ascii=False).encode("utf-8")) + 1024
     if input_bound > (16_384 if audio else 100_000):
         reject("The hosted input is too long. Shorten the conversation or message.")
-    prompt_price, completion_price = (1, 24) if audio else model_routing.PRICES.get(model, model_routing.DEFAULT_TEXT_PRICE_CEILING)
+    prompt_price, completion_price = (1, 24) if audio else model_routing.PRICES.get(model, model_routing.DEFAULT_TEXT_RESERVATION_RATE)
     outbound = dict(payload)
     outbound["max_tokens"] = requested
     outbound["provider"] = {
         "allow_fallbacks": False,
         "require_parameters": True,
-        "max_price": {"prompt": prompt_price, "completion": completion_price, "request": 0},
     }
     return ChatRequest(
         payload=outbound,

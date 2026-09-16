@@ -14,21 +14,21 @@ import '../src/styles/index.css'
 import './detail-style-preview.css'
 
 const samples: { label: string; lang: string; text: string; segments: GlossSegment[]; note: string }[] = [
-  { label: 'Spanish · accents', lang: 'es', text: '¿Hay una farmacia por aquí?', segments: [{ start: 9, end: 17, kind: 'gloss', gloss: 'pharmacy', pronunciation: 'far-MA-sya' }], note: 'Punctuation and an annotated word inside a sentence.' },
-  { label: 'Arabic · joined word parts', lang: 'ar', text: 'والكتاب', segments: [
+  { label: 'Spanish · accents', lang: 'spanish', text: '¿Hay una farmacia por aquí?', segments: [{ start: 9, end: 17, kind: 'gloss', gloss: 'pharmacy', pronunciation: 'far-MA-sya' }], note: 'Punctuation and an annotated word inside a sentence.' },
+  { label: 'Arabic · joined word parts', lang: 'arabic', text: 'والكتاب', segments: [
     { start: 0, end: 1, kind: 'gloss', gloss: 'and', romanization: 'wa' },
     { start: 1, end: 3, kind: 'gloss', gloss: 'the', romanization: 'al' },
     { start: 3, end: 7, kind: 'gloss', gloss: 'book', romanization: 'kitāb' },
   ], note: 'Check joined letters, word-part help and right-to-left ordering.' },
-  { label: 'Chinese · no spaces', lang: 'zh', text: '你好，世界！', segments: [
+  { label: 'Chinese · no spaces', lang: 'mandarin', text: '你好，世界！', segments: [
     { start: 0, end: 2, kind: 'gloss', gloss: 'hello', romanization: 'nǐ hǎo' },
     { start: 3, end: 5, kind: 'gloss', gloss: 'world', romanization: 'shì jiè' },
   ], note: 'Check annotation width, tone marks and punctuation.' },
-  { label: 'German · long word', lang: 'de', text: 'Die Geschwindigkeitsbegrenzung beträgt 30 km/h.', segments: [
+  { label: 'German · long word', lang: 'german', text: 'Die Geschwindigkeitsbegrenzung beträgt 30 km/h.', segments: [
     { start: 4, end: 30, kind: 'gloss', gloss: 'speed limit', pronunciation: 'ge-SHVIN-dig-kaits-be-GREN-tsung' },
   ], note: 'Stress case for wrapping long words and long help text.' },
-  { label: 'Mixed direction · Arabic / Latin / numbers', lang: 'ar', text: 'الدرس 12 — React — الساعة 10:30', segments: [], note: 'Check numeral order and embedded Latin text; no annotations in this specimen.' },
-  { label: 'French · diacritics', lang: 'fr', text: 'À bientôt ! Où est l’arrêt de bus ?', segments: [], note: 'Check accents, apostrophes and reading rhythm.' },
+  { label: 'Mixed direction · Arabic / Latin / numbers', lang: 'arabic', text: 'الدرس 12 — React — الساعة 10:30', segments: [], note: 'Check numeral order and embedded Latin text; no annotations in this specimen.' },
+  { label: 'French · diacritics', lang: 'french', text: 'À bientôt ! Où est l’arrêt de bus ?', segments: [], note: 'Check accents, apostrophes and reading rhythm.' },
 ]
 const domains = ['social', 'questions', 'opinions', 'statements', 'descriptions', 'situating']
 
@@ -39,7 +39,7 @@ function Explorer() {
   const [pronunciation, setPronunciation] = useState(false)
   const [scale, setScale] = useState(100)
   // Review fixtures mirror the bundled language overrides; no workspace config is loaded.
-  const [scriptScales, setScriptScales] = useState<Record<string, number>>({ ar: 1.5, zh: 1.3 })
+  const [scriptScales, setScriptScales] = useState<Record<string, number>>({ arabic: 1.5, mandarin: 1.3 })
   const [font, setFont] = useState('serif')
   const [domain, setDomain] = useState('descriptions')
   const [xp, setXp] = useState(10)
@@ -76,7 +76,7 @@ function Explorer() {
       </div>
       <ReadingPreferencesContext value={{ autoTranslate: help, alwaysRomanize: roman, alwaysPronunciation: pronunciation }}>
         <div className="lab-grid" style={{ '--reading-scale': scale / 100, '--lab-reading-font': font === 'serif' ? 'var(--font-serif)' : 'var(--font-sans)' } as CSSProperties}>
-          {samples.map(sample => <article key={sample.lang + sample.label} style={{ '--script-scale': scriptScales[sample.lang] ?? 1 } as CSSProperties}><h3>{sample.label}</h3><label>Script scale · {(scriptScales[sample.lang] ?? 1).toFixed(2)}<input aria-label={`${sample.label} script scale`} type="range" min="0.5" max="3" step="0.05" value={scriptScales[sample.lang] ?? 1} onChange={e => setScriptScales({ ...scriptScales, [sample.lang]: Number(e.target.value) })} /></label><div className="lab-reading" lang={sample.lang} dir="auto"><SavedGlossText text={sample.text} segments={sample.segments} /></div><p>{sample.note}</p></article>)}
+          {samples.map(sample => <article key={sample.lang + sample.label} style={{ '--script-scale': scriptScales[sample.lang] ?? 1 } as CSSProperties}><h3>{sample.label}</h3><label>Script scale · {(scriptScales[sample.lang] ?? 1).toFixed(2)}<input aria-label={`${sample.label} script scale`} type="range" min="0.5" max="3" step="0.05" value={scriptScales[sample.lang] ?? 1} onChange={e => setScriptScales({ ...scriptScales, [sample.lang]: Number(e.target.value) })} /></label><div className="lab-reading" lang={({spanish:'es',arabic:'ar',mandarin:'zh',german:'de',french:'fr'} as Record<string,string>)[sample.lang]} dir="auto"><SavedGlossText text={sample.text} segments={sample.segments} /></div><p>{sample.note}</p></article>)}
         </div>
       </ReadingPreferencesContext>
     </section>

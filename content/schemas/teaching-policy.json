@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "EstimatorPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "due_recall": {
+          "format": "double",
+          "type": "number"
+        },
+        "failure_shrink": {
+          "format": "double",
+          "type": "number"
+        },
+        "initial_half_life_days": {
+          "format": "double",
+          "type": "number"
+        },
+        "initial_rating": {
+          "format": "double",
+          "type": "number"
+        },
+        "learning_rate": {
+          "format": "double",
+          "type": "number"
+        },
+        "max_half_life_days": {
+          "format": "double",
+          "type": "number"
+        },
+        "min_half_life_days": {
+          "format": "double",
+          "type": "number"
+        },
+        "minimum_independent_observations": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "success_growth": {
+          "format": "double",
+          "type": "number"
+        },
+        "support": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "object"
+        },
+        "version": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "due_recall",
+        "failure_shrink",
+        "initial_half_life_days",
+        "initial_rating",
+        "learning_rate",
+        "max_half_life_days",
+        "min_half_life_days",
+        "minimum_independent_observations",
+        "sources",
+        "success_growth",
+        "support",
+        "version"
+      ],
+      "type": "object"
+    },
+    "FeedbackPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "correct_only": {
+          "type": "string"
+        },
+        "intensity": {
+          "additionalProperties": {
+            "$ref": "#/definitions/Intensity"
+          },
+          "type": "object"
+        },
+        "ladder": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "max_corrections_per_turn": {
+          "format": "uint",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "never": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "skip_sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "correct_only",
+        "intensity",
+        "ladder",
+        "max_corrections_per_turn",
+        "never",
+        "skip_sources",
+        "sources"
+      ],
+      "type": "object"
+    },
+    "GamePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "additionalProperties": {
+            "format": "uint32",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "difficulty": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "object"
+        },
+        "never_from": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "novelty": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "object"
+        },
+        "rules": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "support": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "object"
+        },
+        "tiers": {
+          "additionalProperties": {
+            "format": "uint8",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "version": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "base",
+        "difficulty",
+        "never_from",
+        "novelty",
+        "rules",
+        "sources",
+        "support",
+        "tiers",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Guidance": {
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "$ref": "#/definitions/GuidanceScope"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scope",
+        "sources",
+        "text"
+      ],
+      "type": "object"
+    },
+    "GuidanceScope": {
+      "enum": [
+        "target_writing",
+        "explanation_writing",
+        "segmentation",
+        "reading",
+        "romanization",
+        "assessment",
+        "pragmatics"
+      ],
+      "type": "string"
+    },
+    "Intensity": {
+      "additionalProperties": false,
+      "properties": {
+        "max_revisions": {
+          "format": "uint8",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "show_logged": {
+          "type": "boolean"
+        },
+        "start_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_revisions",
+        "show_logged",
+        "start_at"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "estimator": {
+      "$ref": "#/definitions/EstimatorPolicy"
+    },
+    "feedback": {
+      "$ref": "#/definitions/FeedbackPolicy"
+    },
+    "game": {
+      "$ref": "#/definitions/GamePolicy"
+    },
+    "guidance": {
+      "items": {
+        "$ref": "#/definitions/Guidance"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "estimator",
+    "feedback",
+    "game",
+    "guidance"
+  ],
+  "title": "TeachingPolicy",
+  "type": "object"
+}

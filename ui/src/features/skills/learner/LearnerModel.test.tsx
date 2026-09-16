@@ -11,8 +11,8 @@ vi.mock('../../../state/learning/skill-evidence', () => ({ useSkillEvidenceStore
 function profile(): LearnerProfile {
   const evidence = structuredClone(skillDemo)
   const id = evidence.catalog.find(node => node.kind === 'skill')!.id
-  evidence.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'hash', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: evidence.learner_id, target: evidence.target, variety: 'es-MX', native: 'en', source: 'Hola.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: evidence.catalog_version, prompt_version: 'v1', status: 'complete', assessment: { judgments: [{ skill_id: id, outcome: 'demonstrated', quotes: ['Hola'], rationale: 'You greeted your partner.' }] }, error: null }]
-  return { evidence, scope: {languageId:evidence.target, personaId:null}, partners:[{personaId:'p1',name:'Elena',archived:false},{personaId:'p2',name:'Marta',archived:true}], constructLenses: {[id]:'pragmatics'}, model: { learnerId: evidence.learner_id, languageId: evidence.target, asOfSecs: 100, configHash: 'c', constructRegistryHash: 'hash', estimatorHash: 'e', estimatorVersion: 1, calibration: 'uncalibrated_product_heuristic', choices: {}, observations: [], constructs: [{ constructId: id, varietyId: 'es-MX', rating: 0.5, uncertainty: 0.8, lastSeen: 100, halfLifeDays: 1, n: 2, independentN: 1, effectiveN: 1.5, recall: 1, dueAt: 200, due: false, insufficientEvidence: true, evidenceAttemptIds: ['a'] }] } }
+  evidence.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'hash', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: evidence.learner_id, target: evidence.target, variety: 'spanish-mexico', native: 'english', source: 'Hola.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: evidence.catalog_version, prompt_version: 'v1', status: 'complete', assessment: { judgments: [{ skill_id: id, outcome: 'demonstrated', quotes: ['Hola'], rationale: 'You greeted your partner.' }] }, error: null }]
+  return { evidence, scope: {languageId:evidence.target, personaId:null}, partners:[{personaId:'p1',name:'Elena',archived:false},{personaId:'p2',name:'Marta',archived:true}], constructLenses: {[id]:'pragmatics'}, model: { learnerId: evidence.learner_id, languageId: evidence.target, asOfSecs: 100, configHash: 'c', constructRegistryHash: 'hash', estimatorHash: 'e', estimatorVersion: 1, calibration: 'uncalibrated_product_heuristic', choices: {}, observations: [], constructs: [{ constructId: id, varietyId: 'spanish-mexico', rating: 0.5, uncertainty: 0.8, lastSeen: 100, halfLifeDays: 1, n: 2, independentN: 1, effectiveN: 1.5, recall: 1, dueAt: 200, due: false, insufficientEvidence: true, evidenceAttemptIds: ['a'] }] } }
 }
 beforeEach(() => {
   vi.clearAllMocks()
@@ -62,21 +62,21 @@ it('does not display a previous language when its request finishes late', async 
   api.getLearnerProfile.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
   const data = profile()
   const view = render(<LearnerModel target={data.evidence.target} onClose={() => {}} />)
-  const other = profile(); other.scope.languageId = 'ar'; other.model.languageId = 'ar'; other.evidence.target = 'ar'; other.model.constructs = []; other.evidence.records = []
+  const other = profile(); other.scope.languageId = 'arabic'; other.model.languageId = 'arabic'; other.evidence.target = 'arabic'; other.model.constructs = []; other.evidence.records = []
   api.getLearnerProfile.mockResolvedValue(other)
-  view.rerender(<LearnerModel target="ar" onClose={() => {}} />)
+  view.rerender(<LearnerModel target="arabic" onClose={() => {}} />)
   await screen.findByText(/No usable learning evidence/)
   finish(data)
   await waitFor(() => expect(screen.queryByText('Not enough independent evidence')).not.toBeInTheDocument())
 })
 it('filters source evidence by variety without treating absent evidence as failure', async () => {
   const data = profile()
-  const second = structuredClone(data.model.constructs[0]); second.varietyId = 'es-ES'; second.evidenceAttemptIds = []
+  const second = structuredClone(data.model.constructs[0]); second.varietyId = 'spanish-spain'; second.evidenceAttemptIds = []
   data.model.constructs.push(second)
   api.getLearnerProfile.mockResolvedValue(data)
   render(<LearnerModel target={data.evidence.target} onClose={() => {}} />)
   await screen.findByLabelText('Variety')
-  fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'es-ES' } })
+  fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'spanish-spain' } })
   fireEvent.change(screen.getByLabelText('Inspect evidence'), { target: { value: second.constructId } })
   expect(screen.getByText('No recorded evidence for this skill.')).toBeVisible()
   expect(screen.queryByText('Hola.')).not.toBeInTheDocument()
@@ -86,7 +86,7 @@ it('exports the selected language rather than frontend estimates or a variety-fi
   const data = profile()
   render(<LearnerModel target={data.evidence.target} onClose={() => {}} />)
   const save = await screen.findByRole('button', { name: 'Save YAML' })
-  fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'es-MX' } })
+  fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'spanish-mexico' } })
   fireEvent.click(save)
   expect(await screen.findByRole('status')).toHaveTextContent('Saved to /Downloads/learning.yaml')
   expect(api.saveLearnerState).toHaveBeenCalledExactlyOnceWith(data.evidence.target)
@@ -114,9 +114,9 @@ it('ignores a late export result after switching language', async () => {
   const view = render(<LearnerModel target={profile().evidence.target} onClose={() => {}} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Save YAML' }))
   expect(screen.getByRole('button', { name: 'Saving evidence…' })).toBeDisabled()
-  const other = profile(); other.evidence.target = 'ar'; other.model.languageId = 'ar'; other.scope.languageId = 'ar'
+  const other = profile(); other.evidence.target = 'arabic'; other.model.languageId = 'arabic'; other.scope.languageId = 'arabic'
   api.getLearnerProfile.mockResolvedValue(other)
-  view.rerender(<LearnerModel target="ar" onClose={() => {}} />)
+  view.rerender(<LearnerModel target="arabic" onClose={() => {}} />)
   await screen.findByRole('button', { name: 'Save YAML' })
   finish('/Downloads/old-language.yaml')
   await waitFor(() => expect(screen.queryByText(/old-language/)).not.toBeInTheDocument())
@@ -169,9 +169,9 @@ it('does not surface a late exclusion failure in a different language', async()=
   await screen.findByText('Not enough independent evidence')
   fireEvent.change(screen.getByLabelText('Inspect evidence'),{target:{value:data.model.constructs[0].constructId}})
   fireEvent.click(screen.getByRole('button',{name:'Exclude attempt'}))
-  const other=profile();other.scope.languageId='ar';other.model.languageId='ar';other.evidence.target='ar'
+  const other=profile();other.scope.languageId='arabic';other.model.languageId='arabic';other.evidence.target='arabic'
   api.getLearnerProfile.mockResolvedValue(other)
-  view.rerender(<LearnerModel target="ar" onClose={()=>{}} />)
+  view.rerender(<LearnerModel target="arabic" onClose={()=>{}} />)
   await screen.findByText('Not enough independent evidence')
   await act(async()=>fail(new Error('Old scope changed')))
   expect(screen.queryByText('Old scope changed')).not.toBeInTheDocument()

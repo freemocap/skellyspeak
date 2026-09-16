@@ -1,3 +1,4 @@
+import { UI_LOCALE_METADATA } from '../../domain/localization'
 import { TEXT_SIZE } from '../../generated/contracts'
 import { AppearanceSettings } from './appearance/AppearanceSettings'
 import { messageKey } from '../../domain/localization'
@@ -19,6 +20,7 @@ import { useSettingsStore } from '../../state/settings/settings'
 import { languageLabel } from '../../domain/language/language-label'
 import { appVersion as loadAppVersion, openDownloads } from '../../platform/updates/updater'
 
+import { SettingsModels } from './models/SettingsModels'
 import { SettingsAccess } from './access/SettingsAccess'
 import { FactoryReset } from './workspace/FactoryReset'
 import { SaveDataCopy } from '../../components/persistence/SaveDataCopy'
@@ -30,7 +32,7 @@ type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 /// closing the modal straight after a change still catches it.
 const AUTOSAVE_DEBOUNCE_MS = 500
 
-type SectionId = 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'appearance' | 'data'
+type SectionId = 'models' | 'keys' | 'languages' | 'voice' | 'shortcuts' | 'updates' | 'reading' | 'appearance' | 'data'
 
 function SaveStatus({ state }: { state: SaveState }) {
   const tr = useI18n()
@@ -100,6 +102,7 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string
     icon: '🔑',
     descKey: messageKey('Hosted sign-in, API keys or a custom server'),
   },
+  { id: 'models', labelKey: messageKey('Models'), icon: '⚙', descKey: messageKey('Models') },
   {
     id: 'languages',
     labelKey: "Languages",
@@ -173,7 +176,10 @@ export function SettingsModal({
   // drifts from this, and this catches up once the write lands.
   const [persisted, setPersisted] = useState<Settings | null>(null)
   const [saveState, setSaveState] = useState<SaveState>('idle')
-  const [accessBusy, setAccessBusy] = useState(false)
+  const [routeBusy, setRouteBusy] = useState(false)
+  const [modelsBusy, setModelsBusy] = useState(false)
+  const accessBusy = routeBusy || modelsBusy
+  const [configurationRevision, setConfigurationRevision] = useState(0)
   const [appVersion, setAppVersion] = useState<string | null>(null)
   const mics: { id: string; label: string }[] = []
   const listMics = async () => { throw new Error('Microphone selection is not connected.') }
@@ -206,6 +212,7 @@ export function SettingsModal({
   // AI access writes its own commands, so it re-reads through the store. That is
   // a real change to the record, hence `refresh` rather than `reload`.
   const refreshFromBackend = useCallback(async () => {
+    setConfigurationRevision(value => value + 1)
     await useSettingsStore.getState().refresh()
     const fresh = useSettingsStore.getState().settings
     if (fresh) { setSettings(fresh); setPersisted(fresh) }
@@ -283,9 +290,13 @@ export function SettingsModal({
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
+    models: {
+      section: 'models', label: tr('Models'), kw: 'model standard fast transcription',
+      node: <div inert={routeBusy}><SettingsModels refreshKey={configurationRevision} onBusyChange={setModelsBusy} onChanged={refreshFromBackend} /></div>,
+    },
     provider_mode: {
-      section: 'keys', label: tr('AI access'), kw: 'provider server token key account models custom hosted openrouter groq',
-      node: <SettingsAccess onBusyChange={setAccessBusy} onChanged={refreshFromBackend} />,
+      section: 'keys', label: tr('AI access'), kw: 'provider server token key account custom hosted openrouter groq',
+      node: <div inert={modelsBusy}><SettingsAccess refreshKey={configurationRevision} onBusyChange={setRouteBusy} onChanged={refreshFromBackend} /></div>,
     },
     target_language: {
       section: 'languages',
@@ -357,7 +368,7 @@ export function SettingsModal({
       section: 'languages', label: tr('Interface language'), kw: 'interface ui locale',
       node: <div className="form-row"><label>{tr('Interface language')}</label><select value={settings.interface_locale}
         onChange={event => setSettings({ ...settings, interface_locale: event.target.value })}>
-        {languages().map(language => <option key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
+        {Object.entries(UI_LOCALE_METADATA).map(([id, language]) => <option key={id} value={id}>{languageLabel(language, tr.locale)}</option>)}
       </select></div>,
     },
     audio_volume: {
@@ -554,10 +565,10 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['appearance', 'theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['models', 'appearance', 'theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
-    else if (id !== 'provider_mode' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
+    else if (id !== 'provider_mode' && id !== 'models' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>
   }
 
   const q = search.trim().toLowerCase()

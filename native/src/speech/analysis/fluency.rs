@@ -412,7 +412,7 @@ mod tests {
         samples
     }
     fn transcript(text: &str) -> VerboseTranscript {
-        parse_verbose_json(&json!({"text":text,"duration":3.0,"language":"es","task":"transcribe","words":[{"word":text,"start":0.5,"end":1.8},{"word":"second","start":1.5,"end":2.2},{"word":"unsupported","start":3.1,"end":3.3}],"segments":[{"id":0,"start":0.5,"end":3.3,"text":text,"avg_logprob":-0.57,"no_speech_prob":0.75}]}).to_string()).unwrap()
+        parse_verbose_json(&json!({"text":text,"duration":3.0,"language":"spanish","task":"transcribe","words":[{"word":text,"start":0.5,"end":1.8},{"word":"second","start":1.5,"end":2.2},{"word":"unsupported","start":3.1,"end":3.3}],"segments":[{"id":0,"start":0.5,"end":3.3,"text":text,"avg_logprob":-0.57,"no_speech_prob":0.75}]}).to_string()).unwrap()
     }
     #[test]
     fn silence_noise_and_isolated_clicks_do_not_create_speech_regions() {

@@ -12,7 +12,7 @@ import '@xyflow/react/dist/style.css'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { useUiDirection } from '../../components/localization/useUiDirection'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
-import { isTauri } from '../../platform/ipc/tauri'
+import { isTauri, languageFor } from '../../platform/ipc/tauri'
 import { skillDemo } from '../../domain/learning/catalog/skillDemo'
 import type { ProfileChoices, SkillProgress, SkillSnapshot } from '../../domain/learning/evidence/skills'
 import { nodePosition, type TreeLayout, type TreeNode } from '../../domain/learning/catalog/skillTree'
@@ -44,9 +44,9 @@ export default function SkillsPage({ onPractice }: { onPractice: () => void }) {
   const evidence = useSkillEvidence()
   if (isTauri && evidence.error) return <div className="tree-load" role="alert">{tr("Profile: ")}{evidence.error}<button onClick={evidence.reload}>{tr("Retry")}</button></div>
   if (isTauri && !evidence.snapshot) return <p className="tree-load" role="status">{tr("Loading your language profile…")}</p>
-  return <SkillTreeView snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
+  return <SkillTreeView languageTag={isTauri && evidence.snapshot ? languageFor(evidence.snapshot.target)?.languageTag : undefined} snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
 }
-export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, onPractice }: { snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void }) {
+export function SkillTreeView({ languageTag, snapshot, demonstration, refresh, save, saving, onPractice }: { languageTag?: string; snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void }) {
   const tr = useI18n()
   const catalog = useMemo(() => skillIndex(snapshot).catalog, [snapshot])
   const { node: treeNode, descendants, ancestry, mapAnchor, scale, displayed: displayedTree, nodes: skillTree } = catalog
@@ -106,7 +106,7 @@ export function SkillTreeView({ snapshot, demonstration, refresh, save, saving, 
     void update({ ...profile.choices, focus: selected }, true)
   }
   const inspect = pick
-  const detailContent = (<SkillDetailContent node={item} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
+  const detailContent = (<SkillDetailContent languageTag={languageTag} node={item} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
             controls={item.kind === 'skill' && <><button className="lesson-action" disabled={saving} onClick={selectFocus}>{demonstration ? tr("Preview focus") : tr("Practise this in conversation")}</button><p>{profile.branches.find(b => b.skill_id === selected)?.available ? tr("Available in the recommended path.") : tr("Extension: build three successes in its parent, or choose it now.")}</p></>}
             recordControls={record => !demonstration && <button className="lesson-action" disabled={saving} onClick={() => void update({ ...profile.choices, excluded_attempts: profile.choices.excluded_attempts.includes(record.attempt_id) ? profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...profile.choices.excluded_attempts, record.attempt_id] }, false)}>{profile.choices.excluded_attempts.includes(record.attempt_id) ? tr("Excluded · restore attempt") : tr("Exclude attempt from progress")}</button>} />)
   return <main className="skills-page" onKeyDown={(event) => { if (event.key === 'Escape') setDetailOpen(false) }}>

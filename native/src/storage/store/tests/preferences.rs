@@ -91,10 +91,10 @@ fn language_preferences_seed_new_conversations_without_rewriting_existing_ones()
     let mut preferences = learner.preferences;
     preferences
         .target_varieties
-        .insert("es".into(), "es-MX".into());
-    preferences.explanation_language = "en".into();
-    preferences.explanation_variety_id = "en-GB".into();
-    preferences.interface_locale = "de".into();
+        .insert("spanish".into(), "spanish-mexico".into());
+    preferences.explanation_language = "english".into();
+    preferences.explanation_variety_id = "english-united-kingdom".into();
+    preferences.interface_locale = "german".into();
     apply(
         &mut store,
         Action::UpdateLearner {
@@ -104,11 +104,14 @@ fn language_preferences_seed_new_conversations_without_rewriting_existing_ones()
         },
     );
     let second = conversation(&mut store, &contact, "Second");
-    assert_eq!(second.settings.variety_id, "es-MX");
-    assert_eq!(second.settings.explanation_variety_id, "en-GB");
+    assert_eq!(second.settings.variety_id, "spanish-mexico");
+    assert_eq!(
+        second.settings.explanation_variety_id,
+        "english-united-kingdom"
+    );
     drop(store);
     let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
-    assert_eq!(snapshot.learner.preferences.interface_locale, "de");
+    assert_eq!(snapshot.learner.preferences.interface_locale, "german");
     assert_eq!(
         snapshot
             .conversations
@@ -137,8 +140,8 @@ fn preferences_survive_restart_and_old_session_is_rejected() {
     let old = command(
         &store,
         Action::CreateContact {
-            language_id: "es".into(),
-            details: crate::partners::persona::starter("es").unwrap(),
+            language_id: "spanish".into(),
+            details: crate::partners::persona::starter("spanish").unwrap(),
         },
     );
     let mut preferences = store.snapshot().unwrap().learner.preferences;
@@ -166,12 +169,12 @@ fn preferences_survive_restart_and_old_session_is_rejected() {
 
 #[test]
 fn wire_contract_rejects_unknown_settings_and_language_mutation_fields() {
-    let settings = languages::defaults("es", "en").unwrap();
+    let settings = languages::defaults("spanish", "english").unwrap();
     let mut json = serde_json::to_value(settings).unwrap();
     json["languageDifficulty"] = serde_json::json!("advanced");
     assert!(serde_json::from_value::<PracticeSettings>(json).is_err());
     let action = serde_json::json!({"kind":"updatePersona", "personaId":"id", "expectedRevision":1,
-        "details":crate::partners::persona::starter("es").unwrap(), "languageId":"fr"});
+        "details":crate::partners::persona::starter("spanish").unwrap(), "languageId":"french"});
     assert!(serde_json::from_value::<Action>(action).is_err());
 }
 

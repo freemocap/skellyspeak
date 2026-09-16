@@ -33,6 +33,7 @@ infrastructure.
 | `features/conversation/` | `session/`, `messages/`, `composer/`, `reading/`, `coaching/`, `partners/`, `lessons/`, `progress/`, `speech/`; composed by `ConversationPage.tsx` |
 | `features/skills/` | `overview/`, `evidence/`, `learner/`; composed by `SkillsPage.tsx` |
 | `features/settings/` | `access/`, `appearance/`, `language/`, `workspace/`; composed by the settings dialog/modal |
+| `features/languages/` | In-app language browser and source/model inspection |
 | `features/activity/`, `features/startup/` | Small cohesive groups, kept flat |
 | `components/` | `controls/`, `dialogs/`, `feedback/`, `reading/`, `learning/`, `media/`, `localization/`, `layout/`, `persistence/` |
 | `state/` | `navigation/`, `session/`, `settings/`, `learning/`; shared initialization at the root |
@@ -181,3 +182,8 @@ The voice composer, two-tab coach pane and responsive layout are documented in
 Open `/tools/conversation-preview.html` through the existing development server
 for a production-component layout fixture with sample data; it does not call AI,
 record audio or save preferences.
+
+Model selection has its own Settings section, owned by
+`features/settings/models/SettingsModels.tsx`. Standard, Fast and Transcription
+choices are shared across all access routes. `features/settings/access/` owns
+route selection, credentials and endpoint configuration, with no model editor.

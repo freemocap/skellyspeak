@@ -1,7 +1,5 @@
 """Real grouped endpoint, controlled upstream: route, auth, history, schema and cost."""
 import json
-from copy import deepcopy
-from pathlib import Path
 import httpx
 import pytest
 import server.app.main as main
@@ -11,14 +9,6 @@ from server.tests.accounting.test_budget import ledger
 from server.tests.inference.test_grouped import envelope
 
 
-def test_groq_usage_counts_reasoning_and_rejects_invalid_counts():
-    assert routing.groq_usage({"usage": {"prompt_tokens": 1000, "completion_tokens": 1000, "completion_tokens_details": {"reasoning_tokens": 900}}}) == (750, 2000)
-    assert routing.groq_usage({}) == (None, 0)
-    for count in [-1, True, "100"]:
-        with pytest.raises(ValueError):
-            routing.groq_usage({"usage": {"prompt_tokens": count, "completion_tokens": 1}})
-
-
 @pytest.mark.asyncio
 async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, monkeypatch):
     history = [{"role": "system", "content": "Speak Spanish."}, {"role": "assistant", "content": "¿Te gusta cocinar?"}, {"role": "user", "content": "No, prefiero leer."}]
@@ -26,15 +16,11 @@ async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, 
     def respond(request):
         body = json.loads(request.content); sent.append(body)
         assert body["messages"] == history
-        groq = body["model"] == routing.OSS
-        assert str(request.url).startswith(main.CFG.groq_base_url if groq else main.CFG.openrouter_base_url)
-        assert request.headers["authorization"] == "Bearer " + (main.CFG.groq_key if groq else main.CFG.openrouter_key)
-        if groq:
-            assert body["reasoning_effort"] == "low"
-            assert body["max_completion_tokens"] == 2048
-            assert "provider" not in body and "reasoning" not in body and "max_tokens" not in body
-        usage = {"prompt_tokens": 1000, "completion_tokens": 1000, "total_tokens": 2000}
-        if not groq: usage["cost"] = 0.0001
+        assert str(request.url).startswith(main.CFG.openrouter_base_url)
+        assert request.headers["authorization"] == "Bearer " + main.CFG.openrouter_key
+        assert body["max_tokens"] == 2048
+        assert "max_price" not in body["provider"]
+        usage = {"cost": 0.0001, "total_tokens": 2000}
         return httpx.Response(200, json={"id": body["model"], "model": body["model"], "choices": [{"finish_reason": "stop", "message": {"content": "¿Qué lees?"}}], "usage": usage})
     upstream(monkeypatch, respond)
     request = envelope(3)
@@ -47,24 +33,6 @@ async def test_mixed_models_use_correct_credentials_and_preserve_history(proxy, 
     assert len(sent) == 3
 
 
-NATIVE_GLOSS_FIXTURES = json.loads((Path(__file__).resolve().parents[3] /
-    'tools/test-fixtures/model-routing/native-gloss-fixtures.json').read_text())
-
-
-@pytest.mark.parametrize('fixture', NATIVE_GLOSS_FIXTURES, ids=lambda fixture: fixture['id'])
-def test_native_gloss_schema_is_relaxed_only_at_groq_transport_boundary(fixture):
-    original = {"model": routing.OSS, "max_tokens": 2048, "response_format": {"json_schema": {"name": "word_gloss_v1", "schema": fixture['schema']}}}
-    saved = deepcopy(original)
-    outbound = routing.groq_payload(original)
-    assert original == saved
-    expected = deepcopy(saved['response_format']['json_schema']['schema'])
-    for variant in expected['properties']['spans']['items']['oneOf']:
-        for endpoint in ['first', 'last']:
-            assert variant['properties'][endpoint]['enum'], 'Fixture must exercise source-bound endpoints'
-            variant['properties'][endpoint] = {"type": "string"}
-    assert outbound['response_format']['json_schema']['schema'] == expected
-
-
 @pytest.mark.asyncio
 async def test_unknown_model_is_delegated_without_poisoning_other_operations(proxy, ledger, monkeypatch):
     import server.app.accounting.budget as budget
@@ -74,7 +42,7 @@ async def test_unknown_model_is_delegated_without_poisoning_other_operations(pro
         sent.append(body)
         if body['model'] == 'new-provider/new-model':
             assert str(request.url).startswith(main.CFG.openrouter_base_url)
-            assert body['provider']['max_price'] == {'prompt': 0.3, 'completion': 2.5, 'request': 0}
+            assert 'max_price' not in body['provider']
             return httpx.Response(404, text='PRIVATE_PROVIDER_BODY')
         return httpx.Response(200, json={'id': 'ok', 'model': body['model'],
             'choices': [{'message': {'content': 'Hola'}, 'finish_reason': 'stop'}],
@@ -100,7 +68,7 @@ async def test_unknown_model_is_delegated_without_poisoning_other_operations(pro
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('model,provider', [(routing.OSS, 'GROQ'), ('new/model', 'OPENROUTER')])
+@pytest.mark.parametrize('model,provider', [(routing.OSS, 'OPENROUTER'), ('new/model', 'OPENROUTER')])
 @pytest.mark.parametrize('status', [400, 401, 402, 403, 404, 422, 429, 503])
 async def test_provider_rejections_preserve_provider_and_status(proxy, monkeypatch, model, provider, status):
     upstream(monkeypatch, lambda _: httpx.Response(status, text='PRIVATE_PROVIDER_ERROR'))
@@ -148,7 +116,7 @@ async def test_non_gloss_union_is_delegated_without_app_schema_assumptions(proxy
         sent.append(body)
         assert body['response_format']['json_schema']['schema'] == schema
         return httpx.Response(200, json={'id': 'groq-ok', 'choices': [],
-            'usage': {'prompt_tokens': 10, 'completion_tokens': 10}})
+            'usage': {'cost': 0.00001, 'total_tokens': 20}})
     upstream(monkeypatch, respond)
     request = envelope(1)
     request['items'][0]['request'].update(model=routing.OSS, response_format={
@@ -160,8 +128,6 @@ async def test_non_gloss_union_is_delegated_without_app_schema_assumptions(proxy
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('schema', [
-    {'properties': {'spans': {'items': {'oneOf': [{'type': 'string'}, {'type': 'integer'}]}}}},
-    {'properties': None},
     {'properties': {}, 'minimum': float('nan')},
 ])
 async def test_preparation_failure_never_reserves_or_submits(proxy, ledger, monkeypatch, schema):
@@ -179,15 +145,6 @@ async def test_preparation_failure_never_reserves_or_submits(proxy, ledger, monk
     assert not any('/reservations/' in key for key in ledger.store)
     assert ledger.store['users/learner/work_control/slots']['active'] == {}
     assert next(v for k, v in ledger.store.items() if '/work_attempts/' in k)['state'] == 'failed'
-
-
-def test_groq_adapter_preserves_arbitrary_model_without_oss_only_parameters():
-    source = {'model': 'future-groq-model', 'max_tokens': 2048, 'messages': []}
-    result = routing.groq_payload(source)
-    assert result['model'] == source['model']
-    assert result['max_completion_tokens'] == 2048
-    assert 'reasoning_effort' not in result
-    assert source['max_tokens'] == 2048
 
 
 @pytest.mark.asyncio

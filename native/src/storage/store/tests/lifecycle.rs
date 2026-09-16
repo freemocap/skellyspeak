@@ -9,7 +9,7 @@ fn startup_opens_chat_without_setup_and_does_not_duplicate_it() {
     let snapshot = store.snapshot().unwrap();
     assert_eq!(snapshot.personas.len(), 1);
     assert_eq!(snapshot.conversations.len(), 1);
-    assert_eq!(snapshot.conversations[0].language_id, "es");
+    assert_eq!(snapshot.conversations[0].language_id, "spanish");
     let conversation = snapshot.conversations[0].id.clone();
     store.prepare_chat().unwrap();
     drop(store);
@@ -28,7 +28,7 @@ fn one_click_persona_and_chat_creation_is_atomic_and_replay_safe() {
         session_id: store.session_id.clone(),
         action_id: id(),
         action: Action::StartChat {
-            language_id: "fr".into(),
+            language_id: "french".into(),
         },
     };
     let receipt = store.execute(command.clone()).unwrap();
@@ -37,7 +37,7 @@ fn one_click_persona_and_chat_creation_is_atomic_and_replay_safe() {
     assert_eq!(snapshot.personas.len(), 1);
     assert_eq!(snapshot.conversations.len(), 1);
     assert_eq!(snapshot.conversations[0].id, receipt.entity_id);
-    assert_eq!(snapshot.conversations[0].language_id, "fr");
+    assert_eq!(snapshot.conversations[0].language_id, "french");
     let invalid = Command {
         session_id: store.session_id.clone(),
         action_id: id(),
@@ -55,12 +55,12 @@ fn a_generated_contact_arrives_with_its_own_conversation_or_writes_nothing() {
     let mut store = Store::open(&directory.path().join("skellyspeak.sqlite3")).unwrap();
     let generated = PersonaDetails {
         name: "Generated".into(),
-        ..crate::partners::persona::starter("es").unwrap()
+        ..crate::partners::persona::starter("spanish").unwrap()
     };
     let receipt = apply(
         &mut store,
         Action::CreateContact {
-            language_id: "es".into(),
+            language_id: "spanish".into(),
             details: generated.clone(),
         },
     );
@@ -87,7 +87,7 @@ fn a_generated_contact_arrives_with_its_own_conversation_or_writes_nothing() {
         let refused = command(
             &store,
             Action::CreateContact {
-                language_id: "es".into(),
+                language_id: "spanish".into(),
                 details: rejected,
             },
         );

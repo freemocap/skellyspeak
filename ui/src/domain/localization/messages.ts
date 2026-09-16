@@ -4,7 +4,7 @@ export function placeholders(text: string): string[] {
   return [...new Set([...text.matchAll(/\{([A-Za-z][A-Za-z0-9_]*)\}/g)].map(match => match[1]))].sort()
 }
 export function validateLocales(locales: Record<string, Dict>): void {
-  const source = locales.en
+  const source = locales.english
   if (!source) throw new Error('Missing English UI source locale.')
   const keys = Object.keys(source).sort()
   for (const [locale, dict] of Object.entries(locales)) {

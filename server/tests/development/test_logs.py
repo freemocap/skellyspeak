@@ -47,7 +47,8 @@ def test_structured_request_keeps_actionable_metadata_without_bodies(tmp_path: P
     terminal = io.StringIO()
     stream = Stream(logs, "stderr", terminal)
     stream.write("Bearer private-secret\nprivate transcript")
-    assert terminal.getvalue().startswith("Bearer")
+    assert "private" not in terminal.getvalue()
+    assert "contentRedacted" in terminal.getvalue()
     stream.write("Local API: http://127.0.0.1:8765/v1")
     for file in logs.directory.glob("*.jsonl"):
         assert "private-secret" not in file.read_text()
@@ -118,3 +119,43 @@ def test_operation_correlation_survives_private_log_filter():
         'delivered': 1, 'failures': 1, 'complete': False})))
     assert summary['code'] == 'group_finished' and summary['complete'] is False
     assert summary['delivered'] == 1 and summary['requestId'] == 'b' * 32
+
+
+def test_terminal_and_disk_share_safe_runtime_events(tmp_path):
+    logs = LocalLogs(tmp_path.resolve() / "run")
+    terminal = io.StringIO()
+    handler = FileHandler(logs, terminal)
+    handler.emit(record("skellyspeak.runtime", json.dumps({
+        "event": "provider_finished", "provider": "OPENROUTER", "duration_ms": 123,
+        "request_id": "a" * 32, "body": "private body", "model": "private-model",
+        "tokens": True, "route": "/private-path", "user_id": "private identity"})))
+    handler.emit(record("httpx", "POST private-url Authorization private-key"))
+    rows = [json.loads(line)["event"] for line in (logs.directory / "server-logging.jsonl").read_text().splitlines()]
+    assert rows[0]["duration_ms"] == 123
+    assert rows[0]["request_id"] == "a" * 32
+    assert "tokens" not in rows[0] and "route" not in rows[0]
+    for row in rows:
+        assert json.dumps(row, sort_keys=True) in terminal.getvalue()
+    assert "private" not in terminal.getvalue()
+    logs.close()
+
+
+def test_install_mirrors_uvicorn_without_recursing(tmp_path):
+    import subprocess
+    import sys
+    script = '''
+import logging
+from pathlib import Path
+from server.development.logs import install
+install(Path(__import__('sys').argv[1]))
+logging.getLogger('uvicorn.error').info('Application startup complete.')
+logging.getLogger('httpx').warning('private secret')
+print('private transcript')
+'''
+    result = subprocess.run([sys.executable, "-c", script, str(tmp_path.resolve() / "run")],
+                            capture_output=True, text=True, check=True, timeout=10)
+    assert "startup_complete" in result.stderr
+    assert "Server logs:" in result.stderr
+    assert "private secret" not in result.stdout + result.stderr
+    assert "private transcript" not in result.stdout + result.stderr
+    assert len((tmp_path / "run" / "server-logging.jsonl").read_text().splitlines()) == 3

@@ -534,7 +534,7 @@
     "color": "#608dd7",
     "criterion": "Join a possessed noun to its possessor in a construct phrase, placing a definite article only on the possessor when needed.",
     "description": "Talk about whose bag or keys you found, or describe a room in a friend’s home.",
-    "id": "ar.idafa",
+    "id": "arabic.idafa",
     "kind": "skill",
     "label": "Possessive construct (iḍāfa)",
     "parent": "possession"

@@ -90,7 +90,6 @@ def settle(
     record = user.collection(RESERVATIONS).document(reservation.request_id)
     usage = user.collection(quota.USAGE).document(reservation.day)
     shared = db.collection(quota.GLOBAL_USAGE).document(reservation.day)
-    control = db.collection(CONTROLS).document(SPENDING)
 
     @firestore.transactional
     def apply(transaction: firestore.Transaction) -> None:
@@ -125,11 +124,8 @@ def settle(
                 if int(data["micros"]) + actual_micros - reservation.micros < 0:
                     raise RuntimeError("Settlement would make a daily balance negative.")
                 transaction.set(reference, correction, merge=True)
-        if actual_micros > reservation.micros:
-            if global_usage is not None:
-                transaction.set(shared, {"blocked": True, "block_reason": "Provider price ceiling exceeded"}, merge=True)
-            transaction.set(control, {"blocked": True, "reason": "Provider price ceiling exceeded",
-                                      "request_id": reservation.request_id, "updated_at": firestore.SERVER_TIMESTAMP}, merge=True)
+        # Reservations are estimates, not provider price ceilings. Record the
+        # actual charge; later admissions use the corrected daily balances.
         result: dict[str, object] = {
             "status": status, "actual_micros": actual_micros, "tokens": tokens,
             "provider_id": provider_id, "updated_at": firestore.SERVER_TIMESTAMP,
@@ -141,5 +137,3 @@ def settle(
         transaction.set(record, result, merge=True)
 
     transactions.run(db, apply)
-    if actual_micros > reservation.micros:
-        raise RuntimeError("Provider exceeded its reserved price ceiling; charge recorded for investigation.")

@@ -45,7 +45,7 @@ function Preview() {
       <div className="msg chat-message bot"><SavedGlossText text="¿Hay una farmacia por aquí?" segments={[{start:9,end:17,kind:'gloss',gloss:'pharmacy',pronunciation:'far-MA-sya'}]}/></div>
       <div className="msg chat-message bot rtl"><SavedGlossText text="والكتاب" segments={[{start:0,end:1,kind:'gloss',gloss:'and',romanization:'wa'},{start:1,end:3,kind:'gloss',gloss:'the',romanization:'al'},{start:3,end:7,kind:'gloss',gloss:'book',romanization:'kitāb'}]}/></div>
     </div>
-      <div className="composer"><ComposerInput input={draft} onInput={setDraft} available sending={false} recording={false} transcribing={false} autoSend={false} targetLanguage="es" targetLanguageName="Spanish" onSend={() => setDraft('')} onToggleRecording={() => {}} onDiscardRecording={() => {}} /></div>
+      <div className="composer"><ComposerInput input={draft} onInput={setDraft} available sending={false} recording={false} transcribing={false} autoSend={false} targetLanguageTag="es" targetLanguageName="Spanish" onSend={() => setDraft('')} onToggleRecording={() => {}} onDiscardRecording={() => {}} /></div>
     </div>
     <div className="reaction-excerpt"><div className="msg bot">Partner excerpt outside the chat</div></div>
     <p><button className="btn" onClick={()=>document.querySelector('dialog')!.showModal()}>Open dialog</button></p>

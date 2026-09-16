@@ -28,8 +28,10 @@ export function LearningPicker() {
     <select className="learning-picker" aria-label={tr("Target language")}
       value={settings.target_language} disabled={disabled}
       onChange={event => change('target_language', event.target.value)}>
-      {languages().map(language => <option lang={language.code} key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
+      {languages().map(language => <option lang={language.languageTag} key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
     </select>
+    <button type="button" className="inspection-action" disabled={disabled}
+      onClick={() => useNavigationStore.getState().showOverlay('languages')}>{tr("Browse languages")}</button>
     {saving && <span role="status" className="learning-saving">{tr("Saving…")}</span>}
   </>
 }
@@ -44,7 +46,7 @@ export function NativePicker() {
   return (
     <label><span>{tr("Native")}</span><select className="chat-language-picker" aria-label={tr("Native language")} value={settings.native_language}
       disabled={disabled} onChange={event => change('native_language', event.target.value)}>
-      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.code} key={language.base} value={language.base}>{languageLabel(language, tr.locale)}</option>)}
+      {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.languageTag} key={language.base} value={language.base}>{languageLabel(language, tr.locale)}</option>)}
     </select></label>
   )
 }

@@ -452,6 +452,18 @@ pub async fn synthesize(
         Err(_) => return decoder.finish(&input.text, Some(unknown())),
     };
     if !response.status().is_success() {
+        if let Some(message) = crate::ai::connections::auth_errors::message(
+            target.route,
+            response.url().as_str(),
+            "Speech",
+            response.status().as_u16(),
+        ) {
+            return decoder.finish(
+                &input.text,
+                Some(AppError::new(ErrorCode::Provider, message)),
+            );
+        }
+
         let error = if target.route == ConnectionRoute::Hosted {
             crate::ai::hosted::body(response)
                 .await

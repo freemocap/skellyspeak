@@ -6,7 +6,7 @@ import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'
 import type { Settings } from '../../types'
 
 const native = vi.hoisted(() => ({ get: vi.fn(), save: vi.fn() }))
-vi.mock('../../platform/ipc/tauri', () => ({ getSettings: native.get, saveSettings: native.save, languageFor: () => null, languages: () => [{ code: 'fr', defaultVariety: 'fr-FR' }, { code: 'de', defaultVariety: 'de-DE' }] }))
+vi.mock('../../platform/ipc/tauri', () => ({ getSettings: native.get, saveSettings: native.save, languageFor: () => null, languages: () => [{ code: 'french', defaultVariety: 'french-france' }, { code: 'german', defaultVariety: 'german-germany' }] }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 
 /// The record Rust owns. Only the fields a test reads are meaningful; a write
@@ -14,7 +14,7 @@ vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 const record = (over: Partial<Settings> = {}): Settings => ({
   provider_mode: 'custom', hosted_token: '', hosted_email: '', install_id: '', openrouter_key: '',
   custom_base_url: '', custom_api_key: '', custom_model: '', groq_key: '', openrouter_model: '', observer_model: null,
-  target_language: 'es', target_variety: '', native_language: 'en', native_variety: 'en-US', interface_locale: 'en', microphone_device_id: null,
+  target_language: 'spanish', target_variety: '', native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english', microphone_device_id: null,
   auto_speak: false, auto_send: false, always_romanize: false, auto_translate: false,
   text_size: 100, text_spacing: 100, always_pronunciation: false, fast_mode: true,
   reward_sounds: 'follow_tts', master_volume: 1, voice_volume: 1, effects_volume: 1,
@@ -32,7 +32,7 @@ beforeEach(() => {
 it('reads the record without counting a read as a change', async () => {
   native.get.mockResolvedValue(record())
   await useSettingsStore.getState().load()
-  expect(useSettingsStore.getState().settings?.target_language).toBe('es')
+  expect(useSettingsStore.getState().settings?.target_language).toBe('spanish')
   // The revision means "a write has landed": a read must not look like one, or
   // every mount would clear the shell's "you changed something" effects.
   expect(useSettingsStore.getState().revision).toBe(0)
@@ -57,25 +57,25 @@ it('writes a preference against a fresh read and adopts what Rust reports', asyn
 })
 
 it('selects the configured variety when the target language changes', async () => {
-  const current = record({ target_variety: 'es-419' })
+  const current = record({ target_variety: 'spanish-latin-america' })
   native.get.mockResolvedValue(current)
-  await useSettingsStore.getState().setLanguage('target_language', 'fr')
-  expect(native.save).toHaveBeenCalledWith({ ...current, target_language: 'fr', target_variety: 'fr-FR' }, current)
+  await useSettingsStore.getState().setLanguage('target_language', 'french')
+  expect(native.save).toHaveBeenCalledWith({ ...current, target_language: 'french', target_variety: 'french-france' }, current)
 })
 
 it('keeps the target variety when the native language changes', async () => {
-  const current = record({ target_variety: 'es-419' })
+  const current = record({ target_variety: 'spanish-latin-america' })
   native.get.mockResolvedValue(current)
-  await useSettingsStore.getState().setLanguage('native_language', 'de')
-  expect(native.save).toHaveBeenCalledWith({ ...current, native_language: 'de', native_variety: 'de-DE' }, current)
+  await useSettingsStore.getState().setLanguage('native_language', 'german')
+  expect(native.save).toHaveBeenCalledWith({ ...current, native_language: 'german', native_variety: 'german-germany' }, current)
 })
 
 it('runs one language write at a time', async () => {
   let release: (value: Settings) => void = () => { throw new Error('No request') }
   native.get.mockImplementationOnce(() => new Promise<Settings>(done => { release = done })).mockResolvedValue(record())
-  const first = useSettingsStore.getState().setLanguage('native_language', 'fr')
+  const first = useSettingsStore.getState().setLanguage('native_language', 'french')
   expect(useSettingsStore.getState().savingLanguage).toBe(true)
-  await useSettingsStore.getState().setLanguage('native_language', 'de')
+  await useSettingsStore.getState().setLanguage('native_language', 'german')
   expect(native.save).not.toHaveBeenCalled()
   release(record())
   await first
@@ -107,27 +107,27 @@ it('writes a text size only when the action changes it', async () => {
 it('keeps the newest read and UI language when an older read completes last', async () => {
   let finish!: (value: Settings) => void
   native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-    .mockResolvedValueOnce(record({ native_language: 'fr', native_variety: 'fr-FR', interface_locale: 'fr', target_language: 'fr' }))
+    .mockResolvedValueOnce(record({ native_language: 'french', native_variety: 'french-france', interface_locale: 'french', target_language: 'french' }))
   const old = useSettingsStore.getState().load()
   await useSettingsStore.getState().load()
-  finish(record({ native_language: 'es' }))
+  finish(record({ native_language: 'spanish' }))
   await old
-  expect(useSettingsStore.getState().settings?.target_language).toBe('fr')
+  expect(useSettingsStore.getState().settings?.target_language).toBe('french')
   expect(document.documentElement.lang).toBe('fr')
 })
 
 it('a post-save read cannot overwrite a later conversation read', async () => {
   let finish!: (value: Settings) => void
   native.get.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-    .mockResolvedValueOnce(record({ target_language: 'fr' }))
+    .mockResolvedValueOnce(record({ target_language: 'french' }))
   const save = useSettingsStore.getState().save(record(), record())
   await vi.waitFor(() => expect(native.get).toHaveBeenCalledTimes(1))
   await useSettingsStore.getState().load()
   finish(record())
   await save
-  expect(useSettingsStore.getState().settings?.target_language).toBe('fr')
+  expect(useSettingsStore.getState().settings?.target_language).toBe('french')
   expect(useSettingsStore.getState().revision).toBe(1)
-  native.get.mockResolvedValue(record({ target_language: 'fr' }))
+  native.get.mockResolvedValue(record({ target_language: 'french' }))
   await useSettingsStore.getState().load()
   expect(useSettingsStore.getState().revision).toBe(1)
 })

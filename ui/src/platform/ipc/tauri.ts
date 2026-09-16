@@ -1,4 +1,3 @@
-import { validateLanguageLocales } from '../../domain/localization'
 import type { ConnectionConfig, AccessSettings, RewardSettings } from '../../generated/contracts'
 import { readWorkspace, selectedConversation, executeAction } from './workspace'
 import { SHORTCUT_DEFAULTS } from '../../domain/input/keyboard'
@@ -38,6 +37,7 @@ export interface VarietyInfo {
 }
 
 export interface LanguageInfo {
+  languageTag?: string
   fontScale: number
   code: string
   base: string
@@ -55,10 +55,9 @@ let registry: LanguageInfo[] | null = null
 /// render a language picker it does not have.
 export async function loadLanguages(): Promise<void> {
   const snapshot = await readWorkspace()
-  validateLanguageLocales(snapshot.languages.map(language => language.id))
   registry = snapshot.languages.map(language => {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
-    return { fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
+    return { languageTag: language.languageTag ?? undefined, fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
       defaultVariety: language.defaultVariety, direction: language.direction, romanization: language.romanization,
       varieties: language.varieties.map(variety => ({ id: variety.id, label: variety.name, direction: variety.direction as "ltr" | "rtl", fontScale: variety.fontScale, romanization: variety.romanization })) }
   })

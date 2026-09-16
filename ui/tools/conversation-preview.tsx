@@ -53,7 +53,7 @@ function Preview() {
         </>}</div>
         <div className="composer">
           {!opening && <ComposerHelp replies={[{text:'Con mi familia.',segments:[]},{text:'Con unos amigos.',segments:[]}]} busy={false} pending={false} errors={[]} onUse={setInput} />}
-          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend targetLanguage="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => setRecording(!recording)} onDiscardRecording={() => setRecording(false)} />
+          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => setRecording(!recording)} onDiscardRecording={() => setRecording(false)} />
         </div>
       </section>
       {coach && !mobile && <PracticeDivider workspace={workspace} />}

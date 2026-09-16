@@ -79,7 +79,7 @@ fn a_variety_without_authored_starters_still_has_a_usable_snapshot() {
     let conversation = apply(
         &mut store,
         Action::StartChat {
-            language_id: "ar".into(),
+            language_id: "arabic".into(),
         },
     )
     .entity_id;
@@ -94,7 +94,7 @@ fn a_variety_without_authored_starters_still_has_a_usable_snapshot() {
             .unwrap()
             .settings
             .variety_id,
-        "ar-levantine"
+        "arabic-levantine"
     );
 }
 

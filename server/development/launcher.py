@@ -5,13 +5,13 @@ import argparse
 import importlib
 import os
 from pathlib import Path
-import secrets
 import time
 
 from dotenv import load_dotenv
 
 import server.development.logs as local_logging
 import server.development.memory_store as memory_store
+import server.development.session as local_session
 
 ROOT = Path(__file__).resolve().parents[1]
 KEYS = ("OPENROUTER_API_KEY", "GROQ_API_KEY")
@@ -47,41 +47,32 @@ def configure(keys: dict[str, str], signing_key: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate local configuration without starting the server or making provider calls")
+    parser.add_argument("--reset-session-token", action="store_true", help="Replace local credentials and invalidate the previously saved app token")
     args = parser.parse_args()
+    if args.check and args.reset_session_token:
+        parser.error("--check cannot be combined with --reset-session-token")
     configured_logs = os.environ.get("SKELLYSPEAK_LOG_RUN_DIR")
     directory = Path(configured_logs) if configured_logs else ROOT.parent / ".local" / "logs" / f"server-{time.time_ns()}-{os.getpid()}"
     logs = local_logging.install(directory)
     logs.append("logging", {"code": "configuration_check" if args.check else "server_starting"})
     keys = load_keys(ROOT / ".env")
-    signing_key = secrets.token_urlsafe(48)
-    configure(keys, signing_key)
     if args.check:
         print("server/.env is valid. Provider credentials have not been verified.")
         return
+    signing_key, token = local_session.load(ROOT / ".local-server", reset=args.reset_session_token)
+    configure(keys, signing_key)
     # Install disposable local storage before importing modules that declare
     # Firestore transactions. The hosted application continues to use Firestore.
     database = memory_store.install()
-    auth = importlib.import_module("server.app.identity.auth")
     api = importlib.import_module("server.app.main")
     quota = importlib.import_module("server.app.accounting.quota")
     uvicorn = importlib.import_module("uvicorn")
     api.db = database
 
-    version = quota.upsert_user(api.db, user_id="local-learner", email="local@example.invalid",
+    quota.upsert_user(api.db, user_id="local-learner", email="local@example.invalid",
                       name="Local test", max_users=1)
-    token = auth.issue_session_token(user_id="local-learner", signing_key=signing_key, token_version=version)
-    private = ROOT / ".local-server"
-    if private.is_symlink():
-        raise RuntimeError("Local token directory cannot be a symlink.")
-    private.mkdir(mode=0o700, exist_ok=True)
-    private.chmod(0o700)
-    target = private / "session-token.txt"
-    descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
-    with os.fdopen(descriptor, "w") as file:
-        os.fchmod(file.fileno(), 0o600)
-        file.write(token + "\n")
     print("Local API: http://127.0.0.1:8765/v1")
-    print("Session token: server/.local-server/session-token.txt (refreshed on each launch)")
+    print("Session token: server/.local-server/session-token.txt (reused across restarts)")
     print("Provider calls use real keys. Data is process-local and is cleared when the server stops.")
     uvicorn.run(api.app, host="127.0.0.1", port=8765, access_log=False, log_level="info", log_config=None)
 

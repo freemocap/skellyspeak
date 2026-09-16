@@ -309,7 +309,7 @@ mod tests {
             send(&mut store, action("Teacher")).unwrap().entity_id,
             "incorrect"
         );
-        assert!(credits(&store.connection, "es").unwrap().is_empty());
+        assert!(credits(&store.connection, "spanish").unwrap().is_empty());
         assert_eq!(
             send(&mut store, action("Architect")).unwrap().entity_id,
             "correct"
@@ -351,9 +351,10 @@ mod tests {
             .unwrap();
         assert_eq!(field.state, RevealState::Revealed);
         assert_eq!(field.value.as_deref(), Some("Architect"));
-        assert_eq!(credits(&store.connection, "es").unwrap().len(), 1);
+        assert_eq!(credits(&store.connection, "spanish").unwrap().len(), 1);
         assert_eq!(
-            crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
+                ["xp"],
             1
         );
         let snapshot = store.snapshot().unwrap();
@@ -382,7 +383,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(result.entity_id, "already_correct");
-        assert_eq!(credits(&store.connection, "es").unwrap().len(), 1);
+        assert_eq!(credits(&store.connection, "spanish").unwrap().len(), 1);
     }
     #[test]
     fn rejects_wrong_scope_stale_guesses_and_changes_to_discovered_fields() {
@@ -436,6 +437,6 @@ mod tests {
             )
             .is_err()
         );
-        assert_eq!(credits(&store.connection, "es").unwrap().len(), 1);
+        assert_eq!(credits(&store.connection, "spanish").unwrap().len(), 1);
     }
 }

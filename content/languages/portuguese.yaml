@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: portuguese
+  name: Portuguese
+  native_name: Português
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: pt
+  transcription: pt
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: portuguese-brazil
+  orthography:
+    shared: latin
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: portuguese-brazil
+  name: Brazil
+  description: Brazil
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: Marina
+    romanizedName: null
+    age: 32
+    location: Curitiba, Brasil
+    occupation: Bibliotecária
+    background: Cresceu em Curitiba e trabalha em uma biblioteca de bairro. Divide um apartamento com
+      uma amiga.
+    currentSituation: Está organizando uma troca de livros e aprendendo a fazer pão.
+    interests:
+    - caminhadas
+    - música ao vivo
+    - horta na varanda
+    opinions:
+    - Bibliotecas deveriam abrir aos domingos.
+    interestingFacts:
+    - Consertou a própria bicicleta.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Conversa de forma direta e faz perguntas curtas sobre o cotidiano.
+    quirks:
+    - Anota receitas em papéis soltos.
+    vibe:
+    - 📚
+    - 🚲
+    - 🌿
+  starters:
+    food:
+      label: Comida e bebida
+      preview: Eu gostaria de um chá.
+      translation: Eu gostaria de um chá.
+      varieties:
+      - portuguese-brazil
+    family:
+      label: Sua família
+      preview: Esta é a minha família.
+      translation: Esta é a minha família.
+      varieties:
+      - portuguese-brazil
+    weekend:
+      label: Planos para o fim de semana
+      preview: Quero descansar.
+      translation: Quero descansar.
+      varieties:
+      - portuguese-brazil
+    place:
+      label: Um lugar de que você gosta
+      preview: Gosto deste parque.
+      translation: Gosto deste parque.
+      varieties:
+      - portuguese-brazil
+    day:
+      label: Seu dia
+      preview: Hoje estou em casa.
+      translation: Hoje estou em casa.
+      varieties:
+      - portuguese-brazil
+    music:
+      label: Música
+      preview: Gosto de música.
+      translation: Gosto de música.
+      varieties:
+      - portuguese-brazil
+  starter_reasons:
+    focus: Do seu foco de prática
+    due: Revisão pendente
+    contact: Dos interesses do seu contato
+    general: Tema de conversa

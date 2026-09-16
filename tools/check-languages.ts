@@ -28,19 +28,7 @@ for (const file of fs.readdirSync(localeDir).sort()) {
   locales[file.slice(0, -5)] = JSON.parse(text) as Dict
 }
 validateLocales(locales)
-const languages = fs.readdirSync(path.join(root, 'content/config/languages/languages')).filter(name => name.endsWith('.yaml')).map(file => {
-  const text = fs.readFileSync(path.join(root, 'content/config/languages/languages', file), 'utf8')
-  const id = /^id: "([^"\n]+)"$/m.exec(text)?.[1]
-  if (!id || file !== `${id}.yaml`) throw new Error(`${file}: filename must match the top-level quoted language id.`)
-  const name = /^name: "([^"\n]+)"$/m.exec(text)?.[1]
-  if (!name || !Object.hasOwn(locales.en, name)) errors.push(`${file}: configured name needs a message in every locale.`)
-  for (const match of text.matchAll(/^    name: "([^"\n]+)"$/gm)) {
-    if (!Object.hasOwn(locales.en, match[1])) errors.push(`${file}: variety name ${match[1]} needs a message in every locale.`)
-  }
-  return id
-}).sort()
-if (languages.join() !== Object.keys(locales).sort().join()) errors.push(`Language and locale files differ: languages=[${languages}], locales=[${Object.keys(locales).sort()}]`)
-
+// YAML and reference validation is performed by the Rust content loader, never regex.
 // Brand names, units and executable commands are intentionally not translated.
 const literalTerms = new Set(['AI', 'XP', 'SKELLYSPEAK', 'SkellySpeak', 'npm run tauri dev'])
 function scan(dir: string) {
@@ -50,7 +38,7 @@ function scan(dir: string) {
     if (!/\.tsx?$/.test(file) || /\.(test|d)\.tsx?$/.test(file)) continue
     const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true)
     function requireKey(key: string, node: ts.Node) {
-      if (!Object.hasOwn(locales.en, key)) errors.push(`${path.relative(root, file)}:${source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1}: missing message ${JSON.stringify(key)}`)
+      if (!Object.hasOwn(locales.english, key)) errors.push(`${path.relative(root, file)}:${source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1}: missing message ${JSON.stringify(key)}`)
     }
     function visit(node: ts.Node) {
       if (ts.isCallExpression(node)) {
@@ -75,4 +63,4 @@ function scan(dir: string) {
 }
 scan(path.join(root, 'ui/src'))
 if (errors.length) throw new Error(errors.join('\n'))
-console.log(`${languages.length} languages, ${Object.keys(locales.en).length} UI messages per locale; IDs, keys, plurals, placeholders and static UI text checked.`)
+console.log(`${Object.keys(locales).length} interface locales, ${Object.keys(locales.english).length} UI messages per locale; IDs, keys, plurals, placeholders and static UI text checked.`)

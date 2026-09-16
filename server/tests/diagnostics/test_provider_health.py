@@ -1,0 +1,69 @@
+import json
+
+import httpx
+import pytest
+
+from server.app.diagnostics import provider_health
+from server.tests.inference.test_proxy import proxy
+from server.tests.accounting.test_budget import ledger
+
+
+@pytest.mark.asyncio
+async def test_credential_probes_use_own_keys_and_do_not_infer(caplog):
+    seen = []
+    def respond(request):
+        seen.append(request)
+        if request.url.host == 'openrouter.invalid':
+            assert request.headers['authorization'] == 'Bearer private-chat-key'
+            assert request.url.path == '/v1/key'
+            return httpx.Response(200, json={'data': {'label': 'private account'}})
+        assert request.headers['authorization'] == 'Bearer private-audio-key'
+        assert request.url.path == '/v1/models'
+        return httpx.Response(403, json={'error': {'message': 'Access denied'}})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        chat = await provider_health.probe(client, 'OPENROUTER', 'https://openrouter.invalid/v1', 'private-chat-key')
+        audio = await provider_health.probe(client, 'GROQ', 'https://groq.invalid/v1', 'private-audio-key')
+    assert chat['state'] == 'accepted'
+    assert audio['state'] == 'rejected' and audio['status'] == 403
+    assert all(request.method == 'GET' and not request.content for request in seen)
+    assert 'private' not in json.dumps([chat, audio]) + caplog.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('mode,expected', [('timeout', 'unreachable'), ('malformed', 'invalid_response'), ('large', 'invalid_response'), ('redirect', 'rejected')])
+async def test_bad_probes_never_report_accepted(mode, expected):
+    def respond(request):
+        if mode == 'timeout':
+            raise httpx.ReadTimeout('private details')
+        if mode == 'redirect':
+            return httpx.Response(302, headers={'location': 'https://unrelated.invalid'})
+        return httpx.Response(200, content=b'x' * (262145 if mode == 'large' else 3))
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        result = await provider_health.probe(client, 'GROQ', 'https://groq.invalid', 'private-key')
+    assert result['state'] == expected
+
+
+@pytest.mark.asyncio
+async def test_protocol_probes_only_when_requested_by_authenticated_client(proxy, monkeypatch):
+    import server.app.main as main
+    calls = []
+    async def check(config):
+        calls.append(True)
+        return [{'provider': 'GROQ', 'state': 'rejected', 'status': 403, 'durationMs': 1}]
+    monkeypatch.setattr(main.provider_health, 'check', check)
+    ordinary = await proxy.get('/v1/protocol')
+    assert ordinary.status_code == 200 and not calls
+    checked = await proxy.get('/v1/protocol?verify_providers=true')
+    assert checked.status_code == 200 and checked.json()['providers'][0]['status'] == 403
+    assert calls == [True]
+
+
+@pytest.mark.asyncio
+async def test_unauthenticated_requests_cannot_probe_provider_keys(monkeypatch):
+    import server.app.main as main
+    async def forbidden(config):
+        raise AssertionError('unauthenticated provider probe')
+    monkeypatch.setattr(main.provider_health, 'check', forbidden)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url='http://test') as client:
+        response = await client.get('/v1/protocol?verify_providers=true')
+    assert response.status_code == 401

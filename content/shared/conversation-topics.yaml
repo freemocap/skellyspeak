@@ -1,0 +1,140 @@
+# yaml-language-server: $schema=../schemas/conversation-topics.json
+- id: food
+  functions:
+  - question
+  - quantity
+  constructs_any:
+  - question
+  - quantity
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - food
+  - cooking
+  opener_kind: roleplay
+  partner_brief: You are serving at a café. Greet the learner and ask what they would like.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review
+- id: family
+  functions:
+  - possession
+  - referent
+  constructs_any:
+  - possession
+  - referent
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - family
+  opener_kind: chat
+  partner_brief: Ask about someone important to the learner. They may choose a friend or an invented person.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review
+- id: weekend
+  functions:
+  - future_reference
+  constructs_any:
+  - future_reference
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - travel
+  - outdoors
+  opener_kind: chat
+  partner_brief: Ask what the learner would like to do this weekend and share a plan of your own.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review
+- id: place
+  functions:
+  - location
+  - property
+  constructs_any:
+  - location
+  - property
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - travel
+  - outdoors
+  opener_kind: chat
+  partner_brief: Talk about a place the learner likes. Invite a small detail about it.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review
+- id: day
+  functions:
+  - event_roles
+  - past_reference
+  constructs_any:
+  - event_roles
+  - past_reference
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - daily-life
+  opener_kind: chat
+  partner_brief: Ask about something from the learner’s day. Keep the exchange open to their interests.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review
+- id: music
+  functions:
+  - property
+  - comparison
+  constructs_any:
+  - property
+  - comparison
+  bands:
+  - PreA1
+  - A1
+  - A2
+  - B1
+  - B2
+  - C1
+  - C2
+  contact_tags:
+  - music
+  opener_kind: chat
+  partner_brief: Ask about music the learner enjoys and share a preference.
+  sources:
+  - cefr2020
+  - freire1970
+  review: needs_review

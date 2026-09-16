@@ -185,3 +185,27 @@ pub fn remove(id: &str) -> Result<()> {
         Err(unavailable())
     }
 }
+
+/// Display-only credential identity. Never return the hidden middle to the UI.
+pub fn preview(secret: &str) -> String {
+    let chars: Vec<char> = secret.chars().collect();
+    if chars.len() <= 10 {
+        return "***".into();
+    }
+    format!(
+        "{}***{}",
+        chars[..5].iter().collect::<String>(),
+        chars[chars.len() - 5..].iter().collect::<String>()
+    )
+}
+
+#[cfg(test)]
+mod preview_tests {
+    #[test]
+    fn shows_only_edges_and_keeps_short_secrets_hidden() {
+        assert_eq!(super::preview("abcde-hidden-middle-vwxyz"), "abcde***vwxyz");
+        for short in ["", "tiny", "1234567890"] {
+            assert_eq!(super::preview(short), "***");
+        }
+    }
+}

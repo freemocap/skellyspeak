@@ -7,11 +7,11 @@ use skellyspeak_core::language::linguistics::SourceIdentity;
 use skellyspeak_core::language::linguistics::adapter;
 use std::{env, fs};
 fn cases() -> Vec<Value> {
-    [("Arabic", "ar", "أحب الكتب."), ("Arabic", "ar", "أُحِبُّ القراءةَ في البيتِ."),
-     ("Mandarin", "zh", "我喜欢看书。"), ("Spanish", "es", "Me gusta cocinar en casa.")]
+    [("Arabic", "arabic", "أحب الكتب."), ("Arabic", "arabic", "أُحِبُّ القراءةَ في البيتِ."),
+     ("Mandarin", "mandarin", "我喜欢看书。"), ("Spanish", "spanish", "Me gusta cocinar en casa.")]
     .into_iter().enumerate().map(|(index, (language, id, source))| {
         let identity = SourceIdentity { message_id: format!("native-gloss-{index}"), target_language_id: id.into(),
-            explanation_language_id: "en".into(), analysis_version: ANALYSIS_VERSION.into() };
+            explanation_language_id: "english".into(), analysis_version: ANALYSIS_VERSION.into() };
         let prompt = adapter::build_word_gloss_prompt(&identity, source).expect("synthetic language supported");
         json!({"id":identity.message_id,"task":"gloss","language":language,"languageId":id,"source":source,
             "messages":prompt.messages,"schema":prompt.output_schema,"template":prompt.template_id})
@@ -22,7 +22,7 @@ fn split_cases() -> Vec<Value> {
     for (language, id, sentences) in [
         (
             "Spanish",
-            "es",
+            "spanish",
             [
                 "Hoy estoy cansado.",
                 "Me gusta cocinar en casa.",
@@ -32,7 +32,7 @@ fn split_cases() -> Vec<Value> {
         ),
         (
             "Arabic",
-            "ar",
+            "arabic",
             [
                 "أنا متعب اليوم.",
                 "أحب الطبخ في البيت.",
@@ -53,7 +53,7 @@ fn split_cases() -> Vec<Value> {
             let identity = SourceIdentity {
                 message_id: format!("split-{id}-{part}"),
                 target_language_id: id.into(),
-                explanation_language_id: "en".into(),
+                explanation_language_id: "english".into(),
                 analysis_version: ANALYSIS_VERSION.into(),
             };
             let mut prompt = adapter::build_word_gloss_prompt(&identity, &source).unwrap();
@@ -109,7 +109,7 @@ fn main() {
                 let identity = SourceIdentity {
                     message_id: case["id"].as_str().unwrap().into(),
                     target_language_id: case["languageId"].as_str().unwrap().into(),
-                    explanation_language_id: "en".into(),
+                    explanation_language_id: "english".into(),
                     analysis_version: ANALYSIS_VERSION.into(),
                 };
                 let completion = Completion {

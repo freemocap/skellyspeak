@@ -207,6 +207,7 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
+    pub language_tag: Option<String>,
     pub font_scale: f64,
     pub direction: String,
     pub romanization: Option<String>,
@@ -521,6 +522,8 @@ pub fn bindings() -> String {
         crate::configuration::appearance::SurfaceDepth::decl(&config),
         crate::configuration::appearance::AppearancePreferences::decl(&config),
         AccessSettings::decl(&config),
+        ProviderCredentialCheck::decl(&config),
+        AccessCheck::decl(&config),
         CustomEndpoint::decl(&config),
         HostedAccount::decl(&config),
         UsageSummary::decl(&config),
@@ -595,6 +598,13 @@ pub fn bindings() -> String {
         Conversation::decl(&config),
         Variety::decl(&config),
         Language::decl(&config),
+        crate::configuration::LanguageInspection::decl(&config),
+        crate::configuration::GoalInspection::decl(&config),
+        crate::configuration::StarterInspection::decl(&config),
+        crate::configuration::ContentSource::decl(&config),
+        crate::configuration::ContentRule::decl(&config),
+        crate::configuration::ContentValue::decl(&config),
+        crate::configuration::SchemeInspection::decl(&config),
         Snapshot::decl(&config),
         StartupState::decl(&config),
         Action::decl(&config),
@@ -920,6 +930,9 @@ pub struct CustomEndpoint {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AccessSettings {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub credential_previews: Option<std::collections::BTreeMap<String, String>>,
     pub custom_url_is_unsaved_default: bool,
     pub revision: i32,
     pub groq_key_configured: bool,
@@ -948,9 +961,10 @@ mod difficulty_tests {
             );
         }
         for previous in ["gentle", "balanced", "challenging", "zero"] {
-            let mut settings =
-                serde_json::to_value(crate::language::languages::defaults("es", "en").unwrap())
-                    .unwrap();
+            let mut settings = serde_json::to_value(
+                crate::language::languages::defaults("spanish", "english").unwrap(),
+            )
+            .unwrap();
             settings["difficulty"] = serde_json::json!(previous);
             assert!(serde_json::from_value::<PracticeSettings>(settings).is_err());
         }
@@ -993,7 +1007,7 @@ mod appearance_tests {
     use super::*;
     #[test]
     fn appearance_defaults_and_rejects_unknown_values() {
-        let original = serde_json::json!({"explanationLanguage":"en","explanationVarietyId":"en-US","interfaceLocale":"en","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
+        let original = serde_json::json!({"explanationLanguage":"english","explanationVarietyId":"english-united-states","interfaceLocale":"english","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
         let preferences: Preferences = serde_json::from_value(original.clone()).unwrap();
         assert_eq!(preferences.theme, Theme::Light);
         assert_eq!(
@@ -1014,4 +1028,19 @@ mod appearance_tests {
         invalid["theme"] = "unknown".into();
         assert!(serde_json::from_value::<Preferences>(invalid).is_err());
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderCredentialCheck {
+    pub provider: String,
+    pub state: String,
+    pub status: Option<u16>,
+    pub duration_ms: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AccessCheck {
+    pub providers: Vec<ProviderCredentialCheck>,
 }

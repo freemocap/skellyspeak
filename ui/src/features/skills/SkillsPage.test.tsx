@@ -32,13 +32,13 @@ vi.mock('@xyflow/react', () => ({
 const handlers = () => ({ refresh: vi.fn(), save: vi.fn().mockResolvedValue(undefined), saving: false, onPractice: vi.fn() })
 const currentRecord: SkillRecord = {
   attempt_id: 'attempt-a', session_id: 'session-a', turn_id: 42, message_id: 7, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null,
-  chat_id: 'chat-a', learner_id: 'local', target: 'ar', native: 'en', source: 'هذا الكتاب.',
+  chat_id: 'chat-a', learner_id: 'local', target: 'arabic', native: 'english', source: 'هذا الكتاب.',
   input: { ...unreportedInput(), suggestion: true }, at_secs: 123, model: 'evaluation-model', provider_mode: 'hosted',
   catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'skill-evidence-4', status: 'complete', error: null,
   assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['هذا الكتاب.'], rationale: 'Identifiable referent using suggested wording.' }] },
 }
 function fixture(): SkillSnapshot {
-  return { ...skillDemo, learner_id: 'local', target: 'ar', records: [currentRecord], profile: { ...skillDemo.profile, choices: { ...skillDemo.profile.choices, learner_id: 'local', target: 'ar' } } }
+  return { ...skillDemo, learner_id: 'local', target: 'arabic', records: [currentRecord], profile: { ...skillDemo.profile, choices: { ...skillDemo.profile.choices, learner_id: 'local', target: 'arabic' } } }
 }
 describe('meaning-domain profile', () => {
   it('keeps every depth in the same scene while inspecting a branch', () => {
@@ -80,7 +80,7 @@ describe('meaning-domain profile', () => {
     expect(screen.getByText('42 / session-a')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Practise this in conversation' }))
     await waitFor(() => expect(actions.onPractice).toHaveBeenCalledOnce())
-    expect(actions.save).toHaveBeenCalledWith(expect.objectContaining({ focus: 'referent', target: 'ar', revision: 0 }))
+    expect(actions.save).toHaveBeenCalledWith(expect.objectContaining({ focus: 'referent', target: 'arabic', revision: 0 }))
     fireEvent.click(screen.getByRole('button', { name: 'Exclude attempt from progress' }))
     await waitFor(() => expect(actions.save).toHaveBeenLastCalledWith(expect.objectContaining({ excluded_attempts: ['attempt-a'] })))
   })

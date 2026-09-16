@@ -29,7 +29,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       <DomainEvidenceTree snapshot={snapshot} onSelect={setDomainId} />
       <RewardsLedger snapshot={snapshot} />
       <dl className="practice-metrics">
-        <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.locale)}</dd></div>
+        <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
         <div><dt>{tr("Lesson quiz XP")}</dt><dd>{stats.quizXp}</dd></div>
         <div><dt>{tr("Skills with credit")}</dt><dd>{stats.practiced}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>{tr("Skill stars")}</dt><dd>{stats.stars}<small> / {snapshot.profile.skills.length}</small></dd></div>
@@ -115,7 +115,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
       {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="lesson-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></div>}
       {overview && <>
         <dl className="practice-metrics">
-          <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.locale)}</dd></div>
+          <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
           <div><dt>{tr("Saved conversations")}</dt><dd>{conversations}</dd></div>
           <div><dt>{tr("Recorded attempts")}</dt><dd>{records.length}</dd></div>
           <div><dt>{tr("Practice dates (UTC)")}</dt><dd>{practiceDates.size}</dd></div>

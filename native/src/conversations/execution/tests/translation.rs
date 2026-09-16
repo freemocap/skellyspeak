@@ -77,7 +77,7 @@ fn r1_queue_reserves_translation_before_accepting_send() {
 #[test]
 fn r1_translation_captures_language_and_step_admits_one_attempt() {
     let (_dir, mut store, conversation) = setup();
-    store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','fr','$.explanationVarietyId','fr-FR') WHERE conversation_id=?1", [&conversation]).unwrap();
+    store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage','french','$.explanationVarietyId','french-france') WHERE conversation_id=?1", [&conversation]).unwrap();
     let first = begin(&mut store, &conversation);
     let turn = store
         .conversation_snapshot(&conversation, None)
@@ -85,7 +85,7 @@ fn r1_translation_captures_language_and_step_admits_one_attempt() {
         .turns[0]
         .id
         .clone();
-    store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false'),'$.explanationLanguage','en','$.explanationVarietyId','en-US') WHERE conversation_id=?1", [&conversation]).unwrap();
+    store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false'),'$.explanationLanguage','english','$.explanationVarietyId','english-united-states') WHERE conversation_id=?1", [&conversation]).unwrap();
     apply(
         &mut store,
         Action::ControlTurn {
@@ -103,7 +103,7 @@ fn r1_translation_captures_language_and_step_admits_one_attempt() {
         },
     );
     let translation = store.dispatch().unwrap().unwrap();
-    assert!(translation.messages[0].content.contains("into fr."));
+    assert!(translation.messages[0].content.contains("into french."));
     assert!(control_turn(&store.connection, &turn, TurnControl::Step).is_err());
     assert!(store.dispatch().unwrap().is_none());
     store.finish(&translation, Ok(reply("Bonjour."))).unwrap();

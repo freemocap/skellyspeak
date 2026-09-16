@@ -11,6 +11,8 @@ import sys
 import threading
 import time
 
+from server.app.diagnostics import runtime
+
 
 def private_file(path: Path):
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -71,7 +73,16 @@ CODES = {"INVALID_REQUEST", "AUTHENTICATION_REQUIRED", "ACCESS_DENIED", "NOT_FOU
 def safe_record(record: logging.LogRecord) -> dict:
     event = {"level": {10: "DEBUG", 20: "INFO", 30: "WARNING", 40: "ERROR", 50: "CRITICAL"}.get(record.levelno, "OTHER"), "code": "python_log",
              "contentRedacted": True, "line": record.lineno}
-    if record.name == "skellyspeak.requests" and isinstance(record.msg, str) and not record.args:
+    if record.name == "skellyspeak.runtime" and isinstance(record.msg, str) and not record.args:
+        try:
+            data = json.loads(record.msg)
+        except (ValueError, TypeError):
+            return event
+        safe = runtime.sanitize(data) if isinstance(data, dict) else {}
+        if safe:
+            event.update(safe)
+            event["code"] = safe["event"]
+    elif record.name == "skellyspeak.requests" and isinstance(record.msg, str) and not record.args:
         try:
             data = json.loads(record.msg)
         except (ValueError, TypeError):
@@ -141,24 +152,32 @@ def safe_record(record: logging.LogRecord) -> dict:
 
 
 class FileHandler(logging.Handler):
-    def __init__(self, logs: LocalLogs):
+    def __init__(self, logs: LocalLogs, terminal=None):
         super().__init__(logging.NOTSET)
         self.logs = logs
+        self.terminal = terminal
 
     def emit(self, record: logging.LogRecord) -> None:
         # Deliberately propagate disk failures; logging.Handler's default fallback
         # would print an arbitrary record/traceback and continue without a disk log.
-        self.logs.append("logging", safe_record(record))
+        event = safe_record(record)
+        self.logs.append("logging", event)
+        if self.terminal is not None:
+            self.terminal.write(f"{time.strftime('%H:%M:%S')} {json.dumps(event, sort_keys=True)}\n")
+            self.terminal.flush()
 
 
 AUTHORED_MESSAGES = {
     "Local API: http://127.0.0.1:8765/v1": "local_api_ready",
-    "Session token: server/.local-server/session-token.txt (refreshed on each launch)": "session_token_file_ready",
+    "Session token: server/.local-server/session-token.txt (reused across restarts)": "session_token_file_ready",
     "Provider calls use real keys. Data is process-local and is cleared when the server stops.": "local_spending_policy",
     "server/.env is valid. Provider credentials have not been verified.": "local_configuration_valid",
     "Create server/.env from server/development/.env.sample and add the provider keys.": "provider_key_file_missing",
     "OPENROUTER_API_KEY and GROQ_API_KEY must be set in server/.env.": "provider_key_missing",
     "Local token directory cannot be a symlink.": "token_directory_symlink",
+    "Local session credentials are invalid. Run with --reset-session-token to replace them.": "local_session_invalid",
+    "Local session files cannot be symlinks.": "local_session_symlink",
+    "Local session directory cannot use symlinks.": "local_session_directory_symlink",
     "Local server setup failed.": "local_setup_failed",
 }
 
@@ -179,8 +198,8 @@ class Stream(io.TextIOBase):
             if authored in AUTHORED_MESSAGES:
                 event.update(code=AUTHORED_MESSAGES[authored], message=authored, contentRedacted=False)
             self.logs.append(self.source, event)
-            # Keep terminal visibility, but never mirror arbitrary bodies to disk.
-            self.original.write(text)
+            # Both terminal and disk receive safe metadata for unknown output.
+            self.original.write((authored + "\n") if authored in AUTHORED_MESSAGES else (json.dumps(event) + "\n") if text.strip() else "")
             self.original.flush()
         return len(text)
 
@@ -190,7 +209,7 @@ class Stream(io.TextIOBase):
 
 def install(directory: Path) -> LocalLogs:
     logs = LocalLogs(directory)
-    handler = FileHandler(logs)
+    handler = FileHandler(logs, sys.stderr)
     root = logging.getLogger()
     root.handlers = [handler]
     root.setLevel(logging.DEBUG)
@@ -201,4 +220,6 @@ def install(directory: Path) -> LocalLogs:
     sys.stdout = Stream(logs, "stdout", sys.stdout)
     sys.stderr = Stream(logs, "stderr", sys.stderr)
     logs.append("logging", {"code": "logging_initialized"})
+    handler.terminal.write(f"Server logs: {directory}\n")
+    handler.terminal.flush()
     return logs

@@ -7,7 +7,7 @@ const fixtures = JSON.parse(readFileSync(`${directory}/split-fixtures.json`, 'ut
 const variants = ['whole', 'split-1', 'split-2', 'split-4'];
 const model = 'openai/gpt-oss-120b';
 const experiments: any[] = [];
-for (let trial = 0; trial < 3; trial++) for (const [index, group] of ['es', 'ar'].entries()) {
+for (let trial = 0; trial < 3; trial++) for (const [index, group] of ['spanish', 'arabic'].entries()) {
   for (let v = 0; v < variants.length; v++) {
     const variant = variants[(v + trial + index) % variants.length];
     const jobs = fixtures.filter((f: any) => f.group === group && (variant === 'whole' ? f.part === 'whole' : f.part !== 'whole')).map((fixture: any) => {

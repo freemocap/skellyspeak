@@ -1,9 +1,9 @@
 import { languages } from '../../platform/ipc/tauri'
 import { create } from 'zustand'
 import { applyFontSizeAction, type FontSizeAction } from '../../domain/input/font-size'
-import { requireUiLocale } from '../../domain/localization'
+import { browserLocale, UI_LOCALE_METADATA } from '../../domain/localization'
 import { reportFault } from '../../platform/diagnostics/faults'
-import { getSettings, languageFor, saveSettings } from '../../platform/ipc/tauri'
+import { getSettings, saveSettings } from '../../platform/ipc/tauri'
 import type { Settings } from '../../types'
 
 /// The preferences Rust owns, as one value with one writer.
@@ -22,8 +22,9 @@ export type LanguageField = 'target_language' | 'native_language'
 /// registry, so an Arabic native gets a right-to-left UI rather than just
 /// Arabic words.
 function applyUiLanguage(locale: string): void {
-  document.documentElement.dir = languageFor(locale)?.direction ?? 'ltr'
-  document.documentElement.lang = requireUiLocale(locale)
+  const tag = browserLocale(locale)
+  document.documentElement.dir = UI_LOCALE_METADATA[locale].direction
+  document.documentElement.lang = tag
 }
 
 interface SettingsState {
@@ -67,6 +68,7 @@ interface SettingsState {
   /// already moved on from.
   update: (change: (current: Settings) => Settings | null, faultContext: string) => Promise<void>
 
+  selectLanguageVariety: (language: string, variety: string) => Promise<void>
   setLanguage: (field: LanguageField, value: string) => Promise<void>
   setPreference: (key: PreferenceKey, value?: number) => Promise<void>
   changeTextSize: (action: FontSizeAction) => void
@@ -118,6 +120,20 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       } catch (error) {
         reportFault(faultContext, error)
       }
+    },
+
+    // The browser explicitly chooses a variety after selecting its conversation.
+    // Failures propagate to the browser; never claim success after a partial save.
+    selectLanguageVariety: async (language, variety) => {
+      if (get().savingLanguage) throw new Error('A language change is already being saved.')
+      const definition = languages().find(item => item.code === language)
+      if (!definition?.varieties.some(item => item.id === variety)) throw new Error('The selected variety is unavailable.')
+      set({ savingLanguage: true })
+      try {
+        const current = await getSettings()
+        const switched = current.target_language === language ? current : await get().save({ ...current, target_language: language, target_variety: definition.defaultVariety }, current)
+        if (switched.target_variety !== variety) await get().save({ ...switched, target_variety: variety }, switched)
+      } finally { set({ savingLanguage: false }) }
     },
 
     setLanguage: async (field, value) => {

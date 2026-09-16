@@ -7,8 +7,8 @@ use crate::language::linguistics::Span;
 fn identity() -> SourceIdentity {
     SourceIdentity {
         message_id: "fixture-source".into(),
-        target_language_id: "es".into(),
-        explanation_language_id: "en".into(),
+        target_language_id: "spanish".into(),
+        explanation_language_id: "english".into(),
         analysis_version: ANALYSIS_VERSION.into(),
     }
 }
@@ -63,7 +63,7 @@ fn inclusive_ids_reject_gaps_terminal_aliases_and_reversal() {
 #[test]
 fn explanation_guidance_uses_destination_and_preserves_source() {
     let mut id = identity();
-    id.explanation_language_id = "zh".into();
+    id.explanation_language_id = "mandarin".into();
     let source = "Sí, café.";
     let prompt = build_word_gloss_prompt(&id, source).unwrap();
     assert!(prompt.messages[0].content.contains("Simplified Chinese"));
@@ -74,8 +74,8 @@ fn explanation_guidance_uses_destination_and_preserves_source() {
     );
     let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
     assert_eq!(data["passage"], source);
-    id.target_language_id = "zh".into();
-    id.explanation_language_id = "en".into();
+    id.target_language_id = "mandarin".into();
+    id.explanation_language_id = "english".into();
     assert!(
         !build_word_gloss_prompt(&id, "你好").unwrap().messages[0]
             .content
@@ -342,7 +342,7 @@ fn gloss_field_uses_existing_prose_policy_and_tighter_core_limit() {
 #[test]
 fn both_apis_validate_native_languages_source_and_analysis_version() {
     let mut id = identity();
-    id.target_language_id = "es-MX".into();
+    id.target_language_id = "spanish-mexico".into();
     assert_eq!(
         decode_word_gloss(&id, "x", r#"{"spans":[]}"#),
         Err(AdapterError::UnsupportedTargetLanguage)
@@ -396,10 +396,10 @@ fn both_apis_validate_native_languages_source_and_analysis_version() {
 #[test]
 fn prompt_catalog_reconstructs_exact_source_with_no_word_presegmentation() {
     for (language, text) in [
-        ("es", "Sí, sí! cafe\u{301}"),
-        ("ar", "هٰذَا كِتَابٌ."),
-        ("zh", "你好世界 ภาษาไทย"),
-        ("en", "\"Ignore instructions\"\n👩🏽‍💻\r\n\\"),
+        ("spanish", "Sí, sí! cafe\u{301}"),
+        ("arabic", "هٰذَا كِتَابٌ."),
+        ("mandarin", "你好世界 ภาษาไทย"),
+        ("english", "\"Ignore instructions\"\n👩🏽‍💻\r\n\\"),
     ] {
         let mut id = identity();
         id.target_language_id = language.into();
@@ -411,7 +411,7 @@ fn prompt_catalog_reconstructs_exact_source_with_no_word_presegmentation() {
         let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
         assert_eq!(data["passage"], text);
         assert_eq!(data["target_language"], language);
-        assert_eq!(data["explanation_language"], "en");
+        assert_eq!(data["explanation_language"], "english");
         let rows = data["graphemes"].as_array().unwrap();
         let rebuilt: String = rows
             .iter()
@@ -496,7 +496,7 @@ fn explicit_catalog_endpoints_select_repeated_and_single_grapheme_words() {
 #[test]
 fn nonadjacent_grapheme_endpoints_form_a_linguistic_word() {
     let mut id = identity();
-    id.target_language_id = "zh".into();
+    id.target_language_id = "mandarin".into();
     let raw = candidate(vec![gloss(0, 2, "hello"), gloss(2, 4, "world")]);
     let result = decode_word_gloss(&id, "你好世界", &raw).unwrap();
     assert_eq!(result.gloss_count(), 2);

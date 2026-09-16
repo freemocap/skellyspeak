@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: french
+  name: French
+  native_name: Français
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: fr
+  transcription: fr
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: french-france
+  orthography:
+    shared: latin
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: french-france
+  name: France
+  description: France
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+- id: french-canada
+  name: Canada
+  description: Canada
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: Camille
+    romanizedName: null
+    age: 41
+    location: Lyon, France
+    occupation: Runs a small bookshop that hosts evening readings
+    background: Grew up in Nantes, studied history, and took over the bookshop from a retiring neighbour.
+      Lives in the flat above it.
+    currentSituation: Preparing a reading night for a local author and arguing with a printer about the
+      posters.
+    interests:
+    - bookbinding
+    - long train journeys
+    - cooking for too many people
+    - documentaries about mountains
+    opinions:
+    - E-readers are fine and paper is better.
+    - Anyone who dislikes soup is not to be trusted.
+    interestingFacts:
+    - Keeps a notebook of sentences overheard on the tram.
+    - Has read the same novel every winter for ten years.
+    favoriteBooks:
+    - L'Étranger — Albert Camus
+    - Les Misérables — Victor Hugo
+    favoriteMovies:
+    - Amélie (2001)
+    - Les Quatre Cents Coups (1959)
+    manner: Measured and precise. Enjoys a well-argued disagreement and rarely uses exclamation marks.
+    quirks:
+    - Quotes a line from whatever she is currently reading.
+    vibe:
+    - 📚
+    - ☕
+    - 🌧️
+  starters:
+    food:
+      label: Manger et boire
+      preview: Je voudrais du thé.
+      translation: Je voudrais du thé.
+      varieties:
+      - french-france
+      - french-canada
+    family:
+      label: Votre famille
+      preview: Voici ma famille.
+      translation: Voici ma famille.
+      varieties:
+      - french-france
+      - french-canada
+    weekend:
+      label: Projets du week-end
+      preview: Je veux me reposer.
+      translation: Je veux me reposer.
+      varieties:
+      - french-france
+      - french-canada
+    place:
+      label: Un endroit que vous aimez
+      preview: J’aime ce parc.
+      translation: J’aime ce parc.
+      varieties:
+      - french-france
+      - french-canada
+    day:
+      label: Votre journée
+      preview: Aujourd’hui, je suis chez moi.
+      translation: Aujourd’hui, je suis chez moi.
+      varieties:
+      - french-france
+      - french-canada
+    music:
+      label: Musique
+      preview: J’aime la musique.
+      translation: J’aime la musique.
+      varieties:
+      - french-france
+      - french-canada
+  starter_reasons:
+    focus: Selon votre objectif
+    due: À revoir
+    contact: Selon les intérêts de votre contact
+    general: Sujet de conversation

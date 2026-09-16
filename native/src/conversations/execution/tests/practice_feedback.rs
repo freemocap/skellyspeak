@@ -97,17 +97,18 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
         serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."},{"construct":"ix.self_repair","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"Revised wording."}]}),
     );
     assert!(checked["nativeRepair"]["support_step"].is_null());
-    let record = crate::learning::learner::progression::snapshot(&store, "es").unwrap()["records"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|r| {
-            r["assessment"]["judgments"]
-                .as_array()
-                .is_some_and(|j| j.iter().any(|j| j["source"] == "native_repair_check"))
-        })
-        .unwrap()
-        .clone();
+    let record =
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["records"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| {
+                r["assessment"]["judgments"]
+                    .as_array()
+                    .is_some_and(|j| j.iter().any(|j| j["source"] == "native_repair_check"))
+            })
+            .unwrap()
+            .clone();
     assert_eq!(
         record["assessment"]["judgments"]
             .as_array()
@@ -124,7 +125,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
             .unwrap()
             .contains("linking verb")
     );
-    let profile = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(profile["profile"]["xp"], 28);
 }
 
@@ -203,7 +204,7 @@ fn wave2_graded_retry_and_keep_going_do_not_block_chat() {
 }
 
 #[test]
-fn wave2_owned_edited_config_reaches_capture_and_hash_mismatch_retains_evidence() {
+fn wave2_bundled_content_update_reaches_capture_and_hash_mismatch_retains_evidence() {
     let (dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
@@ -213,19 +214,35 @@ fn wave2_owned_edited_config_reaches_capture_and_hash_mismatch_retains_evidence(
     fixture_evidence(&store, &first, "¿cómo estás?");
     let before_catalog = store.config.catalog();
     drop(store);
-    let path = dir.path().join("config/constructs/core.yaml");
-    let edited = std::fs::read_to_string(&path).unwrap().replacen(
-        "tokens: []",
-        "tokens: [\"custom_semantic_token\"]",
-        1,
-    );
-    std::fs::write(path, edited).unwrap();
-    let path = dir.path().join("config/languages/languages/es.yaml");
-    let edited=std::fs::read_to_string(&path).unwrap().replace("guidance: []\nreview:","guidance:\n  - scope: assessment\n    text: Preserve CUSTOM_ASSESSMENT_GUIDANCE.\n    sources: [cefr2020]\nreview:");
-    std::fs::write(path, edited).unwrap();
+    let content = dir.path().join("content");
+    std::fs::create_dir(&content).unwrap();
+    for folder in ["languages", "shared"] {
+        std::fs::create_dir(content.join(folder)).unwrap();
+        let original = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../content")
+            .join(folder);
+        for entry in std::fs::read_dir(original).unwrap() {
+            let entry = entry.unwrap();
+            std::fs::copy(entry.path(), content.join(folder).join(entry.file_name())).unwrap();
+        }
+    }
+    std::fs::copy(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../references.bib"),
+        dir.path().join("references.bib"),
+    )
+    .unwrap();
+    let path = content.join("languages/spanish.yaml");
+    let mut document: serde_json::Value =
+        serde_yaml_ng::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    document["learning"]["goal_material"]["greeting"] =
+        serde_json::json!({"tokens":["custom_semantic_token"]});
+    document["guidance"] = serde_json::json!([{"scope":"assessment","text":"Preserve CUSTOM_ASSESSMENT_GUIDANCE.","sources":["cefr2020"]}]);
+    std::fs::write(path, serde_yaml_ng::to_string(&document).unwrap()).unwrap();
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    // Simulate an app content update; workspaces no longer own editable definitions.
+    store.config = crate::configuration::Registry::load(&content).unwrap();
     assert_eq!(store.config.catalog(), before_catalog);
-    let profile = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(profile["profile"]["xp"], 0);
     assert!(profile["records"][0]["mapping_error"].is_string());
     assert!(profile["records"][0]["assessment"].is_object());

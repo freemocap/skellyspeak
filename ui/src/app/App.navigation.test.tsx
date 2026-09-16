@@ -23,7 +23,7 @@ const { native, state } = vi.hoisted(() => {
   })
   return { native, state }
 })
-vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'en', native_variety: 'en-US', interface_locale: 'en', target_language: 'es', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
+vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english', target_language: 'spanish', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
 vi.mock('./shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
 vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
 vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))

@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { cases } from './android.ts'
-const voices = { es:'Paulina', ar:'Majed', zh:'Tingting' }
+const voices = { spanish:'Paulina', arabic:'Majed', mandarin:'Tingting' }
 const directory = resolve('tools/test-fixtures/speech')
 mkdirSync(directory,{recursive:true})
 for (const scenario of cases) {

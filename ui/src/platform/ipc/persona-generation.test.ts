@@ -7,10 +7,10 @@ beforeEach(() => native.invoke.mockReset())
 
 it('reserves generation with a normalized optional brief', async () => {
   native.invoke.mockResolvedValue('generation')
-  expect(await beginPersonaGeneration('es', '  fisher  ')).toBe('generation')
-  expect(native.invoke).toHaveBeenLastCalledWith('begin_persona_generation', { languageId: 'es', brief: 'fisher' })
-  await beginPersonaGeneration('fr', '   ')
-  expect(native.invoke).toHaveBeenLastCalledWith('begin_persona_generation', { languageId: 'fr', brief: null })
+  expect(await beginPersonaGeneration('spanish', '  fisher  ')).toBe('generation')
+  expect(native.invoke).toHaveBeenLastCalledWith('begin_persona_generation', { languageId: 'spanish', brief: 'fisher' })
+  await beginPersonaGeneration('french', '   ')
+  expect(native.invoke).toHaveBeenLastCalledWith('begin_persona_generation', { languageId: 'french', brief: null })
 })
 
 it('runs and cancels only the admitted generation ID', async () => {

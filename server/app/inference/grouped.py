@@ -14,6 +14,7 @@ import anyio
 from fastapi import HTTPException
 from google.cloud import firestore
 
+import server.app.diagnostics.runtime as runtime
 import server.app.admission.admission as admission
 import server.app.inference.contracts as contracts
 import server.app.accounting.quota as quota
@@ -96,6 +97,7 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
     complete = False
 
     async def run(item_index: int, item: Item) -> None:
+        runtime.emit("operation_started", request_id=request_id, item_index=item_index)
         event: dict[str, object] = {"operation_id": item.operation_id, "attempt_id": item.attempt_id}
         try:
             # Each item consumes infrastructure admission, including duplicates.
@@ -104,6 +106,7 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
             with anyio.CancelScope(shield=True):
                 await anyio.to_thread.run_sync(partial(admission.take, db, lane="account", subject=who.user_id))
                 held = await anyio.to_thread.run_sync(partial(work.claim, db, user_id=who.user_id, attempt_id=item.attempt_id, digest=item.digest))
+            runtime.emit("operation_claimed" if held.acquired else "operation_duplicate", request_id=request_id, item_index=item_index)
             if held.acquired:
                 event.update(await execute(item, held))
             else:
@@ -117,6 +120,7 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
         except Exception as error:
             record_failure(500, error, request_id=request_id, item_index=item_index)
             event.update({"type": "error", "code": "UNKNOWN_OUTCOME", "status": 500})
+        runtime.emit("operation_finished", request_id=request_id, item_index=item_index)
         await send.send(event)
 
     async with send, receive, anyio.create_task_group() as tasks:

@@ -228,36 +228,36 @@ mod tests {
 
     #[test]
     fn a_romanized_name_is_required_exactly_for_non_latin_languages() {
-        let mut chinese = starter("zh").unwrap();
+        let mut chinese = starter("mandarin").unwrap();
         chinese.romanized_name = None;
         assert_eq!(
-            validate(&chinese, "zh").unwrap_err().code,
+            validate(&chinese, "mandarin").unwrap_err().code,
             ErrorCode::Validation
         );
         chinese.romanized_name = Some("  ".into());
         assert_eq!(
-            validate(&chinese, "zh").unwrap_err().code,
+            validate(&chinese, "mandarin").unwrap_err().code,
             ErrorCode::Validation
         );
-        let mut spanish = starter("es").unwrap();
+        let mut spanish = starter("spanish").unwrap();
         spanish.romanized_name = Some("Lucia".into());
         assert_eq!(
-            validate(&spanish, "es").unwrap_err().code,
+            validate(&spanish, "spanish").unwrap_err().code,
             ErrorCode::Validation
         );
     }
 
     #[test]
     fn limits_are_enforced_at_their_boundaries() {
-        let base = starter("es").unwrap();
+        let base = starter("spanish").unwrap();
         let with = |edit: &dyn Fn(&mut PersonaDetails)| {
             let mut details = base.clone();
             edit(&mut details);
             details
         };
-        assert!(validate(&base, "es").is_ok());
+        assert!(validate(&base, "spanish").is_ok());
         assert!(
-            validate(&with(&|d| d.age = None), "es").is_ok(),
+            validate(&with(&|d| d.age = None), "spanish").is_ok(),
             "a blank age is allowed"
         );
         for (label, details) in [
@@ -304,7 +304,7 @@ mod tests {
             ),
         ] {
             assert_eq!(
-                validate(&details, "es").unwrap_err().code,
+                validate(&details, "spanish").unwrap_err().code,
                 ErrorCode::Validation,
                 "{label} should be refused"
             );

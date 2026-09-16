@@ -208,19 +208,6 @@ impl Registry {
             for (provider, tag) in &l.external_tags {
                 nonempty(&l.id, &[provider, tag])?;
             }
-            for tags in std::iter::once(&l.external_tags)
-                .chain(l.varieties.iter().map(|v| &v.external_tags))
-            {
-                if let Some(tag) = tags.get("transcription")
-                    && (tag.len() != 2 || !tag.bytes().all(|b| b.is_ascii_lowercase()))
-                {
-                    return Err(error(
-                        &l.id,
-                        "transcription_tag",
-                        "Current transcription routes require a two-letter language tag.",
-                    ));
-                }
-            }
             review(&l.id, &l.review)?;
             reference(&l.id, &l.script, &scripts)?;
             reference(&l.id, &l.orthography, &orth)?;
@@ -483,12 +470,12 @@ impl Registry {
                 .any(|k| g.tiers.get(*k).is_none_or(|v| *v > 3))
         {
             return Err(error(
-                "policy/game.yaml",
+                "shared/teaching-policy.yaml#game",
                 "game",
                 "Reward rules, evidence causes, tiers or numeric bounds are invalid.",
             ));
         }
-        citations("policy/game.yaml", &g.sources, &keys)?;
+        citations("shared/teaching-policy.yaml#game", &g.sources, &keys)?;
         let e = &self.estimator;
         let steps = [
             "none",
@@ -536,12 +523,12 @@ impl Registry {
             || e.support.get("none") != Some(&1.0)
         {
             return Err(error(
-                "policy/estimator.yaml",
+                "shared/teaching-policy.yaml#estimator",
                 "estimator",
                 "Invalid estimator bounds or support weights.",
             ));
         }
-        citations("policy/estimator.yaml", &e.sources, &keys)?;
+        citations("shared/teaching-policy.yaml#estimator", &e.sources, &keys)?;
         let p = &self.feedback;
         let ladder = [
             "partner_clarify",
@@ -555,7 +542,7 @@ impl Registry {
             || p.ladder != ladder.iter().map(|s| s.to_string()).collect::<Vec<_>>()
         {
             return Err(error(
-                "policy/feedback.yaml",
+                "shared/teaching-policy.yaml#feedback",
                 "policy",
                 "Unsupported correction policy or ladder.",
             ));
@@ -570,7 +557,7 @@ impl Registry {
             .collect()
         {
             return Err(error(
-                "policy/feedback.yaml",
+                "shared/teaching-policy.yaml#feedback",
                 "policy",
                 "All three learner-agency protections are required.",
             ));
@@ -580,7 +567,7 @@ impl Registry {
             .any(|s| !["developmental", "slip", "transfer", "unknown"].contains(&s.as_str()))
         {
             return Err(error(
-                "policy/feedback.yaml",
+                "shared/teaching-policy.yaml#feedback",
                 "policy",
                 "Unknown error source.",
             ));
@@ -592,7 +579,7 @@ impl Registry {
             != ["light", "standard", "thorough"].into_iter().collect()
         {
             return Err(error(
-                "policy/feedback.yaml",
+                "shared/teaching-policy.yaml#feedback",
                 "policy",
                 "Expected light, standard and thorough intensities.",
             ));
@@ -602,13 +589,13 @@ impl Registry {
                 || !(1..=3).contains(&i.max_revisions)
             {
                 return Err(error(
-                    "policy/feedback.yaml",
+                    "shared/teaching-policy.yaml#feedback",
                     "policy",
                     "Unsupported starting move or revision limit.",
                 ));
             }
         }
-        citations("policy/feedback.yaml", &p.sources, &keys)?;
+        citations("shared/teaching-policy.yaml#feedback", &p.sources, &keys)?;
         if self
             .reasons
             .keys()
@@ -617,7 +604,7 @@ impl Registry {
             != ["focus", "due", "contact", "general"].into_iter().collect()
         {
             return Err(error(
-                "starters/reasons.yaml",
+                "languages/*#conversation.starter_reasons",
                 "reason",
                 "Expected focus, due, contact and general reason labels.",
             ));
@@ -627,7 +614,7 @@ impl Registry {
                 || map.values().any(|v| v.trim().is_empty())
             {
                 return Err(error(
-                    "starters/reasons.yaml",
+                    "languages/*#conversation.starter_reasons",
                     "localization",
                     "Every reason must cover every explanation language.",
                 ));
@@ -680,7 +667,7 @@ impl Registry {
             }
             // Every offered language must have a target preview; every supported
             // explanation language must have a label and equivalent translation.
-            for id in &langs {
+            for id in &s.languages {
                 for map in [&s.labels, &s.translations] {
                     if map.get(id).is_none_or(|s| s.trim().is_empty()) {
                         return Err(error(

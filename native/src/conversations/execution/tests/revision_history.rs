@@ -67,7 +67,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     let evidence = serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"Requests information."}]}).to_string();
     store.finish(&feedback, Ok(reply(&evidence))).unwrap();
     store.finish(&feedback, Ok(reply(&evidence))).unwrap();
-    let xp = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let xp = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(xp["profile"]["xp"], 35);
     let record = xp["records"]
         .as_array()
@@ -89,11 +89,11 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     finish_fixture_exchange(&mut store, &second, "Bien.");
     fixture_evidence(&store, &second, "¿Cómo está tu hermana?");
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         35,
         "Repeated wording earns nothing further"
     );
-    let record = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let record = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     let ids: Vec<_> = record["profile"]["credits"]
         .as_array()
         .unwrap()
@@ -104,7 +104,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     store
         .connection
         .execute(
-            "INSERT INTO skill_choices VALUES('es',1,NULL,?1)",
+            "INSERT INTO skill_choices VALUES('spanish',1,NULL,?1)",
             [serde_json::to_string(&ids).unwrap()],
         )
         .unwrap();
@@ -117,7 +117,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
         )
         .unwrap();
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         30
     );
     drop(store);
@@ -129,7 +129,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
         Some(revised.as_str())
     );
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         30
     );
 }
@@ -185,7 +185,7 @@ fn earlier_revision_removes_exact_suffix_and_rejects_stale_pending_and_wrong_tar
     store
         .connection
         .execute(
-            "INSERT INTO skill_choices VALUES('es',1,NULL,?1)",
+            "INSERT INTO skill_choices VALUES('spanish',1,NULL,?1)",
             [serde_json::json!([format!("evidence-{later}")]).to_string()],
         )
         .unwrap();
@@ -236,7 +236,7 @@ fn earlier_revision_removes_exact_suffix_and_rejects_stale_pending_and_wrong_tar
     assert_eq!(view.messages.len(), 3);
     assert!(view.coach_messages.is_empty());
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["choices"]
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["choices"]
             ["excluded_attempts"],
         serde_json::json!([])
     );
@@ -308,7 +308,7 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
             .feedback
             .is_none()
     );
-    let records = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let records = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     let prior = records["records"]
         .as_array()
         .unwrap()

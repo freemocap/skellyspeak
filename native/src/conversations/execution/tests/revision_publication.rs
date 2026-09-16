@@ -20,9 +20,9 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
         .entity_id;
     finish_fixture_exchange(&mut store, &second, "Second.");
     fixture_evidence(&store, &second, "¿Qué hora es?");
-    store.connection.execute("INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','es','custom','fixture',1,'succeeded')",[]).unwrap();
+    store.connection.execute("INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','spanish','custom','fixture',1,'succeeded')",[]).unwrap();
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         35
     );
     let revision = store
@@ -59,7 +59,7 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
         1
     );
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         0
     );
 }
@@ -163,7 +163,7 @@ fn revised_wording_awards_weighted_xp_without_a_direct_proficiency_mark() {
         .entity_id;
     finish_fixture_exchange(&mut store, &second, "Second.");
     fixture_evidence(&store, &second, "¿Qué hora es?");
-    let profile = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(profile["profile"]["xp"], 10);
     let skill = profile["profile"]["skills"]
         .as_array()

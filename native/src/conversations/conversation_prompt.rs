@@ -139,8 +139,8 @@ mod tests {
 
     #[test]
     fn five_levels_select_only_their_own_guidance_using_the_same_prompt_contract() {
-        let language = crate::language::languages::language("es").unwrap();
-        let mut settings = crate::language::languages::defaults("es", "en").unwrap();
+        let language = crate::language::languages::language("spanish").unwrap();
+        let mut settings = crate::language::languages::defaults("spanish", "english").unwrap();
         let details = contact();
         let levels = [
             (Difficulty::AbsoluteZero, ABSOLUTE_ZERO),
@@ -188,8 +188,8 @@ mod tests {
 
     #[test]
     fn projection_preserves_persona_as_data_and_excludes_presentation_and_controls() {
-        let language = crate::language::languages::language("es").unwrap();
-        let settings = crate::language::languages::defaults("es", "en").unwrap();
+        let language = crate::language::languages::language("spanish").unwrap();
+        let settings = crate::language::languages::defaults("spanish", "english").unwrap();
         let details = contact();
         let prompt = render(&language, &settings, &details, BEGINNER).unwrap();
         let (instructions, data) = prompt.split_once("\nConversation (data): ").unwrap();
@@ -202,7 +202,7 @@ mod tests {
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(conversation).unwrap(),
             serde_json::json!({
-                "targetLanguage":"es", "targetLanguageName":"Spanish", "explanationLanguage":"en", "varietyId":"es-ES"
+                "targetLanguage":"spanish", "targetLanguageName":"Spanish", "explanationLanguage":"english", "varietyId":"spanish-spain"
             })
         );
         assert_eq!(
@@ -240,19 +240,19 @@ mod tests {
 
     #[test]
     fn selected_context_and_profile_edits_change_only_the_new_prompt() {
-        let language = crate::language::languages::language("es").unwrap();
-        let mut settings = crate::language::languages::defaults("es", "en").unwrap();
+        let language = crate::language::languages::language("spanish").unwrap();
+        let mut settings = crate::language::languages::defaults("spanish", "english").unwrap();
         let mut details = contact();
         let captured = render(&language, &settings, &details, BEGINNER).unwrap();
-        settings.explanation_language = "fr".into();
-        settings.variety_id = "es-MX".into();
+        settings.explanation_language = "french".into();
+        settings.variety_id = "spanish-mexico".into();
         details.name = "Edited contact".into();
         let next = render(&language, &settings, &details, BEGINNER).unwrap();
         assert!(captured.contains("Fixture contact"));
         assert!(!captured.contains("Edited contact"));
         assert!(next.contains("Edited contact"));
-        assert!(next.contains("\"varietyId\":\"es-MX\""));
-        assert!(next.contains("\"explanationLanguage\":\"fr\""));
+        assert!(next.contains("\"varietyId\":\"spanish-mexico\""));
+        assert!(next.contains("\"explanationLanguage\":\"french\""));
         assert!(!next.contains("Fixture contact"));
     }
 }

@@ -109,6 +109,15 @@ async fn request_payload(
         };
     }
     if !response.status().is_success() {
+        if let Some(message) = crate::ai::connections::auth_errors::message(
+            route,
+            response.url().as_str(),
+            "Chat",
+            response.status().as_u16(),
+        ) {
+            return Err(AppError::new(ErrorCode::Provider, message));
+        }
+
         let error = AppError::new(
             ErrorCode::Provider,
             format!(

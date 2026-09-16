@@ -64,6 +64,9 @@ import server.app.config as config
 import server.app.accounting.quota as quota
 import server.app.inference.streaming as streaming
 import server.app.diagnostics.observability as observability
+import server.app.diagnostics.runtime as runtime
+import server.app.diagnostics.provider_errors as provider_errors
+import server.app.diagnostics.provider_health as provider_health
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -76,8 +79,14 @@ CFG = config.load()
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    runtime.emit("runtime_started")
+    runtime.emit("decoder_check_started")
     await asyncio.to_thread(audio_input.verify_decoder)
-    yield
+    runtime.emit("decoder_check_finished")
+    try:
+        yield
+    finally:
+        runtime.emit("runtime_stopped")
 
 
 app = FastAPI(title="SkellySpeak API", lifespan=lifespan)
@@ -133,25 +142,29 @@ class UpstreamHTTPError(HTTPException):
 
 async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, provider: str = "UPSTREAM", **kwargs) -> dict:
     """Bound decoded upstream bytes before buffering, including compressed responses."""
-    async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
-        if not response.is_success:
-            raise UpstreamHTTPError(response.status_code, provider)
-        body = bytearray()
-        async for chunk in response.aiter_bytes():
-            if len(body) + len(chunk) > limit:
-                raise HTTPException(502, "Upstream response exceeds its size limit.")
-            body.extend(chunk)
-    try:
-        payload = json.loads(body)
-    except (ValueError, UnicodeError, RecursionError) as exc:
-        raise HTTPException(502, "Upstream returned invalid JSON.") from exc
-    if not isinstance(payload, dict):
-        raise HTTPException(502, "Upstream returned an invalid response.")
-    if provider in {"OPENROUTER", "GROQ"} and payload.get("error"):
-        error = payload["error"]
-        status = error.get("code") if isinstance(error, dict) else None
-        raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider)
-    return payload
+    async with runtime.phase("provider", provider=provider):
+        async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
+            runtime.emit("provider_headers", provider=provider, status=response.status_code)
+            if not response.is_success:
+                await provider_errors.capture(response, provider, kwargs)
+                raise UpstreamHTTPError(response.status_code, provider)
+            body = bytearray()
+            async for chunk in response.aiter_bytes():
+                if len(body) + len(chunk) > limit:
+                    raise HTTPException(502, "Upstream response exceeds its size limit.")
+                body.extend(chunk)
+        try:
+            payload = json.loads(body)
+        except (ValueError, UnicodeError, RecursionError) as exc:
+            raise HTTPException(502, "Upstream returned invalid JSON.") from exc
+        if not isinstance(payload, dict):
+            raise HTTPException(502, "Upstream returned an invalid response.")
+        if provider in {"OPENROUTER", "GROQ"} and payload.get("error"):
+            provider_errors.record(provider, response.status_code, {"error": payload["error"]}, kwargs)
+            error = payload["error"]
+            status = error.get("code") if isinstance(error, dict) else None
+            raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider)
+        return payload
 
 
 # ── Health ──────────────────────────────────────────────────────────────────
@@ -522,10 +535,17 @@ def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
 
 def _reserve(who: quota.Principal, micros: int) -> budget.Reservation:
     try:
-        return budget.reserve(db, user_id=who.user_id, micros=micros,
+        runtime.emit("reservation_started", micros=micros)
+        reservation = budget.reserve(db, user_id=who.user_id, micros=micros,
                               user_limit=who.daily_limit, global_limit=CFG.global_daily_micros)
+        runtime.emit("reservation_finished", micros=micros)
+        return reservation
     except quota.QuotaExceeded as exc:
+        runtime.emit("reservation_failed", micros=micros)
         raise observability.Rejection(exc.code, str(exc), daily=exc.code != "SPENDING_PAUSED") from exc
+    except BaseException:
+        runtime.emit("reservation_failed", micros=micros)
+        raise
 
 
 class UsageUnknown(RuntimeError):
@@ -533,14 +553,15 @@ class UsageUnknown(RuntimeError):
 
 
 async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str) -> None:
-    with anyio.CancelScope(shield=True):
-        await anyio.to_thread.run_sync(partial(
-            budget.settle, db, reservation=reservation,
-            actual_micros=reservation.micros if cost is None else cost,
-            tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id,
-        ))
-    if cost is None:
-        raise UsageUnknown(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
+    async with runtime.phase("settlement", outcome="unknown" if cost is None else "known", tokens=tokens):
+        with anyio.CancelScope(shield=True):
+            await anyio.to_thread.run_sync(partial(
+                budget.settle, db, reservation=reservation,
+                actual_micros=reservation.micros if cost is None else cost,
+                tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id,
+            ))
+        if cost is None:
+            raise UsageUnknown(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
 
 
 @app.post("/v1/chat/completions")
@@ -601,10 +622,14 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         completed = False
         settled = False
         upstream_status: int | None = None
+        provider_started = time.monotonic()
+        runtime.emit("provider_started", provider="OPENROUTER")
         try:
             async with asyncio.timeout(180), httpx.AsyncClient(timeout=180) as client:
                 async with client.stream("POST", url, json=contract.payload, headers=headers) as upstream:
+                    runtime.emit("provider_headers", provider="OPENROUTER", status=upstream.status_code)
                     if not upstream.is_success:
+                        await provider_errors.capture(upstream, "OPENROUTER", {"json": contract.payload, "headers": headers})
                         upstream_status = upstream.status_code
                         raise RuntimeError(f"AI provider returned {upstream.status_code}.")
                     async for payload in streaming.events(upstream.aiter_bytes()):
@@ -635,6 +660,8 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                 error_payload["code"] = upstream_status
             yield ("data: " + json.dumps({"error": error_payload}) + "\n\n").encode()
         finally:
+            runtime.emit("provider_finished" if completed else "provider_failed", provider="OPENROUTER",
+                         duration_ms=round((time.monotonic() - provider_started) * 1000))
             if not settled:
                 await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
 
@@ -713,9 +740,8 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
     execution_error: BaseException | None = None
     try:
         # Preparation cannot incur provider charges. Fail before reserving money.
-        use_groq = item.contract.payload["model"] == model_routing.OSS
         try:
-            outbound = model_routing.groq_payload(item.contract.payload) if use_groq else item.contract.payload
+            outbound = item.contract.payload
             json.dumps(outbound, allow_nan=False)
         except (ValueError, TypeError, KeyError, AttributeError) as error:
             raise HTTPException(400, "Invalid structured request for the selected provider.") from error
@@ -728,15 +754,15 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
             async with httpx.AsyncClient(timeout=work_admission.WORK_SECONDS) as client:
                 cost = None
                 state = "unknown"
-                base = CFG.groq_base_url if use_groq else CFG.openrouter_base_url
-                key = CFG.groq_key if use_groq else CFG.openrouter_key
+                base = CFG.openrouter_base_url
+                key = CFG.openrouter_key
                 payload = await provider_json(client, f"{base}/chat/completions",
-                    limit=4 * 1024 * 1024, provider="GROQ" if use_groq else "OPENROUTER", json=outbound,
+                    limit=4 * 1024 * 1024, provider="OPENROUTER", json=outbound,
                     headers={"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"})
         if payload.get("error"):
             raise HTTPException(502, "Invalid provider response.")
         provider_id = str(payload.get("id", ""))
-        cost, tokens = model_routing.groq_usage(payload) if use_groq else _usage_from(payload)
+        cost, tokens = _usage_from(payload)
         if cost is not None:
             state = "succeeded"
         return {"type": "result", "response": payload}
@@ -774,8 +800,15 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
 
 
 @app.get("/v1/protocol")
-def protocol(who: quota.Principal = Depends(diagnostic_user)) -> dict[str, object]:
-    return {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
+async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_providers: bool = False) -> dict[str, object]:
+    result = {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
             "accepts_other_text_models": True,
             "transcription_model": "whisper-large-v3"}
+    if verify_providers:
+        result["providers"] = await provider_health.check(CFG)
+    return result
+
+
+# Registered last to surround ingress and retain correlation through streamed bodies.
+app.add_middleware(runtime.RequestActivity)

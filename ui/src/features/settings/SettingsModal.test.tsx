@@ -7,6 +7,7 @@ import { I18nProvider } from '../../components/localization/i18n'
 
 const backend = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn(), invoke: vi.fn() }))
 vi.mock('../../platform/ipc/tauri', () => ({ ...backend, isTauri: false, logInfo: vi.fn(), languages: () => [], languageFor: () => null }))
+vi.mock('./models/SettingsModels', () => ({ SettingsModels: () => <p>Shared model editor</p> }))
 vi.mock('./access/SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
 vi.mock('./language/VarietyField', () => ({ VarietyField: () => null }))
 vi.mock('../../platform/audio/speech', () => ({ setVoiceVolume: vi.fn() }))
@@ -24,9 +25,9 @@ const SETTINGS: Settings = {
   groq_key: '',
   openrouter_model: 'google/gemini-2.5-flash',
   observer_model: null,
-  target_language: 'es-ES',
+  target_language: 'spanish-spain',
   target_variety: '',
-  native_language: 'en', native_variety: 'en-US', interface_locale: 'en',
+  native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english',
   microphone_device_id: null,
   auto_speak: false,
   auto_send: false,
@@ -179,8 +180,8 @@ it('preserves a newer text-size edit while the first save completes', async () =
 })
 
 it('keeps the entire settings interface in its locale when the explanation language differs', async () => {
-  backend.getSettings.mockResolvedValue({ ...SETTINGS, native_language: 'fr', native_variety: 'fr-FR', interface_locale: 'de' })
-  render(<I18nProvider locale="de"><SettingsModal onClose={vi.fn()} /></I18nProvider>)
+  backend.getSettings.mockResolvedValue({ ...SETTINGS, native_language: 'french', native_variety: 'french-france', interface_locale: 'german' })
+  render(<I18nProvider locale="german"><SettingsModal onClose={vi.fn()} /></I18nProvider>)
   expect(await screen.findByRole('heading', { name: 'Einstellungen' })).toBeVisible()
   expect(screen.queryByRole('heading', { name: 'Paramètres' })).toBeNull()
 })
@@ -197,4 +198,15 @@ it('exposes appearance controls and autosaves their combined values', async () =
   await waitFor(() => expect(backend.saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({
     appearance: expect.objectContaining({ depth: 'recessed', layoutSpacing: 'extra_tight', glowEnabled: true, glowStrength: 55 }),
   }), expect.any(Object)))
+})
+
+it('places shared model selection in its own section and search result', async () => {
+  render(<SettingsModal onClose={vi.fn()} />)
+  const search = await screen.findByLabelText('Search settings')
+  fireEvent.change(search, { target: { value: 'models' } })
+  expect(screen.getByText('Shared model editor')).toBeVisible()
+  expect(screen.queryByText('AI access', { selector: 'p' })).toBeNull()
+  fireEvent.change(search, { target: { value: 'AI access' } })
+  expect(screen.getByText('AI access', { selector: 'p:not(.settings-group-k)' })).toBeVisible()
+  expect(screen.queryByText('Shared model editor')).toBeNull()
 })

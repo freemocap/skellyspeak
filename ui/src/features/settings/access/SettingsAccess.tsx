@@ -1,24 +1,32 @@
 import { useI18n } from '../../../components/localization/i18n'
+import { ConnectionHealthPanel } from './ConnectionHealthPanel'
+import { useConnectionHealth } from '../../../state/session/connection-health'
 import { InfoTip } from '../../../components/controls/InfoTip'
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/native'
-import type { AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../../generated/contracts'
+import type { AccessCheck, AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../../generated/contracts'
 
 const message = (error: unknown): string => error instanceof Error ? error.message :
   typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
 
-/** Native configuration owns route and credential revisions. Secrets are write-only. */
-export function SettingsAccess({ onBusyChange, onChanged }: {
+function credentialPreview(value: string): string {
+  const chars = Array.from(value.trim())
+  return chars.length > 10 ? `${chars.slice(0, 5).join('')}***${chars.slice(-5).join('')}` : '***'
+}
+
+/** Native configuration owns revisions and returns only masked saved credentials. */
+export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   onBusyChange: (busy: boolean) => void
   onChanged: () => Promise<void>
+  refreshKey?: number
 }) {
   const tr = useI18n()
+  const customHealth = useConnectionHealth(state => state.routes.custom)
   const [connection, setConnection] = useState<ConnectionConfig | null>(null)
   const [access, setAccess] = useState<AccessSettings | null>(null)
   const [endpoint, setEndpoint] = useState<CustomEndpoint | null>(null)
-  const [models, setModels] = useState({ standardModel: '', fastModel: '', transcriptionModel: '' })
   const [keys, setKeys] = useState({ openrouter: '', groq: '', custom: '' })
-  const [dirty, setDirty] = useState<'models' | 'openrouter' | 'groq' | 'custom' | null>(null)
+  const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -27,7 +35,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
   const [account, setAccount] = useState<HostedAccount | null>(null)
   const [removing, setRemoving] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
   const writing = useRef(false)
-  const savedDraft = useRef<{ endpoint: CustomEndpoint; models: typeof models } | null>(null)
+  const savedDraft = useRef<{ endpoint: CustomEndpoint } | null>(null)
 
   async function read() {
     const [nextConnection, nextAccess] = await Promise.all([
@@ -37,25 +45,22 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     setConnection(nextConnection); setAccess(nextAccess)
     const displayedEndpoint = custom
     setEndpoint(displayedEndpoint)
-    const displayedModels = { standardModel: nextConnection.standardModel, fastModel: nextConnection.fastModel, transcriptionModel: nextConnection.transcriptionModel }
-    savedDraft.current = { endpoint: displayedEndpoint, models: displayedModels }
-    setModels(displayedModels)
+    savedDraft.current = { endpoint: displayedEndpoint }
   }
-  useEffect(() => { void read().catch(error => setError(message(error))) }, [])
+  useEffect(() => { void read().catch(error => setError(message(error))) }, [refreshKey])
   useEffect(() => { onBusyChange(busy || dirty !== null); return () => onBusyChange(false) }, [busy, dirty, onBusyChange])
 
   useEffect(() => {
     const saved = savedDraft.current
     if (!dirty || busy || !saved) return
-    const changed = dirty === 'models' ? JSON.stringify(models) !== JSON.stringify(saved.models) :
-      keys[dirty].trim() !== '' || (dirty === 'custom' && JSON.stringify(endpoint) !== JSON.stringify(saved.endpoint))
+    const changed = keys[dirty].trim() !== '' || (dirty === 'custom' && JSON.stringify(endpoint) !== JSON.stringify(saved.endpoint))
     if (!changed) { setDirty(null); setError(null) }
-  }, [dirty, busy, keys, endpoint, models])
+  }, [dirty, busy, keys, endpoint])
 
   function discard() {
     const saved = savedDraft.current
     if (busy || !saved) return
-    setEndpoint(saved.endpoint); setModels(saved.models)
+    setEndpoint(saved.endpoint)
     setKeys({ openrouter: '', groq: '', custom: '' })
     setDirty(null); setError(null); setStatus('Changes discarded'); setEditingField(false)
   }
@@ -67,11 +72,9 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     catch (error) { setError(message(error)) }
     finally { writing.current = false; setBusy(false) }
   }
-  async function save(provider: 'models' | 'openrouter' | 'groq' | 'custom', removeKey = false) {
+  async function save(provider: 'openrouter' | 'groq' | 'custom', removeKey = false) {
     if (!connection || !access || !endpoint) throw new Error('AI access has not loaded.')
-    if (provider === 'models') {
-      await invoke('save_models', { expectedRevision: connection.revision, ...models })
-    } else if (provider === 'openrouter') {
+    if (provider === 'openrouter') {
       if (removeKey) await invoke('disconnect', { expectedRevision: connection.revision })
       else await invoke('save_connection', {
         expectedRevision: connection.revision, apiKey: keys.openrouter.trim() || null,
@@ -82,7 +85,7 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
         apiKey: removeKey ? null : keys[provider].trim() || null, removeKey,
       })
     }
-    if (provider !== 'models') setKeys(current => ({ ...current, [provider]: '' }))
+    setKeys(current => ({ ...current, [provider]: '' }))
     setDirty(null); setRemoving(null)
     await read(); await onChanged(); setStatus('Saved')
   }
@@ -90,11 +93,13 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     if (!dirty || busy || editingField || error) return
     const timer = setTimeout(() => void run(() => save(dirty)), 500)
     return () => clearTimeout(timer)
-  }, [dirty, keys, endpoint, models, editingField, busy, error])
+  }, [dirty, keys, endpoint, editingField, busy, error])
 
-  function edit(provider: 'models' | 'openrouter' | 'groq' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
+  function edit(provider: 'openrouter' | 'groq' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
   async function check(provider: 'openrouter' | 'groq' | 'custom') {
     if (!connection || !access) throw new Error('AI access has not loaded.')
+    let checkedRevision = provider === 'openrouter' ? connection.revision : access.revision
+    if (provider !== 'groq') useConnectionHealth.getState().begin(provider, checkedRevision)
     setChecks(current => ({ ...current, [provider]: 'checking' }))
     try {
       if (provider === 'openrouter') {
@@ -109,10 +114,14 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
           setAccess(current)
           await onChanged()
         }
-        await invoke<string>('check_access', { expectedRevision: current.revision, custom: provider === 'custom' })
+        checkedRevision = current.revision
+        const result = await invoke<AccessCheck>('check_access', { expectedRevision: current.revision, custom: provider === 'custom' })
+        if (provider === 'custom') useConnectionHealth.getState().record('custom', current.revision, undefined, result)
       }
-      setChecks(current => ({ ...current, [provider]: 'valid' }))
+      if (provider === 'openrouter') useConnectionHealth.getState().record('openrouter', connection.revision)
+      setChecks(current => ({ ...current, [provider]: provider === 'custom' && useConnectionHealth.getState().routes.custom?.status !== 'connected' ? 'invalid' : 'valid' }))
     } catch (error) {
+      if (provider !== 'groq') useConnectionHealth.getState().record(provider, checkedRevision, error)
       setChecks(current => ({ ...current, [provider]: 'invalid' }))
       throw error
     }
@@ -123,19 +132,20 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       <label htmlFor={`access-${provider}`}>{label}</label>
       <div className="key-row">
         <input id={`access-${provider}`} className="key-input" type="password" autoComplete="off"
-          value={keys[provider]} placeholder={configured ? tr("Saved — enter replacement") : label}
+          value={keys[provider]} placeholder={access?.credentialPreviews?.[provider] ?? (configured ? tr("Saved — enter replacement") : label)}
           disabled={busy || (dirty !== null && dirty !== provider)}
           onFocus={() => setEditingField(true)} onBlur={() => { setKeys(current => ({ ...current, [provider]: current[provider].trim() })); setEditingField(false) }}
-          onChange={event => { setKeys(current => ({ ...current, [provider]: event.target.value })); edit(provider) }} />
+          onChange={event => { setKeys(current => ({ ...current, [provider]: event.target.value.trim() })); edit(provider) }} />
         {configured && <button type="button" className="access-key-status" disabled={busy || dirty !== null}
           aria-label={tr("Delete {value0}", { value0: String(label) })} title={tr("Saved key · delete")} onClick={() => setRemoving(provider)}>
           <span className="access-key-saved" aria-hidden="true">•</span><span className="access-key-delete" aria-hidden="true">×</span>
         </button>}
-        {configured && <button type="button" className={`access-key-check ${checks[provider] ?? ''}`}
-          disabled={busy || dirty !== null} aria-label={provider === 'custom' ? tr("Check connection") : tr("Check {value0}", { value0: String(label) })}
+        {configured && provider !== 'custom' && <button type="button" className={`access-key-check ${checks[provider] ?? ''}`}
+          disabled={busy || dirty !== null} aria-label={tr("Check {value0}", { value0: String(label) })}
           title={checks[provider] === 'valid' ? tr("Validated") : checks[provider] === 'invalid' ? tr("Validation failed") : tr("Check credential")}
           onClick={() => void run(() => check(provider))}>{checks[provider] === 'valid' ? '✓' : checks[provider] === 'invalid' ? '×' : checks[provider] === 'checking' ? '…' : '↻'}</button>}
       </div>
+      {keys[provider].trim() && <output aria-label={`${label} preview`}>{credentialPreview(keys[provider])}</output>}
       {removing === provider && <div role="alert">
         <p>{tr('Delete the saved {label}?', { label })}</p>
         <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>{tr("Delete key")}</button>
@@ -147,6 +157,9 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
     {error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void run(read)}>{tr("Retry AI access")}</button></> : tr("Loading AI access…")}
   </div>
   const locked = busy || dirty !== null
+  const health = customHealth?.revision === access.revision && !dirty ? customHealth : undefined
+  const healthLabel = health?.status === 'connected' ? tr('Connected') : health?.status === 'checking' ? tr('Checking…')
+    : health?.status === 'disconnected' ? tr('Not connected') : tr('Not checked')
   const routes: { id: ConnectionRoute; label: string }[] = [
     { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'openrouter', label: tr('API keys') }, { id: 'custom', label: tr('Custom URL') },
   ]
@@ -158,14 +171,15 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       if (next !== null) { event.preventDefault(); tabs[next]?.focus() }
     }}>
       {routes.map(route => <button key={route.id} id={`access-tab-${route.id}`} type="button" role="tab"
-        aria-selected={connection.route === route.id} aria-controls={`access-panel-${route.id}`}
+        aria-label={route.label} aria-selected={connection.route === route.id} aria-controls={`access-panel-${route.id}`}
         tabIndex={connection.route === route.id ? 0 : -1} disabled={locked} onClick={() => {
           if (connection.route === route.id) return
           void run(async () => {
             await invoke('select_route', { expectedRevision: connection.revision, route: route.id })
             await read(); await onChanged()
           })
-        }}><span className="access-route-indicator" aria-hidden="true" />{route.label}</button>)}
+        }}><span className="access-route-indicator" aria-hidden="true" />{route.label}
+          {route.id === 'custom' && <span className="access-health" data-health={health?.status ?? 'unchecked'}>{healthLabel}</span>}</button>)}
     </div>
     <div className="access-route-panel" role="tabpanel" id={`access-panel-${connection.route}`}
       aria-labelledby={`access-tab-${connection.route}`} tabIndex={0}>
@@ -184,6 +198,8 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
     </>}
     {connection.route === 'custom' && <>
+      <ConnectionHealthPanel health={health} bearerAuth={endpoint.bearerAuth} disabled={locked}
+        onCheck={() => void run(() => check('custom'))} />
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>
         <input id="access-url" className="field" value={endpoint.baseUrl} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy}
           placeholder={tr("https://your-server.example/v1")} onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
@@ -192,14 +208,8 @@ export function SettingsAccess({ onBusyChange, onChanged }: {
       <div className="form-row check-row"><label className="check-label"><input type="checkbox" checked={endpoint.bearerAuth} disabled={busy}
         onChange={event => { setEndpoint({ ...endpoint, bearerAuth: event.target.checked }); edit('custom') }} />{tr("Use server session token")}</label></div>
       {credential('custom', tr('Server session token'), access.customKeyConfigured)}
-      {!access.customKeyConfigured && <button className="btn" disabled={locked} onClick={() => void run(() => check('custom'))}>{tr("Check connection")}</button>}
     </>}
     </div>
-    <details><summary>{tr("Models")}</summary>{(['standardModel', 'fastModel', 'transcriptionModel'] as const).map(key =>
-      <div className="form-row" key={key}><label htmlFor={`access-${key}`}>{key === 'standardModel' ? tr("Standard model") : key === 'fastModel' ? tr("Fast model") : tr("Transcription model")}</label>
-        <input id={`access-${key}`} className="field" value={models[key]} disabled={busy || (dirty !== null && dirty !== 'models')}
-          onFocus={() => setEditingField(true)} onBlur={() => { setModels(current => ({ ...current, [key]: current[key].trim() })); setEditingField(false) }}
-          onChange={event => { setModels(current => ({ ...current, [key]: event.target.value })); edit('models') }} /></div>)}</details>
     {dirty && <div className="access-pending"><span role="status">{busy ? tr("Saving…") : editingField ? tr("Editing — saves when you leave the field") : tr("Unsaved changes")}</span><button type="button" className="btn" disabled={busy} title={tr("Discard unsaved edits; saved credentials are kept")} onClick={discard}>{tr("Discard changes")}</button></div>}
     {error && <div role="alert">{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>{tr("Retry save")}</button>}</div>}
     {status && <p role="status">{tr(status)}</p>}

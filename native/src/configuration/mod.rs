@@ -1,9 +1,21 @@
-//! Readable local configuration. Existing directories are never repaired or
-//! replaced on error; callers expose ConfigLoadError as a blocking startup state.
+//! App-owned teaching content, parsed and validated into one resolved registry.
+//! Invalid bundled content blocks startup with ConfigLoadError.
 pub mod appearance;
 mod citations;
+mod documents;
+mod identity;
+mod inspection;
+mod linking;
+mod loading;
+mod resolution;
 mod types;
+pub use inspection::{
+    ContentRule, ContentSource, ContentValue, GoalInspection, LanguageInspection, SchemeInspection,
+    StarterInspection,
+};
+mod schemas;
 use crate::model;
+pub use schemas::schemas;
 use serde::{Serialize, de::DeserializeOwned};
 use sha2::{Digest, Sha256};
 use std::{
@@ -49,169 +61,20 @@ pub struct Registry {
     starter_config: Vec<Starter>,
     reasons: BTreeMap<String, BTreeMap<String, String>>,
     hash: String,
+    #[serde(skip)]
+    documents: BTreeMap<String, documents::LanguageDocument>,
+    #[serde(skip)]
+    source_files: BTreeMap<String, String>,
+    goal_material: BTreeMap<String, BTreeMap<String, documents::GoalMaterial>>,
 }
 include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
-/// First launch installs the shipped editable seed only when the whole directory
-/// is absent. A interrupted seed leaves an explicit error on the next launch.
-pub fn initialize(dir: &Path) -> Result<Registry> {
-    if !dir
-        .try_exists()
-        .map_err(|e| error(dir.display(), "io", e))?
-    {
-        fs::create_dir(dir).map_err(|e| error(dir.display(), "io", e))?;
-        for (name, text) in SEEDS {
-            let path = dir.join(name);
-            if let Some(parent) = path.parent() {
-                fs::create_dir_all(parent).map_err(|e| error(parent.display(), "io", e))?;
-            }
-            use std::io::Write;
-            let mut file = fs::OpenOptions::new()
-                .create_new(true)
-                .write(true)
-                .open(&path)
-                .map_err(|e| error(path.display(), "io", e))?;
-            file.write_all(text.as_bytes())
-                .map_err(|e| error(path.display(), "io", e))?;
-        }
-    }
-    Registry::load(dir)
-}
-fn collect_files(dir: &Path, relative: &Path, files: &mut BTreeMap<String, String>) -> Result<()> {
-    for entry in fs::read_dir(dir.join(relative))
-        .map_err(|e| error(dir.join(relative).display(), "io", e))?
-    {
-        let entry = entry.map_err(|e| error(dir.display(), "io", e))?;
-        let path = relative.join(entry.file_name());
-        let kind = entry
-            .file_type()
-            .map_err(|e| error(path.display(), "io", e))?;
-        if kind.is_symlink() {
-            return Err(error(
-                path.display(),
-                "symlink",
-                "Configuration symlinks are not allowed.",
-            ));
-        }
-        if kind.is_dir() {
-            collect_files(dir, &path, files)?;
-        } else if kind.is_file() {
-            let name = path
-                .to_str()
-                .ok_or_else(|| error(path.display(), "filename", "Use UTF-8 file names."))?
-                .replace('\\', "/");
-            if name.starts_with('.') || name.ends_with(".md") {
-                continue;
-            }
-            let metadata = entry.metadata().map_err(|e| error(&name, "io", e))?;
-            if metadata.len() > 2 * 1024 * 1024 {
-                return Err(error(&name, "size", "Configuration file exceeds 2 MiB."));
-            }
-            let text = fs::read_to_string(entry.path()).map_err(|e| error(&name, "io", e))?;
-            files.insert(name, text);
-        }
-    }
-    Ok(())
-}
-fn parse<T: DeserializeOwned>(files: &BTreeMap<String, String>, name: &str) -> Result<T> {
-    let text = files
-        .get(name)
-        .ok_or_else(|| error(name, "missing", "Required configuration file is missing."))?;
-    // Value mappings reject duplicate keys, including maps that typed BTreeMap
-    // deserialization would otherwise overwrite. Keep the second typed parse for
-    // strict fields and source line diagnostics.
-    let _: serde_yaml_ng::Value =
-        serde_yaml_ng::from_str(text).map_err(|e| error(name, "yaml", e))?;
-    serde_yaml_ng::from_str(text).map_err(|e| error(name, "yaml", e))
-}
 impl Registry {
-    pub fn bundled() -> Result<Self> {
-        Self::from_files(
-            SEEDS
-                .iter()
-                .map(|(n, t)| (n.to_string(), t.to_string()))
-                .collect(),
-        )
-    }
-    pub fn load(dir: &Path) -> Result<Self> {
-        let metadata = fs::symlink_metadata(dir).map_err(|e| error(dir.display(), "io", e))?;
-        if metadata.file_type().is_symlink() || !metadata.is_dir() {
-            return Err(error(
-                dir.display(),
-                "directory",
-                "Configuration must be an owned directory, not a symlink.",
-            ));
-        }
-        let mut files = BTreeMap::new();
-        collect_files(dir, Path::new(""), &mut files)?;
-        Self::from_files(files).map_err(|mut e| {
-            e.path = dir.join(&e.path).display().to_string();
-            e
-        })
-    }
-    fn from_files(files: BTreeMap<String, String>) -> Result<Self> {
-        let mut languages = vec![];
-        let mut constructs = vec![];
-        let mut starters = vec![];
-        let singles = [
-            "languages/scripts.yaml",
-            "languages/orthographies.yaml",
-            "languages/romanizations.yaml",
-            "languages/traits.yaml",
-            "languages/families.yaml",
-            "languages/universal.yaml",
-            "constructs/navigation.yaml",
-            "policy/feedback.yaml",
-            "policy/estimator.yaml",
-            "policy/game.yaml",
-            "references.bib",
-            "starters/reasons.yaml",
-        ];
-        for name in files.keys() {
-            if singles.contains(&name.as_str()) {
-                continue;
-            }
-            if name.starts_with("languages/languages/") && name.ends_with(".yaml") {
-                languages.push(parse(&files, name)?);
-            } else if name.starts_with("constructs/") && name.ends_with(".yaml") {
-                constructs.extend(parse::<Vec<Construct>>(&files, name)?);
-            } else if name.starts_with("starters/") && name.ends_with(".yaml") {
-                starters.extend(parse::<Vec<Starter>>(&files, name)?);
-            } else {
-                return Err(error(name, "unknown_file", "Unknown configuration file."));
-            }
-        }
-        let bib = files.get("references.bib").ok_or_else(|| {
-            error(
-                "references.bib",
-                "missing",
-                "Citation bibliography is missing.",
-            )
-        })?;
-        let mut registry = Self {
-            languages,
-            scripts: parse(&files, singles[0])?,
-            orthographies: parse(&files, singles[1])?,
-            romanizations: parse(&files, singles[2])?,
-            traits: parse(&files, singles[3])?,
-            families: parse(&files, singles[4])?,
-            universal: parse(&files, singles[5])?,
-            constructs,
-            navigation: parse(&files, singles[6])?,
-            feedback: parse(&files, singles[7])?,
-            estimator: parse(&files, "policy/estimator.yaml")?,
-            game: parse(&files, "policy/game.yaml")?,
-            starter_config: starters,
-            reasons: parse(&files, "starters/reasons.yaml")?,
-            hash: String::new(),
-        };
-        registry.validate(bib)?;
-        let citations = citations::parse_bib(bib).map_err(|e| error("references.bib", "bib", e))?;
-        registry.hash = fingerprint(&(&registry, citations));
-        Ok(registry)
-    }
     pub fn hash(&self) -> &str {
         &self.hash
+    }
+    pub fn learning_content_hash(&self) -> String {
+        fingerprint(&(&self.constructs, &self.goal_material))
     }
     pub fn constructs(&self) -> &[Construct] {
         &self.constructs
@@ -260,6 +123,7 @@ impl Registry {
         let l = self.language_config(id)?;
         Ok(model::Language {
             id: l.id.clone(),
+            language_tag: l.external_tags.get("language_tag").cloned(),
             name: l.name.clone(),
             native_name: l.native_name.clone(),
             default_variety: l.default_variety.clone(),
@@ -333,7 +197,14 @@ impl Registry {
     }
     pub fn validate_preferences(&self, preferences: &model::Preferences) -> model::Result<()> {
         preferences.appearance.validate()?;
-        self.language(&preferences.interface_locale)?;
+        if !INTERFACE_LOCALES.contains(&preferences.interface_locale.as_str()) {
+            return Err(error(
+                "preferences.interface_locale",
+                "unknown_locale",
+                "Choose an available interface translation.",
+            )
+            .into());
+        }
         self.resolve_pair(
             &preferences.explanation_language,
             None,
@@ -363,261 +234,6 @@ impl Registry {
             ));
         }
         Ok(())
-    }
-    pub fn romanization_guidance(&self, id: &str) -> Result<Option<String>> {
-        let l = self.language_config(id)?;
-        self.romanization_for(
-            l,
-            l.varieties
-                .iter()
-                .find(|v| v.id == l.default_variety)
-                .unwrap(),
-        )
-    }
-    fn variety_romanization<'a>(
-        language: &'a Language,
-        variety: &'a Variety,
-    ) -> Option<&'a String> {
-        if variety.romanization_disabled {
-            None
-        } else {
-            variety
-                .romanization
-                .as_ref()
-                .or(language.romanization.as_ref())
-        }
-    }
-    fn romanization_for(&self, language: &Language, variety: &Variety) -> Result<Option<String>> {
-        Ok(Self::variety_romanization(language, variety).map(|id| {
-            let s = self
-                .romanizations
-                .iter()
-                .find(|s| s.id == *id)
-                .expect("validated scheme");
-            let examples = s
-                .examples
-                .iter()
-                .map(|(a, b)| format!("{a} → {b}"))
-                .collect::<Vec<_>>()
-                .join("; ");
-            format!(
-                "Romanization: {} ({}). {} Examples: {}. Sources: {}.",
-                s.label,
-                s.id,
-                s.instructions,
-                examples,
-                s.sources.join(", ")
-            )
-        }))
-    }
-    pub fn resolve(
-        &self,
-        language: &str,
-        variety: Option<&str>,
-        explanation: &str,
-    ) -> Result<LanguageContext> {
-        self.resolve_pair(language, variety, explanation, None)
-    }
-    pub fn resolve_pair(
-        &self,
-        language: &str,
-        variety: Option<&str>,
-        explanation: &str,
-        explanation_variety: Option<&str>,
-    ) -> Result<LanguageContext> {
-        let target = self.language_config(language)?;
-        let explanation = self.language_config(explanation)?;
-        let explanation_variety = explanation_variety.unwrap_or(&explanation.default_variety);
-        if !explanation
-            .varieties
-            .iter()
-            .any(|v| v.id == explanation_variety)
-        {
-            return Err(error(
-                "languages",
-                "unknown_explanation_variety",
-                explanation_variety,
-            ));
-        }
-        let variety = variety.unwrap_or(&target.default_variety);
-        if !target.varieties.iter().any(|v| v.id == variety) {
-            return Err(error("languages", "unknown_variety", variety));
-        }
-        let mut guidance = BTreeMap::<String, Vec<String>>::new();
-        for scope in SCOPES {
-            let lang = if *scope == "explanation_writing" {
-                explanation
-            } else {
-                target
-            };
-            let v = if *scope == "explanation_writing" {
-                explanation_variety
-            } else {
-                variety
-            };
-            let selected = lang
-                .varieties
-                .iter()
-                .find(|item| item.id == v)
-                .expect("validated variety");
-            let mut rules = vec![format!(
-                "Use {} — {} ({}). {}",
-                lang.name, selected.name, selected.id, selected.description
-            )];
-            // [@asha_language_variation]
-            if *scope == "assessment" {
-                rules.push("Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.".into());
-            }
-            let mut add = |notes: &[Guidance]| {
-                rules.extend(
-                    notes
-                        .iter()
-                        .filter(|g| g.scope == *scope)
-                        .map(|g| g.text.clone()),
-                );
-            };
-            add(&self.universal);
-            let mut seen = BTreeSet::new();
-            let mut ordered = vec![];
-            for id in &lang.traits {
-                self.trait_order(id, &mut seen, &mut ordered);
-            }
-            for t in ordered {
-                add(&t.guidance);
-            }
-            add(&self
-                .orthographies
-                .iter()
-                .find(|o| o.id == *selected.orthography.as_ref().unwrap_or(&lang.orthography))
-                .expect("validated orthography")
-                .guidance);
-            add(&lang.guidance);
-            add(&lang
-                .varieties
-                .iter()
-                .find(|x| x.id == v)
-                .expect("validated variety")
-                .guidance);
-            if *scope == "romanization"
-                && let Some(text) = self.romanization_for(target, selected)?
-            {
-                rules.push(text);
-            }
-            guidance.insert(scope.to_string(), rules);
-        }
-        let (direction, font_scale, word_spacing) = self.resolved_scalars(target, variety);
-        let mut ctx = LanguageContext {
-            script: target
-                .varieties
-                .iter()
-                .find(|v| v.id == variety)
-                .unwrap()
-                .script
-                .as_ref()
-                .unwrap_or(&target.script)
-                .clone(),
-            direction,
-            font_scale,
-            word_spacing,
-            language_id: language.into(),
-            variety_id: variety.into(),
-            explanation_language_id: explanation.id.clone(),
-            explanation_variety_id: explanation_variety.into(),
-            target_name: target.name.clone(),
-            variety_name: target
-                .varieties
-                .iter()
-                .find(|v| v.id == variety)
-                .unwrap()
-                .name
-                .clone(),
-            external_tags: {
-                let mut tags = target.external_tags.clone();
-                tags.extend(
-                    target
-                        .varieties
-                        .iter()
-                        .find(|v| v.id == variety)
-                        .unwrap()
-                        .external_tags
-                        .clone(),
-                );
-                tags
-            },
-            hash: String::new(),
-            guidance,
-        };
-        ctx.hash = fingerprint(&(&self.hash, &ctx));
-        Ok(ctx)
-    }
-    fn resolved_scalars(&self, language: &Language, variety: &str) -> (String, f64, bool) {
-        let script = self
-            .scripts
-            .iter()
-            .find(|s| {
-                s.id == *language
-                    .varieties
-                    .iter()
-                    .find(|v| v.id == variety)
-                    .unwrap()
-                    .script
-                    .as_ref()
-                    .unwrap_or(&language.script)
-            })
-            .expect("validated script");
-        let mut result = (
-            script.direction.clone(),
-            script.font_scale,
-            script.word_spacing,
-        );
-        let mut apply = |overrides: &ScalarOverrides| {
-            if let Some(value) = &overrides.direction {
-                result.0 = value.clone();
-            }
-            if let Some(value) = overrides.font_scale {
-                result.1 = value;
-            }
-            if let Some(value) = overrides.word_spacing {
-                result.2 = value;
-            }
-        };
-        let mut ordered = vec![];
-        let mut seen = BTreeSet::new();
-        for id in &language.traits {
-            self.trait_order(id, &mut seen, &mut ordered);
-        }
-        for item in ordered {
-            apply(&item.scalars);
-        }
-        apply(&language.scalars);
-        apply(
-            &language
-                .varieties
-                .iter()
-                .find(|v| v.id == variety)
-                .expect("validated variety")
-                .scalars,
-        );
-        result
-    }
-    fn trait_order<'a>(
-        &'a self,
-        id: &str,
-        seen: &mut BTreeSet<String>,
-        ordered: &mut Vec<&'a Trait>,
-    ) {
-        if !seen.insert(id.into()) {
-            return;
-        }
-        let t = self
-            .traits
-            .iter()
-            .find(|t| t.id == id)
-            .expect("validated trait");
-        for dep in &t.requires {
-            self.trait_order(dep, seen, ordered);
-        }
-        ordered.push(t);
     }
     /// Mandatory focus/prerequisites, due, function and interaction constructs
     /// are never silently truncated. Optional neighboring-band/token matches fill
@@ -663,7 +279,12 @@ impl Registry {
                             .traits
                             .contains(t)
                     })
-                    || c.tokens
+                    || self
+                        .goal_material
+                        .get(&ctx.language_id)
+                        .and_then(|m| m.get(&c.id))
+                        .map(|m| m.tokens.as_slice())
+                        .unwrap_or(&c.tokens)
                         .iter()
                         .any(|t| tokens.iter().any(|x| x.eq_ignore_ascii_case(t))))
             {
@@ -803,30 +424,18 @@ const BANDS: &[&str] = &["PreA1", "A1", "A2", "B1", "B2", "C1", "C2"];
 mod tests;
 mod validation;
 
-/// Exported schemas derive from the same strict types used by the startup loader.
-pub fn schemas() -> BTreeMap<String, serde_json::Value> {
-    macro_rules! schema {
-        ($name:literal,$type:ty) => {
-            (
-                $name.into(),
-                serde_json::to_value(schemars::schema_for!($type)).expect("schema serialization"),
-            )
-        };
-    }
-    BTreeMap::from([
-        schema!("language.json", Language),
-        schema!("scripts.json", Vec<Script>),
-        schema!("orthographies.json", Vec<Orthography>),
-        schema!("romanizations.json", Vec<Romanization>),
-        schema!("traits.json", Vec<Trait>),
-        schema!("families.json", Vec<Family>),
-        schema!("universal.json", Vec<Guidance>),
-        schema!("constructs.json", Vec<Construct>),
-        schema!("navigation.json", Vec<NavigationNode>),
-        schema!("feedback.json", FeedbackPolicy),
-        schema!("estimator.json", EstimatorPolicy),
-        schema!("game.json", GamePolicy),
-        schema!("starters.json", Vec<Starter>),
-        schema!("starter-reasons.json",BTreeMap<String,BTreeMap<String,String>>),
-    ])
-}
+#[cfg(test)]
+mod baseline_tests;
+
+/// Interface translations are independent of the learning-language catalog.
+pub const INTERFACE_LOCALES: &[&str] = &[
+    "english",
+    "spanish",
+    "arabic",
+    "mandarin",
+    "french",
+    "german",
+    "portuguese",
+];
+#[cfg(test)]
+mod document_tests;

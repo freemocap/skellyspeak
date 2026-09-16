@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { skillNavigationReducer } from './skill-navigation'
 it('preserves selected identity across exploration and distinguishes repeated selections', () => {
-  const location = { target: 'es-ES', skillId: 'reason' }
+  const location = { target: 'spanish-spain', skillId: 'reason' }
   const first = skillNavigationReducer({ sequence: 0, selected: null, mapRequest: null }, { type: 'select', location })
   expect(first.selected).toEqual(location)
   expect(first.mapRequest).toBeNull()

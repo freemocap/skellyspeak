@@ -39,6 +39,7 @@ fn conflict() -> AppError {
 pub fn settings(db: &Connection) -> Result<AccessSettings> {
     let (revision,groq,custom,config): (i32,bool,bool,String) = db.query_row("SELECT revision,groq_credential_id IS NOT NULL,custom_credential_id IS NOT NULL,custom_config FROM ai_config",[],|r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)))?;
     Ok(AccessSettings {
+        credential_previews: None,
         custom_url_is_unsaved_default: false,
         revision,
         groq_key_configured: groq,
@@ -176,8 +177,31 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
     })
 }
 #[tauri::command]
-pub fn get_access_settings(state: tauri::State<'_, Arc<Application>>) -> Result<AccessSettings> {
-    settings_for_editing(&state.lock()?.connection)
+pub async fn get_access_settings(
+    state: tauri::State<'_, Arc<Application>>,
+) -> Result<AccessSettings> {
+    let (mut settings, ids) = {
+        let store = state.lock()?;
+        let settings = settings_for_editing(&store.connection)?;
+        let ids: [Option<String>; 3] = store.connection.query_row(
+            "SELECT credential_id,groq_credential_id,custom_credential_id FROM ai_config",
+            [],
+            |row| Ok([row.get(0)?, row.get(1)?, row.get(2)?]),
+        )?;
+        (settings, ids)
+    };
+    let mut previews = std::collections::BTreeMap::new();
+    for (provider, id) in ["openrouter", "groq", "custom"].into_iter().zip(ids) {
+        if let Some(id) = id {
+            let secret = crate::application::read_secret(id).await?;
+            previews.insert(provider.into(), credentials::preview(&secret));
+        }
+    }
+    if self::settings(&state.lock()?.connection)?.revision != settings.revision {
+        return Err(conflict());
+    }
+    settings.credential_previews = Some(previews);
+    Ok(settings)
 }
 
 fn settings_for_editing(db: &Connection) -> Result<AccessSettings> {
@@ -279,12 +303,17 @@ fn validate_save_input(
 pub async fn response_bytes(
     mut response: reqwest::Response,
     label: &str,
+    route: ConnectionRoute,
     limit: usize,
 ) -> Result<Vec<u8>> {
     if !response.status().is_success() {
         let status = response.status().as_u16();
+        if let Some(message) =
+            super::auth_errors::message(route, response.url().as_str(), label, status)
+        {
+            return Err(AppError::new(ErrorCode::Provider, message));
+        }
         let hint = match status {
-            401 | 403 => "Check the saved key and endpoint permissions.",
             404 | 405 | 415 | 422 => "Check the endpoint protocol, capability and model ID.",
             429 => "Rate or allowance limit reached; wait before retrying.",
             _ => "Check the endpoint service.",
@@ -317,7 +346,7 @@ pub async fn check_access(
     state: tauri::State<'_, Arc<Application>>,
     expected_revision: i32,
     custom: bool,
-) -> Result<String> {
+) -> Result<AccessCheck> {
     let (url, credential) = {
         let store = state.lock()?;
         let access = settings(&store.connection)?;
@@ -343,7 +372,10 @@ pub async fn check_access(
         };
         (
             if custom {
-                format!("{}/protocol", access.custom.base_url.trim_end_matches('/'))
+                format!(
+                    "{}/protocol?verify_providers=true",
+                    access.custom.base_url.trim_end_matches('/')
+                )
             } else {
                 "https://api.groq.com/openai/v1/models".into()
             },
@@ -369,9 +401,20 @@ pub async fn check_access(
         .send()
         .await
         .map_err(|_| error("Connection check failed. Check the endpoint and network."))?;
-    let value: serde_json::Value =
-        serde_json::from_slice(&response_bytes(response, "Connection check", 262144).await?)
-            .map_err(|_| error("Endpoint returned invalid JSON."))?;
+    let value: serde_json::Value = serde_json::from_slice(
+        &response_bytes(
+            response,
+            "Connection check",
+            if custom {
+                ConnectionRoute::Custom
+            } else {
+                ConnectionRoute::Openrouter
+            },
+            262144,
+        )
+        .await?,
+    )
+    .map_err(|_| error("Endpoint returned invalid JSON."))?;
     if custom {
         if value["protocol"] != "skellyspeak"
             || value["version"].as_u64() != Some(1)
@@ -387,7 +430,24 @@ pub async fn check_access(
         }
         // Capability model lists are recommendations, not availability gates.
         // The selected provider validates the configured model during inference.
-        return Ok("SkellySpeak protocol v1 verified. No inference requested.".into());
+        let providers: Vec<ProviderCredentialCheck> =
+            serde_json::from_value(value["providers"].clone()).map_err(|_| {
+                error("Update the custom server to support internal provider credential checks.")
+            })?;
+        if providers.len() != 2
+            || ["OPENROUTER", "GROQ"]
+                .iter()
+                .any(|name| providers.iter().filter(|p| p.provider == *name).count() != 1)
+            || providers.iter().any(|p| {
+                !matches!(
+                    p.state.as_str(),
+                    "accepted" | "rejected" | "unreachable" | "invalid_response"
+                )
+            })
+        {
+            return Err(error("Server returned invalid provider credential checks."));
+        }
+        return Ok(AccessCheck { providers });
     }
     let models = value["data"].as_array().ok_or_else(||error("Endpoint did not return an OpenAI-compatible model list. This check does not establish inference support."))?;
     if !models
@@ -399,10 +459,14 @@ pub async fn check_access(
     if state.lock()?.connection_config()?.revision != expected_revision {
         return Err(conflict());
     }
-    Ok(format!(
-        "Connection accepted · {} model IDs returned. No inference requested; chat and audio support are verified when used.",
-        models.len()
-    ))
+    Ok(AccessCheck {
+        providers: vec![ProviderCredentialCheck {
+            provider: "GROQ".into(),
+            state: "accepted".into(),
+            status: Some(200),
+            duration_ms: 0,
+        }],
+    })
 }
 
 #[derive(Debug)]
@@ -500,7 +564,7 @@ pub async fn transcribe(
     let bytes = if target.route == ConnectionRoute::Hosted {
         hosted::body(response).await
     } else {
-        response_bytes(response, "Transcription", 1_048_576).await
+        response_bytes(response, "Transcription", target.route, 1_048_576).await
     }
     .map_err(|mut error| {
         if !status.is_client_error() {

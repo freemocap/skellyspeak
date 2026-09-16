@@ -166,14 +166,13 @@ def test_historical_opt_in_does_not_excuse_young_missing_ledger(ledger):
                       status='settled', provider_id='gen-history', allow_expired_ledgers=True)
 
 
-def test_historical_overage_still_pauses_spending_without_recreating_ledger(ledger, monkeypatch):
+def test_historical_actual_cost_above_estimate_settles_without_recreating_ledger(ledger, monkeypatch):
     monkeypatch.setattr(quota, 'utc_day', lambda: '2026-01-01')
     reservation = reserve(ledger)
     del ledger.store['global_usage/2026-01-01']
     del ledger.store['users/google:1/usage/2026-01-01']
     monkeypatch.setattr(quota, 'utc_day', lambda: '2026-05-01')
-    with pytest.raises(RuntimeError, match='exceeded its reserved price ceiling'):
-        budget.settle(ledger, reservation=reservation, actual_micros=101, tokens=5,
+    budget.settle(ledger, reservation=reservation, actual_micros=101, tokens=5,
                       status='settled', provider_id='gen-history', allow_expired_ledgers=True)
-    assert ledger.store['service_controls/spending']['blocked'] is True
+    assert 'service_controls/spending' not in ledger.store
     assert not any('/usage/' in key or key.startswith('global_usage/') for key in ledger.store)

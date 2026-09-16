@@ -257,13 +257,13 @@ pub async fn request_with_outputs(
     };
     let mut response = request.send().await.map_err(|_| unknown())?;
     if !response.status().is_success() {
-        if first.route == crate::model::ConnectionRoute::Custom
-            && response.status() == reqwest::StatusCode::UNAUTHORIZED
-        {
-            return Err(AppError::new(
-                ErrorCode::Provider,
-                "Custom server authentication failed. Update its session token in Settings → AI access → Custom URL, then check the connection.",
-            ));
+        if let Some(message) = crate::ai::connections::auth_errors::message(
+            first.route,
+            response.url().as_str(),
+            "Chat",
+            response.status().as_u16(),
+        ) {
+            return Err(AppError::new(ErrorCode::Provider, message));
         }
         if response.status().is_server_error() {
             return Err(unknown());

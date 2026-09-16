@@ -73,3 +73,5 @@
 
 
 @import './foundations/motion.css';
+
+@import "./features/languages.css";

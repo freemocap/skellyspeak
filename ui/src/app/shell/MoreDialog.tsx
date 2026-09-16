@@ -14,6 +14,7 @@ export function MoreDialog() {
     <DetailDialog title={tr("More")} onClose={closeOverlay}>
       <h2>{tr("More")}</h2>
       <div className="more-actions">
+        <button className="btn" onClick={() => showOverlay('languages')}>{tr("Browse languages")}</button>
         <button className="btn" onClick={() => { closeOverlay(); openSkills() }}>{tr("Skill tree")}</button>
         <button className="btn" onClick={() => showOverlay('activity')}>{tr("AI activity & tools")}</button>
         <button className="btn" onClick={() => window.location.reload()}>{tr("Reload app")}</button>

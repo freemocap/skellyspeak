@@ -38,11 +38,11 @@ def test_unsupported_requests_fail_with_400(field: str, value: object) -> None:
     assert error.value.status_code == 400
 
 
-def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
+def test_missing_cap_is_inserted_without_model_price_filter() -> None:
     request = contracts.chat_request(payload(), max_tokens=32768)
     assert request.payload["max_tokens"] == 32768
     assert request.payload["provider"] == {
-        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 0.3, "completion": 2.5, "request": 0},
+        "allow_fallbacks": False, "require_parameters": True,
     }
     assert request.reserve_micros >= 32768 * 2.5
 
@@ -160,11 +160,11 @@ def test_opening_role_and_human_answer_reach_upstream_unchanged(answer):
     assert validated.payload["messages"] == messages
 
 
-def test_other_model_is_forwarded_with_matching_reservation_and_price_ceiling():
+def test_other_model_is_forwarded_with_reservation_estimate_only():
     source = {**payload(), 'model': 'new/model', 'max_tokens': 2048}
     result = contracts.chat_request(source, max_tokens=32768)
     assert result.payload['model'] == 'new/model'
-    assert result.payload['provider']['max_price'] == {'prompt': 0.3, 'completion': 2.5, 'request': 0}
+    assert 'max_price' not in result.payload['provider']
     assert 'only' not in result.payload['provider']
     assert result.reserve_micros == math.ceil((len(json.dumps(source, ensure_ascii=False).encode()) + 1024) * 0.3 + 2048 * 2.5)
 

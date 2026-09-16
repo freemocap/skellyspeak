@@ -103,7 +103,7 @@ pub struct SelectedStarter {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Guidance {
-    pub scope: String,
+    pub scope: super::identity::GuidanceScope,
     pub text: String,
     pub sources: Vec<String>,
 }
@@ -201,11 +201,14 @@ pub struct Language {
 pub struct NavigationNode {
     pub id: String,
     pub parent: Option<String>,
+    #[serde(default)]
     pub label: String,
     pub code: String,
     pub kind: String,
     pub color: String,
+    #[serde(default)]
     pub description: String,
+    #[serde(default)]
     pub criterion: String,
 }
 

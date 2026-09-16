@@ -3,7 +3,7 @@ import { PERSONA_LIMITS } from '../../../generated/contracts'
 import type { PersonaDetails } from '../../../generated/contracts'
 
 type Translate = (key: string, vars?: Record<string, string | number>) => string
-const english: Translate = (key, vars) => t('en', key, vars)
+const english: Translate = (key, vars) => t('english', key, vars)
 
 /// The limits come from Rust, so the form cannot drift from the store. The
 /// wording here matches the messages persona::validate returns, because a field

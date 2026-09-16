@@ -9,7 +9,7 @@ interface ComposerInputProps {
   recording: boolean
   transcribing: boolean
   autoSend: boolean
-  targetLanguage: string
+  targetLanguageTag?: string
   targetLanguageName: string
   onInput: (value: string) => void
   onSend: (value: string) => void
@@ -19,7 +19,7 @@ interface ComposerInputProps {
 
 /** Message-entry controls; recording and request ownership stay with the caller. */
 export function ComposerInput({ input, available, sending, recording, transcribing, autoSend,
-  targetLanguage, targetLanguageName, waveform, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
+  targetLanguageTag, targetLanguageName, waveform, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -52,7 +52,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
               onChange={(e) => onInput(e.target.value)}
               placeholder={targetLanguageName ? tr("Write in {value0}…", { value0: String(targetLanguageName) }) : tr("Write…")}
               disabled={!available}
-              lang={targetLanguage}
+              lang={targetLanguageTag}
               dir="auto"
               enterKeyHint="send"
               autoCorrect="off"

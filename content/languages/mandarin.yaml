@@ -1,0 +1,172 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: mandarin
+  name: Mandarin
+  native_name: 中文（简体）
+  family: sino-tibetan
+  review: needs_review
+integrations:
+  language_tag: zh
+  transcription: zh
+definitions:
+  orthographies:
+    simplified-chinese:
+      script: simplified-chinese
+      guidance:
+      - scope: target_writing
+        text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
+          source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation
+          is requested.
+        sources:
+        - pinyin_orthography2012
+      - scope: explanation_writing
+        text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
+          source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation
+          is requested.
+        sources:
+        - pinyin_orthography2012
+  romanization_schemes:
+    pinyin:
+      label: Hanyu Pinyin
+      instructions: Always mark lexical tones 1–4 with vowel diacritics (ā, á, ǎ, à); never use tone numbers
+        or omit lexical tone marks. Neutral-tone syllables remain unmarked. Put the mark on the main vowel;
+        in iu and ui mark the last vowel. Preserve ü where required (nǚ, lǜ), never v or u:. Use lexical
+        tones, including yī and bù, rather than contextual tone sandhi. Keep standard word joining and
+        syllable-separating apostrophes. Never alter the Chinese source.
+      examples:
+      - original: 妈
+        romanized: mā
+      - original: 麻
+        romanized: má
+      - original: 马
+        romanized: mǎ
+      - original: 骂
+        romanized: mà
+      - original: 吗
+        romanized: ma
+      - original: 女
+        romanized: nǚ
+      - original: 流水
+        romanized: liúshuǐ
+      - original: 西安
+        romanized: Xī'ān
+      sources:
+      - pinyin_orthography2012
+      review: needs_review
+defaults:
+  variety: mandarin-mainland-china
+  orthography:
+    local: simplified-chinese
+  scalars:
+    font_scale: 1.3
+  romanization:
+    mode: scheme
+    scheme:
+      local: pinyin
+  supported_romanizations:
+  - local: pinyin
+traits:
+- tones
+- unspaced-words
+varieties:
+- id: mandarin-mainland-china
+  name: Mainland China
+  description: Mainland China
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+guidance:
+- scope: segmentation
+  text: Select linguistic words rather than assuming spaces or individual characters define word boundaries.
+  sources:
+  - ud
+learning:
+  goals: []
+  goal_material:
+    courtesy:
+      tokens:
+      - thanks
+      - gracias
+      - merci
+      - شكرًا
+      - شكرا
+      - 谢谢
+conversation:
+  default_partner:
+    name: 小林
+    romanizedName: Xiǎo Lín
+    age: 26
+    location: Chengdu, China
+    occupation: Bike courier saving up for a tea shop
+    background: Moved to Chengdu from a small town in Yunnan. Shares a flat with two friends and far too
+      many plants.
+    currentSituation: Saving money, learning to brew pu'er properly, and training for a hundred-kilometre
+      ride.
+    interests:
+    - night rides through the city
+    - street food
+    - tea
+    - cheap science-fiction paperbacks
+    opinions:
+    - The best food is always in the least attractive shop.
+    - Mornings should start later.
+    interestingFacts:
+    - Knows the steepest street in every district.
+    - Can fix a flat tyre in four minutes.
+    favoriteBooks:
+    - The Three-Body Problem — Liu Cixin
+    - To Live — Yu Hua
+    favoriteMovies:
+    - Spirited Away (2001)
+    - In the Mood for Love (2000)
+    manner: Relaxed and funny. Short replies, and often steers the subject back to food.
+    quirks:
+    - Rates every meal out of ten.
+    vibe:
+    - 🚲
+    - 🍜
+    - 🍃
+  starters:
+    food:
+      label: 饮食
+      preview: 我想喝茶。
+      translation: 我想喝茶。
+      varieties:
+      - mandarin-mainland-china
+    family:
+      label: 你的家人
+      preview: 这是我的家人。
+      translation: 这是我的家人。
+      varieties:
+      - mandarin-mainland-china
+    weekend:
+      label: 周末计划
+      preview: 我想休息。
+      translation: 我想休息。
+      varieties:
+      - mandarin-mainland-china
+    place:
+      label: 你喜欢的地方
+      preview: 我喜欢这个公园。
+      translation: 我喜欢这个公园。
+      varieties:
+      - mandarin-mainland-china
+    day:
+      label: 你的一天
+      preview: 我今天在家。
+      translation: 我今天在家。
+      varieties:
+      - mandarin-mainland-china
+    music:
+      label: 音乐
+      preview: 我喜欢音乐。
+      translation: 我喜欢音乐。
+      varieties:
+      - mandarin-mainland-china
+  starter_reasons:
+    focus: 来自你的练习重点
+    due: 待复习
+    contact: 来自对话伙伴的兴趣
+    general: 对话话题

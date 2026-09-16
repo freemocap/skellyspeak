@@ -46,7 +46,7 @@ fn selected_choice_is_validated_and_its_constructs_reach_the_generation_prompt()
 
 #[test]
 fn reading_lessons_use_the_selected_native_language_not_assumed_english() {
-    for native in ["fr", "ar"] {
+    for native in ["french", "arabic"] {
         let (_dir, mut store, chat) = setup();
         store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3) WHERE conversation_id=?1", params![chat, native, store.config.language(native).unwrap().default_variety]).unwrap();
         let revision = store.snapshot().unwrap().revision;
@@ -70,7 +70,7 @@ fn reading_lessons_use_the_selected_native_language_not_assumed_english() {
         let data: Value = serde_json::from_str(&messages[1].content).unwrap();
         assert_eq!(data["nativeLanguage"], native);
         assert_eq!(data["explanationLanguage"], native);
-        assert_eq!(data["targetLanguage"], "es");
+        assert_eq!(data["targetLanguage"], "spanish");
         assert_eq!(data["category"], "reading");
         assert!(messages[0].content.contains("sounds with no equivalent"));
         assert!(

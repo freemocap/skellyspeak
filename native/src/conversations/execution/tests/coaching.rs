@@ -48,7 +48,7 @@ fn coaching_is_independent_source_bound_and_xp_is_idempotent() {
     let candidate = r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"Asks about the listener's state."}]}"#;
     store.finish(&feedback, Ok(reply(candidate))).unwrap();
     store.finish(&feedback, Ok(reply(candidate))).unwrap();
-    let first = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let first = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(first["profile"]["xp"], 30);
     assert_eq!(
         store
@@ -94,7 +94,7 @@ fn coaching_is_independent_source_bound_and_xp_is_idempotent() {
     );
     assert!(view.messages[1].suggestions_error.is_none());
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         30
     );
     let next = send(&store, &conversation);
@@ -182,7 +182,8 @@ fn invalid_coach_evidence_never_awards_xp() {
         assert!(view.messages[0].feedback.is_none());
         assert!(view.messages[0].feedback_error.is_some());
         assert_eq!(
-            crate::learning::learner::progression::snapshot(&store, "es").unwrap()["profile"]["xp"],
+            crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
+                ["xp"],
             0
         );
     }
@@ -201,7 +202,7 @@ fn assisted_speech_credit_retains_provenance() {
     store.dispatch().unwrap();
     let feedback = store.dispatch().unwrap().unwrap();
     store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"Test"}]}"#))).unwrap();
-    let view = crate::learning::learner::progression::snapshot(&store, "es").unwrap();
+    let view = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(view["profile"]["xp"], 10);
     assert_eq!(view["records"][0]["input"]["modality"], "speech_transcript");
     assert_eq!(view["records"][0]["input"]["scaffold"], true);

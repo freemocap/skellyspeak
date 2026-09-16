@@ -1,0 +1,31 @@
+/* Language inspection uses the shared wide dialog; layout and provenance belong here. */
+.language-browser h2 { margin-top: 0; font-size: var(--type-title); }
+.language-browser-layout { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(0, 3fr); gap: var(--space-6); }
+.language-browser-list { display: flex; flex-direction: column; gap: var(--space-2); align-self: start; }
+.language-browser-list .btn { text-align: start; white-space: normal; }
+.language-browser-list [aria-current="true"] { border-color: var(--ink); background: var(--field); }
+.language-browser-detail { min-width: 0; }
+.language-browser-detail > h3 { margin-top: 0; }
+.language-browser-detail label { display: grid; gap: var(--space-2); margin-block: var(--space-3); }
+.language-content > section { margin-block: var(--space-6); padding-block-start: var(--space-4); border-top: 1px solid var(--line); }
+.language-content h3 { margin: 0 0 var(--space-4); font-size: var(--type-title); }
+.language-content h5 { margin-block: var(--space-4) var(--space-2); font-size: var(--type-ui); }
+.language-definition pre { max-height: 36rem; overflow: auto; }
+.language-content { line-height: 1.6; }
+.language-content article { border-top: 1px solid var(--line-soft); padding-block: var(--space-3); }
+.language-content h4 { margin: 0; font-size: var(--type-body); }
+.language-content p { margin-block: var(--space-3); }
+.language-content small { display: block; color: var(--ink-2); overflow-wrap: anywhere; font-size: var(--type-meta); }
+.language-content dl > div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-3); padding-block: var(--space-2); }
+.language-content dd { margin: 0; overflow-wrap: anywhere; }
+.language-content table { width: 100%; border-collapse: collapse; text-align: start; }
+.language-content td, .language-content th { border-bottom: 1px solid var(--line-soft); padding: var(--space-2); text-align: start; }
+.language-content pre { padding: var(--space-4); background: var(--field); border: 1px solid var(--line-soft); border-radius: var(--radius-sm); white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--type-ui); }
+.content-fingerprint { display: block; overflow-wrap: anywhere; font-size: var(--type-meta); }
+@media (max-width: 600px) {
+  .language-browser-layout { grid-template-columns: 1fr; }
+  .language-browser-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .language-browser-list input { grid-column: 1 / -1; }
+}
+/* Keep RTL originals visually separate from the left-to-right transcription. */
+.language-content td + td, .language-content th + th { padding-inline-start: var(--space-6); }

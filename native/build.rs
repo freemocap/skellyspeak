@@ -22,6 +22,9 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
         {
             continue;
         }
+        if path.file_name().is_some_and(|name| name == "schemas") {
+            continue;
+        }
         if kind.is_dir() {
             collect(root, &path, files);
         } else if kind.is_file() && path.extension().is_none_or(|ext| ext != "md") {
@@ -41,7 +44,7 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
 
 fn main() {
     let manifest = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    let root = manifest.join("../content/config");
+    let root = manifest.join("../content");
     let mut files = Vec::new();
     collect(&root, &root, &mut files);
     let bibliography = manifest

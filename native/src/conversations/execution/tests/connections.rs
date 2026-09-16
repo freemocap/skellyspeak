@@ -15,7 +15,7 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
     store
         .set_models(
             revision,
-            "shared-standard",
+            "provider/model@version+variant",
             "shared-fast",
             "shared-transcription",
         )
@@ -28,7 +28,7 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
         let revision = store.connection_config().unwrap().revision;
         store.select_route(revision, route).unwrap();
         let config = store.connection_config().unwrap();
-        assert_eq!(config.standard_model, "shared-standard");
+        assert_eq!(config.standard_model, "provider/model@version+variant");
         assert_eq!(config.fast_model, "shared-fast");
         assert_eq!(config.transcription_model, "shared-transcription");
     }
@@ -130,7 +130,7 @@ fn route_switch_preserves_dispatched_route_and_profile_reports_real_usage() {
         profile
             .languages
             .iter()
-            .find(|l| l.id == "es")
+            .find(|l| l.id == "spanish")
             .unwrap()
             .persona_messages,
         1
@@ -139,7 +139,7 @@ fn route_switch_preserves_dispatched_route_and_profile_reports_real_usage() {
         profile
             .languages
             .iter()
-            .find(|l| l.id == "fr")
+            .find(|l| l.id == "french")
             .unwrap()
             .attempts,
         0

@@ -31,8 +31,8 @@ pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     apply(
         &mut store,
         Action::CreateContact {
-            language_id: "es".into(),
-            details: crate::partners::persona::starter("es").unwrap(),
+            language_id: "spanish".into(),
+            details: crate::partners::persona::starter("spanish").unwrap(),
         },
     );
     let contact = store.snapshot().unwrap().contacts[0].id.clone();

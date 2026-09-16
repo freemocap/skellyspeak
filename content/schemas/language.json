@@ -2,11 +2,176 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "definitions": {
+    "Construct": {
+      "additionalProperties": false,
+      "properties": {
+        "band": {
+          "type": "string"
+        },
+        "criterion": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lens": {
+          "type": "string"
+        },
+        "nav": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "opportunity": {
+          "type": "string"
+        },
+        "requires": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "review": {
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tokens": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "traits": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "band",
+        "criterion",
+        "id",
+        "label",
+        "lens",
+        "nav",
+        "opportunity",
+        "requires",
+        "review",
+        "sources",
+        "tokens",
+        "traits"
+      ],
+      "type": "object"
+    },
+    "ConversationContent": {
+      "additionalProperties": false,
+      "properties": {
+        "default_partner": {
+          "$ref": "#/definitions/PersonaDetails"
+        },
+        "starter_reasons": {
+          "$ref": "#/definitions/StarterReasons"
+        },
+        "starters": {
+          "additionalProperties": {
+            "$ref": "#/definitions/StarterText"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "default_partner",
+        "starter_reasons",
+        "starters"
+      ],
+      "type": "object"
+    },
+    "DefinitionRef": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "local": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "local"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "shared": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "shared"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Definitions": {
+      "additionalProperties": false,
+      "properties": {
+        "orthographies": {
+          "additionalProperties": {
+            "$ref": "#/definitions/OrthographyDefinition"
+          },
+          "type": "object"
+        },
+        "romanization_schemes": {
+          "additionalProperties": {
+            "$ref": "#/definitions/RomanizationDefinition"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "orthographies",
+        "romanization_schemes"
+      ],
+      "type": "object"
+    },
+    "GoalMaterial": {
+      "additionalProperties": false,
+      "properties": {
+        "tokens": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "tokens"
+      ],
+      "type": "object"
+    },
     "Guidance": {
       "additionalProperties": false,
       "properties": {
         "scope": {
-          "type": "string"
+          "$ref": "#/definitions/GuidanceScope"
         },
         "sources": {
           "items": {
@@ -22,6 +187,137 @@
         "scope",
         "sources",
         "text"
+      ],
+      "type": "object"
+    },
+    "GuidanceScope": {
+      "enum": [
+        "target_writing",
+        "explanation_writing",
+        "segmentation",
+        "reading",
+        "romanization",
+        "assessment",
+        "pragmatics"
+      ],
+      "type": "string"
+    },
+    "Integrations": {
+      "additionalProperties": false,
+      "properties": {
+        "language_tag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transcription": {
+          "description": "A mapping for the current transcription adapters, not a language identity.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "LanguageDefaults": {
+      "additionalProperties": false,
+      "properties": {
+        "orthography": {
+          "$ref": "#/definitions/DefinitionRef"
+        },
+        "romanization": {
+          "$ref": "#/definitions/RomanizationSelection"
+        },
+        "scalars": {
+          "$ref": "#/definitions/ScalarOverrides"
+        },
+        "supported_romanizations": {
+          "items": {
+            "$ref": "#/definitions/DefinitionRef"
+          },
+          "type": "array"
+        },
+        "variety": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "orthography",
+        "romanization",
+        "scalars",
+        "supported_romanizations",
+        "variety"
+      ],
+      "type": "object"
+    },
+    "LanguageIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "native_name": {
+          "type": "string"
+        },
+        "review": {
+          "$ref": "#/definitions/ReviewStatus"
+        }
+      },
+      "required": [
+        "family",
+        "id",
+        "name",
+        "native_name",
+        "review"
+      ],
+      "type": "object"
+    },
+    "LearningContent": {
+      "additionalProperties": false,
+      "properties": {
+        "goal_material": {
+          "additionalProperties": {
+            "$ref": "#/definitions/GoalMaterial"
+          },
+          "type": "object"
+        },
+        "goals": {
+          "items": {
+            "$ref": "#/definitions/Construct"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "goal_material",
+        "goals"
+      ],
+      "type": "object"
+    },
+    "OrthographyDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "guidance": {
+          "items": {
+            "$ref": "#/definitions/Guidance"
+          },
+          "type": "array"
+        },
+        "script": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "guidance",
+        "script"
       ],
       "type": "object"
     },
@@ -122,6 +418,101 @@
       ],
       "type": "object"
     },
+    "ReviewStatus": {
+      "enum": [
+        "needs_review",
+        "reviewed"
+      ],
+      "type": "string"
+    },
+    "RomanizationDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "examples": {
+          "items": {
+            "$ref": "#/definitions/RomanizationExample"
+          },
+          "type": "array"
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "review": {
+          "$ref": "#/definitions/ReviewStatus"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "examples",
+        "instructions",
+        "label",
+        "review",
+        "sources"
+      ],
+      "type": "object"
+    },
+    "RomanizationExample": {
+      "additionalProperties": false,
+      "properties": {
+        "original": {
+          "type": "string"
+        },
+        "romanized": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "original",
+        "romanized"
+      ],
+      "type": "object"
+    },
+    "RomanizationSelection": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "disabled"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "enum": [
+                "scheme"
+              ],
+              "type": "string"
+            },
+            "scheme": {
+              "$ref": "#/definitions/DefinitionRef"
+            }
+          },
+          "required": [
+            "mode",
+            "scheme"
+          ],
+          "type": "object"
+        }
+      ]
+    },
     "ScalarOverrides": {
       "additionalProperties": false,
       "properties": {
@@ -147,17 +538,62 @@
       },
       "type": "object"
     },
-    "Variety": {
+    "StarterReasons": {
+      "additionalProperties": false,
+      "properties": {
+        "contact": {
+          "type": "string"
+        },
+        "due": {
+          "type": "string"
+        },
+        "focus": {
+          "type": "string"
+        },
+        "general": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contact",
+        "due",
+        "focus",
+        "general"
+      ],
+      "type": "object"
+    },
+    "StarterText": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "preview": {
+          "type": "string"
+        },
+        "translation": {
+          "type": "string"
+        },
+        "varieties": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "label",
+        "preview",
+        "translation",
+        "varieties"
+      ],
+      "type": "object"
+    },
+    "VarietyDocument": {
       "additionalProperties": false,
       "properties": {
         "description": {
           "type": "string"
-        },
-        "external_tags": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "type": "object"
         },
         "guidance": {
           "items": {
@@ -171,24 +607,63 @@
         "name": {
           "type": "string"
         },
-        "orthography": {
-          "type": [
-            "string",
-            "null"
-          ]
+        "overrides": {
+          "$ref": "#/definitions/VarietyOverrides"
         },
         "review": {
-          "type": "string"
+          "$ref": "#/definitions/ReviewStatus"
         },
-        "romanization": {
-          "type": [
-            "string",
-            "null"
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "description",
+        "guidance",
+        "id",
+        "name",
+        "overrides",
+        "review",
+        "sources"
+      ],
+      "type": "object"
+    },
+    "VarietyOverrides": {
+      "additionalProperties": false,
+      "properties": {
+        "integrations": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Integrations"
+            }
+          ],
+          "default": {
+            "language_tag": null,
+            "transcription": null
+          }
+        },
+        "orthography": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DefinitionRef"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "romanization_disabled": {
-          "default": false,
-          "type": "boolean"
+        "romanization": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RomanizationSelection"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "scalars": {
           "allOf": [
@@ -202,43 +677,28 @@
             "word_spacing": null
           }
         },
-        "script": {
+        "supported_romanizations": {
+          "items": {
+            "$ref": "#/definitions/DefinitionRef"
+          },
           "type": [
-            "string",
+            "array",
             "null"
           ]
-        },
-        "sources": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
         }
       },
-      "required": [
-        "description",
-        "external_tags",
-        "guidance",
-        "id",
-        "name",
-        "review",
-        "sources"
-      ],
       "type": "object"
     }
   },
   "properties": {
-    "default_variety": {
-      "type": "string"
+    "conversation": {
+      "$ref": "#/definitions/ConversationContent"
     },
-    "external_tags": {
-      "additionalProperties": {
-        "type": "string"
-      },
-      "type": "object"
+    "defaults": {
+      "$ref": "#/definitions/LanguageDefaults"
     },
-    "family": {
-      "type": "string"
+    "definitions": {
+      "$ref": "#/definitions/Definitions"
     },
     "guidance": {
       "items": {
@@ -246,44 +706,19 @@
       },
       "type": "array"
     },
-    "id": {
-      "type": "string"
+    "identity": {
+      "$ref": "#/definitions/LanguageIdentity"
     },
-    "name": {
-      "type": "string"
+    "integrations": {
+      "$ref": "#/definitions/Integrations"
     },
-    "native_name": {
-      "type": "string"
+    "learning": {
+      "$ref": "#/definitions/LearningContent"
     },
-    "orthography": {
-      "type": "string"
-    },
-    "review": {
-      "type": "string"
-    },
-    "romanization": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "scalars": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/ScalarOverrides"
-        }
-      ],
-      "default": {
-        "direction": null,
-        "font_scale": null,
-        "word_spacing": null
-      }
-    },
-    "script": {
-      "type": "string"
-    },
-    "starter_persona": {
-      "$ref": "#/definitions/PersonaDetails"
+    "schema_version": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
     },
     "traits": {
       "items": {
@@ -293,26 +728,23 @@
     },
     "varieties": {
       "items": {
-        "$ref": "#/definitions/Variety"
+        "$ref": "#/definitions/VarietyDocument"
       },
       "type": "array"
     }
   },
   "required": [
-    "default_variety",
-    "external_tags",
-    "family",
+    "conversation",
+    "defaults",
+    "definitions",
     "guidance",
-    "id",
-    "name",
-    "native_name",
-    "orthography",
-    "review",
-    "script",
-    "starter_persona",
+    "identity",
+    "integrations",
+    "learning",
+    "schema_version",
     "traits",
     "varieties"
   ],
-  "title": "Language",
+  "title": "LanguageDocument",
   "type": "object"
 }

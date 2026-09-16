@@ -186,8 +186,9 @@ The authenticated POST body has exactly `version: 1` and `items` (1–8), capped
 1 MiB for the whole envelope. Each item has `operation_id` (32 lowercase hex),
 `attempt_id` (the timestamped identity above) and `request` (the validated text-chat
 payload). Operation and attempt identities must be unique within the envelope.
-This endpoint supports non-streaming text chat; GPT-OSS uses Groq and other
-text model IDs use OpenRouter under the price ceilings documented below. Audio is not encoded in these JSON groups.
+This endpoint supports non-streaming text chat. Every text model ID goes unchanged
+to OpenRouter; model names do not select a different provider. Audio is not encoded
+in these JSON groups.
 
 Responses are newline-delimited JSON (`application/x-ndjson`). Each item independently
 produces an event containing its operation/attempt identities and one of:
@@ -264,18 +265,22 @@ disposable process-local storage, real OpenRouter/Groq HTTPS endpoints, and bind
 the API to `127.0.0.1:8765`. Local data is cleared when it stops. Add `--check` to
 validate `.env` without starting the API or contacting either provider.
 
-Use these Custom URL settings in the native app:
+Set AI access to Custom URL with:
 
 - API base URL: `http://127.0.0.1:8765/v1`
 - Authentication: Bearer session token
 - Token: the contents of `server/.local-server/session-token.txt`
+
+In the separate Models section, example selections are:
+
 - Standard model: `google/gemini-2.5-flash`
 - Fast model: `google/gemini-2.5-flash-lite`
 - Transcription model, when enabled: `whisper-large-v3`
 
-A session token is generated through the server's normal signing code for the
-local emulator account. It is written owner-only and refreshed on every launcher
-start; update the app's saved token after restarting the local server. No Google
+A signed session token is generated for the local emulator account and stored
+owner-only with its signing key in `server/.local-server/session.json`. The token
+is mirrored to `session-token.txt` and reused across restarts. Local tokens last
+ten years; hosted sessions retain their existing 30-day expiry. No Google
 sign-in or unauthenticated bypass is used for this test. The launcher and private
 files are not packaged into the production image. Real chat/audio calls incur
 provider charges; configuration checks do not invoke inference.
@@ -333,29 +338,27 @@ settlement failures remain failures.
 The local launcher writes all inherited process output and structured Python
 logging into private `.local/logs/server-.../` files; see the repository README's
 Development diagnostic coverage section for the full capture/redaction contract.
-Use the logged process launcher for the emulator too. A server restart refreshes
-`server/.local-server/session-token.txt`; update Custom URL's saved token before
-trying authenticated requests again. Tokens must never be printed in logs.
+Use the logged process launcher for the emulator too. Normal server restarts preserve
+`server/.local-server/session-token.txt`; the app keeps using its saved token. Tokens must never be printed in logs.
 
 ## Model validation and provider failures
 
-Text model IDs are forwarded to providers without a server model-name allowlist.
-`openai/gpt-oss-120b` uses the existing Groq adapter for grouped operations;
-other grouped text IDs and all `/v1/chat/completions` requests go unchanged to
-OpenRouter. Providers determine availability and parameter support. The speech
-contract is selected by requested audio output, not the model name. Transcription
-model IDs are also forwarded unchanged to Groq. `ALLOWED_MODELS` is no longer read
-or required, so stale deployment values cannot reject a newly selected model.
+Text model IDs are forwarded unchanged to OpenRouter by both grouped operations
+and `/v1/chat/completions`, without a server model-name allowlist, special model
+routing, schema rewriting or price filter. Providers determine availability and
+parameter support. The speech contract is selected by requested audio output,
+not the model name. Transcription model IDs are forwarded unchanged to Groq.
+`ALLOWED_MODELS` is not read or required.
 
-Spending controls remain separate from model availability. Known models retain
-their existing price bounds. Other OpenRouter text models use a ceiling of
-$0.30 per million input tokens and $2.50 per million output tokens, with no
-per-request surcharge. Reservations use those same ceilings; OpenRouter enforces
-`provider.max_price` and may reject models with no matching endpoint. A model
-being accepted by this service does not guarantee that it fits that price limit.
-Gemini requests no longer pin a specific OpenRouter backend.
-Actual reported cost settles successful text requests. Unconfirmed usage still retains
-its reservation. See [@openrouterPriceRouting20260914] in the root bibliography.
+Spending admission remains separate from model availability. Reservations use
+estimates: known text rates where available and a default estimate of $0.30 per
+million input tokens and $2.50 per million output tokens for other text models.
+These estimates are not sent as provider price constraints. Successful requests
+settle the reported actual cost, including costs above the estimate, without
+turning a successful provider response into an error or pausing the service.
+Subsequent admissions use the corrected balance. In-flight requests can exceed
+the remaining allowance; these reservations do not guarantee a hard cost ceiling.
+Unconfirmed usage retains its reservation pending reconciliation.
 
 `/v1/protocol` lists recommended bindings and reports
 `accepts_other_text_models: true`; the list is not an allowlist. Updated clients
@@ -366,7 +369,8 @@ Grouped provider refusals affect their own operation, allowing siblings to finis
 The existing error `code` carries `OPENROUTER_HTTP_<status>` or
 `GROQ_HTTP_<status>` with service status 502. Updated native clients explain the
 provider/status, including provider account failures versus SkellySpeak limits.
-Raw provider error bodies are not echoed into the UI, database or diagnostic logs.
+Raw provider error bodies are not echoed into the UI or database. Diagnostic logs
+include bounded, redacted provider error bodies as described below.
 Provider errors survive conservative settlement instead of becoming a generic
 internal error. No automatic retry is added.
 
@@ -381,11 +385,10 @@ inclusion is tested; Docker image startup and real provider execution were not r
 
 ## Reservation preparation and historical reconciliation
 
-Grouped provider adaptation and JSON serialization checks run before money is reserved.
-Invalid preparation fails its item without a charge or retained lease. Groq's source
-endpoint relaxation applies only to the named `word_gloss_v1` schema; unrelated schemas
-with a `spans` field are forwarded unchanged. Once provider submission starts, unknown
-usage retains the conservative reservation as before.
+Grouped JSON serialization checks run before money is reserved. Invalid preparation
+fails its item without a charge or retained lease. Structured schemas are forwarded
+unchanged for provider validation. Once provider submission starts, unknown usage
+retains the reservation as before.
 
 Unresolved reservations do not expire; daily usage ledgers retain their 90-day TTL.
 `uv run --project server python -m server.operations.reconcile settle` verifies the OpenRouter receipt before settlement. If daily
@@ -394,7 +397,7 @@ only after its UTC day plus 91 days. It corrects any surviving historical aggreg
 never recreates a deleted one, marks the reservation `historical_finalization: true`,
 and gives that settled record the normal retention TTL. Ordinary settlement still
 refuses missing ledgers, as does reconciliation before the retention boundary.
-A verified price-ceiling overage still pauses spending even in historical finalization.
+Historical finalization records actual cost even when it exceeds the reservation estimate.
 Groq outcomes or refusals without an OpenRouter generation ID remain manual
 investigation work; this command does not infer a zero provider charge.
 
@@ -405,3 +408,76 @@ These checks do not deploy, test live provider billing, or exercise Cloud Run.
 Transcription accounting retains the existing duration-based service allowance
 estimate ($0.111/hour, minimum ten seconds). It does not discover model-specific
 Groq pricing or guarantee a provider spending ceiling for arbitrary models.
+
+## Verbose local runtime logs
+
+The local launcher prints sanitized Python events to the terminal and flushes the
+same events immediately to `.local/logs/server-.../server-logging.jsonl`. Startup
+prints the selected directory; `SKELLYSPEAK_LOG_RUN_DIR` selects an explicit run
+directory. Existing run files are never overwritten or automatically deleted.
+
+Coverage includes Uvicorn startup/shutdown, decoder verification, request arrival,
+response headers and full response completion, disconnects/cancellation, streamed
+byte/chunk progress (at most once per five seconds while chunks arrive), provider
+submission/status/duration, budget reservation/settlement, and grouped operation
+start/claim/duplicate/completion/failure. There is no periodic idle heartbeat.
+A response header status of 200 does not establish stream success;
+inspect the provider, settlement, operation and full response events too.
+
+Events correlate using a server-generated request ID, never client IDs. Safe
+metadata includes fixed routes/providers, status codes, timings, counts, token
+counts and monetary micro-units. Bodies, prompts, audio, model names, raw URLs,
+query strings, headers, account/device IDs, credentials, arbitrary exception text
+and tracebacks are excluded from local terminal and file output. Unknown Python
+messages and stdout/stderr writes produce explicit redaction records. This is
+operational instrumentation, not a dump of application objects or library payloads.
+
+Restart a running local server to load changes (`npm run server:local` from the
+repository root). Restarting clears disposable local data but preserves the
+session token. To follow the file, use `tail -f` on the printed directory's
+`server-logging.jsonl`. The normal terminal already shows those events live.
+
+### Provider error response bodies
+
+Provider HTTP refusals now emit `provider_error_response` with the provider,
+status, server-generated request ID and `response_body`, in both terminal and
+local JSONL logs. This includes failed transcription and streaming-chat HTTP
+responses, and JSON responses containing a provider error despite HTTP 200.
+Successful response bodies (transcripts and generated content) remain excluded.
+
+Error bodies are limited to 16 KiB and five seconds of reading. JSON keeps error,
+message, type, code, param, detail and errors fields; other fields are removed.
+Text error bodies are retained with redaction. Known request string echoes,
+credential patterns, email addresses, URLs, IPv4 addresses, UUIDs, long identifiers
+and quoted values are redacted. This is best-effort free-text redaction, not a
+guarantee that every novel provider message is free of identifying information.
+Incomplete/oversized bodies use an explicit marker and unreadable/truncated flags
+rather than unfiltered partial JSON. Body-read failures preserve the original
+provider HTTP error. These logs cannot recover bodies discarded by earlier runs.
+
+### Resetting local authentication
+
+Normal restarts reuse the saved signing key and session token. To deliberately
+invalidate the old token and issue a replacement, run
+`npm run server:local -- --reset-session-token` from the repository root, then
+copy `server/.local-server/session-token.txt` into the app once. The flag cannot
+be combined with `--check`; configuration checks never create or rotate sessions.
+
+The first launch after upgrading from the former per-launch token behavior needs
+one final token replacement. Subsequent restarts retain it. Missing token mirror
+files are repaired from `session.json`; corrupt or expired credentials fail with
+an explicit reset instruction rather than silently changing the saved token.
+The development session helper is excluded from hosted deployment images.
+
+### Internal provider credential checks
+
+Authenticated `GET /v1/protocol?verify_providers=true` probes the server's
+OpenRouter `/key` and Groq `/models` endpoints independently. Default protocol
+requests remain metadata-only. The same diagnostic authentication/admission limits
+apply; probes have bounded responses, ten-second deadlines, and no redirects.
+Results contain provider, accepted/rejected/unreachable/invalid-response state,
+HTTP status, and duration. They reveal neither credentials nor account metadata.
+These checks make no inference requests and do not establish selected-model or
+billing availability. The UI displays each provider separately and will not mark
+the aggregate custom connection healthy when a provider fails. Provider-error logs
+retain the sanitized error body for investigation.

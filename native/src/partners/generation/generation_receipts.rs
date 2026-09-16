@@ -213,7 +213,7 @@ mod tests {
     #[test]
     fn successful_receipt_is_durable_metadata_and_usage_has_correct_ownership() {
         let (dir, mut store) = setup();
-        let request = request(&store, "es");
+        let request = request(&store, "spanish");
         submit(&mut store, &request);
         let outcome = Ok(details(&store));
         finish(
@@ -233,7 +233,7 @@ mod tests {
             profile
                 .languages
                 .iter()
-                .find(|l| l.id == "es")
+                .find(|l| l.id == "spanish")
                 .unwrap()
                 .attempts,
             1
@@ -242,7 +242,7 @@ mod tests {
             profile
                 .languages
                 .iter()
-                .find(|l| l.id == "fr")
+                .find(|l| l.id == "french")
                 .unwrap()
                 .attempts,
             0
@@ -266,13 +266,13 @@ mod tests {
     #[test]
     fn cancellations_do_not_invent_usage_or_allow_late_success() {
         let (_dir, mut store) = setup();
-        let pending = request(&store, "es");
+        let pending = request(&store, "spanish");
         begin(&mut store, &pending).unwrap();
         cancel(&mut store, &pending).unwrap();
         cancel(&mut store, &pending).unwrap();
         assert!(dispatch(&mut store, &pending).is_err());
         assert_eq!(usage(&store.connection, None).unwrap().attempts, 0);
-        let running = request(&store, "es");
+        let running = request(&store, "spanish");
         submit(&mut store, &running);
         cancel(&mut store, &running).unwrap();
         let outcome = Ok(details(&store));
@@ -307,7 +307,7 @@ mod tests {
     #[test]
     fn rejected_proposals_retain_reported_usage_without_retaining_rejected_text() {
         let (_dir, mut store) = setup();
-        let request = request(&store, "es");
+        let request = request(&store, "spanish");
         submit(&mut store, &request);
         let outcome = Err(AppError::new(
             ErrorCode::Validation,
@@ -331,9 +331,9 @@ mod tests {
     #[test]
     fn restart_settles_pending_and_running_without_replay_and_is_idempotent() {
         let (dir, mut store) = setup();
-        let pending = request(&store, "es");
+        let pending = request(&store, "spanish");
         begin(&mut store, &pending).unwrap();
-        let running = request(&store, "fr");
+        let running = request(&store, "french");
         submit(&mut store, &running);
         drop(store);
         let store = Store::open(&dir.path().join("workspace.sqlite3")).unwrap();
@@ -356,7 +356,7 @@ mod tests {
     fn bounded_recent_view_does_not_truncate_totals_and_terminal_write_failure_is_atomic() {
         let (_dir, mut store) = setup();
         for _ in 0..55 {
-            let request = request(&store, "es");
+            let request = request(&store, "spanish");
             submit(&mut store, &request);
             finish(
                 &mut store,
@@ -373,7 +373,7 @@ mod tests {
         assert_eq!(view.attempts.len(), 50);
         assert_eq!(view.usage.attempts, 55);
         assert_eq!(view.usage.unknown_usage, 55);
-        let request = request(&store, "es");
+        let request = request(&store, "spanish");
         submit(&mut store, &request);
         let revision = store.snapshot().unwrap().revision;
         store.connection.execute_batch("CREATE TRIGGER refuse_generation_finish BEFORE UPDATE OF finished_at ON persona_generation_attempts BEGIN SELECT RAISE(ABORT,'synthetic write failure'); END;").unwrap();
@@ -396,7 +396,7 @@ mod tests {
     #[test]
     fn provider_refusal_and_held_authority_survive_restart_until_explicit_recovery() {
         let (dir, mut store) = setup();
-        let captured = request(&store, "es");
+        let captured = request(&store, "spanish");
         submit(&mut store, &captured);
         let refusal = AppError::new(ErrorCode::Provider, "Synthetic rate limit refusal")
             .with_refusal(crate::ai::policy::refusal::classify(None, Some(0), None));
@@ -407,7 +407,7 @@ mod tests {
         assert_eq!(error.message, refusal.message);
         finish(&mut store, &captured, None, &Err(error)).unwrap();
         assert!(matches!(
-            Request::capture(&store, "es".into(), None),
+            Request::capture(&store, "spanish".into(), None),
             Err(AppError {
                 code: ErrorCode::AdmissionHeld,
                 ..
@@ -424,7 +424,7 @@ mod tests {
         assert_eq!(view.usage.attempts, 1);
         assert_eq!(view.usage.unknown_usage, 1);
         assert!(matches!(
-            Request::capture(&store, "es".into(), None),
+            Request::capture(&store, "spanish".into(), None),
             Err(AppError {
                 code: ErrorCode::AdmissionHeld,
                 ..
@@ -434,7 +434,7 @@ mod tests {
             .unwrap()
             .remove(0);
         crate::ai::policy::holds::recover(&store.connection, &hold.id, &hold.generation).unwrap();
-        let next = Request::capture(&store, "es".into(), None).unwrap();
+        let next = Request::capture(&store, "spanish".into(), None).unwrap();
         begin(&mut store, &next).unwrap();
         let view = activity(&store.connection).unwrap();
         assert_eq!(view.attempts[0].state, "pending");

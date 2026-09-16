@@ -61,15 +61,16 @@ def test_signed_codes_cannot_cross_purposes_or_keys() -> None:
             auth.verify_issued_code(candidate, purpose=purpose, signing_key=key)
 
 
-def test_price_discrepancy_stays_blocked_after_midnight(ledger: FakeDb, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_actual_cost_above_estimate_does_not_block_other_models(ledger: FakeDb, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-01")
-    held: budget.Reservation = budget.reserve(ledger, user_id="learner", micros=100, user_limit=1000, global_limit=1000)
-    with pytest.raises(RuntimeError, match="exceeded"):
-        budget.settle(ledger, reservation=held, actual_micros=101, tokens=1, status="settled", provider_id="test")
+    held = budget.reserve(ledger, user_id="learner", micros=100, user_limit=1000, global_limit=1000)
+    budget.settle(ledger, reservation=held, actual_micros=1100, tokens=1, status="settled", provider_id="test")
+    with pytest.raises(quota.QuotaExceeded):
+        budget.reserve(ledger, user_id="learner", micros=1, user_limit=1000, global_limit=2000)
+    budget.reserve(ledger, user_id="other", micros=1, user_limit=1000, global_limit=2000)
     monkeypatch.setattr(quota, "utc_day", lambda: "2099-01-02")
-    with pytest.raises(quota.QuotaExceeded, match="paused"):
-        budget.reserve(ledger, user_id="other", micros=1, user_limit=1000, global_limit=1000)
-    assert "ttl" not in ledger.store["service_controls/spending"]
+    budget.reserve(ledger, user_id="learner", micros=1, user_limit=1000, global_limit=1000)
+    assert "service_controls/spending" not in ledger.store
 
 
 def test_device_registration_is_bounded_and_rejects_paths(ledger: FakeDb) -> None:
