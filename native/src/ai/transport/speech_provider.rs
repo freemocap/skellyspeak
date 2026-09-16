@@ -12,6 +12,7 @@ pub const WAV_LIMIT: usize = 4 * 1024 * 1024;
 const STREAM_LIMIT: usize = 16 * 1024 * 1024;
 const EVENT_LIMIT: usize = 1024 * 1024;
 const TRANSCRIPT_LIMIT: usize = 32 * 1024;
+#[cfg(test)]
 const MODEL: &str = "openai/gpt-audio-mini";
 
 pub struct SpeechInput {
@@ -53,16 +54,15 @@ impl SpeechOutcome {
 
 /// Same builder is used before attempt admission and immediately before transport.
 pub fn payload(target: &ResolvedTarget, input: &SpeechInput) -> Result<Value> {
-    if target.model != MODEL
-        || ![
-            "alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer",
-            "verse",
-        ]
-        .contains(&input.voice.as_str())
+    if ![
+        "alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer",
+        "verse",
+    ]
+    .contains(&input.voice.as_str())
     {
         return Err(AppError::new(
             ErrorCode::Validation,
-            "Unsupported speech model or voice.",
+            "Unsupported speech voice.",
         ));
     }
     if input.text.len() > 16_384
@@ -633,7 +633,7 @@ mod tests {
         assert!(d.push(b"x").is_err());
     }
     #[test]
-    fn full_payload_preflight_rejects_oversize_and_wrong_capability() {
+    fn full_payload_preflight_bounds_input_and_delegates_model_support() {
         let p = payload(&target(), &input("Hola.")).unwrap();
         assert_eq!(p["audio"]["format"], "pcm16");
         assert_eq!(p["max_tokens"], 2000);
@@ -642,7 +642,7 @@ mod tests {
         assert!(payload(&target(), &input(" ")).is_err());
         let mut t = target();
         t.model = "chat-only".into();
-        assert!(payload(&t, &input("Hola")).is_err());
+        assert_eq!(payload(&t, &input("Hola")).unwrap()["model"], "chat-only");
         let mut i = input("Hola");
         i.voice = "unknown".into();
         assert!(payload(&target(), &i).is_err());

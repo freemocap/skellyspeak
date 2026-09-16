@@ -6,14 +6,6 @@ pub fn payload(
     messages: &[PromptMessage],
     route: ConnectionRoute,
 ) -> Result<serde_json::Value> {
-    if route == ConnectionRoute::Hosted
-        && !crate::ai::connections::model_routing::hosted_model(model)
-    {
-        return Err(AppError::new(
-            ErrorCode::Validation,
-            "The hosted route does not support this text model.",
-        ));
-    }
     let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":2048,"temperature":0.7,"reasoning":{"enabled":false}});
     if route == ConnectionRoute::Openrouter {
         payload["provider"] = serde_json::json!({"allow_fallbacks":false});
@@ -125,13 +117,6 @@ pub fn payload_with_output(
     {
         return Err(structured_error(
             "Structured requests require 1–64 text messages with supported roles.",
-        ));
-    }
-    if route == ConnectionRoute::Hosted
-        && !crate::ai::connections::model_routing::hosted_model(model)
-    {
-        return Err(structured_error(
-            "The hosted route does not support this structured model.",
         ));
     }
     // Reject already-oversized raw inputs before the payload builder clones them.

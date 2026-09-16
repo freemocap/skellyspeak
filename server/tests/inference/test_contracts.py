@@ -42,7 +42,7 @@ def test_missing_cap_is_inserted_and_provider_price_is_pinned() -> None:
     request = contracts.chat_request(payload(), max_tokens=32768)
     assert request.payload["max_tokens"] == 32768
     assert request.payload["provider"] == {
-        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 0.3, "completion": 2.5, "request": 0}, "only": ["google-ai-studio"],
+        "allow_fallbacks": False, "require_parameters": True, "max_price": {"prompt": 0.3, "completion": 2.5, "request": 0},
     }
     assert request.reserve_micros >= 32768 * 2.5
 
@@ -91,7 +91,7 @@ def test_structured_schema_counts_toward_exact_utf8_request_limit() -> None:
     assert error.value.status_code == 400
 
 
-def upload(seconds: int) -> httpx.Request:
+def upload(seconds: int, model: str = "whisper-large-v3") -> httpx.Request:
     output = io.BytesIO()
     with wave.open(output, "wb") as wav:
         wav.setnchannels(1)
@@ -99,7 +99,7 @@ def upload(seconds: int) -> httpx.Request:
         wav.setframerate(audio_input.SAMPLE_RATE)
         wav.writeframes(bytes(seconds * audio_input.SAMPLE_RATE * 2))
     return httpx.Request(method="POST", url="https://test.invalid", data={
-        "model": "whisper-large-v3", "language": "es", "response_format": "json",
+        "model": model, "language": "es", "response_format": "json",
     }, files={"file": ("audio.wav", output.getvalue(), "audio/wav")})
 
 
@@ -167,3 +167,30 @@ def test_other_model_is_forwarded_with_matching_reservation_and_price_ceiling():
     assert result.payload['provider']['max_price'] == {'prompt': 0.3, 'completion': 2.5, 'request': 0}
     assert 'only' not in result.payload['provider']
     assert result.reserve_micros == math.ceil((len(json.dumps(source, ensure_ascii=False).encode()) + 1024) * 0.3 + 2048 * 2.5)
+
+
+@pytest.mark.parametrize("model", ["whisper-large-v3-turbo", "future-transcription-model"])
+def test_transcription_model_is_forwarded_without_a_catalog_gate(model):
+    request = upload(1, model=model)
+    decoded = audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+    assert decoded.fields["model"] == model
+
+
+@pytest.mark.parametrize("model", ["", "has spaces", "line\nbreak", "x" * 257])
+def test_transcription_model_identifier_is_bounded(model):
+    request = upload(1, model=model)
+    with pytest.raises(HTTPException, match="nonempty identifier"):
+        audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+
+
+@pytest.mark.parametrize('model', ['future/audio-model', 'openai/gpt-audio-mini'])
+def test_output_shape_not_model_name_selects_speech_contract(model):
+    source = {**payload(), 'model': model, 'modalities': ['text', 'audio'],
+              'audio': {'voice': 'alloy', 'format': 'pcm16'}, 'stream': True}
+    result = contracts.chat_request(source, max_tokens=32768)
+    assert result.payload['model'] == model
+    assert result.payload['max_tokens'] == 2000
+    assert result.payload['audio'] == source['audio']
+    text = contracts.chat_request({**payload(), 'model': model}, max_tokens=32768)
+    assert text.payload['model'] == model
+    assert text.payload['max_tokens'] == 32768

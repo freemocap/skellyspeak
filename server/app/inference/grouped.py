@@ -77,7 +77,7 @@ def parse(payload: object, *, max_tokens: int) -> list[Item]:
             raise HTTPException(400, "Duplicate identity within group.")
         operations.add(operation)
         attempts.add(attempt)
-        if not isinstance(request, dict) or request.get("stream", False) is not False or request.get("model") == "openai/gpt-audio-mini":
+        if not isinstance(request, dict) or request.get("stream", False) is not False or "audio" in request or "modalities" in request:
             raise HTTPException(400, "Grouped operations require non-streaming text chat requests.")
         contract = contracts.chat_request(request, max_tokens=max_tokens)
         canonical = json.dumps({"version": 1, "operation_id": operation, "request": contract.payload}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)

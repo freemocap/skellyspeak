@@ -395,26 +395,8 @@ pub async fn check_access(
         if store.connection_config()?.revision != expected_revision {
             return Err(conflict());
         }
-        let access = settings(&store.connection)?;
-        let models = value["chat_models"]
-            .as_array()
-            .ok_or_else(|| error("Server returned invalid protocol capabilities."))?;
-        if value["accepts_other_text_models"].as_bool() != Some(true)
-            && !models
-                .iter()
-                .any(|model| model.as_str() == Some(&access.custom.standard_model))
-        {
-            return Err(error(
-                "The configured chat model is not supported by this server.",
-            ));
-        }
-        if let Some(model) = access.custom.transcription_model
-            && value["transcription_model"].as_str() != Some(&model)
-        {
-            return Err(error(
-                "The configured transcription model is not supported by this server.",
-            ));
-        }
+        // Capability model lists are recommendations, not availability gates.
+        // The selected provider validates the configured model during inference.
         return Ok("SkellySpeak protocol v1 verified. No inference requested.".into());
     }
     let models = value["data"].as_array().ok_or_else(||error("Endpoint did not return an OpenAI-compatible model list. This check does not establish inference support."))?;

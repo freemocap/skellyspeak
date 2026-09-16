@@ -15,6 +15,18 @@ Design rules, matching the app:
 
 from __future__ import annotations
 
+# `python app/main.py` is a convenient local command but cannot import the
+# repository-level `server` package by itself. Delegate it to the supported
+# launcher before importing the hosted application.
+if __name__ == "__main__":
+    import importlib
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    importlib.import_module("server.development.launcher").run()
+    raise SystemExit
+
 import asyncio
 import io
 import math
@@ -541,8 +553,6 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     if not isinstance(parsed, dict):
         raise HTTPException(status_code=400, detail="Request body must be an object.")
     contract = contracts.chat_request(parsed, max_tokens=CFG.max_completion_tokens)
-    if contract.payload["model"] == model_routing.OSS:
-        raise HTTPException(400, "Use the grouped operations endpoint for this model.")
     # Keep the reservation handle even if the request is cancelled while the
     # transaction is committing. Deliver pending cancellation before submission.
     with anyio.CancelScope(shield=True):

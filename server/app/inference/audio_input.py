@@ -58,8 +58,11 @@ def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
         fields = {key: value.decode("utf-8", errors="strict") for key, value in values.items()}
     except UnicodeError as exc:
         raise HTTPException(status_code=400, detail="Audio metadata must be UTF-8.") from exc
-    if fields.get("model") != "whisper-large-v3" or fields.get("response_format") not in {"json", "verbose_json"}:
-        raise HTTPException(status_code=400, detail="Only whisper-large-v3 json or verbose_json transcription is supported.")
+    model = fields.get("model", "")
+    if not model or len(model) > 256 or any(c.isspace() or ord(c) < 32 for c in model):
+        raise HTTPException(status_code=400, detail="model must be a nonempty identifier of at most 256 characters.")
+    if fields.get("response_format") not in {"json", "verbose_json"}:
+        raise HTTPException(status_code=400, detail="Transcription requires json or verbose_json output.")
     # [@groq_transcription_api] Repeated multipart fields carry both granularities.
     if granularities and fields.get("response_format") != "verbose_json":
         raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")

@@ -17,13 +17,12 @@ PRICES = {FLASH: (0.3, 2.5), LITE: (0.1, 0.4), OSS: (0.15, 0.6)}
 
 
 def groq_payload(payload: dict) -> dict:
-    if payload.get("model") != OSS:
-        raise ValueError("No Groq binding for this model.")
     result = deepcopy(payload)
     result.pop("provider", None)
     result.pop("reasoning", None)
     result["max_completion_tokens"] = result.pop("max_tokens")
-    result["reasoning_effort"] = "low"
+    if result.get("model") == OSS:
+        result["reasoning_effort"] = "low"
     output = result.get("response_format", {}).get("json_schema", {})
     if output.get("name") != "word_gloss_v1":
         return result

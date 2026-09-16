@@ -154,15 +154,12 @@ class FileHandler(logging.Handler):
 AUTHORED_MESSAGES = {
     "Local API: http://127.0.0.1:8765/v1": "local_api_ready",
     "Session token: server/.local-server/session-token.txt (refreshed on each launch)": "session_token_file_ready",
-    "Provider calls use real keys. Local daily spending reservation limit: $0.50. No cloud storage is used.": "local_spending_policy",
-    "Local keys have valid shape; loopback emulator is reachable. Provider credentials have not been verified.": "local_configuration_valid",
-    "Create server/local.env with the two provider API keys.": "provider_key_file_missing",
-    "server/local.env must be owner-only: chmod 600 server/local.env": "provider_key_file_permissions",
-    "local.env must contain each supported provider key exactly once.": "provider_key_file_shape",
-    "A provider key is missing or malformed in local.env.": "provider_key_malformed",
-    "Both OPENROUTER_API_KEY and GROQ_API_KEY are required in local.env.": "provider_key_missing",
+    "Provider calls use real keys. Data is process-local and is cleared when the server stops.": "local_spending_policy",
+    "server/.env is valid. Provider credentials have not been verified.": "local_configuration_valid",
+    "Create server/.env from server/development/.env.sample and add the provider keys.": "provider_key_file_missing",
+    "OPENROUTER_API_KEY and GROQ_API_KEY must be set in server/.env.": "provider_key_missing",
     "Local token directory cannot be a symlink.": "token_directory_symlink",
-    "Local server setup failed. Check local.env permissions and the loopback emulator.": "local_setup_failed",
+    "Local server setup failed.": "local_setup_failed",
 }
 
 

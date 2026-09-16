@@ -1,4 +1,4 @@
-"""Run the normal API on loopback with emulator storage and local provider keys."""
+"""Run the API on loopback with disposable local storage and keys from .env."""
 from __future__ import annotations
 
 import argparse
@@ -6,44 +6,31 @@ import importlib
 import os
 from pathlib import Path
 import secrets
-import socket
-import stat
 import time
 
+from dotenv import load_dotenv
+
 import server.development.logs as local_logging
+import server.development.memory_store as memory_store
 
 ROOT = Path(__file__).resolve().parents[1]
-KEYS = {"OPENROUTER_API_KEY", "GROQ_API_KEY"}
+KEYS = ("OPENROUTER_API_KEY", "GROQ_API_KEY")
 
 
-def read_keys(path: Path) -> dict[str, str]:
+def load_keys(path: Path) -> dict[str, str]:
     if not path.is_file() or path.is_symlink():
-        raise RuntimeError("Create server/local.env with the two provider API keys.")
-    if stat.S_IMODE(path.stat().st_mode) & 0o077:
-        raise RuntimeError("server/local.env must be owner-only: chmod 600 server/local.env")
-    values: dict[str, str] = {}
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        key, separator, value = line.partition("=")
-        key, value = key.strip(), value.strip()
-        if not separator or key not in KEYS or key in values:
-            raise RuntimeError("local.env must contain each supported provider key exactly once.")
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-            value = value[1:-1]
-        if len(value) < 16 or not value.isascii() or any(c.isspace() or ord(c) < 33 or ord(c) == 127 for c in value):
-            raise RuntimeError("A provider key is missing or malformed in local.env.")
-        values[key] = value
-    if set(values) != KEYS:
-        raise RuntimeError("Both OPENROUTER_API_KEY and GROQ_API_KEY are required in local.env.")
+        raise RuntimeError("Create server/.env from server/development/.env.sample and add the provider keys.")
+    load_dotenv(path, override=False)
+    values = {key: os.environ.get(key, "").strip() for key in KEYS}
+    if any(len(value) < 16 or not value.isascii() or any(c.isspace() or ord(c) < 33 or ord(c) == 127 for c in value)
+           for value in values.values()):
+        raise RuntimeError("OPENROUTER_API_KEY and GROQ_API_KEY must be set in server/.env.")
     return values
 
 
 def configure(keys: dict[str, str], signing_key: str) -> None:
     # Explicitly scope storage and destinations, regardless of the calling shell.
     os.environ.update(keys | {
-        "FIRESTORE_EMULATOR_HOST": "127.0.0.1:8787",
         "GOOGLE_CLOUD_PROJECT": "skellyspeak-local-test",
         "GOOGLE_CLIENT_ID": "local-sign-in-disabled",
         "GOOGLE_CLIENT_SECRET": "local-sign-in-disabled",
@@ -65,20 +52,20 @@ def main() -> None:
     directory = Path(configured_logs) if configured_logs else ROOT.parent / ".local" / "logs" / f"server-{time.time_ns()}-{os.getpid()}"
     logs = local_logging.install(directory)
     logs.append("logging", {"code": "configuration_check" if args.check else "server_starting"})
-    keys = read_keys(ROOT / "local.env")
+    keys = load_keys(ROOT / ".env")
     signing_key = secrets.token_urlsafe(48)
     configure(keys, signing_key)
-    with socket.create_connection(("127.0.0.1", 8787), timeout=2):
-        pass
     if args.check:
-        print("Local keys have valid shape; loopback emulator is reachable. Provider credentials have not been verified.")
+        print("server/.env is valid. Provider credentials have not been verified.")
         return
-    # Import only after emulator configuration, so no cloud client can initialize
-    # against an inherited production project.
+    # Install disposable local storage before importing modules that declare
+    # Firestore transactions. The hosted application continues to use Firestore.
+    database = memory_store.install()
     auth = importlib.import_module("server.app.identity.auth")
     api = importlib.import_module("server.app.main")
     quota = importlib.import_module("server.app.accounting.quota")
     uvicorn = importlib.import_module("uvicorn")
+    api.db = database
 
     version = quota.upsert_user(api.db, user_id="local-learner", email="local@example.invalid",
                       name="Local test", max_users=1)
@@ -95,16 +82,18 @@ def main() -> None:
         file.write(token + "\n")
     print("Local API: http://127.0.0.1:8765/v1")
     print("Session token: server/.local-server/session-token.txt (refreshed on each launch)")
-    print("Provider calls use real keys. Local daily spending reservation limit: $0.50. No cloud storage is used.")
+    print("Provider calls use real keys. Data is process-local and is cleared when the server stops.")
     uvicorn.run(api.app, host="127.0.0.1", port=8765, access_log=False, log_level="info", log_config=None)
 
 
-if __name__ == "__main__":
+def run() -> None:
     try:
         main()
     except (RuntimeError, OSError) as error:
-        # OS error details can include environment paths. Only authored failures
-        # are shown; credentials and file contents are never printed.
         if isinstance(error, RuntimeError):
             raise SystemExit(str(error)) from None
-        raise SystemExit("Local server setup failed. Check local.env permissions and the loopback emulator.") from None
+        raise SystemExit("Local server setup failed.") from None
+
+
+if __name__ == "__main__":
+    run()

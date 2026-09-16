@@ -29,7 +29,8 @@ def chat_request(payload: dict[str, object], *, max_tokens: int) -> ChatRequest:
     model = payload.get("model")
     if not isinstance(model, str) or not model or len(model) > 256 or any(c.isspace() or ord(c) < 32 for c in model):
         reject("model must be a nonempty identifier of at most 256 characters.")
-    audio = model == "openai/gpt-audio-mini"
+    # Capabilities come from the requested output shape, not a model-name catalog.
+    audio = "audio" in payload or "modalities" in payload
     cap = min(max_tokens, 2_000 if audio else max_tokens)
     requested = payload.get("max_tokens", cap)
     if type(requested) is not int or not 1 <= requested <= cap:
@@ -65,8 +66,6 @@ def chat_request(payload: dict[str, object], *, max_tokens: int) -> ChatRequest:
             reject("Unsupported speech voice or format.")
         if "response_format" in payload:
             reject("Speech does not accept a structured response format.")
-    elif "audio" in payload or "modalities" in payload:
-        reject("This model accepts text only.")
     response_format = payload.get("response_format")
     if response_format is not None:
         if not isinstance(response_format, dict) or set(response_format) != {"type", "json_schema"}:
@@ -90,8 +89,6 @@ def chat_request(payload: dict[str, object], *, max_tokens: int) -> ChatRequest:
         "require_parameters": True,
         "max_price": {"prompt": prompt_price, "completion": completion_price, "request": 0},
     }
-    if model in {model_routing.FLASH, model_routing.LITE}:
-        outbound["provider"]["only"] = ["google-ai-studio"]
     return ChatRequest(
         payload=outbound,
         reserve_micros=math.ceil(input_bound * prompt_price + requested * completion_price),

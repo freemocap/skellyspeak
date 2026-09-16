@@ -30,12 +30,12 @@ root. These groups preserve existing implementations and cross-domain calls.
 
 Tests use matching subject folders, plus `integration/`, `development/`,
 `deployment/` and `operations/`; `tests/conftest.py` sets up the fake environment.
-`development/launcher.py` starts the ordinary API against the emulator, while
+`development/launcher.py` starts the ordinary API with disposable process-local storage, while
 `development/logs.py` captures Python logs. Their logging ownership and the root
 process logger will be reviewed separately; this folder pass does not redesign them.
 
 Dockerfile, .dockerignore, pyproject.toml and uv.lock stay at this build-context
-root. The private `local.env`, `.local-server/` state and `.venv/` stay here too;
+root. The private `.env`, `.local-server/` state and `.venv/` stay here too;
 only the public example moved into `development/`. Runtime files remain explicitly
 allowlisted for the image and source upload. Large-file splitting and deeper
 domain subfolders are deferred. Working notes belong in [docs/notes/](../docs/notes/).
@@ -243,29 +243,26 @@ path. That local HTTP integration and app QA remain pending.
 
 ## Local server with real providers
 
-Put `OPENROUTER_API_KEY` and `GROQ_API_KEY` in `server/local.env` (one `KEY=value`
-per line; optional surrounding quotes, no shell expansion). The file must have
-mode 600. Both it and `server/.local-server/` are Git-ignored and excluded from the
-Docker allowlist. Never paste the keys into logs or command-line arguments.
-`server/development/local.env.sample` is the credential-free, committable template. For a fresh
-setup, create the private file without overwriting an existing one:
+After `uv sync`, copy the sample and put `OPENROUTER_API_KEY` and `GROQ_API_KEY`
+in `server/.env`. The file is Git-ignored and is loaded automatically; no other
+environment variables, database, emulator, or cloud credentials are needed.
 
 ```sh
-test -e server/local.env || install -m 600 server/development/local.env.sample server/local.env
+cp development/.env.sample .env
+uv run python app/main.py
 ```
 
-With the loopback emulator running, start from the repository root:
+Those commands are intended to run from `server/`. From the repository root the
+equivalent launch command is:
 
 ```sh
-npm run server:local -- --check
-npm run server:local
+uv run --project server python server/app/main.py
 ```
 
-The launcher sets emulator storage explicitly, uses the real OpenRouter/Groq HTTPS
-endpoints, and binds the API to `127.0.0.1:8765`. `--check` validates key shape and
-emulator reachability without inference, account creation or provider verification.
-The local project is `skellyspeak-local-test`; the global spending reservation limit
-is $0.50 per UTC day. Unknown provider outcomes retain their reservation.
+`python app/main.py` also works in an activated `server/.venv`. The launcher uses
+disposable process-local storage, real OpenRouter/Groq HTTPS endpoints, and binds
+the API to `127.0.0.1:8765`. Local data is cleared when it stops. Add `--check` to
+validate `.env` without starting the API or contacting either provider.
 
 Use these Custom URL settings in the native app:
 
@@ -343,9 +340,11 @@ trying authenticated requests again. Tokens must never be printed in logs.
 ## Model validation and provider failures
 
 Text model IDs are forwarded to providers without a server model-name allowlist.
-`openai/gpt-oss-120b` uses the existing Groq adapter; other text IDs go unchanged
-to OpenRouter. Providers determine availability and parameter support. The speech
-endpoint retains its separate audio contract. `ALLOWED_MODELS` is no longer read
+`openai/gpt-oss-120b` uses the existing Groq adapter for grouped operations;
+other grouped text IDs and all `/v1/chat/completions` requests go unchanged to
+OpenRouter. Providers determine availability and parameter support. The speech
+contract is selected by requested audio output, not the model name. Transcription
+model IDs are also forwarded unchanged to Groq. `ALLOWED_MODELS` is no longer read
 or required, so stale deployment values cannot reject a newly selected model.
 
 Spending controls remain separate from model availability. Known models retain
@@ -354,12 +353,14 @@ $0.30 per million input tokens and $2.50 per million output tokens, with no
 per-request surcharge. Reservations use those same ceilings; OpenRouter enforces
 `provider.max_price` and may reject models with no matching endpoint. A model
 being accepted by this service does not guarantee that it fits that price limit.
-Actual reported cost settles successful requests. Unconfirmed usage still retains
+Gemini requests no longer pin a specific OpenRouter backend.
+Actual reported cost settles successful text requests. Unconfirmed usage still retains
 its reservation. See [@openrouterPriceRouting20260914] in the root bibliography.
 
 `/v1/protocol` lists recommended bindings and reports
 `accepts_other_text_models: true`; the list is not an allowlist. Updated clients
-honor this in Custom URL connection checks.
+treat advertised text and transcription bindings as recommendations in Custom URL
+connection checks, regardless of the advertised list.
 
 Grouped provider refusals affect their own operation, allowing siblings to finish.
 The existing error `code` carries `OPENROUTER_HTTP_<status>` or
@@ -400,3 +401,7 @@ investigation work; this command does not infer a zero provider charge.
 Audit repair verification (September 14, 2026): 272 server tests passed; seven
 Firestore emulator tests skipped. The actual gcloud manifest sentinel check passed.
 These checks do not deploy, test live provider billing, or exercise Cloud Run.
+
+Transcription accounting retains the existing duration-based service allowance
+estimate ($0.111/hour, minimum ten seconds). It does not discover model-specific
+Groq pricing or guarantee a provider spending ceiling for arbitrary models.

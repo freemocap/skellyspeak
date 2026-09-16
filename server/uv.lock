@@ -866,6 +866,7 @@ dependencies = [
     { name = "google-cloud-firestore" },
     { name = "httpx" },
     { name = "pyjwt", extra = ["crypto"] },
+    { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -882,6 +883,7 @@ requires-dist = [
     { name = "google-cloud-firestore", specifier = ">=2.19" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.9" },
+    { name = "python-dotenv", specifier = ">=1.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
 ]
 

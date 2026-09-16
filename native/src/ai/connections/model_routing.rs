@@ -4,9 +4,6 @@ use crate::model::ConnectionRoute;
 pub const FLASH: &str = "google/gemini-2.5-flash";
 pub const LITE: &str = "google/gemini-2.5-flash-lite";
 pub const OSS: &str = "openai/gpt-oss-120b";
-pub fn hosted_model(model: &str) -> bool {
-    matches!(model, FLASH | LITE | OSS)
-}
 pub fn target(base: &ResolvedTarget, kind: &str, fast: &str) -> ResolvedTarget {
     let mut target = base.clone();
     let easy = matches!(

@@ -209,7 +209,37 @@ fn hosted_payload_obeys_service_routing_and_model_contract() {
     assert!(hosted.get("provider").is_none());
     assert_eq!(hosted["max_tokens"], 2048);
     assert_eq!(hosted["stream"], false);
-    assert!(payload("unsupported/model", &[], ConnectionRoute::Hosted).is_err());
+    assert_eq!(
+        payload("new-provider/new-model", &[], ConnectionRoute::Hosted).unwrap()["model"],
+        "new-provider/new-model"
+    );
     let direct = payload("chosen/model", &[], ConnectionRoute::Openrouter).unwrap();
     assert_eq!(direct["provider"]["allow_fallbacks"], false);
+}
+
+#[test]
+fn every_route_preserves_an_arbitrary_structured_model() {
+    let messages = [PromptMessage {
+        role: "user".into(),
+        content: "Hello".into(),
+    }];
+    let schema = serde_json::json!({"type":"object","properties":{}});
+    for route in [
+        ConnectionRoute::Hosted,
+        ConnectionRoute::Custom,
+        ConnectionRoute::Openrouter,
+    ] {
+        let body = payload_with_output(
+            "new-provider/new-model:variant",
+            &messages,
+            route,
+            RequestOutput::JsonSchema {
+                name: "reply",
+                schema: &schema,
+            },
+        )
+        .unwrap();
+        assert_eq!(body["model"], "new-provider/new-model:variant");
+        assert_eq!(body["response_format"]["json_schema"]["schema"], schema);
+    }
 }

@@ -179,3 +179,71 @@ async def test_preparation_failure_never_reserves_or_submits(proxy, ledger, monk
     assert not any('/reservations/' in key for key in ledger.store)
     assert ledger.store['users/learner/work_control/slots']['active'] == {}
     assert next(v for k, v in ledger.store.items() if '/work_attempts/' in k)['state'] == 'failed'
+
+
+def test_groq_adapter_preserves_arbitrary_model_without_oss_only_parameters():
+    source = {'model': 'future-groq-model', 'max_tokens': 2048, 'messages': []}
+    result = routing.groq_payload(source)
+    assert result['model'] == source['model']
+    assert result['max_completion_tokens'] == 2048
+    assert 'reasoning_effort' not in result
+    assert source['max_tokens'] == 2048
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('model', [routing.OSS, 'future/model'])
+async def test_chat_endpoint_passes_any_model_to_openrouter(proxy, monkeypatch, model):
+    sent = []
+    def respond(request):
+        body = json.loads(request.content)
+        sent.append(body)
+        assert body['model'] == model
+        assert str(request.url).startswith(main.CFG.openrouter_base_url)
+        assert 'only' not in body['provider']
+        return httpx.Response(400, text='PRIVATE_PROVIDER_ERROR')
+    upstream(monkeypatch, respond)
+    response = await proxy.post('/v1/chat/completions', json={
+        'model': model, 'messages': [{'role': 'user', 'content': 'Hola'}], 'max_tokens': 2048})
+    assert response.status_code == 502
+    assert response.json()['code'] == 'OPENROUTER_HTTP_400'
+    assert len(sent) == 1
+    assert 'PRIVATE_PROVIDER_ERROR' not in response.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('status', [200, 400])
+async def test_new_transcription_model_reaches_groq_once(proxy, monkeypatch, status):
+    from server.tests.inference.test_contracts import upload
+    sent = []
+    def respond(request):
+        sent.append(request)
+        assert str(request.url).startswith(main.CFG.groq_base_url)
+        assert b'future-transcription-model' in request.content
+        return httpx.Response(status, json={'text': 'Hola'} if status == 200 else {'error': {'message': 'PRIVATE_PROVIDER_ERROR'}})
+    upstream(monkeypatch, respond)
+    audio = upload(1, model='future-transcription-model')
+    response = await proxy.post('/v1/audio/transcriptions', content=audio.read(),
+        headers={'Content-Type': audio.headers['Content-Type']})
+    assert len(sent) == 1
+    assert response.status_code == (200 if status == 200 else 502)
+    if status == 200:
+        assert response.json()['text'] == 'Hola'
+    else:
+        assert response.json()['code'] == 'GROQ_HTTP_400'
+        assert 'PRIVATE_PROVIDER_ERROR' not in response.text
+
+
+@pytest.mark.asyncio
+async def test_audio_named_model_with_text_output_is_not_rejected_by_grouped_route(proxy, monkeypatch):
+    sent = []
+    def respond(request):
+        body = json.loads(request.content)
+        sent.append(body)
+        assert body['model'] == 'openai/gpt-audio-mini'
+        return httpx.Response(400, text='PRIVATE_PROVIDER_ERROR')
+    upstream(monkeypatch, respond)
+    request = envelope(1)
+    request['items'][0]['request']['model'] = 'openai/gpt-audio-mini'
+    response = await proxy.post('/v1/operations', json=request)
+    assert json.loads(response.text.splitlines()[0])['code'] == 'OPENROUTER_HTTP_400'
+    assert len(sent) == 1
