@@ -11,10 +11,10 @@ fn rejected(reason: &str) -> AppError {
         format!("Coach observation rejected: {reason}."),
     )
 }
-const QUOTE_LIMIT: usize = 12000;
-const RATIONALE_LIMIT: usize = 400;
-const TARGET_LIMIT: usize = 1000;
-const CUE_LIMIT: usize = 600;
+const QUOTE_LIMIT: usize = 160;
+const RATIONALE_LIMIT: usize = 160;
+const TARGET_LIMIT: usize = 160;
+const CUE_LIMIT: usize = 160;
 fn text_schema(max: usize) -> Value {
     json!({"type":"string", "minLength":1, "maxLength":max})
 }
@@ -28,8 +28,16 @@ pub(crate) fn schema(captured: &Value, retry: bool) -> Result<Value> {
     if ids.is_empty() {
         return Err(rejected("empty candidates"));
     }
-    let error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis","hint","elicitation","metalinguistic"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string"},"source":{"type":"string","enum":["transfer","developmental","slip","unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":text_schema(TARGET_LIMIT),"hint":text_schema(CUE_LIMIT),"elicitation":text_schema(CUE_LIMIT),"metalinguistic":text_schema(CUE_LIMIT)}});
-    let item = json!({"type":"object","additionalProperties":false,"required":["construct","quote","outcome","error","rationale"],"properties":{"construct":{"type":"string","enum":ids},"quote":text_schema(QUOTE_LIMIT),"outcome":{"type":"string","enum":Outcome::ALL},"error":error,"rationale":text_schema(RATIONALE_LIMIT)}});
+    let help_move = crate::learning::coaching::coach_policy::requested_move(captured)?;
+    let cue_schema = |active: bool| {
+        if active {
+            text_schema(CUE_LIMIT)
+        } else {
+            json!({"type":"string","const":""})
+        }
+    };
+    let error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis","hint","elicitation","metalinguistic"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string","minLength":1,"maxLength":80,"pattern":"^[A-Za-z0-9=_|\\-]+$"},"source":{"type":"string","enum":["transfer","developmental","slip","unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":text_schema(TARGET_LIMIT),"hint":cue_schema(help_move == CoachMove::Hint),"elicitation":cue_schema(matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)),"metalinguistic":cue_schema(help_move == CoachMove::Metalinguistic)}});
+    let item = json!({"type":"object","additionalProperties":false,"required":["construct","quote","outcome","error","rationale"],"properties":{"construct":{"type":"string","enum":ids},"quote":text_schema(QUOTE_LIMIT),"outcome":{"type":"string","enum":Outcome::ALL},"error":error,"rationale":{"type":"string","maxLength":RATIONALE_LIMIT}}});
     let mut result = json!({"type":"object","additionalProperties":false,"required":["meaning_recovered","items"],"properties":{"meaning_recovered":{"type":"string","enum":["full","partial","none"]},"items":{"type":"array","maxItems":6,"items":item}}});
     if retry {
         result["required"] = json!(["repaired", "meaning_recovered", "items"]);
@@ -62,8 +70,11 @@ pub(crate) fn validate(
     kind: &str,
     output: &Completion,
 ) -> Result<Value> {
-    if output.finish_reason != "stop" || output.text.len() > 32768 {
-        return Err(rejected("incomplete or oversized output"));
+    if output.finish_reason != "stop" {
+        return Err(rejected("non-normal completion"));
+    }
+    if output.text.len() > 32768 {
+        return Err(rejected("output exceeds 32768 bytes"));
     }
     let raw: String = db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
         r.get(0)
@@ -71,8 +82,11 @@ pub(crate) fn validate(
     let captured: Value = serde_json::from_str(&raw)?;
     let retry = kind == "coach_retry_check";
     let (observation, repaired) = if retry {
-        let result: RetryCheck =
-            serde_json::from_str(&output.text).map_err(|_| rejected("retry schema"))?;
+        let result: RetryCheck = crate::diagnostics::structured::decode(
+            &output.text,
+            &schema(&captured, true)?,
+            "Coach observation rejected",
+        )?;
         (
             CoachObservation {
                 meaning_recovered: result.meaning_recovered,
@@ -82,11 +96,24 @@ pub(crate) fn validate(
         )
     } else {
         (
-            serde_json::from_str::<CoachObservation>(&output.text)
-                .map_err(|_| rejected("observation schema"))?,
+            crate::diagnostics::structured::decode::<CoachObservation>(
+                &output.text,
+                &schema(&captured, false)?,
+                "Coach observation rejected",
+            )?,
             None,
         )
     };
+    if observation
+        .items
+        .iter()
+        .filter(|item| item.error.is_some() || !item.rationale.is_empty())
+        .count()
+        > 1
+    {
+        return Err(rejected("more than one coaching suggestion"));
+    }
+    let help_move = crate::learning::coaching::coach_policy::requested_move(&captured)?;
     if observation.items.len() > 6 {
         return Err(rejected("item count"));
     }
@@ -104,7 +131,9 @@ pub(crate) fn validate(
             return Err(rejected("unknown or duplicate construct"));
         }
         prose("quote", &item.quote, QUOTE_LIMIT)?;
-        prose("rationale", &item.rationale, RATIONALE_LIMIT)?;
+        if !item.rationale.is_empty() {
+            prose("rationale", &item.rationale, RATIONALE_LIMIT)?;
+        }
         if !source.contains(&item.quote) {
             return Err(rejected("quote not in exact learner source"));
         }
@@ -127,6 +156,19 @@ pub(crate) fn validate(
                 ("elicitation", &error.elicitation),
                 ("metalinguistic", &error.metalinguistic),
             ] {
+                let active = match field {
+                    "hint" => help_move == CoachMove::Hint,
+                    "elicitation" => {
+                        matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)
+                    }
+                    _ => help_move == CoachMove::Metalinguistic,
+                };
+                if !active {
+                    if !cue.is_empty() {
+                        return Err(rejected("unused coaching cue must be empty"));
+                    }
+                    continue;
+                }
                 prose(field, cue, CUE_LIMIT)?;
                 if leaks_answer(cue, &error.target_hypothesis) {
                     return Err(rejected("graduated cue reveals the answer"));
@@ -199,35 +241,54 @@ mod tests {
 #[cfg(test)]
 mod text_contract_tests {
     use super::*;
+    fn captured() -> Value {
+        json!({"candidateConstructs":[{"id":"question"}],"practiceSettings":{"coachProactivity":"on_request"},"feedbackPolicy":crate::configuration::Registry::bundled().unwrap().feedback_policy()})
+    }
     #[test]
-    fn generation_and_validation_share_text_limits() {
-        let schema = schema(&json!({"candidateConstructs":[{"id":"question"}]}), false).unwrap();
+    fn generation_and_validation_share_small_limits_and_one_cue() {
+        let schema = schema(&captured(), false).unwrap();
         let item = &schema["properties"]["items"]["items"]["properties"];
-        for (field, max) in [("quote", QUOTE_LIMIT), ("rationale", RATIONALE_LIMIT)] {
-            assert_eq!(item[field], text_schema(max));
+        assert_eq!(item["quote"], text_schema(QUOTE_LIMIT));
+        assert_eq!(
+            item["rationale"],
+            json!({"type":"string","maxLength":RATIONALE_LIMIT})
+        );
+        assert_eq!(item["error"]["properties"]["hint"], text_schema(CUE_LIMIT));
+        for field in ["elicitation", "metalinguistic"] {
+            assert_eq!(
+                item["error"]["properties"][field],
+                json!({"type":"string","const":""})
+            );
+        }
+        for (field, max) in [
+            ("quote", QUOTE_LIMIT),
+            ("rationale", RATIONALE_LIMIT),
+            ("hint", CUE_LIMIT),
+        ] {
             assert!(prose(field, &"é".repeat(max), max).is_ok());
             assert!(prose(field, &"é".repeat(max + 1), max).is_err());
         }
-        for (field, max) in [
-            ("target_hypothesis", TARGET_LIMIT),
-            ("hint", CUE_LIMIT),
-            ("elicitation", CUE_LIMIT),
-            ("metalinguistic", CUE_LIMIT),
-        ] {
-            assert_eq!(item["error"]["properties"][field], text_schema(max));
-        }
     }
     #[test]
-    fn rejected_text_names_field_without_echoing_private_content() {
-        assert_eq!(
-            prose("hint", "  ", CUE_LIMIT).unwrap_err().message,
-            "Coach observation rejected: hint is empty."
-        );
-        assert_eq!(
-            prose("rationale", &"x".repeat(401), RATIONALE_LIMIT)
-                .unwrap_err()
-                .message,
-            "Coach observation rejected: rationale exceeds 400 characters."
-        );
+    fn response_schema_outcomes_and_nullable_errors_match_rust() {
+        let schema = schema(&captured(), false).unwrap();
+        for outcome in Outcome::ALL {
+            let value = json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"hello","outcome":outcome,"error":null,"rationale":""}]});
+            crate::diagnostics::structured::decode::<CoachObservation>(
+                &value.to_string(),
+                &schema,
+                "Coach observation rejected",
+            )
+            .unwrap();
+        }
+        let bad = json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"hello","outcome":"PRIVATE_ENUM","error":null,"rationale":""}]});
+        let error = crate::diagnostics::structured::decode::<CoachObservation>(
+            &bad.to_string(),
+            &schema,
+            "Coach observation rejected",
+        )
+        .unwrap_err();
+        assert!(error.message.contains("$.items[0].outcome"));
+        assert!(!error.message.contains("PRIVATE_ENUM"));
     }
 }

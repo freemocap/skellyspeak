@@ -158,6 +158,16 @@ Tested on a real 30 s Spanish recording (`whisper-sample.json` fixture): local `
 
 ## 6. Coach contract
 
+**Approved clarification, implemented September 16, 2026:** automatic feedback
+and revision checks offer zero or one brief suggestion. No suggestion is a normal,
+successful response. Keep source-bound learning evidence without requiring a
+learner-facing explanation for every observation. Generate only the current
+graduated-help cue; further help follows the existing controls. Explicitly
+requested reply-composition help remains a separate operation. See the
+[prompt audit and implementation record](../../notes/coaching-prompt-audit-2026-09-16.md)
+for the current limits and verification; older contract sketches below describe
+the design history rather than the exact current wire schema.
+
 ### 6.1 Operations (extend `turn_plan.rs` `COACH_PLAN`)
 
 | Operation | Trigger | Input layers | Output | Notes |

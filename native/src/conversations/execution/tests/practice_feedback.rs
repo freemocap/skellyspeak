@@ -51,7 +51,7 @@ fn wave2_explicit_answer_is_durable_terminal_and_retry_uncertainty_is_honest() {
         &store,
         &second,
         "coach_retry_check",
-        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
+        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[error_in_mode("¿Cómo tu hermana?", "explicit")]}),
     );
     assert_eq!(checked["decision"]["shown"]["move"], "explicit");
     assert_eq!(checked["decision"]["retryInvited"], false);
@@ -94,7 +94,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
         &store,
         &second,
         "coach_retry_check",
-        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."},{"construct":"ix.self_repair","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"Revised wording."}]}),
+        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."},{"construct":"ix.self_repair","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":""}]}),
     );
     assert!(checked["nativeRepair"]["support_step"].is_null());
     let record =
@@ -180,7 +180,7 @@ fn wave2_graded_retry_and_keep_going_do_not_block_chat() {
             .unwrap(),
         "coach_retry_check"
     );
-    store.finish(&retry,Ok(reply(&serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}).to_string()))).unwrap();
+    store.finish(&retry,Ok(reply(&serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[error_in_mode("¿Cómo tu hermana?", "elicit")]}).to_string()))).unwrap();
     assert_eq!(
         wave2_context(&store, &second)["coachDecision"]["shown"]["move"],
         "elicit"
@@ -347,4 +347,13 @@ fn requested_analysis_exposes_logged_help_and_answer_explanation() {
         wave2_context(&store, &turn)["coachDecision"]["shown"]["explanation"],
         "Hidden corrected wording must not leak."
     );
+}
+
+fn error_in_mode(quote: &str, mode: &str) -> serde_json::Value {
+    let mut item = wave2_error(quote);
+    item["error"]["hint"] = serde_json::json!("");
+    if mode == "elicit" {
+        item["error"]["elicitation"] = serde_json::json!("Add the missing linking verb.");
+    }
+    item
 }

@@ -236,7 +236,7 @@ pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
 }
 
 pub(super) fn wave2_error(quote: &str) -> serde_json::Value {
-    serde_json::json!({"construct":"question","quote":quote,"outcome":"partial","rationale":"Hidden corrected wording must not leak.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"A linking verb is missing.","elicitation":"Can you add a verb?","metalinguistic":"This question needs a form of estar."}})
+    serde_json::json!({"construct":"question","quote":quote,"outcome":"partial","rationale":"Hidden corrected wording must not leak.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"A linking verb is missing.","elicitation":"","metalinguistic":""}})
 }
 
 pub(super) fn wave2_observe(

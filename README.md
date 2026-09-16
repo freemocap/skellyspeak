@@ -510,6 +510,18 @@ Logging checks: `npm run logs:check`, `npm run logs:test`, `npm test`, native
 from the frontend Vitest suite. `.local/` is excluded from Vite's file watcher so
 log writes do not reload the webview.
 
+### Tracing native AI validation failures
+
+`native.jsonl` records `inference_prepared` and `inference_validation` for scheduled
+text/structured operations. Join events by `attemptId`, also present in workspace
+attempt records. Inspect `validationAccepted`, `stage`, `finishReason`, token and
+byte counts, `domainReason` and `structure` (safe schema path/reason). Preparation
+records retain schema/instruction/content fingerprints and whether captured content
+matches the running build. Provider success can still fail native validation;
+validation acceptance alone does not prove the later database commit succeeded.
+These events exclude raw prompts and responses. See the
+[diagnostic investigation](docs/notes/local-errors-2026-09-16.md) for coverage and limits.
+
 ## License
 
 SkellySpeak is licensed under the GNU Affero General Public License, version 3

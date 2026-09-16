@@ -2,7 +2,7 @@
 guidance:
 - scope: assessment
   text: Copy evidence character-for-character from learner text. Never correct spelling or translate evidence
-    quotes; put corrections only in the correction field. Never invent errors.
+    quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.
   sources:
   - hattie_timperley2007
 - scope: pragmatics

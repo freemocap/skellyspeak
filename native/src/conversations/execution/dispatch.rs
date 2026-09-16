@@ -285,7 +285,7 @@ impl Store {
         tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model) VALUES(?1,?2,'running',?3)",params![attempt,operation,model])?;
         bump(&tx)?;
         tx.commit()?;
-        Ok(Some(Dispatch {
+        let dispatch = Dispatch {
             target,
             attempt,
             operation,
@@ -301,6 +301,8 @@ impl Store {
                 |r| r.get::<_, String>(0),
             )?)?,
             install_id: self.snapshot()?.learner.id,
-        }))
+        };
+        crate::diagnostics::inference::prepared(&dispatch, &kind, &captured, self.config.hash());
+        Ok(Some(dispatch))
     }
 }

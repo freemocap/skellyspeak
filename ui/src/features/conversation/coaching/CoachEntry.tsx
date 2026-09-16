@@ -8,7 +8,7 @@ export function CoachEntry({ decision, feedback, source, error }: {
 }) {
   const tr = useI18n()
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
-  const explanations = (feedback?.items ?? []).filter(item => item.rationale.trim() && item.outcome !== 'not_observed' && item.construct !== shown?.construct)
+  const explanation = !shown && !decision?.fixed && !decision?.keptGoing ? feedback?.items.find(item => item.rationale.trim() && item.outcome !== 'not_observed') : undefined
   return <div className="coach-entry">
     {source && <p className="coach-entry-said"><TargetText text={source} /></p>}
     {error && <p className="turn-errors" role="alert">{error}</p>}
@@ -23,9 +23,9 @@ export function CoachEntry({ decision, feedback, source, error }: {
         <p className="coach-remark" dir="auto">{shown.text}</p>
       </>}
     </section>}
-    {explanations.map((item, index) => <section className="coach-card coach-card-explanation" key={`${item.construct}:${index}`} aria-label={tr("Language explanation")}>
-      <blockquote><TargetText text={item.quote} /></blockquote>
-      <p className="coach-remark" dir="auto">{item.rationale}</p>
-    </section>)}
+    {explanation && <section className="coach-card coach-card-explanation" aria-label={tr("Language explanation")}>
+      <blockquote><TargetText text={explanation.quote} /></blockquote>
+      <p className="coach-remark" dir="auto">{explanation.rationale}</p>
+    </section>}
   </div>
 }

@@ -18,3 +18,13 @@ it('shows original, correction and why only after the explicit answer is exposed
   expect(screen.queryByText('cocinar')).toBeNull()
   expect(screen.queryByText(/Cocinar means/)).toBeNull()
 })
+
+it('renders no suggestion for evidence-only success and at most one for retained feedback', () => {
+  const item = {construct:'question',outcome:'demonstrated' as const,quote:'¿Cómo estás?',rationale:''}
+  const feedback = {meaningRecovered:'full' as const,candidatesSent:2,itemsReturned:2,items:[item,{...item,construct:'greeting'}]}
+  const view = render(<CoachEntry source={null} feedback={feedback} />)
+  expect(view.container.querySelectorAll('.coach-card')).toHaveLength(0)
+  expect(view.container.textContent).toBe('')
+  view.rerender(<CoachEntry source={null} feedback={{...feedback,items:feedback.items.map(i => ({...i,rationale:'One short tip.'}))}} />)
+  expect(view.container.querySelectorAll('.coach-card')).toHaveLength(1)
+})

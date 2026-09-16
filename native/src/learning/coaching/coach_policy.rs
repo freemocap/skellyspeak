@@ -72,6 +72,47 @@ fn correction(item: &ObservedItem, rung: CoachMove, _captured: &Value) -> Result
         text,
     })
 }
+/// The one help mode requested from the model. Other cue fields stay empty.
+pub(crate) fn requested_move(captured: &Value) -> Result<CoachMove> {
+    let policy: Policy = serde_json::from_value(captured["feedbackPolicy"].clone())?;
+    let intensity = match captured["practiceSettings"]["coachProactivity"].as_str() {
+        Some("on_request") => "light",
+        Some("occasional") => "standard",
+        Some("frequent") => "thorough",
+        _ => return Err(invalid("Unknown coach intensity.")),
+    };
+    let intensity = policy
+        .intensity
+        .get(intensity)
+        .ok_or_else(|| invalid("Missing feedback intensity policy."))?;
+    let retry = &captured["coachRetry"];
+    if retry.is_null() {
+        return movement(&intensity.start_at);
+    }
+    let previous = retry["shown"]["move"]
+        .as_str()
+        .ok_or_else(|| invalid("Missing shown repair support."))?;
+    if retry["supportStep"].is_null() {
+        return movement(previous);
+    }
+    if retry["depth"].as_u64().unwrap_or(0) >= u64::from(intensity.max_revisions)
+        || previous == "explicit"
+    {
+        return Ok(CoachMove::Explicit);
+    }
+    let index = policy
+        .ladder
+        .iter()
+        .position(|r| r == previous)
+        .ok_or_else(|| invalid("Previous support is absent from the captured ladder."))?;
+    movement(
+        policy
+            .ladder
+            .get(index + 1)
+            .ok_or_else(|| invalid("Feedback ladder has no next move."))?,
+    )
+}
+
 pub(crate) fn decide(
     captured: &Value,
     observation: &CoachObservation,
@@ -128,10 +169,7 @@ pub(crate) fn decide(
                 i.construct == target && i.outcome == Outcome::Demonstrated && i.error.is_none()
             })
             .ok_or_else(|| invalid("Repair has no demonstrated target evidence."))?;
-        decision.fixed = Some(format!(
-            "Updated wording: {}. {}",
-            item.quote, item.rationale
-        ));
+        decision.fixed = (!item.rationale.is_empty()).then(|| item.rationale.clone());
     } else {
         let selected = if repaired == Some(false) {
             observation.items.iter().find(|i| {
@@ -155,36 +193,7 @@ pub(crate) fn decide(
         };
         if let Some(item) = selected {
             let depth = retry["depth"].as_u64().unwrap_or(0) as u32;
-            let rung = if repaired == Some(false) {
-                if retry["supportStep"].is_null() {
-                    movement(
-                        retry["shown"]["move"]
-                            .as_str()
-                            .ok_or_else(|| invalid("Missing selected support."))?,
-                    )?
-                } else if depth >= intensity.max_revisions || retry["shown"]["move"] == "explicit" {
-                    CoachMove::Explicit
-                } else {
-                    let previous = retry["shown"]["move"]
-                        .as_str()
-                        .ok_or_else(|| invalid("Missing shown repair support."))?;
-                    let index = policy
-                        .ladder
-                        .iter()
-                        .position(|r| r == previous)
-                        .ok_or_else(|| {
-                            invalid("Previous support is absent from the captured ladder.")
-                        })?;
-                    movement(
-                        policy
-                            .ladder
-                            .get(index + 1)
-                            .ok_or_else(|| invalid("Feedback ladder has no next move."))?,
-                    )?
-                }
-            } else {
-                movement(&intensity.start_at)?
-            };
+            let rung = requested_move(captured)?;
             decision.retry_invited = depth < intensity.max_revisions && rung != CoachMove::Explicit;
             decision.shown = Some(correction(item, rung, captured)?);
         }
@@ -237,7 +246,7 @@ pub(crate) fn control(
                     item.error.is_some()
                         && matches!(item.outcome, Outcome::Partial | Outcome::NotDemonstrated)
                 }) {
-                    decision.shown = Some(correction(item, CoachMove::Hint, &context)?);
+                    decision.shown = Some(correction(item, requested_move(&context)?, &context)?);
                     decision.retry_invited = true;
                 }
             }

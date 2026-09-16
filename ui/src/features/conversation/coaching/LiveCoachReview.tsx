@@ -25,6 +25,7 @@ export function LiveCoachReview({ turn, visible, onControl }: {
     void onControl('open_card').catch(reason => setError(nativeError(reason)))
   }, [visible, turn, decision, onControl])
   if (!turn) return null
+  if (!turn.coachError && !error && !decision?.shown && !decision?.fixed && decision?.repairStatus !== 'uncertain' && !turn.coach?.items.some(item => item.rationale.trim())) return null
   return <section ref={review} className="live-coach-review" aria-label={tr("Conversation coaching")}>
     <h3>{tr("On your message")}</h3>
     <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />

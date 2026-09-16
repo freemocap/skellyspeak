@@ -4,6 +4,7 @@ mod fixtures;
 use fixtures::*;
 
 mod coaching;
+mod compact_coaching;
 mod connections;
 mod grouped_transport;
 mod language_context;

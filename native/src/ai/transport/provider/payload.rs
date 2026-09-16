@@ -1,12 +1,14 @@
 use super::PromptMessage;
 use crate::model::{AppError, ConnectionRoute, ErrorCode, Result};
 
+pub const MAX_OUTPUT_TOKENS: i32 = 2048;
+
 pub fn payload(
     model: &str,
     messages: &[PromptMessage],
     route: ConnectionRoute,
 ) -> Result<serde_json::Value> {
-    let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":2048,"temperature":0.7,"reasoning":{"enabled":false}});
+    let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":MAX_OUTPUT_TOKENS,"temperature":0.7,"reasoning":{"enabled":false}});
     if route == ConnectionRoute::Openrouter {
         payload["provider"] = serde_json::json!({"allow_fallbacks":false});
     }

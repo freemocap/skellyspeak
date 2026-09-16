@@ -1,4 +1,6 @@
 //! Durable, content-free diagnostics; the bounded ring is only a recent-read view.
+pub(crate) mod inference;
+pub(crate) mod structured;
 use crate::model::AppError;
 use crate::model::ErrorCode;
 use crate::model::Result;

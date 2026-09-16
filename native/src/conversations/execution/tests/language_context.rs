@@ -197,7 +197,13 @@ fn focus_is_frozen_and_reaches_partner_and_both_coach_prompts() {
     ] {
         let prompt =
             crate::learning::coaching::prompt(&store.connection, &turn, kind, &captured).unwrap();
-        assert!(prompt[0].content.contains(&block));
+        if kind == crate::learning::coaching::FEEDBACK {
+            assert!(!prompt[0].content.contains(&block));
+            let data: serde_json::Value = serde_json::from_str(&prompt[1].content).unwrap();
+            assert_eq!(data["focus"], "question");
+        } else {
+            assert!(prompt[0].content.contains(&block));
+        }
         let mut no_focus = captured.clone();
         no_focus["practiceFocus"] = serde_json::Value::Null;
         let prompt =

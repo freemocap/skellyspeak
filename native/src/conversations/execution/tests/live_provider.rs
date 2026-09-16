@@ -79,7 +79,9 @@ async fn live_cooking_feedback_regression() {
         observation
             .items
             .iter()
-            .all(|item| !item.rationale.trim().is_empty())
+            .filter(|item| item.error.is_some() || !item.rationale.is_empty())
+            .count()
+            <= 1
     );
     store.finish(&feedback, Ok(result)).unwrap();
 }

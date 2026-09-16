@@ -158,6 +158,7 @@ impl Store {
             Ok(output) => crate::ai::transport::provider::validate_prose(&output.text),
             Err(error) => Err(error.clone()),
         };
+        crate::diagnostics::inference::completed(dispatch, &kind, &result, &valid);
         if let Ok(output) = &result {
             tx.execute("UPDATE attempts SET actual_model=?2,provider_id=?3,input_tokens=?4,output_tokens=?5 WHERE id=?1",params![dispatch.attempt,output.actual_model,output.provider_id,output.input_tokens,output.output_tokens])?;
         }
