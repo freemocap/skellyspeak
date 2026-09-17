@@ -7,10 +7,10 @@ title: Coaching contracts
 
 > **Current restoration target:** the user has requested the v0 coaching and
 > conversation-assistance experience. The
-> [v0 source comparison and restoration contract](../../notes/v0-conversation-assistance-restoration.md)
+> [v0 source comparison and restoration contract](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/v0-conversation-assistance-restoration.md)
 > supersedes the earlier one-suggestion/skill-bound approach as the target design.
 > The restoration is now implemented in source; lesson/progression redesign stays frozen.
-> [Implementation and verification](../../notes/v0-conversation-assistance-verification.md)
+> [Implementation and verification](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/v0-conversation-assistance-verification.md)
 > records the new independent contracts and current verification limits.
 
 
@@ -21,7 +21,7 @@ title: Coaching contracts
 > repair exercise. Automatically recommended skills must not redirect the topic.
 > The earlier wave/lesson sequence below is deferred where it conflicts with this
 > decision. Current implementation and verification are recorded in
-> [the chat-first checkpoint](../../notes/chat-first-coaching-2026-09-16.md).
+> [the chat-first checkpoint](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/chat-first-coaching-2026-09-16.md).
 
 
 The seams between the three work areas in the [coaching work plan](./coaching-work-plan). Each contract names who provides it, who consumes it, and the wave it lands in. A provider may refine a signature; the change must be reported as **contract drift** in its hand-back and then updated here by the integration agent.

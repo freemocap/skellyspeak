@@ -153,6 +153,7 @@ logging.getLogger('httpx').warning('private secret')
 print('private transcript')
 '''
     result = subprocess.run([sys.executable, "-c", script, str(tmp_path.resolve() / "run")],
+                            cwd=Path(__file__).resolve().parents[3],
                             capture_output=True, text=True, check=True, timeout=10)
     assert "startup_complete" in result.stderr
     assert "Server logs:" in result.stderr

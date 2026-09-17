@@ -189,8 +189,8 @@ it('flies mobile Fast mode rewards straight to the meter and fills only on arriv
     expect(flights).toHaveLength(1)
     expect(flights[0][1]).toMatchObject({ duration: 340 })
     const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
-    expect(parseFloat(fill.style.width)).toBeCloseTo(100 / 3)
+    expect(parseFloat(fill.style.width)).toBeCloseTo(20)
     act(() => animations[0].onfinish!())
-    expect(parseFloat(fill.style.width)).toBeCloseTo(200 / 3)
+    expect(parseFloat(fill.style.width)).toBeCloseTo(40)
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
 })

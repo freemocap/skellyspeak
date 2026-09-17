@@ -5,7 +5,7 @@
 //   node tools/release.ts patch          0.3.0 -> 0.3.1
 //   node tools/release.ts minor          0.3.0 -> 0.4.0
 //   node tools/release.ts major          0.3.0 -> 1.0.0
-//   node tools/release.ts 1.0.0-rc.1     an explicit version
+//   node tools/release.ts 1.22.0        an explicit stable version
 //   node tools/release.ts minor --dry-run    say what would happen, change nothing
 //   node tools/release.ts patch --no-push    bump, commit and tag; push by hand
 //
@@ -62,8 +62,9 @@ const noPush = args.includes('--no-push')
 const unknown = args.filter((a) => a.startsWith('-') && !['--dry-run', '--no-push'].includes(a))
 if (unknown.length > 0) die(`unknown option${unknown.length > 1 ? 's' : ''}: ${unknown.join(' ')}\n${USAGE}`)
 
-const target = args.find((a) => !a.startsWith('-'))
-if (!target) die(USAGE)
+const targets = args.filter((a) => !a.startsWith('-'))
+if (targets.length !== 1) die(USAGE)
+const target = targets[0]
 
 // ── Everything that must be true before anything is written ─────────────────
 
@@ -86,6 +87,12 @@ const prepared = target === 'current'
 const nextVersion = prepared ? currentVersion : BUMPS.includes(target) ? bump(current, target) : target
 const next = parse(nextVersion)
 if (!next) die(`not a ${BUMPS.join('/')} bump and not a semver version: "${target}"\n${USAGE}`)
+if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(nextVersion)) {
+  die('Release supports stable x.y.z versions only; prerelease publishing is not configured.')
+}
+if (next.minor > 999 || next.patch > 999 || next.major * 1000000 + next.minor * 1000 + next.patch > 2100000000) {
+  die('Version exceeds the Android versionCode range (minor and patch must be below 1000).')
+}
 if (!prepared && compare(next, current) <= 0) {
   die(
     `${nextVersion} is not newer than the current ${currentVersion}.\n` +
@@ -124,12 +131,12 @@ if (dirty) {
 // version's tag is taken is checked against the remote directly, below.
 console.log('  fetching…')
 try {
-  execFileSync('git', ['fetch', '--no-tags', '--quiet'], { stdio: 'inherit' })
+  execFileSync('git', ['fetch', '--no-tags', '--quiet', 'origin', 'main'], { stdio: 'inherit' })
 } catch {
   die('could not reach the remote. A release has to be pushed, so this must work first.')
 }
 
-const behind = Number(git('rev-list', '--count', `HEAD..@{upstream}`))
+const behind = Number(git('rev-list', '--count', 'HEAD..origin/main'))
 if (behind > 0) {
   die(
     `${behind} commit${behind === 1 ? '' : 's'} on the remote ${behind === 1 ? 'is' : 'are'} not here yet.\n` +
@@ -137,8 +144,8 @@ if (behind > 0) {
   )
 }
 
-if (prepared && git('rev-parse', 'HEAD') !== git('rev-parse', 'origin/main')) {
-  die('The prepared release must be the exact origin/main commit. Merge and push it before releasing.')
+if (git('rev-parse', 'HEAD') !== git('rev-parse', 'origin/main')) {
+  die('Release preparation must start at the exact origin/main commit. Review and push pending work first.')
 }
 
 const tag = `v${nextVersion}`
@@ -147,10 +154,7 @@ const tagOnRemote = git('ls-remote', '--tags', 'origin', tag) !== ''
 if (tagExistsLocally || tagOnRemote) {
   die(
     `${tag} already exists ${tagExistsLocally && tagOnRemote ? 'locally and on the remote' : tagExistsLocally ? 'locally' : 'on the remote'}.\n` +
-      '  A tag cannot be moved once pushed — delete it, then run this again:\n' +
-      (tagExistsLocally ? `    git tag -d ${tag}\n` : '') +
-      (tagOnRemote ? `    git push origin :refs/tags/${tag}\n` : '') +
-      '  Then check for a leftover draft release on GitHub.',
+      '  Choose a newer version. Inspect the existing GitHub run and draft before deciding how to recover.',
   )
 }
 
@@ -208,12 +212,11 @@ console.log(`  verified: ${tag} contains version ${nextVersion}`)
 if (noPush) {
   console.log('')
   console.log('Not pushed. When you are ready:')
-  console.log(`  git push && git push origin ${tag}`)
+  console.log(`  git push --atomic origin HEAD:refs/heads/main refs/tags/${tag}`)
   process.exit(0)
 }
 
-gitDo(false, 'push')
-gitDo(false, 'push', 'origin', tag)
+gitDo(false, 'push', '--atomic', 'origin', 'HEAD:refs/heads/main', `refs/tags/${tag}`)
 
 console.log('')
 console.log(`Released ${tag}. The build is starting:`)

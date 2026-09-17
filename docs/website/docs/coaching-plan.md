@@ -7,10 +7,10 @@ title: Coaching plan
 
 > **Current restoration target:** the user has requested the v0 coaching and
 > conversation-assistance experience. The
-> [v0 source comparison and restoration contract](../../notes/v0-conversation-assistance-restoration.md)
+> [v0 source comparison and restoration contract](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/v0-conversation-assistance-restoration.md)
 > supersedes the earlier one-suggestion/skill-bound approach as the target design.
 > The restoration is now implemented in source; lesson/progression redesign stays frozen.
-> [Implementation and verification](../../notes/v0-conversation-assistance-verification.md)
+> [Implementation and verification](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/v0-conversation-assistance-verification.md)
 > records the new independent contracts and current verification limits.
 
 
@@ -21,7 +21,7 @@ title: Coaching plan
 > repair exercise. Automatically recommended skills must not redirect the topic.
 > The earlier wave/lesson sequence below is deferred where it conflicts with this
 > decision. Current implementation and verification are recorded in
-> [the chat-first checkpoint](../../notes/chat-first-coaching-2026-09-16.md).
+> [the chat-first checkpoint](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/chat-first-coaching-2026-09-16.md).
 
 
 [Reading view](pathname:///coaching-plan.html) · [Work plan](./coaching-work-plan) · [Contracts](./coaching-contracts)
@@ -183,7 +183,7 @@ successful response. Keep source-bound learning evidence without requiring a
 learner-facing explanation for every observation. Generate only the current
 graduated-help cue; further help follows the existing controls. Explicitly
 requested reply-composition help remains a separate operation. See the
-[prompt audit and implementation record](../../notes/coaching-prompt-audit-2026-09-16.md)
+[prompt audit and implementation record](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/coaching-prompt-audit-2026-09-16.md)
 for the current limits and verification; older contract sketches below describe
 the design history rather than the exact current wire schema.
 

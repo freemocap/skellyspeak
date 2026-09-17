@@ -11,11 +11,11 @@ The package build/start scripts verify fingerprints before Docusaurus runs. The 
 Checks:
 
 ```sh
-npm run security:check --prefix skellyspeak-docs
-npm run security:test --prefix skellyspeak-docs
+npm run security:check --prefix docs/website
+npm run security:test --prefix docs/website
 npm run docs:test
-npm run typecheck --prefix skellyspeak-docs
-npm run build --prefix skellyspeak-docs
+npm run typecheck --prefix docs/website
+npm run build --prefix docs/website
 ```
 
 Security tests use killable child processes with deadlines for hostile ICNS, JXL and HEIF buffers through all four public memory/file and CJS/ESM combinations. Valid parser fixtures and PNG/SVG dimensions remain covered. Additional tests verify idempotence, source/version drift refusal, reproduction from original release fingerprints, and build refusal when installation scripts were skipped.

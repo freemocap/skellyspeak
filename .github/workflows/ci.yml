@@ -29,7 +29,7 @@ jobs:
       - run: npm run docs:links
       - run: npm run docs:test
       - run: npm run styles:check
-      - run: node --test tools/version.test.ts
+      - run: npm run release:test
       - run: npm run ios:check
       - run: npm run logs:check
       - run: npm run logs:test

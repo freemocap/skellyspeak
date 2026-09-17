@@ -28,3 +28,18 @@ CI runs the reports alongside the tests.
 
 `npm run ios:test` includes a macOS-only execution check of the IPA verifier. CI
 runs it in its macOS job; other systems skip that case explicitly.
+
+## Release tooling
+
+The former `scripts/release.ts` moved here in the repository cleanup; it was not
+removed. Use Node 24 and `npm run release -- patch --dry-run` to inspect a bump,
+then `npm run release -- patch` only when publishing is authorized and CI is green.
+`current` tags a version already committed on `origin/main`; `--no-push` keeps
+Git writes local. Existing tags must not be reused. Stable versions only are
+supported by the desktop/Android publication workflow.
+
+`npm run release:test` checks version arithmetic and release argument refusals.
+The script requires a clean checkout at `origin/main` and pushes branch/tag
+atomically to that remote. It does not verify GitHub CI or signing credentials.
+See [the September release review](../docs/notes/release-readiness-2026-09-17.md)
+for outstanding release blockers.

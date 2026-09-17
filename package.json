@@ -36,7 +36,9 @@
     "benchmarks:test": "node --test tools/benchmarks/screening.test.ts",
     "benchmarks:fixtures": "cargo run --locked --manifest-path native/Cargo.toml --bin benchmark_gloss -- export --write",
     "benchmarks:fixtures:check": "cargo run --locked --manifest-path native/Cargo.toml --bin benchmark_gloss -- export --check",
-    "test:reports": "npm run graph && npm run styles:dead"
+    "test:reports": "npm run graph && npm run styles:dead",
+    "release": "node tools/release.ts",
+    "release:test": "node --test tools/version.test.ts tools/release.test.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

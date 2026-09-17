@@ -73,6 +73,9 @@ jobs:
         with:
           install_components: cloud-firestore-emulator
 
+      - name: Verify the Cloud Build upload boundary
+        run: python server/deployment/check_upload_manifest.py
+
       - name: Exercise concurrent Firestore transactions
         working-directory: server
         env:

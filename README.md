@@ -130,12 +130,14 @@ From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
 ```sh
 next_version="X.Y.Z"
-node tools/release.ts "$next_version" --dry-run
-node tools/release.ts "$next_version"
+npm run release -- "$next_version" --dry-run
+npm run release -- "$next_version"
 ```
 
-The script updates the Cargo versions, commits, tags and pushes. It refuses an
-existing tag. Merging alone does not publish.
+The script updates the Cargo versions, commits, tags and atomically pushes to
+`origin`. It refuses an existing tag, unsupported prerelease versions, or local
+commits not yet on `origin/main`. Check CI yourself before invoking it; the script
+does not query GitHub checks. Merging alone does not publish.
 
 The tag starts the Release workflow for checks, signed desktop installers,
 updater artifacts and signed Android APK/AAB. These publish as Latest when their
@@ -176,7 +178,7 @@ https://docs.freemocap.org/skellyspeak/download for APK installation. Debug buil
 do not install updates. Release builds use `native/tauri.release.conf.json` to
 retain the distributed application's identity and signing continuity.
 
-For subsequent releases, run `node tools/release.ts patch` on a clean, current
+For subsequent releases, run `npm run release -- patch` on a clean, current
 `main` checkout with Node 24, Cargo and authenticated Git access. It bumps both
 Cargo files, commits, tags and pushes. `--dry-run` skips writes except fetching
 remote state; `--no-push` performs local Git writes only.
