@@ -1,0 +1,81 @@
+"""Internal audio contracts. No HTTP, credentials, routing or spending policy.
+
+Voice identifiers belong to a selected provider profile, not language content.
+Dollar cost is optional: character counts and audio duration are not invoices.
+These types are not yet the public hosted wire contract.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Protocol
+
+
+@dataclass(frozen=True)
+class SynthesisRequest:
+    model: str
+    voice_id: str
+    text: str = field(repr=False)
+    language_code: str | None = None
+
+
+@dataclass(frozen=True)
+class TranscriptionRequest:
+    model: str
+    # Already decoded by the admission layer: mono signed 16-bit PCM, 16 kHz.
+    pcm: bytes = field(repr=False)
+    language_code: str | None = None
+
+
+@dataclass(frozen=True)
+class AudioReceipt:
+    provider: str
+    requested_model: str
+    # A provider request ID is correlation evidence, not proof of billing.
+    request_id: str | None = None
+    cost_micros: int | None = None
+
+
+@dataclass(frozen=True)
+class SynthesisResult:
+    wav: bytes = field(repr=False)
+    duration_seconds: float
+    receipt: AudioReceipt
+
+
+@dataclass(frozen=True)
+class WordTiming:
+    text: str = field(repr=False)
+    start: float
+    end: float
+
+
+@dataclass(frozen=True)
+class TranscriptionResult:
+    text: str = field(repr=False)
+    duration_seconds: float
+    words: tuple[WordTiming, ...]
+    detected_language: str | None
+    language_probability: float | None
+    receipt: AudioReceipt
+
+
+class AudioFailure(Exception):
+    """Safe fixed code plus partial receipt; never raw upstream error text.
+
+unknown_outcome means submission may have incurred a charge. Even a known HTTP
+refusal is not a billing receipt; callers must not invent a zero dollar charge.
+"""
+
+    def __init__(self, code: str, *, receipt: AudioReceipt,
+                 unknown_outcome: bool, status: int | None = None):
+        super().__init__(code)
+        self.code = code
+        self.receipt = receipt
+        self.unknown_outcome = unknown_outcome
+        self.status = status
+
+
+class AudioProvider(Protocol):
+    async def synthesize(self, request: SynthesisRequest) -> SynthesisResult: ...
+
+    async def transcribe(self, request: TranscriptionRequest) -> TranscriptionResult: ...

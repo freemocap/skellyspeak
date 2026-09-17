@@ -55,10 +55,44 @@ this checkpoint selects access modes, not new server-side vendors. Direct access
 still uses the existing OpenRouter TTS and Groq STT adapters. Provider identity and
 provider-specific credentials for ElevenLabs/Azure remain part of their integration.
 
+## Checkpoint 3: ElevenLabs adapter foundation
+
+Implemented server-internal typed audio requests, results, receipts and an adapter
+protocol in `server/app/inference/audio_contracts.py`. `elevenlabs.py` implements
+that protocol with a fixed credential destination, one HTTP request, bounded reads,
+a total deadline, redirect refusal and no automatic retries. Shared HTTP client
+authentication, cookies and other provider key headers are not forwarded.
+
+Synthesis sends source text directly, disables text normalization, selects 24 kHz
+PCM and returns a standard mono WAV. Voice IDs are supplied explicitly; the
+adapter does not pretend OpenAI voice names identify ElevenLabs voices.
+Transcription accepts two- or three-letter hints independently of Whisper's list,
+disables event tags and cleanup, preserves script/wording, and normalizes word
+timings. Silence, invalid timing and malformed responses fail explicitly. Low
+confidence or Latin output is retained as evidence, not silently translated.
+
+Receipts retain provider/request/model identity and unknown dollar cost. Duration
+and word confidence are not fabricated billing evidence. Malformed/partial success
+responses retain a possible-charge outcome; cancellation propagates to the owner.
+These are tested adapter behaviors, not guarantees about linguistic accuracy.
+[@elevenlabs_stt_20260917] [@elevenlabs_tts_20260917]
+
+**Not yet activated:** the app and hosted endpoints still use existing providers.
+There is no new environment loader, direct key field or provider switch in this
+checkpoint. Public wire contracts, captured provider/voice settings, routing,
+credential checks and allowance accounting must be integrated next. In particular,
+the hosted layer must distinguish its estimated service allowance from an actual
+provider invoice instead of treating missing cost as zero or a failed synthesis.
+
+[Credential preparation and rollout instructions](audio-provider-setup.md) explain
+which steps can be done now and which require that integration. Local/server secret
+owners remain separate from the app's bearer session token. GCP configuration was
+read from deployment source; no live project state or keys were accessed.
+
 ## Next checkpoints
 
-1. ElevenLabs adapters, captured provider/protocol identity, local server configuration
-   and provider credential controls. Update hosted contracts, checks and accounting
+1. Wire the ElevenLabs adapters: captured provider/protocol identity, local server
+   configuration and provider credential controls. Update hosted contracts, checks and accounting
    together; remove OpenAI voice and two-letter language assumptions at the adapter
    boundary. Normalize audio, timings, usage and errors. Preserve verbatim speech.
 2. Azure adapters and endpoint/region configuration, with explicit provider choice
@@ -98,3 +132,16 @@ on the old global chat switch. The two checkpoint-1 native exclusions remain.
 
 No paid provider requests, credential changes, application data reset, restart or
 deployment were performed.
+
+## Checkpoint 3 verification
+
+Passed: 346 server tests, including 33 new adapter tests; seven Firestore emulator
+tests skipped because the emulator was not enabled. Whitespace checks passed.
+Controlled adapter HTTP tests cover Unicode source and
+results, language hints including Irish and Gaelic, normalized audio/timing,
+credential isolation, redirects/refusals, interrupted and oversized output,
+malformed timestamps, silence, unknown costs and cancellation. These are not live
+provider or language-quality evaluations. Existing packaging checks cover the
+new runtime modules; no new dependencies or database schema were introduced.
+No live provider request, key change, cloud operation, app restart, push or
+deployment was performed. Native/UI behavior is unchanged in this checkpoint.

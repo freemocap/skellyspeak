@@ -53,3 +53,6 @@ server/app/diagnostics/*
 !server/app/diagnostics/provider_errors.py
 
 !server/app/diagnostics/provider_health.py
+
+!server/app/inference/audio_contracts.py
+!server/app/inference/elevenlabs.py

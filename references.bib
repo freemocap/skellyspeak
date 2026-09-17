@@ -602,6 +602,34 @@
   review = {full-text},
   claim = {Tapadh leat and tapadh leibh are Gaelic thanks expressions; the lexical hint must represent the whole expression rather than an isolated pronoun.}
 }
+@misc{elevenlabs_stt_20260917,
+  author = {{ElevenLabs}},
+  title = {Create transcript API reference},
+  url = {https://elevenlabs.io/docs/api-reference/speech-to-text/convert},
+  review = {API request and response specification, reviewed September 17, 2026},
+  claim = {The batch endpoint accepts model_id, file, ISO 639-1 or 639-3 language hints, word timestamps and no_verbatim=false; adapter fields preserve learner speech and normalize word events. Language hints do not guarantee recognition accuracy.}
+}
+@misc{elevenlabs_tts_20260917,
+  author = {{ElevenLabs}},
+  title = {Create speech API reference},
+  url = {https://elevenlabs.io/docs/api-reference/text-to-speech/convert},
+  review = {API request and output-format specification, reviewed September 17, 2026},
+  claim = {Synthesis uses a voice ID, direct text and model_id; output format is selectable and normalization can be disabled. Language-code enforcement is model-dependent and does not prove accent quality.}
+}
+@misc{elevenlabs_auth_20260917,
+  author = {{ElevenLabs}},
+  title = {API authentication},
+  url = {https://elevenlabs.io/docs/api-reference/authentication},
+  review = {Authentication and key restriction sections, reviewed September 17, 2026},
+  claim = {Requests use xi-api-key; endpoint scopes and credit limits can restrict keys. Hosted credentials belong on the server, separate from app session tokens.}
+}
+@misc{gcp_audio_secrets_20260917,
+  author = {{Google Cloud}},
+  title = {Configure secrets for Cloud Run services},
+  url = {https://docs.cloud.google.com/run/docs/configuring/services/secrets},
+  review = {Service identity, environment-variable and secret-version guidance, reviewed September 17, 2026},
+  claim = {The runtime identity requires Secret Manager Secret Accessor; attaching a secret deploys a revision, and environment secrets are resolved at instance startup. Explicit version references make rollout selection reproducible.}
+}
 @misc{focloir_continuing,
   author = {{Foras na Gaeilge}},
   title = {New English-Irish Dictionary: continuing},
