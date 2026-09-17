@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { invoke } from '../../../platform/ipc/native'
-import type { ConnectionConfig } from '../../../generated/contracts'
+import type { ConnectionConfig, ConnectionRoute } from '../../../generated/contracts'
 
-const fields = ['standardModel', 'fastModel', 'transcriptionModel'] as const
-const labels = ['Standard model', 'Fast model', 'Transcription model'] as const
-type Models = Pick<ConnectionConfig, typeof fields[number]>
+const fields = ['standardModel', 'fastModel'] as const
+const labels = ['Standard model', 'Fast model'] as const
+type Models = Pick<ConnectionConfig, typeof fields[number] | 'audio'>
 const message = (error: unknown) => error instanceof Error ? error.message :
   typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
 
@@ -23,7 +23,8 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
   const writing = useRef(false)
-  const dirty = !!saved && !!draft && fields.some(key => draft[key] !== saved[key])
+  const dirty = !!saved && !!draft && (fields.some(key => draft[key] !== saved[key]) ||
+    (['transcription', 'speech'] as const).some(key => draft.audio[key].model !== saved.audio[key].model || draft.audio[key].route !== saved.audio[key].route))
 
   async function read() {
     const config = await invoke<ConnectionConfig>('get_connection')
@@ -38,6 +39,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
       const config = await invoke<ConnectionConfig>('save_models', {
         expectedRevision: saved.revision,
         ...Object.fromEntries(fields.map(key => [key, draft[key]])),
+        audio: draft.audio,
       })
       setSaved(config); setDraft(config)
       await onChanged(); setStatus('Saved')
@@ -59,6 +61,25 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
         onBlur={() => { setDraft(current => current && ({ ...current, [key]: current[key].trim() })); setEditing(false) }}
         onChange={event => { setDraft({ ...draft, [key]: event.target.value }); setError(null); setStatus('') }} />
     </div>)}
+    {(['transcription', 'speech'] as const).map(kind => <fieldset key={kind}>
+      <legend>{tr(kind === 'transcription' ? 'Transcription model' : 'Read aloud')}</legend>
+      <div className="form-row">
+        <label htmlFor={`audio-route-${kind}`}>{tr(kind === 'transcription' ? 'Transcription access' : 'Read-aloud access')}</label>
+        <select id={`audio-route-${kind}`} className="field" value={draft.audio[kind].route} disabled={busy}
+          onChange={event => { setDraft({ ...draft, audio: { ...draft.audio, [kind]: { ...draft.audio[kind], route: event.target.value as ConnectionRoute } } }); setError(null); setStatus('') }}>
+          <option value="hosted">{tr('Hosted sign-in')}</option>
+          <option value="openrouter">{kind === 'transcription' ? 'Groq' : 'OpenRouter'}</option>
+          <option value="custom">{tr('Custom URL')}</option>
+        </select>
+      </div>
+      <div className="form-row">
+        <label htmlFor={`audio-model-${kind}`}>{tr(kind === 'transcription' ? 'Transcription model' : 'Read-aloud model')}</label>
+        <input id={`audio-model-${kind}`} className="field" value={draft.audio[kind].model} disabled={busy}
+          onFocus={() => setEditing(true)}
+          onBlur={() => { setDraft(current => current && ({ ...current, audio: { ...current.audio, [kind]: { ...current.audio[kind], model: current.audio[kind].model.trim() } } })); setEditing(false) }}
+          onChange={event => { setDraft({ ...draft, audio: { ...draft.audio, [kind]: { ...draft.audio[kind], model: event.target.value } } }); setError(null); setStatus('') }} />
+      </div>
+    </fieldset>)}
     {dirty && <div className="form-row"><span role="status">{busy ? tr('Saving…') : editing ? tr('Editing — saves when you leave the field') : tr('Unsaved changes')}</span>
       <button className="btn" disabled={busy} onClick={() => { setDraft(saved); setError(null); setEditing(false); setStatus('Changes discarded') }}>{tr('Discard changes')}</button></div>}
     {error && <div role="alert">{error}<button className="btn" disabled={busy} onClick={() => void save()}>{tr('Retry save')}</button></div>}

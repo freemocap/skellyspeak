@@ -961,5 +961,9 @@
   "{value0} XP milestone": "{value0} XP milestone",
   "Skill XP comes from evidence in your messages.": "Skill XP comes from evidence in your messages.",
   "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.",
-  "The {model} transcription model has no language code for {language}; output may be unreliable.": "The {model} transcription model has no language code for {language}; output may be unreliable."
+  "The {model} transcription model has no language code for {language}; output may be unreliable.": "The {model} transcription model has no language code for {language}; output may be unreliable.",
+  "Transcription access": "Transcription access",
+  "Read-aloud access": "Read-aloud access",
+  "Read-aloud model": "Read-aloud model",
+  "Chat access": "Chat access"
 }

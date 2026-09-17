@@ -8,7 +8,7 @@ const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
 const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
-  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', transcriptionModel: 'fixture-transcription', paused: false }
+  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { route: 'hosted', model: 'fixture-transcription' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
 const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, customKeyConfigured: true,
   custom: { baseUrl: 'https://fixture.example/v1', bearerAuth: true } }

@@ -125,7 +125,7 @@ mod tests {
         store.prepare_chat().unwrap();
         store
             .connection
-            .execute("UPDATE ai_config SET route='openrouter'", [])
+            .execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter')", [])
             .unwrap();
         store
             .set_connection(1, Some("chat-reference"), "standard", "fast")

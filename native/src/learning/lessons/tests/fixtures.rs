@@ -18,7 +18,7 @@ pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     store
         .connection
-        .execute("UPDATE ai_config SET route='openrouter'", [])
+        .execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter')", [])
         .unwrap();
     store
         .set_connection(

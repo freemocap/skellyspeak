@@ -247,3 +247,38 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
         );
     }
 }
+
+#[test]
+fn changing_audio_settings_revokes_late_speech_and_preserves_usage() {
+    let (_dir, mut store, conversation) = setup();
+    let (speech, _) = speech_children(&mut store, &conversation);
+    let config = store.connection_config().unwrap();
+    let mut audio = config.audio.clone();
+    audio.speech.route = ConnectionRoute::Custom;
+    audio.speech.model = "new-speech-model".into();
+    store
+        .set_models(
+            config.revision,
+            &config.standard_model,
+            &config.fast_model,
+            &audio,
+        )
+        .unwrap();
+    assert_eq!(store.connection_config().unwrap().route, config.route);
+    assert_eq!(speech.target.model, config.audio.speech.model);
+    assert!(
+        store
+            .finish_speech(&speech, speech_outcome(Ok(vec![1; 44])))
+            .unwrap()
+            .is_none()
+    );
+    let tokens: i32 = store
+        .connection
+        .query_row(
+            "SELECT output_tokens FROM attempts WHERE id=?1",
+            [&speech.attempt],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(tokens, 30);
+}

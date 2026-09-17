@@ -961,5 +961,9 @@
   "{value0} XP milestone": "Marco de {value0} XP",
   "Skill XP comes from evidence in your messages.": "A XP das habilidades vem de evidências nas suas mensagens.",
   "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "A cada 50 XP, você alcança outro marco. Cada barra mostra o progresso até o próximo marco; a XP total continua aumentando.",
-  "The {model} transcription model has no language code for {language}; output may be unreliable.": "O modelo de transcrição {model} não tem um código de idioma para {language}; o resultado pode não ser fiável."
+  "The {model} transcription model has no language code for {language}; output may be unreliable.": "O modelo de transcrição {model} não tem um código de idioma para {language}; o resultado pode não ser fiável.",
+  "Transcription access": "Ligação de transcrição",
+  "Read-aloud access": "Ligação de leitura em voz alta",
+  "Read-aloud model": "Modelo de leitura em voz alta",
+  "Chat access": "Ligação do chat"
 }

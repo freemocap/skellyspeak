@@ -961,5 +961,9 @@
   "{value0} XP milestone": "محطة {value0} XP",
   "Skill XP comes from evidence in your messages.": "تأتي نقاط خبرة المهارات من الأدلة في رسائلك.",
   "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "تصل إلى محطة جديدة كل 50 XP. يعرض كل شريط التقدم نحو المحطة التالية، وتستمر نقاط الخبرة الإجمالية في الزيادة.",
-  "The {model} transcription model has no language code for {language}; output may be unreliable.": "لا يحتوي نموذج التفريغ الصوتي {model} على رمز لغة لـ {language}؛ قد تكون النتائج غير موثوقة."
+  "The {model} transcription model has no language code for {language}; output may be unreliable.": "لا يحتوي نموذج التفريغ الصوتي {model} على رمز لغة لـ {language}؛ قد تكون النتائج غير موثوقة.",
+  "Transcription access": "اتصال النسخ الصوتي",
+  "Read-aloud access": "اتصال القراءة بصوت عالٍ",
+  "Read-aloud model": "نموذج القراءة بصوت عالٍ",
+  "Chat access": "اتصال المحادثة"
 }

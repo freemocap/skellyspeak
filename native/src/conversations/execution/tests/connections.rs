@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn model_selection_is_shared_across_routes_without_changing_credentials() {
-    let (_dir, mut store, _) = setup();
+    let (dir, mut store, _) = setup();
     let credentials: (Option<String>, Option<String>, Option<String>) = store
         .connection
         .query_row(
@@ -17,7 +17,16 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
             revision,
             "provider/model@version+variant",
             "shared-fast",
-            "shared-transcription",
+            &AudioSettings {
+                transcription: AudioRouteSettings {
+                    route: ConnectionRoute::Openrouter,
+                    model: "shared-transcription".into(),
+                },
+                speech: AudioRouteSettings {
+                    route: ConnectionRoute::Custom,
+                    model: "independent-speech".into(),
+                },
+            },
         )
         .unwrap();
     for route in [
@@ -30,7 +39,13 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
         let config = store.connection_config().unwrap();
         assert_eq!(config.standard_model, "provider/model@version+variant");
         assert_eq!(config.fast_model, "shared-fast");
-        assert_eq!(config.transcription_model, "shared-transcription");
+        assert_eq!(config.audio.transcription.model, "shared-transcription");
+        assert_eq!(
+            config.audio.transcription.route,
+            ConnectionRoute::Openrouter
+        );
+        assert_eq!(config.audio.speech.route, ConnectionRoute::Custom);
+        assert_eq!(config.audio.speech.model, "independent-speech");
     }
     let after: (Option<String>, Option<String>, Option<String>) = store
         .connection
@@ -41,6 +56,27 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
         )
         .unwrap();
     assert_eq!(after, credentials);
+    let config = store.connection_config().unwrap();
+    let mut invalid = config.audio.clone();
+    invalid.speech.model = "bad model".into();
+    assert!(
+        store
+            .set_models(config.revision, "standard", "fast", &invalid)
+            .is_err()
+    );
+    assert_eq!(store.connection_config().unwrap().revision, config.revision);
+    assert!(
+        store
+            .set_models(config.revision - 1, "standard", "fast", &config.audio)
+            .is_err()
+    );
+    drop(store);
+    let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    let restored = reopened.connection_config().unwrap();
+    assert_eq!(
+        serde_json::to_value(restored.audio).unwrap(),
+        serde_json::to_value(config.audio).unwrap()
+    );
 }
 
 #[test]

@@ -1,4 +1,5 @@
 use super::*;
+use crate::model::AudioSettings;
 
 #[tauri::command]
 pub(in crate::application) fn get_connection(
@@ -76,14 +77,14 @@ pub(in crate::application) fn save_models(
     expected_revision: i32,
     standard_model: String,
     fast_model: String,
-    transcription_model: String,
+    audio: AudioSettings,
 ) -> Result<ConnectionConfig> {
     let mut store = state.lock()?;
     store.set_models(
         expected_revision,
         standard_model.trim(),
         fast_model.trim(),
-        transcription_model.trim(),
+        &audio,
     )?;
     store.connection_config()
 }

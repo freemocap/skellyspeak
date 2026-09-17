@@ -9,7 +9,7 @@ vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 
 const connection = (over: Partial<ConnectionConfig> = {}): ConnectionConfig => ({
   route: 'hosted', signedIn: true, ownKeyConfigured: false, email: 'learner@example.test',
-  revision: 1, configured: true, standardModel: '', fastModel: '', transcriptionModel: 'whisper-large-v3', paused: false, ...over,
+  revision: 1, configured: true, standardModel: '', fastModel: '', audio: { transcription: { route: 'hosted', model: 'whisper-large-v3' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false, ...over,
 })
 
 beforeEach(() => {

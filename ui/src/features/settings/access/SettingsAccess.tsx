@@ -164,7 +164,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'openrouter', label: tr('API keys') }, { id: 'custom', label: tr('Custom URL') },
   ]
   return <section className="account-settings">
-    <div className="access-tabs" role="tablist" aria-label={tr("Use for AI requests")} onKeyDown={event => {
+    <p>{tr('Chat access')}</p>
+    <div className="access-tabs" role="tablist" aria-label={tr("Chat access")} onKeyDown={event => {
       const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
       const index = tabs.indexOf(document.activeElement as HTMLButtonElement)
       const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null

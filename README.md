@@ -386,18 +386,21 @@ version and configured chat/transcription capabilities, and performs no inferenc
 Our server requires a session token issued by that server. Selecting no authentication
 cannot bypass server authentication. Hosted session credentials are never reused for
 Custom URL; its token is stored separately and bound to the saved destination.
-Groq key verification uses its `/models` endpoint. Simple translation and reaction tasks use the Fast model; other chat tasks use Standard. Read-aloud uses the selected route and
-the dedicated speech model; actual playback requires device verification. A protocol check does not establish live inference quality.
+Groq key verification uses its `/models` endpoint. Simple translation and reaction tasks use the Fast model; other chat tasks use Standard. Read-aloud uses its independently selected route and
+speech model; actual playback requires device verification. A protocol check does not establish live inference quality.
 
-Standard, Fast and Transcription model IDs are shared across Hosted, API keys and
-Custom URL access. AI access edits them once, outside the route tabs. Custom URL
-stores only its address and authentication choice; changing routes does not change
-the selected models. The development schema is v18, so older workspaces require
-Factory Reset.
+Standard and Fast model IDs apply to chat. Transcription and Read aloud each have
+an independent access mode and model in Models settings. The Chat access tabs
+change only chat routing. Audio can use Hosted sign-in, the current direct provider
+(Groq for transcription; OpenRouter for read-aloud), or Custom URL independently.
+Each capability resolves only its selected route's credentials; missing credentials
+cause an explicit error rather than switching to another route. Custom URL stores
+its address and authentication choice separately. The development schema is v19,
+so older workspaces require Factory Reset. No automatic migration is performed.
 
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
-Transcription remains a separate multipart request using the shared Transcription model.
+Transcription remains a separate multipart request using its selected model and route.
 The user verified local Custom URL chat with real configured inference keys;
 all seven local Firestore emulator tests passed. Recheck the native development
 session when resuming this branch; no new runtime check is implied by this summary.
@@ -611,7 +614,7 @@ scheduler. See `old/notes/workflow/reports/lessons.md` for verification status.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current development database schema is **18**; older workspaces require an
+The current development database schema is **19**; older workspaces require an
 explicit reset rather than a migration. App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in

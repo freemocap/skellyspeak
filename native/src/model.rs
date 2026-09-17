@@ -533,6 +533,8 @@ pub fn bindings() -> String {
         PersonaGenerationAttempt::decl(&config),
         PersonaGenerationUsage::decl(&config),
         PersonaGenerationActivity::decl(&config),
+        AudioRouteSettings::decl(&config),
+        AudioSettings::decl(&config),
         ConnectionConfig::decl(&config),
         TurnControl::decl(&config),
         GlossSegmentKind::decl(&config),
@@ -656,6 +658,19 @@ pub fn bindings() -> String {
     )
 }
 
+/// Access mode and model are independent for each audio direction.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AudioRouteSettings {
+    pub route: ConnectionRoute,
+    pub model: String,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AudioSettings {
+    pub transcription: AudioRouteSettings,
+    pub speech: AudioRouteSettings,
+}
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConnectionConfig {
@@ -667,7 +682,7 @@ pub struct ConnectionConfig {
     pub configured: bool,
     pub standard_model: String,
     pub fast_model: String,
-    pub transcription_model: String,
+    pub audio: AudioSettings,
     pub paused: bool,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

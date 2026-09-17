@@ -5,7 +5,7 @@ const native = vi.hoisted(() => vi.fn())
 vi.mock('../../platform/ipc/native', () => ({ invoke: native }))
 const connection: ConnectionConfig = { route: 'custom', revision: 1, configured: true,
   signedIn: false, ownKeyConfigured: false, email: '', paused: false,
-  standardModel: 'standard', fastModel: 'fast', transcriptionModel: 'transcription' }
+  standardModel: 'standard', fastModel: 'fast', audio: { transcription: { route: 'hosted', model: 'transcription' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } } }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
 beforeEach(() => { native.mockReset(); useConnectionHealth.setState({ routes: {} }) })
 it('checks the saved token and reuses recent results without inference', async () => {

@@ -18,6 +18,17 @@ fn handler_failure_after_turn_creation_rolls_back_and_leaves_action_retryable() 
             ConnectionRoute::Openrouter,
         )
         .unwrap();
+    let config = store.connection_config().unwrap();
+    let mut audio = config.audio.clone();
+    audio.speech.route = ConnectionRoute::Openrouter;
+    store
+        .set_models(
+            config.revision,
+            &config.standard_model,
+            &config.fast_model,
+            &audio,
+        )
+        .unwrap();
     let contact = contact(&mut store);
     let conversation = conversation(&mut store, &contact, "Rollback test");
     let before = serde_json::to_value(store.snapshot().unwrap()).unwrap();

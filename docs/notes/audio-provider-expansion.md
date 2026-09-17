@@ -13,7 +13,7 @@ credential isolation, bounded responses and explicit retries. Deployment remains
 separate authorized action. Hosted secrets and user-owned credentials have distinct
 owners; do not put secrets in language content or UI bundles.
 
-## Implemented checkpoint: native audio boundary
+## Checkpoint 1: native audio boundary (ffbd7ac)
 
 `ai::audio` owns the internal synthesis and transcription inputs/results and the
 entry points used by recording, scheduling and publication. Synthesis admission
@@ -33,20 +33,40 @@ still resides in connection access; relocating that shared helper is not needed
 for this checkpoint. Existing large speech/fluency files retain cohesive decoder
 and timing suites; this change is not a general file-size cleanup.
 
+## Checkpoint 2: independent audio settings
+
+Implemented separate persisted `audio.transcription` and `audio.speech` settings,
+each containing its own access route and model. Chat keeps its existing route and
+Standard/Fast models. Changing chat access leaves both audio selections unchanged.
+The resolver captures the selected capability's endpoint, model, credential
+reference and settings revision. Missing credentials do not select another route.
+
+Model saves atomically validate and persist all model/audio settings using the
+existing revision and invalidation rules. Late audio cannot publish after a
+settings change; its usage remains recorded. Minimal Models controls expose the
+two audio routes and models; the existing access tabs are explicitly labeled Chat
+access. Rich capability/quality UI is still deferred.
+
+Schema 19 replaces the old transcription-model column with typed JSON audio
+settings. Older development workspaces require explicit Factory Reset; no migration
+or data reset was performed. Native-generated UI contracts now expose AudioSettings
+and AudioRouteSettings. Existing server payloads/endpoints still work unchanged:
+this checkpoint selects access modes, not new server-side vendors. Direct access
+still uses the existing OpenRouter TTS and Groq STT adapters. Provider identity and
+provider-specific credentials for ElevenLabs/Azure remain part of their integration.
+
 ## Next checkpoints
 
-1. Independent persisted STT/TTS selection, captured with each attempt. Distinguish
-   access mode (hosted/direct/custom) from provider/protocol. Update hosted contracts,
-   credential checks and accounting together; remove hard-coded OpenAI voice and
-   two-letter language assumptions at the adapter boundary.
-2. ElevenLabs adapters, local server configuration and minimal credential controls.
-   Normalize audio, timings, usage and errors. Preserve verbatim learner speech.
-3. Azure adapters and endpoint/region configuration, with explicit provider choice
+1. ElevenLabs adapters, captured provider/protocol identity, local server configuration
+   and provider credential controls. Update hosted contracts, checks and accounting
+   together; remove OpenAI voice and two-letter language assumptions at the adapter
+   boundary. Normalize audio, timings, usage and errors. Preserve verbatim speech.
+2. Azure adapters and endpoint/region configuration, with explicit provider choice
    rather than automatic retry/fallback after a charged request.
-4. Model/language/voice capability catalog and UI. Keep documented support, observed
+3. Model/language/voice capability catalog and UI. Keep documented support, observed
    quality and connection availability distinct; allow experimental recording.
 
-## Verification
+## Checkpoint 1 verification
 
 Passed: 70 AI tests (including localhost HTTP adapters), 20 speech/diagnostic tests,
 and 96 conversation-execution tests (3 existing ignored tests; the queue-budget
@@ -64,3 +84,17 @@ HTTP fixtures could not bind localhost; their rerun with localhost access passed
 
 No paid provider requests, application restart, deployment or quality evaluation
 has been performed for this checkpoint.
+
+## Checkpoint 2 verification
+
+Passed: all 735 UI tests, 376 native tests, TypeScript, style checks, strict library
+Clippy and the regenerated-contract check. Native results include 16 ignored tests
+and the two explicitly excluded checkpoint-1 failures described above. Coverage
+includes all 27 combinations of chat/STT/TTS access modes, credential isolation,
+missing-key errors, persistence across reopen, rejected/stale settings writes,
+late speech rejection with usage retention, and independent UI route changes.
+The transaction fixture now selects its TTS route explicitly instead of relying
+on the old global chat switch. The two checkpoint-1 native exclusions remain.
+
+No paid provider requests, credential changes, application data reset, restart or
+deployment were performed.

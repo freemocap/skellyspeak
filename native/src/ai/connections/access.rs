@@ -97,7 +97,12 @@ fn validate_key_destination(
 pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget> {
     let config = execution::config(db)?;
     let access = settings(db)?;
-    let (base, model, column) = match (config.route, capability) {
+    let route = match capability {
+        Capability::Chat => config.route,
+        Capability::Transcription => config.audio.transcription.route,
+        Capability::Speech => config.audio.speech.route,
+    };
+    let (base, model, column) = match (route, capability) {
         (ConnectionRoute::Hosted, Capability::Chat) => (
             format!("{}/v1", hosted::ORIGIN),
             config.standard_model,
@@ -105,12 +110,12 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         ),
         (ConnectionRoute::Hosted, Capability::Speech) => (
             format!("{}/v1", hosted::ORIGIN),
-            super::model_routing::SPEECH_MODEL.into(),
+            config.audio.speech.model.clone(),
             "hosted_credential_id",
         ),
         (ConnectionRoute::Hosted, Capability::Transcription) => (
             format!("{}/v1", hosted::ORIGIN),
-            config.transcription_model.clone(),
+            config.audio.transcription.model.clone(),
             "hosted_credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Chat) => (
@@ -120,20 +125,20 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         ),
         (ConnectionRoute::Openrouter, Capability::Speech) => (
             "https://openrouter.ai/api/v1".into(),
-            super::model_routing::SPEECH_MODEL.into(),
+            config.audio.speech.model.clone(),
             "credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Transcription) => (
             "https://api.groq.com/openai/v1".into(),
-            config.transcription_model.clone(),
+            config.audio.transcription.model.clone(),
             "groq_credential_id",
         ),
         (ConnectionRoute::Custom, _) => {
             validate_custom(&access.custom)?;
             let model = match capability {
                 Capability::Chat => config.standard_model.clone(),
-                Capability::Speech => super::model_routing::SPEECH_MODEL.into(),
-                Capability::Transcription => config.transcription_model.clone(),
+                Capability::Speech => config.audio.speech.model.clone(),
+                Capability::Transcription => config.audio.transcription.model.clone(),
             };
             (
                 access.custom.base_url.clone(),
@@ -142,12 +147,12 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
             )
         }
     };
-    let needs_key = config.route != ConnectionRoute::Custom || access.custom.bearer_auth;
+    let needs_key = route != ConnectionRoute::Custom || access.custom.bearer_auth;
     let credential = if needs_key {
         let id: Option<String> =
             db.query_row(&format!("SELECT {column} FROM ai_config"), [], |r| r.get(0))?;
         Some(id.ok_or_else(|| {
-            error(match (config.route, capability) {
+            error(match (route, capability) {
                 (ConnectionRoute::Hosted, _) => "Sign in with Google in AI access settings.",
                 (ConnectionRoute::Openrouter, Capability::Transcription) => {
                     "Add a Groq API key in AI access settings to transcribe recordings."
@@ -164,12 +169,12 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         None
     };
     let path = match capability {
-        Capability::Chat if config.route != ConnectionRoute::Openrouter => "operations",
+        Capability::Chat if route != ConnectionRoute::Openrouter => "operations",
         Capability::Chat | Capability::Speech => "chat/completions",
         Capability::Transcription => "audio/transcriptions",
     };
     Ok(ResolvedTarget {
-        route: config.route,
+        route,
         revision: config.revision,
         url: format!("{}/{path}", base.trim_end_matches('/')),
         model,
@@ -513,7 +518,7 @@ mod tests {
         let models = execution::config(&database).unwrap();
         assert_eq!(models.standard_model, "google/gemini-2.5-flash");
         assert_eq!(models.fast_model, "google/gemini-2.5-flash-lite");
-        assert_eq!(models.transcription_model, "whisper-large-v3");
+        assert_eq!(models.audio.transcription.model, "whisper-large-v3");
         assert!(endpoint.bearer_auth);
         assert_eq!(endpoint.base_url, DEFAULT_CUSTOM_BASE_URL);
         validate_custom(&endpoint).unwrap();
@@ -588,7 +593,7 @@ mod tests {
             bearer_auth: auth,
         };
         db.execute(
-            "UPDATE ai_config SET route='custom',custom_config=?1",
+            "UPDATE ai_config SET route='custom',audio_settings=json_set(audio_settings,'$.transcription.route','custom','$.speech.route','custom'),custom_config=?1",
             [serde_json::to_string(&value).unwrap()],
         )
         .unwrap();
@@ -637,9 +642,52 @@ mod tests {
     }
 
     #[test]
+    fn audio_routes_and_models_are_independent_of_chat_and_each_other() {
+        let db = db();
+        custom(&db, true);
+        db.execute("UPDATE ai_config SET credential_id='chat-key',groq_credential_id='stt-key',hosted_credential_id='session-key',custom_credential_id='custom-key'", []).unwrap();
+        for chat in ["hosted", "openrouter", "custom"] {
+            for stt in ["hosted", "openrouter", "custom"] {
+                for tts in ["hosted", "openrouter", "custom"] {
+                    db.execute("UPDATE ai_config SET route=?1,audio_settings=json_set(audio_settings,'$.transcription.route',?2,'$.speech.route',?3,'$.transcription.model','selected-stt','$.speech.model','selected-tts')", rusqlite::params![chat,stt,tts]).unwrap();
+                    let chat_target = resolve(&db, Capability::Chat).unwrap();
+                    let input = resolve(&db, Capability::Transcription).unwrap();
+                    let output = resolve(&db, Capability::Speech).unwrap();
+                    assert_eq!(chat_target.route.label(), chat);
+                    assert_eq!(input.route.label(), stt);
+                    assert_eq!(output.route.label(), tts);
+                    assert_eq!(input.model, "selected-stt");
+                    assert_eq!(output.model, "selected-tts");
+                    for (target, direct_key, direct_host) in [
+                        (&input, "stt-key", "https://api.groq.com/"),
+                        (&output, "chat-key", "https://openrouter.ai/"),
+                    ] {
+                        let (key, host) = match target.route {
+                            ConnectionRoute::Hosted => ("session-key", hosted::ORIGIN),
+                            ConnectionRoute::Custom => ("custom-key", "http://127.0.0.1:1234/"),
+                            ConnectionRoute::Openrouter => (direct_key, direct_host),
+                        };
+                        assert_eq!(target.credential.as_deref(), Some(key));
+                        assert!(target.url.starts_with(host));
+                    }
+                }
+            }
+        }
+        db.execute("UPDATE ai_config SET route='custom',groq_credential_id=NULL,audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','hosted')", []).unwrap();
+        assert!(resolve(&db, Capability::Chat).is_ok());
+        assert!(resolve(&db, Capability::Speech).is_ok());
+        assert!(
+            resolve(&db, Capability::Transcription)
+                .unwrap_err()
+                .message
+                .contains("Groq")
+        );
+    }
+
+    #[test]
     fn direct_capabilities_use_distinct_credentials_and_never_require_hosted_auth() {
         let db = db();
-        db.execute("UPDATE ai_config SET route='openrouter',credential_id='chat-key',groq_credential_id='voice-key'",[]).unwrap();
+        db.execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter'),credential_id='chat-key',groq_credential_id='voice-key'",[]).unwrap();
         let chat = resolve(&db, Capability::Chat).unwrap();
         let audio = resolve(&db, Capability::Transcription).unwrap();
         assert_eq!(chat.credential.as_deref(), Some("chat-key"));
@@ -672,7 +720,7 @@ mod tests {
                 "https://openrouter.ai/api/v1".into(),
             ),
         ] {
-            db.execute("UPDATE ai_config SET route=?1,credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
+            db.execute("UPDATE ai_config SET route=?1,audio_settings=json_set(audio_settings,'$.transcription.route',?1,'$.speech.route',?1),credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
             let speech = resolve(&db, Capability::Speech).unwrap();
             assert_eq!(speech.credential.as_deref(), Some(credential));
             assert_eq!(speech.url, format!("{prefix}/chat/completions"));

@@ -1,6 +1,5 @@
 //! Task policy captured with each turn, independent of prompt wording.
 use crate::ai::connections::access::ResolvedTarget;
-pub const SPEECH_MODEL: &str = "openai/gpt-audio-mini";
 pub fn target(base: &ResolvedTarget, kind: &str, fast: &str) -> ResolvedTarget {
     let mut target = base.clone();
     let easy = matches!(

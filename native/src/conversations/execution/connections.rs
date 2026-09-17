@@ -7,7 +7,7 @@ fn valid_model_id(model: &str) -> bool {
 }
 
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {
-    let (revision,key,standard,fast,transcription,paused,route,hosted,email):(i32,bool,String,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,transcription_model,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?,r.get(8)?)))?;
+    let (revision,key,standard,fast,transcription,paused,route,hosted,email):(i32,bool,String,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,audio_settings,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?,r.get(8)?)))?;
     let route = ConnectionRoute::parse(&route)?;
     let access = crate::ai::connections::access::settings(db)?;
     Ok(ConnectionConfig {
@@ -22,7 +22,7 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
         },
         standard_model: standard,
         fast_model: fast,
-        transcription_model: transcription,
+        audio: serde_json::from_str(&transcription)?,
         paused,
         route,
         signed_in: hosted,
@@ -141,14 +141,19 @@ impl Store {
         expected: i32,
         standard: &str,
         fast: &str,
-        transcription: &str,
+        audio: &AudioSettings,
     ) -> Result<()> {
-        if ![standard, fast, transcription]
-            .iter()
-            .all(|model| valid_model_id(model))
+        if ![
+            standard,
+            fast,
+            &audio.transcription.model,
+            &audio.speech.model,
+        ]
+        .iter()
+        .all(|model| valid_model_id(model))
         {
             return Err(fail(
-                "Provide explicit valid model IDs for Standard, Fast and Transcription.",
+                "Provide explicit valid model IDs for Standard, Fast, Transcription and Speech.",
             ));
         }
         let tx = self.connection.transaction()?;
@@ -158,7 +163,7 @@ impl Store {
                 "AI settings changed. Reload before saving models.",
             ));
         }
-        tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,transcription_model=?3", params![standard,fast,transcription])?;
+        tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,audio_settings=?3", params![standard,fast,serde_json::to_string(audio)?])?;
         invalidate(&tx, None)?;
         bump(&tx)?;
         tx.commit()?;
