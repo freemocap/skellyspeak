@@ -125,7 +125,8 @@ run `adb reverse tcp:8765 tcp:8765`; the device may then use
 ## Publish a release
 
 The user authorizes a release version or bump; agents may perform the Git writes.
-Require green CI before merging into `main`, then confirm CI on the merged commit.
+For a full release, require green CI before merging into `main`, then confirm CI
+on the merged commit. The explicit development mode below bypasses that release gate.
 From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
 ```sh
@@ -147,6 +148,34 @@ and attaches it to the same release. TestFlight upload is disabled. An iOS build
 failure remains visible but does not block desktop or Android publication. PR CI also builds an
 Android debug ARM64 APK and an unsigned iOS simulator app without release secrets.
 The website rebuilds after a successful Release run.
+
+### Faster development releases
+
+For an explicit development release that bypasses the pre-release CI suite:
+
+```sh
+npm run release -- patch --skip-tests --dry-run
+npm run release -- patch --skip-tests
+```
+
+This creates an annotated version tag recording the bypass. It skips the reusable
+CI gate (tests, lint, docs and redundant platform preflight builds), while still
+requiring tag/version agreement, main ancestry, every desktop/Android release
+build, signing and artifact verification. Build failures still block publication.
+It publishes a normal Latest release and updater feed, **not** a GitHub prerelease.
+Branch and PR CI continue to run independently; development releases do not wait
+for those results. The default command without `--skip-tests` retains full CI.
+
+In GitHub's manual Release workflow, select an existing version tag and enable
+`skip_tests` for the same bypass. Manual dispatch defaults to full checks even for
+an annotated development tag. These options require the updated workflow on the
+tagged commit; rerunning an old tag uses that tag's old workflow. Do not move tags.
+
+Rust CI now allows 15 minutes for library compilation/tests and 30 minutes for its
+whole job. A timeout is a failure, never a passing or skipped result. Release runs
+remain serialized, so an already-running older release must finish or be explicitly
+cancelled before the next one starts. No total release-time guarantee is implied:
+compilation, signing and runner availability still take time.
 
 ### iOS distribution
 

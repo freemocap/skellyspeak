@@ -1,5 +1,4 @@
 import { ReadingPreferencesContext, useReadingPreferences } from '../../../components/reading/ReadingPreferences'
-import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
 import { anchoredTokenGlosses, requiresWholeWordShaping } from '../../../domain/reading/gloss-display'
@@ -11,6 +10,7 @@ import { TargetText } from '../../../components/reading/TargetText'
 import { TokenSpan } from '../../../components/reading/TokenSpan'
 import { RewardInspectionContext } from '../progress/RewardInspectionContext'
 import { ReplyStatus } from './ReplyStatus'
+import { TranslationStatus } from './TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
@@ -30,6 +30,7 @@ export interface TurnShape {
   userSavedGloss?: import('../../../generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
+  userTranslationState?: string | null
   userGlossState?: string | null
   userGlossError?: string | null
 
@@ -295,6 +296,7 @@ export const TurnView = memo(function TurnView({
             ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
             : plainEvidence}
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
+          <TranslationStatus state={turn.userTranslationState} />
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
           <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
           {onEditUser && (
@@ -345,12 +347,7 @@ export const TurnView = memo(function TurnView({
           {(showPersonaTranslation) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
-          {['ready', 'running', 'waiting_dependencies'].includes(assistant.translationState ?? '') &&
-            <ActivityIndicator label={tr("Translating…")} />}
-          {assistant.translationState === 'failed' && <div className="trans" role="status">{tr("Translation failed")}</div>}
-          {assistant.translationState === 'unknown' && <div className="trans" role="status">{tr("Translation outcome unknown")}</div>}
-          {assistant.translationState === 'cancelled' && <div className="trans" role="status">{tr("Translation cancelled")}</div>}
-          {assistant.translationState === 'invalidated' && <div className="trans" role="status">{tr("Translation unavailable")}</div>}
+          <TranslationStatus state={assistant.translationState} />
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
           {ttsReady && onSpeak && <button type="button" className="speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
           {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}

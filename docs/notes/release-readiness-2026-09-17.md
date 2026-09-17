@@ -173,3 +173,70 @@ The user's shell selected Node 22.8.0, which cannot execute the TypeScript relea
 entry point directly. Run `nvm use` from the repository root to select the existing
 `.nvmrc` requirement (Node 24), then retry the release dry-run. No shell or global
 Node configuration was changed.
+
+## Follow-up: v2.0.0 Rust check and release queue
+
+The authenticated GitHub CLI became available for this follow-up. The cancelled
+[v2.0.0 run](https://github.com/freemocap/skellyspeak/actions/runs/35227348259)
+shows Android setup failing at 13:29:20 UTC, independently of Rust. Rust's library
+test step ran from 13:32:33 until manual cancellation at 14:22:53 (50m20s).
+Matching slow-test warnings to subsequent results gives 350 passing tests, no
+reported failed tests, and exactly one slow test without a completion result:
+`queue_budget_counts_chat_coach_and_paused_work_transactionally`. Five other tests
+with over-60-second warnings subsequently passed. The last passing test was
+reported around 13:39:16; the log then remained quiet until cancellation.
+
+The unfinished test fills a 512-operation budget by repeatedly creating a new
+conversation, reading the workspace snapshot, and accepting a coach turn. Its
+while loop has no iteration/progress assertion or deadline. Errors unwrap and
+fail; this is not a retry-on-failure loop. Repeated full command/snapshot work is
+a plausible performance cause, but no profiler or completed isolated Windows run
+has established slow progress versus a true hang. Do not call the suite green.
+This is the same test left unverified in the earlier local review.
+
+`release.yml` has the shared `skellyspeak-release` concurrency group with
+`cancel-in-progress: false`. The failed Android job does not cancel independent
+Rust jobs, so the old run retains the slot until all jobs finish or the run is
+cancelled. The v2.0.1 run was created at 14:15:36 and started jobs around 14:23:00,
+immediately after the older run ended at 14:22:59. This explains the queue without
+attributing the Rust stall to Android. At the final job query, v2.0.1's Rust test
+step was in progress, having started at 14:31:03 UTC; the preceding checks passed.
+
+Recommended follow-up: profile and bound this test's fixture construction while
+preserving capacity/retry/cancellation coverage; add an explicit test-step/job
+timeout so one stalled check cannot retain the release slot for hours. Keep
+release publication serialized rather than enabling cancellation in the middle of
+artifact publication. No workflows were cancelled, tags changed, or test/runtime
+code modified in this diagnostic follow-up. Unrelated in-progress translation
+changes were left intact.
+
+## Implemented: explicit development release mode
+
+The user requested a faster development release route while the app is pre-public.
+`npm run release -- patch --skip-tests` now writes an annotated tag with the exact
+`SkellySpeak development release: skip CI suite` marker. Normal lightweight tags
+and ordinary annotations retain full CI. Release mode selection runs before the
+reusable CI workflow; CI records the explicit bypass and skips its eight expensive
+jobs only when called with that opt-in. Branch/PR CI inputs default to full checks.
+Manual Release dispatch requires an existing tag and has a default-false
+`skip_tests` input. Manual full validation overrides a development tag's marker.
+
+The release draft still requires the validation gate to succeed, and publication
+still requires the entire desktop matrix plus Android to succeed. Version/tag
+checks, main ancestry, signatures, updater checks, artifact presence and the guard
+against replacing a newer release remain. Release notes identify the bypass.
+This mode publishes Latest/update feeds, not a separate prerelease channel.
+iOS retains its independent signed-IPA build/attachment workflow.
+
+Rust library-test steps now have a 15-minute limit and Rust jobs a 30-minute limit.
+This bounds stalls but does not fix the slow queue-budget test. These limits and
+new inputs do not alter already-running or old-tag workflows. No active release
+was cancelled or redispatched, and no version/tag/publication was created here.
+
+Verification: 15 release/version tests passed, including actual annotated versus
+lightweight tags, manual opt-in/override, and dry-run/no-push execution against a
+disposable local remote. Two iOS workflow/verifier tests passed. The release-mode
+module passed strict TypeScript checking. Actionlint 1.7.7 accepted both modified
+workflows (shellcheck/pyflakes integrations disabled); Git whitespace checks passed.
+The GitHub execution path has not yet run with these changes. Changes remain local
+and uncommitted, alongside preserved unrelated user work.

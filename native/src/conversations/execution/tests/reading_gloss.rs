@@ -8,7 +8,9 @@ fn g2_siblings_finish_independently_and_failure_keeps_usage() {
         if gloss_first {
             store.finish(&gloss, Ok(reply("invalid json"))).unwrap();
         } else {
-            store.finish(&translation, Ok(reply("Hello."))).unwrap();
+            store
+                .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+                .unwrap();
         }
         assert_eq!(
             store
@@ -19,7 +21,9 @@ fn g2_siblings_finish_independently_and_failure_keeps_usage() {
             "assisting"
         );
         if gloss_first {
-            store.finish(&translation, Ok(reply("Hello."))).unwrap();
+            store
+                .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+                .unwrap();
         } else {
             store.finish(&gloss, Ok(reply("invalid json"))).unwrap();
         }
@@ -45,7 +49,9 @@ fn gloss_retry_runs_alongside_speech_without_regenerating_siblings() {
         let gloss = helpers.remove(gloss_index);
         let translation = helpers.pop().unwrap();
         store.finish(&gloss, Ok(gloss_reply())).unwrap();
-        store.finish(&translation, Ok(reply("Hello."))).unwrap();
+        store
+            .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+            .unwrap();
         let initial = store
             .conversation_snapshot(&conversation, None)
             .unwrap()
@@ -162,7 +168,9 @@ fn g2_partial_result_survives_scoped_retry_failure_and_restart() {
     let (dir, mut store, conversation) = setup();
     let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
     store.finish(&gloss, Ok(gloss_reply())).unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     let initial = store
         .conversation_snapshot(&conversation, None)
         .unwrap()
@@ -202,7 +210,9 @@ fn g2_preflight_failure_creates_no_attempt_and_translation_completes() {
     assert_eq!(snapshot.messages[1].gloss_state.as_deref(), Some("failed"));
     assert!(snapshot.messages[1].gloss_error.is_some());
     let translation = store.dispatch().unwrap().unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     assert_eq!(store.profile().unwrap().global.attempts, 2);
     assert!(!store.has_ready_work().unwrap());
 }
@@ -225,7 +235,9 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
         if gloss_first {
             store.finish(&gloss, Ok(gloss_reply())).unwrap();
         } else {
-            store.finish(&translation, Ok(reply("Hello."))).unwrap();
+            store
+                .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+                .unwrap();
         }
         assert_eq!(
             store
@@ -236,7 +248,9 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
             "assisting"
         );
         if gloss_first {
-            store.finish(&translation, Ok(reply("Hello."))).unwrap();
+            store
+                .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+                .unwrap();
         } else {
             store.finish(&gloss, Ok(gloss_reply())).unwrap();
         }
@@ -258,7 +272,9 @@ fn g2_retry_checks_source_archival_and_attempt_budget() {
     let (_dir, mut store, conversation) = setup();
     let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
     store.finish(&gloss, Ok(gloss_reply())).unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     store
         .connection
         .execute(
@@ -311,7 +327,9 @@ fn g2_deleted_source_rejects_late_result_and_retry() {
         .unwrap();
     store.finish(&gloss, Ok(gloss_reply())).unwrap();
     assert!(retry_gloss(&store.connection, &gloss.operation).is_err());
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     assert_eq!(
         store
             .conversation_snapshot(&conversation, None)
@@ -373,7 +391,9 @@ fn g2_cancel_and_revocation_block_publication_and_retry() {
             control_turn(&store.connection, &turn, TurnControl::Cancel).unwrap();
         }
         store.finish(&gloss, Ok(gloss_reply())).unwrap();
-        store.finish(&translation, Ok(reply("Hello."))).unwrap();
+        store
+            .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+            .unwrap();
         assert!(
             store
                 .conversation_snapshot(&conversation, None)
@@ -405,7 +425,10 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     assert!(store.dispatch().unwrap().is_none());
     store.finish(&gloss, Ok(gloss_reply())).unwrap();
     store
-        .finish(&translation, Ok(reply("Hello, how are you?")))
+        .finish(
+            &translation,
+            Ok(translation_reply(&translation, "Hello, how are you?")),
+        )
         .unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(view.messages.len(), 1);

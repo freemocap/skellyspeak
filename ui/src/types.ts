@@ -84,6 +84,7 @@ export interface StoredTurn {
   userSavedGloss?: import('./generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
+  userTranslationState?: string | null
   userGlossError?: string | null
   userGlossState?: string | null
 

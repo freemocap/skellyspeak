@@ -24,9 +24,11 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { BUMPS, CARGO, bump, compare, parse, versionIn, withVersion } from './version.ts'
 
+import { DEVELOPMENT_RELEASE_MESSAGE } from './release-mode.ts'
+
 const RELEASE_BRANCH = 'main'
 
-const USAGE = `usage: node tools/release.ts <current|${BUMPS.join('|')}|x.y.z> [--dry-run] [--no-push]`
+const USAGE = `usage: node tools/release.ts <current|${BUMPS.join('|')}|x.y.z> [--dry-run] [--no-push] [--skip-tests]`
 
 // ── Small helpers ───────────────────────────────────────────────────────────
 
@@ -59,7 +61,8 @@ if (args.includes('--help') || args.includes('-h')) {
 
 const dryRun = args.includes('--dry-run')
 const noPush = args.includes('--no-push')
-const unknown = args.filter((a) => a.startsWith('-') && !['--dry-run', '--no-push'].includes(a))
+const skipTests = args.includes('--skip-tests')
+const unknown = args.filter((a) => a.startsWith('-') && !['--dry-run', '--no-push', '--skip-tests'].includes(a))
 if (unknown.length > 0) die(`unknown option${unknown.length > 1 ? 's' : ''}: ${unknown.join(' ')}\n${USAGE}`)
 
 const targets = args.filter((a) => !a.startsWith('-'))
@@ -170,6 +173,7 @@ if (prepared) {
   console.log(`  2. commit "${tag}"`)
 }
 console.log(`  3. tag ${tag}`)
+console.log(skipTests ? '  DEVELOPMENT RELEASE: skip the CI suite; signed builds and artifact checks still gate publication.' : '  Full CI suite required before release builds.')
 console.log(noPush ? '  4. (skipping push — --no-push)' : `  4. push ${RELEASE_BRANCH} and ${tag}`)
 console.log('')
 
@@ -192,7 +196,8 @@ if (!prepared) {
   gitDo(false, 'add', CARGO, 'native/Cargo.lock')
   gitDo(false, 'commit', '-m', tag)
 }
-gitDo(false, 'tag', tag)
+if (skipTests) gitDo(false, 'tag', '-a', tag, '-m', DEVELOPMENT_RELEASE_MESSAGE)
+else gitDo(false, 'tag', tag)
 
 // The exact failure this whole script exists to prevent: a tag naming a commit
 // whose Cargo.toml still holds the old version. Checked here, locally, in

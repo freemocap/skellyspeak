@@ -103,6 +103,8 @@ it('projects human reading independently of the reply and rejects another source
   const result = conversationTurns(snapshot([human]))[0]
   expect(result.userSavedGloss).toBe(human.wordGloss)
   expect(result.userTranslation).toBe('Hello')
+  expect(result.userTranslationState).toBe('succeeded')
+  expect(conversationTurns(snapshot([{ ...human, translation: null, translationState: 'failed' }]))[0].userTranslationState).toBe('failed')
   expect(result.assistant).toBeNull()
   human.wordGloss.sourceMessageId = 'different'
   expect(() => conversationTurns(snapshot([human]))).toThrow('Saved word meanings do not belong to this message.')

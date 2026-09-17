@@ -209,3 +209,44 @@ include a local HTTP fixture, with no live provider calls. Rust formatting and
 Clippy for library/tests with warnings denied passed. A rebuilt native application
 and a fresh live microphone/read-aloud trial remain necessary to verify provider
 behavior; automated results do not prove recognition or pronunciation quality.
+
+## Unrelated model self-description published as translation
+
+The next reported screenshot was traced read-only to turn
+`6d372828-e593-4ad3-9ad7-bf68c74446f5`. Its stored learner source was `അ് നലാതാ.`;
+`user_translation` succeeded using `google/gemini-2.5-flash-lite` and published
+“I am a large language model, trained by Google.” The self-description was the
+translation result, not the microphone transcript. These records cannot establish
+whether recognition errors came from pronunciation, recording quality or the
+recognizer itself. Coaching interpreted the source differently, but that is not
+independent proof of the intended speech.
+
+Implemented: translation contract v3 is shared by learner and partner operations.
+It identifies both source and destination languages, treats the source as passage
+data, explains how to handle learner/recognition errors, and explicitly permits a
+null translation when meaning cannot be recovered. Structured responses must echo
+the exact source and contain a translation string or explicit null. Native
+publication rejects malformed prose, missing/mismatched sources, incomplete
+responses, empty translations and null outcomes, retaining attempt accounting and
+a content-free error. A null outcome is a failed translation, not a fabricated
+sentence. The UI now carries learner translation state through its projection and
+shows the same progress/failure status used for partner translations.
+
+This is source binding and an uncertainty policy, not a semantic verifier. A model
+can still return a source-bound but incorrect translation. No phrase blacklist,
+language-specific exception, additional model call or automatic retry was added.
+Legitimate source passages discussing AI identity remain allowed. Existing saved
+translations are not rewritten; the change governs new operations after rebuild.
+
+Verification: 20 translation-related native tests pass, including grouped HTTP
+fixtures, source deletion/revision, retry and uncertainty/publication tests.
+Clippy for native library and tests passes with warnings denied. No live provider
+request or audio-quality evaluation was performed for this change.
+
+UI verification: 42 message/projection tests and TypeScript checking passed.
+Two exploratory broad native runs were stopped during unrelated queue-capacity
+stress tests; they are not counted as completed verification.
+Final conversation regression run: 107 passed, 3 intentionally ignored, excluding
+unrelated queue-budget suites. The 42 UI tests passed again after adding explicit
+learner translation-state projection assertions. The application was not restarted
+and the previously saved incorrect translation remains historical data.

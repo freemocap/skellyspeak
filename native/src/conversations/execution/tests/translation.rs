@@ -19,7 +19,9 @@ fn r1_running_translation_survives_route_switch_but_not_revocation() {
                 )
                 .unwrap();
         }
-        store.finish(&translation, Ok(reply("Hello."))).unwrap();
+        store
+            .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+            .unwrap();
         let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(snapshot.messages.len(), 2);
         assert_eq!(
@@ -106,7 +108,12 @@ fn r1_translation_captures_language_and_step_admits_one_attempt() {
     assert!(translation.messages[0].content.contains("into french."));
     assert!(control_turn(&store.connection, &turn, TurnControl::Step).is_err());
     assert!(store.dispatch().unwrap().is_none());
-    store.finish(&translation, Ok(reply("Bonjour."))).unwrap();
+    store
+        .finish(
+            &translation,
+            Ok(translation_reply(&translation, "Bonjour.")),
+        )
+        .unwrap();
     assert_eq!(store.profile().unwrap().global.attempts, 2);
     assert!(store.dispatch().unwrap().is_none());
 }
@@ -159,7 +166,9 @@ fn r1_reply_completion_preserves_queued_translation_refusal() {
     );
     let translation = store.dispatch().unwrap().unwrap();
     assert_eq!(translation.messages[1].content, "Hola.");
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     assert_eq!(store.profile().unwrap().global.attempts, 2);
 }
 
@@ -193,7 +202,9 @@ fn r1_translation_retry_after_later_reply_preserves_both_sources() {
     let retry = store.dispatch().unwrap().unwrap();
     assert_eq!(retry.operation, translation.operation);
     assert_eq!(retry.messages[1].content, "Primero.");
-    store.finish(&retry, Ok(reply("First."))).unwrap();
+    store
+        .finish(&retry, Ok(translation_reply(&retry, "First.")))
+        .unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 4);
     assert_eq!(snapshot.messages[1].translation.as_deref(), Some("First."));
@@ -246,7 +257,9 @@ fn r1_translation_restart_before_and_after_dispatch_never_replays() {
         );
         let translation = store.dispatch().unwrap().unwrap();
         assert_eq!(translation.messages[1].content, "Hola.");
-        store.finish(&translation, Ok(reply("Hello."))).unwrap();
+        store
+            .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+            .unwrap();
         assert_eq!(
             store.profile().unwrap().global.attempts,
             if dispatched { 3 } else { 2 }
@@ -327,8 +340,15 @@ fn translation_is_source_linked_durable_and_does_not_block_next_reply() {
     // A new learner message is accepted while translation is running.
     let next = send(&store, &conversation);
     store.execute(next).unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
-    store.finish(&translation, Ok(reply("Duplicate"))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
+    store
+        .finish(
+            &translation,
+            Ok(translation_reply(&translation, "Duplicate")),
+        )
+        .unwrap();
     let path = dir.path().join("test.sqlite3");
     drop(store);
     let store = Store::open(&path).unwrap();
@@ -372,7 +392,9 @@ fn translation_failure_retries_only_assistance_and_cancellation_blocks_publicati
             control: TurnControl::Cancel,
         },
     );
-    store.finish(&retry, Ok(reply("Late translation"))).unwrap();
+    store
+        .finish(&retry, Ok(translation_reply(&retry, "Late translation")))
+        .unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 2);
     assert!(snapshot.messages[1].translation.is_none());
@@ -390,7 +412,9 @@ fn sentence_translation_is_independent_of_token_display_preferences() {
     }
     let translation = store.dispatch().unwrap().unwrap();
     assert!(translation.messages[0].content.contains("Translate"));
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     assert!(!store.has_ready_work().unwrap());
     assert!(store.dispatch().unwrap().is_none());
     assert_eq!(
@@ -413,6 +437,45 @@ fn translation_source_deletion_prevents_late_results() {
         .connection
         .execute("DELETE FROM conversations WHERE id=?1", [&conversation])
         .unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     assert!(!store.attempt_active(&translation.attempt).unwrap());
+}
+
+#[test]
+fn unclear_and_unbound_translation_fail_without_publishing_and_keep_usage() {
+    for invalid in [
+        serde_json::json!({"source":"Hola.","translation":null}).to_string(),
+        serde_json::json!({"source":"another message","translation":"Hello."}).to_string(),
+        "I am a large language model, trained by Google.".to_string(),
+    ] {
+        let (_dir, mut store, conversation) = setup();
+        let first = begin(&mut store, &conversation);
+        store.finish(&first, Ok(reply("Hola."))).unwrap();
+        let translation = store.dispatch().unwrap().unwrap();
+        assert_eq!(
+            translation.coaching_schema,
+            Some(crate::conversations::translation::schema())
+        );
+        store.finish(&translation, Ok(reply(&invalid))).unwrap();
+        let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
+        assert_eq!(snapshot.messages[1].text, "Hola.");
+        assert!(snapshot.messages[1].translation.is_none());
+        assert_eq!(
+            snapshot.messages[1].translation_state.as_deref(),
+            Some("failed")
+        );
+        let (state, tokens, error): (String, i32, String) = store
+            .connection
+            .query_row(
+                "SELECT state,input_tokens,error FROM attempts WHERE id=?1",
+                [&translation.attempt],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .unwrap();
+        assert_eq!(state, "failed");
+        assert_eq!(tokens, 21);
+        assert!(!error.contains(&invalid));
+    }
 }

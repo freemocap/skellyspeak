@@ -118,7 +118,10 @@ fn speech_payload_preflight_fails_before_attempt_without_harming_translation() {
     }
     let translation = translation.unwrap();
     store
-        .finish(&translation, Ok(reply("Translated.")))
+        .finish(
+            &translation,
+            Ok(translation_reply(&translation, "Translated.")),
+        )
         .unwrap();
     assert_eq!(store.connection.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.kind='persona_speech'",[],|r|r.get::<_,i64>(0)).unwrap(),0);
     assert_eq!(
@@ -151,7 +154,9 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
     let parent = begin(&mut store, &conversation);
     store.finish(&parent, Ok(reply("Hola."))).unwrap();
     let translation = store.dispatch().unwrap().unwrap();
-    store.finish(&translation, Ok(reply("Hello."))).unwrap();
+    store
+        .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
+        .unwrap();
     let message: String = store
         .connection
         .query_row("SELECT id FROM messages WHERE role='assistant'", [], |r| {

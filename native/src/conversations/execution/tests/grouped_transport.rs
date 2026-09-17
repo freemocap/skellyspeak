@@ -45,9 +45,14 @@ async fn check_grouped_partial_result(translations: bool, route: ConnectionRoute
         dispatch.target.route = route;
         dispatch.target.url = url.clone();
     }
+    let content = if translations {
+        translation_reply(&dispatches[1], "Hola").text
+    } else {
+        "Hola".into()
+    };
     let response = serde_json::json!({"type":"result", "operation_id":dispatches[1].operation.replace('-',""),
         "attempt_id":dispatches[1].attempt,"response":{"id":"provider","model":"google/gemini-2.5-flash",
-        "choices":[{"finish_reason":"stop","message":{"content":"Hola"}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}});
+        "choices":[{"finish_reason":"stop","message":{"content":content}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}});
     let server = tokio::spawn(async move {
         let (mut socket, _) = listener.accept().await.unwrap();
         let mut input = Vec::new();

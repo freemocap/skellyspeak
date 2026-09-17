@@ -87,9 +87,24 @@ impl Store {
             [&dispatch.operation],
             |r| r.get(0),
         )?;
+        let mut translation = None;
         let mut gloss = None;
         let mut coaching = None;
         let valid = match &result {
+            Ok(output) if crate::conversations::translation::owns(&kind) => (|| -> Result<()> {
+                let source: String = tx
+                    .query_row(
+                        "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
+                        params![turn, analysis_role(&kind)],
+                        |r| r.get(0),
+                    )
+                    .optional()?
+                    .ok_or_else(|| fail("Translation source is unavailable."))?;
+                translation = Some(crate::conversations::translation::validate(
+                    &source, output,
+                )?);
+                Ok(())
+            })(),
             Ok(output) if kind == "skill_assessment" => {
                 crate::learning::coaching::skill_assessment::validate(&tx, &turn, output).map(
                     |value| {
@@ -255,7 +270,7 @@ impl Store {
                     params![turn, serde_json::to_string(&gloss)?, gloss_path(&kind)],
                 )?;
             } else if matches!(kind.as_str(), "reply_translation" | "user_translation") {
-                tx.execute("UPDATE turns SET context=json_set(context,?3,?2) WHERE id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role=?4)", params![turn,output.text,translation_path(&kind),analysis_role(&kind)])?;
+                tx.execute("UPDATE turns SET context=json_set(context,?3,?2) WHERE id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=?1 AND role=?4)", params![turn,translation.as_ref().ok_or_else(|| fail("Missing validated translation."))?,translation_path(&kind),analysis_role(&kind)])?;
             } else {
                 tx.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'assistant',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation,turn,output.text])?;
             }

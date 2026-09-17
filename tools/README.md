@@ -43,3 +43,11 @@ The script requires a clean checkout at `origin/main` and pushes branch/tag
 atomically to that remote. It does not verify GitHub CI or signing credentials.
 See [the September release review](../docs/notes/release-readiness-2026-09-17.md)
 for outstanding release blockers.
+
+Development releases may use `npm run release -- patch --skip-tests` (combine with
+`--dry-run` first). The annotated tag opts out of the reusable CI suite while
+preserving required release builds, signatures and artifact checks. Normal tags
+keep full checks. This still publishes Latest and updates installed desktop apps;
+it is not a prerelease channel. See the root release guide for manual dispatch
+and the limits of this mode. `release-mode.ts` resolves tag metadata or explicit
+manual input; release tests exercise both paths using disposable local Git tags.

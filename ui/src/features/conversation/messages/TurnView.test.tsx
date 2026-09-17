@@ -207,3 +207,13 @@ it('reveals saved word meanings without starting inference or changing whole-mes
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
 })
+
+it('shows a failed learner translation on the learner message without invented text', () => {
+  const input = props()
+  input.turn.userTranslationState = 'failed'
+  input.turn.userTranslation = null
+  input.turn.assistant!.user_translation = null
+  const view = render(<TurnView {...input} />)
+  expect(view.container.querySelector('.msg.me [role="status"]')?.textContent).toBe('Translation failed')
+  expect(view.container.querySelector('.msg.bot [role="status"]')).toBeNull()
+})

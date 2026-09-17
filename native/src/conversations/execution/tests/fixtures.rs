@@ -270,3 +270,9 @@ pub(super) fn wave2_observe(
 pub(super) fn retained_observation(store: &Store, turn: &str, kind: &str) {
     store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) SELECT ?1,?2,?3,'succeeded' WHERE NOT EXISTS(SELECT 1 FROM operations WHERE turn_id=?2 AND kind=?3)",params![id(),turn,kind]).unwrap();
 }
+
+pub(super) fn translation_reply(dispatch: &Dispatch, text: &str) -> Completion {
+    reply(
+        &serde_json::json!({"source":dispatch.messages[1].content,"translation":text}).to_string(),
+    )
+}

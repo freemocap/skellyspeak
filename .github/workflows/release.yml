@@ -15,6 +15,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Development release: skip CI suite; still require signed builds and artifact checks. Select an existing version tag.'
+        type: boolean
+        default: false
 
 concurrency:
   group: skellyspeak-release
@@ -25,6 +30,9 @@ permissions:
 
 jobs:
   checks:
+    needs: version
+    with:
+      skip_validation: ${{ needs.version.outputs.skip_checks == 'true' }}
     uses: ./.github/workflows/ci.yml
     permissions:
       contents: read
@@ -33,16 +41,26 @@ jobs:
   # (tauri.conf.json omits `version` and inherits it). Read it once here so
   # every downstream job agrees on the tag.
   version:
-    needs: checks
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get.outputs.version }}
       tag: v${{ steps.get.outputs.version }}
+      skip_checks: ${{ steps.mode.outputs.skip_checks }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
           fetch-depth: 0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+
+      - name: Select release validation mode
+        id: mode
+        env:
+          SKIP_TESTS: ${{ inputs.skip_tests }}
+        run: node tools/release-mode.ts
 
       - name: Require a main-line release commit
         run: git merge-base --is-ancestor HEAD origin/main
@@ -71,7 +89,7 @@ jobs:
   # for a desktop job to create it first — ordering for a resource, not for a
   # build dependency.
   release-draft:
-    needs: version
+    needs: [version, checks]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -241,6 +259,8 @@ jobs:
           tagName: ${{ needs.version.outputs.tag }}
           releaseName: SkellySpeak ${{ needs.version.outputs.tag }}
           releaseBody: |
+            Validation: ${{ needs.version.outputs.skip_checks == 'true' && 'Development release: CI suite bypassed. Signed builds and artifact checks required.' || 'Full CI suite, signed builds and artifact checks required.' }}
+
             Windows artifacts use Azure Artifact Signing, macOS artifacts use
             Developer ID signing and notarization, and Android artifacts use
             the configured upload key. The iOS IPA uses App Store distribution

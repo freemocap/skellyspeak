@@ -148,7 +148,7 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
             }
             let translation = translation.unwrap();
             let instruction = &translation.messages[0].content;
-            assert!(instruction.contains(&format!("passage into {explanation}.")));
+            assert!(instruction.contains(&format!("from {target} into {explanation}.")));
             assert_eq!(instruction.contains("Destination-language writing: Write newly generated Mandarin text in Simplified Chinese characters."), explanation == "mandarin");
             assert!(!instruction.contains("Target-language writing:"));
             assert_eq!(translation.messages[1].content, "漢字。");

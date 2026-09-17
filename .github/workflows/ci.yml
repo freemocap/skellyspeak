@@ -5,12 +5,31 @@ on:
     branches: [main, rebuild]
   pull_request:
   workflow_call:
+    inputs:
+      skip_validation:
+        description: 'Explicit development release bypass; never set by branch or PR CI.'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  validation-mode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record validation mode
+        env:
+          SKIP_VALIDATION: ${{ inputs.skip_validation }}
+        run: |
+          if [ "$SKIP_VALIDATION" = true ]; then
+            echo "Development release: CI suite explicitly bypassed. Builds and artifact checks still gate publication." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Full CI suite required." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   frontend:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -36,6 +55,7 @@ jobs:
       - run: npm run build
 
   ios:
+    if: ${{ inputs.skip_validation != true }}
     name: iOS simulator build
     runs-on: macos-latest
     timeout-minutes: 45
@@ -67,6 +87,8 @@ jobs:
         run: npm run tauri -- ios build --ci --target aarch64-sim --no-sign --config native/tauri.release.conf.json
 
   rust:
+    timeout-minutes: 30
+    if: ${{ inputs.skip_validation != true }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -88,6 +110,7 @@ jobs:
       - run: cargo fmt -- --check
         working-directory: native
       - run: cargo test --locked --lib
+        timeout-minutes: 15
         working-directory: native
       - run: cargo test --locked --manifest-path tools/verify-updater/Cargo.toml
 
@@ -99,6 +122,7 @@ jobs:
   # had all succeeded. `cargo check` runs build scripts, which is where
   # alsa-sys fails, so it catches this without a full build.
   rust-linux:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -127,6 +151,7 @@ jobs:
   # running them here means a pull request shows the breakage before it lands
   # rather than after.
   server:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -147,6 +172,7 @@ jobs:
         working-directory: server
 
   docs:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -166,6 +192,7 @@ jobs:
   # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec
   # forbids) here instead, in seconds, on every push.
   android-resources:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -198,6 +225,7 @@ jobs:
           EOF
 
   android-build:
+    if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
