@@ -79,3 +79,46 @@ fn invalid_evidence_fails_independently_and_next_voice_turn_can_start() {
         assert!(store.execute(send(&store, &conversation)).is_ok());
     }
 }
+
+#[test]
+fn repeated_skill_observations_are_validated_and_credit_is_not_multiplied() {
+    let (_dir, mut store, conversation) = setup();
+    let (turn, _, assessment) = start(&mut store, &conversation);
+    let item = serde_json::json!({"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","rationale":"You ask a question."});
+    let mut partial = item.clone();
+    partial["outcome"] = serde_json::json!("partial");
+    partial["rationale"] = serde_json::json!("The question is a partial attempt.");
+    for entries in [
+        vec![item.clone(), item.clone()],
+        vec![item.clone(), partial.clone()],
+        vec![partial.clone(), item.clone()],
+    ] {
+        let out = reply(&serde_json::json!({"items":entries}).to_string());
+        let result =
+            crate::learning::coaching::skill_assessment::validate(&store.connection, &turn, &out)
+                .unwrap();
+        assert_eq!(result["items"].as_array().unwrap().len(), 1);
+        if entries.iter().any(|x| x["outcome"] == "partial") {
+            assert_eq!(result["items"][0]["outcome"], "partial");
+        }
+    }
+    let duplicate = reply(&serde_json::json!({"items":[item.clone(),item.clone()]}).to_string());
+    store.finish(&assessment, Ok(duplicate)).unwrap();
+    let before = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
+    store
+        .finish(&assessment, Ok(judgment("¿cómo estás?")))
+        .unwrap();
+    assert_eq!(
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
+        before["profile"]["xp"]
+    );
+    for field in ["quote", "construct"] {
+        let mut bad = item.clone();
+        bad[field] = serde_json::json!("invalid sentinel");
+        let out = reply(&serde_json::json!({"items":[item.clone(),bad]}).to_string());
+        assert!(
+            crate::learning::coaching::skill_assessment::validate(&store.connection, &turn, &out)
+                .is_err()
+        );
+    }
+}

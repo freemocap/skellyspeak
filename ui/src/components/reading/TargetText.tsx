@@ -1,5 +1,5 @@
 import { SavedGlossText } from './SavedGlossText'
-import { anchoredTokenGlosses, hasArabicScript } from '../../domain/reading/gloss-display'
+import { anchoredTokenGlosses, requiresWholeWordShaping } from '../../domain/reading/gloss-display'
 import { languageFor } from '../../platform/ipc/tauri'
 import { ReadingPreferencesProvider, useReadingPreferences } from './ReadingPreferences'
 import { createContext, Fragment, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
@@ -35,7 +35,7 @@ export function TargetText({ text, interactive = true }: { text: string; interac
 export function AnnotatedText({ text, tokens, interactive = true }: { text: string; tokens: GuidedToken[]; interactive?: boolean }) {
   const reading = useContext(ReadingContext)
   const sentence = useContext(ReadingSentenceContext) ?? text
-  if (hasArabicScript(text) && tokens.length) return <SavedGlossText key={text} text={text} segments={anchoredTokenGlosses(text, tokens)} interactive={interactive} />
+  if (requiresWholeWordShaping(text) && tokens.length) return <SavedGlossText key={text} text={text} segments={anchoredTokenGlosses(text, tokens)} interactive={interactive} />
   return <TargetTextContent key={`${reading?.language}:${reading?.nativeLanguage}:${sentence}:${text}`} text={text} tokens={tokens} interactive={interactive} />
 }
 

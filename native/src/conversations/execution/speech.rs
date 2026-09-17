@@ -177,6 +177,7 @@ impl Store {
         dispatch: &Dispatch,
         outcome: crate::ai::transport::speech_provider::SpeechOutcome,
     ) -> Result<Option<crate::speech::cache::ReadyAudio>> {
+        crate::diagnostics::speech::completed(dispatch, &outcome);
         let tx = self.connection.transaction()?;
         let source = dispatch
             .speech_source
@@ -223,7 +224,7 @@ impl Store {
         let validation = authority.and_then(|_| {
             // For audio only, the provider decoder can establish completion
             // from its terminal audio marker plus DONE without a finish reason.
-            // audio Ok already requires that proof and exact transcript validation.
+            // audio Ok already requires that completion proof and valid audio framing.
             if outcome
                 .finish_reason
                 .as_deref()

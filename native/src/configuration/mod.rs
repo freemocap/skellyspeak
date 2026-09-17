@@ -439,3 +439,6 @@ pub const INTERFACE_LOCALES: &[&str] = &[
 ];
 #[cfg(test)]
 mod document_tests;
+
+#[cfg(test)]
+mod language_audit_tests;

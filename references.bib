@@ -491,3 +491,38 @@
   claim = {Reference Level Descriptions connect general CEFR descriptors to language-specific words and grammar. This supports separating communicative goals from language realizations, not a validated acquisition order or automatic certification.},
   used-by = {docs/notes/coaching-learning-refactor-2026-09-16.md}
 }
+
+% ---------------------------------------------------------------- Indic language content audit
+@misc{unicode17_indic,
+  author = {{Unicode Consortium}},
+  title = {The Unicode Standard 17.0, Chapter 12: South and Central Asia I},
+  year = {2025},
+  url = {https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-12/},
+  review = {full-text},
+  review-notes = {Devanagari and Malayalam sections consulted on 2026-09-17.},
+  claim = {Devanagari and Malayalam require contextual shaping of consonants and dependent signs; Malayalam includes chillu letters and legacy encodings. Source annotation must preserve logical text and shaping runs.}
+}
+@misc{ala_lc_hindi,
+  author = {{Library of Congress}},
+  title = {ALA-LC Hindi Romanization Table},
+  year = {2025},
+  url = {https://www.loc.gov/catdir/cpso/romanization/hindi.pdf},
+  review = {full-text},
+  claim = {The table defines orthographic transliteration, including inherent a unless replaced by a vowel or suppressed by virama; it is not spoken Hindi pronunciation.}
+}
+@misc{ala_lc_malayalam,
+  author = {{Library of Congress}},
+  title = {ALA-LC Malayalam Romanization Table},
+  year = {2014},
+  url = {https://www.loc.gov/catdir/cpso/romanization/malayalam.pdf},
+  review = {full-text},
+  claim = {The table distinguishes vowel lengths, chillu consonants without inherent a, and candrakkala uses including the reduced vowel. Transliteration and pronunciation remain distinct.}
+}
+
+@misc{groq_transcription_context,
+  author = {{Groq}},
+  title = {Speech to Text: Request Parameters and Prompting},
+  url = {https://console.groq.com/docs/speech-to-text},
+  review = {full-text},
+  claim = {The prompt supplies style and spelling context with a 224-token limit; the language parameter identifies the input language. Native-script context can guide output without rewriting recognized speech.}
+}

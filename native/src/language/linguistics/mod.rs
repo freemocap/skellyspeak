@@ -391,3 +391,6 @@ fn append_gap(
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod indic_tests;

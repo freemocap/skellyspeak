@@ -126,6 +126,7 @@ pub(super) fn speech_outcome(
 ) -> crate::ai::transport::speech_provider::SpeechOutcome {
     crate::ai::transport::speech_provider::SpeechOutcome {
         audio,
+        transcript_diagnostics: None,
         actual_model: Some("speech-model".into()),
         provider_id: Some("speech-request".into()),
         input_tokens: Some(12),

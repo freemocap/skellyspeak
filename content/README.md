@@ -17,6 +17,8 @@ rebuilding updates the app's content; no workspace configuration copy is created
 | `schemas/` | Generated JSON schemas for the exact Rust authoring models |
 
 Start with [Arabic](languages/arabic.yaml) or [Spanish](languages/spanish.yaml).
+[Hindi](languages/hindi.yaml) and [Malayalam](languages/malayalam.yaml) demonstrate
+Indic scripts with local writing and orthographic transliteration definitions.
 Each YAML includes an editor schema association. Rust authoring models live in
 [native/src/configuration/documents.rs](../native/src/configuration/documents.rs);
 loading, linking, resolution and inspection have separate modules there.
@@ -44,9 +46,10 @@ loading, linking, resolution and inspection have separate modules there.
   assessment rule where relevant, shared teaching guidance, selected orthography,
   language, variety, selected romanization instructions. Explanation-writing
   guidance uses the independently selected explanation language and variety.
-- `learning.goals` contains language-owned goals; `goal_material` attaches local
-  lexical hints to shared goals. Current multilingual literal hints are preserved
-  verbatim in each language to keep retrieval behavior stable, pending review.
+- `learning.goal_material` attaches language-specific lexical hints to shared
+  goals. Do not copy a multilingual token list into every language. The current
+  candidate budget starves optional retrieval; see the [language audit](../docs/notes/language-system-audit-2026-09-17.md).
+  These hints are not a curriculum, tokenizer, or evidence of proficiency.
 - Local starter entries reference shared topic IDs and explicitly list supported
   varieties. Target/explanation pairs require content coverage; the loader never
   fabricates translations or extends coverage to unsupported varieties.
@@ -64,6 +67,27 @@ UI translations remain under `ui/src/domain/localization/locales/` and do not
 need to exist for every learning language. The learner chooses an interface
 locale independently. Interface number/date formatting uses explicit external
 locale mappings; proper language names can come directly from content.
+
+## Adding a learning language
+
+Author identity, an explicitly scoped default variety, orthography, reading scheme
+(or explicit disabled state), local starter translations and a default partner.
+Add shared script/family facts only when absent. New language files are discovered
+by both the build bundler and repository loader; no hardcoded language list or UI
+translation is required. Verify every supported target/explanation pairing.
+A transcription tag is a request mapping, not proof of model quality.
+
+Preserve source text exactly: native gloss spans use Unicode grapheme boundaries,
+then convert to UTF-16 for the UI. Arabic, Devanagari and Malayalam annotation
+presentation keeps the whole source word in one shaping run, even when saved
+semantic anchors are smaller. This presentation protection uses Unicode script
+detection, including mixed-script passages; new shaping scripts need renderer
+coverage as well as YAML metadata. Device fonts supply Indic glyphs. Script scale
+stays at 1.0 until visual review justifies a language-specific override.
+
+ALA-LC Hindi and Malayalam are spelling-based reading aids, not phonetic
+transcriptions. Pronunciation remains a separate output. Speaker review of
+starters, romanization quality and device rendering is still required.
 
 ## Inspection and checks
 

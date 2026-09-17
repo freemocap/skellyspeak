@@ -522,6 +522,13 @@ byte counts, `domainReason` and `structure` (safe schema path/reason). Preparati
 records retain schema/instruction/content fingerprints and whether captured content
 matches the running build. Provider success can still fail native validation;
 validation acceptance alone does not prove the later database commit succeeded.
+Speech outcomes emit `speech_validation` with attempt/operation IDs, decoder
+acceptance and content-free transcript comparison profiles. Canonical Unicode
+and whitespace equivalence are reported independently of playback acceptance;
+transcript differences do not block otherwise complete, valid audio. No transcript
+or source excerpts are logged. See the
+[speech investigation](docs/notes/indic-live-failures-2026-09-17.md).
+
 These events exclude raw prompts and responses. See the
 [diagnostic investigation](docs/notes/local-errors-2026-09-16.md) for coverage and limits.
 

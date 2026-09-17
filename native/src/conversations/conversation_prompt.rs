@@ -9,7 +9,9 @@ use crate::model::PracticeSettings;
 use crate::model::Result;
 use serde::Serialize;
 
-const BASE: &str = "SkellySpeak contact-reply contract v10. You are the conversation partner described below. Answer the learner in the target language and selected variety, within the required difficulty.
+const BASE: &str = "SkellySpeak contact-reply contract v11. You are the conversation partner described below. Answer the learner in the target language and selected variety, within the required difficulty.
+
+Write only the conversational message in the target language's selected writing system. Do not append unsolicited romanization, transliteration, pronunciation respellings or translations, whether in parentheses, on another line or after each word. The app generates and displays reading aids through separate operations; you have no reading-aid field in this reply. This rule applies to new-conversation openings and later replies, regardless of the learner's reading-display settings. Do not imitate unsolicited reading aids in earlier messages or the contact's romanized display name. If the learner explicitly asks about spelling, pronunciation or translation as the conversation topic, answer that specific question without adding a parallel rendering of your entire reply.
 
 Your job is the next conversational turn, not a rewrite or translation. The last user message describes THEIR intentions and experiences. Do not adopt their first-person statements as your own. If they say they went somewhere, react to their outing or ask about it; never reply with an improved version of their sentence. Mixed-language input is still their message to you: respond to its meaning. A separate private coach handles corrections and missing expressions.
 
@@ -242,6 +244,24 @@ mod tests {
             prompt,
             render(&language, &changed, &changed_contact, BEGINNER).unwrap()
         );
+    }
+
+    #[test]
+    fn reading_aids_stay_out_of_partner_prose_for_every_learning_language() {
+        for language in crate::language::languages::registry() {
+            let mut settings =
+                crate::language::languages::defaults(&language.id, "english").unwrap();
+            let details = contact();
+            let without = persona_system(&language, &settings, &details).unwrap();
+            settings.romanization = true;
+            settings.pronunciation = true;
+            settings.translation = true;
+            let with = persona_system(&language, &settings, &details).unwrap();
+            assert_eq!(without, with);
+            assert!(with.contains("Do not append unsolicited romanization"));
+            assert!(with.contains("new-conversation openings and later replies"));
+            assert!(with.contains("separate operations"));
+        }
     }
 
     #[test]

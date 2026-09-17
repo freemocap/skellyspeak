@@ -20,7 +20,12 @@ pub struct SpeechInput {
     pub voice: String,
     pub language: String,
 }
+#[path = "speech_diagnostics.rs"]
+mod diagnostics;
+pub(crate) use diagnostics::TranscriptDiagnostics;
+
 pub struct SpeechOutcome {
+    pub(crate) transcript_diagnostics: Option<TranscriptDiagnostics>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
     pub provider_id: Option<String>,
@@ -42,6 +47,7 @@ impl SpeechOutcome {
     fn empty() -> Self {
         Self {
             audio: Err(unknown()),
+            transcript_diagnostics: None,
             actual_model: None,
             provider_id: None,
             input_tokens: None,
@@ -318,6 +324,11 @@ impl Decoder {
         }
     }
     fn finish(mut self, source: &str, interrupted: Option<AppError>) -> SpeechOutcome {
+        self.outcome.transcript_diagnostics = Some(TranscriptDiagnostics::new(
+            source,
+            &self.transcript,
+            interrupted.is_none() && self.done && self.pending.is_empty() && self.data.is_empty(),
+        ));
         if let Some(error) = interrupted {
             self.outcome.audio = Err(error);
             return self.outcome;
@@ -333,19 +344,9 @@ impl Decoder {
                 "Speech response has no successful finish reason or audio completion marker.",
             );
         }
-        // Preserve absent provider finish_reason as None; do not invent "stop".
-        // Deliberately conservative: do not collapse punctuation, case, accents or
-        // digits. Whitespace-only differences are accepted: speech transcripts do
-        // not reproduce line breaks or spacing, so they say nothing about the audio.
-        // A matching transcript is metadata, not proof that the waveform pronounces
-        // the text correctly.
-        match transcript_difference(source, &self.transcript) {
-            TranscriptDifference::Exact => {}
-            TranscriptDifference::Missing => self.fail("Speech transcript is missing (speech_transcript_missing)."),
-            TranscriptDifference::Whitespace => {}
-            TranscriptDifference::PunctuationOrCase => self.fail("Speech transcript differs in punctuation or case (speech_transcript_punctuation_or_case_difference)."),
-            TranscriptDifference::Content => self.fail("Speech transcript differs in content (speech_transcript_content_difference)."),
-        }
+        // The provider's transcript is descriptive metadata, not an independent
+        // check of the waveform. Keep mismatches in diagnostics; complete bounded
+        // audio is playable even if that metadata differs or is absent.
         self.outcome.audio = if let Some(error) = self.failure {
             Err(error)
         } else {
@@ -357,8 +358,7 @@ impl Decoder {
         self.outcome
     }
 }
-/// Diagnostics only. Non-Exact results NEVER authorize playback. In particular,
-/// punctuation/case changes can alter meaning (negative signs, decimals, US/us).
+/// Diagnostics only. Transcript similarity does not verify waveform fidelity.
 #[derive(Debug, PartialEq, Eq)]
 enum TranscriptDifference {
     Exact,
@@ -574,7 +574,6 @@ mod tests {
     #[test]
     fn validation_errors_preserve_later_accounting() {
         for (text, pcm, finish) in [
-            ("changed", vec![0, 0], "stop"),
             ("Hola", vec![0], "stop"),
             ("Hola", vec![], "stop"),
             ("Hola", vec![0, 0], "length"),
@@ -589,11 +588,27 @@ mod tests {
         assert!(out.audio.is_err());
         assert_eq!(out.output_tokens, Some(13));
     }
+    #[test]
+    fn decoder_keeps_comparison_metadata_for_accepted_and_interrupted_audio() {
+        let response = stream("क\u{93c}", &[0, 0], "stop");
+        let outcome = decode(&response, "क़");
+        assert!(outcome.audio.is_ok());
+        let report = serde_json::to_value(outcome.transcript_diagnostics).unwrap();
+        assert_eq!(report["canonicalEquivalent"], true);
+        assert_eq!(report["complete"], true);
+        assert_eq!(report["difference"], "content");
+        let partial = decode(&response.replace("data: [DONE]", ""), "क़");
+        assert!(partial.audio.is_err());
+        let report = serde_json::to_value(partial.transcript_diagnostics).unwrap();
+        assert_eq!(report["complete"], false);
+        assert!(report["difference"].is_null());
+    }
+
     fn outcome_cost(out: &SpeechOutcome) -> Option<u64> {
         out.cost_micros
     }
     #[test]
-    fn transcript_policy_accepts_whitespace_and_preserves_lexical_distinctions() {
+    fn transcript_metadata_does_not_gate_complete_audio() {
         for (source, transcript) in [
             ("Hola", " \nHola\t"),
             ("a b", "a  b"),
@@ -616,7 +631,7 @@ mod tests {
             assert!(
                 decode(&stream(transcript, &[0, 0], "stop"), source)
                     .audio
-                    .is_err()
+                    .is_ok()
             );
         }
         let mut s =
@@ -706,7 +721,7 @@ mod tests {
                 "Say exactly, with no additions:\nHola"
             );
             assert_eq!(body["audio"]["voice"], "nova");
-            let response = stream("wrong transcript", &[0, 0], "stop");
+            let response = stream("wrong transcript", &[0], "stop");
             write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",response.len(),response).unwrap();
         });
         let outcome = synthesize(
@@ -760,7 +775,6 @@ mod tests {
             base.replace("2000000000", "\"invalid\""),
             base.replace("\"id\":\"audio-test\",", ""),
             base.replace("AAA=", "AA=="),
-            base.replace("Hola", "changed"),
             audio_terminal_stream(json!("length"), None, true),
             audio_terminal_stream(json!("content_filter"), None, true),
             audio_terminal_stream(json!("error"), None, true),
@@ -855,11 +869,11 @@ mod tests {
                 &i.text
             )
             .audio
-            .is_err()
+            .is_ok()
         );
     }
     #[test]
-    fn mismatch_categories_are_diagnostic_and_only_whitespace_is_accepted() {
+    fn mismatch_categories_remain_diagnostic_for_all_complete_audio() {
         for (source, transcript, category) in [
             (" Hola. ", "Hola.", TranscriptDifference::Exact),
             ("Hola", "", TranscriptDifference::Missing),
@@ -878,20 +892,15 @@ mod tests {
             ("sí", "si", TranscriptDifference::Content),
             ("café", "cafe\u{301}", TranscriptDifference::Content),
             ("a b", "ab", TranscriptDifference::Content),
+            (
+                "എനിക്ക് സൈക്കിൾ ഉണ്ട്.",
+                "എനിക്ക് സൈക്കിൾ ഉണ്ടു.",
+                TranscriptDifference::Content,
+            ),
         ] {
             assert_eq!(transcript_difference(source, transcript), category);
             let out = decode(&stream(transcript, &[0, 0], "stop"), source);
-            assert_eq!(
-                out.audio.is_ok(),
-                matches!(
-                    category,
-                    TranscriptDifference::Exact | TranscriptDifference::Whitespace
-                )
-            );
-            if let Err(error) = out.audio {
-                assert!(!error.message.contains(source));
-                assert!(!error.message.contains("¿Qué tal?"));
-            }
+            assert!(out.audio.is_ok());
             assert_eq!(out.input_tokens, Some(21));
         }
     }

@@ -21,6 +21,20 @@ scripts:
   has_case: false
   word_spacing: false
   font_scale: 1.0
+- id: devanagari
+  direction: ltr
+  cursive: false
+  shaping: true
+  has_case: false
+  word_spacing: true
+  font_scale: 1.0
+- id: malayalam
+  direction: ltr
+  cursive: false
+  shaping: true
+  has_case: false
+  word_spacing: true
+  font_scale: 1.0
 families:
 - id: indo-european
   label: Indo-European
@@ -28,6 +42,8 @@ families:
   label: Afro-Asiatic
 - id: sino-tibetan
   label: Sino-Tibetan
+- id: dravidian
+  label: Dravidian
 traits:
 - id: abjad-vowel-omission
   review: needs_review

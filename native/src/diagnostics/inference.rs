@@ -35,6 +35,7 @@ fn kind(value: &str) -> &str {
         | "coach_reply"
         | "persona_reply"
         | "persona_opening"
+        | "persona_speech"
         | "user_translation"
         | "reply_translation"
         | "user_word_gloss"
@@ -44,7 +45,7 @@ fn kind(value: &str) -> &str {
         _ => "other",
     }
 }
-fn base(dispatch: &Dispatch, operation_kind: &str) -> Value {
+pub(super) fn base(dispatch: &Dispatch, operation_kind: &str) -> Value {
     json!({"code":"inference_validation", "operationKind":kind(operation_kind),
         "attemptId":identity(&dispatch.attempt), "operationId":identity(&dispatch.operation),
         "route":dispatch.route, "modelHash":hash(dispatch.model.as_bytes()),
@@ -53,7 +54,7 @@ fn base(dispatch: &Dispatch, operation_kind: &str) -> Value {
         "promptBytes":dispatch.messages.iter().map(|m| m.content.len()).sum::<usize>(),
         "messageCount":dispatch.messages.len()})
 }
-fn emit(event: &Value) {
+pub(super) fn emit(event: &Value) {
     if super::append_native(event).is_err() {
         eprintln!("Native inference diagnostic could not be saved.");
     }

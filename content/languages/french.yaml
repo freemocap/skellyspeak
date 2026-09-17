@@ -41,12 +41,7 @@ learning:
   goal_material:
     courtesy:
       tokens:
-      - thanks
-      - gracias
       - merci
-      - شكرًا
-      - شكرا
-      - 谢谢
 conversation:
   default_partner:
     name: Camille

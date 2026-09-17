@@ -3,6 +3,7 @@ use crate::application::Application;
 use crate::model::*;
 #[cfg(desktop)]
 use crate::speech::recording::audio;
+use rusqlite::OptionalExtension;
 use std::sync::Arc;
 
 pub struct Recording {
@@ -57,7 +58,15 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         .ok_or_else(|| {
             fault("Transcription has no configured language mapping for this variety.")
         })?;
-    let variety_hint = format!("{} — {}", context.target_name, context.variety_name);
+    let native_name = store
+        .config
+        .language(&conversation.language_id)?
+        .native_name;
+    let previous: Option<String> = store.connection.query_row(
+        "SELECT m.text FROM messages m JOIN turns t ON t.id=m.turn_id WHERE m.conversation_id=?1 AND m.role='assistant' AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening') AND o.state='succeeded') ORDER BY m.sequence DESC LIMIT 1",
+        [&conversation_id], |row| row.get(0),
+    ).optional()?;
+    let variety_hint = super::transcription_context::prompt(&native_name, previous.as_deref());
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),

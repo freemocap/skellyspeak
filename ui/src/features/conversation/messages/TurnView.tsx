@@ -2,7 +2,7 @@ import { ReadingPreferencesContext, useReadingPreferences } from '../../../compo
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
-import { anchoredTokenGlosses, hasArabicScript } from '../../../domain/reading/gloss-display'
+import { anchoredTokenGlosses, requiresWholeWordShaping } from '../../../domain/reading/gloss-display'
 import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMappingNotice'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { GlossAssistance } from '../reading/GlossAssistance'
@@ -215,7 +215,7 @@ export const TurnView = memo(function TurnView({
     translation: string | null,
     rawText: string
   ) => {
-    if (hasArabicScript(rawText)) return <SavedGlossText text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
+    if (requiresWholeWordShaping(rawText)) return <SavedGlossText text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
       decorateSegment={(node, start, end) => {
         const matches = side === 'me' ? evidence.filter(item => item.start < end && item.end > start) : []
         return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node

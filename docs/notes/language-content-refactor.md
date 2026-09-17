@@ -118,3 +118,10 @@ all applicable policy; its complete context and the shared source documents rema
 available through Full definition. A native regression test checks Arabic's one
 local assessment rule, iḍāfa goal, absence of repeated scheme instructions, and
 continued availability of shared policy in the resolved model.
+
+## September 17 audit supersedes preserved lexical content
+
+The [language-system audit](language-system-audit-2026-09-17.md) replaces the
+copied multilingual courtesy lists with local material and adds Hindi/Malayalam.
+It also records optional-candidate starvation and explicit Levantine starter gaps.
+The historical refactor baseline remains frozen; all-pair tests cover additions.

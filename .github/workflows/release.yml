@@ -301,6 +301,9 @@ jobs:
           java-version: 17
 
       - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          # Command-line tools are installed by the action; the legacy tools package is unavailable.
+          packages: platform-tools
 
       - uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
         id: ndk
