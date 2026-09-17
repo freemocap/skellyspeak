@@ -27,8 +27,9 @@ loading, linking, resolution and inspection have separate modules there.
 
 - Use readable lowercase identifiers such as `spanish` and `spanish-mexico`.
   IDs are not browser locales. `integrations` optionally supplies standard tags
-  and transcription mappings. Missing mappings do not invalidate a language;
-  the corresponding external capability remains unavailable.
+  and transcription mappings. Missing mappings do not invalidate a language. Microphone transcription remains
+  available without a code, with a model/language warning; the request omits the
+  language field and retains native-language context.
 - `definitions` owns local orthographies and romanization schemes. References
   explicitly use `{local: name}` or `{shared: name}`. Local names are scoped to
   their language. Shared definitions have exactly one owner in the foundations
@@ -47,8 +48,10 @@ loading, linking, resolution and inspection have separate modules there.
   language, variety, selected romanization instructions. Explanation-writing
   guidance uses the independently selected explanation language and variety.
 - `learning.goal_material` attaches language-specific lexical hints to shared
-  goals. Do not copy a multilingual token list into every language. The current
-  candidate budget starves optional retrieval; see the [language audit](../docs/notes/language-system-audit-2026-09-17.md).
+  goals. Entries may be words or multiword phrases; they match contiguous Unicode
+  words in a derived, case-insensitive NFC view with punctuation boundaries.
+  Do not copy a multilingual list into every language. Optional matches have a
+  separate allowance of 25 beyond required goals.
   These hints are not a curriculum, tokenizer, or evidence of proficiency.
 - Local starter entries reference shared topic IDs and explicitly list supported
   varieties. Target/explanation pairs require content coverage; the loader never
@@ -75,7 +78,10 @@ Author identity, an explicitly scoped default variety, orthography, reading sche
 Add shared script/family facts only when absent. New language files are discovered
 by both the build bundler and repository loader; no hardcoded language list or UI
 translation is required. Verify every supported target/explanation pairing.
-A transcription tag is a request mapping, not proof of model quality.
+A transcription tag is a request mapping, not proof of model quality. Italian has
+a Whisper mapping; Irish and Scottish Gaelic keep correct ISO language identities
+but omit the unsupported model code and show a warning while allowing recording.
+See the [addition and phrase-matching audit](../docs/notes/italian-irish-scottish-gaelic-2026-09-17.md).
 
 Preserve source text exactly: native gloss spans use Unicode grapheme boundaries,
 then convert to UTF-16 for the UI. Arabic, Devanagari and Malayalam annotation

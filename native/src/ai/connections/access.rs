@@ -477,7 +477,7 @@ pub struct TranscriptionResponse {
 fn transcription_form(
     target: &ResolvedTarget,
     wav: Vec<u8>,
-    language: &str,
+    language: Option<&str>,
     variety_hint: &str,
 ) -> Result<reqwest::multipart::Form> {
     let verbose = target.route == ConnectionRoute::Openrouter;
@@ -487,7 +487,6 @@ fn transcription_form(
             "response_format",
             if verbose { "verbose_json" } else { "json" },
         )
-        .text("language", language.to_owned())
         .text("prompt", variety_hint.to_owned())
         .part(
             "file",
@@ -496,6 +495,9 @@ fn transcription_form(
                 .mime_str("audio/wav")
                 .map_err(|_| error("Invalid audio type."))?,
         );
+    if let Some(language) = language {
+        form = form.text("language", language.to_owned());
+    }
     if verbose {
         form = form
             .text("timestamp_granularities[]", "word")
@@ -536,7 +538,7 @@ pub async fn transcribe(
     target: &ResolvedTarget,
     key: &str,
     wav: Vec<u8>,
-    language: &str,
+    language: Option<&str>,
     variety_hint: &str,
     install: &str,
 ) -> Result<TranscriptionResponse> {
@@ -902,7 +904,7 @@ mod tests {
             &target,
             "",
             b"RIFF-test-audio".to_vec(),
-            "es",
+            Some("es"),
             "Spanish — Spain",
             "private-install-id",
         )
@@ -915,86 +917,102 @@ mod tests {
     #[tokio::test]
     async fn transcription_routes_explicitly_select_verbose_or_json_without_fallback() {
         use std::io::{Read, Write};
-        for route in [ConnectionRoute::Openrouter, ConnectionRoute::Hosted] {
-            let verbose = route == ConnectionRoute::Openrouter;
-            let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-            let url = format!(
-                "http://{}/audio/transcriptions",
-                listener.local_addr().unwrap()
-            );
-            let worker = std::thread::spawn(move || {
-                let (mut stream, _) = listener.accept().unwrap();
-                stream
-                    .set_read_timeout(Some(Duration::from_secs(5)))
-                    .unwrap();
-                let mut bytes = vec![];
-                let mut buffer = [0; 4096];
-                let end = loop {
-                    let count = stream.read(&mut buffer).unwrap();
-                    assert!(count > 0);
-                    bytes.extend_from_slice(&buffer[..count]);
-                    if let Some(i) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
-                        break i + 4;
-                    }
-                };
-                let headers = String::from_utf8_lossy(&bytes[..end]).to_lowercase();
-                let size: usize = headers
-                    .lines()
-                    .find_map(|l| l.strip_prefix("content-length:"))
-                    .unwrap()
-                    .trim()
-                    .parse()
-                    .unwrap();
-                while bytes.len() < end + size {
-                    let count = stream.read(&mut buffer).unwrap();
-                    assert!(count > 0);
-                    bytes.extend_from_slice(&buffer[..count]);
-                }
-                let body = String::from_utf8_lossy(&bytes[end..]);
-                if verbose {
-                    assert!(body.contains("name=\"response_format\"\r\n\r\nverbose_json"));
-                    for value in ["word", "segment"] {
-                        assert!(body.contains(&format!(
-                            "name=\"timestamp_granularities[]\"\r\n\r\n{value}"
-                        )));
-                    }
+        for route in [
+            ConnectionRoute::Openrouter,
+            ConnectionRoute::Hosted,
+            ConnectionRoute::Custom,
+        ] {
+            for language in [Some("es"), None] {
+                let hint = if language.is_some() {
+                    "Español"
                 } else {
-                    assert!(body.contains("name=\"response_format\"\r\n\r\njson"));
-                    assert!(!body.contains("timestamp_granularities"));
-                }
-                let response = if verbose {
-                    r#"{"text":"Hola","duration":1,"words":[{"word":"Hola","start":0,"end":0.5}],"segments":[{"id":0,"start":0,"end":0.5,"text":"Hola","avg_logprob":-0.5,"no_speech_prob":0.1}],"x_groq":{"id":"metadata"}}"#
-                } else {
-                    r#"{"text":"Hola"}"#
+                    "Gaeilge"
                 };
-                write!(
+                let verbose = route == ConnectionRoute::Openrouter;
+                let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+                let url = format!(
+                    "http://{}/audio/transcriptions",
+                    listener.local_addr().unwrap()
+                );
+                let worker = std::thread::spawn(move || {
+                    let (mut stream, _) = listener.accept().unwrap();
+                    stream
+                        .set_read_timeout(Some(Duration::from_secs(5)))
+                        .unwrap();
+                    let mut bytes = vec![];
+                    let mut buffer = [0; 4096];
+                    let end = loop {
+                        let count = stream.read(&mut buffer).unwrap();
+                        assert!(count > 0);
+                        bytes.extend_from_slice(&buffer[..count]);
+                        if let Some(i) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
+                            break i + 4;
+                        }
+                    };
+                    let headers = String::from_utf8_lossy(&bytes[..end]).to_lowercase();
+                    let size: usize = headers
+                        .lines()
+                        .find_map(|l| l.strip_prefix("content-length:"))
+                        .unwrap()
+                        .trim()
+                        .parse()
+                        .unwrap();
+                    while bytes.len() < end + size {
+                        let count = stream.read(&mut buffer).unwrap();
+                        assert!(count > 0);
+                        bytes.extend_from_slice(&buffer[..count]);
+                    }
+                    let body = String::from_utf8_lossy(&bytes[end..]);
+                    assert_eq!(body.contains("name=\"language\""), language.is_some());
+                    if let Some(language) = language {
+                        assert!(body.contains(&format!("name=\"language\"\r\n\r\n{language}")));
+                    }
+                    assert!(body.contains(hint));
+                    if verbose {
+                        assert!(body.contains("name=\"response_format\"\r\n\r\nverbose_json"));
+                        for value in ["word", "segment"] {
+                            assert!(body.contains(&format!(
+                                "name=\"timestamp_granularities[]\"\r\n\r\n{value}"
+                            )));
+                        }
+                    } else {
+                        assert!(body.contains("name=\"response_format\"\r\n\r\njson"));
+                        assert!(!body.contains("timestamp_granularities"));
+                    }
+                    let response = if verbose {
+                        r#"{"text":"Hola","duration":1,"words":[{"word":"Hola","start":0,"end":0.5}],"segments":[{"id":0,"start":0,"end":0.5,"text":"Hola","avg_logprob":-0.5,"no_speech_prob":0.1}],"x_groq":{"id":"metadata"}}"#
+                    } else {
+                        r#"{"text":"Hola"}"#
+                    };
+                    write!(
                     stream,
                     "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{response}",
                     response.len()
                 )
                 .unwrap();
-            });
-            let target = ResolvedTarget {
-                route,
-                revision: 1,
-                url,
-                model: "fixture".into(),
-                credential: None,
-            };
-            let response = transcribe(
-                &provider::client().unwrap(),
-                &target,
-                "",
-                b"RIFF-test".to_vec(),
-                "es",
-                "Spanish — Spain",
-                "fixture-install",
-            )
-            .await
-            .unwrap();
-            assert_eq!(response.text, "Hola");
-            assert_eq!(response.verbose.is_some(), verbose);
-            worker.join().unwrap();
+                });
+                let target = ResolvedTarget {
+                    route,
+                    revision: 1,
+                    url,
+                    model: "fixture".into(),
+                    credential: None,
+                };
+                let response = transcribe(
+                    &provider::client().unwrap(),
+                    &target,
+                    "",
+                    b"RIFF-test".to_vec(),
+                    language,
+                    hint,
+                    "fixture-install",
+                )
+                .await
+                .unwrap();
+                assert_eq!(response.text, "Hola");
+                assert_eq!(response.verbose.is_some(), verbose);
+                worker.join().unwrap();
+            }
         }
         assert!(transcription_response(br#"{"text":"Hola"}"#, true).is_err());
     }

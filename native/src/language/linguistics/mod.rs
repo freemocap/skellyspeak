@@ -394,3 +394,6 @@ mod tests;
 
 #[cfg(test)]
 mod indic_tests;
+
+#[cfg(test)]
+mod latin_tests;

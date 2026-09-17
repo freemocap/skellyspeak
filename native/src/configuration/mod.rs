@@ -13,6 +13,7 @@ pub use inspection::{
     ContentRule, ContentSource, ContentValue, GoalInspection, LanguageInspection, SchemeInspection,
     StarterInspection,
 };
+mod lexical_hints;
 mod schemas;
 use crate::model;
 pub use schemas::schemas;
@@ -121,7 +122,20 @@ impl Registry {
     }
     pub fn language(&self, id: &str) -> model::Result<model::Language> {
         let l = self.language_config(id)?;
+        let transcription = |variety: &Variety| {
+            variety
+                .external_tags
+                .get("transcription")
+                .or_else(|| l.external_tags.get("transcription"))
+                .cloned()
+        };
         Ok(model::Language {
+            transcription_language: transcription(
+                l.varieties
+                    .iter()
+                    .find(|v| v.id == l.default_variety)
+                    .unwrap(),
+            ),
             id: l.id.clone(),
             language_tag: l.external_tags.get("language_tag").cloned(),
             name: l.name.clone(),
@@ -141,6 +155,7 @@ impl Registry {
                 .varieties
                 .iter()
                 .map(|v| model::Variety {
+                    transcription_language: transcription(v),
                     id: v.id.clone(),
                     direction: self.resolved_scalars(l, &v.id).0,
                     font_scale: self.resolved_scalars(l, &v.id).1,
@@ -237,7 +252,8 @@ impl Registry {
     }
     /// Mandatory focus/prerequisites, due, function and interaction constructs
     /// are never silently truncated. Optional neighboring-band/token matches fill
-    /// up to 25. Explicit tokens are literal lexical hints, not a UD parser.
+    /// up to 25 optional matches beyond required members. Hints match contiguous Unicode
+    /// words, including multiword expressions; this is retrieval, not proficiency evidence.
     pub fn candidates(
         &self,
         ctx: &LanguageContext,
@@ -250,6 +266,7 @@ impl Registry {
             .iter()
             .position(|b| *b == band)
             .ok_or_else(|| error("constructs", "unknown_band", band))?;
+        let hints = lexical_hints::LexicalHints::new(tokens);
         let mut selected = BTreeSet::new();
         for id in focus.iter().chain(due) {
             self.add_required(id, &ctx.language_id, &mut selected)?;
@@ -261,11 +278,13 @@ impl Registry {
                 selected.insert(c.id.clone());
             }
         }
+        let mut optional = 0;
         for c in &self.constructs {
-            if selected.len() >= 25 {
+            if optional >= 25 {
                 break;
             }
-            if self.applies(c, &ctx.language_id)
+            if !selected.contains(&c.id)
+                && self.applies(c, &ctx.language_id)
                 && BANDS
                     .iter()
                     .position(|b| *b == c.band)
@@ -286,9 +305,10 @@ impl Registry {
                         .map(|m| m.tokens.as_slice())
                         .unwrap_or(&c.tokens)
                         .iter()
-                        .any(|t| tokens.iter().any(|x| x.eq_ignore_ascii_case(t))))
+                        .any(|phrase| hints.contains(phrase)))
             {
                 selected.insert(c.id.clone());
+                optional += 1;
             }
         }
         Ok(self
@@ -442,3 +462,6 @@ mod document_tests;
 
 #[cfg(test)]
 mod language_audit_tests;
+
+#[cfg(test)]
+mod latin_language_tests;

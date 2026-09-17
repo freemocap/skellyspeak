@@ -98,3 +98,5 @@
 .composer-activity { padding: var(--space-1) var(--space-5); color: var(--ink); }
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
+
+.transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }

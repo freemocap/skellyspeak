@@ -10,7 +10,7 @@ pub struct Recording {
     id: String,
     conversation: String,
     target: access::ResolvedTarget,
-    language: String,
+    language: Option<String>,
     variety_hint: String,
     #[cfg(desktop)]
     capture: audio::Capture,
@@ -51,13 +51,7 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         &conversation.settings.explanation_language,
         Some(&conversation.settings.explanation_variety_id),
     )?;
-    let language = context
-        .external_tags
-        .get("transcription")
-        .cloned()
-        .ok_or_else(|| {
-            fault("Transcription has no configured language mapping for this variety.")
-        })?;
+    let language = context.external_tags.get("transcription").cloned();
     let native_name = store
         .config
         .language(&conversation.language_id)?
@@ -212,7 +206,7 @@ pub async fn mic_transcribe(
         &recording.target,
         &token,
         wav,
-        &recording.language,
+        recording.language.as_deref(),
         &recording.variety_hint,
         &install,
     );

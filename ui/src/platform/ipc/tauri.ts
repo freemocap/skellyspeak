@@ -29,6 +29,7 @@ export async function invoke<T>(
 /// The language registry lives in Rust (`languages.rs`) and is fetched once
 /// at startup. There is no copy of it here: one table, one definition.
 export interface VarietyInfo {
+  transcriptionLanguage: string | null
   direction: "ltr" | "rtl"
   fontScale: number
   romanization: string | null
@@ -37,6 +38,7 @@ export interface VarietyInfo {
 }
 
 export interface LanguageInfo {
+  transcriptionLanguage: string | null
   languageTag?: string
   fontScale: number
   code: string
@@ -57,9 +59,9 @@ export async function loadLanguages(): Promise<void> {
   const snapshot = await readWorkspace()
   registry = snapshot.languages.map(language => {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
-    return { languageTag: language.languageTag ?? undefined, fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
+    return { transcriptionLanguage: language.transcriptionLanguage, languageTag: language.languageTag ?? undefined, fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
       defaultVariety: language.defaultVariety, direction: language.direction, romanization: language.romanization,
-      varieties: language.varieties.map(variety => ({ id: variety.id, label: variety.name, direction: variety.direction as "ltr" | "rtl", fontScale: variety.fontScale, romanization: variety.romanization })) }
+      varieties: language.varieties.map(variety => ({ transcriptionLanguage: variety.transcriptionLanguage, id: variety.id, label: variety.name, direction: variety.direction as "ltr" | "rtl", fontScale: variety.fontScale, romanization: variety.romanization })) }
   })
   logInfo(`[lang] registry loaded: ${registry.map((l) => l.code).join(', ')}`)
 }
@@ -79,7 +81,7 @@ export function languageFor(code: string, varietyId?: string): LanguageInfo | nu
   if (!varietyId) return language
   const variety = language.varieties.find(v => v.id === varietyId)
   if (!variety) throw new Error('The selected variety is unavailable.')
-  return { ...language, direction: variety.direction, fontScale: variety.fontScale, romanization: variety.romanization }
+  return { ...language, transcriptionLanguage: variety.transcriptionLanguage, direction: variety.direction, fontScale: variety.fontScale, romanization: variety.romanization }
 }
 
 /** View settings combine native conversation choices and learner display preferences. */

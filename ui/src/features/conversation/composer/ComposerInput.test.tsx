@@ -32,3 +32,15 @@ it('retains distinct stop and discard controls without submitting the draft', ()
   expect(input.onToggleRecording).toHaveBeenCalledOnce()
   expect(input.onSend).not.toHaveBeenCalled()
 })
+
+it('keeps recording enabled with a compact model-language warning', () => {
+  const input = props()
+  const warning = 'The whisper-large-v3 transcription model has no language code for Irish; output may be unreliable.'
+  const view = render(<ComposerInput {...input} transcriptionWarning={warning} />)
+  expect(screen.getByRole('note').textContent).toBe(warning)
+  expect(screen.getByRole('button', { name: 'Record audio' })).toBeEnabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Record audio' }))
+  expect(input.onToggleRecording).toHaveBeenCalledOnce()
+  view.rerender(<ComposerInput {...input} />)
+  expect(screen.queryByRole('note')).toBeNull()
+})

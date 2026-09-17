@@ -66,8 +66,8 @@ def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
     # [@groq_transcription_api] Repeated multipart fields carry both granularities.
     if granularities and fields.get("response_format") != "verbose_json":
         raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")
-    if not re.fullmatch(r"[a-z]{2}", fields.get("language", "")):
-        raise HTTPException(status_code=400, detail="A two-letter audio language is required.")
+    if "language" in fields and not re.fullmatch(r"[a-z]{2}", fields["language"]):
+        raise HTTPException(status_code=400, detail="Audio language must be a two-letter code when supplied.")
     if audio.startswith(b"RIFF") and audio[8:12] == b"WAVE":
         container = "wav"
     elif audio.startswith(bytes.fromhex("1a45dfa3")):

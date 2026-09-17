@@ -960,5 +960,6 @@
   "Next milestone: {value0} XP": "Siguiente hito: {value0} XP",
   "{value0} XP milestone": "Hito de {value0} XP",
   "Skill XP comes from evidence in your messages.": "La XP de habilidades proviene de evidencias en tus mensajes.",
-  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Cada 50 XP alcanzas otro hito. Cada barra muestra el progreso hacia el siguiente hito; la XP total sigue creciendo."
+  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Cada 50 XP alcanzas otro hito. Cada barra muestra el progreso hacia el siguiente hito; la XP total sigue creciendo.",
+  "The {model} transcription model has no language code for {language}; output may be unreliable.": "El modelo de transcripción {model} no tiene un código de idioma para {language}; el resultado puede ser poco fiable."
 }

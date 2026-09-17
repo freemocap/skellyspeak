@@ -194,3 +194,24 @@ def test_output_shape_not_model_name_selects_speech_contract(model):
     text = contracts.chat_request({**payload(), 'model': model}, max_tokens=32768)
     assert text.payload['model'] == model
     assert text.payload['max_tokens'] == 32768
+
+@pytest.mark.parametrize("language", [None, "ga", "gd", "it", "", "irish", "gD"])
+def test_transcription_language_can_be_omitted_but_not_malformed(monkeypatch, language):
+    import subprocess
+    monkeypatch.setattr(audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
+    fields = [
+        ("file", ("audio.wav", b"RIFF0000WAVE", "audio/wav")),
+        ("model", (None, "whisper-large-v3")),
+        ("prompt", (None, "Gaeilge")),
+        ("response_format", (None, "json")),
+    ]
+    if language is not None:
+        fields.append(("language", (None, language)))
+    request = httpx.Request("POST", "https://test.invalid", files=fields)
+    if language in {"", "irish", "gD"}:
+        with pytest.raises(HTTPException):
+            audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+    else:
+        result = audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
+        assert result.fields.get("language") == language
+        assert result.fields["prompt"] == "Gaeilge"

@@ -197,6 +197,7 @@ pub struct Conversation {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Variety {
+    pub transcription_language: Option<String>,
     pub direction: String,
     pub font_scale: f64,
     pub romanization: Option<String>,
@@ -207,6 +208,7 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Language {
+    pub transcription_language: Option<String>,
     pub language_tag: Option<String>,
     pub font_scale: f64,
     pub direction: String,

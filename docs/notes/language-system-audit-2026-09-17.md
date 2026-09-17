@@ -36,7 +36,12 @@ boundaries, not certification of linguistic content or live provider support.
 6. Corrected the authoring guide's nonexistent `learning.goals` field; the model
    has `learning.goal_material` and a shared goal catalog.
 
-## Remaining problems, ordered by impact
+## Problems recorded during the initial audit
+
+Update: the first two retrieval problems below are now resolved by the shared
+phrase matcher and separate optional allowance documented in the
+[Italian/Irish/Gaelic follow-up](italian-irish-scottish-gaelic-2026-09-17.md).
+The descriptions below retain the original findings for context.
 
 - **Optional candidate retrieval is currently starved.** The catalog has 41 function
   and 3 interaction goals. `Registry::candidates` includes all 44 unconditionally,

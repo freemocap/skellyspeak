@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 interface ComposerInputProps {
+  transcriptionWarning?: string
   waveform?: ReactNode
   micShortcut?: string
   input: string
@@ -19,7 +20,7 @@ interface ComposerInputProps {
 
 /** Message-entry controls; recording and request ownership stay with the caller. */
 export function ComposerInput({ input, available, sending, recording, transcribing, autoSend,
-  targetLanguageTag, targetLanguageName, waveform, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
+  transcriptionWarning, targetLanguageTag, targetLanguageName, waveform, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -90,6 +91,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
             </button>
             </div>
           </form>
+          {transcriptionWarning && <div className="transcription-warning" role="note">{transcriptionWarning}</div>}
           <div className="composer-shortcuts"><span>{tr("Enter: send")}</span><span>{tr("Shift+Enter: new line")}</span>{micShortcut && <span>{micShortcut} · {tr("Record")}</span>}</div>
           </>
   )

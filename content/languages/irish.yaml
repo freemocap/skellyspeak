@@ -1,0 +1,139 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: irish
+  name: Irish
+  native_name: Gaeilge
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: ga
+  transcription: null
+definitions:
+  orthographies:
+    caighdean-oifigiuil:
+      script: latin
+      guidance:
+      - scope: target_writing
+        text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+          (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required. Preserve
+          quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not substitute Scottish
+          Gaelic vocabulary or grave-accent conventions.
+        sources:
+        - irish_caighdean_2017
+      - scope: explanation_writing
+        text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+          (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required. Preserve
+          quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not substitute Scottish
+          Gaelic vocabulary or grave-accent conventions.
+        sources:
+        - irish_caighdean_2017
+  romanization_schemes: {}
+defaults:
+  variety: irish-ireland
+  orthography:
+    local: caighdean-oifigiuil
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: irish-ireland
+  name: Ireland
+  description: Contemporary Irish in Ireland. An Caighdeán Oifigiúil guides writing; this selection does
+    not prescribe a single spoken dialect.
+  review: needs_review
+  sources:
+  - irish_caighdean_2017
+  overrides: {}
+  guidance: []
+guidance:
+- scope: assessment
+  text: The written standard is not a single spoken dialect. Recognise valid Connacht, Munster and Ulster
+    forms without treating every departure from the written standard as an error. Do not infer pronunciation
+    from spelling alone.
+  sources:
+  - irish_caighdean_2017
+  - irish_spoken_dialects
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - go raibh maith agat
+      - go raibh maith agaibh
+conversation:
+  default_partner:
+    name: Nóra
+    romanizedName: null
+    age: 39
+    location: An Cheathrú Rua, County Galway, Ireland
+    occupation: Coordinates bookings at a community centre
+    background: Grew up speaking Irish in Connemara and uses it with family and neighbours. Previously
+      worked in a bookshop in Galway.
+    currentSituation: Sorting out a timetable clash between a craft class and a film evening.
+    interests:
+    - gardening in small spaces
+    - photography
+    opinions:
+    - Public timetables should be easy to read.
+    - Borrowing equipment makes more sense than buying it for one job.
+    interestingFacts:
+    - Grows herbs in reused containers.
+    - Takes photographs of changing shopfronts.
+    favoriteBooks:
+    - Cré na Cille — Máirtín Ó Cadhain
+    - Small Things Like These — Claire Keegan
+    favoriteMovies:
+    - An Cailín Ciúin (2022)
+    - The Straight Story (1999)
+    manner: Practical and attentive. Uses everyday Irish and asks follow-up questions without turning
+      the conversation into a lesson.
+    quirks:
+    - Writes reminders on the backs of envelopes.
+    - Checks the weather before making weekend plans.
+    vibe:
+    - 🌱
+    - 📷
+  starters:
+    food:
+      label: Bia agus deoch
+      preview: Ba mhaith liom tae.
+      translation: Ba mhaith liom tae.
+      varieties:
+      - irish-ireland
+    family:
+      label: Do theaghlach
+      preview: Seo mo theaghlach.
+      translation: Seo mo theaghlach.
+      varieties:
+      - irish-ireland
+    weekend:
+      label: Pleananna don deireadh seachtaine
+      preview: Tá mé ag iarraidh mo scíth a ligean.
+      translation: Tá mé ag iarraidh mo scíth a ligean.
+      varieties:
+      - irish-ireland
+    place:
+      label: Áit is maith leat
+      preview: Is maith liom an pháirc seo.
+      translation: Is maith liom an pháirc seo.
+      varieties:
+      - irish-ireland
+    day:
+      label: Do lá
+      preview: Tá mé sa bhaile inniu.
+      translation: Tá mé sa bhaile inniu.
+      varieties:
+      - irish-ireland
+    music:
+      label: Ceol
+      preview: Is maith liom ceol.
+      translation: Is maith liom ceol.
+      varieties:
+      - irish-ireland
+  starter_reasons:
+    focus: Bunaithe ar do sprioc
+    due: Le hathbhreithniú
+    contact: Bunaithe ar ábhair spéise do theagmhálaí
+    general: Ábhar comhrá

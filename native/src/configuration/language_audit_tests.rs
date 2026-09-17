@@ -57,11 +57,7 @@ fn every_target_and_explanation_variety_respects_authored_starter_coverage() {
 
 #[test]
 fn courtesy_retrieval_uses_only_the_target_languages_material() {
-    let mut registry = Registry::bundled().unwrap();
-    // Isolate optional retrieval: the shipped catalog currently has 44 mandatory
-    // goals, exceeding the 25 total budget before any lexical hints are read.
-    // Audit records that separate policy defect; do not hide it in this fixture.
-    registry.constructs.retain(|goal| goal.id == "courtesy");
+    let registry = Registry::bundled().unwrap();
     let examples = [
         ("english", "thanks"),
         ("spanish", "gracias"),
@@ -72,12 +68,24 @@ fn courtesy_retrieval_uses_only_the_target_languages_material() {
         ("mandarin", "谢谢"),
         ("hindi", "धन्यवाद"),
         ("malayalam", "നന്ദി"),
+        ("italian", "grazie"),
+        ("irish", "go raibh maith agat"),
+        ("scottish-gaelic", "tapadh leat"),
     ];
     for (language, local) in examples {
         let ctx = registry.resolve(language, None, "english").unwrap();
         for (_, token) in examples {
             let candidates = registry
-                .candidates(&ctx, "A1", &[], &[], &[token.into()])
+                .candidates(
+                    &ctx,
+                    "A1",
+                    &[],
+                    &[],
+                    &token
+                        .split_whitespace()
+                        .map(str::to_owned)
+                        .collect::<Vec<_>>(),
+                )
                 .unwrap();
             assert_eq!(
                 candidates.iter().any(|c| c.id == "courtesy"),

@@ -1,0 +1,137 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: scottish-gaelic
+  name: Scottish Gaelic
+  native_name: Gàidhlig
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: gd
+  transcription: null
+definitions:
+  orthographies:
+    gaelic-orthographic-conventions:
+      script: latin
+      guidance:
+      - scope: target_writing
+        text: Use contemporary Scottish Gaelic spelling following Gaelic Orthographic Conventions. Retain
+          grave vowel accents (à, è, ì, ò, ù), including on capitals, and required lenition, apostrophes
+          and hyphens. Preserve quoted source spelling exactly, including older accent conventions. Scottish
+          Gaelic is Gàidhlig, not Irish or Scots; do not substitute Irish acute-accent conventions.
+        sources:
+        - sqa_gaelic_orthography
+      - scope: explanation_writing
+        text: Use contemporary Scottish Gaelic spelling following Gaelic Orthographic Conventions. Retain
+          grave vowel accents (à, è, ì, ò, ù), including on capitals, and required lenition, apostrophes
+          and hyphens. Preserve quoted source spelling exactly, including older accent conventions. Scottish
+          Gaelic is Gàidhlig, not Irish or Scots; do not substitute Irish acute-accent conventions.
+        sources:
+        - sqa_gaelic_orthography
+  romanization_schemes: {}
+defaults:
+  variety: scottish-gaelic-scotland
+  orthography:
+    local: gaelic-orthographic-conventions
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: scottish-gaelic-scotland
+  name: Scotland
+  description: Contemporary Scottish Gaelic in Scotland, using Gaelic Orthographic Conventions for writing
+    while allowing regional spoken variation.
+  review: needs_review
+  sources:
+  - sqa_gaelic_orthography
+  overrides: {}
+  guidance: []
+guidance:
+- scope: assessment
+  text: Distinguish modern writing conventions from regional pronunciation and older written forms. Do
+    not treat a documented regional form or historical spelling as meaningless, and do not infer a pronunciation
+    error from text alone.
+  sources:
+  - sqa_gaelic_orthography
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - tapadh leat
+      - tapadh leibh
+conversation:
+  default_partner:
+    name: Màiri
+    romanizedName: null
+    age: 44
+    location: Stornoway, Isle of Lewis, Scotland
+    occupation: Works at a local library
+    background: Grew up in a Gaelic-speaking household on Lewis. Helps visitors find books and local information.
+    currentSituation: Planning a small display of readers’ photographs and deciding how to label them.
+    interests:
+    - photography
+    - growing vegetables
+    opinions:
+    - Libraries need quiet corners as well as places to meet.
+    - A useful object does not have to be new.
+    interestingFacts:
+    - Repairs the handles of her garden tools.
+    - Keeps a notebook of ferry journeys.
+    favoriteBooks:
+    - The Living Mountain — Nan Shepherd
+    - The Summer Book — Tove Jansson
+    favoriteMovies:
+    - Local Hero (1983)
+    - The Lunchbox (2013)
+    manner: Calm and observant. Uses everyday Gaelic and gives concrete answers before asking another
+      question.
+    quirks:
+    - Labels boxes as soon as she fills them.
+    - Notices changes in the light while walking.
+    vibe:
+    - 📚
+    - 🌿
+  starters:
+    food:
+      label: Biadh is deoch
+      preview: Bu toil leam tì.
+      translation: Bu toil leam tì.
+      varieties:
+      - scottish-gaelic-scotland
+    family:
+      label: Do theaghlach
+      preview: Seo mo theaghlach.
+      translation: Seo mo theaghlach.
+      varieties:
+      - scottish-gaelic-scotland
+    weekend:
+      label: Planaichean airson an deireadh-sheachdain
+      preview: Tha mi airson fois a ghabhail.
+      translation: Tha mi airson fois a ghabhail.
+      varieties:
+      - scottish-gaelic-scotland
+    place:
+      label: Àite as toil leat
+      preview: Is toil leam a’ phàirc seo.
+      translation: Is toil leam a’ phàirc seo.
+      varieties:
+      - scottish-gaelic-scotland
+    day:
+      label: An latha agad
+      preview: Tha mi aig an taigh an-diugh.
+      translation: Tha mi aig an taigh an-diugh.
+      varieties:
+      - scottish-gaelic-scotland
+    music:
+      label: Ceòl
+      preview: Is toil leam ceòl.
+      translation: Is toil leam ceòl.
+      varieties:
+      - scottish-gaelic-scotland
+  starter_reasons:
+    focus: A rèir an amais agad
+    due: Ri ath-sgrùdadh
+    contact: A rèir ùidhean an neach-conaltraidh agad
+    general: Cuspair còmhraidh
