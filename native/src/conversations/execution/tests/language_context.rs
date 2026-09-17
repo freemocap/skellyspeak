@@ -291,6 +291,7 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         )
         .unwrap();
         assert_eq!(value["observation"]["items"][0]["outcome"], outcome);
+        retained_observation(&store, &turn, "coach_feedback");
         // Each variant is an isolated publication fixture, not a rewrite of earned XP.
         store
             .connection

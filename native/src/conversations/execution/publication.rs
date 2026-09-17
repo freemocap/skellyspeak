@@ -89,13 +89,20 @@ impl Store {
         let mut gloss = None;
         let mut coaching = None;
         let valid = match &result {
+            Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
+                crate::learning::coaching::conversation_support::validate(&tx, &turn, &kind, output)
+                    .map(|v| {
+                        coaching = Some(v);
+                    })
+            }
             Ok(output) if kind.starts_with("lesson_") => {
                 crate::learning::lessons::validate(&tx, &turn, &kind, output).map(|value| {
                     coaching = Some(value);
                 })
             }
             Ok(output)
-                if kind == "coach_feedback"
+                if crate::learning::coaching::conversation_support::owns(&kind)
+                    || kind == "coach_feedback"
                     || kind == "coach_retry_check"
                     || kind == "coach_suggestions"
                     || kind == "coach_reaction" =>
@@ -179,7 +186,8 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if kind == "coach_feedback"
+        if crate::learning::coaching::conversation_support::owns(&kind)
+            || kind == "coach_feedback"
             || kind == "coach_retry_check"
             || kind == "coach_suggestions"
             || kind == "coach_reaction"
@@ -196,11 +204,15 @@ impl Store {
         )?;
         if state == "succeeded" {
             if kind == "persona_reply" || kind == "persona_opening" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','lesson_review') AND state='waiting_dependencies'", [&turn])?;
+                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','lesson_review','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", [&turn])?;
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if kind.starts_with("lesson_") {
+                if crate::learning::coaching::conversation_support::owns(&kind) {
+                    crate::learning::coaching::conversation_support::publish(
+                        &tx, &turn, &kind, &value,
+                    )?;
+                } else if kind.starts_with("lesson_") {
                     crate::learning::lessons::publish(&tx, &turn, &kind, &value)?;
                 } else if kind == "coach_reaction" {
                     tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1",params![turn,value.to_string()])?;

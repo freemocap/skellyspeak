@@ -174,12 +174,12 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             )
             .unwrap();
         let expected = match kind.as_str() {
-            "user_translation" | "reply_translation" | "coach_reaction" => {
-                "google/gemini-2.5-flash-lite"
-            }
-            "user_word_gloss" | "persona_word_gloss" | "coach_feedback" => {
-                "google/gemini-2.5-flash"
-            }
+            "user_translation" | "reply_translation" => "google/gemini-2.5-flash-lite",
+            "user_word_gloss"
+            | "persona_word_gloss"
+            | "conversation_feedback"
+            | "reply_assistance"
+            | "reply_explanations" => "google/gemini-2.5-flash",
             _ => panic!("Unexpected automatic task: {kind}"),
         };
         assert_eq!(work.model, expected);
@@ -194,14 +194,18 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             .unwrap();
         assert_eq!(recorded, expected);
         kinds.insert(kind);
+        store
+            .finish(&work, Err(fail("Routing fixture complete")))
+            .unwrap();
     }
     for kind in [
         "user_translation",
         "reply_translation",
         "user_word_gloss",
         "persona_word_gloss",
-        "coach_feedback",
-        "coach_reaction",
+        "conversation_feedback",
+        "reply_assistance",
+        "reply_explanations",
     ] {
         assert!(kinds.contains(kind), "Missing {kind}");
     }

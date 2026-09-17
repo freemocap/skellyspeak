@@ -5,6 +5,7 @@ fn reaction_waits_for_reply_and_publishes_on_its_message() {
     let (_dir, mut store, conversation) = setup();
     let command = send(&store, &conversation);
     let turn = store.execute(command).unwrap().entity_id;
+    store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?2,'coach_reaction','waiting_dependencies')",params![id(),turn]).unwrap();
     assert!(store.dispatch().unwrap().is_none());
     let persona = store.dispatch().unwrap().unwrap();
     assert!(
@@ -34,19 +35,19 @@ fn reaction_waits_for_reply_and_publishes_on_its_message() {
 }
 
 #[test]
-fn suggestions_require_explicit_request_and_repeated_requests_share_work() {
+fn assistance_is_automatic_and_repeated_requests_share_work() {
     let (_dir, mut store, conversation) = setup();
     store.execute(send(&store, &conversation)).unwrap();
     assert_eq!(
         store
             .connection
             .query_row(
-                "SELECT count(*) FROM operations WHERE kind='coach_suggestions'",
+                "SELECT count(*) FROM operations WHERE kind='reply_assistance'",
                 [],
                 |r| r.get::<_, i64>(0)
             )
             .unwrap(),
-        0
+        1
     );
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
@@ -61,12 +62,12 @@ fn suggestions_require_explicit_request_and_repeated_requests_share_work() {
         store
             .connection
             .query_row(
-                "SELECT count(*) FROM operations WHERE kind='coach_suggestions'",
+                "SELECT count(*) FROM operations WHERE kind='reply_assistance'",
                 [],
                 |r| r.get::<_, i64>(0)
             )
             .unwrap(),
-        0
+        1
     );
     let first = request_suggestions(&store.connection, &message).unwrap();
     assert_eq!(
@@ -77,7 +78,7 @@ fn suggestions_require_explicit_request_and_repeated_requests_share_work() {
         store
             .connection
             .query_row(
-                "SELECT count(*) FROM operations WHERE kind='coach_suggestions'",
+                "SELECT count(*) FROM operations WHERE kind='reply_assistance'",
                 [],
                 |r| r.get::<_, i64>(0)
             )

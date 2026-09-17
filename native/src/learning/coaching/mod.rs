@@ -1,6 +1,7 @@
 //! Private coach operations bound to the originating turn and saved sources.
 pub(crate) mod coach_observation;
 pub(crate) mod coach_policy;
+pub(crate) mod conversation_support;
 use crate::ai::transport::provider::Completion;
 use crate::ai::transport::provider::PromptMessage;
 use crate::model::*;
@@ -29,7 +30,7 @@ impl Outcome {
         Self::Uncertain,
     ];
 }
-pub const FEEDBACK_PROMPT_VERSION: &str = "coach-observation-6";
+pub const FEEDBACK_PROMPT_VERSION: &str = "coach-observation-7";
 pub const SUGGESTIONS_PROMPT_VERSION: &str = "coach-suggestions-3";
 pub const FEEDBACK: &str = "coach_feedback";
 pub const SUGGESTIONS: &str = "coach_suggestions";
@@ -280,7 +281,7 @@ pub fn prompt(
     let task = if kind == SUGGESTIONS {
         "Offer exactly two short, meaningfully different target-language replies to personaReply at the selected difficulty. Tokens cover every reply word exactly, in reading order; reply is its zero-based reply index. Copy token text exactly and write glosses in explanationLanguage. Set pronunciation to a simple approximation for explanationLanguage readers, never IPA. These are optional composition help, not learner evidence or a choice already made."
     } else {
-        "Give ZERO OR ONE brief, useful coaching suggestion about learnerSource. No suggestion is a successful, normal result: do not invent a correction or explain correct wording just to fill space. Preserve the user's intended meaning. If ambiguous, offer one short clarification as the sole rationale, without inventing an error or correction. Normally use one short sentence, at most two; never grade, praise, quiz or enumerate skills. Use explanationLanguage for help and targetLanguage for wording examples. Keep evidence separate from advice: return at most six supported items with exact short source quotes and candidate construct IDs. Rationale must be empty for evidence-only items. At most ONE item may have an error or a nonempty rationale; they must belong to the same item if both exist. Use an empty items array when there is no evidence. Outcomes: demonstrated = supported success; partial = incomplete evidence; not_demonstrated = an observed unfulfilled opportunity; uncertain = ambiguous; omit unobserved candidates. Absence is never failure. For the one selected error, give a short target_hypothesis and ONLY the requested help mode's cue; all unused cue fields MUST be empty strings. Explicit mode needs no cues. Quotes, rationale, correction and active cue each have a 160-character ceiling, not a target. Do not repeat quoted text in the explanation. Do not repeat prior help unless asked. No emojis."
+        "Assess learnerSource in the ongoing conversation and give ZERO OR ONE actionable suggestion so the user can keep talking about their chosen topic. Prioritize a meaning-changing error, then a useful grammar or word-choice correction. Give a corrected replacement for the quoted span directly in target_hypothesis and one brief explanation in rationale; do not make the user guess, quiz them or require a retry. Preserve their intended meaning and register; do not rewrite correct wording merely to sound more sophisticated. No useful correction is a normal successful result. If meaning is ambiguous, use one short clarification as the sole rationale with error=null. For speech_transcript input, assess only the transcribed wording: you have not heard the audio. Never infer pronunciation, accent or listening ability, or correct transcript punctuation/capitalization as a speaking error. If wording may be a transcription mistake, state that uncertainty or ask a clarification instead of asserting a learner error. Do not infer why an error happened; use source=unknown. No grades, praise, skill reports or lesson detours. Evidence is secondary: at most six supported items with exact short learner-source quotes and supplied construct IDs; omit unobserved candidates and use empty rationale for evidence-only items. Use an empty items array when there is no evidence. Outcomes: demonstrated=supported success; partial=incomplete; not_demonstrated=observed unfulfilled opportunity; uncertain=ambiguous. Absence is never failure. At most ONE item may contain an error or nonempty rationale; both must belong to that item. Use explanationLanguage for explanations and targetLanguage for corrections. For explicit helpMode all three cue fields must be empty; otherwise fill only the requested cue. Quotes, rationale, correction and active cue each have a 160-character ceiling, not a target. Do not repeat prior help unless still relevant or asked. No emojis."
     };
     let mut data = json!({"learnerSource":source,"priorConversation":context,"privateCoachHistory":captured["coachSources"],"targetLanguage":captured["targetLanguage"],"explanationLanguage":captured["translationLanguage"],"difficulty":captured["practiceSettings"]["difficulty"]});
     if kind == SUGGESTIONS {

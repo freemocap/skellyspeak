@@ -941,5 +941,15 @@
   "Rejected": "Abgelehnt",
   "Unreachable": "Nicht erreichbar",
   "Invalid response": "Ungültige Antwort",
-  "Connection health": "Verbindungsstatus"
+  "Connection health": "Verbindungsstatus",
+  "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "Chat-Rückmeldungen sind von der Fertigkeitserfassung getrennt. Gespeicherte Nachweise bleiben verfügbar.",
+  "Conversation fit: {value0}/5": "Gesprächsbezug: {value0}/5",
+  "Feedback": "Rückmeldung",
+  "Frames and starters": "Satzmuster und Satzanfänge",
+  "Grammar: {value0}/5": "Grammatik: {value0}/5",
+  "Message assessment": "Nachrichtenbewertung",
+  "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "Modellurteile über diese Nachricht, keine Kompetenzmessungen. Es werden keine Fertigkeits-XP vergeben.",
+  "Native-language wording": "Formulierungen in der Muttersprache",
+  "Reading help": "Lesehilfe",
+  "Target-language wording": "Formulierungen in der Zielsprache"
 }

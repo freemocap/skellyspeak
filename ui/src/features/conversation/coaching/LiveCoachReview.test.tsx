@@ -23,3 +23,16 @@ it('does not count help as viewed in a hidden mobile coach panel', () => {
   expect(control).not.toHaveBeenCalled()
   expect(screen.queryByText('Which verb form fits here?')).toBeNull()
 })
+
+it('shows direct correction and explanation without an answer-reveal step', async () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  const turn = makeTurn(3, '¿Qué te gusta cocinar?')
+  turn.coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'event_roles', quote: 'Yo gusta', move: 'explicit', text: 'Me gusta', explanation: 'Use me gusta to say what you like.' }, retryInvited: false, fixed: null, alsoNoticed: [], keptGoing: false }
+  const view = render(<LiveCoachReview turn={turn} visible onControl={control} nativeLanguageName="English" rtl={false} />)
+  await waitFor(() => expect(control).toHaveBeenCalledExactlyOnceWith('open_card'))
+  view.rerender(<LiveCoachReview turn={{ ...turn, coachDecision: { ...turn.coachDecision, exposedMove: 'explicit' } }} visible onControl={control} nativeLanguageName="English" rtl={false} />)
+  expect(screen.getByText('Me gusta')).toBeVisible()
+  expect(screen.getByText('Use me gusta to say what you like.')).toBeVisible()
+  expect(screen.queryByRole('button', { name: 'Show answer' })).toBeNull()
+  expect(screen.queryByText('¿Qué te gusta cocinar?')).toBeNull()
+})

@@ -4,6 +4,21 @@ Status: historical request audit followed by an implemented, user-approved
 reduction of automatic coaching. The audit sections below describe the request
 before that reduction; they are not a description of the updated prompt.
 
+The broader [coaching and learning refactor audit](coaching-learning-refactor-2026-09-16.md)
+reviews the resulting implementation alongside curriculum, lessons, evidence and
+XP. Its replacement design is a proposal; it does not supersede implemented
+behavior recorded here.
+
+## Latest priority: conversation first
+
+The user has frozen lesson work and made voice conversation the primary flow.
+Prompt version `coach-observation-7` now requests direct corrected wording and a
+brief explanation, with transcript-specific limits. New bundled policy starts
+with explicit help, no longer suppresses slips/developmental labels, and allows
+useful corrections outside the selected skill. The previous compact-coaching
+checkpoint below is historical. See the
+[chat-first implementation and verification](chat-first-coaching-2026-09-16.md).
+
 ## Implemented follow-up: zero or one suggestion
 
 The user approved keeping coaching output small, with zero or one suggestion and

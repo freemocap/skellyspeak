@@ -16,6 +16,7 @@ struct Intensity {
 #[derive(Deserialize)]
 struct Policy {
     max_corrections_per_turn: usize,
+    correct_only: String,
     skip_sources: Vec<String>,
     ladder: Vec<String>,
     intensity: HashMap<String, Intensity>,
@@ -186,7 +187,9 @@ pub(crate) fn decide(
                         && i.error.as_ref().is_some_and(|e| {
                             let source = serde_json::to_value(&e.source).expect("enum serializes");
                             !policy.skip_sources.iter().any(|s| source == *s)
-                                && (e.blocks_meaning || focus == Some(i.construct.as_str()))
+                                && (policy.correct_only == "useful_language"
+                                    || e.blocks_meaning
+                                    || focus == Some(i.construct.as_str()))
                         })
                 })
                 .min_by_key(|i| !i.error.as_ref().unwrap().blocks_meaning)
@@ -247,7 +250,7 @@ pub(crate) fn control(
                         && matches!(item.outcome, Outcome::Partial | Outcome::NotDemonstrated)
                 }) {
                     decision.shown = Some(correction(item, requested_move(&context)?, &context)?);
-                    decision.retry_invited = true;
+                    decision.retry_invited = requested_move(&context)? != CoachMove::Explicit;
                 }
             }
             decision.exposed_move = decision.shown.as_ref().map(|shown| shown.r#move.clone());

@@ -5,6 +5,25 @@ title: Coaching contracts
 
 # Coaching contracts
 
+> **Current restoration target:** the user has requested the v0 coaching and
+> conversation-assistance experience. The
+> [v0 source comparison and restoration contract](../../notes/v0-conversation-assistance-restoration.md)
+> supersedes the earlier one-suggestion/skill-bound approach as the target design.
+> The restoration is now implemented in source; lesson/progression redesign stays frozen.
+> [Implementation and verification](../../notes/v0-conversation-assistance-verification.md)
+> records the new independent contracts and current verification limits.
+
+
+> **September 16 priority change:** voice conversation is the primary experience.
+> Lesson/curriculum and progression redesign are frozen while chat coaching is
+> corrected. Direct corrected wording plus a brief actionable explanation replaces
+> hint-first help for new turns; continuing the conversation never requires a
+> repair exercise. Automatically recommended skills must not redirect the topic.
+> The earlier wave/lesson sequence below is deferred where it conflicts with this
+> decision. Current implementation and verification are recorded in
+> [the chat-first checkpoint](../../notes/chat-first-coaching-2026-09-16.md).
+
+
 The seams between the three work areas in the [coaching work plan](./coaching-work-plan). Each contract names who provides it, who consumes it, and the wave it lands in. A provider may refine a signature; the change must be reported as **contract drift** in its hand-back and then updated here by the integration agent.
 
 Status: wave 1 is implemented and checkpointed at bdb664e. Wave 2 source and combined automated verification are complete; its integration decisions below specify the boundaries, while generated native types remain the exact wire authority. Wave 2 was accepted for continuation on 2026-09-13; Wave 3 learner-state foundation is in progress.

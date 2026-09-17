@@ -1,3 +1,4 @@
+import { Markdown } from '../../../components/reading/Markdown'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
 import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
@@ -16,6 +17,7 @@ export interface InspectTarget {
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation'>
 
 interface AnalysisContentProps {
+  onAsk?: (question: string) => void
   turn: AnalysedTurn
   inspect: InspectTarget | null
   nativeLanguageName: string
@@ -27,6 +29,7 @@ interface AnalysisContentProps {
 /// gloss lists, grammar mechanics, and the analysis Q&A thread.
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
+  onAsk,
   inspect: _inspect,
   nativeLanguageName,
   showRomanization: _showRomanization,
@@ -42,7 +45,7 @@ export const AnalysisContent = memo(function AnalysisContent({
 
   return (
     <>
-      {turn.analysisState === 'pending' && (
+      {['ready', 'running', 'waiting_dependencies'].includes(a.explanationsState ?? '') && (
         <p className="sect-k pending">
           {tr("⟳ Analyzing grammar…")}</p>
       )}
@@ -50,6 +53,7 @@ export const AnalysisContent = memo(function AnalysisContent({
       {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={autoTranslate ? turn.userTranslation ?? a.user_translation : null} />}
       <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={autoTranslate ? a.translation : null} />
 
+      {a.explanationsError && <p role="alert">{a.explanationsError}</p>}
       {a.errors.length > 0 && (
         <div className="turn-errors">
           {a.errors.map((e, i) => (
@@ -67,7 +71,8 @@ export const AnalysisContent = memo(function AnalysisContent({
                 <span className="exp-title">{mech.title}</span>
                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
               </div>
-              <p className="exp-body">{mech.body}</p>
+              {mech.quote && <blockquote><TargetText text={mech.quote} /></blockquote>}
+              <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
               {mech.example && <p className="exp-ex"><TargetText text={mech.example} /></p>}
               {mech.contrast && (
                 <p className="exp-vs">

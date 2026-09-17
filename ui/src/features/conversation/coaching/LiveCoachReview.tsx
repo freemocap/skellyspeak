@@ -1,3 +1,4 @@
+import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useRef, useState } from 'react'
 import type { CoachControl } from '../../../generated/contracts'
@@ -5,7 +6,8 @@ import type { StoredTurn } from '../../../types'
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../../platform/ipc/workspace'
 
-export function LiveCoachReview({ turn, visible, onControl }: {
+export function LiveCoachReview({ turn, visible, onControl, onAsk }: {
+  onAsk?: (question: string) => void
   turn: StoredTurn | undefined; visible: boolean; onControl: (control: CoachControl) => Promise<void>; nativeLanguageName: string; rtl: boolean
 }) {
   const tr = useI18n()
@@ -25,10 +27,10 @@ export function LiveCoachReview({ turn, visible, onControl }: {
     void onControl('open_card').catch(reason => setError(nativeError(reason)))
   }, [visible, turn, decision, onControl])
   if (!turn) return null
-  if (!turn.coachError && !error && !decision?.shown && !decision?.fixed && decision?.repairStatus !== 'uncertain' && !turn.coach?.items.some(item => item.rationale.trim())) return null
+  if (!turn.conversationFeedback && !turn.coachError && !error && !decision?.shown && !decision?.fixed && decision?.repairStatus !== 'uncertain' && !turn.coach?.items.some(item => item.rationale.trim())) return null
   return <section ref={review} className="live-coach-review" aria-label={tr("Conversation coaching")}>
     <h3>{tr("On your message")}</h3>
-    <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />
+    {turn.conversationFeedback ? <ConversationFeedbackCard feedback={turn.conversationFeedback} onAsk={onAsk} /> : <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />}
     {error && <p role="alert">{error}</p>}
     {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="lesson-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
   </section>

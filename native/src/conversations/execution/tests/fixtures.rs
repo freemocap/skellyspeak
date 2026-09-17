@@ -74,7 +74,7 @@ pub(super) fn isolate_coaching(store: &mut Store) {
     isolate_user_reading(store);
     // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
     // exercised separately below with both automatic operations retained.
-    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction') AND state='waiting_dependencies'", []).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", []).unwrap();
 }
 
 pub(super) fn isolate_translation(store: &mut Store) {
@@ -207,6 +207,7 @@ pub(super) fn finish_fixture_exchange(store: &mut Store, turn: &str, text: &str)
 }
 
 pub(super) fn fixture_evidence(store: &Store, turn: &str, wording: &str) {
+    retained_observation(store, turn, "coach_feedback");
     let value = serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":wording,"outcome":"demonstrated","error":null,"rationale":"Requests information."}]});
     let validated = crate::learning::coaching::validate(
         &store.connection,
@@ -236,7 +237,7 @@ pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
 }
 
 pub(super) fn wave2_error(quote: &str) -> serde_json::Value {
-    serde_json::json!({"construct":"question","quote":quote,"outcome":"partial","rationale":"Hidden corrected wording must not leak.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"A linking verb is missing.","elicitation":"","metalinguistic":""}})
+    serde_json::json!({"construct":"question","quote":quote,"outcome":"partial","rationale":"Use está to ask how someone is.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"","elicitation":"","metalinguistic":""}})
 }
 
 pub(super) fn wave2_observe(
@@ -245,6 +246,7 @@ pub(super) fn wave2_observe(
     kind: &str,
     value: serde_json::Value,
 ) -> serde_json::Value {
+    retained_observation(store, turn, kind);
     let validated = crate::learning::coaching::coach_observation::validate(
         &store.connection,
         turn,
@@ -260,4 +262,10 @@ pub(super) fn wave2_observe(
     )
     .unwrap();
     validated
+}
+
+// Fixtures for retained evidence math explicitly create its former producer.
+// Current conversational judgments must never create these records.
+pub(super) fn retained_observation(store: &Store, turn: &str, kind: &str) {
+    store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) SELECT ?1,?2,?3,'succeeded' WHERE NOT EXISTS(SELECT 1 FROM operations WHERE turn_id=?2 AND kind=?3)",params![id(),turn,kind]).unwrap();
 }

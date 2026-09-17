@@ -51,7 +51,7 @@ fn wave2_explicit_answer_is_durable_terminal_and_retry_uncertainty_is_honest() {
         &store,
         &second,
         "coach_retry_check",
-        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[error_in_mode("¿Cómo tu hermana?", "explicit")]}),
+        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
     );
     assert_eq!(checked["decision"]["shown"]["move"], "explicit");
     assert_eq!(checked["decision"]["retryInvited"], false);
@@ -130,7 +130,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
 }
 
 #[test]
-fn wave2_graded_retry_and_keep_going_do_not_block_chat() {
+fn direct_retry_and_keep_going_do_not_block_chat() {
     let (_dir, mut store, conversation) = setup();
     store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.coachProactivity','occasional')",[]).unwrap();
     let first = store
@@ -164,28 +164,17 @@ fn wave2_graded_retry_and_keep_going_do_not_block_chat() {
         .entity_id;
     assert_eq!(
         wave2_context(&store, &second)["coachRetry"]["supportStep"],
-        "hint"
+        "explicit"
     );
-    assert!(store.dispatch().unwrap().is_none());
-    let persona = store.dispatch().unwrap().unwrap();
-    let retry = store.dispatch().unwrap().unwrap();
-    assert_eq!(
-        store
-            .connection
-            .query_row(
-                "SELECT kind FROM operations WHERE id=?1",
-                [&retry.operation],
-                |r| r.get::<_, String>(0)
-            )
-            .unwrap(),
-        "coach_retry_check"
+    // Retained disclosure decisions still work; new revisions use independent
+    // conversational feedback rather than scheduling the retired retry grader.
+    finish_fixture_exchange(&mut store, &second, "Reply");
+    wave2_observe(
+        &store,
+        &second,
+        "coach_retry_check",
+        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
     );
-    store.finish(&retry,Ok(reply(&serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[error_in_mode("¿Cómo tu hermana?", "elicit")]}).to_string()))).unwrap();
-    assert_eq!(
-        wave2_context(&store, &second)["coachDecision"]["shown"]["move"],
-        "elicit"
-    );
-    store.finish(&persona, Ok(reply("Reply"))).unwrap();
     let command = Command {
         session_id: store.session_id.clone(),
         action_id: id(),
@@ -300,7 +289,7 @@ fn wave2_unseen_retries_do_not_escalate_assistance() {
             "coach_retry_check",
             serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
         );
-        assert_eq!(observed["decision"]["shown"]["move"], "hint");
+        assert_eq!(observed["decision"]["shown"]["move"], "explicit");
         assert_eq!(wave2_context(&store, &next)["coachRetry"]["depth"], 0);
         assert!(wave2_context(&store, &next)["coachRetry"]["supportStep"].is_null());
         previous = next;
@@ -308,7 +297,7 @@ fn wave2_unseen_retries_do_not_escalate_assistance() {
 }
 
 #[test]
-fn requested_analysis_exposes_logged_help_and_answer_explanation() {
+fn direct_correction_is_not_hidden_by_speculative_error_cause() {
     let (_dir, mut store, conversation) = setup();
     let command = send(&store, &conversation);
     let turn = store.execute(command).unwrap().entity_id;
@@ -321,7 +310,10 @@ fn requested_analysis_exposes_logged_help_and_answer_explanation() {
         "coach_feedback",
         serde_json::json!({"meaning_recovered":"full","items":[item]}),
     );
-    assert!(wave2_context(&store, &turn)["coachDecision"]["shown"].is_null());
+    assert_eq!(
+        wave2_context(&store, &turn)["coachDecision"]["shown"]["move"],
+        "explicit"
+    );
     let snapshot = store.snapshot().unwrap();
     crate::learning::coaching::coach_policy::control(
         &store.connection,
@@ -332,8 +324,11 @@ fn requested_analysis_exposes_logged_help_and_answer_explanation() {
     )
     .unwrap();
     let shown = wave2_context(&store, &turn);
-    assert_eq!(shown["coachDecision"]["exposedMove"], "hint");
-    assert!(shown["coachDecision"]["shown"]["explanation"].is_null());
+    assert_eq!(shown["coachDecision"]["exposedMove"], "explicit");
+    assert_eq!(
+        shown["coachDecision"]["shown"]["explanation"],
+        "Use está to ask how someone is."
+    );
     let snapshot = store.snapshot().unwrap();
     crate::learning::coaching::coach_policy::control(
         &store.connection,
@@ -345,15 +340,6 @@ fn requested_analysis_exposes_logged_help_and_answer_explanation() {
     .unwrap();
     assert_eq!(
         wave2_context(&store, &turn)["coachDecision"]["shown"]["explanation"],
-        "Hidden corrected wording must not leak."
+        "Use está to ask how someone is."
     );
-}
-
-fn error_in_mode(quote: &str, mode: &str) -> serde_json::Value {
-    let mut item = wave2_error(quote);
-    item["error"]["hint"] = serde_json::json!("");
-    if mode == "elicit" {
-        item["error"]["elicitation"] = serde_json::json!("Add the missing linking verb.");
-    }
-    item
 }

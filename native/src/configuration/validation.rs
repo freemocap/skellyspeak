@@ -538,7 +538,7 @@ impl Registry {
             "explicit",
         ];
         if p.max_corrections_per_turn != 1
-            || p.correct_only != "focus_and_meaning_blocking"
+            || !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str())
             || p.ladder != ladder.iter().map(|s| s.to_string()).collect::<Vec<_>>()
         {
             return Err(error(
@@ -585,7 +585,7 @@ impl Registry {
             ));
         }
         for i in p.intensity.values() {
-            if !["hint", "elicit", "metalinguistic"].contains(&i.start_at.as_str())
+            if !["hint", "elicit", "metalinguistic", "explicit"].contains(&i.start_at.as_str())
                 || !(1..=3).contains(&i.max_revisions)
             {
                 return Err(error(

@@ -24,9 +24,21 @@ fn identity(value: &str) -> Option<String> {
 }
 fn kind(value: &str) -> &str {
     match value {
-        "coach_feedback" | "coach_reaction" | "coach_retry_check" | "coach_suggestions"
-        | "coach_reply" | "persona_reply" | "persona_opening" | "user_translation"
-        | "reply_translation" | "user_word_gloss" | "persona_word_gloss" | "lesson_generate"
+        "conversation_feedback"
+        | "reply_assistance"
+        | "reply_explanations"
+        | "coach_feedback"
+        | "coach_reaction"
+        | "coach_retry_check"
+        | "coach_suggestions"
+        | "coach_reply"
+        | "persona_reply"
+        | "persona_opening"
+        | "user_translation"
+        | "reply_translation"
+        | "user_word_gloss"
+        | "persona_word_gloss"
+        | "lesson_generate"
         | "lesson_review" => value,
         _ => "other",
     }

@@ -142,6 +142,12 @@ pub(crate) fn validate(
                 return Err(rejected("outcome conflicts with error"));
             }
             prose("target_hypothesis", &error.target_hypothesis, TARGET_LIMIT)?;
+            if help_move == CoachMove::Explicit {
+                prose("rationale", &item.rationale, RATIONALE_LIMIT)?;
+                if error.target_hypothesis.trim() == item.quote.trim() {
+                    return Err(rejected("correction must change the quoted wording"));
+                }
+            }
             if error.category.is_empty()
                 || error.category.len() > 80
                 || !error
@@ -245,7 +251,7 @@ mod text_contract_tests {
         json!({"candidateConstructs":[{"id":"question"}],"practiceSettings":{"coachProactivity":"on_request"},"feedbackPolicy":crate::configuration::Registry::bundled().unwrap().feedback_policy()})
     }
     #[test]
-    fn generation_and_validation_share_small_limits_and_one_cue() {
+    fn generation_and_validation_share_small_limits_and_direct_help() {
         let schema = schema(&captured(), false).unwrap();
         let item = &schema["properties"]["items"]["items"]["properties"];
         assert_eq!(item["quote"], text_schema(QUOTE_LIMIT));
@@ -253,8 +259,7 @@ mod text_contract_tests {
             item["rationale"],
             json!({"type":"string","maxLength":RATIONALE_LIMIT})
         );
-        assert_eq!(item["error"]["properties"]["hint"], text_schema(CUE_LIMIT));
-        for field in ["elicitation", "metalinguistic"] {
+        for field in ["hint", "elicitation", "metalinguistic"] {
             assert_eq!(
                 item["error"]["properties"][field],
                 json!({"type":"string","const":""})

@@ -14,10 +14,8 @@ guidance:
   - illich1973
 feedback:
   max_corrections_per_turn: 1
-  correct_only: focus_and_meaning_blocking
-  skip_sources:
-  - developmental
-  - slip
+  correct_only: useful_language
+  skip_sources: []
   ladder:
   - partner_clarify
   - hint
@@ -26,15 +24,15 @@ feedback:
   - explicit
   intensity:
     light:
-      start_at: hint
+      start_at: explicit
       max_revisions: 1
       show_logged: false
     standard:
-      start_at: hint
+      start_at: explicit
       max_revisions: 2
       show_logged: true
     thorough:
-      start_at: elicit
+      start_at: explicit
       max_revisions: 3
       show_logged: true
   never:

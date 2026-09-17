@@ -941,5 +941,15 @@
   "Rejected": "مرفوض",
   "Unreachable": "غير متاح",
   "Invalid response": "استجابة غير صالحة",
-  "Connection health": "حالة الاتصال"
+  "Connection health": "حالة الاتصال",
+  "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "ملاحظات الدردشة منفصلة عن تتبع المهارات. تظل أدلة المهارات المحفوظة متاحة.",
+  "Conversation fit: {value0}/5": "ملاءمة المحادثة: {value0}/5",
+  "Feedback": "ملاحظات",
+  "Frames and starters": "قوالب وبدايات الجمل",
+  "Grammar: {value0}/5": "القواعد: {value0}/5",
+  "Message assessment": "تقييم الرسالة",
+  "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "أحكام النموذج على هذه الرسالة، وليست قياسات للكفاءة. لا تُمنح نقاط خبرة للمهارات.",
+  "Native-language wording": "تعبيرات باللغة الأم",
+  "Reading help": "مساعدة القراءة",
+  "Target-language wording": "تعبيرات باللغة المستهدفة"
 }

@@ -19,16 +19,16 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "coach_feedback",
-        dependencies: &["persona_context"],
-        role: "standard",
-        contract_version: 3,
-    },
-    Declaration {
-        kind: "coach_suggestions",
+        kind: "conversation_feedback",
         dependencies: &["persona_reply"],
         role: "standard",
-        contract_version: 3,
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "reply_assistance",
+        dependencies: &["persona_reply"],
+        role: "standard",
+        contract_version: 1,
     },
     Declaration {
         kind: "persona_context",
@@ -73,7 +73,7 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "coach_reaction",
+        kind: "reply_explanations",
         dependencies: &["persona_reply"],
         role: "standard",
         contract_version: 1,
@@ -97,6 +97,12 @@ pub const COACH_PLAN: &[Declaration] = &[
 
 pub const OPENING_PLAN: &[Declaration] = &[
     Declaration {
+        kind: "reply_explanations",
+        dependencies: &["persona_opening"],
+        role: "standard",
+        contract_version: 1,
+    },
+    Declaration {
         kind: "persona_context",
         dependencies: &[],
         role: "local",
@@ -109,10 +115,10 @@ pub const OPENING_PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "coach_suggestions",
+        kind: "reply_assistance",
         dependencies: &["persona_opening"],
         role: "standard",
-        contract_version: 3,
+        contract_version: 1,
     },
     Declaration {
         kind: "persona_word_gloss",
@@ -145,6 +151,28 @@ pub const LESSON_PLAN: &[Declaration] = &[
     Declaration {
         kind: "lesson_generate",
         dependencies: &["coach_context"],
+        role: "standard",
+        contract_version: 1,
+    },
+];
+
+// Read retained observations without restarting their automatic producer.
+pub const RETAINED: &[Declaration] = &[
+    Declaration {
+        kind: "coach_feedback",
+        dependencies: &["persona_context"],
+        role: "standard",
+        contract_version: 3,
+    },
+    Declaration {
+        kind: "coach_suggestions",
+        dependencies: &[],
+        role: "standard",
+        contract_version: 3,
+    },
+    Declaration {
+        kind: "coach_reaction",
+        dependencies: &["persona_reply"],
         role: "standard",
         contract_version: 1,
     },

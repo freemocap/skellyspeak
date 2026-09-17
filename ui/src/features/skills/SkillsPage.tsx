@@ -121,6 +121,7 @@ export function SkillTreeView({ languageTag, snapshot, demonstration, refresh, s
     <div className="tree-focus-strip"><button onClick={() => inspect(focus)}>◆ {treeNode(focus).label}</button><span>{profile.choices.focus || demoFocus ? tr("Pinned focus") : tr("Recommended focus")}</span>{profile.choices.focus && <button disabled={saving} onClick={() => void update({ ...profile.choices, focus: null }, false)}>{tr("Follow recommendations")}</button>}</div>
     </aside>
     <div className="review-content">
+    <p>{tr("Chat feedback is separate from skill tracking. Saved skill evidence remains available.")}</p>
     <EvidenceMappingNotice snapshot={snapshot} />
     {mutationError && <p className="tree-load" role="alert">{mutationError}</p>}
     <div className={`tree-workspace ${detailOpen ? 'details-open' : 'details-closed'}`}>

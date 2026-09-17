@@ -561,6 +561,12 @@ pub fn bindings() -> String {
         Opening::decl(&config),
         StarterCard::decl(&config),
         crate::learning::coaching::SuggestedReply::decl(&config),
+        crate::learning::coaching::conversation_support::ConversationFeedback::decl(&config),
+        crate::learning::coaching::conversation_support::ConversationCorrection::decl(&config),
+        crate::learning::coaching::conversation_support::AssistedReply::decl(&config),
+        crate::learning::coaching::conversation_support::ReplyAssistance::decl(&config),
+        crate::learning::coaching::conversation_support::ReplyExplanation::decl(&config),
+        crate::learning::coaching::conversation_support::ReplyExplanations::decl(&config),
         ChatMessage::decl(&config),
         OperationView::decl(&config),
         AttemptView::decl(&config),
@@ -713,6 +719,18 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    #[ts(optional)]
+    pub conversation_feedback:
+        Option<crate::learning::coaching::conversation_support::ConversationFeedback>,
+    #[ts(optional)]
+    pub reply_assistance: Option<crate::learning::coaching::conversation_support::ReplyAssistance>,
+    #[ts(optional)]
+    pub reply_explanations:
+        Option<crate::learning::coaching::conversation_support::ReplyExplanations>,
+    #[ts(optional)]
+    pub explanations_state: Option<String>,
+    #[ts(optional)]
+    pub explanations_error: Option<String>,
     #[ts(optional)]
     pub reaction: Option<crate::partners::partner_reaction::PartnerReaction>,
     #[ts(optional)]

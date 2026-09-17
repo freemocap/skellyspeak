@@ -5,6 +5,25 @@ title: Coaching plan
 
 # SkellySpeak coaching plan
 
+> **Current restoration target:** the user has requested the v0 coaching and
+> conversation-assistance experience. The
+> [v0 source comparison and restoration contract](../../notes/v0-conversation-assistance-restoration.md)
+> supersedes the earlier one-suggestion/skill-bound approach as the target design.
+> The restoration is now implemented in source; lesson/progression redesign stays frozen.
+> [Implementation and verification](../../notes/v0-conversation-assistance-verification.md)
+> records the new independent contracts and current verification limits.
+
+
+> **September 16 priority change:** voice conversation is the primary experience.
+> Lesson/curriculum and progression redesign are frozen while chat coaching is
+> corrected. Direct corrected wording plus a brief actionable explanation replaces
+> hint-first help for new turns; continuing the conversation never requires a
+> repair exercise. Automatically recommended skills must not redirect the topic.
+> The earlier wave/lesson sequence below is deferred where it conflicts with this
+> decision. Current implementation and verification are recorded in
+> [the chat-first checkpoint](../../notes/chat-first-coaching-2026-09-16.md).
+
+
 [Reading view](pathname:///coaching-plan.html) · [Work plan](./coaching-work-plan) · [Contracts](./coaching-contracts)
 
 How language knowledge, the learner model, coaching, progress, the game layer and new-chat starts fit together, mapped onto the app as it currently exists on disk.

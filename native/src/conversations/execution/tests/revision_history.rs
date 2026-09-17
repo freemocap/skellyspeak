@@ -63,10 +63,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
             .any(|m| m.content == "Old response.")
     );
     store.finish(&persona, Ok(reply("Está bien."))).unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    let evidence = serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"Requests information."}]}).to_string();
-    store.finish(&feedback, Ok(reply(&evidence))).unwrap();
-    store.finish(&feedback, Ok(reply(&evidence))).unwrap();
+    fixture_evidence(&store, &revised, "¿Cómo está tu hermana?");
     let xp = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(xp["profile"]["xp"], 35);
     let record = xp["records"]
@@ -113,7 +110,10 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
         .connection
         .execute(
             "UPDATE skill_choices SET excluded=?1",
-            [serde_json::json!([format!("evidence-{second}"), feedback.attempt]).to_string()],
+            [
+                serde_json::json!([format!("evidence-{second}"), format!("evidence-{revised}")])
+                    .to_string(),
+            ],
         )
         .unwrap();
     assert_eq!(
@@ -283,8 +283,8 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
         .entity_id;
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
     store.finish(&persona, Ok(reply("Old response."))).unwrap();
+    let feedback = store.dispatch().unwrap().unwrap();
     let revision = store
         .execute(revision_command(
             &store,
@@ -297,7 +297,7 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
     store
         .finish(
             &feedback,
-            Ok(reply(r#"{"meaning_recovered":"full","items":[]}"#)),
+            Ok(reply(r#"{"remark":"Clear greeting.","usedTarget":[],"usedNative":[],"corrections":[],"grammar":5,"conversation":5}"#)),
         )
         .unwrap();
     assert!(
@@ -305,18 +305,20 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
             .conversation_snapshot(&conversation, None)
             .unwrap()
             .messages[0]
-            .feedback
+            .conversation_feedback
             .is_none()
     );
     let records = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    let prior = records["records"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|r| r["message_id"] == 1)
+    assert!(records["records"].as_array().unwrap().is_empty());
+    let status: String = store
+        .connection
+        .query_row(
+            "SELECT state FROM operations WHERE id=?1",
+            [&feedback.operation],
+            |r| r.get(0),
+        )
         .unwrap();
-    assert_eq!(prior["status"], "failed");
-    assert!(prior["error"].as_str().unwrap().contains("invalidated"));
+    assert_eq!(status, "invalidated");
     finish_fixture_exchange(&mut store, &revision, "Current response.");
     let next = store
         .execute(send(&store, &conversation))

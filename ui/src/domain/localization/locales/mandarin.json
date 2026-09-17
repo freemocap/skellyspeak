@@ -941,5 +941,15 @@
   "Rejected": "已拒绝",
   "Unreachable": "无法访问",
   "Invalid response": "无效响应",
-  "Connection health": "连接状态"
+  "Connection health": "连接状态",
+  "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "聊天反馈与技能跟踪分开。已保存的技能证据仍可查看。",
+  "Conversation fit: {value0}/5": "对话契合度：{value0}/5",
+  "Feedback": "反馈",
+  "Frames and starters": "句型和开头",
+  "Grammar: {value0}/5": "语法：{value0}/5",
+  "Message assessment": "消息评估",
+  "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "模型对这条消息的判断，并非语言能力测量。不授予技能经验值。",
+  "Native-language wording": "母语表达",
+  "Reading help": "阅读帮助",
+  "Target-language wording": "目标语言表达"
 }

@@ -19,7 +19,7 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     }
     if (message.role === 'user') {
       const feedback = message.feedback
-      Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
+      Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, conversationFeedback: message.conversationFeedback, analysisState: (feedback || message.conversationFeedback) ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
         ...(feedback ? { coach: feedback } : {}), ...(message.coachDecision ? { coachDecision: message.coachDecision } : {}) })
     } else if (message.role === 'assistant') {
       turn.reaction = message.reaction ?? undefined
@@ -28,8 +28,9 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
         messageId: message.id,
         reply: message.text, translation: message.translation, translationState: message.translationState,
         savedGloss: message.wordGloss, glossError: message.glossError, glossState: message.glossState, glossOperationId: message.glossOperationId,
-        tokens: [], user_tokens: [], user_translation: null, mechanics: [],
-        scaffolds: { replies: message.suggestedReplies ?? [], frames: [], starters: [] },
+        tokens: [], user_tokens: [], user_translation: null, mechanics: message.replyExplanations?.cards.map(card => ({ ...card, cefr: null })) ?? [],
+        assistance: message.replyAssistance, explanationsState: message.explanationsState, explanationsError: message.explanationsError,
+        scaffolds: { replies: message.suggestedReplies ?? [], frames: message.replyAssistance?.frames ?? [], starters: message.replyAssistance?.starters ?? [] },
         suggestionsState: message.suggestionsState ?? null,
         errors: message.suggestionsError ? [message.suggestionsError] : [],
       }

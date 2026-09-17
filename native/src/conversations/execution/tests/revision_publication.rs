@@ -108,13 +108,6 @@ fn revision_revokes_late_speech_gloss_translation_and_suggestions() {
         .entity_id;
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    store
-        .finish(
-            &feedback,
-            Ok(reply(r#"{"meaning_recovered":"full","items":[]}"#)),
-        )
-        .unwrap();
     store.finish(&persona, Ok(reply("Reply."))).unwrap();
     let message = store
         .conversation_snapshot(&conversation, None)
@@ -127,7 +120,7 @@ fn revision_revokes_late_speech_gloss_translation_and_suggestions() {
         .id
         .clone();
     request_suggestions(&store.connection, &message).unwrap();
-    store.connection.execute("UPDATE operations SET state='cancelled' WHERE state='ready' AND kind NOT IN ('coach_suggestions','persona_reply','persona_context')", []).unwrap();
+    store.connection.execute("UPDATE operations SET state='cancelled' WHERE state='ready' AND kind NOT IN ('reply_assistance','persona_reply','persona_context')", []).unwrap();
     let suggestions = store.dispatch().unwrap().unwrap();
     assert!(suggestions.coaching_schema.is_some());
     store
@@ -139,7 +132,7 @@ fn revision_revokes_late_speech_gloss_translation_and_suggestions() {
             .conversation_snapshot(&conversation, None)
             .unwrap()
             .messages[1]
-            .suggested_replies
+            .reply_assistance
             .is_none()
     );
 }

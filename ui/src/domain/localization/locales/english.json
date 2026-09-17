@@ -941,5 +941,15 @@
   "Rejected": "Rejected",
   "Unreachable": "Unreachable",
   "Invalid response": "Invalid response",
-  "Connection health": "Connection health"
+  "Connection health": "Connection health",
+  "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "Chat feedback is separate from skill tracking. Saved skill evidence remains available.",
+  "Conversation fit: {value0}/5": "Conversation fit: {value0}/5",
+  "Feedback": "Feedback",
+  "Frames and starters": "Frames and starters",
+  "Grammar: {value0}/5": "Grammar: {value0}/5",
+  "Message assessment": "Message assessment",
+  "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "Model judgments about this message, not proficiency measurements. No skill XP is awarded.",
+  "Native-language wording": "Native-language wording",
+  "Reading help": "Reading help",
+  "Target-language wording": "Target-language wording"
 }

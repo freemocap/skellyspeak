@@ -392,14 +392,13 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     store.execute(send(&store, &conversation)).unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
     let gloss = store.dispatch().unwrap().unwrap();
     let translation = store.dispatch().unwrap().unwrap();
     let source = gloss.gloss_source.as_ref().unwrap();
     assert_eq!(source.text, "Hola, ¿cómo estás?");
     assert_eq!(translation.messages[1].content, source.text);
     assert!(store.attempt_active(&persona.attempt).unwrap());
-    assert!(feedback.coaching_schema.is_some());
+    assert!(store.dispatch().unwrap().is_none());
     store.finish(&gloss, Ok(gloss_reply())).unwrap();
     store
         .finish(&translation, Ok(reply("Hello, how are you?")))

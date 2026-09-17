@@ -106,11 +106,9 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
 fn learner_projection_reads_published_evidence_without_new_work_and_survives_restart() {
     let (dir, mut store, conversation) = setup();
     let command = send(&store, &conversation);
-    store.execute(command).unwrap();
-    assert!(store.dispatch().unwrap().is_none());
-    let _persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"You asked how your partner is."}]}"#))).unwrap();
+    let turn = store.execute(command).unwrap().entity_id;
+    finish_fixture_exchange(&mut store, &turn, "Reply.");
+    fixture_evidence(&store, &turn, "¿cómo estás?");
     let revision = store.snapshot().unwrap().revision;
     let at = 2000000000;
     let before = crate::learning::learner::learner_state::snapshot(&store, "spanish", at).unwrap();

@@ -93,6 +93,7 @@ export interface StoredTurn {
   /// Saved feedback determines completion; operation errors remain independent
   /// in coachError and replyState, including when no reply exists.
   analysisState: AnalysisState
+  conversationFeedback?: import('./generated/contracts').ConversationFeedback
   coach?: import('./generated/contracts').CoachObservationView
   coachDecision?: import('./generated/contracts').CoachDecision
   reaction?: PersonaReaction
@@ -131,6 +132,7 @@ export interface GuidedToken {
 }
 
 export interface Mechanic {
+  quote?: string
   title: string
   cefr: string | null
   body: string
@@ -145,6 +147,9 @@ export interface Scaffolds {
 }
 
 export interface GuidedTurnResult {
+  assistance?: import('./generated/contracts').ReplyAssistance
+  explanationsState?: string | null
+  explanationsError?: string | null
   /// State of the reply-suggestions job for this persona message.
   suggestionsState?: string | null
   translationState?: string | null

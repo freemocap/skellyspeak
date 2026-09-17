@@ -479,12 +479,14 @@ export default function ConversationPage({
           )}
           {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
-          } : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
+          } : undefined} conversationFeedback={editingTurn.conversationFeedback} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
             {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
           </div>
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {<ComposerHelp
+            assistance={activeTurns.at(-1)?.assistant?.assistance}
+            onAsk={question => { setCoachDraft(question); openCoach() }}
             onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
               await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
             } : undefined}
@@ -674,7 +676,7 @@ export default function ConversationPage({
         {/* Lesson choices and private coaching share the learning panel. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<LiveCoachReview turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'lesson' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+          coachingContent={<LiveCoachReview onAsk={question => { setCoachDraft(question); openCoach() }} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'lesson' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
             await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
@@ -715,7 +717,7 @@ export default function ConversationPage({
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <AnalysisContent turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+        {pinnedTurn ? <AnalysisContent onAsk={question => { setCoachDraft(question); openCoach() }} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 

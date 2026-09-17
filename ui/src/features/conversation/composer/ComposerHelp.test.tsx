@@ -82,3 +82,20 @@ it('starts collapsed and requests generation only when explicitly opened', async
   fireEvent.click(screen.getByRole('button', {name:'Show suggested replies'}))
   expect(onRequest).toHaveBeenCalledOnce()
 })
+
+it('reopens the saved support packet without generating work and inserts frames only as a draft', () => {
+  const onRequest = vi.fn(), onUse = vi.fn(), onAsk = vi.fn()
+  const assistance = { explanation: 'They ask about [[company]].', replies: [
+    { text: '和姐姐。', translation: 'With my sister.', romanization: 'Hé jiějie.', pronunciation: 'huh jyeh-jyeh' },
+    { text: '我一个人。', translation: 'By myself.', romanization: 'Wǒ yí ge rén.', pronunciation: 'woh ee guh ren' },
+  ], frames: ['我和___。', '一起去___。'], starters: ['昨天…', '我们…'] }
+  render(<ComposerHelp {...base} replies={[]} assistance={assistance} onUse={onUse} onRequest={onRequest} onAsk={onAsk} />)
+  expect(screen.getByText('With my sister.')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Insert reply: 我和___。', hidden: true }))
+  expect(onUse).toHaveBeenCalledExactlyOnceWith('我和___。', 'scaffold')
+  fireEvent.click(screen.getByRole('button', { name: 'Hide suggested replies' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Show suggested replies' }))
+  expect(onRequest).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: /company/ }))
+  expect(onAsk.mock.calls[0][0]).toContain('They ask about [[company]]')
+})

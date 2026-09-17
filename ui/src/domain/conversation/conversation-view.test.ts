@@ -131,3 +131,20 @@ it('retains reply failure and pause state independently of successful saved assi
   source.turns[0].state = 'pending'; source.turns[0].operations[0].state = 'ready'; source.turns[0].paused = true
   expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', replyState: { state: 'paused', control: 'resume' } })
 })
+
+it('projects independent support on its own exchange without manufacturing skill evidence', () => {
+  const feedback={remark:'Clear meaning.',corrections:[],usedTarget:['Hola'],usedNative:[],grammar:5,conversation:5}
+  const assistance={explanation:'A greeting.',replies:[],frames:['Soy ___.'],starters:['Hola…']}
+  const cards={cards:[{quote:'Hola',title:'Greeting',body:'A greeting.',example:'Hola, Ana.',contrast:''}]}
+  const turns=conversationTurns(snapshot([
+    {...message(1,'user','Hola'),conversationFeedback:feedback},
+    {...message(2,'assistant','Hola'),replyAssistance:assistance,replyExplanations:cards,explanationsState:'succeeded'},
+    message(3,'user','Otro mensaje'),
+  ]))
+  expect(turns[0].conversationFeedback).toEqual(feedback)
+  expect(turns[0].coach).toBeUndefined()
+  expect(turns[0].analysisState).toBe('done')
+  expect(turns[0].assistant?.assistance).toEqual(assistance)
+  expect(turns[0].assistant?.mechanics[0].quote).toBe('Hola')
+  expect(turns[1].conversationFeedback).toBeUndefined()
+})

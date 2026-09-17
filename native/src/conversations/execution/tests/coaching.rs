@@ -36,213 +36,217 @@ fn coach_is_durable_and_excluded_from_persona_context() {
     assert_eq!(profile.global.attempts, 2);
 }
 
-#[test]
-fn coaching_is_independent_source_bound_and_xp_is_idempotent() {
-    let (_dir, mut store, conversation) = setup();
-    let cmd = send(&store, &conversation);
-    store.execute(cmd).unwrap();
-    assert!(store.dispatch().unwrap().is_none());
+fn support_turn(store: &mut Store, conversation: &str, text: &str) -> String {
+    let mut command = send(store, conversation);
+    if let Action::SendMessage {
+        text: source,
+        input,
+        ..
+    } = &mut command.action
+    {
+        *source = text.into();
+        input.modality = "speech_transcript".into();
+    }
+    let turn = store.execute(command).unwrap().entity_id;
+    isolate_user_reading(store);
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('persona_word_gloss','reply_translation') AND state='waiting_dependencies'",[]).unwrap();
+    store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    assert!(feedback.coaching_schema.is_some());
-    let candidate = r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"Asks about the listener's state."}]}"#;
-    store.finish(&feedback, Ok(reply(candidate))).unwrap();
-    store.finish(&feedback, Ok(reply(candidate))).unwrap();
-    let first = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(first["profile"]["xp"], 30);
+    assert!(
+        store.dispatch().unwrap().is_none(),
+        "Support must await the actual reply"
+    );
+    store
+        .finish(&persona, Ok(reply("¿Con quién fuiste?")))
+        .unwrap();
+    turn
+}
+fn feedback() -> serde_json::Value {
+    serde_json::json!({"remark":"Your meaning is clear. Use fui for ‘I went’ yesterday.","usedTarget":["Ayer"],"usedNative":["go"],"corrections":[{"said":"go","corrected":"fui","explanation":"Use [[past tense]] for yesterday.","kind":"missing_expression"}],"grammar":3,"conversation":5})
+}
+fn assistance() -> serde_json::Value {
+    serde_json::json!({"explanation":"They ask who went with you.","replies":[{"text":"Fui con mi hermana.","translation":"I went with my sister.","romanization":"","pronunciation":"fwee kon mee ehr-MAH-nah"},{"text":"Fui solo.","translation":"I went alone.","romanization":"","pronunciation":"fwee SOH-loh"}],"frames":["Fui con ___.","Fuimos a ___."],"starters":["Ayer…","Con mi…"]})
+}
+#[test]
+fn conversation_support_is_source_bound_independent_and_persisted_without_skill_credit() {
+    let (dir, mut store, conversation) = setup();
+    let turn = support_turn(&mut store, &conversation, "Ayer yo go al parque.");
+    let coach = store.dispatch().unwrap().unwrap();
+    let data: serde_json::Value = serde_json::from_str(&coach.messages[1].content).unwrap();
+    assert_eq!(data["latestLearnerInput"], "Ayer yo go al parque.");
+    assert_eq!(data["actualPartnerReply"], "¿Con quién fuiste?");
+    assert!(!coach.messages[1].content.contains("candidateConstructs"));
     assert_eq!(
-        store
-            .conversation_snapshot(&conversation, None)
-            .unwrap()
-            .messages
-            .len(),
+        coach.messages[1]
+            .content
+            .matches("Ayer yo go al parque.")
+            .count(),
         1
     );
-    store.finish(&persona, Ok(reply("Bien, gracias."))).unwrap();
-    let message = store
-        .conversation_snapshot(&conversation, None)
-        .unwrap()
-        .messages
-        .iter()
-        .rev()
-        .find(|m| m.role == "assistant")
-        .unwrap()
-        .id
-        .clone();
-    request_suggestions(&store.connection, &message).unwrap();
-    store.connection.execute("UPDATE operations SET state='cancelled' WHERE state='ready' AND kind NOT IN ('coach_suggestions','persona_reply','persona_context')", []).unwrap();
-    let suggestions = store.dispatch().unwrap().unwrap();
-    assert!(suggestions.coaching_schema.is_some());
-    store
-        .finish(&suggestions, Ok(reply(r#"{"replies":[{"text":"Me alegro."}],"tokens":[{"reply":0,"text":"Me","gloss":"myself","romanization":null,"pronunciation":null},{"reply":0,"text":"alegro","gloss":"am glad","romanization":null,"pronunciation":"ah-LEH-groh"}]}"#)))
-        .unwrap();
-    let view = store.conversation_snapshot(&conversation, None).unwrap();
-    assert_eq!(view.messages.len(), 2);
-    assert!(view.messages[0].feedback.is_some());
-    let replies = view.messages[1].suggested_replies.as_ref().unwrap();
-    assert_eq!(replies.len(), 1);
-    assert_eq!(replies[0].text, "Me alegro.");
-    let spans: Vec<_> = replies[0]
-        .segments
-        .iter()
-        .map(|s| (s.start, s.end, s.gloss.as_deref()))
-        .collect();
-    assert_eq!(spans, vec![(0, 2, Some("myself")), (3, 9, Some("am glad"))]);
-    assert_eq!(
-        view.messages[1].suggestions_state.as_deref(),
-        Some("succeeded")
+    assert!(coach.messages[0].content.contains("never infer acoustic"));
+    assert!(
+        coach
+            .messages
+            .iter()
+            .map(|m| m.content.len())
+            .sum::<usize>()
+            < 12000
     );
-    assert!(view.messages[1].suggestions_error.is_none());
+    let help = store.dispatch().unwrap().unwrap();
+    let cards = store.dispatch().unwrap().unwrap();
+    // Next speech turn can start while all three support tasks are in flight.
+    store.execute(send(&store, &conversation)).unwrap();
+    store
+        .finish(&coach, Ok(reply(&feedback().to_string())))
+        .unwrap();
+    store
+        .finish(&coach, Ok(reply(&feedback().to_string())))
+        .unwrap();
+    store
+        .finish(&help, Ok(reply(&assistance().to_string())))
+        .unwrap();
+    store.finish(&cards,Ok(reply(r#"{"cards":[{"quote":"Con quién","title":"Who with","body":"[[Con]] asks about company.","example":"¿Con quién comes?","contrast":"English can put ‘with’ at the end."}]}"#))).unwrap();
+    let view = store.conversation_snapshot(&conversation, None).unwrap();
+    assert!(view.messages[0].conversation_feedback.is_some());
+    assert!(view.messages[0].feedback.is_none());
+    assert!(view.messages[1].reply_assistance.is_some());
+    assert!(view.messages[1].reply_explanations.is_some());
+    assert!(view.messages[2].conversation_feedback.is_none());
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        30
+        0
     );
-    let next = send(&store, &conversation);
-    store.execute(next).unwrap();
-    assert!(store.dispatch().unwrap().is_none());
-    let next_persona = store.dispatch().unwrap().unwrap();
-    assert!(next_persona.coaching_schema.is_none());
+    let first = request_suggestions(&store.connection, &view.messages[1].id).unwrap();
+    assert_eq!(
+        first,
+        request_suggestions(&store.connection, &view.messages[1].id).unwrap()
+    );
+    assert_eq!(store.connection.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND kind IN ('coach_feedback','coach_reaction','coach_retry_check')",[turn],|r|r.get::<_,i64>(0)).unwrap(),0);
+    drop(store);
+    let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    let restored = store.conversation_snapshot(&conversation, None).unwrap();
+    assert_eq!(
+        restored.messages[0]
+            .conversation_feedback
+            .as_ref()
+            .unwrap()
+            .corrections[0]
+            .corrected,
+        "fui"
+    );
+    assert_eq!(
+        restored.messages[1]
+            .reply_assistance
+            .as_ref()
+            .unwrap()
+            .frames
+            .len(),
+        2
+    );
 }
-
 #[test]
-fn rejected_suggestions_surface_their_state_and_error() {
+fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
+    use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
-    store.execute(send(&store, &conversation)).unwrap();
-    assert!(store.dispatch().unwrap().is_none());
-    let persona = store.dispatch().unwrap().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    store
-        .finish(
-            &feedback,
-            Ok(reply(r#"{"meaning_recovered":"full","items":[]}"#)),
+    let turn = support_turn(&mut store, &conversation, "Ayer yo go al parque.");
+    let mut wrong = feedback();
+    wrong["corrections"][0]["said"] = serde_json::json!("fuiste");
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
         )
-        .unwrap();
-    store.finish(&persona, Ok(reply("Bien, gracias."))).unwrap();
-    let message = store
-        .conversation_snapshot(&conversation, None)
-        .unwrap()
-        .messages[1]
-        .id
-        .clone();
+        .is_err()
+    );
+    wrong = feedback();
+    wrong["grammar"] = serde_json::json!(6);
     assert!(
-        store
-            .conversation_snapshot(&conversation, None)
-            .unwrap()
-            .messages[1]
-            .suggestions_state
-            .is_none()
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
     );
-    request_suggestions(&store.connection, &message).unwrap();
-    let waiting = store.conversation_snapshot(&conversation, None).unwrap();
-    assert_eq!(
-        waiting.messages[1].suggestions_state.as_deref(),
-        Some("ready")
-    );
-    let message = store
-        .conversation_snapshot(&conversation, None)
-        .unwrap()
-        .messages
-        .iter()
-        .rev()
-        .find(|m| m.role == "assistant")
-        .unwrap()
-        .id
-        .clone();
-    request_suggestions(&store.connection, &message).unwrap();
-    store.connection.execute("UPDATE operations SET state='cancelled' WHERE state='ready' AND kind NOT IN ('coach_suggestions','persona_reply','persona_context')", []).unwrap();
-    let suggestions = store.dispatch().unwrap().unwrap();
-    assert!(suggestions.coaching_schema.is_some());
-    store.finish(&suggestions, Ok(reply("not json"))).unwrap();
-    let view = store.conversation_snapshot(&conversation, None).unwrap();
-    assert_eq!(
-        view.messages[1].suggestions_state.as_deref(),
-        Some("failed")
-    );
+    wrong = feedback();
+    wrong["remark"] = serde_json::json!("x".repeat(901));
     assert!(
-        view.messages[1]
-            .suggestions_error
-            .as_deref()
-            .unwrap()
-            .contains("suggestions_schema")
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
     );
-    assert!(view.messages[1].suggested_replies.is_none());
-}
-
-#[test]
-fn invalid_coach_evidence_never_awards_xp() {
-    for quote in ["not in the learner message", ""] {
-        let (_dir, mut store, conversation) = setup();
-        store.execute(send(&store, &conversation)).unwrap();
-        store.dispatch().unwrap();
-        store.dispatch().unwrap();
-        let feedback = store.dispatch().unwrap().unwrap();
-        let body = serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":quote,"outcome":"demonstrated","error":null,"rationale":"Test"}]}).to_string();
-        store.finish(&feedback, Ok(reply(&body))).unwrap();
-        let view = store.conversation_snapshot(&conversation, None).unwrap();
-        assert!(view.messages[0].feedback.is_none());
-        assert!(view.messages[0].feedback_error.is_some());
-        assert_eq!(
-            crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
-                ["xp"],
-            0
-        );
-    }
-}
-
-#[test]
-fn assisted_speech_credit_retains_provenance() {
-    let (_dir, mut store, conversation) = setup();
-    let mut command = send(&store, &conversation);
-    if let Action::SendMessage { input, .. } = &mut command.action {
-        input.modality = "speech_transcript".into();
-        input.scaffold = true;
-    }
-    store.execute(command).unwrap();
-    store.dispatch().unwrap();
-    store.dispatch().unwrap();
-    let feedback = store.dispatch().unwrap().unwrap();
-    store.finish(&feedback,Ok(reply(r#"{"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":"demonstrated","error":null,"rationale":"Test"}]}"#))).unwrap();
-    let view = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(view["profile"]["xp"], 10);
-    assert_eq!(view["records"][0]["input"]["modality"], "speech_transcript");
-    assert_eq!(view["records"][0]["input"]["scaffold"], true);
-}
-
-#[test]
-fn failed_persona_does_not_hold_send_or_discard_running_coach() {
-    let (_dir, mut store, conversation) = setup();
-    let cmd = send(&store, &conversation);
-    store.execute(cmd).unwrap();
-    store.dispatch().unwrap();
-    let persona = store.dispatch().unwrap().unwrap();
+    wrong = assistance();
+    wrong["frames"][0] = serde_json::json!("No blank");
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::ASSISTANCE,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
+    );
+    let mut output = reply(&feedback().to_string());
+    output.finish_reason = "length".into();
+    assert!(support::validate(&store.connection, &turn, support::FEEDBACK, &output).is_err());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::EXPLANATIONS,
+            &reply(r#"{"cards":[]}"#)
+        )
+        .is_ok()
+    );
     let coach = store.dispatch().unwrap().unwrap();
-    store
-        .finish(&persona, Err(fail("Synthetic reply failure")))
-        .unwrap();
-    assert_eq!(
-        store
-            .conversation_snapshot(&conversation, None)
-            .unwrap()
-            .turns[0]
-            .state,
-        "assisting"
-    );
-    let next = send(&store, &conversation);
-    store.execute(next).unwrap();
-    store
-        .finish(
-            &coach,
-            Ok(reply(r#"{"meaning_recovered":"full","items":[]}"#)),
-        )
-        .unwrap();
+    store.finish(&coach, Ok(reply("not JSON"))).unwrap();
+    let view = store.conversation_snapshot(&conversation, None).unwrap();
+    assert!(view.messages[0].conversation_feedback.is_none());
+    assert!(view.messages[0].feedback_error.is_some());
+    assert!(store.execute(send(&store, &conversation)).is_ok());
+}
+#[test]
+fn correct_message_has_useful_remark_without_manufactured_correction() {
+    let (_dir, mut store, conversation) = setup();
+    support_turn(&mut store, &conversation, "Ayer fui al parque.");
+    let coach = store.dispatch().unwrap().unwrap();
+    store.finish(&coach,Ok(reply(r#"{"remark":"Fui correctly expresses a completed trip yesterday.","usedTarget":["fui"],"usedNative":[],"corrections":[],"grammar":5,"conversation":5}"#))).unwrap();
+    let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert!(
-        store
-            .conversation_snapshot(&conversation, None)
+        view.messages[0]
+            .conversation_feedback
+            .as_ref()
             .unwrap()
-            .messages[0]
-            .feedback
-            .is_some()
+            .corrections
+            .is_empty()
     );
-    let suggestions:i64=store.connection.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.kind='coach_suggestions'",[],|r|r.get(0)).unwrap();
-    assert_eq!(suggestions, 0);
+    // Private coach sees saved context; persona does not receive it.
+    let revision = store.snapshot().unwrap().conversations[0].revision;
+    apply(
+        &mut store,
+        Action::AskCoach {
+            conversation_id: conversation.clone(),
+            text: "[[past tense]]".into(),
+            expected_revision: revision,
+        },
+    );
+    store.dispatch().unwrap();
+    let coach = store.dispatch().unwrap().unwrap();
+    assert!(
+        coach.messages[0]
+            .content
+            .contains("Fui correctly expresses")
+    );
+    assert!(
+        coach.messages[0]
+            .content
+            .contains("not translate the marker")
+    );
 }
