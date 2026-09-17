@@ -54,9 +54,9 @@ pub(super) fn prepare_speech(
     if text.is_empty() || text.chars().count() > 12000 || text.contains('\0') || voice.is_empty() {
         return Err(fail("Speech input exceeds its source contract."));
     }
-    crate::ai::transport::speech_provider::payload(
+    crate::ai::audio::validate_speech(
         &target,
-        &crate::ai::transport::speech_provider::SpeechInput {
+        &crate::ai::audio::SpeechInput {
             text: text.clone(),
             voice: voice.clone(),
             language: language.clone(),
@@ -175,7 +175,7 @@ impl Store {
     pub fn finish_speech(
         &mut self,
         dispatch: &Dispatch,
-        outcome: crate::ai::transport::speech_provider::SpeechOutcome,
+        outcome: crate::ai::audio::SpeechOutcome,
     ) -> Result<Option<crate::speech::cache::ReadyAudio>> {
         crate::diagnostics::speech::completed(dispatch, &outcome);
         let tx = self.connection.transaction()?;

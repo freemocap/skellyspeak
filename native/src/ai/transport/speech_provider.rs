@@ -15,25 +15,10 @@ const TRANSCRIPT_LIMIT: usize = 32 * 1024;
 #[cfg(test)]
 const MODEL: &str = crate::ai::connections::model_routing::SPEECH_MODEL;
 
-pub struct SpeechInput {
-    pub text: String,
-    pub voice: String,
-    pub language: String,
-}
-#[path = "speech_diagnostics.rs"]
-mod diagnostics;
-pub(crate) use diagnostics::TranscriptDiagnostics;
-
-pub struct SpeechOutcome {
-    pub(crate) transcript_diagnostics: Option<TranscriptDiagnostics>,
-    pub audio: Result<Vec<u8>>,
-    pub actual_model: Option<String>,
-    pub provider_id: Option<String>,
-    pub input_tokens: Option<u64>,
-    pub output_tokens: Option<u64>,
-    pub cost_micros: Option<u64>,
-    pub finish_reason: Option<String>,
-}
+use super::speech_diagnostics::TranscriptDiagnostics;
+#[cfg(test)]
+use super::speech_diagnostics::{TranscriptDifference, transcript_difference};
+use crate::ai::audio::{SpeechInput, SpeechOutcome};
 fn fault(message: &str) -> AppError {
     AppError::new(ErrorCode::Provider, message)
 }
@@ -44,7 +29,7 @@ fn unknown() -> AppError {
     )
 }
 impl SpeechOutcome {
-    fn empty() -> Self {
+    pub(super) fn empty() -> Self {
         Self {
             audio: Err(unknown()),
             transcript_diagnostics: None,
@@ -356,40 +341,6 @@ impl Decoder {
                 .and_then(wav)
         };
         self.outcome
-    }
-}
-/// Diagnostics only. Transcript similarity does not verify waveform fidelity.
-#[derive(Debug, PartialEq, Eq)]
-enum TranscriptDifference {
-    Exact,
-    Missing,
-    Whitespace,
-    PunctuationOrCase,
-    Content,
-}
-fn transcript_difference(source: &str, transcript: &str) -> TranscriptDifference {
-    if source.trim().is_empty() || transcript.trim().is_empty() {
-        return TranscriptDifference::Missing;
-    }
-    if source.trim() == transcript.trim() {
-        return TranscriptDifference::Exact;
-    }
-    fn spaces(text: &str) -> String {
-        text.split_whitespace().collect::<Vec<_>>().join(" ")
-    }
-    if spaces(source) == spaces(transcript) {
-        return TranscriptDifference::Whitespace;
-    }
-    static PUNCTUATION: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
-        regex::Regex::new(r"\p{P}").expect("static punctuation pattern")
-    });
-    fn diagnostic_text(text: &str) -> String {
-        spaces(&PUNCTUATION.replace_all(text, "").to_lowercase())
-    }
-    if diagnostic_text(source) == diagnostic_text(transcript) {
-        TranscriptDifference::PunctuationOrCase
-    } else {
-        TranscriptDifference::Content
     }
 }
 fn empty_envelope_field(key: &str, value: &Value) -> bool {

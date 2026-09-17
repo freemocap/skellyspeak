@@ -1,5 +1,39 @@
 //! Content-free comparison metadata. This never decides whether audio may play.
-use super::{TranscriptDifference, transcript_difference};
+/// Diagnostics only. Transcript similarity does not verify waveform fidelity.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum TranscriptDifference {
+    Exact,
+    Missing,
+    Whitespace,
+    PunctuationOrCase,
+    Content,
+}
+pub(super) fn transcript_difference(source: &str, transcript: &str) -> TranscriptDifference {
+    if source.trim().is_empty() || transcript.trim().is_empty() {
+        return TranscriptDifference::Missing;
+    }
+    if source.trim() == transcript.trim() {
+        return TranscriptDifference::Exact;
+    }
+    fn spaces(text: &str) -> String {
+        text.split_whitespace().collect::<Vec<_>>().join(" ")
+    }
+    if spaces(source) == spaces(transcript) {
+        return TranscriptDifference::Whitespace;
+    }
+    static PUNCTUATION: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
+        regex::Regex::new(r"\p{P}").expect("static punctuation pattern")
+    });
+    fn diagnostic_text(text: &str) -> String {
+        spaces(&PUNCTUATION.replace_all(text, "").to_lowercase())
+    }
+    if diagnostic_text(source) == diagnostic_text(transcript) {
+        TranscriptDifference::PunctuationOrCase
+    } else {
+        TranscriptDifference::Content
+    }
+}
+
 use serde::Serialize;
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;

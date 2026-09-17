@@ -78,8 +78,8 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                     let schemas: Vec<_> = dispatches.iter().map(|d| match &d.gloss_source { Some(source) => linguistics::adapter::source_schema(&source.text).map_err(|_| gloss::validation_error()), None => Ok(linguistics::adapter::output_schema()) }).collect::<Result<Vec<_>>>()?;
                     let outputs: Vec<_> = dispatches.iter().zip(&schemas).map(|(dispatch,schema)| match dispatch.coaching_schema.as_ref() { Some(schema) => provider::RequestOutput::JsonSchema { name: "coaching", schema }, None => gloss::request_output(dispatch.gloss_source.as_ref(), schema) }).collect();
                     if let Some(source) = &first.speech_source {
-                        let input = speech_provider::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
-                        let request = speech_provider::synthesize(&client, &first.target, &key, &input, &first.install_id);
+                        let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
+                        let request = audio::synthesize(&client, &first.target, &key, &input, &first.install_id);
                         tokio::pin!(request);
                         let outcome = loop {
                             tokio::select! {
@@ -144,7 +144,7 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                                 store
                                     .finish_speech(
                                         dispatch,
-                                        speech_provider::SpeechOutcome {
+                                        audio::SpeechOutcome {
                                             audio: Err(error),
                                             transcript_diagnostics: None,
                                             actual_model: None,

@@ -201,13 +201,15 @@ pub async fn mic_transcribe(
     use base64::Engine;
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
     let mut segments = Vec::new();
-    let request = access::transcribe(
+    let request = crate::ai::audio::transcribe(
         &client,
         &recording.target,
         &token,
-        wav,
-        recording.language.as_deref(),
-        &recording.variety_hint,
+        crate::ai::audio::TranscriptionInput {
+            wav,
+            language: recording.language.clone(),
+            variety_hint: recording.variety_hint.clone(),
+        },
         &install,
     );
     tokio::pin!(request);
@@ -232,13 +234,9 @@ pub async fn mic_transcribe(
         crate::speech::analysis::audio_inspection::attach_words(
             &mut inspection,
             &local,
-            response.verbose.as_ref(),
+            response.timing.as_ref(),
         )?;
-        segments = response
-            .verbose
-            .as_ref()
-            .map(|value| value.segments.clone())
-            .unwrap_or_default();
+        segments = response.whisper_segments.unwrap_or_default();
         Ok(response.text)
     });
     let text = state.lock()?.finish_transcription(

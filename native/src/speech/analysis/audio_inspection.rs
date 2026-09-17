@@ -285,12 +285,12 @@ fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
 pub(crate) fn attach_words(
     inspection: &mut AudioInspection,
     local: &fluency::LocalTiming,
-    transcript: Option<&fluency::VerboseTranscript>,
+    transcript: Option<&fluency::TranscriptTiming>,
 ) -> Result<()> {
     let Some(transcript) = transcript else {
         return Ok(());
     };
-    let aligned = fluency::align(transcript, local)?;
+    let aligned = fluency::align_timing(transcript, local)?;
     inspection.word_timing = InspectionWordTiming {
         status: InspectionTimingStatus::Available,
         reason: None,
@@ -418,7 +418,23 @@ mod tests {
             .collect();
         let (mut inspection, local) =
             inspect_wav(&wav(&samples, rate as u32, 1), "r", "c").unwrap();
-        let transcript=fluency::parse_verbose_json(r#"{"text":"مرحبا وهم","duration":1,"words":[{"word":"مرحبا","start":0.2,"end":0.9},{"word":"وهم","start":1.1,"end":1.2}],"segments":[]}"#).unwrap();
+        // A provider need only supply word timing, not Whisper segment probabilities.
+        let transcript = fluency::TranscriptTiming {
+            text: "مرحبا وهم".into(),
+            duration: 1.0,
+            words: vec![
+                fluency::Word {
+                    word: "مرحبا".into(),
+                    start: 0.2,
+                    end: 0.9,
+                },
+                fluency::Word {
+                    word: "وهم".into(),
+                    start: 1.1,
+                    end: 1.2,
+                },
+            ],
+        };
         attach_words(&mut inspection, &local, Some(&transcript)).unwrap();
         assert!(matches!(
             inspection.word_timing.status,

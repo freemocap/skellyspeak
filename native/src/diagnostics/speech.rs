@@ -1,6 +1,6 @@
 //! Speech decoder outcome, emitted before publication so failures and cancelled
 //! attempts remain diagnosable. No transcript, source text, audio or provider IDs.
-use crate::{ai::transport::speech_provider::SpeechOutcome, conversations::execution::Dispatch};
+use crate::{ai::audio::SpeechOutcome, conversations::execution::Dispatch};
 use serde_json::{Value, json};
 
 pub(crate) fn completed(dispatch: &Dispatch, outcome: &SpeechOutcome) {
@@ -29,7 +29,8 @@ mod tests {
     use super::*;
     use crate::{
         ai::{
-            connections::access::ResolvedTarget, transport::speech_provider::TranscriptDiagnostics,
+            connections::access::ResolvedTarget,
+            transport::speech_diagnostics::TranscriptDiagnostics,
         },
         model::{AppError, ConnectionRoute, ErrorCode},
     };

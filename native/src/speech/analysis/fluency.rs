@@ -35,6 +35,13 @@ pub struct Segment {
     pub temperature: Option<f64>,
     pub compression_ratio: Option<f64>,
 }
+/// Provider-independent timing evidence. Confidence diagnostics are separate.
+#[derive(Debug, Clone)]
+pub struct TranscriptTiming {
+    pub text: String,
+    pub duration: f64,
+    pub words: Vec<Word>,
+}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 // Provider envelope metadata is ignored; timing objects remain strict.
 pub struct VerboseTranscript {
@@ -121,15 +128,31 @@ fn interval(start: f64, end: f64, limit: f64) -> Result<()> {
     }
     Ok(())
 }
-fn validate_transcript(value: &VerboseTranscript) -> Result<()> {
-    if !value.duration.is_finite() || value.duration <= 0.0 || value.duration > MAX_SECONDS {
+fn validate_timing(text: &str, duration: f64, words: &[Word]) -> Result<()> {
+    if !duration.is_finite() || duration <= 0.0 || duration > MAX_SECONDS {
         return Err(invalid("recording duration must be in (0,120] seconds."));
     }
-    if value.text.len() > 200_000
-        || value.text.contains('\0')
-        || value.words.len() > 10_000
-        || value.segments.len() > 2_000
-    {
+    if text.len() > 200_000 || text.contains('\0') || words.len() > 10_000 {
+        return Err(invalid("transcription exceeds its limits."));
+    }
+    let limit = duration + ENDPOINT_SPILL_SECONDS;
+    let mut previous = 0.0;
+    for word in words {
+        interval(word.start, word.end, limit)?;
+        if word.start < previous
+            || word.word.trim().is_empty()
+            || word.word.len() > 2_000
+            || word.word.contains('\0')
+        {
+            return Err(invalid("invalid word text or order."));
+        }
+        previous = word.start;
+    }
+    Ok(())
+}
+fn validate_transcript(value: &VerboseTranscript) -> Result<()> {
+    validate_timing(&value.text, value.duration, &value.words)?;
+    if value.segments.len() > 2_000 {
         return Err(invalid("transcription exceeds its limits."));
     }
     if value
@@ -147,18 +170,6 @@ fn validate_transcript(value: &VerboseTranscript) -> Result<()> {
         return Err(invalid("invalid language label."));
     }
     let limit = value.duration + ENDPOINT_SPILL_SECONDS;
-    let mut previous = 0.0;
-    for word in &value.words {
-        interval(word.start, word.end, limit)?;
-        if word.start < previous
-            || word.word.trim().is_empty()
-            || word.word.len() > 2_000
-            || word.word.contains('\0')
-        {
-            return Err(invalid("invalid word text or order."));
-        }
-        previous = word.start;
-    }
     let mut previous_start = 0.0;
     let mut previous_id = None;
     for segment in &value.segments {
@@ -289,6 +300,20 @@ pub fn analyze_pcm16(samples: &[i16], sample_rate: u32) -> Result<LocalTiming> {
 /// preventing a stretched provider endpoint from spanning a locally measured pause.
 pub fn align(transcript: &VerboseTranscript, local: &LocalTiming) -> Result<FluencyAnalysis> {
     validate_transcript(transcript)?;
+    let mut result = align_timing(
+        &TranscriptTiming {
+            text: transcript.text.clone(),
+            duration: transcript.duration,
+            words: transcript.words.clone(),
+        },
+        local,
+    )?;
+    result.provider_segments = transcript.segments.clone();
+    Ok(result)
+}
+
+pub fn align_timing(transcript: &TranscriptTiming, local: &LocalTiming) -> Result<FluencyAnalysis> {
+    validate_timing(&transcript.text, transcript.duration, &transcript.words)?;
     if !local.duration.is_finite() || local.duration <= 0.0 || local.duration > MAX_SECONDS {
         return Err(invalid("invalid local recording duration."));
     }
@@ -388,7 +413,7 @@ pub fn align(transcript: &VerboseTranscript, local: &LocalTiming) -> Result<Flue
         original_text: transcript.text.clone(),
         transcript_rewritten: false,
         provider_duration: transcript.duration,
-        provider_segments: transcript.segments.clone(),
+        provider_segments: Vec::new(),
         local: local.clone(),
         words,
         unsupported_words,

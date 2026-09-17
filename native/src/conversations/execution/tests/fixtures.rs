@@ -121,10 +121,8 @@ pub(super) fn gloss_children(
     (gloss, translation)
 }
 
-pub(super) fn speech_outcome(
-    audio: Result<Vec<u8>>,
-) -> crate::ai::transport::speech_provider::SpeechOutcome {
-    crate::ai::transport::speech_provider::SpeechOutcome {
+pub(super) fn speech_outcome(audio: Result<Vec<u8>>) -> crate::ai::audio::SpeechOutcome {
+    crate::ai::audio::SpeechOutcome {
         audio,
         transcript_diagnostics: None,
         actual_model: Some("speech-model".into()),
