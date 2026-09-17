@@ -199,13 +199,16 @@ impl Store {
         let snapshot = self.snapshot()?;
         Ok(ConversationSnapshot {
             mystery: crate::partners::mystery::view(db, &snapshot, conversation)?,
-            lessons: crate::learning::lessons::views(db, conversation)?,
-            lesson_choices: crate::learning::lessons::choices(
-                db,
-                &self.config,
-                &snapshot,
-                conversation,
-            )?,
+            lessons: if crate::learning::lessons::ENABLED {
+                crate::learning::lessons::views(db, conversation)?
+            } else {
+                vec![]
+            },
+            lesson_choices: if crate::learning::lessons::ENABLED {
+                crate::learning::lessons::choices(db, &self.config, &snapshot, conversation)?
+            } else {
+                vec![]
+            },
             starter_cards: crate::conversations::openers::choices(self, conversation)?
                 .into_iter()
                 .map(|(card, _)| card)

@@ -51,7 +51,6 @@ pub struct Construct {
     pub opportunity: String,
     pub band: String,
     pub lens: String,
-    pub language: Option<String>,
     pub requires: Vec<String>,
     pub traits: Vec<String>,
     pub tokens: Vec<String>,

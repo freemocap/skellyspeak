@@ -390,6 +390,10 @@ fn g2_cancel_and_revocation_block_publication_and_retry() {
 fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     let (dir, mut store, conversation) = setup();
     store.execute(send(&store, &conversation)).unwrap();
+    store
+        .connection
+        .execute("DELETE FROM operations WHERE kind='skill_assessment'", [])
+        .unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
     let gloss = store.dispatch().unwrap().unwrap();

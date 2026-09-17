@@ -3,7 +3,7 @@ use super::*;
 /// Synthetic voice transcripts, real economical-model requests. This does not
 /// measure microphone recognition, audio playback or human learning outcomes.
 #[tokio::test]
-#[ignore = "uses explicitly configured live credentials; twelve paid requests"]
+#[ignore = "uses explicitly configured live credentials; fifteen paid requests"]
 async fn live_multilingual_conversation_support() {
     let path =
         std::env::var("SKELLYSPEAK_LIVE_KEYS").expect("Set the local key-file path explicitly");
@@ -60,7 +60,7 @@ async fn live_multilingual_conversation_support() {
             result.text
         );
         store.finish(&persona, Ok(result)).unwrap();
-        for _ in 0..3 {
+        for _ in 0..4 {
             let work = store.dispatch().unwrap().unwrap();
             let kind: String = store
                 .connection
@@ -116,6 +116,11 @@ async fn live_multilingual_conversation_support() {
                     "my sister"
                 })),
             "{language}: missing code-switch help"
+        );
+        let profile = crate::learning::learner::progression::snapshot(&store, language).unwrap();
+        assert!(
+            profile["profile"]["xp"].as_u64().unwrap() > 0,
+            "{language}: no skill evidence"
         );
         assert!(view.messages[1].reply_assistance.is_some());
         assert!(view.messages[1].reply_explanations.is_some());

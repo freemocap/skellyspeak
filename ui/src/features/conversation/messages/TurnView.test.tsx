@@ -167,8 +167,6 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'true')
   expect(view.container.querySelector('.msg.me .wg')).toHaveTextContent('Hello')
-  expect(view.container.querySelector('.msg.me .wpronunciation')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'More', expanded: false }))
   expect(view.container.querySelector('.msg.me .wpronunciation')).toHaveTextContent('OH-lah')
   expect(view.container.querySelector('.saved-word-help')).toHaveAttribute('popover', 'manual')
   const grade = screen.getByRole('button', { name: 'Coach feedback for message 1' })

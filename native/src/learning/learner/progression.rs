@@ -31,16 +31,19 @@ pub(crate) fn snapshot_db(
         .optional()?;
     let (revision, focus, excluded) = choice.unwrap_or((0, None, "[]".into()));
     let excluded: Vec<String> = serde_json::from_str(&excluded)?;
-    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),o.state FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' JOIN operations o ON o.turn_id=t.id AND o.kind IN ('coach_feedback','coach_retry_check') WHERE c.language_id=?1 ORDER BY m.created_at,t.id")?.query_map([target],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let rows=db.prepare("SELECT t.id,t.conversation_id,m.sequence,m.text,t.model,t.route,t.context,CAST(strftime('%s',m.created_at) AS INTEGER),o.state FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' JOIN operations o ON o.id=(SELECT candidate.id FROM operations candidate WHERE candidate.turn_id=t.id AND candidate.kind IN ('skill_assessment','coach_feedback','coach_retry_check') ORDER BY CASE WHEN candidate.kind='skill_assessment' THEN 0 ELSE 1 END LIMIT 1) WHERE c.language_id=?1 ORDER BY m.created_at,t.id")?.query_map([target],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,i32>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,String>(5)?,r.get::<_,String>(6)?,r.get::<_,i64>(7)?,r.get::<_,String>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let mut records = vec![];
     for (turn, chat, sequence, source, model, route, context, time, state) in rows {
         let context: Value = serde_json::from_str(&context)?;
-        let assessment = context.get("coachObservation");
+        let assessment = context
+            .get("skillAssessment")
+            .or_else(|| context.get("coachObservation"));
         let attempt = context
-            .get("coachObservationAttempt")
+            .get("skillAssessmentAttempt")
+            .or_else(|| context.get("coachObservationAttempt"))
             .and_then(Value::as_str)
             .unwrap_or(&turn);
-        let mut judgments:Vec<Value>=assessment.and_then(|a|a["items"].as_array()).map(|items|items.iter().map(|i|json!({"skill_id":i["construct"],"outcome":i["outcome"],"quotes":[i["quote"]],"rationale":""})).collect()).unwrap_or_default();
+        let mut judgments:Vec<Value>=assessment.and_then(|a|a["items"].as_array()).map(|items|items.iter().map(|i|json!({"skill_id":i["construct"],"outcome":i["outcome"],"quotes":[i["quote"]],"rationale":i["rationale"]})).collect()).unwrap_or_default();
         if let Some(repair) = context
             .get("nativeRepairObservation")
             .filter(|r| r.is_object())
@@ -48,31 +51,10 @@ pub(crate) fn snapshot_db(
             judgments.retain(|j| j["skill_id"] != repair["construct"]);
             judgments.push(json!({"skill_id":repair["construct"],"source":"native_repair_check","support_step":repair["support_step"],"outcome":repair["outcome"],"quotes":[repair["quote"]],"rationale":""}));
         }
-        records.push(json!({"reward_credits":crate::learning::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":model,"provider_mode":route,"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"prompt_version":context["coachFeedbackPromptVersion"],"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
+        records.push(json!({"reward_credits":crate::learning::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":assessment.and_then(|a|a.get("model")).cloned().unwrap_or(json!(model)),"provider_mode":route,"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"prompt_version":if context.get("skillAssessment").is_some(){&context["skillAssessmentPromptVersion"]}else{&context["coachFeedbackPromptVersion"]},"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Coach observation unavailable: {state}."))} else {Value::Null}}));
     }
     let source_catalog = registry.catalog();
-    let mut visible = Vec::new();
-    for node in source_catalog.as_array().ok_or_else(|| {
-        AppError::new(
-            ErrorCode::ConfigLoad,
-            "Construct navigation must be an array.",
-        )
-    })? {
-        if node["kind"] == "skill" {
-            let construct = registry.construct(node["id"].as_str().ok_or_else(|| {
-                AppError::new(ErrorCode::ConfigLoad, "Missing construct identity.")
-            })?)?;
-            if construct
-                .language
-                .as_deref()
-                .is_some_and(|language| language != target)
-            {
-                continue;
-            }
-        }
-        visible.push(node.clone());
-    }
-    let catalog = Value::Array(visible);
+    let catalog = source_catalog;
     let mut skills = vec![];
     let mut credits = vec![];
     for node in catalog

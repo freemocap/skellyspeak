@@ -116,14 +116,7 @@ pub fn fold(registry: &Registry, evidence: &Value, as_of_secs: i64) -> Result<Le
                 _ => return Err(invalid("Unknown observation outcome.")),
             };
             let construct = string(item, "skill_id")?;
-            let definition = registry.construct(construct)?;
-            if definition
-                .language
-                .as_deref()
-                .is_some_and(|id| id != language)
-            {
-                return Err(invalid("Construct belongs to another language."));
-            }
+            registry.construct(construct)?;
             let source = string(record, "source")?;
             let quotes = item["quotes"]
                 .as_array()
@@ -248,11 +241,6 @@ fn profile(store: &Store, target: &str, persona_id: Option<&str>, at: i64) -> Re
         .config
         .constructs()
         .iter()
-        .filter(|c| {
-            c.language
-                .as_deref()
-                .is_none_or(|language| language == target)
-        })
         .map(|c| (c.id.clone(), c.lens.clone()))
         .collect();
     Ok(

@@ -352,10 +352,10 @@ export const TurnView = memo(function TurnView({
           {assistant.translationState === 'cancelled' && <div className="trans" role="status">{tr("Translation cancelled")}</div>}
           {assistant.translationState === 'invalidated' && <div className="trans" role="status">{tr("Translation unavailable")}</div>}
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
+          {ttsReady && onSpeak && <button type="button" className="speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
           {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}
         </div>
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
-          {ttsReady && onSpeak && <button type="button" className="message-translate" aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onClick={() => onSpeak(assistant.reply, turn.id)}>{speaking ? tr("Stop") : tr("Listen")}</button>}
           {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
           <button type="button" className="message-translate" disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={assistant.savedGloss ? savedWordsOpen : assistant.tokens.length > 0 && assistant.tokens.every((_, i) => revealed.has(`${turn.id}:bot:${i}`))} onClick={() => assistant.savedGloss ? setSavedWordsOverride(!savedWordsOpen) : onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))}>{tr("Word by word")}</button>
           <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>

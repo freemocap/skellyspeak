@@ -11,6 +11,496 @@
   },
   {
     "code": "01",
+    "color": "#80c6a4",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for entities & reference.",
+    "id": "reference",
+    "kind": "domain",
+    "label": "Entities & reference",
+    "parent": "experience"
+  },
+  {
+    "code": "01.1",
+    "color": "#80c6a4",
+    "criterion": "Identify a particular person or thing so the listener can tell which is intended.",
+    "description": "Point out a person or an object you want to talk about.",
+    "id": "referent",
+    "kind": "skill",
+    "label": "Identify a referent",
+    "parent": "reference"
+  },
+  {
+    "code": "01.2",
+    "color": "#80c6a4",
+    "criterion": "Keep multiple previously mentioned referents distinguishable across a connected statement.",
+    "description": "Tell a story involving two friends and the different things they did.",
+    "id": "track_referents",
+    "kind": "skill",
+    "label": "Track several referents",
+    "parent": "reference"
+  },
+  {
+    "code": "01.3",
+    "color": "#80c6a4",
+    "criterion": "Express a quantity or distinction between one and more than one with enough precision for the context.",
+    "description": "Order food for a few people or describe what is in your bag.",
+    "id": "quantity",
+    "kind": "skill",
+    "label": "Express quantity",
+    "parent": "reference"
+  },
+  {
+    "code": "01.4",
+    "color": "#80c6a4",
+    "criterion": "Express a scope-sensitive quantity such as some, all, neither or only, with the intended set clear.",
+    "description": "Talk about which friends like an activity and how many would join.",
+    "id": "quantify_sets",
+    "kind": "skill",
+    "label": "Qualify quantities",
+    "parent": "reference"
+  },
+  {
+    "code": "01.5",
+    "color": "#80c6a4",
+    "criterion": "Make clear who something belongs to or its relevant part–whole relationship.",
+    "description": "Talk about whose bag, keys, or bicycle you found.",
+    "id": "possession",
+    "kind": "skill",
+    "label": "Express possession",
+    "parent": "reference"
+  },
+  {
+    "code": "01.6",
+    "color": "#80c6a4",
+    "criterion": "Identify a referent through multiple linked possession, part–whole or descriptive relationships.",
+    "description": "Help someone find a particular object among several similar ones.",
+    "id": "nested_reference",
+    "kind": "skill",
+    "label": "Specify a complex referent",
+    "parent": "reference"
+  },
+  {
+    "code": "02",
+    "color": "#b8cc77",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for properties & comparison.",
+    "id": "properties",
+    "kind": "domain",
+    "label": "Properties & comparison",
+    "parent": "experience"
+  },
+  {
+    "code": "02.1",
+    "color": "#b8cc77",
+    "criterion": "Attribute a quality or state to the intended referent. Do not require an adjective word class or a copula.",
+    "description": "Describe a person, a place, or an object you care about.",
+    "id": "property",
+    "kind": "skill",
+    "label": "Attribute a property",
+    "parent": "properties"
+  },
+  {
+    "code": "02.2",
+    "color": "#b8cc77",
+    "criterion": "Restrict a property by circumstance or perspective, making its intended scope clear.",
+    "description": "Explain what you like about a place and what could be better.",
+    "id": "qualified_property",
+    "kind": "skill",
+    "label": "Qualify a property",
+    "parent": "properties"
+  },
+  {
+    "code": "02.3",
+    "color": "#b8cc77",
+    "criterion": "Express a clear comparison between identifiable referents along a stated or contextually clear dimension.",
+    "description": "Choose between two places to visit or two things to buy.",
+    "id": "comparison",
+    "kind": "skill",
+    "label": "Compare referents",
+    "parent": "properties"
+  },
+  {
+    "code": "02.4",
+    "color": "#b8cc77",
+    "criterion": "Express a comparison with a precise standard, degree or exception.",
+    "description": "Compare a new experience with something familiar.",
+    "id": "comparison_standard",
+    "kind": "skill",
+    "label": "Specify a comparison standard",
+    "parent": "properties"
+  },
+  {
+    "code": "02.5",
+    "color": "#b8cc77",
+    "criterion": "Express the intensity or extent of a property in a way that fits the intended meaning.",
+    "description": "Talk about how hot, busy, expensive, or enjoyable a place was.",
+    "id": "degree",
+    "kind": "skill",
+    "label": "Express degree",
+    "parent": "properties"
+  },
+  {
+    "code": "02.6",
+    "color": "#b8cc77",
+    "criterion": "Express a degree in relation to a limit or consequence, such as too hot to drink.",
+    "description": "Describe weather or a busy day that changed what you could do.",
+    "id": "degree_consequence",
+    "kind": "skill",
+    "label": "Connect degree to consequence",
+    "parent": "properties"
+  },
+  {
+    "code": "03",
+    "color": "#e3bc71",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for events & participants.",
+    "id": "events",
+    "kind": "domain",
+    "label": "Events & participants",
+    "parent": "experience"
+  },
+  {
+    "code": "03.1",
+    "color": "#e3bc71",
+    "criterion": "Express an event with the actor and other relevant participants distinguishable. Do not require a fixed word order or case system.",
+    "description": "Tell someone about an activity you did with a friend.",
+    "id": "event_roles",
+    "kind": "skill",
+    "label": "Express who does what",
+    "parent": "events"
+  },
+  {
+    "code": "03.2",
+    "color": "#e3bc71",
+    "criterion": "Present an event from a non-default participant perspective while preserving who did what. Do not require a passive construction.",
+    "description": "Discuss what happened to a lost item and who might have found it.",
+    "id": "perspective_roles",
+    "kind": "skill",
+    "label": "Change event perspective",
+    "parent": "events"
+  },
+  {
+    "code": "03.3",
+    "color": "#e3bc71",
+    "criterion": "Express a transfer with the thing transferred, source or giver, and recipient clear where relevant.",
+    "description": "Describe giving a gift, lending a book, or sending a message.",
+    "id": "transfer",
+    "kind": "skill",
+    "label": "Express transfer",
+    "parent": "events"
+  },
+  {
+    "code": "03.4",
+    "color": "#e3bc71",
+    "criterion": "Describe transfer with additional beneficiary, instrument or condition while keeping participant roles clear.",
+    "description": "Plan how to get a package to a friend who will be away.",
+    "id": "complex_transfer",
+    "kind": "skill",
+    "label": "Express a constrained transfer",
+    "parent": "events"
+  },
+  {
+    "code": "03.5",
+    "color": "#e3bc71",
+    "criterion": "Express that a participant or event brings about another event or state.",
+    "description": "Talk about something that made you change your plans.",
+    "id": "causation",
+    "kind": "skill",
+    "label": "Express causation",
+    "parent": "events"
+  },
+  {
+    "code": "03.6",
+    "color": "#e3bc71",
+    "criterion": "Distinguish causing, allowing or arranging an event from directly performing it.",
+    "description": "Explain how a small event led to several changes in your day.",
+    "id": "causal_chain",
+    "kind": "skill",
+    "label": "Distinguish causation and agency",
+    "parent": "events"
+  },
+  {
+    "code": "04",
+    "color": "#e6a587",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for time & event structure.",
+    "id": "time",
+    "kind": "domain",
+    "label": "Time & event structure",
+    "parent": "experience"
+  },
+  {
+    "code": "04.1",
+    "color": "#e6a587",
+    "criterion": "Locate an event before the relevant present using target-language wording and context. Do not require tense inflection.",
+    "description": "Tell someone about something you did yesterday.",
+    "id": "past_reference",
+    "kind": "skill",
+    "label": "Refer to past events",
+    "parent": "time"
+  },
+  {
+    "code": "04.2",
+    "color": "#e6a587",
+    "criterion": "Make the relative order of multiple past events clear, including an event preceding another past reference point.",
+    "description": "Tell the story of a trip from its start to its finish.",
+    "id": "past_sequence",
+    "kind": "skill",
+    "label": "Order past events",
+    "parent": "time"
+  },
+  {
+    "code": "04.3",
+    "color": "#e6a587",
+    "criterion": "Locate an event after the relevant present or reference point. Do not require a future-tense form.",
+    "description": "Share something you would like to do this weekend.",
+    "id": "future_reference",
+    "kind": "skill",
+    "label": "Refer to future events",
+    "parent": "time"
+  },
+  {
+    "code": "04.4",
+    "color": "#e6a587",
+    "criterion": "Distinguish a future intention, prediction or conditional event with the relevant timing clear.",
+    "description": "Make a plan together and consider what to do if it rains.",
+    "id": "future_conditions",
+    "kind": "skill",
+    "label": "Relate future possibilities",
+    "parent": "time"
+  },
+  {
+    "code": "04.5",
+    "color": "#e6a587",
+    "criterion": "Distinguish ongoing, completed or habitual events where the distinction is supported by the current wording and context.",
+    "description": "Discuss a habit you started, stopped, or want to keep.",
+    "id": "event_phase",
+    "kind": "skill",
+    "label": "Express event phase or repetition",
+    "parent": "time"
+  },
+  {
+    "code": "04.6",
+    "color": "#e6a587",
+    "criterion": "Relate contrasting event phases or repetition patterns without confusing completion, duration or habituality.",
+    "description": "Talk about what you were doing when something unexpected happened.",
+    "id": "aspect_contrast",
+    "kind": "skill",
+    "label": "Contrast event structure",
+    "parent": "time"
+  },
+  {
+    "code": "05",
+    "color": "#80c5d8",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for space & movement.",
+    "id": "space",
+    "kind": "domain",
+    "label": "Space & movement",
+    "parent": "experience"
+  },
+  {
+    "code": "05.1",
+    "color": "#80c5d8",
+    "criterion": "Locate an entity relative to an identifiable place or reference object.",
+    "description": "Help someone find a café, a room, or an item in your home.",
+    "id": "location",
+    "kind": "skill",
+    "label": "Locate an entity",
+    "parent": "space"
+  },
+  {
+    "code": "05.2",
+    "color": "#80c5d8",
+    "criterion": "Describe a spatial relation where the viewpoint or frame of reference matters and keep it clear.",
+    "description": "Give directions from a station to a place you know.",
+    "id": "spatial_frame",
+    "kind": "skill",
+    "label": "Coordinate spatial frames",
+    "parent": "space"
+  },
+  {
+    "code": "05.3",
+    "color": "#80c5d8",
+    "criterion": "Express movement with relevant source, path or destination distinguishable.",
+    "description": "Describe a walk or a journey through your neighborhood.",
+    "id": "motion",
+    "kind": "skill",
+    "label": "Describe movement",
+    "parent": "space"
+  },
+  {
+    "code": "05.4",
+    "color": "#80c5d8",
+    "criterion": "Describe a path with multiple spatial relations or changes of direction in a followable sequence.",
+    "description": "Explain a route with several stops or changes of transport.",
+    "id": "motion_path",
+    "kind": "skill",
+    "label": "Describe a multi-stage path",
+    "parent": "space"
+  },
+  {
+    "code": "05.5",
+    "color": "#80c5d8",
+    "criterion": "Use context-appropriate here/there or proximal/distal reference with a recoverable intended location or referent.",
+    "description": "Choose where to sit or which nearby object to pick up.",
+    "id": "spatial_deixis",
+    "kind": "skill",
+    "label": "Use spatial reference",
+    "parent": "space"
+  },
+  {
+    "code": "05.6",
+    "color": "#80c5d8",
+    "criterion": "Maintain clear spatial reference when describing a different speaker’s or participant’s viewpoint.",
+    "description": "Describe a place from your viewpoint and from a visitor’s viewpoint.",
+    "id": "shift_deixis",
+    "kind": "skill",
+    "label": "Shift spatial viewpoint",
+    "parent": "space"
+  },
+  {
+    "code": "06",
+    "color": "#a9b4ee",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for negation, questions & possibility.",
+    "id": "operators",
+    "kind": "domain",
+    "label": "Negation, questions & possibility",
+    "parent": "experience"
+  },
+  {
+    "code": "06.1",
+    "color": "#a9b4ee",
+    "criterion": "Express what does not hold with the intended event, property or participant scope clear.",
+    "description": "Explain a preference or correct an assumption about your plans.",
+    "id": "negation",
+    "kind": "skill",
+    "label": "Negate a proposition",
+    "parent": "operators"
+  },
+  {
+    "code": "06.2",
+    "color": "#a9b4ee",
+    "criterion": "Distinguish materially different scopes of negation, such as not all versus none.",
+    "description": "Clear up a misunderstanding about which people did something.",
+    "id": "negation_scope",
+    "kind": "skill",
+    "label": "Control negation scope",
+    "parent": "operators"
+  },
+  {
+    "code": "06.3",
+    "color": "#a9b4ee",
+    "criterion": "Request confirmation or missing information with the intended question recoverable. Do not require inversion or a question particle.",
+    "description": "Find out more about a partner’s hobby or daily routine.",
+    "id": "question",
+    "kind": "skill",
+    "label": "Ask a question",
+    "parent": "operators"
+  },
+  {
+    "code": "06.4",
+    "color": "#a9b4ee",
+    "criterion": "Express an indirect or embedded question while keeping the requested information clear.",
+    "description": "Ask someone to help you find out where or when an event happens.",
+    "id": "embedded_question",
+    "kind": "skill",
+    "label": "Embed a question",
+    "parent": "operators"
+  },
+  {
+    "code": "06.5",
+    "color": "#a9b4ee",
+    "criterion": "Express ability, possibility, desire, permission or obligation with the intended force clear in context.",
+    "description": "Discuss what you can do, need to do, or might do on a trip.",
+    "id": "modality",
+    "kind": "skill",
+    "label": "Express possibility or necessity",
+    "parent": "operators"
+  },
+  {
+    "code": "06.6",
+    "color": "#a9b4ee",
+    "criterion": "Distinguish a relevant difference in certainty, permission, obligation or ability rather than leaving the modal force ambiguous.",
+    "description": "Plan an outing with choices, practical limits, and obligations.",
+    "id": "modal_distinctions",
+    "kind": "skill",
+    "label": "Distinguish modal meanings",
+    "parent": "operators"
+  },
+  {
+    "code": "07",
+    "color": "#d3a4ce",
+    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
+    "description": "Language strategies for connecting ideas.",
+    "id": "connections",
+    "kind": "domain",
+    "label": "Connecting ideas",
+    "parent": "experience"
+  },
+  {
+    "code": "07.1",
+    "color": "#d3a4ce",
+    "criterion": "Connect a proposition with a relevant reason or purpose so their relationship is clear.",
+    "description": "Explain why you chose a hobby, a meal, or a place to live.",
+    "id": "reason",
+    "kind": "skill",
+    "label": "Connect a reason",
+    "parent": "connections"
+  },
+  {
+    "code": "07.2",
+    "color": "#d3a4ce",
+    "criterion": "Relate an outcome to a counterexpectation without confusing concession with cause.",
+    "description": "Talk about enjoying something despite a difficulty.",
+    "id": "concession",
+    "kind": "skill",
+    "label": "Express concession",
+    "parent": "connections"
+  },
+  {
+    "code": "07.3",
+    "color": "#d3a4ce",
+    "criterion": "Express that an outcome depends on an identifiable condition.",
+    "description": "Make an agreement about what to do if a situation changes.",
+    "id": "condition",
+    "kind": "skill",
+    "label": "Express a condition",
+    "parent": "connections"
+  },
+  {
+    "code": "07.4",
+    "color": "#d3a4ce",
+    "criterion": "Distinguish an imagined contrary-to-fact condition and its consequence from an actual event.",
+    "description": "Imagine how a past trip would have changed with more time.",
+    "id": "counterfactual",
+    "kind": "skill",
+    "label": "Express a counterfactual",
+    "parent": "connections"
+  },
+  {
+    "code": "07.5",
+    "color": "#d3a4ce",
+    "criterion": "Attribute speech, belief or thought to its source without confusing the source with the learner.",
+    "description": "Share something a friend told you about their day.",
+    "id": "reported_content",
+    "kind": "skill",
+    "label": "Report speech or thought",
+    "parent": "connections"
+  },
+  {
+    "code": "07.6",
+    "color": "#d3a4ce",
+    "criterion": "Keep speaker, time and reference clear through an embedded or perspective-shifting report.",
+    "description": "Discuss a story you heard through a friend and what each person believes.",
+    "id": "nested_report",
+    "kind": "skill",
+    "label": "Maintain perspective in reports",
+    "parent": "connections"
+  },
+  {
+    "code": "08",
     "color": "#3d9699",
     "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
     "description": "Practical language for social phrases.",
@@ -20,7 +510,7 @@
     "parent": "experience"
   },
   {
-    "code": "01.1",
+    "code": "08.1",
     "color": "#3d9699",
     "criterion": "Use an appropriate conventional thanks, apology, welcome or polite response.",
     "description": "Thank someone for a favor, apologize for a small mix-up, or respond to an offer.",
@@ -30,7 +520,7 @@
     "parent": "social"
   },
   {
-    "code": "01.2",
+    "code": "08.2",
     "color": "#3d9699",
     "criterion": "Ask or answer a conventional wellbeing check-in, such as how are you or I am well.",
     "description": "Ask how someone’s day is going and share how you are doing.",
@@ -40,7 +530,7 @@
     "parent": "social"
   },
   {
-    "code": "01.3",
+    "code": "08.3",
     "color": "#3d9699",
     "criterion": "Use a conventional greeting or farewell appropriate to the exchange.",
     "description": "Meet someone for the first time or end a friendly conversation.",
@@ -48,495 +538,5 @@
     "kind": "skill",
     "label": "Greet and say goodbye",
     "parent": "social"
-  },
-  {
-    "code": "03.1",
-    "color": "#608dd7",
-    "criterion": "Identify a particular person or thing so the listener can tell which is intended.",
-    "description": "Point out a person or an object you want to talk about.",
-    "id": "referent",
-    "kind": "skill",
-    "label": "Identify a referent",
-    "parent": "statements"
-  },
-  {
-    "code": "03.1.1",
-    "color": "#608dd7",
-    "criterion": "Keep multiple previously mentioned referents distinguishable across a connected statement.",
-    "description": "Tell a story involving two friends and the different things they did.",
-    "id": "track_referents",
-    "kind": "skill",
-    "label": "Track several referents",
-    "parent": "referent"
-  },
-  {
-    "code": "03.2",
-    "color": "#608dd7",
-    "criterion": "Express a quantity or distinction between one and more than one with enough precision for the context.",
-    "description": "Order food for a few people or describe what is in your bag.",
-    "id": "quantity",
-    "kind": "skill",
-    "label": "Express quantity",
-    "parent": "statements"
-  },
-  {
-    "code": "03.2.1",
-    "color": "#608dd7",
-    "criterion": "Express a scope-sensitive quantity such as some, all, neither or only, with the intended set clear.",
-    "description": "Talk about which friends like an activity and how many would join.",
-    "id": "quantify_sets",
-    "kind": "skill",
-    "label": "Qualify quantities",
-    "parent": "quantity"
-  },
-  {
-    "code": "03.3",
-    "color": "#608dd7",
-    "criterion": "Make clear who something belongs to or its relevant part–whole relationship.",
-    "description": "Talk about whose bag, keys, or bicycle you found.",
-    "id": "possession",
-    "kind": "skill",
-    "label": "Express possession",
-    "parent": "statements"
-  },
-  {
-    "code": "03.3.1",
-    "color": "#608dd7",
-    "criterion": "Identify a referent through multiple linked possession, part–whole or descriptive relationships.",
-    "description": "Help someone find a particular object among several similar ones.",
-    "id": "nested_reference",
-    "kind": "skill",
-    "label": "Specify a complex referent",
-    "parent": "possession"
-  },
-  {
-    "code": "02",
-    "color": "#9676d4",
-    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
-    "description": "Practical language for descriptions.",
-    "id": "descriptions",
-    "kind": "domain",
-    "label": "Descriptions",
-    "parent": "experience"
-  },
-  {
-    "code": "02.1",
-    "color": "#9676d4",
-    "criterion": "Attribute a quality or state to the intended referent. Do not require an adjective word class or a copula.",
-    "description": "Describe a person, a place, or an object you care about.",
-    "id": "property",
-    "kind": "skill",
-    "label": "Attribute a property",
-    "parent": "descriptions"
-  },
-  {
-    "code": "02.1.1",
-    "color": "#9676d4",
-    "criterion": "Restrict a property by circumstance or perspective, making its intended scope clear.",
-    "description": "Explain what you like about a place and what could be better.",
-    "id": "qualified_property",
-    "kind": "skill",
-    "label": "Qualify a property",
-    "parent": "property"
-  },
-  {
-    "code": "02.2",
-    "color": "#9676d4",
-    "criterion": "Express a clear comparison between identifiable referents along a stated or contextually clear dimension.",
-    "description": "Choose between two places to visit or two things to buy.",
-    "id": "comparison",
-    "kind": "skill",
-    "label": "Compare referents",
-    "parent": "descriptions"
-  },
-  {
-    "code": "02.2.1",
-    "color": "#9676d4",
-    "criterion": "Express a comparison with a precise standard, degree or exception.",
-    "description": "Compare a new experience with something familiar.",
-    "id": "comparison_standard",
-    "kind": "skill",
-    "label": "Specify a comparison standard",
-    "parent": "comparison"
-  },
-  {
-    "code": "02.3",
-    "color": "#9676d4",
-    "criterion": "Express the intensity or extent of a property in a way that fits the intended meaning.",
-    "description": "Talk about how hot, busy, expensive, or enjoyable a place was.",
-    "id": "degree",
-    "kind": "skill",
-    "label": "Express degree",
-    "parent": "descriptions"
-  },
-  {
-    "code": "02.3.1",
-    "color": "#9676d4",
-    "criterion": "Express a degree in relation to a limit or consequence, such as too hot to drink.",
-    "description": "Describe weather or a busy day that changed what you could do.",
-    "id": "degree_consequence",
-    "kind": "skill",
-    "label": "Connect degree to consequence",
-    "parent": "degree"
-  },
-  {
-    "code": "03",
-    "color": "#608dd7",
-    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
-    "description": "Practical language for statements.",
-    "id": "statements",
-    "kind": "domain",
-    "label": "Statements",
-    "parent": "experience"
-  },
-  {
-    "code": "03.4",
-    "color": "#608dd7",
-    "criterion": "Express an event with the actor and other relevant participants distinguishable. Do not require a fixed word order or case system.",
-    "description": "Tell someone about an activity you did with a friend.",
-    "id": "event_roles",
-    "kind": "skill",
-    "label": "Express who does what",
-    "parent": "statements"
-  },
-  {
-    "code": "03.4.1",
-    "color": "#608dd7",
-    "criterion": "Present an event from a non-default participant perspective while preserving who did what. Do not require a passive construction.",
-    "description": "Discuss what happened to a lost item and who might have found it.",
-    "id": "perspective_roles",
-    "kind": "skill",
-    "label": "Change event perspective",
-    "parent": "event_roles"
-  },
-  {
-    "code": "03.5",
-    "color": "#608dd7",
-    "criterion": "Express a transfer with the thing transferred, source or giver, and recipient clear where relevant.",
-    "description": "Describe giving a gift, lending a book, or sending a message.",
-    "id": "transfer",
-    "kind": "skill",
-    "label": "Express transfer",
-    "parent": "statements"
-  },
-  {
-    "code": "03.5.1",
-    "color": "#608dd7",
-    "criterion": "Describe transfer with additional beneficiary, instrument or condition while keeping participant roles clear.",
-    "description": "Plan how to get a package to a friend who will be away.",
-    "id": "complex_transfer",
-    "kind": "skill",
-    "label": "Express a constrained transfer",
-    "parent": "transfer"
-  },
-  {
-    "code": "03.6",
-    "color": "#608dd7",
-    "criterion": "Express that a participant or event brings about another event or state.",
-    "description": "Talk about something that made you change your plans.",
-    "id": "causation",
-    "kind": "skill",
-    "label": "Express causation",
-    "parent": "statements"
-  },
-  {
-    "code": "03.6.1",
-    "color": "#608dd7",
-    "criterion": "Distinguish causing, allowing or arranging an event from directly performing it.",
-    "description": "Explain how a small event led to several changes in your day.",
-    "id": "causal_chain",
-    "kind": "skill",
-    "label": "Distinguish causation and agency",
-    "parent": "causation"
-  },
-  {
-    "code": "04",
-    "color": "#4ba57b",
-    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
-    "description": "Practical language for time, place & movement.",
-    "id": "situating",
-    "kind": "domain",
-    "label": "Time, place & movement",
-    "parent": "experience"
-  },
-  {
-    "code": "04.1",
-    "color": "#4ba57b",
-    "criterion": "Locate an event before the relevant present using target-language wording and context. Do not require tense inflection.",
-    "description": "Tell someone about something you did yesterday.",
-    "id": "past_reference",
-    "kind": "skill",
-    "label": "Refer to past events",
-    "parent": "situating"
-  },
-  {
-    "code": "04.1.1",
-    "color": "#4ba57b",
-    "criterion": "Make the relative order of multiple past events clear, including an event preceding another past reference point.",
-    "description": "Tell the story of a trip from its start to its finish.",
-    "id": "past_sequence",
-    "kind": "skill",
-    "label": "Order past events",
-    "parent": "past_reference"
-  },
-  {
-    "code": "04.2",
-    "color": "#4ba57b",
-    "criterion": "Locate an event after the relevant present or reference point. Do not require a future-tense form.",
-    "description": "Share something you would like to do this weekend.",
-    "id": "future_reference",
-    "kind": "skill",
-    "label": "Refer to future events",
-    "parent": "situating"
-  },
-  {
-    "code": "04.2.1",
-    "color": "#4ba57b",
-    "criterion": "Distinguish a future intention, prediction or conditional event with the relevant timing clear.",
-    "description": "Make a plan together and consider what to do if it rains.",
-    "id": "future_conditions",
-    "kind": "skill",
-    "label": "Relate future possibilities",
-    "parent": "future_reference"
-  },
-  {
-    "code": "04.3",
-    "color": "#4ba57b",
-    "criterion": "Distinguish ongoing, completed or habitual events where the distinction is supported by the current wording and context.",
-    "description": "Discuss a habit you started, stopped, or want to keep.",
-    "id": "event_phase",
-    "kind": "skill",
-    "label": "Express event phase or repetition",
-    "parent": "situating"
-  },
-  {
-    "code": "04.3.1",
-    "color": "#4ba57b",
-    "criterion": "Relate contrasting event phases or repetition patterns without confusing completion, duration or habituality.",
-    "description": "Talk about what you were doing when something unexpected happened.",
-    "id": "aspect_contrast",
-    "kind": "skill",
-    "label": "Contrast event structure",
-    "parent": "event_phase"
-  },
-  {
-    "code": "04.4",
-    "color": "#4ba57b",
-    "criterion": "Locate an entity relative to an identifiable place or reference object.",
-    "description": "Help someone find a café, a room, or an item in your home.",
-    "id": "location",
-    "kind": "skill",
-    "label": "Locate an entity",
-    "parent": "situating"
-  },
-  {
-    "code": "04.4.1",
-    "color": "#4ba57b",
-    "criterion": "Describe a spatial relation where the viewpoint or frame of reference matters and keep it clear.",
-    "description": "Give directions from a station to a place you know.",
-    "id": "spatial_frame",
-    "kind": "skill",
-    "label": "Coordinate spatial frames",
-    "parent": "location"
-  },
-  {
-    "code": "04.5",
-    "color": "#4ba57b",
-    "criterion": "Express movement with relevant source, path or destination distinguishable.",
-    "description": "Describe a walk or a journey through your neighborhood.",
-    "id": "motion",
-    "kind": "skill",
-    "label": "Describe movement",
-    "parent": "situating"
-  },
-  {
-    "code": "04.5.1",
-    "color": "#4ba57b",
-    "criterion": "Describe a path with multiple spatial relations or changes of direction in a followable sequence.",
-    "description": "Explain a route with several stops or changes of transport.",
-    "id": "motion_path",
-    "kind": "skill",
-    "label": "Describe a multi-stage path",
-    "parent": "motion"
-  },
-  {
-    "code": "04.6",
-    "color": "#4ba57b",
-    "criterion": "Use context-appropriate here/there or proximal/distal reference with a recoverable intended location or referent.",
-    "description": "Choose where to sit or which nearby object to pick up.",
-    "id": "spatial_deixis",
-    "kind": "skill",
-    "label": "Use spatial reference",
-    "parent": "situating"
-  },
-  {
-    "code": "04.6.1",
-    "color": "#4ba57b",
-    "criterion": "Maintain clear spatial reference when describing a different speaker’s or participant’s viewpoint.",
-    "description": "Describe a place from your viewpoint and from a visitor’s viewpoint.",
-    "id": "shift_deixis",
-    "kind": "skill",
-    "label": "Shift spatial viewpoint",
-    "parent": "spatial_deixis"
-  },
-  {
-    "code": "06",
-    "color": "#ad80b4",
-    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
-    "description": "Practical language for questions.",
-    "id": "questions",
-    "kind": "domain",
-    "label": "Questions",
-    "parent": "experience"
-  },
-  {
-    "code": "03.7",
-    "color": "#608dd7",
-    "criterion": "Express what does not hold with the intended event, property or participant scope clear.",
-    "description": "Explain a preference or correct an assumption about your plans.",
-    "id": "negation",
-    "kind": "skill",
-    "label": "Negate a proposition",
-    "parent": "statements"
-  },
-  {
-    "code": "03.7.1",
-    "color": "#608dd7",
-    "criterion": "Distinguish materially different scopes of negation, such as not all versus none.",
-    "description": "Clear up a misunderstanding about which people did something.",
-    "id": "negation_scope",
-    "kind": "skill",
-    "label": "Control negation scope",
-    "parent": "negation"
-  },
-  {
-    "code": "06.1",
-    "color": "#ad80b4",
-    "criterion": "Request confirmation or missing information with the intended question recoverable. Do not require inversion or a question particle.",
-    "description": "Find out more about a partner’s hobby or daily routine.",
-    "id": "question",
-    "kind": "skill",
-    "label": "Ask a question",
-    "parent": "questions"
-  },
-  {
-    "code": "06.1.1",
-    "color": "#ad80b4",
-    "criterion": "Express an indirect or embedded question while keeping the requested information clear.",
-    "description": "Ask someone to help you find out where or when an event happens.",
-    "id": "embedded_question",
-    "kind": "skill",
-    "label": "Embed a question",
-    "parent": "question"
-  },
-  {
-    "code": "07.1",
-    "color": "#76a9b0",
-    "criterion": "Express ability, possibility, desire, permission or obligation with the intended force clear in context.",
-    "description": "Discuss what you can do, need to do, or might do on a trip.",
-    "id": "modality",
-    "kind": "skill",
-    "label": "Express possibility or necessity",
-    "parent": "opinions"
-  },
-  {
-    "code": "07.1.1",
-    "color": "#76a9b0",
-    "criterion": "Distinguish a relevant difference in certainty, permission, obligation or ability rather than leaving the modal force ambiguous.",
-    "description": "Plan an outing with choices, practical limits, and obligations.",
-    "id": "modal_distinctions",
-    "kind": "skill",
-    "label": "Distinguish modal meanings",
-    "parent": "modality"
-  },
-  {
-    "code": "07",
-    "color": "#76a9b0",
-    "criterion": "Progress summarizes direct evidence for the skills in this area; it does not imply all of them were demonstrated.",
-    "description": "Practical language for opinions & reasons.",
-    "id": "opinions",
-    "kind": "domain",
-    "label": "Opinions & reasons",
-    "parent": "experience"
-  },
-  {
-    "code": "07.2",
-    "color": "#76a9b0",
-    "criterion": "Connect a proposition with a relevant reason or purpose so their relationship is clear.",
-    "description": "Explain why you chose a hobby, a meal, or a place to live.",
-    "id": "reason",
-    "kind": "skill",
-    "label": "Connect a reason",
-    "parent": "opinions"
-  },
-  {
-    "code": "07.2.1",
-    "color": "#76a9b0",
-    "criterion": "Relate an outcome to a counterexpectation without confusing concession with cause.",
-    "description": "Talk about enjoying something despite a difficulty.",
-    "id": "concession",
-    "kind": "skill",
-    "label": "Express concession",
-    "parent": "reason"
-  },
-  {
-    "code": "07.3",
-    "color": "#76a9b0",
-    "criterion": "Express that an outcome depends on an identifiable condition.",
-    "description": "Make an agreement about what to do if a situation changes.",
-    "id": "condition",
-    "kind": "skill",
-    "label": "Express a condition",
-    "parent": "opinions"
-  },
-  {
-    "code": "07.3.1",
-    "color": "#76a9b0",
-    "criterion": "Distinguish an imagined contrary-to-fact condition and its consequence from an actual event.",
-    "description": "Imagine how a past trip would have changed with more time.",
-    "id": "counterfactual",
-    "kind": "skill",
-    "label": "Express a counterfactual",
-    "parent": "condition"
-  },
-  {
-    "code": "07.4",
-    "color": "#76a9b0",
-    "criterion": "Attribute speech, belief or thought to its source without confusing the source with the learner.",
-    "description": "Share something a friend told you about their day.",
-    "id": "reported_content",
-    "kind": "skill",
-    "label": "Report speech or thought",
-    "parent": "opinions"
-  },
-  {
-    "code": "07.4.1",
-    "color": "#76a9b0",
-    "criterion": "Keep speaker, time and reference clear through an embedded or perspective-shifting report.",
-    "description": "Discuss a story you heard through a friend and what each person believes.",
-    "id": "nested_report",
-    "kind": "skill",
-    "label": "Maintain perspective in reports",
-    "parent": "reported_content"
-  },
-  {
-    "code": "01.4",
-    "color": "#3d9699",
-    "criterion": "Revise your earlier wording to resolve the identified problem while preserving the intended meaning.",
-    "description": "Clarify what you meant after noticing a misunderstanding.",
-    "id": "ix.self_repair",
-    "kind": "skill",
-    "label": "Repair your own wording",
-    "parent": "social"
-  },
-  {
-    "code": "03.3.2",
-    "color": "#608dd7",
-    "criterion": "Join a possessed noun to its possessor in a construct phrase, placing a definite article only on the possessor when needed.",
-    "description": "Talk about whose bag or keys you found, or describe a room in a friend’s home.",
-    "id": "arabic.idafa",
-    "kind": "skill",
-    "label": "Possessive construct (iḍāfa)",
-    "parent": "possession"
   }
 ]

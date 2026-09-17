@@ -10,6 +10,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use ts_rs::TS;
 
+/// Temporarily frozen while conversation, coaching and XP are rebuilt.
+pub(crate) const ENABLED: bool = false;
+pub(crate) fn require_enabled() -> Result<()> {
+    if !ENABLED {
+        return Err(invalid(
+            "Lessons are disabled while conversation coaching is being rebuilt.",
+        ));
+    }
+    Ok(())
+}
+
+mod suspension;
+pub(crate) use suspension::suspend_pending;
 mod lifecycle;
 mod prompts;
 mod quiz;

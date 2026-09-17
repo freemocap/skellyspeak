@@ -2,7 +2,7 @@ import { reportFault } from '../diagnostics/faults'
 import { visibleRewardRect } from '../../domain/rewards/reward-anchors'
 import { cssToken } from '../appearance/css-token'
 export type RewardSoundMode = 'yes' | 'no' | 'follow_tts'
-export type SoundCue = { kind: 'xp'; xp: number } | { kind: 'confused' } | { kind: 'understood' } | { kind: 'pop' }
+export type SoundCue = { kind: 'xp'; xp: number } | { kind: 'milestone' } | { kind: 'confused' } | { kind: 'understood' } | { kind: 'pop' }
 export interface Beep { frequency: number; at: number; duration: number }
 
 export function soundEnabled(mode: RewardSoundMode, readAloud: boolean): boolean {
@@ -13,7 +13,8 @@ export function soundEnabled(mode: RewardSoundMode, readAloud: boolean): boolean
 export function soundPattern(cue: SoundCue): Beep[] {
   if (cue.kind === 'xp' && (!Number.isFinite(cue.xp) || cue.xp <= 0)) throw new Error('Reward sounds require positive XP.')
   if (cue.kind === 'pop') return [{ frequency: 520, at: 0, duration: 0.075 }, { frequency: 1040, at: 0.055, duration: 0.12 }]
-  const pitches = cue.kind === 'confused' ? [440, 370, 392]
+  const pitches = cue.kind === 'milestone' ? [523, 659, 784, 1047, 1319, 1568]
+    : cue.kind === 'confused' ? [440, 370, 392]
     : cue.kind === 'understood' ? [659, 988]
     : cue.xp >= 20 ? [784, 988, 1175, 1568] : cue.xp >= 10 ? [784, 988, 1319] : [784, 1047]
   return pitches.map((frequency, index) => ({ frequency, at: index * 0.075, duration: 0.07 }))
@@ -90,6 +91,7 @@ export function playRewardSound(cue: SoundCue, target: HTMLElement): boolean {
     oscillator.start(at)
     oscillator.stop(at + note.duration + 0.01)
   }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
   const flashTarget = cue.kind === 'pop' ? target.closest<HTMLElement>('.msg') ?? target : target
   const glow = cssToken('--reward-flash')
   const flash = flashTarget.animate([

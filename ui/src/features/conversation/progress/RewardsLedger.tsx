@@ -5,11 +5,10 @@ import { useI18n } from '../../../components/localization/i18n'
 export function RewardsLedger({ snapshot }: { snapshot: SkillSnapshot }) {
   const tr = useI18n()
   const awards = snapshot.profile.credits.filter(credit => credit.xp > 0)
-  const quizzes = snapshot.profile.quiz_credits.filter(credit => credit.xp > 0)
   const mysteries = snapshot.profile.mystery_credits.filter(credit => credit.xp > 0)
   return <section className="rewards-ledger" aria-label={tr('Rewards')}>
     <h3>{tr('Rewards')}</h3>
-    {!awards.length && !quizzes.length && !mysteries.length && <p>{tr('No credited messages.')}</p>}
+    {!awards.length && !mysteries.length && <p>{tr('No credited messages.')}</p>}
     {awards.map(credit => {
       const event = credit.event
       const record = snapshot.records.find(item => item.attempt_id === credit.attempt_id)
@@ -26,7 +25,6 @@ export function RewardsLedger({ snapshot }: { snapshot: SkillSnapshot }) {
         </dl>}
       </details>
     })}
-    {quizzes.map(credit => <p key={`${credit.lessonId}:${credit.questionIndex}`}>+{credit.xp} {tr(' XP')} · {tr('Lesson quiz XP')} · {credit.questionIndex + 1}</p>)}
     {mysteries.map(credit => <p key={`${credit.personaId}:${credit.field}`}>+{credit.xp} {tr(' XP')} · {tr('Mystery partner')} · {credit.field}</p>)}
   </section>
 }

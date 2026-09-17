@@ -22,7 +22,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
     return value.replaceAll('-', ' ')
   }
   return <div className="language-content">
-    <p>{report.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')} · {report.family}</p>
+    <p className="language-status"><span data-review={report.review}>{report.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</span><span>{report.family}</span></p>
     <section><h3>{tr('Writing and reading')}</h3>
       <dl>{report.values.map(value => <div key={value.field}><dt>{labels[value.field]}</dt><dd>{display(value.field, value.value)}</dd></div>)}</dl>
       {report.schemes.length === 0 && <p>{tr('No romanization scheme configured')}</p>}
@@ -33,7 +33,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
       </article>)}
     </section>
     {report.rules.length > 0 && <section><h3>{tr('Language-specific guidance')}</h3>{report.rules.map((rule,index) => <p key={index}>{rule.text}</p>)}</section>}
-    {report.goals.length > 0 && <section><h3>{tr('Language-specific goals')}</h3>{report.goals.map(goal => <article key={goal.id}><h4>{goal.label} · {goal.band}</h4><p>{goal.criterion}</p></article>)}</section>}
+    {report.goals.length > 0 && <section><h3>{tr('Language-specific goals')}</h3><div className="language-goals">{report.goals.map(goal => <article key={goal.id}><h4>{goal.label} <span className="language-band">{goal.band}</span></h4><p>{goal.criterion}</p></article>)}</div></section>}
     <section><h3>{tr('Conversation starters')}</h3>{report.starters.map(starter => <article key={starter.id}><h4>{starter.label}</h4><p lang={report.language.languageTag ?? undefined} dir={report.language.direction}>{starter.preview}</p><small>{starter.varieties.join(', ')}</small></article>)}</section>
     <section><h3>{tr('Default conversation partner')}</h3><h4>{report.partner.name}</h4><p>{report.partner.location} · {report.partner.occupation}</p><p>{report.partner.background}</p><p>{report.partner.currentSituation}</p></section>
     <section className="language-definition"><h3>{tr('Full definition')}</h3>

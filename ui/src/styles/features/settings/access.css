@@ -26,10 +26,10 @@
   padding: var(--space-4) var(--space-5);
   border: var(--border-width) solid var(--line-soft);
   border-bottom: 0;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   color: var(--ink-2);
-  background: var(--field);
-  font-size: var(--type-ui);
+  background: var(--chrome);
+  font-size: var(--type-body);
   font-weight: var(--weight-semibold);
 }.access-route-indicator {
   flex: 0 0 14px;
@@ -58,10 +58,10 @@
 }.access-tabs [role="tab"]:hover:not(:disabled) {
   color: var(--ink);
 }.access-route-panel {
-  padding: var(--space-6);
+  padding: var(--space-10);
   min-width: 0;
   border: var(--border-width) solid var(--line);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   background: var(--card);
 }.access-route-panel:focus {
   outline: none;
@@ -94,18 +94,22 @@
 }
 
 /* Health is a checked result, distinct from the selected-route indicator. */
-.access-health { font-size: var(--type-meta); color: var(--ink-3); border: var(--border-width) solid currentColor; border-radius: var(--radius-pill); padding: var(--space-1) var(--space-2); }
-.access-health[data-health="connected"] { color: var(--success-ink); }
-.access-health[data-health="disconnected"] { color: var(--danger-ink); }
+.access-health { font-size: var(--type-meta); font-weight: var(--weight-semibold); color: var(--ink-3); background: var(--line-soft); border: 0; border-radius: var(--radius-pill); padding: var(--space-1) var(--space-4); }
+.access-health[data-health="connected"] { color: var(--success-ink); background: var(--status-good-tint); }
+.access-health[data-health="disconnected"] { color: var(--danger-ink); background: var(--status-wrong-tint); }
 
-/* Verified server/token/provider results are distinct controls from route selection. */
-.connection-health-panel { border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); padding: var(--space-4); margin-block-end: var(--space-4); }
-.connection-health-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block-end: var(--space-3); }
-.connection-health-grid { display: grid; gap: var(--space-2); padding: 0; margin: 0 0 var(--space-3); list-style: none; }
-.connection-health-item { display: flex; align-items: center; gap: var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); background: var(--field); padding: var(--space-3); color: var(--ink-3); }
-.connection-health-item[data-state="accepted"] { color: var(--success-ink); border-color: var(--success-line); }
-.connection-health-item[data-state="rejected"], .connection-health-item[data-state="unreachable"], .connection-health-item[data-state="invalid_response"] { color: var(--danger-ink); border-color: var(--danger-ink); }
-.connection-health-icon { font-size: var(--type-title); font-weight: var(--weight-semibold); }
-.connection-health-name { display: flex; flex-direction: column; flex: 1; min-width: 0; color: var(--ink); }
-.connection-health-name small { color: var(--ink-2); font-size: var(--type-meta); }
-.connection-health-badge { border: var(--border-width) solid currentColor; border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+/* Verified server/token/provider results are distinct controls from route selection:
+   one card, a heading row, then a divided list of checked results. */
+.connection-health-panel { display: grid; border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); padding: 0; margin-block-end: var(--space-8); overflow: hidden; }
+.connection-health-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin: 0; padding: var(--space-6) var(--space-8); background: var(--chrome); border-bottom: var(--border-width) solid var(--line-soft); font-size: var(--type-body); }
+.connection-health-panel:has([data-state=accepted]):not(:has([data-state=rejected], [data-state=unreachable], [data-state=invalid_response])) .connection-health-heading { background: var(--status-good-tint); }
+.connection-health-grid { display: grid; gap: 0; padding: 0; margin: 0; list-style: none; }
+.connection-health-item { display: flex; align-items: center; gap: var(--space-6); border: 0; border-bottom: var(--border-width) solid var(--line-soft); border-radius: 0; background: transparent; padding: var(--space-5) var(--space-8); color: var(--ink-3); }
+.connection-health-item:last-child { border-bottom: 0; }
+.connection-health-item[data-state="accepted"] { color: var(--success-ink); }
+.connection-health-item[data-state="rejected"], .connection-health-item[data-state="unreachable"], .connection-health-item[data-state="invalid_response"] { color: var(--danger-ink); background: var(--status-wrong-tint); }
+.connection-health-icon { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: var(--radius-circle); background: color-mix(in srgb, currentColor 14%, transparent); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.connection-health-name { display: flex; flex-direction: column; flex: 1; min-width: 0; color: var(--ink); font-size: var(--type-body); }
+.connection-health-name small { color: var(--ink-3); font-size: var(--type-ui); }
+.connection-health-badge { border: 0; border-radius: var(--radius-pill); padding: 0; font-size: var(--type-ui); font-weight: var(--weight-medium); }
+.connection-health-panel > p, .connection-health-panel > small { margin: 0; padding: var(--space-4) var(--space-8); color: var(--ink-3); font-size: var(--type-ui); border-top: var(--border-width) solid var(--line-soft); }

@@ -24,3 +24,7 @@ mod speech_requests;
 mod translation;
 mod turn_lifecycle;
 mod work_budgets;
+
+mod skill_assessment;
+
+mod lessons_disabled;

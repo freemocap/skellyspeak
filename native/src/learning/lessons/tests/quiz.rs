@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn quiz_grades_once_and_awards_only_one_bonus_xp_without_skill_evidence() {
     let (dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);
@@ -62,6 +63,7 @@ fn quiz_grades_once_and_awards_only_one_bonus_xp_without_skill_evidence() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn malformed_quizzes_are_rejected_before_publication() {
     let (_dir, store, _chat) = setup();
     for case in 0..4 {

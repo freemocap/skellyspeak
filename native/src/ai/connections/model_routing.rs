@@ -5,7 +5,7 @@ pub fn target(base: &ResolvedTarget, kind: &str, fast: &str) -> ResolvedTarget {
     let mut target = base.clone();
     let easy = matches!(
         kind,
-        "user_translation" | "reply_translation" | "coach_reaction"
+        "skill_assessment" | "user_translation" | "reply_translation" | "coach_reaction"
     );
     target.model = if easy {
         fast.into()

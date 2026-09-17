@@ -7,10 +7,283 @@
   color: '#dae2df'
   description: Recorded participation in this language.
   criterion: At least one saved learner message. Participation does not establish proficiency.
+- id: reference
+  parent: experience
+  label: Entities & reference
+  code: '01'
+  kind: domain
+  color: '#80c6a4'
+  description: Language strategies for entities & reference.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: referent
+  parent: reference
+  code: '01.1'
+  kind: skill
+  color: '#80c6a4'
+- id: track_referents
+  parent: reference
+  code: '01.2'
+  kind: skill
+  color: '#80c6a4'
+- id: quantity
+  parent: reference
+  code: '01.3'
+  kind: skill
+  color: '#80c6a4'
+- id: quantify_sets
+  parent: reference
+  code: '01.4'
+  kind: skill
+  color: '#80c6a4'
+- id: possession
+  parent: reference
+  code: '01.5'
+  kind: skill
+  color: '#80c6a4'
+- id: nested_reference
+  parent: reference
+  code: '01.6'
+  kind: skill
+  color: '#80c6a4'
+- id: properties
+  parent: experience
+  label: Properties & comparison
+  code: '02'
+  kind: domain
+  color: '#b8cc77'
+  description: Language strategies for properties & comparison.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: property
+  parent: properties
+  code: '02.1'
+  kind: skill
+  color: '#b8cc77'
+- id: qualified_property
+  parent: properties
+  code: '02.2'
+  kind: skill
+  color: '#b8cc77'
+- id: comparison
+  parent: properties
+  code: '02.3'
+  kind: skill
+  color: '#b8cc77'
+- id: comparison_standard
+  parent: properties
+  code: '02.4'
+  kind: skill
+  color: '#b8cc77'
+- id: degree
+  parent: properties
+  code: '02.5'
+  kind: skill
+  color: '#b8cc77'
+- id: degree_consequence
+  parent: properties
+  code: '02.6'
+  kind: skill
+  color: '#b8cc77'
+- id: events
+  parent: experience
+  label: Events & participants
+  code: '03'
+  kind: domain
+  color: '#e3bc71'
+  description: Language strategies for events & participants.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: event_roles
+  parent: events
+  code: '03.1'
+  kind: skill
+  color: '#e3bc71'
+- id: perspective_roles
+  parent: events
+  code: '03.2'
+  kind: skill
+  color: '#e3bc71'
+- id: transfer
+  parent: events
+  code: '03.3'
+  kind: skill
+  color: '#e3bc71'
+- id: complex_transfer
+  parent: events
+  code: '03.4'
+  kind: skill
+  color: '#e3bc71'
+- id: causation
+  parent: events
+  code: '03.5'
+  kind: skill
+  color: '#e3bc71'
+- id: causal_chain
+  parent: events
+  code: '03.6'
+  kind: skill
+  color: '#e3bc71'
+- id: time
+  parent: experience
+  label: Time & event structure
+  code: '04'
+  kind: domain
+  color: '#e6a587'
+  description: Language strategies for time & event structure.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: past_reference
+  parent: time
+  code: '04.1'
+  kind: skill
+  color: '#e6a587'
+- id: past_sequence
+  parent: time
+  code: '04.2'
+  kind: skill
+  color: '#e6a587'
+- id: future_reference
+  parent: time
+  code: '04.3'
+  kind: skill
+  color: '#e6a587'
+- id: future_conditions
+  parent: time
+  code: '04.4'
+  kind: skill
+  color: '#e6a587'
+- id: event_phase
+  parent: time
+  code: '04.5'
+  kind: skill
+  color: '#e6a587'
+- id: aspect_contrast
+  parent: time
+  code: '04.6'
+  kind: skill
+  color: '#e6a587'
+- id: space
+  parent: experience
+  label: Space & movement
+  code: '05'
+  kind: domain
+  color: '#80c5d8'
+  description: Language strategies for space & movement.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: location
+  parent: space
+  code: '05.1'
+  kind: skill
+  color: '#80c5d8'
+- id: spatial_frame
+  parent: space
+  code: '05.2'
+  kind: skill
+  color: '#80c5d8'
+- id: motion
+  parent: space
+  code: '05.3'
+  kind: skill
+  color: '#80c5d8'
+- id: motion_path
+  parent: space
+  code: '05.4'
+  kind: skill
+  color: '#80c5d8'
+- id: spatial_deixis
+  parent: space
+  code: '05.5'
+  kind: skill
+  color: '#80c5d8'
+- id: shift_deixis
+  parent: space
+  code: '05.6'
+  kind: skill
+  color: '#80c5d8'
+- id: operators
+  parent: experience
+  label: Negation, questions & possibility
+  code: '06'
+  kind: domain
+  color: '#a9b4ee'
+  description: Language strategies for negation, questions & possibility.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: negation
+  parent: operators
+  code: '06.1'
+  kind: skill
+  color: '#a9b4ee'
+- id: negation_scope
+  parent: operators
+  code: '06.2'
+  kind: skill
+  color: '#a9b4ee'
+- id: question
+  parent: operators
+  code: '06.3'
+  kind: skill
+  color: '#a9b4ee'
+- id: embedded_question
+  parent: operators
+  code: '06.4'
+  kind: skill
+  color: '#a9b4ee'
+- id: modality
+  parent: operators
+  code: '06.5'
+  kind: skill
+  color: '#a9b4ee'
+- id: modal_distinctions
+  parent: operators
+  code: '06.6'
+  kind: skill
+  color: '#a9b4ee'
+- id: connections
+  parent: experience
+  label: Connecting ideas
+  code: '07'
+  kind: domain
+  color: '#d3a4ce'
+  description: Language strategies for connecting ideas.
+  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
+    them were demonstrated.
+- id: reason
+  parent: connections
+  code: '07.1'
+  kind: skill
+  color: '#d3a4ce'
+- id: concession
+  parent: connections
+  code: '07.2'
+  kind: skill
+  color: '#d3a4ce'
+- id: condition
+  parent: connections
+  code: '07.3'
+  kind: skill
+  color: '#d3a4ce'
+- id: counterfactual
+  parent: connections
+  code: '07.4'
+  kind: skill
+  color: '#d3a4ce'
+- id: reported_content
+  parent: connections
+  code: '07.5'
+  kind: skill
+  color: '#d3a4ce'
+- id: nested_report
+  parent: connections
+  code: '07.6'
+  kind: skill
+  color: '#d3a4ce'
 - id: social
   parent: experience
   label: Social phrases
-  code: '01'
+  code: 08
   kind: domain
   color: '#3d9699'
   description: Practical language for social phrases.
@@ -18,281 +291,16 @@
     them were demonstrated.
 - id: courtesy
   parent: social
-  code: '01.1'
+  code: '08.1'
   kind: skill
   color: '#3d9699'
 - id: social_checkin
   parent: social
-  code: '01.2'
+  code: '08.2'
   kind: skill
   color: '#3d9699'
 - id: greeting
   parent: social
-  code: '01.3'
+  code: '08.3'
   kind: skill
   color: '#3d9699'
-- id: referent
-  parent: statements
-  code: '03.1'
-  kind: skill
-  color: '#608dd7'
-- id: track_referents
-  parent: referent
-  code: 03.1.1
-  kind: skill
-  color: '#608dd7'
-- id: quantity
-  parent: statements
-  code: '03.2'
-  kind: skill
-  color: '#608dd7'
-- id: quantify_sets
-  parent: quantity
-  code: 03.2.1
-  kind: skill
-  color: '#608dd7'
-- id: possession
-  parent: statements
-  code: '03.3'
-  kind: skill
-  color: '#608dd7'
-- id: nested_reference
-  parent: possession
-  code: 03.3.1
-  kind: skill
-  color: '#608dd7'
-- id: descriptions
-  parent: experience
-  label: Descriptions
-  code: '02'
-  kind: domain
-  color: '#9676d4'
-  description: Practical language for descriptions.
-  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
-    them were demonstrated.
-- id: property
-  parent: descriptions
-  code: '02.1'
-  kind: skill
-  color: '#9676d4'
-- id: qualified_property
-  parent: property
-  code: 02.1.1
-  kind: skill
-  color: '#9676d4'
-- id: comparison
-  parent: descriptions
-  code: '02.2'
-  kind: skill
-  color: '#9676d4'
-- id: comparison_standard
-  parent: comparison
-  code: 02.2.1
-  kind: skill
-  color: '#9676d4'
-- id: degree
-  parent: descriptions
-  code: '02.3'
-  kind: skill
-  color: '#9676d4'
-- id: degree_consequence
-  parent: degree
-  code: 02.3.1
-  kind: skill
-  color: '#9676d4'
-- id: statements
-  parent: experience
-  label: Statements
-  code: '03'
-  kind: domain
-  color: '#608dd7'
-  description: Practical language for statements.
-  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
-    them were demonstrated.
-- id: event_roles
-  parent: statements
-  code: '03.4'
-  kind: skill
-  color: '#608dd7'
-- id: perspective_roles
-  parent: event_roles
-  code: 03.4.1
-  kind: skill
-  color: '#608dd7'
-- id: transfer
-  parent: statements
-  code: '03.5'
-  kind: skill
-  color: '#608dd7'
-- id: complex_transfer
-  parent: transfer
-  code: 03.5.1
-  kind: skill
-  color: '#608dd7'
-- id: causation
-  parent: statements
-  code: '03.6'
-  kind: skill
-  color: '#608dd7'
-- id: causal_chain
-  parent: causation
-  code: 03.6.1
-  kind: skill
-  color: '#608dd7'
-- id: situating
-  parent: experience
-  label: Time, place & movement
-  code: '04'
-  kind: domain
-  color: '#4ba57b'
-  description: Practical language for time, place & movement.
-  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
-    them were demonstrated.
-- id: past_reference
-  parent: situating
-  code: '04.1'
-  kind: skill
-  color: '#4ba57b'
-- id: past_sequence
-  parent: past_reference
-  code: 04.1.1
-  kind: skill
-  color: '#4ba57b'
-- id: future_reference
-  parent: situating
-  code: '04.2'
-  kind: skill
-  color: '#4ba57b'
-- id: future_conditions
-  parent: future_reference
-  code: 04.2.1
-  kind: skill
-  color: '#4ba57b'
-- id: event_phase
-  parent: situating
-  code: '04.3'
-  kind: skill
-  color: '#4ba57b'
-- id: aspect_contrast
-  parent: event_phase
-  code: 04.3.1
-  kind: skill
-  color: '#4ba57b'
-- id: location
-  parent: situating
-  code: '04.4'
-  kind: skill
-  color: '#4ba57b'
-- id: spatial_frame
-  parent: location
-  code: 04.4.1
-  kind: skill
-  color: '#4ba57b'
-- id: motion
-  parent: situating
-  code: '04.5'
-  kind: skill
-  color: '#4ba57b'
-- id: motion_path
-  parent: motion
-  code: 04.5.1
-  kind: skill
-  color: '#4ba57b'
-- id: spatial_deixis
-  parent: situating
-  code: '04.6'
-  kind: skill
-  color: '#4ba57b'
-- id: shift_deixis
-  parent: spatial_deixis
-  code: 04.6.1
-  kind: skill
-  color: '#4ba57b'
-- id: questions
-  parent: experience
-  label: Questions
-  code: '06'
-  kind: domain
-  color: '#ad80b4'
-  description: Practical language for questions.
-  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
-    them were demonstrated.
-- id: negation
-  parent: statements
-  code: '03.7'
-  kind: skill
-  color: '#608dd7'
-- id: negation_scope
-  parent: negation
-  code: 03.7.1
-  kind: skill
-  color: '#608dd7'
-- id: question
-  parent: questions
-  code: '06.1'
-  kind: skill
-  color: '#ad80b4'
-- id: embedded_question
-  parent: question
-  code: 06.1.1
-  kind: skill
-  color: '#ad80b4'
-- id: modality
-  parent: opinions
-  code: '07.1'
-  kind: skill
-  color: '#76a9b0'
-- id: modal_distinctions
-  parent: modality
-  code: 07.1.1
-  kind: skill
-  color: '#76a9b0'
-- id: opinions
-  parent: experience
-  label: Opinions & reasons
-  code: '07'
-  kind: domain
-  color: '#76a9b0'
-  description: Practical language for opinions & reasons.
-  criterion: Progress summarizes direct evidence for the skills in this area; it does not imply all of
-    them were demonstrated.
-- id: reason
-  parent: opinions
-  code: '07.2'
-  kind: skill
-  color: '#76a9b0'
-- id: concession
-  parent: reason
-  code: 07.2.1
-  kind: skill
-  color: '#76a9b0'
-- id: condition
-  parent: opinions
-  code: '07.3'
-  kind: skill
-  color: '#76a9b0'
-- id: counterfactual
-  parent: condition
-  code: 07.3.1
-  kind: skill
-  color: '#76a9b0'
-- id: reported_content
-  parent: opinions
-  code: '07.4'
-  kind: skill
-  color: '#76a9b0'
-- id: nested_report
-  parent: reported_content
-  code: 07.4.1
-  kind: skill
-  color: '#76a9b0'
-- id: ix.self_repair
-  parent: social
-  code: '01.4'
-  kind: skill
-  color: '#3d9699'
-- id: arabic.idafa
-  parent: possession
-  code: 03.3.2
-  kind: skill
-  color: '#608dd7'

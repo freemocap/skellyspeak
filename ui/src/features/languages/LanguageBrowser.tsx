@@ -49,16 +49,23 @@ export function LanguageBrowser({ onClose }: { onClose: () => void }) {
       <div className="language-browser-layout">
         <nav aria-label={tr('Languages')} className="language-browser-list">
           <input className="field" type="search" aria-label={tr('Search languages')} placeholder={tr('Search languages')} value={query} onChange={event => setQuery(event.target.value)} />
-          {matches.map(item => <button type="button" className="btn" key={item.code} aria-current={language === item.code ? 'true' : undefined}
-            onClick={() => { setLanguage(item.code); setVariety(item.defaultVariety) }}>{languageLabel(item, tr.locale)}</button>)}
+          {matches.map(item => <button type="button" className="language-browser-item" key={item.code} aria-current={language === item.code ? 'true' : undefined}
+            aria-label={languageLabel(item, tr.locale)} onClick={() => { setLanguage(item.code); setVariety(item.defaultVariety) }}>
+            <LanguageBadge endonym={item.endonym} />
+            <span className="language-browser-names"><strong dir="auto">{item.endonym}</strong><small>{translatedName(tr.locale, item.name)}</small></span>
+            {settings?.target_language === item.code && <span className="language-browser-current" aria-hidden="true">✓</span>}
+          </button>)}
           {matches.length === 0 && <p>{tr('No matching languages')}</p>}
         </nav>
         <section className="language-browser-detail" aria-label={selected.name}>
-          <h3>{languageLabel(selected, tr.locale)}</h3>
+          <header className="language-browser-hero">
+            <LanguageBadge endonym={selected.endonym} large />
+            <h3><span dir="auto">{selected.endonym}</span>{selected.endonym !== translatedName(tr.locale, selected.name) && <small>{translatedName(tr.locale, selected.name)}</small>}</h3>
+          </header>
           <label>{tr('Variety')}<select className="field" value={variety} onChange={event => setVariety(event.target.value)}>
             {selected.varieties.map(item => <option key={item.id} value={item.id}>{translatedName(tr.locale, item.label)}</option>)}
           </select></label>
-          <button type="button" className="btn" disabled={!report || saving || savingLanguage} onClick={() => void select()}>{saving ? tr('Saving…') : tr('Use this language and variety')}</button>
+          <button type="button" className="btn primary language-browser-use" disabled={!report || saving || savingLanguage} onClick={() => void select()}>{saving ? tr('Saving…') : tr('Use this language and variety')}</button>
           {error && <div role="alert"><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></div>}
           {!report && !error && <p role="status">{tr('Loading…')}</p>}
           {report && <LanguageDetails report={report} />}
@@ -66,6 +73,12 @@ export function LanguageBrowser({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   </DetailDialog>
+}
+/** A neutral script sample, not a flag: languages are not countries. */
+function LanguageBadge({ endonym, large = false }: { endonym: string; large?: boolean }) {
+  const latinLike = /^[\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Greek}]/u.test(endonym)
+  const glyph = latinLike ? endonym.slice(0, 2) : [...endonym][0]
+  return <span className={`language-badge${large ? ' large' : ''}`} aria-hidden="true" dir="auto">{glyph}</span>
 }
 function errorText(reason: unknown): string {
   if (reason && typeof reason === 'object' && 'message' in reason) return String(reason.message)

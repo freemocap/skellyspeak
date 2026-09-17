@@ -11,7 +11,7 @@
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-8) var(--space-9); line-height: var(--leading-normal); border: 0; }
+.msg.chat-message { padding: var(--space-6) var(--space-10); line-height: 1.45; border: 0; }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -68,13 +68,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  border: var(--border-width) solid var(--accent-edge);
-  border-radius: var(--radius-lg);
-  padding: var(--space-2) var(--space-4);
-  background: var(--accent-surface);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-6);
+  background: var(--sheet);
   color: var(--accent-label);
   font: inherit;
-  font-size: var(--type-meta);
+  font-size: var(--type-ui);
   cursor: pointer;
   max-width: 95%;
   text-align: start;
@@ -102,8 +102,8 @@
   display: inline-block;
   margin: 0 0 0 var(--space-3);
   padding: var(--space-hairline) var(--space-2);
-  border: var(--border-width) solid var(--ink-3);
-  border-radius: var(--radius-xs);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-2);
   font: var(--type-meta) var(--font-sans);
@@ -143,17 +143,18 @@
 .message-actions .message-translate {
   margin: 0;
   min-height: var(--control-height-xs);
-  padding: var(--space-hairline) var(--space-3);
+  padding: 0 var(--space-4);
   background: transparent;
   border-color: transparent;
   border-radius: var(--radius-sm);
   color: var(--ink-3);
-  font-size: var(--type-meta);
+  font-size: var(--type-ui);
 }
 
 .msg.me .message-actions .message-translate { background: transparent; color: var(--bubble-learner-ink-muted); }
 
-.message-actions .message-translate:hover { border-color: var(--accent); }
+.message-actions .message-translate:hover { color: var(--ink); background: var(--line-soft); }
+.message-actions .message-translate[aria-pressed=true] { color: var(--accent-ink); background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); }
 
 .msg.rtl .message-actions { direction: rtl; }
 
@@ -166,8 +167,8 @@
 .message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
 
 .msg.chat-message.bot {
-  border: 0;
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
+  border: var(--border-width) solid var(--bubble-partner-line);
+  border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-2xl) var(--radius-sm);
   max-width: 88%;
   box-shadow: var(--bubble-shadow);
 }
@@ -175,20 +176,22 @@
 .msg.chat-message.bot.focused { border-color: var(--bubble-partner-line-focus); }
 
 .msg.chat-message.me {
-  border: 0;
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
+  border: var(--border-width) solid var(--bubble-learner-line);
+  border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-sm) var(--radius-2xl);
   max-width: 82%;
 }
 
+/* Feedback is a status pill under your message: neutral when there is nothing
+   to fix, amber when the coach has a correction waiting in the coach panel. */
 .message-feedback > .feedback-badge {
-  position: static; display: block; margin-top: var(--space-4); padding: var(--space-2) var(--space-4);
-  border: 0; border-inline-start: var(--border-width-strong) solid var(--line); border-radius: 0;
-  background: transparent; color: var(--interaction-ink); font: var(--type-ui)/1.45 var(--font-sans);
+  position: static; display: inline-flex; margin-top: var(--space-4); margin-inline-start: auto; padding: var(--space-2) var(--space-6);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
+  background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
   max-width: 100%; text-align: start;
 }
-.message-feedback > .feedback-badge.has-correction { border-inline-start-color: var(--correction-line); color: var(--correction-ink); }
+.message-feedback > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--correction-line) 45%, transparent); background: var(--status-attention-tint); color: var(--correction-ink); }
 
-.message-feedback > .feedback-badge:hover { background: var(--field); border-color: var(--accent-edge-deep); }
+.message-feedback > .feedback-badge:hover { border-color: currentColor; }
 
 .message-feedback > .feedback-badge.feedback-error {
   background: var(--sheet);
@@ -203,9 +206,8 @@
   margin-top: var(--space-3);
 }
 
-.message-feedback { align-self: flex-end; max-width: 85%; min-width: 0; }
-.message-translate[aria-pressed]::before { content: '□'; margin-inline-end: var(--space-2); }
-.message-translate[aria-pressed=true]::before { content: '▣'; }
+.message-feedback { align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; max-width: 85%; min-width: 0; }
+/* Toggles show state with colour (above), not checkbox glyphs. */
 
 /* Reply actions sit below the bubble; the wrapper keeps their width and direction. */
 .partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 88%; gap: var(--space-2); }

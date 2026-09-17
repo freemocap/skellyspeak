@@ -73,6 +73,7 @@ impl Store {
 
     pub fn finish(&mut self, dispatch: &Dispatch, result: Result<Completion>) -> Result<()> {
         let tx = self.connection.transaction()?;
+        crate::learning::lessons::suspend_pending(&tx)?;
         let scope:Option<(String,String)>=tx.query_row("SELECT t.id,t.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND o.id=?2 AND a.state='running' AND o.state='running' AND t.state IN ('pending','assisting')",params![dispatch.attempt,dispatch.operation],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         let Some((turn, conversation)) = scope else {
             tx.commit()?;
@@ -89,6 +90,13 @@ impl Store {
         let mut gloss = None;
         let mut coaching = None;
         let valid = match &result {
+            Ok(output) if kind == "skill_assessment" => {
+                crate::learning::coaching::skill_assessment::validate(&tx, &turn, output).map(
+                    |value| {
+                        coaching = Some(value);
+                    },
+                )
+            }
             Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
                 crate::learning::coaching::conversation_support::validate(&tx, &turn, &kind, output)
                     .map(|v| {
@@ -101,7 +109,8 @@ impl Store {
                 })
             }
             Ok(output)
-                if crate::learning::coaching::conversation_support::owns(&kind)
+                if kind == "skill_assessment"
+                    || crate::learning::coaching::conversation_support::owns(&kind)
                     || kind == "coach_feedback"
                     || kind == "coach_retry_check"
                     || kind == "coach_suggestions"
@@ -186,7 +195,8 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if crate::learning::coaching::conversation_support::owns(&kind)
+        if kind == "skill_assessment"
+            || crate::learning::coaching::conversation_support::owns(&kind)
             || kind == "coach_feedback"
             || kind == "coach_retry_check"
             || kind == "coach_suggestions"
@@ -208,7 +218,14 @@ impl Store {
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if crate::learning::coaching::conversation_support::owns(&kind) {
+                if kind == "skill_assessment" {
+                    crate::learning::coaching::skill_assessment::publish(
+                        &tx,
+                        &turn,
+                        &value,
+                        &dispatch.attempt,
+                    )?;
+                } else if crate::learning::coaching::conversation_support::owns(&kind) {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;

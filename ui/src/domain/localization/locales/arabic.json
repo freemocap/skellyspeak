@@ -944,6 +944,7 @@
   "Connection health": "حالة الاتصال",
   "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "ملاحظات الدردشة منفصلة عن تتبع المهارات. تظل أدلة المهارات المحفوظة متاحة.",
   "Conversation fit: {value0}/5": "ملاءمة المحادثة: {value0}/5",
+  "Conversation fit": "ملاءمة المحادثة",
   "Feedback": "ملاحظات",
   "Frames and starters": "قوالب وبدايات الجمل",
   "Grammar: {value0}/5": "القواعد: {value0}/5",
@@ -951,5 +952,13 @@
   "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "أحكام النموذج على هذه الرسالة، وليست قياسات للكفاءة. لا تُمنح نقاط خبرة للمهارات.",
   "Native-language wording": "تعبيرات باللغة الأم",
   "Reading help": "مساعدة القراءة",
-  "Target-language wording": "تعبيرات باللغة المستهدفة"
+  "Target-language wording": "تعبيرات باللغة المستهدفة",
+  "Skills": "المهارات",
+  "Category": "الفئة",
+  "All categories": "جميع الفئات",
+  "{value0} XP; next milestone {value1}": "{value0} XP؛ المحطة التالية {value1}",
+  "Next milestone: {value0} XP": "المحطة التالية: {value0} XP",
+  "{value0} XP milestone": "محطة {value0} XP",
+  "Skill XP comes from evidence in your messages.": "تأتي نقاط خبرة المهارات من الأدلة في رسائلك.",
+  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "تصل إلى محطة جديدة كل 50 XP. يعرض كل شريط التقدم نحو المحطة التالية، وتستمر نقاط الخبرة الإجمالية في الزيادة."
 }

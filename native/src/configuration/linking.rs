@@ -170,16 +170,6 @@ impl Registry {
                 guidance: v.guidance.clone(),
             });
         }
-        for goal in &doc.learning.goals {
-            if goal.language.as_ref() != Some(id) {
-                return Err(error(
-                    format!("{path}#learning.goals.{}", goal.id),
-                    "language_mismatch",
-                    "A local goal must belong to its language.",
-                ));
-            }
-            self.constructs.push(goal.clone());
-        }
         self.goal_material
             .insert(id.clone(), doc.learning.goal_material.clone());
         for (topic, text) in &doc.conversation.starters {
@@ -238,9 +228,6 @@ impl Registry {
             }
             if doc.varieties.iter().any(|v| v.id == entity) {
                 return Some(format!("{path}#varieties.{entity}"));
-            }
-            if doc.learning.goals.iter().any(|g| g.id == entity) {
-                return Some(format!("{path}#learning.goals.{entity}"));
             }
             for (kind, keys) in [
                 (

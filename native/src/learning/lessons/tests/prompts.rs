@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn selected_choice_is_validated_and_its_constructs_reach_the_generation_prompt() {
     let (_dir, mut store, chat) = setup();
     let snapshot = store.snapshot().unwrap();
@@ -45,6 +46,7 @@ fn selected_choice_is_validated_and_its_constructs_reach_the_generation_prompt()
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn reading_lessons_use_the_selected_native_language_not_assumed_english() {
     for native in ["french", "arabic"] {
         let (_dir, mut store, chat) = setup();

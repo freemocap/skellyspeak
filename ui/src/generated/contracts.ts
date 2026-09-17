@@ -142,6 +142,6 @@ export type InspectionTimingStatus = "available" | "unavailable";
 export type RefusalReason = "rate_limit" | "daily_limit" | "spending_paused" | "unknown";
 export type AppError = { code: ErrorCode, message: string, refusal: Refusal | null, };
 export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMax: 120, occupationMax: 120, backgroundMax: 2000, currentSituationMax: 600, mannerMax: 600, itemMax: 120, interestsMax: 12, opinionsMax: 12, factsMax: 12, booksMax: 8, moviesMax: 8, quirksMax: 8, vibeMin: 2, vibeMax: 4, briefMax: 200 } as const
-export const SKILL_CATALOG_VERSION = 1302219815 as const
+export const SKILL_CATALOG_VERSION = 1495763008 as const
 export const TEXT_SIZE = { default: 85, min: 75, max: 160, step: 5 } as const
 export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool","controlDensity":"standard","layoutSpacing":"tight","depth":"subtle","glowEnabled":false,"glowColor":"#7c5cff","glowStrength":30}

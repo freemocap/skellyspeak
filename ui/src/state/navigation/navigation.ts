@@ -82,7 +82,7 @@ const initialState = {
 export const useNavigationStore = create<NavigationState>((set) => ({
   ...initialState,
 
-  setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
+  setMode: (mode) => set(state => ({ mode: mode === 'learn' ? 'practice' : mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
   showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),
   openPractice: (surface) => set({ mode: 'practice', page: 'guided', mobileSurface: surface, overlay: null }),
   openSkills: () => set({ mode: 'review', skillsOpened: true, page: 'skills' }),

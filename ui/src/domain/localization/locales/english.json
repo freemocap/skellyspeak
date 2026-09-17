@@ -944,6 +944,7 @@
   "Connection health": "Connection health",
   "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "Chat feedback is separate from skill tracking. Saved skill evidence remains available.",
   "Conversation fit: {value0}/5": "Conversation fit: {value0}/5",
+  "Conversation fit": "Conversation fit",
   "Feedback": "Feedback",
   "Frames and starters": "Frames and starters",
   "Grammar: {value0}/5": "Grammar: {value0}/5",
@@ -951,5 +952,13 @@
   "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "Model judgments about this message, not proficiency measurements. No skill XP is awarded.",
   "Native-language wording": "Native-language wording",
   "Reading help": "Reading help",
-  "Target-language wording": "Target-language wording"
+  "Target-language wording": "Target-language wording",
+  "Skills": "Skills",
+  "Category": "Category",
+  "All categories": "All categories",
+  "{value0} XP; next milestone {value1}": "{value0} XP; next milestone {value1}",
+  "Next milestone: {value0} XP": "Next milestone: {value0} XP",
+  "{value0} XP milestone": "{value0} XP milestone",
+  "Skill XP comes from evidence in your messages.": "Skill XP comes from evidence in your messages.",
+  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing."
 }

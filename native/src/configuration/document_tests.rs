@@ -197,8 +197,7 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     assert_eq!(report.rules.len(), 1);
     assert_eq!(report.rules[0].source, "languages/arabic.yaml#guidance.0");
     assert!(report.rules[0].text.contains("Arabic learner evidence"));
-    assert_eq!(report.goals.len(), 1);
-    assert_eq!(report.goals[0].id, "arabic.idafa");
+    assert_eq!(report.goals.len(), 45);
     let instructions = &report.schemes[0].instructions;
     assert!(
         !report

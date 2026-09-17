@@ -74,7 +74,7 @@ pub(super) fn isolate_coaching(store: &mut Store) {
     isolate_user_reading(store);
     // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
     // exercised separately below with both automatic operations retained.
-    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", []).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction','skill_assessment','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", []).unwrap();
 }
 
 pub(super) fn isolate_translation(store: &mut Store) {

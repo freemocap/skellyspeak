@@ -88,29 +88,6 @@ guidance:
   sources:
   - ryding2005
 learning:
-  goals:
-  - id: arabic.idafa
-    label: Possessive construct (iḍāfa)
-    criterion: Join a possessed noun to its possessor in a construct phrase, placing a definite article
-      only on the possessor when needed.
-    opportunity: Talk about whose bag or keys you found, or describe a room in a friend’s home.
-    band: A2
-    lens: form
-    language: arabic
-    requires:
-    - possession
-    traits:
-    - construct-state
-    tokens:
-    - كتاب
-    - بيت
-    - باب
-    nav:
-      practical: possession
-      functional: form
-    sources:
-    - ryding2005
-    review: needs_review
   goal_material:
     courtesy:
       tokens:

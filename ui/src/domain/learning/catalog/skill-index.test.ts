@@ -14,7 +14,7 @@ it('uses snapshot labels and rejects broken catalog ancestry', () => {
   const value = structuredClone(skillDemo)
   value.catalog.find(node => node.id === 'referent')!.label = 'Snapshot label'
   expect(skillIndex(value).catalog.node('referent').label).toBe('Snapshot label')
-  value.catalog.find(node => node.id === 'statements')!.parent = 'referent'
+  value.catalog.find(node => node.id === 'reference')!.parent = 'referent'
   expect(() => createSkillCatalog(value.catalog)).toThrow('Cyclic')
 })
 it('classifies excluded and superseded evidence alongside current credit', () => {

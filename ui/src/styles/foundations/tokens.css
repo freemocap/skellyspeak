@@ -6,7 +6,7 @@
    Reading scale/script scale and domain colors retain their own contracts. */
 
 :root {
-  --layout-scale: .5;
+  --layout-scale: .75;
   --surface-shadow: 0 1px 2px rgb(0 0 0 / 14%), 0 3px 8px rgb(0 0 0 / 10%);
   --input-shadow: inset 0 1px 3px rgb(0 0 0 / 12%);
   --floating-shadow: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%);
@@ -63,8 +63,8 @@
 
 
   /* Living Spectrum theme palette: neutral surfaces let evidence carry hue. */
-  --c-spectrum-bg: #e8e2d4;
-  --c-spectrum-chrome: #f6f2e8;
+  --c-spectrum-bg: #ede8dc;
+  --c-spectrum-chrome: #f7f4ec;
   --c-spectrum-sheet: #fffdf8;
   --c-spectrum-card: #fbf8f0;
   --c-spectrum-dock: #f8f5ec;
@@ -72,15 +72,18 @@
   --c-spectrum-chip: #e8e2d2;
   --c-spectrum-field: #ffffff;
   --c-spectrum-track: #e2dac6;
-  --c-spectrum-line: #b4a991;
-  --c-spectrum-line-soft: #dcd3be;
+  --c-spectrum-line: #cfc5b0;
+  --c-spectrum-line-soft: #e6dfcf;
   --c-spectrum-ink: #1f1c17;
   --c-spectrum-ink-2: #3a3630;
   --c-spectrum-ink-3: #5c564b;
   --c-spectrum-partner-top: #fff4e3;
-  --c-spectrum-partner-line: #cbb28e;
+  --c-spectrum-partner-line: #ebd3a8;
   --c-spectrum-well-top: #dfd8e8;
   --c-spectrum-well-bottom: #dbd4c5;
+  /* Your side of the conversation is cool; the partner's side is warm. */
+  --c-learner-bubble: #e8eef8;
+  --c-learner-bubble-line: #c9d6eb;
   --c-domain-social: #e08a2e;
   --c-domain-ink-social: #8a4e0a;
   --c-domain-questions: #d9564f;
@@ -115,7 +118,7 @@
   --well-top: var(--c-spectrum-well-top);
   --well-bottom: var(--c-spectrum-well-bottom);
   --well: var(--well-bottom);
-  --sheet-shadow: 0 1px 2px rgb(0 0 0 / 12%), 0 8px 24px rgb(0 0 0 / 8%);
+  --sheet-shadow: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%);
   --card-shadow: 0 1px 3px rgb(0 0 0 / 18%);
   --well-shadow: inset 0 2px 8px rgb(0 0 0 / 20%);
   --field-shadow: inset 0 1px 3px rgb(0 0 0 / 12%);
@@ -158,8 +161,8 @@
   --bubble-partner-bg: var(--partner-top);
   --bubble-partner-line: var(--partner-line);
   --bubble-partner-line-focus: var(--interaction-ink);
-  --bubble-learner-bg: var(--c-spectrum-quiet);
-  --bubble-learner-line: var(--line);
+  --bubble-learner-bg: var(--c-learner-bubble);
+  --bubble-learner-line: var(--c-learner-bubble-line);
   --bubble-learner-ink: var(--ink);
   --bubble-learner-ink-muted: var(--ink-3);
 
@@ -215,6 +218,12 @@
   --map-mask: rgb(9 17 26 / 72%);
   --overlay-scrim-strong: rgb(0 0 0 / 73%);
 
+  /* ── Judgments: tints behind status inks ─────────────────────────────────
+     Good / attention / wrong. Skill-domain hues never stand in for these. */
+  --status-good-tint: #ddf0ec;
+  --status-attention-tint: #fbebd6;
+  --status-wrong-tint: #f7e0de;
+
   /* ── Feedback: danger ─────────────────────────────────────────────────── */
   --danger: var(--danger-ink);
   --danger-text: var(--failure-ink);
@@ -266,6 +275,7 @@
   --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
 
+  --type-hero: 30px;
   --type-display: 24px;
   --type-title: 18px;
   --type-reading: 20px;
@@ -325,6 +335,7 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  --radius-2xl: 18px;
   --radius-pill: 999px;
   --radius-circle: 50%;
 
@@ -398,9 +409,9 @@
   --chat-share: calc(100% - 360px);
   --radius-field: 20px;
   --measure-thread: 680px;
-  --coach-surface: var(--chrome);
+  --coach-surface: var(--sheet);
   --control-height-xs: 28px;
-  --bubble-shadow: var(--shadow-sm);
+  --bubble-shadow: 0 1px 2px rgb(31 28 23 / 6%);
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;
@@ -433,6 +444,11 @@
   --c-spectrum-ink: #f0f1f3;
   --c-spectrum-ink-2: #d3d6da;
   --c-spectrum-ink-3: #a3a8af;
+  --c-learner-bubble: #1e2836;
+  --c-learner-bubble-line: #34465f;
+  --status-good-tint: color-mix(in srgb, #3fc0af 16%, transparent);
+  --status-attention-tint: color-mix(in srgb, #f0a957 16%, transparent);
+  --status-wrong-tint: color-mix(in srgb, #f07a72 16%, transparent);
   --c-spectrum-partner-top: #32291b;
   --c-spectrum-partner-line: #695339;
   --c-spectrum-well-top: #211b2c;
@@ -529,10 +545,12 @@
 
 /* Appearance roles: selected on the root by the learner preference owner. */
 
-:root[data-spacing='roomy'] { --layout-scale: 1; }
-:root[data-spacing='balanced'] { --layout-scale: .75; }
-:root[data-spacing='tight'] { --layout-scale: .5; }
-:root[data-spacing='extra_tight'] { --layout-scale: .25; }
+/* Named densities sit one step roomier than raw multipliers: at .5 the whole
+   app collapsed into a flat, cramped sheet with no room for hierarchy. */
+:root[data-spacing='roomy'] { --layout-scale: 1.25; }
+:root[data-spacing='balanced'] { --layout-scale: 1; }
+:root[data-spacing='tight'] { --layout-scale: .75; }
+:root[data-spacing='extra_tight'] { --layout-scale: .5; }
 :root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
 :root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
 :root[data-depth='flat'] { --surface-shadow: 0 0 0 transparent; --input-shadow: inset 0 0 0 transparent; --floating-shadow: 0 0 0 transparent; --appearance-scrim: rgb(0 0 0 / 25%); }

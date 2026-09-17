@@ -15,6 +15,7 @@ import { t, type UiLang } from '../../domain/localization'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { SettingsDialog } from './SettingsDialog'
+import { ToolbarIcon, type ToolbarIconName } from '../../components/controls/ToolbarIcon'
 import { openOverlay } from '../../domain/input/back'
 import { useSettingsStore } from '../../state/settings/settings'
 import { languageLabel } from '../../domain/language/language-label'
@@ -93,41 +94,41 @@ function ShortcutField({
   )
 }
 
-const SECTIONS: { id: SectionId; labelKey: string; icon: string; descKey: string }[] = [
-  { id: 'appearance', labelKey: messageKey('Appearance'), icon: 'Aa', descKey: messageKey('Colors, spacing, depth and reading size') },
-  { id: 'reading', labelKey: messageKey('Reading & display'), icon: 'Aa', descKey: messageKey('Text size, spacing, and reading aids') },
+const SECTIONS: { id: SectionId; labelKey: string; icon: ToolbarIconName; descKey: string }[] = [
+  { id: 'appearance', labelKey: messageKey('Appearance'), icon: 'appearance', descKey: messageKey('Colors, spacing, depth and reading size') },
+  { id: 'reading', labelKey: messageKey('Reading & display'), icon: 'reading', descKey: messageKey('Text size, spacing, and reading aids') },
   {
     id: 'keys',
     labelKey: messageKey('AI access'),
-    icon: '🔑',
+    icon: 'key',
     descKey: messageKey('Hosted sign-in, API keys or a custom server'),
   },
-  { id: 'models', labelKey: messageKey('Models'), icon: '⚙', descKey: messageKey('Models') },
+  { id: 'models', labelKey: messageKey('Models'), icon: 'models', descKey: messageKey('Models') },
   {
     id: 'languages',
     labelKey: "Languages",
-    icon: '🌐',
+    icon: 'globe',
     descKey: "What you're learning and what you already speak.",
   },
   {
     id: 'voice',
     labelKey: "Audio & Voice",
-    icon: '🎙',
+    icon: 'voice',
     descKey: "Microphone, speech playback, and transcription behavior.",
   },
   {
     id: 'shortcuts',
     labelKey: "Shortcuts",
-    icon: '⌨',
+    icon: 'keyboard',
     descKey: "Click a field and press the combo. Esc resets to default.",
   },
   {
     id: 'updates',
     labelKey: "Updates",
-    icon: '⬆',
+    icon: 'update',
     descKey: "Application version and updates.",
   },
-  { id: 'data', labelKey: messageKey('Your data'), icon: '💾', descKey: messageKey('Save a copy, or delete everything and start over') },
+  { id: 'data', labelKey: messageKey('Your data'), icon: 'data', descKey: messageKey('Save a copy, or delete everything and start over') },
 ]
 
 const SECTION_LABEL_KEY: Record<SectionId, string> = Object.fromEntries(
@@ -630,7 +631,7 @@ export function SettingsModal({
                     setSection(s.id)
                   }}
                 >
-                  <span className="nav-icon">{s.icon}</span>
+                  <span className="nav-icon"><ToolbarIcon name={s.icon} size={18} /></span>
                   {t(ui, s.labelKey)}
                 </button>
               ))}
@@ -640,6 +641,7 @@ export function SettingsModal({
         <main className="settings-content">
           <div className="settings-head">
             <h2>{searching ? `“${search.trim()}”` : t(ui, "Settings")}</h2>
+            {!searching && !stacked && <p className="settings-section-title">{t(ui, activeSection.labelKey)}</p>}
             <p className="sub">
               {searching
                 ? t(ui, 'Search matches', { count: visibleRows.length })

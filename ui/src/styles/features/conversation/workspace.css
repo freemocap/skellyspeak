@@ -7,6 +7,13 @@
   overflow: hidden;
 }
 
+@media not all and (max-width: 860px) {
+  .split > .chat, .split > .break {
+    border: 0; border-radius: var(--radius-xl);
+    box-shadow: var(--sheet-shadow), var(--surface-glow);
+  }
+}
+
 .stream {
   overflow-x: hidden;
   flex: 1;
@@ -20,9 +27,9 @@
 }
 
 .chat .stream {
-  padding: var(--space-11) var(--space-12) var(--space-4);
+  padding: var(--space-11) var(--space-12) var(--space-8);
   align-items: center;
-  gap: var(--space-11);
+  gap: var(--space-10);
 }
 
 .chat .stream > * { width: 100%; max-width: var(--measure-thread); }

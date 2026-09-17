@@ -2,7 +2,7 @@
 .practice-credit is the record base. Conversation evidence uses compact padding;
 the learner model adds its own boxed inspection variant in skills/learner-model.css. */
 
-.practice-statistics { max-width: 760px; color: var(--ink); }
+.practice-statistics { max-width: none; color: var(--ink); }
 
 .practice-statistics-header > p:first-child {
   color: var(--analysis-accent);
@@ -11,31 +11,39 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   font-size: var(--type-meta);
 }
 
-.practice-statistics-header h2 { font-size: var(--type-title); margin: 0; }
+.practice-statistics-header h2 { font-size: var(--type-display); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); margin: 0; }
 
 .practice-statistics-header > p:last-child { color: var(--ink-2); font-size: var(--type-ui); }
 
 .practice-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-2);
-  margin: var(--space-3) 0;
+  gap: var(--space-5);
+  margin: var(--space-8) 0;
 }
 
+/* Number first, label under it: the value is what you came to read. */
 .practice-metrics > div {
-  padding: var(--space-2) var(--space-3);
-  border: var(--border-width) solid var(--line);
-  border-top: var(--border-width-thick) solid var(--analysis-accent);
-  border-radius: var(--radius-md);
-  background: var(--analysis-surface);
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-7) var(--space-8);
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  background: var(--field);
 }
 
-.practice-metrics dt { color: var(--analysis-ink-dim); font-size: var(--type-meta); }
+.practice-metrics > div:first-child { border-color: var(--partner-line); background: var(--partner-top); }
+
+.practice-metrics dt { color: var(--ink-3); font-size: var(--type-ui); }
 
 .practice-metrics dd {
-  margin: var(--space-1) 0 0;
-  font-size: var(--type-title);
-  font-weight: var(--weight-bold);
+  margin: 0;
+  font-size: var(--type-hero);
+  line-height: 1.1;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -83,7 +91,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-section-title h3 { margin: 0; font-size: var(--type-reading); }
 
-.practice-section-title > span { font: var(--type-meta) var(--font-mono); color: var(--ink-2); }
+.practice-section-title > span { font: var(--type-ui) var(--font-sans); color: var(--ink-3); }
 
 .practice-unpracticed {
   display: flex;
@@ -96,15 +104,15 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-skill-list { display: grid; gap: var(--space-3); }
 
 .practice-skill {
-  padding: var(--space-5) var(--space-6);
-  background: var(--card);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-sm);
+  padding: var(--space-6) var(--space-8);
+  background: var(--field);
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-lg);
 }
 
 .practice-skill summary { display: list-item; cursor: pointer; font-size: var(--type-ui); }
 
-.practice-skill summary > strong { float: inline-end; font: var(--type-ui) var(--font-mono); }
+.practice-skill summary > strong { float: inline-end; font: var(--weight-semibold) var(--type-ui) var(--font-sans); font-variant-numeric: tabular-nums; }
 
 .practice-skill summary > small {
   display: block;
@@ -169,37 +177,44 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .practice-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 }
 
-.practice-overview { max-width: 760px; }
+.practice-overview { max-width: none; }
 
 .practice-language-tabs {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--space-3);
   overflow-x: auto;
-  padding-bottom: 0;
-  margin: var(--space-3) 0 0;
-  border-bottom: var(--border-width) solid var(--line);
+  padding: var(--space-1) 0 var(--space-2);
+  margin: var(--space-8) 0 var(--space-4);
+  border: 0;
 }
 
+/* Language pills: the selected one is solid ink, the rest are quiet outlines. */
 .practice-language-tabs > button {
   flex: none;
-  display: grid;
-  gap: var(--space-2);
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-height: 34px;
   border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: var(--field);
-  color: var(--ink);
-  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-2);
+  padding: var(--space-2) var(--space-7);
+  font-size: var(--type-ui);
   cursor: pointer;
   text-align: start;
 }
 
+.practice-language-tabs > button:hover { color: var(--ink); border-color: var(--ink-3); }
+
 .practice-language-tabs > button[aria-selected=true] {
-  border-color: var(--analysis-accent);
-  background: var(--analysis-accent-deep);
-  box-shadow: inset 0 -2px var(--analysis-accent);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--sheet);
+  font-weight: var(--weight-medium);
 }
 
-.practice-language-tabs small { color: var(--analysis-accent-dim); font-variant-numeric: tabular-nums; }
+.practice-language-tabs small { color: inherit; opacity: .7; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
 
 .practice-language-empty { padding: var(--space-10) 0; }
 
@@ -208,18 +223,15 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .conversation-evidence .practice-credit { padding: var(--space-3); }
 
 #practice-language-panel {
-  border: var(--border-width) solid var(--line);
-  border-top: 0;
-  padding: var(--space-3);
+  border: 0;
+  padding: var(--space-2) 0;
 }
 
 .practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
 
 .detail-dialog:has(.practice-overview) {
-  width: min(820px, calc(100vw - 24px));
+  width: min(1000px, calc(100vw - 24px));
   height: 85dvh;
-  padding: var(--space-5);
+  padding: var(--space-10) var(--space-12);
   font-size: var(--type-ui);
 }
-
-.detail-dialog:has(.practice-overview) > .detail-close { float: right; padding: var(--space-1) var(--space-3); }

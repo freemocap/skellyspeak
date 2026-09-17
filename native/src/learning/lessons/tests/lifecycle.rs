@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn handoff_has_no_fake_user_and_never_repeats() {
     let (_dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);
@@ -42,6 +43,7 @@ fn handoff_has_no_fake_user_and_never_repeats() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn stale_cross_conversation_and_changed_difficulty_are_rejected() {
     let (_dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);
@@ -71,6 +73,7 @@ fn stale_cross_conversation_and_changed_difficulty_are_rejected() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn mid_chat_lesson_survives_history_revision_and_conversation_deletion_owns_everything() {
     let (_dir, mut store, chat) = setup();
     let revision = store
@@ -137,6 +140,7 @@ fn mid_chat_lesson_survives_history_revision_and_conversation_deletion_owns_ever
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn opening_exposure_is_consumed_once_without_claiming_all_future_chat_is_assisted() {
     let (_dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);

@@ -1,22 +1,29 @@
 /* Settings shell: navigation, scrolling content and fixed footer. Mobile uses stacked sections; content must shrink without pushing the footer outside the safe area. */
 
 .settings-modal {
-  width: min(720px, 100%); height: min(660px, 100%);
+  width: min(1000px, 100%); height: min(740px, 100%);
   display: flex; background: var(--sheet);
-  border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--floating-shadow), var(--appearance-glow);
+  border: 0; border-radius: var(--radius-2xl); overflow: hidden; box-shadow: var(--floating-shadow), var(--appearance-glow);
 }
 
 .settings-nav {
-  width: 160px; flex: none; display: flex; flex-direction: column; gap: var(--space-1);
-  background: var(--field); border-inline-end: var(--border-width) solid var(--line-soft);
-  padding: var(--space-5) var(--space-4);
+  width: 240px; flex: none; display: flex; flex-direction: column; gap: var(--space-1);
+  background: var(--chrome); border-inline-end: var(--border-width) solid var(--line-soft);
+  padding: var(--space-10) var(--space-6);
 }
+
+.settings-nav .nav-item { min-height: var(--control-height); padding: 0 var(--space-5); gap: var(--space-5); font-size: var(--type-body); color: var(--ink-2); }
+.settings-nav .nav-item:hover:not(:disabled) { color: var(--ink); background: var(--line-soft); }
+.settings-nav .nav-item.active { color: var(--interaction-ink); font-weight: var(--weight-semibold); background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); box-shadow: none; }
+.settings-nav .nav-item:disabled { cursor: default; opacity: .6; }
+.settings-nav .nav-icon { display: inline-flex; width: auto; color: var(--ink-3); }
+.settings-nav .nav-item.active .nav-icon { color: inherit; }
 
 .settings-search {
   min-height: var(--control-height);
-  background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-md);
+  background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-md);
   color: var(--ink); font-size: var(--type-ui); padding: var(--space-3) var(--space-5);
-  margin-bottom: var(--space-4); width: 100%;
+  margin-bottom: var(--space-8); width: 100%;
 }
 
 .settings-search:focus { border-color: var(--accent); }
@@ -31,20 +38,27 @@
 .settings-content { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 
 
-.settings-head h2 { margin: 0; font: inherit; }
+.settings-modal .settings-head { flex-direction: column; align-items: flex-start; justify-content: center; gap: var(--space-1); min-height: 0; padding: var(--space-10) var(--space-12) var(--space-8); color: var(--ink); text-transform: none; letter-spacing: normal; font-family: var(--font-sans); }
 
-.settings-head .sub { margin: 0; font: var(--type-ui) var(--font-sans); letter-spacing: var(--tracking-normal); text-transform: none; }
+.settings-head h2 { margin: 0; font: var(--weight-semibold) var(--type-display)/1.2 var(--font-sans); letter-spacing: var(--tracking-tight); }
+
+/* With a section open, "Settings" becomes the eyebrow and the section name leads. */
+.settings-head h2:has(+ .settings-section-title) { font: var(--weight-semibold) var(--type-meta)/1.5 var(--font-sans); letter-spacing: var(--tracking-tag); text-transform: uppercase; color: var(--ink-3); }
+
+.settings-section-title { margin: 0; font: var(--weight-semibold) var(--type-display)/1.2 var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--ink); }
+
+.settings-head .sub { margin: 0; font: var(--type-body) var(--font-sans); color: var(--ink-3); letter-spacing: var(--tracking-normal); text-transform: none; }
 
 .settings-scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--space-5) var(--space-8);
+  padding: var(--space-8) var(--space-12) var(--space-12);
 }
 
 .settings-content .modal-actions {
-  border-top: var(--border-width) solid var(--line-soft); margin: 0; padding: var(--space-5) var(--space-8); flex: none;
+  border-top: var(--border-width) solid var(--line-soft); margin: 0; padding: var(--space-6) var(--space-12); flex: none;
 }
 
 .settings-version {
@@ -52,17 +66,18 @@
   background: none;
   padding: 0;
   color: var(--ink-3);
-  font: var(--type-meta) var(--font-mono);
-  letter-spacing: var(--tracking-tag);
+  font: var(--type-ui) var(--font-sans);
   cursor: pointer;
 }
 
 .settings-version:hover, .settings-version:focus-visible { color: var(--accent-ink); text-decoration: underline; }
 
 .settings-group-k {
-  font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--accent-ink); margin: var(--space-1) 0 var(--space-2);
+  font-family: var(--font-sans); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tag);
+  text-transform: uppercase; color: var(--ink-3); margin: var(--space-8) 0 var(--space-4);
 }
+
+.settings-entry + .settings-entry { margin-top: var(--space-4); }
 
 .settings-close { margin-inline-start: auto; }
 

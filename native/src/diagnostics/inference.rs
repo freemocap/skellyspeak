@@ -24,7 +24,8 @@ fn identity(value: &str) -> Option<String> {
 }
 fn kind(value: &str) -> &str {
     match value {
-        "conversation_feedback"
+        "skill_assessment"
+        | "conversation_feedback"
         | "reply_assistance"
         | "reply_explanations"
         | "coach_feedback"

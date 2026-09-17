@@ -7,6 +7,12 @@ pub struct Declaration {
 }
 pub const PLAN: &[Declaration] = &[
     Declaration {
+        kind: "skill_assessment",
+        dependencies: &["persona_context"],
+        role: "fast",
+        contract_version: 1,
+    },
+    Declaration {
         kind: "lesson_review",
         dependencies: &["persona_reply"],
         role: "standard",

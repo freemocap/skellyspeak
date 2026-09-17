@@ -119,7 +119,7 @@ pub struct VarietyOverrides {
     #[serde(default)]
     pub integrations: Integrations,
 }
-document!(LearningContent { goals: Vec<Construct>, goal_material: BTreeMap<String, GoalMaterial> });
+document!(LearningContent { goal_material: BTreeMap<String, GoalMaterial> });
 document!(GoalMaterial { tokens: Vec<String> });
 document!(ConversationContent { default_partner: crate::model::PersonaDetails, starters: BTreeMap<String, StarterText>, starter_reasons: StarterReasons });
 document!(StarterText { label: String, preview: String, translation: String, varieties: Vec<String> });

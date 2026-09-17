@@ -26,7 +26,7 @@ it('separates global activity from language tabs and keeps an unused language em
   expect(screen.getByText('Total practice XP').parentElement).toHaveTextContent('10')
   expect(screen.getByText('Practice XP').parentElement).toHaveTextContent('10')
   const domain = skillDemo.catalog.find(node => node.kind === 'domain')!
-  fireEvent.click(screen.getByRole('button', { name: `${domain.label} 10 XP` }))
+  fireEvent.click(document.querySelector(`[data-reward-skill="${skill.skill_id}"]`)!)
   expect(screen.getByRole('heading', { name: `${domain.label} · skill evidence` })).toBeVisible()
   fireEvent.click(screen.getByRole('tab', { name: 'Arabic 0 XP' }))
   expect(screen.getByText('We don’t have any experience for this language yet.')).toBeVisible()

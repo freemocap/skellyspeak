@@ -6,7 +6,7 @@ import type { MessageEvidence } from '../../../domain/learning/evidence/message-
 import { playRewardSound } from '../../../platform/audio/reward-sounds'
 vi.mock('../../../platform/audio/reward-sounds', () => ({ playRewardSound: vi.fn() }))
 
-const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'statements', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }
+const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'reference', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }
 
 it('consumes only the selected token and restores it only with a new word generation', () => {
   vi.useFakeTimers()

@@ -1,0 +1,15 @@
+/* Shared flat skill list in the conversation and Skills page. Rows are cards; the
+   inline colour is the skill domain, used for the category label and bar only. */
+.skill-list { list-style: none; margin: var(--space-6) 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: var(--space-5); }
+.skill-list-row { width: 100%; height: 100%; display: grid; grid-template-columns: 1fr auto; align-content: start; gap: var(--space-3) var(--space-6); text-align: start; padding: var(--space-7) var(--space-8); background: var(--field); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); font-size: var(--type-ui); cursor: pointer; transition: border-color var(--dur-fast) var(--ease-out); }
+.skill-list-row:hover { border-color: currentColor; }
+.skill-list-row[aria-pressed="true"] { border-color: currentColor; box-shadow: 0 0 0 1px currentColor; }
+.skill-list-row strong { color: var(--ink); font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.skill-list-row > span { color: var(--ink); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+.skill-list-row small { color: var(--ink-3); font-size: var(--type-ui); grid-column: 1 / -1; }
+.skill-list-row > strong + span + small { order: -1; color: inherit; font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.skill-list-row progress { grid-column: 1 / -1; width: 100%; height: 8px; accent-color: currentColor; appearance: none; border: 0; border-radius: var(--radius-pill); background: var(--line-soft); overflow: hidden; }
+.skill-list-row progress::-webkit-progress-bar { background: var(--line-soft); border-radius: var(--radius-pill); }
+.skill-list-row progress::-webkit-progress-value { background: currentColor; border-radius: var(--radius-pill); transition: width var(--dur-deliberate) var(--ease-out); }
+.skill-list-row progress::-moz-progress-bar { background: currentColor; border-radius: var(--radius-pill); }
+@media (prefers-reduced-motion: reduce) { .skill-list-row progress::-webkit-progress-value { transition: none; } }

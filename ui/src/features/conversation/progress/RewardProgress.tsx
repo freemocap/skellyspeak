@@ -23,10 +23,10 @@ export function RewardProgress({ evidence, snapshot, onClose, arrivedIds }: { ar
   }, [onClose, arrivedIds, evidence])
   return createPortal(<aside className="reward-progress-toast" role="status" aria-label={tr("XP saved")}>
     <strong>+{total} {tr(" XP · ")}{snapshot.profile.xp} {tr(" XP total")}</strong>
-    {skills.map(skill => <div key={skill.skillId} data-mobile-reward-domain={skill.domainId} style={{ color: domainColors(skill.domainId).bright }}>
+    {skills.map(skill => <div key={skill.skillId} data-mobile-reward-skill={skill.skillId} style={{ color: domainColors(skill.domainId).bright }}>
       <div className="reward-progress-heading"><span>{skill.label}</span><span>{skill.xp} {tr(" XP")}</span></div>
-      <div className="reward-progress-track" role="progressbar" aria-label={tr("{value0} practice XP", { value0: String(skill.label) })} aria-valuemin={0} aria-valuemax={30} aria-valuenow={Math.min(30, skill.xp)} aria-valuetext={`${skill.xp} XP; 30 fills the practice bar`}>
-        <span style={{ width: `${Math.min(30, Math.max(0, skill.xp - skill.pending)) / 30 * 100}%` }} />
+      <div className="reward-progress-track" role="progressbar" aria-label={tr("{value0} practice XP", { value0: String(skill.label) })} aria-valuemin={0} aria-valuemax={50} aria-valuenow={skill.xp % 50} aria-valuetext={`${skill.xp} XP; next milestone ${(Math.floor(skill.xp / 50) + 1) * 50}`}>
+        <span style={{ width: `${(Math.max(0, skill.xp - skill.pending) % 50) / 50 * 100}%` }} />
       </div>
     </div>)}
     <small>{tr("Saved to your skill progress")}</small>

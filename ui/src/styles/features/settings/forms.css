@@ -17,8 +17,8 @@
 .key-row input[readonly] { color: var(--ink-2); cursor: default; }
 
 .save-status {
-  margin: 0 0 0 var(--space-2); font-family: var(--font-mono); font-size: var(--type-meta);
-  letter-spacing: var(--tracking-tag); text-transform: uppercase; color: var(--ink-2);
+  margin: 0 0 0 var(--space-2); font-family: var(--font-sans); font-size: var(--type-ui);
+  color: var(--ink-2);
 }
 
 .save-status.hint { color: var(--ink-3); }
@@ -32,13 +32,15 @@
 }
 
 .settings-modal .form-row label {
-  letter-spacing: var(--tracking-label);
+  font-weight: var(--weight-semibold);
   text-transform: none;
 }
 
 .settings-modal .form-row input, .settings-modal .form-row select {
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  min-height: var(--control-height-lg);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--type-body);
 }
 
 .settings-modal .form-row input[type="range"] { width: 100%; padding: 0; min-height: var(--control-height); }

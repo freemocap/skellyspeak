@@ -1,4 +1,3 @@
-import { DomainEvidenceTree } from '../../../components/learning/DomainEvidenceTree'
 import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../../components/localization/i18n'
 import { InfoTip } from '../../../components/controls/InfoTip'
@@ -26,11 +25,9 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
   return <div className="practice-statistics">
       <header className="practice-statistics-header"><h2>{name} {tr(" progress")}</h2><InfoTip>{tr("Trace every score back to the messages that contributed it.")}</InfoTip></header>
       <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: null, selectionVersion: 0, selected: domain?.skills[0]?.skill_id ?? focus.id, select: id => { const match = stats.domains.find(item => item.skills.some(skill => skill.skill_id === id)); setDomainId(match?.node.id ?? null) } }}><ConversationMap /></PracticeContext></SkillEvidenceContext>
-      <DomainEvidenceTree snapshot={snapshot} onSelect={setDomainId} />
       <RewardsLedger snapshot={snapshot} />
       <dl className="practice-metrics">
         <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
-        <div><dt>{tr("Lesson quiz XP")}</dt><dd>{stats.quizXp}</dd></div>
         <div><dt>{tr("Skills with credit")}</dt><dd>{stats.practiced}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>{tr("Skill stars")}</dt><dd>{stats.stars}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>{tr("Contributing messages")}</dt><dd>{stats.contributingMessages}</dd></div>

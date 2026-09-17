@@ -40,7 +40,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
           title={tr("Conversations")}
           onClick={() => { openPractice('chat'); toggleHistory() }}
         >
-          ☰ <span>{tr("Conversations")}</span>
+          <ToolbarIcon name="menu" size={18} /> <span>{tr("Conversations")}</span>
         </button>
       <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
@@ -48,7 +48,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       </button>
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
-      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}>★ {profile ? `${profile.xp.toLocaleString(tr.browserLocale)} XP · ${profile.target}` : tr("Progress")}</button>
+      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)} XP</strong><span className="profile-meter" aria-hidden="true"><span style={{ width: `${(profile.xp % 50) * 2}%` }} /></span></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
         aria-busy={checking} title={connectionDetail} onClick={() => showOverlay('settings')}>
         {connected ? tr('AI Connected') : tr('AI Not Connected')}
@@ -64,7 +64,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       >
         <ToolbarIcon name="settings" />
       </button>
-      <button type="button" className="gear" aria-label={tr("More")} aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}>•••</button>
+      <button type="button" className="gear" aria-label={tr("More")} aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}><ToolbarIcon name="more" size={18} /></button>
 
       </div>
     </div>

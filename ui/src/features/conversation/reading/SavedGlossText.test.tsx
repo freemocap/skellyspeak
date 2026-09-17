@@ -120,23 +120,22 @@ it('keeps uncovered Arabic letters, combining marks and joining controls in the 
   expect(screen.getByRole('button', { name: 'ک\u200cتاب' }).childNodes).toHaveLength(1)
 })
 
-it('reveals translation first, expands saved details separately, and resets tiers on close', () => {
+it('reveals all saved details together whenever a token is opened', () => {
   render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ', pronunciation: 'nee' }]} />)
   const word = screen.getByRole('button', { name: '你' })
   fireEvent.click(word)
   expect(screen.getByText('you')).toBeVisible()
-  expect(screen.queryByText('nǐ')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'More' }))
   expect(screen.getByText('nǐ')).toBeVisible()
   expect(screen.getByText('nee')).toBeVisible()
   expect(word).toHaveAttribute('aria-expanded', 'true')
   fireEvent.click(word)
   fireEvent.click(word)
-  expect(screen.queryByText('nǐ')).toBeNull()
-  expect(screen.getByRole('button', { name: 'More' })).toBeVisible()
+  expect(screen.getByText('nǐ')).toBeVisible()
+  expect(screen.getByText('nee')).toBeVisible()
+  expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
 })
 
-it('uses the same tiers inline on narrow screens without a popover', () => {
+it('shows all saved details inline on narrow screens without a popover', () => {
   const original = window.matchMedia
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
   try {
@@ -144,8 +143,6 @@ it('uses the same tiers inline on narrow screens without a popover', () => {
     fireEvent.click(screen.getByRole('button', { name: '你' }))
     expect(view.container.querySelector('[popover]')).toBeNull()
     expect(screen.getByText('you')).toBeVisible()
-    expect(screen.queryByText('nǐ')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'More' }))
     expect(screen.getByText('nǐ')).toBeVisible()
   } finally { media.mockRestore() }
 })
@@ -172,10 +169,9 @@ it('keeps expanded help when a desktop popover becomes inline during resize', ()
   try {
     const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
-    fireEvent.click(screen.getByRole('button', { name: 'More' }))
     act(() => resize(true))
     expect(view.container.querySelector('[popover]')).toBeNull()
     expect(screen.getByText('nǐ')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Less' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
   } finally { media.mockRestore(); hide.mockRestore() }
 })

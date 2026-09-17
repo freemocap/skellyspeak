@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lesson review is disabled; cancellation is covered in lessons_disabled"]
 fn audit_oversized_current_lesson_review_fails_only_its_operation() {
     let (_dir, mut store, conversation) = setup();
     let snapshot = store.snapshot().unwrap();
@@ -64,6 +65,7 @@ fn audit_oversized_current_lesson_review_fails_only_its_operation() {
 }
 
 #[test]
+#[ignore = "Lesson review is disabled; cancellation is covered in lessons_disabled"]
 fn audit_lesson_review_drops_old_exchanges_to_fit_serialized_budget() {
     let (_dir, mut store, conversation) = setup();
     let mut command = send(&store, &conversation);

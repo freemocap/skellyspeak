@@ -309,7 +309,13 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
             .is_none()
     );
     let records = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert!(records["records"].as_array().unwrap().is_empty());
+    assert!(
+        records["records"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|r| r["assessment"].is_null())
+    );
     let status: String = store
         .connection
         .query_row(

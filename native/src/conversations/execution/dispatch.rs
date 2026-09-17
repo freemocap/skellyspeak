@@ -10,7 +10,9 @@ impl Store {
 
     pub fn dispatch(&mut self) -> Result<Option<Dispatch>> {
         let tx = self.connection.transaction()?;
+        crate::learning::lessons::suspend_pending(&tx)?;
         if config(&tx)?.paused {
+            tx.commit()?;
             return Ok(None);
         }
         let running: i32 = tx.query_row(
@@ -19,10 +21,12 @@ impl Store {
             |r| r.get(0),
         )?;
         if running >= crate::ai::policy::admission::NETWORK_CAPACITY as i32 {
+            tx.commit()?;
             return Ok(None);
         }
         let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) ORDER BY CASE WHEN o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply','persona_speech') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
         let Some((operation, kind, turn, credential, model, context)) = candidate else {
+            tx.commit()?;
             return Ok(None);
         };
         let attempt = id();
@@ -101,6 +105,7 @@ impl Store {
             }
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
+            && kind != "skill_assessment"
             && kind != "lesson_generate"
             && kind != "lesson_review"
             && kind != "persona_reply"
@@ -120,7 +125,11 @@ impl Store {
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let prepared = (|| -> Result<_> {
             let mut gloss_source = None;
-            let coaching_schema = if crate::learning::coaching::conversation_support::owns(&kind) {
+            let coaching_schema = if kind == "skill_assessment" {
+                Some(crate::learning::coaching::skill_assessment::schema(
+                    &captured,
+                )?)
+            } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 Some(crate::learning::coaching::conversation_support::schema(
                     &kind,
                 ))
@@ -140,7 +149,9 @@ impl Store {
             } else {
                 None
             };
-            let messages = if crate::learning::coaching::conversation_support::owns(&kind) {
+            let messages = if kind == "skill_assessment" {
+                crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
+            } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 crate::learning::coaching::conversation_support::prompt(
                     &tx, &turn, &kind, &captured,
                 )?

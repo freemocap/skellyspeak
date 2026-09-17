@@ -5,7 +5,6 @@
   opportunity: Thank someone for a favor, apologize for a small mix-up, or respond to an offer.
   band: A1
   lens: pragmatics
-  language: null
   requires: []
   traits: []
   tokens: []
@@ -22,7 +21,6 @@
   opportunity: Ask how someone’s day is going and share how you are doing.
   band: A1
   lens: interaction
-  language: null
   requires: []
   traits: []
   tokens: []
@@ -39,7 +37,6 @@
   opportunity: Meet someone for the first time or end a friendly conversation.
   band: A1
   lens: interaction
-  language: null
   requires: []
   traits: []
   tokens: []
@@ -56,12 +53,11 @@
   opportunity: Point out a person or an object you want to talk about.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -73,13 +69,11 @@
   opportunity: Tell a story involving two friends and the different things they did.
   band: B1
   lens: function
-  language: null
-  requires:
-  - referent
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: referent
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -92,12 +86,11 @@
   opportunity: Order food for a few people or describe what is in your bag.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -110,13 +103,11 @@
   opportunity: Talk about which friends like an activity and how many would join.
   band: B1
   lens: function
-  language: null
-  requires:
-  - quantity
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: quantity
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -128,12 +119,11 @@
   opportunity: Talk about whose bag, keys, or bicycle you found.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -145,13 +135,11 @@
   opportunity: Help someone find a particular object among several similar ones.
   band: B1
   lens: function
-  language: null
-  requires:
-  - possession
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: possession
+    practical: reference
     functional: function
   sources:
   - cefr2020
@@ -164,12 +152,11 @@
   opportunity: Describe a person, a place, or an object you care about.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: descriptions
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -181,13 +168,11 @@
   opportunity: Explain what you like about a place and what could be better.
   band: B1
   lens: function
-  language: null
-  requires:
-  - property
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: property
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -200,12 +185,11 @@
   opportunity: Choose between two places to visit or two things to buy.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: descriptions
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -217,13 +201,11 @@
   opportunity: Compare a new experience with something familiar.
   band: B1
   lens: function
-  language: null
-  requires:
-  - comparison
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: comparison
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -235,12 +217,11 @@
   opportunity: Talk about how hot, busy, expensive, or enjoyable a place was.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: descriptions
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -252,13 +233,11 @@
   opportunity: Describe weather or a busy day that changed what you could do.
   band: B1
   lens: function
-  language: null
-  requires:
-  - degree
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: degree
+    practical: properties
     functional: function
   sources:
   - cefr2020
@@ -271,12 +250,11 @@
   opportunity: Tell someone about an activity you did with a friend.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -289,13 +267,11 @@
   opportunity: Discuss what happened to a lost item and who might have found it.
   band: B1
   lens: function
-  language: null
-  requires:
-  - event_roles
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: event_roles
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -308,12 +284,11 @@
   opportunity: Describe giving a gift, lending a book, or sending a message.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -326,13 +301,11 @@
   opportunity: Plan how to get a package to a friend who will be away.
   band: B1
   lens: function
-  language: null
-  requires:
-  - transfer
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: transfer
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -344,12 +317,11 @@
   opportunity: Talk about something that made you change your plans.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -361,13 +333,11 @@
   opportunity: Explain how a small event led to several changes in your day.
   band: B1
   lens: function
-  language: null
-  requires:
-  - causation
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: causation
+    practical: events
     functional: function
   sources:
   - cefr2020
@@ -380,12 +350,11 @@
   opportunity: Tell someone about something you did yesterday.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -398,13 +367,11 @@
   opportunity: Tell the story of a trip from its start to its finish.
   band: B1
   lens: function
-  language: null
-  requires:
-  - past_reference
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: past_reference
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -417,12 +384,11 @@
   opportunity: Share something you would like to do this weekend.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -435,13 +401,11 @@
   opportunity: Make a plan together and consider what to do if it rains.
   band: B1
   lens: function
-  language: null
-  requires:
-  - future_reference
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: future_reference
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -454,12 +418,11 @@
   opportunity: Discuss a habit you started, stopped, or want to keep.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -472,13 +435,11 @@
   opportunity: Talk about what you were doing when something unexpected happened.
   band: B1
   lens: function
-  language: null
-  requires:
-  - event_phase
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: event_phase
+    practical: time
     functional: function
   sources:
   - cefr2020
@@ -490,12 +451,11 @@
   opportunity: Help someone find a café, a room, or an item in your home.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -508,13 +468,11 @@
   opportunity: Give directions from a station to a place you know.
   band: B1
   lens: function
-  language: null
-  requires:
-  - location
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: location
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -526,12 +484,11 @@
   opportunity: Describe a walk or a journey through your neighborhood.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -543,13 +500,11 @@
   opportunity: Explain a route with several stops or changes of transport.
   band: B1
   lens: function
-  language: null
-  requires:
-  - motion
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: motion
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -562,12 +517,11 @@
   opportunity: Choose where to sit or which nearby object to pick up.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: situating
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -579,13 +533,11 @@
   opportunity: Describe a place from your viewpoint and from a visitor’s viewpoint.
   band: B1
   lens: function
-  language: null
-  requires:
-  - spatial_deixis
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: spatial_deixis
+    practical: space
     functional: function
   sources:
   - cefr2020
@@ -597,12 +549,11 @@
   opportunity: Explain a preference or correct an assumption about your plans.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: statements
+    practical: operators
     functional: function
   sources:
   - cefr2020
@@ -614,13 +565,11 @@
   opportunity: Clear up a misunderstanding about which people did something.
   band: B1
   lens: function
-  language: null
-  requires:
-  - negation
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: negation
+    practical: operators
     functional: function
   sources:
   - cefr2020
@@ -633,12 +582,11 @@
   opportunity: Find out more about a partner’s hobby or daily routine.
   band: A1
   lens: interaction
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: questions
+    practical: operators
     functional: interaction
   sources:
   - cefr2020
@@ -650,13 +598,11 @@
   opportunity: Ask someone to help you find out where or when an event happens.
   band: B1
   lens: function
-  language: null
-  requires:
-  - question
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: question
+    practical: operators
     functional: function
   sources:
   - cefr2020
@@ -669,12 +615,11 @@
   opportunity: Discuss what you can do, need to do, or might do on a trip.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: opinions
+    practical: operators
     functional: function
   sources:
   - cefr2020
@@ -687,13 +632,11 @@
   opportunity: Plan an outing with choices, practical limits, and obligations.
   band: B1
   lens: function
-  language: null
-  requires:
-  - modality
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: modality
+    practical: operators
     functional: function
   sources:
   - cefr2020
@@ -705,12 +648,11 @@
   opportunity: Explain why you chose a hobby, a meal, or a place to live.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: opinions
+    practical: connections
     functional: function
   sources:
   - cefr2020
@@ -722,13 +664,11 @@
   opportunity: Talk about enjoying something despite a difficulty.
   band: B1
   lens: function
-  language: null
-  requires:
-  - reason
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: reason
+    practical: connections
     functional: function
   sources:
   - cefr2020
@@ -740,12 +680,11 @@
   opportunity: Make an agreement about what to do if a situation changes.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: opinions
+    practical: connections
     functional: function
   sources:
   - cefr2020
@@ -757,13 +696,11 @@
   opportunity: Imagine how a past trip would have changed with more time.
   band: B1
   lens: function
-  language: null
-  requires:
-  - condition
+  requires: []
   traits: []
   tokens: []
   nav:
-    practical: condition
+    practical: connections
     functional: function
   sources:
   - cefr2020
@@ -775,12 +712,11 @@
   opportunity: Share something a friend told you about their day.
   band: A1
   lens: function
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: opinions
+    practical: connections
     functional: function
   sources:
   - cefr2020
@@ -792,33 +728,13 @@
   opportunity: Discuss a story you heard through a friend and what each person believes.
   band: B1
   lens: function
-  language: null
-  requires:
-  - reported_content
-  traits: []
-  tokens: []
-  nav:
-    practical: reported_content
-    functional: function
-  sources:
-  - cefr2020
-  - actfl2024
-  review: needs_review
-- id: ix.self_repair
-  label: Repair your own wording
-  criterion: Revise your earlier wording to resolve the identified problem while preserving the intended
-    meaning.
-  opportunity: Clarify what you meant after noticing a misunderstanding.
-  band: A1
-  lens: interaction
-  language: null
   requires: []
   traits: []
   tokens: []
   nav:
-    practical: social
-    functional: interaction
+    practical: connections
+    functional: function
   sources:
-  - aljaafreh_lantolf1994
-  - lyster_ranta1997
+  - cefr2020
+  - actfl2024
   review: needs_review

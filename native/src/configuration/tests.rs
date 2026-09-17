@@ -19,7 +19,7 @@ fn script_scale_defaults_to_standard_and_language_overrides_remain_effective() {
 fn shipped_config_loads_resolves_and_projects() {
     let r = Registry::bundled().unwrap();
     assert!(!r.languages.is_empty());
-    assert_eq!(r.constructs().len(), 47);
+    assert_eq!(r.constructs().len(), 45);
     let c = r
         .resolve("arabic", Some("arabic-modern-standard"), "mandarin")
         .unwrap();
@@ -64,7 +64,7 @@ fn candidates_preserve_required_members_and_starters_have_real_reasons() {
         .candidates(&ctx, "A1", &["nested_reference".into()], &[], &[])
         .unwrap();
     assert!(candidates.iter().any(|c| c.id == "nested_reference"));
-    assert!(candidates.iter().any(|c| c.id == "ix.self_repair"));
+    assert!(!candidates.iter().any(|c| c.id == "ix.self_repair"));
     // Most migrated criteria are functional; mandatory coverage legitimately exceeds25.
     assert!(candidates.len() > 25);
     let cards = r
@@ -144,39 +144,58 @@ fn scoped_resolution_orders_traits_and_honors_leaf_scalar_overrides() {
     assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
 }
 #[test]
-fn optional_form_candidates_respect_language_band_and_prerequisites() {
+fn catalog_is_45_generic_skills_under_eight_flat_categories() {
     let r = Registry::bundled().unwrap();
-    let ar = r.resolve("arabic", None, "english").unwrap();
-    let es = r.resolve("spanish", None, "english").unwrap();
-    // The required set already exceeds the optional budget. Requested focus must
-    // still carry its actual form and prerequisite, regardless of that soft cap.
-    let selected = r
-        .candidates(&ar, "C2", &["arabic.idafa".into()], &[], &[])
-        .unwrap();
-    assert!(selected.iter().any(|c| c.id == "arabic.idafa"));
-    assert!(selected.iter().any(|c| c.id == "possession"));
-    assert!(
-        r.candidates(&es, "A2", &["arabic.idafa".into()], &[], &[])
-            .is_err()
+    assert_eq!(r.constructs.len(), 45);
+    let catalog = r.catalog();
+    let nodes = catalog.as_array().unwrap();
+    let categories: Vec<_> = nodes
+        .iter()
+        .filter(|n| n["kind"] == "domain")
+        .map(|n| n["id"].as_str().unwrap())
+        .collect();
+    assert_eq!(
+        categories,
+        vec![
+            "reference",
+            "properties",
+            "events",
+            "time",
+            "space",
+            "operators",
+            "connections",
+            "social"
+        ]
     );
-    let mut small = r.clone();
-    small
-        .constructs
-        .retain(|c| ["arabic.idafa", "possession"].contains(&c.id.as_str()));
+    let ids: std::collections::HashSet<_> = r.constructs.iter().map(|c| c.id.as_str()).collect();
+    assert_eq!(ids.len(), 45);
+    assert!(!ids.contains("arabic.idafa") && !ids.contains("ix.self_repair"));
+    assert!(r.constructs.iter().all(|c| c.requires.is_empty()));
     assert!(
-        small
-            .candidates(&ar, "A1", &[], &[], &[])
-            .unwrap()
+        nodes
             .iter()
-            .any(|c| c.id == "arabic.idafa")
+            .filter(|n| n["kind"] == "skill")
+            .all(|n| categories.contains(&n["parent"].as_str().unwrap()))
     );
-    assert!(
-        !small
-            .candidates(&ar, "C2", &[], &[], &[])
-            .unwrap()
-            .iter()
-            .any(|c| c.id == "arabic.idafa")
-    );
+    for language in &r.languages {
+        let context = r.resolve(&language.id, None, "english").unwrap();
+        let candidates = r
+            .candidates(
+                &context,
+                "A1",
+                &r.constructs
+                    .iter()
+                    .map(|c| c.id.clone())
+                    .collect::<Vec<_>>(),
+                &[],
+                &[],
+            )
+            .unwrap();
+        assert_eq!(candidates.len(), 45);
+        for c in candidates {
+            assert_eq!(c.criterion, r.construct(&c.id).unwrap().criterion);
+        }
+    }
 }
 #[test]
 fn captured_custom_language_context_reaches_gloss_prompt_and_decoder() {

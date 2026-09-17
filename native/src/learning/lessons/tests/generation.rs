@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn generation_is_durable_structured_private_and_idempotent() {
     let (dir, mut store, chat) = setup();
     let rev = store.snapshot().unwrap().revision;
@@ -41,6 +42,7 @@ fn generation_is_durable_structured_private_and_idempotent() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn invalid_generation_is_rejected_and_explicit_new_request_can_retry() {
     let (_dir, mut store, chat) = setup();
     let rev = store.snapshot().unwrap().revision;
@@ -69,6 +71,7 @@ fn invalid_generation_is_rejected_and_explicit_new_request_can_retry() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn categories_are_captured_in_the_saved_lesson_and_generation_prompt() {
     for category in [
         LessonCategory::Grammar,

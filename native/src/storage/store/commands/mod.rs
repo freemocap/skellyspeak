@@ -24,8 +24,18 @@ impl Store {
         }
         Uuid::parse_str(&command.action_id)
             .map_err(|_| AppError::new(ErrorCode::Validation, "Invalid action identity."))?;
+        if matches!(
+            &command.action,
+            Action::GenerateLesson { .. }
+                | Action::ControlLesson { .. }
+                | Action::AnswerLessonQuiz { .. }
+                | Action::AskLessonCoach { .. }
+        ) {
+            crate::learning::lessons::require_enabled()?;
+        }
         let request = serde_json::to_string(&command.action)?;
         let tx = self.connection.transaction()?;
+        crate::learning::lessons::suspend_pending(&tx)?;
         let previous: Option<(String, String)> = tx
             .query_row(
                 "SELECT request,receipt FROM receipts WHERE action_id=?1",

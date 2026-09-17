@@ -14,7 +14,7 @@ function completed() {
   return snapshot
 }
 it('connects a new credit to the message, phrase, skill and actual catalog domain', () => {
-  expect(skillRewards(skillDemo, completed(), 'chat')).toEqual([{ id: 'a:referent', messageId: 1, skillId: 'referent', domainId: 'statements', label: 'Identify a referent', quote: 'Ese café', xp: 10 }])
+  expect(skillRewards(skillDemo, completed(), 'chat')).toEqual([{ id: 'a:referent', messageId: 1, skillId: 'referent', domainId: 'reference', label: 'Identify a referent', quote: 'Ese café', xp: 10 }])
   const pending = structuredClone(skillDemo)
   pending.records = [{ ...record, status: 'pending', assessment: null }]
   expect(skillRewards(pending, completed(), 'chat')).toHaveLength(1)

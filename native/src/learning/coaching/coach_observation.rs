@@ -205,9 +205,6 @@ pub(crate) fn validate(
         }
     }
     let native_repair = if repaired == Some(true) {
-        if !candidates.iter().any(|c| c["id"] == "ix.self_repair") {
-            return Err(rejected("self-repair construct missing from registry"));
-        }
         let target = captured["coachRetry"]["item"]["construct"]
             .as_str()
             .ok_or_else(|| rejected("missing retry target"))?;
@@ -217,7 +214,7 @@ pub(crate) fn validate(
             .find(|i| i.construct == target)
             .ok_or_else(|| rejected("missing repaired item"))?;
         Some(
-            json!({"construct":"ix.self_repair","quote":item.quote,"outcome":"demonstrated","source":"native_repair_check","support_step":captured["coachRetry"]["supportStep"]}),
+            json!({"construct":target,"quote":item.quote,"outcome":"demonstrated","source":"native_repair_check","support_step":captured["coachRetry"]["supportStep"]}),
         )
     } else {
         None

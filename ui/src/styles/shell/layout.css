@@ -9,20 +9,20 @@
 
 .topbar {
   display: flex; align-items: center;
-  min-height: 56px; padding: var(--space-2) var(--space-8);
-  border-bottom: var(--border-width) solid var(--line-soft); background: var(--sheet);
-  flex: none; justify-content: flex-start; gap: var(--space-3);
+  min-height: 60px; padding: var(--space-2) var(--space-8) var(--space-2) var(--space-6);
+  border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
+  flex: none; justify-content: flex-start; gap: var(--space-6);
 }
 
 /* The hamburger sits with the wordmark, where every chat app puts it. */
 
 .hamburger {
-  background: none; border: var(--border-width) solid transparent; border-radius: var(--radius-sm);
-  color: var(--ink-2); cursor: pointer; padding: var(--space-2) var(--space-4);
-  line-height: 1; margin-right: var(--space-5); display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--type-ui); margin: 0;
+  background: none; border: var(--border-width) solid transparent; border-radius: var(--radius-md);
+  color: var(--ink-2); cursor: pointer; padding: 0 var(--space-5); min-height: var(--control-height-lg);
+  line-height: 1; display: inline-flex; align-items: center; gap: var(--space-4); font-size: var(--type-ui); margin: 0;
 }
 
-.hamburger:hover { color: var(--ink); border-color: var(--line); }
+.hamburger:hover { color: var(--ink); background: var(--line-soft); }
 
 .hamburger[aria-expanded='true'] {
   color: var(--ink);
@@ -30,7 +30,7 @@
   border-color: var(--line);
 }
 
-.wordmark { font-weight: var(--weight-semibold); font-size: var(--type-body); letter-spacing: var(--tracking-tight); }
+.wordmark { font-weight: var(--weight-semibold); font-size: var(--type-title); letter-spacing: var(--tracking-tight); }
 
 .wordmark b { color: var(--accent-ink); }
 
@@ -43,7 +43,7 @@
 }
 
 .tab {
-  font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  font-family: var(--font-sans); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tag); text-transform: uppercase;
   padding: var(--space-3) var(--space-6); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: none; color: var(--ink-2); cursor: pointer;
 }
@@ -53,11 +53,11 @@
 .tab.active { color: var(--ink); border-color: var(--line); background: var(--field); }
 
 .gear {
-  background: none; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);
+  background: none; border: var(--border-width) solid transparent; border-radius: var(--radius-md);
   color: var(--ink-2); cursor: pointer; padding: var(--space-3) var(--space-5); font-size: var(--type-body);
 }
 
-.gear:hover { color: var(--ink); }
+.gear:hover { color: var(--ink); background: var(--line-soft); }
 
 .content { flex: 1; min-height: 0; display: flex; }
 
@@ -70,7 +70,7 @@
 
 .not-tauri {
   margin: auto; max-width: 420px; text-align: center; color: var(--ink-2);
-  font-family: var(--font-mono); font-size: var(--type-ui); line-height: var(--leading-loose);
+  font-family: var(--font-sans); font-size: var(--type-body); line-height: var(--leading-normal);
   border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); padding: var(--space-11);
 }
 
@@ -86,7 +86,13 @@
 
 .guided-workspace { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; }
 
-.split { flex: 1; min-height: 0; display: flex; padding: 0; gap: 0; background: var(--sheet); }
+.split { flex: 1; min-height: 0; display: flex; padding: 0; gap: 0; background: var(--bg); }
+
+/* Desktop: the conversation and coach are raised sheets on the paper ground,
+   so the page reads as ground → sheet → card instead of one flat plane. */
+@media not all and (max-width: 860px) {
+  .split { padding: var(--space-8); gap: var(--space-4); }
+}
 
 /* Overflow guards: flex's default min-width/min-height:auto lets wide
    token/gloss columns and long chats blow past the viewport — break the
@@ -120,8 +126,8 @@
   padding: var(--space-3) var(--space-2);
   border: 0; border-top: var(--border-width-strong) solid transparent; background: none;
   color: var(--ink-2); cursor: pointer;
-  font-family: var(--font-mono); font-size: var(--type-meta);
-  font-weight: var(--weight-semibold); letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  font-family: var(--font-sans); font-size: var(--type-ui);
+  font-weight: var(--weight-semibold);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -156,8 +162,7 @@
 }
 
 .chat-history-lang {
-  font-family: var(--font-mono); font-size: var(--type-meta); letter-spacing: var(--tracking-caps);
-  text-transform: uppercase; color: var(--ink-2);
+  font-family: var(--font-sans); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tag); text-transform: uppercase; color: var(--ink-3);
 }
 
 .chat-history-new {
@@ -255,9 +260,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  padding: var(--space-2);
+  width: var(--control-height-lg);
+  height: var(--control-height-lg);
+  padding: 0;
 }
 
 @media (max-width: 860px) {
@@ -265,9 +270,7 @@
   .topbar .hamburger { margin: 0; padding: var(--space-2); }
 }
 
-.topbar-actions .profile-trigger { width: auto; gap: var(--space-2); padding-inline: var(--space-3); }
-
-.profile-trigger > span { font: var(--type-meta) var(--font-mono); color: var(--accent-soft-ink); white-space: nowrap; }
+.topbar-actions .profile-trigger { width: auto; }
 
 .app-home {
   display: inline-flex;
@@ -321,7 +324,7 @@
 .partner-row[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--sheet); }
 .partner-row > span { min-width: 0; }
 .partner-row strong { display: block; font-size: var(--type-ui); overflow-wrap: anywhere; }
-.partner-row small { display: block; font: var(--type-meta) var(--font-mono); color: var(--ink-3); }
+.partner-row small { display: block; font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
 
 .mobile-nav-item[data-mode=learn][aria-current=page] { color: var(--mode-learn-ink); }
 .mobile-nav-item[data-mode=review][aria-current=page] { color: var(--mode-review-ink); }
@@ -329,20 +332,27 @@
 .practice-divider.dragging { background: var(--accent); }
 
 .practice-divider::after { content: ''; position: absolute; inset: 0 -4px; }
-.profile-trigger { border: var(--border-width) solid var(--partner-line); border-radius: var(--radius-pill); background: var(--partner-top); color: var(--ink-2); padding: var(--space-2) var(--space-5); font-size: var(--type-ui); cursor: pointer; min-height: var(--control-height); }
+.profile-trigger { display: inline-flex; align-items: center; gap: var(--space-4); border: var(--border-width) solid var(--partner-line); border-radius: var(--radius-pill); background: var(--partner-top); color: var(--ink); padding: 0 var(--space-7) 0 var(--space-5); font-size: var(--type-ui); cursor: pointer; min-height: var(--control-height-lg); white-space: nowrap; }
+.profile-trigger:hover { border-color: var(--correction-line); }
+.profile-trigger strong { font-weight: var(--weight-semibold); }
+.profile-star { display: inline-flex; color: var(--correction-line); }
+.profile-star svg { fill: color-mix(in srgb, var(--correction-line) 45%, transparent); }
+.profile-meter { display: inline-flex; width: 48px; height: 6px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--correction-line) 22%, transparent); overflow: hidden; }
+.profile-meter > span { background: var(--correction-line); border-radius: inherit; }
 .connection-state { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
-.connection-state::before { content: ''; width: 7px; height: 7px; border-radius: var(--radius-circle); background: var(--ink-3); }
-.connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--danger-ink); }
-.connection-state[data-configured=true] { color: var(--success-ink); border-color: var(--success-line); }
-.connection-state[data-configured=true]::before { background: var(--success-ink); }
-.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--field); cursor: pointer; text-align: start; }
-.connection-setup:hover { color: var(--accent-ink); text-decoration: underline; }
+.connection-state::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); box-shadow: 0 0 0 3px var(--line-soft); }
+.connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--status-wrong-tint); background: var(--status-wrong-tint); }
+.connection-state[data-configured=true] { color: var(--ink-2); }
+.connection-state[data-configured=false]::before { background: var(--danger-ink); box-shadow: 0 0 0 3px var(--status-wrong-tint); }
+.connection-state[data-configured=true]::before { background: var(--success-ink); box-shadow: 0 0 0 3px var(--status-good-tint); }
+.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
+.connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 .connection-setup:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 2px; }
 @media (max-width: 860px) { .hamburger > span { display: none; } }
 @media (max-width: 480px) { .app-home > span { display: none; } }
 
 .topbar-language { min-width: 0; }
-.topbar-language .learning-picker { min-height: var(--control-height); font-size: var(--type-ui); max-width: 180px; border-radius: var(--radius-pill); padding-inline: var(--space-5); }
+.topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); max-width: 220px; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
 @media (max-width: 860px) { .topbar-language .learning-picker { max-width: 120px; } .topbar .app-home > span { display: none; } }
 @media (max-width: 480px) { .topbar-actions .profile-trigger { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
 @media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .hamburger { min-height: var(--touch-target); } }

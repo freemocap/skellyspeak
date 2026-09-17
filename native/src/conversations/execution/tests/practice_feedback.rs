@@ -94,7 +94,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
         &store,
         &second,
         "coach_retry_check",
-        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."},{"construct":"ix.self_repair","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":""}]}),
+        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
     );
     assert!(checked["nativeRepair"]["support_step"].is_null());
     let record =
@@ -114,7 +114,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
             .as_array()
             .unwrap()
             .iter()
-            .filter(|j| j["skill_id"] == "ix.self_repair")
+            .filter(|j| j["skill_id"] == "question" && j["source"] == "native_repair_check")
             .count(),
         1
     );
@@ -126,7 +126,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
             .contains("linking verb")
     );
     let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(profile["profile"]["xp"], 28);
+    assert_eq!(profile["profile"]["xp"], 18);
 }
 
 #[test]

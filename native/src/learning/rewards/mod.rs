@@ -60,7 +60,11 @@ pub(crate) fn publish(db: &Connection, turn: &str, attempt: &str) -> Result<()> 
             .join(" ")
             .to_lowercase()
     };
-    let items = captured["coachObservation"]["items"]
+    let observation = captured
+        .get("skillAssessment")
+        .or_else(|| captured.get("coachObservation"))
+        .ok_or_else(|| fail("Rewards require validated observations."))?;
+    let items = observation["items"]
         .as_array()
         .ok_or_else(|| fail("Rewards require validated observations."))?;
     let mut events = Vec::new();

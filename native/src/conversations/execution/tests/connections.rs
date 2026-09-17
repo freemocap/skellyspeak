@@ -174,7 +174,9 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             )
             .unwrap();
         let expected = match kind.as_str() {
-            "user_translation" | "reply_translation" => "google/gemini-2.5-flash-lite",
+            "skill_assessment" | "user_translation" | "reply_translation" => {
+                "google/gemini-2.5-flash-lite"
+            }
             "user_word_gloss"
             | "persona_word_gloss"
             | "conversation_feedback"

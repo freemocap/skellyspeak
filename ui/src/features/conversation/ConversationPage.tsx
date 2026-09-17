@@ -5,7 +5,6 @@ import { PracticeDivider } from './messages/PracticeDivider'
 import { LiveCoachReview } from './coaching/LiveCoachReview'
 import { OpeningStatus } from './session/OpeningStatus'
 import { useNavigationStore } from '../../state/navigation/navigation'
-import { LessonDialog } from './lessons/LessonDialog'
 import { ConversationStart, type StartChoice } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
 import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
@@ -117,9 +116,7 @@ export default function ConversationPage({
   useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'lesson' | 'evidence'>('lesson')
   const [coachDraft, setCoachDraft] = useState('')
-  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
   const mode = useNavigationStore(state => state.mode)
-  const setMode = useNavigationStore(state => state.setMode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
@@ -168,7 +165,6 @@ export default function ConversationPage({
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
     setPinnedId(null)
-    setSelectedLessonId(null)
     setCoachDraft('')
     setReviewing(new Set())
     clearWordsRef.current()
@@ -513,10 +509,10 @@ export default function ConversationPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${mode === 'learn' ? 'workspace-learn' : ''} ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
     >
       <ChatHistory
-        open={historyOpen && mode !== 'learn'}
+        open={historyOpen}
         chats={contactChats}
 
         currentId={currentChatId}
@@ -526,9 +522,6 @@ export default function ConversationPage({
         onNewChat={() => void startNewConversation()}
         onDeleteChat={(id) => void removeChat(id)}
       />
-      {snapshot && <div className={`learn-workspace ${mode !== 'learn' ? 'hidden' : ''}`}>
-        <LessonDialog embedded onLessonSelected={setSelectedLessonId} key={currentChatId} snapshot={snapshot} busy={sending || details.saving} beforeAction={details.beforeSend} onPractice={() => useNavigationStore.getState().openPractice('chat')} onClose={() => setMode('practice')} />
-      </div>}
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
         <ConversationHeader persona={<PersonaPicker status={[targetLanguageName, details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, mic.recording ? tr("Listening") : settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} choices={contactChoices} currentId={activeContactId}
@@ -673,7 +666,7 @@ export default function ConversationPage({
       >
         {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Coach")}</button>}
 
-        {/* Lesson choices and private coaching share the learning panel. */}
+        {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
           coachingContent={<LiveCoachReview onAsk={question => { setCoachDraft(question); openCoach() }} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'lesson' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
@@ -681,9 +674,6 @@ export default function ConversationPage({
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
             await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
           }} />}
-          onLesson={mode === 'learn' ? undefined : () => setMode('learn')}
-          lessonContext={mode === 'learn' ? snapshot?.lessons.find(lesson => lesson.id === selectedLessonId) : undefined}
-          lessonSummary={snapshot?.lessons?.find(lesson => lesson.status === 'practicing' || lesson.status === 'completed')}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
           onCollapse={!isMobile ? toggleBreak : undefined}

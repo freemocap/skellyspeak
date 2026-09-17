@@ -33,6 +33,7 @@
 @import './components/popovers.css';
 @import './components/reading.css';
 @import './components/activity.css';
+@import './components/skill-list.css';
 @import './components/errors.css';
 @import './components/waveform.css';
 @import './shell/notices.css';

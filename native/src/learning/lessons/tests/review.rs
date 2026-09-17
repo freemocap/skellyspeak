@@ -1,6 +1,7 @@
 use super::*;
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn recap_needs_real_learner_evidence_and_ended_practice_cannot_complete() {
     let (_dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);
@@ -72,6 +73,7 @@ fn recap_needs_real_learner_evidence_and_ended_practice_cannot_complete() {
 }
 
 #[test]
+#[ignore = "Lessons are disabled; retained lifecycle contract for a future re-enable"]
 fn review_dispatch_completes_once_and_revision_removes_the_recap() {
     let (_dir, mut store, chat) = setup();
     let id = generate_ready(&mut store, &chat);

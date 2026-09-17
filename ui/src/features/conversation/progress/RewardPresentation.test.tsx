@@ -8,7 +8,7 @@ import { RewardPresentationProvider } from './RewardPresentation'
 import { RewardInspectionContext } from './RewardInspectionContext'
 import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
-const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'statements', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
+const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
 vi.mock('../../../domain/learning/evidence/message-evidence', () => ({ createMessageEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
 function Triggers() {
   const controller = useContext(RewardInspectionContext)!
@@ -16,7 +16,7 @@ function Triggers() {
 }
 function Fixture({ fastMode }: { fastMode: boolean }) {
   const workspace = useRef<HTMLDivElement>(null)
-  return <RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-domain="statements" /></div></RewardPresentationProvider>
+  return <RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-skill="referent" /></div></RewardPresentationProvider>
 }
 it('grows, holds, and departs on dismissal before flashing the destination', () => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)

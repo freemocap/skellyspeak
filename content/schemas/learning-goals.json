@@ -16,12 +16,6 @@
         "label": {
           "type": "string"
         },
-        "language": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "lens": {
           "type": "string"
         },

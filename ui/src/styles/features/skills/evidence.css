@@ -44,6 +44,6 @@
 .domain-evidence-tree .unobserved { stroke-dasharray: 4 4; }
 .domain-evidence-tree circle { fill: var(--node-color); }
 .domain-evidence-row { display: grid; width: 100%; grid-template-columns: 1fr auto; gap: var(--space-4); text-align: start; padding: var(--space-6); border: 0; border-bottom: var(--border-width) solid var(--line-soft); background: transparent; color: var(--ink); cursor: pointer; }
-.domain-evidence-row small { font: var(--type-meta) var(--font-mono); color: var(--ink-3); }
+.domain-evidence-row small { font: var(--type-ui) var(--font-sans); color: var(--ink-3); }
 .domain-evidence-row meter { grid-column: 1 / -1; width: 100%; height: 8px; accent-color: var(--node-color); }
 .domain-evidence-row:not(:has(meter)) { border: var(--border-width) dashed var(--line); }

@@ -306,19 +306,8 @@ impl Registry {
             {
                 return Err(error(&c.id, "construct", "Unsupported band or lens."));
             }
-            if let Some(id) = &c.language {
-                reference(&c.id, id, &langs)?;
-            }
             for dep in &c.requires {
                 reference(&c.id, dep, &constructs)?;
-                let parent = self.construct(dep)?;
-                if parent.language.is_some() && parent.language != c.language {
-                    return Err(error(
-                        &c.id,
-                        "language_mismatch",
-                        "Prerequisite is limited to another language.",
-                    ));
-                }
             }
             for id in &c.traits {
                 reference(&c.id, id, &traits)?;

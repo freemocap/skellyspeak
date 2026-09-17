@@ -118,7 +118,6 @@
 
 .saved-word-inline { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin-inline: var(--space-2); }
 .saved-word-inline .wg, .saved-word-inline .wroman, .saved-word-inline .wpronunciation { display: inline; font: var(--type-ui) var(--font-sans); }
-.gloss-more { color: var(--interaction-ink); background: transparent; border: none; font: var(--type-ui) var(--font-sans); padding: var(--space-2); }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }

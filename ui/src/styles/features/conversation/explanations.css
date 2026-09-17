@@ -1,11 +1,10 @@
 /* Language explanation cards: examples, level labels and comparisons. */
 
 .exp {
-  border: var(--border-width) solid var(--line-soft);
-  border-inline-start: var(--border-width-thick) solid var(--warning);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
-  padding: var(--space-6) var(--space-7);
-  background: var(--chrome);
+  padding: var(--space-7) var(--space-8);
+  background: var(--field);
   margin-top: var(--space-3);
 }
 
@@ -14,8 +13,9 @@
 .exp-title { font-weight: var(--weight-semibold); font-size: var(--type-body); }
 
 .exp-cefr {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
   color: var(--warning);
   border: var(--border-width) solid var(--warning-strong);
   border-radius: var(--radius-pill);
@@ -45,9 +45,10 @@
 }
 
 .exp-vs span {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--type-meta);
-  letter-spacing: var(--tracking-caps);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tag);
   text-transform: uppercase;
   color: var(--ink-3);
   display: block;

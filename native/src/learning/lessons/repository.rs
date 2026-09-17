@@ -48,6 +48,9 @@ pub(crate) fn has_exposure(db: &Connection, conversation: &str) -> Result<bool> 
 }
 
 pub(crate) fn capture_exposure(db: &Connection, conversation: &str, turn: &str) -> Result<bool> {
+    if !ENABLED {
+        return Ok(false);
+    }
     let assisted = has_exposure(db, conversation)?;
     let mut ids=db.prepare("SELECT id FROM turns WHERE conversation_id=?1 AND json_extract(context,'$.lessonExposurePending')=1")?.query_map([conversation],|r|r.get(0))?.collect::<rusqlite::Result<Vec<String>>>()?;
     if let Some(active) = active(db, conversation)?

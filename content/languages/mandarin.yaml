@@ -83,7 +83,6 @@ guidance:
   sources:
   - ud
 learning:
-  goals: []
   goal_material:
     courtesy:
       tokens:

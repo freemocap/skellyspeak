@@ -13,7 +13,7 @@ import { rewardAnchor, visibleRewardRect } from '../../../domain/rewards/reward-
 import { domainColors } from '../../../domain/learning/catalog/skill-domains'
 import { pulseRewardDomain } from '../../../domain/rewards/reward-pulse'
 
-type Presentation = { key: number; ids: string[]; messageId: number; source: string; phase: 'waiting' | 'opening' | 'hovering' | 'departing'; origin: DOMRect | null; automatic: boolean; startAt: number; gains: Record<string, number> }
+type Presentation = { milestone?: number; key: number; ids: string[]; messageId: number; source: string; phase: 'waiting' | 'opening' | 'hovering' | 'departing'; origin: DOMRect | null; automatic: boolean; startAt: number; gains: Record<string, number> }
 
 export function RewardPresentationProvider({ children, workspace, chatId, active, fastMode }: { fastMode: boolean; children: ReactNode; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; active: boolean }) {
   const isMobile = useIsMobile()
@@ -21,6 +21,8 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
   const presented = useRef(new Set<string>())
   const closeReceipt = useCallback(() => setReceipt(null), [])
   const [cards, setCards] = useState<Presentation[]>([])
+  const [pendingClaims, setPendingClaims] = useState(0)
+  const beginClaim = useCallback(() => { setPendingClaims(n => n + 1); return () => setPendingClaims(n => n - 1) }, [])
   const sequence = useRef(0)
   const nextArrival = useRef(0)
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -33,7 +35,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
     const now = performance.now()
     const startAt = automatic ? Math.max(now, nextArrival.current) : now
     if (automatic) nextArrival.current = startAt + 460 + Math.random() * 100
-    const next: Presentation = { key: ++sequence.current, ids: [...new Set(evidence.map(item => item.id))], messageId, source, phase: startAt > now ? 'waiting' : 'opening', origin, automatic, startAt, gains: Object.fromEntries(evidence.map(item => [item.id, item.xp])) }
+    const next: Presentation = { milestone: evidence.find(item => item.milestone)?.milestone, key: ++sequence.current, ids: [...new Set(evidence.map(item => item.id))], messageId, source, phase: startAt > now ? 'waiting' : 'opening', origin, automatic, startAt, gains: Object.fromEntries(evidence.map(item => [item.id, item.xp])) }
     setCards(previous => automatic ? [...previous.filter(card => card.automatic && !card.ids.every(id => next.ids.includes(id))), next] : [next])
   }, [workspace])
   const arrive = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, true), [present])
@@ -57,7 +59,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
   const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
   const settled = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'opening' ? { ...card, phase: 'hovering' } : card)), [])
   const remove = useCallback((key: number) => setCards(previous => previous.filter(card => card.key !== key)), [])
-  return <RewardInspectionContext value={{ open, arrive }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
+  return <RewardInspectionContext value={{ open, arrive, beginClaim, presenting: cards.length > 0 || pendingClaims > 0 }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
 }
 
 function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { mobile: boolean; landed: (ids: string[]) => void; begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
@@ -74,7 +76,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     if (!card.automatic || card.phase !== 'hovering' || sounded.current || !host.current) return
     sounded.current = true
     const xp = Object.values(card.gains).reduce((sum, value) => sum + value, 0)
-    if (xp > 0) playRewardSound({ kind: 'xp', xp }, host.current)
+    if (xp > 0) playRewardSound(card.milestone ? { kind: 'milestone' } : { kind: 'xp', xp }, host.current)
   }, [card.automatic, card.phase, card.gains])
   const animation = useRef<Animation | null>(null)
   const trailCleanups = useRef(new Set<() => void>())
@@ -120,7 +122,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       element.style.top = `${top + depth * 9}px`
       element.style.zIndex = String(card.automatic ? 1105 - depth : 1106)
       element.style.maxHeight = `${height}px`
-      const branch = rewardAnchor(scope, 'domain', first.domainId)
+      const branch = rewardAnchor(scope, 'skill', first.skillId)
       setCompactTarget(!branch)
     }
     place()
@@ -135,7 +137,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (card.phase === 'hovering') return
     if (card.phase === 'opening') {
-      if (mobile && fast && card.automatic) { dismiss(card.key); return }
+      if (mobile && fast && card.automatic && !card.milestone) { dismiss(card.key); return }
       if (reduced) { settled(card.key); return }
       const rect = element.getBoundingClientRect()
       const x = card.origin ? card.origin.left + card.origin.width / 2 - rect.left - rect.width / 2 : 0
@@ -148,8 +150,8 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     } else {
       if (reduced) { landed(card.ids); remove(card.key); return }
       const scope = workspace.current
-      const arm = Array.from(scope.querySelectorAll('[data-reward-domain]')).find(node => node.getAttribute('data-reward-domain') === domainId && visibleRewardRect(node, scope))
-      const receiptTarget = document.querySelector(`[data-mobile-reward-domain="${domainId}"]`)
+      const arm = Array.from(scope.querySelectorAll('[data-reward-skill]')).find(node => node.getAttribute('data-reward-skill') === first?.skillId && visibleRewardRect(node, scope))
+      const receiptTarget = document.querySelector(`[data-mobile-reward-skill="${first?.skillId}"]`)
       const destination = receiptTarget ?? arm ?? (mobile ? document.querySelector('.profile-trigger') : dock.current)
       const target = destination?.getBoundingClientRect()
       const rect = element.getBoundingClientRect()
@@ -164,8 +166,9 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
         landed(card.ids)
         if (mobile && fast && destination instanceof HTMLElement) playRewardSound({ kind: 'xp', xp: Object.values(card.gains).reduce((sum, value) => sum + value, 0) }, destination)
         if (!destination?.isConnected) { remove(card.key); return }
-        const pulses = arm && !receiptTarget ? pulseRewardDomain(scope, domainId) : [destination.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.65) drop-shadow(0 0 7px currentColor)' }, { filter: 'brightness(1)' }], { duration: 800 })]
+        const pulses = arm && !receiptTarget ? pulseRewardDomain(scope, first!.skillId) : [destination.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(1.65) drop-shadow(0 0 7px currentColor)' }, { filter: 'brightness(1)' }], { duration: 800 })]
         const pulse = pulses[0]
+        if (!pulse) { remove(card.key); return }
         pulse.onfinish = () => remove(card.key)
       }
     }
@@ -174,6 +177,6 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
     {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={tr("{value0} skill map", { value0: String(first.label) })} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
-    <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></div>
+    <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><>{card.milestone && <p className="reward-milestone" role="status">{tr("{value0} XP milestone", { value0: card.milestone })}</p>}<RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></></div>
   </>, document.body)
 }

@@ -298,8 +298,8 @@ impl Registry {
             .cloned()
             .collect())
     }
-    fn applies(&self, c: &Construct, language: &str) -> bool {
-        c.language.as_ref().is_none_or(|l| l == language)
+    fn applies(&self, _c: &Construct, _language: &str) -> bool {
+        true
     }
     fn add_required(&self, id: &str, language: &str, out: &mut BTreeSet<String>) -> Result<()> {
         let c = self.construct(id)?;

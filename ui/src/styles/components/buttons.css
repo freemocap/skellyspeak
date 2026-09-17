@@ -28,13 +28,15 @@
 }
 
 .btn {
-  border: var(--border-width) solid var(--line); background: none; color: var(--ink-2);
-  border-radius: var(--radius-md); padding: var(--space-4) var(--space-8); cursor: pointer;
+  border: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink);
+  border-radius: var(--radius-md); padding: var(--space-4) var(--space-8); cursor: pointer; font-weight: var(--weight-medium);
 }
 
-.btn:hover { color: var(--ink); border-color: var(--accent); }
+.btn:hover:not(:disabled) { border-color: var(--ink-3); background: var(--chrome); }
 
 .btn.primary { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--ink-on-fill); }
+
+.btn.primary:hover:not(:disabled) { background: var(--accent-strong-hover); border-color: var(--accent-strong-hover); }
 
 .btn:disabled { opacity: 0.5; cursor: default; }
 

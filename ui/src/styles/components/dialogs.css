@@ -13,8 +13,8 @@
 }
 
 .modal {
-  width: min(480px, 100%); background: var(--chrome); border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-lg); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--floating-shadow);
+  border-radius: var(--radius-2xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
 .modal h2 { margin: 0 0 var(--space-2); font-size: var(--type-title); }
@@ -40,9 +40,9 @@
   width: min(580px, calc(100vw - 28px));
   max-height: 85dvh;
   overflow-y: auto;
-  padding: var(--space-10);
-  border: var(--border-width) solid var(--detail-line);
-  border-radius: var(--radius-lg);
+  padding: var(--space-11) var(--space-12);
+  border: 0;
+  border-radius: var(--radius-2xl);
   box-shadow: var(--floating-shadow), var(--appearance-glow);
   background: var(--sheet);
   color: var(--ink);
@@ -52,17 +52,22 @@
 .detail-dialog::backdrop { background: var(--appearance-scrim); }
 
 .detail-close {
-  display: block;
-  margin-inline-start: auto;
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-5);
-  color: var(--ink);
-  background: transparent;
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  float: inline-end;
+  display: grid; place-items: center;
+  width: var(--control-height-lg); height: var(--control-height-lg);
+  margin: 0 0 var(--space-4) var(--space-6);
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: 0;
+  color: var(--ink-2);
+  background: var(--line-soft);
   cursor: pointer;
 }
+
+.detail-close:hover { color: var(--ink); background: var(--line); }
 
 @media (pointer: coarse) {
   .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
 }
-.detail-dialog.dialog-wide { width: min(880px, calc(100vw - 24px)); padding: var(--space-6); }
+.detail-dialog.dialog-wide { width: min(1080px, calc(100vw - 24px)); padding: var(--space-10) var(--space-12); }

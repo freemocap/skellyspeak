@@ -944,6 +944,7 @@
   "Connection health": "Estado da conexão",
   "Chat feedback is separate from skill tracking. Saved skill evidence remains available.": "O feedback do chat é separado do acompanhamento de habilidades. As evidências salvas continuam disponíveis.",
   "Conversation fit: {value0}/5": "Adequação à conversa: {value0}/5",
+  "Conversation fit": "Adequação à conversa",
   "Feedback": "Feedback",
   "Frames and starters": "Estruturas e inícios",
   "Grammar: {value0}/5": "Gramática: {value0}/5",
@@ -951,5 +952,13 @@
   "Model judgments about this message, not proficiency measurements. No skill XP is awarded.": "Avaliações do modelo sobre esta mensagem, não medidas de proficiência. Nenhum XP de habilidade é concedido.",
   "Native-language wording": "Expressões no idioma nativo",
   "Reading help": "Ajuda de leitura",
-  "Target-language wording": "Expressões no idioma alvo"
+  "Target-language wording": "Expressões no idioma alvo",
+  "Skills": "Habilidades",
+  "Category": "Categoria",
+  "All categories": "Todas as categorias",
+  "{value0} XP; next milestone {value1}": "{value0} XP; próximo marco {value1}",
+  "Next milestone: {value0} XP": "Próximo marco: {value0} XP",
+  "{value0} XP milestone": "Marco de {value0} XP",
+  "Skill XP comes from evidence in your messages.": "A XP das habilidades vem de evidências nas suas mensagens.",
+  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "A cada 50 XP, você alcança outro marco. Cada barra mostra o progresso até o próximo marco; a XP total continua aumentando."
 }

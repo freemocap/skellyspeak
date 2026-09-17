@@ -80,7 +80,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         wire[0]["content"]
             .as_str()
             .unwrap()
-            .contains("never answer your own question")
+            .contains("never answer your own previous question")
     );
     assert_eq!(captured["sourceIds"].as_array().unwrap().len(), 1);
     finish_fixture_exchange(&mut store, &next, "¿Qué preparas?");

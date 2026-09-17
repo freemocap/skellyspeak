@@ -260,9 +260,8 @@ impl Registry {
             rules,
             schemes,
             sources,
-            goals: doc
-                .learning
-                .goals
+            goals: self
+                .constructs
                 .iter()
                 .map(|g| GoalInspection {
                     id: g.id.clone(),
