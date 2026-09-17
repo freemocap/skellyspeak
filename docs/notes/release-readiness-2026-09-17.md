@@ -159,3 +159,17 @@ release build failure. Configure App Store issuer/settings if TestFlight is part
 of this release. Authorize the main push/deployment separately, then verify hosted
 behavior. Choose a version newer than 1.21.4 and invoke the release script only
 from the clean, verified main commit. Local fixes alone are not release approval.
+
+## Follow-up: TestFlight intentionally disabled
+
+At the user's request, the TestFlight job and manual upload input are commented
+out. Active iOS distribution ends after the signed IPA is built, verified and
+attached to its tagged release. App Store Connect configuration is deferred and
+is no longer a gate for this workflow. The historical failure above remains a
+record of the earlier run. Tests verify only the build and attachment jobs are
+active and no App Store credential references remain active.
+
+The user's shell selected Node 22.8.0, which cannot execute the TypeScript release
+entry point directly. Run `nvm use` from the repository root to select the existing
+`.nvmrc` requirement (Node 24), then retry the release dry-run. No shell or global
+Node configuration was changed.

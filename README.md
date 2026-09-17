@@ -129,6 +129,7 @@ Require green CI before merging into `main`, then confirm CI on the merged commi
 From a clean, current `main` checkout, replace `X.Y.Z` with that chosen version:
 
 ```sh
+nvm use # selects Node 24; older Node versions cannot run these TypeScript tools
 next_version="X.Y.Z"
 npm run release -- "$next_version" --dry-run
 npm run release -- "$next_version"
@@ -141,9 +142,9 @@ does not query GitHub checks. Merging alone does not publish.
 
 The tag starts the Release workflow for checks, signed desktop installers,
 updater artifacts and signed Android APK/AAB. These publish as Latest when their
-jobs succeed. The independent **iOS distribute** workflow builds a signed IPA,
-attaches it to the same release and uploads it to TestFlight. Its failure remains
-visible but does not block desktop or Android publication. PR CI also builds an
+jobs succeed. The independent **iOS distribute** workflow builds a signed IPA
+and attaches it to the same release. TestFlight upload is disabled. An iOS build
+failure remains visible but does not block desktop or Android publication. PR CI also builds an
 Android debug ARM64 APK and an unsigned iOS simulator app without release secrets.
 The website rebuilds after a successful Release run.
 
@@ -154,16 +155,16 @@ stages a temporary signing keychain and provisioning profile, injects manual Xco
 signing settings, writes ExportOptions.plist, and runs Tauri's App Store export.
 It verifies the signature, bundle identity, build number, microphone permission,
 debugging entitlement and signing team before retaining `ios-ipa` for 14 days.
-Separate jobs attach `SkellySpeak_X.Y.Z.ipa` to the matching release, then upload it
-to App Store Connect, waiting for processing. TestFlight requires successful release
-attachment first; manual TestFlight dispatch therefore requires `release_tag`. Apple controls tester distribution
-and review. Manual dispatch can build without either upload.
+A separate job attaches `SkellySpeak_X.Y.Z.ipa` to the matching release.
+The TestFlight job and its manual input are commented out while App Store Connect
+configuration remains a known gap. Manual dispatch can build without release
+attachment by leaving `release_tag` empty.
 
 Signing uses `IOS_CERTIFICATE_P12`, `IOS_CERTIFICATE_PASSWORD` and
 `IOS_PROVISION_PROFILE` for team `U8LBJLBYPR`, app `com.freemocap.skellyspeak`.
-TestFlight uses repository variables `APPSTORE_ISSUER_ID`, `APPSTORE_API_KEY_ID`,
+The disabled TestFlight job would require repository variables `APPSTORE_ISSUER_ID`, `APPSTORE_API_KEY_ID`,
 `APPSTORE_USES_NON_EXEMPT_ENCRYPTION` and secret `APPSTORE_API_PRIVATE_KEY`.
-Missing configuration fails explicitly. Signing credentials are removed in an
+Active signing configuration remains required. Signing credentials are removed in an
 always-run cleanup step. Cargo supplies the marketing version; the standalone
 workflow run number plus attempt supplies the iOS build number.
 

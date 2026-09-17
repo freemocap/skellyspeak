@@ -5,7 +5,8 @@ import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const workflow = readFileSync(new URL('../.github/workflows/ios-distribute.yml', import.meta.url), 'utf8');
+const workflowSource = readFileSync(new URL('../.github/workflows/ios-distribute.yml', import.meta.url), 'utf8');
+const workflow = workflowSource.split('\n').filter(line => !line.trimStart().startsWith('#')).join('\n');
 function shellStep(name: string): string {
   const section = workflow.split(`      - name: ${name}\n`)[1];
   assert.ok(section, `Missing step ${name}`);
@@ -23,13 +24,14 @@ test('distribution stages credentials separately and verifies before artifact co
   assert.ok(build.includes('if: always()'));
   const command = shellStep('Build the signed .ipa');
   assert.equal(command.trim(), 'npm run tauri -- ios build --export-method app-store-connect');
-  for (const job of ['attach-release', 'testflight']) {
-    const body = workflow.split(`\n  ${job}:\n`)[1];
-    assert.match(body, job === 'testflight'
-      ? /needs: \[build-ipa, attach-release\]/
-      : /needs: build-ipa/);
-    assert.match(body, /gh run download "\$GITHUB_RUN_ID" --name ios-ipa/);
-  }
+  const attachment = workflow.split('\n  attach-release:\n')[1];
+  assert.match(attachment, /needs: build-ipa/);
+  assert.match(attachment, /gh run download "\$GITHUB_RUN_ID" --name ios-ipa/);
+  assert.match(attachment, /gh release upload "\$TAG" dist-ios\/\*\.ipa/);
+  assert.deepEqual([...workflow.matchAll(/^  ([a-z-]+):$/gm)].map(match => match[1])
+    .filter(name => !['workflow_dispatch', 'push', 'contents'].includes(name)), ['build-ipa', 'attach-release']);
+  assert.doesNotMatch(workflow, /upload_testflight|upload-testflight-build|APPSTORE_/);
+  assert.match(workflowSource, /^#   testflight:$/m);
   const release = readFileSync(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8');
   assert.match(release.split('\n  publish-release:\n')[1], /needs: \[version, release-draft, desktop, android\]/);
   assert.ok(!release.includes('\n  ios:'));
