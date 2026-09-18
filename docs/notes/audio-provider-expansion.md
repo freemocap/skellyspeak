@@ -89,7 +89,7 @@ which steps can be done now and which require that integration. Local/server sec
 owners remain separate from the app's bearer session token. GCP configuration was
 read from deployment source; no live project state or keys were accessed.
 
-## Next checkpoints
+## Plan after checkpoint 3 (superseded by checkpoint 4 below)
 
 1. Wire the ElevenLabs adapters: captured provider/protocol identity, local server
    configuration and provider credential controls. Update hosted contracts, checks and accounting
@@ -145,3 +145,55 @@ provider or language-quality evaluations. Existing packaging checks cover the
 new runtime modules; no new dependencies or database schema were introduced.
 No live provider request, key change, cloud operation, app restart, push or
 deployment was performed. Native/UI behavior is unchanged in this checkpoint.
+
+
+## Checkpoint 4: service integration (September 18, 2026)
+
+Implemented the dedicated normalized speech endpoint and the ElevenLabs branch of
+transcription. Hosted/Custom URL native speech uses the audio endpoint; direct
+OpenRouter remains on its existing adapter. Runtime configuration and local key
+validation now read ElevenLabs credentials and a service-wide voice ID. Explicit
+`STT_PROVIDER` chooses ElevenLabs or the retained Groq route; there is no fallback.
+The service binds `scribe_v2` and `eleven_v3`, with authenticated bounded admission,
+normalized WAV/word timing, safe failure codes and correlated provider events.
+Fresh native workspaces select these model IDs. Existing model settings are not
+rewritten; the setup guide specifies the two independent Custom URL selections.
+
+Hosted accounting marks duration/character-based allowance as an estimate. Actual
+provider cost remains unknown in successful audio results rather than being
+invented as zero. Unknown submissions retain their reservation. API checks use
+ElevenLabs' own key header. Provider/voice catalog UI, direct native ElevenLabs
+credentials and Azure remain pending. The current TTS voice belongs to the service
+profile; existing persona OpenAI voice names have no claimed ElevenLabs equivalent.
+The normalized speech wire protocol is now required for Hosted/Custom URL synthesis;
+app and server updates must be coordinated. No compatibility fallback was added.
+
+Local nonsecret selections were added alongside the user-supplied key:
+`STT_PROVIDER=elevenlabs` and the available George stock voice ID. No secret was
+printed. A read-only voice lookup passed. A live authenticated local ASGI smoke
+request generated 1.28 seconds of Malayalam WAV, and a second request transcribed
+that synthetic clip as `നമസ്കാരം`, with one word timing and detected code `mal`.
+Both returned HTTP 200. These were two paid provider requests; no user recordings
+were uploaded and no linguistic-quality evaluation is claimed. Tests used disposable
+process-local storage and did not change the running app's conversations or token.
+
+Cloud Build source includes the ElevenLabs secret mapping, explicit provider
+selection and overridable voice/secret-version substitutions. The user reported
+successful Secret Accessor IAM setup. No agent cloud operation, push, deployment
+or running app/server restart was performed.
+
+The full native regression run also caught and repaired a checkpoint-3 defect:
+four bibliography `review` values were prose rather than the loader's allowed enum.
+They now use `reviewed`; content loading passes again. This did not require changes
+to language YAML or validation rules.
+
+Verification: 358 server tests passed; seven Firestore emulator tests skipped.
+Native regression: 380 passed, 16 ignored and the two previously documented tests
+explicitly excluded. The three service-audio tests were rerun after clarifying
+requested versus actual model metadata and passed. All 28 conversation UI tests,
+TypeScript, strict library Clippy, formatting, generated-contract and whitespace
+checks passed. No Docker startup or deployed Cloud Run verification is claimed.
+
+Next: an explicitly authorized coordinated server deployment/app rebuild, then
+Azure integration and the deferred capability UI. Direct ElevenLabs key entry
+remains outside this service-backed checkpoint.

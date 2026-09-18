@@ -25,6 +25,17 @@ def load_keys(path: Path) -> dict[str, str]:
     if any(len(value) < 16 or not value.isascii() or any(c.isspace() or ord(c) < 33 or ord(c) == 127 for c in value)
            for value in values.values()):
         raise RuntimeError("OPENROUTER_API_KEY and GROQ_API_KEY must be set in server/.env.")
+    extra = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+    if extra:
+        if len(extra) < 16 or not extra.isascii() or any(ord(c) < 33 or ord(c) == 127 for c in extra):
+            raise RuntimeError("Invalid ELEVENLABS_API_KEY format.")
+        values["ELEVENLABS_API_KEY"] = extra
+        voice = os.environ.get("ELEVENLABS_VOICE_ID", "").strip()
+        if not voice or not voice.isascii() or not voice.isalnum():
+            raise RuntimeError("Set ELEVENLABS_VOICE_ID to a voice ID in server/.env.")
+    selected = os.environ.get("STT_PROVIDER", "groq")
+    if selected not in {"groq", "elevenlabs"} or (selected == "elevenlabs" and not extra):
+        raise RuntimeError("STT_PROVIDER requires a configured groq or elevenlabs provider.")
     return values
 
 

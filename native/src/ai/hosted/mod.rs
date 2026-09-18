@@ -93,6 +93,8 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
 pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
     let (provider, number) = if let Some(number) = code.strip_prefix("OPENROUTER_HTTP_") {
         ("OpenRouter", number)
+    } else if let Some(number) = code.strip_prefix("ELEVENLABS_HTTP_") {
+        ("ElevenLabs", number)
     } else {
         ("Groq", code.strip_prefix("GROQ_HTTP_")?)
     };
@@ -133,6 +135,24 @@ fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
         return message;
     }
     let guidance = match (status, code) {
+        (400, Some("AUDIO_MODEL_MISMATCH")) => {
+            "The selected audio model does not match the server. In Models, use the server's transcription and read-aloud model IDs."
+        }
+        (503, Some("AUDIO_NOT_CONFIGURED")) => {
+            "The server needs its audio API key and voice ID configured."
+        }
+        (422, Some("AUDIO_NO_SPEECH")) => "No speech was recognized. Try another recording.",
+        (
+            502,
+            Some(
+                "AUDIO_RESPONSE_INVALID"
+                | "AUDIO_RESPONSE_LIMIT"
+                | "AUDIO_RESPONSE_TYPE"
+                | "AUDIO_TRANSPORT_UNKNOWN",
+            ),
+        ) => {
+            "The audio provider returned an invalid or interrupted response. Usage is unconfirmed."
+        }
         (401, _) => {
             "The service refused authentication. Check the selected connection in Settings and sign in again or replace its saved credential."
         }

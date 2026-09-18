@@ -1,8 +1,9 @@
 """Runtime configuration, read once at import.
 
-Every value is required. A missing one raises at startup rather than at the
-first request that needs it: a service that boots healthy and then fails auth
-for every user is far worse to diagnose than one that refuses to boot.
+Identity, chat and legacy Groq settings are required. ElevenLabs transcription
+requires its key when explicitly selected. Speech readiness is advertised from
+its key/voice configuration; an unconfigured speech endpoint refuses requests
+before spending admission.
 """
 
 from __future__ import annotations
@@ -88,13 +89,33 @@ class Config:
     # How many accounts may exist at all.
     max_users: int
 
+    stt_provider: str = "groq"
+    elevenlabs_key: str = field(default="", repr=False)
+    elevenlabs_voice_id: str = ""
+    stt_model: str = "scribe_v2"
+    tts_model: str = "eleven_v3"
+    stt_micros_per_hour: int = 220_000
+    tts_micros_per_character: int = 100
+
     @property
     def google_redirect_uri(self) -> str:
         return f"{self.public_base_url.rstrip('/')}/auth/callback/google"
 
 
 def load() -> Config:
+    stt_provider = os.environ.get("STT_PROVIDER", "groq")
+    if stt_provider not in {"groq", "elevenlabs"}:
+        raise ConfigError("STT_PROVIDER must be groq or elevenlabs.")
+    key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+    voice = os.environ.get("ELEVENLABS_VOICE_ID", "").strip()
+    if stt_provider == "elevenlabs" and not key:
+        raise ConfigError("ELEVENLABS_API_KEY is required for ElevenLabs transcription.")
+    if key and (not key.isascii() or any(ord(c) < 33 or ord(c) == 127 for c in key)):
+        raise ConfigError("Invalid ELEVENLABS_API_KEY format.")
+    if voice and (not voice.isascii() or not voice.isalnum()):
+        raise ConfigError("ELEVENLABS_VOICE_ID must be an alphanumeric voice ID.")
     return Config(
+        stt_provider=stt_provider, elevenlabs_key=key, elevenlabs_voice_id=voice,
         google_client_id=_required("GOOGLE_CLIENT_ID"),
         google_client_secret=_required("GOOGLE_CLIENT_SECRET"),
         jwt_signing_key=_required_secret("JWT_SIGNING_KEY", min_bytes=MIN_SIGNING_KEY_BYTES),

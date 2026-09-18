@@ -21,10 +21,10 @@ EVENTS = {
     "operation_started", "operation_claimed", "operation_duplicate", "operation_finished",
 }
 ROUTES = {"/health", "/v1/me", "/v1/diagnostics", "/v1/operations", "/v1/protocol",
-          "/v1/chat/completions", "/v1/audio/transcriptions", "/auth/start",
+          "/v1/chat/completions", "/v1/audio/speech", "/v1/audio/transcriptions", "/auth/start",
           "/auth/callback/google", "/auth/exchange", "unmatched"}
 ENUMS = {"credential_state": {"accepted", "rejected", "unreachable", "invalid_response"},"route": ROUTES, "method": {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "OTHER"},
-         "provider": {"OPENROUTER", "GROQ", "UPSTREAM"}, "outcome": {"known", "unknown"}}
+         "provider": {"OPENROUTER", "GROQ", "ELEVENLABS", "UPSTREAM"}, "outcome": {"known", "unknown"}}
 COUNTS = {"duration_ms", "bytes", "chunks", "item_index", "item_count", "micros", "tokens", "status"}
 
 

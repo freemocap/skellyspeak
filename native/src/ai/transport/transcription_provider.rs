@@ -54,8 +54,41 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
         #[derive(Deserialize)]
         struct Transcript {
             text: String,
+            timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
         }
         let parsed: Transcript = serde_json::from_slice(bytes).map_err(|_| unknown())?;
+        if let Some(timing) = parsed.timing {
+            if timing.text != parsed.text
+                || !timing.duration.is_finite()
+                || !(0.0..=120.0).contains(&timing.duration)
+            {
+                return Err(unknown());
+            }
+            let mut previous = 0.0;
+            for word in &timing.words {
+                if !word.start.is_finite()
+                    || !word.end.is_finite()
+                    || word.start < previous
+                    || word.end < word.start
+                    || word.end > timing.duration
+                    || word.word.trim().is_empty()
+                {
+                    return Err(unknown());
+                }
+                previous = word.start;
+            }
+            if parsed.text.trim().is_empty()
+                || parsed.text.chars().count() > 20000
+                || parsed.text.contains('\0')
+            {
+                return Err(unknown());
+            }
+            return Ok(TranscriptionResponse {
+                text: parsed.text,
+                timing: Some(timing),
+                whisper_segments: None,
+            });
+        }
         (parsed.text, None)
     };
     if text.trim().is_empty() {
@@ -114,7 +147,10 @@ pub(in crate::ai) async fn transcribe(
         .await
         .map_err(|_| AppError::new(ErrorCode::UnknownOutcome, "Transcription outcome is unknown after a connection failure. Processing may have incurred a charge. No automatic retry was made."))?;
     let status = response.status();
-    let bytes = if target.route == ConnectionRoute::Hosted {
+    let bytes = if target.route == ConnectionRoute::Hosted
+        || (target.route == ConnectionRoute::Custom
+            && matches!(status.as_u16(), 400 | 422 | 502 | 503))
+    {
         hosted::body(response).await
     } else {
         response_bytes(response, "Transcription", target.route, 1_048_576).await
@@ -332,5 +368,23 @@ mod tests {
         assert!(response.whisper_segments.is_none());
         assert!(transcription_response(br#"{"text":" "}"#, false).is_err());
         assert!(transcription_response(br#"{"error":"failure"}"#, false).is_err());
+    }
+}
+
+#[cfg(test)]
+mod service_timing_tests {
+    use super::*;
+    #[test]
+    fn normalized_service_timing_preserves_text_and_rejects_invalid_evidence() {
+        let mut value = serde_json::json!({"version":1,"text":"നമസ്കാരം","timing":{
+            "text":"നമസ്കാരം","duration":1.0,"words":[{"word":"നമസ്കാരം","start":0.1,"end":0.9}]}});
+        let result = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
+        assert!(result.whisper_segments.is_none());
+        assert_eq!(result.timing.unwrap().words.len(), 1);
+        value["timing"]["words"][0]["end"] = serde_json::json!(2.0);
+        assert!(transcription_response(&serde_json::to_vec(&value).unwrap(), false).is_err());
+        value["timing"]["words"] = serde_json::json!([]);
+        value["timing"]["text"] = serde_json::json!("different text");
+        assert!(transcription_response(&serde_json::to_vec(&value).unwrap(), false).is_err());
     }
 }

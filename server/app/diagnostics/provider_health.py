@@ -15,7 +15,7 @@ async def probe(client, provider, base_url, key):
     try:
         async with asyncio.timeout(10):
             async with client.stream('GET', base_url.rstrip('/') + ('/key' if provider == 'OPENROUTER' else '/models'),
-                                     headers={'Authorization': f'Bearer {key}'}, follow_redirects=False) as response:
+                                     headers=({'xi-api-key': key} if provider == 'ELEVENLABS' else {'Authorization': f'Bearer {key}'}), follow_redirects=False) as response:
                 status = response.status_code
                 if not response.is_success:
                     state = 'rejected'
@@ -27,7 +27,7 @@ async def probe(client, provider, base_url, key):
                             raise ValueError('response limit')
                         body.extend(chunk)
                     data = json.loads(body)
-                    valid = isinstance(data, dict) and isinstance(data.get('data'), dict if provider == 'OPENROUTER' else list)
+                    valid = isinstance(data, list) if provider == 'ELEVENLABS' else isinstance(data, dict) and isinstance(data.get('data'), dict if provider == 'OPENROUTER' else list)
                     state = 'accepted' if valid else 'invalid_response'
     except (httpx.HTTPError, TimeoutError):
         state = 'unreachable'
@@ -40,7 +40,9 @@ async def probe(client, provider, base_url, key):
 
 async def check(config):
     async with httpx.AsyncClient(timeout=10) as client:
-        return list(await asyncio.gather(
-            probe(client, 'OPENROUTER', config.openrouter_base_url, config.openrouter_key),
-            probe(client, 'GROQ', config.groq_base_url, config.groq_key),
-        ))
+        checks = [probe(client, 'OPENROUTER', config.openrouter_base_url, config.openrouter_key)]
+        if config.stt_provider == 'groq':
+            checks.append(probe(client, 'GROQ', config.groq_base_url, config.groq_key))
+        if config.elevenlabs_key:
+            checks.append(probe(client, 'ELEVENLABS', 'https://api.elevenlabs.io/v1', config.elevenlabs_key))
+        return list(await asyncio.gather(*checks))

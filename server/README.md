@@ -481,3 +481,43 @@ These checks make no inference requests and do not establish selected-model or
 billing availability. The UI displays each provider separately and will not mark
 the aggregate custom connection healthy when a provider fails. Provider-error logs
 retain the sanitized error body for investigation.
+
+
+## Dedicated ElevenLabs audio routes (September 18, 2026)
+
+The native service client uses `POST /v1/audio/speech` with exactly `model` and
+`text`; the server supplies its configured voice profile. The response contains
+version 1, base64 mono 24 kHz WAV, and a usage receipt. Existing OpenRouter chat
+routes are unchanged. Direct native API-key routes still use OpenRouter/Groq.
+
+`STT_PROVIDER=elevenlabs` selects Scribe for `/v1/audio/transcriptions` explicitly.
+The default when this setting is absent remains Groq. The ElevenLabs branch
+accepts ISO 639-1/639-3 hints, drops conversational prompting, and returns
+provider-neutral timing without fabricated Whisper segments. It does not silently
+rewrite a low-confidence transcript or retry another provider.
+
+Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` in the private local environment.
+The public sample uses George (`JBFqnCBsd6RMkjVDRZzb`). Synthesis currently binds
+`eleven_v3`; recognition binds `scribe_v2`. Wrong model selections fail before
+provider submission. The service-wide voice is explicit; it does not map persona
+OpenAI voice names onto invented ElevenLabs equivalents. The model/language/voice
+catalog and direct ElevenLabs credential controls remain later work.
+
+Audio allowance rates are estimates: 220,000 microdollars/hour of transcription
+(with a ten-second minimum) and 100 microdollars per Unicode code point of synthesis
+source. Successful audio ledger rows mark `cost_basis=estimate`; response
+`cost_micros` stays null when no actual charge is reported. This is not an invoice
+or a hard provider cost ceiling. Interrupted submissions retain their reservation
+as unknown without turning a successful, settled synthesis into an error.
+No silent retries are added. Unknown ElevenLabs charges require investigation;
+the OpenRouter receipt reconciliation tool cannot reconcile them.
+
+`/v1/protocol` advertises audio version/provider/model/readiness. Explicit provider
+checks probe ElevenLabs `/models` with `xi-api-key`; models/voices must be enabled
+for the checks you use. They do not invoke inference. Normal local logs retain
+provider, status and request correlation, not keys, source text or audio.
+
+See [the setup and deployment guide](../docs/notes/audio-provider-setup.md) for
+exact native Models settings, key placement, Secret Manager IAM, pinned version
+selection and rotation. The Cloud Build source now binds `elevenlabs-api-key:1`
+by default via an overridable substitution. This source has **not been deployed**.

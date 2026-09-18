@@ -75,6 +75,7 @@ def settle(
     db: firestore.Client, *, reservation: Reservation, actual_micros: int,
     tokens: int, status: Literal["settled", "unknown"], provider_id: str,
     allow_expired_ledgers: bool = False,
+    cost_basis: Literal["reported", "estimate"] = "reported",
 ) -> None:
     # Only receipt-verified reconciliation opts into historical finalization.
     # A whole extra day ensures every timestamp in the UTC day has expired.
@@ -101,8 +102,8 @@ def settle(
         if stored["day"] != reservation.day or stored["reserved_micros"] != reservation.micros:
             raise RuntimeError("Reservation identity does not match its ledger record.")
         if stored["status"] == "settled":
-            if (stored["actual_micros"], stored["tokens"], stored["provider_id"]) != (
-                actual_micros, tokens, provider_id
+            if (stored["actual_micros"], stored["tokens"], stored["provider_id"], stored.get("cost_basis", "reported")) != (
+                actual_micros, tokens, provider_id, cost_basis
             ):
                 raise RuntimeError("Conflicting settlement for a completed request.")
             return
@@ -128,7 +129,7 @@ def settle(
         # actual charge; later admissions use the corrected daily balances.
         result: dict[str, object] = {
             "status": status, "actual_micros": actual_micros, "tokens": tokens,
-            "provider_id": provider_id, "updated_at": firestore.SERVER_TIMESTAMP,
+            "provider_id": provider_id, "cost_basis": cost_basis, "updated_at": firestore.SERVER_TIMESTAMP,
         }
         if historical and missing_ledgers:
             result["historical_finalization"] = True

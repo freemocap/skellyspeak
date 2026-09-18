@@ -1,15 +1,19 @@
 # Audio provider credentials and rollout
 
-Status, September 17, 2026: **preparation guide; ElevenLabs is not connected to app
-routes yet.** Its server adapters have controlled HTTP tests. Provider selection,
-server configuration, allowance accounting, native protocol integration and
-credential controls still need to be connected and tested together. The current
-app still uses Groq for transcription and OpenRouter for synthesis.
+Status, September 18, 2026: **ElevenLabs is connected to the local/hosted server
+routes in source and tested. GCP has not been deployed.** The native client uses
+`/v1/audio/speech` for Hosted and Custom URL read-aloud; transcription uses
+`/v1/audio/transcriptions`. Direct API-key access still uses Groq/OpenRouter.
 
-You can obtain keys and choose a voice now. Adding a secret alone will not switch
-the app. Do not put an ElevenLabs key in the Groq, OpenRouter or Custom URL token
-fields. Azure setup follows in a separate checkpoint; no Azure subscription or
-key is needed for this one.
+Local configuration now includes the supplied key, `STT_PROVIDER=elevenlabs`, and
+the available George voice ID `JBFqnCBsd6RMkjVDRZzb`. The voice is a service-wide
+profile for this checkpoint, independent of existing OpenAI persona voice names.
+The user reported successful GCP Secret Accessor setup. No cloud changes were made
+by the agent. Azure and direct user-owned ElevenLabs credential controls are pending.
+
+A real synthetic Malayalam test through authenticated local server routes passed
+TTS and STT, preserving Malayalam script and a word timestamp. This is integration
+verification, not a language-quality evaluation. No user recording was uploaded.
 
 ## 1. Obtain ElevenLabs keys
 
@@ -61,11 +65,17 @@ retain the current provider keys. You may store this additional line there now:
 ELEVENLABS_API_KEY=your_local_key_here
 ```
 
-**Current limitation:** the launcher does not yet consume/validate this setting,
-and `--check` currently checks only the existing keys. The next integration change
-must update runtime configuration, the sample file and validation together. We
-will add the explicit provider/model/voice settings then; this guide deliberately
-does not invent working switches for unfinished code.
+The active additional nonsecret settings are:
+
+```dotenv
+STT_PROVIDER=elevenlabs
+ELEVENLABS_VOICE_ID=JBFqnCBsd6RMkjVDRZzb
+```
+
+The model bindings are `scribe_v2` and `eleven_v3`. Missing/invalid configuration
+fails explicitly; the service never falls back to another provider. Keep the
+existing OpenRouter and Groq entries. `--check` now validates the ElevenLabs key
+format and voice setting; it does not make a paid call or validate cloud IAM.
 
 Use a text editor to enter the secret so it does not enter shell history. Keep
 file access limited to your account:
@@ -74,7 +84,7 @@ file access limited to your account:
 chmod 600 server/.env
 ```
 
-Once the configuration integration is complete, from the repository root:
+From the repository root:
 
 ```sh
 npm run server:local -- --check
@@ -89,7 +99,20 @@ For the app's **Custom URL** access, the endpoint remains
 `http://127.0.0.1:8765/v1`, and the bearer token remains the contents of that session
 token file. The ElevenLabs key belongs to the server. Chat, STT and TTS now have
 separate access selections, so setting Chat to Custom URL alone does not change
-either audio route. Do not switch audio models to ElevenLabs until routing is wired.
+either audio route. In **Models**, set:
+
+| Setting | Local value |
+| --- | --- |
+| Transcription access | Custom URL |
+| Transcription model | `scribe_v2` |
+| Read-aloud access | Custom URL |
+| Read-aloud model | `eleven_v3` |
+
+Existing saved model selections are preserved. Fresh workspaces use these new
+model IDs with Hosted access. Restart/rebuild the native app to load its new audio
+transport, and restart the local server. The app's usual development launcher is
+`npm run macos:dev` on macOS from the repository root; restarting only the browser UI cannot
+load Rust changes. Until GCP is deployed, use Custom URL for both audio routes.
 
 Direct user-owned ElevenLabs credentials will use native credential storage when
 that profile is implemented. There is no ElevenLabs-specific key field in this
@@ -144,18 +167,22 @@ workflow authenticates with Workload Identity Federation.
 
 ## 5. GCP: attach and roll out only after integration
 
-**Not ready to execute for this checkpoint.** Before deployment, the source change
-must add the runtime setting to `server/app/config.py` and extend the existing
-secret mapping in `server/deployment/cloudbuild.yaml`:
+**Source configuration is ready; deployment still requires authorization.**
+`server/app/config.py` reads the key and voice ID, and
+`server/deployment/cloudbuild.yaml` now includes:
 
 ```text
-ELEVENLABS_API_KEY=elevenlabs-api-key:1
+ELEVENLABS_API_KEY=elevenlabs-api-key:${_ELEVENLABS_SECRET_VERSION}
+STT_PROVIDER=elevenlabs
+ELEVENLABS_VOICE_ID=${_ELEVENLABS_VOICE_ID}
 ```
 
-Use the numeric version you created. Preserve all existing mappings. The current
-deployment uses `--set-secrets` and `--set-env-vars`; these replace their respective
-sets, so a Console-only change can be lost on the next deployment. Nonsecret
-provider/model/voice selections must also be represented in deployment source.
+The substitutions default to secret version `1` and George's voice ID above.
+Confirm that enabled secret version `1` contains the intended hosted key before
+deployment; override `_ELEVENLABS_SECRET_VERSION` if yours differs. These are
+Cloud Build substitutions, not additional secrets. All existing secret mappings
+are retained. Console-only environment changes can be overwritten by a later
+build because deployment sets the full environment/secret mappings.
 
 For reference, the Cloud Run Console operation is **Cloud Run → skellyspeak-api →
 Edit & deploy new revision → Variables & Secrets → Reference a secret**. Set the

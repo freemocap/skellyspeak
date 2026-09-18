@@ -29,3 +29,16 @@ def test_local_configuration_replaces_inherited_destinations(monkeypatch: pytest
     assert os.environ["GOOGLE_CLOUD_PROJECT"] == "skellyspeak-local-test"
     assert os.environ["OPENROUTER_BASE_URL"] == "https://openrouter.ai/api/v1"
     assert os.environ["GLOBAL_DAILY_MICROS"] == "500000"
+
+
+def test_elevenlabs_local_configuration_requires_voice_and_explicit_selection(tmp_path, monkeypatch):
+    for key in (*local_server.KEYS, "ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID", "STT_PROVIDER"):
+        monkeypatch.delenv(key, raising=False)
+    path = tmp_path / '.env'
+    path.write_text('OPENROUTER_API_KEY=test-chat-key-long\nGROQ_API_KEY=test-groq-key-long\n'
+                    'ELEVENLABS_API_KEY=test-elevenlabs-key\nSTT_PROVIDER=elevenlabs\n')
+    with pytest.raises(RuntimeError, match='ELEVENLABS_VOICE_ID'):
+        local_server.load_keys(path)
+    monkeypatch.setenv('ELEVENLABS_VOICE_ID', 'validVoiceId')
+    values = local_server.load_keys(path)
+    assert values['ELEVENLABS_API_KEY'] == 'test-elevenlabs-key'

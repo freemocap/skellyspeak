@@ -226,7 +226,9 @@ through the selected AI route and automatically sends the transcript when Auto-s
 When disabled, the transcript stays in the composer for review and manual Send.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
 uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
-key; Custom URL defaults to the server transcription model `whisper-large-v3`.
+key. Custom URL and Hosted audio use the service audio contract; new workspaces
+select `scribe_v2` for STT and `eleven_v3` for TTS. Existing selections are
+preserved. See [audio setup](docs/notes/audio-provider-setup.md).
 Desktop capture uses native audio; Android/iOS use browser capture connected to the
 same native transcription lifecycle. Automatic reading defaults on; both voice
 preferences save per conversation. Desktop voice interaction has prior user
@@ -470,7 +472,7 @@ only; expected new-turn work is reply, gloss, enabled translation and enabled sp
 The source implements transcription → automatic Send → partner text →
 speech playback. Auto-send and automatic reading persist per conversation and
 remain independently switchable. Speech is a source-bound scheduler operation,
-using the selected route and `openai/gpt-audio-mini`; it shares admission capacity
+using the selected audio route and model; it shares admission capacity
 with other AI work but does not block translation or gloss eligibility.
 
 Playback reads bounded in-memory audio. Opening history does not generate speech
@@ -487,9 +489,10 @@ other devices still need their own checks. Current automated results and next
 work were recorded in the archived build plan; detailed evidence is in
 [the integration report](old/notes/workflow/reports/integration-logging.md).
 
-The local server must allow the speech model. A restart refreshes its session token;
-save the new token before authenticated Custom URL testing. Hosted access remains
-an explicit selection, never a fallback.
+The local server and native app must both include the current audio protocol.
+Normal local server restarts preserve the session token. Set both audio routes to
+Custom URL and choose `scribe_v2`/`eleven_v3` for the configured ElevenLabs service;
+see [the current setup guide](docs/notes/audio-provider-setup.md).
 
 ## Development diagnostic coverage
 

@@ -3,7 +3,7 @@
 use crate::ai::connections::access::ResolvedTarget;
 use crate::ai::transport::speech_diagnostics::TranscriptDiagnostics;
 use crate::ai::transport::{speech_provider, transcription_provider};
-use crate::model::Result;
+use crate::model::{ConnectionRoute, Result};
 
 pub struct SpeechInput {
     pub text: String,
@@ -38,7 +38,11 @@ pub struct TranscriptionResponse {
 /// Run the adapter's request validation before admitting a paid attempt.
 /// Provider JSON remains inside the transport boundary.
 pub fn validate_speech(target: &ResolvedTarget, input: &SpeechInput) -> Result<()> {
-    speech_provider::payload(target, input).map(|_| ())
+    if target.route == ConnectionRoute::Openrouter {
+        speech_provider::payload(target, input).map(|_| ())
+    } else {
+        crate::ai::transport::service_audio::validate(input)
+    }
 }
 
 pub async fn synthesize(
@@ -48,7 +52,11 @@ pub async fn synthesize(
     input: &SpeechInput,
     install: &str,
 ) -> SpeechOutcome {
-    speech_provider::synthesize(client, target, key, input, install).await
+    if target.route == ConnectionRoute::Openrouter {
+        speech_provider::synthesize(client, target, key, input, install).await
+    } else {
+        crate::ai::transport::service_audio::synthesize(client, target, key, input, install).await
+    }
 }
 
 pub async fn transcribe(

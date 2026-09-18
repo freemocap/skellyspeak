@@ -9,6 +9,18 @@ from server.tests.accounting.test_budget import ledger
 
 
 @pytest.mark.asyncio
+async def test_elevenlabs_probe_uses_key_header_and_array_model_catalog():
+    def respond(request):
+        assert request.url.path == '/v1/models'
+        assert request.headers['xi-api-key'] == 'test-elevenlabs-key'
+        assert 'authorization' not in request.headers
+        return httpx.Response(200, json=[{'model_id': 'eleven_v3'}])
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        result = await provider_health.probe(client, 'ELEVENLABS', 'https://api.elevenlabs.io/v1', 'test-elevenlabs-key')
+    assert result['state'] == 'accepted'
+
+
+@pytest.mark.asyncio
 async def test_credential_probes_use_own_keys_and_do_not_infer(caplog):
     seen = []
     def respond(request):

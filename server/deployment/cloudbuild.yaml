@@ -25,8 +25,8 @@ steps:
       - "${_IMAGE}"
       - "--platform=managed"
       - "--service-account=skellyspeak-run@${PROJECT_ID}.iam.gserviceaccount.com"
-      - "--set-env-vars=^@^PUBLIC_BASE_URL=${_PUBLIC_BASE_URL}@FREE_DAILY_MICROS=${_FREE_DAILY_MICROS}@GLOBAL_DAILY_MICROS=${_GLOBAL_DAILY_MICROS}@MAX_USERS=${_MAX_USERS}@MAX_COMPLETION_TOKENS=${_MAX_COMPLETION_TOKENS}"
-      - "--set-secrets=GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,JWT_SIGNING_KEY=jwt-signing-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,GROQ_API_KEY=groq-api-key:latest"
+      - "--set-env-vars=^@^PUBLIC_BASE_URL=${_PUBLIC_BASE_URL}@FREE_DAILY_MICROS=${_FREE_DAILY_MICROS}@GLOBAL_DAILY_MICROS=${_GLOBAL_DAILY_MICROS}@MAX_USERS=${_MAX_USERS}@MAX_COMPLETION_TOKENS=${_MAX_COMPLETION_TOKENS}@STT_PROVIDER=elevenlabs@ELEVENLABS_VOICE_ID=${_ELEVENLABS_VOICE_ID}"
+      - "--set-secrets=GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,JWT_SIGNING_KEY=jwt-signing-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,GROQ_API_KEY=groq-api-key:latest,ELEVENLABS_API_KEY=elevenlabs-api-key:${_ELEVENLABS_SECRET_VERSION}"
       - "--memory=512Mi"
       - "--concurrency=80"
       - "--cpu=1"
@@ -36,6 +36,8 @@ steps:
 
 
 substitutions:
+  _ELEVENLABS_SECRET_VERSION: "1"
+  _ELEVENLABS_VOICE_ID: "JBFqnCBsd6RMkjVDRZzb"
   _REGION: "us-central1"
   _IMAGE: "gcr.io/${PROJECT_ID}/skellyspeak-api:${BUILD_ID}"
   _PUBLIC_BASE_URL: ""

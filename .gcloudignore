@@ -56,3 +56,4 @@ server/app/diagnostics/*
 
 !server/app/inference/audio_contracts.py
 !server/app/inference/elevenlabs.py
+!server/app/inference/audio_service.py

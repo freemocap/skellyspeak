@@ -28,7 +28,7 @@ class AudioInput:
     cost_micros: int
 
 
-def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
+def decode_upload(body: bytes, *, content_type: str, language_code_width: int = 2) -> AudioInput:
     if "\r" in content_type or "\n" in content_type:
         raise HTTPException(status_code=400, detail="Malformed Content-Type.")
     message = BytesParser(policy=policy.default).parsebytes(
@@ -66,8 +66,8 @@ def decode_upload(body: bytes, *, content_type: str) -> AudioInput:
     # [@groq_transcription_api] Repeated multipart fields carry both granularities.
     if granularities and fields.get("response_format") != "verbose_json":
         raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")
-    if "language" in fields and not re.fullmatch(r"[a-z]{2}", fields["language"]):
-        raise HTTPException(status_code=400, detail="Audio language must be a two-letter code when supplied.")
+    if "language" in fields and not re.fullmatch(r"[a-z]{2," + str(language_code_width) + "}", fields["language"]):
+        raise HTTPException(status_code=400, detail="Audio language code is invalid for the selected provider.")
     if audio.startswith(b"RIFF") and audio[8:12] == b"WAVE":
         container = "wav"
     elif audio.startswith(bytes.fromhex("1a45dfa3")):

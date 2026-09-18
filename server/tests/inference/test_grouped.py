@@ -227,7 +227,8 @@ async def test_protocol_capabilities_are_authenticated_and_match_grouped_contrac
     assert response.status_code == 200
     assert response.json() == {"protocol": "skellyspeak", "version": 1, "max_items": 8,
                                "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
-                               "accepts_other_text_models": True, "transcription_model": "whisper-large-v3"}
+                               "accepts_other_text_models": True, "transcription_model": "whisper-large-v3",
+                               "audio": {"version": 1, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_ready": False, "transcription_provider": "groq"}}
 
 
 @pytest.mark.asyncio

@@ -170,6 +170,7 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
     };
     let path = match capability {
         Capability::Chat if route != ConnectionRoute::Openrouter => "operations",
+        Capability::Speech if route != ConnectionRoute::Openrouter => "audio/speech",
         Capability::Chat | Capability::Speech => "chat/completions",
         Capability::Transcription => "audio/transcriptions",
     };
@@ -439,10 +440,20 @@ pub async fn check_access(
             serde_json::from_value(value["providers"].clone()).map_err(|_| {
                 error("Update the custom server to support internal provider credential checks.")
             })?;
-        if providers.len() != 2
-            || ["OPENROUTER", "GROQ"]
+        if !(2..=3).contains(&providers.len())
+            || providers
                 .iter()
-                .any(|name| providers.iter().filter(|p| p.provider == *name).count() != 1)
+                .filter(|p| p.provider == "OPENROUTER")
+                .count()
+                != 1
+            || providers.iter().any(|p| {
+                !["OPENROUTER", "GROQ", "ELEVENLABS"].contains(&p.provider.as_str())
+                    || providers
+                        .iter()
+                        .filter(|other| other.provider == p.provider)
+                        .count()
+                        != 1
+            })
             || providers.iter().any(|p| {
                 !matches!(
                     p.state.as_str(),
@@ -518,7 +529,7 @@ mod tests {
         let models = execution::config(&database).unwrap();
         assert_eq!(models.standard_model, "google/gemini-2.5-flash");
         assert_eq!(models.fast_model, "google/gemini-2.5-flash-lite");
-        assert_eq!(models.audio.transcription.model, "whisper-large-v3");
+        assert_eq!(models.audio.transcription.model, "scribe_v2");
         assert!(endpoint.bearer_auth);
         assert_eq!(endpoint.base_url, DEFAULT_CUSTOM_BASE_URL);
         validate_custom(&endpoint).unwrap();
@@ -723,14 +734,24 @@ mod tests {
             db.execute("UPDATE ai_config SET route=?1,audio_settings=json_set(audio_settings,'$.transcription.route',?1,'$.speech.route',?1),credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
             let speech = resolve(&db, Capability::Speech).unwrap();
             assert_eq!(speech.credential.as_deref(), Some(credential));
-            assert_eq!(speech.url, format!("{prefix}/chat/completions"));
-            assert_eq!(speech.model, "openai/gpt-audio-mini");
+            assert_eq!(
+                speech.url,
+                format!(
+                    "{prefix}/{}",
+                    if route == "openrouter" {
+                        "chat/completions"
+                    } else {
+                        "audio/speech"
+                    }
+                )
+            );
+            assert_eq!(speech.model, "eleven_v3");
         }
         custom(&db, false);
         let speech = resolve(&db, Capability::Speech).unwrap();
         assert!(speech.credential.is_none());
-        assert_eq!(speech.url, "http://127.0.0.1:1234/v1/chat/completions");
-        assert_eq!(speech.model, "openai/gpt-audio-mini");
+        assert_eq!(speech.url, "http://127.0.0.1:1234/v1/audio/speech");
+        assert_eq!(speech.model, "eleven_v3");
         custom(&db, true);
         assert!(resolve(&db, Capability::Speech).is_err());
         db.execute("UPDATE ai_config SET custom_credential_id='custom-key'", [])
@@ -759,11 +780,11 @@ mod tests {
         assert_eq!(chat.model, "google/gemini-2.5-flash");
         assert_eq!(
             resolve(&db, Capability::Transcription).unwrap().model,
-            "whisper-large-v3"
+            "scribe_v2"
         );
         custom(&db, true);
         let audio = resolve(&db, Capability::Transcription).unwrap();
-        assert_eq!(audio.model, "whisper-large-v3");
+        assert_eq!(audio.model, "scribe_v2");
         assert_eq!(audio.credential.as_deref(), Some("unused-secret"));
         db.execute("UPDATE ai_config SET custom_credential_id=NULL", [])
             .unwrap();

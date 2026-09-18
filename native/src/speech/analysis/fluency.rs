@@ -36,7 +36,8 @@ pub struct Segment {
     pub compression_ratio: Option<f64>,
 }
 /// Provider-independent timing evidence. Confidence diagnostics are separate.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TranscriptTiming {
     pub text: String,
     pub duration: f64,

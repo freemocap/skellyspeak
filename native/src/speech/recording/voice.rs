@@ -51,7 +51,14 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         &conversation.settings.explanation_language,
         Some(&conversation.settings.explanation_variety_id),
     )?;
-    let language = context.external_tags.get("transcription").cloned();
+    let language = if target.route == ConnectionRoute::Openrouter {
+        context.external_tags.get("transcription").cloned()
+    } else {
+        context
+            .external_tags
+            .get("language_tag")
+            .map(|tag| tag.split('-').next().unwrap_or(tag).to_owned())
+    };
     let native_name = store
         .config
         .language(&conversation.language_id)?

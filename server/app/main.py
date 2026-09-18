@@ -52,6 +52,7 @@ from fastapi.exceptions import RequestValidationError
 from google.cloud import firestore
 
 import server.app.inference.audio_input as audio_input
+import server.app.inference.audio_service as audio_service
 import server.app.admission.admission as admission
 import server.app.inference.grouped as grouped
 import server.app.inference.model_routing as model_routing
@@ -102,7 +103,7 @@ def admit_http(request: Request) -> None:
     if request.method == "GET" and request.url.path == "/health":
         liveness_ingress.take()
         return
-    protected = {"/v1/me", "/v1/diagnostics", "/v1/chat/completions", "/v1/audio/transcriptions", "/v1/operations", "/v1/protocol"}
+    protected = {"/v1/me", "/v1/diagnostics", "/v1/chat/completions", "/v1/audio/transcriptions", "/v1/audio/speech", "/v1/operations", "/v1/protocol"}
     header = request.headers.get("authorization", "")
     scheme, _, token = header.partition(" ")
     if request.url.path in protected and scheme.lower() == "bearer" and 0 < len(token) <= 4096:
@@ -552,15 +553,15 @@ class UsageUnknown(RuntimeError):
     """Accounting retained the reservation but cannot confirm provider usage."""
 
 
-async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str) -> None:
+async def _settle(reservation: budget.Reservation, *, cost: int | None, tokens: int, provider_id: str, cost_basis: str = "reported", raise_unknown: bool = True) -> None:
     async with runtime.phase("settlement", outcome="unknown" if cost is None else "known", tokens=tokens):
         with anyio.CancelScope(shield=True):
             await anyio.to_thread.run_sync(partial(
                 budget.settle, db, reservation=reservation,
                 actual_micros=reservation.micros if cost is None else cost,
-                tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id,
+                tokens=tokens, status="unknown" if cost is None else "settled", provider_id=provider_id, cost_basis=cost_basis,
             ))
-        if cost is None:
+        if cost is None and raise_unknown:
             raise UsageUnknown(f"Provider usage is unknown; reservation {reservation.request_id} requires reconciliation.")
 
 
@@ -683,6 +684,8 @@ _audio_slots = asyncio.Semaphore(8)
 
 @app.post("/v1/audio/transcriptions")
 async def transcriptions(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
+    if CFG.stt_provider == "elevenlabs":
+        return await audio_service.transcribe(request, who, CFG, _reserve, _settle, read_capped_body)
     if _audio_slots.locked():
         raise observability.Rejection("TRANSCRIPTION_BUSY", "Transcription is busy. Try again shortly.", retry=5)
     async with _audio_slots:
@@ -723,7 +726,7 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
         finally:
             if reservation is not None:
                 try:
-                    await _settle(reservation, cost=cost, tokens=0, provider_id="groq")
+                    await _settle(reservation, cost=cost, tokens=0, provider_id="groq", cost_basis="estimate")
                 except UsageUnknown:
                     if not isinstance(execution_error, UpstreamHTTPError):
                         raise
@@ -799,12 +802,20 @@ async def operations(request: Request, who: quota.Principal = Depends(current_us
         execute=partial(execute_grouped_item, who=who)), media_type="application/x-ndjson")
 
 
+@app.post("/v1/audio/speech")
+async def audio_speech(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
+    return await audio_service.synthesize(request, who, CFG, _reserve, _settle, read_capped_body)
+
+
 @app.get("/v1/protocol")
 async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_providers: bool = False) -> dict[str, object]:
     result = {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
             "accepts_other_text_models": True,
-            "transcription_model": "whisper-large-v3"}
+            "transcription_model": CFG.stt_model if CFG.stt_provider == "elevenlabs" else "whisper-large-v3",
+            "audio": {"version": 1, "transcription_provider": CFG.stt_provider,
+                      "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
+                      "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}
     if verify_providers:
         result["providers"] = await provider_health.check(CFG)
     return result

@@ -47,3 +47,4 @@ app/diagnostics/*
 
 !app/inference/audio_contracts.py
 !app/inference/elevenlabs.py
+!app/inference/audio_service.py
