@@ -631,20 +631,20 @@
   "{value0} · {value1} XP": "{value0} · {value1} 经验值",
   "{value0}/3 unassisted successes": "{value0}/3 次独立成功",
   "Search matches": {
-    "zero": "{count} 个结果",
-    "one": "{count} 个结果",
-    "two": "{count} 个结果",
     "few": "{count} 个结果",
     "many": "{count} 个结果",
-    "other": "{count} 个结果"
+    "one": "{count} 个结果",
+    "other": "{count} 个结果",
+    "two": "{count} 个结果",
+    "zero": "{count} 个结果"
   },
   "Conversation turns": {
-    "zero": " · {count} 轮",
-    "one": " · {count} 轮",
-    "two": " · {count} 轮",
     "few": " · {count} 轮",
     "many": " · {count} 轮",
-    "other": " · {count} 轮"
+    "one": " · {count} 轮",
+    "other": " · {count} 轮",
+    "two": " · {count} 轮",
+    "zero": " · {count} 轮"
   },
   "Languages": "语言",
   "What you're learning and what you already speak.": "你正在学习以及已经会说的语言。",
@@ -965,5 +965,8 @@
   "Transcription access": "转写连接",
   "Read-aloud access": "朗读连接",
   "Read-aloud model": "朗读模型",
-  "Chat access": "聊天连接"
+  "Chat access": "聊天连接",
+  "Audio provider key": "音频服务商密钥",
+  "Connect to local server": "连接到本地服务器",
+  "Response details": "响应详情"
 }

@@ -180,7 +180,7 @@ impl Store {
                     },
                 });
             }
-            let attempts=db.prepare("SELECT a.id,a.operation_id,a.state,a.requested_model,a.actual_model,a.provider_id,a.started_at,a.finished_at,a.input_tokens,a.output_tokens,a.error FROM attempts a JOIN operations o ON a.operation_id=o.id WHERE o.turn_id=?1 ORDER BY a.rowid")?.query_map([&id],|r|Ok(AttemptView{id:r.get(0)?,operation_id:r.get(1)?,state:r.get(2)?,requested_model:r.get(3)?,actual_model:r.get(4)?,provider_id:r.get(5)?,started_at:r.get(6)?,finished_at:r.get(7)?,input_tokens:r.get(8)?,output_tokens:r.get(9)?,error:r.get(10)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+            let attempts=db.prepare("SELECT a.id,a.operation_id,a.state,a.requested_model,a.actual_model,a.provider_id,a.started_at,a.finished_at,a.input_tokens,a.output_tokens,a.error,a.diagnostics FROM attempts a JOIN operations o ON a.operation_id=o.id WHERE o.turn_id=?1 ORDER BY a.rowid")?.query_map([&id],|r|Ok(AttemptView { diagnostics: crate::diagnostics::response::column(r,11)?,id:r.get(0)?,operation_id:r.get(1)?,state:r.get(2)?,requested_model:r.get(3)?,actual_model:r.get(4)?,provider_id:r.get(5)?,started_at:r.get(6)?,finished_at:r.get(7)?,input_tokens:r.get(8)?,output_tokens:r.get(9)?,error:r.get(10)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
             let (replaces_turn_id, replaced_by) = db.query_row("SELECT replaces_turn_id,(SELECT id FROM turns child WHERE child.replaces_turn_id=turns.id) FROM turns WHERE id=?1", [&id], |r| Ok((r.get(0)?, r.get(1)?)))?;
             turns.push(TurnView {
                 replaces_turn_id,

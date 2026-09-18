@@ -1,3 +1,5 @@
+import { reportFault } from '../../../platform/diagnostics/faults'
+import { mediaError } from '../../../platform/audio/media-error'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useRef, useState } from 'react'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
@@ -100,7 +102,7 @@ export function TranscriptionInspector({ result, onClose }: { result: Transcript
     if (!audio.current.paused) { audio.current.pause(); return }
     if (audio.current.ended) seek(0)
     try { await audio.current.play(); setPlaybackError(false) }
-    catch { setPlaybackError(true) }
+    catch (error) { setPlaybackError(true); reportFault('Recording playback', mediaError(error, 'Recording playback')) }
   }
   const { waveform, spectrogram, activity, wordTiming, duration } = inspection
   const x = (time: number) => Math.max(0, Math.min(1000, time / duration * 1000))

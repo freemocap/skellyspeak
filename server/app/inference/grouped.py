@@ -14,6 +14,7 @@ import anyio
 from fastapi import HTTPException
 from google.cloud import firestore
 
+from server.app.diagnostics.exceptions import describe
 import server.app.diagnostics.runtime as runtime
 import server.app.admission.admission as admission
 import server.app.inference.contracts as contracts
@@ -43,7 +44,7 @@ def record_failure(status: int, error: BaseException, *, request_id: str, item_i
     log.warning(json.dumps({"event": "operation_failure",
         "severity": "ERROR" if status >= 500 else "WARNING", "request_id": request_id,
         "item_index": item_index, "code": code, "exception_type": exception_type,
-        "status": status,
+        "status": status, "diagnostics": describe(error),
         "upstream_status": upstream if type(upstream) is int and 100 <= upstream <= 599 else None,
         "category": "http" if isinstance(error, HTTPException) else "internal"}))
 
@@ -113,13 +114,13 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
                 event.update({"type": "duplicate", "state": held.state})
         except HTTPException as error:
             record_failure(error.status_code, error, request_id=request_id, item_index=item_index)
-            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code})
+            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": getattr(error, "diagnostics", None), "request_id": request_id})
             retry = (error.headers or {}).get("Retry-After", "")
             if retry.isdigit() and 0 < int(retry) <= 604800:
                 event["retry_after"] = int(retry)
         except Exception as error:
             record_failure(500, error, request_id=request_id, item_index=item_index)
-            event.update({"type": "error", "code": "UNKNOWN_OUTCOME", "status": 500})
+            event.update({"type": "error", "code": "UNKNOWN_OUTCOME", "status": 500, "diagnostics": describe(error), "request_id": request_id})
         runtime.emit("operation_finished", request_id=request_id, item_index=item_index)
         await send.send(event)
 

@@ -8,6 +8,13 @@ pub(crate) fn completed(dispatch: &Dispatch, outcome: &SpeechOutcome) {
 }
 fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
     let mut event = super::inference::base(dispatch, "persona_speech");
+    event["diagnostics"] = serde_json::json!(outcome.diagnostics.as_ref().or_else(|| {
+        outcome
+            .audio
+            .as_ref()
+            .err()
+            .and_then(|e| e.diagnostics.as_ref())
+    }));
     event["code"] = json!("speech_validation");
     event["stage"] = json!("decoder_outcome");
     event["contentRedacted"] = json!(true);
@@ -57,6 +64,7 @@ mod tests {
             speech_source: None,
         };
         let mut outcome = SpeechOutcome {
+            diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),
             provider_id: Some("PRIVATE".into()),

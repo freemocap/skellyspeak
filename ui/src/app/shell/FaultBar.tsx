@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { useFaultStore } from '../../platform/diagnostics/faults'
 
@@ -13,7 +14,7 @@ export function FaultBar() {
     <div className="fault-bar" role="alert">
       <button type="button" className="btn tiny" onClick={dismissAll}>{tr("Dismiss all")}</button>
       {faults.map((f) => (
-        <p key={f.id} className="fault">
+        <div key={f.id} className="fault">
           <b>{f.context}:</b> {f.message}
           <button
             type="button"
@@ -23,7 +24,8 @@ export function FaultBar() {
           >
             ✕
           </button>
-        </p>
+          <ResponseDetails value={f.diagnostics} />
+        </div>
       ))}
     </div>
   )

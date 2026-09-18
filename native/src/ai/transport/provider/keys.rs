@@ -25,16 +25,12 @@ async fn verify_key_at(client: &reqwest::Client, key: &str, url: &str) -> Result
             ErrorCode::Provider, "Could not reach OpenRouter to verify the key. Check your connection and try again.",
         ))?;
     if response.status().as_u16() != 200 {
-        let detail = match response.status().as_u16() {
-            401 | 403 => "OpenRouter rejected this API key.".to_string(),
-            429 => {
-                "OpenRouter rate-limited key verification. Wait before trying again.".to_string()
-            }
-            status => {
-                format!("OpenRouter key verification failed (HTTP {status}). Try again later.")
-            }
-        };
-        return Err(AppError::new(ErrorCode::Provider, detail));
+        return Err(crate::diagnostics::response::http_error(
+            response,
+            "OpenRouter key verification",
+            &[key],
+        )
+        .await);
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response.chunk().await.map_err(|_| key_response_error())? {

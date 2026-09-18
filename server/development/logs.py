@@ -1,6 +1,7 @@
 """Private append-only local process logs. Unknown bodies are explicitly redacted."""
 from __future__ import annotations
 
+import errno
 import io
 import json
 import logging
@@ -90,6 +91,9 @@ def safe_record(record: logging.LogRecord) -> dict:
         if not isinstance(data, dict) or data.get("event") != "request_headers":
             return event
         event["code"] = "request_headers"
+        if data.get("diagnostics") is not None:
+            from server.app.diagnostics.provider_errors import sanitize
+            event["diagnostics"] = sanitize(data["diagnostics"])
         for field in ("status", "duration_ms"):
             value = data.get(field)
             if type(value) is int and 0 <= value <= 2**53:
@@ -108,6 +112,9 @@ def safe_record(record: logging.LogRecord) -> dict:
         if not isinstance(data, dict) or data.get("event") not in {"operation_failure", "group_finished"}:
             return event
         event["code"] = data["event"]
+        if data.get("diagnostics") is not None:
+            from server.app.diagnostics.provider_errors import sanitize
+            event["diagnostics"] = sanitize(data["diagnostics"])
         if isinstance(data.get("request_id"), str) and re.fullmatch(r"[0-9a-f]{32}", data["request_id"]):
             event["requestId"] = data["request_id"]
         for field in ("item_index", "item_count", "delivered", "failures"):
@@ -148,6 +155,17 @@ def safe_record(record: logging.LogRecord) -> dict:
             "Exception in ASGI application\n": "asgi_exception",
         }
         event["eventName"] = templates.get(record.msg, "other") if isinstance(record.msg, str) else "other"
+        # Uvicorn logs the OSError object itself when binding fails. Preserve
+        # only an allowlisted errno classification, never its text or filename.
+        if record.name == "uvicorn.error" and isinstance(record.msg, OSError):
+            failures = {
+                errno.EADDRINUSE: ("address_in_use", "Server address is already in use. Stop the existing local server before starting another."),
+                errno.EACCES: ("permission_denied", "The operating system denied access to the server socket."),
+                errno.EPERM: ("permission_denied", "The operating system denied access to the server socket."),
+                errno.EADDRNOTAVAIL: ("address_unavailable", "The configured server address is unavailable on this computer."),
+            }
+            name, message = failures.get(record.msg.errno, ("socket_error", "Server socket operation failed."))
+            event.update(eventName=name, message=message)
     return event
 
 

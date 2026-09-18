@@ -254,7 +254,6 @@ fn changing_audio_settings_revokes_late_speech_and_preserves_usage() {
     let (speech, _) = speech_children(&mut store, &conversation);
     let config = store.connection_config().unwrap();
     let mut audio = config.audio.clone();
-    audio.speech.route = ConnectionRoute::Custom;
     audio.speech.model = "new-speech-model".into();
     store
         .set_models(

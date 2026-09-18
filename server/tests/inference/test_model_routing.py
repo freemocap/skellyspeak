@@ -99,11 +99,11 @@ async def test_new_openrouter_model_can_succeed_without_server_catalog_edit(prox
 
 @pytest.mark.asyncio
 async def test_provider_error_inside_success_status_is_still_surfaced(proxy, monkeypatch):
-    upstream(monkeypatch, lambda _: httpx.Response(200, json={'error': {'code': 404, 'message': 'PRIVATE_ERROR'}}))
+    upstream(monkeypatch, lambda _: httpx.Response(200, json={'error': {'code': 404, 'message': 'No provider endpoint supports this model.'}}))
     response = await proxy.post('/v1/operations', json=envelope(1))
     event = json.loads(response.text.splitlines()[0])
     assert event['code'] == 'OPENROUTER_HTTP_404'
-    assert 'PRIVATE_ERROR' not in response.text
+    assert event['diagnostics']['error']['message'] == 'No provider endpoint supports this model.'
 
 
 @pytest.mark.asyncio
@@ -176,7 +176,7 @@ async def test_new_transcription_model_reaches_groq_once(proxy, monkeypatch, sta
         sent.append(request)
         assert str(request.url).startswith(main.CFG.groq_base_url)
         assert b'future-transcription-model' in request.content
-        return httpx.Response(status, json={'text': 'Hola'} if status == 200 else {'error': {'message': 'PRIVATE_PROVIDER_ERROR'}})
+        return httpx.Response(status, json={'text': 'Hola'} if status == 200 else {'error': {'message': 'The selected transcription model is unavailable.'}})
     upstream(monkeypatch, respond)
     audio = upload(1, model='future-transcription-model')
     response = await proxy.post('/v1/audio/transcriptions', content=audio.read(),
@@ -187,7 +187,7 @@ async def test_new_transcription_model_reaches_groq_once(proxy, monkeypatch, sta
         assert response.json()['text'] == 'Hola'
     else:
         assert response.json()['code'] == 'GROQ_HTTP_400'
-        assert 'PRIVATE_PROVIDER_ERROR' not in response.text
+        assert response.json()['diagnostics']['error']['message'] == 'The selected transcription model is unavailable.'
 
 
 @pytest.mark.asyncio

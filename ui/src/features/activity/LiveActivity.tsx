@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { useEffect, useState } from 'react'
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react'
@@ -76,7 +77,8 @@ export function LiveActivity() {
     <label>{tr("Exchange ")}<select aria-label={tr("AI exchange")} value={turn?.id ?? ''} onChange={event => setSelected(event.target.value)}>{snapshot?.turns.map((item, index) => <option key={item.id} value={item.id}>{snapshot.turns.length - index} · {item.state}</option>)}</select></label>
     <div className="live-operation-graph"><ReactFlow key={turn?.id} nodes={nodes} edges={edges} fitView nodesDraggable={false} nodesConnectable={false}><Background /><Controls showInteractive={false} /></ReactFlow></div>
     {!turn && <p>{tr("No recorded AI operations.")}</p>}
-    {turn?.attempts.map(attempt => <details key={attempt.id}><summary>{turn.operations.find(op => op.id === attempt.operationId)?.kind} · {attempt.state}</summary><dl><dt>{tr("Model")}</dt><dd>{attempt.actualModel ?? attempt.requestedModel}</dd><dt>{tr("Tokens in / out")}</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd><dt>{tr("Started")}</dt><dd>{attempt.startedAt}</dd></dl>{attempt.error && <p>{attempt.error}</p>}</details>)}
+    {turn?.attempts.map(attempt => <details key={attempt.id}><summary>{turn.operations.find(op => op.id === attempt.operationId)?.kind} · {attempt.state}</summary><dl><dt>{tr("Model")}</dt><dd>{attempt.actualModel ?? attempt.requestedModel}</dd><dt>{tr("Tokens in / out")}</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd><dt>{tr("Started")}</dt><dd>{attempt.startedAt}</dd></dl>{attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} /></details>)}
+    {snapshot?.transcriptionAttempts.map(attempt => <details key={attempt.id}><summary>{attempt.model} · {attempt.state}</summary>{attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} /></details>)}
     <GenerationActivity />
   </section>
 }

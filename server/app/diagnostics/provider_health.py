@@ -12,6 +12,7 @@ async def probe(client, provider, base_url, key):
     started = time.monotonic()
     status = None
     state = 'unreachable'
+    diagnostics = None
     try:
         async with asyncio.timeout(10):
             async with client.stream('GET', base_url.rstrip('/') + ('/key' if provider == 'OPENROUTER' else '/models'),
@@ -19,7 +20,7 @@ async def probe(client, provider, base_url, key):
                 status = response.status_code
                 if not response.is_success:
                     state = 'rejected'
-                    await provider_errors.capture(response, provider, {'key': key})
+                    diagnostics = await provider_errors.capture(response, provider, {'key': key})
                 else:
                     body = bytearray()
                     async for chunk in response.aiter_bytes():
@@ -35,7 +36,7 @@ async def probe(client, provider, base_url, key):
         state = 'invalid_response'
     duration = round((time.monotonic() - started) * 1000)
     runtime.emit('provider_credential_checked', provider=provider, status=status, duration_ms=duration, credential_state=state)
-    return {'provider': provider, 'state': state, 'status': status, 'durationMs': duration}
+    return {'provider': provider, 'state': state, 'status': status, 'durationMs': duration, 'diagnostics': diagnostics}
 
 
 async def check(config):

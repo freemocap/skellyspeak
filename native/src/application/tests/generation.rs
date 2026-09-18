@@ -58,6 +58,7 @@ fn cancellation_or_authority_change_cannot_adopt_a_completed_proposal() {
         }
         let proposed = persona::starter("spanish").unwrap();
         let completion = provider::Completion {
+            diagnostics: None,
             text: serde_json::to_string(&proposed).unwrap(),
             actual_model: "fixture".into(),
             provider_id: "synthetic".into(),
@@ -85,6 +86,7 @@ fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adop
             run
         };
         let completion = provider::Completion {
+            diagnostics: None,
             text: "private malformed proposal".into(),
             actual_model: "fixture-actual".into(),
             provider_id: "synthetic".into(),
@@ -138,6 +140,7 @@ fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
         };
         let proposed = persona::starter("spanish").unwrap();
         let completed = Ok(provider::Completion {
+            diagnostics: None,
             text: serde_json::to_string(&proposed).unwrap(),
             actual_model: "fixture".into(),
             provider_id: "synthetic".into(),

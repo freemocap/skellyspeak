@@ -204,3 +204,24 @@ async def test_latin_recognition_is_preserved_as_evidence_not_retranslated():
     assert result.text == value["text"]
     assert result.words == ()
     assert result.language_probability == 0.2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("body", [b"not json", b'{"detail":', b'x' * 16_385])
+async def test_unreadable_error_detail_preserves_http_status(body):
+    async with httpx.AsyncClient(transport=httpx.MockTransport(
+            lambda _: httpx.Response(401, content=body))) as client:
+        with pytest.raises(AudioFailure) as error:
+            await ElevenLabs(client, api_key=KEY).synthesize(SPEECH)
+    assert error.value.status == 401
+    assert error.value.provider_error is None
+
+
+@pytest.mark.asyncio
+async def test_provider_error_message_is_bounded_and_code_is_preserved():
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
+            401, json={"detail": {"status": "quota_exceeded", "message": "No credits. " * 300}}))) as client:
+        with pytest.raises(AudioFailure) as error:
+            await ElevenLabs(client, api_key=KEY).synthesize(SPEECH)
+    assert error.value.provider_error["code"] == "quota_exceeded"
+    assert len(error.value.provider_error["message"]) == 1024

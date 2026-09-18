@@ -185,6 +185,14 @@ impl Store {
             .ok_or_else(|| fail("Missing captured speech source."))?;
         let tokens_in = outcome.input_tokens.and_then(|n| i32::try_from(n).ok());
         let tokens_out = outcome.output_tokens.and_then(|n| i32::try_from(n).ok());
+        let diagnostics = crate::diagnostics::response::retained(
+            outcome.diagnostics.as_ref(),
+            outcome.audio.as_ref().err(),
+        );
+        tx.execute(
+            "UPDATE attempts SET diagnostics=?2 WHERE id=?1 AND operation_id=?3",
+            params![dispatch.attempt, diagnostics, dispatch.operation],
+        )?;
         // Retain accounting even when cancellation already revoked publication.
         tx.execute("UPDATE attempts SET actual_model=COALESCE(actual_model,?2),provider_id=COALESCE(provider_id,?3),input_tokens=COALESCE(input_tokens,?4),output_tokens=COALESCE(output_tokens,?5) WHERE id=?1 AND operation_id=?6 AND state IN ('running','unknown','invalidated')",params![dispatch.attempt,outcome.actual_model,outcome.provider_id,tokens_in,tokens_out,dispatch.operation])?;
         if let Some(metered_turn)=tx.query_row("SELECT o.turn_id FROM operations o JOIN attempts a ON a.operation_id=o.id WHERE o.id=?1 AND a.id=?2",params![dispatch.operation,dispatch.attempt],|r|r.get::<_,String>(0)).optional()? {

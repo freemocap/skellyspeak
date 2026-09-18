@@ -29,6 +29,7 @@ def verify(root: Path, *, executable: str | None = None) -> None:
     if any(not (root / path).is_file() for path in required):
         raise RuntimeError("A required Cloud Build source is missing.")
     forbidden = {"server/local.env", "server/.env", "server/.local-server/session-token.txt",
+                 "server/.local-server/session.json", "server/development/session.py",
                  "server/.venv/sentinel.txt", "server/__pycache__/sentinel.pyc",
                  "server/tests/test_sentinel.py", "server/app/private.txt", "server/app/__pycache__/sentinel.pyc",
                  "server/development/launcher.py", "server/operations/stats.py", "server/nested/private.txt", "outside.txt"}

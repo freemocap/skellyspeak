@@ -32,22 +32,44 @@ struct Response {
     usage: Usage,
 }
 
-fn invalid() -> AppError {
-    AppError::new(
-        ErrorCode::UnknownOutcome,
-        "Invalid or interrupted audio response. Processing may have incurred a charge. No automatic retry was made.",
-    )
-}
-
 fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
-    let value: Response = serde_json::from_slice(bytes).map_err(|_| invalid())?;
+    let raw: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
+        crate::diagnostics::response::invalid(
+            "speech_json",
+            "$",
+            &format!("JSON at line {} column {}", e.line(), e.column()),
+            &serde_json::Value::Null,
+        )
+    })?;
+    outcome.diagnostics = Some(crate::diagnostics::response::metadata(&raw, &[]));
+    let invalid = || {
+        crate::diagnostics::response::invalid(
+            "speech",
+            "audio_base64",
+            "complete mono 24 kHz 16-bit PCM WAV",
+            &raw,
+        )
+    };
+    let value: Response = serde_json::from_value(raw.clone()).map_err(|_| {
+        crate::diagnostics::response::invalid(
+            "speech",
+            "$",
+            "version, format, audio_base64 and usage receipt",
+            &raw,
+        )
+    })?;
     if value.version != 1
         || value.format != "wav"
         || value.usage.requested_model != target.model
         || value.usage.provider.is_empty()
         || value.usage.provider.len() > 64
     {
-        return Err(invalid());
+        return Err(crate::diagnostics::response::invalid(
+            "speech",
+            "version/format/usage",
+            "version 1, wav, matching model and provider",
+            &raw,
+        ));
     }
     outcome.actual_model = value.usage.actual_model;
     outcome.provider_id = value.usage.request_id;
@@ -93,13 +115,17 @@ pub(in crate::ai) async fn synthesize(
         if target.route == ConnectionRoute::Hosted {
             request = hosted::identity(request, install);
         }
-        let response = request.send().await.map_err(|_| invalid())?;
+        let response = request
+            .send()
+            .await
+            .map_err(|e| crate::diagnostics::response::network(&e, "speech_request"))?;
+        let http = crate::diagnostics::response::headers(&response);
         let status = response.status();
         let bytes = if !status.is_success()
             && (target.route == ConnectionRoute::Hosted
                 || matches!(status.as_u16(), 400 | 422 | 502 | 503))
         {
-            hosted::body(response).await
+            hosted::body_with_private(response, &[key, &input.text]).await
         } else {
             response_bytes(response, "Speech", target.route, 6 * 1024 * 1024).await
         }
@@ -109,9 +135,24 @@ pub(in crate::ai) async fn synthesize(
             }
             error
         })?;
-        decode(&bytes, target, &mut outcome)
+        let result = decode(&bytes, target, &mut outcome);
+        outcome
+            .diagnostics
+            .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        result
     }
     .await;
+    outcome.diagnostics = outcome
+        .diagnostics
+        .as_ref()
+        .map(|v| crate::diagnostics::response::metadata(v, &[key, &input.text]));
+    if let Err(error) = &mut outcome.audio {
+        error.message = crate::diagnostics::response::scrub(&error.message, &[key, &input.text]);
+        error.diagnostics = error
+            .diagnostics
+            .as_ref()
+            .map(|v| crate::diagnostics::response::metadata(v, &[key, &input.text]));
+    }
     outcome
 }
 

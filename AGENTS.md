@@ -300,6 +300,29 @@ without explicit authorization. Publishing packages and deploying applications
 require explicit authorization; permission to push commits or tags alone does
 not authorize triggering a known publishing or deployment workflow.
 
+## Response information and observability
+
+Preserve response information by default for observability and transparency, on
+both success and failure. Remove credentials and content (prompts, messages,
+transcripts, audio and echoed request content); do not replace the entire response
+or error with a generic category to achieve redaction. Preserve non-content
+metadata, including provider/service request IDs, provider error codes and redacted
+reasons, requested/actual models, finish reasons, usage and billing provenance,
+timing, retry/rate-limit information and validation stage/path/expected shape.
+Keep validated partial metadata even when content decoding or publication fails.
+
+Carry this information through adapters, server responses, native models,
+persistence and diagnostic views. A concise UI summary may accompany expandable
+technical details, but must not become the only retained representation. Preserve
+additional non-sensitive provider metadata in a bounded structured form rather
+than silently dropping fields because the display model does not use them.
+Unknown fields need explicit sensitivity handling; do not blindly persist raw
+bodies, headers, URLs or arbitrary exception strings. Mark redaction, truncation,
+unreadable data and omitted fields explicitly so absent information is explainable.
+Never confuse estimated allowance with actual cost or infer billing from HTTP
+status. Tests must verify useful information survives as well as verifying that
+credentials and content are removed.
+
 ## Quality
 
 Fail on errors; do not substitute warnings or silent fallbacks. Keep documentation

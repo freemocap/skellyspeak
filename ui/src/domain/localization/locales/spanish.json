@@ -631,20 +631,20 @@
   "{value0} · {value1} XP": "{value0} · {value1} XP",
   "{value0}/3 unassisted successes": "{value0}/3 éxitos sin ayuda",
   "Search matches": {
-    "zero": "{count} resultados",
-    "one": "{count} resultado",
-    "two": "{count} resultados",
     "few": "{count} resultados",
     "many": "{count} resultados",
-    "other": "{count} resultados"
+    "one": "{count} resultado",
+    "other": "{count} resultados",
+    "two": "{count} resultados",
+    "zero": "{count} resultados"
   },
   "Conversation turns": {
-    "zero": " · {count} turnos",
-    "one": " · {count} turno",
-    "two": " · {count} turnos",
     "few": " · {count} turnos",
     "many": " · {count} turnos",
-    "other": " · {count} turnos"
+    "one": " · {count} turno",
+    "other": " · {count} turnos",
+    "two": " · {count} turnos",
+    "zero": " · {count} turnos"
   },
   "Languages": "Idiomas",
   "What you're learning and what you already speak.": "Lo que quieres aprender y lo que ya hablas.",
@@ -965,5 +965,8 @@
   "Transcription access": "Conexión de transcripción",
   "Read-aloud access": "Conexión de lectura en voz alta",
   "Read-aloud model": "Modelo de lectura en voz alta",
-  "Chat access": "Conexión del chat"
+  "Chat access": "Conexión del chat",
+  "Audio provider key": "Clave del proveedor de audio",
+  "Connect to local server": "Conectar al servidor local",
+  "Response details": "Detalles de la respuesta"
 }

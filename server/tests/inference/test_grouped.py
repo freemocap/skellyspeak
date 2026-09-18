@@ -180,6 +180,9 @@ async def test_partial_failure_keeps_unknown_lease_without_blocking_sibling(prox
     response = await proxy.post("/v1/operations", json=envelope())
     assert "private upstream content" not in response.text + caplog.text
     diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
+    details = diagnostic.pop("diagnostics")
+    assert details["causes"][0]["exception_type"] == diagnostic["exception_type"]
+    assert details["causes"][0]["frames"][0]["source_file"] == "grouped.py"
     assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 502, "upstream_status": 502, "category": "http", "request_id": response.headers["x-request-id"], "item_index": 0, "code": "OPENROUTER_HTTP_502", "exception_type": "UpstreamHTTPError"}
     events = [json.loads(line) for line in response.text.splitlines()]
     assert sorted(e["type"] for e in events) == ["complete", "error", "result"]
@@ -250,6 +253,9 @@ async def test_internal_failure_diagnostic_never_logs_exception_text(proxy, monk
     failure = next(json.loads(line) for line in response.text.splitlines() if json.loads(line)["type"] == "error")
     assert failure["status"] == 500
     diagnostic = next(json.loads(r.message) for r in caplog.records if r.name == "skellyspeak.operations")
+    details = diagnostic.pop("diagnostics")
+    assert details["causes"][0]["exception_type"] == diagnostic["exception_type"]
+    assert details["causes"][0]["frames"][0]["source_file"] == "grouped.py"
     assert diagnostic == {"event": "operation_failure", "severity": "ERROR", "status": 500, "upstream_status": None, "category": "internal", "request_id": response.headers["x-request-id"], "item_index": 0, "code": "UNKNOWN_OUTCOME", "exception_type": "ValueError"}
 
 

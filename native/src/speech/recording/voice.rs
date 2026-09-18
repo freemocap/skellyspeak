@@ -237,6 +237,7 @@ pub async fn mic_transcribe(
             }
         }
     };
+    let diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
     let result = result.and_then(|response| {
         crate::speech::analysis::audio_inspection::attach_words(
             &mut inspection,
@@ -246,11 +247,12 @@ pub async fn mic_transcribe(
         segments = response.whisper_segments.unwrap_or_default();
         Ok(response.text)
     });
-    let text = state.lock()?.finish_transcription(
+    let text = state.lock()?.finish_transcription_with_diagnostics(
         &recording_id,
         &recording.conversation,
         &recording.target,
         result,
+        diagnostics.as_ref(),
     )?;
     Ok(
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult {

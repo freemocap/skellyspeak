@@ -47,8 +47,8 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 400)); continue }
       if (audio.status === 'unavailable') throw new Error(`Speech unavailable: ${audio.reason}`)
       const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
-      const player = playSpeechAudio(audio, finish, () => {
-        if (scope === generation.current) { setFailure({ messageId: sourceId, text: 'Audio playback failed.' }); finish() }
+      const player = playSpeechAudio(audio, finish, error => {
+        if (scope === generation.current) { setFailure({ messageId: sourceId, text: nativeError(error) }); reportFault('Speech playback', error); finish() }
       }, playback.current.rate, playback.current.volume)
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
       try { await player.play() } catch (error) { player.stop(); throw error }

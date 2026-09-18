@@ -37,6 +37,10 @@ enum Event {
         code: String,
         status: u16,
         retry_after: Option<u32>,
+        #[serde(default)]
+        diagnostics: Option<serde_json::Value>,
+        #[serde(default)]
+        request_id: Option<String>,
     },
     Complete {
         count: usize,
@@ -109,10 +113,7 @@ impl Decoder {
                 } => (
                     operation_id,
                     attempt_id,
-                    provider::decode(&serde_json::to_vec(&response)?).map_err(|_| AppError::new(
-                        ErrorCode::UnknownOutcome,
-                        "The server returned an invalid AI completion for this operation. Usage is unconfirmed; no automatic retry was made.",
-                    )),
+                    provider::decode(&serde_json::to_vec(&response)?),
                 ),
                 Event::Duplicate {
                     operation_id,
@@ -140,32 +141,36 @@ impl Decoder {
                     code,
                     status,
                     retry_after,
+                    diagnostics,
+                    request_id,
                 } => {
                     if !(400..=599).contains(&status)
                         || code.len() > 64
-                        || !code.bytes().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == b'_')
+                        || !code
+                            .bytes()
+                            .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == b'_')
                     {
                         return Err(unknown());
                     }
                     let provider_message = (status == 502)
                         .then(|| crate::ai::hosted::provider_failure_message(&code))
                         .flatten();
-                    let error = if let Some(message) = provider_message {
+                    let mut error = if let Some(message) = provider_message {
                         AppError::new(ErrorCode::UnknownOutcome, message)
                     } else if status == 429 {
                         AppError::new(
                             ErrorCode::Provider,
                             "Server admission refused this operation.",
                         )
-                        .with_refusal(crate::ai::policy::refusal::classify(
-                            Some(&code),
-                            retry_after,
-                            None,
-                        ))
+                        .with_refusal(
+                            crate::ai::policy::refusal::classify(Some(&code), retry_after, None),
+                        )
                     } else if status >= 500 {
                         AppError::new(
                             ErrorCode::UnknownOutcome,
-                            format!("The server reported HTTP {status} for this operation. Usage is unconfirmed; no automatic retry was made."),
+                            format!(
+                                "The server reported HTTP {status} for this operation. Usage is unconfirmed; no automatic retry was made."
+                            ),
                         )
                     } else {
                         AppError::new(
@@ -175,6 +180,17 @@ impl Decoder {
                             ),
                         )
                     };
+                    if let Some(details) = diagnostics {
+                        let details = crate::diagnostics::response::metadata(&details, &[]);
+                        if let Some(reason) = crate::diagnostics::response::reason(&details) {
+                            error
+                                .message
+                                .push_str(&format!(" Provider reason: {reason}"));
+                        }
+                        error.diagnostics = Some(
+                            serde_json::json!({"stage":"grouped_operation", "response":details, "request_id":request_id, "status":status}),
+                        );
+                    }
                     (operation_id, attempt_id, Err(error))
                 }
             };
@@ -383,7 +399,7 @@ mod tests {
             ),
             (
                 serde_json::json!({"type":"result","operation_id":"one","attempt_id":"a","response":{"private":"must not be shown"}}),
-                "invalid AI completion",
+                "Invalid completion response",
             ),
         ] {
             let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();

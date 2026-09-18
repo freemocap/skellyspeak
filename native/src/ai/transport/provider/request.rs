@@ -101,37 +101,27 @@ async fn request_payload(
     } else {
         request
     };
-    let mut response=request.send().await.map_err(|_|AppError::new(ErrorCode::UnknownOutcome,"Provider outcome unknown: connection interrupted or timed out. A charge may have occurred. No automatic retry was made."))?;
+    let private: Vec<&str> = payload["messages"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|m| m["content"].as_str())
+        .chain(std::iter::once(key))
+        .collect();
+    let mut response = request
+        .send()
+        .await
+        .map_err(|e| crate::diagnostics::response::network(&e, "chat_request"))?;
     if !response.status().is_success() && route == ConnectionRoute::Hosted {
-        return match crate::ai::hosted::body(response).await {
+        return match crate::ai::hosted::body_with_private(response, &private).await {
             Err(error) => Err(error),
             Ok(_) => Err(malformed()),
         };
     }
     if !response.status().is_success() {
-        if let Some(message) = crate::ai::connections::auth_errors::message(
-            route,
-            response.url().as_str(),
-            "Chat",
-            response.status().as_u16(),
-        ) {
-            return Err(AppError::new(ErrorCode::Provider, message));
-        }
-
-        let error = AppError::new(
-            ErrorCode::Provider,
-            format!(
-                "{} HTTP {}. Check sign-in, allowance and model access in Settings. No automatic retry was made.",
-                route.label(),
-                response.status().as_u16()
-            ),
-        );
-        return Err(if response.status().as_u16() == 429 {
-            error.with_refusal(crate::ai::policy::refusal::from_response(&response))
-        } else {
-            error
-        });
+        return Err(crate::diagnostics::response::http_error(response, "Chat", &private).await);
     }
+    let http = crate::diagnostics::response::headers(&response);
     let mut bytes = Vec::new();
     while let Some(chunk) = response.chunk().await.map_err(|_| malformed())? {
         if bytes.len() + chunk.len() > 262144 {
@@ -139,7 +129,34 @@ async fn request_payload(
         }
         bytes.extend_from_slice(&chunk);
     }
-    decode(&bytes)
+    let mut result = decode(&bytes);
+    match &mut result {
+        Ok(value) => {
+            value
+                .diagnostics
+                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        }
+        Err(error) => {
+            error
+                .diagnostics
+                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        }
+    }
+    match &mut result {
+        Ok(value) => {
+            value.diagnostics = value
+                .diagnostics
+                .as_ref()
+                .map(|v| crate::diagnostics::response::metadata(v, &private))
+        }
+        Err(error) => {
+            error.diagnostics = error
+                .diagnostics
+                .as_ref()
+                .map(|v| crate::diagnostics::response::metadata(v, &private))
+        }
+    }
+    result
 }
 
 #[cfg(test)]

@@ -113,3 +113,15 @@
 .connection-health-name small { color: var(--ink-3); font-size: var(--type-ui); }
 .connection-health-badge { border: 0; border-radius: var(--radius-pill); padding: 0; font-size: var(--type-ui); font-weight: var(--weight-medium); }
 .connection-health-panel > p, .connection-health-panel > small { margin: 0; padding: var(--space-4) var(--space-8); color: var(--ink-3); font-size: var(--type-ui); border-top: var(--border-width) solid var(--line-soft); }
+
+/* Local setup is the primary development action, above the diagnostic card. */
+.access-local-connect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: max(44px, var(--control-height));
+  margin-block-end: var(--space-8);
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+}

@@ -139,6 +139,7 @@ fn diagnostics_distinguish_rejections_without_exposing_content() {
         assert!(!error.diagnostic_code().contains("private-sentinel"));
     }
     let completion = provider::Completion {
+        diagnostics: None,
         text: "private-sentinel".into(),
         finish_reason: "private-sentinel".into(),
         actual_model: "fixture".into(),
@@ -553,6 +554,7 @@ fn prompt_byte_guard_fails_without_truncation() {
 
 fn completion(raw: String, termination: &str) -> provider::Completion {
     provider::Completion {
+        diagnostics: None,
         text: raw,
         finish_reason: termination.into(),
         actual_model: "fixture-model".into(),

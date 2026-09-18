@@ -23,9 +23,11 @@ _slots = asyncio.Semaphore(8)
 
 
 class AudioRejection(HTTPException):
-    def __init__(self, status, code, detail):
+    def __init__(self, status, code, detail, *, provider_error=None, diagnostics=None):
         super().__init__(status, detail)
         self.code = code
+        self.provider_error = provider_error
+        self.diagnostics = diagnostics
 
 
 
@@ -60,10 +62,11 @@ async def _execute(who, cfg, reserve, settle, amount, invoke):
                     if error.code == "AUDIO_NO_SPEECH":
                         cost = amount  # Recognition completed, with no detected speech.
                     status = 422 if error.code in {"AUDIO_INPUT_INVALID", "AUDIO_NO_SPEECH"} else 502
-                    # Fixed code/status, never provider body or input content.
+                    # Preserve the redacted provider reason alongside the fixed HTTP code.
                     suffix = f" (provider HTTP {error.status})" if error.status else ""
                     code = f"ELEVENLABS_HTTP_{error.status}" if error.status else error.code
-                    raise AudioRejection(status, code, f"{error.code}{suffix}. No automatic retry was made.") from None
+                    raise AudioRejection(status, code, f"{error.code}{suffix}. No automatic retry was made.",
+                                         provider_error=error.provider_error, diagnostics=error.diagnostics) from None
             provider_id = result.receipt.request_id or provider_id
             cost = amount
             return result
@@ -76,7 +79,7 @@ async def _execute(who, cfg, reserve, settle, amount, invoke):
 def _usage(result, allowance):
     return {"provider": result.receipt.provider, "requested_model": result.receipt.requested_model, "actual_model": None,
             "request_id": result.receipt.request_id, "cost_micros": result.receipt.cost_micros,
-            "allowance_micros": allowance, "allowance_basis": "estimate"}
+            "allowance_micros": allowance, "allowance_basis": "estimate", "diagnostics": result.receipt.diagnostics}
 
 
 async def synthesize(request, who, cfg, reserve, settle, read_body):

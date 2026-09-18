@@ -1,5 +1,6 @@
 //! Durable, content-free diagnostics; the bounded ring is only a recent-read view.
 pub(crate) mod inference;
+pub(crate) mod response;
 pub(crate) mod speech;
 pub(crate) mod structured;
 use crate::model::AppError;
@@ -124,6 +125,8 @@ pub enum DiagnosticCommand {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct FrontendDiagnostic {
+    #[serde(default)]
+    pub diagnostics: Option<serde_json::Value>,
     pub context: DiagnosticContext,
     pub code: DiagnosticCode,
     pub level: Option<DiagnosticLevel>,
@@ -349,6 +352,7 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     // Panic payloads can contain provider/user data; retain only event and location.
     std::panic::set_hook(Box::new(|info| {
         let event = serde_json::json!({"code":"panic", "line":info.location().map(|l| l.line()),
+            "file":info.location().map(|l| l.file().rsplit("/src/").next().unwrap_or(l.file())),
             "contentRedacted":true});
         if append_native(&event).is_err() {
             eprintln!("Native panic diagnostic could not be saved.");
@@ -399,7 +403,7 @@ impl log::Log for NativeLogger {
             "native_log"
         };
         let mut event = serde_json::json!({"code":code, "level":record.level().as_str(),
-            "line":record.line(), "contentRedacted":true});
+            "line":record.line(), "file":record.file().map(|p| p.rsplit("/src/").next().unwrap_or(p)), "module":record.module_path(), "contentRedacted":true});
         if record.target() == "skellyspeak_core::speech::recording::audio" {
             let message = record.args().to_string();
             if let Some(rate) = message
@@ -428,7 +432,11 @@ impl log::Log for NativeLogger {
 }
 
 #[tauri::command]
-pub fn record_frontend_diagnostic(event: FrontendDiagnostic) -> Result<DiagnosticReceipt> {
+pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<DiagnosticReceipt> {
+    event.diagnostics = event
+        .diagnostics
+        .as_ref()
+        .map(|v| response::metadata(v, &[]));
     let timestamp = timestamp()?;
     let mut buffer = buffer().lock().map_err(|_| unavailable())?;
     // Commit to the file before publishing to the recent-read ring or acknowledging.
@@ -463,6 +471,7 @@ mod tests {
     use super::*;
     fn event() -> FrontendDiagnostic {
         FrontendDiagnostic {
+            diagnostics: None,
             context: DiagnosticContext::Speech,
             code: DiagnosticCode::UiFault,
             level: Some(DiagnosticLevel::Error),

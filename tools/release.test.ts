@@ -49,6 +49,15 @@ test('only explicit development tags or manual opt-in bypass the CI suite', asyn
     git('-c', 'tag.gpgsign=false', 'tag', 'v1.0.0')
     git('-c', 'tag.gpgsign=false', 'tag', '-a', 'v1.0.1', '-m', 'Ordinary release')
     git('-c', 'tag.gpgsign=false', 'tag', '-a', 'v1.0.2', '-m', DEVELOPMENT_RELEASE_MESSAGE)
+    const remote = join(directory, 'remote.git')
+    git('init', '--bare', remote)
+    git('remote', 'add', 'origin', remote)
+    git('push', 'origin', '--tags')
+    // Reproduce checkout's fallback: it fetches the event commit over the local
+    // tag ref, stripping the annotation even though the remote tag is intact.
+    const commit = git('rev-parse', 'HEAD').toString().trim()
+    git('update-ref', 'refs/tags/v1.0.2', commit)
+    assert.equal(git('cat-file', '-t', 'refs/tags/v1.0.2').toString().trim(), 'commit')
     for (const [event, ref, manual, expected] of [
       ['push', 'refs/tags/v1.0.0', 'true', false],
       ['push', 'refs/tags/v1.0.1', '', false],
@@ -64,6 +73,13 @@ test('only explicit development tags or manual opt-in bypass the CI suite', asyn
       assert.equal(result.status, 0, result.stderr)
       assert.equal(readFileSync(output, 'utf8'), `skip_checks=${expected}\n`)
     }
+    // Tag metadata from another commit must fail, not silently bypass checks.
+    git('-c', 'commit.gpgsign=false', 'commit', '--allow-empty', '-m', 'Different checkout')
+    const mismatch = spawnSync(process.execPath, [modeScript], { cwd: directory, encoding: 'utf8', env: {
+      ...env, GITHUB_EVENT_NAME: 'push', GITHUB_REF: 'refs/tags/v1.0.2', GITHUB_OUTPUT: join(directory, 'mismatch-output'),
+    } })
+    assert.notEqual(mismatch.status, 0)
+    assert.match(mismatch.stderr, /does not match the checked-out commit/)
     const { skipReleaseChecks } = await import('./release-mode.ts')
     assert.throws(() => skipReleaseChecks('workflow_dispatch', 'refs/heads/main', '', 'true'), /existing version tag/)
     assert.throws(() => skipReleaseChecks('pull_request', 'refs/tags/v1.0.0', '', 'true'), /Unsupported/)

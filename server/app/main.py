@@ -131,13 +131,18 @@ async def explain_rejection(request: Request, error: StarletteHTTPException) -> 
 @app.exception_handler(RequestValidationError)
 async def invalid_parameters(request: Request, error: RequestValidationError) -> JSONResponse:
     # Framework validation errors can include submitted values. Keep them private.
-    return observability.error_response(request, HTTPException(422, "Missing or invalid request parameters."))
+    failure = HTTPException(422, "Missing or invalid request parameters.")
+    failure.diagnostics = {"stage": "request_validation", "errors": [
+        {"type": item["type"], "path": ".".join(str(p) for p in item["loc"] if isinstance(p, (str, int)))}
+        for item in error.errors()[:32]]}
+    return observability.error_response(request, failure)
 
 
 class UpstreamHTTPError(HTTPException):
-    def __init__(self, status: int, provider: str = "UPSTREAM"):
+    def __init__(self, status: int, provider: str = "UPSTREAM", diagnostics=None):
         super().__init__(502, f"{provider} returned HTTP {status}.")
         self.upstream_status = status
+        self.diagnostics = diagnostics
         self.code = f"{provider}_HTTP_{status}" if provider in {"OPENROUTER", "GROQ"} else "UPSTREAM_FAILURE"
 
 
@@ -147,8 +152,8 @@ async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, prov
         async with client.stream("POST", url, follow_redirects=False, **kwargs) as response:
             runtime.emit("provider_headers", provider=provider, status=response.status_code)
             if not response.is_success:
-                await provider_errors.capture(response, provider, kwargs)
-                raise UpstreamHTTPError(response.status_code, provider)
+                metadata = await provider_errors.capture(response, provider, kwargs)
+                raise UpstreamHTTPError(response.status_code, provider, metadata)
             body = bytearray()
             async for chunk in response.aiter_bytes():
                 if len(body) + len(chunk) > limit:
@@ -164,7 +169,8 @@ async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, prov
             provider_errors.record(provider, response.status_code, {"error": payload["error"]}, kwargs)
             error = payload["error"]
             status = error.get("code") if isinstance(error, dict) else None
-            raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider)
+            raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider,
+                                    provider_errors.sanitize(payload, tuple(provider_errors.request_strings(kwargs))))
         return payload
 
 
@@ -623,6 +629,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
         completed = False
         settled = False
         upstream_status: int | None = None
+        upstream_diagnostics = None
         provider_started = time.monotonic()
         runtime.emit("provider_started", provider="OPENROUTER")
         try:
@@ -630,7 +637,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                 async with client.stream("POST", url, json=contract.payload, headers=headers) as upstream:
                     runtime.emit("provider_headers", provider="OPENROUTER", status=upstream.status_code)
                     if not upstream.is_success:
-                        await provider_errors.capture(upstream, "OPENROUTER", {"json": contract.payload, "headers": headers})
+                        upstream_diagnostics = await provider_errors.capture(upstream, "OPENROUTER", {"json": contract.payload, "headers": headers})
                         upstream_status = upstream.status_code
                         raise RuntimeError(f"AI provider returned {upstream.status_code}.")
                     async for payload in streaming.events(upstream.aiter_bytes()):
@@ -659,6 +666,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
             error_payload: dict[str, object] = {"message": "Chat stream failed. The reservation remains charged unless usage was verified."}
             if upstream_status is not None:
                 error_payload["code"] = upstream_status
+            error_payload["diagnostics"] = upstream_diagnostics or {"stage": "stream", "exception_type": type(exc).__name__}
             yield ("data: " + json.dumps({"error": error_payload}) + "\n\n").encode()
         finally:
             runtime.emit("provider_finished" if completed else "provider_failed", provider="OPENROUTER",

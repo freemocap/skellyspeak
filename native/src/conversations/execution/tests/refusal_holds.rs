@@ -53,6 +53,11 @@ async fn custom_server_refusal_redacts_remote_content_before_persistence() {
         assert!(error.message.contains("HTTP 400"));
         assert!(error.message.contains("request format"));
         assert!(!error.message.contains("private"));
+        assert!(
+            !serde_json::to_string(&error.diagnostics)
+                .unwrap()
+                .contains("private")
+        );
         assert_eq!(
             error.message.contains("Request ID:"),
             request_id.len() == 32

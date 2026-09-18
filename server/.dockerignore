@@ -42,6 +42,7 @@ app/diagnostics/*
 !app/diagnostics/runtime.py
 
 !app/diagnostics/provider_errors.py
+!app/diagnostics/exceptions.py
 
 !app/diagnostics/provider_health.py
 

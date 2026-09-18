@@ -120,6 +120,13 @@ fn completion_event(
         "transport"
     });
     event["errorCode"] = json!(validation.as_ref().err().map(|e| &e.code));
+    event["diagnostics"] = json!(
+        result
+            .as_ref()
+            .ok()
+            .and_then(|c| c.diagnostics.as_ref())
+            .or_else(|| result.as_ref().err().and_then(|e| e.diagnostics.as_ref()))
+    );
     if let Ok(output) = result {
         event["finishReason"] = json!(match output.finish_reason.as_str() {
             "stop" | "length" | "content_filter" | "error" | "tool_calls" =>
@@ -226,6 +233,7 @@ mod tests {
             speech_source: None,
         };
         let result = Ok(Completion {
+            diagnostics: None,
             text: r#"{"kind":"SECRET"}"#.into(),
             finish_reason: "length".into(),
             actual_model: "SECRET".into(),

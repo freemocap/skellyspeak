@@ -80,6 +80,7 @@ impl crate::storage::store::Store {
         tx.commit()?;
         Ok(())
     }
+    #[cfg(test)]
     pub fn finish_transcription(
         &mut self,
         id: &str,
@@ -87,7 +88,22 @@ impl crate::storage::store::Store {
         target: &ResolvedTarget,
         result: Result<String>,
     ) -> Result<String> {
+        self.finish_transcription_with_diagnostics(id, conversation, target, result, None)
+    }
+    pub fn finish_transcription_with_diagnostics(
+        &mut self,
+        id: &str,
+        conversation: &str,
+        target: &ResolvedTarget,
+        result: Result<String>,
+        diagnostics: Option<&serde_json::Value>,
+    ) -> Result<String> {
         let tx = self.connection.transaction()?;
+        let diagnostic = crate::diagnostics::response::retained(diagnostics, result.as_ref().err());
+        tx.execute(
+            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND conversation_id=?3",
+            params![id, diagnostic, conversation],
+        )?;
         let result = finish(&tx, id, conversation, target, result)?;
         tx.commit()?;
         result
@@ -95,13 +111,14 @@ impl crate::storage::store::Store {
 }
 
 pub fn views(db: &Connection, conversation: &str) -> Result<Vec<TranscriptionAttempt>> {
-    let rows = db.prepare("SELECT id,route,model,state,started_at,finished_at,error FROM transcription_attempts WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50")?
-        .query_map([conversation], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,Option<String>>(6)?)))?
+    let rows = db.prepare("SELECT id,route,model,state,started_at,finished_at,error,diagnostics FROM transcription_attempts WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50")?
+        .query_map([conversation], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,Option<String>>(6)?,crate::diagnostics::response::column(r,7)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
     rows.into_iter()
         .map(
-            |(id, route, model, state, started_at, finished_at, error)| {
+            |(id, route, model, state, started_at, finished_at, error, diagnostics)| {
                 Ok(TranscriptionAttempt {
+                    diagnostics,
                     id,
                     route: ConnectionRoute::parse(&route)?,
                     model,
@@ -125,7 +142,7 @@ mod tests {
         store.prepare_chat().unwrap();
         store
             .connection
-            .execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter')", [])
+            .execute("UPDATE ai_config SET route='openrouter'", [])
             .unwrap();
         store
             .set_connection(1, Some("chat-reference"), "standard", "fast")

@@ -150,7 +150,7 @@ mod tests {
         }
     }
     fn completion() -> Completion {
-        Completion { text: r#"{"spans":[{"first":"g0002","last":"g0003","kind":"gloss","gloss":"yes"},{"first":"g0005","last":"g0006","kind":"gloss","gloss":"indeed"}]}"#.into(), finish_reason: "stop".into(), actual_model: "fixture".into(), provider_id: "fixture".into(), input_tokens: Some(10), output_tokens: Some(4) }
+        Completion { diagnostics: None, text: r#"{"spans":[{"first":"g0002","last":"g0003","kind":"gloss","gloss":"yes"},{"first":"g0005","last":"g0006","kind":"gloss","gloss":"indeed"}]}"#.into(), finish_reason: "stop".into(), actual_model: "fixture".into(), provider_id: "fixture".into(), input_tokens: Some(10), output_tokens: Some(4) }
     }
     #[test]
     fn projection_preserves_repeated_occurrences_and_utf16_source_binding() {

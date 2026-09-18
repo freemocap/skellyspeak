@@ -11,6 +11,7 @@ pub struct SpeechInput {
     pub language: String,
 }
 pub struct SpeechOutcome {
+    pub diagnostics: Option<serde_json::Value>,
     pub(crate) transcript_diagnostics: Option<TranscriptDiagnostics>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
@@ -30,6 +31,7 @@ pub struct TranscriptionInput {
 
 #[derive(Debug)]
 pub struct TranscriptionResponse {
+    pub diagnostics: Option<serde_json::Value>,
     pub text: String,
     pub timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
     /// Optional provider-specific evidence for the diagnostic inspector only.

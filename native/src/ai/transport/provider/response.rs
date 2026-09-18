@@ -49,21 +49,49 @@ pub(super) fn malformed() -> AppError {
     )
 }
 pub fn decode(bytes: &[u8]) -> Result<Completion> {
-    let response: Response = serde_json::from_slice(bytes).map_err(|_| malformed())?;
-    if response.choices.len() != 1 || response.id.is_empty() || response.model.is_empty() {
-        return Err(malformed());
+    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
+        crate::diagnostics::response::invalid(
+            "completion_json",
+            "$",
+            &format!(
+                "JSON at line {} column {} ({:?})",
+                e.line(),
+                e.column(),
+                e.classify()
+            ),
+            &serde_json::Value::Null,
+        )
+    })?;
+    let invalid = |path: &str, expected: &str| {
+        crate::diagnostics::response::invalid("completion", path, expected, &value)
+    };
+    let response: Response = serde_json::from_value(value.clone()).map_err(|_| {
+        invalid(
+            "$",
+            "id, model, choices with finish_reason and message, optional numeric usage",
+        )
+    })?;
+    if response.choices.len() != 1 {
+        return Err(invalid("choices", "exactly one choice"));
+    }
+    if response.id.is_empty() {
+        return Err(invalid("id", "nonempty request ID"));
+    }
+    if response.model.is_empty() {
+        return Err(invalid("model", "nonempty model ID"));
     }
     let text = response.choices[0]
         .message
         .content
         .clone()
-        .ok_or_else(malformed)?;
+        .ok_or_else(|| invalid("choices[0].message.content", "string content"))?;
     let input_tokens = response.usage.as_ref().and_then(|u| u.prompt_tokens);
     let output_tokens = response.usage.as_ref().and_then(|u| u.completion_tokens);
     if input_tokens.is_some_and(|n| n < 0) || output_tokens.is_some_and(|n| n < 0) {
-        return Err(malformed());
+        return Err(invalid("usage", "nonnegative token counts"));
     }
     Ok(Completion {
+        diagnostics: Some(crate::diagnostics::response::metadata(&value, &[])),
         text,
         finish_reason: response.choices[0].finish_reason.clone(),
         actual_model: response.model,

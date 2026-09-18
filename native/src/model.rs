@@ -411,6 +411,9 @@ pub enum ErrorCode {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AppError {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub diagnostics: Option<serde_json::Value>,
     pub code: ErrorCode,
     pub message: String,
     #[serde(default)]
@@ -446,7 +449,12 @@ impl AppError {
             code,
             message: message.into(),
             refusal: None,
+            diagnostics: None,
         }
+    }
+    pub fn with_diagnostics(mut self, value: serde_json::Value) -> Self {
+        self.diagnostics = Some(value);
+        self
     }
     pub fn with_refusal(mut self, refusal: Refusal) -> Self {
         self.refusal = Some(refusal);
@@ -533,7 +541,7 @@ pub fn bindings() -> String {
         PersonaGenerationAttempt::decl(&config),
         PersonaGenerationUsage::decl(&config),
         PersonaGenerationActivity::decl(&config),
-        AudioRouteSettings::decl(&config),
+        AudioModelSettings::decl(&config),
         AudioSettings::decl(&config),
         ConnectionConfig::decl(&config),
         TurnControl::decl(&config),
@@ -658,18 +666,17 @@ pub fn bindings() -> String {
     )
 }
 
-/// Access mode and model are independent for each audio direction.
+/// Audio models share the single connection access route.
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct AudioRouteSettings {
-    pub route: ConnectionRoute,
+pub struct AudioModelSettings {
     pub model: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AudioSettings {
-    pub transcription: AudioRouteSettings,
-    pub speech: AudioRouteSettings,
+    pub transcription: AudioModelSettings,
+    pub speech: AudioModelSettings,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -794,6 +801,9 @@ pub struct OperationView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AttemptView {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub diagnostics: Option<serde_json::Value>,
     pub id: String,
     pub operation_id: String,
     pub state: String,
@@ -842,6 +852,9 @@ pub struct ConversationSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct TranscriptionAttempt {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub diagnostics: Option<serde_json::Value>,
     pub id: String,
     pub route: ConnectionRoute,
     pub model: String,
@@ -921,6 +934,9 @@ pub struct ProfileSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct PersonaGenerationAttempt {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub diagnostics: Option<serde_json::Value>,
     pub id: String,
     pub attempt_id: String,
     pub operation_id: String,
@@ -1068,6 +1084,9 @@ mod appearance_tests {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ProviderCredentialCheck {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub diagnostics: Option<serde_json::Value>,
     pub provider: String,
     pub state: String,
     pub status: Option<u16>,

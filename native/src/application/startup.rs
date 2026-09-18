@@ -122,6 +122,8 @@ pub fn run() {
             access::get_access_settings,
             access::save_access_settings,
             access::check_access,
+            commands::local_server::local_server_available,
+            commands::local_server::connect_local_server,
             commands::connections::get_connection,
             commands::connections::save_connection,
             commands::connections::save_models,

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { invoke } from '../../../platform/ipc/native'
-import type { ConnectionConfig, ConnectionRoute } from '../../../generated/contracts'
+import type { ConnectionConfig } from '../../../generated/contracts'
 
 const fields = ['standardModel', 'fastModel'] as const
 const labels = ['Standard model', 'Fast model'] as const
@@ -24,7 +24,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [status, setStatus] = useState('')
   const writing = useRef(false)
   const dirty = !!saved && !!draft && (fields.some(key => draft[key] !== saved[key]) ||
-    (['transcription', 'speech'] as const).some(key => draft.audio[key].model !== saved.audio[key].model || draft.audio[key].route !== saved.audio[key].route))
+    (['transcription', 'speech'] as const).some(key => draft.audio[key].model !== saved.audio[key].model))
 
   async function read() {
     const config = await invoke<ConnectionConfig>('get_connection')
@@ -63,15 +63,6 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
     </div>)}
     {(['transcription', 'speech'] as const).map(kind => <fieldset key={kind}>
       <legend>{tr(kind === 'transcription' ? 'Transcription model' : 'Read aloud')}</legend>
-      <div className="form-row">
-        <label htmlFor={`audio-route-${kind}`}>{tr(kind === 'transcription' ? 'Transcription access' : 'Read-aloud access')}</label>
-        <select id={`audio-route-${kind}`} className="field" value={draft.audio[kind].route} disabled={busy}
-          onChange={event => { setDraft({ ...draft, audio: { ...draft.audio, [kind]: { ...draft.audio[kind], route: event.target.value as ConnectionRoute } } }); setError(null); setStatus('') }}>
-          <option value="hosted">{tr('Hosted sign-in')}</option>
-          <option value="openrouter">{kind === 'transcription' ? 'Groq' : 'OpenRouter'}</option>
-          <option value="custom">{tr('Custom URL')}</option>
-        </select>
-      </div>
       <div className="form-row">
         <label htmlFor={`audio-model-${kind}`}>{tr(kind === 'transcription' ? 'Transcription model' : 'Read-aloud model')}</label>
         <input id={`audio-model-${kind}`} className="field" value={draft.audio[kind].model} disabled={busy}

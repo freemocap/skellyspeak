@@ -15,7 +15,7 @@ pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     store
         .connection
-        .execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter')", [])
+        .execute("UPDATE ai_config SET route='openrouter'", [])
         .unwrap();
     store
         .set_connection(
@@ -94,6 +94,7 @@ pub(super) fn begin(store: &mut Store, conversation: &str) -> Dispatch {
 
 pub(super) fn reply(text: &str) -> Completion {
     Completion {
+        diagnostics: None,
         text: text.into(),
         finish_reason: "stop".into(),
         actual_model: "google/gemini-2.5-flash".into(),
@@ -123,6 +124,7 @@ pub(super) fn gloss_children(
 
 pub(super) fn speech_outcome(audio: Result<Vec<u8>>) -> crate::ai::audio::SpeechOutcome {
     crate::ai::audio::SpeechOutcome {
+        diagnostics: None,
         audio,
         transcript_diagnostics: None,
         actual_model: Some("speech-model".into()),

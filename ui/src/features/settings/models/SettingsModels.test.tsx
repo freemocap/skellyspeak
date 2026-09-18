@@ -7,7 +7,7 @@ const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
 const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
-  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { route: 'hosted', model: 'fixture-transcription' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false }
+  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 beforeEach(() => {
   native.mockReset()
   native.mockImplementation(async (command: string) => {
@@ -58,22 +58,11 @@ it('retains rejected model edits and permits discard without changing access', a
   expect(native.mock.calls.map(([command]) => command)).toEqual(['get_connection', 'save_models'])
 })
 
-it.each([['Transcription access', 'transcription', 'speech'], ['Read-aloud access', 'speech', 'transcription']] as const)(
-  'saves %s without changing chat or the other audio direction', async (label, edited, other) => {
-    let saved = { ...connection }
-    native.mockImplementation(async (command: string, args: typeof connection) => {
-      if (command === 'get_connection') return saved
-      if (command === 'save_models') { saved = { ...saved, ...args, revision: 8 }; return saved }
-      throw new Error(command)
-    })
-    const changed = vi.fn()
-    render(<SettingsModels onBusyChange={vi.fn()} onChanged={changed} />)
-    fireEvent.change(await screen.findByLabelText(label), { target: { value: 'openrouter' } })
-    await waitFor(() => expect(changed).toHaveBeenCalledOnce())
-    expect(saved.route).toBe(connection.route)
-    expect(saved.audio[edited].route).toBe('openrouter')
-    expect(saved.audio[edited].model).toBe(connection.audio[edited].model)
-    expect(saved.audio[other]).toEqual(connection.audio[other])
-    expect(native.mock.calls.some(([command]) => command === 'select_route')).toBe(false)
-  },
-)
+it('offers only model fields and no capability access selectors', async () => {
+  render(<SettingsModels onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  await screen.findByLabelText('Transcription model')
+  expect(screen.getAllByRole('textbox')).toHaveLength(4)
+  expect(screen.queryByRole('combobox')).toBeNull()
+  expect(screen.queryByLabelText('Transcription access')).toBeNull()
+  expect(screen.queryByLabelText('Read-aloud access')).toBeNull()
+})

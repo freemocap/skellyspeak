@@ -107,3 +107,30 @@ async def test_speech_requires_authentication():
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
         response = await client.post("/v1/audio/speech", json={"model": "eleven_v3", "text": "hello"})
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_tts_provider_reason_reaches_client_with_secrets_and_source_redacted(proxy, ledger, monkeypatch):
+    seen = []
+    def respond(request):
+        seen.append(request)
+        return httpx.Response(401, json={"detail": {
+            "status": "missing_permissions",
+            "message": "Missing permission text_to_speech. test-elevenlabs-key private learner sentence",
+            "request": "private learner sentence", "api_key": "test-elevenlabs-key",
+        }})
+    upstream(monkeypatch, respond)
+    response = await proxy.post("/v1/audio/speech", json={
+        "model": "eleven_v3", "text": "private learner sentence",
+    })
+    assert response.status_code == 502
+    assert response.json()["code"] == "ELEVENLABS_HTTP_401"
+    detail = response.json()["provider_error"]
+    assert detail["code"] == "missing_permissions"
+    assert "Missing permission text_to_speech" in detail["message"]
+    assert "test-elevenlabs-key" not in response.text
+    assert "private learner sentence" not in response.text
+    assert set(detail) == {"code", "message"}
+    assert len(seen) == 1
+    row, = records(ledger)
+    assert row["status"] == "unknown"

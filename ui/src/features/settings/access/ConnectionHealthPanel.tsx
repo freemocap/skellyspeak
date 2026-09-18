@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { useI18n } from '../../../components/localization/i18n'
 import type { ConnectionHealth } from '../../../state/session/connection-health'
 
@@ -10,12 +11,12 @@ export function ConnectionHealthPanel({ health, bearerAuth, disabled, onCheck }:
   const rows = [
     { name: tr('Server'), state: serverState, status: null, detail: serverState === 'accepted' ? tr('Reachable') : null },
     { name: tr('Server session token'), state: !bearerAuth ? 'disabled' : serverState, status: null, detail: null },
-    ...(['OPENROUTER', 'GROQ'] as const).map(provider => {
-      const result = health?.error ? undefined : health?.providers?.find(item => item.provider === provider)
-      return { name: provider === 'OPENROUTER' ? 'OpenRouter' : 'Groq',
-        state: checking ? 'checking' : result?.state ?? 'unchecked', status: result?.status,
-        detail: provider === 'OPENROUTER' ? tr('Chat provider key') : tr('Transcription provider key') }
-    }),
+    ...(health?.error ? [] : health?.providers ?? []).map(result => ({
+      name: ({ OPENROUTER: 'OpenRouter', GROQ: 'Groq', ELEVENLABS: 'ElevenLabs' } as Record<string, string>)[result.provider] ?? result.provider,
+      state: checking ? 'checking' : result.state, status: result.status,
+      detail: result.provider === 'OPENROUTER' ? tr('Chat provider key')
+        : result.provider === 'GROQ' ? tr('Transcription provider key') : tr('Audio provider key'),
+    })),
   ]
   const labels: Record<string, string> = { accepted: tr('Accepted'), rejected: tr('Rejected'), unreachable: tr('Unreachable'),
     invalid_response: tr('Invalid response'), checking: tr('Checking…'), unchecked: tr('Not checked'), disabled: tr('Disabled') }
@@ -33,6 +34,7 @@ export function ConnectionHealthPanel({ health, bearerAuth, disabled, onCheck }:
         <span className="connection-health-badge">{labels[row.state]}{row.status && row.state !== 'accepted' ? ` · HTTP ${row.status}` : ''}</span>
       </li>)}
     </ul>
+    {health?.providers?.map(provider => <ResponseDetails key={provider.provider} value={provider.diagnostics} />)}
     {health?.error && <p role="alert">{health.error}</p>}
     {health?.checkedAt && <small>{tr('Last checked')}: {tr.dateTime(health.checkedAt)}</small>}
   </section>

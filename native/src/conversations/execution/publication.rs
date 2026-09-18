@@ -73,6 +73,14 @@ impl Store {
 
     pub fn finish(&mut self, dispatch: &Dispatch, result: Result<Completion>) -> Result<()> {
         let tx = self.connection.transaction()?;
+        let retained = crate::diagnostics::response::retained(
+            result.as_ref().ok().and_then(|c| c.diagnostics.as_ref()),
+            result.as_ref().err(),
+        );
+        tx.execute(
+            "UPDATE attempts SET diagnostics=?2 WHERE id=?1 AND operation_id=?3",
+            params![dispatch.attempt, retained, dispatch.operation],
+        )?;
         crate::learning::lessons::suspend_pending(&tx)?;
         let scope:Option<(String,String)>=tx.query_row("SELECT t.id,t.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND o.id=?2 AND a.state='running' AND o.state='running' AND t.state IN ('pending','assisting')",params![dispatch.attempt,dispatch.operation],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         let Some((turn, conversation)) = scope else {
@@ -190,6 +198,14 @@ impl Store {
             Err(error) => Err(error.clone()),
         };
         crate::diagnostics::inference::completed(dispatch, &kind, &result, &valid);
+        let diagnostics = crate::diagnostics::response::retained(
+            result.as_ref().ok().and_then(|c| c.diagnostics.as_ref()),
+            valid.as_ref().err().or(result.as_ref().err()),
+        );
+        tx.execute(
+            "UPDATE attempts SET diagnostics=?2 WHERE id=?1",
+            params![dispatch.attempt, diagnostics],
+        )?;
         if let Ok(output) = &result {
             tx.execute("UPDATE attempts SET actual_model=?2,provider_id=?3,input_tokens=?4,output_tokens=?5 WHERE id=?1",params![dispatch.attempt,output.actual_model,output.provider_id,output.input_tokens,output.output_tokens])?;
         }

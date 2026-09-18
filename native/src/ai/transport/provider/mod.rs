@@ -17,6 +17,7 @@ pub struct PromptMessage {
 }
 #[derive(Debug)]
 pub struct Completion {
+    pub diagnostics: Option<serde_json::Value>,
     pub text: String,
     pub finish_reason: String,
     pub actual_model: String,

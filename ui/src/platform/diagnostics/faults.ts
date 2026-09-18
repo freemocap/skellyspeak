@@ -14,6 +14,7 @@ export interface Fault {
   /// Where it happened, in the user's terms — "Speech", "Microphone".
   context: string
   message: string
+  diagnostics?: unknown
 }
 
 interface FaultState {
@@ -57,7 +58,7 @@ function describe(e: unknown): string {
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
   const id = nextId++
-  useFaultStore.getState().publish({ id, context, message })
+  useFaultStore.getState().publish({ id, context, message, diagnostics: typeof e === 'object' && e !== null && 'diagnostics' in e ? e.diagnostics : undefined })
   void Promise.resolve(logDiagnostic(context, e, id)).catch(() => {
     // The sink cannot report its own failure through the sink.
     reportDiagnosticBridgeFailure()

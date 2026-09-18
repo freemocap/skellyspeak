@@ -8,7 +8,7 @@ const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
 const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
-  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { route: 'hosted', model: 'fixture-transcription' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false }
+  configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
 const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, customKeyConfigured: true,
   custom: { baseUrl: 'https://fixture.example/v1', bearerAuth: true } }
@@ -16,6 +16,7 @@ beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
   native.mockReset()
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return access
     throw new Error(`Unexpected native call: ${command}`)
@@ -28,7 +29,7 @@ it('loads only configuration on mount and shows no stored secret or cloud-key fa
   expect(key).toHaveAttribute('type', 'password')
   expect(screen.queryByLabelText('OpenRouter API key', { selector: 'input' })).toBeNull()
   expect(screen.queryByLabelText('Groq API key', { selector: 'input' })).toBeNull()
-  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings'])
+  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings', 'local_server_available'])
 })
 it.each([
   ['openrouter', 'OpenRouter API key', 'save_connection'],
@@ -36,6 +37,7 @@ it.each([
   ['custom', 'Server session token', 'save_access_settings'],
 ] as const)('trims accidental spaces around the %s credential before saving', async (route, label, commandName) => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return { ...connection, route }
     if (command === 'get_access_settings') return access
     if (command === commandName) return commandName === 'save_connection' ? connection : access
@@ -51,6 +53,7 @@ it.each([
 })
 it('keeps model selection out of hosted access', async () => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return { ...connection, route: 'hosted' }
     if (command === 'get_access_settings') return access
     throw new Error(command)
@@ -64,6 +67,7 @@ it('keeps model selection out of hosted access', async () => {
 })
 it('preserves a rejected replacement and retries explicitly without changing route', async () => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return access
     if (command === 'save_access_settings') throw new Error('Credential store unavailable')
@@ -81,6 +85,7 @@ it('preserves a rejected replacement and retries explicitly without changing rou
 })
 it('requires a separate confirmed deletion and sends revision-scoped removal', async () => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings' || command === 'save_access_settings') return access
     throw new Error(command)
@@ -97,6 +102,7 @@ it('requires a separate confirmed deletion and sends revision-scoped removal', a
 it('selects only the persisted route from tab headings and never falls back after rejection', async () => {
   let saved = { ...connection }
   native.mockImplementation(async (command: string, args: { route?: string }) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return saved
     if (command === 'get_access_settings') return access
     if (command === 'select_route') {
@@ -126,6 +132,7 @@ it('selects only the persisted route from tab headings and never falls back afte
 
 it('shows the native default address without writes on mount', async () => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, baseUrl: 'http://127.0.0.1:8765/v1' } }
     throw new Error(command)
@@ -136,11 +143,12 @@ it('shows the native default address without writes on mount', async () => {
   expect(screen.queryByLabelText('Standard model')).toBeNull()
   expect(screen.queryByLabelText('Fast model')).toBeNull()
   expect(screen.queryByLabelText('Transcription model')).toBeNull()
-  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings'])
+  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings', 'local_server_available'])
 })
 
 it('preserves native address and explicit authentication choice', async () => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, bearerAuth: false } }
     throw new Error(command)
@@ -148,12 +156,13 @@ it('preserves native address and explicit authentication choice', async () => {
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
   expect(await screen.findByLabelText('Server address')).toHaveValue(access.custom.baseUrl)
   expect(screen.getByLabelText('Use server session token')).not.toBeChecked()
-  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings'])
+  expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings', 'local_server_available'])
 })
 
 it('retains a cleared address after rejection until explicitly discarded', async () => {
   const defaultAddress = 'http://127.0.0.1:8765/v1'
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return { ...access, custom: { ...access.custom, baseUrl: defaultAddress } }
     if (command === 'save_access_settings') throw new Error('Server address is required')
@@ -179,6 +188,7 @@ it('retains a cleared address after rejection until explicitly discarded', async
 it('a failed access draft can be explicitly discarded to unlock navigation and closing', async () => {
   const busy = vi.fn()
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return access
     if (command === 'save_access_settings') throw new Error('Invalid URL')
@@ -215,6 +225,7 @@ it('recovers from a fresh rejected key save without deleting credentials or chan
   const freshAccess = { ...access, customKeyConfigured: false, groqKeyConfigured: false,
     custom: { ...access.custom, baseUrl: '' } }
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return freshConnection
     if (command === 'get_access_settings') return freshAccess
     if (command === 'save_access_settings') throw new Error('Server address is required')
@@ -232,7 +243,7 @@ it('recovers from a fresh rejected key save without deleting credentials or chan
   expect(key).toHaveValue('')
   expect(screen.getByRole('tab', { name: 'API keys' })).not.toBeDisabled()
   await waitFor(() => expect(busy).toHaveBeenLastCalledWith(false))
-  expect(native.mock.calls.filter(call => !['get_connection', 'get_access_settings'].includes(call[0]))).toEqual([
+  expect(native.mock.calls.filter(call => !['get_connection', 'get_access_settings', 'local_server_available'].includes(call[0]))).toEqual([
     ['save_access_settings', { expectedRevision: 7, custom: freshAccess.custom, apiKey: 'synthetic-unsaved-key', removeKey: false }],
   ])
 })
@@ -240,6 +251,7 @@ it('recovers from a fresh rejected key save without deleting credentials or chan
 it('saves an unsaved URL default once before checking the returned revision', async () => {
   let saved = false
   native.mockImplementation(async (command, args) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return { ...access, customUrlIsUnsavedDefault: !saved }
     if (command === 'save_access_settings') { saved = true; return { ...access, revision: 8, customUrlIsUnsavedDefault: false } }
@@ -262,6 +274,7 @@ it.each([
   ['custom', 'custom', 'Server session token'],
 ] as const)('shows masked saved and replacement credentials for %s/%s', async (route, provider, label) => {
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return { ...connection, route }
     if (command === 'get_access_settings') return { ...access, credentialPreviews: { [provider]: 'saved***12345' } }
     throw new Error(command)
@@ -286,6 +299,7 @@ it.each([
 it('shows server and token verification and replaces it with a failed check', async () => {
   let rejected = false
   native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return false
     if (command === 'get_connection') return connection
     if (command === 'get_access_settings') return access
     if (command === 'check_access') {
@@ -304,3 +318,44 @@ it('shows server and token verification and replaces it with a failed check', as
   await waitFor(() => expect(useConnectionHealth.getState().routes.custom?.status).toBe('disconnected'))
   expect(screen.queryAllByText('Accepted')).toHaveLength(0)
 })
+
+ it('imports local credentials natively, then checks the saved revision without exposing a token', async () => {
+  let saved = false
+  const local = { ...access, revision: 8, custom: { baseUrl: 'http://127.0.0.1:8765/v1', bearerAuth: true } }
+  native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return true
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return saved ? local : access
+    if (command === 'connect_local_server') { saved = true; return local }
+    if (command === 'check_access') return verified
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Connect to local server' }))
+  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8, custom: true }))
+  expect(native).toHaveBeenCalledWith('connect_local_server', { expectedRevision: 7 })
+  expect(screen.getByLabelText('Server address')).toHaveValue(local.custom.baseUrl)
+  expect(screen.getByLabelText('Server session token', { selector: 'input' })).toHaveValue('')
+  expect(native).not.toHaveBeenCalledWith('save_access_settings', expect.anything())
+  expect(native).not.toHaveBeenCalledWith('hosted_sign_in')
+ })
+
+ it('hides local setup when native development support is unavailable', async () => {
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  await screen.findByLabelText('Server address')
+  expect(screen.queryByRole('button', { name: 'Connect to local server' })).toBeNull()
+ })
+
+ it('reports a missing local token without checking or altering hosted access', async () => {
+  native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return true
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return access
+    if (command === 'connect_local_server') throw new Error('Start the local server from this checkout, then try again.')
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Connect to local server' }))
+  expect(await screen.findByRole('alert')).toHaveTextContent('Start the local server')
+  expect(native.mock.calls.some(([command]) => command === 'check_access' || command === 'hosted_sign_in')).toBe(false)
+ })

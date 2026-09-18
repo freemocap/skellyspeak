@@ -31,6 +31,7 @@ fn unknown() -> AppError {
 impl SpeechOutcome {
     pub(super) fn empty() -> Self {
         Self {
+            diagnostics: None,
             audio: Err(unknown()),
             transcript_diagnostics: None,
             actual_model: None,
@@ -109,6 +110,7 @@ pub fn payload(target: &ResolvedTarget, input: &SpeechInput) -> Result<Value> {
 }
 
 struct Decoder {
+    private: Vec<String>,
     outcome: SpeechOutcome,
     pending: Vec<u8>,
     data: String,
@@ -123,6 +125,7 @@ struct Decoder {
 impl Decoder {
     fn new() -> Self {
         Self {
+            private: vec![],
             outcome: SpeechOutcome::empty(),
             pending: Vec::new(),
             data: String::new(),
@@ -219,8 +222,24 @@ impl Decoder {
                 *dest = Some(s.to_owned());
             }
         }
+        let private: Vec<&str> = self.private.iter().map(String::as_str).collect();
+        let metadata = crate::diagnostics::response::metadata(&value, &private);
+        let retained = self
+            .outcome
+            .diagnostics
+            .get_or_insert_with(|| json!({"events":[]}));
+        let events = retained["events"]
+            .as_array_mut()
+            .expect("diagnostic events");
+        if events.len() < 32 {
+            events.push(metadata.clone());
+        } else {
+            retained["truncated"] = json!(true);
+        }
         if value.get("error").is_some() {
-            self.fail("Provider reported a speech generation error.");
+            self.fail(crate::diagnostics::response::reason(&metadata).unwrap_or(
+                "Provider reported a speech generation error without a readable reason.",
+            ));
         }
         let Some(choices) = value["choices"].as_array() else {
             self.fail("Speech event has no choices array.");
@@ -380,6 +399,7 @@ pub async fn synthesize(
     install: &str,
 ) -> SpeechOutcome {
     let mut decoder = Decoder::new();
+    decoder.private = vec![key.to_owned(), input.text.clone()];
     let body = match payload(target, input) {
         Ok(body) => body,
         Err(error) => return decoder.finish(&input.text, Some(error)),
@@ -403,37 +423,8 @@ pub async fn synthesize(
         Err(_) => return decoder.finish(&input.text, Some(unknown())),
     };
     if !response.status().is_success() {
-        if let Some(message) = crate::ai::connections::auth_errors::message(
-            target.route,
-            response.url().as_str(),
-            "Speech",
-            response.status().as_u16(),
-        ) {
-            return decoder.finish(
-                &input.text,
-                Some(AppError::new(ErrorCode::Provider, message)),
-            );
-        }
-
-        let error = if target.route == ConnectionRoute::Hosted {
-            crate::ai::hosted::body(response)
-                .await
-                .err()
-                .unwrap_or_else(|| fault("Speech request failed."))
-        } else {
-            let error = AppError::new(
-                ErrorCode::Provider,
-                format!(
-                    "Speech HTTP {}. No automatic retry was made.",
-                    response.status().as_u16()
-                ),
-            );
-            if response.status().as_u16() == 429 {
-                error.with_refusal(crate::ai::policy::refusal::from_response(&response))
-            } else {
-                error
-            }
-        };
+        let error =
+            crate::diagnostics::response::http_error(response, "Speech", &[key, &input.text]).await;
         return decoder.finish(&input.text, Some(error));
     }
     if !response

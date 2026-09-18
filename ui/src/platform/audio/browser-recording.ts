@@ -1,3 +1,4 @@
+import { mediaError } from './media-error'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 export interface BrowserRecording {
@@ -46,7 +47,7 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
       if (size > 16 * 1024 * 1024) { const error = new Error('Recording exceeds its size limit.'); cancel(); rejectFinish?.(error); onError(error); return }
       chunks.push(event.data)
     }
-    recorder.onerror = () => { cancel(); onError(new Error('Mobile microphone capture failed.')) }
+    recorder.onerror = event => { const error = mediaError((event as Event & { error?: unknown }).error, 'Microphone capture'); cancel(); rejectFinish?.(error); onError(error) }
     recorder.start(1000)
     timer = setTimeout(() => { cancel(); onError(new Error('Recording exceeded two minutes. Please record a shorter message.')) }, 120000)
     const capture = recorder
@@ -58,7 +59,7 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
         rejectFinish = reject
         if (capture.state === 'inactive') { cleanup(); reject(new Error('Recording is no longer active.')); return }
         clearTimeout(timer)
-        capture.onerror = () => { cleanup(); reject(new Error('Mobile microphone capture failed.')) }
+        capture.onerror = event => { const error = mediaError((event as Event & { error?: unknown }).error, 'Microphone capture'); cleanup(); reject(error) }
         capture.onstop = () => {
           stream.getTracks().forEach(track => track.stop())
           void new Blob(chunks, { type: capture.mimeType }).arrayBuffer()

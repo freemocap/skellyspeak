@@ -1,3 +1,4 @@
+mod audio_errors;
 use crate::model::AppError;
 use crate::model::ErrorCode;
 use crate::model::HostedAccount;
@@ -19,8 +20,15 @@ pub fn identity(request: reqwest::RequestBuilder, install: &str) -> reqwest::Req
         .header("X-SkellySpeak-Platform", std::env::consts::OS)
         .header("X-SkellySpeak-Version", env!("CARGO_PKG_VERSION"))
 }
-pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
+pub async fn body(response: reqwest::Response) -> Result<Vec<u8>> {
+    body_with_private(response, &[]).await
+}
+pub async fn body_with_private(
+    mut response: reqwest::Response,
+    private: &[&str],
+) -> Result<Vec<u8>> {
     if response.status().as_u16() == 429 {
+        let http = crate::diagnostics::response::headers(&response);
         let retry_after = response
             .headers()
             .get(reqwest::header::RETRY_AFTER)
@@ -41,37 +49,35 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
             }
             bytes.extend_from_slice(&chunk);
         }
-        return Err(limit_error(&bytes, retry_after));
+        let mut value: serde_json::Value =
+            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null);
+        sanitize_service_body(&mut value);
+        return Err(limit_error(&bytes, retry_after).with_diagnostics(serde_json::json!({"http":http,"response":crate::diagnostics::response::metadata(&value, private)})));
     }
     if !response.status().is_success() {
         let status = response.status().as_u16();
-        let request_id = response
-            .headers()
-            .get("x-request-id")
-            .and_then(|h| h.to_str().ok())
-            .filter(|id| id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit()))
-            .map(str::to_owned);
-        let mut body = Vec::new();
-        let mut unread = false;
-        loop {
-            match response.chunk().await {
-                Ok(Some(chunk)) if body.len() + chunk.len() <= 65536 => {
-                    body.extend_from_slice(&chunk)
-                }
-                Ok(Some(_)) | Err(_) => {
-                    unread = true;
-                    break;
-                }
-                Ok(None) => break,
+        let mut error =
+            crate::diagnostics::response::http_error(response, "Service", private).await;
+        if let Some(metadata) = &mut error.diagnostics {
+            sanitize_service_metadata(metadata);
+            let body = &metadata["response"];
+            let fallback = refusal_message(status, serde_json::to_vec(body).ok().as_deref());
+            if let Some(detail) = body
+                .get("diagnostics")
+                .and_then(crate::diagnostics::response::reason)
+            {
+                error.message = format!("{fallback} Provider reason: {detail}");
+            } else {
+                error.message = fallback;
+            }
+            if let Some(id) = metadata["response_headers"]["x_request_id"]
+                .as_str()
+                .filter(|id| valid_service_id(id))
+            {
+                error.message.push_str(&format!(" Request ID: {id}."));
             }
         }
-        let message = refusal_message(status, if unread { None } else { Some(&body) });
-        return Err(fault(&format!(
-            "{message}{}",
-            request_id
-                .map(|id| format!(" Request ID: {id}."))
-                .unwrap_or_default()
-        )));
+        return Err(error);
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response
@@ -87,9 +93,46 @@ pub async fn body(mut response: reqwest::Response) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
+fn valid_service_id(id: &str) -> bool {
+    id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit())
+}
+fn sanitize_service_body(body: &mut serde_json::Value) {
+    if let Some(object) = body.as_object_mut() {
+        // Generic server detail may echo arbitrary submitted values. Reviewed
+        // provider diagnostics have their own structured, redacted envelope.
+        if object.contains_key("detail") {
+            object.insert(
+                "detail".into(),
+                serde_json::json!("[redacted: unstructured service detail]"),
+            );
+        }
+        if object
+            .get("request_id")
+            .and_then(|v| v.as_str())
+            .is_some_and(|id| !valid_service_id(id))
+        {
+            object.insert(
+                "request_id".into(),
+                serde_json::json!("[redacted: invalid service request ID]"),
+            );
+        }
+    }
+}
+fn sanitize_service_metadata(metadata: &mut serde_json::Value) {
+    sanitize_service_body(&mut metadata["response"]);
+    if metadata["response_headers"]["x_request_id"]
+        .as_str()
+        .is_some_and(|id| !valid_service_id(id))
+    {
+        metadata["response_headers"]["x_request_id"] =
+            serde_json::json!("[redacted: invalid service request ID]");
+    }
+}
+
 /// Refusal messages can be persisted in attempts and turn context. Remote text
 /// is untrusted, including responses from Custom URL servers: only client-authored
-/// status/code guidance is allowed through this boundary.
+/// status/code guidance and the bounded, service-redacted audio reason are allowed
+/// through this boundary. Arbitrary remote detail/body fields are never displayed.
 pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
     let (provider, number) = if let Some(number) = code.strip_prefix("OPENROUTER_HTTP_") {
         ("OpenRouter", number)
@@ -129,6 +172,11 @@ fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
     let code = parsed
         .as_ref()
         .and_then(|value| value.get("code")?.as_str());
+    if status == 502
+        && let Some(message) = audio_errors::message(code, parsed.as_ref())
+    {
+        return message;
+    }
     if status == 502
         && let Some(message) = code.and_then(provider_failure_message)
     {

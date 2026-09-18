@@ -29,6 +29,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [localAvailable, setLocalAvailable] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
   const [checks, setChecks] = useState<Record<string, 'valid' | 'invalid' | 'checking'>>({})
@@ -38,9 +39,11 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const savedDraft = useRef<{ endpoint: CustomEndpoint } | null>(null)
 
   async function read() {
-    const [nextConnection, nextAccess] = await Promise.all([
+    const [nextConnection, nextAccess, local] = await Promise.all([
       invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'),
+      invoke<boolean>('local_server_available'),
     ])
+    setLocalAvailable(local)
     const custom = nextAccess.custom
     setConnection(nextConnection); setAccess(nextAccess)
     const displayedEndpoint = custom
@@ -127,6 +130,21 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     }
   }
 
+  async function connectLocal() {
+    if (!access) throw new Error('AI access has not loaded.')
+    const saved = await invoke<AccessSettings>('connect_local_server', { expectedRevision: access.revision })
+    setKeys(current => ({ ...current, custom: '' }))
+    await read(); await onChanged()
+    useConnectionHealth.getState().begin('custom', saved.revision)
+    try {
+      const result = await invoke<AccessCheck>('check_access', { expectedRevision: saved.revision, custom: true })
+      useConnectionHealth.getState().record('custom', saved.revision, undefined, result)
+    } catch (error) {
+      useConnectionHealth.getState().record('custom', saved.revision, error)
+      throw error
+    }
+  }
+
   function credential(provider: 'openrouter' | 'groq' | 'custom', label: string, configured: boolean) {
     return <div className="form-row">
       <label htmlFor={`access-${provider}`}>{label}</label>
@@ -164,8 +182,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'openrouter', label: tr('API keys') }, { id: 'custom', label: tr('Custom URL') },
   ]
   return <section className="account-settings">
-    <p>{tr('Chat access')}</p>
-    <div className="access-tabs" role="tablist" aria-label={tr("Chat access")} onKeyDown={event => {
+    <p>{tr('AI access')}</p>
+    <div className="access-tabs" role="tablist" aria-label={tr("AI access")} onKeyDown={event => {
       const tabs = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
       const index = tabs.indexOf(document.activeElement as HTMLButtonElement)
       const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null
@@ -199,6 +217,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
       {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
     </>}
     {connection.route === 'custom' && <>
+      {localAvailable && <button type="button" className="btn primary access-local-connect" disabled={locked}
+        onClick={() => void run(connectLocal)}>{tr('Connect to local server')}</button>}
       <ConnectionHealthPanel health={health} bearerAuth={endpoint.bearerAuth} disabled={locked}
         onCheck={() => void run(() => check('custom'))} />
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>

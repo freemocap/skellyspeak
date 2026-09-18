@@ -265,7 +265,20 @@ disposable process-local storage, real OpenRouter/Groq HTTPS endpoints, and bind
 the API to `127.0.0.1:8765`. Local data is cleared when it stops. Add `--check` to
 validate `.env` without starting the API or contacting either provider.
 
-Set AI access to Custom URL with:
+In a desktop development build from this checkout, start the local server, then
+open Settings → AI access → Custom URL and click **Connect to local server**.
+The native app reads this checkout's `session-token.txt`, saves it in the existing
+credential store with the fixed `http://127.0.0.1:8765/v1` address, and checks the
+connection. The token is not returned to the UI. Models retain their current
+selections. If the server is stopped, the saved setup remains and the connection
+check reports the failure; start the server and check again.
+
+This shortcut is unavailable in release and mobile builds. It does not read
+`session.json`, search the disk, accept an arbitrary file or destination, change
+hosted sign-in, or disable server authentication. Moving the checkout requires
+rebuilding the development app so its source location matches.
+
+For other builds, set AI access to Custom URL manually with:
 
 - API base URL: `http://127.0.0.1:8765/v1`
 - Authentication: Bearer session token

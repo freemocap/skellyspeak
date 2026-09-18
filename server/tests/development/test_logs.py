@@ -1,4 +1,5 @@
 """Durable local logs preserve safe diagnostics, privacy and explicit failures."""
+import errno
 import io
 import json
 import logging
@@ -160,3 +161,24 @@ print('private transcript')
     assert "private secret" not in result.stdout + result.stderr
     assert "private transcript" not in result.stdout + result.stderr
     assert len((tmp_path / "run" / "server-logging.jsonl").read_text().splitlines()) == 3
+
+
+@pytest.mark.parametrize(("number", "event_name"), [
+    (errno.EADDRINUSE, "address_in_use"),
+    (errno.EACCES, "permission_denied"),
+    (errno.EPERM, "permission_denied"),
+    (errno.EADDRNOTAVAIL, "address_unavailable"),
+    (9999, "socket_error"),
+])
+def test_uvicorn_socket_errors_keep_actionable_reason_without_private_text(number, event_name):
+    event = safe_record(record("uvicorn.error", OSError(number, "private credential", "private filename")))
+    assert event["eventName"] == event_name
+    assert event["message"]
+    assert event["contentRedacted"] is True
+    assert "private" not in json.dumps(event)
+
+
+def test_uvicorn_unknown_errors_still_redact_arbitrary_text():
+    event = safe_record(record("uvicorn.error", "private address already in use"))
+    assert event["eventName"] == "other"
+    assert "private" not in json.dumps(event)

@@ -18,12 +18,10 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
             "provider/model@version+variant",
             "shared-fast",
             &AudioSettings {
-                transcription: AudioRouteSettings {
-                    route: ConnectionRoute::Openrouter,
+                transcription: AudioModelSettings {
                     model: "shared-transcription".into(),
                 },
-                speech: AudioRouteSettings {
-                    route: ConnectionRoute::Custom,
+                speech: AudioModelSettings {
                     model: "independent-speech".into(),
                 },
             },
@@ -40,11 +38,7 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
         assert_eq!(config.standard_model, "provider/model@version+variant");
         assert_eq!(config.fast_model, "shared-fast");
         assert_eq!(config.audio.transcription.model, "shared-transcription");
-        assert_eq!(
-            config.audio.transcription.route,
-            ConnectionRoute::Openrouter
-        );
-        assert_eq!(config.audio.speech.route, ConnectionRoute::Custom);
+        assert_eq!(config.route, route);
         assert_eq!(config.audio.speech.model, "independent-speech");
     }
     let after: (Option<String>, Option<String>, Option<String>) = store
@@ -278,5 +272,31 @@ fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
             .messages
             .len(),
         1
+    );
+}
+
+#[test]
+fn failed_response_diagnostics_survive_publication_and_workspace_reopen() {
+    let (dir, mut store, conversation) = setup();
+    let dispatch = begin(&mut store, &conversation);
+    let error = crate::ai::transport::provider::decode(br#"{"id":"partial-receipt","model":"actual-model","choices":[{"finish_reason":"content_filter","message":{"content":null}}],"usage":{"prompt_tokens":17}}"#).unwrap_err();
+    store.finish(&dispatch, Err(error)).unwrap();
+    drop(store);
+    let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    let snapshot = reopened.conversation_snapshot(&conversation, None).unwrap();
+    let attempt = snapshot
+        .turns
+        .iter()
+        .flat_map(|t| &t.attempts)
+        .find(|a| a.id == dispatch.attempt)
+        .unwrap();
+    let metadata = attempt.diagnostics.as_ref().unwrap();
+    assert_eq!(
+        metadata["error"]["diagnostics"]["response"]["id"],
+        "partial-receipt"
+    );
+    assert_eq!(
+        metadata["error"]["diagnostics"]["response"]["usage"]["prompt_tokens"],
+        17
     );
 }

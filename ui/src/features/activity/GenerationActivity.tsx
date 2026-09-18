@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { useEffect, useState } from 'react'
 import type { PersonaGenerationActivity } from '../../generated/contracts'
@@ -56,7 +57,7 @@ export function GenerationActivity() {
           <dt>{tr("Finished")}</dt><dd>{attempt.finishedAt ?? '—'}</dd>
           <dt>{tr("Input / output tokens")}</dt><dd>{attempt.inputTokens ?? '—'} / {attempt.outputTokens ?? '—'}</dd>
         </dl>
-        {attempt.error && <p>{attempt.error}</p>}
+        {attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} />
       </details>)}
     </>}
   </details>

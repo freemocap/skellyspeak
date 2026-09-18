@@ -39,10 +39,21 @@ fn transcription_form(
     Ok(form)
 }
 fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionResponse> {
+    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
+        crate::diagnostics::response::invalid(
+            "transcription_json",
+            "$",
+            &format!("JSON at line {} column {}", e.line(), e.column()),
+            &serde_json::Value::Null,
+        )
+    })?;
+    let diagnostics = Some(crate::diagnostics::response::metadata(&value, &[]));
     let unknown = || {
-        AppError::new(
-            ErrorCode::UnknownOutcome,
-            "Endpoint returned an invalid transcription response. Processing may have incurred a charge; no automatic retry was made.",
+        crate::diagnostics::response::invalid(
+            "transcription",
+            "timing",
+            "matching text, finite duration and ordered word intervals within the recording",
+            &value,
         )
     };
     let (text, verbose) = if verbose {
@@ -56,7 +67,14 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
             text: String,
             timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
         }
-        let parsed: Transcript = serde_json::from_slice(bytes).map_err(|_| unknown())?;
+        let parsed: Transcript = serde_json::from_slice(bytes).map_err(|_| {
+            crate::diagnostics::response::invalid(
+                "transcription",
+                "$",
+                "text and optional timing object",
+                &value,
+            )
+        })?;
         if let Some(timing) = parsed.timing {
             if timing.text != parsed.text
                 || !timing.duration.is_finite()
@@ -84,6 +102,7 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
                 return Err(unknown());
             }
             return Ok(TranscriptionResponse {
+                diagnostics,
                 text: parsed.text,
                 timing: Some(timing),
                 whisper_segments: None,
@@ -109,6 +128,7 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
         None => (None, None),
     };
     Ok(TranscriptionResponse {
+        diagnostics,
         text,
         timing,
         whisper_segments,
@@ -145,13 +165,22 @@ pub(in crate::ai) async fn transcribe(
         .multipart(form)
         .send()
         .await
-        .map_err(|_| AppError::new(ErrorCode::UnknownOutcome, "Transcription outcome is unknown after a connection failure. Processing may have incurred a charge. No automatic retry was made."))?;
+        .map_err(|e| crate::diagnostics::response::network(&e, "transcription_request"))?;
+    let http = crate::diagnostics::response::headers(&response);
     let status = response.status();
+    if !status.is_success() && target.route == ConnectionRoute::Openrouter {
+        return Err(crate::diagnostics::response::http_error(
+            response,
+            "Groq transcription",
+            &[key, &variety_hint],
+        )
+        .await);
+    }
     let bytes = if target.route == ConnectionRoute::Hosted
         || (target.route == ConnectionRoute::Custom
             && matches!(status.as_u16(), 400 | 422 | 502 | 503))
     {
-        hosted::body(response).await
+        hosted::body_with_private(response, &[key, &variety_hint]).await
     } else {
         response_bytes(response, "Transcription", target.route, 1_048_576).await
     }
@@ -161,7 +190,20 @@ pub(in crate::ai) async fn transcribe(
         }
         error
     })?;
-    transcription_response(&bytes, target.route == ConnectionRoute::Openrouter)
+    let mut result = transcription_response(&bytes, target.route == ConnectionRoute::Openrouter);
+    match &mut result {
+        Ok(value) => {
+            value
+                .diagnostics
+                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        }
+        Err(error) => {
+            error
+                .diagnostics
+                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        }
+    }
+    result
 }
 
 #[cfg(test)]

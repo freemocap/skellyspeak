@@ -5,6 +5,8 @@ import logging
 import httpx
 import pytest
 
+from server.tests.inference.test_proxy import proxy
+from server.tests.accounting.test_budget import ledger
 from server.app import main
 from server.app.diagnostics import provider_errors
 from server.development.logs import FileHandler, LocalLogs
@@ -73,3 +75,57 @@ async def test_broken_error_body_does_not_replace_http_refusal(caplog):
     assert 'private' not in caplog.text
     event = next(json.loads(r.message) for r in caplog.records if 'provider_error_response' in r.message)
     assert event['body_unreadable']
+
+
+def test_metadata_retention_keeps_public_identifiers_and_marks_unclassified_values():
+    value = provider_errors.sanitize({
+        'id': 'provider-request', 'model': 'vendor/model',
+        'usage': {'prompt_tokens': 12, 'cached_tokens': 5},
+        'extra': {'latency_ms': 42, 'unknown_text': 'private unknown content'},
+        'error': {'code': 'missing_permissions', 'message': 'Missing permission "text_to_speech" for model "eleven_v3". private learner sentence real-api-secret'},
+        'audio': 'private bytes', 'api_key': 'real-api-secret',
+    }, ('private learner sentence', 'real-api-secret'))
+    assert value['id'] == 'provider-request'
+    assert value['usage']['cached_tokens'] == 5
+    assert value['extra']['latency_ms'] == 42
+    assert 'text_to_speech' in value['error']['message']
+    assert 'eleven_v3' in value['error']['message']
+    assert 'unclassified' in value['extra']['unknown_text']
+    for private in ('private learner sentence', 'real-api-secret', 'private bytes', 'private unknown content'):
+        assert private not in json.dumps(value)
+
+
+@pytest.mark.asyncio
+async def test_grouped_error_carries_redacted_reason_and_request_correlation(monkeypatch, proxy, ledger):
+    from server.tests.inference.test_proxy import upstream
+    from server.tests.inference.test_grouped import envelope
+    upstream(monkeypatch, lambda _: httpx.Response(403, json={'error': {
+        'code': 'missing_permissions', 'message': 'Missing permission "text_to_speech".',
+        'content': 'private response content',
+    }}, headers={'request-id': 'provider-receipt', 'x-ratelimit-remaining': '3'}))
+    response = await proxy.post('/v1/operations', json=envelope(1))
+    event = json.loads(response.text.splitlines()[0])
+    assert event['diagnostics']['error']['code'] == 'missing_permissions'
+    assert event['diagnostics']['http']['response_headers']['request_id'] == 'provider-receipt'
+    assert event['request_id'] == response.headers['x-request-id']
+    assert 'private response content' not in response.text
+
+
+def test_exception_locations_survive_without_messages_or_locals():
+    from server.app.diagnostics.exceptions import describe
+    try:
+        try:
+            raise ValueError('private learner text and credential')
+        except ValueError as cause:
+            raise RuntimeError('private wrapper') from cause
+    except RuntimeError as error:
+        details = provider_errors.sanitize(describe(error))
+    assert [cause['exception_type'] for cause in details['causes']] == ['RuntimeError', 'ValueError']
+    assert details['causes'][0]['frames'][0]['source_file'] == 'test_provider_errors.py'
+    assert 'private' not in json.dumps(details)
+
+
+def test_typed_request_uuid_is_preserved_but_known_credential_is_not():
+    identity = '85a3e4c6-9fd1-4dac-8b30-abcde1234567'
+    assert provider_errors.sanitize({'request_id': identity})['request_id'] == identity
+    assert 'redacted' in provider_errors.sanitize({'request_id': identity}, (identity,))['request_id']

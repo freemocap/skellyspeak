@@ -102,6 +102,14 @@ pub fn finish(
         }
     };
     let error = outcome.as_ref().err().map(safe_error);
+    let diagnostics = crate::diagnostics::response::retained(
+        completion.and_then(|c| c.diagnostics.as_ref()),
+        outcome.as_ref().err(),
+    );
+    tx.execute(
+        "UPDATE persona_generation_attempts SET diagnostics=?2 WHERE id=?1",
+        params![request.id, diagnostics],
+    )?;
     tx.execute("UPDATE persona_generation_attempts SET state=?2,finished_at=COALESCE(finished_at,strftime('%Y-%m-%dT%H:%M:%fZ','now')),actual_model=COALESCE(actual_model,?3),provider_id=COALESCE(provider_id,?4),input_tokens=COALESCE(input_tokens,?5),output_tokens=COALESCE(output_tokens,?6),error=CASE WHEN ?7 THEN error ELSE ?8 END WHERE id=?1",
         params![request.id,terminal,completion.map(|c| c.actual_model.as_str()),completion.map(|c| c.provider_id.as_str()),completion.and_then(|c|c.input_tokens),completion.and_then(|c|c.output_tokens),stopped,error])?;
     changed(&tx)?;
@@ -134,13 +142,14 @@ pub fn usage(db: &Connection, language: Option<&str>) -> Result<PersonaGeneratio
 }
 
 pub fn activity(db: &Connection) -> Result<PersonaGenerationActivity> {
-    let mut query = db.prepare("SELECT id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state,created_at,dispatched_at,finished_at,actual_model,provider_id,input_tokens,output_tokens,error FROM persona_generation_attempts ORDER BY rowid DESC LIMIT 50")?;
+    let mut query = db.prepare("SELECT id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state,created_at,dispatched_at,finished_at,actual_model,provider_id,input_tokens,output_tokens,error,diagnostics FROM persona_generation_attempts ORDER BY rowid DESC LIMIT 50")?;
     let attempts = query
         .query_map([], |r| {
             let route: String = r.get(4)?;
             Ok((
                 route,
                 PersonaGenerationAttempt {
+                    diagnostics: crate::diagnostics::response::column(r, 16)?,
                     id: r.get(0)?,
                     attempt_id: r.get(1)?,
                     operation_id: r.get(2)?,
@@ -193,6 +202,7 @@ mod tests {
     }
     fn completed(input: Option<i32>, output: Option<i32>) -> Completion {
         Completion {
+            diagnostics: None,
             text: "PRIVATE-PROPOSAL-SENTINEL".into(),
             finish_reason: "stop".into(),
             actual_model: "reported-model".into(),

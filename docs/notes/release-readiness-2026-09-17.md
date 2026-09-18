@@ -240,3 +240,57 @@ module passed strict TypeScript checking. Actionlint 1.7.7 accepted both modifie
 workflows (shellcheck/pyflakes integrations disabled); Git whitespace checks passed.
 The GitHub execution path has not yet run with these changes. Changes remain local
 and uncommitted, alongside preserved unrelated user work.
+
+## v2.0.2 skip-tests checkout regression
+
+The user correctly invoked `npm run release -- patch --skip-tests`. The remote
+annotated tag contains the exact development marker. The version-job log for
+run 35249750060 nevertheless shows checkout first fetching tags, then fetching
+`+e8911e53b5c2714de028cadf136665428f9b5db4:refs/tags/v2.0.2`, replacing the local
+annotated tag reference with its peeled commit. The selector consequently printed
+`Full release: CI suite required.` This was an implementation defect, not misuse
+of the release command.
+
+The selector now fetches the canonical remote tag into a separate local metadata
+reference and verifies its peeled commit matches HEAD before reading the marker.
+It does not rewrite a release tag; failed fetches or mismatches fail explicitly.
+Manual dispatch uses its explicit input without needing annotation recovery.
+Regression tests reproduce checkout flattening the local tag while preserving the
+remote annotation, and reject metadata from another commit. All 15 release tests,
+strict TypeScript checking of the selector and Git whitespace checks passed.
+The fix remains local and uncommitted.
+
+The cancellation request for the test-blocked v2.0.2 run succeeded. Restarting that
+same tag with manual `skip_tests=true` was rejected by automatic approval review
+because workflow dispatch can publish artifacts and explicit authorization to
+restart/publish v2.0.2 was required. Approval was requested; no replacement run
+was dispatched at this point. No tag or version was changed.
+
+The user subsequently explicitly authorized restarting v2.0.2 with tests skipped.
+Dispatched [run 35251054207](https://github.com/freemocap/skellyspeak/actions/runs/35251054207)
+on the existing v2.0.2 tag with `skip_tests=true`. Verified the version and mode
+gates passed, all eight reusable CI jobs (including Rust) were skipped, and the
+release draft step succeeded. Desktop/Android artifact builds are running or
+queued; publication has not yet been verified. No tag or version was changed.
+
+## v2.0.2 target failures after manual test bypass
+
+Inspected run 35251054207 target logs. Three targets compiled and bundled, then
+failed inside tauri-action while uploading GitHub release assets:
+
+- Linux x64: `other side closed` while uploading the amd64 AppImage, after
+  successful DEB/RPM uploads.
+- macOS Intel: `Error saving asset` while uploading the updater tarball, after
+  signing/bundling and successful DMG upload.
+- Linux arm64: GitHub returned its HTML `Unicorn!` error page while uploading the
+  ARM64 DEB.
+
+These are upload/service/connection failures, not reported Rust compilation
+failures. They do not establish a platform-wide GitHub incident or its precise
+cause. The later independent artifact-verification step did not run for these
+failed jobs. Android and macOS Apple Silicon jobs passed. Windows remained in
+its signing preflight at the final query. The release remained a draft with
+partial assets; publication was correctly blocked. No failed jobs were rerun in
+this diagnostic turn. Once Windows settles, rerunning failed jobs is the immediate
+recovery path. Separating build retention from upload retries would avoid repeating
+successful compilation after transient upload failures in future workflows.

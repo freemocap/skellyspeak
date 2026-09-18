@@ -10,7 +10,7 @@ beforeEach(() => { vi.resetAllMocks() })
 
 it('renders actual dependency IDs and watches updates without dispatching AI', async () => {
   api.readWorkspace.mockResolvedValue({ selected: 'chat' })
-  api.watchConversation.mockResolvedValueOnce({ conversationId: 'chat', revision: 2, turns: [{ id: 'turn', state: 'assisting', attempts: [], operations: [{ id: 'reply', kind: 'persona_reply', state: 'done', dependencies: [] }, { id: 'gloss', kind: 'persona_word_gloss', state: 'running', dependencies: ['reply'] }] }] }).mockImplementation(() => new Promise(() => {}))
+  api.watchConversation.mockResolvedValueOnce({ conversationId: 'chat', revision: 2, transcriptionAttempts: [], turns: [{ id: 'turn', state: 'assisting', attempts: [], operations: [{ id: 'reply', kind: 'persona_reply', state: 'done', dependencies: [] }, { id: 'gloss', kind: 'persona_word_gloss', state: 'running', dependencies: ['reply'] }] }] }).mockImplementation(() => new Promise(() => {}))
   render(<LiveActivity />)
   await waitFor(() => expect(screen.getByTestId('graph')).toHaveTextContent('persona word gloss · running'))
   expect(screen.getByTestId('graph')).toHaveTextContent('"source":"reply","target":"gloss"')
@@ -25,7 +25,7 @@ function deferred<T>() {
   return { promise, resolve, reject }
 }
 function snapshot(conversationId: string, revision: number, operation: string) {
-  return { conversationId, revision, turns: [{ id: `${conversationId}-turn`, state: 'assisting', attempts: [], operations: [{ id: operation, kind: operation, state: 'running', dependencies: [] }] }] }
+  return { conversationId, revision, transcriptionAttempts: [], turns: [{ id: `${conversationId}-turn`, state: 'assisting', attempts: [], operations: [{ id: operation, kind: operation, state: 'running', dependencies: [] }] }] }
 }
 
 it('follows native selection while mounted and rejects the abandoned watch response', async () => {
@@ -90,4 +90,15 @@ it('does not restart reads or adopt a pending response after unmount', async () 
   await act(async () => { waiting.resolve(snapshot('first', 1, 'late')) })
   expect(api.readWorkspace).toHaveBeenCalledTimes(1)
   expect(api.watchConversation).toHaveBeenCalledTimes(1)
+})
+
+
+it('shows retained transcription receipt details', async () => {
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.watchConversation.mockResolvedValueOnce({ ...snapshot('chat', 1, 'reply'), transcriptionAttempts: [
+    { id: 'stt', model: 'scribe_v2', state: 'failed', error: 'Provider refused transcription', diagnostics: { request_id: 'receipt-123', status: 403, error: { code: 'missing_permissions' } } },
+  ] }).mockImplementation(() => new Promise(() => {}))
+  render(<LiveActivity />)
+  expect(await screen.findByText('Response details')).toBeInTheDocument()
+  expect(screen.getByText(/receipt-123/)).toHaveTextContent('missing_permissions')
 })

@@ -631,20 +631,20 @@
   "{value0} · {value1} XP": "{value0} · {value1} خبرة",
   "{value0}/3 unassisted successes": "{value0}/3 نجاحات دون مساعدة",
   "Search matches": {
-    "zero": "{count} نتائج",
-    "one": "{count} نتيجة",
-    "two": "{count} نتيجتان",
     "few": "{count} نتائج",
     "many": "{count} نتيجة",
-    "other": "{count} نتيجة"
+    "one": "{count} نتيجة",
+    "other": "{count} نتيجة",
+    "two": "{count} نتيجتان",
+    "zero": "{count} نتائج"
   },
   "Conversation turns": {
-    "zero": " · {count} أدوار",
-    "one": " · {count} دور",
-    "two": " · {count} دوران",
     "few": " · {count} أدوار",
     "many": " · {count} دور",
-    "other": " · {count} دور"
+    "one": " · {count} دور",
+    "other": " · {count} دور",
+    "two": " · {count} دوران",
+    "zero": " · {count} أدوار"
   },
   "Languages": "اللغات",
   "What you're learning and what you already speak.": "ما تتعلمه وما تتحدثه بالفعل.",
@@ -965,5 +965,8 @@
   "Transcription access": "اتصال النسخ الصوتي",
   "Read-aloud access": "اتصال القراءة بصوت عالٍ",
   "Read-aloud model": "نموذج القراءة بصوت عالٍ",
-  "Chat access": "اتصال المحادثة"
+  "Chat access": "اتصال المحادثة",
+  "Audio provider key": "مفتاح مزود الصوت",
+  "Connect to local server": "الاتصال بالخادم المحلي",
+  "Response details": "تفاصيل الاستجابة"
 }

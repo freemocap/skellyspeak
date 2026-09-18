@@ -86,6 +86,7 @@ mod tests {
     use super::*;
     fn completion(text: &str) -> Completion {
         Completion {
+            diagnostics: None,
             text: text.into(),
             finish_reason: "stop".into(),
             actual_model: "fixture".into(),

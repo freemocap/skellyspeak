@@ -145,6 +145,7 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                                     .finish_speech(
                                         dispatch,
                                         audio::SpeechOutcome {
+                                            diagnostics: None,
                                             audio: Err(error),
                                             transcript_diagnostics: None,
                                             actual_model: None,

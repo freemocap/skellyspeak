@@ -15,6 +15,8 @@ import wave
 
 import httpx
 
+from server.app.diagnostics import provider_errors
+
 from server.app.inference.audio_contracts import (
     AudioFailure, AudioReceipt, SynthesisRequest, SynthesisResult,
     TranscriptionRequest, TranscriptionResult, WordTiming,
@@ -78,25 +80,37 @@ class ElevenLabs:
                     request_id = response.headers.get("request-id")
                     if request_id is not None and not _identifier(request_id):
                         request_id = None
-                    receipt = AudioReceipt(receipt.provider, receipt.requested_model, request_id)
+                    receipt = AudioReceipt(receipt.provider, receipt.requested_model, request_id,
+                                           diagnostics={"status": response.status_code, "response_headers": provider_errors.response_headers(response)})
                     if not response.is_success:
+                        cleaned = await provider_errors.capture(
+                            response, "ELEVENLABS", {"key": self._key, "request": kwargs},
+                        )
+                        detail = cleaned.get("detail") if isinstance(cleaned, dict) else None
+                        provider_error = None
+                        if isinstance(detail, dict):
+                            code, message = detail.get("status"), detail.get("message")
+                            if isinstance(code, str) and re.fullmatch(r"[a-z][a-z0-9_]{0,63}", code):
+                                provider_error = {"code": code}
+                                if isinstance(message, str) and message.strip():
+                                    provider_error["message"] = message[:1024]
                         raise AudioFailure("AUDIO_PROVIDER_HTTP", receipt=receipt,
                                            unknown_outcome=response.status_code >= 500,
-                                           status=response.status_code)
+                                           status=response.status_code, provider_error=provider_error, diagnostics=cleaned)
                     content_type = response.headers.get("content-type", "").split(";")[0].strip().lower()
                     if content_type not in content_types:
-                        raise AudioFailure("AUDIO_RESPONSE_TYPE", receipt=receipt, unknown_outcome=True)
+                        raise AudioFailure("AUDIO_RESPONSE_TYPE", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_headers", "path":"content_type", "expected":sorted(content_types), "response":receipt.diagnostics})
                     chunks = bytearray()
                     async for chunk in response.aiter_bytes():
                         if len(chunks) + len(chunk) > limit:
-                            raise AudioFailure("AUDIO_RESPONSE_LIMIT", receipt=receipt, unknown_outcome=True)
+                            raise AudioFailure("AUDIO_RESPONSE_LIMIT", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_body", "limit_bytes":limit, "received_bytes":len(chunks)+len(chunk), "truncated":True, "response":receipt.diagnostics})
                         chunks.extend(chunk)
                     return bytes(chunks), receipt
                 finally:
                     await response.aclose()
-        except (httpx.HTTPError, TimeoutError):
+        except (httpx.HTTPError, TimeoutError) as error:
             # Drop exception context: HTTP errors can contain URLs or credentials.
-            raise AudioFailure("AUDIO_TRANSPORT_UNKNOWN", receipt=receipt, unknown_outcome=True) from None
+            raise AudioFailure("AUDIO_TRANSPORT_UNKNOWN", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transport", "exception_type":type(error).__name__, "response":receipt.diagnostics}) from None
 
     async def synthesize(self, request: SynthesisRequest) -> SynthesisResult:
         receipt = AudioReceipt("elevenlabs", request.model)
@@ -137,25 +151,31 @@ class ElevenLabs:
 
 
 def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> TranscriptionResult:
+    path = "$"
+    value = None
     try:
         value = json.loads(body)
         if not isinstance(value, dict):
             raise ValueError()
+        path = "text"
         text = value["text"]
         if not isinstance(text, str) or len(text) > 20_000 or "\0" in text:
             raise ValueError()
+        path = "language_code/language_probability"
         language = value.get("language_code")
         probability = value.get("language_probability")
         if not _language(language, synthesis=False):
             raise ValueError()
         if probability is not None and (not _number(probability) or not 0 <= probability <= 1):
             raise ValueError()
+        path = "words"
         raw_words = value["words"]
         if not isinstance(raw_words, list) or len(raw_words) > 20_000:
             raise ValueError()
         words = []
         previous = 0.0
-        for word in raw_words:
+        for index, word in enumerate(raw_words):
+            path = f"words[{index}]"
             if not isinstance(word, dict) or word.get("type") not in {"word", "spacing", "audio_event"}:
                 raise ValueError()
             if word["type"] != "word":
@@ -169,6 +189,8 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
         if not text.strip():
             raise AudioFailure("AUDIO_NO_SPEECH", receipt=receipt, unknown_outcome=False)
         # Preserve script and learner wording; do not rewrite low-confidence text.
+        receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
+                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value)})
         return TranscriptionResult(text, duration, tuple(words), language, probability, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
-        raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True) from None
+        raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"valid transcript fields and ordered timing within recording duration", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None

@@ -85,6 +85,7 @@ mod tests {
     use super::*;
     fn output(value: Value) -> Completion {
         Completion {
+            diagnostics: None,
             text: value.to_string(),
             finish_reason: "stop".into(),
             actual_model: "test".into(),

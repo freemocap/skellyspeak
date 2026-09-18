@@ -498,7 +498,7 @@ export default function ConversationPage({
             }} />}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri} sending={sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
-            transcriptionWarning={targetLanguage?.transcriptionLanguage === null && connection && connection.audio.transcription.route === 'openrouter' ? tr("The {model} transcription model has no language code for {language}; output may be unreliable.", { model: connection.audio.transcription.model, language: targetLanguageName }) : undefined}
+            transcriptionWarning={targetLanguage?.transcriptionLanguage === null && connection && connection.route === 'openrouter' ? tr("The {model} transcription model has no language code for {language}; output may be unreliable.", { model: connection.audio.transcription.model, language: targetLanguageName }) : undefined}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguageName}
             onInput={setInput} onSend={text => { void send(text) }}
             onDiscardRecording={mic.cancel} onToggleRecording={toggleMic} />

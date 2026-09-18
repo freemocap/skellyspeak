@@ -11,6 +11,8 @@ import time
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 
+from server.app.diagnostics.exceptions import describe
+
 log = logging.getLogger("skellyspeak.requests")
 
 
@@ -32,8 +34,11 @@ def error_response(request: Request, error: HTTPException) -> JSONResponse:
         404: "NOT_FOUND", 429: "RATE_LIMITED", 502: "UPSTREAM_FAILURE",
     }.get(error.status_code, "REQUEST_REJECTED"))
     request.state.error_code = code
+    provider_error = getattr(error, "provider_error", None)
     return JSONResponse(status_code=error.status_code, headers=error.headers,
-                        content={"detail": error.detail, "code": code,
+                        content={**({"provider_error": provider_error} if provider_error else {}),
+                                 "diagnostics": getattr(error, "diagnostics", None),
+                                 "detail": error.detail, "code": code,
                                  "request_id": request.state.request_id,
                                  "resets_at": getattr(error, "resets_at", None)})
 
@@ -50,10 +55,12 @@ async def observe(request: Request, call_next, ingress, admit=None):
         response = error_response(request, error)
     except Exception as error:
         request.state.exception_type = type(error).__name__
+        request.state.exception_diagnostics = describe(error)
         request.state.error_code = "INTERNAL_ERROR"
         response = JSONResponse(status_code=500, content={
             "detail": "The service could not complete this request.",
             "code": "INTERNAL_ERROR", "request_id": request.state.request_id,
+            "diagnostics": request.state.exception_diagnostics,
         })
     response.headers["X-Request-ID"] = request.state.request_id
     response.headers["Cache-Control"] = "no-store"
@@ -63,6 +70,7 @@ async def observe(request: Request, call_next, ingress, admit=None):
         "route": getattr(route, "path", "unmatched"), "status": response.status_code,
         "code": request.state.error_code,
         "exception_type": getattr(request.state, "exception_type", None),
+        "diagnostics": getattr(request.state, "exception_diagnostics", None),
         "duration_ms": round((time.monotonic() - started) * 1000),
         "revision": os.environ.get("K_REVISION", "local")[:128]}))
     return response

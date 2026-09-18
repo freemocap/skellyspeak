@@ -631,20 +631,20 @@
   "{value0} · {value1} XP": "{value0} · {value1} XP",
   "{value0}/3 unassisted successes": "{value0}/3 unassisted successes",
   "Search matches": {
-    "zero": "{count} matches",
-    "one": "{count} match",
-    "two": "{count} matches",
     "few": "{count} matches",
     "many": "{count} matches",
-    "other": "{count} matches"
+    "one": "{count} match",
+    "other": "{count} matches",
+    "two": "{count} matches",
+    "zero": "{count} matches"
   },
   "Conversation turns": {
-    "zero": " · {count} turns",
-    "one": " · {count} turn",
-    "two": " · {count} turns",
     "few": " · {count} turns",
     "many": " · {count} turns",
-    "other": " · {count} turns"
+    "one": " · {count} turn",
+    "other": " · {count} turns",
+    "two": " · {count} turns",
+    "zero": " · {count} turns"
   },
   "Languages": "Languages",
   "What you're learning and what you already speak.": "What you're learning and what you already speak.",
@@ -965,5 +965,8 @@
   "Transcription access": "Transcription access",
   "Read-aloud access": "Read-aloud access",
   "Read-aloud model": "Read-aloud model",
-  "Chat access": "Chat access"
+  "Chat access": "Chat access",
+  "Audio provider key": "Audio provider key",
+  "Connect to local server": "Connect to local server",
+  "Response details": "Response details"
 }

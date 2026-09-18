@@ -113,6 +113,7 @@ fn main() {
                     analysis_version: ANALYSIS_VERSION.into(),
                 };
                 let completion = Completion {
+                    diagnostics: None,
                     text: record["content"].as_str().unwrap_or("").into(),
                     finish_reason: record["finishReason"].as_str().unwrap_or("").into(),
                     actual_model: record["actualModel"].as_str().unwrap_or("").into(),

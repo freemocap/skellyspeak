@@ -16,5 +16,6 @@ CREATE TABLE persona_generation_attempts (
     provider_id TEXT,
     input_tokens INTEGER CHECK(input_tokens IS NULL OR input_tokens >= 0),
     output_tokens INTEGER CHECK(output_tokens IS NULL OR output_tokens >= 0),
-    error TEXT
+    error TEXT,
+    diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics))
 );

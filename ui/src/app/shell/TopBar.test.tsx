@@ -24,7 +24,7 @@ beforeEach(() => {
 it.each(['hosted', 'openrouter', 'custom'] as const)('opens AI access from the %s setup status', route => {
   useSessionStore.setState({ connection: {
     route, signedIn: false, ownKeyConfigured: false, email: '', revision: 1,
-    configured: false, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { route: 'hosted', model: 'whisper-large-v3' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: false, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   render(<TopBar />)
   fireEvent.click(screen.getByRole('button', { name: 'AI Not Connected' }))
@@ -71,7 +71,7 @@ it('opens the language browser alongside the compact selector', () => {
 it('shows a clickable connected state only after a successful check at the current revision', () => {
   useSessionStore.setState({ connection: {
     route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 9,
-    configured: true, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { route: 'hosted', model: 'whisper-large-v3' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: true, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   const view = render(<TopBar />)
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()

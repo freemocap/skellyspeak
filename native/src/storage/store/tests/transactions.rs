@@ -19,8 +19,7 @@ fn handler_failure_after_turn_creation_rolls_back_and_leaves_action_retryable() 
         )
         .unwrap();
     let config = store.connection_config().unwrap();
-    let mut audio = config.audio.clone();
-    audio.speech.route = ConnectionRoute::Openrouter;
+    let audio = config.audio.clone();
     store
         .set_models(
             config.revision,

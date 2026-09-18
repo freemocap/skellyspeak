@@ -33,6 +33,7 @@ class AudioReceipt:
     # A provider request ID is correlation evidence, not proof of billing.
     request_id: str | None = None
     cost_micros: int | None = None
+    diagnostics: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -60,19 +61,22 @@ class TranscriptionResult:
 
 
 class AudioFailure(Exception):
-    """Safe fixed code plus partial receipt; never raw upstream error text.
+    """Fixed code, redacted provider detail and partial receipt; never raw bodies.
 
 unknown_outcome means submission may have incurred a charge. Even a known HTTP
 refusal is not a billing receipt; callers must not invent a zero dollar charge.
 """
 
     def __init__(self, code: str, *, receipt: AudioReceipt,
-                 unknown_outcome: bool, status: int | None = None):
+                 unknown_outcome: bool, status: int | None = None,
+                 provider_error: dict[str, str] | None = None, diagnostics: dict | None = None):
         super().__init__(code)
         self.code = code
         self.receipt = receipt
         self.unknown_outcome = unknown_outcome
         self.status = status
+        self.provider_error = provider_error
+        self.diagnostics = diagnostics
 
 
 class AudioProvider(Protocol):

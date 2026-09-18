@@ -97,11 +97,7 @@ fn validate_key_destination(
 pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget> {
     let config = execution::config(db)?;
     let access = settings(db)?;
-    let route = match capability {
-        Capability::Chat => config.route,
-        Capability::Transcription => config.audio.transcription.route,
-        Capability::Speech => config.audio.speech.route,
-    };
+    let route = config.route;
     let (base, model, column) = match (route, capability) {
         (ConnectionRoute::Hosted, Capability::Chat) => (
             format!("{}/v1", hosted::ORIGIN),
@@ -237,7 +233,7 @@ pub async fn save_access_settings(
     )
     .map_err(|(code, error)| {
         crate::diagnostics::native_event(code, &[]);
-        error
+        *error
     })?;
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
@@ -289,18 +285,18 @@ fn validate_save_input(
     custom: Option<&CustomEndpoint>,
     key: Option<&str>,
     remove_key: bool,
-) -> std::result::Result<(), (&'static str, AppError)> {
+) -> std::result::Result<(), (&'static str, Box<AppError>)> {
     if let Some(value) = custom {
-        base_url(&value.base_url).map_err(|e| ("access_save_url_invalid", e))?;
-        validate_custom(value).map_err(|e| ("access_save_endpoint_invalid", e))?;
+        base_url(&value.base_url).map_err(|e| ("access_save_url_invalid", Box::new(e)))?;
+        validate_custom(value).map_err(|e| ("access_save_endpoint_invalid", Box::new(e)))?;
     }
     if let Some(key) = key {
-        provider::validate_key_format(key).map_err(|e| ("access_save_key_invalid", e))?;
+        provider::validate_key_format(key).map_err(|e| ("access_save_key_invalid", Box::new(e)))?;
     }
     if remove_key && key.is_some() {
         return Err((
             "access_save_remove_replace_conflict",
-            error("Remove or replace the key, not both."),
+            Box::new(error("Remove or replace the key, not both.")),
         ));
     }
     Ok(())
@@ -309,30 +305,11 @@ fn validate_save_input(
 pub async fn response_bytes(
     mut response: reqwest::Response,
     label: &str,
-    route: ConnectionRoute,
+    _route: ConnectionRoute,
     limit: usize,
 ) -> Result<Vec<u8>> {
     if !response.status().is_success() {
-        let status = response.status().as_u16();
-        if let Some(message) =
-            super::auth_errors::message(route, response.url().as_str(), label, status)
-        {
-            return Err(AppError::new(ErrorCode::Provider, message));
-        }
-        let hint = match status {
-            404 | 405 | 415 | 422 => "Check the endpoint protocol, capability and model ID.",
-            429 => "Rate or allowance limit reached; wait before retrying.",
-            _ => "Check the endpoint service.",
-        };
-        let error = AppError::new(
-            ErrorCode::Provider,
-            format!("{label}: HTTP {status}. {hint} No automatic retry was made."),
-        );
-        return Err(if status == 429 {
-            error.with_refusal(crate::ai::policy::refusal::from_response(&response))
-        } else {
-            error
-        });
+        return Err(crate::diagnostics::response::http_error(response, label, &[]).await);
     }
     let mut body = Vec::new();
     while let Some(chunk) = response
@@ -407,6 +384,14 @@ pub async fn check_access(
         .send()
         .await
         .map_err(|_| error("Connection check failed. Check the endpoint and network."))?;
+    if !response.status().is_success() {
+        return Err(crate::diagnostics::response::http_error(
+            response,
+            "Connection check",
+            &[key.as_str()],
+        )
+        .await);
+    }
     let value: serde_json::Value = serde_json::from_slice(
         &response_bytes(
             response,
@@ -477,6 +462,7 @@ pub async fn check_access(
     }
     Ok(AccessCheck {
         providers: vec![ProviderCredentialCheck {
+            diagnostics: None,
             provider: "GROQ".into(),
             state: "accepted".into(),
             status: Some(200),
@@ -604,7 +590,7 @@ mod tests {
             bearer_auth: auth,
         };
         db.execute(
-            "UPDATE ai_config SET route='custom',audio_settings=json_set(audio_settings,'$.transcription.route','custom','$.speech.route','custom'),custom_config=?1",
+            "UPDATE ai_config SET route='custom',custom_config=?1",
             [serde_json::to_string(&value).unwrap()],
         )
         .unwrap();
@@ -653,52 +639,48 @@ mod tests {
     }
 
     #[test]
-    fn audio_routes_and_models_are_independent_of_chat_and_each_other() {
+    fn all_capabilities_follow_the_single_access_route() {
         let db = db();
         custom(&db, true);
         db.execute("UPDATE ai_config SET credential_id='chat-key',groq_credential_id='stt-key',hosted_credential_id='session-key',custom_credential_id='custom-key'", []).unwrap();
-        for chat in ["hosted", "openrouter", "custom"] {
-            for stt in ["hosted", "openrouter", "custom"] {
-                for tts in ["hosted", "openrouter", "custom"] {
-                    db.execute("UPDATE ai_config SET route=?1,audio_settings=json_set(audio_settings,'$.transcription.route',?2,'$.speech.route',?3,'$.transcription.model','selected-stt','$.speech.model','selected-tts')", rusqlite::params![chat,stt,tts]).unwrap();
-                    let chat_target = resolve(&db, Capability::Chat).unwrap();
-                    let input = resolve(&db, Capability::Transcription).unwrap();
-                    let output = resolve(&db, Capability::Speech).unwrap();
-                    assert_eq!(chat_target.route.label(), chat);
-                    assert_eq!(input.route.label(), stt);
-                    assert_eq!(output.route.label(), tts);
-                    assert_eq!(input.model, "selected-stt");
-                    assert_eq!(output.model, "selected-tts");
-                    for (target, direct_key, direct_host) in [
-                        (&input, "stt-key", "https://api.groq.com/"),
-                        (&output, "chat-key", "https://openrouter.ai/"),
-                    ] {
-                        let (key, host) = match target.route {
-                            ConnectionRoute::Hosted => ("session-key", hosted::ORIGIN),
-                            ConnectionRoute::Custom => ("custom-key", "http://127.0.0.1:1234/"),
-                            ConnectionRoute::Openrouter => (direct_key, direct_host),
-                        };
-                        assert_eq!(target.credential.as_deref(), Some(key));
-                        assert!(target.url.starts_with(host));
-                    }
-                }
+        for route in ["hosted", "openrouter", "custom"] {
+            db.execute("UPDATE ai_config SET route=?1", [route])
+                .unwrap();
+            for (capability, direct_key, direct_host) in [
+                (Capability::Chat, "chat-key", "https://openrouter.ai/"),
+                (
+                    Capability::Transcription,
+                    "stt-key",
+                    "https://api.groq.com/",
+                ),
+                (Capability::Speech, "chat-key", "https://openrouter.ai/"),
+            ] {
+                let target = resolve(&db, capability).unwrap();
+                assert_eq!(target.route.label(), route);
+                let (key, host) = match target.route {
+                    ConnectionRoute::Hosted => ("session-key", hosted::ORIGIN),
+                    ConnectionRoute::Custom => ("custom-key", "http://127.0.0.1:1234/"),
+                    ConnectionRoute::Openrouter => (direct_key, direct_host),
+                };
+                assert_eq!(target.credential.as_deref(), Some(key));
+                assert!(target.url.starts_with(host));
             }
         }
-        db.execute("UPDATE ai_config SET route='custom',groq_credential_id=NULL,audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','hosted')", []).unwrap();
-        assert!(resolve(&db, Capability::Chat).is_ok());
-        assert!(resolve(&db, Capability::Speech).is_ok());
-        assert!(
-            resolve(&db, Capability::Transcription)
-                .unwrap_err()
-                .message
-                .contains("Groq")
-        );
+        db.execute("UPDATE ai_config SET custom_credential_id=NULL", [])
+            .unwrap();
+        for capability in [
+            Capability::Chat,
+            Capability::Transcription,
+            Capability::Speech,
+        ] {
+            assert!(resolve(&db, capability).is_err());
+        }
     }
 
     #[test]
     fn direct_capabilities_use_distinct_credentials_and_never_require_hosted_auth() {
         let db = db();
-        db.execute("UPDATE ai_config SET route='openrouter',audio_settings=json_set(audio_settings,'$.transcription.route','openrouter','$.speech.route','openrouter'),credential_id='chat-key',groq_credential_id='voice-key'",[]).unwrap();
+        db.execute("UPDATE ai_config SET route='openrouter',credential_id='chat-key',groq_credential_id='voice-key'",[]).unwrap();
         let chat = resolve(&db, Capability::Chat).unwrap();
         let audio = resolve(&db, Capability::Transcription).unwrap();
         assert_eq!(chat.credential.as_deref(), Some("chat-key"));
@@ -731,7 +713,7 @@ mod tests {
                 "https://openrouter.ai/api/v1".into(),
             ),
         ] {
-            db.execute("UPDATE ai_config SET route=?1,audio_settings=json_set(audio_settings,'$.transcription.route',?1,'$.speech.route',?1),credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
+            db.execute("UPDATE ai_config SET route=?1,credential_id='direct-key',hosted_credential_id='hosted-key',groq_credential_id='groq-key'", [route]).unwrap();
             let speech = resolve(&db, Capability::Speech).unwrap();
             assert_eq!(speech.credential.as_deref(), Some(credential));
             assert_eq!(

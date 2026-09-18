@@ -79,3 +79,24 @@ async def test_unauthenticated_requests_cannot_probe_provider_keys(monkeypatch):
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url='http://test') as client:
         response = await client.get('/v1/protocol?verify_providers=true')
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('stt', 'elevenlabs', 'expected'), [
+    ('groq', '', ['OPENROUTER', 'GROQ']),
+    ('groq', 'test-key', ['OPENROUTER', 'GROQ', 'ELEVENLABS']),
+    ('elevenlabs', 'test-key', ['OPENROUTER', 'ELEVENLABS']),
+])
+async def test_checks_every_required_provider(stt, elevenlabs, expected, monkeypatch):
+    from types import SimpleNamespace
+    calls = []
+    async def probe(client, provider, base_url, key):
+        calls.append(provider)
+        return {'provider': provider, 'state': 'accepted', 'status': 200, 'durationMs': 1}
+    monkeypatch.setattr(provider_health, 'probe', probe)
+    config = SimpleNamespace(stt_provider=stt, elevenlabs_key=elevenlabs,
+                             openrouter_key='chat', openrouter_base_url='https://chat.invalid',
+                             groq_key='transcription', groq_base_url='https://stt.invalid')
+    result = await provider_health.check(config)
+    assert calls == expected
+    assert [item['provider'] for item in result] == expected

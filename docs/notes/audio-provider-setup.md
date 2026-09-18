@@ -97,22 +97,20 @@ one. Normal restarts preserve `server/.local-server/session-token.txt`.
 
 For the app's **Custom URL** access, the endpoint remains
 `http://127.0.0.1:8765/v1`, and the bearer token remains the contents of that session
-token file. The ElevenLabs key belongs to the server. Chat, STT and TTS now have
-separate access selections, so setting Chat to Custom URL alone does not change
-either audio route. In **Models**, set:
+token file. The ElevenLabs key belongs to the server. Chat, STT and TTS share
+the one route selected in **AI access**. Select Custom URL there. In **Models**, set:
 
 | Setting | Local value |
 | --- | --- |
-| Transcription access | Custom URL |
 | Transcription model | `scribe_v2` |
-| Read-aloud access | Custom URL |
 | Read-aloud model | `eleven_v3` |
 
-Existing saved model selections are preserved. Fresh workspaces use these new
+Schema v20 removes per-capability routes; older development workspaces require
+Factory Reset. Fresh workspaces use these
 model IDs with Hosted access. Restart/rebuild the native app to load its new audio
 transport, and restart the local server. The app's usual development launcher is
 `npm run macos:dev` on macOS from the repository root; restarting only the browser UI cannot
-load Rust changes. Until GCP is deployed, use Custom URL for both audio routes.
+load Rust changes. Until GCP is deployed, select Custom URL in AI access.
 
 Direct user-owned ElevenLabs credentials will use native credential storage when
 that profile is implemented. There is no ElevenLabs-specific key field in this

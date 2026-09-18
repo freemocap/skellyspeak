@@ -60,6 +60,7 @@ export async function logDiagnostic(context: string, error: unknown, faultId?: n
   const event = { context: diagnosticContext(context), code, level,
     nativeCode: typeof candidate === 'string' && nativeCodes.has(candidate) ? candidate : null,
     faultId: faultId ?? null, command: metadata.command && commands.has(metadata.command) ? metadata.command : null,
+    diagnostics: field(error, 'diagnostics') ?? { name: field(error, 'name') },
     cause: metadata.cause ?? causeOf(error), eventName: metadata.eventName ?? 'other',
     redactedArgs: metadata.redactedArgs ?? (error == null ? 0 : 1) }
   const summary = JSON.stringify(event)

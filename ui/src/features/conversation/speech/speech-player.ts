@@ -1,3 +1,4 @@
+import { mediaError } from '../../../platform/audio/media-error'
 import type { SpeechAudioState } from '../../../generated/contracts'
 import { registerSpeechPlayback, speechPlaybackPermit } from '../../../platform/audio/speech'
 
@@ -19,7 +20,7 @@ function release(handle: PlaybackHandle): void {
   registerSpeechPlayback(null)
 }
 
-export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'ready' }>, onEnd: () => void, onError: () => void, rate = 1, volume = 1): PlaybackHandle {
+export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'ready' }>, onEnd: () => void, onError: (error: Error) => void, rate = 1, volume = 1): PlaybackHandle {
   if (!Number.isFinite(rate) || rate < 0.5 || rate > 1.5 || !Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Invalid voice playback settings.')
   const bytes = Uint8Array.from(atob(state.audioBase64), char => char.charCodeAt(0))
   const url = URL.createObjectURL(new Blob([bytes], { type: state.mime }))
@@ -49,7 +50,7 @@ export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'read
     setVolume: (value: number) => { if (!released) audio.volume = value },
   }
   audio.onended = () => { handle.stop(); onEnd() }
-  audio.onerror = () => { handle.stop(); onError() }
+  audio.onerror = () => { const error = mediaError(audio.error, 'Speech playback'); handle.stop(); onError(error) }
   current?.suspend()
   current = handle
   registerSpeechPlayback(handle)

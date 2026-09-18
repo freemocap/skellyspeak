@@ -30,7 +30,7 @@ function commands(): Command[] {
 beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
-  connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { route: 'hosted', model: 'whisper-large-v3' }, speech: { route: 'hosted', model: 'openai/gpt-audio-mini' } }, paused: false }
+  connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
   access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
     if (name === 'get_snapshot') return workspace

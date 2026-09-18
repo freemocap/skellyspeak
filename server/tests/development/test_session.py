@@ -62,3 +62,9 @@ def test_local_lifetime_does_not_change_hosted_expiry(tmp_path):
     claims = jwt.decode(token, key, algorithms=['HS256'])
     assert claims['exp'] - claims['iat'] == session.LIFETIME_SECONDS
     assert auth.SESSION_TTL_SECONDS == 30 * 24 * 60 * 60
+
+
+def test_local_token_is_rejected_by_hosted_signing_key(tmp_path):
+    _, token = session.load(tmp_path.resolve() / 'local')
+    with pytest.raises(AuthError):
+        read_session_token(token, signing_key='independent-hosted-test-key-with-at-least-32-bytes')
