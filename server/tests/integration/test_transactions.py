@@ -37,16 +37,18 @@ def transaction_client(monkeypatch, commits):
     return client, created, retry_ids
 
 
-def test_aborted_commit_preserves_retry_identity(monkeypatch):
+def test_aborted_commit_rolls_back_before_fresh_retry(monkeypatch):
     client, created, retry_ids = transaction_client(monkeypatch, [Aborted("contention"), None])
 
     @firestore.transactional
     def apply(transaction):
+        if len(created) == 2:
+            created[0]._rollback.assert_called_once()
         return "committed"
 
     assert transactions.run(client, apply) == "committed"
-    assert len(created) == 1
-    assert retry_ids == [None, b"transaction-1"]
+    assert len(created) == 2
+    assert retry_ids == [None, None]
 
 
 def test_exhausted_commits_fail_without_restarting_retry_budget(monkeypatch):
@@ -59,8 +61,9 @@ def test_exhausted_commits_fail_without_restarting_retry_budget(monkeypatch):
     with pytest.raises(ValueError) as error:
         transactions.run(client, apply)
     assert isinstance(error.value.__cause__, Aborted)
-    assert len(created) == 1 and len(retry_ids) == 6
-    created[0]._rollback.assert_called_once()
+    assert len(created) == 6 and len(retry_ids) == 6
+    for transaction in created:
+        transaction._rollback.assert_called_once()
 
 
 def test_aborted_read_rolls_back_before_a_fresh_attempt(monkeypatch):

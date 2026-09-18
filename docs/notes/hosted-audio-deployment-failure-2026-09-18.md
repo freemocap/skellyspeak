@@ -66,7 +66,7 @@ then exposed a Firestore emulator failure: six integration tests passed and
 `test_work_claims_coordinate_separate_server_processes` exhausted aborted-commit
 retries during the capacity burst. No new revision was deployed by that run.
 
-The transaction helper used `max_attempts=1`, then restarted fresh transactions
+Initial hypothesis (superseded): the transaction helper used `max_attempts=1`, then restarted fresh transactions
 outside the SDK. The installed SDK's transaction decorator preserves the original
 transaction retry ID across commit retries, retaining contention priority. The
 helper now enables six SDK commit attempts; exhausted commit errors propagate.
@@ -81,6 +81,22 @@ preserved retry identity, bounded commit exhaustion, read-abort rollback and
 non-replay of validation/deadline failures. Local result: 383 passed, 7 emulator
 tests skipped. The original emulator capacity test is unchanged and must pass
 before deployment.
+
+Commit `cd198e1` tested SDK-managed retry priority, but the emulator still failed
+under contention (including the spending-ceiling test). Local reproduction with
+the official Firestore emulator 1.22.0 and Java 21 confirmed the problem. This
+candidate was not deployed. SDK priority alone was therefore not the solution.
+
+The final correction restores explicit rollback/fresh-transaction retries, still
+limited to six attempts, and expands randomized backoff from 20–800 ms to
+100 ms–5 seconds with an exponential cap. Known read/commit aborts may retry;
+uncertain outcomes still fail without replay. The maximum combined explicit
+sleep is 12.5 seconds, excluding database RPC time. The tests now verify rollback
+before retry, six-attempt exhaustion and refusal to retry unrelated failures.
+All seven **unchanged** emulator integration tests passed locally in 60.85 seconds,
+including duplicate ownership and the 128-request work-capacity burst. Google
+[documents emulator locking differences](https://docs.cloud.google.com/firestore/native/docs/emulator#transactions);
+this test result does not establish production throughput or latency.
 
 Live authenticated smoke verification needs an existing hosted app session.
 The local workspace had no saved hosted credential; the user was asked to sign
