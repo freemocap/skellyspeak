@@ -21,7 +21,7 @@ Follow the folder map in [ui/README.md](ui/README.md). Keep application code und
 
 - `app/`: startup, composition, shell, windows, navigation gestures and shortcuts.
 - `features/`: product surfaces. `conversation/` owns session flow, messages,
-  composer, reading assistance, coaching, partners, lessons, progress/rewards and
+  composer, reading assistance, coaching, partners, progress/rewards and
   speech interaction in named subfolders. `skills/` groups overview, evidence and
   learner views; `settings/` groups access, language and workspace controls.
   `activity/` and `startup/` remain small, cohesive features.
@@ -66,7 +66,7 @@ under `components/`. Keep variants explicit: `.msg.chat-message` is the stream
 bubble variant, `.reaction-excerpt .msg` is the partner excerpt layout, and
 `.field.composer-input` adds reading typography to a shared field. Retained
 contextual variants must explain their purpose and own only their differences.
-Coaching dock and explanation cards have separate owners from lesson flow.
+Coaching dock and explanation cards have separate owners from conversation-start controls.
 Conversation progress uses `progress-map`, `progress-report` and
 `reward-presentation` sheets; speech timelines use `speech-inspection.css`.
 Skills owns `learner-model.css` and `evidence.css`. Shared error details,
@@ -117,12 +117,10 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
 - `partners/`: persona definitions, generation, generation receipts, discovery and
   reactions. Group persona definitions/prompts in `persona/` and generation/receipts
   in `generation/`; discovery and reactions remain individual files.
-- `learning/`: coaching, validated observations, learner state, progression, lessons,
+- `learning/`: coaching, validated observations, learner state, progression,
   rewards and reward settings. Use `coaching/`, `learner/` and `rewards/` for those
-  groups. `lessons/` separates types, repository access, lifecycle, quiz credit,
-  prompt/context assembly and validated result publication. Lesson tests are grouped
-  by generation, lifecycle, review, quiz and prompts. Keep durable turn ownership,
-  one-time credit, evidence checks and serialized contracts intact across these seams.
+  groups. Lesson generation is removed. Preserve durable turn ownership, one-time
+  credit and evidence checks when changing coaching and rewards.
   Keep evidence independent of presentation metaphors.
 - `speech/`: capture, recording commands, transcription receipts, audio inspection,
   fluency timing and speech cache. Use `recording/` for capture/commands/transcription,
