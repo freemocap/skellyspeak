@@ -56,3 +56,32 @@ Status: source fixes verified locally; no deployment or live inference performed
   `eleven_v3`, including WAV playback and transcription word timing. A green
   health/authentication check alone is insufficient evidence of working audio.
 - Existing unrelated UI and prompt-proposal edits were preserved.
+
+## Authorized rollout follow-up
+
+The user authorized push, deployment and live audio verification. Commit
+`510e450` was pushed to main. Its upload gate and container checks passed, but
+[the deployment run](https://github.com/freemocap/skellyspeak/actions/runs/35385191492)
+then exposed a Firestore emulator failure: six integration tests passed and
+`test_work_claims_coordinate_separate_server_processes` exhausted aborted-commit
+retries during the capacity burst. No new revision was deployed by that run.
+
+The transaction helper used `max_attempts=1`, then restarted fresh transactions
+outside the SDK. The installed SDK's transaction decorator preserves the original
+transaction retry ID across commit retries, retaining contention priority. The
+helper now enables six SDK commit attempts; exhausted commit errors propagate.
+Explicitly aborted reads retain bounded rollback/backoff retries because the
+SDK does not retry exceptions from the transaction body. Uncertain outcomes and
+ordinary validation errors are not replayed. Provider calls remain outside these
+transactions and are not retried. See the
+[SDK transaction contract](https://docs.cloud.google.com/python/docs/reference/firestore/latest/google.cloud.firestore_v1.transaction.Transaction).
+
+Five new tests exercise the real SDK decorator with mocked transport boundaries:
+preserved retry identity, bounded commit exhaustion, read-abort rollback and
+non-replay of validation/deadline failures. Local result: 383 passed, 7 emulator
+tests skipped. The original emulator capacity test is unchanged and must pass
+before deployment.
+
+Live authenticated smoke verification needs an existing hosted app session.
+The local workspace had no saved hosted credential; the user was asked to sign
+in. GCP admin access is available and is not a substitute for an app session.

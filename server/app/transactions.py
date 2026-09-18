@@ -24,11 +24,14 @@ def run(db: firestore.Client, operation: Callable[[firestore.Transaction], T]) -
 def _retry(db: firestore.Client, operation: Callable[[firestore.Transaction], T]) -> T:
     for attempt in range(6):
         try:
-            # A fresh transaction releases contention locks before the backoff.
-            return operation(db.transaction(max_attempts=1))
-        except (Aborted, ValueError) as error:
-            if not isinstance(error, Aborted) and not isinstance(error.__cause__, Aborted):
-                raise
+            # Let the SDK retry aborted commits with their original transaction
+            # ID, preserving their priority against competing instances. Starting
+            # fresh after every commit abort can starve a busy account's work.
+            return operation(db.transaction(max_attempts=6))
+        except Aborted:
+            # The SDK does not retry aborts raised while reading the transaction
+            # body. It rolls back first; retry those separately with backoff.
+            # Its ValueError after exhausted commit retries must propagate.
             if attempt == 5:
                 raise
             time.sleep(random.uniform(0.02, min(0.8, 0.05 * 2**attempt)))
