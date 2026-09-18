@@ -216,12 +216,12 @@ fn captured_settings_and_persona_context_are_scoped_and_credential_revocation_wi
     assert!(
         dispatch.messages[0]
             .content
-            .contains("Beginner difficulty:")
+            .contains("Beginner difficulty level")
     );
     assert!(
         !dispatch.messages[0]
             .content
-            .contains("Advanced difficulty:")
+            .contains("Advanced difficulty level")
     );
     store
         .set_connection(

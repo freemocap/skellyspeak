@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /// The one definition of "mobile mode". Below this width the app switches to
-/// single-surface layouts: shell navigation between Chat and Lesson, and a
+/// single-surface layouts: shell navigation between Chat and Coach, and a
 /// single stacked scroll in Settings.
 const MOBILE_BREAKPOINT_PX = 860
 

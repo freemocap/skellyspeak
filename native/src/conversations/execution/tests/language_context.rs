@@ -157,7 +157,7 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
 }
 
 #[test]
-fn focus_is_frozen_and_reaches_partner_and_both_coach_prompts() {
+fn focus_is_frozen_for_coaching_without_directing_partner() {
     let (_dir, mut store, conversation) = setup();
     store
         .connection
@@ -178,10 +178,9 @@ fn focus_is_frozen_and_reaches_partner_and_both_coach_prompts() {
         .unwrap();
     let captured: serde_json::Value = serde_json::from_str(&captured).unwrap();
     assert_eq!(captured["practiceFocus"]["source"], "learner");
-    let block =
-        crate::conversations::conversation_prompt::focus_block(&captured["practiceFocus"]).unwrap();
+    let block = crate::learning::coaching::focus_block(&captured["practiceFocus"]).unwrap();
     assert!(
-        captured["messages"][0]["content"]
+        !captured["messages"][0]["content"]
             .as_str()
             .unwrap()
             .contains(&block)

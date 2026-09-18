@@ -19,6 +19,6 @@ export function SkillDetailContent({ languageTag, node, snapshot, chatId, explan
     <h3>{chatId ? tr("Reviewed replies in this conversation") : tr("Reviewed replies")}</h3>
     {(showAll ? examples : examples.slice(0, 12)).map(({ record, judgment }) => <SkillEvidenceRecord languageTag={languageTag} key={`${record.attempt_id}:${judgment.skill_id}`} record={record} judgment={judgment} snapshot={snapshot}>{recordControls(record)}</SkillEvidenceRecord>)}
     {!examples.length && <p>{tr("No reviewed replies for this skill yet. Missing evidence is not a failure.")}</p>}
-    {examples.length > 12 && <button className="lesson-action" onClick={() => setShowAll(!showAll)}>{showAll ? tr("Show recent") : tr("Show all evidence")}</button>}
+    {examples.length > 12 && <button className="detail-action" onClick={() => setShowAll(!showAll)}>{showAll ? tr("Show recent") : tr("Show all evidence")}</button>}
   </div>
 }

@@ -24,18 +24,8 @@ impl Store {
         }
         Uuid::parse_str(&command.action_id)
             .map_err(|_| AppError::new(ErrorCode::Validation, "Invalid action identity."))?;
-        if matches!(
-            &command.action,
-            Action::GenerateLesson { .. }
-                | Action::ControlLesson { .. }
-                | Action::AnswerLessonQuiz { .. }
-                | Action::AskLessonCoach { .. }
-        ) {
-            crate::learning::lessons::require_enabled()?;
-        }
         let request = serde_json::to_string(&command.action)?;
         let tx = self.connection.transaction()?;
-        crate::learning::lessons::suspend_pending(&tx)?;
         let previous: Option<(String, String)> = tx
             .query_row(
                 "SELECT request,receipt FROM receipts WHERE action_id=?1",
@@ -66,62 +56,59 @@ impl Store {
             conversation_scope: None,
         };
         let entity_id = match command.action {
-            Action::GuessMystery {
-                conversation_id,
-                field,
-                value,
-                expected_persona_revision,
-            } => {
-                handlers.guess_mystery(conversation_id, field, value, expected_persona_revision)?
-            }
-            Action::RevealMystery {
-                conversation_id,
-                field,
-            } => handlers.reveal_mystery(conversation_id, field)?,
-            Action::DismissMysteryNudge { conversation_id } => {
-                handlers.dismiss_mystery_nudge(conversation_id)?
-            }
-            Action::AnswerLessonQuiz {
-                conversation_id,
-                lesson_id,
-                question_index,
-                option_index,
-            } => handlers.answer_lesson_quiz(
-                conversation_id,
-                lesson_id,
-                question_index,
-                option_index,
-            )?,
-            Action::GenerateLesson {
-                category,
-                choice_id,
-                conversation_id,
-                topic,
-                expected_revision,
-            } => handlers.generate_lesson(
-                category,
-                choice_id,
-                conversation_id,
-                topic,
-                expected_revision,
-            )?,
-            Action::ControlLesson {
-                conversation_id,
-                lesson_id,
-                control,
-                expected_revision,
-            } => handlers.control_lesson(conversation_id, lesson_id, control, expected_revision)?,
-            Action::AskLessonCoach {
-                conversation_id,
-                lesson_id,
-                text,
-                expected_revision,
-            } => handlers.ask_lesson_coach(conversation_id, lesson_id, text, expected_revision)?,
             Action::StartConversation {
                 conversation_id,
-                opening,
+                configuration,
+                message,
+                input,
                 expected_revision,
-            } => handlers.start_conversation(conversation_id, opening, expected_revision)?,
+            } => handlers.start_conversation(
+                conversation_id,
+                configuration,
+                message,
+                input,
+                expected_revision,
+            )?,
+            Action::UpdateConversationPrompt {
+                conversation_id,
+                configuration,
+                additions,
+                deletions,
+                expected_revision,
+                expected_settings_revision,
+            } => {
+                crate::conversations::saved_topics::update(
+                    handlers.tx,
+                    handlers.snapshot,
+                    &additions,
+                    &deletions,
+                    expected_revision,
+                )?;
+                let current = handlers
+                    .snapshot
+                    .conversations
+                    .iter()
+                    .find(|c| c.id == conversation_id)
+                    .ok_or_else(missing)?;
+                let settings = crate::conversations::direction::settings(
+                    handlers.config,
+                    &current.language_id,
+                    &current.settings,
+                    &configuration,
+                )?;
+                handlers.update_settings(conversation_id, expected_settings_revision, settings)?
+            }
+            Action::SaveTopics {
+                additions,
+                deletions,
+                expected_revision,
+            } => crate::conversations::saved_topics::update(
+                handlers.tx,
+                handlers.snapshot,
+                &additions,
+                &deletions,
+                expected_revision,
+            )?,
             Action::CoachControl {
                 turn_id,
                 control,

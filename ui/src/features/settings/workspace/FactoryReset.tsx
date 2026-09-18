@@ -23,7 +23,7 @@ export function FactoryReset() {
       if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) event.currentTarget.close()
     }}>
       <h2 id="factory-reset-title">{tr("Delete all local data?")}</h2>
-      <p>{tr("This permanently removes all conversations, lesson plans, coach memory, skill evidence and progress, settings, editable configuration files, saved API keys, sign-in credentials, logs, and layout preferences on this device.")}</p>
+      <p>{tr("This permanently removes all conversations, coach memory, skill evidence and progress, settings, editable configuration files, saved API keys, sign-in credentials, logs, and layout preferences on this device.")}</p>
       <p><strong>{tr("This cannot be undone.")}</strong> {tr(" Your cloud account, billing and usage records, and files exported outside the app’s storage are not deleted.")}</p>
       <p>{tr("The app will close. Reopen SkellySpeak to complete the reset and start with factory defaults.")}</p>
       <p>{tr("Keep a copy first if you might want your conversations and progress later:")}</p>

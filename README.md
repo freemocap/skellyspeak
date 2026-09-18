@@ -10,7 +10,7 @@ useful assistance and understandable progress.
 | [ui/](ui/) | React/TypeScript interface and frontend build configuration |
 | [native/](native/) | Rust/Tauri application running on the user's device |
 | [server/](server/) | Python/FastAPI hosted service |
-| [content/](content/) | Editable language, learning-policy and starter data; AI behavior index |
+| [content/](content/) | Editable language, learning-policy, topic and prompt data; AI behavior index |
 | [docs/](docs/) | Documentation status, guides and existing website |
 | [tools/](tools/) | Development, verification and release tooling |
 | [old/](old/) | Historical reference; potentially outdated and untrustworthy |
@@ -235,11 +235,10 @@ preferences save per conversation. Desktop voice interaction has prior user
 verification. Mobile capture code and Android build checks do not establish device
 login/voice/update behavior; those checks and general speech fidelity remain separate.
 
-The right pane contains Coaching and Evidence tabs, with lesson access beside
-the Coach heading. Partner details open from the header picker. Coach exchanges
+The right pane contains Coaching and Evidence tabs. Partner details open from the header picker. Coach exchanges
 persist separately from partner messages and use the same gated execution
 machinery. Partner prompts never include coach messages. The coach can explain
-or suggest phrasing; it cannot apply lesson/settings changes. Saved word glosses
+or suggest phrasing; it cannot apply settings changes. Saved word glosses
 remain available in the conversation.
 
 ## Configure and use AI
@@ -602,20 +601,29 @@ Use **Browse languages** beside the compact selector or in **More** to inspect
 varieties, romanization examples, guidance and the complete definitions.
 Run `npm run languages:check` and `npm run contracts:check` after content changes.
 
-### Short lessons
+### Conversation topics and prompt creator
 
-Use **Take a lesson** beside **You start** or in the coach area. Choose a suggested
-or custom topic in Practical situations, Grammar, About the language, or Reading.
-Reading lessons tailor phonetics and decoding guidance to the selected Native language. Read a
-short generated lesson, optionally answer two quiz questions (1 XP correct, 0 wrong), practise or ask the
-coach, then select **Try it in chat**. Saved lessons belong to the conversation.
-Task completion receives a private evidence-based recap; reading a lesson does not
-award proficiency. Lessons use the existing AI route and durable operation
-scheduler. See `old/notes/workflow/reports/lessons.md` for verification status.
+Empty conversations show topic buttons, past/future practice choices and all five
+difficulty levels. Select any combination, then let the partner start or send your
+own message. Choices are available for every language and variety and do not
+trigger generation on selection.
+
+**Customize…** opens the Conversation Prompt Creator with Form, editable YAML and
+read-only prompt/request preview views. It includes optional persona background,
+all difficulty instructions, custom topics and saved-topic management. Apply changes
+the draft; Cancel discards edits. Conversation settings reopen it after starting,
+with changes applying to subsequent turns. Preview and actual requests share the
+same native composer; editable prose lives under `content/prompts/conversation/`.
+
+Lesson generation, quizzes and lesson handoffs have been removed. Coaching,
+evidence and conversation rewards remain. See the
+[implementation report](docs/notes/conversation-prompt-implementation-2026-09-18.md)
+for scope and verification. Database schema 23 requires an explicit development
+reset for older workspaces; it does not migrate or silently erase them.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current development database schema is **21**; older workspaces require an
+The current development database schema is **23**; older workspaces require an
 explicit reset rather than a migration. App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in

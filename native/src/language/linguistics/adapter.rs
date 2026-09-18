@@ -1,4 +1,5 @@
 //! Pure candidate adapter. No request dispatch, durable publication or UI actions.
+pub mod recovery;
 use super::{
     Annotation, BOUNDARY_POLICY, Candidate, CandidateSpan, MAX_GLOSS_SCALARS, MAX_SPANS,
     SourceIdentity, SourceMap, Unit, ValidatedAnalysis, ValidationError,

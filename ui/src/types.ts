@@ -206,35 +206,6 @@ export interface ObserverDocuments {
   profile: Profile
 }
 
-export interface LessonChoices {
-  goal: string
-  preferences: string[]
-  correction_budget: number | null
-}
-
-export interface LessonChange {
-  revision: number
-  at_ms: number
-  source: string
-  reason: string
-  before: LessonChoices
-  after: LessonChoices
-}
-
-export interface LessonState {
-  revision: number
-  choices: LessonChoices
-  changes: LessonChange[]
-}
-
-export interface CoachMessage {
-  role: string
-  content: string
-  proposal: LessonChoices | null
-  lesson_revision: number | null
-}
-
-
 export type Level = 'beginner' | 'intermediate' | 'advanced' | 'fluent'
 
 
@@ -266,7 +237,7 @@ export interface Usage {
 export interface RequestContext {
   chat_id: string; message_id: number | null; replaces_message_id: number | null; trigger: string
   target: string; native: string; variety: string; provider_mode: string; difficulty: 'zero' | 'beginner' | 'intermediate' | 'advanced' | 'fluent'
-  inferred_level_notes: string; topic: string | null; lesson_revision: number; persona: unknown; history_messages: number; history_available: number
+  inferred_level_notes: string; topic: string | null; persona: unknown; history_messages: number; history_available: number
 }
 export interface PromptBlock { id: string; source: string; content: string }
 export interface RecordedRequest {

@@ -78,29 +78,6 @@ pub struct FeedbackPolicy {
 }
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-pub struct Starter {
-    pub compatible_varieties: BTreeMap<String, Vec<String>>,
-    pub id: String,
-    pub labels: BTreeMap<String, String>,
-    pub previews: BTreeMap<String, String>,
-    pub translations: BTreeMap<String, String>,
-    pub functions: Vec<String>,
-    pub constructs_any: Vec<String>,
-    pub bands: Vec<String>,
-    pub languages: Vec<String>,
-    pub contact_tags: Vec<String>,
-    pub opener_kind: String,
-    pub partner_brief: String,
-    pub sources: Vec<String>,
-    pub review: String,
-}
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SelectedStarter {
-    pub starter: Starter,
-    pub reason: String,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
 pub struct Guidance {
     pub scope: super::identity::GuidanceScope,
     pub text: String,

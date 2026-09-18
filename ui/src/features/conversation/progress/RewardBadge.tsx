@@ -35,6 +35,6 @@ export function RewardDetail({ evidence, onClose, interactive, automatic }: { au
       const item = group[0]
       return <section key={item.id}><RewardBadge {...item} creditKind="stored" />
       {group.slice(1).map(quote => <blockquote key={quote.quote} dir="auto">{quote.quote}</blockquote>)}
-      {group.some(quote => quote.ambiguous) && <p className="reward-credit-note">{tr("This wording appears more than once. The review identifies the phrase, but does not specify which occurrence.")}</p>}<p className="reward-rationale">{item.rationale}</p><small className="reward-credit-note">{tr("Total credited for this skill in this message. The animation shows only newly added XP.")}</small>{snapshot && <button className="lesson-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: item.skillId }) }}>{tr("Explore this skill")}</button>}</section>})}
+      {group.some(quote => quote.ambiguous) && <p className="reward-credit-note">{tr("This wording appears more than once. The review identifies the phrase, but does not specify which occurrence.")}</p>}<p className="reward-rationale">{item.rationale}</p><small className="reward-credit-note">{tr("Total credited for this skill in this message. The animation shows only newly added XP.")}</small>{snapshot && <button className="detail-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: item.skillId }) }}>{tr("Explore this skill")}</button>}</section>})}
   </section>
 }

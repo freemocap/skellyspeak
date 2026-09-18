@@ -1,42 +1,6 @@
 use super::*;
 
 impl Handlers<'_> {
-    pub(super) fn guess_mystery(
-        &mut self,
-        conversation_id: String,
-        field: crate::partners::mystery::MysteryField,
-        value: String,
-        expected_persona_revision: i32,
-    ) -> Result<String> {
-        let id = crate::partners::mystery::guess(
-            self.tx,
-            self.snapshot,
-            &conversation_id,
-            field,
-            &value,
-            expected_persona_revision,
-        )?;
-        self.conversation_scope = Some(conversation_id);
-        Ok(id)
-    }
-
-    pub(super) fn reveal_mystery(
-        &mut self,
-        conversation_id: String,
-        field: crate::partners::mystery::MysteryField,
-    ) -> Result<String> {
-        crate::partners::mystery::reveal(self.tx, self.snapshot, &conversation_id, field)?;
-        self.conversation_scope = Some(conversation_id.clone());
-        Ok(conversation_id)
-    }
-
-    pub(super) fn dismiss_mystery_nudge(&mut self, conversation_id: String) -> Result<String> {
-        crate::partners::mystery::owner(self.snapshot, &conversation_id)?;
-        crate::partners::mystery::dismiss(self.tx, &conversation_id)?;
-        self.conversation_scope = Some(conversation_id.clone());
-        Ok(conversation_id)
-    }
-
     pub(super) fn start_chat(&mut self, language_id: String) -> Result<String> {
         let details = self.config.starter_persona(&language_id)?;
         let (persona_id, contact_id) = create_persona(
@@ -105,7 +69,6 @@ impl Handlers<'_> {
             &details,
             &self.config.language(&persona.language_id)?,
         )?;
-        crate::partners::mystery::validate_edit(self.tx, &persona_id, &details)?;
         self.tx.execute(
             "UPDATE personas SET details=?1,revision=revision+1 WHERE id=?2",
             params![serde_json::to_string(&details)?, persona_id],

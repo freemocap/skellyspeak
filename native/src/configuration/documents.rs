@@ -121,24 +121,9 @@ pub struct VarietyOverrides {
 }
 document!(LearningContent { goal_material: BTreeMap<String, GoalMaterial> });
 document!(GoalMaterial { tokens: Vec<String> });
-document!(ConversationContent { default_partner: crate::model::PersonaDetails, starters: BTreeMap<String, StarterText>, starter_reasons: StarterReasons });
-document!(StarterText { label: String, preview: String, translation: String, varieties: Vec<String> });
-document!(StarterReasons {
-    focus: String,
-    due: String,
-    contact: String,
-    general: String
+document!(ConversationContent {
+    default_partner: crate::model::PersonaDetails
 });
-impl StarterReasons {
-    pub fn entries(&self) -> [(&str, &str); 4] {
-        [
-            ("focus", &self.focus),
-            ("due", &self.due),
-            ("contact", &self.contact),
-            ("general", &self.general),
-        ]
-    }
-}
 document!(Foundations {
     scripts: Vec<Script>, families: Vec<Family>, traits: Vec<TraitDefinition>,
     orthographies: BTreeMap<String, OrthographyDefinition>, romanization_schemes: BTreeMap<String, RomanizationDefinition>,
@@ -148,7 +133,6 @@ document!(TraitDefinition {
     review: ReviewStatus
 });
 document!(TeachingPolicy { guidance: Vec<Guidance>, feedback: FeedbackPolicy, estimator: EstimatorPolicy, game: GamePolicy });
-document!(ConversationTopic {
-    id: String, functions: Vec<String>, constructs_any: Vec<String>, bands: Vec<String>,
-    contact_tags: Vec<String>, opener_kind: String, partner_brief: String, sources: Vec<String>, review: ReviewStatus,
-});
+document!(ConversationTopic { id: String, labels: BTreeMap<String, String>, subject: String });
+
+document!(ConversationPromptContent { base: String, persona: String, difficulty: BTreeMap<String,String>, ceiling: String, past: String, future: String, opening: String, response: String, subject: String });

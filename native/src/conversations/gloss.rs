@@ -69,6 +69,69 @@ pub fn validate_with_context(
     .map_err(gloss_error)?;
     project(source, analysis, operation, attempt)
 }
+pub fn recover_with_context(
+    source: &Source,
+    completion: &Completion,
+    operation: &str,
+    attempt: &str,
+    context: &crate::configuration::LanguageContext,
+) -> Result<(WordGlossView, serde_json::Value)> {
+    let recovered = adapter::recovery::recover(&source.identity, &source.text, completion, context)
+        .map_err(gloss_error)?;
+    let report = serde_json::json!({"policy": "word-gloss-recovery-v1", "rejected_spans": recovered.rejected});
+    Ok((
+        project(source, recovered.analysis, operation, attempt)?,
+        report,
+    ))
+}
+
+/// Repair can fill only unresolved intervals; accepted annotations never move.
+pub fn merge_repair(previous: &WordGlossView, mut next: WordGlossView) -> Result<WordGlossView> {
+    if previous.source_message_id != next.source_message_id
+        || previous.target_language_id != next.target_language_id
+        || previous.explanation_language_id != next.explanation_language_id
+        || previous.boundary_policy != next.boundary_policy
+    {
+        return Err(validation_error());
+    }
+    let mut segments = Vec::new();
+    for old in &previous.segments {
+        if old.kind != GlossSegmentKind::Unresolved {
+            segments.push(old.clone());
+            continue;
+        }
+        let mut cursor = old.start;
+        for candidate in next.segments.iter().filter(|s| {
+            s.start >= old.start && s.end <= old.end && s.kind != GlossSegmentKind::Unresolved
+        }) {
+            if candidate.start > cursor {
+                let mut gap = old.clone();
+                gap.start = cursor;
+                gap.end = candidate.start;
+                segments.push(gap);
+            }
+            segments.push(candidate.clone());
+            cursor = candidate.end;
+        }
+        if cursor < old.end {
+            let mut gap = old.clone();
+            gap.start = cursor;
+            segments.push(gap);
+        }
+    }
+    next.coverage = if segments
+        .iter()
+        .any(|s| s.kind == GlossSegmentKind::Unresolved)
+    {
+        GlossCoverage::Partial
+    } else {
+        GlossCoverage::Complete
+    };
+    next.template_version = "persona-word-gloss-repair-v1".into();
+    next.segments = segments;
+    Ok(next)
+}
+
 fn gloss_error(error: adapter::AdapterError) -> AppError {
     let location = error
         .span_index()

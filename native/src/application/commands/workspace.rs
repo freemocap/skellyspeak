@@ -118,3 +118,25 @@ pub(in crate::application) fn inspect_language(
         explanation_variety.as_deref(),
     )?)
 }
+
+/// Pure local preview using the same parser and renderer as accepted turns.
+#[tauri::command]
+pub(in crate::application) fn preview_conversation_prompt(
+    state: tauri::State<'_, Arc<Application>>,
+    conversation_id: String,
+    configuration: Option<crate::conversations::direction::ConversationStartConfig>,
+    yaml: Option<String>,
+) -> Result<crate::conversations::direction::PromptPreview> {
+    let configuration=match (configuration,yaml) {
+        (Some(value),None)=>value,
+        (None,Some(text)) if text.len()<=16000 => serde_yaml_ng::from_str(&text).map_err(|_|AppError::new(ErrorCode::Validation,"Invalid configuration YAML. Check required fields, values, duplicate keys and indentation."))?,
+        _=>return Err(AppError::new(ErrorCode::Validation,"Supply a configuration or at most 16 KB of YAML.")),
+    };
+    let store = state.lock()?;
+    crate::conversations::conversation_prompt::preview(
+        &store.config,
+        &store.snapshot()?,
+        &conversation_id,
+        &configuration,
+    )
+}

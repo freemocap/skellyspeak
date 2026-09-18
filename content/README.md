@@ -8,12 +8,13 @@ rebuilding updates the app's content; no workspace configuration copy is created
 
 | Document | Owns |
 | --- | --- |
-| `languages/<full-name>.yaml` | Identity, varieties, integrations, local writing/romanization definitions, instructions, script scale, learning material, starter text and default partner |
+| `languages/<full-name>.yaml` | Identity, varieties, integrations, local writing/romanization definitions, instructions, script scale, learning material and default partner |
 | `shared/language-foundations.yaml` | Shared script facts, family metadata, trait identities and explicitly shared definitions |
 | `shared/learning-goals.yaml` | Shared skill identities, criteria, prerequisites and opportunities |
 | `shared/learning-map.yaml` | Navigation hierarchy, display codes and colors; skill text is projected from its goal |
 | `shared/teaching-policy.yaml` | General guidance, feedback, learner estimation and reward policy |
-| `shared/conversation-topics.yaml` | Topic identities, selection rules and partner briefs |
+| `shared/conversation-topics.yaml` | Topic identities, localized interface labels and language-independent subjects |
+| `prompts/conversation/instructions.yaml` | Authored conversation prose, all five difficulty instructions, persona and time-reference guidance |
 | `schemas/` | Generated JSON schemas for the exact Rust authoring models |
 
 Start with [Arabic](languages/arabic.yaml) or [Spanish](languages/spanish.yaml).
@@ -53,9 +54,9 @@ loading, linking, resolution and inspection have separate modules there.
   Do not copy a multilingual list into every language. Optional matches have a
   separate allowance of 25 beyond required goals.
   These hints are not a curriculum, tokenizer, or evidence of proficiency.
-- Local starter entries reference shared topic IDs and explicitly list supported
-  varieties. Target/explanation pairs require content coverage; the loader never
-  fabricates translations or extends coverage to unsupported varieties.
+- Topics are available for every language, variety and difficulty. They contain
+  subject matter, not prewritten dialogue. Labels use the interface locale;
+  dialect affects language instructions only. New languages need no topic pack.
 - Root `references.bib` remains authoritative. Existing linguistic material is
   `needs_review`; schema validation does not establish linguistic correctness.
   Conflicting prose under different identities still requires human review.
@@ -74,7 +75,7 @@ locale mappings; proper language names can come directly from content.
 ## Adding a learning language
 
 Author identity, an explicitly scoped default variety, orthography, reading scheme
-(or explicit disabled state), local starter translations and a default partner.
+(or explicit disabled state), and a default partner.
 Add shared script/family facts only when absent. New language files are discovered
 by both the build bundler and repository loader; no hardcoded language list or UI
 translation is required. Verify every supported target/explanation pairing.
@@ -93,7 +94,7 @@ stays at 1.0 until visual review justifies a language-specific override.
 
 ALA-LC Hindi and Malayalam are spelling-based reading aids, not phonetic
 transcriptions. Pronunciation remains a separate output. Speaker review of
-starters, romanization quality and device rendering is still required.
+generated conversation language, romanization quality and device rendering is still required.
 
 ## Inspection and checks
 
@@ -102,7 +103,7 @@ Browsing is read-only. **Use this language and variety** explicitly saves a choi
 The browser uses the app’s native-language setting for explanation context. Its
 teaching sections remain visible as a structured document, with a source viewer
 for YAML, schemas and resolved models. The main document shows language-owned guidance and goals, supported
-romanization examples, starters and the default partner. Shared teaching policy
+romanization examples, shared topic subjects and the default partner. Shared teaching policy
 and complete assembled instructions remain in the source/model viewer, alongside
 resolved model, validation schema and the running build's content fingerprint.
 
@@ -120,22 +121,19 @@ After changing authoring models, regenerate schemas with
 Ordinary tests check schema drift without writing. Generate UI contracts with
 `npm run contracts`; never edit generated outputs by hand.
 
-The development database schema is 18. Older databases require explicit reset;
+The development database schema is 22. Older databases require explicit reset;
 there is no ID migration or silent data deletion. Obsolete workspace `config/`
 files are neither loaded nor included in current workspace exports.
 
 ## AI behavior still implemented in code
 
-Prompt extraction and internal module organization have not happened in this pass.
-The following is a navigation index, not a claim that prompts are declarative YAML.
+Conversation prose is authored in `prompts/conversation/instructions.yaml`; its pure native composer supplies selected language, optional persona, topic, time reference and named difficulty. Preview and execution use that same composer. Other feature prompts keep their existing owners.
 
 | Responsibility | Current owner |
 | --- | --- |
 | Conversation instructions | [conversation_prompt.rs](../native/src/conversations/conversation_prompt.rs) |
 | Persona generation instructions | [persona_prompt.rs](../native/src/partners/persona/persona_prompt.rs) |
 | Coaching requests, evidence and deterministic help policy | [coaching.rs](../native/src/learning/coaching/mod.rs), [coach_observation.rs](../native/src/learning/coaching/coach_observation.rs), [coach_policy.rs](../native/src/learning/coaching/coach_policy.rs) |
-| Lesson instructions and output schemas | [prompts.rs](../native/src/learning/lessons/prompts.rs) |
-| Lesson result validation and publication | [results.rs](../native/src/learning/lessons/results.rs) |
 | Turn capture, dispatch and result publication | [execution/](../native/src/conversations/execution/), [turn_plan.rs](../native/src/conversations/turn_plan.rs) |
 | Native access and model selection | [access.rs](../native/src/ai/connections/access.rs), [model_routing.rs](../native/src/ai/connections/model_routing.rs) |
 | Hosted model routing | [server/app/inference/model_routing.py](../server/app/inference/model_routing.py) |

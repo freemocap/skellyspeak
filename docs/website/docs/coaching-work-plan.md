@@ -200,7 +200,6 @@ skill evidence. Verification and remaining visual/provider checks are recorded i
 
 Practice/Learn/Review source implementation places existing lessons in Learn,
 private coaching and evidence in study tabs, and saved reward provenance in a ledger.
-The confirmed Mystery-partner extension uses a separate 1 XP discovery ledger and
-never creates proficiency evidence. See `coaching-contracts.md` and
+See `coaching-contracts.md` and
 `notes/workspace-redesign-report.md` at the repository root for behavior and
 verification limits. Live native inspection remains separate from automated checks.

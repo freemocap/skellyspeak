@@ -1,4 +1,4 @@
-/* Private coach conversation below the lesson. */
+/* Private coach conversation beside the conversation. */
 
 .coach-thread {
   flex: 0 1 auto; max-height: 45%;
@@ -90,9 +90,9 @@
 
 .coach-input-row textarea { resize: vertical; max-height: 140px; line-height: 1.4; }
 
-/* Coach conversation is visually distinct from the lesson and analysis. */
+/* Coach conversation is visually distinct from the conversation and analysis. */
 
-.lesson-thread, .coach-input-row { background: var(--card); }
+.coach-thread, .coach-input-row { background: var(--card); }
 
 /* The coach dock keeps its composer accessible at every saved height. */
 
@@ -158,7 +158,7 @@
 .coach-wording[data-kind=native] li { background: var(--status-attention-tint); color: var(--correction-ink); }
 .live-coach-review { display: grid; gap: 12px; }
 .live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--type-body); }
-.live-coach-review > .lesson-action { justify-self: start; }
+.live-coach-review > .detail-action { justify-self: start; }
 .analysis-sentence { padding: 8px 12px; margin-block: 8px; border-radius: var(--radius-md); border-inline-start: 3px solid var(--analysis-accent); background: var(--accent-dim); }
 .analysis-sentence > h4 { margin: 0 0 4px; font-size: var(--type-meta); color: var(--analysis-accent-soft); }
 .analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: 1.5; color: var(--analysis-accent-soft); }

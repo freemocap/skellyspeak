@@ -29,6 +29,7 @@ pub enum CoachProactivity {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PracticeSettings {
     pub difficulty: Difficulty,
+    pub direction: crate::conversations::direction::ConversationDirection,
     pub explanation_language: String,
     pub variety_id: String,
     pub explanation_variety_id: String,
@@ -155,11 +156,6 @@ pub struct PersonaDetails {
     pub manner: String,
     pub quirks: Vec<String>,
     pub vibe: Vec<String>,
-    // Product metadata; persona generation does not choose the game mode.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[ts(optional)]
-    #[schemars(skip)]
-    pub partner_type: Option<crate::partners::mystery::PartnerType>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -230,6 +226,7 @@ pub struct Snapshot {
     pub personas: Vec<Persona>,
     pub contacts: Vec<Contact>,
     pub conversations: Vec<Conversation>,
+    pub saved_topics: Vec<crate::conversations::direction::SavedTopic>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -240,47 +237,24 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
-    GuessMystery {
-        conversation_id: String,
-        field: crate::partners::mystery::MysteryField,
-        value: String,
-        expected_persona_revision: i32,
-    },
-    RevealMystery {
-        conversation_id: String,
-        field: crate::partners::mystery::MysteryField,
-    },
-    DismissMysteryNudge {
-        conversation_id: String,
-    },
-    AnswerLessonQuiz {
-        conversation_id: String,
-        lesson_id: String,
-        question_index: u32,
-        option_index: u32,
-    },
-    GenerateLesson {
-        category: crate::learning::lessons::LessonCategory,
-        choice_id: Option<String>,
-        conversation_id: String,
-        topic: String,
-        expected_revision: i32,
-    },
-    ControlLesson {
-        conversation_id: String,
-        lesson_id: String,
-        control: crate::learning::lessons::LessonControl,
-        expected_revision: i32,
-    },
-    AskLessonCoach {
-        conversation_id: String,
-        lesson_id: String,
-        text: String,
-        expected_revision: i32,
-    },
     StartConversation {
         conversation_id: String,
-        opening: Opening,
+        configuration: crate::conversations::direction::ConversationStartConfig,
+        message: Option<String>,
+        input: Option<crate::learning::coaching::InputEvidence>,
+        expected_revision: i32,
+    },
+    UpdateConversationPrompt {
+        conversation_id: String,
+        configuration: crate::conversations::direction::ConversationStartConfig,
+        additions: Vec<String>,
+        deletions: Vec<String>,
+        expected_revision: i32,
+        expected_settings_revision: i32,
+    },
+    SaveTopics {
+        additions: Vec<String>,
+        deletions: Vec<String>,
         expected_revision: i32,
     },
     CoachControl {
@@ -571,7 +545,13 @@ pub fn bindings() -> String {
         crate::partners::partner_reaction::ReactionKind::decl(&config),
         crate::learning::coaching::RepairStatus::decl(&config),
         Opening::decl(&config),
-        StarterCard::decl(&config),
+        crate::conversations::direction::TopicCard::decl(&config),
+        crate::conversations::direction::SavedTopic::decl(&config),
+        crate::conversations::direction::TimeReference::decl(&config),
+        crate::conversations::direction::TopicChoice::decl(&config),
+        crate::conversations::direction::ConversationDirection::decl(&config),
+        crate::conversations::direction::ConversationStartConfig::decl(&config),
+        crate::conversations::direction::PromptPreview::decl(&config),
         crate::learning::coaching::SuggestedReply::decl(&config),
         crate::learning::coaching::conversation_support::ConversationFeedback::decl(&config),
         crate::learning::coaching::conversation_support::ConversationCorrection::decl(&config),
@@ -583,22 +563,6 @@ pub fn bindings() -> String {
         OperationView::decl(&config),
         AttemptView::decl(&config),
         TurnView::decl(&config),
-        crate::partners::mystery::PartnerType::decl(&config),
-        crate::partners::mystery::MysteryField::decl(&config),
-        crate::partners::mystery::RevealState::decl(&config),
-        crate::partners::mystery::MysteryFieldView::decl(&config),
-        crate::partners::mystery::MysteryView::decl(&config),
-        crate::partners::mystery::MysteryCredit::decl(&config),
-        crate::learning::lessons::LessonCategory::decl(&config),
-        crate::learning::lessons::LessonQuizQuestion::decl(&config),
-        crate::learning::lessons::LessonQuizAnswer::decl(&config),
-        crate::learning::lessons::LessonQuizCredit::decl(&config),
-        crate::learning::lessons::LessonControl::decl(&config),
-        crate::learning::lessons::LessonExample::decl(&config),
-        crate::learning::lessons::LessonPlan::decl(&config),
-        crate::learning::lessons::LessonEvidence::decl(&config),
-        crate::learning::lessons::LessonRecap::decl(&config),
-        crate::learning::lessons::LessonView::decl(&config),
         ConversationSnapshot::decl(&config),
         Difficulty::decl(&config),
         HelpAmount::decl(&config),
@@ -618,7 +582,7 @@ pub fn bindings() -> String {
         Language::decl(&config),
         crate::configuration::LanguageInspection::decl(&config),
         crate::configuration::GoalInspection::decl(&config),
-        crate::configuration::StarterInspection::decl(&config),
+        crate::configuration::TopicInspection::decl(&config),
         crate::configuration::ContentSource::decl(&config),
         crate::configuration::ContentRule::decl(&config),
         crate::configuration::ContentValue::decl(&config),
@@ -832,10 +796,7 @@ pub struct TurnView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
-    pub mystery: Option<crate::partners::mystery::MysteryView>,
-    pub lessons: Vec<crate::learning::lessons::LessonView>,
-    pub lesson_choices: Vec<StarterCard>,
-    pub starter_cards: Vec<StarterCard>,
+    pub topic_choices: Vec<crate::conversations::direction::TopicCard>,
     pub opening: Option<Opening>,
     pub revision_suffix_counts: Vec<RevisionSuffixCount>,
     pub transcription_attempts: Vec<TranscriptionAttempt>,
@@ -1039,20 +1000,8 @@ pub struct RevisionSuffixCount {
 )]
 pub enum Opening {
     Learner,
-    Starter { starter_id: String },
-    Surprise,
-    Described { text: String },
+    Partner,
 }
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(rename_all = "camelCase")]
-pub struct StarterCard {
-    pub id: String,
-    pub label: String,
-    pub preview: Option<String>,
-    pub translation: Option<String>,
-    pub reason: String,
-}
-
 #[cfg(test)]
 mod appearance_tests {
     use super::*;

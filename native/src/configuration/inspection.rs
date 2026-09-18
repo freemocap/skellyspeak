@@ -47,11 +47,10 @@ pub struct GoalInspection {
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct StarterInspection {
+pub struct TopicInspection {
     pub id: String,
-    pub label: String,
-    pub preview: String,
-    pub varieties: Vec<String>,
+    pub labels: BTreeMap<String, String>,
+    pub subject: String,
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -66,7 +65,7 @@ pub struct LanguageInspection {
     pub schemes: Vec<SchemeInspection>,
     pub sources: Vec<ContentSource>,
     pub goals: Vec<GoalInspection>,
-    pub starters: Vec<StarterInspection>,
+    pub topics: Vec<TopicInspection>,
     pub partner: model::PersonaDetails,
     pub schema_json: String,
     pub resolved_json: String,
@@ -273,15 +272,13 @@ impl Registry {
                         .unwrap_or_else(|| format!("shared/learning-goals.yaml#{}", g.id)),
                 })
                 .collect(),
-            starters: doc
-                .conversation
-                .starters
+            topics: self
+                .topics
                 .iter()
-                .map(|(id, s)| StarterInspection {
-                    id: id.clone(),
-                    label: s.label.clone(),
-                    preview: s.preview.clone(),
-                    varieties: s.varieties.clone(),
+                .map(|topic| TopicInspection {
+                    id: topic.id.clone(),
+                    labels: topic.labels.clone(),
+                    subject: topic.subject.clone(),
                 })
                 .collect(),
             partner: doc.conversation.default_partner.clone(),

@@ -25,14 +25,22 @@
 .opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
 
 .opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
-.start-or { font: var(--weight-semibold) var(--type-meta) var(--font-sans); letter-spacing: var(--tracking-tag); text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; width: min(100%, 360px); gap: var(--space-6); }
-.start-or::before, .start-or::after { content: ''; height: 1px; flex: 1; background: var(--line-soft); }
 .conversation-start > .persona-avatar { width: 76px; height: 76px; border-radius: var(--radius-circle); background: var(--partner-top); border: var(--border-width) solid var(--partner-line); font-size: calc(var(--type-display) * 1.5); }
 .conversation-start h2 { margin: 0; font-size: var(--type-title); }
 .start-hint { color: var(--ink-3); font: var(--type-ui) var(--font-sans); }
-.start-topics { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
-.start-topic { display: grid; gap: var(--space-3); padding: var(--space-7); text-align: start; background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); color: var(--ink); cursor: pointer; }
-.start-topic strong { font-size: var(--type-ui); }
-.start-topic span { color: var(--ink-3); font-size: var(--type-meta); }
-.start-topic:disabled, .start-conversation-button:disabled { opacity: .5; }
-@media (max-width: 480px) { .start-topics { grid-template-columns: 1fr; } .conversation-start { padding: var(--space-5); gap: var(--space-4); } }
+.start-conversation-button:disabled { opacity: .5; }
+@media (max-width: 480px) { .conversation-start { padding: var(--space-5); gap: var(--space-4); } }
+
+/* Compact start controls share one draft with the detailed prompt creator. */
+.start-choice-row { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
+.start-choice-row legend { text-align: center; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+.start-choice-row .btn[aria-pressed=true], .prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
+.start-difficulty { display: flex; align-items: center; gap: var(--space-3); }
+.prompt-actions, .prompt-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.prompt-creator { display: grid; gap: var(--space-5); }
+.prompt-creator > section:not([hidden]) { display: grid; gap: var(--space-5); }
+.prompt-creator pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--field); padding: var(--space-5); font-size: var(--type-meta); }
+.prompt-creator textarea { width: 100%; min-height: 100px; }
+.prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
+.prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
+.prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }

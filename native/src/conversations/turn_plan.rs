@@ -13,12 +13,6 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "lesson_review",
-        dependencies: &["persona_reply"],
-        role: "standard",
-        contract_version: 1,
-    },
-    Declaration {
         kind: "coach_retry_check",
         dependencies: &["persona_context"],
         role: "standard",
@@ -141,22 +135,6 @@ pub const OPENING_PLAN: &[Declaration] = &[
     Declaration {
         kind: "reply_translation",
         dependencies: &["persona_opening"],
-        role: "standard",
-        contract_version: 1,
-    },
-];
-
-/// Structured lesson generation uses the ordinary durable scheduler.
-pub const LESSON_PLAN: &[Declaration] = &[
-    Declaration {
-        kind: "coach_context",
-        dependencies: &[],
-        role: "local",
-        contract_version: 1,
-    },
-    Declaration {
-        kind: "lesson_generate",
-        dependencies: &["coach_context"],
         role: "standard",
         contract_version: 1,
     },

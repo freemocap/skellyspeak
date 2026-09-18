@@ -9,13 +9,11 @@ import { useConversationSnapshot } from '../session/useConversationSnapshot'
 import { type AnalysedTurn, type InspectTarget } from '../reading/AnalysisContent'
 import { Markdown } from '../../../components/reading/Markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, coachingContent, onLesson, lessonSummary, onCollapse, lessonContext }: {
-  lessonContext?: import('../../../generated/contracts').LessonView
+export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, autoSendDraft = false, coachingContent, onCollapse }: {
+  autoSendDraft?: boolean
   onCollapse?: () => void
-  onLesson?: () => void
-  lessonSummary?: import('../../../generated/contracts').LessonView
   coachingContent?: ReactNode
-  conversationBusy: boolean; chatId: string; tab: 'lesson' | 'evidence'; onTab: (tab: 'lesson' | 'evidence') => void
+  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'evidence'; onTab: (tab: 'coaching' | 'evidence') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
@@ -33,21 +31,17 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     setInput(''); setError(null); setSubmitting(false); sending.current = false
     return () => { if (generation.current === current) generation.current++ }
   }, [chatId])
-  useEffect(() => {
-    if (!draftQuestion) return
-    onTab('lesson'); setInput(draftQuestion); requestAnimationFrame(() => inputRef.current?.focus()); onDraftConsumed()
-  }, [draftQuestion, onDraftConsumed])
   const currentSnapshot = snapshot?.conversationId === chatId ? snapshot : null
-  const thread = currentSnapshot?.coachMessages.filter(message => !lessonContext || lessonContext.coachTurnIds.includes(message.turnId)) ?? []
-  const coachTurns = currentSnapshot?.turns.filter(turn => turn.operations.some(operation => operation.kind === 'coach_reply') && (!lessonContext || lessonContext.coachTurnIds.includes(turn.id))) ?? []
+  const thread = currentSnapshot?.coachMessages ?? []
+  const coachTurns = currentSnapshot?.turns.filter(turn => turn.operations.some(operation => operation.kind === 'coach_reply')) ?? []
   const running = coachTurns.some(turn => turn.state === 'pending' || turn.state === 'assisting')
   const busy = submitting || running
   const lastCoachTurn = coachTurns[0]
   const executionError = lastCoachTurn?.hold?.message ?? (lastCoachTurn?.state === 'failed' || lastCoachTurn?.state === 'unknown_outcome'
     ? lastCoachTurn.attempts.filter(attempt => attempt.error).at(-1)?.error ?? 'Coach request failed. Open AI activity for details.' : null)
   useEffect(() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }, [thread, busy])
-  const ask = async (): Promise<void> => {
-    const question = input.trim()
+  const ask = async (text = input): Promise<void> => {
+    const question = text.trim()
     if (!question || sending.current || busy || conversationBusy || !currentSnapshot) return
     const current = generation.current
     sending.current = true; setSubmitting(true); setError(null)
@@ -56,8 +50,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       if (generation.current !== current) return
       const conversation = workspace.conversations.find(item => item.id === chatId)
       if (!conversation || conversation.archived) throw new Error('This conversation is unavailable.')
-      if (lessonContext) await executeAction(currentSnapshot, { kind: 'askLessonCoach', conversationId: chatId, lessonId: lessonContext.id, text: question, expectedRevision: currentSnapshot.revision })
-      else await executeAction(workspace, { kind: 'askCoach', conversationId: chatId, text: question, expectedRevision: conversation.revision })
+      await executeAction(workspace, { kind: 'askCoach', conversationId: chatId, text: question, expectedRevision: conversation.revision })
       if (generation.current === current) setInput('')
     } catch (failure) {
       if (generation.current === current) setError(nativeError(failure))
@@ -65,10 +58,24 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       if (generation.current === current) { sending.current = false; setSubmitting(false) }
     }
   }
+  // External Ask actions use the same admission, revision and error path as Send.
+  // Consume once before dispatch; failed submissions stay editable and never retry automatically.
+  const consumedDraft = useRef<string | null>(null)
+  useEffect(() => {
+    if (!draftQuestion) { consumedDraft.current = null; return }
+    if (consumedDraft.current === draftQuestion) return
+    onTab('coaching')
+    if (autoSendDraft && (sending.current || busy || conversationBusy || !currentSnapshot)) return
+    consumedDraft.current = draftQuestion
+    setInput(draftQuestion)
+    requestAnimationFrame(() => inputRef.current?.focus())
+    onDraftConsumed()
+    if (autoSendDraft) void ask(draftQuestion)
+  }, [draftQuestion, autoSendDraft, busy, conversationBusy, currentSnapshot, onDraftConsumed])
   const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
-  const coachDock = <div className="study-coaching" hidden={tab !== 'lesson'}>
-    <div className="study-coaching-scroll">{tab === 'lesson' && !lessonContext && coachingContent}
-    <div className="coach-thread lesson-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
+  const coachDock = <div className="study-coaching" hidden={tab !== 'coaching'}>
+    <div className="study-coaching-scroll">{tab === 'coaching' && coachingContent}
+    <div className="coach-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
       {thread.length > 0 && <h3 className="coach-group-label">{tr("You asked")}</h3>}
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
@@ -86,13 +93,12 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     </form>
   </div>
   return <>
-    <div className="coach-heading"><strong>{tr("Coach")}</strong>{onLesson && <button type="button" onClick={onLesson}>{tr("Take a lesson")}</button>}{onCollapse && <button type="button" aria-label={tr("Close coach")} onClick={onCollapse}>›</button>}</div>
+    <div className="coach-heading"><strong>{tr("Coach")}</strong>{onCollapse && <button type="button" aria-label={tr("Close coach")} onClick={onCollapse}>›</button>}</div>
     <div className="panel-tabs" role="tablist" aria-label={tr("Learning panel")}>
-      <button type="button" role="tab" aria-selected={tab === 'lesson'} className={`panel-tab ${tab === 'lesson' ? 'active' : ''}`} onClick={() => onTab('lesson')}>{tr("Coaching")}</button>
+      <button type="button" role="tab" aria-selected={tab === 'coaching'} className={`panel-tab ${tab === 'coaching' ? 'active' : ''}`} onClick={() => onTab('coaching')}>{tr("Coaching")}</button>
       <button type="button" role="tab" aria-selected={tab === 'evidence'} className={`panel-tab ${tab === 'evidence' ? 'active' : ''}`} onClick={() => onTab('evidence')}>{tr("Evidence")}</button>
     </div>
     {tab === 'evidence' && <ConversationProgress chatId={chatId} />}
     {coachDock}
-    {lessonSummary && <button className="lesson-coach-summary" type="button" onClick={onLesson}><span dir="auto">{lessonSummary.plan?.title}</span>{lessonSummary.recap && <span dir="auto">{lessonSummary.recap.text}</span>}{lessonSummary.error && <span role="alert">{lessonSummary.error}</span>}</button>}
   </>
 }

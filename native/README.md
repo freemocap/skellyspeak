@@ -11,7 +11,7 @@ remote [Python server](../server/).
 | [src/application/](src/application/) | Startup, runtime state, native command registration and background scheduling |
 | [src/conversations/](src/conversations/) | Conversation turns and execution, prompts, opening choices, revisions, reading results and conversation export |
 | [src/partners/](src/partners/) | Persona definitions and prompts, generation and its receipts, discovery and reactions |
-| [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, lessons, rewards and reward settings |
+| [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, rewards and reward settings |
 | [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and speech cache |
 | [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, hosted connections and provider transports |
 | [src/storage/](src/storage/) | Workspace ownership, database initialization and schemas, reset and workspace-copy export |
@@ -34,8 +34,8 @@ their shared imports and application entry points.
 | Area | Current groups |
 | --- | --- |
 | `application/` | Startup/command registration, shared state and scheduler; `commands/` groups workspace, connection, hosted and persona-generation handlers; existing suites live in `tests/` |
-| `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings), `lessons/` (types, repository, lifecycle, quizzes, prompts/context and validated results) |
-| `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts); mystery and reactions remain individual files |
+| `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings) |
+| `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts), and reactions |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
 | `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
 | `storage/` | `schemas/` holds database SQL; `store/` groups locking, schema validation, startup, snapshots and transactional commands; reset remains in factory_reset.rs |

@@ -1,6 +1,7 @@
 # Hosted audio deployment investigation — September 18, 2026
 
-Status: source fixes verified locally; no deployment or live inference performed.
+Status: fixes deployed with authorization; authenticated live audio verification
+is pending a hosted app sign-in. See the rollout result below.
 
 ## Observed failures
 
@@ -101,3 +102,27 @@ this test result does not establish production throughput or latency.
 Live authenticated smoke verification needs an existing hosted app session.
 The local workspace had no saved hosted credential; the user was asked to sign
 in. GCP admin access is available and is not a substitute for an app session.
+
+## Rollout result
+
+- Pushed fixes in `510e450`, `cd198e1` (superseded retry approach), and `d231fa9`.
+- [Deployment of d231fa9](https://github.com/freemocap/skellyspeak/actions/runs/35386746049)
+  succeeded. All server tests, seven emulator tests, container startup, upload
+  boundary and deployed endpoint checks passed.
+- Cloud Build `67975201-5a15-4732-a495-70568d3f3afa` deployed revision
+  `skellyspeak-api-b679752015a154732a49570568d3f3afa`. Read-only inspection
+  confirmed 100% production traffic on that ready revision.
+- Independent live checks: `/health` returned 200; both audio endpoints returned
+  401 / `AUTHENTICATION_REQUIRED` without credentials. Speech no longer returns
+  404. This verifies route presence and guarding, not inference or audio quality.
+- The app still had no saved hosted session at the final check. No live inference
+  or paid audio calls were made. The prepared temporary smoke script uses the
+  existing Keychain session in memory, generates a fixed synthetic Spanish clip,
+  and checks WAV samples plus Scribe transcription/word timing without recording
+  a microphone or printing credentials.
+- The separate Windows native CI run got past formatting but reported
+  `every_registered_language_has_a_starter_persona_that_validates` as failed and
+  timed out after 15 minutes with the queue-budget test still running. These
+  failures remain unresolved; server deployment success is not full CI success.
+  Concurrent native/content edits were not modified to address them.
+- The temporary local Firestore emulator was shut down after verification.

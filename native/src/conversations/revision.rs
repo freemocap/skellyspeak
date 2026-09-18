@@ -72,12 +72,12 @@ pub(crate) fn accept(
     db.execute("UPDATE turns SET state='invalidated' WHERE id=?1", [turn])?;
     // Action receipts contain submitted text too; suffix removal must remove
     // those source-owned copies, not merely their visible messages.
-    db.execute("DELETE FROM receipts WHERE conversation_id=?1 AND (json_extract(receipt,'$.entityId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2 AND json_type(context,'$.lesson') IS NULL) OR json_extract(request,'$.turnId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2 AND json_type(context,'$.lesson') IS NULL))",params![conversation,order])?;
+    db.execute("DELETE FROM receipts WHERE conversation_id=?1 AND (json_extract(receipt,'$.entityId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2) OR json_extract(request,'$.turnId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
     // Exclusions are choices about retained observations. Remove only references
     // whose evidence is deleted with this suffix; keep predecessor exclusions.
     db.execute("UPDATE skill_choices SET excluded=(SELECT coalesce(json_group_array(value),'[]') FROM json_each(skill_choices.excluded) WHERE value NOT IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2)),revision=revision+1 WHERE language_id=(SELECT language_id FROM conversations WHERE id=?1) AND EXISTS(SELECT 1 FROM json_each(skill_choices.excluded) WHERE value IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
     db.execute(
-        "DELETE FROM turns WHERE conversation_id=?1 AND rowid>?2 AND json_type(context,'$.lesson') IS NULL",
+        "DELETE FROM turns WHERE conversation_id=?1 AND rowid>?2",
         params![conversation, order],
     )?;
     let current = snapshot
@@ -103,7 +103,6 @@ pub(crate) fn accept(
         db.execute("UPDATE operations SET kind='coach_retry_check' WHERE turn_id=?1 AND kind='coach_feedback'",[&replacement])?;
     }
     input.revision = true;
-    input.scaffold |= crate::learning::lessons::capture_exposure(db, conversation, &replacement)?;
     db.execute("UPDATE turns SET replaces_turn_id=?2,context=json_set(context,'$.input',json(?3)) WHERE id=?1", params![replacement,turn,serde_json::to_string(&input)?])?;
     Ok(replacement)
 }

@@ -215,6 +215,13 @@ fn wave2_bundled_content_update_reaches_capture_and_hash_mismatch_retains_eviden
             std::fs::copy(entry.path(), content.join(folder).join(entry.file_name())).unwrap();
         }
     }
+    std::fs::create_dir_all(content.join("prompts/conversation")).unwrap();
+    std::fs::copy(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../content/prompts/conversation/instructions.yaml"),
+        content.join("prompts/conversation/instructions.yaml"),
+    )
+    .unwrap();
     std::fs::copy(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../references.bib"),
         dir.path().join("references.bib"),

@@ -1,140 +1,94 @@
 # yaml-language-server: $schema=../schemas/conversation-topics.json
 - id: food
-  functions:
-  - question
-  - quantity
-  constructs_any:
-  - question
-  - quantity
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - food
-  - cooking
-  opener_kind: roleplay
-  partner_brief: You are serving at a café. Greet the learner and ask what they would like.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: الطعام والشراب
+    english: Food and drink
+    french: Manger et boire
+    german: Essen und Trinken
+    hindi: खाना-पीना
+    irish: Bia agus deoch
+    italian: Cibo e bevande
+    malayalam: ഭക്ഷണവും പാനീയങ്ങളും
+    mandarin: 饮食
+    portuguese: Comida e bebida
+    scottish-gaelic: Biadh is deoch
+    spanish: Comida y bebida
+  subject: You are serving at a café. Greet the learner and ask what they would like.
 - id: family
-  functions:
-  - possession
-  - referent
-  constructs_any:
-  - possession
-  - referent
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - family
-  opener_kind: chat
-  partner_brief: Ask about someone important to the learner. They may choose a friend or an invented person.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: عائلتك
+    english: Your family
+    french: Votre famille
+    german: Deine Familie
+    hindi: आपका परिवार
+    irish: Do theaghlach
+    italian: La tua famiglia
+    malayalam: നിങ്ങളുടെ കുടുംബം
+    mandarin: 你的家人
+    portuguese: Sua família
+    scottish-gaelic: Do theaghlach
+    spanish: Tu familia
+  subject: Ask about someone important to the learner. They may choose a friend or
+    an invented person.
 - id: weekend
-  functions:
-  - future_reference
-  constructs_any:
-  - future_reference
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - travel
-  - outdoors
-  opener_kind: chat
-  partner_brief: Ask what the learner would like to do this weekend and share a plan of your own.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: خطط نهاية الأسبوع
+    english: Weekend plans
+    french: Projets du week-end
+    german: Wochenendpläne
+    hindi: सप्ताहांत की योजनाएँ
+    irish: Pleananna don deireadh seachtaine
+    italian: Programmi per il fine settimana
+    malayalam: വാരാന്ത്യ പദ്ധതികൾ
+    mandarin: 周末计划
+    portuguese: Planos para o fim de semana
+    scottish-gaelic: Planaichean airson an deireadh-sheachdain
+    spanish: Planes de fin de semana
+  subject: Ask what the learner would like to do this weekend and share a plan of
+    your own.
 - id: place
-  functions:
-  - location
-  - property
-  constructs_any:
-  - location
-  - property
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - travel
-  - outdoors
-  opener_kind: chat
-  partner_brief: Talk about a place the learner likes. Invite a small detail about it.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: مكان تحبه
+    english: A place you like
+    french: Un endroit que vous aimez
+    german: Ein Ort, den du magst
+    hindi: आपकी पसंद की जगह
+    irish: Áit is maith leat
+    italian: Un posto che ti piace
+    malayalam: നിങ്ങൾക്ക് ഇഷ്ടമുള്ള സ്ഥലം
+    mandarin: 你喜欢的地方
+    portuguese: Um lugar de que você gosta
+    scottish-gaelic: Àite as toil leat
+    spanish: Un lugar que te gusta
+  subject: Talk about a place the learner likes. Invite a small detail about it.
 - id: day
-  functions:
-  - event_roles
-  - past_reference
-  constructs_any:
-  - event_roles
-  - past_reference
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - daily-life
-  opener_kind: chat
-  partner_brief: Ask about something from the learner’s day. Keep the exchange open to their interests.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: يومك
+    english: Your day
+    french: Votre journée
+    german: Dein Tag
+    hindi: आपका दिन
+    irish: Do lá
+    italian: La tua giornata
+    malayalam: നിങ്ങളുടെ ദിവസം
+    mandarin: 你的一天
+    portuguese: Seu dia
+    scottish-gaelic: An latha agad
+    spanish: Tu día
+  subject: Ask about something from the learner’s day. Keep the exchange open to their
+    interests.
 - id: music
-  functions:
-  - property
-  - comparison
-  constructs_any:
-  - property
-  - comparison
-  bands:
-  - PreA1
-  - A1
-  - A2
-  - B1
-  - B2
-  - C1
-  - C2
-  contact_tags:
-  - music
-  opener_kind: chat
-  partner_brief: Ask about music the learner enjoys and share a preference.
-  sources:
-  - cefr2020
-  - freire1970
-  review: needs_review
+  labels:
+    arabic: الموسيقى
+    english: Music
+    french: Musique
+    german: Musik
+    hindi: संगीत
+    irish: Ceol
+    italian: Musica
+    malayalam: സംഗീതം
+    mandarin: 音乐
+    portuguese: Música
+    scottish-gaelic: Ceòl
+    spanish: Música
+  subject: Ask about music the learner enjoys and share a preference.

@@ -95,6 +95,21 @@ it('retries partial saved gloss only on explicit request and keeps reading durin
   await act(async () => finish())
 })
 
+it('keeps accepted meanings visible while background repair is pending', () => {
+  const input = props()
+  input.onRetryGloss = vi.fn()
+  input.turn.assistant!.tokens = []
+  input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'policy', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'partial', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
+  input.turn.assistant!.glossState = 'running'
+  input.turn.assistant!.glossOperationId = 'operation'
+  const view = render(<TurnView {...input} />)
+  expect(screen.getByText('Finishing word meanings…')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Retry word meanings' })).toBeNull()
+  fireEvent.click(view.container.querySelector('.msg.bot [data-source-start] [role="button"]')!)
+  expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
+  expect(input.onRetryGloss).not.toHaveBeenCalled()
+})
+
 it.each([null, 'running', 'failed', 'unknown'])('keeps reply words passive without saved gloss (%s)', state => {
   const input = props()
   input.turn.assistant!.tokens = []

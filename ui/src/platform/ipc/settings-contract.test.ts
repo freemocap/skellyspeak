@@ -11,13 +11,13 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 
 function directory(): Snapshot {
   return {
-    sessionId: 'session', revision: 20,
+    savedTopics: [], sessionId: 'session', revision: 20,
     learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'french' : 'spanish', title: id,
       archived: false, revision: 5, settingsRevision: index + 6, lastUsed: 10 - index, createdAt: '2026-09-10',
-      settings: { difficulty: 'advanced', explanationLanguage: 'english', varietyId: index ? 'french-france' : 'spanish-mexico', explanationVarietyId: 'english-united-states', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
+      settings: { direction: { topic: null, timeReference: 'any', usePersonaDetails: true }, difficulty: 'advanced', explanationLanguage: 'english', varietyId: index ? 'french-france' : 'spanish-mexico', explanationVarietyId: 'english-united-states', composingHelp: 'generous', coachProactivity: 'occasional', translation: true, pronunciation: false, romanization: true, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }

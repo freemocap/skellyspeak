@@ -79,3 +79,52 @@ pub fn retry_gloss(db: &Connection, operation: &str) -> Result<String> {
     refresh_turn(db, &turn)?;
     Ok(conversation)
 }
+
+/// At most one automatic repair, only after a successful partial result. Never
+/// release holds or grant paused work a permit as an explicit user retry does.
+pub(super) fn queue_gloss_repair(
+    db: &Connection,
+    turn: &str,
+    dispatch: &Dispatch,
+) -> Result<&'static str> {
+    let attempts: i64 = db.query_row(
+        "SELECT count(*) FROM attempts WHERE operation_id=?1",
+        [&dispatch.operation],
+        |r| r.get(0),
+    )?;
+    if attempts != 1 {
+        return Ok("not_first_attempt");
+    }
+    let settings = config(db)?;
+    let paused: bool =
+        db.query_row("SELECT paused FROM turns WHERE id=?1", [turn], |r| r.get(0))?;
+    if paused || settings.paused || settings.revision != dispatch.target.revision {
+        return Ok("paused_or_connection_changed");
+    }
+    let admission = (|| -> Result<()> {
+        crate::ai::policy::holds::check(db, &dispatch.target)?;
+        let used: i64 = db.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'", [turn], |r| r.get(0))?;
+        let reserved: i64 = db.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('ready','waiting_dependencies') AND kind NOT IN ('persona_context','coach_context')", [turn], |r| r.get(0))?;
+        if used + reserved + 1 > TURN_ATTEMPT_LIMIT {
+            return Err(budget_error("No remaining word-repair attempt budget."));
+        }
+        admit_network_work(db, 1)
+    })();
+    match admission {
+        Ok(()) => {}
+        Err(error)
+            if matches!(
+                error.code,
+                ErrorCode::Storage | ErrorCode::Internal | ErrorCode::ConfigLoad
+            ) =>
+        {
+            return Err(error);
+        }
+        Err(_) => return Ok("admission_blocked"),
+    }
+    db.execute(
+        "UPDATE operations SET state='ready',permit=0 WHERE id=?1",
+        [&dispatch.operation],
+    )?;
+    Ok("queued")
+}

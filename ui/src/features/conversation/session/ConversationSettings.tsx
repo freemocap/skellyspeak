@@ -16,7 +16,7 @@ type Toggle = [QuickSetting, string, string]
 ///
 /// The toggles are the same Settings record the Settings modal edits — Rust owns
 /// it, and these are a second VIEW of one variable, not a copy.
-export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, difficulty, showRomanization, exportDisabled, onExport }: {
+export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, difficulty, promptControls, showRomanization, exportDisabled, onExport }: {
   /// The current settings in a few words ("Beginner · Reading aloud"), shown on
   /// the button that changes them.
   summary?: string
@@ -26,6 +26,7 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
   saving: boolean
   onToggle: (key: QuickSetting | 'tts_rate', value?: number) => Promise<void>
   nativePicker: ReactNode
+  promptControls?: ReactNode
   difficulty: ReactNode
   showRomanization: boolean
   exportDisabled: boolean
@@ -92,6 +93,7 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
           <div className="conversation-settings-field">{nativePicker}</div>
           {difficulty && <label className="conversation-settings-field"><span>{tr("Difficulty")}</span>{difficulty}</label>}
         </section>
+        {promptControls}
         {groups.map(([heading, toggles]) => <section key={heading} className="conversation-settings-group" aria-label={tr(heading)}>
           <h3>{tr(heading)}</h3>
           {toggles.map(([key, label, description]) => <label key={key} className="conversation-setting">

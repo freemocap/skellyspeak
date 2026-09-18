@@ -75,3 +75,21 @@
 @media (pointer: coarse) {
   .btn, .panel-tab { min-height: var(--touch-target); }
 }
+
+/* Compact actions shared by coaching, reading and skill inspectors. */
+.detail-action {
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--field);
+  color: var(--ink);
+  cursor: pointer;
+  padding: var(--space-3) var(--space-5);
+  font: inherit;
+  font-size: var(--type-ui);
+}
+
+.detail-action:hover { border-color: var(--accent); }
+
+.detail-action:disabled { opacity: .5; cursor: default; }
+
+.detail-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }

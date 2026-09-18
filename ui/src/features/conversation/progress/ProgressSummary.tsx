@@ -39,7 +39,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
         <InfoTip>{tr("Counts are distinct wording–skill pairs, not messages. One message can contribute to multiple skills.")}</InfoTip>
       </section>
       <section aria-labelledby="practice-skills-title">
-        <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? domain.node.label : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="lesson-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
+        <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? domain.node.label : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="detail-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
         <label className="practice-unpracticed"><input type="checkbox" checked={includeUnpracticed} onChange={event => setIncludeUnpracticed(event.target.checked)} />{tr("Include skills without credit")}</label>
         <InfoTip>{tr("Open a skill to inspect its contributing messages and assessment provenance.")}</InfoTip>
         {skills.length === 0 && <p>{tr("No credited demonstrations in this selection yet. Your first credited message will appear here.")}</p>}
@@ -74,7 +74,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
         <dl className="practice-record-counts"><div><dt>{tr("Complete records")}</dt><dd>{stats.statuses.complete}</dd></div><div><dt>{tr("Pending")}</dt><dd>{stats.statuses.pending}</dd></div><div><dt>{tr("Failed")}</dt><dd>{stats.statuses.failed}</dd></div><div><dt>{tr("Superseded")}</dt><dd>{stats.statuses.superseded}</dd></div><div><dt>{tr("Stored exclusions")}</dt><dd>{snapshot.profile.choices.excluded_attempts.length}</dd></div></dl>
       </details>
       <p className="practice-focus">{tr("Current focus: ")}<strong>{focus.label}</strong></p>
-      <button className="lesson-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: focus.id }) }}>{tr("Explore skill map")}</button>
+      <button className="detail-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: focus.id }) }}>{tr("Explore skill map")}</button>
     </div>
 }
 
@@ -109,7 +109,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
     <div className="practice-overview">
       <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && <button onClick={() => onLearning(selected)}>{tr("Your learning evidence")}</button>}</header>
       {loaded.status === 'loading' && <p role="status">{tr("Loading language profiles…")}</p>}
-      {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="lesson-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></div>}
+      {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="detail-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></div>}
       {overview && <>
         <dl className="practice-metrics">
           <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>

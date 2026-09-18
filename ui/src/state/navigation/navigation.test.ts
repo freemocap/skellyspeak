@@ -96,10 +96,3 @@ describe('navigation store', () => {
     expect(state.newChatAction).toBeNull()
   })
 })
-
-it('redirects disabled lesson navigation to chat', () => {
-  store().setMode('learn')
-  expect(store().mode).toBe('practice')
-  expect(store().page).toBe('guided')
-  expect(store().mobileSurface).toBe('chat')
-})

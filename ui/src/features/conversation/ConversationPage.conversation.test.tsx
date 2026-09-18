@@ -22,7 +22,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
 vi.mock('./speech/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
-vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'lesson' ? coachingContent : null }))
+vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'coaching' ? coachingContent : null }))
 vi.mock('./progress/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./progress/SkillRewards', () => ({ SkillRewards: () => null }))
 
@@ -69,19 +69,19 @@ function deferred<T>() {
 }
 function directory(): Snapshot {
   return {
-    sessionId: 'native-session', revision: 10,
+    savedTopics: [], sessionId: 'native-session', revision: 10,
     learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'spanish', title: id, archived: false,
       revision: 7 + index, settingsRevision: 1, createdAt: '2026-09-10', lastUsed: 2 - index,
-      settings: { difficulty: 'beginner', explanationLanguage: 'english', varietyId: '', explanationVarietyId: 'english-united-states', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
+      settings: { direction: { topic: null, timeReference: 'any', usePersonaDetails: true }, difficulty: 'beginner', explanationLanguage: 'english', varietyId: '', explanationVarietyId: 'english-united-states', composingHelp: 'balanced', coachProactivity: 'on_request', translation: true, pronunciation: false, romanization: false, autoSend: true, readAloud: true, speechVoice: 'alloy' },
     })),
   }
 }
 function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
-    mystery: null, lessons: [], lessonChoices: [], opening: null, starterCards: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
+    opening: null, topicChoices: [], revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
     messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false },
@@ -425,16 +425,18 @@ it('shows a raced native pending-turn rejection without dropping the repair draf
   expect(commands()).toHaveLength(1)
 })
 
-it('starts with a native card as a partner-first exchange while the composer remains usable', async () => {
+it('selects a topic locally then starts a partner-first exchange while the composer remains usable', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
-  value.starterCards = [{ id: 'food', label: 'Ordering food', preview: 'Quiero café.', translation: 'I want coffee.', reason: 'From your focus' }]
+  value.topicChoices = [{ id: 'food', label: 'Ordering food' }]
   await act(async () => watches[0].resolve(value))
   expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: /Ordering food/ }))
+  expect(commands()).toHaveLength(0)
+  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'starter', starterId: 'food' } })
+  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: { kind: 'builtin', id: 'food' }, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
   expect(screen.queryByText('¿Qué quieres beber?')).toBeNull()
   const response = snapshot('a', 42)
   response.messages = [{ ...exchangeSnapshot().messages[1], text: '¿Qué quieres beber?' }]
@@ -450,7 +452,7 @@ it('shows a failed partner start without blocking the composer', async () => {
   await act(async () => watches[0].resolve(snapshot('a', 41)))
   fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: 41, opening: { kind: 'surprise' } })
+  expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: null, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
   expect(await screen.findByRole('alert')).toHaveTextContent('This conversation already started.')
   expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
 })
@@ -501,7 +503,7 @@ it('hides starters after accepting an opening and surfaces failure without a lea
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
-  value.opening = { kind: 'surprise' }
+  value.opening = { kind: 'partner' }
   value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [], operations: [{ id: 'opening-operation', kind: 'persona_opening', state: 'ready', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
   await act(async () => watches[0].resolve(value))
   expect(screen.queryByRole('button', { name: /Let .* start/ })).toBeNull()
@@ -567,4 +569,20 @@ it('offers explicit read recovery in the chat without issuing inference', async 
   await act(async () => watches[1].resolve(exchangeSnapshot()))
   expect(screen.queryByText(/Native read failed/)).toBeNull()
   expect(commands()).toEqual([])
+})
+
+it('captures topic, tense and difficulty with the real first learner message', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = snapshot('a', 41)
+  value.topicChoices = [{ id: 'food', label: 'Ordering food' }]
+  await act(async () => watches[0].resolve(value))
+  fireEvent.click(screen.getByRole('button', { name: 'Ordering food' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
+  fireEvent.change(screen.getByRole('combobox', { name: 'Difficulty' }), { target: { value: 'absolute_zero' } })
+  expect(commands()).toHaveLength(0)
+  fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Comí arroz.' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action).toMatchObject({ kind: 'startConversation', conversationId: 'a', message: 'Comí arroz.', input: { scaffold: false }, configuration: { difficulty: 'absolute_zero', direction: { topic: { kind: 'builtin', id: 'food' }, timeReference: 'past' } } })
 })

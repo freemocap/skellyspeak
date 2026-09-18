@@ -129,12 +129,7 @@ fn language_without_browser_or_speech_mapping_loads_and_resolves() {
             .language_tag
             .is_none()
     );
-    assert!(
-        !registry
-            .starters(&context, "A1", &[], &[], &[], &[])
-            .unwrap()
-            .is_empty()
-    );
+    assert_eq!(registry.topics().len(), 6);
 }
 #[test]
 fn policy_bounds_and_learner_protections_remain_required() {

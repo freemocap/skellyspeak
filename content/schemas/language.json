@@ -7,21 +7,10 @@
       "properties": {
         "default_partner": {
           "$ref": "#/definitions/PersonaDetails"
-        },
-        "starter_reasons": {
-          "$ref": "#/definitions/StarterReasons"
-        },
-        "starters": {
-          "additionalProperties": {
-            "$ref": "#/definitions/StarterText"
-          },
-          "type": "object"
         }
       },
       "required": [
-        "default_partner",
-        "starter_reasons",
-        "starters"
+        "default_partner"
       ],
       "type": "object"
     },
@@ -452,57 +441,6 @@
           ]
         }
       },
-      "type": "object"
-    },
-    "StarterReasons": {
-      "additionalProperties": false,
-      "properties": {
-        "contact": {
-          "type": "string"
-        },
-        "due": {
-          "type": "string"
-        },
-        "focus": {
-          "type": "string"
-        },
-        "general": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "contact",
-        "due",
-        "focus",
-        "general"
-      ],
-      "type": "object"
-    },
-    "StarterText": {
-      "additionalProperties": false,
-      "properties": {
-        "label": {
-          "type": "string"
-        },
-        "preview": {
-          "type": "string"
-        },
-        "translation": {
-          "type": "string"
-        },
-        "varieties": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "label",
-        "preview",
-        "translation",
-        "varieties"
-      ],
       "type": "object"
     },
     "VarietyDocument": {

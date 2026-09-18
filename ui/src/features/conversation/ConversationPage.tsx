@@ -1,3 +1,6 @@
+import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
+import type { ConversationStartConfig } from '../../generated/contracts'
+import { AskCoachContext } from '../../components/learning/AskCoachButton'
 import { useI18n } from '../../components/localization/i18n'
 import { TranscriptionInspector } from './speech/TranscriptionInspector'
 import { ConversationExport } from './session/ConversationExport'
@@ -5,13 +8,12 @@ import { PracticeDivider } from './messages/PracticeDivider'
 import { LiveCoachReview } from './coaching/LiveCoachReview'
 import { OpeningStatus } from './session/OpeningStatus'
 import { useNavigationStore } from '../../state/navigation/navigation'
-import { ConversationStart, type StartChoice } from './session/ConversationStart'
+import { ConversationStart } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
 import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
 import { ConversationHeader } from './session/ConversationHeader'
 import { ConversationSettings } from './session/ConversationSettings'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
-import { MysteryPartnerPanel } from './partners/MysteryPartnerPanel'
 import { NewPersonaDialog } from './partners/NewPersonaDialog'
 import { PersonaPicker } from './partners/PersonaPicker'
 import { useConversationDetails } from './session/useConversationDetails'
@@ -116,7 +118,7 @@ export default function ConversationPage({
     if (!active) stopRewardSounds()
   }, [settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'lesson' | 'evidence'>('lesson')
+  const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
   const [coachDraft, setCoachDraft] = useState('')
   const mode = useNavigationStore(state => state.mode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
@@ -232,7 +234,6 @@ export default function ConversationPage({
   const [newPersonaOpen, setNewPersonaOpen] = useState(false)
   // The tab shows the persona being talked to. Creating another belongs to the
   // header picker, so nothing here can overwrite this one by accident.
-  const personaProfile = details.persona && snapshot?.mystery ? <MysteryPartnerPanel key={details.persona.id} snapshot={snapshot} persona={details.persona} otherPersonas={details.directory?.personas} /> : null
   function targetLanguageLabel(id: string) { return details.directory?.languages.find(item => item.id === id)?.name ?? id }
 
 
@@ -258,7 +259,7 @@ export default function ConversationPage({
   const isMobile = useIsMobile()
   function openCoach(id?: number) {
     if (id !== undefined) setPinnedId(id)
-    setPanelTab('lesson')
+    setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
     if (isMobile) useNavigationStore.getState().openPractice('panel')
     requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus())
@@ -267,6 +268,11 @@ export default function ConversationPage({
   const [inspectionOpen, setInspectionOpen] = useState(false)
   useEffect(() => setInspectionOpen(false), [currentChatId, active])
   const [analysisOpen, setAnalysisOpen] = useState(false)
+  function askCoach(question: string) {
+    setAnalysisOpen(false)
+    setCoachDraft(question)
+    openCoach()
+  }
   useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
 
   const onBubbleTap = useCallback(
@@ -276,6 +282,10 @@ export default function ConversationPage({
     },
     []
   )
+  const [startDraft, setStartDraft] = useState<{ id: string; value: ConversationStartConfig } | null>(null)
+  const startConfiguration = startDraft?.id === currentChatId ? startDraft.value : details.conversation ? {
+    difficulty: details.conversation.settings.difficulty, varietyId: details.conversation.settings.varietyId, direction: details.conversation.settings.direction,
+  } : null
   const acceptingSend = useRef(false)
   useEffect(() => setSending(pendingReply || acceptedEditSource !== null), [pendingReply, snapshotRevision, acceptedEditSource])
   useEffect(() => {
@@ -300,6 +310,11 @@ export default function ConversationPage({
         if (!turn?.turnId || !snapshot || revision === undefined) throw new Error('Revision source is unavailable. Reopen the message to edit it.')
         await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })
         editedSource = turn.turnId
+      } else if (snapshot && !snapshot.opening && turns.length === 0) {
+        if (!startConfiguration) throw new Error('Conversation settings are unavailable.')
+        const latest = await readWorkspace()
+        if (selectedChatRef.current !== submittedChatId) return
+        await executeAction(latest, { kind: 'startConversation', conversationId: snapshot.conversationId, configuration: startConfiguration, message: text, input: provenance, expectedRevision: latest.revision })
       } else await sendMessage(text, currentChatId, provenance)
       if (selectedChatRef.current !== submittedChatId) return
       if (inputRevision.current === submittedDraftRevision) {
@@ -319,7 +334,7 @@ export default function ConversationPage({
     } finally { acceptingSend.current = false }
   }
 
-  async function startConversation(opening: StartChoice) {
+  async function startConversation() {
     if (acceptingSend.current || sending) throw new Error('A conversation action is already pending.')
     if (!snapshot || snapshot.conversationId !== currentChatId) throw new Error('The conversation is not ready.')
     const reviewed = snapshot
@@ -329,7 +344,10 @@ export default function ConversationPage({
     try {
       await details.beforeSend()
       if (selectedChatRef.current !== owner) throw new Error('The conversation changed before starting.')
-      await executeAction(reviewed, { kind: 'startConversation', conversationId: reviewed.conversationId, opening, expectedRevision: reviewed.revision })
+      if (!startConfiguration) throw new Error('Conversation settings are unavailable.')
+      const latest = await readWorkspace()
+      if (selectedChatRef.current !== owner) throw new Error('The conversation changed before starting.')
+      await executeAction(latest, { kind: 'startConversation', conversationId: reviewed.conversationId, configuration: startConfiguration, message: null, input: null, expectedRevision: latest.revision })
     } catch (reason) {
       if (selectedChatRef.current === owner) setSending(false)
       throw reason
@@ -463,7 +481,7 @@ export default function ConversationPage({
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {<ComposerHelp
             assistance={activeTurns.at(-1)?.assistant?.assistance}
-            onAsk={question => { setCoachDraft(question); openCoach() }}
+            onAsk={askCoach}
             onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
               await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
             } : undefined}
@@ -487,11 +505,11 @@ export default function ConversationPage({
   )
 
   return (
-    <ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
+    <AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-lesson' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''}`}
     >
       <ChatHistory
         open={historyOpen}
@@ -513,7 +531,8 @@ export default function ConversationPage({
               persona it invited a click that only offered persona choices. */}
           <ConversationSettings summary={[details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
             nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
-            difficulty={details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />} />
+            promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />}
+            difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />} />
           <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /><span>{tr("New")}</span></button>
           </div>
         </ConversationHeader>
@@ -533,7 +552,7 @@ export default function ConversationPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : <ConversationStart partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} starters={snapshot.starterCards} busy={sending || pendingReply} onStart={startConversation} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} />)
           )}
           {activeTurns.map((turn) => (
             <Fragment key={turn.turnId}><TurnView
@@ -542,7 +561,7 @@ export default function ConversationPage({
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
-              onAskCoach={question => { setCoachDraft(question); openCoach() }}
+              onAskCoach={askCoach}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
@@ -607,7 +626,7 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<LiveCoachReview onAsk={question => { setCoachDraft(question); openCoach() }} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'lesson' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+          coachingContent={<LiveCoachReview onAsk={askCoach} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
             await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
@@ -617,6 +636,7 @@ export default function ConversationPage({
           onCollapse={!isMobile ? toggleBreak : undefined}
           tab={panelTab}
           onTab={setPanelTab}
+          autoSendDraft
           draftQuestion={coachDraft}
           onDraftConsumed={consumeCoachDraft}
           pinnedTurn={pinnedTurn}
@@ -633,11 +653,11 @@ export default function ConversationPage({
       {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
-      {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)}>{personaProfile}</PersonaProfileDialog>}
+      {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
       {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
       {revisionConfirmation && <DetailDialog title={tr("Revise earlier message")} onClose={() => setRevisionConfirmation(null)}>
         <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns and ")}{revisionConfirmation.coachTurnCount} {tr(" private coach turns. Your edited message replaces the original in this conversation.")}</p>
-        <div className="lesson-actions">
+        <div className="detail-actions">
           <button type="button" onClick={() => setRevisionConfirmation(null)}>{tr("Cancel")}</button>
           <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>{tr("Revise and remove later turns")}</button>
         </div>
@@ -645,11 +665,11 @@ export default function ConversationPage({
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <AnalysisContent onAsk={question => { setCoachDraft(question); openCoach() }} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+        {pinnedTurn ? <AnalysisContent onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 
     </div>
-    </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider>
+    </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext>
   )
 }

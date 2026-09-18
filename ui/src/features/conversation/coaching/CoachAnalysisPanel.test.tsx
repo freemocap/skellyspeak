@@ -10,8 +10,8 @@ vi.mock('../../../platform/ipc/workspace', () => ({ readWorkspace: backend.read,
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../progress/ConversationMap', () => ({ ConversationMap: () => null }))
 const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], hasOlder: false } as unknown as ConversationSnapshot
-function panel(chatId = 'chat-1', draftQuestion = '') {
-  return <CoachAnalysisPanel chatId={chatId} conversationBusy={false} tab="lesson" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
+function panel(chatId = 'chat-1', draftQuestion = '', autoSendDraft = false, conversationBusy = false) {
+  return <CoachAnalysisPanel autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }
 beforeEach(() => {
   vi.resetAllMocks()
@@ -83,4 +83,28 @@ it('offers read-only reconnection after coach observation fails without losing t
   expect(screen.queryByText(/Read disconnected/)).toBeNull()
   expect(screen.getByLabelText('Message your coach')).toHaveValue('Keep my draft')
   expect(backend.execute).not.toHaveBeenCalled()
+})
+
+
+it('sends an external Ask action once through the normal coach submission path', async () => {
+  const view = render(panel('chat-1', 'Explain this token', true, true))
+  await waitFor(() => expect(backend.watch).toHaveBeenCalledTimes(2))
+  expect(backend.execute).not.toHaveBeenCalled()
+  view.rerender(panel('chat-1', 'Explain this token', true))
+  await waitFor(() => expect(backend.execute).toHaveBeenCalledTimes(1))
+  expect(backend.execute).toHaveBeenCalledWith(expect.anything(), {
+    kind: 'askCoach', conversationId: 'chat-1', text: 'Explain this token', expectedRevision: 19,
+  })
+  await waitFor(() => expect(screen.getByLabelText('Message your coach')).toHaveValue(''))
+  view.rerender(panel('chat-1', 'Explain this token', true))
+  expect(backend.execute).toHaveBeenCalledTimes(1)
+})
+
+it('retains a rejected automatic question for explicit retry without resending it', async () => {
+  backend.execute.mockRejectedValue(new Error('Admission held'))
+  const view = render(panel('chat-1', 'Explain this token', true))
+  await screen.findByRole('alert')
+  expect(screen.getByLabelText('Message your coach')).toHaveValue('Explain this token')
+  view.rerender(panel('chat-1', 'Explain this token', true))
+  expect(backend.execute).toHaveBeenCalledTimes(1)
 })

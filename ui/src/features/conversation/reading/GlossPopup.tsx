@@ -38,7 +38,7 @@ export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () 
           ✕
         </button>
       </div>
-      <div className="popup-actions">{popup.actions.map(action => <button className="lesson-action" key={action.label} onClick={() => { onClose(); action.run() }}>{action.label}</button>)}</div>
+      <div className="popup-actions">{popup.actions.map(action => <button className="detail-action" key={action.label} onClick={() => { onClose(); action.run() }}>{action.label}</button>)}</div>
     </div>
   )
 }

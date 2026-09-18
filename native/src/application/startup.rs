@@ -117,6 +117,7 @@ pub fn run() {
             commands::workspace::get_startup_state,
             commands::workspace::retry_credential_cleanup,
             commands::workspace::get_snapshot,
+            commands::workspace::preview_conversation_prompt,
             commands::workspace::inspect_language,
             commands::workspace::execute_command,
             access::get_access_settings,

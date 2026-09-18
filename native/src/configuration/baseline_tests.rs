@@ -16,10 +16,7 @@ fn resolved_behavior_baseline() {
             .unwrap();
         context.hash.clear();
         context.external_tags.remove("language_tag");
-        let cards = registry
-            .starters(&context, "A1", &[], &[], &[], &[])
-            .unwrap();
-        let actual = serde_json::json!({"context": context, "persona": registry.starter_persona(ids[0]).unwrap(), "cards": cards.iter().map(|c| (&c.starter.id, &c.reason)).collect::<Vec<_>>()});
+        let actual = serde_json::json!({"context": context, "persona": registry.starter_persona(ids[0]).unwrap()});
         assert_eq!(actual, value, "{key}");
     }
 }

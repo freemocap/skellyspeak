@@ -10,7 +10,6 @@ impl Store {
 
     pub fn dispatch(&mut self) -> Result<Option<Dispatch>> {
         let tx = self.connection.transaction()?;
-        crate::learning::lessons::suspend_pending(&tx)?;
         if config(&tx)?.paused {
             tx.commit()?;
             return Ok(None);
@@ -35,8 +34,13 @@ impl Store {
             let messages: Vec<PromptMessage> =
                 serde_json::from_value(captured["messages"].clone())?;
             let sources: Vec<String> = serde_json::from_value(captured["sourceIds"].clone())?;
+            let partner_opening = captured["opening"]["kind"] == "partner";
             if messages.first().map(|m| m.role.as_str()) != Some("system")
-                || messages.last().map(|m| m.role.as_str()) != Some("user")
+                || if partner_opening {
+                    kind != "persona_context" || messages.len() != 1 || !sources.is_empty()
+                } else {
+                    messages.last().map(|m| m.role.as_str()) != Some("user")
+                }
                 || messages.len() > 42
                 || messages
                     .iter()
@@ -106,8 +110,6 @@ impl Store {
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
             && kind != "skill_assessment"
-            && kind != "lesson_generate"
-            && kind != "lesson_review"
             && kind != "persona_reply"
             && kind != "persona_opening"
             && kind != "coach_retry_check"
@@ -136,10 +138,6 @@ impl Store {
                         &kind, &captured,
                     ),
                 )
-            } else if kind.starts_with("lesson_") {
-                Some(crate::learning::lessons::schema_for_context(
-                    &kind, &captured,
-                ))
             } else if kind.starts_with("coach_") && kind != "coach_reply" {
                 Some(if kind == "coach_reaction" {
                     crate::partners::partner_reaction::schema()
@@ -160,8 +158,6 @@ impl Store {
                 crate::learning::coaching::conversation_support::prompt(
                     &tx, &turn, &kind, &captured,
                 )?
-            } else if kind.starts_with("lesson_") {
-                crate::learning::lessons::prompt(&tx, &turn, &kind, &captured)?
             } else if kind == "coach_reaction" {
                 crate::partners::partner_reaction::prompt(&tx, &turn, &captured)?
             } else if coaching_schema.is_some() {
@@ -190,12 +186,32 @@ impl Store {
                     };
                     let language_context: crate::configuration::LanguageContext =
                         serde_json::from_value(captured["languageContext"].clone())?;
-                    let prompt = crate::language::linguistics::adapter::build_word_gloss_prompt_with_context(
+                    let mut prompt = crate::language::linguistics::adapter::build_word_gloss_prompt_with_context(
                         &source.identity,
                         &source.text,
                         &language_context,
                     )
                     .map_err(|_| fail("Word gloss source cannot be analyzed."))?;
+                    let saved_key = if kind == "user_word_gloss" {
+                        "userWordGloss"
+                    } else {
+                        "wordGloss"
+                    };
+                    if let Some(saved) = captured.get(saved_key).filter(|v| !v.is_null()) {
+                        let saved: WordGlossView = serde_json::from_value(saved.clone())?;
+                        let gaps: Vec<_> = saved
+                            .segments
+                            .iter()
+                            .filter(|s| s.kind == GlossSegmentKind::Unresolved)
+                            .map(|s| (s.start, s.end))
+                            .collect();
+                        prompt = crate::language::linguistics::adapter::recovery::repair_prompt(
+                            prompt,
+                            &source.text,
+                            &gaps,
+                        )
+                        .map_err(|_| fail("Word repair prompt is invalid."))?;
+                    }
                     let target: crate::ai::connections::access::ResolvedTarget =
                         serde_json::from_value(captured["target"].clone())?;
                     crate::ai::transport::provider::payload_with_output(
@@ -225,7 +241,7 @@ impl Store {
             };
             let base: crate::ai::connections::access::ResolvedTarget =
                 serde_json::from_value(captured["target"].clone())?;
-            let target = if captured["routingPolicy"] == "task-models-v1" {
+            let mut target = if captured["routingPolicy"] == "task-models-v1" {
                 crate::ai::connections::model_routing::target(
                     &base,
                     &kind,
@@ -236,6 +252,17 @@ impl Store {
             } else {
                 base
             };
+            let saved_key = if kind == "user_word_gloss" {
+                "userWordGloss"
+            } else {
+                "wordGloss"
+            };
+            if gloss_source.is_some() && captured.get(saved_key).is_some_and(|v| !v.is_null()) {
+                target.model = captured["fastModel"]
+                    .as_str()
+                    .ok_or_else(|| fail("Captured fast model is missing."))?
+                    .into();
+            }
             let coaching_schema = if crate::conversations::translation::owns(&kind) {
                 Some(crate::conversations::translation::schema())
             } else {

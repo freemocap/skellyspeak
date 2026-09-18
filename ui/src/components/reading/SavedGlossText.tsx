@@ -1,5 +1,7 @@
+import { AskCoachButton } from '../learning/AskCoachButton'
 import { useOverlayLayer } from '../dialogs/useOverlayLayer'
-import { useIsMobile } from '../layout/useIsMobile'
+import { DetailDialog } from '../dialogs/DetailDialog'
+import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
 import { useReadingPreferences } from './ReadingPreferences'
 import { glossDisplayGroups } from '../../domain/reading/gloss-display'
@@ -13,8 +15,8 @@ function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement |
 
 /** Saved UTF-16 anchors select exact source occurrences; reading never requests analysis. */
 export function SavedGlossText({ text, segments, afterSegment, decorateSegment, interactive = true }: { interactive?: boolean; text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
-  const isMobile = useIsMobile()
-  // The sheet belongs to the interface, not to the message it explains.
+  const tr = useI18n()
+  const [expanded, setExpanded] = useState<number | null>(null)
   const uiDirection = useUiDirection()
   const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set())
@@ -24,16 +26,13 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   // Both hosts of this text — the reply tray and the message stream — scroll and
   // clip their own box, so a helper anchored inside one of them is cut off at its
   // edge. It opens as a top-layer popover instead, placed against the word's
-  // viewport box, and falls below the word when there is no room above it. On a
-  // phone a tapped word opens the same popover as a bottom sheet, which CSS
-  // places; inserting the meaning into the sentence reflowed the whole message.
+  // viewport box, and falls below the word only when there is no room above it.
   useLayoutEffect(() => {
     const element = helper.current
     const word = hoveredWord.current
     if (!element || !word) return
     element.showPopover()
     const position = () => {
-      if (element.classList.contains('saved-word-sheet')) { element.style.left = ''; element.style.top = ''; return }
       const box = word.getBoundingClientRect()
       const width = element.getBoundingClientRect().width
       const start = getComputedStyle(word).direction === 'rtl' ? box.right - width : box.left
@@ -57,8 +56,8 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
       document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
       if (element.isConnected && element.hasAttribute('popover')) element.hidePopover()
     }
-  }, [hovered, revealed, isMobile, autoTranslate, alwaysRomanize, alwaysPronunciation])
-  useEffect(() => { setRevealed(new Set()); setHovered(null) }, [text])
+  }, [hovered, revealed, expanded, autoTranslate, alwaysRomanize, alwaysPronunciation])
+  useEffect(() => { setRevealed(new Set()); setHovered(null); setExpanded(null) }, [text])
   const pieces = []
   let cursor = 0
   for (const segment of glossDisplayGroups(text, supportsRomanization ? segments : segments.map(segment => ({ ...segment, romanization: undefined })))) {
@@ -91,24 +90,34 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
             {source}
           </span>
-          {(hovering || open) && (!autoTranslate || hasHiddenDetails || (open && isMobile)) && <span ref={helper} className={`saved-word-help${open && isMobile ? ' saved-word-sheet' : ''}${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir={open && isMobile ? uiDirection : 'auto'} popover="manual">
+          {expanded === null && (open || (hovering && (!autoTranslate || hasHiddenDetails))) && <span ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover="manual"
+            role="button" tabIndex={0} aria-label={tr("Word help")} aria-haspopup="dialog"
+            onClick={event => { event.stopPropagation(); setExpanded(segment.start); setRevealed(new Set()); setHovered(null) }}
+            onDoubleClick={event => event.stopPropagation()}
+            onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}>
             {open && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setHovered(null) }} />}
-            {open && isMobile ? <>
-              <span className="saved-word-sheet-word"><bdi>{source}</bdi></span>
+            {(!autoTranslate || open && !hasHiddenDetails) && values('gloss', 'wg')}
+            {!alwaysRomanize && values('romanization', 'wroman')}
+            {!alwaysPronunciation && values('pronunciation', 'wpronunciation')}
+          </span>}
+          {expanded === segment.start && <DetailDialog title={tr("Word help")} onClose={() => { setExpanded(null); hoveredWord.current?.focus() }}>
+            <div className="saved-word-details" dir={uiDirection}>
+              <h2 dir="auto">{source}</h2>
+              {joined('gloss', 'wg')}
               {joined('romanization', 'wroman')}
               {joined('pronunciation', 'wpronunciation')}
-              {joined('gloss', 'wg')}
-              {annotations.length > 1 && <span className="saved-word-parts">{annotations.map(part => <span key={part.start} className="saved-word-part" data-gloss-start={part.start} data-gloss-end={part.end}>
+              {annotations.length > 1 && <div className="saved-word-parts">{annotations.map(part => <div key={part.start} className="saved-word-part">
                 <bdi className="saved-word-part-source">{text.slice(part.start, part.end)}</bdi>
-                <span className="wroman" dir="auto">{part.romanization ?? part.pronunciation ?? ''}</span>
                 <span className="wg" dir="auto">{part.gloss}</span>
-              </span>)}</span>}
-            </> : <>
-              {!autoTranslate && values('gloss', 'wg')}
-              {!alwaysRomanize && values('romanization', 'wroman')}
-              {!alwaysPronunciation && values('pronunciation', 'wpronunciation')}
-            </>}
-          </span>}
+                {part.romanization && <span className="wroman" dir="auto">{part.romanization}</span>}
+                {part.pronunciation && <span className="wpronunciation" dir="auto">{part.pronunciation}</span>}
+              </div>)}</div>}
+              <div className="detail-actions"><AskCoachButton
+                question={`Help me understand “${source}” in this sentence: “${text}”. Saved word details: ${JSON.stringify(annotations.map(part => ({ text: text.slice(part.start, part.end), gloss: part.gloss, romanization: part.romanization, pronunciation: part.pronunciation })))}`}
+                onClose={() => setExpanded(null)}
+              /></div>
+            </div>
+          </DetailDialog>}
           {autoTranslate && joined('gloss', 'wg')}
           {alwaysRomanize && joined('romanization', 'wroman')}
           {alwaysPronunciation && joined('pronunciation', 'wpronunciation')}

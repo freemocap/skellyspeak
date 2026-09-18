@@ -3,6 +3,7 @@
 pub mod appearance;
 mod citations;
 mod documents;
+pub(crate) use documents::ConversationPromptContent;
 mod identity;
 mod inspection;
 mod linking;
@@ -11,7 +12,7 @@ mod resolution;
 mod types;
 pub use inspection::{
     ContentRule, ContentSource, ContentValue, GoalInspection, LanguageInspection, SchemeInspection,
-    StarterInspection,
+    TopicInspection,
 };
 mod lexical_hints;
 mod schemas;
@@ -59,8 +60,8 @@ pub struct Registry {
     feedback: FeedbackPolicy,
     estimator: EstimatorPolicy,
     game: GamePolicy,
-    starter_config: Vec<Starter>,
-    reasons: BTreeMap<String, BTreeMap<String, String>>,
+    topics: Vec<documents::ConversationTopic>,
+    conversation_prompt: documents::ConversationPromptContent,
     hash: String,
     #[serde(skip)]
     documents: BTreeMap<String, documents::LanguageDocument>,
@@ -183,6 +184,7 @@ impl Registry {
         let l = self.language_config(language)?;
         self.language_config(explanation)?;
         Ok(model::PracticeSettings {
+            direction: Default::default(),
             difficulty: model::Difficulty::Beginner,
             explanation_language: explanation.into(),
             variety_id: l.default_variety.clone(),
@@ -236,6 +238,8 @@ impl Registry {
         language: &str,
         settings: &model::PracticeSettings,
     ) -> model::Result<()> {
+        crate::conversations::direction::topic_text(self, &settings.direction)
+            .map_err(|e| error("conversation.direction", "invalid_topic", e.message))?;
         self.resolve_pair(
             language,
             Some(&settings.variety_id),
@@ -333,101 +337,17 @@ impl Registry {
         }
         Ok(())
     }
-    pub(crate) fn lesson_starter(&self, id: &str) -> Result<&Starter> {
-        self.starter_config
-            .iter()
-            .find(|s| s.id == id)
-            .ok_or_else(|| error("starters", "unknown_starter", id))
+    pub fn conversation_prompt(&self) -> &documents::ConversationPromptContent {
+        &self.conversation_prompt
     }
-    pub fn starters(
-        &self,
-        ctx: &LanguageContext,
-        band: &str,
-        focus: &[String],
-        due: &[String],
-        contact_tags: &[String],
-        recent: &[String],
-    ) -> Result<Vec<SelectedStarter>> {
-        if !BANDS.contains(&band) {
-            return Err(error("starters", "unknown_band", band));
-        }
-        for id in focus.iter().chain(due) {
-            self.construct(id)?;
-        }
-        let eligible: Vec<_> = self
-            .starter_config
+    pub fn topics(&self) -> &[documents::ConversationTopic] {
+        &self.topics
+    }
+    pub fn topic(&self, id: &str) -> Result<&documents::ConversationTopic> {
+        self.topics
             .iter()
-            .filter(|s| {
-                s.languages.contains(&ctx.language_id)
-                    && s.compatible_varieties
-                        .get(&ctx.language_id)
-                        .is_some_and(|ids| ids.contains(&ctx.variety_id))
-                    && s.compatible_varieties
-                        .get(&ctx.explanation_language_id)
-                        .is_some_and(|ids| ids.contains(&ctx.explanation_variety_id))
-                    && s.bands.iter().any(|b| b == band)
-                    && !recent.iter().take(3).any(|id| *id == s.id)
-            })
-            .collect();
-        let mut selected = vec![];
-        let mut used = BTreeSet::new();
-        for reason in ["focus", "due", "contact", "general"] {
-            if selected.len() == 3 {
-                break;
-            }
-            // Focus and due share one slot, in that priority order.
-            if reason == "due" && !selected.is_empty() {
-                continue;
-            }
-            if let Some(starter) = eligible.iter().find(|s| {
-                !used.contains(&s.id)
-                    && match reason {
-                        "focus" => s
-                            .constructs_any
-                            .iter()
-                            .chain(&s.functions)
-                            .any(|id| focus.contains(id)),
-                        "due" => s
-                            .constructs_any
-                            .iter()
-                            .chain(&s.functions)
-                            .any(|id| due.contains(id)),
-                        "contact" => s.contact_tags.iter().any(|tag| {
-                            contact_tags.iter().any(|interest| {
-                                interest
-                                    .split_whitespace()
-                                    .collect::<Vec<_>>()
-                                    .join(" ")
-                                    .to_lowercase()
-                                    == tag
-                                        .split_whitespace()
-                                        .collect::<Vec<_>>()
-                                        .join(" ")
-                                        .to_lowercase()
-                            })
-                        }),
-                        _ => true,
-                    }
-            }) {
-                used.insert(starter.id.clone());
-                selected.push(SelectedStarter {
-                    starter: (*starter).clone(),
-                    reason: self.reasons[reason][&ctx.explanation_language_id].clone(),
-                });
-            }
-        }
-        for starter in eligible {
-            if selected.len() == 3 {
-                break;
-            }
-            if used.insert(starter.id.clone()) {
-                selected.push(SelectedStarter {
-                    starter: starter.clone(),
-                    reason: self.reasons["general"][&ctx.explanation_language_id].clone(),
-                });
-            }
-        }
-        Ok(selected)
+            .find(|t| t.id == id)
+            .ok_or_else(|| error("topics", "unknown_topic", "Unknown topic identity."))
     }
 }
 const SCOPES: &[&str] = &[

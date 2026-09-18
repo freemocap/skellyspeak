@@ -1,3 +1,4 @@
+import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 // @vitest-environment jsdom
 import { beforeEach, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
@@ -133,4 +134,27 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   expect(edit).toHaveBeenCalledOnce()
   expect(screen.queryByRole('dialog')).toBeNull()
+})
+
+
+it('uses the shared Ask action and closes feedback before handing off its question', () => {
+  const ask = vi.fn()
+  render(<MessageFeedback {...base} onAsk={ask} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Ask the coach' }))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(ask).toHaveBeenCalledWith(expect.stringContaining('Help me understand the feedback on my message:'))
+})
+
+it('closes both feedback and nested token details when asking about a token', () => {
+  const ask = vi.fn()
+  render(<MessageFeedback {...base} onAsk={ask} analysis={<SavedGlossText text="Hola" segments={[{ start: 0, end: 4, kind: 'gloss', gloss: 'hello' }]} />} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Word help' }))
+  const buttons = screen.getAllByRole('button', { name: 'Ask the coach' })
+  fireEvent.click(buttons[buttons.length - 1])
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(ask).toHaveBeenCalledTimes(1)
+  expect(ask).toHaveBeenCalledWith(expect.stringContaining('Help me understand “Hola”'))
 })

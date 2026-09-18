@@ -17,5 +17,6 @@ pub fn schemas() -> BTreeMap<String, serde_json::Value> {
         schema!("learning-map.json", Vec<NavigationNode>),
         schema!("teaching-policy.json", TeachingPolicy),
         schema!("conversation-topics.json", Vec<ConversationTopic>),
+        schema!("conversation-prompt.json", ConversationPromptContent),
     ])
 }

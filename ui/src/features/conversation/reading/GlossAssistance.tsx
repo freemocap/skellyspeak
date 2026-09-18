@@ -27,7 +27,7 @@ export function GlossAssistance({ assistant, onRetryGloss }: {
   return (
     <>          {showGlossHelp && <div className="trans" dir="auto" aria-label={tr("Word meanings")} onDoubleClick={event => event.stopPropagation()}>
           {assistant.savedGloss?.coverage === 'partial' && <span>{tr("Partial · ")}</span>}
-          {['ready', 'running', 'waiting_dependencies'].includes(assistant.glossState ?? '') && <ActivityIndicator compact label={tr("Word meanings pending")} />}
+          {['ready', 'running', 'waiting_dependencies'].includes(assistant.glossState ?? '') && <ActivityIndicator compact label={tr(assistant.savedGloss ? "Finishing word meanings…" : "Word meanings pending")} />}
           {['failed', 'unknown'].includes(assistant.glossState ?? '') && <ErrorDetails label={tr("Word meanings")} errorKey={`${assistant.glossOperationId}:${assistant.glossState}:${assistant.glossError}`}>{assistant.glossError ?? tr("Word meanings unavailable")}</ErrorDetails>}
           {(['failed', 'unknown'].includes(assistant.glossState ?? '') || (assistant.glossState === 'succeeded' && assistant.savedGloss && (assistant.savedGloss.coverage === 'partial' || !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))) && assistant.glossOperationId && onRetryGloss && <button type="button" className="message-translate" disabled={glossRetryPending} onClick={event => { event.stopPropagation(); void retryGloss() }}>{tr("Retry word meanings")}</button>}
           {glossRetryError && <ErrorDetails label={tr("Retry failed")} errorKey={glossRetryError}>{glossRetryError}</ErrorDetails>}

@@ -9,3 +9,5 @@
 
 .pane-header, .chat-head, .break-head, .settings-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 40px; padding: 0 var(--space-8); border-bottom: var(--border-width) solid var(--line-soft); color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-sans); letter-spacing: var(--tracking-tag); text-transform: uppercase; flex: none; }
 .pane-header button { min-height: var(--control-height); margin-inline-start: auto; }
+
+.detail-meta { color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }

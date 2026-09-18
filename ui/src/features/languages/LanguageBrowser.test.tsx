@@ -23,7 +23,7 @@ function report(id='arabic-levantine'): LanguageInspection {
     values:[{field:'font_scale',value:'1.5',source:'languages/arabic.yaml#defaults.scalars.font_scale'}],
     rules:[{scope:'assessment',text:'Preserve learner quotations.',source:'languages/arabic.yaml#guidance.0'}],
     schemes:[{id:'arabic:ala-lc-arabic',label:'ALA-LC Arabic',instructions:'Preserve the source.',examples:[['كتاب','kitāb']],sources:['ala_lc_arabic'],review:'needs_review',source:'languages/arabic.yaml#definitions',selected:true,usedBy:['Arabic — Levantine Arabic']}],
-    goals:[],starters:[],partner:{name:'نور'} as LanguageInspection['partner'],
+    goals:[],topics:[],partner:{name:'نور'} as LanguageInspection['partner'],
     sources:[{path:'languages/arabic.yaml',yaml:'schema_version: 1'}],schemaJson:'{}',resolvedJson:'{"context":{}}',learningJson:'{}',conversationJson:'{}',
   }
 }

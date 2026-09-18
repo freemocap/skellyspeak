@@ -64,7 +64,6 @@
   }
   .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 0; display: none; }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
-  .mobile-conversation.mobile-lesson > .chat { display: none; }
-  .mobile-conversation.mobile-lesson .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
-  .mobile-conversation.workspace-learn > .chat { display: none; }
+  .mobile-conversation.mobile-coach > .chat { display: none; }
+  .mobile-conversation.mobile-coach .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
 }

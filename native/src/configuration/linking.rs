@@ -172,34 +172,6 @@ impl Registry {
         }
         self.goal_material
             .insert(id.clone(), doc.learning.goal_material.clone());
-        for (topic, text) in &doc.conversation.starters {
-            let starter = self
-                .starter_config
-                .iter_mut()
-                .find(|s| s.id == *topic)
-                .ok_or_else(|| {
-                    error(
-                        format!("{path}#conversation.starters.{topic}"),
-                        "unknown_reference",
-                        "Unknown conversation topic.",
-                    )
-                })?;
-            starter.languages.push(id.clone());
-            starter.labels.insert(id.clone(), text.label.clone());
-            starter.previews.insert(id.clone(), text.preview.clone());
-            starter
-                .translations
-                .insert(id.clone(), text.translation.clone());
-            starter
-                .compatible_varieties
-                .insert(id.clone(), text.varieties.clone());
-        }
-        for (key, value) in doc.conversation.starter_reasons.entries() {
-            self.reasons
-                .entry(key.into())
-                .or_default()
-                .insert(id.clone(), value.into());
-        }
         self.languages.push(Language {
             id: id.clone(),
             name: doc.identity.name.clone(),

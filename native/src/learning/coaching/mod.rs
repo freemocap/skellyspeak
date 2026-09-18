@@ -330,9 +330,7 @@ pub fn prompt(
         }
     }
     if kind == SUGGESTIONS {
-        system.push_str(&crate::conversations::conversation_prompt::focus_block(
-            &captured["practiceFocus"],
-        )?);
+        system.push_str(&focus_block(&captured["practiceFocus"])?);
     }
     let content = serde_json::to_string(&data)?;
     if system.len() + content.len() > 96000 {
@@ -544,5 +542,38 @@ mod tests {
             }
         }
         assert_ne!(super::catalog_version(), 4);
+    }
+}
+
+/// Render the frozen L3 block. Focus is opportunity, never a demand to drill.
+pub(crate) fn focus_block(focus: &serde_json::Value) -> Result<String> {
+    if focus.is_null() || focus["source"] == "recommended" {
+        return Ok(String::new());
+    }
+    let label = focus["label"]
+        .as_str()
+        .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing focus label."))?;
+    let opportunity = focus["opportunity"]
+        .as_str()
+        .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing focus opportunity."))?;
+    Ok(format!(
+        "\nPractice focus (do not mention or drill): {label}.\nOnly when it fits the user's current topic, allow an opportunity: {opportunity} Never change the topic to practise this skill.\nIf the learner's last message was not understood, ask one short natural clarification question."
+    ))
+}
+
+#[cfg(test)]
+mod focus_tests {
+    #[test]
+    fn l3_focus_block_snapshot_and_absence() {
+        assert_eq!(super::focus_block(&serde_json::Value::Null).unwrap(), "");
+        assert_eq!(
+            super::focus_block(&serde_json::json!({
+                "source":"recommended", "label":"Ask a question",
+                "opportunity":"Request missing information."
+            }))
+            .unwrap(),
+            ""
+        );
+        assert_eq!(super::focus_block(&serde_json::json!({"label":"Ask a question","opportunity":"Request missing information."})).unwrap(), "\nPractice focus (do not mention or drill): Ask a question.\nOnly when it fits the user's current topic, allow an opportunity: Request missing information. Never change the topic to practise this skill.\nIf the learner's last message was not understood, ask one short natural clarification question.");
     }
 }

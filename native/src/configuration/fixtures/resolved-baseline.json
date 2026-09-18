@@ -1,19 +1,5 @@
 {
   "arabic/arabic-modern-standard/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "arabic",
@@ -99,7 +85,6 @@
     }
   },
   "arabic/arabic-modern-standard/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "arabic",
@@ -185,20 +170,6 @@
     }
   },
   "arabic/arabic-modern-standard/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "german",
@@ -284,20 +255,6 @@
     }
   },
   "arabic/arabic-modern-standard/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "english",
@@ -383,20 +340,6 @@
     }
   },
   "arabic/arabic-modern-standard/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "english",
@@ -482,20 +425,6 @@
     }
   },
   "arabic/arabic-modern-standard/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "spanish",
@@ -581,20 +510,6 @@
     }
   },
   "arabic/arabic-modern-standard/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "spanish",
@@ -680,20 +595,6 @@
     }
   },
   "arabic/arabic-modern-standard/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "french",
@@ -779,20 +680,6 @@
     }
   },
   "arabic/arabic-modern-standard/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "french",
@@ -878,20 +765,6 @@
     }
   },
   "arabic/arabic-modern-standard/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "portuguese",
@@ -977,20 +850,6 @@
     }
   },
   "arabic/arabic-modern-standard/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "mandarin",
@@ -1077,7 +936,6 @@
     }
   },
   "arabic/arabic-levantine/arabic/arabic-modern-standard": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "arabic",
@@ -1163,7 +1021,6 @@
     }
   },
   "arabic/arabic-levantine/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "arabic",
@@ -1249,7 +1106,6 @@
     }
   },
   "arabic/arabic-levantine/german/german-germany": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "german",
@@ -1335,7 +1191,6 @@
     }
   },
   "arabic/arabic-levantine/english/english-united-kingdom": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "english",
@@ -1421,7 +1276,6 @@
     }
   },
   "arabic/arabic-levantine/english/english-united-states": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "english",
@@ -1507,7 +1361,6 @@
     }
   },
   "arabic/arabic-levantine/spanish/spanish-spain": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "spanish",
@@ -1593,7 +1446,6 @@
     }
   },
   "arabic/arabic-levantine/spanish/spanish-mexico": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "spanish",
@@ -1679,7 +1531,6 @@
     }
   },
   "arabic/arabic-levantine/french/french-canada": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "french",
@@ -1765,7 +1616,6 @@
     }
   },
   "arabic/arabic-levantine/french/french-france": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "french",
@@ -1851,7 +1701,6 @@
     }
   },
   "arabic/arabic-levantine/portuguese/portuguese-brazil": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "portuguese",
@@ -1937,7 +1786,6 @@
     }
   },
   "arabic/arabic-levantine/mandarin/mandarin-mainland-china": {
-    "cards": [],
     "context": {
       "direction": "rtl",
       "explanation_language_id": "mandarin",
@@ -2024,20 +1872,6 @@
     }
   },
   "german/german-germany/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -2113,7 +1947,6 @@
     }
   },
   "german/german-germany/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -2189,20 +2022,6 @@
     }
   },
   "german/german-germany/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -2278,20 +2097,6 @@
     }
   },
   "german/german-germany/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -2367,20 +2172,6 @@
     }
   },
   "german/german-germany/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -2456,20 +2247,6 @@
     }
   },
   "german/german-germany/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -2545,20 +2322,6 @@
     }
   },
   "german/german-germany/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -2634,20 +2397,6 @@
     }
   },
   "german/german-germany/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -2723,20 +2472,6 @@
     }
   },
   "german/german-germany/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -2812,20 +2547,6 @@
     }
   },
   "german/german-germany/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -2901,20 +2622,6 @@
     }
   },
   "german/german-germany/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -2991,20 +2698,6 @@
     }
   },
   "english/english-united-kingdom/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -3088,7 +2781,6 @@
     }
   },
   "english/english-united-kingdom/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -3172,20 +2864,6 @@
     }
   },
   "english/english-united-kingdom/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -3269,20 +2947,6 @@
     }
   },
   "english/english-united-kingdom/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -3366,20 +3030,6 @@
     }
   },
   "english/english-united-kingdom/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -3463,20 +3113,6 @@
     }
   },
   "english/english-united-kingdom/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -3560,20 +3196,6 @@
     }
   },
   "english/english-united-kingdom/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -3657,20 +3279,6 @@
     }
   },
   "english/english-united-kingdom/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -3754,20 +3362,6 @@
     }
   },
   "english/english-united-kingdom/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -3851,20 +3445,6 @@
     }
   },
   "english/english-united-kingdom/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -3948,20 +3528,6 @@
     }
   },
   "english/english-united-kingdom/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -4046,20 +3612,6 @@
     }
   },
   "english/english-united-states/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -4143,7 +3695,6 @@
     }
   },
   "english/english-united-states/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -4227,20 +3778,6 @@
     }
   },
   "english/english-united-states/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -4324,20 +3861,6 @@
     }
   },
   "english/english-united-states/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -4421,20 +3944,6 @@
     }
   },
   "english/english-united-states/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -4518,20 +4027,6 @@
     }
   },
   "english/english-united-states/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -4615,20 +4110,6 @@
     }
   },
   "english/english-united-states/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -4712,20 +4193,6 @@
     }
   },
   "english/english-united-states/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -4809,20 +4276,6 @@
     }
   },
   "english/english-united-states/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -4906,20 +4359,6 @@
     }
   },
   "english/english-united-states/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -5003,20 +4442,6 @@
     }
   },
   "english/english-united-states/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -5101,20 +4526,6 @@
     }
   },
   "spanish/spanish-spain/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -5201,7 +4612,6 @@
     }
   },
   "spanish/spanish-spain/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -5288,20 +4698,6 @@
     }
   },
   "spanish/spanish-spain/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -5388,20 +4784,6 @@
     }
   },
   "spanish/spanish-spain/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -5488,20 +4870,6 @@
     }
   },
   "spanish/spanish-spain/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -5588,20 +4956,6 @@
     }
   },
   "spanish/spanish-spain/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -5688,20 +5042,6 @@
     }
   },
   "spanish/spanish-spain/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -5788,20 +5128,6 @@
     }
   },
   "spanish/spanish-spain/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -5888,20 +5214,6 @@
     }
   },
   "spanish/spanish-spain/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -5988,20 +5300,6 @@
     }
   },
   "spanish/spanish-spain/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -6088,20 +5386,6 @@
     }
   },
   "spanish/spanish-spain/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -6189,20 +5473,6 @@
     }
   },
   "spanish/spanish-mexico/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -6289,7 +5559,6 @@
     }
   },
   "spanish/spanish-mexico/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -6376,20 +5645,6 @@
     }
   },
   "spanish/spanish-mexico/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -6476,20 +5731,6 @@
     }
   },
   "spanish/spanish-mexico/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -6576,20 +5817,6 @@
     }
   },
   "spanish/spanish-mexico/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -6676,20 +5903,6 @@
     }
   },
   "spanish/spanish-mexico/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -6776,20 +5989,6 @@
     }
   },
   "spanish/spanish-mexico/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -6876,20 +6075,6 @@
     }
   },
   "spanish/spanish-mexico/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -6976,20 +6161,6 @@
     }
   },
   "spanish/spanish-mexico/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -7076,20 +6247,6 @@
     }
   },
   "spanish/spanish-mexico/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -7176,20 +6333,6 @@
     }
   },
   "spanish/spanish-mexico/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -7277,20 +6420,6 @@
     }
   },
   "french/french-canada/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -7375,7 +6504,6 @@
     }
   },
   "french/french-canada/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -7460,20 +6588,6 @@
     }
   },
   "french/french-canada/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -7558,20 +6672,6 @@
     }
   },
   "french/french-canada/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -7656,20 +6756,6 @@
     }
   },
   "french/french-canada/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -7754,20 +6840,6 @@
     }
   },
   "french/french-canada/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -7852,20 +6924,6 @@
     }
   },
   "french/french-canada/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -7950,20 +7008,6 @@
     }
   },
   "french/french-canada/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -8048,20 +7092,6 @@
     }
   },
   "french/french-canada/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -8146,20 +7176,6 @@
     }
   },
   "french/french-canada/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -8244,20 +7260,6 @@
     }
   },
   "french/french-canada/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -8343,20 +7345,6 @@
     }
   },
   "french/french-france/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -8441,7 +7429,6 @@
     }
   },
   "french/french-france/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -8526,20 +7513,6 @@
     }
   },
   "french/french-france/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -8624,20 +7597,6 @@
     }
   },
   "french/french-france/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -8722,20 +7681,6 @@
     }
   },
   "french/french-france/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -8820,20 +7765,6 @@
     }
   },
   "french/french-france/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -8918,20 +7849,6 @@
     }
   },
   "french/french-france/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -9016,20 +7933,6 @@
     }
   },
   "french/french-france/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -9114,20 +8017,6 @@
     }
   },
   "french/french-france/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -9212,20 +8101,6 @@
     }
   },
   "french/french-france/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -9310,20 +8185,6 @@
     }
   },
   "french/french-france/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -9409,20 +8270,6 @@
     }
   },
   "portuguese/portuguese-brazil/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -9498,7 +8345,6 @@
     }
   },
   "portuguese/portuguese-brazil/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -9574,20 +8420,6 @@
     }
   },
   "portuguese/portuguese-brazil/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -9663,20 +8495,6 @@
     }
   },
   "portuguese/portuguese-brazil/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -9752,20 +8570,6 @@
     }
   },
   "portuguese/portuguese-brazil/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -9841,20 +8645,6 @@
     }
   },
   "portuguese/portuguese-brazil/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -9930,20 +8720,6 @@
     }
   },
   "portuguese/portuguese-brazil/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -10019,20 +8795,6 @@
     }
   },
   "portuguese/portuguese-brazil/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -10108,20 +8870,6 @@
     }
   },
   "portuguese/portuguese-brazil/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -10197,20 +8945,6 @@
     }
   },
   "portuguese/portuguese-brazil/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -10286,20 +9020,6 @@
     }
   },
   "portuguese/portuguese-brazil/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",
@@ -10376,20 +9096,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/arabic/arabic-modern-standard": {
-    "cards": [
-      [
-        "food",
-        "موضوع للمحادثة"
-      ],
-      [
-        "family",
-        "موضوع للمحادثة"
-      ],
-      [
-        "weekend",
-        "موضوع للمحادثة"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -10477,7 +9183,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/arabic/arabic-levantine": {
-    "cards": [],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "arabic",
@@ -10565,20 +9270,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/german/german-germany": {
-    "cards": [
-      [
-        "food",
-        "Gesprächsthema"
-      ],
-      [
-        "family",
-        "Gesprächsthema"
-      ],
-      [
-        "weekend",
-        "Gesprächsthema"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "german",
@@ -10666,20 +9357,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/english/english-united-kingdom": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -10767,20 +9444,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/english/english-united-states": {
-    "cards": [
-      [
-        "food",
-        "Conversation topic"
-      ],
-      [
-        "family",
-        "Conversation topic"
-      ],
-      [
-        "weekend",
-        "Conversation topic"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "english",
@@ -10868,20 +9531,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/spanish/spanish-spain": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -10969,20 +9618,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/spanish/spanish-mexico": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversación"
-      ],
-      [
-        "family",
-        "Tema de conversación"
-      ],
-      [
-        "weekend",
-        "Tema de conversación"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "spanish",
@@ -11070,20 +9705,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/french/french-canada": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -11171,20 +9792,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/french/french-france": {
-    "cards": [
-      [
-        "food",
-        "Sujet de conversation"
-      ],
-      [
-        "family",
-        "Sujet de conversation"
-      ],
-      [
-        "weekend",
-        "Sujet de conversation"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "french",
@@ -11272,20 +9879,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/portuguese/portuguese-brazil": {
-    "cards": [
-      [
-        "food",
-        "Tema de conversa"
-      ],
-      [
-        "family",
-        "Tema de conversa"
-      ],
-      [
-        "weekend",
-        "Tema de conversa"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "portuguese",
@@ -11373,20 +9966,6 @@
     }
   },
   "mandarin/mandarin-mainland-china/mandarin/mandarin-mainland-china": {
-    "cards": [
-      [
-        "food",
-        "对话话题"
-      ],
-      [
-        "family",
-        "对话话题"
-      ],
-      [
-        "weekend",
-        "对话话题"
-      ]
-    ],
     "context": {
       "direction": "ltr",
       "explanation_language_id": "mandarin",

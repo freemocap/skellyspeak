@@ -137,15 +137,12 @@ impl Registry {
         let families = unique("families", self.families.iter().map(|x| x.id.as_str()))?;
         let constructs = unique("constructs", self.constructs.iter().map(|x| x.id.as_str()))?;
         let nav = unique("navigation", self.navigation.iter().map(|x| x.id.as_str()))?;
-        unique(
-            "starters",
-            self.starter_config.iter().map(|x| x.id.as_str()),
-        )?;
-        if langs.is_empty() || constructs.is_empty() || self.starter_config.is_empty() {
+        unique("topics", self.topics.iter().map(|x| x.id.as_str()))?;
+        if langs.is_empty() || constructs.is_empty() || self.topics.is_empty() {
             return Err(error(
                 "config",
                 "empty",
-                "Languages, constructs and starters cannot be empty.",
+                "Languages, constructs and topics cannot be empty.",
             ));
         }
         for s in &self.scripts {
@@ -585,104 +582,55 @@ impl Registry {
             }
         }
         citations("shared/teaching-policy.yaml#feedback", &p.sources, &keys)?;
-        if self
-            .reasons
-            .keys()
-            .map(String::as_str)
-            .collect::<BTreeSet<_>>()
-            != ["focus", "due", "contact", "general"].into_iter().collect()
+        let prompt = &self.conversation_prompt;
+        nonempty(
+            "conversation prompt",
+            &[
+                &prompt.base,
+                &prompt.persona,
+                &prompt.ceiling,
+                &prompt.past,
+                &prompt.future,
+                &prompt.opening,
+                &prompt.response,
+                &prompt.subject,
+            ],
+        )?;
+        let expected = [
+            "absolute_zero",
+            "beginner",
+            "intermediate",
+            "advanced",
+            "fluent",
+        ];
+        if prompt.difficulty.len() != expected.len()
+            || expected.iter().any(|key| {
+                prompt
+                    .difficulty
+                    .get(*key)
+                    .is_none_or(|s| s.trim().is_empty())
+            })
         {
             return Err(error(
-                "languages/*#conversation.starter_reasons",
-                "reason",
-                "Expected focus, due, contact and general reason labels.",
+                "conversation prompt",
+                "difficulty",
+                "All five difficulty instructions are required.",
             ));
         }
-        for map in self.reasons.values() {
-            if map.keys().cloned().collect::<BTreeSet<_>>() != langs
-                || map.values().any(|v| v.trim().is_empty())
-            {
-                return Err(error(
-                    "languages/*#conversation.starter_reasons",
-                    "localization",
-                    "Every reason must cover every explanation language.",
-                ));
-            }
-        }
-        for s in &self.starter_config {
-            for (language, varieties) in &s.compatible_varieties {
-                let language = self.language_config(language)?;
-                let valid = language.varieties.iter().map(|v| v.id.clone()).collect();
-                if varieties.is_empty() {
+        for topic in &self.topics {
+            nonempty(&topic.id, &[&topic.subject])?;
+            for locale in super::INTERFACE_LOCALES {
+                if topic
+                    .labels
+                    .get(*locale)
+                    .is_none_or(|label| label.trim().is_empty())
+                {
                     return Err(error(
-                        &s.id,
-                        "varieties",
-                        "Starter compatibility must be explicit.",
-                    ));
-                }
-                for variety in varieties {
-                    reference(&s.id, variety, &valid)?;
-                }
-            }
-            for language in &s.languages {
-                if !s.compatible_varieties.contains_key(language) {
-                    return Err(error(
-                        &s.id,
-                        "varieties",
-                        "Missing starter variety coverage.",
-                    ));
-                }
-            }
-            checked_review(&s.id, &s.review, &s.sources)?;
-            nonempty(&s.id, &[&s.partner_brief])?;
-            review(&s.id, &s.review)?;
-            citations(&s.id, &s.sources, &keys)?;
-            if !["roleplay", "chat", "story", "question"].contains(&s.opener_kind.as_str())
-                || s.bands.is_empty()
-                || s.bands.iter().any(|b| !BANDS.contains(&b.as_str()))
-                || s.languages.is_empty()
-            {
-                return Err(error(
-                    &s.id,
-                    "starter",
-                    "Invalid bands, languages or opener kind.",
-                ));
-            }
-            for id in &s.languages {
-                reference(&s.id, id, &langs)?;
-            }
-            for id in s.functions.iter().chain(&s.constructs_any) {
-                reference(&s.id, id, &constructs)?;
-            }
-            // Every offered language must have a target preview; every supported
-            // explanation language must have a label and equivalent translation.
-            for id in &s.languages {
-                for map in [&s.labels, &s.translations] {
-                    if map.get(id).is_none_or(|s| s.trim().is_empty()) {
-                        return Err(error(
-                            &s.id,
-                            "localization",
-                            format!("Missing localized content for {id}"),
-                        ));
-                    }
-                }
-            }
-            for id in &s.languages {
-                if s.previews.get(id).is_none_or(|s| s.trim().is_empty()) {
-                    return Err(error(
-                        &s.id,
+                        &topic.id,
                         "localization",
-                        format!("Missing preview for {id}"),
+                        "Missing interface topic label.",
                     ));
                 }
-            }
-            for id in s
-                .labels
-                .keys()
-                .chain(s.translations.keys())
-                .chain(s.previews.keys())
-            {
-                reference(&s.id, id, &langs)?;
             }
         }
         Ok(())

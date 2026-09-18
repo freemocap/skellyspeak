@@ -13,13 +13,6 @@ pub(super) fn plan_for(
     db: &Connection,
     turn: &str,
 ) -> Result<&'static [crate::conversations::turn_plan::Declaration]> {
-    if db.query_row(
-        "SELECT EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind='lesson_generate')",
-        [turn],
-        |r| r.get::<_, bool>(0),
-    )? {
-        return Ok(crate::conversations::turn_plan::LESSON_PLAN);
-    }
     let opening: bool = db.query_row(
         "SELECT EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind='persona_opening')",
         [turn],
@@ -81,7 +74,6 @@ impl Store {
             "UPDATE attempts SET diagnostics=?2 WHERE id=?1 AND operation_id=?3",
             params![dispatch.attempt, retained, dispatch.operation],
         )?;
-        crate::learning::lessons::suspend_pending(&tx)?;
         let scope:Option<(String,String)>=tx.query_row("SELECT t.id,t.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND o.id=?2 AND a.state='running' AND o.state='running' AND t.state IN ('pending','assisting')",params![dispatch.attempt,dispatch.operation],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         let Some((turn, conversation)) = scope else {
             tx.commit()?;
@@ -97,6 +89,7 @@ impl Store {
         )?;
         let mut translation = None;
         let mut gloss = None;
+        let mut gloss_report = None;
         let mut coaching = None;
         let valid = match &result {
             Ok(output) if crate::conversations::translation::owns(&kind) => (|| -> Result<()> {
@@ -125,11 +118,6 @@ impl Store {
                     .map(|v| {
                         coaching = Some(v);
                     })
-            }
-            Ok(output) if kind.starts_with("lesson_") => {
-                crate::learning::lessons::validate(&tx, &turn, &kind, output).map(|value| {
-                    coaching = Some(value);
-                })
             }
             Ok(output)
                 if kind == "skill_assessment"
@@ -176,13 +164,26 @@ impl Store {
                     }
                     let language_context: crate::configuration::LanguageContext =
                         serde_json::from_value(captured["languageContext"].clone())?;
-                    gloss = Some(crate::conversations::gloss::validate_with_context(
-                        source,
-                        output,
-                        &dispatch.operation,
-                        &dispatch.attempt,
-                        &language_context,
-                    )?);
+                    let (mut value, mut report) =
+                        crate::conversations::gloss::recover_with_context(
+                            source,
+                            output,
+                            &dispatch.operation,
+                            &dispatch.attempt,
+                            &language_context,
+                        )?;
+                    let saved_key = if kind == "user_word_gloss" {
+                        "userWordGloss"
+                    } else {
+                        "wordGloss"
+                    };
+                    if let Some(saved) = captured.get(saved_key).filter(|v| !v.is_null()) {
+                        let previous: WordGlossView = serde_json::from_value(saved.clone())?;
+                        report["preserved_from_attempt"] = serde_json::json!(previous.attempt_id);
+                        value = crate::conversations::gloss::merge_repair(&previous, value)?;
+                    }
+                    gloss_report = Some(report);
+                    gloss = Some(value);
                     Ok(())
                 })()
             }
@@ -245,7 +246,7 @@ impl Store {
         )?;
         if state == "succeeded" {
             if kind == "persona_reply" || kind == "persona_opening" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','lesson_review','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", [&turn])?;
+                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", [&turn])?;
             }
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
@@ -260,8 +261,6 @@ impl Store {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;
-                } else if kind.starts_with("lesson_") {
-                    crate::learning::lessons::publish(&tx, &turn, &kind, &value)?;
                 } else if kind == "coach_reaction" {
                     tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1",params![turn,value.to_string()])?;
                 } else if kind == crate::learning::coaching::SUGGESTIONS {
@@ -281,6 +280,15 @@ impl Store {
                     )?;
                 }
             } else if let Some(gloss) = gloss {
+                let repair = if gloss.coverage == GlossCoverage::Partial {
+                    reading::queue_gloss_repair(&tx, &turn, dispatch)?
+                } else {
+                    "complete"
+                };
+                if let Some(report) = gloss_report.as_mut() {
+                    report["repair"] = serde_json::json!(repair);
+                }
+
                 tx.execute(
                     "UPDATE turns SET context=json_set(context,?3,json(?2)) WHERE id=?1",
                     params![turn, serde_json::to_string(&gloss)?, gloss_path(&kind)],
@@ -297,6 +305,9 @@ impl Store {
                 "UPDATE conversations SET revision=revision+1 WHERE id=?1",
                 [conversation],
             )?;
+        }
+        if let Some(report) = gloss_report {
+            tx.execute("UPDATE attempts SET diagnostics=json_set(COALESCE(diagnostics,'{}'),'$.word_gloss_validation',json(?2)) WHERE id=?1", params![dispatch.attempt, report.to_string()])?;
         }
         refresh_turn(&tx, &turn)?;
         bump(&tx)?;

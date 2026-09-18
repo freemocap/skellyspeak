@@ -52,8 +52,8 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit }: {
           <h3>{tr("How your message came across")}</h3><p dir="auto">{reaction!.interpretation}</p>
           <h3>{reaction!.kind === 'confused' ? tr("What was unclear") : tr("Why this reaction")}</h3><p dir="auto">{reaction!.explanation}</p>
         </>}
-        <button type="button" className="lesson-action" disabled={!onEdit} onClick={() => { setOpen(false); onEdit?.() }}>{tr("Edit & try again")}</button>
-        <p className="lesson-meta">{tr("This is an interpretation of the reply, not a measured emotion.")}</p>
+        <button type="button" className="detail-action" disabled={!onEdit} onClick={() => { setOpen(false); onEdit?.() }}>{tr("Edit & try again")}</button>
+        <p className="detail-meta">{tr("This is an interpretation of the reply, not a measured emotion.")}</p>
 
       </div>
     </DetailDialog>}

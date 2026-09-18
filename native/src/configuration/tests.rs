@@ -57,7 +57,7 @@ fn shipped_config_loads_resolves_and_projects() {
     assert!(r.resolve("xx", None, "english").is_err());
 }
 #[test]
-fn candidates_preserve_required_members_and_starters_have_real_reasons() {
+fn candidates_preserve_required_members() {
     let r = Registry::bundled().unwrap();
     let ctx = r.resolve("spanish", None, "english").unwrap();
     let candidates = r
@@ -67,28 +67,6 @@ fn candidates_preserve_required_members_and_starters_have_real_reasons() {
     assert!(!candidates.iter().any(|c| c.id == "ix.self_repair"));
     // Most migrated criteria are functional; mandatory coverage legitimately exceeds25.
     assert!(candidates.len() > 25);
-    let cards = r
-        .starters(
-            &ctx,
-            "PreA1",
-            &["future_reference".into()],
-            &[],
-            &["music".into()],
-            &[],
-        )
-        .unwrap();
-    assert_eq!(cards[0].starter.id, "weekend");
-    assert_eq!(cards[0].reason, "From your focus");
-    assert_eq!(cards[1].starter.id, "music");
-    assert_eq!(cards[1].reason, "From your contact’s interests");
-    let recent: Vec<_> = cards.iter().map(|c| c.starter.id.clone()).collect();
-    assert!(
-        r.starters(&ctx, "PreA1", &[], &[], &[], &recent)
-            .unwrap()
-            .iter()
-            .all(|c| !recent.contains(&c.starter.id))
-    );
-    assert!(r.starters(&ctx, "bogus", &[], &[], &[], &[]).is_err());
 }
 #[test]
 fn export_schemas() {
@@ -239,26 +217,7 @@ fn captured_custom_language_context_reaches_gloss_prompt_and_decoder() {
 }
 
 #[test]
-fn contact_starter_tags_normalize_case_and_whitespace_but_require_exact_meaning_label() {
-    let registry = Registry::bundled().unwrap();
-    let context = registry.resolve("english", None, "english").unwrap();
-    let cards = registry
-        .starters(&context, "A1", &[], &[], &[" Music ".into()], &[])
-        .unwrap();
-    assert_eq!(cards[0].starter.id, "music");
-    assert_eq!(cards[0].reason, "From your contact’s interests");
-    let cards = registry
-        .starters(&context, "A1", &[], &[], &[" Music criticism ".into()], &[])
-        .unwrap();
-    assert!(
-        cards
-            .iter()
-            .all(|card| card.reason != "From your contact’s interests")
-    );
-}
-
-#[test]
-fn every_configured_pair_resolves_and_starters_respect_explicit_coverage() {
+fn every_configured_pair_resolves_with_shared_topics() {
     let registry = Registry::bundled().unwrap();
     for target in &registry.languages {
         let persona = registry.starter_persona(&target.id).unwrap();
@@ -273,22 +232,7 @@ fn every_configured_pair_resolves_and_starters_respect_explicit_coverage() {
             let context = registry.resolve(&target.id, None, &explanation.id).unwrap();
             assert_eq!(context.language_id, target.id);
             assert_eq!(context.explanation_language_id, explanation.id);
-            let compatible = registry.starter_config.iter().any(|starter| {
-                starter
-                    .compatible_varieties
-                    .get(&target.id)
-                    .is_some_and(|ids| ids.contains(&context.variety_id))
-                    && starter
-                        .compatible_varieties
-                        .get(&explanation.id)
-                        .is_some_and(|ids| ids.contains(&context.explanation_variety_id))
-            });
-            let cards = registry.starters(&context, "A1", &[], &[], &[], &[]);
-            if compatible {
-                assert!(!cards.unwrap().is_empty());
-            } else {
-                assert!(cards.unwrap().is_empty());
-            }
+            assert_eq!(registry.topics().len(), 6);
         }
     }
 }

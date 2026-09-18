@@ -60,7 +60,7 @@ fn new_latin_languages_keep_identity_writing_and_provider_mapping_separate() {
                 .to_string()
                 .contains(&writing[0].text)
         );
-        assert_eq!(doc.conversation.starters.len(), 6);
+        assert_eq!(registry.topics().len(), 6);
         let partner = registry.starter_persona(id).unwrap();
         assert!(partner.romanized_name.is_none());
     }

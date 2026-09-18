@@ -103,7 +103,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     const element = host.current
     const scope = workspace.current
     const place = () => {
-      const surface = scope.querySelector(scope.classList.contains('mobile-lesson') ? '.break' : '.stream')
+      const surface = scope.querySelector(scope.classList.contains('mobile-coach') ? '.break' : '.stream')
       if (!surface) throw new Error('XP presentation needs the active practice surface')
       const rect = surface.getBoundingClientRect()
       const viewport = window.visualViewport

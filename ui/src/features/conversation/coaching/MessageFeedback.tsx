@@ -1,3 +1,4 @@
+import { AskCoachButton, AskCoachContext } from '../../../components/learning/AskCoachButton'
 import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import type { ConversationFeedback } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
@@ -42,6 +43,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
     catch (reason) { setFailure(nativeError(reason)) }
     finally { pending.current = false; setBusy(false) }
   }
+  const askCoach = (question: string) => { close(); onAsk(question) }
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = conversationFeedback || decision ? tr("Feedback") : null
   return <>
@@ -51,19 +53,19 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>{children}<button type="button" className="message-translate" aria-label={tr("Analyze your message")} aria-haspopup="dialog" disabled={busy} onClick={() => void openCard()}>{tr("Analysis")}</button></div>
     {!open && failure && <p role="alert">{failure}</p>}
-    {open && <DetailDialog title={tr("Feedback on your message")} onClose={close}>
+    {open && <AskCoachContext value={askCoach}><DetailDialog title={tr("Feedback on your message")} onClose={close}>
       {analysis}
-      {conversationFeedback ? <ConversationFeedbackCard feedback={conversationFeedback} onAsk={onAsk} /> : <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />}
+      {conversationFeedback ? <ConversationFeedbackCard feedback={conversationFeedback} onAsk={askCoach} /> : <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />}
       {!conversationFeedback && !decision && !error && <p role="status">{reviewing ? tr("The coach is reviewing this message.") : feedback ? tr("Coaching decision is unavailable.") : tr("No feedback was saved for this message.")}</p>}
-      <div className="lesson-actions">
-        {error && onRetry && <button type="button" className="lesson-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>{tr("Retry failed help")}</button>}
-        {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="lesson-action" onClick={() => void openCard()}>{tr("View coaching help")}</button>}
-        {onEdit && <button type="button" disabled={busy} className="lesson-action" onClick={() => { close(); onEdit() }}>{tr("Edit message")}</button>}
-        {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="lesson-action" onClick={() => void control('show_answer')}>{tr("Show answer")}</button>}
-        {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="lesson-action" onClick={() => void control('keep_going')}>{tr("Keep going")}</button>}
-        <button type="button" className="lesson-action" onClick={() => { close(); onAsk(`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify(conversationFeedback ?? feedback)}`) }}>{tr("Ask the coach")}</button>
+      <div className="detail-actions">
+        {error && onRetry && <button type="button" className="detail-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>{tr("Retry failed help")}</button>}
+        {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="detail-action" onClick={() => void openCard()}>{tr("View coaching help")}</button>}
+        {onEdit && <button type="button" disabled={busy} className="detail-action" onClick={() => { close(); onEdit() }}>{tr("Edit message")}</button>}
+        {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('show_answer')}>{tr("Show answer")}</button>}
+        {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('keep_going')}>{tr("Keep going")}</button>}
+        <AskCoachButton question={`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify(conversationFeedback ?? feedback)}`} />
       </div>
       {failure && <p role="alert">{failure}</p>}
-    </DetailDialog>}
+    </DetailDialog></AskCoachContext>}
   </>
 }

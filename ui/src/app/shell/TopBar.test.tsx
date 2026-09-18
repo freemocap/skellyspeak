@@ -51,8 +51,8 @@ it('disables language switching during a save or settings edit', () => {
   view.rerender(<TopBar />)
   expect(screen.getByRole('combobox', {name:'Target language'})).toBeDisabled()
 })
-it('returns from a lesson to conversation history and preserves secondary navigation', () => {
-  useNavigationStore.getState().setMode('learn')
+it('returns from review to conversation history and preserves secondary navigation', () => {
+  useNavigationStore.getState().setMode('review')
   render(<TopBar />)
   fireEvent.click(screen.getByRole('button', {name:'Conversations'}))
   expect(useNavigationStore.getState()).toMatchObject({mode:'practice',historyOpen:true})

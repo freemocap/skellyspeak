@@ -4,68 +4,25 @@
     "ConversationTopic": {
       "additionalProperties": false,
       "properties": {
-        "bands": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "constructs_any": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "contact_tags": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "functions": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
         "id": {
           "type": "string"
         },
-        "opener_kind": {
-          "type": "string"
-        },
-        "partner_brief": {
-          "type": "string"
-        },
-        "review": {
-          "$ref": "#/definitions/ReviewStatus"
-        },
-        "sources": {
-          "items": {
+        "labels": {
+          "additionalProperties": {
             "type": "string"
           },
-          "type": "array"
+          "type": "object"
+        },
+        "subject": {
+          "type": "string"
         }
       },
       "required": [
-        "bands",
-        "constructs_any",
-        "contact_tags",
-        "functions",
         "id",
-        "opener_kind",
-        "partner_brief",
-        "review",
-        "sources"
+        "labels",
+        "subject"
       ],
       "type": "object"
-    },
-    "ReviewStatus": {
-      "enum": [
-        "needs_review",
-        "reviewed"
-      ],
-      "type": "string"
     }
   },
   "items": {

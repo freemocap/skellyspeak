@@ -87,6 +87,7 @@ pub(super) fn read_snapshot(
         config.validate_settings(&conversation.language_id, &conversation.settings)?;
     }
     Ok(Snapshot {
+        saved_topics: crate::conversations::saved_topics::list(connection)?,
         session_id: session_id.into(),
         revision: connection.query_row(
             "SELECT revision FROM metadata WHERE singleton=1",

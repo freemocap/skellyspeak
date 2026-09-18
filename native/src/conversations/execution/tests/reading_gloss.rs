@@ -48,7 +48,7 @@ fn gloss_retry_runs_alongside_speech_without_regenerating_siblings() {
             .unwrap();
         let gloss = helpers.remove(gloss_index);
         let translation = helpers.pop().unwrap();
-        store.finish(&gloss, Ok(gloss_reply())).unwrap();
+        store.finish(&gloss, Ok(reply(r#"{"spans":[]}"#))).unwrap();
         store
             .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
             .unwrap();
@@ -61,12 +61,6 @@ fn gloss_retry_runs_alongside_speech_without_regenerating_siblings() {
             .unwrap();
         assert_eq!(initial.coverage, GlossCoverage::Partial);
 
-        apply(
-            &mut store,
-            Action::RetryGloss {
-                operation_id: gloss.operation.clone(),
-            },
-        );
         let retry = store.dispatch().unwrap().unwrap();
         assert_eq!(retry.operation, gloss.operation);
         assert_ne!(retry.attempt, gloss.attempt);
@@ -167,7 +161,7 @@ fn gloss_retry_runs_alongside_speech_without_regenerating_siblings() {
 fn g2_partial_result_survives_scoped_retry_failure_and_restart() {
     let (dir, mut store, conversation) = setup();
     let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
-    store.finish(&gloss, Ok(gloss_reply())).unwrap();
+    store.finish(&gloss, Ok(reply(r#"{"spans":[]}"#))).unwrap();
     store
         .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
         .unwrap();
@@ -179,7 +173,6 @@ fn g2_partial_result_survives_scoped_retry_failure_and_restart() {
         .clone()
         .unwrap();
     assert_eq!(initial.coverage, GlossCoverage::Partial);
-    retry_gloss(&store.connection, &gloss.operation).unwrap();
     let retry = store.dispatch().unwrap().unwrap();
     assert_eq!(retry.operation, gloss.operation);
     assert_ne!(retry.attempt, gloss.attempt);
@@ -271,7 +264,7 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
 fn g2_retry_checks_source_archival_and_attempt_budget() {
     let (_dir, mut store, conversation) = setup();
     let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
-    store.finish(&gloss, Ok(gloss_reply())).unwrap();
+    store.finish(&gloss, Ok(reply("invalid json"))).unwrap();
     store
         .finish(&translation, Ok(translation_reply(&translation, "Hello.")))
         .unwrap();
@@ -435,8 +428,7 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     let user = &view.messages[0];
     assert_eq!(user.word_gloss.as_ref().unwrap().source_message_id, user.id);
     assert_eq!(user.translation.as_deref(), Some("Hello, how are you?"));
-    let retry_id = retry_gloss(&store.connection, &gloss.operation).unwrap();
-    assert_eq!(retry_id, conversation);
+    // Partial help schedules one repair without a user retry.
     let mut retry = store.dispatch().unwrap().unwrap();
     retry.gloss_source.as_mut().unwrap().identity.message_id = "wrong-source".into();
     store.finish(&retry, Ok(gloss_reply())).unwrap();

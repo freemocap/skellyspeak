@@ -39,9 +39,7 @@ fn kind(value: &str) -> &str {
         | "user_translation"
         | "reply_translation"
         | "user_word_gloss"
-        | "persona_word_gloss"
-        | "lesson_generate"
-        | "lesson_review" => value,
+        | "persona_word_gloss" => value,
         _ => "other",
     }
 }

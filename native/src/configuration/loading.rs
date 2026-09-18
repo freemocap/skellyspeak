@@ -61,26 +61,8 @@ impl Registry {
             feedback: policy.feedback,
             estimator: policy.estimator,
             game: policy.game,
-            starter_config: topics
-                .into_iter()
-                .map(|t| Starter {
-                    id: t.id,
-                    functions: t.functions,
-                    constructs_any: t.constructs_any,
-                    bands: t.bands,
-                    contact_tags: t.contact_tags,
-                    opener_kind: t.opener_kind,
-                    partner_brief: t.partner_brief,
-                    sources: t.sources,
-                    review: t.review.to_string(),
-                    labels: BTreeMap::new(),
-                    previews: BTreeMap::new(),
-                    translations: BTreeMap::new(),
-                    compatible_varieties: BTreeMap::new(),
-                    languages: vec![],
-                })
-                .collect(),
-            reasons: BTreeMap::new(),
+            topics,
+            conversation_prompt: parse(&files, "prompts/conversation/instructions.yaml")?,
             hash: String::new(),
             documents: BTreeMap::new(),
             source_files: files.clone(),
@@ -109,6 +91,7 @@ impl Registry {
                 "shared/learning-map.yaml",
                 "shared/teaching-policy.yaml",
                 "shared/conversation-topics.yaml",
+                "prompts/conversation/instructions.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())

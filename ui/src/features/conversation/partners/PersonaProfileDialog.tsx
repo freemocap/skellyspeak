@@ -1,11 +1,10 @@
 import { useI18n } from '../../../components/localization/i18n'
-import { useRef, type ReactNode } from 'react'
+import { useRef } from 'react'
 import type { Persona, PersonaDetails } from '../../../generated/contracts'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { PersonaProfile, type PersonaProfileHandle } from './PersonaProfile'
 
-export function PersonaProfileDialog({ persona, language, romanized, onSave, onNewPersona, onClose, children }: {
-  children?: ReactNode
+export function PersonaProfileDialog({ persona, language, romanized, onSave, onNewPersona, onClose }: {
   persona: Persona; language: string; romanized: boolean
   onSave: (persona: Persona, details: PersonaDetails) => Promise<Persona>
   /// Leave this persona and start a new one.
@@ -27,7 +26,6 @@ export function PersonaProfileDialog({ persona, language, romanized, onSave, onN
       <h2>{tr("Persona")}</h2>
       <button type="button" className="btn" onClick={() => { void close(onNewPersona) }}>{tr("New persona…")}</button>
     </div>
-    {children}
     <PersonaProfile ref={editor} persona={persona} language={language} romanized={romanized} onSave={onSave} />
   </DetailDialog>
 }

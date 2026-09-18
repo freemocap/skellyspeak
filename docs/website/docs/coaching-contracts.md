@@ -124,11 +124,11 @@ The user checkpointed wave one and authorized wave two. Wave two uses fresh sche
 
 Language resolution, construct and policy hashes are captured with accepted work. Language context resolves universal → ordered traits → language → variety, by scope, including the explanation language. Candidate selection is deterministic and preserves focus/prerequisites and mandatory function/interaction constructs; the 15–25 size is a target, not permission to silently omit required candidates. Missing IDs/citations, invalid references and cycles fail validation.
 
-`StartConversation` carries the reviewed global snapshot revision. Partner-first starts require an empty conversation and no pending work, and create a real `persona_opening` without a learner message. Described topics retain assistance provenance and earn no skill credit. Mechanical cards are local; AI coach-openers remain wave three. The composer remains usable without selecting a card.
+`StartConversation` carries the reviewed global snapshot revision. Partner-first starts require an empty conversation and no pending work, and create a real `persona_opening` without a learner message. Topic choices are instructions, not learner assistance or evidence. Choices and previews are local. The composer remains usable without selecting a card.
 
 `CoachControl` provides durable, idempotent local Open card, Show answer and Keep going choices with the reviewed revision. The card is shown only after `open_card` acknowledges disclosure. `CoachDecision.exposedMove` starts null and resets for a new rung; editing directly does not silently count a hint as shown. Retry support records this exposure separately from the selected correction. Only the policy-approved correction text crosses into the displayed card; an unrevealed target hypothesis remains private. A revision with an active prior correction captures that exact item and shown move for `coach_retry_check`. Fixed notes require validated repair evidence; simply revising is insufficient. Partner replies do not wait for coach analysis, and coaching never blocks continuing.
 
-The Registry is owned by each Store; runtime language projections and prompts use that workspace instance. Explicit bundled helpers serve contract export and standalone tests. Candidate selection now takes the difficulty band explicitly, and starter reasons are resolved from localized YAML.
+The Registry is owned by each Store; runtime language projections and prompts use that workspace instance. Explicit bundled helpers serve contract export and standalone tests. Candidate selection now takes the difficulty band explicitly, and topic labels use the selected interface locale.
 
 The initial observation also provides explanation-language elicitation and metalinguistic cues alongside its hint and private target hypothesis. Policy chooses among these saved cues without another inference call. Exact target leakage in cues is rejected; this structural check cannot prove semantic hint quality. Retry checks return their own `meaning_recovered`; repairing a form does not imply fully recovered meaning.
 
@@ -140,9 +140,9 @@ B publishes the generated action, snapshot and safe observation/decision shapes 
 | `LanguageContext::resolve(language, variety, explanation) -> LanguageContext`; `.guidance(scope) -> Vec<String>`; `.hash()` | A → B | resolution order universal → traits → language → variety, by scope (§4) |
 | `Constructs::candidates(ctx, focus, due, tokens) -> Vec<ConstructRef>`; `Constructs::get(id)`; `.hash()` | A → B | §6.2 candidate rule |
 | `Policy::feedback() / estimator() / game()` | A → B | typed from YAML (§6.4, §11.6) |
-| `starters(ctx, band, focus, contact_tags, recent) -> Vec<Starter>` | A (data) → B (selection) | §10.3 |
+| `topics() -> &[ConversationTopic]` | A (data) → B (selection) | Shared subjects; no coverage gate |
 | Startup `ConfigLoadError` → `StartupState.refusal` with `config_load` | A → B → C | blocking error screen before normal stores mount; fix files and restart |
-| `StartConversation { conversation_id, opening: Opening }`; `persona_opening` op | B → C | §10.4; Surprise reveals only when asked |
+| `StartConversation { conversation_id, configuration, message, input, expected_revision }`; `persona_opening` op | B → C | Atomic settings capture and turn admission |
 | `CoachObservation`, `CoachDecision`, `Correction`, chip state | B → C | §6.3, §8.2 |
 
 ## Wave 3 (sketch)
@@ -232,70 +232,27 @@ is labelled “Edit message.” Persona prompt v8 explicitly distinguishes a lea
 answer from a question and forbids answering the partner's own previous question;
 coach observation prompt v5 requests descriptive, nonjudgmental wording.
 
-## Explicit lesson contract
+## Conversation direction and lesson removal (18 September 2026)
 
-- `generateLesson` accepts conversation identity, reviewed workspace revision,
-  category (`practical`, `grammar`, `aboutLanguage`, `reading`), topic and nullable native choice ID. A selected choice is checked against current
-  suggestions and its skill/situation guidance is captured; a custom request uses
-  no choice ID. Only the selected lesson runs inference.
-- `controlLesson` supports `open`, `practice` and `end`; `askLessonCoach` binds a
-  private question or optional exercise attempt to the selected saved lesson.
-- Conversation snapshots expose lesson choices and saved lesson views. Plans
-  contain an objective, explanation, exactly two examples with translation and
-  optional reading aids, exercise, private feedback guidance, situation and
-  completion criteria, and exactly two quiz questions with three distinct options, a zero-based correct option and explanation. No provider JSON reaches the UI before validation.
-- `lesson_generate` uses a dedicated context/generation operation graph.
-  `lesson_review` is conditional on active practice and depends on the contact
-  reply. Both use the existing admission, route, receipt, pause and failure rules.
-- A handoff is an assistant-only contact turn. Subsequent contact context includes
-  the task situation/objective; selected-lesson coach context includes the teaching
-  material. Viewing content is recorded before revealing it; each opening marks
-  the next learner send assisted, and active practice marks its learner sends
-  assisted. Accepted turns retain the contributing lesson IDs. Reading and private
-  exercise attempts create no assessment events.
-- Completion requires 1–3 exact quotes from actual current learner messages in the
-  bounded post-handoff exchange. End/replacement cancels outstanding reviews;
-  duplicate or late results cannot repeat a recap. Removed/revised evidence hides
-  its recap. Independent lesson content survives a chat revision, while dependent
-  practice and private coach turns follow the existing suffix deletion rules.
-- Saved lessons are conversation-owned turn-context records, capped at 100 per
-  conversation. Reopening does not generate or hand off again. Difficulty/variety/
-  explanation-language changes require a fresh lesson before its first handoff.
-  Subsequent turns always retain the current difficulty ceiling.
+Lesson generation, review, handoff, quiz credit, lesson commands and lesson UI have
+been removed. Coaching, learner evidence and conversation rewards remain.
 
-- `answerLessonQuiz` accepts conversation/lesson identity, question index and option
-  index. The native transaction validates ownership and indices and grades against
-  the saved plan. A repeated identical answer is idempotent; changing an answered
-  question is rejected. It makes no provider call. Answers remain with the lesson
-  across restarts and history revisions and are removed with the conversation.
-- `profile.quiz_credits` projects this separate, conversation-scoped 0/1 XP ledger.
-  Total XP includes it; skill credits, construct evidence and learner estimates do
-  not. Quiz outcomes are not proficiency observations. The quiz never gates chat.
-- Generation prompt version `lesson-3` captures category and requires bounded quiz
-  content. Invalid question counts, duplicate options or invalid answer indices
-  fail generation before publication.
+`StartConversation` accepts a validated `ConversationStartConfig` (difficulty,
+variety and direction), optional real learner message and its input provenance,
+and the reviewed workspace revision. It saves settings and admits a turn in one
+transaction. Partner-first starts produce no learner message or skill evidence.
 
-- Reading generation explicitly receives `nativeLanguage` from the captured
-  conversation `explanationLanguage`, the UI's Native selector. It never derives
-  learner sound comparisons from UI locale or assumes English. Existing saved
-  lesson context and changed-explanation-language handoff checks remain in force.
+Direction contains an optional built-in/custom topic, `any`/`past`/`future` time
+reference, and optional persona background. Topics have no language, variety,
+difficulty, learner-focus or coverage gate. No authored example phrases or ranking
+are involved. Language variety only supplies resolved language guidance.
 
-### Mystery partner discovery — 14 September design pass
-
-The user confirmed distinct guess and reveal actions. `guessMystery` validates the
-active partner and persona revision, stores a correct field once per partner and
-awards 1 XP, matching lesson recall quizzes. Wrong guesses are retryable with no
-penalty. `revealMystery` only reveals a previously correct field and cannot pay XP.
-`dismissMysteryNudge` is conversation-scoped; discovery state and XP are
-partner-scoped. A discovered fact is stable across later persona edits.
-
-`ConversationSnapshot.mystery` projects `hidden | guessed_unrevealed | revealed`.
-Only revealed rows carry the display value. `profile.mystery_credits` contributes
-to total XP without adding observations, construct estimates or skill credit.
-Deleting a conversation clears the award's conversation attribution; partner
-ownership retains the award. Deleting that partner deletes its discoveries.
-
-The frontend uses DetailDialog for the guess, existing sound controls for the
-correct-answer cue and separate reduced-motion-aware reveal animation. This does
-not change the language-evidence RewardEvent policy or claim behavior. The +3 XP
-shown in the supplied design is illustrative; the implemented award is 1 XP.
+Native preview and execution share the same prompt composer. Authored prose lives
+in `content/prompts/conversation/instructions.yaml`. Form and validated YAML edit
+one draft; preview has no inference. Apply stages no conversation turn. Saved-topic
+mutations are atomic; `UpdateConversationPrompt` atomically applies those mutations
+and revision-checked conversation settings for subsequent turns. Queued prompts
+retain their captured settings. Custom text is copied into the conversation;
+deleting a saved topic does not invalidate an existing selection. New conversations
+reset topic and time preference. This contract supersedes earlier starter-selection
+and lesson descriptions in the historical wave sections below/above.

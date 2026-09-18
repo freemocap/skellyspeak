@@ -8,7 +8,7 @@ fn bundled_and_disk_language_content_match() {
 }
 
 #[test]
-fn every_target_and_explanation_variety_respects_authored_starter_coverage() {
+fn every_target_and_explanation_variety_has_the_shared_topics() {
     let registry = Registry::bundled().unwrap();
     for target in &registry.languages {
         for variety in &target.varieties {
@@ -22,28 +22,12 @@ fn every_target_and_explanation_variety_respects_authored_starter_coverage() {
                             Some(&explanation_variety.id),
                         )
                         .unwrap();
-                    let starters = registry
-                        .starters(&context, "A1", &[], &[], &[], &[])
-                        .unwrap();
-                    let expected = if variety.id == "arabic-levantine"
-                        || explanation_variety.id == "arabic-levantine"
-                    {
-                        0
-                    } else {
-                        3
-                    };
-                    assert_eq!(
-                        starters.len(),
-                        expected,
-                        "{}/{} -> {}/{}",
-                        target.id,
-                        variety.id,
-                        explanation.id,
-                        explanation_variety.id
-                    );
-                    for selected in starters {
-                        assert!(!selected.starter.previews[&target.id].is_empty());
-                        assert!(!selected.starter.translations[&explanation.id].is_empty());
+                    assert_eq!(context.variety_id, variety.id);
+                    for locale in super::INTERFACE_LOCALES {
+                        let topics =
+                            crate::conversations::openers::choices(&registry, locale).unwrap();
+                        assert_eq!(topics.len(), registry.topics().len());
+                        assert!(topics.iter().all(|topic| !topic.label.is_empty()));
                     }
                     let mut settings = registry.defaults(&target.id, &explanation.id).unwrap();
                     settings.variety_id = variety.id.clone();

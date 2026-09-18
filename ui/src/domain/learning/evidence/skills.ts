@@ -83,8 +83,6 @@ export interface SkillProgress {
   star: boolean
 }
 export interface LearnerProfile {
-  mystery_credits: import('../../../generated/contracts').MysteryCredit[]
-  quiz_credits: import('../../../generated/contracts').LessonQuizCredit[]
   credits: { attempt_id: string; skill_id: string; xp: number; event?: import('../../../generated/contracts').RewardEvent }[]
   rules_version: number
   choices: ProfileChoices
@@ -102,8 +100,6 @@ export interface PracticeOverview {
 export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): SkillSnapshot {
   const records = snapshot.records.filter(record => record.chat_id === chatId)
   const ids = new Set(records.map(record => record.attempt_id))
-  const mystery_credits = snapshot.profile.mystery_credits.filter(credit => credit.conversationId === chatId)
-  const quiz_credits = snapshot.profile.quiz_credits.filter(credit => credit.conversationId === chatId)
   const credits = snapshot.profile.credits.filter(credit => ids.has(credit.attempt_id))
   const skills = snapshot.profile.skills.map(skill => {
     const own = credits.filter(credit => credit.skill_id === skill.skill_id)
@@ -112,5 +108,5 @@ export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): S
     const assisted = snapshot.profile.rules_version === 2 ? demonstrated.filter(credit => credit.event?.support !== 'none').length : own.filter(credit => credit.xp === 2).length
     return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), successes, assisted, checked: successes > 0, star: successes >= 3 }
   })
-  return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, quiz_credits, mystery_credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) + quiz_credits.reduce((sum, credit) => sum + credit.xp, 0) + mystery_credits.reduce((sum, credit) => sum + credit.xp, 0) } }
+  return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) } }
 }

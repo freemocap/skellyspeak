@@ -30,7 +30,7 @@ infrastructure.
 | Area | Subfolders and ownership |
 | --- | --- |
 | `app/` | `shell/`, `windows/`, `navigation/`, `shortcuts/`; startup and composition remain at the root |
-| `features/conversation/` | `session/`, `messages/`, `composer/`, `reading/`, `coaching/`, `partners/`, `lessons/`, `progress/`, `speech/`; composed by `ConversationPage.tsx` |
+| `features/conversation/` | `session/`, `messages/`, `composer/`, `reading/`, `coaching/`, `partners/`, `progress/`, `speech/`; composed by `ConversationPage.tsx` |
 | `features/skills/` | `overview/`, `evidence/`, `learner/`; composed by `SkillsPage.tsx` |
 | `features/settings/` | `access/`, `appearance/`, `language/`, `workspace/`; composed by the settings dialog/modal |
 | `features/languages/` | In-app language browser and source/model inspection |
@@ -42,7 +42,7 @@ infrastructure.
 | `platform/` | `ipc/`, `audio/`, `diagnostics/`, `appearance/`, `updates/` |
 | `styles/` | `foundations/`, `shell/`, `components/`, `features/conversation/`, `features/settings/`, `features/skills/`; ordered by `index.css` |
 
-Conversation's partners, coaching, lessons, and rewards still share its orchestration
+Conversation's partners, coaching and rewards still share its orchestration
 and context; they are submodules of that feature. Place a component with its feature
 unless it is shared across surfaces. Shared components may understand a domain but
 must not import feature code or shared application state. Features remain independent
@@ -132,7 +132,7 @@ avoid identical declarations in the base and variant.
 ### Coaching, progress and inspection styling
 
 - Conversation owns `coaching-dock.css`, `explanations.css`, `coach.css` and
-  `lesson.css` for dock geometry, explanations, coaching and lesson flow.
+  `start.css` for conversation choices and the prompt creator; shared compact actions live in component styles.
 - `progress-map.css`, `progress-report.css` and `reward-presentation.css`
   separate maps, numeric reports and reward presentation.
 - `features/skills/{learner-model,evidence}.css` owns learner tables and evidence.

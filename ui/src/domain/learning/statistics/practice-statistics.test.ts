@@ -38,17 +38,3 @@ it('rejects cross-language evidence and mismatched XP ledgers', () => {
   snapshot.profile.credits.pop()
   expect(() => practiceStatistics(snapshot)).toThrow('ledger')
 })
-
-it('adds quiz XP without inventing skill evidence and scopes it to its conversation', async () => {
-  const { conversationEvidence } = await import('../evidence/skills')
-  const snapshot = structuredClone(skillDemo)
-  snapshot.profile.quiz_credits = [{ lessonId: 'lesson', conversationId: 'chat', questionIndex: 0, xp: 1 }, { lessonId: 'lesson', conversationId: 'chat', questionIndex: 1, xp: 0 }]
-  snapshot.profile.xp = 1
-  const stats = practiceStatistics(snapshot)
-  expect(stats.quizXp).toBe(1)
-  expect(stats.contributingMessages + stats.practiced + stats.unassisted + stats.assisted).toBe(0)
-  expect(conversationEvidence(snapshot, 'chat').profile.xp).toBe(1)
-  expect(conversationEvidence(snapshot, 'other').profile.xp).toBe(0)
-  snapshot.profile.quiz_credits.push(snapshot.profile.quiz_credits[0])
-  expect(() => practiceStatistics(snapshot)).toThrow('Invalid lesson quiz credit')
-})

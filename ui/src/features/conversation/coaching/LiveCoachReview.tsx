@@ -32,6 +32,6 @@ export function LiveCoachReview({ turn, visible, onControl, onAsk }: {
     <h3>{tr("On your message")}</h3>
     {turn.conversationFeedback ? <ConversationFeedbackCard feedback={turn.conversationFeedback} onAsk={onAsk} /> : <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />}
     {error && <p role="alert">{error}</p>}
-    {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="lesson-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
+    {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="detail-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
   </section>
 }

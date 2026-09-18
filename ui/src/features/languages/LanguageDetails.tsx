@@ -34,7 +34,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
     </section>
     {report.rules.length > 0 && <section><h3>{tr('Language-specific guidance')}</h3>{report.rules.map((rule,index) => <p key={index}>{rule.text}</p>)}</section>}
     {report.goals.length > 0 && <section><h3>{tr('Language-specific goals')}</h3><div className="language-goals">{report.goals.map(goal => <article key={goal.id}><h4>{goal.label} <span className="language-band">{goal.band}</span></h4><p>{goal.criterion}</p></article>)}</div></section>}
-    <section><h3>{tr('Conversation starters')}</h3>{report.starters.map(starter => <article key={starter.id}><h4>{starter.label}</h4><p lang={report.language.languageTag ?? undefined} dir={report.language.direction}>{starter.preview}</p><small>{starter.varieties.join(', ')}</small></article>)}</section>
+    <section><h3>{tr('Topic')}</h3>{report.topics.map(topic => <article key={topic.id}><h4>{topic.labels[tr.locale]}</h4><p>{topic.subject}</p></article>)}</section>
     <section><h3>{tr('Default conversation partner')}</h3><h4>{report.partner.name}</h4><p>{report.partner.location} · {report.partner.occupation}</p><p>{report.partner.background}</p><p>{report.partner.currentSituation}</p></section>
     <section className="language-definition"><h3>{tr('Full definition')}</h3>
       <h4>{tr('Resolved settings and sources')}</h4>

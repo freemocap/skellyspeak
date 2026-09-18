@@ -1,6 +1,9 @@
 # Conversation starts and prompt composition
 
-Status: detailed proposal, 2026-09-18. No application implementation authorized by this planning deliverable or claimed complete. Builds on [the architecture audit](topic-variety-architecture-audit-2026-09-18.md). The user's latest direction replaces that audit's suggestion to retain practical lesson generation: remove the lesson subsystem entirely for now.
+Status: user-approved proposal, implemented in source on 2026-09-18. See the
+[implementation and verification report](conversation-prompt-implementation-2026-09-18.md)
+for actual behavior and checks. The proposal below records the design decisions;
+it is not a deployment report. Builds on [the architecture audit](topic-variety-architecture-audit-2026-09-18.md).
 
 ## Decisions supplied by the user
 
@@ -10,19 +13,36 @@ Status: detailed proposal, 2026-09-18. No application implementation authorized 
 - Offer “Suggest a topic” with a text-entry modal and optional saving for later reuse.
 - Include “Use persona details” in the starting UI; when enabled, include persona-schema background with instructions to mention it only when relevant.
 - Name the selected difficulty and target language explicitly in the difficulty instruction, with all five levels inspectable in the interactive demonstration.
+- Keep the empty conversation simple; expose the complete creator through a modal with Form, editable YAML and read-only prompt/request preview views. This supersedes the initial proposal to display every control on the empty conversation.
 - This deliverable is a concrete implementation proposal and interactive architecture/prompt demonstration, not source implementation or a deployed feature.
 
 ## Product behavior proposed
 
 ### Starting a conversation
 
-The empty conversation shows:
+The empty conversation shows the partner, a compact Difficulty selector with all five levels, and two compact, always-visible button rows: Topic (Partner chooses / Food / Family / Travel / ＋ Custom) and Practice (No preference / Past events / Future plans). Below them are the primary “Let Nūr start” button and a small “Customize…” action, followed by the ordinary composer. A brief applied-settings summary can read “Order food · Past events · Beginner”. Language stays in existing app chrome. Persona controls, full difficulty-instruction comparisons, saved-topic management, YAML and prompt inspection live in the creator modal. The main difficulty selector and creator edit the same setting; changing it preserves topic/practice choices and starts no generation. Apply from the creator updates the main selector; Cancel leaves it unchanged. This replaces the interim dropdown-only design, which hid too many useful choices.
 
-1. Topic: Partner chooses (default), Order food, Family, Travel, plus the remaining small shared catalog behind “More topics” if space requires it. “Suggest a topic” opens the custom-topic dialog. Saved topics appear in a collapsed “Saved topics” list.
-2. Grammar practice: No preference (default), Past events, Future plans. Supporting labels may say “Past tense practice” and “Future tense practice”; language behavior must not assume every language has corresponding verb inflections.
-3. “Use persona details” checkbox, proposed default checked to retain the existing persona-driven behavior. Unchecking excludes persona-schema content from new model requests; the selected contact remains the conversation's UI/history owner.
-4. One “Start conversation” button. Choices update a draft; selecting a card never starts generation. This deliberately replaces the current immediate-start card behavior so both rows can be combined.
-5. The normal composer remains available. Sending the learner's first message commits the same selected conversation direction and responds to that message; it must not also create a partner-first opening.
+Topic and Practice buttons independently update the same pending start configuration as the creator, with clear selected states and no model call. Selecting one never clears the other or begins generation. “＋ Custom” opens the small topic-entry dialog directly; saved-topic management and reselection remain in Customize. A selected custom topic is reflected by the Custom button and the summary. The normal composer remains available: sending the learner's first message commits the same selected conversation direction and responds to that message; it must not also create a partner-first opening.
+
+“Customize conversation…” opens the Conversation Prompt Creator as an accessible modal, with three views:
+
+| View | Content |
+| --- | --- |
+| Form (default) | Language/variety and all five difficulty choices; independent scenario and grammar rows; persona checkbox; custom-topic dialog and saved list. Persona schema data and all five difficulty instructions are expandable for review. |
+| YAML | Editable configuration for precisely the same draft, with explicit syntax, unknown-field and value validation. This is not a raw system-prompt editor. |
+| Prompt preview | Read-only composed system prompt and expandable model-facing request messages. Architecture, render inputs and composition details remain available in a collapsed inspection section. |
+
+Grammar choices remain No preference / Past events / Future plans; language behavior must not assume corresponding verb inflections. “Use persona details” is proposed checked by default to retain existing persona-driven behavior. Unchecking excludes persona-schema content from new model requests; the selected contact remains the conversation's UI/history owner.
+
+Modal footer: Cancel and Apply. Apply updates the start configuration and compact summary, then closes; it never initiates generation. The start button remains the explicit partner-first action. Cancel/Escape discards modal changes. The Form and YAML views share one typed draft, not separate settings. Invalid YAML remains visible and cannot be applied or silently discarded by switching views. Show the error and let the learner fix it or Cancel. Valid edits synchronize into Form and derived previews. Opening the modal again begins from the applied configuration, with Form selected.
+
+Proposed atomic dialog behavior: saved-topic additions/deletions made inside this creator are staged alongside its draft and committed on Apply. Cancel reverses them too. The child custom-topic dialog's “Use topic” selects/stages the topic; it does not independently persist it. Show a pending-save indication for new entries. On eventual native save failure, retain the draft/modal and show the failure; don't partly apply the direction or silently lose edits. The HTML demonstration stores applied topics only for its page session.
+
+When the small topic dialog is opened directly from the main surface's “＋ Custom”, “Use topic” applies that topic and optionally saves it, preserving the already-selected practice/difficulty/persona settings. Cancel leaves the main selection unchanged. No creator-level Apply is required for this direct path, and no conversation starts. Keep the two entry paths explicit: nested dialog stages into the creator draft; direct dialog updates pending start configuration.
+
+Before execution, the request view is explicitly an opening-request preview, with no captured history and no provider invocation. Actual requests are assembled from accepted settings and real history during execution. No inference occurs for modal open, view switching, YAML validation, preview, save or Apply. Do not render credential-bearing transport details in this view.
+
+Implementation should use the existing DetailDialog with `size="wide"`, standard focus restoration and mobile layout, rather than a second modal framework. Escape closes the topmost custom-topic dialog first. Preserve entered YAML on view errors; restore focus to Customize after closing the creator.
 
 One topic and one grammar preference can be selected independently. No topic + past is valid: the partner chooses an accessible past-event question. Food + future is valid: discuss a planned meal or upcoming café visit. Do not generate a separate catalog entry for every combination. No proficiency or variety eligibility gate.
 
@@ -48,7 +68,7 @@ Saved topics belong to the learner in the current local workspace, across langua
 
 Proposed bound: 1–500 Unicode scalar values after trimming outer whitespace; reject NUL/control characters except line breaks and tab. Preserve meaningful punctuation, case and internal spacing. Label is derived from the first line, visually ellipsized; no separate required title. Show the full text when inspecting or selecting it. Reject an exact duplicate after outer trimming with an inline message and allow selecting the existing entry. Do not introduce fuzzy semantic deduplication.
 
-Saved list supports select and delete in this pass. Editing a selected text creates a new custom draft; updating saved entries in place is deferred. Deleting a saved topic removes only the reusable list entry, not conversation direction already captured from it. Failed save leaves the dialog and text intact with an actionable error; “Use topic” must not silently succeed when “Save for later” failed. Saving alone does not start or charge for inference.
+Saved list supports select and delete in this pass. Editing a selected text creates a new custom draft; updating saved entries in place is deferred. Deleting a saved topic removes only the reusable list entry, not conversation direction already captured from it. In the modal workflow, “Use topic” stages changes and final Apply persists them atomically; a failed final save leaves the creator and draft intact with an actionable error. Saving alone does not start or charge for inference.
 
 ## Ownership before storage
 
@@ -87,7 +107,9 @@ IPC input selects None / Builtin ID / Custom text / Saved ID. Native acceptance 
 
 Direction persistence is separate from provider messages. For the current single-learner workspace, use a small saved-topics table and the existing conversation settings JSON for accepted direction, with Rust as contract/default owner. Add save/delete actions through the existing transaction/receipt coordinator; feature persistence belongs under conversations, while schema initialization stays in storage. Do not put saved topics in bundled content, browser localStorage or app-global preferences shared across workspaces.
 
-A start/send command commits direction and turn admission together. New topic cannot be stored by one command followed by an unrelated start command that can race. Existing settings revision, command replay, pending-work and empty-conversation checks remain. Draft state stays local until acceptance; a failed admission preserves the draft and does not create a duplicate opening.
+A creator Apply saves reusable-topic mutations atomically and returns the validated pending direction for the empty conversation UI; this does not admit a turn. The pending start configuration remains local until start/send. A start/send command commits that resolved direction and turn admission together, with source text already copied so later saved-topic deletion does not invalidate it. Existing settings revision, command replay, pending-work and empty-conversation checks remain. A failed admission preserves the pending configuration and does not create a duplicate opening. For an already-started conversation, Apply changes its settings through the existing revision-checked settings transaction for subsequent turns.
+
+YAML is a serialization of this typed input, not a new persistence source or a template language. The demonstrator uses a flat configuration (`language`, `difficulty`, `topic`, optional `custom_topic`, `time_reference`, `use_persona_details`), a pinned YAML parser and closed-enum validation. Production should project the exact Rust-generated input schema, preserve supported strings without silent coercion, reject duplicate/unknown keys, and provide field-specific errors. Do not round-trip generated prompt text back into settings. A parser-load failure in the demo explicitly disables YAML while keeping Form available; no pretend parser fallback is provided.
 
 ## Prompt architecture
 
@@ -153,7 +175,7 @@ Untrusted custom topics/persona fields must remain quoted, bounded data with a s
 
 Every difficulty block begins: “Your conversation partner is learning [target language] at the selected [difficulty name] difficulty level. That means you should …”. The target label includes variety where useful (e.g. Arabic (Levantine)); writing guidance separately names the actual requested variety. This identifies the human learner's selected setting, not the persona's skill or a measured assessment.
 
-All five levels appear in the selector and together in “All difficulty prompts”, using the same function that builds the selected final system prompt. The comparison updates for the chosen target language; it must not be a separate, potentially stale description of the instructions.
+All five levels appear in the selector and together in Form's expandable “Compare all five difficulty instructions”, using the same function that builds the selected final system prompt. The comparison updates for the chosen target language; it must not be a separate, potentially stale description of the instructions.
 
 | Level | Proposed wording behavior |
 | --- | --- |
@@ -198,7 +220,7 @@ Development data is disposable under repository policy. Use one clean current sc
 | 3. Separate composer | Move prose into content, implement pure renderer, centralize all partner system composition | Offline prompt fixtures cover start/respond and language/difficulty/practice combinations; no runtime construction outside owner |
 | 4. Replace starter machinery | Simplify catalog; delete sample/coverage/ranking fields and selectors; accept any valid topic independent of language/variety | Arabic and explanation-variety regression tests pass; no canned samples in model input |
 | 5. Persist direction and saved topics | Add learner-owned records, atomic first-turn capture, save/delete receipts and settings edits | Replay, failure, ownership, deletion-after-capture and queued-turn tests pass |
-| 6. Build two-row UI | Compose selections, custom dialog, saved list, explicit Start; preserve send-first flow | Keyboard/mobile/RTL flow works; changes/selections make zero inference calls |
+| 6. Build compact UI and creator | Compact topic/start controls; modal Form/YAML/preview views; two-row selection, custom dialog, saved list and Apply/Cancel; preserve send-first flow | Keyboard/mobile/RTL flow, YAML synchronization/validation and cancellation work; edits/Apply make zero inference calls |
 | 7. Regenerate and reconcile | Contracts, schemas, content inspection, active docs; remove obsolete claims | Checks pass, source ownership is clear, no deleted-feature compatibility aliases |
 
 Keep each step cohesive and review its diff before proceeding. Do not combine an unrelated learner-model rewrite or generic large-file cleanup with this work. The earlier audit's dialect-partitioned mastery estimates remain an explicitly tracked follow-up, not silently endorsed or solved here.
@@ -211,6 +233,7 @@ Keep each step cohesive and review its diff before proceeding. Do not combine an
 - Show grammar controls in all languages; test Mandarin-style time-reference instructions without inventing tense forms. Arabic Levantine/MSA get the same topic catalog. Interface locale and explanation variety do not change eligibility.
 - Transport fixtures prove final messages contain only model-relevant instruction/history; no topic IDs, coverage lists, lesson data, ranking rationale or invented learner evidence. Capture renderer/config version outside prompt and preserve non-content provider metadata on failure.
 - User flow: select either row first, change/clear choices, start once, send first with selections, modal cancel/save failure, saved reuse across languages, delete without changing an existing conversation, edited settings preserving already accepted requests. No network on selection, dialog open, save, list or preview.
+- Creator flow: main surface stays compact; Apply changes only configuration, Cancel/Escape restores prior settings and staged saved topics, YAML edits synchronize to Form and preview, invalid/duplicate/unknown values fail visibly and prevent Apply, switching views cannot lose invalid text. Focus returns correctly after nested dialog close. Prompt/request previews are read-only and explicitly distinguished from accepted requests.
 - Injection/bounds: custom topic containing quotes, newlines and imperative text remains data, limits fail explicitly, no unsafe raw HTML rendering, no custom content in diagnostics. Behavioral safety still needs actual model evaluation; string containment is not proof of model obedience.
 - Remove-only checks: no active lesson actions/plans/publication branches, leftover disabled lesson switches or ignored obsolete suites; coaching/evidence/rewards still work.
 - Run relevant `cargo test --manifest-path native/Cargo.toml --lib`, UI `npm test`, `npm run build`, `npm run languages:check`, `npm run contracts:check`, `npm run styles:check`, `npm run docs:links`; regenerate configuration schemas/contracts from Rust. Run server tests only if server source changes. Resolve failures attributable to the change; report concurrent baseline failures distinctly.
@@ -218,6 +241,6 @@ Keep each step cohesive and review its diff before proceeding. Do not combine an
 
 ## Interactive demonstrator
 
-The accompanying HTML shows draft selection, application-owned models, the pure composition boundary, final system/provider messages, and a small authored sample-response library. Its prompt builder runs locally with no provider calls. Sample replies are illustrative fixtures, not model-generated output or language-quality verification. Saved items in the demonstrator last only for that page session; the proposed application uses durable workspace storage. Internal IDs/provenance can be inspected on the application side but are absent from final prompt text.
+The accompanying HTML initially shows only the compact empty conversation. Customize opens Form/YAML/Prompt preview over one draft. Application models, composition boundary and final request messages are inside the preview's expandable sections; all difficulty instructions and persona data remain expandable in Form. Its prompt builder runs locally with no provider calls. The optional YAML parser is loaded from an approved CDN; no conversation data is sent to it. Sample replies are illustrative fixtures, not model-generated output or language-quality verification. Saved items last only for that page session; the proposed application uses durable workspace storage. Internal IDs/provenance can be inspected on the application side but are absent from final prompt text.
 
 The demonstrator intentionally keeps its example prompts shorter than production content. It demonstrates separation and combination, not replacement of all existing behavioral safeguards. It provides no lesson controls. Unresolved implementation detail: provider-specific support for a system-only opening must be checked against the existing adapters before finalizing request packing.

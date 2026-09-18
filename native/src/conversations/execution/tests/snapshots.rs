@@ -74,7 +74,7 @@ fn audit_older_message_page_contains_its_failed_turn_state() {
 }
 
 #[test]
-fn a_variety_without_authored_starters_still_has_a_usable_snapshot() {
+fn levantine_has_all_topics() {
     let (_dir, mut store, _) = setup();
     let conversation = apply(
         &mut store,
@@ -84,7 +84,7 @@ fn a_variety_without_authored_starters_still_has_a_usable_snapshot() {
     )
     .entity_id;
     let view = store.conversation_snapshot(&conversation, None).unwrap();
-    assert!(view.starter_cards.is_empty());
+    assert_eq!(view.topic_choices.len(), store.config.topics().len());
     let snapshot = store.snapshot().unwrap();
     assert_eq!(
         snapshot

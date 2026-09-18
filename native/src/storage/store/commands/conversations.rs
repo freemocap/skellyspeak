@@ -4,15 +4,28 @@ impl Handlers<'_> {
     pub(super) fn start_conversation(
         &mut self,
         conversation_id: String,
-        opening: Opening,
+        configuration: crate::conversations::direction::ConversationStartConfig,
+        message: Option<String>,
+        input: Option<crate::learning::coaching::InputEvidence>,
         expected_revision: i32,
     ) -> Result<String> {
+        let learner_message = match (message, input) {
+            (Some(text), Some(input)) => Some((text, input)),
+            (None, None) => None,
+            _ => {
+                return Err(AppError::new(
+                    ErrorCode::Validation,
+                    "Learner messages require input provenance; partner openings must not include it.",
+                ));
+            }
+        };
         let id = crate::conversations::openers::accept(
             self.tx,
             self.snapshot,
             self.config,
             &conversation_id,
-            opening,
+            configuration,
+            learner_message,
             expected_revision,
         )?;
         self.conversation_scope = Some(conversation_id);
@@ -43,7 +56,7 @@ impl Handlers<'_> {
 
     pub(super) fn send_message(
         &mut self,
-        mut input: crate::learning::coaching::InputEvidence,
+        input: crate::learning::coaching::InputEvidence,
         conversation_id: String,
         text: String,
         expected_revision: i32,
@@ -56,8 +69,6 @@ impl Handlers<'_> {
             &text,
             expected_revision,
         )?;
-        input.scaffold |=
-            crate::learning::lessons::capture_exposure(self.tx, &conversation_id, &turn_id)?;
         if !matches!(input.modality.as_str(), "text" | "speech_transcript") {
             return Err(AppError::new(
                 ErrorCode::Validation,
@@ -107,6 +118,7 @@ impl Handlers<'_> {
             .max_by(|a, b| a.last_used.cmp(&b.last_used).then(a.id.cmp(&b.id)))
             .map(|c| c.settings.clone())
             .unwrap_or_else(|| defaults.clone());
+        settings.direction = Default::default();
         settings.variety_id = defaults.variety_id;
         settings.explanation_language = defaults.explanation_language;
         settings.explanation_variety_id = defaults.explanation_variety_id;
