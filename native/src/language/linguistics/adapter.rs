@@ -35,7 +35,9 @@ pub enum AdapterError {
     InvalidGlossText {
         index: usize,
     },
-    UnexpectedRomanization { index: usize },
+    UnexpectedRomanization {
+        index: usize,
+    },
     Serialization,
 }
 
@@ -82,7 +84,9 @@ impl AdapterError {
     /// Zero-based supplied span index when known; never a source offset.
     pub fn span_index(&self) -> Option<usize> {
         match self {
-            Self::UnexpectedRomanization { index } | Self::InvalidBoundary { index, .. } | Self::InvalidGlossText { index } => Some(*index),
+            Self::UnexpectedRomanization { index }
+            | Self::InvalidBoundary { index, .. }
+            | Self::InvalidGlossText { index } => Some(*index),
             Self::InvalidSource(reason) | Self::InvalidCandidate(reason) => match reason {
                 ValidationError::PhraseRequiresSeparateLayer { index }
                 | ValidationError::OverlapOrUnordered { index }
@@ -427,7 +431,10 @@ pub fn build_word_gloss_prompt_with_context(
     build_word_gloss_prompt_context(identity, source, Some(context))
 }
 
-fn supports_romanization(identity: &SourceIdentity, context: Option<&crate::configuration::LanguageContext>) -> Result<bool, AdapterError> {
+fn supports_romanization(
+    identity: &SourceIdentity,
+    context: Option<&crate::configuration::LanguageContext>,
+) -> Result<bool, AdapterError> {
     if let Some(context) = context {
         return Ok(context.script != "latin" && !context.guidance("romanization").is_empty());
     }
@@ -495,7 +502,8 @@ fn build_word_gloss_prompt_context(
     let romanization = if supports_romanization(identity, context)? {
         romanization
     } else {
-        schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"] = serde_json::json!({"type":"null"});
+        schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"] =
+            serde_json::json!({"type":"null"});
         "\nDo not romanize this target language or copy its words into romanization. Return null for romanization; no transliteration work is needed.".to_string()
     };
     let system = format!(

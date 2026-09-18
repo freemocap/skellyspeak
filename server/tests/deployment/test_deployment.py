@@ -101,6 +101,16 @@ def test_runtime_python_sources_are_in_docker_context() -> None:
                     assert (root / source).is_file()
 
 
+def test_build_sources_are_explicitly_allowed_in_cloud_upload() -> None:
+    from server.deployment.check_upload_manifest import required_files
+    root = Path(__file__).parents[3]
+    included = {line[1:] for line in (root / ".gcloudignore").read_text().splitlines()
+                if line.startswith("!")}
+    # Catch Docker COPY/upload drift even when gcloud is unavailable locally.
+    # The CLI sentinel check additionally verifies actual ignore semantics.
+    assert required_files(root) <= included, sorted(required_files(root) - included)
+
+
 @pytest.mark.parametrize(("detail", "category"), [
     ("PERMISSION_DENIED: private-secret@example.invalid", "PERMISSION_DENIED"),
     ("unrecognized arguments: private-secret", "CLI_ARGUMENT_ERROR"),

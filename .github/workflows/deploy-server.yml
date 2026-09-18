@@ -254,15 +254,15 @@ jobs:
             exit 1
           fi
 
-      - name: Verify grouped endpoints require authentication
+      - name: Verify grouped and audio endpoints require authentication
         run: |
           set -euo pipefail
-          for path in protocol operations; do
+          for path in protocol operations audio/speech audio/transcriptions; do
             method=GET
-            if [ "$path" = operations ]; then method=POST; fi
+            if [ "$path" != protocol ]; then method=POST; fi
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X "$method" "$PUBLIC_BASE_URL/v1/$path")
             if [ "$code" != 401 ]; then
-              echo "::error::Unauthenticated grouped endpoint returned $code; expected 401."
+              echo "::error::Unauthenticated /v1/$path returned $code; expected 401."
               exit 1
             fi
           done

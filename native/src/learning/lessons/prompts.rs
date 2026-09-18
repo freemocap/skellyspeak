@@ -84,7 +84,8 @@ pub(crate) fn schema(kind: &str) -> Value {
 pub(crate) fn schema_for_context(kind: &str, captured: &Value) -> Value {
     let mut schema = schema(kind);
     if kind == "lesson_generate" && captured["languageContext"]["script"] == "latin" {
-        schema["properties"]["examples"]["items"]["properties"]["romanization"] = json!({"type":"null"});
+        schema["properties"]["examples"]["items"]["properties"]["romanization"] =
+            json!({"type":"null"});
     }
     schema
 }

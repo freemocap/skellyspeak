@@ -52,7 +52,9 @@ def verify(root: Path, *, executable: str | None = None) -> None:
         if included != required:
             # Only synthetic paths exist here; never inspect or echo private files.
             raise RuntimeError(f"Upload filter mismatch: {len(included - required)} unexpected, "
-                               f"{len(required - included)} missing files.")
+                               f"{len(required - included)} missing files. "
+                               f"Unexpected: {sorted(included - required)}; "
+                               f"missing: {sorted(required - included)}")
 
 
 if __name__ == "__main__":

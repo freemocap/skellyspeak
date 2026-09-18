@@ -66,11 +66,16 @@ pub(crate) fn validate(
                 }
             }
         }
-        let captured: String = db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| r.get(0))?;
+        let captured: String =
+            db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
+                r.get(0)
+            })?;
         let captured: Value = serde_json::from_str(&captured)?;
         for e in &plan.examples {
             if captured["languageContext"]["script"] == "latin" && e.romanization.is_some() {
-                return Err(invalid("Romanization is not applicable to a Latin-script target."));
+                return Err(invalid(
+                    "Romanization is not applicable to a Latin-script target.",
+                ));
             }
             prose(&e.text, 300)?;
             prose(&e.translation, 400)?;

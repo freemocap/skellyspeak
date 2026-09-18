@@ -131,11 +131,15 @@ impl Store {
                     &captured,
                 )?)
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
-                Some(crate::learning::coaching::conversation_support::schema_for_context(
+                Some(
+                    crate::learning::coaching::conversation_support::schema_for_context(
+                        &kind, &captured,
+                    ),
+                )
+            } else if kind.starts_with("lesson_") {
+                Some(crate::learning::lessons::schema_for_context(
                     &kind, &captured,
                 ))
-            } else if kind.starts_with("lesson_") {
-                Some(crate::learning::lessons::schema_for_context(&kind, &captured))
             } else if kind.starts_with("coach_") && kind != "coach_reply" {
                 Some(if kind == "coach_reaction" {
                     crate::partners::partner_reaction::schema()
@@ -237,7 +241,13 @@ impl Store {
             } else {
                 coaching_schema
             };
-            Ok((gloss_source, gloss_schema, coaching_schema, messages, target))
+            Ok((
+                gloss_source,
+                gloss_schema,
+                coaching_schema,
+                messages,
+                target,
+            ))
         })();
         let (gloss_source, gloss_schema, coaching_schema, messages, target) = match prepared {
             Ok(prepared) => prepared,

@@ -743,16 +743,31 @@ fn historical_v1_live_fixture_is_not_reinterpreted_as_v2() {
 #[test]
 fn latin_gloss_requests_skip_romanization_and_reject_copied_words() {
     let prompt = build_word_gloss_prompt(&identity(), "Hola").unwrap();
-    assert_eq!(prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"], serde_json::json!({"type":"null"}));
-    assert!(prompt.messages[0].content.contains("no transliteration work is needed"));
-    let raw = candidate(vec![serde_json::json!({"first":"g0000","last":"g0003","kind":"gloss","gloss":"hello","romanization":"Hola"})]);
+    assert_eq!(
+        prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"],
+        serde_json::json!({"type":"null"})
+    );
+    assert!(
+        prompt.messages[0]
+            .content
+            .contains("no transliteration work is needed")
+    );
+    let raw = candidate(vec![
+        serde_json::json!({"first":"g0000","last":"g0003","kind":"gloss","gloss":"hello","romanization":"Hola"}),
+    ]);
     let error = decode("Hola", &raw).unwrap_err();
     assert_eq!(error.diagnostic_code(), "gloss_unexpected_romanization");
     assert_eq!(error.span_index(), Some(0));
     let mut id = identity();
     id.target_language_id = "mandarin".into();
     let prompt = build_word_gloss_prompt(&id, "你").unwrap();
-    assert_eq!(prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"]["type"], serde_json::json!(["string","null"]));
-    let raw = candidate(vec![serde_json::json!({"first":"g0000","last":"g0000","kind":"gloss","gloss":"you","romanization":"nǐ"})]);
+    assert_eq!(
+        prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"]
+            ["type"],
+        serde_json::json!(["string", "null"])
+    );
+    let raw = candidate(vec![
+        serde_json::json!({"first":"g0000","last":"g0000","kind":"gloss","gloss":"you","romanization":"nǐ"}),
+    ]);
     assert!(decode_word_gloss(&id, "你", &raw).is_ok());
 }

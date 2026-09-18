@@ -298,11 +298,29 @@ fn latin_assistance_constrains_and_rejects_romanization() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
     let turn = support_turn(&mut store, &conversation, "Hola.");
-    let captured: String = store.connection.query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| r.get(0)).unwrap();
+    let captured: String = store
+        .connection
+        .query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| {
+            r.get(0)
+        })
+        .unwrap();
     let captured: serde_json::Value = serde_json::from_str(&captured).unwrap();
     let schema = support::schema_for_context(support::ASSISTANCE, &captured);
-    assert_eq!(schema["properties"]["replies"]["items"]["properties"]["romanization"]["enum"], serde_json::json!([""]));
+    assert_eq!(
+        schema["properties"]["replies"]["items"]["properties"]["romanization"]["enum"],
+        serde_json::json!([""])
+    );
     let mut value = assistance();
     value["replies"][0]["romanization"] = serde_json::json!("Fui con mi hermana.");
-    assert!(support::validate(&store.connection, &turn, support::ASSISTANCE, &reply(&value.to_string())).unwrap_err().to_string().contains("not applicable"));
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::ASSISTANCE,
+            &reply(&value.to_string())
+        )
+        .unwrap_err()
+        .to_string()
+        .contains("not applicable")
+    );
 }

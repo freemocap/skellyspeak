@@ -163,10 +163,14 @@ fn latin(c: char) -> bool {
 fn in_script(script: &str, c: char) -> bool {
     match script {
         "latin" => latin(c),
-        "arabic" => matches!(c, '\u{0600}'..='\u{06FF}' | '\u{0750}'..='\u{077F}' | '\u{0870}'..='\u{08FF}' | '\u{FB50}'..='\u{FDFF}' | '\u{FE70}'..='\u{FEFF}'),
+        "arabic" => {
+            matches!(c, '\u{0600}'..='\u{06FF}' | '\u{0750}'..='\u{077F}' | '\u{0870}'..='\u{08FF}' | '\u{FB50}'..='\u{FDFF}' | '\u{FE70}'..='\u{FEFF}')
+        }
         "devanagari" => matches!(c, '\u{0900}'..='\u{097F}' | '\u{A8E0}'..='\u{A8FF}'),
         "malayalam" => matches!(c, '\u{0D00}'..='\u{0D7F}'),
-        "simplified-chinese" => matches!(c, '\u{3400}'..='\u{4DBF}' | '\u{4E00}'..='\u{9FFF}' | '\u{F900}'..='\u{FAFF}' | '\u{20000}'..='\u{3134F}'),
+        "simplified-chinese" => {
+            matches!(c, '\u{3400}'..='\u{4DBF}' | '\u{4E00}'..='\u{9FFF}' | '\u{F900}'..='\u{FAFF}' | '\u{20000}'..='\u{3134F}')
+        }
         _ => !latin(c),
     }
 }
@@ -240,7 +244,9 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                 return Err(rejected("assistance bounds"));
             }
             let captured: String =
-                db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| r.get(0))?;
+                db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
+                    r.get(0)
+                })?;
             let captured: Value = serde_json::from_str(&captured)?;
             let script = captured["languageContext"]["script"]
                 .as_str()
@@ -256,9 +262,14 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                     return Err(rejected("reply text is not in the target script"));
                 }
                 if script == "latin" && !r.romanization.is_empty() {
-                    return Err(rejected("romanization is not applicable to a Latin-script target"));
+                    return Err(rejected(
+                        "romanization is not applicable to a Latin-script target",
+                    ));
                 }
-                if r.romanization.chars().any(|c| c.is_alphabetic() && !latin(c)) {
+                if r.romanization
+                    .chars()
+                    .any(|c| c.is_alphabetic() && !latin(c))
+                {
                     return Err(rejected("romanization is not in Latin script"));
                 }
             }

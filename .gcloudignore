@@ -51,6 +51,7 @@ server/app/diagnostics/*
 !server/app/diagnostics/runtime.py
 
 !server/app/diagnostics/provider_errors.py
+!server/app/diagnostics/exceptions.py
 
 !server/app/diagnostics/provider_health.py
 
