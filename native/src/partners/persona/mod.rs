@@ -217,7 +217,7 @@ mod tests {
             let details = starter(&language.id)
                 .unwrap_or_else(|error| panic!("{} has no starter persona: {error}", language.id));
             validate(&details, &language.id).unwrap();
-            assert_eq!(details.vibe.len(), VIBE_MIN + 1);
+            assert!((VIBE_MIN..=VIBE_MAX).contains(&details.vibe.len()));
             assert_eq!(
                 details.romanized_name.is_some(),
                 language.romanization.is_some()

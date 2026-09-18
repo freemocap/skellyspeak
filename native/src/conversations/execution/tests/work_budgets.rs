@@ -63,10 +63,47 @@ fn queue_budget_counts_chat_coach_and_paused_work_transactionally() {
             first_turn = turn;
         }
     }
-    while store.connection.query_row("SELECT count(*) FROM operations WHERE state IN ('ready','waiting_dependencies','running') AND kind NOT IN ('persona_context','coach_context')", [], |r|r.get::<_,i64>(0)).unwrap() < OUTSTANDING_NETWORK_LIMIT {
-        let c = apply(&mut store, Action::CreateConversation {contact_id:contact.clone(),title:"Queue filler".into()}).entity_id;
-        let revision = store.snapshot().unwrap().conversations.iter().find(|item| item.id == c).unwrap().revision;
-        apply(&mut store, Action::AskCoach {conversation_id:c,text:"Explain this word".into(),expected_revision:revision});
+    // Fill with real multi-operation chat turns, then single-operation coach turns.
+    // Hundreds of one-operation conversations obscure the admission assertions.
+    let chat_cost: i64 = store
+        .connection
+        .query_row(
+            "SELECT count(*) FROM operations WHERE turn_id=?1 AND kind != 'persona_context'",
+            [&first_turn],
+            |r| r.get(0),
+        )
+        .unwrap();
+    loop {
+        let outstanding: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE state IN ('ready','waiting_dependencies','running') AND kind NOT IN ('persona_context','coach_context')", [], |r| r.get(0)).unwrap();
+        if outstanding >= OUTSTANDING_NETWORK_LIMIT {
+            break;
+        }
+        let c = apply(
+            &mut store,
+            Action::CreateConversation {
+                contact_id: contact.clone(),
+                title: "Queue filler".into(),
+            },
+        )
+        .entity_id;
+        store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('false'),'$.translation',json('false')) WHERE conversation_id=?1", [&c]).unwrap();
+        let mut command = send(&store, &c);
+        if OUTSTANDING_NETWORK_LIMIT - outstanding < chat_cost {
+            let Action::SendMessage {
+                conversation_id,
+                expected_revision,
+                ..
+            } = command.action
+            else {
+                unreachable!()
+            };
+            command.action = Action::AskCoach {
+                conversation_id,
+                text: "Explain this word".into(),
+                expected_revision,
+            };
+        }
+        store.execute(command).unwrap();
     }
     let extra = apply(
         &mut store,
