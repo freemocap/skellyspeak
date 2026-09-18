@@ -118,6 +118,8 @@
   --well-top: var(--c-spectrum-well-top);
   --well-bottom: var(--c-spectrum-well-bottom);
   --well: var(--well-bottom);
+  /* Reply ideas: a tinted tray, so suggestions never read as conversation. */
+  --reply-tray: color-mix(in srgb, var(--track) 45%, var(--sheet));
   --sheet-shadow: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%);
   --card-shadow: 0 1px 3px rgb(0 0 0 / 18%);
   --well-shadow: inset 0 2px 8px rgb(0 0 0 / 20%);
@@ -408,7 +410,7 @@
   /* Guided split width, written by ConversationPage’s keyboard/pointer divider. */
   --chat-share: calc(100% - 360px);
   --radius-field: 20px;
-  --measure-thread: 680px;
+  --measure-thread: 860px;
   --coach-surface: var(--sheet);
   --control-height-xs: 28px;
   --bubble-shadow: 0 1px 2px rgb(31 28 23 / 6%);
@@ -576,4 +578,10 @@
 @media (pointer: coarse) {
   :root[data-density='standard'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
   :root[data-density='compact'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+}
+
+/* Phones: a 20px reading size times a script scale (1.5 for Arabic) filled the
+   screen with a few words. The learner's own text-size setting still applies. */
+@media (max-width: 860px) {
+  :root { --type-reading: 17px; --type-title: 16px; --type-display: 21px; }
 }

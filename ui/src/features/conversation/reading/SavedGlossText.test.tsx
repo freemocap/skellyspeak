@@ -135,16 +135,26 @@ it('reveals all saved details together whenever a token is opened', () => {
   expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
 })
 
-it('shows all saved details inline on narrow screens without a popover', () => {
+it('opens saved details as a bottom sheet on narrow screens instead of reflowing the sentence', () => {
   const original = window.matchMedia
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
   try {
     const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
-    expect(view.container.querySelector('[popover]')).toBeNull()
-    expect(screen.getByText('you')).toBeVisible()
-    expect(screen.getByText('nǐ')).toBeVisible()
+    const sheet = view.container.querySelector('.saved-word-sheet')
+    expect(sheet).toHaveAttribute('popover', 'manual')
+    expect(sheet).toHaveTextContent('you')
+    expect(sheet).toHaveTextContent('nǐ')
   } finally { media.mockRestore() }
+})
+
+it('reads a clitic group as one word under the text', () => {
+  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: false }}><SavedGlossText text="الأكلة" segments={[
+    { start: 0, end: 2, kind: 'gloss', gloss: 'the', romanization: 'al-' },
+    { start: 2, end: 6, kind: 'gloss', gloss: 'dish', romanization: 'aklah' },
+  ]} /></ReadingPreferencesContext>)
+  expect(view.container.querySelector('.saved-word > .wroman')).toHaveTextContent(/^al-aklah$/)
+  expect(view.container.querySelector('.saved-word > .wg')).toHaveTextContent(/^the dish$/)
 })
 
 it('does not duplicate always-visible fields or open an empty helper', () => {
@@ -156,7 +166,7 @@ it('does not duplicate always-visible fields or open an empty helper', () => {
   expect(screen.queryByRole('button', { name: 'More' })).toBeNull()
 })
 
-it('keeps expanded help when a desktop popover becomes inline during resize', () => {
+it('keeps expanded help when a desktop popover becomes a sheet during resize', () => {
   const original = window.matchMedia
   let resize = (_matches: boolean) => {}
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: false,
@@ -170,7 +180,7 @@ it('keeps expanded help when a desktop popover becomes inline during resize', ()
     const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
     act(() => resize(true))
-    expect(view.container.querySelector('[popover]')).toBeNull()
+    expect(view.container.querySelector('.saved-word-sheet')).toHaveAttribute('popover', 'manual')
     expect(screen.getByText('nǐ')).toBeVisible()
     expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
   } finally { media.mockRestore(); hide.mockRestore() }

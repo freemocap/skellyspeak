@@ -11,7 +11,7 @@
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-6) var(--space-10); line-height: 1.45; border: 0; }
+.msg.chat-message { padding: var(--space-4) var(--space-6); line-height: 1.4; border: 0; }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -44,7 +44,7 @@
 
 .msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
-  line-height: 1.7;
+  line-height: 1.5;
 }
 
 .msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }
@@ -60,7 +60,8 @@
 .msg.bot.rtl { text-align: right; }
 
 @media (max-width: 860px) {
-  .msg { max-width: 94%; }
+  .msg { max-width: 96%; }
+  .msg.chat-message { padding: var(--space-3) var(--space-5); }
 }
 
 .feedback-badge {
@@ -132,6 +133,16 @@
 
 .msg.with-actions { margin-bottom: var(--space-2); min-width: 140px; }
 
+/* Playback sits inline at the end of the reply, the height of the text. */
+.speak-btn {
+  display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
+  width: var(--control-height-xs); height: var(--control-height-xs); min-height: 0; padding: 0;
+  margin-inline-start: var(--space-2);
+  border: 0; border-radius: var(--radius-circle); background: transparent;
+  font-size: var(--type-ui); cursor: pointer;
+}
+.speak-btn:hover { background: var(--line-soft); }
+
 .message-actions {
   display: flex;
   justify-content: flex-end;
@@ -142,6 +153,8 @@
 
 .message-actions .message-translate {
   margin: 0;
+  /* Secondary text actions under a bubble: compact even on touch screens, so
+     each message does not grow a 44px row of chrome. */
   min-height: var(--control-height-xs);
   padding: 0 var(--space-4);
   background: transparent;
@@ -184,7 +197,7 @@
 /* Feedback is a status pill under your message: neutral when there is nothing
    to fix, amber when the coach has a correction waiting in the coach panel. */
 .message-feedback > .feedback-badge {
-  position: static; display: inline-flex; margin-top: var(--space-4); margin-inline-start: auto; padding: var(--space-2) var(--space-6);
+  position: static; display: inline-flex; margin-top: var(--space-2); margin-inline-start: auto; padding: var(--space-1) var(--space-5);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
   max-width: 100%; text-align: start;
@@ -210,7 +223,7 @@
 /* Toggles show state with colour (above), not checkbox glyphs. */
 
 /* Reply actions sit below the bubble; the wrapper keeps their width and direction. */
-.partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 88%; gap: var(--space-2); }
+.partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 92%; gap: var(--space-1); }
 .partner-turn > .msg.chat-message.bot { max-width: 100%; margin-bottom: 0; }
 .partner-turn > .message-actions { justify-content: flex-start; margin: 0; gap: var(--space-2); }
 .feedback-badge.has-correction { white-space: normal; }

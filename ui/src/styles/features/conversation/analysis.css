@@ -72,36 +72,6 @@
 /* The graph reporting on its own truthfulness. A diagram that cannot tell
    you when it is wrong is a claim, not an observation. */
 
-/* Quick toggles: a second VIEW of the Settings record, not a copy of it. */
-
-.quick-toggles {
-  display: flex; flex-wrap: wrap;
-  border-top: var(--border-width) dashed var(--line); margin-top: 0; padding: var(--space-1) 0 0; gap: var(--space-1);
-}
-
-.quick-toggle {
-  border: var(--border-width) solid var(--line-soft); background: var(--field); border-radius: var(--radius-xl);
-  color: var(--ink-3); cursor: pointer;
-  font-family: var(--font-sans); font-size: var(--type-ui); white-space: nowrap; padding: var(--space-1) var(--space-3);
-}
-
-.quick-toggle:hover:not(:disabled) { border-color: var(--warning-strong); color: var(--ink); }
-
-.quick-toggle.on { color: var(--ink); border-color: var(--warning-strong); background: var(--quiet); }
-
-.quick-toggle:disabled { opacity: 0.45; cursor: default; }
-
-/* Each compact section heading stays attached to its own content. */
-
-@media (pointer: coarse) {
-  .quick-toggle { min-height: var(--touch-target); }
-}
-
-@media (max-width: 860px) {
-  .quick-toggles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .quick-toggles .quick-toggle { white-space: normal; text-align: start; }
-}
-
 .live-activity { min-width: 0; min-height: 0; overflow: auto; padding: var(--space-4); }
 
 .live-activity .react-flow__node.activity-node {

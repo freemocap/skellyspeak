@@ -72,7 +72,7 @@
 .w[role=button]:focus-visible { outline: var(--focus-width) solid var(--ink); outline-offset: 3px; }
 
 @media (pointer: coarse) {
-  .w[role=button] { display: inline-block; padding-block: var(--space-4); }
+  .w[role=button] { display: inline-block; padding-block: var(--space-1); }
 }
 
 .wpronunciation {
@@ -116,11 +116,46 @@
 
 .saved-word-help > span { display: block; }
 
-.saved-word-inline { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin-inline: var(--space-2); }
-.saved-word-inline .wg, .saved-word-inline .wroman, .saved-word-inline .wpronunciation { display: inline; font: var(--type-ui) var(--font-sans); }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
 
-.saved-word:has(.saved-word-inline) { display: inline; border: none; padding: 0; }
-.saved-word-inline.gloss-fragments { display: inline-grid; vertical-align: top; text-align: start; }
+/* Phone: a tapped word's meaning is a bottom sheet over the conversation, so the
+   sentence never reflows around it. */
+.saved-word-help.saved-word-sheet {
+  inset: auto 0 0 0;
+  width: auto;
+  max-width: none;
+  max-height: 60dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-9) max(var(--space-10), env(safe-area-inset-bottom));
+  border: 0;
+  border-top: var(--border-width) solid var(--line);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--floating-shadow);
+  text-align: start;
+}
+.saved-word-help.saved-word-sheet::backdrop { background: var(--appearance-scrim); }
+.saved-word-sheet-word {
+  font: calc(var(--type-display) * var(--script-scale)) / 1.4 var(--font-serif);
+  color: var(--ink);
+}
+.saved-word .saved-word-help.saved-word-sheet > .wg { font: var(--type-title) var(--font-sans); color: var(--ink); }
+.saved-word .saved-word-help.saved-word-sheet > .wroman, .saved-word .saved-word-help.saved-word-sheet > .wpronunciation { font: var(--type-body) var(--font-mono); color: var(--ink-3); }
+.saved-word-help > .saved-word-parts {
+  display: grid; grid-template-columns: auto auto 1fr; margin-top: var(--space-4);
+  border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md);
+}
+.saved-word-part { display: contents; }
+.saved-word-part > * { padding: var(--space-4) var(--space-5); border-top: var(--border-width) solid var(--line-soft); align-self: stretch; display: flex; align-items: center; }
+.saved-word-part:first-child > * { border-top: 0; }
+.saved-word-part-source { font: calc(var(--type-title) * var(--script-scale)) var(--font-serif); justify-content: flex-end; }
+.saved-word .saved-word-help .saved-word-part .wroman { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
+.saved-word .saved-word-help .saved-word-part .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
+
+/* Romanization under a word may be wider than the word; it widens the column
+   rather than breaking mid-word. */
+.saved-word > .wroman, .saved-word > .wpronunciation { contain: none; width: auto; white-space: nowrap; }

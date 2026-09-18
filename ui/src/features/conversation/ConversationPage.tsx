@@ -9,6 +9,8 @@ import { ConversationStart, type StartChoice } from './session/ConversationStart
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
 import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
 import { ConversationHeader } from './session/ConversationHeader'
+import { ConversationSettings } from './session/ConversationSettings'
+import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { MysteryPartnerPanel } from './partners/MysteryPartnerPanel'
 import { NewPersonaDialog } from './partners/NewPersonaDialog'
 import { PersonaPicker } from './partners/PersonaPicker'
@@ -121,27 +123,6 @@ export default function ConversationPage({
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const settingsPanel = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!settingsOpen) return
-    const dismiss = (event: PointerEvent) => {
-      const target = event.target
-      if (target instanceof Element && target.closest('[role="dialog"]')) return
-      if (!settingsPanel.current?.contains(target as Node)) setSettingsOpen(false)
-    }
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !document.querySelector('[role="dialog"]')) {
-        setSettingsOpen(false)
-        settingsPanel.current?.querySelector<HTMLButtonElement>('.chat-config-toggle')?.focus()
-      }
-    }
-    document.addEventListener('pointerdown', dismiss)
-    document.addEventListener('keydown', escape)
-    return () => {
-      document.removeEventListener('pointerdown', dismiss)
-      document.removeEventListener('keydown', escape)
-    }
-  }, [settingsOpen])
   const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
@@ -525,59 +506,15 @@ export default function ConversationPage({
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
-        <ConversationHeader persona={<PersonaPicker status={[targetLanguageName, details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, mic.recording ? tr("Listening") : settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} choices={contactChoices} currentId={activeContactId}
+        <ConversationHeader persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
-          <div className="chat-config" ref={settingsPanel}>
-            <button type="button" className="chat-config-toggle" aria-label={tr("Settings & voice")} aria-expanded={settingsOpen} aria-controls="chat-settings" title={settingsOpen ? tr("Hide chat settings") : tr("Show chat settings")} onClick={() => setSettingsOpen(open => !open)}>⚙ <span>{tr("Conversation")}</span></button>
-            {settingsOpen && <div id="chat-settings" className="scaffold-groups chat-config-panel" role="region" aria-label={tr("Chat settings")}>
-                <div className="conversation-languages">{nativePicker}{details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />}</div>
-                <button type="button" disabled={!currentChatId} onClick={() => { setExportOpen(true); setSettingsOpen(false) }}>{tr("Conversation YAML")}</button>
-                {/* The same Settings record the modal edits — Rust owns it,
-                    these are a second VIEW of one variable, not a copy. */}
-                <div className="quick-toggles" role="group" aria-label={tr("Reading and voice options")}>
-                  {(
-                    [
-                      ['auto_speak', 'Read aloud', 'Speak each reply automatically'],
-                      ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
-                      ['auto_translate', 'Translation', 'Always show the translation under each reply'],
-                      ['always_pronunciation', 'Pronunciation', 'Show saved pronunciation in replies and coach advice'],
-                      ['fast_mode', 'Fast mode', 'Automatically dismiss new XP cards; point icons reopen them'],
-                      ...(showRomanization
-                        ? ([['always_romanize', 'Romanization', 'Always show romanization under each word']] as const)
-                        : []),
-                    ] as [
-                      'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode',
-                      string,
-                      string,
-                    ][]
-                  ).map(([key, label, title]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      className={`quick-toggle ${settings?.[key] ? 'on' : ''}`}
-                      onClick={() => void toggleSetting(key)}
-                      aria-pressed={settings?.[key] ?? false}
-                      title={tr(title)}
-                      disabled={!settings || savingReading}
-                    >
-                      {settings?.[key] ? '☑' : '☐'} {tr(label)}
-                    </button>
-                  ))}
-                  <label className="speech-speed">
-                    {tr("Voice speed")}<select aria-label={tr("Voice playback speed")} value={settings?.tts_rate ?? 1} disabled={!settings || savingReading} onChange={event => void toggleSetting('tts_rate', Number(event.target.value))}>
-                      {[0.5, 0.65, 0.8, 1, 1.25, 1.5].map((rate) => <option key={rate} value={rate}>{rate}×</option>)}
-                    </select>
-                  </label>
-                </div>
-
-              </div>
-            }
-          </div>
-
-
-
-          <button type="button" className="chat-new" aria-label={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}>＋ <span>{tr("New")}</span></button>
+          {/* The settings summary rides on the button that changes them; under the
+              persona it invited a click that only offered persona choices. */}
+          <ConversationSettings summary={[details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
+            nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
+            difficulty={details.conversation && <DifficultySelect value={details.conversation.settings.difficulty} saving={details.saving} onChange={details.saveDifficulty} />} />
+          <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /><span>{tr("New")}</span></button>
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />

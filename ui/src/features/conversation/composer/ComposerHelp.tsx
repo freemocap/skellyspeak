@@ -8,11 +8,12 @@ import { useState } from 'react'
 import { nativeError } from '../../../platform/ipc/workspace'
 import { SavedGlossText } from '../reading/SavedGlossText'
 import type { SuggestedReply } from '../../../generated/contracts'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
 /// Reply ideas for the latest persona message, with saved word glosses. Inserting
-/// fills the draft; it never sends. The panel folds down to one button at the
-/// inline end of the composer, directly above the record button, so a phone held
-/// in the right hand can reopen it with the thumb.
+/// fills the draft; it never sends. The ideas sit in their own titled tray above
+/// the composer, so they never read as part of the conversation; folded, the
+/// tray is one "Reply ideas" chip.
 export function ComposerHelp({ assistance, onAsk, replies, pending, busy, errors, onUse, onRequest }: {
   assistance?: ReplyAssistance
   onAsk?: (question: string) => void
@@ -34,11 +35,14 @@ export function ComposerHelp({ assistance, onAsk, replies, pending, busy, errors
     try { await onRequest() } catch (error) { setFailure(nativeError(error)) } finally { setRequesting(false) }
   }
   if (!assistance && !onRequest && !replies.length && !pending && !errors.length) return null
-  const toggleButton = <button type="button" className="composer-help-toggle" aria-expanded={!collapsed} aria-controls="composer-help-content"
-    onClick={() => void toggle()}>{collapsed ? tr("Show suggested replies") : tr("Hide suggested replies")}</button>
-  if (collapsed) return <div className="composer-help-folded">{toggleButton}</div>
+  if (collapsed) return <div className="composer-help-folded"><button type="button" className="composer-help-toggle composer-help-show" aria-expanded={false} aria-controls="composer-help-content"
+    onClick={() => void toggle()}><ToolbarIcon name="idea" size={15} />{tr("Show suggested replies")}</button></div>
   return <section id="composer-help-content" className="composer-help-content" aria-label={tr("Reply ideas")} aria-live="polite" aria-busy={pending}>
-    <div className="composer-help-head">{toggleButton}</div>
+    <div className="composer-help-head">
+      <span className="composer-help-title"><ToolbarIcon name="idea" size={15} />{tr("Reply ideas")}</span>
+      <button type="button" className="composer-help-toggle" aria-expanded={true} aria-controls="composer-help-content"
+        onClick={() => void toggle()}>{tr("Hide suggested replies")}<ToolbarIcon name="chevron" size={14} /></button>
+    </div>
     {assistance && <>
       <Markdown text={assistance.explanation} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this reply assistance: ${JSON.stringify(assistance)}`) : undefined} />
       <div className="help-replies">{assistance.replies.map(reply => <div className="help-reply" key={reply.text}>

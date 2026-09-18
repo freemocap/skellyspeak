@@ -4,6 +4,9 @@ import { useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
 import { MobileNav } from '../src/app/shell/MobileNav'
 import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
+import { ConversationSettings } from '../src/features/conversation/session/ConversationSettings'
+import { SavedGlossText } from '../src/components/reading/SavedGlossText'
+import { ReadingPreferencesContext } from '../src/components/reading/ReadingPreferences'
 import { PersonaPicker } from '../src/features/conversation/partners/PersonaPicker'
 import { ConversationStart } from '../src/features/conversation/session/ConversationStart'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
@@ -23,6 +26,17 @@ import type { GuidedTurnResult } from '../src/types'
 import '../src/styles/index.css'
 
 const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'he ido a la playa', move: 'hint', text: 'Which past tense fits an event from last summer?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
+// "What's your favorite dish?" with clitic-split glosses, as saved word help arrives.
+const arabicText = 'شو الأكلة المفضلة عندك؟'
+const arabicSegments = [
+  { start: 0, end: 2, kind: 'gloss' as const, gloss: 'what', romanization: 'shū' },
+  { start: 3, end: 5, kind: 'gloss' as const, gloss: 'the', romanization: 'al-' },
+  { start: 5, end: 9, kind: 'gloss' as const, gloss: 'dish', romanization: 'aklah' },
+  { start: 10, end: 12, kind: 'gloss' as const, gloss: 'the', romanization: 'al-' },
+  { start: 12, end: 17, kind: 'gloss' as const, gloss: 'favorite', romanization: 'mufaḍḍalah' },
+  { start: 18, end: 21, kind: 'gloss' as const, gloss: 'with', romanization: 'ʿind' },
+  { start: 21, end: 22, kind: 'gloss' as const, gloss: 'you', romanization: 'ak' },
+]
 const assistant = { reply: '¡Qué bien! ¿Fuiste con tu familia o con amigos?', translation: 'How nice! Did you go with your family or friends?', tokens: [], user_tokens: [], errors: [], mechanics: [], scaffolds: { replies: [] } } as unknown as GuidedTurnResult
 function Preview() {
   const [input, setInput] = useState('')
@@ -31,9 +45,11 @@ function Preview() {
   const [coach, setCoach] = useState(true)
   const [dark, setDark] = useState(false)
   const [palette, setPalette] = useState<'warm' | 'cool'>('warm')
-  const [spacing, setSpacing] = useState<'roomy' | 'balanced' | 'tight' | 'extra_tight'>('roomy')
+  const [spacing, setSpacing] = useState<'roomy' | 'balanced' | 'tight' | 'extra_tight'>('tight')
   const [notice, setNotice] = useState('')
   const [tab, setTab] = useState('Coaching')
+  const [configOpen, setConfigOpen] = useState(false)
+  const [quick, setQuick] = useState(PREVIEW_SETTINGS)
   const workspace = useRef<HTMLDivElement>(null)
   const mobile = useIsMobile()
   const surface = useNavigationStore(state => state.mobileSurface)
@@ -44,11 +60,15 @@ function Preview() {
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-lesson' : ''}`} ref={workspace}>
       <section className="chat">
-        <ConversationHeader error={null} persona={<PersonaPicker status={recording ? 'Español · Beginner · Listening' : 'Español · Beginner · Reading aloud'} choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
-          <div className="chat-heading-actions"><button className="chat-config-toggle" onClick={() => setNotice('Conversation settings')}>⚙ <span>Conversation</span></button><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
+        <ConversationHeader error={null} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
+          <div className="chat-heading-actions"><ConversationSettings summary={['Beginner', quick.auto_speak ? 'Reading aloud' : null].filter(Boolean).join(' · ')} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
+            onToggle={async (key, value) => setQuick(current => ({ ...current, [key]: value ?? !current[key] }))}
+            nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>}
+            difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} starters={[{id:'weekend',label:'Your weekend',reason:'Recent activities',preview:null,translation:null},{id:'food',label:'Food',reason:'Ordering at a café',preview:null,translation:null},{id:'travel',label:'Travel',reason:'Places to visit',preview:null,translation:null}]} onStart={async () => setOpening(false)} /> : <>
           <div className="turn-stack"><div className="msg chat-message bot"><span className="target-text">Me gusta mucho caminar por la costa cuando el tiempo está agradable.</span></div></div>
+          <div className="turn-stack" style={{ '--script-scale': 1.5 } as React.CSSProperties}><div className="msg chat-message bot rtl"><ReadingPreferencesContext value={{ autoTranslate: false, alwaysRomanize: quick.always_romanize, alwaysPronunciation: false }}><SavedGlossText text={arabicText} segments={arabicSegments} /></ReadingPreferencesContext></div></div>
           <TurnView turn={{id:1,user:'Sí, he ido a la playa de Samil el verano pasado.',assistant, pendingText:'',coachDecision:decision}} reviewing={false} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={() => {}} />
         </>}</div>
         <div className="composer">

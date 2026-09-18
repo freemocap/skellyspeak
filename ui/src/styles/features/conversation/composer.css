@@ -17,7 +17,7 @@
 }
 
 @media(max-width:860px) {
-  .chat .composer { padding: var(--space-2) var(--space-3) max(var(--space-3), env(safe-area-inset-bottom)); }
+  .chat .composer { padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom)); }
 }
 
 .composer {
@@ -25,7 +25,7 @@
   flex: 0 0 auto;
   min-height: 0;
   width: 100%; max-width: calc(var(--measure-thread) + 2 * var(--space-12)); margin-inline: auto;
-  padding: var(--space-8) var(--space-12) var(--space-10);
+  padding: var(--space-3) var(--space-8) var(--space-4);
 }
 
 .edit-banner {
@@ -40,11 +40,11 @@
   cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
 }
 
-.crow { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-2); padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5); background: var(--field); border: 1.5px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--bubble-shadow); transition: border-color var(--dur-fast) var(--ease-out); }
+.crow { display: flex; flex-direction: column; gap: var(--space-2); margin-top: 0; padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4); background: var(--field); border: 1.5px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--bubble-shadow); transition: border-color var(--dur-fast) var(--ease-out); }
 .crow:focus-within { border-color: var(--interaction-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--interaction-ink) 14%, transparent); }
 .composer-field-row { display: flex; align-items: flex-end; gap: var(--space-4); width: 100%; }
-.crow .field.composer-input { flex: 1; resize: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-height: var(--touch-target); max-height: 160px; padding: var(--space-3); line-height: var(--leading-normal); font-size: calc(var(--type-body) * var(--script-scale)); word-spacing: var(--word-spacing); }
-.composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
+.crow .field.composer-input { flex: 1; resize: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-height: var(--touch-target); max-height: 160px; padding: var(--space-2); line-height: var(--leading-normal); font-size: calc(var(--type-body) * var(--script-scale)); word-spacing: var(--word-spacing); }
+.composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-2); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
 @media (max-width: 860px) { .composer-shortcuts { display: none; } }
 
 .send {

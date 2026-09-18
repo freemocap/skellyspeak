@@ -7,9 +7,12 @@
 
 /* Top bar */
 
+/* The chrome is one row at every width. On a phone the connection shows as its
+   status dot, Browse languages moves to More (it is already listed there), and
+   Settings keeps only its icon. */
 .topbar {
-  display: flex; align-items: center;
-  min-height: 60px; padding: var(--space-2) var(--space-8) var(--space-2) var(--space-6);
+  display: flex; align-items: center; flex-wrap: nowrap;
+  min-height: 44px; padding: 0 var(--space-6) 0 var(--space-4);
   border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
   flex: none; justify-content: flex-start; gap: var(--space-6);
 }
@@ -37,7 +40,6 @@
 .tabs { display: flex; gap: var(--space-2); }
 
 @media (max-width: 480px) {
-  .topbar { flex-wrap: wrap; gap: var(--space-3); padding-inline: var(--space-5); }
   .topbar .tabs { order: 3; width: 100%; }
   .topbar .tab { flex: 1; }
 }
@@ -91,7 +93,7 @@
 /* Desktop: the conversation and coach are raised sheets on the paper ground,
    so the page reads as ground → sheet → card instead of one flat plane. */
 @media not all and (max-width: 860px) {
-  .split { padding: var(--space-8); gap: var(--space-4); }
+  .split { padding: var(--space-3); gap: var(--space-3); }
 }
 
 /* Overflow guards: flex's default min-width/min-height:auto lets wide
@@ -121,7 +123,7 @@
 }
 
 .mobile-nav-item {
-  flex: 1; min-height: var(--touch-target);
+  flex: 1; min-height: var(--control-height-lg);
   display: inline-flex; align-items: center; justify-content: center;
   padding: var(--space-3) var(--space-2);
   border: 0; border-top: var(--border-width-strong) solid transparent; background: none;
@@ -234,13 +236,21 @@
 .tab.active, .panel-tab.active { box-shadow: inset 0 -3px var(--accent); }
 
 @media (max-width: 600px) {
-  .topbar { flex-wrap: wrap; }
   .topbar .tabs { order: 5; flex-basis: 100%; }
   .topbar .tabs .tab { flex: 1; padding: var(--space-4); font-size: var(--type-meta); }
 }
 
 @media (max-width: 860px) {
-  .topbar { padding: var(--space-2) var(--space-4); gap: var(--space-2); flex-wrap: wrap; }
+  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
+  .topbar-language .inspection-action { display: none; }
+  .topbar-actions { gap: 0; }
+  .topbar-actions .gear.app-settings { width: var(--touch-target); padding: 0; }
+  .topbar-actions .gear.app-settings > span { display: none; }
+  .topbar .profile-meter { display: none; }
+  .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
+  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
+  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .connection-state[data-configured=false] { background: transparent; }
 }
 
 @media (max-width: 860px) and (max-height: 550px) {
@@ -254,7 +264,7 @@
 
 .mobile-ai-panel { display: flex; flex-direction: column; height: 65dvh; min-height: 0; }
 
-.topbar-actions { display: flex; flex-wrap: wrap; max-width: 100%; align-items: center; gap: var(--space-2); margin-inline-start: auto; flex: none; }
+.topbar-actions { display: flex; flex-wrap: nowrap; max-width: 100%; align-items: center; gap: var(--space-2); margin-inline-start: auto; flex: none; }
 
 .topbar-actions .gear {
   display: inline-flex;
@@ -271,6 +281,8 @@
 }
 
 .topbar-actions .profile-trigger { width: auto; }
+
+.topbar-actions .gear.app-settings { width: auto; padding-inline: var(--space-4); gap: var(--space-3); font-size: var(--type-ui); }
 
 .app-home {
   display: inline-flex;
@@ -293,8 +305,7 @@
 }
 
 @media (max-width: 380px) {
-  .topbar .app-home { font-size: var(--type-meta); gap: var(--space-1); }
-  .app-home img { width: 24px; height: 24px; }
+  .topbar .app-home { display: none; }
 }
 
 /* Remaining motion owners; graph scope also wins over lazily loaded vendor CSS. */
@@ -351,8 +362,8 @@
 @media (max-width: 860px) { .hamburger > span { display: none; } }
 @media (max-width: 480px) { .app-home > span { display: none; } }
 
-.topbar-language { min-width: 0; }
+.topbar-language { min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
 .topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); max-width: 220px; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (max-width: 860px) { .topbar-language .learning-picker { max-width: 120px; } .topbar .app-home > span { display: none; } }
-@media (max-width: 480px) { .topbar-actions .profile-trigger { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+@media (max-width: 860px) { .topbar-language .learning-picker { max-width: 120px; min-width: 104px; padding-inline: var(--space-3); } .topbar .app-home > span { display: none; } }
 @media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .hamburger { min-height: var(--touch-target); } }
+

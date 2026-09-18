@@ -50,19 +50,21 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <div className="topbar-actions">
       <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)} XP</strong><span className="profile-meter" aria-hidden="true"><span style={{ width: `${(profile.xp % 50) * 2}%` }} /></span></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
-        aria-busy={checking} title={connectionDetail} onClick={() => showOverlay('settings')}>
-        {connected ? tr('AI Connected') : tr('AI Not Connected')}
+        aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={() => showOverlay('settings')}>
+        <span className="connection-label">{connected ? tr('AI Connected') : tr('AI Not Connected')}</span>
       </button>
 
+      {/* App-wide settings. The conversation's own settings open from the chat
+          header, so this one carries its name to keep the two apart. */}
       <button
         type="button"
-        className="gear"
+        className="gear app-settings"
         onClick={() => showOverlay('settings')}
         disabled={savingLanguage}
         aria-label={tr("Settings")}
         title={tr("Settings")}
       >
-        <ToolbarIcon name="settings" />
+        <ToolbarIcon name="cog" /><span>{tr("Settings")}</span>
       </button>
       <button type="button" className="gear" aria-label={tr("More")} aria-expanded={overlay === 'more'} onClick={() => showOverlay('more')}><ToolbarIcon name="more" size={18} /></button>
 

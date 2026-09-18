@@ -44,7 +44,7 @@ export function NativePicker() {
   const { settings, disabled, change } = usePicker()
   if (!settings) return null
   return (
-    <label><span>{tr("Native")}</span><select className="chat-language-picker" aria-label={tr("Native language")} value={settings.native_language}
+    <label><span>{tr("Explanation language")}</span><select className="chat-language-picker" aria-label={tr("Native language")} value={settings.native_language}
       disabled={disabled} onChange={event => change('native_language', event.target.value)}>
       {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.languageTag} key={language.base} value={language.base}>{languageLabel(language, tr.locale)}</option>)}
     </select></label>

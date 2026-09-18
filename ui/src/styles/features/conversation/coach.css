@@ -181,4 +181,6 @@
 
 .coach-group-label, .live-coach-review > h3 { margin: 0; font: var(--weight-semibold) var(--type-meta) var(--font-sans); text-transform: uppercase; letter-spacing: var(--tracking-tag); color: var(--ink-3); }
 .study-coaching-scroll > .coach-group-label:not(:first-child) { margin-top: var(--space-6); }
-@media (pointer: coarse) { .message-actions .message-translate, .mic, .send, .coach-send, .help-insert { min-width: var(--touch-target); min-height: var(--touch-target); } }
+/* The reply card is the insert target and the under-bubble links are secondary,
+   so only the primary composer controls take the full touch size. */
+@media (pointer: coarse) { .mic, .send, .coach-send { min-width: var(--touch-target); min-height: var(--touch-target); } }
