@@ -83,3 +83,23 @@ it('shows a clickable connected state only after a successful check at the curre
   view.rerender(<TopBar />)
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
 })
+
+it('updates the System theme toggle when the OS appearance changes', async () => {
+  const original = window.matchMedia
+  let matches = false
+  const listeners = new Set<() => void>()
+  window.matchMedia = vi.fn(() => ({ matches, addEventListener: (_: string, fn: () => void) => listeners.add(fn), removeEventListener: (_: string, fn: () => void) => listeners.delete(fn) }) as unknown as MediaQueryList)
+  const update = vi.fn()
+  useSettingsStore.setState({ settings: { target_language: 'spanish', theme: 'system' } as Settings, update })
+  const view = render(<TopBar />)
+  try {
+    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible()
+    const { act } = await import('@testing-library/react')
+    act(() => { matches = true; listeners.forEach(listener => listener()) })
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to light mode' }))
+    expect(update.mock.calls[0][0]({ theme: 'system' }).theme).toBe('light')
+  } finally {
+    view.unmount()
+    window.matchMedia = original
+  }
+})

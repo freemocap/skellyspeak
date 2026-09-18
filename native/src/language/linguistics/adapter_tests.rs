@@ -462,7 +462,7 @@ fn explicit_catalog_endpoints_select_repeated_and_single_grapheme_words() {
         ("我", vec![(0, 0)], vec![Span { start: 0, end: 1 }]),
     ] {
         let prompt = build_word_gloss_prompt(&identity(), text).unwrap();
-        assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v5");
+        assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v6");
         let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
         let rows = data["graphemes"].as_array().unwrap();
         let spans: Vec<_> = selections
@@ -738,4 +738,21 @@ fn historical_v1_live_fixture_is_not_reinterpreted_as_v2() {
     );
     // The payload above is an authentic output shape from the earlier contract,
     // kept so the decoder is proven to refuse it rather than accept it silently.
+}
+
+#[test]
+fn latin_gloss_requests_skip_romanization_and_reject_copied_words() {
+    let prompt = build_word_gloss_prompt(&identity(), "Hola").unwrap();
+    assert_eq!(prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"], serde_json::json!({"type":"null"}));
+    assert!(prompt.messages[0].content.contains("no transliteration work is needed"));
+    let raw = candidate(vec![serde_json::json!({"first":"g0000","last":"g0003","kind":"gloss","gloss":"hello","romanization":"Hola"})]);
+    let error = decode("Hola", &raw).unwrap_err();
+    assert_eq!(error.diagnostic_code(), "gloss_unexpected_romanization");
+    assert_eq!(error.span_index(), Some(0));
+    let mut id = identity();
+    id.target_language_id = "mandarin".into();
+    let prompt = build_word_gloss_prompt(&id, "你").unwrap();
+    assert_eq!(prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"]["type"], serde_json::json!(["string","null"]));
+    let raw = candidate(vec![serde_json::json!({"first":"g0000","last":"g0000","kind":"gloss","gloss":"you","romanization":"nǐ"})]);
+    assert!(decode_word_gloss(&id, "你", &raw).is_ok());
 }

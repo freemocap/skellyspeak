@@ -458,11 +458,7 @@ export function SettingsModal({
         </div>
       ),
     },
-    appearance: { section: 'appearance', label: tr('Appearance'), kw: 'palette color glow density spacing panels depth appearance', node: <AppearanceSettings settings={settings} onChange={setSettings} /> },
-    theme: {
-      section: 'appearance', label: tr('Appearance'), kw: 'theme light dark system appearance',
-      node: <div className="form-row"><label htmlFor="appearance-theme">{tr("Appearance")}</label><select id="appearance-theme" value={settings.theme ?? 'light'} onChange={event=>setSettings({...settings,theme:event.target.value as 'light'|'dark'|'system'})}><option value="light">{tr("Light")}</option><option value="dark">{tr("Dark")}</option><option value="system">{tr("System")}</option></select></div>,
-    },
+    appearance: { section: 'appearance', label: tr('Appearance'), kw: 'theme light dark system palette color glow density spacing panels depth appearance', node: <AppearanceSettings settings={settings} onChange={setSettings} /> },
     text_size: {
       section: 'appearance', label: tr('Text size'), kw: 'font text size reading display accessibility',
       node: <div className="form-row"><label htmlFor="reading-size">{tr("Text size · ")}{settings.text_size}%</label>
@@ -566,7 +562,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['models', 'appearance', 'theme', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['models', 'appearance', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && id !== 'models' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

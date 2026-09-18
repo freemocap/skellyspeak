@@ -125,16 +125,17 @@ impl Store {
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         let prepared = (|| -> Result<_> {
             let mut gloss_source = None;
+            let mut gloss_schema = None;
             let coaching_schema = if kind == "skill_assessment" {
                 Some(crate::learning::coaching::skill_assessment::schema(
                     &captured,
                 )?)
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
-                Some(crate::learning::coaching::conversation_support::schema(
-                    &kind,
+                Some(crate::learning::coaching::conversation_support::schema_for_context(
+                    &kind, &captured,
                 ))
             } else if kind.starts_with("lesson_") {
-                Some(crate::learning::lessons::schema(&kind))
+                Some(crate::learning::lessons::schema_for_context(&kind, &captured))
             } else if kind.starts_with("coach_") && kind != "coach_reply" {
                 Some(if kind == "coach_reaction" {
                     crate::partners::partner_reaction::schema()
@@ -199,12 +200,13 @@ impl Store {
                         target.route,
                         crate::ai::transport::provider::RequestOutput::JsonSchema {
                             name: crate::language::linguistics::adapter::FORMAT_ID,
-                            schema: &crate::language::linguistics::adapter::output_schema(),
+                            schema: &prompt.output_schema,
                         },
                     )?;
-                    Ok((source, prompt.messages))
+                    Ok((source, prompt.messages, prompt.output_schema))
                 })();
-                let (source, messages) = prepared?;
+                let (source, messages, schema) = prepared?;
+                gloss_schema = Some(schema);
                 gloss_source = Some(source);
                 messages
             } else if matches!(kind.as_str(), "reply_translation" | "user_translation") {
@@ -235,9 +237,9 @@ impl Store {
             } else {
                 coaching_schema
             };
-            Ok((gloss_source, coaching_schema, messages, target))
+            Ok((gloss_source, gloss_schema, coaching_schema, messages, target))
         })();
-        let (gloss_source, coaching_schema, messages, target) = match prepared {
+        let (gloss_source, gloss_schema, coaching_schema, messages, target) = match prepared {
             Ok(prepared) => prepared,
             Err(error) => {
                 if matches!(
@@ -291,6 +293,7 @@ impl Store {
             credential,
             model,
             messages,
+            gloss_schema,
             coaching_schema,
             gloss_source,
             speech_source: None,

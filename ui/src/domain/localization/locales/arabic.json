@@ -968,5 +968,8 @@
   "Chat access": "اتصال المحادثة",
   "Audio provider key": "مفتاح مزود الصوت",
   "Connect to local server": "الاتصال بالخادم المحلي",
-  "Response details": "تفاصيل الاستجابة"
+  "Response details": "تفاصيل الاستجابة",
+  "Theme": "السمة",
+  "Switch to dark mode": "التبديل إلى الوضع الداكن",
+  "Switch to light mode": "التبديل إلى الوضع الفاتح"
 }

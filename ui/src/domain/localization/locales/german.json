@@ -968,5 +968,8 @@
   "Chat access": "Chat-Zugang",
   "Audio provider key": "Schlüssel des Audioanbieters",
   "Connect to local server": "Mit lokalem Server verbinden",
-  "Response details": "Antwortdetails"
+  "Response details": "Antwortdetails",
+  "Theme": "Design",
+  "Switch to dark mode": "Zum dunklen Modus wechseln",
+  "Switch to light mode": "Zum hellen Modus wechseln"
 }

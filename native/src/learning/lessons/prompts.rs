@@ -81,6 +81,14 @@ pub(crate) fn schema(kind: &str) -> Value {
     }
 }
 
+pub(crate) fn schema_for_context(kind: &str, captured: &Value) -> Value {
+    let mut schema = schema(kind);
+    if kind == "lesson_generate" && captured["languageContext"]["script"] == "latin" {
+        schema["properties"]["examples"]["items"]["properties"]["romanization"] = json!({"type":"null"});
+    }
+    schema
+}
+
 pub(super) fn review_sources(db: &Connection, turn: &str, captured: &Value) -> Result<Value> {
     let handoff = captured["activeLesson"]["handoffTurnId"]
         .as_str()

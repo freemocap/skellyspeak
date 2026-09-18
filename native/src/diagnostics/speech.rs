@@ -59,6 +59,7 @@ mod tests {
             route: ConnectionRoute::Custom,
             install_id: "PRIVATE".into(),
             messages: vec![],
+            gloss_schema: None,
             coaching_schema: None,
             gloss_source: None,
             speech_source: None,

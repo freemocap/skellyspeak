@@ -75,8 +75,16 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                         }
                         holds::check(&state.lock()?.connection, &dispatch.target)?;
                     }
-                    let schemas: Vec<_> = dispatches.iter().map(|d| match &d.gloss_source { Some(source) => linguistics::adapter::source_schema(&source.text).map_err(|_| gloss::validation_error()), None => Ok(linguistics::adapter::output_schema()) }).collect::<Result<Vec<_>>>()?;
-                    let outputs: Vec<_> = dispatches.iter().zip(&schemas).map(|(dispatch,schema)| match dispatch.coaching_schema.as_ref() { Some(schema) => provider::RequestOutput::JsonSchema { name: "coaching", schema }, None => gloss::request_output(dispatch.gloss_source.as_ref(), schema) }).collect();
+                    let outputs: Vec<_> = dispatches.iter().map(|dispatch| {
+                        if let Some(schema) = dispatch.coaching_schema.as_ref() {
+                            Ok(provider::RequestOutput::JsonSchema { name: "coaching", schema })
+                        } else if dispatch.gloss_source.is_some() {
+                            let schema = dispatch.gloss_schema.as_ref().ok_or_else(gloss::validation_error)?;
+                            Ok(gloss::request_output(dispatch.gloss_source.as_ref(), schema))
+                        } else {
+                            Ok(provider::RequestOutput::Prose)
+                        }
+                    }).collect::<Result<Vec<_>>>()?;
                     if let Some(source) = &first.speech_source {
                         let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
                         let request = audio::synthesize(&client, &first.target, &key, &input, &first.install_id);

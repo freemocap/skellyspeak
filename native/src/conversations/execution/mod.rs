@@ -61,6 +61,7 @@ pub struct Dispatch {
     pub route: ConnectionRoute,
     pub install_id: String,
     pub messages: Vec<PromptMessage>,
+    pub gloss_schema: Option<serde_json::Value>,
     pub coaching_schema: Option<serde_json::Value>,
     pub gloss_source: Option<crate::conversations::gloss::Source>,
     pub speech_source: Option<crate::speech::cache::Source>,

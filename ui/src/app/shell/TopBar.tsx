@@ -1,3 +1,4 @@
+import { useSystemDark } from '../../platform/appearance/useSystemDark'
 import type { ReactNode } from 'react'
 import { LearningPicker } from '../../features/settings/language/LanguagePickers'
 import { useI18n } from '../../components/localization/i18n'
@@ -29,6 +30,12 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const toggleHistory = useNavigationStore((state) => state.toggleHistory)
   const goHome = useNavigationStore((state) => state.goHome)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
+  // The theme the page is showing now: "system" resolves through the OS
+  // preference, and the toggle flips what the learner sees.
+  const theme = useSettingsStore((state) => state.settings?.theme ?? 'light')
+  const systemDark = useSystemDark()
+  const dark = theme === 'dark' || (theme === 'system' && systemDark)
+  const toggleTheme = () => void useSettingsStore.getState().update(current => ({ ...current, theme: dark ? 'light' : 'dark' }), 'Saving theme')
 
   return (
     <div className="topbar">
@@ -54,8 +61,13 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         <span className="connection-label">{connected ? tr('AI Connected') : tr('AI Not Connected')}</span>
       </button>
 
+      <button type="button" className="gear theme-toggle" onClick={toggleTheme}
+        aria-label={dark ? tr("Switch to light mode") : tr("Switch to dark mode")} title={dark ? tr("Switch to light mode") : tr("Switch to dark mode")}>
+        <ToolbarIcon name={dark ? 'sun' : 'moon'} />
+      </button>
       {/* App-wide settings. The conversation's own settings open from the chat
-          header, so this one carries its name to keep the two apart. */}
+          header, so this one carries its name to keep the two apart. On a
+          phone it moves into More, where there is room for its label. */}
       <button
         type="button"
         className="gear app-settings"

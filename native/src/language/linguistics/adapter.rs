@@ -13,7 +13,7 @@ use serde::{
 use std::fmt;
 
 pub const FORMAT_ID: &str = "persona-word-gloss-grapheme-v2";
-pub const TEMPLATE_ID: &str = "persona-word-gloss-prompt-v5";
+pub const TEMPLATE_ID: &str = "persona-word-gloss-prompt-v6";
 pub const MAX_RESPONSE_BYTES: usize = 128 * 1024;
 pub const MAX_PROMPT_BYTES: usize = 256 * 1024;
 
@@ -35,6 +35,7 @@ pub enum AdapterError {
     InvalidGlossText {
         index: usize,
     },
+    UnexpectedRomanization { index: usize },
     Serialization,
 }
 
@@ -49,6 +50,7 @@ impl AdapterError {
             Self::UnsupportedTargetLanguage => "gloss_unsupported_target_language",
             Self::UnsupportedExplanationLanguage => "gloss_unsupported_explanation_language",
             Self::InvalidGlossText { .. } => "gloss_invalid_text",
+            Self::UnexpectedRomanization { .. } => "gloss_unexpected_romanization",
             Self::Serialization => "gloss_serialization",
             Self::InvalidSource(reason)
             | Self::InvalidBoundary { reason, .. }
@@ -80,7 +82,7 @@ impl AdapterError {
     /// Zero-based supplied span index when known; never a source offset.
     pub fn span_index(&self) -> Option<usize> {
         match self {
-            Self::InvalidBoundary { index, .. } | Self::InvalidGlossText { index } => Some(*index),
+            Self::UnexpectedRomanization { index } | Self::InvalidBoundary { index, .. } | Self::InvalidGlossText { index } => Some(*index),
             Self::InvalidSource(reason) | Self::InvalidCandidate(reason) => match reason {
                 ValidationError::PhraseRequiresSeparateLayer { index }
                 | ValidationError::OverlapOrUnordered { index }
@@ -263,8 +265,12 @@ fn decode_word_gloss_context(
         .end()
         .map_err(|_| AdapterError::InvalidJsonOrShape)?;
     let rows = grapheme_rows(&map);
+    let romanization_allowed = supports_romanization(identity, context)?;
     let mut spans = Vec::with_capacity(wire.spans.0.len());
     for (index, item) in wire.spans.0.into_iter().enumerate() {
+        if !romanization_allowed && item.romanization.is_some() {
+            return Err(AdapterError::UnexpectedRomanization { index });
+        }
         for reading in [&item.romanization, &item.pronunciation]
             .into_iter()
             .flatten()
@@ -421,6 +427,15 @@ pub fn build_word_gloss_prompt_with_context(
     build_word_gloss_prompt_context(identity, source, Some(context))
 }
 
+fn supports_romanization(identity: &SourceIdentity, context: Option<&crate::configuration::LanguageContext>) -> Result<bool, AdapterError> {
+    if let Some(context) = context {
+        return Ok(context.script != "latin" && !context.guidance("romanization").is_empty());
+    }
+    languages::romanization(&identity.target_language_id)
+        .map(|scheme| scheme.is_some())
+        .map_err(|_| AdapterError::UnsupportedTargetLanguage)
+}
+
 fn build_word_gloss_prompt_context(
     identity: &SourceIdentity,
     source: &str,
@@ -476,7 +491,13 @@ fn build_word_gloss_prompt_context(
     } else {
         format!("\n{segmentation}")
     };
-    let schema = source_schema(source)?;
+    let mut schema = source_schema(source)?;
+    let romanization = if supports_romanization(identity, context)? {
+        romanization
+    } else {
+        schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"] = serde_json::json!({"type":"null"});
+        "\nDo not romanize this target language or copy its words into romanization. Return null for romanization; no transliteration work is needed.".to_string()
+    };
     let system = format!(
         "{INSTRUCTIONS}{writing}{romanization}{segmentation} Return at most {MAX_SPANS} spans and at most {MAX_GLOSS_SCALARS} Unicode scalars per gloss.\nOutput schema: {}",
         serde_json::to_string(&schema).map_err(|_| AdapterError::Serialization)?

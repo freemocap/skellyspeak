@@ -50,7 +50,7 @@ export function ComposerHelp({ assistance, onAsk, replies, pending, busy, errors
           <p dir="auto">{reply.translation}</p>
           {reading.alwaysRomanize && reply.romanization && <p dir="auto">{reply.romanization}</p>}
           {reading.alwaysPronunciation && <p dir="auto">{reply.pronunciation}</p>}
-          {(!reading.alwaysRomanize || !reading.alwaysPronunciation) && <details><summary>{tr("Reading help")}</summary>{!reading.alwaysRomanize && reply.romanization && <p dir="auto">{reply.romanization}</p>}{!reading.alwaysPronunciation && <p dir="auto">{reply.pronunciation}</p>}</details>}
+          {(!reading.alwaysRomanize || !reading.alwaysPronunciation) && <details><summary>{tr("Reading help")}</summary>{reading.supportsRomanization && !reading.alwaysRomanize && reply.romanization && <p dir="auto">{reply.romanization}</p>}{!reading.alwaysPronunciation && <p dir="auto">{reply.pronunciation}</p>}</details>}
         </div>
         <button type="button" className="help-insert" aria-label={tr("Insert reply: {value0}", {value0: reply.text})} disabled={busy} onClick={() => onUse(reply.text, 'suggestion')}>↗</button>
       </div>)}</div>

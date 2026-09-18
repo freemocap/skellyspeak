@@ -40,7 +40,7 @@ export function AnnotatedText({ text, tokens, interactive = true }: { text: stri
 }
 
 function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: string; tokens: GuidedToken[]; interactive: boolean }) {
-  const { alwaysPronunciation, alwaysRomanize } = useReadingPreferences()
+  const { alwaysPronunciation, alwaysRomanize, supportsRomanization } = useReadingPreferences()
   const reading = useContext(ReadingContext)
   const [revealed, setRevealed] = useState<Set<number>>(new Set())
   const tokens = savedTokens
@@ -66,7 +66,7 @@ function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: s
       setRevealed(previous => { const next = new Set(previous); if (next.has(index)) next.delete(index); else next.add(index); return next })
     }
     return <Fragment key={`${text}:${index}`}><TokenSpan key={`${text}:${index}`} tok={token} interactive={interactive} revealed={revealed.has(index)} hasTranslation={!!token.gloss}
-      showRomanization={true} alwaysRomanize={alwaysRomanize} alwaysPronunciation={alwaysPronunciation}
+      showRomanization={supportsRomanization} alwaysRomanize={alwaysRomanize} alwaysPronunciation={alwaysPronunciation}
       onTap={tap}
       onDragStart={() => {}} onDragOver={() => {}} /></Fragment>
   })}</span>

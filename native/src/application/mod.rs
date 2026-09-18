@@ -12,7 +12,6 @@ use crate::conversations::gloss;
 use crate::diagnostics;
 #[cfg(test)]
 use crate::language::languages;
-use crate::language::linguistics;
 use crate::learning::learner::learner_state;
 use crate::learning::learner::progression;
 use crate::learning::rewards;

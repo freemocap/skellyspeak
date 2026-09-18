@@ -117,6 +117,16 @@ pub(super) fn gloss_children(
     store.finish(&parent, Ok(reply(text))).unwrap();
     let gloss = store.dispatch().unwrap().unwrap();
     assert!(gloss.gloss_source.is_some());
+    assert_eq!(gloss.gloss_schema.as_ref().unwrap()["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"]["type"], "null");
+    // Audit the outbound provider body, not just validation/display behavior.
+    for route in [ConnectionRoute::Openrouter, ConnectionRoute::Custom, ConnectionRoute::Hosted] {
+        let payload = crate::ai::transport::provider::payload_with_output(
+            &gloss.model, &gloss.messages, route,
+            crate::conversations::gloss::request_output(gloss.gloss_source.as_ref(), gloss.gloss_schema.as_ref().unwrap()),
+        ).unwrap();
+        assert_eq!(payload["response_format"]["json_schema"]["schema"]["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"], serde_json::json!({"type":"null"}));
+        assert!(payload["messages"][0]["content"].as_str().unwrap().contains("no transliteration work is needed"));
+    }
     let translation = store.dispatch().unwrap().unwrap();
     assert!(translation.gloss_source.is_none());
     (gloss, translation)

@@ -83,6 +83,7 @@ pub(super) fn prepare_speech(
         attempt,
         operation: operation.into(),
         messages: vec![],
+        gloss_schema: None,
         coaching_schema: None,
         gloss_source: None,
         speech_source: Some(crate::speech::cache::Source {

@@ -16,7 +16,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   const isMobile = useIsMobile()
   // The sheet belongs to the interface, not to the message it explains.
   const uiDirection = useUiDirection()
-  const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set())
   const [hovered, setHovered] = useState<number | null>(null)
   const hoveredWord = useRef<HTMLElement | null>(null)
@@ -61,7 +61,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   useEffect(() => { setRevealed(new Set()); setHovered(null) }, [text])
   const pieces = []
   let cursor = 0
-  for (const segment of glossDisplayGroups(text, segments)) {
+  for (const segment of glossDisplayGroups(text, supportsRomanization ? segments : segments.map(segment => ({ ...segment, romanization: undefined })))) {
     const annotations = segment.parts.filter(part => part.kind === 'gloss' && part.gloss !== null)
     const values = (field: 'gloss' | 'romanization' | 'pronunciation', className: string) => annotations.filter(part => part[field]).map(part => <span key={part.start} className={className} dir="auto" data-gloss-start={part.start} data-gloss-end={part.end}>{segment.parts.length > 1 && <><bdi>{text.slice(part.start, part.end)}</bdi>{': '}</>}{part[field]}</span>)
     // Under the word, a clitic group reads as one word: its sounds run together

@@ -39,7 +39,7 @@ pub(crate) use prompts::attach_question;
 pub(crate) use prompts::context_block;
 pub(crate) use prompts::prompt;
 use prompts::review_sources;
-pub(crate) use prompts::schema;
+pub(crate) use prompts::schema_for_context;
 pub(crate) use quiz::answer_quiz;
 pub(crate) use quiz::quiz_credits;
 pub(crate) use repository::active;

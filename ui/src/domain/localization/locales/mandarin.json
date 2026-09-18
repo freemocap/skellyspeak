@@ -968,5 +968,8 @@
   "Chat access": "聊天连接",
   "Audio provider key": "音频服务商密钥",
   "Connect to local server": "连接到本地服务器",
-  "Response details": "响应详情"
+  "Response details": "响应详情",
+  "Theme": "主题",
+  "Switch to dark mode": "切换到深色模式",
+  "Switch to light mode": "切换到浅色模式"
 }

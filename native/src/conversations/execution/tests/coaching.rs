@@ -213,6 +213,48 @@ fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
     assert!(store.execute(send(&store, &conversation)).is_ok());
 }
 #[test]
+fn assistance_rejects_swapped_target_and_explanation_fields() {
+    use crate::learning::coaching::conversation_support as support;
+    let (_dir, mut store, conversation) = setup();
+    let turn = support_turn(&mut store, &conversation, "Ayer yo go al parque.");
+    store
+        .connection
+        .execute(
+            "UPDATE turns SET context=json_set(context,'$.languageContext.script','arabic') WHERE id=?1",
+            [&turn],
+        )
+        .unwrap();
+    let check = |value: &serde_json::Value| {
+        support::validate(
+            &store.connection,
+            &turn,
+            support::ASSISTANCE,
+            &reply(&value.to_string()),
+        )
+    };
+    let valid = serde_json::json!({"explanation":"They ask what you like to eat.","replies":[{"text":"أنا بحب آكل المنسف.","translation":"I like to eat mansaf.","romanization":"ana baḥibb ākul il-mansaf.","pronunciation":"AH-na ba-HIBB AH-kul il-MAN-saf"},{"text":"بحب الفلافل.","translation":"I like falafel.","romanization":"baḥibb il-falāfil.","pronunciation":"ba-HIBB il-fa-LAH-fil"}],"frames":["بحب ___.","ما بحب ___."],"starters":["أنا…","بحب…"]});
+    assert!(check(&valid).is_ok());
+    // Observed failure: English in text, Arabic in translation and romanization.
+    let mut swapped = valid.clone();
+    swapped["replies"][0]["text"] = serde_json::json!("I like to eat mansaf.");
+    swapped["replies"][0]["translation"] = serde_json::json!("أنا بحب آكل المنسف.");
+    swapped["replies"][0]["romanization"] = serde_json::json!("أنا بحب آكل المنسف.");
+    assert!(
+        check(&swapped)
+            .unwrap_err()
+            .to_string()
+            .contains("not in the target script")
+    );
+    let mut romanized = valid.clone();
+    romanized["replies"][1]["romanization"] = serde_json::json!("بحب الفلافل.");
+    assert!(
+        check(&romanized)
+            .unwrap_err()
+            .to_string()
+            .contains("not in Latin script")
+    );
+}
+#[test]
 fn correct_message_has_useful_remark_without_manufactured_correction() {
     let (_dir, mut store, conversation) = setup();
     support_turn(&mut store, &conversation, "Ayer fui al parque.");
@@ -249,4 +291,18 @@ fn correct_message_has_useful_remark_without_manufactured_correction() {
             .content
             .contains("not translate the marker")
     );
+}
+
+#[test]
+fn latin_assistance_constrains_and_rejects_romanization() {
+    use crate::learning::coaching::conversation_support as support;
+    let (_dir, mut store, conversation) = setup();
+    let turn = support_turn(&mut store, &conversation, "Hola.");
+    let captured: String = store.connection.query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| r.get(0)).unwrap();
+    let captured: serde_json::Value = serde_json::from_str(&captured).unwrap();
+    let schema = support::schema_for_context(support::ASSISTANCE, &captured);
+    assert_eq!(schema["properties"]["replies"]["items"]["properties"]["romanization"]["enum"], serde_json::json!([""]));
+    let mut value = assistance();
+    value["replies"][0]["romanization"] = serde_json::json!("Fui con mi hermana.");
+    assert!(support::validate(&store.connection, &turn, support::ASSISTANCE, &reply(&value.to_string())).unwrap_err().to_string().contains("not applicable"));
 }

@@ -586,6 +586,7 @@ mod tests {
                 socket.write_all(&body).await.unwrap();
             });
             let dispatch = crate::conversations::execution::Dispatch {
+                gloss_schema: None,
                 coaching_schema: None,
                 gloss_source: None,
                 speech_source: None,
@@ -612,6 +613,7 @@ mod tests {
             let schema = serde_json::json!({"type":"object"});
             if structured {
                 let second = crate::conversations::execution::Dispatch {
+                    gloss_schema: None,
                     coaching_schema: None,
                     gloss_source: None,
                     speech_source: None,

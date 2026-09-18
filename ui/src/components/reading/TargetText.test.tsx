@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import type { Settings } from '../../types'
+import { SavedGlossText } from './SavedGlossText'
 import { AnnotatedText, ReadingProvider, TargetText } from './TargetText'
-const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
+const backend = vi.hoisted(() => ({ invoke: vi.fn(), languageFor: (id: string) => ({ romanization: id === 'mandarin' ? 'pinyin' : null }) }))
 vi.mock('../../platform/ipc/tauri', () => backend)
 const token = { text: 'Hola', gloss: 'hello', pronunciation: 'oh-la', romanization: null, pos: null, notable: false }
 beforeEach(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", "") }; HTMLDialogElement.prototype.close = function () { this.removeAttribute("open") }; backend.invoke.mockReset() })
@@ -50,4 +52,17 @@ it('preserves joined Arabic source words across semantic token boundaries', () =
   const view = render(<AnnotatedText text={text} tokens={[{ ...token, text: 'ال', gloss: 'the' }, { ...token, text: 'كتاب', gloss: 'book' }]} />)
   expect(view.container.textContent).toBe(text)
   expect(screen.getByRole('button', { name: 'الكتاب' }).childNodes).toHaveLength(1)
+})
+
+it('suppresses saved Spanish romanization even with the global preference enabled, without hiding pronunciation', () => {
+  const settings = { target_language: 'spanish', always_romanize: true, always_pronunciation: true } as Settings
+  const view = render(<ReadingProvider settings={settings}><SavedGlossText text="Hola" segments={[{ start: 0, end: 4, kind: 'gloss', gloss: 'hello', romanization: 'Hola', pronunciation: 'OH-lah' }]} /></ReadingProvider>)
+  expect(view.container.querySelector('.wroman')).toBeNull()
+  expect(screen.getByText('OH-lah')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  expect(view.container.querySelector('.wroman')).toBeNull()
+  expect(screen.getByText('hello')).toBeVisible()
+  view.rerender(<ReadingProvider settings={{ ...settings, target_language: 'mandarin' }}><SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} /></ReadingProvider>)
+  expect(screen.getByText('nǐ')).toBeVisible()
+  expect(backend.invoke).not.toHaveBeenCalled()
 })

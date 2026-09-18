@@ -226,6 +226,7 @@ mod tests {
             route: ConnectionRoute::Custom,
             install_id: "SECRET".into(),
             messages: vec![],
+            gloss_schema: None,
             coaching_schema: Some(
                 json!({"type":"object","required":["kind"],"properties":{"kind":{"enum":["understood"]}}}),
             ),

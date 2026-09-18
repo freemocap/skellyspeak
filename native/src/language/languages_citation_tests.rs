@@ -131,5 +131,5 @@ fn arabic_gloss_prompt_snapshot_has_explicit_scheme_and_preserves_source() {
     assert!(!system.contains("standard romanization"));
     let data: serde_json::Value = serde_json::from_str(&prompt.messages[1].content).unwrap();
     assert_eq!(data["passage"], source);
-    assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v5");
+    assert_eq!(prompt.template_id, "persona-word-gloss-prompt-v6");
 }

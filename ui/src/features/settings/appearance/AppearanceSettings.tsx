@@ -8,6 +8,7 @@ export function AppearanceSettings({ settings, onChange }: { settings: Settings;
   const update = (patch: Partial<AppearancePreferences>) => onChange({ ...settings, appearance: { ...value, ...patch } })
   return <div className="appearance-settings">
     <div className="appearance-options">
+      <label>{tr('Theme')}<select value={settings.theme ?? 'light'} onChange={e => onChange({ ...settings, theme: e.target.value as 'light' | 'dark' | 'system' })}><option value="light">{tr('Light')}</option><option value="dark">{tr('Dark')}</option><option value="system">{tr('System')}</option></select></label>
       <label>{tr('Surface palette')}<select value={value.palette} onChange={e => update({ palette: e.target.value as AppearancePreferences['palette'] })}><option value="cool">{tr('Cool neutral')}</option><option value="warm">{tr('Warm')}</option></select></label>
       <label>{tr('Control density')}<select value={value.controlDensity} onChange={e => update({ controlDensity: e.target.value as AppearancePreferences['controlDensity'] })}><option value="standard">{tr('Standard')}</option><option value="compact">{tr('Compact')}</option></select></label>
       <label>{tr('Layout spacing')}<select value={value.layoutSpacing} onChange={e => update({ layoutSpacing: e.target.value as AppearancePreferences['layoutSpacing'] })}><option value="roomy">{tr('Roomy')}</option><option value="balanced">{tr('Balanced')}</option><option value="tight">{tr('Tight')}</option><option value="extra_tight">{tr('Extra tight')}</option></select></label>

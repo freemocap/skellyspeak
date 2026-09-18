@@ -968,5 +968,8 @@
   "Chat access": "Chat access",
   "Audio provider key": "Audio provider key",
   "Connect to local server": "Connect to local server",
-  "Response details": "Response details"
+  "Response details": "Response details",
+  "Theme": "Theme",
+  "Switch to dark mode": "Switch to dark mode",
+  "Switch to light mode": "Switch to light mode"
 }

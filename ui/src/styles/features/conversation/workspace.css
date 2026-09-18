@@ -8,10 +8,9 @@
 }
 
 @media not all and (max-width: 860px) {
-  .split > .chat, .split > .break {
-    border: 0; border-radius: var(--radius-xl);
-    box-shadow: var(--sheet-shadow), var(--surface-glow);
-  }
+  .split > .chat, .split > .break { border: 0; border-radius: var(--radius-xl); }
+  .split > .chat { box-shadow: var(--sheet-shadow), var(--surface-glow); }
+  .split > .break { box-shadow: var(--coach-shadow); }
 }
 
 .stream {

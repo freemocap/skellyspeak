@@ -102,6 +102,7 @@ pub(in crate::application) async fn run_persona_generation(
                 request.brief.as_deref(),
                 &request.language_context,
             ),
+            gloss_schema: None,
             coaching_schema: None,
             gloss_source: None,
             speech_source: None,

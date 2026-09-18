@@ -80,6 +80,7 @@ pub(super) fn structured_dispatch(
     route: ConnectionRoute,
 ) -> crate::conversations::execution::Dispatch {
     crate::conversations::execution::Dispatch {
+        gloss_schema: None,
         coaching_schema: None,
         gloss_source: None,
         speech_source: None,
