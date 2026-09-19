@@ -51,3 +51,22 @@ keep full checks. This still publishes Latest and updates installed desktop apps
 it is not a prerelease channel. See the root release guide for manual dispatch
 and the limits of this mode. `release-mode.ts` resolves tag metadata or explicit
 manual input; release tests exercise both paths using disposable local Git tags.
+
+
+## Size report
+
+Run `npm run build`, then `npm run size:report`. This read-only command inventories
+shared font binaries/notices, language YAMLs, interface translation JSONs, other
+public assets, and the existing `ui/dist` output. It prints exact bytes, file counts
+and the largest files. Build categories are disjoint; source and build views
+overlap and must not be added together.
+
+`npm run --silent size:report -- --json` produces the same inventory as JSON,
+including individual file sizes, for comparisons or saving outside the repository.
+The command requires a frontend build and never rebuilds implicitly; it reports
+the build entry's modification time without claiming that output is current.
+Missing inputs, unsupported arguments and symlinks fail explicitly.
+
+These are raw file sizes, not compressed downloads, native package sizes or the
+installed app footprint. No network, app data, archived sources or native build
+caches are inspected. The command does not change release packaging.

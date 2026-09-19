@@ -41,7 +41,8 @@
     "test:reports": "npm run graph && npm run styles:dead",
     "release": "node tools/release.ts",
     "release:test": "node --test tools/version.test.ts tools/release.test.ts",
-    "previews:check": "tsc --noEmit -p ui/tools/tsconfig.previews.json"
+    "previews:check": "tsc --noEmit -p ui/tools/tsconfig.previews.json",
+    "size:report": "node tools/size-report.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [
