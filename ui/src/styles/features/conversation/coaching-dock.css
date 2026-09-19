@@ -12,7 +12,7 @@
   overflow: hidden;
 }
 
-.break-head { width: 100%; background: none; text-align: left; cursor: pointer; }
+.break-head { width: 100%; background: none; text-align: start; cursor: pointer; }
 
 .break-head .k {
   font-family: var(--font-sans);

@@ -7,7 +7,6 @@ import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { cssToken } from '../../../platform/appearance/css-token'
 
 type Inspection = TranscriptionInspectionResult['inspection']
-const seconds = (value: number) => `${value.toFixed(2)} s`
 
 function Spectrogram({ data, duration, zoom }: { duration: number; zoom: number; data: Inspection['spectrogram'] }) {
   const tr = useI18n()
@@ -47,11 +46,12 @@ function Spectrogram({ data, duration, zoom }: { duration: number; zoom: number;
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     return () => observer.disconnect()
   }, [data, duration, zoom])
-  return <>{unavailable && <p role="status">{tr("Spectrogram rendering unavailable.")}</p>}<canvas ref={canvas} className="inspection-spectrogram" role="img" aria-label={tr("Spectrogram, 0 to {value0} Hz, {value1} to {value2} dB", { value0: String(Math.round(data.maxFrequencyHz)), value1: String(data.dbMin), value2: String(data.dbMax) })} /></>
+  return <>{unavailable && <p role="status">{tr("Spectrogram rendering unavailable.")}</p>}<canvas ref={canvas} className="inspection-spectrogram" role="img" aria-label={tr("Spectrogram, 0 to {value0} Hz, {value1} to {value2} dB", { value0: Math.round(data.maxFrequencyHz), value1: data.dbMin, value2: data.dbMax })} /></>
 }
 
 export function TranscriptionInspector({ result, onClose }: { result: TranscriptionInspectionResult; onClose: () => void }) {
   const tr = useI18n()
+  const seconds = (value: number) => `${tr.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s`
   const { inspection } = result
   const [selected, setSelected] = useState<number | null>(null)
   const [overlay, setOverlay] = useState(true)
@@ -142,7 +142,7 @@ export function TranscriptionInspector({ result, onClose }: { result: Transcript
       <div className="inspection-row"><h3>{tr("Waveform")}</h3><div className="inspection-plot"><svg className="inspection-wave" viewBox="0 0 1000 80" preserveAspectRatio="none" role="img" aria-label={tr("Recorded audio amplitude")}><path d={wave} vectorEffect="non-scaling-stroke" /></svg>{bands(80)}{overlay && selectedWord && <span className="inspection-plot-word" style={{ left: `${Math.min(80, x(selectedWord.start) / 10)}%` }}><bdi>{selectedWord.word}</bdi></span>}</div></div>
       <div className="inspection-row"><h3>{tr("Spectrogram")}<span>{Math.round(spectrogram.maxFrequencyHz)} {tr(" Hz")}</span><span>{tr("0 Hz")}</span></h3><div className="inspection-plot"><Spectrogram data={spectrogram} duration={duration} zoom={zoom} />{bands(160)}</div></div>
       <div className="inspection-row"><h3>{tr("Activity")}</h3><svg className="inspection-activity" viewBox="0 0 1000 24" preserveAspectRatio="none" role="img" aria-label={tr("Detected audio activity")}>{activity.regions.map((region, index) => <rect key={index} x={x(region.start)} width={Math.max(1, x(region.end) - x(region.start))} height={24} />)}</svg></div>
-      <div className="inspection-row"><span>{tr("Time")}</span><div className="inspection-axis" aria-label={tr("Shared time axis, 0 to {value0}", { value0: String(seconds(duration)) })}>{Array.from({ length: Math.ceil(zoom * 4) + 1 }, (_, tick) => <span key={tick}>{(duration * tick / Math.ceil(zoom * 4)).toFixed(1)} s</span>)}</div></div>
+      <div className="inspection-row"><span>{tr("Time")}</span><div className="inspection-axis" aria-label={tr("Shared time axis, 0 to {value0}", { value0: String(seconds(duration)) })}>{Array.from({ length: Math.ceil(zoom * 4) + 1 }, (_, tick) => <span key={tick}>{tr.number(duration * tick / Math.ceil(zoom * 4), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s</span>)}</div></div>
       <div className="inspection-token-track" aria-label={tr("Timed words")}>{wordTiming.words.map(word => <button key={word.index} aria-pressed={selected === word.index} className={time >= word.start && time < word.end ? 'inspection-token-active' : undefined} style={{ left: `${word.start / duration * 100}%`, width: `${Math.max(0.2, (word.end - word.start) / duration * 100)}%` }} title={`${word.word}: ${seconds(word.start)}–${seconds(word.end)}`} onFocus={() => setSelected(word.index)} onClick={() => { setSelected(word.index); seek(word.start) }}><bdi>{word.word}</bdi></button>)}</div>
       </div></div>
       <div className="inspection-legend"><span>{spectrogram.dbMin} {tr(" dB")}</span><span className="inspection-heatmap-key" aria-hidden="true" /><span>{spectrogram.dbMax} {tr(" dB")}</span><span>{tr("Intensity")}</span></div>
@@ -152,10 +152,10 @@ export function TranscriptionInspector({ result, onClose }: { result: Transcript
       </>}
       {selectedWord && <div className="inspection-confidence">{(() => {
         const segment = result.segments?.find(item => item.start <= selectedWord.providerStart && item.end > selectedWord.providerStart)
-        return segment ? <><span>{tr("Segment confidence")}</span><dl><dt>{'avg_logprob'}</dt><dd>{segment.avg_logprob.toFixed(3)}</dd><dt>{'no_speech_prob'}</dt><dd>{segment.no_speech_prob.toFixed(3)}</dd><dt>{tr("Time")}</dt><dd>{seconds(segment.start)}–{seconds(segment.end)}</dd><dt>{tr("Token IDs")}</dt><dd>{segment.tokens?.join(', ') || '—'}</dd></dl><p dir="auto">{segment.text}</p></> : <p>{tr("Confidence unavailable.")}</p>
+        return segment ? <><span>{tr("Segment confidence")}</span><dl><dt>{'avg_logprob'}</dt><dd>{tr.number(segment.avg_logprob, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</dd><dt>{'no_speech_prob'}</dt><dd>{tr.number(segment.no_speech_prob, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</dd><dt>{tr("Time")}</dt><dd>{seconds(segment.start)}–{seconds(segment.end)}</dd><dt>{tr("Token IDs")}</dt><dd>{segment.tokens?.join(', ') || '—'}</dd></dl><p dir="auto">{segment.text}</p></> : <p>{tr("Confidence unavailable.")}</p>
       })()}</div>}
       {wordTiming.unsupported.length > 0 && <section aria-label={tr("Words without supporting activity")}><h3>{tr("Words without supporting activity")}</h3><p>{tr("These words remain in the transcript.")}</p><ul>{wordTiming.unsupported.map(word => <li key={word.index}><bdi>{word.word}</bdi> · {seconds(word.providerStart)}–{seconds(word.providerEnd)} · {word.reason}</li>)}</ul></section>}
-      <details><summary>{tr("Detection details")}</summary><p>{tr("Gaps between sampled spectral windows are unsampled intervals, not detected silence. Detected audio activity is not a guarantee of speech. This inspection describes the recording, not later text edits.")}</p><dl><dt>{tr("Algorithm")}</dt><dd>{activity.algorithm}</dd><dt>{tr("Noise floor")}</dt><dd>{activity.noiseFloorDbfs.toFixed(1)} {tr(" dBFS")}</dd><dt>{tr("Activity threshold")}</dt><dd>{activity.thresholdDbfs.toFixed(1)} {tr(" dBFS")}</dd><dt>{tr("Sampled spectral windows")}</dt><dd>{seconds(spectrogram.windowSeconds)} {tr(" window · ")}{seconds(spectrogram.frameSeconds)} {tr(" hop")}</dd><dt>{tr("Frequency resolution")}</dt><dd>{spectrogram.frequencyBinHz.toFixed(1)} {tr(" Hz")}</dd></dl>{activity.limitations.map(item => <p key={item}>{item}</p>)}<p>{tr("Audio and inspection remain in memory until another recording replaces them or you leave the conversation.")}</p></details>
+      <details><summary>{tr("Detection details")}</summary><p>{tr("Gaps between sampled spectral windows are unsampled intervals, not detected silence. Detected audio activity is not a guarantee of speech. This inspection describes the recording, not later text edits.")}</p><dl><dt>{tr("Algorithm")}</dt><dd>{activity.algorithm}</dd><dt>{tr("Noise floor")}</dt><dd>{tr.number(activity.noiseFloorDbfs, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {tr(" dBFS")}</dd><dt>{tr("Activity threshold")}</dt><dd>{tr.number(activity.thresholdDbfs, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {tr(" dBFS")}</dd><dt>{tr("Sampled spectral windows")}</dt><dd>{seconds(spectrogram.windowSeconds)} {tr(" window · ")}{seconds(spectrogram.frameSeconds)} {tr(" hop")}</dd><dt>{tr("Frequency resolution")}</dt><dd>{tr.number(spectrogram.frequencyBinHz, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} {tr(" Hz")}</dd></dl>{activity.limitations.map(item => <p key={item}>{item}</p>)}<p>{tr("Audio and inspection remain in memory until another recording replaces them or you leave the conversation.")}</p></details>
     </section>
   </DetailDialog>
 }

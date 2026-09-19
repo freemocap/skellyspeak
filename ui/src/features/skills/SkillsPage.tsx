@@ -34,13 +34,13 @@ export function SkillListView({ languageTag, snapshot, demonstration, refresh, s
     try { await save(choices); if (practice) onPractice() } catch (e) { setError(String(e)) }
   }
   return <main className="skills-page">
-    <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{snapshot.profile.xp} XP</strong><button onClick={refresh}>{tr('Refresh')}</button></header>
+    <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{tr.number(snapshot.profile.xp)} XP</strong><button onClick={refresh}>{tr('Refresh')}</button></header>
     {demonstration && <p>{tr('DEMO · SAMPLE DATA')}</p>}
     <EvidenceMappingNotice snapshot={snapshot} />
     {error && <p role="alert">{error}</p>}
     <SkillList key={snapshot.target} snapshot={snapshot} selected={selected} onSelect={inspect} />
     <ProgressRules />
-    {open && node && <DetailDialog title={node.label} onClose={() => setOpen(false)}>
+    {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>
       <SkillDetailContent languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
         controls={<button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,focus:node.id},true)}>{tr('Practise this in conversation')}</button>}
         recordControls={record => <button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,excluded_attempts:snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? snapshot.profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...snapshot.profile.choices.excluded_attempts,record.attempt_id]})}>{snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Excluded · restore attempt') : tr('Exclude attempt from progress')}</button>} />

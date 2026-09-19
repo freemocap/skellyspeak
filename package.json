@@ -42,7 +42,10 @@
     "release": "node tools/release.ts",
     "release:test": "node --test tools/version.test.ts tools/release.test.ts",
     "previews:check": "tsc --noEmit -p ui/tools/tsconfig.previews.json",
-    "size:report": "node tools/size-report.ts"
+    "size:report": "node tools/size-report.ts",
+    "localization:audit": "node ui/tools/localization/usage.ts",
+    "localization:test": "npm run localization:check && node --test ui/tools/localization/*.test.ts",
+    "localization:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions ui/tools/localization/*.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

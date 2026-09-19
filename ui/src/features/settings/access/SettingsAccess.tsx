@@ -163,7 +163,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
           title={checks[provider] === 'valid' ? tr("Validated") : checks[provider] === 'invalid' ? tr("Validation failed") : tr("Check credential")}
           onClick={() => void run(() => check(provider))}>{checks[provider] === 'valid' ? '✓' : checks[provider] === 'invalid' ? '×' : checks[provider] === 'checking' ? '…' : '↻'}</button>}
       </div>
-      {keys[provider].trim() && <output aria-label={`${label} preview`}>{credentialPreview(keys[provider])}</output>}
+      {keys[provider].trim() && <output aria-label={tr('{label} preview', { label })}>{credentialPreview(keys[provider])}</output>}
       {removing === provider && <div role="alert">
         <p>{tr('Delete the saved {label}?', { label })}</p>
         <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>{tr("Delete key")}</button>
@@ -210,7 +210,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
         await read(); await onChanged()
       })}>{connection.signedIn ? tr("Sign out") : tr("Sign in with Google")}</button>
       {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>{tr("Refresh account")}</button>}
-      {account && <p>{account.usedUsd.toFixed(4)} / {account.limitUsd.toFixed(4)} {tr(" USD · ")}{account.tokensToday} {tr(" tokens · ")}{account.requestsToday} {tr(" requests")}</p>}
+      {account && <p>{tr.number(account.usedUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / {tr.number(account.limitUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tr(" USD · ")}{tr.number(account.tokensToday)} {tr(" tokens · ")}{tr.number(account.requestsToday)} {tr(" requests")}</p>}
     </div>}
     {connection.route === 'openrouter' && <>
       {credential('openrouter', tr('OpenRouter API key'), connection.ownKeyConfigured)}

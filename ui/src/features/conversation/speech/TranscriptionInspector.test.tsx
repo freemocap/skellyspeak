@@ -2,6 +2,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
+import { I18nProvider } from '../../../components/localization/i18n'
 import { TranscriptionInspector } from './TranscriptionInspector'
 const transcript: TranscriptionInspectionResult = {
   text: 'fixture transcript', audioBase64: '', segments: [],
@@ -96,4 +97,12 @@ it('surfaces playback failures and follows the real media clock on the zoomed ti
   expect(viewport.scrollLeft).toBe(560)
   fireEvent.click(screen.getByRole('button', { name: 'Restart' }))
   expect(audio.currentTime).toBe(0)
+})
+
+it('uses the interface locale for decimals while retaining a left-to-right scientific time axis', () => {
+  render(<I18nProvider locale="german"><TranscriptionInspector result={transcript} onClose={() => {}} /></I18nProvider>)
+  expect(screen.getAllByText(/1,00 s/).length).toBeGreaterThan(0)
+  expect(screen.getByText('0,3 s')).toBeVisible()
+  expect(document.querySelector('.inspection-viewport')).toHaveAttribute('dir', 'ltr')
+  expect(screen.getByText('fixture transcript')).toBeVisible()
 })

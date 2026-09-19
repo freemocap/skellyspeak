@@ -1,3 +1,4 @@
+import { useI18n } from '../localization/i18n'
 import { ReadingSentenceContext, TargetText } from './TargetText'
 import { Fragment, type ReactNode } from 'react'
 
@@ -26,6 +27,11 @@ export type TermHandler = (term: string) => void
 /// italic so that `**x**` is not read as an empty italic wrapping `*x*`.
 const INLINE = /\[\[([^\]\n]+)\]\]|`([^`]+)`|\*\*([^*]+)\*\*|\*([^*\n]+)\*/g
 
+function TermButton({ term, onTerm }: { term: string; onTerm: TermHandler }) {
+  const tr = useI18n()
+  return <button type="button" className="md-term" title={tr('Ask the coach about {term}', { term })} onClick={() => onTerm(term)}>{term}</button>
+}
+
 /// Split one line's inline markup into React nodes.
 function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNode[] {
   const out: ReactNode[] = []
@@ -39,15 +45,7 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNod
     if (term !== undefined) {
       out.push(
         onTerm ? (
-          <button
-            key={key}
-            type="button"
-            className="md-term"
-            title={`Ask the coach about ${term}`}
-            onClick={() => onTerm(term)}
-          >
-            {term}
-          </button>
+          <TermButton key={key} term={term} onTerm={onTerm} />
         ) : (
           term
         )

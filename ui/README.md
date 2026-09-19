@@ -87,6 +87,41 @@ these generated files by hand.
 
 Working notes and verification reports belong in [docs/notes/](../docs/notes/).
 
+## Interface localization
+
+Interface dictionaries live in `src/domain/localization/locales/`; interface
+language is independent of the language being practised. English messages are
+keys. Use `useI18n()` for rendered labels and accessibility text, `tr.number()`
+and `tr.date()` for display formatting, and `messageKey()` for message keys
+stored in metadata. Pass numeric interpolation values as numbers, not `String(n)`.
+Keep native identities, provider field names, source quotations and persisted
+assessment text unchanged. Proper names use `translatedName()` where applicable.
+
+Skill catalog labels, descriptions and criteria are translated at display time.
+The Rust-generated catalog remains the domain source; never edit it to localize
+the UI. Its authored text must have entries in every interface dictionary.
+
+`npm run build` checks catalog parity, placeholders, plural forms, duplicate
+keys, rendered literal text (including expression/template accessibility text),
+and generated skill-catalog coverage. `npm run localization:test` type-checks
+and tests the checker. These checks cannot prove linguistic quality or discover
+all dynamically supplied prose.
+
+`npm run localization:audit` distinguishes direct translator calls from other
+source/data references and reports unreferenced removal candidates. TypeScript
+and JSON references match whole string values, not identifier or prose substrings. Add `-- --json`
+for file references or `-- --check` to fail on candidates. The audit includes
+active native/content sources and UI previews, excluding dictionaries, tests and
+archived code. Other textual references are conservative evidence, not proof of
+runtime reachability. Review dynamic callers before removing a candidate from
+all seven dictionaries; the tool never deletes automatically. CI runs this audit.
+
+For visual review, open `/tools/localization-preview.html` through the development
+server. It renders production skill lists, descriptions, rewards and coach-term
+controls with disposable sample data. Switch all seven locales and inspect narrow
+layouts, especially German text wrapping and Arabic direction. It does not save
+preferences or call native/AI services.
+
 ## Design system
 
 [docs/design-system/](../docs/design-system/) is the published design system: the

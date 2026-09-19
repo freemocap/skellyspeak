@@ -8,7 +8,7 @@ import { RewardPresentationProvider } from './RewardPresentation'
 import { RewardInspectionContext } from './RewardInspectionContext'
 import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
-const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
+const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
 vi.mock('../../../domain/learning/evidence/message-evidence', () => ({ createMessageEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
 function Triggers() {
   const controller = useContext(RewardInspectionContext)!

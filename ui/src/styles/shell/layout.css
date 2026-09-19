@@ -105,7 +105,7 @@
 .nav-item {
   display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md); border: none; background: none; color: var(--ink-2);
-  cursor: pointer; font-size: var(--type-body); text-align: left;
+  cursor: pointer; font-size: var(--type-body); text-align: start;
 }
 
 .nav-item:hover { color: var(--ink); background: var(--sheet); }
@@ -196,7 +196,7 @@
 }
 
 .chat-history-item {
-  flex: 1; min-width: 0; text-align: left; background: none; border: none;
+  flex: 1; min-width: 0; text-align: start; background: none; border: none;
   color: var(--ink); cursor: pointer; padding: var(--space-4) var(--space-5);
   display: flex; flex-direction: column; gap: var(--space-1);
 }
@@ -220,7 +220,7 @@
 
 .chat-history-delete:hover { color: var(--interaction-ink); }
 
-.chat-history-confirm { display: flex; align-items: center; gap: var(--space-2); padding-right: var(--space-3); }
+.chat-history-confirm { display: flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-3); }
 
 .chat-history-confirm button {
   background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);

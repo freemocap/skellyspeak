@@ -28,18 +28,18 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       <RewardsLedger snapshot={snapshot} />
       <dl className="practice-metrics">
         <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
-        <div><dt>{tr("Skills with credit")}</dt><dd>{stats.practiced}<small> / {snapshot.profile.skills.length}</small></dd></div>
-        <div><dt>{tr("Skill stars")}</dt><dd>{stats.stars}<small> / {snapshot.profile.skills.length}</small></dd></div>
-        <div><dt>{tr("Contributing messages")}</dt><dd>{stats.contributingMessages}</dd></div>
+        <div><dt>{tr("Skills with credit")}</dt><dd>{tr.number(stats.practiced)}<small> / {snapshot.profile.skills.length}</small></dd></div>
+        <div><dt>{tr("Skill stars")}</dt><dd>{tr.number(stats.stars)}<small> / {snapshot.profile.skills.length}</small></dd></div>
+        <div><dt>{tr("Contributing messages")}</dt><dd>{tr.number(stats.contributingMessages)}</dd></div>
       </dl>
       <InfoTip>{tr("Descriptive app records, not a validated language-proficiency score. AI assessments can be wrong; these counts are not independent trials.")}</InfoTip>
       <section aria-label={tr("Credited demonstrations")} className="practice-demonstrations">
-        <div><strong>{stats.unassisted}</strong><span>{tr("Unassisted skill demonstrations")}</span></div>
-        <div><strong>{stats.assisted}</strong><span>{tr("Assisted skill demonstrations")}</span></div>
+        <div><strong>{tr.number(stats.unassisted)}</strong><span>{tr("Unassisted skill demonstrations")}</span></div>
+        <div><strong>{tr.number(stats.assisted)}</strong><span>{tr("Assisted skill demonstrations")}</span></div>
         <InfoTip>{tr("Counts are distinct wording–skill pairs, not messages. One message can contribute to multiple skills.")}</InfoTip>
       </section>
       <section aria-labelledby="practice-skills-title">
-        <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? domain.node.label : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="detail-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
+        <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? tr(domain.node.label) : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="detail-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
         <label className="practice-unpracticed"><input type="checkbox" checked={includeUnpracticed} onChange={event => setIncludeUnpracticed(event.target.checked)} />{tr("Include skills without credit")}</label>
         <InfoTip>{tr("Open a skill to inspect its contributing messages and assessment provenance.")}</InfoTip>
         {skills.length === 0 && <p>{tr("No credited demonstrations in this selection yet. Your first credited message will appear here.")}</p>}
@@ -48,8 +48,8 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
           if (!node) throw new Error(`Missing skill ${skill.skill_id}`)
           const credits = snapshot.profile.credits.filter(item => item.skill_id === skill.skill_id)
           return <details key={skill.skill_id} className="practice-skill">
-            <summary><span>{node.label}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{skill.xp} {tr(" XP")}</strong><small>{skill.successes} {tr(" unassisted · ")}{skill.assisted} {tr(" assisted")}</small></summary>
-            <InfoTip>{tr("Criterion: ")}{node.criterion}</InfoTip>
+            <summary><span>{tr(node.label)}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{tr.number(skill.xp)} {tr(" XP")}</strong><small>{tr.number(skill.successes)} {tr(" unassisted · ")}{skill.assisted} {tr(" assisted")}</small></summary>
+            <InfoTip>{tr("Criterion: ")}{tr(node.criterion)}</InfoTip>
             {credits.length === 0 && <p>{tr("No credited messages.")}</p>}
             {credits.map(credit => {
               const record = snapshot.records.find(item => item.attempt_id === credit.attempt_id)
@@ -58,7 +58,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
               if (!judgment) throw new Error('Missing credited assessment')
               const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
               return <article key={credit.attempt_id} className="practice-credit">
-                <header><strong>{credit.xp} {tr(" XP · ")}{assisted ? tr("Assisted") : tr("Unassisted")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
+                <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{assisted ? tr("Assisted") : tr("Unassisted")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
                 <blockquote dir="auto">{record.source}</blockquote><p>{judgment.rationale}</p>
                 <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Chat ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
               </article>
@@ -71,9 +71,9 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
         <p>{tr("Rules version ")}{snapshot.profile.rules_version}{tr("; catalog version ")}{snapshot.catalog_version}. {snapshot.profile.rules_version >= 2 ? tr("XP comes from persisted evidence awards using the support, difficulty and novelty policy captured for each attempt. Repeated wording cannot earn duplicate credit for the same construct.") : tr("Legacy rules award 10 XP per distinct unassisted wording–skill demonstration and 2 XP per assisted one. Repeated wording is normalized for whitespace and letter case; unassisted evidence takes precedence.")} {tr(" Three distinct unassisted demonstrations earn an app star; that is a practice milestone, not proof of mastery.")}</p>
         <p>{tr("“Assisted” means a suggestion, scaffold, or revision was recorded by the app. Assistance outside the app is not observed. Speech inputs are transcripts, not acoustic pronunciation assessments.")}</p>
         <p>{tr("Snapshot counts cover retained source messages, not a lifetime activity log. Only completed, non-excluded records from the current catalog contribute credit. Assessments are model judgments, not independent human validation. No proficiency estimate, learning-rate claim, or statistical confidence interval is inferred here.")}</p>
-        <dl className="practice-record-counts"><div><dt>{tr("Complete records")}</dt><dd>{stats.statuses.complete}</dd></div><div><dt>{tr("Pending")}</dt><dd>{stats.statuses.pending}</dd></div><div><dt>{tr("Failed")}</dt><dd>{stats.statuses.failed}</dd></div><div><dt>{tr("Superseded")}</dt><dd>{stats.statuses.superseded}</dd></div><div><dt>{tr("Stored exclusions")}</dt><dd>{snapshot.profile.choices.excluded_attempts.length}</dd></div></dl>
+        <dl className="practice-record-counts"><div><dt>{tr("Complete records")}</dt><dd>{tr.number(stats.statuses.complete)}</dd></div><div><dt>{tr("Pending")}</dt><dd>{tr.number(stats.statuses.pending)}</dd></div><div><dt>{tr("Failed")}</dt><dd>{tr.number(stats.statuses.failed)}</dd></div><div><dt>{tr("Superseded")}</dt><dd>{tr.number(stats.statuses.superseded)}</dd></div><div><dt>{tr("Stored exclusions")}</dt><dd>{tr.number(snapshot.profile.choices.excluded_attempts.length)}</dd></div></dl>
       </details>
-      <p className="practice-focus">{tr("Current focus: ")}<strong>{focus.label}</strong></p>
+      <p className="practice-focus">{tr("Current focus: ")}<strong>{tr(focus.label)}</strong></p>
       <button className="detail-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: focus.id }) }}>{tr("Explore skill map")}</button>
     </div>
 }
@@ -113,13 +113,13 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
       {overview && <>
         <dl className="practice-metrics">
           <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
-          <div><dt>{tr("Saved conversations")}</dt><dd>{conversations}</dd></div>
-          <div><dt>{tr("Recorded attempts")}</dt><dd>{records.length}</dd></div>
-          <div><dt>{tr("Practice dates (UTC)")}</dt><dd>{practiceDates.size}</dd></div>
+          <div><dt>{tr("Saved conversations")}</dt><dd>{tr.number(conversations)}</dd></div>
+          <div><dt>{tr("Recorded attempts")}</dt><dd>{tr.number(records.length)}</dd></div>
+          <div><dt>{tr("Practice dates (UTC)")}</dt><dd>{tr.number(practiceDates.size)}</dd></div>
         </dl>
         <InfoTip>{tr("Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessment attempts, and distinct UTC dates with attempts. Deleted records can reduce these counts.")}</InfoTip>
 
-        <div className="practice-language-tabs" role="tablist" aria-label={tr("Language experience")}>{overview.languages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={tr("{value0} {value1} XP", { value0: String(language.name), value1: String(language.snapshot.profile.xp) })} aria-selected={selected === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selected === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
+        <div className="practice-language-tabs" role="tablist" aria-label={tr("Language experience")}>{overview.languages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={tr("{value0} {value1} XP", { value0: String(language.name), value1: language.snapshot.profile.xp })} aria-selected={selected === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selected === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
           const index = overview.languages.findIndex(item => item.snapshot.target === selected)
           const next = event.key === 'ArrowRight' ? (index + 1) % overview.languages.length : event.key === 'ArrowLeft' ? (index - 1 + overview.languages.length) % overview.languages.length : event.key === 'Home' ? 0 : event.key === 'End' ? overview.languages.length - 1 : null
           if (next === null) return
@@ -127,7 +127,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
           const target = overview.languages[next].snapshot.target
           setSelected(target)
           document.getElementById(`practice-tab-${target}`)?.focus()
-        }}><span>{language.name}</span><small>{language.snapshot.profile.xp} {tr(" XP")}</small></button>)}</div>
+        }}><span>{language.name}</span><small>{tr.number(language.snapshot.profile.xp)} {tr(" XP")}</small></button>)}</div>
         {active && <div id="practice-language-panel" role="tabpanel" aria-labelledby={`practice-tab-${active.snapshot.target}`}>
           {active.snapshot.records.length === 0 && active.snapshot.conversation_count === 0 ? <div className="practice-language-empty"><h2>{active.name} {tr(" experience")}</h2><p>{tr("We don’t have any experience for this language yet.")}</p><p>{tr("0 XP · No recorded practice. Activity in another language does not add experience here.")}</p></div> : <LanguageProgress key={active.snapshot.target} snapshot={active.snapshot} name={active.name} onClose={onClose} />}
         </div>}

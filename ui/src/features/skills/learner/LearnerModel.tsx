@@ -1,3 +1,4 @@
+import { lensLabelKey } from '../../../domain/learning/catalog/evidence-labels'
 import { useI18n } from '../../../components/localization/i18n'
 import { YamlExport } from '../../../components/persistence/YamlExport'
 import { nativeError } from '../../../platform/ipc/workspace'
@@ -59,6 +60,10 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
     } catch (reason) { if (currentProfileOwner.current === owner) setError(nativeError(reason)) }
     finally { if (currentProfileOwner.current === owner) setSaving(false) }
   }
+  const skillLabel = (id: string) => {
+    const node = data?.evidence.catalog.find(item => item.id === id)
+    return node ? tr(node.label) : id
+  }
   const states = data?.model.constructs.filter(item => variety === '*' || item.varietyId === variety) ?? []
   const lenses = [...new Set(states.map(item => data!.constructLenses[item.constructId]))].sort()
   const records = data?.evidence.records.filter(record => (variety === '*' || (record.variety ?? '') === variety) && record.assessment?.judgments.some(item => item.skill_id === selected)) ?? []
@@ -75,9 +80,9 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
       {data && <>
         {savedTo && <p role="status">{tr("Saved to ")}{savedTo}</p>}
         {!states.length && <p>{tr("No usable learning evidence yet. Missing evidence does not mean you lack the skill.")}</p>}
-        <div className="learner-model-table"><table><caption>{tr("Learning estimates · ")}{target}</caption><thead><tr><th>{tr("Skill")}</th><th>{tr("Independent")}</th><th>{tr("Assisted")}</th><th>{tr("Estimate ± uncertainty")}</th><th>{tr("Last observed")}</th><th>{tr("Review")}</th></tr></thead>{lenses.map(lens => <tbody key={lens}><tr className="learner-model-lens"><th colSpan={6} scope="rowgroup">{lens.charAt(0).toUpperCase() + lens.slice(1)}</th></tr>{states.filter(item => data.constructLenses[item.constructId] === lens).map(item => <tr key={`${item.varietyId}:${item.constructId}`}><th><button className="inspection-action" onClick={() => select(item.constructId)}>{data.evidence.catalog.find(node => node.id === item.constructId)?.label ?? item.constructId}</button><small>{item.varietyId || tr("Unspecified variety")}</small></th><td>{item.independentN}</td><td>{item.n - item.independentN}</td><td>{item.insufficientEvidence ? tr("Not enough independent evidence") : `${item.rating.toFixed(2)} ± ${item.uncertainty.toFixed(2)}`}</td><td>{new Date(item.lastSeen * 1000).toLocaleDateString(tr.browserLocale)}</td><td>{item.insufficientEvidence ? '—' : item.due ? tr("Due for practice") : new Date(item.dueAt * 1000).toLocaleDateString(tr.browserLocale)}</td></tr>)}</tbody>)}</table></div>
-        <label>{tr("Inspect evidence ")}<select value={selected ?? ''} onChange={event => select(event.target.value || null)}><option value="">{tr("Choose a skill")}</option>{data.evidence.catalog.filter(node => node.kind === 'skill').map(node => <option key={node.id} value={node.id}>{node.label}</option>)}</select></label>
-        {selected && <section aria-label={tr("Source evidence")}><h3>{data.evidence.catalog.find(node => node.id === selected)?.label}</h3><p>{tr("Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.")}</p>{!records.length && <p>{tr("No recorded evidence for this skill.")}</p>}{records.map(record => {
+        <div className="learner-model-table"><table><caption>{tr("Learning estimates · ")}{target}</caption><thead><tr><th>{tr("Skill")}</th><th>{tr("Independent")}</th><th>{tr("Assisted")}</th><th>{tr("Estimate ± uncertainty")}</th><th>{tr("Last observed")}</th><th>{tr("Review")}</th></tr></thead>{lenses.map(lens => <tbody key={lens}><tr className="learner-model-lens"><th colSpan={6} scope="rowgroup">{tr(lensLabelKey(lens))}</th></tr>{states.filter(item => data.constructLenses[item.constructId] === lens).map(item => <tr key={`${item.varietyId}:${item.constructId}`}><th><button className="inspection-action" onClick={() => select(item.constructId)}>{skillLabel(item.constructId)}</button><small>{item.varietyId || tr("Unspecified variety")}</small></th><td>{tr.number(item.independentN)}</td><td>{tr.number(item.n - item.independentN)}</td><td>{item.insufficientEvidence ? tr("Not enough independent evidence") : `${tr.number(item.rating, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ± ${tr.number(item.uncertainty, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</td><td>{new Date(item.lastSeen * 1000).toLocaleDateString(tr.browserLocale)}</td><td>{item.insufficientEvidence ? '—' : item.due ? tr("Due for practice") : new Date(item.dueAt * 1000).toLocaleDateString(tr.browserLocale)}</td></tr>)}</tbody>)}</table></div>
+        <label>{tr("Inspect evidence ")}<select value={selected ?? ''} onChange={event => select(event.target.value || null)}><option value="">{tr("Choose a skill")}</option>{data.evidence.catalog.filter(node => node.kind === 'skill').map(node => <option key={node.id} value={node.id}>{tr(node.label)}</option>)}</select></label>
+        {selected && <section aria-label={tr("Source evidence")}><h3>{skillLabel(selected)}</h3><p>{tr("Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.")}</p>{!records.length && <p>{tr("No recorded evidence for this skill.")}</p>}{records.map(record => {
           const judgment = record.assessment!.judgments.find(item => item.skill_id === selected)!
           const counted = states.some(item => item.constructId === selected && item.evidenceAttemptIds.includes(record.attempt_id))
           const excluded = data.evidence.profile.choices.excluded_attempts.includes(record.attempt_id)

@@ -1,3 +1,4 @@
+import { checkUiSource, missingCatalogMessages } from '../ui/tools/localization/source-check.ts'
 import fs from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
@@ -28,39 +29,18 @@ for (const file of fs.readdirSync(localeDir).sort()) {
   locales[file.slice(0, -5)] = JSON.parse(text) as Dict
 }
 validateLocales(locales)
-// YAML and reference validation is performed by the Rust content loader, never regex.
-// Brand names, units and executable commands are intentionally not translated.
-const literalTerms = new Set(['AI', 'XP', 'SKELLYSPEAK', 'SkellySpeak', 'npm run tauri dev'])
+// YAML and reference validation remains with the Rust content loader.
+const keys = new Set(Object.keys(locales.english))
+const catalog = JSON.parse(fs.readFileSync(path.join(root, 'ui/src/generated/skill-catalogs/catalog.json'), 'utf8'))
+for (const key of missingCatalogMessages(catalog, keys)) errors.push(`Skill catalog: missing message ${JSON.stringify(key)}`)
 function scan(dir: string) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const file = path.join(dir, entry.name)
     if (entry.isDirectory()) { scan(file); continue }
     if (!/\.tsx?$/.test(file) || /\.(test|d)\.tsx?$/.test(file)) continue
-    const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true)
-    function requireKey(key: string, node: ts.Node) {
-      if (!Object.hasOwn(locales.english, key)) errors.push(`${path.relative(root, file)}:${source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1}: missing message ${JSON.stringify(key)}`)
-    }
-    function visit(node: ts.Node) {
-      if (ts.isCallExpression(node)) {
-        const name = node.expression.getText(source)
-        if (['tr', 't', 'messageKey'].includes(name)) {
-          const arg = node.arguments[name === 't' ? 1 : 0]
-          if (arg && ts.isStringLiteral(arg)) requireKey(arg.text, arg)
-        }
-      }
-      if (ts.isJsxText(node)) {
-        const value = node.text.trim()
-        if (/[a-z]{2}/i.test(value) && !literalTerms.has(value)) errors.push(`${path.relative(root, file)}: untranslated JSX text ${JSON.stringify(value)}`)
-      }
-      if (ts.isJsxAttribute(node) && ['title', 'placeholder', 'aria-label', 'alt', 'label'].includes(node.name.getText(source)) && node.initializer && ts.isStringLiteral(node.initializer)) {
-        const value = node.initializer.text
-        if (/[a-z]{2}/i.test(value) && !literalTerms.has(value)) errors.push(`${path.relative(root, file)}: untranslated ${node.name.getText(source)} ${JSON.stringify(value)}`)
-      }
-      ts.forEachChild(node, visit)
-    }
-    visit(source)
+    errors.push(...checkUiSource(path.relative(root, file), fs.readFileSync(file, 'utf8'), keys))
   }
 }
 scan(path.join(root, 'ui/src'))
 if (errors.length) throw new Error(errors.join('\n'))
-console.log(`${Object.keys(locales).length} interface locales, ${Object.keys(locales.english).length} UI messages per locale; IDs, keys, plurals, placeholders and static UI text checked.`)
+console.log(`${Object.keys(locales).length} interface locales, ${Object.keys(locales.english).length} UI messages per locale; IDs, keys, plurals, placeholders, catalog coverage and rendered UI text checked.`)

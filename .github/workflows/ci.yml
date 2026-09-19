@@ -42,6 +42,8 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix docs/website
       - run: npm test
+      - run: npm run localization:test
+      - run: npm run localization:audit -- --check
       - run: npm run benchmarks:test
       - run: npm run e2e:check
       - run: npm run test:reports

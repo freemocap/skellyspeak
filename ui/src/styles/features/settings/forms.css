@@ -28,7 +28,7 @@
 .save-status.error { color: var(--danger-ink); }
 
 @media (max-width: 860px) {
-  .save-status { margin-left: var(--space-4); font-size: var(--type-meta); }
+  .save-status { margin-inline-start: var(--space-4); font-size: var(--type-meta); }
 }
 
 .settings-modal .form-row label {

@@ -11,7 +11,7 @@
   color: var(--ink); padding: var(--space-4) var(--space-7); font-size: var(--type-ui);
 }
 
-.update-text { margin-right: auto; }
+.update-text { margin-inline-end: auto; }
 
 .update-bar b { color: var(--interaction-ink); }
 
@@ -24,7 +24,7 @@
 
 .fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
 
-.fault-bar .fault { margin: 0; padding-right: var(--space-10); position: relative; width: 100%; }
+.fault-bar .fault { margin: 0; padding-inline-end: var(--space-10); position: relative; width: 100%; }
 
 .fault-bar .fault b { color: var(--fault-bar-strong); }
 

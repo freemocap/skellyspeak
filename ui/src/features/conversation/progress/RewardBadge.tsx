@@ -9,7 +9,7 @@ import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 export function RewardBadge({ domainId, label, xp, quote, creditKind }: { domainId: string; label: string; xp: number; quote: string; creditKind: 'earned' | 'stored' }) {
   const tr = useI18n()
   return <div className="reward-badge" style={{ borderColor: domainColors(domainId).bright }}>
-    <div className="reward-badge-heading"><span className="reward-domain-dot" style={{ background: domainColors(domainId).bright }} /><span>{label}</span><strong style={{ background: domainColors(domainId).ink }}>{creditKind === 'earned' ? '+' : ''}{xp} {tr(" XP")}</strong></div>
+    <div className="reward-badge-heading"><span className="reward-domain-dot" style={{ background: domainColors(domainId).bright }} /><span>{tr(label)}</span><strong style={{ background: domainColors(domainId).ink }}>{creditKind === 'earned' ? '+' : ''}{tr.number(xp)} {tr(" XP")}</strong></div>
     <blockquote dir="auto">{quote}</blockquote>
   </div>
 }

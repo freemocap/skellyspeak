@@ -30,8 +30,8 @@ export function DomainEvidenceTree({ snapshot, onSelect }: { snapshot: SkillSnap
       })}
     </svg>
     {domains.map(domain => <button type="button" key={domain.id} className="domain-evidence-row" onClick={() => onSelect(domain.id)} style={{ '--node-color': domain.color } as CSSProperties}>
-      <span>{domain.label}</span><small>{domain.count ? tr('{count} credited observations', { count: domain.count }) : tr('Not enough evidence to estimate')}</small>
-      {domain.count > 0 && <meter min={0} max={maximum} value={domain.count} aria-label={domain.label} />}
+      <span>{tr(domain.label)}</span><small>{domain.count ? tr('{count} credited observations', { count: domain.count }) : tr('Not enough evidence to estimate')}</small>
+      {domain.count > 0 && <meter min={0} max={maximum} value={domain.count} aria-label={tr(domain.label)} />}
     </button>)}
   </section>
 }

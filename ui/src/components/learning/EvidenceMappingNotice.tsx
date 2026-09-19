@@ -8,7 +8,7 @@ export function EvidenceMappingNotice({ snapshot, chatId, messageId }: { snapsho
   const records = snapshot?.records.filter(record => record.mapping_error && (chatId === undefined || record.chat_id === chatId) && (messageId === undefined || record.message_id === messageId)) ?? []
   if (!records.length) return null
   return <section className="evidence-mapping-notice" aria-label={tr("Unmapped evidence")}>
-    <p role="alert">{records.length} {tr(" observation")}{records.length === 1 ? '' : 's'} {tr(" cannot be mapped to the current construct registry.")}</p>
+    <p role="alert">{tr.number(records.length)} {tr(" observation")}{records.length === 1 ? '' : 's'} {tr(" cannot be mapped to the current construct registry.")}</p>
     <details><summary>{tr("Inspect retained evidence")}</summary>{records.map(record => <article key={record.attempt_id}>
       <p>{record.mapping_error}</p>
       <blockquote><TargetText text={record.source} /></blockquote>

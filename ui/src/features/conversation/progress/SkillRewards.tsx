@@ -59,5 +59,5 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     return () => window.clearTimeout(timer)
   }, [reward])
   if (claimError) return <span role="alert">{tr("Reward display failed: ")}{claimError}</span>
-  return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{reward.xp} {tr(" XP for ")}{reward.label}: {reward.quote}</span></>}</span>
+  return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{tr.number(reward.xp)} {tr(" XP for ")}{tr(reward.label)}: {reward.quote}</span></>}</span>
 }

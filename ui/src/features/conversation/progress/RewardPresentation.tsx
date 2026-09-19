@@ -176,7 +176,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   }, [card.phase, card.key, domainId, workspace, settled, remove, mobile, fast, dismiss, landed])
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
-    {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={tr("{value0} skill map", { value0: String(first.label) })} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
+    {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={tr("{value0} skill map", { value0: tr(first.label) })} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
     <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><>{card.milestone && <p className="reward-milestone" role="status">{tr("{value0} XP milestone", { value0: card.milestone })}</p>}<RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></></div>
   </>, document.body)
 }

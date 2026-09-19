@@ -400,7 +400,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .md-term:hover { color: var(--interaction-ink); text-decoration-style: solid; }
 
-.md-list { margin: var(--space-2) 0; padding-left: var(--space-10); }
+.md-list { margin: var(--space-2) 0; padding-inline-start: var(--space-10); }
 
 .md-list li { margin: var(--space-1) 0; }
 
@@ -525,7 +525,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .nav-item {
   display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md); border: none; background: none; color: var(--ink-2);
-  cursor: pointer; font-size: var(--type-body); text-align: left;
+  cursor: pointer; font-size: var(--type-body); text-align: start;
 }
 
 .nav-item:hover { color: var(--ink); background: var(--sheet); }
@@ -616,7 +616,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 }
 
 .chat-history-item {
-  flex: 1; min-width: 0; text-align: left; background: none; border: none;
+  flex: 1; min-width: 0; text-align: start; background: none; border: none;
   color: var(--ink); cursor: pointer; padding: var(--space-4) var(--space-5);
   display: flex; flex-direction: column; gap: var(--space-1);
 }
@@ -640,7 +640,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .chat-history-delete:hover { color: var(--interaction-ink); }
 
-.chat-history-confirm { display: flex; align-items: center; gap: var(--space-2); padding-right: var(--space-3); }
+.chat-history-confirm { display: flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-3); }
 
 .chat-history-confirm button {
   background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);
@@ -1385,7 +1385,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   color: var(--ink); padding: var(--space-4) var(--space-7); font-size: var(--type-ui);
 }
 
-.update-text { margin-right: auto; }
+.update-text { margin-inline-end: auto; }
 
 .update-bar b { color: var(--interaction-ink); }
 
@@ -1398,7 +1398,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
 
-.fault-bar .fault { margin: 0; padding-right: var(--space-10); position: relative; width: 100%; }
+.fault-bar .fault { margin: 0; padding-inline-end: var(--space-10); position: relative; width: 100%; }
 
 .fault-bar .fault b { color: var(--fault-bar-strong); }
 
@@ -2542,7 +2542,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   overflow: hidden;
 }
 
-.break-head { width: 100%; background: none; text-align: left; cursor: pointer; }
+.break-head { width: 100%; background: none; text-align: start; cursor: pointer; }
 
 .break-head .k {
   font-family: var(--font-sans);
@@ -3058,7 +3058,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .save-status.error { color: var(--danger-ink); }
 
 @media (max-width: 860px) {
-  .save-status { margin-left: var(--space-4); font-size: var(--type-meta); }
+  .save-status { margin-inline-start: var(--space-4); font-size: var(--type-meta); }
 }
 
 .settings-modal .form-row label {
