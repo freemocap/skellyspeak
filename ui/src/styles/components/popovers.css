@@ -1,4 +1,4 @@
-.popup-roman { color: var(--accent-ink); font-family: var(--font-mono); font-style: normal; }
+.popup-roman { color: var(--interaction-ink); font-family: var(--font-mono); font-style: normal; }
 
 .popup {
   position: fixed;
@@ -12,14 +12,14 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--floating-shadow), var(--appearance-glow);
+  box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
 
 .popup-card {
   display: flex; align-items: center; gap: var(--space-4);
   max-width: min(340px, 90vw);
-  background: var(--card); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-6); box-shadow: var(--shadow-lg);
+  background: var(--sheet); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6); box-shadow: var(--shadow-floating);
   font-family: var(--font-serif); font-style: italic; font-size: var(--type-body); color: var(--interaction-ink);
   line-height: var(--leading-normal);
 }
@@ -50,7 +50,7 @@
   background: var(--chrome);
   color: var(--ink);
   font: var(--type-ui)/1.4 var(--font-sans);
-  box-shadow: var(--floating-shadow), var(--appearance-glow);
+  box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
 
 .popup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }

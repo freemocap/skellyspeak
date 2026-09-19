@@ -10,7 +10,7 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--reply-tray);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-sm);
   color: var(--ink-2);
   font-family: var(--font-sans);
   font-size: var(--type-ui);
@@ -62,13 +62,11 @@
   color: var(--ink-3);
   font-family: var(--font-sans);
   font-size: var(--type-ui);
-  line-height: 1;
+  line-height: var(--leading-none);
   cursor: pointer;
 }
 
 .composer-help-toggle:hover { color: var(--ink); background: var(--line-soft); }
-
-.composer-help-toggle:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 1px; }
 
 /* Reply ideas are cards in a two-column grid: the target sentence, its gloss
    and reading help all wrap inside the card instead of spilling out of a pill. */
@@ -94,13 +92,13 @@
 .help-reply > div { flex: 1; min-width: 0; display: grid; gap: var(--space-2); }
 .help-reply > .help-reply-text, .help-reply > span:first-child { flex: 1; min-width: 0; }
 .help-reply > div > p { color: var(--ink-3); font-size: var(--type-ui); line-height: var(--leading-snug); }
-.help-reply details summary { padding: 0; font-size: var(--type-meta); color: var(--accent-ink); }
+.help-reply details summary { padding: 0; font-size: var(--type-meta); color: var(--interaction-ink); }
 .help-reply details summary:hover { background: transparent; text-decoration: underline; }
 .composer-help-content > details .help-reply { flex: 0 1 auto; padding-block: var(--space-3); }
 
 .help-reply-text { font: calc(var(--type-body) * var(--reading-scale) * var(--script-scale))/1.35 var(--font-serif); }
 
-.help-reply-text .wg, .help-reply-text .wroman, .help-reply-text .wpronunciation { line-height: 1.1; }
+.help-reply-text .wg, .help-reply-text .wroman, .help-reply-text .wpronunciation { line-height: var(--leading-tight); }
 
 .help-insert {
   display: inline-flex;
@@ -114,7 +112,7 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
   background: var(--sheet);
-  color: var(--accent-ink);
+  color: var(--interaction-ink);
   font: var(--type-body)/1 var(--font-sans);
   cursor: pointer;
 }
@@ -124,8 +122,6 @@
 .help-reply details { position: relative; z-index: var(--z-raised); }
 
 .help-insert:hover { background: var(--interaction-fill); border-color: var(--interaction-fill); color: var(--ink-on-fill); }
-
-.help-insert:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 1px; }
 
 .help-insert:disabled { opacity: .5; cursor: default; }
 

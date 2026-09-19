@@ -3,12 +3,12 @@
 .shortcut-label { flex: 1; font-size: var(--type-ui); color: var(--ink-2); }
 
 .shortcut-input {
-  width: 170px; background: var(--field); color: var(--accent-ink); text-align: center;
+  width: 170px; background: var(--field); color: var(--interaction-ink); text-align: center;
   border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-4);
-  font-family: var(--font-mono); font-size: var(--type-ui); cursor: pointer; outline: none;
+  font-family: var(--font-mono); font-size: var(--type-ui); cursor: pointer;
 }
 
-.shortcut-input:focus { border-color: var(--accent); color: var(--ink); }
+.shortcut-input:focus { border-color: var(--interaction-ink); color: var(--ink); }
 
 .key-row { display: flex; align-items: center; gap: var(--space-4); }
 
@@ -23,9 +23,9 @@
 
 .save-status.hint { color: var(--ink-3); }
 
-.save-status.saved { color: var(--success); }
+.save-status.saved { color: var(--success-ink); }
 
-.save-status.error { color: var(--danger); }
+.save-status.error { color: var(--danger-ink); }
 
 @media (max-width: 860px) {
   .save-status { margin-left: var(--space-4); font-size: var(--type-meta); }

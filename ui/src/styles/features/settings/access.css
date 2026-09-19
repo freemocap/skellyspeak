@@ -5,8 +5,12 @@
   width: min(100%, 280px); margin: var(--space-13) auto; padding: var(--space-8);
   border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--chrome);
   color: var(--ink-2); text-align: center;
-}.access-start p { margin: 0; font: var(--type-ui)/1.4 var(--font-sans); }.access-start .btn { min-height: var(--control-height-lg); padding-inline: var(--space-10); }
-.access-alternative { min-height: var(--control-height-lg); padding: var(--space-2); border: 0; background: transparent; color: var(--accent-ink); font: var(--type-ui) var(--font-sans); text-decoration: underline; cursor: pointer; }
+}
+
+.access-start p { margin: 0; font: var(--type-ui)/1.4 var(--font-sans); }
+
+.access-start .btn { min-height: var(--control-height-lg); padding-inline: var(--space-10); }
+.access-alternative { min-height: var(--control-height-lg); padding: var(--space-2); border: 0; background: transparent; color: var(--interaction-ink); font: var(--type-ui) var(--font-sans); text-decoration: underline; cursor: pointer; }
 .access-alternative:hover { color: var(--ink); }
 .access-tabs {
   display: grid;
@@ -15,7 +19,9 @@
   gap: var(--space-1);
   position: relative;
   z-index: var(--z-raised);
-}.access-tabs [role="tab"] {
+}
+
+.access-tabs [role="tab"] {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,51 +37,68 @@
   background: var(--chrome);
   font-size: var(--type-body);
   font-weight: var(--weight-semibold);
-}.access-route-indicator {
+}
+
+.access-route-indicator {
   flex: 0 0 14px;
   width: 14px;
   height: 14px;
   border: var(--border-width-strong) solid currentColor;
   border-radius: var(--radius-circle);
-}.access-tabs [aria-selected="true"] .access-route-indicator {
-  background: var(--accent);
-  box-shadow: inset 0 0 0 3px var(--card);
-  border-color: var(--accent);
-}.access-tabs [role="tab"][aria-selected="true"] {
-  background: var(--card);
+}
+
+.access-tabs [aria-selected="true"] .access-route-indicator {
+  background: var(--interaction-ink);
+  box-shadow: inset 0 0 0 3px var(--sheet);
+  border-color: var(--interaction-ink);
+}
+
+.access-tabs [role="tab"][aria-selected="true"] {
+  background: var(--sheet);
   border-color: var(--line);
   color: var(--ink);
-}.access-tabs [role="tab"][aria-selected="true"]::after {
+}
+
+.access-tabs [role="tab"][aria-selected="true"]::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   bottom: -1px;
   height: 2px;
-  background: var(--card);
-}.access-tabs [role="tab"]:focus-visible {
+  background: var(--sheet);
+}
+
+.access-tabs [role="tab"]:focus-visible {
   outline-offset: -4px;
-}.access-tabs [role="tab"]:hover:not(:disabled) {
+}
+
+.access-tabs [role="tab"]:hover:not(:disabled) {
   color: var(--ink);
-}.access-route-panel {
+}
+
+.access-route-panel {
   padding: var(--space-10);
   min-width: 0;
   border: var(--border-width) solid var(--line);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  background: var(--card);
-}.access-route-panel:focus {
-  outline: none;
-}.access-route-panel:focus-visible {
-  outline: var(--focus-width) solid var(--accent);
-  outline-offset: 5px;
-}.account-settings { min-width: 0; }.access-pending {
+  background: var(--sheet);
+}
+
+.account-settings { min-width: 0; }
+
+.access-pending {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-4);
   margin-top: var(--space-4);
   font-size: var(--type-ui);
-}.access-route-panel .check-label input[type="checkbox"] { flex: none; width: auto; }.access-key-status, .access-key-check {
+}
+
+.access-route-panel .check-label input[type="checkbox"] { flex: none; width: auto; }
+
+.access-key-status, .access-key-check {
   flex: none;
   width: 28px;
   height: 28px;
@@ -85,29 +108,41 @@
   color: var(--ink-2);
   font-size: var(--type-reading);
   cursor: pointer;
-}.access-key-delete { display: none; }.access-key-status:hover .access-key-saved, .access-key-status:focus-visible .access-key-saved { display: none; }.access-key-status:hover .access-key-delete, .access-key-status:focus-visible .access-key-delete {
+}
+
+.access-key-delete { display: none; }
+
+.access-key-status:hover .access-key-saved, .access-key-status:focus-visible .access-key-saved { display: none; }
+
+.access-key-status:hover .access-key-delete, .access-key-status:focus-visible .access-key-delete {
   display: inline;
-  color: var(--danger);
-}.access-key-check.valid { color: var(--success); }.access-key-check.invalid { color: var(--danger); }@media (max-width: 600px) {
+  color: var(--danger-ink);
+}
+
+.access-key-check.valid { color: var(--success-ink); }
+
+.access-key-check.invalid { color: var(--danger-ink); }
+
+@media (max-width: 600px) {
   .access-tabs [role="tab"] { gap: var(--space-2); padding: var(--space-4) var(--space-2); font-size: var(--type-meta); }
   .access-route-panel { padding: var(--space-4); }
 }
 
 /* Health is a checked result, distinct from the selected-route indicator. */
 .access-health { font-size: var(--type-meta); font-weight: var(--weight-semibold); color: var(--ink-3); background: var(--line-soft); border: 0; border-radius: var(--radius-pill); padding: var(--space-1) var(--space-4); }
-.access-health[data-health="connected"] { color: var(--success-ink); background: var(--status-good-tint); }
-.access-health[data-health="disconnected"] { color: var(--danger-ink); background: var(--status-wrong-tint); }
+.access-health[data-health="connected"] { color: var(--success-ink); background: var(--success-tint); }
+.access-health[data-health="disconnected"] { color: var(--danger-ink); background: var(--danger-tint); }
 
 /* Verified server/token/provider results are distinct controls from route selection:
    one card, a heading row, then a divided list of checked results. */
 .connection-health-panel { display: grid; border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); padding: 0; margin-block-end: var(--space-8); overflow: hidden; }
 .connection-health-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin: 0; padding: var(--space-6) var(--space-8); background: var(--chrome); border-bottom: var(--border-width) solid var(--line-soft); font-size: var(--type-body); }
-.connection-health-panel:has([data-state=accepted]):not(:has([data-state=rejected], [data-state=unreachable], [data-state=invalid_response])) .connection-health-heading { background: var(--status-good-tint); }
+.connection-health-panel:has([data-state=accepted]):not(:has([data-state=rejected], [data-state=unreachable], [data-state=invalid_response])) .connection-health-heading { background: var(--success-tint); }
 .connection-health-grid { display: grid; gap: 0; padding: 0; margin: 0; list-style: none; }
 .connection-health-item { display: flex; align-items: center; gap: var(--space-6); border: 0; border-bottom: var(--border-width) solid var(--line-soft); border-radius: 0; background: transparent; padding: var(--space-5) var(--space-8); color: var(--ink-3); }
 .connection-health-item:last-child { border-bottom: 0; }
 .connection-health-item[data-state="accepted"] { color: var(--success-ink); }
-.connection-health-item[data-state="rejected"], .connection-health-item[data-state="unreachable"], .connection-health-item[data-state="invalid_response"] { color: var(--danger-ink); background: var(--status-wrong-tint); }
+.connection-health-item[data-state="rejected"], .connection-health-item[data-state="unreachable"], .connection-health-item[data-state="invalid_response"] { color: var(--danger-ink); background: var(--danger-tint); }
 .connection-health-icon { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: var(--radius-circle); background: color-mix(in srgb, currentColor 14%, transparent); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
 .connection-health-name { display: flex; flex-direction: column; flex: 1; min-width: 0; color: var(--ink); font-size: var(--type-body); }
 .connection-health-name small { color: var(--ink-3); font-size: var(--type-ui); }

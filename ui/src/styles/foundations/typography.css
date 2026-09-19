@@ -10,14 +10,12 @@
 
 .md-term {
   display: inline; padding: 0; border: none; background: none;
-  font: inherit; color: var(--accent-ink); cursor: pointer;
+  font: inherit; color: var(--interaction-ink); cursor: pointer;
   text-decoration: underline; text-decoration-style: dotted;
   text-underline-offset: 2px;
 }
 
 .md-term:hover { color: var(--interaction-ink); text-decoration-style: solid; }
-
-.md-term:focus-visible { outline: var(--focus-width-thin) solid var(--accent); outline-offset: 2px; }
 
 .md-list { margin: var(--space-2) 0; padding-left: var(--space-10); }
 

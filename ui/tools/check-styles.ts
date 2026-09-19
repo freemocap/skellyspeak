@@ -106,6 +106,11 @@ function literalProblem(decl: Declaration): string | null {
   if (prop === "font" && /^(\d{3}|bold|bolder|lighter)\s/.test(value)) return "a literal font weight; use a --weight-* token";
   if (/radius$/.test(prop) && LENGTH.test(value)) return "a literal radius; use a --radius-* token";
   if (prop === "z-index" && !/^(var\(|auto$)/.test(value)) return "a literal layer; use a --z-* token";
+  if (prop === "line-height" && /^\d*\.?\d+$/.test(value)) return "a literal line height; use a --leading-* token";
+  if (/^(padding|margin|gap|row-gap|column-gap)(-[a-z-]+)?$/.test(prop) && !value.includes("calc(") && LENGTH.test(value.replace(/\b0(px|rem|%)?\b/g, "")))
+    return "a literal spacing value; use a --space-* token";
+  if (/^border(-(top|right|bottom|left|inline|block)(-start|-end)?)?(-width)?$/.test(prop) && /(?<![\w.-])\d*\.?\d+px(?![\w-])/.test(value))
+    return "a literal border width; use a --border-width* token";
   if (/^(transition|animation)(-duration|-delay)?$/.test(prop) && TIME.test(value)) return "a literal duration; use a --dur-* token";
   return null;
 }
@@ -174,5 +179,5 @@ for (const path of sources("ui/src")) {
 
 if (errors.length) throw new Error(errors.join("\n"));
 console.log(
-  `Styles: ${sheets.length} sheets, manifest complete, every token reference declared, no literal colours, sizes, weights, radii, durations or layers outside ${tokens}, breakpoints within the set, no repeated selectors or properties and no !important.`,
+  `Styles: ${sheets.length} sheets, manifest complete, every token reference declared, no literal colours, sizes, weights, line heights, spacing, border widths, radii, durations or layers outside ${tokens}, breakpoints within the set, no repeated selectors or properties and no !important.`,
 );

@@ -2,7 +2,7 @@
 
 .yaml-export { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); min-width: 0; margin-block: var(--space-4); font-size: var(--type-ui); }
 .yaml-export label { flex-basis: 100%; display: inline-flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); min-width: 0; color: var(--ink); cursor: pointer; }
-.yaml-export input[type=checkbox] { flex: none; margin: 0; accent-color: var(--accent-strong); }
+.yaml-export input[type=checkbox] { flex: none; margin: 0; accent-color: var(--interaction-fill); }
 .detail-dialog:has(.yaml-export) > h2 { margin: var(--space-4) 0; font-size: var(--type-reading); }
 .detail-dialog:has(.yaml-export) > p { margin: var(--space-4) 0; font-size: var(--type-ui); overflow-wrap: anywhere; }
 .detail-dialog:has(.yaml-export) > [role=alert] { color: var(--danger-ink); }

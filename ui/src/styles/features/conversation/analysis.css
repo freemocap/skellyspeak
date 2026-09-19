@@ -5,7 +5,7 @@
 .analysis-scroll {
   flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain;
-  padding: 12px;
+  padding: var(--space-6);
 }
 
 /* Logs overlay (floating debug console) — docked beside the topbar gear so
@@ -41,7 +41,7 @@
   touch-action: none;
 }
 
-.logs-resize:hover { background: linear-gradient(var(--accent), var(--accent)) center/100% 2px no-repeat; }
+.logs-resize:hover { background: linear-gradient(var(--interaction-ink), var(--interaction-ink)) center/100% 2px no-repeat; }
 
 /* The popped-out window owns its whole viewport. */
 

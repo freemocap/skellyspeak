@@ -1,9 +1,9 @@
 /* Shared error details: expandable diagnostics and dismissal, also used in coaching. */
 
 .turn-errors {
-  border: var(--border-width) solid var(--danger); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
-  background: var(--danger-dim); color: var(--danger);
-  font-family: var(--font-mono); font-size: var(--type-meta); line-height: 1.7;
+  border: var(--border-width) solid var(--danger-ink); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
+  background: var(--danger-tint); color: var(--danger-ink);
+  font-family: var(--font-mono); font-size: var(--type-meta); line-height: var(--leading-relaxed);
   margin-bottom: var(--space-6);
 }
 

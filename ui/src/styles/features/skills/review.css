@@ -1,16 +1,1 @@
 /* Review workspace: rail and framed graph/inspector variants. The inspector intentionally uses a recessed well, distinct from the graph sheet. */
-
-.review-frame { display: flex; flex: 1; min-height: 0; gap: var(--space-6); padding: var(--space-6) var(--space-8); }
-.review-rail { flex: 0 0 200px; min-width: 0; overflow: auto; }
-.review-rail .tree-toolbar, .review-rail .tree-focus-strip { align-items: stretch; flex-direction: column; padding: var(--space-6) 0; }
-.review-rail .tree-jump { flex-direction: column; align-items: stretch; }
-.review-rail .tree-jump select { width: 100%; }
-.review-content { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.review-content .tree-workspace { gap: var(--space-6); }
-.review-content .tree-canvas { border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); box-shadow: var(--sheet-shadow); }
-.review-content .tree-inspector { border-radius: var(--radius-lg); background: var(--well); box-shadow: var(--well-shadow); }
-@media (max-width: 860px) {
-  .review-frame { flex-direction: column; padding: var(--space-4); }
-  .review-rail { flex: none; max-height: 120px; }
-  .review-rail .tree-toolbar, .review-rail .tree-focus-strip { flex-direction: row; padding: var(--space-4); }
-}

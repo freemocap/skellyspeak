@@ -16,25 +16,18 @@
   font-family: var(--font-sans);
   font-size: var(--type-meta);
   font-weight: var(--weight-semibold);
-  color: var(--warning);
-  border: var(--border-width) solid var(--warning-strong);
+  color: var(--warning-ink);
+  border: var(--border-width) solid var(--warning-line);
   border-radius: var(--radius-pill);
   padding: var(--space-hairline) var(--space-4);
-}
-
-.exp-body {
-  font-size: var(--type-body);
-  color: var(--ink-2);
-  line-height: 1.55;
-  margin-top: var(--space-4);
 }
 
 .exp-ex {
   font-family: var(--font-serif);
   font-size: var(--type-body);
-  color: var(--warning);
+  color: var(--warning-ink);
   margin-top: var(--space-4);
-  line-height: 1.45;
+  line-height: var(--leading-normal);
 }
 
 .exp-vs {

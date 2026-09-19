@@ -13,7 +13,7 @@
   border: 0;
   overflow: visible;
   font: var(--weight-heavy) var(--type-ui)/0 var(--font-sans);
-  color: var(--xp-ink);
+  color: var(--interaction-ink);
   background: none;
   cursor: pointer;
 }
@@ -40,7 +40,7 @@
   border: var(--border-width) solid color-mix(in srgb, currentColor 24%, transparent);
   border-radius: var(--radius-circle);
   background: color-mix(in srgb, currentColor 4%, transparent);
-  line-height: 1;
+  line-height: var(--leading-none);
   transform: translateY(-50%);
   animation: xp-invitation var(--dur-loop-long) ease-in-out 2;
 }

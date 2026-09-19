@@ -5,7 +5,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-statistics { max-width: none; color: var(--ink); }
 
 .practice-statistics-header > p:first-child {
-  color: var(--analysis-accent);
+  color: var(--interaction-ink);
   text-transform: uppercase;
   letter-spacing: var(--tracking-tag);
   font-size: var(--type-meta);
@@ -34,14 +34,14 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   background: var(--field);
 }
 
-.practice-metrics > div:first-child { border-color: var(--partner-line); background: var(--partner-top); }
+.practice-metrics > div:first-child { border-color: var(--bubble-partner-line); background: var(--bubble-partner-bg); }
 
 .practice-metrics dt { color: var(--ink-3); font-size: var(--type-ui); }
 
 .practice-metrics dd {
   margin: 0;
   font-size: var(--type-hero);
-  line-height: 1.1;
+  line-height: var(--leading-tight);
   font-weight: var(--weight-semibold);
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -66,7 +66,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-demonstrations > div { display: flex; gap: var(--space-5); align-items: center; }
 
 .practice-demonstrations strong {
-  color: var(--analysis-accent-soft);
+  color: var(--interaction-ink);
   font-size: var(--type-reading);
   font-variant-numeric: tabular-nums;
 }
@@ -121,7 +121,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   padding-inline-start: var(--space-7);
 }
 
-.practice-star { color: var(--analysis-star); }
+.practice-star { color: var(--interaction-ink); }
 
 .practice-credit {
   border-top: var(--border-width) solid var(--line);
@@ -146,11 +146,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-credit blockquote {
   margin: var(--space-6) 0;
   padding-inline-start: var(--space-6);
-  border-inline-start: var(--border-width-strong) solid var(--analysis-accent-line);
+  border-inline-start: var(--border-width-strong) solid var(--interaction-ink);
   font-size: var(--type-reading);
 }
 
-.practice-credit p { font-size: var(--type-ui); line-height: 1.6; }
+.practice-credit p { font-size: var(--type-ui); line-height: var(--leading-relaxed); }
 
 .practice-methods {
   padding: var(--space-7) 0;
@@ -218,7 +218,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-language-empty { padding: var(--space-10) 0; }
 
-.practice-language-empty p { font-size: var(--type-ui); color: var(--ink-2); line-height: 1.6; }
+.practice-language-empty p { font-size: var(--type-ui); color: var(--ink-2); line-height: var(--leading-relaxed); }
 
 .conversation-evidence .practice-credit { padding: var(--space-3); }
 

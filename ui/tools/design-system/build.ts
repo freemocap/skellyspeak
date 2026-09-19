@@ -6,7 +6,7 @@
 ///
 /// Hand-written (never touched here): README.md, components/<Name>/README.md,
 /// components/Cover/preview.html, assets/<Group>/README.md, every token's name
-/// and usage note. Generated: token VALUES (from tokens.css via meta.sourceVars),
+/// and usage note. Generated: token VALUES (a token named x reads --x in tokens.css),
 /// components/bundle.css (the app cascade), components/<Name>/preview.html (real
 /// components rendered by previews.tsx) and assets/Icons/*.svg (ToolbarIcon).
 import { build } from "esbuild";
@@ -60,13 +60,10 @@ function length(value: string): string {
 
 const tokensPath = join(OUT, "tokens.json");
 const tokens = JSON.parse(readFileSync(tokensPath, "utf8"));
-const sourceVars: Record<string, string> = tokens.meta.sourceVars;
 function refresh(entry: { name: string; value: unknown }, family: string) {
-  const prop = sourceVars[entry.name];
-  if (!prop) {
-    if (!(typeof entry.value === "string" && entry.value.startsWith("{"))) errors.push(`tokens.json ${entry.name}: no meta.sourceVars entry`);
-    return;
-  }
+  if (typeof entry.value === "string" && entry.value.startsWith("{")) return; // an alias of another token
+  const prop = `--${entry.name}`;
+  if (!declared.light.has(prop)) { errors.push(`tokens.json ${entry.name}: tokens.css does not declare ${prop}`); return; }
   try {
     if (family === "color" || family === "shadow") {
       const light = portable(lookup(prop, "light")), dark = portable(lookup(prop, "dark"));
@@ -78,14 +75,13 @@ function refresh(entry: { name: string; value: unknown }, family: string) {
 for (const family of ["color", "spacing", "radius", "shadow", "control"])
   for (const entry of tokens[family]?.tokens ?? []) refresh(entry, family);
 for (const group of tokens.type.groups) for (const style of group.styles) {
-  const prop = sourceVars[style.name];
-  if (prop) style.fontSize = lookup(prop, "light");
+  if (declared.light.has(`--${style.name}`)) style.fontSize = lookup(`--${style.name}`, "light");
 }
 outputs.set(tokensPath, JSON.stringify(tokens, null, 1) + "\n");
 
 // ── bundle.css: the app cascade, in manifest order ──────────────────────────
 function inline(file: string): string {
-  return readFileSync(file, "utf8").replace(/^@import '\.\/([\w./-]+)';$/gm, (_, path: string) =>
+  return readFileSync(file, "utf8").replace(/^@import ['"]\.\/([\w./-]+)['"];$/gm, (_, path: string) =>
     `/* ── ${path} ── */\n${inline(join(dirname(file), path))}`);
 }
 const cascade = postcss.parse(inline(join(STYLES, "index.css")));
@@ -140,7 +136,7 @@ for (const { name, group, height, html } of rendered.previews) {
 ${html}
 `);
 }
-const ink = declared.light.get("--c-spectrum-ink")!;
+const ink = declared.light.get("--ink")!;
 for (const { name, svg } of rendered.icons)
   outputs.set(join(OUT, "assets/Icons", `${name}.svg`), svg
     .replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ')

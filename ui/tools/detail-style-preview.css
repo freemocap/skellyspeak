@@ -6,7 +6,7 @@ html:has(.detail-lab), body:has(.detail-lab), body:has(.detail-lab) #root { heig
 .detail-lab h2 { font-size: var(--type-title); }
 .detail-lab h3 { font-size: var(--type-body); margin-top: 0; }
 .detail-lab p, .detail-lab li { line-height: 1.55; }
-.detail-lab a { color: var(--accent-ink); }
+.detail-lab a { color: var(--interaction-ink); }
 .detail-lab nav { display: flex; flex-wrap: wrap; gap: 20px; }
 .detail-lab > details { margin-block: 24px; padding: 16px; background: var(--chrome); border: 1px solid var(--line); border-radius: 8px; }
 .detail-lab summary { cursor: pointer; }

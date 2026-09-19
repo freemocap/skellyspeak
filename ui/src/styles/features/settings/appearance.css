@@ -2,12 +2,12 @@
 .appearance-settings { display: grid; gap: var(--space-8); }
 .appearance-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8); }
 .appearance-options label { display: flex; flex-direction: column; gap: var(--space-3); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color: var(--ink-2); }
-.appearance-options :is(select, input) { width: 100%; min-width: 0; min-height: var(--control-height); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--field); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); box-shadow: var(--input-shadow); }
+.appearance-options :is(select, input) { width: 100%; min-width: 0; min-height: var(--control-height); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--field); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); box-shadow: var(--shadow-input); }
 .appearance-options input[type='color'] { padding: var(--space-2); }
 .appearance-options input:disabled { opacity: .5; }
 .appearance-glow-options summary { cursor: pointer; min-height: var(--control-height); font-size: var(--type-ui); }
 .appearance-check { display: flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); margin-bottom: var(--space-6); font-size: var(--type-ui); }
-.appearance-sample { padding: var(--space-11); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--surface-bg); box-shadow: var(--surface-shadow), var(--surface-glow); }
+.appearance-sample { padding: var(--space-11); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--surface-bg); box-shadow: var(--shadow-surface), var(--surface-glow); }
 .appearance-sample .target-text { margin-block: var(--space-6); }
 .appearance-sample small { font-size: var(--type-meta); color: var(--ink-3); }
 @media (max-width: 480px) { .appearance-options { grid-template-columns: 1fr; } }

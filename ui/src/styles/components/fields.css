@@ -1,7 +1,7 @@
 
 .field, .form-row input:not([type='checkbox']):not([type='range']), .form-row select {
   min-height: var(--control-height);
-  box-shadow: var(--input-shadow);
+  box-shadow: var(--shadow-input);
 }
 
 .field {
@@ -9,16 +9,14 @@
   padding: var(--space-4) var(--space-7); color: var(--ink); font-family: var(--font-sans); font-size: var(--type-ui);
 }
 
-.field:focus { border-color: var(--accent); }
-
-.field::placeholder { color: var(--ink-3); }
+.field:focus { border-color: var(--interaction-ink); }
 
 .form-row { margin-bottom: var(--space-5); }
 
 .field-note {
   margin: var(--space-3) 0 0;
   font-size: var(--type-ui);
-  line-height: 1.45;
+  line-height: var(--leading-normal);
   color: var(--ink-3);
 }
 
@@ -35,14 +33,14 @@
   border: var(--border-width) solid var(--line); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5); font-family: var(--font-sans); font-size: var(--type-ui);
 }
 
-.form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+.form-row input:focus, .form-row select:focus { border-color: var(--interaction-ink); }
 
 .check-row .check-label {
   display: flex; align-items: center; gap: var(--space-4); cursor: pointer;
   font-family: var(--font-sans); font-size: var(--type-ui); color: var(--ink);
 }
 
-.check-row input[type='checkbox'] { width: auto; accent-color: var(--accent-strong); }
+.check-row input[type='checkbox'] { width: auto; accent-color: var(--interaction-fill); }
 
 @media (max-width: 860px) {
   .field, .form-row input, .form-row select { font-size: var(--type-reading); }

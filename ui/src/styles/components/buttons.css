@@ -21,8 +21,8 @@
 .panel-tab:hover { color: var(--ink); }
 
 .panel-tab.active {
-  color: var(--accent-ink);
-  border-color: var(--accent);
+  color: var(--interaction-ink);
+  border-color: var(--interaction-ink);
   border-bottom-color: var(--field);
   background: var(--field);
 }
@@ -34,20 +34,20 @@
 
 .btn:hover:not(:disabled) { border-color: var(--ink-3); background: var(--chrome); }
 
-.btn.primary { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--ink-on-fill); }
+.btn.primary { background: var(--interaction-fill); border-color: var(--interaction-fill); color: var(--ink-on-fill); }
 
-.btn.primary:hover:not(:disabled) { background: var(--accent-strong-hover); border-color: var(--accent-strong-hover); }
+.btn.primary:hover:not(:disabled) { background: var(--interaction-fill-hover); border-color: var(--interaction-fill-hover); }
 
 .btn:disabled { opacity: 0.5; cursor: default; }
 
 .btn.tiny { padding: var(--space-3) var(--space-5); font-size: var(--type-meta); letter-spacing: var(--tracking-tag); }
 
-.btn.danger { border-color: var(--danger-on-dark-line); color: var(--danger-on-dark); }
+.btn.danger { border-color: var(--danger-line); color: var(--danger-ink); }
 
 .btn.danger:hover {
   color: var(--ink-on-fill);
-  background: var(--danger-on-dark-line);
-  border-color: var(--danger-on-dark-line);
+  background: var(--danger-fill);
+  border-color: var(--danger-fill);
 }
 
 .new-chat {
@@ -59,18 +59,15 @@
   background: var(--field);
   color: var(--ink);
   font-size: var(--type-display);
-  line-height: 1;
+  line-height: var(--leading-none);
   cursor: pointer;
 }
 
-.new-chat:hover:not(:disabled) { background: var(--bubble-learner-bg); border-color: var(--bubble-learner-ink); }
+.new-chat:hover:not(:disabled) { background: var(--bubble-learner-bg); border-color: var(--ink); }
 
 .new-chat:disabled { opacity: .5; cursor: default; }
 
 @media (pointer: coarse) { .new-chat { width: var(--touch-target); height: var(--touch-target); } }
-
-@media (prefers-reduced-motion: reduce) {
-}
 
 @media (pointer: coarse) {
   .btn, .panel-tab { min-height: var(--touch-target); }
@@ -88,7 +85,7 @@
   font-size: var(--type-ui);
 }
 
-.detail-action:hover { border-color: var(--accent); }
+.detail-action:hover { border-color: var(--interaction-ink); }
 
 .detail-action:disabled { opacity: .5; cursor: default; }
 

@@ -16,10 +16,9 @@ SkellySpeak is a convivial tool for learning languages through welcoming convers
 - **Text:** `ink` for primary copy, `ink-2` for labels and supporting copy, `ink-3` for metadata, glosses and placeholders. All three hold 4.5:1 on `sheet`, `chrome` and `bg` in both themes.
 - **One accent.** `interaction-ink` is the only interaction colour: links, active tabs, selection, XP, the focus ring. Primary buttons fill with `interaction-fill` and `ink-on-fill` text. Never introduce a second accent.
 - **The chat is warm vs cool.** The partner's bubbles are warm (`bubble-partner-bg` / `bubble-partner-line`), the learner's are cool (`bubble-learner-bg` / `bubble-learner-line`). Keep that split anywhere the two voices appear.
-- **Judgments have their own colours** — `success-ink` on `status-good-tint`, `correction-ink` on `status-attention-tint`, `failure-ink` on `status-wrong-tint`. Always pair the colour with a word or icon.
+- **Status is three families: success, warning and danger.** Each has an `-ink` for text, a `-line` for borders and marks, and a `-tint` to sit behind the ink (`success-ink` on `success-tint`, and so on). The same families cover system state (a failed request) and the coach's judgments (a correction). Always pair the colour with a word or icon.
 - **Skill domains are data colours, not status.** The six domains (Social, Questions, Opinions, Statements, Descriptions, Situating) each get a fill `d-*` for marks (map nodes, bars, dots) and an ink `di-*` for text. Never use a domain hue to mean good/bad, and never set text in a `d-*` fill colour.
-- **Conversation stripes** (`chat-stripe-0`…`4`) identify a conversation, picked by its id. Decoration only.
-- **Destructive actions** use `danger-fill` / `danger-fill-hover`; `danger-line` borders an error field.
+- **Destructive actions** are outlined in `danger-line` with `danger-ink` text and fill with `danger-fill` on hover or confirm. The fault bar at the top of the app has its own always-dark `fault-bar-*` colours.
 - **Dark theme** is graphite, not black: same roles, lighter inks. `interaction-fill` stays the same deep blue in both themes.
 
 ### Type
@@ -32,12 +31,13 @@ SkellySpeak is a convivial tool for learning languages through welcoming convers
 
 ### Space, shape, depth
 
+- **Every length is a token.** Stylesheets may not hard-code colours, font sizes, weights, line heights (`leading-*`), spacing (`space-*`), border widths (`border-width*`), radii, durations or layers; `npm run styles:check` enforces it.
 - **Spacing is one ordered scale** (`space-1` 2px … `space-13` 40px) that the app multiplies by a density factor (tight .75 by default). Use steps, never raw pixels, so density settings keep working.
 - **Dense by default.** SkellySpeak is chat-first and compact: modest padding (`space-4` × `space-6` in a bubble), no airy hero sections.
-- **Radii:** `radius-md` buttons and fields, `radius-lg` cards, `radius-xl` the composer frame and dialogs, `radius-2xl` chat bubbles, `radius-pill` chips. A chat bubble has one small corner (`radius-sm`) on the speaker's side — bottom-left for the partner, bottom-right for the learner.
-- **Depth is quiet** and a learner preference: `sheet-shadow` lifts the chat off `bg`; `floating-shadow` for dialogs; `shadow-menu` for menus. Prefer borders to shadows inside a surface.
+- **Radii:** `radius-md` buttons and fields, `radius-lg` cards, `radius-xl` chat bubbles, the composer frame and dialogs, `radius-pill` chips. A chat bubble has one small corner (`radius-sm`) on the speaker's side — bottom-left for the partner, bottom-right for the learner.
+- **Depth is quiet** and a learner preference: `shadow-surface` lifts the chat off `bg`, `shadow-floating` carries dialogs, popovers and rewards, `shadow-sm` lifts bubbles and cards, `shadow-recessed` sinks the coach below the ground. Dialogs sit on `scrim`; drawers and destructive confirmations on `scrim-strong`. Prefer borders to shadows inside a surface.
 - **Controls** are `control-height` (32px compact / 40px standard) and never below `touch-target` 44px on touch screens.
-- **Focus:** a solid `focus-ring` (`interaction-ink`), 1–2px, offset 2px, on every interactive element.
+- **Focus:** one ring everywhere: `focus-width` (2px) solid `focus-ring`, offset 2px, from the global rule. Components don't restyle it; only rings that would be clipped move inside (negative offset). Never remove it with `outline: none`.
 
 ### Motion
 

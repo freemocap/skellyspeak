@@ -5,14 +5,14 @@
   max-height: calc(100dvh - 32px);
   box-sizing: border-box;
   overflow-y: auto;
-  border: var(--border-width) solid var(--danger-edge-soft);
+  border: var(--border-width) solid var(--danger-line);
   border-radius: var(--radius-lg);
   padding: var(--space-10);
-  background: var(--card);
-  color: var(--detail-ink);
+  background: var(--sheet);
+  color: var(--ink);
 }
 
-.factory-reset-dialog::backdrop { background: var(--overlay-scrim-strong); }
+.factory-reset-dialog::backdrop { background: var(--scrim-strong); }
 
 .factory-reset-dialog h2 { margin: 0 0 var(--space-8); font-size: var(--type-display); }
 
@@ -26,7 +26,7 @@
   padding: var(--space-5);
   background: var(--bg);
   color: var(--ink);
-  border: var(--border-width) solid var(--detail-input-line);
+  border: var(--border-width) solid var(--line);
   border-radius: var(--radius-xs);
 }
 

@@ -93,7 +93,7 @@ export function playRewardSound(cue: SoundCue, target: HTMLElement): boolean {
   }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
   const flashTarget = cue.kind === 'pop' ? target.closest<HTMLElement>('.msg') ?? target : target
-  const glow = cssToken('--reward-flash')
+  const glow = cssToken('--interaction-ink')
   const flash = flashTarget.animate([
     { boxShadow: `0 0 0 2px ${glow}, 0 0 12px color-mix(in srgb, ${glow} 40%, transparent)` },
     { boxShadow: '0 0 0 0px transparent, 0 0 0px transparent' },

@@ -5,7 +5,7 @@ Source: `ui/src/styles/components/buttons.css`. It is a class, not a React compo
 ## Variants
 - `.btn` — default: `sheet` fill, `line` border, `ink` text; hover lifts to `chrome` with an `ink-3` border.
 - `.btn.primary` — the one main action in a view: `interaction-fill`, `ink-on-fill` text, `interaction-fill-hover` on hover.
-- `.btn.danger` — destructive actions (delete, reset): red outline and text, fills on hover.
+- `.btn.danger` — destructive actions (delete, reset): `danger-line` outline, `danger-ink` text; fills with `danger-fill` on hover.
 - `.btn.tiny` — compact secondary actions: `type-meta`, wide tracking.
 - `:disabled` — half opacity, no hover.
 

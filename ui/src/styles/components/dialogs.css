@@ -1,5 +1,5 @@
 .modal-backdrop {
-  position: fixed; inset: 0; background: var(--shell-scrim); z-index: var(--z-modal);
+  position: fixed; inset: 0; background: var(--scrim-strong); z-index: var(--z-modal);
   display: grid; place-items: center;
   /* Safe-area insets, and every child below sizes against THIS box (100%),
      never against dvh. A dvh-sized modal plus this padding was taller than the
@@ -13,8 +13,8 @@
 }
 
 .modal {
-  width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--floating-shadow);
-  border-radius: var(--radius-2xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
+  border-radius: var(--radius-xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
 .modal h2 { margin: 0 0 var(--space-2); font-size: var(--type-title); }
@@ -42,14 +42,14 @@
   overflow-y: auto;
   padding: var(--space-11) var(--space-12);
   border: 0;
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--floating-shadow), var(--appearance-glow);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-floating), var(--appearance-glow);
   background: var(--sheet);
   color: var(--ink);
   font: var(--type-body)/1.55 var(--font-sans);
 }
 
-.detail-dialog::backdrop { background: var(--appearance-scrim); }
+.detail-dialog::backdrop { background: var(--scrim); }
 
 .detail-close {
   position: sticky; top: 0; z-index: var(--z-sticky);

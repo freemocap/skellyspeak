@@ -69,10 +69,7 @@
 @import './features/conversation/speech-inspection.css';
 @import './features/skills/skills.css';
 @import './features/skills/graph.css';
-@import './features/skills/inspector.css';
 @import './features/skills/review.css';
-
+@import './features/languages.css';
 
 @import './foundations/motion.css';
-
-@import "./features/languages.css";

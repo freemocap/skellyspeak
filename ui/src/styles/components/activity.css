@@ -20,7 +20,9 @@
   animation: activity-spin var(--dur-spin) linear infinite;
 }
 
-@media (prefers-reduced-motion: reduce) { .activity-spinner { border-style: dotted; animation: none; } }.activity-indicator .sr-only {
+@media (prefers-reduced-motion: reduce) { .activity-spinner { border-style: dotted; animation: none; } }
+
+.activity-indicator .sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -53,7 +55,7 @@
 .is-hydrating::after {
   content: ''; position: absolute; inset: calc(-1 * var(--border-width)); border-radius: inherit;
   padding: var(--border-width); pointer-events: none;
-  background: linear-gradient(90deg, transparent 0%, var(--accent) 18%, transparent 36%, transparent 100%) 0 0 / 300% 100%;
+  background: linear-gradient(90deg, transparent 0%, var(--interaction-ink) 18%, transparent 36%, transparent 100%) 0 0 / 300% 100%;
   mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
   animation: hydrate-sweep var(--dur-loop-slow) linear infinite;
 }
@@ -65,7 +67,7 @@
 
 .stream-caret {
   display: inline-block; width: 0.45em; height: 1em; margin-inline-start: var(--space-1);
-  vertical-align: text-bottom; background: var(--accent);
+  vertical-align: text-bottom; background: var(--interaction-ink);
   animation: stream-caret var(--dur-loop-fast) steps(1) infinite;
 }
 
@@ -80,7 +82,7 @@
 .hydrating-line-short { width: 55%; }
 
 .hydrating-block[data-phase=running] .hydrating-line {
-  background: linear-gradient(90deg, var(--chip) 0%, var(--quiet) 50%, var(--chip) 100%) 0 0 / 200% 100%;
+  background: linear-gradient(90deg, var(--chip) 0%, var(--sheet) 50%, var(--chip) 100%) 0 0 / 200% 100%;
   animation: hydrate-shimmer var(--dur-loop) linear infinite;
 }
 
@@ -89,6 +91,6 @@
 .hydrating-waiting { color: var(--ink-3); font-size: var(--type-meta); }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-hydrating::after { animation: none; background: var(--accent); }
+  .is-hydrating::after { animation: none; background: var(--interaction-ink); }
   .stream-caret, .hydrating-block[data-phase=running] .hydrating-line, .reply-received { animation: none; }
 }

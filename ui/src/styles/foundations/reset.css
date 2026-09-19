@@ -15,16 +15,12 @@ button, input, select { touch-action: manipulation; }
 
 /* Selection is independent of execution state and keyboard focus. */
 
-:where(button, a, input, textarea, select, summary, [role="separator"]):focus-visible {
-  outline: var(--focus-width) solid var(--ink);
-  outline-offset: 3px;
+:where(button, a, input, textarea, select, summary, [role="separator"], [role="button"], [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
-.chat :where(button, a, input, textarea, select, summary):focus-visible { outline-color: var(--focus-accent); }
-
-input::placeholder, textarea::placeholder { color: var(--ink-2); opacity: 1; }
-
-.chat input::placeholder, .chat textarea::placeholder { color: var(--ink-3); }
+input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 @media (pointer: coarse) {
   button, select, summary { min-height: var(--touch-target); }

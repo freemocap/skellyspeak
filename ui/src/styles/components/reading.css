@@ -50,13 +50,13 @@
 
 .wroman {
   font-size: var(--type-meta);
-  color: var(--accent-ink);
+  color: var(--interaction-ink);
   line-height: var(--leading-tight);
   font-family: var(--font-mono);
   font-style: normal;
 }
 
-.w.holding { background: var(--accent-dim); }
+.w.holding { background: var(--interaction-tint); }
 
 .line.rtl-line { flex-direction: row-reverse; }
 
@@ -69,16 +69,14 @@
   margin-bottom: var(--space-7);
 }
 
-.w[role=button]:focus-visible { outline: var(--focus-width) solid var(--ink); outline-offset: 3px; }
-
 @media (pointer: coarse) {
   .w[role=button] { display: inline-block; padding-block: var(--space-1); }
 }
 
 .wpronunciation {
   font-size: var(--type-meta);
-  line-height: 1.4;
-  color: var(--accent-ink);
+  line-height: var(--leading-snug);
+  color: var(--interaction-ink);
   margin-block-start: var(--space-1);
   overflow-wrap: anywhere;
 }
@@ -112,17 +110,15 @@
   border-radius: var(--radius-xs);
   background: var(--sheet);
   color: var(--ink);
-  box-shadow: var(--floating-shadow), var(--appearance-glow);
+  box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
 
 .saved-word-help > span { display: block; }
-
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
 
 /* Full saved details are a second-step modal; the first-step helper stays anchored. */
-.saved-word-help:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 @media (pointer: coarse) {
   .saved-word-help { min-height: 44px; min-width: 44px; box-sizing: border-box; }
 }

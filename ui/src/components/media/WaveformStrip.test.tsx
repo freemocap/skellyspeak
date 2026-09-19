@@ -21,7 +21,7 @@ beforeEach(() => {
   vi.stubGlobal('cancelAnimationFrame', vi.fn((id: number) => { frames.delete(id) }))
   // The strip paints with design tokens, and jsdom loads no stylesheet, so
   // declare the ones it reads.
-  for (const [name, value] of [['--accent', '#6f9bff'], ['--field', '#0c1420'], ['--ink-on-fill', '#ffffff'], ['--warning', '#e6b357'], ['--ink', '#e8eef7']])
+  for (const [name, value] of [['--interaction-ink', '#6f9bff'], ['--field', '#0c1420'], ['--ink-on-fill', '#ffffff'], ['--warning-ink', '#e6b357'], ['--ink', '#e8eef7']])
     document.documentElement.style.setProperty(name, value)
 })
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals() })

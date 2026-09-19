@@ -9,7 +9,7 @@
   margin-bottom: var(--space-7);
 }
 
-.sect-k.pending { color: var(--accent-ink); margin-bottom: var(--space-6); }
+.sect-k.pending { color: var(--interaction-ink); margin-bottom: var(--space-6); }
 
 .turn-stack { display: flex; flex-direction: column; gap: var(--space-2); }
 
@@ -35,18 +35,14 @@
   gap: var(--space-1);
 }
 
-.tok.key { border-color: var(--interaction-ink); background: var(--accent-dim); }
+.tok.key { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 
 .phrase-pronunciation {
   margin: var(--space-4) 0;
   font-size: var(--type-ui);
-  line-height: 1.6;
+  line-height: var(--leading-relaxed);
   overflow-wrap: anywhere;
 }
-
-
-
-
 
 .evidence-mapping-notice { margin: var(--space-3) 0; padding: var(--space-3); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-sm); font-size: var(--type-meta); overflow-wrap: anywhere; }
 

@@ -9,7 +9,7 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
-  background: var(--card);
+  background: var(--sheet);
   color: var(--ink);
   font: var(--type-body)/1.4 var(--font-sans);
 }
@@ -39,7 +39,7 @@
   padding: var(--space-2);
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--card);
+  background: var(--sheet);
   box-shadow: var(--shadow-menu);
 }
 
@@ -60,9 +60,9 @@
 
 .persona-picker-item:hover, .persona-picker-item:focus-visible { background: var(--field); }
 
-.persona-picker-item[aria-checked="true"] { color: var(--accent-ink); }
+.persona-picker-item[aria-checked="true"] { color: var(--interaction-ink); }
 
-.persona-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); font-size: var(--type-display); aspect-ratio: 1; text-align: center; line-height: 1; }
+.persona-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); font-size: var(--type-display); aspect-ratio: 1; text-align: center; line-height: var(--leading-none); }
 
 .persona-tab-actions { display: flex; justify-content: flex-end; padding: var(--space-4) var(--space-6) 0; }
 
@@ -111,7 +111,7 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-pill);
   font-size: var(--type-reading);
-  line-height: 1.4;
+  line-height: var(--leading-snug);
 }
 
 .persona-vibe-chip button {
@@ -125,7 +125,7 @@
 
 .persona-vibe-chip button:hover, .persona-vibe-chip button:focus-visible { color: var(--ink); }
 
-.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--type-ui); color: var(--accent-ink); }
+.persona-inline-error { margin: var(--space-2) 0 0; font-size: var(--type-ui); color: var(--interaction-ink); }
 
 /* Persona control panel — the list on the left, one character on the right.
    Wider than the settings modal because the sketch is the point: it is what
@@ -140,7 +140,7 @@
   text-transform: uppercase; color: var(--ink-3); margin-bottom: var(--space-2);
 }
 
-.persona-hint { margin: 0; font-size: var(--type-ui); line-height: 1.45; color: var(--ink-3); }
+.persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
 .persona-reaction {
   position: absolute;
@@ -154,31 +154,29 @@
   background: var(--sheet);
   color: var(--ink);
   font-size: var(--type-title);
-  line-height: 1;
+  line-height: var(--leading-none);
   cursor: pointer;
 }
 
 .persona-reaction.is-confused { border-color: var(--interaction-ink); box-shadow: 0 0 0 1px var(--interaction-ink); }
 
-.persona-reaction:focus-visible { outline: var(--focus-width) solid var(--focus-accent); outline-offset: 3px; }
-
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
-.reaction-details h3 { font-size: var(--type-ui); margin: 12px 0 4px; color: var(--interaction-ink); }
+.reaction-details h3 { font-size: var(--type-ui); margin: var(--space-6) 0 var(--space-2); color: var(--interaction-ink); }
 
 .reaction-details blockquote {
   margin: 0;
   padding: var(--space-4) var(--space-6);
-  border-inline-start: var(--border-width-strong) solid var(--reaction-line);
+  border-inline-start: var(--border-width-strong) solid var(--line);
 }
 
-.reaction-details p { line-height: 1.45; margin: 4px 0 8px; }
+.reaction-details p { line-height: var(--leading-normal); margin: var(--space-2) 0 var(--space-4); }
 
 .reaction-exchange {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px 0 4px;
+  gap: var(--space-4);
+  padding: var(--space-4) 0 var(--space-2);
 }
 
 .reaction-excerpt { display: flex; flex-direction: column; max-width: 94%; gap: var(--space-2); }
@@ -195,13 +193,13 @@
   min-width: 0;
   padding: var(--space-4) var(--space-6);
   font-size: var(--type-reading);
-  line-height: 1.45;
+  line-height: var(--leading-normal);
   font-family: var(--font-serif);
 }
 
-.reaction-details h2 { margin: 8px 0; font-size: var(--type-reading); color: var(--interaction-ink); }
+.reaction-details h2 { margin: var(--space-4) 0; font-size: var(--type-reading); color: var(--interaction-ink); }
 
 .personality-chips { display: flex; gap: var(--space-4); flex-wrap: wrap; border: 0; padding: var(--space-4) 0; }
 .personality-chips button { min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; color: var(--ink); padding-inline: var(--space-6); }
-.personality-chips button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--accent-dim); }
+.personality-chips button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 .detail-dialog:has(.persona-profile) { width: min(620px, calc(100vw - 24px)); }

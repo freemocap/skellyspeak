@@ -49,27 +49,27 @@ for (const theme of Object.keys(themes)) {
   const c = (name: string) => color(theme, name)
   it(`keeps primary, secondary and action text readable in ${theme}`, () => {
     for (const text of ['ink', 'ink-2', 'ink-3']) {
-      for (const background of ['bg', 'field', 'card', 'chrome', 'well-top', 'well-bottom']) {
+      for (const background of ['bg', 'field', 'sheet', 'chrome', 'chip']) {
         expect(contrast(c(text), c(background)), `${text} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }
-    for (const background of ['sheet', 'chrome', 'bubble-learner-bg', 'partner-top']) {
+    for (const background of ['sheet', 'chrome', 'bubble-learner-bg', 'bubble-partner-bg']) {
       expect(contrast(c('ink-3'), c(background))).toBeGreaterThanOrEqual(4.5)
     }
-    expect(contrast(c('ink-on-fill'), c('accent-strong'))).toBeGreaterThanOrEqual(4.5)
-    expect(contrast(c('ink-on-fill'), c('accent-strong-hover'))).toBeGreaterThanOrEqual(4.5)
-    for (const background of ['sheet', 'field', 'bubble-learner-bg', 'partner-top']) {
-      expect(contrast(c('focus-accent'), c(background)), `focus on ${background}`).toBeGreaterThanOrEqual(3)
+    expect(contrast(c('ink-on-fill'), c('interaction-fill'))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(c('ink-on-fill'), c('interaction-fill-hover'))).toBeGreaterThanOrEqual(4.5)
+    for (const background of ['sheet', 'field', 'bubble-learner-bg', 'bubble-partner-bg']) {
+      expect(contrast(c('focus-ring'), c(background)), `focus on ${background}`).toBeGreaterThanOrEqual(3)
     }
     expect(contrast(c('danger-ink'), c('field'))).toBeGreaterThanOrEqual(4.5)
   })
   it(`keeps links, status, recovery and destructive controls readable in ${theme}`, () => {
-    for (const ink of ['accent-ink', 'danger', 'danger-on-dark', 'success']) {
-      for (const background of ['card', 'chrome', 'field']) {
+    for (const ink of ['interaction-ink', 'danger-ink', 'success-ink', 'warning-ink']) {
+      for (const background of ['sheet', 'chrome', 'field']) {
         expect(contrast(c(ink), c(background)), `${ink} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
     }
-    for (const background of ['danger-fill', 'danger-fill-hover', 'danger-on-dark-line']) {
+    for (const background of ['danger-fill', 'danger-fill-hover']) {
       expect(contrast(c('ink-on-fill'), c(background)), `white on ${background}`).toBeGreaterThanOrEqual(4.5)
     }
   })
@@ -77,7 +77,7 @@ for (const theme of Object.keys(themes)) {
     const { domainColors } = await import('./skill-domains')
     for (const domain of ['social', 'properties', 'reference', 'time', 'operators', 'connections']) {
       const palette = domainColors(domain)
-      for (const background of ['sheet', 'bubble-learner-bg', 'card']) {
+      for (const background of ['sheet', 'bubble-learner-bg']) {
         expect(contrast(c(palette.ink), c(background)), `${domain} on ${background}`).toBeGreaterThanOrEqual(4.5)
       }
       expect(contrast(c('ink-on-domain'), c(palette.ink)), `${domain} XP badge`).toBeGreaterThanOrEqual(4.5)

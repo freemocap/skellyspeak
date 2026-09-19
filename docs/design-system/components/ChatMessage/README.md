@@ -11,4 +11,4 @@ Source: `ui/src/styles/features/conversation/messages.css`. The partner's text i
 ## Rules
 - Keep warm = partner and cool = learner everywhere the two voices appear (excerpts, reports).
 - Glosses (`.wg`) and romanization (`.wroman`) sit under the word in `type-meta`, `ink-3`; never replace the original text.
-- Bubbles use `radius-2xl` with one `radius-sm` tail and `bubble-shadow`.
+- Bubbles use `radius-xl` with one `radius-sm` tail (the `.msg` base owns both); the partner's also carries `shadow-sm`.

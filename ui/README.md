@@ -111,13 +111,17 @@ state, without native calls or persistence.
 | General surfaces | `--bg`, `--chrome`, `--sheet`, `--field`; text `--ink`, `--ink-2`, `--ink-3`; borders `--line`, `--line-soft` |
 | Layout spacing | Ordered `--space-*` steps scale together using `--layout-scale` |
 | Controls | `--control-height` selects 40px/32px; coarse pointers enforce 44px |
-| Depth | `--surface-bg/shadow/glow`, `--input-shadow`, `--floating-shadow`, `--appearance-scrim` |
+| Depth | `--shadow-sm/surface/floating/menu/drawer/input/recessed`, `--scrim`, `--scrim-strong`, `--surface-bg/glow` |
 | Reading | Independent reading/script scale, word spacing, serif/script fonts and annotation roles |
-| Status and learning | Distinct interaction, error, warning, success and domain fill/ink roles |
+| Interaction and status | `--interaction-ink/fill/fill-hover/tint`, `--focus-ring`; `--success-*`, `--warning-*`, `--danger-*` (each `-ink`, `-line`, `-tint`) |
+| Learning domains | `--d-*` fills, `--di-*` inks, `--dm-*` muted fills, `--ink-on-domain` |
 
 These roles describe different needs; equal current colors do not justify merging
-status, learning or selected-state meanings. Retired `--text-*` size aliases and
-shell/paper surface/text aliases should not return.
+status, learning or selected-state meanings. There are no aliases: one name per
+role. Retired names (`--accent-*`, `--analysis-*`, `--card`, `--quiet`, `--correction-*`,
+`--failure-ink`, `--status-*-tint`, the `--c-*` palette layer, `--text-*` sizes and
+shell/paper aliases) should not return. `npm run styles:check` also rejects literal
+line heights, spacing and border widths.
 
 Shared rules live in `styles/components/{buttons,fields,panels,dialogs,popovers,
 reading}.css`. Feature CSS owns composition and explicit feature variants.

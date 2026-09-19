@@ -2,7 +2,9 @@
 the same badge; .floating-reward adds transient overlay layout. Keep motion,
 color meaning and reduced-motion behavior unchanged until the reward explorer review. */
 
-.skill-reward-status { position: absolute; width: 0; height: 0; }.skill-reward-status .sr-only {
+.skill-reward-status { position: absolute; width: 0; height: 0; }
+
+.skill-reward-status .sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -12,11 +14,11 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 }
 
 .reward-badge {
-  background: var(--analysis-surface);
+  background: var(--sheet);
   border: var(--border-width-strong) solid;
   border-radius: var(--radius-lg);
   padding: var(--space-7);
-  color: var(--analysis-ink);
+  color: var(--ink);
   font: var(--type-body) var(--font-sans);
 }
 
@@ -47,7 +49,7 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 .reward-credit-note {
   display: block;
   margin: 0 var(--space-1) var(--space-6);
-  color: var(--analysis-ink-dim);
+  color: var(--ink-3);
   font-size: var(--type-meta);
 }
 
@@ -59,7 +61,7 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   border-radius: var(--radius-lg);
   background: var(--chrome);
   color: var(--ink);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-floating);
   transform-origin: center;
 }
 
@@ -95,7 +97,7 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   border-radius: var(--radius-xl);
   background: var(--chrome);
   color: var(--ink);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-floating);
   display: grid;
   gap: var(--space-6);
   animation: reward-receipt var(--dur-loop-slow) ease both;
@@ -149,12 +151,16 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 .rewards-ledger h3 { font-size: var(--type-title); }
 .reward-provenance { display: grid; gap: var(--space-4); font: var(--type-meta) var(--font-mono); }
 .reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
-.reward-provenance dd { margin: 0; overflow-wrap: anywhere; }.reward-inspection-card {
+.reward-provenance dd { margin: 0; overflow-wrap: anywhere; }
+
+.reward-inspection-card {
   position: relative;
   padding: var(--space-5) var(--space-12) var(--space-5) var(--space-6);
   border-top: var(--border-width) solid var(--line);
   font: var(--type-ui)/1.4 var(--font-sans);
-}.reward-inspection-close {
+}
+
+.reward-inspection-close {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -165,7 +171,13 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   color: inherit;
   cursor: pointer;
   font-size: var(--type-display);
-}.reward-inspection-card .reward-badge { padding: var(--space-3) var(--space-4); }.reward-inspection-card .reward-rationale { margin: var(--space-3) 0; }.floating-reward .reward-inspection-card {
+}
+
+.reward-inspection-card .reward-badge { padding: var(--space-3) var(--space-4); }
+
+.reward-inspection-card .reward-rationale { margin: var(--space-3) 0; }
+
+.floating-reward .reward-inspection-card {
   border-top: 0;
   padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
   line-height: var(--leading-snug);

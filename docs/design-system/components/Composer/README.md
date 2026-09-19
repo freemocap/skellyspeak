@@ -9,5 +9,5 @@ Source: `ComposerInput` in `ui/src/features/conversation/composer/ComposerInput.
 - `onToggleRecording`, `onDiscardRecording`, optional `waveform`, `micShortcut`, `transcriptionWarning`.
 
 ## Rules
-- The frame is `field` with a 1.5px `line` border and `radius-xl`; text is `type-body` times the script scale.
+- The frame is `field` with a `border-width` `line` border and `radius-xl`; text is `type-body` times the script scale.
 - Recording and request ownership stay with the caller. Never put send logic in the composer.

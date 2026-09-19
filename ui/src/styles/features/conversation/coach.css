@@ -9,13 +9,13 @@
 
 .coach-msg {
   max-width: 88%; padding: var(--space-4) var(--space-6); border-radius: var(--radius-lg);
-  font-size: var(--type-body); line-height: 1.55;
+  font-size: var(--type-body); line-height: var(--leading-normal);
   white-space: pre-wrap; word-break: break-word;
 }
 
 .coach-msg.user {
   align-self: flex-end;
-  background: var(--bubble-learner-bg); color: var(--bubble-learner-ink);
+  background: var(--bubble-learner-bg); color: var(--ink);
   border: var(--border-width) solid var(--bubble-learner-line);
 }
 
@@ -36,11 +36,11 @@
   color: var(--ink); font-family: var(--font-sans); font-size: var(--type-body); padding: var(--space-4) var(--space-6);
 }
 
-.coach-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--interaction-ink) 14%, transparent); }
+.coach-input:focus { border-color: var(--interaction-ink); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--interaction-ink) 14%, transparent); }
 
 .coach-send {
   flex: none; width: 36px; height: 36px; border-radius: var(--radius-md);
-  border: none; background: var(--accent-strong); color: var(--ink-on-fill);
+  border: none; background: var(--interaction-fill); color: var(--ink-on-fill);
   font-weight: var(--weight-bold); cursor: pointer;
 }
 
@@ -51,17 +51,17 @@
 .coach-card {
   display: grid; gap: var(--space-5);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
-  padding: var(--space-7) var(--space-8); background: var(--field); box-shadow: var(--bubble-shadow);
+  padding: var(--space-7) var(--space-8); background: var(--field); box-shadow: var(--shadow-sm);
 }
 
-.coach-remark { font-size: var(--type-body); color: var(--ink); line-height: 1.5; margin: 0; }
+.coach-remark { font-size: var(--type-body); color: var(--ink); line-height: var(--leading-normal); margin: 0; }
 
-.cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: 1.55; margin: 0; }
+.cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: var(--leading-normal); margin: 0; }
 
-.cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: 1.35; }
-.cor-line > s { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--status-wrong-tint); color: var(--failure-ink); text-decoration-thickness: 1.5px; }
+.cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
+.cor-line > s { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration-thickness: 1.5px; }
 .cor-line > span[aria-hidden] { color: var(--ink-3); font-family: var(--font-sans); }
-.cor-line > strong { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--status-good-tint); color: var(--success-status-ink); font-weight: var(--weight-medium); }
+.cor-line > strong { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); font-weight: var(--weight-medium); }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -76,7 +76,7 @@
 .coach-entry-said {
   justify-self: start; max-width: 100%;
   font-family: var(--font-serif); font-size: var(--type-body);
-  color: var(--bubble-learner-ink); margin: 0;
+  color: var(--ink); margin: 0;
   padding: var(--space-2) var(--space-6); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
   background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line);
 }
@@ -88,11 +88,11 @@
 
 /* Collapsible coach thread. */
 
-.coach-input-row textarea { resize: vertical; max-height: 140px; line-height: 1.4; }
+.coach-input-row textarea { resize: vertical; max-height: 140px; line-height: var(--leading-snug); }
 
 /* Coach conversation is visually distinct from the conversation and analysis. */
 
-.coach-thread, .coach-input-row { background: var(--card); }
+.coach-thread, .coach-input-row { background: var(--sheet); }
 
 /* The coach dock keeps its composer accessible at every saved height. */
 
@@ -118,20 +118,19 @@
   padding: 0 var(--space-5) var(--space-4);
 }
 
-.edit-feedback-body:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: -2px; }
+.edit-feedback-body:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: -2px; }
 
 .edit-feedback .coach-entry { display: flex; flex-direction: column; padding: 0; }
 
 .edit-feedback .coach-card { order: 1; background: transparent; border: 0; padding: var(--space-2) 0; }
 
-
 .edit-feedback .coach-remark { font-size: var(--type-ui); }
 
-.coach-fixed { color: var(--success-soft); }
+.coach-fixed { color: var(--success-ink); }
 
 /* Coaching uses compact phrases and the conversation's interactive reading blocks. */
-.coach-card blockquote { justify-self: start; margin: 0; padding: 0 var(--space-4); border-radius: var(--radius-sm); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); color: var(--ink); background: var(--status-attention-tint); }
-.coach-card-help blockquote { color: var(--correction-ink); }
+.coach-card blockquote { justify-self: start; margin: 0; padding: 0 var(--space-4); border-radius: var(--radius-sm); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); color: var(--ink); background: var(--warning-tint); }
+.coach-card-help blockquote { color: var(--warning-ink); }
 .coach-card-explanation blockquote { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); color: var(--interaction-ink); }
 .coach-entry { display: grid; gap: var(--space-8); }
 
@@ -144,27 +143,27 @@
 .coach-score-label { font-size: var(--type-ui); color: var(--ink-3); }
 .coach-score-row { display: flex; align-items: center; gap: var(--space-4); }
 .coach-score-row > strong { font-size: var(--type-body); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
-.coach-meter { flex: 1; display: flex; gap: 3px; }
+.coach-meter { flex: 1; display: flex; gap: var(--space-2); }
 .coach-meter > span { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line-soft); }
-.coach-score[data-level=low] .coach-meter > [data-on=true] { background: var(--failure-ink); }
-.coach-score[data-level=partial] .coach-meter > [data-on=true] { background: var(--correction-line); }
-.coach-score[data-level=strong] .coach-meter > [data-on=true] { background: var(--success-status-ink); }
+.coach-score[data-level=low] .coach-meter > [data-on=true] { background: var(--danger-ink); }
+.coach-score[data-level=partial] .coach-meter > [data-on=true] { background: var(--warning-line); }
+.coach-score[data-level=strong] .coach-meter > [data-on=true] { background: var(--success-ink); }
 
 .coach-wording { display: grid; gap: var(--space-3); }
 .coach-wording > span { font-size: var(--type-ui); font-weight: var(--weight-semibold); color: var(--ink-2); }
 .coach-wording ul { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
-.coach-wording li { padding: 0 var(--space-4); border-radius: var(--radius-sm); font-size: var(--type-ui); line-height: 1.7; }
-.coach-wording[data-kind=target] li { background: var(--status-good-tint); color: var(--success-status-ink); }
-.coach-wording[data-kind=native] li { background: var(--status-attention-tint); color: var(--correction-ink); }
-.live-coach-review { display: grid; gap: 12px; }
+.coach-wording li { padding: 0 var(--space-4); border-radius: var(--radius-sm); font-size: var(--type-ui); line-height: var(--leading-relaxed); }
+.coach-wording[data-kind=target] li { background: var(--success-tint); color: var(--success-ink); }
+.coach-wording[data-kind=native] li { background: var(--warning-tint); color: var(--warning-ink); }
+.live-coach-review { display: grid; gap: var(--space-6); }
 .live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--type-body); }
 .live-coach-review > .detail-action { justify-self: start; }
-.analysis-sentence { padding: 8px 12px; margin-block: 8px; border-radius: var(--radius-md); border-inline-start: 3px solid var(--analysis-accent); background: var(--accent-dim); }
-.analysis-sentence > h4 { margin: 0 0 4px; font-size: var(--type-meta); color: var(--analysis-accent-soft); }
-.analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: 1.5; color: var(--analysis-accent-soft); }
-.analysis-sentence > .trans-d { margin: 4px 0 0; font-style: normal; }
+.analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
+.analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
+.analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
+.analysis-sentence > .trans-d { margin: var(--space-2) 0 0; font-style: normal; }
 .live-coach-review > .analysis-sentence { margin: 0; }
-.detail-dialog > .analysis-sentence { clear: both; margin-bottom: 12px; }
+.detail-dialog > .analysis-sentence { clear: both; margin-bottom: var(--space-6); }
 
 .coach-card-explanation { border-inline-start-color: var(--interaction-ink); }
 

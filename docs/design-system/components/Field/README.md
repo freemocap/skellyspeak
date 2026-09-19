@@ -8,6 +8,6 @@ Source: `ui/src/styles/components/fields.css`.
 - `.field-note` for help text below a field (`ink-3`).
 
 ## Rules
-- Fields sit on `field` with a `line` border and `input-shadow`; focus turns the border to `interaction-ink`.
+- Fields sit on `field` with a `line` border and `shadow-input`; focus turns the border to `interaction-ink`.
 - Under 860px wide, field text grows to `type-reading`.
 - Checkboxes use `.check-row .check-label`; their accent is `interaction-fill`.
