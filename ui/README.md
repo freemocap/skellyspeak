@@ -74,6 +74,11 @@ for the native app. Tests can be selected with `npm test -- tests/architecture`.
 this folder's style tools. The repository-wide import graph and move tool remain
 under root `tools/` because they resolve references across layers.
 
+Run `npm run previews:check` from the repository root to type-check all design
+previews against current production components. The conversation preview is at
+`/tools/conversation-preview.html`; its sample controls do not perform native
+operations or AI requests.
+
 Native commands and persistence belong to [native](../native/); the hosted API
 belongs to [server](../server/). `src/generated/contracts.ts` and
 `src/generated/skill-catalogs/catalog.json` are generated from Rust with

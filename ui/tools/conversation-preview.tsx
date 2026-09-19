@@ -1,4 +1,5 @@
 /** Layout review using production components and sample data. No native or AI calls. */
+import { mockIPC } from '@tauri-apps/api/mocks'
 import { createRoot } from 'react-dom/client'
 import { useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
@@ -21,10 +22,22 @@ import { useIsMobile } from '../src/components/layout/useIsMobile'
 import { useNavigationStore } from '../src/state/navigation/navigation'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import { DEFAULT_APPEARANCE } from '../src/generated/contracts'
-import type { CoachDecision } from '../src/generated/contracts'
+import type { CoachDecision, ConversationStartConfig, TopicCard } from '../src/generated/contracts'
 import type { GuidedTurnResult } from '../src/types'
 import '../src/styles/index.css'
 
+// Production controls may expose native-only actions (for example Customize).
+// Keep those explicit and isolated instead of reaching a workspace from a fixture.
+mockIPC(() => { throw new Error('This layout preview does not support native actions. Use the running app for this control.') })
+const topics: TopicCard[] = [
+  { id: 'weekend', label: 'Your weekend' },
+  { id: 'food', label: 'Food' },
+  { id: 'travel', label: 'Travel' },
+]
+const initialStart: ConversationStartConfig = {
+  difficulty: 'beginner', varietyId: 'spanish-spain',
+  direction: { topic: null, timeReference: 'any', usePersonaDetails: true },
+}
 const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'he ido a la playa', move: 'hint', text: 'Which past tense fits an event from last summer?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
 // "What's your favorite dish?" with clitic-split glosses, as saved word help arrives.
 const arabicText = 'شو الأكلة المفضلة عندك؟'
@@ -41,6 +54,7 @@ const assistant = { reply: '¡Qué bien! ¿Fuiste con tu familia o con amigos?',
 function Preview() {
   const [input, setInput] = useState('')
   const [opening, setOpening] = useState(false)
+  const [startConfig, setStartConfig] = useState(initialStart)
   const [recording, setRecording] = useState(false)
   const [coach, setCoach] = useState(true)
   const [dark, setDark] = useState(false)
@@ -66,7 +80,7 @@ function Preview() {
             nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>}
             difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
         </ConversationHeader>
-        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} starters={[{id:'weekend',label:'Your weekend',reason:'Recent activities',preview:null,translation:null},{id:'food',label:'Food',reason:'Ordering at a café',preview:null,translation:null},{id:'travel',label:'Travel',reason:'Places to visit',preview:null,translation:null}]} onStart={async () => setOpening(false)} /> : <>
+        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           <div className="turn-stack"><div className="msg chat-message bot"><span className="target-text">Me gusta mucho caminar por la costa cuando el tiempo está agradable.</span></div></div>
           <div className="turn-stack" style={{ '--script-scale': 1.5 } as React.CSSProperties}><div className="msg chat-message bot rtl"><ReadingPreferencesContext value={{ autoTranslate: false, alwaysRomanize: quick.always_romanize, alwaysPronunciation: false }}><SavedGlossText text={arabicText} segments={arabicSegments} /></ReadingPreferencesContext></div></div>
           <TurnView turn={{id:1,user:'Sí, he ido a la playa de Samil el verano pasado.',assistant, pendingText:'',coachDecision:decision}} reviewing={false} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={() => {}} />
@@ -79,7 +93,7 @@ function Preview() {
       {coach && !mobile && <PracticeDivider workspace={workspace} />}
       <section className={`break ${coach || mobile ? '' : 'collapsed'}`}>
         {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}>Coach</button>}
-        <div className="coach-heading"><strong>Coach</strong><button onClick={() => setNotice('Lesson entry')}>Take a lesson</button><button aria-label="Close coach" onClick={() => setCoach(false)}>›</button></div>
+        <div className="coach-heading"><strong>Coach</strong><button aria-label="Close coach" onClick={() => setCoach(false)}>›</button></div>
         <div className="panel-tabs">{['Coaching','Evidence'].map(label => <button key={label} className={`panel-tab ${tab === label ? 'active' : ''}`} onClick={() => setTab(label)}>{label}</button>)}</div>
         <div className="study-coaching"><div className="study-coaching-scroll">{!opening && tab === 'Coaching' && <><h3 className="coach-group-label">On your message</h3><CoachEntry decision={decision} source={null} /><h3 className="coach-group-label">You asked</h3><div className="coach-thread"><div className="coach-msg user">When do I use “haya” instead of “ha”?</div><div className="coach-msg coach">“Haya” is a subjunctive form. It can follow expressions of uncertainty.</div></div></>}</div><form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form></div>
       </section>

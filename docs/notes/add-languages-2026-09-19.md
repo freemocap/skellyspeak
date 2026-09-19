@@ -42,9 +42,9 @@ extend the Add action when a language actually requires downloadable assets.
   suite passed. Tests include persistent add/remove, unchanged conversations,
   invalid/duplicate language rejection and preserved variety choices.
 - Generated contracts, styles and generated design-system CSS checked.
-- New language preview type-checked independently. The aggregate legacy previews
-  check still reports the pre-existing ConversationStart prop mismatch in
-  conversation-preview.tsx; this task does not rewrite that unrelated preview.
+- New language preview type-checked independently. The aggregate previews check initially reported a stale ConversationStart
+  interface. That separate maintenance follow-up is now resolved; see
+  [preview repair](conversation-preview-repair-2026-09-19.md).
 - Actual production controls inspected in the browser with sample state at desktop
   size and 390×844, including Arabic interface direction and dark mode. Verified
   adding without switching and the visible success state. This is a frontend
