@@ -1079,5 +1079,17 @@
   "Waiting": "بالانتظار",
   "Word meanings held": "معاني الكلمات متوقفة",
   "finished {kind}": "انتهت {kind}",
-  "{done}/{total} done": "تم {done}/{total}"
+  "{done}/{total} done": "تم {done}/{total}",
+  "Add language…": "إضافة لغة…",
+  "My languages": "لغاتي",
+  "All languages": "كل اللغات",
+  "Added": "تمت الإضافة",
+  "Add language": "إضافة لغة",
+  "Use now": "استخدام الآن",
+  "Remove from My languages": "إزالة من لغاتي",
+  "Switch languages before removing the current language.": "بدّل اللغة قبل إزالة اللغة الحالية.",
+  "Removing a language keeps its conversations and progress.": "تظل المحادثات والتقدم محفوظة عند إزالة اللغة.",
+  "Language added. Your current conversation is unchanged.": "تمت إضافة اللغة. لم تتغير محادثتك الحالية.",
+  "Language removed from My languages.": "تمت إزالة اللغة من لغاتي.",
+  "Language details": "تفاصيل اللغة"
 }

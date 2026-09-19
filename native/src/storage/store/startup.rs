@@ -53,6 +53,7 @@ impl Store {
                 explanation_variety_id: config.language("english")?.default_variety,
                 interface_locale: "english".into(),
                 target_varieties: Default::default(),
+                my_languages: Vec::new(),
                 text_size: crate::model::TEXT_SIZE_DEFAULT,
                 text_spacing: 0,
                 high_contrast: false,

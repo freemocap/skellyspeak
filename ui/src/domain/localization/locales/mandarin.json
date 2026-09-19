@@ -1079,5 +1079,17 @@
   "Waiting": "等待中",
   "Word meanings held": "词义已暂停",
   "finished {kind}": "已完成 {kind}",
-  "{done}/{total} done": "已完成 {done}/{total}"
+  "{done}/{total} done": "已完成 {done}/{total}",
+  "Add language…": "添加语言…",
+  "My languages": "我的语言",
+  "All languages": "所有语言",
+  "Added": "已添加",
+  "Add language": "添加语言",
+  "Use now": "立即使用",
+  "Remove from My languages": "从我的语言中移除",
+  "Switch languages before removing the current language.": "请先切换语言，再移除当前语言。",
+  "Removing a language keeps its conversations and progress.": "移除语言会保留其对话和学习进度。",
+  "Language added. Your current conversation is unchanged.": "语言已添加。当前对话保持不变。",
+  "Language removed from My languages.": "已从我的语言中移除该语言。",
+  "Language details": "语言详情"
 }

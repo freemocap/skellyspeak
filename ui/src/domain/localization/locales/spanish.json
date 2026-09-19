@@ -1079,5 +1079,17 @@
   "Waiting": "En espera",
   "Word meanings held": "Significados en pausa",
   "finished {kind}": "terminó {kind}",
-  "{done}/{total} done": "{done}/{total} listas"
+  "{done}/{total} done": "{done}/{total} listas",
+  "Add language…": "Añadir idioma…",
+  "My languages": "Mis idiomas",
+  "All languages": "Todos los idiomas",
+  "Added": "Añadido",
+  "Add language": "Añadir idioma",
+  "Use now": "Usar ahora",
+  "Remove from My languages": "Quitar de mis idiomas",
+  "Switch languages before removing the current language.": "Cambia de idioma antes de quitar el idioma actual.",
+  "Removing a language keeps its conversations and progress.": "Al quitar un idioma se conservan sus conversaciones y tu progreso.",
+  "Language added. Your current conversation is unchanged.": "Idioma añadido. Tu conversación actual no cambia.",
+  "Language removed from My languages.": "Idioma eliminado de mis idiomas.",
+  "Language details": "Detalles del idioma"
 }

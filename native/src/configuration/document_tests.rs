@@ -192,7 +192,10 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     assert_eq!(report.rules.len(), 1);
     assert_eq!(report.rules[0].source, "languages/arabic.yaml#guidance.0");
     assert!(report.rules[0].text.contains("Arabic learner evidence"));
-    assert_eq!(report.goals.len(), 45);
+    let serialized = serde_json::to_value(&report).unwrap();
+    assert!(serialized.get("goals").is_none());
+    assert!(serialized.get("topics").is_none());
+    assert!(report.learning_json.contains("goal_material"));
     let instructions = &report.schemes[0].instructions;
     assert!(
         !report

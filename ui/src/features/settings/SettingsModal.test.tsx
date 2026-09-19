@@ -14,6 +14,7 @@ vi.mock('../../platform/audio/speech', () => ({ setVoiceVolume: vi.fn() }))
 vi.mock('../../platform/updates/updater', async original => ({ ...await original<typeof import('../../platform/updates/updater')>(), getUpdateChannel: async () => 'stable' }))
 vi.mock('@tauri-apps/api/app', () => ({ getVersion: async () => '0.13.4' }))
 const SETTINGS: Settings = {
+  my_languages: [], target_varieties: {},
   provider_mode: 'hosted',
   hosted_token: '',
   hosted_email: 'me@example.com',

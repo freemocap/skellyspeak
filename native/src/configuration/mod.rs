@@ -11,8 +11,7 @@ mod loading;
 mod resolution;
 mod types;
 pub use inspection::{
-    ContentRule, ContentSource, ContentValue, GoalInspection, LanguageInspection, SchemeInspection,
-    TopicInspection,
+    ContentRule, ContentSource, ContentValue, LanguageInspection, SchemeInspection,
 };
 mod lexical_hints;
 mod schemas;
@@ -228,6 +227,18 @@ impl Registry {
             &preferences.explanation_language,
             Some(&preferences.explanation_variety_id),
         )?;
+        let mut seen = std::collections::HashSet::new();
+        for language in &preferences.my_languages {
+            self.language(language)?;
+            if !seen.insert(language) {
+                return Err(error(
+                    "preferences.my_languages",
+                    "duplicate_language",
+                    "Choose each language only once.",
+                )
+                .into());
+            }
+        }
         for (language, variety) in &preferences.target_varieties {
             self.resolve(language, Some(variety), &preferences.explanation_language)?;
         }

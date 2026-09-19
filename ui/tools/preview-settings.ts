@@ -1,6 +1,7 @@
 import type { Settings } from '../src/types'
 
 export const PREVIEW_SETTINGS: Settings = {
+  my_languages: [], target_varieties: {},
   provider_mode: 'hosted',
   hosted_token: '',
   hosted_email: 'me@example.com',

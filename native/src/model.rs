@@ -114,6 +114,9 @@ pub struct Preferences {
     pub explanation_variety_id: String,
     pub interface_locale: String,
     pub target_varieties: std::collections::BTreeMap<String, String>,
+    // Learner-owned picker shortcuts; independent of conversations and history.
+    #[serde(default)]
+    pub my_languages: Vec<String>,
     pub text_size: u16,
     pub text_spacing: u8,
     pub high_contrast: bool,
@@ -592,8 +595,6 @@ pub fn bindings() -> String {
         Variety::decl(&config),
         Language::decl(&config),
         crate::configuration::LanguageInspection::decl(&config),
-        crate::configuration::GoalInspection::decl(&config),
-        crate::configuration::TopicInspection::decl(&config),
         crate::configuration::ContentSource::decl(&config),
         crate::configuration::ContentRule::decl(&config),
         crate::configuration::ContentValue::decl(&config),
@@ -1102,6 +1103,7 @@ mod appearance_tests {
             let mut value = original.clone();
             value["theme"] = theme.into();
             let decoded: Preferences = serde_json::from_value(value.clone()).unwrap();
+            value["myLanguages"] = serde_json::json!([]);
             value["appearance"] = serde_json::to_value(
                 crate::configuration::appearance::AppearancePreferences::default(),
             )

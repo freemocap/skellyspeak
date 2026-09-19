@@ -1079,5 +1079,17 @@
   "Waiting": "Waiting",
   "Word meanings held": "Word meanings held",
   "finished {kind}": "finished {kind}",
-  "{done}/{total} done": "{done}/{total} done"
+  "{done}/{total} done": "{done}/{total} done",
+  "Add language…": "Add language…",
+  "My languages": "My languages",
+  "All languages": "All languages",
+  "Added": "Added",
+  "Add language": "Add language",
+  "Use now": "Use now",
+  "Remove from My languages": "Remove from My languages",
+  "Switch languages before removing the current language.": "Switch languages before removing the current language.",
+  "Removing a language keeps its conversations and progress.": "Removing a language keeps its conversations and progress.",
+  "Language added. Your current conversation is unchanged.": "Language added. Your current conversation is unchanged.",
+  "Language removed from My languages.": "Language removed from My languages.",
+  "Language details": "Language details"
 }

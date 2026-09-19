@@ -1,3 +1,4 @@
+import { saveMyLanguage } from '../../platform/ipc/my-languages'
 import { languages } from '../../platform/ipc/tauri'
 import { create } from 'zustand'
 import { applyFontSizeAction, type FontSizeAction } from '../../domain/input/font-size'
@@ -68,6 +69,7 @@ interface SettingsState {
   /// already moved on from.
   update: (change: (current: Settings) => Settings | null, faultContext: string) => Promise<void>
 
+  saveMyLanguage: (language: string, variety: string | null) => Promise<void>
   selectLanguageVariety: (language: string, variety: string) => Promise<void>
   setLanguage: (field: LanguageField, value: string) => Promise<void>
   setPreference: (key: PreferenceKey, value?: number) => Promise<void>
@@ -122,6 +124,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       }
     },
 
+    saveMyLanguage: async (language, variety) => {
+      if (get().savingLanguage) throw new Error('A language change is already being saved.')
+      set({ savingLanguage: true })
+      try {
+        await saveMyLanguage(language, variety)
+        await read(true)
+      } finally { set({ savingLanguage: false }) }
+    },
+
     // The browser explicitly chooses a variety after selecting its conversation.
     // Failures propagate to the browser; never claim success after a partial save.
     selectLanguageVariety: async (language, variety) => {
@@ -140,7 +151,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       if (get().savingLanguage) return
       set({ savingLanguage: true })
       try {
-        await get().update(current => ({ ...current, [field]: value, ...(field === 'native_language' ? { native_variety: languages().find(l => l.code === value)!.defaultVariety } : {}), ...(field === 'target_language' ? { target_variety: languages().find(l => l.code === value)!.defaultVariety } : {}) }), 'Saving language')
+        await get().update(current => ({ ...current, [field]: value, ...(field === 'native_language' ? { native_variety: languages().find(l => l.code === value)!.defaultVariety } : {}), ...(field === 'target_language' ? { target_variety: current.target_varieties[value] ?? languages().find(l => l.code === value)!.defaultVariety } : {}) }), 'Saving language')
       } finally {
         set({ savingLanguage: false })
       }

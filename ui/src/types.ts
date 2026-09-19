@@ -27,6 +27,8 @@ export interface Settings {
   groq_key: string
   openrouter_model: string
   observer_model: string | null
+  my_languages: string[]
+  target_varieties: Record<string, string>
   target_language: string
   target_variety: string
   native_variety: string

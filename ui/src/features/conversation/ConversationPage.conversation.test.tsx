@@ -32,6 +32,7 @@ import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 
 const SETTINGS: Settings = {
+  my_languages: [], target_varieties: {},
   provider_mode: 'hosted',
   hosted_token: '',
   hosted_email: 'me@example.com',
@@ -70,7 +71,7 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     savedTopics: [], sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed' } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'spanish', title: id, archived: false,

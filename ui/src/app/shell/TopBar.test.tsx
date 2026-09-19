@@ -23,7 +23,7 @@ beforeEach(() => {
   viewport.mobile = false
   useNavigationStore.setState(useNavigationStore.getInitialState())
   useSessionStore.setState(useSessionStore.getInitialState())
-  useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {target_language:'spanish'} as Settings})
+  useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {my_languages:['spanish','french'], target_varieties:{}, target_language:'spanish'} as Settings})
 })
 it.each(['hosted', 'openrouter', 'custom'] as const)('opens AI access from the %s setup status', route => {
   useSessionStore.setState({ connection: {
@@ -66,7 +66,7 @@ it('returns from review to conversation history and preserves secondary navigati
 
 it('opens the language browser alongside the compact selector', () => {
   render(<TopBar />)
-  fireEvent.click(screen.getByRole('button', { name: 'Browse languages' }))
+  fireEvent.click(screen.getByRole('button', { name: 'My languages' }))
   expect(useNavigationStore.getState().overlay).toBe('languages')
   expect(screen.getByRole('combobox', { name: 'Target language' })).toBeInTheDocument()
 })
@@ -95,7 +95,7 @@ it('updates the System theme toggle when the OS appearance changes', async () =>
   const listeners = new Set<() => void>()
   window.matchMedia = vi.fn(() => ({ matches, addEventListener: (_: string, fn: () => void) => listeners.add(fn), removeEventListener: (_: string, fn: () => void) => listeners.delete(fn) }) as unknown as MediaQueryList)
   const update = vi.fn()
-  useSettingsStore.setState({ settings: { target_language: 'spanish', theme: 'system' } as Settings, update })
+  useSettingsStore.setState({ settings: { my_languages:['spanish','french'], target_varieties:{}, target_language: 'spanish', theme: 'system' } as Settings, update })
   const view = render(<TopBar />)
   try {
     expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible()

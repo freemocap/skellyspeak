@@ -38,22 +38,6 @@ pub struct SchemeInspection {
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
-pub struct GoalInspection {
-    pub id: String,
-    pub label: String,
-    pub criterion: String,
-    pub band: String,
-    pub source: String,
-}
-#[derive(Debug, Clone, Serialize, TS)]
-#[serde(rename_all = "camelCase")]
-pub struct TopicInspection {
-    pub id: String,
-    pub labels: BTreeMap<String, String>,
-    pub subject: String,
-}
-#[derive(Debug, Clone, Serialize, TS)]
-#[serde(rename_all = "camelCase")]
 pub struct LanguageInspection {
     pub fingerprint: String,
     pub language: model::Language,
@@ -64,8 +48,6 @@ pub struct LanguageInspection {
     pub rules: Vec<ContentRule>,
     pub schemes: Vec<SchemeInspection>,
     pub sources: Vec<ContentSource>,
-    pub goals: Vec<GoalInspection>,
-    pub topics: Vec<TopicInspection>,
     pub partner: model::PersonaDetails,
     pub schema_json: String,
     pub resolved_json: String,
@@ -259,28 +241,6 @@ impl Registry {
             rules,
             schemes,
             sources,
-            goals: self
-                .constructs
-                .iter()
-                .map(|g| GoalInspection {
-                    id: g.id.clone(),
-                    label: g.label.clone(),
-                    criterion: g.criterion.clone(),
-                    band: g.band.clone(),
-                    source: self
-                        .entity_source(&g.id)
-                        .unwrap_or_else(|| format!("shared/learning-goals.yaml#{}", g.id)),
-                })
-                .collect(),
-            topics: self
-                .topics
-                .iter()
-                .map(|topic| TopicInspection {
-                    id: topic.id.clone(),
-                    labels: topic.labels.clone(),
-                    subject: topic.subject.clone(),
-                })
-                .collect(),
             partner: doc.conversation.default_partner.clone(),
             schema_json: serde_json::to_string_pretty(&schemas()["language.json"]).unwrap(),
             resolved_json: serde_json::to_string_pretty(

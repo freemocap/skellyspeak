@@ -27,11 +27,15 @@ export function LearningPicker() {
   return <>
     <select className="learning-picker" aria-label={tr("Target language")}
       value={settings.target_language} disabled={disabled}
-      onChange={event => change('target_language', event.target.value)}>
-      {languages().map(language => <option lang={language.languageTag} key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
+      onChange={event => {
+        if (event.target.value === '__add_language__') useNavigationStore.getState().showOverlay('languages')
+        else change('target_language', event.target.value)
+      }}>
+      {languages().filter(language => settings.my_languages.includes(language.code) || language.code === settings.target_language).map(language => <option lang={language.languageTag} key={language.code} value={language.code}>{languageLabel(language, tr.locale)}</option>)}
+      <option value="__add_language__">{tr("Add language…")}</option>
     </select>
     <button type="button" className="inspection-action" disabled={disabled}
-      onClick={() => useNavigationStore.getState().showOverlay('languages')}>{tr("Browse languages")}</button>
+      onClick={() => useNavigationStore.getState().showOverlay('languages')}>{tr("My languages")}</button>
     {saving && <span role="status" className="learning-saving">{tr("Saving…")}</span>}
   </>
 }

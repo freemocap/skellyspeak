@@ -98,6 +98,7 @@ export async function getSettings(): Promise<Settings> {
     hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
     custom_base_url: access.custom.baseUrl, custom_model: connection.standardModel,
     openrouter_model: connection.standardModel, observer_model: null,
+    my_languages: preferences.myLanguages, target_varieties: preferences.targetVarieties,
     target_language: conversation.languageId, target_variety: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,
     native_variety: conversation.settings.explanationVarietyId, interface_locale: preferences.interfaceLocale,

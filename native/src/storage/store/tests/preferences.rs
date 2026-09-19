@@ -220,3 +220,93 @@ fn appearance_survives_restart_without_changing_conversation_settings() {
         before.conversations[0].settings
     );
 }
+
+#[test]
+fn my_languages_survive_restart_without_creating_or_removing_conversations() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("my-languages.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    store.prepare_chat().unwrap();
+    let before = store.snapshot().unwrap();
+    let mut preferences = before.learner.preferences.clone();
+    preferences.my_languages = vec!["spanish".into(), "arabic".into()];
+    preferences
+        .target_varieties
+        .insert("arabic".into(), "arabic-levantine".into());
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: before.learner.revision,
+            name: before.learner.name.clone(),
+            preferences,
+        },
+    );
+    drop(store);
+    let mut store = Store::open(&path).unwrap();
+    let added = store.snapshot().unwrap();
+    assert_eq!(
+        added.learner.preferences.my_languages,
+        vec!["spanish", "arabic"]
+    );
+    assert_eq!(
+        added.learner.preferences.target_varieties["arabic"],
+        "arabic-levantine"
+    );
+    assert_eq!(added.conversations.len(), before.conversations.len());
+    assert_eq!(added.conversations[0].id, before.conversations[0].id);
+    assert_eq!(
+        added.conversations[0].settings,
+        before.conversations[0].settings
+    );
+    let mut preferences = added.learner.preferences;
+    preferences.my_languages.clear();
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: added.learner.revision,
+            name: added.learner.name,
+            preferences,
+        },
+    );
+    drop(store);
+    let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
+    assert!(snapshot.learner.preferences.my_languages.is_empty());
+    assert_eq!(snapshot.conversations[0].id, before.conversations[0].id);
+    assert_eq!(
+        snapshot.conversations[0].settings,
+        before.conversations[0].settings
+    );
+    assert_eq!(
+        snapshot.learner.preferences.target_varieties["arabic"],
+        "arabic-levantine"
+    );
+}
+
+#[test]
+fn my_languages_reject_unknown_and_duplicate_languages() {
+    let directory = tempfile::tempdir().unwrap();
+    let mut store = Store::open(&directory.path().join("invalid.sqlite3")).unwrap();
+    let learner = store.snapshot().unwrap().learner;
+    for languages in [vec!["missing"], vec!["spanish", "spanish"]] {
+        let mut preferences = learner.preferences.clone();
+        preferences.my_languages = languages.into_iter().map(String::from).collect();
+        let cmd = command(
+            &store,
+            Action::UpdateLearner {
+                expected_revision: learner.revision,
+                name: learner.name.clone(),
+                preferences,
+            },
+        );
+        assert!(store.execute(cmd).is_err());
+        assert!(
+            store
+                .snapshot()
+                .unwrap()
+                .learner
+                .preferences
+                .my_languages
+                .is_empty()
+        );
+    }
+}
