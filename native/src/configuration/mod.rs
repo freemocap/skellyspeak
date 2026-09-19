@@ -213,6 +213,30 @@ impl Registry {
     }
     pub fn validate_preferences(&self, preferences: &model::Preferences) -> model::Result<()> {
         preferences.appearance.validate()?;
+        if let Some(language) = &preferences.onboarding_language {
+            self.language(language)?;
+            if !preferences.my_languages.contains(language)
+                || !preferences.target_varieties.contains_key(language)
+            {
+                return Err(error(
+                    "preferences.onboarding_language",
+                    "invalid_setup_language",
+                    "Choose a saved language and variety for setup.",
+                )
+                .into());
+            }
+        }
+        if preferences.onboarding_required
+            && matches!(preferences.onboarding, model::OnboardingStatus::InProgress)
+            && preferences.onboarding_language.is_none()
+        {
+            return Err(error(
+                "preferences.onboarding_language",
+                "missing_setup_language",
+                "Choose a language before continuing setup.",
+            )
+            .into());
+        }
         if !INTERFACE_LOCALES.contains(&preferences.interface_locale.as_str()) {
             return Err(error(
                 "preferences.interface_locale",

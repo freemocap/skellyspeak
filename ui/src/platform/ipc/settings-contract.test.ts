@@ -12,7 +12,7 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 function directory(): Snapshot {
   return {
     savedTopics: [], sessionId: 'session', revision: 20,
-    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed' } },
+    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'french' : 'spanish', title: id,

@@ -70,7 +70,10 @@ and verifies it with the existing **SkellySpeak Local Development** certificate,
 starts Vite, and runs the signed bundle executable. PyCharm's signed-app run
 configuration uses this same command. Frontend edits reload through Vite; restart
 the command after Rust changes. Quit the app or stop the command to stop Vite.
-The launcher fails if port 1420 is occupied or signing fails.
+The launcher fails if port 1420 is occupied or signing fails. Unchanged builds
+reuse the existing bundle after verifying its signature against the selected
+certificate; they do not request signing-key access again. Keep this command
+running while editing the frontend; Vite updates do not rebuild or re-sign Rust.
 
 The signing identity must already exist in Keychain Access → My Certificates,
 including its private key. To use another certificate, run
@@ -86,6 +89,13 @@ separately after `cargo build --manifest-path native/Cargo.toml --bin skellyspea
 For other desktop platforms use `npm run tauri dev`. On macOS, that direct Tauri
 command bypasses the certificate-signing launcher and may prompt again for Keychain
 access after rebuilds.
+
+On macOS, successful credential reads are reused in native process memory, so
+frontend reloads do not repeatedly read the same Keychain entry. Concurrent reads
+share the first authorization. Cached secrets are never written to disk or logs;
+saving/removing a credential invalidates its cached value. Restart the app after
+editing a credential directly in Keychain Access. A native-process restart may
+still require an initial Keychain authorization if access was not remembered.
 
 Run this from the repository root. `npm run dev` alone starts frontend assets;
 local storage requires the native Tauri application. Quit an already-running

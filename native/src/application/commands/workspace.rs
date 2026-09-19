@@ -1,5 +1,11 @@
 use super::*;
 
+/// Ordered operating-system preferences, read without changing device settings.
+#[tauri::command]
+pub(in crate::application) fn preferred_languages() -> Vec<String> {
+    sys_locale::get_locales().collect()
+}
+
 /// Why the workspace could not be opened, or null when it opened. This is the one
 /// command that answers before any store exists, so the window can always report
 /// a refusal instead of failing every call with a generic error.

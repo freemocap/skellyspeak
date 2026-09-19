@@ -1109,5 +1109,21 @@
   "Text": "Text",
   "Speech transcript": "Speech transcript",
   "Ask the coach about {term}": "Ask the coach about {term}",
-  "{label} preview": "{label} preview"
+  "{label} preview": "{label} preview",
+  "Choose your languages": "Choose your languages",
+  "Choose a language": "Choose a language",
+  "You can change these choices and add more languages later.": "You can change these choices and add more languages later.",
+  "Continue": "Continue",
+  "Back": "Back",
+  "Set up later": "Set up later",
+  "Setup {step} of 2": "Setup {step} of 2",
+  "Connect for conversations and feedback, or set up access later.": "Connect for conversations and feedback, or set up access later.",
+  "Voice availability depends on your AI access settings. Microphone permission is requested when you record.": "Voice availability depends on your AI access settings. Microphone permission is requested when you record.",
+  "Conversation help": "Conversation help",
+  "Show conversation help": "Show conversation help",
+  "Dismiss help": "Dismiss help",
+  "Open Coaching to review your turn. Feedback may still be processing.": "Open Coaching to review your turn. Feedback may still be processing.",
+  "Select a word for help when word help is ready. Use the reply controls for ideas, or record or type your own reply.": "Select a word for help when word help is ready. Use the reply controls for ideas, or record or type your own reply.",
+  "Let your partner start, or record or type a message. You can change the difficulty at any time.": "Let your partner start, or record or type a message. You can change the difficulty at any time.",
+  "Review setup": "Review setup"
 }

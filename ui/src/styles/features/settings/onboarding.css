@@ -1,0 +1,9 @@
+/* First-run composition; fields, buttons and access controls retain their owners. */
+.onboarding-page { height: 100%; overflow: auto; padding: var(--space-11); background: var(--bg); }
+.onboarding-sheet { max-width: min(100%, 600px); margin-inline: auto; padding: var(--space-11); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-surface); }
+.onboarding-sheet h1 { font-size: var(--type-title); }
+.onboarding-sheet p { line-height: var(--leading-normal); }
+.onboarding-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+.onboarding-fields select { max-width: 100%; }
+.onboarding-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-11); }
+@media (max-width: 480px) { .onboarding-page, .onboarding-sheet { padding: var(--space-8); } }

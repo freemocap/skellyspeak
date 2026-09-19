@@ -1,3 +1,4 @@
+import { useOnboardingStore } from './settings/onboarding'
 import { configureAudioVolumes } from '../platform/audio/audio-volume'
 import { reportFault } from '../platform/diagnostics/faults'
 import { isTauri } from '../platform/ipc/tauri'
@@ -23,6 +24,8 @@ export async function initStores(): Promise<void> {
     try { configureAudioVolumes(state.settings) }
     catch (error) { reportFault('Audio settings', error) }
   })
+
+  await useOnboardingStore.getState().initialize()
 
   await Promise.all([
     useSettingsStore.getState().load().catch((error: unknown) => reportFault('Loading settings', error)),

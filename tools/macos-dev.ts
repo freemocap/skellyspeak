@@ -9,6 +9,7 @@ import {
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { createServer } from "node:net";
+import { createHash } from "node:crypto";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = resolve(
@@ -55,7 +56,7 @@ function signingIdentity(): string {
   return fingerprints[0]!;
 }
 
-function bundle() {
+function bundle(fingerprint?: string): boolean {
   const metadata = JSON.parse(
     run(
       "cargo",
@@ -77,6 +78,24 @@ function bundle() {
   const binary = resolve(metadata.target_directory, "debug/skellyspeak");
   // Read before replacing the generated bundle so a missing build fails early.
   const executable = readFileSync(binary);
+  const stampPath = resolve(app, "Contents/Resources/dev-build.json");
+  const stamp = JSON.stringify({
+    source: createHash("sha256").update(executable).digest("hex"),
+    plist: createHash("sha256").update(readFileSync(resolve(root, "native/Info.plist"))).digest("hex"),
+    launcher: createHash("sha256").update(readFileSync(fileURLToPath(import.meta.url))).digest("hex"),
+    version: pkg.version,
+    fingerprint: fingerprint ?? null,
+  });
+  let previous: string | null = null;
+  try { previous = readFileSync(stampPath, "utf8"); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+  if (fingerprint && previous === stamp) {
+    // The stamp is inside the signature seal. Matching inputs alone never authorize reuse.
+    run("/usr/bin/codesign", ["--verify", "--deep", "--strict", "-R",
+      `identifier "${identifier}" and certificate leaf = H"${fingerprint}"`, app]);
+    console.log("Reusing verified development bundle; no signing-key access needed.");
+    return true;
+  }
   rmSync(app, { recursive: true, force: true });
   mkdirSync(resolve(app, "Contents/MacOS"), { recursive: true });
   mkdirSync(resolve(app, "Contents/Resources"), { recursive: true });
@@ -107,7 +126,9 @@ function bundle() {
     ]);
   }
   run("/usr/bin/plutil", ["-lint", resolve(app, "Contents/Info.plist")]);
+  writeFileSync(stampPath, stamp);
   console.log(`Development bundle: ${app}`);
+  return false;
 }
 
 function sign(fingerprint = signingIdentity()) {
@@ -158,8 +179,7 @@ async function launch() {
     "--bin",
     "skellyspeak",
   ]);
-  bundle();
-  sign(fingerprint);
+  if (!bundle(fingerprint)) sign(fingerprint);
   const vite = spawn(
     process.execPath,
     ["node_modules/vite/bin/vite.js", "ui", "--host", "127.0.0.1"],

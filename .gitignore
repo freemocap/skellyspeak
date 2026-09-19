@@ -1,6 +1,8 @@
 # Local dependencies, generated output and private configuration.
 node_modules/
 target/
+# Obsolete native project location; retained local build output only.
+/src-tauri/
 dist/
 *.tsbuildinfo
 native/gen/*

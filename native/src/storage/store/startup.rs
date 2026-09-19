@@ -58,6 +58,9 @@ impl Store {
                 text_spacing: 0,
                 high_contrast: false,
                 onboarding: OnboardingStatus::NotStarted,
+                onboarding_required: true,
+                onboarding_language: None,
+                onboarding_help: false,
             };
             tx.execute(
                 "INSERT INTO learner VALUES(?1,1,'Learner',1,?2)",

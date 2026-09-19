@@ -121,6 +121,14 @@ pub struct Preferences {
     pub text_spacing: u8,
     pub high_contrast: bool,
     pub onboarding: OnboardingStatus,
+    // Explicit new-workspace marker: old not_started values are not proof of first use.
+    #[serde(default)]
+    pub onboarding_required: bool,
+    #[serde(default)]
+    pub onboarding_language: Option<String>,
+    // Optional guidance has an independent, durable dismissal state.
+    #[serde(default)]
+    pub onboarding_help: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -1104,6 +1112,9 @@ mod appearance_tests {
             value["theme"] = theme.into();
             let decoded: Preferences = serde_json::from_value(value.clone()).unwrap();
             value["myLanguages"] = serde_json::json!([]);
+            value["onboardingRequired"] = false.into();
+            value["onboardingLanguage"] = serde_json::Value::Null;
+            value["onboardingHelp"] = false.into();
             value["appearance"] = serde_json::to_value(
                 crate::configuration::appearance::AppearancePreferences::default(),
             )

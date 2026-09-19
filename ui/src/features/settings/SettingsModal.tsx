@@ -1,3 +1,4 @@
+import { ShowHelp } from './onboarding/ShowHelp'
 import { UI_LOCALE_METADATA } from '../../domain/localization'
 import { TEXT_SIZE } from '../../generated/contracts'
 import { AppearanceSettings } from './appearance/AppearanceSettings'
@@ -291,6 +292,10 @@ export function SettingsModal({
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
+    conversation_help: {
+      section: 'reading', label: tr('Conversation help'), kw: 'onboarding tutorial help guide',
+      node: <ShowHelp onShown={onClose} />,
+    },
     models: {
       section: 'models', label: tr('Models'), kw: 'model standard fast transcription',
       node: <div inert={routeBusy}><SettingsModels refreshKey={configurationRevision} onBusyChange={setModelsBusy} onChanged={refreshFromBackend} /></div>,

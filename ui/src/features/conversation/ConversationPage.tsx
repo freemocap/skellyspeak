@@ -1,3 +1,4 @@
+import { ConversationHelp } from './composer/ConversationHelp'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
 import type { ConversationStartConfig } from '../../generated/contracts'
@@ -481,6 +482,7 @@ export default function ConversationPage({
             {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
           </div>
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
+          {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
           {<ComposerHelp
             assistance={activeTurns.at(-1)?.assistant?.assistance}
             onAsk={askCoach}
@@ -498,7 +500,7 @@ export default function ConversationPage({
               setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
               composer.current?.querySelector<HTMLTextAreaElement>('.field')?.focus()
             }} />}
-          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri} sending={sending}
+          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             transcriptionWarning={targetLanguage?.transcriptionLanguage === null && connection && connection.route === 'openrouter' ? tr("The {model} transcription model has no language code for {language}; output may be unreliable.", { model: connection.audio.transcription.model, language: targetLanguageName }) : undefined}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguageName}

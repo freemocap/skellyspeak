@@ -284,11 +284,21 @@ code, `[@key]` in docs). When research informs a change, add its entry with `url
 
 ## Git
 
-Agents may stage changes, create commits, create and switch branches, merge,
-push commits to the configured remote, bump versions and create and push release
-tags as part of authorized work, without repeat confirmation. Keep version
-metadata and lockfiles consistent, run relevant checks before committing, and
-summarize commits, version changes and pushes performed.
+**Do not create a commit unless the user explicitly instructs you to commit.**
+Each such instruction authorizes exactly one commit, for the specified work,
+and is consumed when that commit is created. Every subsequent commit requires
+a new, explicit instruction. There is no standing or recurring commit permission.
+Requests to implement, fix, finish, check in later, push, or release work do not
+implicitly authorize a commit. Prior commit instructions do not carry forward.
+Leave completed changes uncommitted unless explicitly told to commit; this also
+applies to changes to these instructions. Do not bypass this rule with automatic
+commits, merge commits, cherry-picks, amendments, or scripts that create commits.
+
+Agents may stage changes, create and switch branches, push commits to the
+configured remote, bump versions and create and push release tags as part of
+authorized work. These permissions do not authorize creating a commit. Keep
+version metadata and lockfiles consistent, run relevant checks before any
+explicitly authorized commit, and summarize Git operations performed.
 
 Inspect the working tree first and preserve unrelated user changes. Do not
 include unrelated changes in commits. Destructive operations (including force

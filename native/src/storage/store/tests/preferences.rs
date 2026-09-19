@@ -310,3 +310,77 @@ fn my_languages_reject_unknown_and_duplicate_languages() {
         );
     }
 }
+
+#[test]
+fn onboarding_choices_and_help_dismissal_survive_restart_without_creating_a_chat() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("setup.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    let learner = store.snapshot().unwrap().learner;
+    assert!(learner.preferences.onboarding_required);
+    let mut preferences = learner.preferences;
+    preferences.interface_locale = "spanish".into();
+    preferences.my_languages.push("spanish".into());
+    preferences
+        .target_varieties
+        .insert("spanish".into(), "spanish-mexico".into());
+    preferences.onboarding_language = Some("spanish".into());
+    preferences.onboarding = OnboardingStatus::InProgress;
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: learner.revision,
+            name: learner.name,
+            preferences,
+        },
+    );
+    assert!(store.snapshot().unwrap().conversations.is_empty());
+    drop(store);
+    let mut store = Store::open(&path).unwrap();
+    let learner = store.snapshot().unwrap().learner;
+    assert_eq!(learner.preferences.interface_locale, "spanish");
+    assert!(matches!(
+        learner.preferences.onboarding,
+        OnboardingStatus::InProgress
+    ));
+    assert_eq!(
+        learner.preferences.onboarding_language.as_deref(),
+        Some("spanish")
+    );
+    let mut preferences = learner.preferences;
+    preferences.onboarding_required = false;
+    preferences.onboarding_language = None;
+    preferences.onboarding = OnboardingStatus::Skipped;
+    preferences.onboarding_help = false;
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: learner.revision,
+            name: learner.name,
+            preferences,
+        },
+    );
+    drop(store);
+    let store = Store::open(&path).unwrap();
+    let preferences = store.snapshot().unwrap().learner.preferences;
+    assert!(!preferences.onboarding_required);
+    assert!(!preferences.onboarding_help);
+    assert!(matches!(preferences.onboarding, OnboardingStatus::Skipped));
+}
+
+#[test]
+fn an_old_not_started_flag_does_not_force_setup() {
+    let directory = tempfile::tempdir().unwrap();
+    let store = Store::open(&directory.path().join("setup.sqlite3")).unwrap();
+    let mut value = serde_json::to_value(store.snapshot().unwrap().learner.preferences).unwrap();
+    for key in ["onboardingRequired", "onboardingLanguage", "onboardingHelp"] {
+        value.as_object_mut().unwrap().remove(key);
+    }
+    let preferences: Preferences = serde_json::from_value(value).unwrap();
+    assert!(matches!(
+        preferences.onboarding,
+        OnboardingStatus::NotStarted
+    ));
+    assert!(!preferences.onboarding_required);
+    assert!(!preferences.onboarding_help);
+}

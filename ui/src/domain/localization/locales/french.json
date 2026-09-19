@@ -1109,5 +1109,21 @@
   "Text": "Texte",
   "Speech transcript": "Transcription de la parole",
   "Ask the coach about {term}": "Demander au coach à propos de {term}",
-  "{label} preview": "Aperçu de {label}"
+  "{label} preview": "Aperçu de {label}",
+  "Choose your languages": "Choisissez vos langues",
+  "Choose a language": "Choisissez une langue",
+  "You can change these choices and add more languages later.": "Vous pourrez modifier ces choix et ajouter des langues plus tard.",
+  "Continue": "Continuer",
+  "Back": "Retour",
+  "Set up later": "Configurer plus tard",
+  "Setup {step} of 2": "Configuration : {step} sur 2",
+  "Connect for conversations and feedback, or set up access later.": "Connectez un service pour les conversations et les retours, ou configurez l’accès plus tard.",
+  "Voice availability depends on your AI access settings. Microphone permission is requested when you record.": "Les fonctions vocales dépendent des paramètres d’accès à l’IA. L’autorisation du microphone est demandée lors de l’enregistrement.",
+  "Conversation help": "Aide à la conversation",
+  "Show conversation help": "Afficher l’aide à la conversation",
+  "Dismiss help": "Masquer l’aide",
+  "Open Coaching to review your turn. Feedback may still be processing.": "Ouvrez le coaching pour revoir votre intervention. Le retour est peut-être encore en cours de traitement.",
+  "Select a word for help when word help is ready. Use the reply controls for ideas, or record or type your own reply.": "Sélectionnez un mot lorsque l’aide est prête. Utilisez les commandes de réponse pour des idées, ou enregistrez ou saisissez votre réponse.",
+  "Let your partner start, or record or type a message. You can change the difficulty at any time.": "Laissez votre partenaire commencer, ou enregistrez ou saisissez un message. Vous pouvez changer la difficulté à tout moment.",
+  "Review setup": "Revoir la configuration"
 }

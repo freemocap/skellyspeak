@@ -1,0 +1,26 @@
+/* Review-only composition. Controls, typography, surfaces and tokens come from production. */
+body { overflow: auto; }
+.onboarding-review { max-width: 72rem; margin: auto; padding: var(--space-11); }
+.onboarding-review header { margin-bottom: var(--space-11); }
+.onboarding-review h1, .onboarding-review h2 { font-size: var(--type-title); }
+.onboarding-review p { line-height: 1.5; }
+.onboarding-review .review-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.onboarding-review .review-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr); gap: var(--space-11); align-items: start; }
+.onboarding-review .review-screen { background: var(--sheet); border: var(--space-hairline) solid var(--line); border-radius: var(--radius-lg); padding: var(--space-11); box-shadow: var(--shadow-surface); min-width: 0; }
+.onboarding-review .review-screen > * + * { margin-top: var(--space-8); }
+.onboarding-review .review-screen h2 { margin-top: 0; }
+.onboarding-review .review-aside { color: var(--ink-2); font-size: var(--type-body); }
+.onboarding-review .review-aside li { margin-bottom: var(--space-6); line-height: 1.5; }
+.onboarding-review .review-note { border-inline-start: var(--space-2) solid var(--interaction-ink); padding: var(--space-8); background: var(--chrome); }
+.onboarding-review .review-footer { display: flex; flex-wrap: wrap; gap: var(--space-4); border-top: var(--space-hairline) solid var(--line-soft); padding-top: var(--space-8); }
+.onboarding-review .review-meta { font-size: var(--type-meta); color: var(--ink-3); }
+.onboarding-review .review-message { background: var(--bubble-partner-bg); padding: var(--space-8); border-radius: var(--radius-lg); }
+.onboarding-review .review-learner { background: var(--bubble-learner-bg); padding: var(--space-8); border-radius: var(--radius-lg); white-space: pre-wrap; overflow-wrap: anywhere; }
+.onboarding-review select { max-width: 100%; }
+.onboarding-review summary { cursor: pointer; }
+.onboarding-review[data-narrow='true'] .review-layout { grid-template-columns: minmax(0, 24rem); justify-content: center; }
+@media (max-width: 700px) {
+  .onboarding-review { padding: var(--space-8); }
+  .onboarding-review .review-layout { grid-template-columns: minmax(0, 1fr); }
+  .onboarding-review .review-screen { padding: var(--space-8); }
+}

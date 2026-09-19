@@ -1,3 +1,5 @@
+import { OnboardingSetup } from '../features/settings/onboarding/OnboardingSetup'
+import { useOnboardingStore } from '../state/settings/onboarding'
 import { LanguageBrowser } from '../features/languages/LanguageBrowser'
 import { useAppearance } from '../platform/appearance/useAppearance'
 import { CredentialCleanup } from '../features/startup/CredentialCleanup'
@@ -45,6 +47,7 @@ export function AppShell() {
   // rather than at the next start.
   const shortcuts = useSettingsStore((state) => state.settings?.shortcuts ?? SHORTCUT_DEFAULTS)
 
+  const onboarding = useOnboardingStore(state => state.preferences)
   useAppearance(settings)
 
   // A skill-map request from anywhere opens the tree.
@@ -65,6 +68,8 @@ export function AppShell() {
   useAiWindowSync()
   useLoadSkillEvidence()
   useAppShortcuts(shortcuts)
+
+  if (onboarding?.onboardingRequired) return <I18nProvider locale={onboarding.interfaceLocale}><OnboardingSetup /></I18nProvider>
 
   return (
     <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingProvider settings={settings}><div className="app">

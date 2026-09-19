@@ -1109,5 +1109,21 @@
   "Text": "Text",
   "Speech transcript": "Sprachtranskript",
   "Ask the coach about {term}": "Den Coach zu {term} fragen",
-  "{label} preview": "Vorschau für {label}"
+  "{label} preview": "Vorschau für {label}",
+  "Choose your languages": "Wähle deine Sprachen",
+  "Choose a language": "Sprache wählen",
+  "You can change these choices and add more languages later.": "Du kannst diese Auswahl später ändern und weitere Sprachen hinzufügen.",
+  "Continue": "Weiter",
+  "Back": "Zurück",
+  "Set up later": "Später einrichten",
+  "Setup {step} of 2": "Einrichtung: {step} von 2",
+  "Connect for conversations and feedback, or set up access later.": "Verbinde einen Dienst für Gespräche und Feedback oder richte den Zugang später ein.",
+  "Voice availability depends on your AI access settings. Microphone permission is requested when you record.": "Die Sprachfunktionen hängen von deinen KI-Zugangseinstellungen ab. Die Mikrofonberechtigung wird beim Aufnehmen angefragt.",
+  "Conversation help": "Gesprächshilfe",
+  "Show conversation help": "Gesprächshilfe anzeigen",
+  "Dismiss help": "Hilfe ausblenden",
+  "Open Coaching to review your turn. Feedback may still be processing.": "Öffne das Coaching, um deinen Beitrag anzusehen. Das Feedback wird möglicherweise noch verarbeitet.",
+  "Select a word for help when word help is ready. Use the reply controls for ideas, or record or type your own reply.": "Wähle ein Wort, sobald die Worthilfe bereit ist. Nutze die Antworthilfe für Ideen oder sprich oder tippe deine Antwort.",
+  "Let your partner start, or record or type a message. You can change the difficulty at any time.": "Lass deinen Gesprächspartner beginnen oder sprich oder tippe eine Nachricht. Du kannst die Schwierigkeit jederzeit ändern.",
+  "Review setup": "Einrichtung prüfen"
 }

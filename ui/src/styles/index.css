@@ -73,3 +73,5 @@
 @import './features/languages.css';
 
 @import './foundations/motion.css';
+
+@import './features/settings/onboarding.css';
