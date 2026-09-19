@@ -40,6 +40,11 @@ pub fn prompt(db: &Connection, turn: &str, captured: &Value) -> Result<Vec<Promp
         [turn],
         |r| r.get(0),
     )?;
+    prompt_for_source(source, captured)
+}
+
+/// Pure projection shared with the graph-definition inspector.
+pub(crate) fn prompt_for_source(source: String, captured: &Value) -> Result<Vec<PromptMessage>> {
     let history = captured["messages"]
         .as_array()
         .ok_or_else(|| fail("missing exchange"))?;

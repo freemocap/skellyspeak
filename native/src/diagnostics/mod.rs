@@ -1,4 +1,5 @@
 //! Durable, content-free diagnostics; the bounded ring is only a recent-read view.
+pub(crate) mod ai_graphs;
 pub(crate) mod inference;
 pub(crate) mod response;
 pub(crate) mod speech;
@@ -121,6 +122,14 @@ pub enum DiagnosticCommand {
     GetPracticeOverview,
     SaveSkillProfile,
     OpenAiWindow,
+    ListTurnHistory,
+    GetAttemptDetail,
+    ReadAttemptStreams,
+    AiWindowState,
+    DockAiWindow,
+    SetAiViewSelection,
+    GetAiViewSelection,
+    GetAiGraphDefinitions,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]

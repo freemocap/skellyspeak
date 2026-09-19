@@ -10,6 +10,11 @@ use std::collections::HashMap;
 const LINE_LIMIT: usize = 4 * 1024 * 1024 + 4096;
 pub(crate) const MAX_ITEMS: usize = 8;
 const STREAM_LIMIT: usize = MAX_ITEMS * LINE_LIMIT + 1024;
+/// Protocol version 2 adds each item's deltas: at most the response text
+/// limit, JSON-escaped (six bytes per character at worst), plus framing for a
+/// bounded number of events.
+const DELTA_ALLOWANCE: usize =
+    crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT * 6 + 20 * 180 * 256;
 
 fn unknown() -> AppError {
     AppError::new(
@@ -45,6 +50,14 @@ enum Event {
     Complete {
         count: usize,
     },
+    /// Version 2 only: text an item produced, in order. `offset` counts the
+    /// Unicode scalar values already sent for that item.
+    Delta {
+        operation_id: String,
+        attempt_id: String,
+        offset: usize,
+        text: String,
+    },
 }
 
 pub struct Decoder {
@@ -52,7 +65,11 @@ pub struct Decoder {
     count: usize,
     line: Vec<u8>,
     bytes: usize,
+    limit: usize,
     complete: bool,
+    /// Accumulated delta text and its scalar count per item; `None` in
+    /// version 1, where any delta is a protocol failure.
+    deltas: Option<HashMap<String, (String, usize)>>,
 }
 impl Decoder {
     pub fn new(identities: impl IntoIterator<Item = (String, String)>) -> Result<Self> {
@@ -73,16 +90,35 @@ impl Decoder {
             count,
             line: Vec::new(),
             bytes: 0,
+            limit: STREAM_LIMIT,
             complete: false,
+            deltas: None,
         })
+    }
+    /// A version 2 decoder, which accepts deltas for pending items.
+    pub fn with_deltas(identities: impl IntoIterator<Item = (String, String)>) -> Result<Self> {
+        let mut decoder = Self::new(identities)?;
+        decoder.limit = STREAM_LIMIT + decoder.count * DELTA_ALLOWANCE;
+        decoder.deltas = Some(HashMap::new());
+        Ok(decoder)
     }
     pub fn push(
         &mut self,
         chunk: &[u8],
+        publish: impl FnMut(&str, Result<Completion>) -> Result<()>,
+    ) -> Result<()> {
+        self.push_with_deltas(chunk, publish, |_, _| Ok(()))
+    }
+    /// Feed bytes. `on_delta` receives an item's full text so far after each
+    /// accepted delta; a delta never publishes and never ends an item.
+    pub fn push_with_deltas(
+        &mut self,
+        chunk: &[u8],
         mut publish: impl FnMut(&str, Result<Completion>) -> Result<()>,
+        mut on_delta: impl FnMut(&str, &str) -> Result<()>,
     ) -> Result<()> {
         self.bytes = self.bytes.checked_add(chunk.len()).ok_or_else(unknown)?;
-        if self.bytes > STREAM_LIMIT {
+        if self.bytes > self.limit {
             return Err(unknown());
         }
         for byte in chunk {
@@ -99,6 +135,29 @@ impl Decoder {
             let event: Event = serde_json::from_slice(&self.line).map_err(|_| unknown())?;
             self.line.clear();
             let (operation, attempt, result) = match event {
+                Event::Delta {
+                    operation_id,
+                    attempt_id,
+                    offset,
+                    text,
+                } => {
+                    let texts = self.deltas.as_mut().ok_or_else(unknown)?;
+                    // Only for an item still pending: never after its result.
+                    if self.pending.get(&operation_id) != Some(&attempt_id) {
+                        return Err(unknown());
+                    }
+                    let (accumulated, scalars) = texts.entry(operation_id.clone()).or_default();
+                    if offset != *scalars
+                        || accumulated.len() + text.len()
+                            > crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT
+                    {
+                        return Err(unknown());
+                    }
+                    accumulated.push_str(&text);
+                    *scalars += text.chars().count();
+                    on_delta(&operation_id, accumulated)?;
+                    continue;
+                }
                 Event::Complete { count } => {
                     if count != self.count || !self.pending.is_empty() {
                         return Err(unknown());
@@ -227,7 +286,22 @@ pub async fn request_with_outputs(
     key: &str,
     dispatches: &[crate::conversations::execution::Dispatch],
     outputs: &[provider::RequestOutput<'_>],
+    publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
+) -> Result<()> {
+    request_streaming(client, key, dispatches, outputs, false, publish, |_, _| {}).await
+}
+
+/// Like `request_with_outputs`; with `deltas`, uses protocol version 2 and
+/// asks for prose items' text as it is produced. `on_delta` receives an item's
+/// full text so far. Only call with `deltas` for a server that advertises it.
+pub async fn request_streaming(
+    client: &reqwest::Client,
+    key: &str,
+    dispatches: &[crate::conversations::execution::Dispatch],
+    outputs: &[provider::RequestOutput<'_>],
+    deltas: bool,
     mut publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
+    mut on_delta: impl FnMut(usize, &str),
 ) -> Result<()> {
     if dispatches.len() != outputs.len() {
         return Err(AppError::new(
@@ -243,13 +317,18 @@ pub async fn request_with_outputs(
     let mut identities = Vec::new();
     for (dispatch, output) in dispatches.iter().zip(outputs) {
         let operation = dispatch.operation.replace('-', "");
-        items.push(
-            serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
-            "request":provider::payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, *output)?}),
-        );
+        let mut item = serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
+            "request":provider::payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, *output)?});
+        // Structured output stays whole until structured deltas are verified.
+        if deltas && matches!(output, provider::RequestOutput::Prose) {
+            item["deltas"] = serde_json::json!(true);
+        }
+        items.push(item);
         identities.push((operation, dispatch.attempt.clone()));
     }
-    let body = serde_json::to_vec(&serde_json::json!({"version":1,"items":items}))?;
+    let body = serde_json::to_vec(
+        &serde_json::json!({"version": if deltas { 2 } else { 1 }, "items": items}),
+    )?;
     if body.len() > 1024 * 1024 {
         return Err(AppError::new(
             ErrorCode::Validation,
@@ -298,17 +377,69 @@ pub async fn request_with_outputs(
     {
         return Err(unknown());
     }
-    let mut decoder = Decoder::new(identities.clone())?;
+    let mut decoder = if deltas {
+        Decoder::with_deltas(identities.clone())?
+    } else {
+        Decoder::new(identities.clone())?
+    };
+    let index = |operation: &str| {
+        identities
+            .iter()
+            .position(|(id, _)| id == operation)
+            .ok_or_else(unknown)
+    };
     while let Some(chunk) = response.chunk().await.map_err(|_| unknown())? {
-        decoder.push(&chunk, |operation, result| {
-            let index = identities
-                .iter()
-                .position(|(id, _)| id == operation)
-                .ok_or_else(unknown)?;
-            publish(index, result)
-        })?;
+        decoder.push_with_deltas(
+            &chunk,
+            |operation, result| publish(index(operation)?, result),
+            |operation, text| {
+                on_delta(index(operation)?, text);
+                Ok(())
+            },
+        )?;
     }
     decoder.finish()
+}
+
+/// Whether the server behind a grouped target advertises protocol version 2.
+/// An unreachable or older server answers no; the route then keeps version 1.
+pub async fn supports_deltas(
+    client: &reqwest::Client,
+    key: &str,
+    dispatch: &crate::conversations::execution::Dispatch,
+) -> Result<bool> {
+    let Some(base) = dispatch.target.url.strip_suffix("/operations") else {
+        return Ok(false);
+    };
+    let request = client.get(format!("{base}/protocol"));
+    let request = if key.is_empty() {
+        request
+    } else {
+        request.bearer_auth(key)
+    };
+    let request = if dispatch.route == crate::model::ConnectionRoute::Hosted {
+        crate::ai::hosted::identity(request, &dispatch.install_id)
+    } else {
+        request
+    };
+    let response = tokio::time::timeout(std::time::Duration::from_secs(5), request.send())
+        .await
+        .map_err(|_| unknown())?
+        .map_err(|_| unknown())?;
+    if !response.status().is_success() {
+        return Ok(false);
+    }
+    let bytes = tokio::time::timeout(std::time::Duration::from_secs(5), response.bytes())
+        .await
+        .map_err(|_| unknown())?
+        .map_err(|_| unknown())?;
+    if bytes.len() > 64 * 1024 {
+        return Ok(false);
+    }
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap_or_default();
+    Ok(value["operations_versions"]
+        .as_array()
+        .is_some_and(|versions| versions.iter().any(|version| version == 2)))
 }
 
 pub fn compatible(
@@ -686,5 +817,278 @@ mod tests {
         decoder.push(b"{\"type\":\"error\",\"operation_id\":\"one\",\"attempt_id\":\"a\",\"code\":\"ACCOUNT_INFLIGHT_LIMIT\",\"status\":429,\"retry_after\":5}\n", |_, result| {
             assert!(result.unwrap_err().refusal.unwrap().retry_at.is_some()); Ok(())
         }).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod delta_tests {
+    use super::*;
+
+    fn line(value: serde_json::Value) -> Vec<u8> {
+        let mut bytes = serde_json::to_vec(&value).unwrap();
+        bytes.push(b'\n');
+        bytes
+    }
+    fn delta(offset: usize, text: &str) -> Vec<u8> {
+        line(
+            serde_json::json!({"type":"delta","operation_id":"one","attempt_id":"a","offset":offset,"text":text}),
+        )
+    }
+    fn result() -> Vec<u8> {
+        line(
+            serde_json::json!({"type":"result","operation_id":"one","attempt_id":"a",
+            "response":{"id":"p","model":"m","choices":[{"finish_reason":"stop","message":{"content":"¡Qué 𠮷!"}}]}}),
+        )
+    }
+    fn feed(
+        decoder: &mut Decoder,
+        bytes: &[u8],
+        texts: &mut Vec<String>,
+        published: &mut Vec<String>,
+    ) -> Result<()> {
+        decoder.push_with_deltas(
+            bytes,
+            |_, value| {
+                published.push(value?.text);
+                Ok(())
+            },
+            |_, text| {
+                texts.push(text.to_owned());
+                Ok(())
+            },
+        )
+    }
+
+    #[test]
+    fn version_1_treats_any_delta_as_a_protocol_failure() {
+        let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
+        let error = decoder.push(&delta(0, "Hola"), |_, _| Ok(())).unwrap_err();
+        assert_eq!(error.code, ErrorCode::UnknownOutcome);
+    }
+
+    #[test]
+    fn version_2_accumulates_by_scalar_offset_and_never_publishes_a_delta() {
+        let mut decoder = Decoder::with_deltas([("one".into(), "a".into())]).unwrap();
+        let (mut texts, mut published) = (Vec::new(), Vec::new());
+        // "𠮷" is outside the BMP: one scalar value, two UTF-16 units.
+        for bytes in [delta(0, "¡Qué "), delta(5, "𠮷"), delta(6, "!")] {
+            for byte in bytes {
+                feed(&mut decoder, &[byte], &mut texts, &mut published).unwrap();
+            }
+        }
+        assert_eq!(texts, ["¡Qué ", "¡Qué 𠮷", "¡Qué 𠮷!"]);
+        assert!(published.is_empty(), "deltas never publish or end an item");
+        feed(&mut decoder, &result(), &mut texts, &mut published).unwrap();
+        feed(
+            &mut decoder,
+            &line(serde_json::json!({"type":"complete","count":1})),
+            &mut texts,
+            &mut published,
+        )
+        .unwrap();
+        assert_eq!(published, ["¡Qué 𠮷!"]);
+        decoder.finish().unwrap();
+    }
+
+    #[test]
+    fn gaps_overlaps_late_deltas_and_oversize_text_are_protocol_failures() {
+        for bytes in [
+            [delta(0, "Ho"), delta(3, "la")].concat(),
+            [delta(0, "Ho"), delta(1, "la")].concat(),
+            [delta(0, "Ho"), result(), delta(2, "la")].concat(),
+            line(
+                serde_json::json!({"type":"delta","operation_id":"one","attempt_id":"other","offset":0,"text":"x"}),
+            ),
+            delta(
+                0,
+                &"a".repeat(crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT + 1),
+            ),
+        ] {
+            let mut decoder = Decoder::with_deltas([("one".into(), "a".into())]).unwrap();
+            let (mut texts, mut published) = (Vec::new(), Vec::new());
+            let error = feed(&mut decoder, &bytes, &mut texts, &mut published).unwrap_err();
+            assert_eq!(error.code, ErrorCode::UnknownOutcome);
+        }
+    }
+
+    async fn protocol_server(body: &'static str) -> String {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut input = [0u8; 4096];
+            let read = socket.read(&mut input).await.unwrap();
+            assert!(String::from_utf8_lossy(&input[..read]).starts_with("GET /v1/protocol "));
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            socket.write_all(response.as_bytes()).await.unwrap();
+        });
+        url
+    }
+    fn dispatch(url: String) -> crate::conversations::execution::Dispatch {
+        crate::conversations::execution::Dispatch {
+            target: crate::ai::connections::access::ResolvedTarget {
+                route: crate::model::ConnectionRoute::Custom,
+                revision: 1,
+                url,
+                model: "m".into(),
+                credential: None,
+            },
+            attempt: "a".into(),
+            operation: "o".into(),
+            credential: String::new(),
+            model: "m".into(),
+            route: crate::model::ConnectionRoute::Custom,
+            install_id: "install".into(),
+            messages: vec![provider::PromptMessage {
+                role: "user".into(),
+                content: "Hola".into(),
+            }],
+            gloss_schema: None,
+            coaching_schema: None,
+            gloss_source: None,
+            speech_source: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn only_a_server_advertising_version_2_gets_deltas() {
+        let client = reqwest::Client::new();
+        let modern = protocol_server(
+            r#"{"protocol":"skellyspeak","version":1,"operations_versions":[1,2]}"#,
+        )
+        .await;
+        assert!(
+            supports_deltas(&client, "", &dispatch(modern))
+                .await
+                .unwrap()
+        );
+        let older = protocol_server(r#"{"protocol":"skellyspeak","version":1}"#).await;
+        assert!(
+            !supports_deltas(&client, "", &dispatch(older))
+                .await
+                .unwrap()
+        );
+        assert!(
+            !supports_deltas(
+                &client,
+                "",
+                &dispatch("http://127.0.0.1:9/chat/completions".into())
+            )
+            .await
+            .unwrap()
+        );
+        assert!(
+            supports_deltas(
+                &client,
+                "",
+                &dispatch("http://127.0.0.1:9/v1/operations".into())
+            )
+            .await
+            .is_err(),
+            "unreachable: retried later, never cached"
+        );
+    }
+
+    #[tokio::test]
+    async fn version_2_requests_deltas_for_prose_only_and_reports_them_before_the_result() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
+        let server = tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut input = Vec::new();
+            let payload = loop {
+                let mut chunk = [0u8; 4096];
+                let read = socket.read(&mut chunk).await.unwrap();
+                input.extend_from_slice(&chunk[..read]);
+                if let Some(start) = input.windows(4).position(|w| w == b"\r\n\r\n") {
+                    let headers = String::from_utf8_lossy(&input[..start]).to_ascii_lowercase();
+                    let length: usize = headers
+                        .lines()
+                        .find_map(|l| l.strip_prefix("content-length: ").map(str::to_owned))
+                        .unwrap()
+                        .parse()
+                        .unwrap();
+                    if input.len() >= start + 4 + length {
+                        break serde_json::from_slice::<serde_json::Value>(
+                            &input[start + 4..start + 4 + length],
+                        )
+                        .unwrap();
+                    }
+                }
+            };
+            let prose = payload["items"][0]["operation_id"]
+                .as_str()
+                .unwrap()
+                .to_owned();
+            let structured = payload["items"][1]["operation_id"]
+                .as_str()
+                .unwrap()
+                .to_owned();
+            let body = [
+                serde_json::json!({"type":"delta","operation_id":prose,"attempt_id":"a1","offset":0,"text":"¡Ho"}),
+                serde_json::json!({"type":"delta","operation_id":prose,"attempt_id":"a1","offset":3,"text":"la!"}),
+                serde_json::json!({"type":"result","operation_id":prose,"attempt_id":"a1","response":{"id":"p","model":"m","choices":[{"finish_reason":"stop","message":{"content":"¡Hola!"}}]}}),
+                serde_json::json!({"type":"result","operation_id":structured,"attempt_id":"a2","response":{"id":"p","model":"m","choices":[{"finish_reason":"stop","message":{"content":"{}"}}]}}),
+                serde_json::json!({"type":"complete","count":2}),
+            ].iter().map(|event| format!("{event}\n")).collect::<String>();
+            let response = format!(
+                "HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            );
+            socket.write_all(response.as_bytes()).await.unwrap();
+            payload
+        });
+        let mut first = dispatch(url.clone());
+        first.attempt = "a1".into();
+        first.operation = "11111111-1111-1111-1111-111111111111".into();
+        let mut second = dispatch(url);
+        second.attempt = "a2".into();
+        second.operation = "22222222-2222-2222-2222-222222222222".into();
+        let schema = serde_json::json!({"type":"object"});
+        let outputs = [
+            provider::RequestOutput::Prose,
+            provider::RequestOutput::JsonSchema {
+                name: "fixture",
+                schema: &schema,
+            },
+        ];
+        let mut events = Vec::new();
+        let seen = std::cell::RefCell::new(&mut events);
+        request_streaming(
+            &reqwest::Client::new(),
+            "",
+            &[first, second],
+            &outputs,
+            true,
+            |index, outcome| {
+                seen.borrow_mut()
+                    .push(format!("result {index} {}", outcome?.text));
+                Ok(())
+            },
+            |index, text| seen.borrow_mut().push(format!("delta {index} {text}")),
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            events,
+            [
+                "delta 0 ¡Ho",
+                "delta 0 ¡Hola!",
+                "result 0 ¡Hola!",
+                "result 1 {}"
+            ]
+        );
+        let payload = server.await.unwrap();
+        assert_eq!(payload["version"], 2);
+        assert_eq!(payload["items"][0]["deltas"], true);
+        assert!(
+            payload["items"][1].get("deltas").is_none(),
+            "structured output stays whole"
+        );
     }
 }

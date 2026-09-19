@@ -1,5 +1,5 @@
 import { invoke } from './native'
-import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot } from '../../generated/contracts'
+import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot, TurnHistoryPage, AttemptDetail } from '../../generated/contracts'
 
 export function readWorkspace(): Promise<Snapshot> {
   return invoke<Snapshot>('get_snapshot')
@@ -51,4 +51,14 @@ export function selectedConversation(snapshot: Snapshot, languageId?: string): C
 export function nativeError(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') return error.message
   return String(error)
+}
+
+/** Older turns keyed by turn, so history reaches turns that never produced a message. */
+export function listTurnHistory(conversationId: string, before: string | null, limit = 40): Promise<TurnHistoryPage> {
+  return invoke<TurnHistoryPage>('list_turn_history', { conversationId, before, limit })
+}
+
+/** The request and response recorded for one attempt, fetched only on inspection. */
+export function readAttemptDetail(attemptId: string): Promise<AttemptDetail> {
+  return invoke<AttemptDetail>('get_attempt_detail', { attemptId })
 }

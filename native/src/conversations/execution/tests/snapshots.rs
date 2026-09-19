@@ -156,3 +156,69 @@ fn conversations_have_separate_snapshots_and_app_concurrency_is_bounded() {
     assert!(translation.messages[0].content.contains("Translate"));
     assert!(store.dispatch().unwrap().is_none());
 }
+
+#[test]
+fn turn_history_pages_every_turn_independent_of_messages() {
+    let (_dir, mut store, conversation) = setup();
+    let first = store
+        .execute(send(&store, &conversation))
+        .unwrap()
+        .entity_id;
+    store.dispatch().unwrap();
+    let dispatched = store.dispatch().unwrap().unwrap();
+    store
+        .finish(&dispatched, Err(fail("Fixture rejected reply")))
+        .unwrap();
+    let context: String = store
+        .connection
+        .query_row("SELECT context FROM turns WHERE id=?1", [&first], |r| {
+            r.get(0)
+        })
+        .unwrap();
+    // Odd turns never produce a message, so message paging cannot reach them.
+    for index in 2..=130 {
+        let turn = format!("later-{index}");
+        store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','openrouter','fixture',?3)",params![turn,conversation,context]).unwrap();
+        store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) SELECT ?1||kind,?2,kind,CASE WHEN kind IN ('persona_context','persona_reply') THEN 'succeeded' ELSE 'cancelled' END FROM operations WHERE turn_id=?3",params![format!("operation-{index}-"),turn,first]).unwrap();
+        if index % 2 == 0 {
+            store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) VALUES(?1,?2,?3,?4,'assistant','Later reply')",params![format!("message-{index}"),conversation,turn,index]).unwrap();
+        }
+    }
+    let mut seen = Vec::new();
+    let mut before: Option<String> = None;
+    loop {
+        let page = store
+            .turn_history(&conversation, before.as_deref(), 40)
+            .unwrap();
+        assert!(page.turns.len() <= 40);
+        seen.extend(page.turns.iter().map(|turn| turn.id.clone()));
+        if !page.has_older {
+            break;
+        }
+        before = page.turns.last().map(|turn| turn.id.clone());
+    }
+    assert_eq!(seen.len(), 130);
+    assert_eq!(seen.first().map(String::as_str), Some("later-130"));
+    assert_eq!(seen.last(), Some(&first));
+    assert!(seen.iter().any(|id| id == "later-3"));
+    // History and the snapshot describe a turn through the same builder.
+    let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
+    let recent = store.turn_history(&conversation, None, 10).unwrap();
+    for turn in &recent.turns {
+        let same = snapshot.turns.iter().find(|t| t.id == turn.id).unwrap();
+        assert_eq!(
+            serde_json::to_value(same).unwrap(),
+            serde_json::to_value(turn).unwrap()
+        );
+    }
+    let failed = store
+        .turn_history(&conversation, Some("later-2"), 5)
+        .unwrap();
+    assert_eq!(failed.turns[0].id, first);
+    assert!(!failed.has_older);
+    assert!(
+        store
+            .turn_history(&conversation, Some("missing-turn"), 5)
+            .is_err()
+    );
+}

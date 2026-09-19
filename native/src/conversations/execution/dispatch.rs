@@ -320,7 +320,9 @@ impl Store {
             "UPDATE operations SET state='running',permit=0 WHERE id=?1",
             [&operation],
         )?;
-        tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model) VALUES(?1,?2,'running',?3)",params![attempt,operation,model])?;
+        // The exact request, kept locally for inspection. It never leaves the
+        // workspace: logs, exports and server traffic do not read it.
+        tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,request_messages) VALUES(?1,?2,'running',?3,?4)",params![attempt,operation,model,serde_json::to_string(&messages)?])?;
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {

@@ -7,10 +7,14 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 import type { Settings } from '../../types'
+import { useAiWindowStore } from '../../state/navigation/ai-window'
+import { useAiBusyStore } from '../../state/session/ai-busy'
 
 const viewport = vi.hoisted(() => ({ mobile: false }))
 vi.mock('../../components/layout/useIsMobile', () => ({ useIsMobile: () => viewport.mobile }))
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
+const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
+vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
   {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español'}, {code:'french',base:'french',name:'French',endonym:'Français'}
 ] }))
@@ -77,8 +81,9 @@ it('shows a clickable connected state only after a successful check at the curre
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
   useConnectionHealth.getState().record('custom', 9)
   view.rerender(<TopBar />)
+  // Connected, the status opens the AI View; AI access stays under Settings.
   fireEvent.click(screen.getByRole('button', { name: 'AI Connected' }))
-  expect(useNavigationStore.getState().overlay).toBe('settings')
+  expect(useNavigationStore.getState().overlay).toBe('activity')
   useSessionStore.setState(state => ({ connection: { ...state.connection!, revision: 10 } }))
   view.rerender(<TopBar />)
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
@@ -102,4 +107,38 @@ it('updates the System theme toggle when the OS appearance changes', async () =>
     view.unmount()
     window.matchMedia = original
   }
+})
+
+function connect() {
+  useSessionStore.setState({ connection: {
+    route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1,
+    configured: true, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
+  } })
+  useConnectionHealth.setState({ routes: { hosted: { revision: 1, status: 'connected', checkedAt: 1, error: null } } })
+}
+
+it('opens and closes the AI View from the connected status, and pulses while AI works', () => {
+  connect()
+  useAiWindowStore.setState({ supported: true, open: false })
+  useAiBusyStore.setState({ busy: true })
+  render(<TopBar />)
+  const button = screen.getByRole('button', { name: 'AI Connected' })
+  expect(button).toHaveAttribute('data-busy', 'true')
+  fireEvent.click(button)
+  expect(useNavigationStore.getState().overlay).toBe('activity')
+  expect(button).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(button)
+  expect(useNavigationStore.getState().overlay).toBeNull()
+  useAiBusyStore.setState({ busy: false })
+})
+
+it('focuses the popped-out AI window instead of opening a second view', () => {
+  connect()
+  windowApi.openAiWindow.mockResolvedValue(undefined)
+  useAiWindowStore.setState({ supported: true, open: true })
+  render(<TopBar />)
+  fireEvent.click(screen.getByRole('button', { name: 'AI Connected' }))
+  expect(windowApi.openAiWindow).toHaveBeenCalledOnce()
+  expect(useNavigationStore.getState().overlay).toBeNull()
+  useAiWindowStore.setState({ supported: false, open: false })
 })

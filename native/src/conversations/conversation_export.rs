@@ -270,7 +270,8 @@ mod tests {
             "coach_reply",
             "PRIVATE_COACH_THREAD",
         );
-        store.connection.execute("INSERT INTO attempts(id,operation_id,state,requested_model,error,provider_id,input_tokens,output_tokens) VALUES('attempt',?1,'failed','fixture-model','SECRET_ERROR','SECRET_PROVIDER_RESPONSE',10,2)",[format!("operation-{turn_id}")]).unwrap();
+        // Recorded bodies are local inspection data: never exported.
+        store.connection.execute("INSERT INTO attempts(id,operation_id,state,requested_model,error,provider_id,input_tokens,output_tokens,request_messages,response_text,preview_text) VALUES('attempt',?1,'failed','fixture-model','SECRET_ERROR','SECRET_PROVIDER_RESPONSE',10,2,'[{\"role\":\"user\",\"content\":\"SECRET_RECORDED_REQUEST\"}]','SECRET_RECORDED_RESPONSE','SECRET_RECORDED_PREVIEW')",[format!("operation-{turn_id}")]).unwrap();
         let observed = json!({"meaning_recovered":"partial","items":[{"construct":"question","quote":"Partner opening","outcome":"partial","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"SECRET_HYPOTHESIS","hint":"A hint","elicitation":"Try again","metalinguistic":"A rule"},"rationale":"SECRET_RATIONALE"}]});
         let decision = json!({"exposedMove":"hint","repairStatus":null,"shown":{"construct":"question","quote":"Partner opening","move":"hint","text":"VISIBLE_COACH_HINT"},"retryInvited":true,"fixed":null,"alsoNoticed":[],"keptGoing":false});
         store
@@ -292,6 +293,9 @@ mod tests {
                 assert_eq!(yaml.contains("input_tokens: 10"), backend);
                 assert_eq!(yaml.contains("fixture-hash"), backend);
                 for secret in [
+                    "SECRET_RECORDED_REQUEST",
+                    "SECRET_RECORDED_RESPONSE",
+                    "SECRET_RECORDED_PREVIEW",
                     "SECRET_HYPOTHESIS",
                     "SECRET_RATIONALE",
                     "SECRET_CREDENTIAL",

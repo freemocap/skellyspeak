@@ -563,6 +563,17 @@ pub fn bindings() -> String {
         OperationView::decl(&config),
         AttemptView::decl(&config),
         TurnView::decl(&config),
+        TurnHistoryPage::decl(&config),
+        RecordedMessage::decl(&config),
+        AttemptDetail::decl(&config),
+        AttemptStreamUpdate::decl(&config),
+        AttemptStreamRead::decl(&config),
+        AiViewSelection::decl(&config),
+        AiDefinitionSelection::decl(&config),
+        crate::diagnostics::ai_graphs::AiGraphDefinition::decl(&config),
+        crate::diagnostics::ai_graphs::AiOperationDefinition::decl(&config),
+        crate::diagnostics::ai_graphs::AiPromptTemplate::decl(&config),
+        AiWindowState::decl(&config),
         ConversationSnapshot::decl(&config),
         Difficulty::decl(&config),
         HelpAmount::decl(&config),
@@ -779,6 +790,8 @@ pub struct AttemptView {
     pub input_tokens: Option<i32>,
     pub output_tokens: Option<i32>,
     pub error: Option<String>,
+    /// Text a prose reply received but did not publish as a message.
+    pub unpublished_text: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -792,6 +805,77 @@ pub struct TurnView {
     pub hold: Option<AppError>,
     pub operations: Vec<OperationView>,
     pub attempts: Vec<AttemptView>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AiWindowState {
+    pub supported: bool,
+    pub open: bool,
+}
+/// What the AI View is looking at, handed between the docked panel and the
+/// popped-out window so neither loses the learner's place. `turn_id` is None
+/// while the view follows the newest turn. The operation is named by kind so
+/// the selection carries over to whichever turn is shown.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AiViewSelection {
+    pub conversation_id: Option<String>,
+    pub turn_id: Option<String>,
+    pub operation_kind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub definition: Option<AiDefinitionSelection>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct AiDefinitionSelection {
+    pub graph_id: String,
+    pub operation_kind: Option<String>,
+}
+/// One streaming attempt's state, pushed to every window and returned by
+/// reads. `text` is always the full text so far and `seq` rises on every
+/// change, so any single update is complete and ordering is unambiguous.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AttemptStreamUpdate {
+    pub generation: u32,
+    pub attempt_id: String,
+    pub conversation_id: String,
+    pub turn_id: String,
+    pub operation_id: String,
+    pub kind: String,
+    pub seq: u32,
+    pub text: String,
+    pub terminal: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AttemptStreamRead {
+    pub generation: u32,
+    pub entries: Vec<AttemptStreamUpdate>,
+}
+/// The bodies recorded for one attempt, read only when inspected.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct AttemptDetail {
+    pub request_messages: Option<Vec<RecordedMessage>>,
+    pub response_text: Option<String>,
+    pub preview_text: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordedMessage {
+    pub role: String,
+    pub content: String,
+}
+/// A page of a conversation's turns, newest first, keyed by turn rather than
+/// by message so every turn stays reachable, including coach turns and turns
+/// that never produced a message.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct TurnHistoryPage {
+    pub turns: Vec<TurnView>,
+    pub has_older: bool,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

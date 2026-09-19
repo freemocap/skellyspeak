@@ -12,7 +12,8 @@ import { useSessionStore } from '../state/session/session'
 import { openOverlay } from '../domain/input/back'
 import { reportFault } from '../platform/diagnostics/faults'
 import { SHORTCUT_DEFAULTS } from '../domain/input/keyboard'
-import { LogsOverlay } from '../features/activity/LogsOverlay'
+import { AiViewPanel } from '../features/activity/AiViewPanel'
+import { useAiWindowSync } from './useAiWindowSync'
 import { ReadingProvider } from '../components/reading/TargetText'
 import { SettingsModal } from '../features/settings/SettingsModal'
 import { UpdateBanner } from './shell/UpdateBanner'
@@ -61,6 +62,7 @@ export function AppShell() {
   // Keep evidence read for the active language. The surfaces read the store
   // themselves, so the shell only has to say which language is current.
   useConnectionHealthChecks()
+  useAiWindowSync()
   useLoadSkillEvidence()
   useAppShortcuts(shortcuts)
 
@@ -75,7 +77,7 @@ export function AppShell() {
       <MobileNav />
       <MoreDialog />
       {overlay === 'languages' && <LanguageBrowser onClose={closeOverlay} />}
-      <LogsOverlay open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
+      <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
     </div></ReadingProvider></I18nProvider>
   )

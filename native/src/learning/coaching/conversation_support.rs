@@ -69,9 +69,6 @@ pub fn prompt(
         [turn],
         |r| r.get(0),
     )?;
-    let history = captured["messages"]
-        .as_array()
-        .ok_or_else(|| rejected("missing exchange"))?;
     // The capture ends with the learner source (or opening brief). Include it
     // exactly once, outside the bounded preceding exchange.
     let latest: Option<String> = db
@@ -81,6 +78,19 @@ pub fn prompt(
             |r| r.get(0),
         )
         .optional()?;
+    prompt_for_exchange(partner, latest, kind, captured)
+}
+
+/// Pure projection shared with the graph-definition inspector.
+pub(crate) fn prompt_for_exchange(
+    partner: String,
+    latest: Option<String>,
+    kind: &str,
+    captured: &Value,
+) -> Result<Vec<PromptMessage>> {
+    let history = captured["messages"]
+        .as_array()
+        .ok_or_else(|| rejected("missing exchange"))?;
     if kind == FEEDBACK && latest.is_none() {
         return Err(rejected("learner source unavailable"));
     }

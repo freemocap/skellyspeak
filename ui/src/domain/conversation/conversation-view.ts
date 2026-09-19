@@ -13,7 +13,8 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     }
     let turn = byIdentity.get(message.turnId)
     if (!turn) {
-      turn = { replyState: replyState(snapshot.turns.find(item => item.id === message.turnId), snapshot), id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, user: null, assistant: null, analysisState: null }
+      const execution = snapshot.turns.find(item => item.id === message.turnId)
+      turn = { replyState: replyState(execution, snapshot), execution, id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, user: null, assistant: null, analysisState: null }
       byIdentity.set(message.turnId, turn)
       turns.push(turn)
     }

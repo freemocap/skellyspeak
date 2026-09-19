@@ -346,6 +346,9 @@
 .connection-state[data-configured=true] { color: var(--ink-2); }
 .connection-state[data-configured=false]::before { background: var(--danger-ink); box-shadow: 0 0 0 3px var(--status-wrong-tint); }
 .connection-state[data-configured=true]::before { background: var(--success-ink); box-shadow: 0 0 0 3px var(--status-good-tint); }
+.connection-state[data-busy=true]::before { background: var(--accent); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
+.connection-state[aria-expanded=true] { border-color: var(--accent-line-strong); }
+@media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
 .connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 .connection-setup:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: 2px; }

@@ -8,6 +8,10 @@ import { useSessionStore } from '../../state/session/session'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
+import { useAiWindowStore } from '../../state/navigation/ai-window'
+import { useAiBusyStore } from '../../state/session/ai-busy'
+import { openAiWindow } from '../../platform/ipc/window'
+import { reportFault } from '../../platform/diagnostics/faults'
 
 /** Global language and history navigation. The injected picker supports the local
  * layout fixture; production selection uses the shared settings writer. */
@@ -30,6 +34,16 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const toggleHistory = useNavigationStore((state) => state.toggleHistory)
   const goHome = useNavigationStore((state) => state.goHome)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
+  const toggleOverlay = useNavigationStore((state) => state.toggleOverlay)
+  const aiWindowOpen = useAiWindowStore((state) => state.open)
+  const aiBusy = useAiBusyStore((state) => state.busy)
+  // Connected: the button shows what the AI is doing (the AI View). Not
+  // connected: it leads to AI access, where the connection is fixed.
+  const openAiView = () => {
+    if (!connected) { showOverlay('settings'); return }
+    if (aiWindowOpen) { openAiWindow().catch(error => reportFault('Focusing the AI window', error)); return }
+    toggleOverlay('activity')
+  }
   // The theme the page is showing now: "system" resolves through the OS
   // preference, and the toggle flips what the learner sees.
   const theme = useSettingsStore((state) => state.settings?.theme ?? 'light')
@@ -57,7 +71,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <div className="topbar-actions">
       <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)} XP</strong><span className="profile-meter" aria-hidden="true"><span style={{ width: `${(profile.xp % 50) * 2}%` }} /></span></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
-        aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={() => showOverlay('settings')}>
+        aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={openAiView}
+        aria-expanded={connected ? overlay === 'activity' || aiWindowOpen : undefined} aria-controls={connected ? 'ai-activity' : undefined} data-busy={connected && aiBusy ? true : undefined}>
         <span className="connection-label">{connected ? tr('AI Connected') : tr('AI Not Connected')}</span>
       </button>
 

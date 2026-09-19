@@ -66,7 +66,7 @@ pub(in crate::application) async fn open_ai_window(app: tauri::AppHandle) -> Res
         window.show().map_err(|_| internal())?;
         window.set_focus().map_err(|_| internal())?;
     } else {
-        tauri::WebviewWindowBuilder::new(
+        let window = tauri::WebviewWindowBuilder::new(
             &app,
             "ai",
             tauri::WebviewUrl::App("index.html?view=ai".into()),
@@ -76,8 +76,101 @@ pub(in crate::application) async fn open_ai_window(app: tauri::AppHandle) -> Res
         .min_inner_size(380.0, 400.0)
         .build()
         .map_err(|_| AppError::new(ErrorCode::Internal, "Could not open the AI window."))?;
+        // The main window re-reads the window state on this hint; it never
+        // trusts the event alone, so a missed event cannot leave it stale.
+        let handle = app.clone();
+        window.on_window_event(move |event| {
+            if matches!(event, tauri::WindowEvent::Destroyed) {
+                let _ = handle.emit_to("main", "ai-window-changed", ());
+            }
+        });
+    }
+    let _ = app.emit_to("main", "ai-window-changed", ());
+    Ok(())
+}
+
+/// Whether this build can pop the AI View out, and whether its window exists.
+/// The authoritative answer the main window reconciles against, after reloads
+/// and missed events alike.
+#[tauri::command]
+pub(in crate::application) fn ai_window_state(
+    app: tauri::AppHandle,
+) -> crate::model::AiWindowState {
+    crate::model::AiWindowState {
+        supported: cfg!(desktop),
+        open: app.get_webview_window("ai").is_some(),
+    }
+}
+
+/// Pop the AI View back into the main window: tell the main window to show
+/// its panel, then close the separate window.
+#[tauri::command]
+pub(in crate::application) async fn dock_ai_window(app: tauri::AppHandle) -> Result<()> {
+    app.emit_to("main", "ai-view-docked", ()).map_err(|_| {
+        AppError::new(
+            ErrorCode::Internal,
+            "Could not return the AI View to the main window.",
+        )
+    })?;
+    if let Some(window) = app.get_webview_window("ai") {
+        window
+            .close()
+            .map_err(|_| AppError::new(ErrorCode::Internal, "Could not close the AI window."))?;
     }
     Ok(())
+}
+
+#[tauri::command]
+pub(in crate::application) fn set_ai_view_selection(
+    state: tauri::State<'_, Arc<Application>>,
+    selection: Option<crate::model::AiViewSelection>,
+) -> Result<()> {
+    *state.ai_view_selection.lock().map_err(|_| internal())? = selection;
+    Ok(())
+}
+
+#[tauri::command]
+pub(in crate::application) fn get_ai_view_selection(
+    state: tauri::State<'_, Arc<Application>>,
+) -> Result<Option<crate::model::AiViewSelection>> {
+    Ok(state
+        .ai_view_selection
+        .lock()
+        .map_err(|_| internal())?
+        .clone())
+}
+
+/// The request and response recorded for one attempt, for inspection.
+#[tauri::command]
+pub(in crate::application) fn get_attempt_detail(
+    state: tauri::State<'_, Arc<Application>>,
+    attempt_id: String,
+) -> Result<crate::model::AttemptDetail> {
+    state.lock()?.attempt_detail(&attempt_id)
+}
+
+/// The current text of every streaming attempt in a conversation, for windows
+/// that open or reload mid-stream.
+#[tauri::command]
+pub(in crate::application) fn read_attempt_streams(
+    state: tauri::State<'_, Arc<Application>>,
+    conversation_id: String,
+) -> Result<crate::model::AttemptStreamRead> {
+    state.read_streams(&conversation_id)
+}
+
+/// Older turns of one conversation, keyed by turn so the AI View's history
+/// reaches every recorded turn.
+#[tauri::command]
+pub(in crate::application) fn list_turn_history(
+    state: tauri::State<'_, Arc<Application>>,
+    conversation_id: String,
+    before: Option<String>,
+    limit: u32,
+) -> Result<crate::model::TurnHistoryPage> {
+    state
+        .lock()?
+        .turn_history(&conversation_id, before.as_deref(), limit)
 }
 
 /// Conditional full snapshots combine observation and hydration without an event gap.
@@ -139,4 +232,11 @@ pub(in crate::application) fn preview_conversation_prompt(
         &conversation_id,
         &configuration,
     )
+}
+
+/// Application blueprints, available without a selected conversation or AI access.
+#[tauri::command]
+pub(in crate::application) fn get_ai_graph_definitions()
+-> Result<Vec<crate::diagnostics::ai_graphs::AiGraphDefinition>> {
+    crate::diagnostics::ai_graphs::definitions()
 }

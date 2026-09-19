@@ -46,7 +46,7 @@ export const AnalysisContent = memo(function AnalysisContent({
   return (
     <>
       {['ready', 'running', 'waiting_dependencies'].includes(a.explanationsState ?? '') && (
-        <p className="sect-k pending">
+        <p className="sect-k pending" data-phase={a.explanationsState === 'running' ? 'running' : 'waiting'}>
           {tr("⟳ Analyzing grammar…")}</p>
       )}
 

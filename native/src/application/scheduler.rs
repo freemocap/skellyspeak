@@ -1,6 +1,48 @@
 use super::*;
 
-pub(super) async fn scheduler(state: Arc<Application>) {
+impl Application {
+    fn check_dispatches(&self, dispatches: &[execution::Dispatch]) -> Result<()> {
+        let store = self.lock()?;
+        for dispatch in dispatches {
+            if !store.attempt_active(&dispatch.attempt)? {
+                return Err(AppError::new(
+                    ErrorCode::Provider,
+                    "Operation revoked before dispatch.",
+                ));
+            }
+            holds::check(&store.connection, &dispatch.target)?;
+        }
+        Ok(())
+    }
+
+    // The probe is an asynchronous boundary: cancellation, credential revocation
+    // and admission holds may have changed while it was in flight.
+    async fn prepare_grouped(
+        &self,
+        client: &reqwest::Client,
+        key: &str,
+        dispatches: &[execution::Dispatch],
+    ) -> Result<bool> {
+        let deltas = self.grouped_deltas(client, key, &dispatches[0]).await;
+        self.check_dispatches(dispatches)?;
+        let current = access::resolve(&self.lock()?.connection, access::Capability::Chat)?;
+        for dispatch in dispatches {
+            if current.route != dispatch.target.route
+                || current.revision != dispatch.target.revision
+                || current.url != dispatch.target.url
+                || current.credential != dispatch.target.credential
+            {
+                return Err(AppError::new(
+                    ErrorCode::Conflict,
+                    "AI connection changed before dispatch.",
+                ));
+            }
+        }
+        Ok(deltas)
+    }
+}
+
+pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
     let client = match provider::client() {
         Ok(client) => client,
         Err(error) => {
@@ -9,7 +51,8 @@ pub(super) async fn scheduler(state: Arc<Application>) {
         }
     };
     loop {
-        let mut groups: Vec<Vec<(execution::Dispatch, tokio::sync::OwnedSemaphorePermit)>> =
+        // Each dispatch carries the stream generation it was registered under.
+        let mut groups: Vec<Vec<(execution::Dispatch, tokio::sync::OwnedSemaphorePermit, u32)>> =
             Vec::new();
         // Bounded local planning pass; no timer or artificial batch-fill delay.
         for _ in 0..128 {
@@ -32,6 +75,11 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                 }
             };
             if let Some(dispatch) = dispatch {
+                let generation = if dispatch.speech_source.is_none() {
+                    state.register_stream(&dispatch)
+                } else {
+                    0
+                };
                 if dispatch.speech_source.is_none()
                     && dispatch.route != ConnectionRoute::Openrouter
                     && let Some(group) = groups.iter_mut().find(|g| {
@@ -40,10 +88,10 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                             && grouped::compatible(&g[0].0, &dispatch)
                     })
                 {
-                    group.push((dispatch, permit));
+                    group.push((dispatch, permit, generation));
                     continue;
                 }
-                groups.push(vec![(dispatch, permit)]);
+                groups.push(vec![(dispatch, permit, generation)]);
             } else {
                 drop(permit);
                 match state.lock().and_then(|store| store.has_ready_work()) {
@@ -59,8 +107,16 @@ pub(super) async fn scheduler(state: Arc<Application>) {
         for group in groups {
             let state = state.clone();
             let client = client.clone();
+            let app = app.clone();
             tauri::async_runtime::spawn(async move {
-                let (dispatches, permits): (Vec<_>, Vec<_>) = group.into_iter().unzip();
+                let mut dispatches = Vec::new();
+                let mut permits = Vec::new();
+                let mut generations = Vec::new();
+                for (dispatch, permit, generation) in group {
+                    dispatches.push(dispatch);
+                    permits.push(permit);
+                    generations.push(generation);
+                }
                 let mut permits: Vec<_> = permits.into_iter().map(Some).collect();
                 let mut finished = vec![false; dispatches.len()];
                 let result: Result<()> = async {
@@ -69,12 +125,7 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                         else { read_secret(first.credential.clone()).await? };
                     // A group is captured under one authority; reject before HTTP
                     // if any item lost that authority during credential access.
-                    for dispatch in &dispatches {
-                        if !state.lock()?.attempt_active(&dispatch.attempt)? {
-                            return Err(AppError::new(ErrorCode::Provider, "Operation revoked before grouped dispatch."));
-                        }
-                        holds::check(&state.lock()?.connection, &dispatch.target)?;
-                    }
+                    state.check_dispatches(&dispatches)?;
                     let outputs: Vec<_> = dispatches.iter().map(|dispatch| {
                         if let Some(schema) = dispatch.coaching_schema.as_ref() {
                             Ok(provider::RequestOutput::JsonSchema { name: "coaching", schema })
@@ -106,7 +157,15 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                         finished[0] = true;
                         permits[0].take();
                     } else if first.route == ConnectionRoute::Openrouter {
-                        let request = provider::complete_with_output(&client, &key, first, outputs[0]);
+                        // Prose streams; structured requests stay whole until
+                        // structured deltas are verified (plan D4).
+                        let request = async {
+                            if matches!(outputs[0], provider::RequestOutput::Prose) {
+                                provider::complete_streaming(&client, &key, first, |text| state.stream_delta(generations[0], &first.attempt, text)).await
+                            } else {
+                                provider::complete_with_output(&client, &key, first, outputs[0]).await
+                            }
+                        };
                         tokio::pin!(request);
                         let outcome = loop {
                             tokio::select! {
@@ -118,16 +177,19 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                                 }
                             }
                         };
-                        state.lock()?.finish(first, outcome)?;
+                        state.finish_attempt(&app, generations[0], first, outcome)?;
                         finished[0] = true;
                         permits[0].take();
                     } else {
-                        let request = grouped::request_with_outputs(&client, &key, &dispatches, &outputs, |index, outcome| {
-                            state.lock()?.finish(&dispatches[index], outcome)?;
+                        // Version 2 streams prose items' text; an older or
+                        // custom server keeps the whole-result protocol.
+                        let deltas = state.prepare_grouped(&client, &key, &dispatches).await?;
+                        let request = grouped::request_streaming(&client, &key, &dispatches, &outputs, deltas, |index, outcome| {
+                            state.finish_attempt(&app, generations[index], &dispatches[index], outcome)?;
                             finished[index] = true;
                             permits[index].take();
                             Ok(())
-                        });
+                        }, |index, text| state.stream_delta(generations[index], &dispatches[index].attempt, text));
                         tokio::pin!(request);
                         loop {
                             tokio::select! {
@@ -166,7 +228,8 @@ pub(super) async fn scheduler(state: Arc<Application>) {
                                     )
                                     .map(|_| ())
                             } else {
-                                store.finish(dispatch, Err(error))
+                                drop(store);
+                                state.finish_attempt(&app, generations[index], dispatch, Err(error))
                             }
                         }) {
                             state.stop(error);
@@ -178,3 +241,7 @@ pub(super) async fn scheduler(state: Arc<Application>) {
         tokio::time::sleep(Duration::from_millis(100)).await;
     }
 }
+
+#[cfg(test)]
+#[path = "tests/scheduler.rs"]
+mod tests;

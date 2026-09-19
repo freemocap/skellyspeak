@@ -1,0 +1,37 @@
+<!-- @dsCard height=320 -->
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;background:var(--bg)}
+  .cover{position:relative;width:960px;height:320px;background:var(--bg);overflow:hidden;font-family:var(--font-sans)}
+  svg{position:absolute;inset:0}
+  .teal{fill:var(--chat-stripe-0)} .warm{fill:var(--bubble-partner-line)} .blue{fill:var(--interaction-fill)}
+  .red{fill:var(--red-500)} .ink{fill:var(--ink)}
+  .dot-cut{fill:var(--bg)} .dot-on{fill:var(--ink-on-fill)}
+  .text{position:absolute;left:40px;bottom:40px;max-width:420px}
+  h1{margin:0;font-size:64px;line-height:.95;font-weight:600;letter-spacing:-0.01em;color:var(--ink)}
+  p{margin:14px 0 0;font-size:14px;line-height:1.4;color:var(--ink-3)}
+</style></head><body>
+<div class="cover">
+  <svg width="960" height="320" viewBox="0 0 960 320" aria-hidden="true">
+    <!-- blocks: chat-stripe-0 272x104, bubble-partner-line 200x156, interaction-fill 348x88, red-500 120x64, ink 176x64
+         arrangement: a staggered chat thread right of x=480 — partner bubbles hug the left of the zone, learner bubbles the right; warm block bleeds off the top
+         pattern: literal motif (the chat bubble) — every block is a bubble cut from radius-lg×2 with one radius-sm tail corner on the speaker's side, plus two typing-dot triplets (discs); chosen because SkellySpeak's warm-partner / cool-learner thread is the product
+         scales: gaps space-8 (16px) and space-10 (20px); radii radius-lg×2 (24) and radius-sm (6); dots r=space-4 (8) at pitch 28 -->
+    <path class="teal" d="M524,28 H748 A24,24 0 0 1 772,52 V108 A24,24 0 0 1 748,132 H506 A6,6 0 0 1 500,126 V52 A24,24 0 0 1 524,28 Z"/>
+    <path class="warm" d="M816,-24 H968 A24,24 0 0 1 992,0 V108 A24,24 0 0 1 968,132 H798 A6,6 0 0 1 792,126 V0 A24,24 0 0 1 816,-24 Z"/>
+    <path class="blue" d="M612,148 H912 A24,24 0 0 1 936,172 V230 A6,6 0 0 1 930,236 H612 A24,24 0 0 1 588,212 V172 A24,24 0 0 1 612,148 Z"/>
+    <path class="red" d="M524,252 H596 A24,24 0 0 1 620,276 V292 A24,24 0 0 1 596,316 H506 A6,6 0 0 1 500,310 V276 A24,24 0 0 1 524,252 Z"/>
+    <path class="ink" d="M784,252 H912 A24,24 0 0 1 936,276 V310 A6,6 0 0 1 930,316 H784 A24,24 0 0 1 760,292 V276 A24,24 0 0 1 784,252 Z"/>
+    <circle class="dot-cut" cx="540" cy="80" r="8"/>
+    <circle class="dot-cut" cx="568" cy="80" r="8"/>
+    <circle class="dot-cut" cx="596" cy="80" r="8"/>
+    <circle class="dot-on" cx="844" cy="192" r="8"/>
+    <circle class="dot-on" cx="872" cy="192" r="8"/>
+    <circle class="dot-on" cx="900" cy="192" r="8"/>
+  </svg>
+  <div class="text">
+    <h1>SkellySpeak</h1>
+    <p>A convivial tool for learning languages through welcoming conversations.</p>
+  </div>
+</div>
+</body></html>

@@ -3,16 +3,34 @@ import type { ReplyState } from '../../../domain/conversation/reply-state'
 import { nativeError } from '../../../platform/ipc/workspace'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { useI18n } from '../../../components/localization/i18n'
+import { ActivitySummary } from '../../../components/feedback/ActivitySummary'
+import type { TurnActivity } from '../../../domain/conversation/activity-summary'
+import type { AttemptStreamUpdate } from '../../../generated/contracts'
 
-export function ReplyStatus({ reply, onControl, onActivity }: { reply?: ReplyState; onControl?: (control: 'retry' | 'resume') => Promise<void>; onActivity?: () => void }) {
+/// Text that arrived for a reply: shown exactly as received, in one plain node,
+/// the moment it arrives. Complete words are never held back.
+function ReceivedText({ text, streaming, rtl }: { text: string; streaming: boolean; rtl?: boolean }) {
+  return <p className={streaming ? 'reply-received streaming' : 'reply-received'} dir={rtl ? 'rtl' : 'auto'}>{text}{streaming && <span className="stream-caret" aria-hidden="true" />}</p>
+}
+
+export function ReplyStatus({ reply, activity, stream, retainedText, rtl, onControl, onActivity }: {
+  reply?: ReplyState; activity?: TurnActivity | null; stream?: AttemptStreamUpdate | null; retainedText?: string | null; rtl?: boolean
+  onControl?: (control: 'retry' | 'resume') => Promise<void>; onActivity?: () => void
+}) {
   const tr = useI18n()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const locked = useRef(false)
   const state = reply?.state ?? 'unavailable'
-  if (state === 'pending') return <div className="msg chat-message bot pending"><ActivityIndicator compact label={tr('Thinking…')} /></div>
+  const received = stream?.text || retainedText || null
+  if (state === 'pending') {
+    const summary = activity ? <ActivitySummary activity={activity} /> : <ActivityIndicator compact label={tr('Thinking…')} />
+    if (received) return <div className="msg chat-message bot is-hydrating" aria-busy="true"><ReceivedText text={received} streaming rtl={rtl} /><div className="reply-activity" role="status">{summary}</div></div>
+    return <div className="msg chat-message bot pending" role="status">{summary}</div>
+  }
   const label = state === 'failed' ? tr('Partner reply failed.') : state === 'unknown' ? tr('Partner reply outcome is unknown. Retrying may repeat provider work and charges.') : state === 'cancelled' ? tr('Partner reply was cancelled. Send a new message to continue.') : state === 'held' ? tr('Partner reply is held.') : state === 'paused' ? tr('Partner reply is paused.') : tr('Partner reply is unavailable.')
-  return <div className="msg chat-message bot">
+  return <div className="msg chat-message bot" data-reply-state={state}>
+    {received && <ReceivedText text={received} streaming={false} rtl={rtl} />}
     <p role={state === 'failed' || state === 'unknown' || state === 'unavailable' ? 'alert' : 'status'}>{label}</p>
     {reply?.error && <p>{reply.error}</p>}
     {reply?.control && onControl && <button type="button" disabled={pending} onClick={() => {

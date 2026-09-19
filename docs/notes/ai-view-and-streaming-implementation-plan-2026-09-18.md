@@ -1,6 +1,7 @@
 # AI View, live status and token streaming: implementation plan (September 18, 2026)
 
-Status: **proposal for review, revision 3. Nothing here is implemented.**
+Status: **revision 3, implemented in source.** See `ai-view-and-streaming-implementation-2026-09-18.md`
+for what was built and verified. The text below is the plan as reviewed.
 Revisions 2 and 3 incorporate two external reviews; sections 12 and 13 map each
 finding to its resolution. The file and line references were re-checked against the
 working tree on this date, after the review. Any behaviour described as

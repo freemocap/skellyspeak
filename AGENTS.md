@@ -114,9 +114,9 @@ Follow [native/README.md](native/README.md). Native code stays under `native/src
   points in mod.rs and behavior suites in execution/tests/; do not recombine them
   into a single implementation or test file. Preserve transaction boundaries when
   extending these modules.
-- `partners/`: persona definitions, generation, generation receipts, discovery and
-  reactions. Group persona definitions/prompts in `persona/` and generation/receipts
-  in `generation/`; discovery and reactions remain individual files.
+- `partners/`: persona definitions, generation, generation receipts and reactions.
+  Group persona definitions/prompts in `persona/` and generation/receipts in
+  `generation/`; reactions remain in `partner_reaction.rs`.
 - `learning/`: coaching, validated observations, learner state, progression,
   rewards and reward settings. Use `coaching/`, `learner/` and `rewards/` for those
   groups. Lesson generation is removed. Preserve durable turn ownership, one-time

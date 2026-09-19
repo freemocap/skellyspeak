@@ -6,9 +6,19 @@ export interface ReplyState {
   control: 'retry' | 'resume' | null
 }
 
+/** The one place the UI names which operations produce a conversation reply.
+ * Partner replies (including openings) drive the chat; coach replies are prose
+ * too, for streaming and summaries. Everything else reads these helpers. */
+export function isPartnerReply(kind: string): boolean {
+  return kind === 'persona_reply' || kind === 'persona_opening'
+}
+export function isProseReply(kind: string): boolean {
+  return isPartnerReply(kind) || kind === 'coach_reply'
+}
+
 /** Operation state wins over sibling assistance; only an active reply may show progress. */
 export function replyState(turn: TurnView | undefined, snapshot: Pick<ConversationSnapshot, 'connection' | 'turns'>): ReplyState {
-  const operation = turn?.operations.find(item => item.kind === 'persona_reply' || item.kind === 'persona_opening')
+  const operation = turn?.operations.find(item => isPartnerReply(item.kind))
   if (!turn || !operation) return { state: 'unavailable', error: null, control: null }
   const error = turn.hold?.message ?? turn.attempts.filter(attempt => attempt.operationId === operation.id && attempt.error).at(-1)?.error ?? null
   const retry = ['failed', 'unknown'].includes(turn.state) && snapshot.turns[0]?.id === turn.id ? 'retry' : null

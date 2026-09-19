@@ -16,7 +16,7 @@ pub fn validate_prose(text: &str) -> Result<()> {
     {
         return Err(AppError::new(
             ErrorCode::Provider,
-            "The reply failed the nonempty, length or emoji-free output contract. No reply was published.",
+            "The reply failed the nonempty, length or emoji-free output contract. It was not saved to the conversation; any text that arrived is shown above.",
         ));
     }
     Ok(())

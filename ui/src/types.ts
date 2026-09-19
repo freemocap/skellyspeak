@@ -78,6 +78,8 @@ export interface PersonaReaction {
 /// transient by definition and never written to disk.
 export interface StoredTurn {
   replyState?: import('./domain/conversation/reply-state').ReplyState
+  /// The turn's recorded operations and attempts, for live activity.
+  execution?: import('./generated/contracts').TurnView
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null

@@ -6,7 +6,7 @@ const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const graph = buildGraph(repositoryRoot)
 
 /// Modules that must be reachable for the walk to be believable. `SkillsPage`
-/// is reached through `lazy(() => import(...))` and `LiveActivity` through a
+/// is reached through `lazy(() => import(...))` and `AiView` through a
 /// static import inside an overlay, so both are the cases a walk that only
 /// understands `import ... from` gets wrong. Asserting them is a guard on the
 /// tool, not on the application.
@@ -15,8 +15,8 @@ const CRITICAL = [
   'ui/src/app/App.tsx',
   'ui/src/features/conversation/ConversationPage.tsx',
   'ui/src/features/skills/SkillsPage.tsx',
-  'ui/src/features/activity/LiveActivity.tsx',
-  'ui/src/features/activity/LogsOverlay.tsx',
+  'ui/src/features/activity/AiView.tsx',
+  'ui/src/features/activity/AiViewPanel.tsx',
   'ui/src/platform/ipc/tauri.ts',
   'ui/src/platform/diagnostics/faults.ts',
 ]

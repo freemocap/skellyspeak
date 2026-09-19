@@ -2,6 +2,11 @@
 
 Status: source implementation and browser layout review, 2026-09-15.
 
+Historical implementation record: the later
+[approved cleanup](patch-readiness-audit-2026-09-18.md#approved-cleanup-verification)
+removed lessons and all mystery-persona behavior described below. Those entries
+do not describe the current application.
+
 ## Intent and reference boundary
 
 The user requested a voice-chat-centered rebuild using

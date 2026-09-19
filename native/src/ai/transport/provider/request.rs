@@ -130,32 +130,134 @@ async fn request_payload(
         bytes.extend_from_slice(&chunk);
     }
     let mut result = decode(&bytes);
-    match &mut result {
-        Ok(value) => {
-            value
-                .diagnostics
-                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+    attach_http(&mut result, http, &private);
+    result
+}
+
+/// Record the HTTP facts on a result, then redact its diagnostics.
+fn attach_http(result: &mut Result<Completion>, http: serde_json::Value, private: &[&str]) {
+    let diagnostics = match result {
+        Ok(value) => &mut value.diagnostics,
+        Err(error) => &mut error.diagnostics,
+    };
+    diagnostics.get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+    *diagnostics = diagnostics
+        .as_ref()
+        .map(|v| crate::diagnostics::response::metadata(v, private));
+}
+
+fn stream_error(message: &str, diagnostics: serde_json::Value) -> AppError {
+    let mut error = AppError::new(ErrorCode::Provider, message);
+    error.diagnostics = Some(diagnostics);
+    error
+}
+
+/// Prose on the direct route, streamed. `on_delta` receives the full text so
+/// far each time it grows. A completed stream is decoded exactly like a
+/// non-streaming response; a failed one reports what arrived without its text.
+pub async fn complete_streaming(
+    client: &reqwest::Client,
+    key: &str,
+    dispatch: &crate::conversations::execution::Dispatch,
+    mut on_delta: impl FnMut(&str),
+) -> Result<Completion> {
+    use crate::ai::transport::streaming::{CompletionAccumulator, SseFramer, StreamEnd};
+    if dispatch.route != ConnectionRoute::Openrouter {
+        return complete(client, key, dispatch).await;
+    }
+    let mut body = payload(&dispatch.model, &dispatch.messages, dispatch.route)?;
+    body["stream"] = serde_json::json!(true);
+    // OpenRouter reports usage and cost in the final chunk only when asked.
+    body["usage"] = serde_json::json!({"include": true});
+    let request = client.post(&dispatch.target.url).json(&body);
+    let request = if key.is_empty() {
+        request
+    } else {
+        request.bearer_auth(key)
+    };
+    let private: Vec<&str> = dispatch
+        .messages
+        .iter()
+        .map(|m| m.content.as_str())
+        .chain(std::iter::once(key))
+        .collect();
+    let mut response = request
+        .send()
+        .await
+        .map_err(|e| crate::diagnostics::response::network(&e, "chat_request"))?;
+    if !response.status().is_success() {
+        return Err(crate::diagnostics::response::http_error(response, "Chat", &private).await);
+    }
+    let http = crate::diagnostics::response::headers(&response);
+    let mut framer = SseFramer::default();
+    let mut accumulator = CompletionAccumulator::default();
+    // A framing or limit failure while reading; None means the body ended.
+    let mut failure: Option<AppError> = None;
+    loop {
+        let chunk = match response.chunk().await {
+            Ok(Some(chunk)) => chunk,
+            Ok(None) => break,
+            Err(_) => {
+                failure = Some(stream_error(
+                    "The AI service's streamed reply broke off. Usage may have been incurred; no automatic retry was made.",
+                    accumulator.partial_diagnostics("connection_lost"),
+                ));
+                break;
+            }
+        };
+        let mut grew = false;
+        let pushed = framer.push(&chunk, |event| {
+            grew |= accumulator.accept(&event)?;
+            Ok(())
+        });
+        if grew {
+            on_delta(accumulator.text());
         }
-        Err(error) => {
-            error
-                .diagnostics
-                .get_or_insert_with(|| serde_json::json!({}))["http"] = http;
+        if let Err(mut error) = pushed {
+            // Framing and size failures must retain facts received before the
+            // failure, just like provider errors and an interrupted connection.
+            let mut details = accumulator.partial_diagnostics("stream_failure");
+            if let Some(serde_json::Value::Object(cause)) = error.diagnostics.take() {
+                for (key, value) in cause {
+                    details[key] = value;
+                }
+            }
+            error.diagnostics = Some(details);
+            failure = Some(error);
+            break;
         }
     }
-    match &mut result {
-        Ok(value) => {
-            value.diagnostics = value
-                .diagnostics
-                .as_ref()
-                .map(|v| crate::diagnostics::response::metadata(v, &private))
-        }
-        Err(error) => {
-            error.diagnostics = error
-                .diagnostics
-                .as_ref()
-                .map(|v| crate::diagnostics::response::metadata(v, &private))
-        }
+    // Providers can echo already streamed content in their error metadata.
+    let mut private = private;
+    if !accumulator.text().is_empty() {
+        private.push(accumulator.text());
     }
+    let mut result = match (failure, accumulator.end()) {
+        (Some(error), _) => Err(error),
+        (None, StreamEnd::Completed) => {
+            decode(&serde_json::to_vec(&accumulator.completion_json())?)
+        }
+        (None, StreamEnd::ProviderError) => {
+            let reason = accumulator
+                .error_payload()
+                .map(|error| crate::diagnostics::response::metadata(error, &private))
+                .and_then(|error| crate::diagnostics::response::reason(&error).map(str::to_owned));
+            Err(stream_error(
+                &match reason {
+                    Some(reason) => format!(
+                        "The AI service reported an error during the reply. Provider reason: {reason}"
+                    ),
+                    None => "The AI service reported an error during the reply.".into(),
+                },
+                accumulator.partial_diagnostics("provider_error"),
+            ))
+        }
+        (None, StreamEnd::TransportBroken) => Err(stream_error(
+            "The AI service's streamed reply broke off. Usage may have been incurred; no automatic retry was made.",
+            accumulator.partial_diagnostics("transport_broken"),
+        )),
+    };
+    attach_http(&mut result, http, &private);
     result
 }
 

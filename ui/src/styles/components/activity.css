@@ -28,3 +28,67 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Live activity summary: what the AI is doing now, in one line. */
+.activity-summary { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 0; font-size: var(--type-ui); color: var(--ink-2); }
+
+.activity-summary-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.activity-summary-last { flex: none; color: var(--ink-3); white-space: nowrap; }
+
+.turn-activity { margin-block-start: var(--space-2); padding-inline: var(--space-4); transition: opacity var(--dur-slow) var(--ease-out); }
+
+.turn-activity[data-settled=true] { opacity: 0.7; }
+
+.turn-activity-open { display: inline-flex; max-width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+
+.turn-activity-open:hover .activity-summary-text { color: var(--ink); text-decoration: underline; }
+
+.reply-activity { margin-block-start: var(--space-3); }
+
+/* Hydration: only a surface whose operation is running moves, with one moving
+   edge. Waiting and held surfaces are still. */
+.is-hydrating { position: relative; }
+
+.is-hydrating::after {
+  content: ''; position: absolute; inset: calc(-1 * var(--border-width)); border-radius: inherit;
+  padding: var(--border-width); pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 18%, transparent 36%, transparent 100%) 0 0 / 300% 100%;
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  animation: hydrate-sweep var(--dur-loop-slow) linear infinite;
+}
+
+/* Received reply text: exactly what arrived, in one plain node. */
+.reply-received { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+
+.msg[data-reply-state] .reply-received { margin-block-end: var(--space-3); color: var(--ink-2); }
+
+.stream-caret {
+  display: inline-block; width: 0.45em; height: 1em; margin-inline-start: var(--space-1);
+  vertical-align: text-bottom; background: var(--accent);
+  animation: stream-caret var(--dur-loop-fast) steps(1) infinite;
+}
+
+.hydrating-block { display: flex; flex-direction: column; gap: var(--space-2); margin-block-start: var(--space-3); }
+
+.hydrating-label { font-size: var(--type-meta); color: var(--ink-3); }
+
+.hydrating-line {
+  display: block; width: 90%; height: 8px; border-radius: var(--radius-pill); background: var(--chip);
+}
+
+.hydrating-line-short { width: 55%; }
+
+.hydrating-block[data-phase=running] .hydrating-line {
+  background: linear-gradient(90deg, var(--chip) 0%, var(--quiet) 50%, var(--chip) 100%) 0 0 / 200% 100%;
+  animation: hydrate-shimmer var(--dur-loop) linear infinite;
+}
+
+.hydrating-block[data-phase=waiting] { opacity: 0.6; }
+
+.hydrating-waiting { color: var(--ink-3); font-size: var(--type-meta); }
+
+@media (prefers-reduced-motion: reduce) {
+  .is-hydrating::after { animation: none; background: var(--accent); }
+  .stream-caret, .hydrating-block[data-phase=running] .hydrating-line, .reply-received { animation: none; }
+}

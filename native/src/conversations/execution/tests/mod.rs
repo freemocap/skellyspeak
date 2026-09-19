@@ -3,6 +3,7 @@ use super::*;
 mod fixtures;
 use fixtures::*;
 
+mod attempt_bodies;
 mod coaching;
 mod compact_coaching;
 mod connections;

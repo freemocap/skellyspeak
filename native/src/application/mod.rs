@@ -46,6 +46,7 @@ mod commands;
 mod scheduler;
 mod startup;
 mod state;
+mod streams;
 
 pub(crate) use commands::partners::generation_identity;
 use scheduler::scheduler;

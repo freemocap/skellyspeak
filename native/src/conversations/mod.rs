@@ -1,3 +1,4 @@
+pub(crate) mod coach_prompt;
 pub(crate) mod conversation_export;
 pub(crate) mod conversation_prompt;
 pub mod direction;

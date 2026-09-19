@@ -3,6 +3,9 @@
 The repository has three application layers: [UI](../ui/), [native](../native/),
 and [server](../server/). Their internal organization is unchanged by the top-level move.
 
+The [design system](design-system/) documents SkellySpeak's tokens, type, components
+and icons; see the UI README for how it is generated.
+
 Use [working notes](notes/README.md) for plans, investigations, reports, and handoffs
 that do not belong in maintained guides or the published website.
 

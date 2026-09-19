@@ -195,3 +195,168 @@ async fn redirects_are_not_followed_and_provider_errors_are_redacted() {
         std::io::ErrorKind::WouldBlock
     );
 }
+
+fn sse(events: &[serde_json::Value], done: bool) -> String {
+    let mut body: String = events
+        .iter()
+        .map(|event| format!("data: {event}\n\n"))
+        .collect();
+    if done {
+        body.push_str("data: [DONE]\n\n");
+    }
+    body
+}
+
+#[tokio::test]
+async fn streamed_prose_reports_growth_and_decodes_like_a_whole_response() {
+    let body = sse(
+        &[
+            serde_json::json!({"id":"gen","model":"actual","choices":[{"delta":{"content":"¿Qué "}}]}),
+            serde_json::json!({"id":"gen","model":"actual","choices":[{"delta":{"content":"tal?"},"finish_reason":"stop"}]}),
+            serde_json::json!({"id":"gen","model":"actual","choices":[],"usage":{"prompt_tokens":9,"completion_tokens":3}}),
+        ],
+        true,
+    );
+    let (url, worker) = server("200 OK", &body, "");
+    let mut seen = Vec::new();
+    let result = complete_streaming(
+        &client().unwrap(),
+        "test-credential",
+        &structured_dispatch(url, ConnectionRoute::Openrouter),
+        |text| seen.push(text.to_owned()),
+    )
+    .await
+    .unwrap();
+    assert_eq!(result.text, "¿Qué tal?");
+    assert_eq!(result.finish_reason, "stop");
+    assert_eq!(
+        (result.input_tokens, result.output_tokens),
+        (Some(9), Some(3))
+    );
+    assert_eq!(seen.last().map(String::as_str), Some("¿Qué tal?"));
+    assert!(result.diagnostics.unwrap().get("http").is_some());
+    let payload = worker.join().unwrap();
+    assert_eq!(payload["stream"], true);
+    assert_eq!(payload["usage"], serde_json::json!({"include": true}));
+}
+
+#[tokio::test]
+async fn streamed_failures_keep_what_arrived_without_leaking_text() {
+    let cases = [
+        (
+            sse(
+                &[
+                    serde_json::json!({"id":"gen","model":"actual","choices":[{"delta":{"content":"Parti"}}]}),
+                    serde_json::json!({"error":{"code":502,"message":"Upstream fixture failed"}}),
+                ],
+                false,
+            ),
+            "provider_error",
+        ),
+        (
+            sse(
+                &[
+                    serde_json::json!({"id":"gen","model":"actual","choices":[{"delta":{"content":"Parti"}}]}),
+                ],
+                false,
+            ),
+            "transport_broken",
+        ),
+    ];
+    for (body, reason) in cases {
+        let (url, worker) = server("200 OK", &body, "");
+        let mut seen = Vec::new();
+        let error = complete_streaming(
+            &client().unwrap(),
+            "test-credential",
+            &structured_dispatch(url, ConnectionRoute::Openrouter),
+            |text| seen.push(text.to_owned()),
+        )
+        .await
+        .unwrap_err();
+        worker.join().unwrap();
+        assert_eq!(
+            seen,
+            vec!["Parti".to_owned()],
+            "{reason}: the text reached the caller"
+        );
+        let details = error.diagnostics.unwrap();
+        assert_eq!(details["reason"], reason);
+        assert_eq!(details["chars"], 5);
+        assert!(!details.to_string().contains("Parti"));
+        assert!(!error.message.contains("test-credential"));
+    }
+}
+
+#[tokio::test]
+async fn every_stream_failure_keeps_received_metadata_and_redacts_content() {
+    use serde_json::json;
+    let prefix = sse(
+        &[
+            json!({"id":"gen-retained","model":"actual-model","provider":"Google",
+            "debug_blob":"unclassified-private-value", "api_key":"test-credential",
+            "choices":[{"delta":{"content":"Private response"},"finish_reason":"length","native_finish_reason":"MAX_TOKENS"}]}),
+            json!({"usage":{"prompt_tokens":9,"completion_tokens":3,"cost":0.001,
+            "prompt_tokens_details":{"cached_tokens":2},"content":"private usage content"}}),
+        ],
+        false,
+    );
+    let cases = [
+        (String::new(), "transport_broken"),
+        ("data: {broken\n\n".into(), "invalid_event_json"),
+        (
+            sse(
+                &[
+                    json!({"error":{"code":502,"message":"fixture test-credential Private response"}}),
+                ],
+                false,
+            ),
+            "provider_error",
+        ),
+        (
+            sse(
+                &[json!({"choices":[{"delta":{"content":"x".repeat(262_144)}}]})],
+                false,
+            ),
+            "response_limit",
+        ),
+    ];
+    for (suffix, reason) in cases {
+        let (url, worker) = server(
+            "200 OK",
+            &(prefix.clone() + &suffix),
+            "X-Request-ID: http-retained\r\n",
+        );
+        let error = complete_streaming(
+            &client().unwrap(),
+            "test-credential",
+            &structured_dispatch(url, ConnectionRoute::Openrouter),
+            |_| {},
+        )
+        .await
+        .unwrap_err();
+        worker.join().unwrap();
+        let details = error.diagnostics.unwrap();
+        assert_eq!(details["reason"], reason);
+        assert_eq!(details["id"], "gen-retained");
+        assert_eq!(details["model"], "actual-model");
+        assert_eq!(details["provider"], "Google");
+        assert_eq!(details["native_finish_reason"], "MAX_TOKENS");
+        assert_eq!(
+            details["usage"]["prompt_tokens_details"]["cached_tokens"],
+            2
+        );
+        assert_eq!(details["usage"]["cost"], 0.001);
+        assert!(details["http"].to_string().contains("http-retained"));
+        let recorded = format!("{details} {}", error.message);
+        for private in [
+            "Private response",
+            "fixture",
+            "test-credential",
+            "unclassified-private-value",
+            "private usage content",
+        ] {
+            assert!(!recorded.contains(private), "{reason} leaked {private}");
+        }
+    }
+}

@@ -1,4 +1,5 @@
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
+import { useAttemptStreamSync } from '../../state/session/attempt-streams'
 import type { ConversationStartConfig } from '../../generated/contracts'
 import { AskCoachContext } from '../../components/learning/AskCoachButton'
 import { useI18n } from '../../components/localization/i18n'
@@ -184,6 +185,7 @@ export default function ConversationPage({
   const selectedChatRef = useRef(currentChatId)
   selectedChatRef.current = currentChatId
   const details = useConversationDetails(currentChatId, snapshotRevision)
+  useAttemptStreamSync(currentChatId)
   const [creatingConversation, setCreatingConversation] = useState(false)
   const creatingContactConversation = useRef(false)
   const [contactError, setContactError] = useState<string | null>(null)
@@ -489,6 +491,7 @@ export default function ConversationPage({
             busy={sending}
             replies={activeTurns.at(-1)?.assistant?.scaffolds.replies ?? []}
             pending={['ready', 'running', 'waiting_dependencies'].includes(activeTurns.at(-1)?.assistant?.suggestionsState ?? '')}
+            running={activeTurns.at(-1)?.assistant?.suggestionsState === 'running'}
             errors={activeTurns.at(-1)?.assistant?.errors ?? []}
             onUse={(text, source) => {
               inputEvidence.current = { ...inputEvidence.current, [source]: true }
@@ -558,6 +561,7 @@ export default function ConversationPage({
             <Fragment key={turn.turnId}><TurnView
               turn={turn}
               onActivity={() => useNavigationStore.getState().showOverlay('activity')}
+              latest={turn === activeTurns.at(-1)}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}

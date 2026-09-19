@@ -18,6 +18,14 @@
 
 @keyframes activity-spin { to { transform: rotate(360deg); } }
 
+@keyframes hydrate-sweep { from { background-position: 0% 0; } to { background-position: 300% 0; } }
+
+@keyframes hydrate-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+@keyframes stream-caret { 50% { opacity: 0; } }
+
+@keyframes hydrate-arrive { from { opacity: 0; } to { opacity: 1; } }
+
 @keyframes reward-receipt { 0% { opacity: 0; transform: translateY(-8px); } 10%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
 @keyframes xp-invitation { 0%, 75%, 100% { transform: translateY(-50%); box-shadow: none; } 85% { transform: translateY(calc(-50% - 1px)); box-shadow: 0 0 5px color-mix(in srgb, currentColor 15%, transparent); } }

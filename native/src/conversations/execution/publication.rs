@@ -64,7 +64,52 @@ impl Store {
         }
     }
 
+    /// Where an attempt belongs, for its stream: conversation, turn, operation, kind.
+    pub fn attempt_scope(&self, attempt: &str) -> Result<Option<(String, String, String, String)>> {
+        Ok(self.connection.query_row("SELECT t.conversation_id,t.id,o.id,o.kind FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1",[attempt],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional()?)
+    }
+
+    pub fn attempt_state(&self, attempt: &str) -> Result<Option<String>> {
+        Ok(self
+            .connection
+            .query_row("SELECT state FROM attempts WHERE id=?1", [attempt], |r| {
+                r.get(0)
+            })
+            .optional()?)
+    }
+
+    /// Save streamed text of attempts that are still running, so an abrupt end
+    /// of the process keeps what arrived. Deliberately no revision bump: the
+    /// snapshot does not show running text, the stream does.
+    pub fn save_previews(&mut self, previews: &[(String, String)]) -> Result<()> {
+        if previews.is_empty() {
+            return Ok(());
+        }
+        let tx = self.connection.transaction()?;
+        for (attempt, text) in previews {
+            tx.execute(
+                "UPDATE attempts SET preview_text=?2 WHERE id=?1 AND state='running'",
+                params![attempt, bounded_text(text)],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
     pub fn finish(&mut self, dispatch: &Dispatch, result: Result<Completion>) -> Result<()> {
+        self.finish_retaining(dispatch, result, None)
+    }
+
+    /// Finish an attempt, keeping every piece of text it received. `streamed`
+    /// is the text that arrived as deltas; the completion's own text, when
+    /// there is one, is kept too. Both are written before the scope check, so
+    /// a cancelled, invalidated or replaced attempt still keeps its text.
+    pub fn finish_retaining(
+        &mut self,
+        dispatch: &Dispatch,
+        result: Result<Completion>,
+        streamed: Option<&str>,
+    ) -> Result<()> {
         let tx = self.connection.transaction()?;
         let retained = crate::diagnostics::response::retained(
             result.as_ref().ok().and_then(|c| c.diagnostics.as_ref()),
@@ -74,8 +119,23 @@ impl Store {
             "UPDATE attempts SET diagnostics=?2 WHERE id=?1 AND operation_id=?3",
             params![dispatch.attempt, retained, dispatch.operation],
         )?;
+        let response = result
+            .as_ref()
+            .ok()
+            .map(|completion| bounded_text(&completion.text));
+        let preview = streamed.map(bounded_text);
+        let retained_text = tx.execute(
+            "UPDATE attempts SET response_text=COALESCE(?3,response_text),preview_text=COALESCE(?4,preview_text) WHERE id=?1 AND operation_id=?2 AND (?3 IS NOT NULL OR ?4 IS NOT NULL)",
+            params![dispatch.attempt, dispatch.operation, response, preview],
+        )? > 0;
         let scope:Option<(String,String)>=tx.query_row("SELECT t.id,t.conversation_id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id WHERE a.id=?1 AND o.id=?2 AND a.state='running' AND o.state='running' AND t.state IN ('pending','assisting')",params![dispatch.attempt,dispatch.operation],|r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         let Some((turn, conversation)) = scope else {
+            // The attempt already ended (cancelled, invalidated, replaced). Its
+            // retained text changes what the snapshot shows, so readers that saw
+            // the ending must be woken to see the text: one bump, not per token.
+            if retained_text {
+                bump(&tx)?;
+            }
             tx.commit()?;
             return Ok(());
         };
@@ -193,7 +253,7 @@ impl Store {
             Ok(_) if dispatch.gloss_source.is_some() => Err(fail("Unexpected word gloss source.")),
             Ok(output) if output.finish_reason != "stop" => Err(AppError::new(
                 ErrorCode::Provider,
-                "Provider did not finish the reply normally. No partial prose was published.",
+                "Provider did not finish the reply normally. The reply was not saved to the conversation; the text that arrived is shown above.",
             )),
             Ok(output) => crate::ai::transport::provider::validate_prose(&output.text),
             Err(error) => Err(error.clone()),
@@ -314,4 +374,17 @@ impl Store {
         tx.commit()?;
         Ok(())
     }
+}
+
+/// Recorded text is capped at the response ceiling, cut on a character boundary.
+pub(crate) const RETAINED_TEXT_LIMIT: usize = 262144;
+pub(crate) fn bounded_text(text: &str) -> &str {
+    if text.len() <= RETAINED_TEXT_LIMIT {
+        return text;
+    }
+    let mut end = RETAINED_TEXT_LIMIT;
+    while !text.is_char_boundary(end) {
+        end -= 1;
+    }
+    &text[..end]
 }

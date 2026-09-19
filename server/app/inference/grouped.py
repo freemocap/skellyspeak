@@ -33,7 +33,7 @@ def record_failure(status: int, error: BaseException, *, request_id: str, item_i
     code = raw_code if raw_code in {
         "REQUEST_REJECTED", "UNKNOWN_OUTCOME", "UPSTREAM_FAILURE", "SPENDING_PAUSED",
         "PERSONAL_ALLOWANCE_EXHAUSTED", "SHARED_ALLOWANCE_EXHAUSTED", "ACCOUNT_INFLIGHT_LIMIT",
-        "SHARED_ACCOUNT_DAILY_LIMIT", "PERSONAL_ACCOUNT_DAILY_LIMIT",
+        "SHARED_ACCOUNT_DAILY_LIMIT", "PERSONAL_ACCOUNT_DAILY_LIMIT", "RESPONSE_LIMIT", "STREAM_BROKEN",
     } or isinstance(raw_code, str) and re.fullmatch(r"(?:OPENROUTER|GROQ)_HTTP_[45][0-9]{2}", raw_code) else "OTHER"
     kind = type(error).__name__
     exception_type = kind if kind in {
@@ -55,11 +55,17 @@ class Item:
     attempt_id: str
     contract: contracts.ChatRequest
     digest: str
+    # Protocol version 2 only: stream this prose item's text as delta events.
+    deltas: bool = False
+
+
+SUPPORTED_VERSIONS = (1, 2)
 
 
 def parse(payload: object, *, max_tokens: int) -> list[Item]:
-    if not isinstance(payload, dict) or set(payload) != {"version", "items"} or type(payload["version"]) is not int or payload["version"] != 1:
-        raise HTTPException(400, "Expected grouped protocol version 1.")
+    if not isinstance(payload, dict) or set(payload) != {"version", "items"} or type(payload["version"]) is not int or payload["version"] not in SUPPORTED_VERSIONS:
+        raise HTTPException(400, "Expected grouped protocol version 1 or 2.")
+    version = payload["version"]
     entries = payload["items"]
     if not isinstance(entries, list) or not 1 <= len(entries) <= MAX_ITEMS:
         raise HTTPException(400, "A group must contain 1–8 operations.")
@@ -67,7 +73,11 @@ def parse(payload: object, *, max_tokens: int) -> list[Item]:
     operations: set[str] = set()
     attempts: set[str] = set()
     for entry in entries:
-        if not isinstance(entry, dict) or set(entry) != {"operation_id", "attempt_id", "request"}:
+        fields = {"operation_id", "attempt_id", "request"}
+        if not isinstance(entry, dict) or not (set(entry) == fields or version == 2 and set(entry) == fields | {"deltas"}):
+            raise HTTPException(400, "Invalid grouped operation fields.")
+        deltas = entry.get("deltas", False)
+        if type(deltas) is not bool:
             raise HTTPException(400, "Invalid grouped operation fields.")
         operation = entry["operation_id"]
         attempt = entry["attempt_id"]
@@ -81,17 +91,25 @@ def parse(payload: object, *, max_tokens: int) -> list[Item]:
         attempts.add(attempt)
         if not isinstance(request, dict) or request.get("stream", False) is not False or "audio" in request or "modalities" in request:
             raise HTTPException(400, "Grouped operations require non-streaming text chat requests.")
+        if deltas and "response_format" in request:
+            raise HTTPException(400, "Only prose operations can stream deltas.")
         contract = contracts.chat_request(request, max_tokens=max_tokens)
+        # The duplicate-protection digest covers the client's request alone, so
+        # a retry of the same attempt matches whichever protocol carried it.
         canonical = json.dumps({"version": 1, "operation_id": operation, "request": contract.payload}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-        result.append(Item(operation, attempt, contract, hashlib.sha256(canonical.encode()).hexdigest()))
+        result.append(Item(operation, attempt, contract, hashlib.sha256(canonical.encode()).hexdigest(), deltas))
     return result
 
 
 async def results(items: list[Item], *, db: firestore.Client, who: quota.Principal, request_id: str | None = None,
-                  execute: Callable[[Item, work.Claim], Awaitable[dict[str, object]]]) -> AsyncIterator[bytes]:
+                  execute: Callable[..., Awaitable[dict[str, object]]]) -> AsyncIterator[bytes]:
     request_id = request_id or uuid.uuid4().hex
     if not re.fullmatch(r"[0-9a-f]{32}", request_id):
         raise ValueError("Invalid server request ID.")
+    if any(item.deltas for item in items):
+        async for line in _ordered_results(items, db=db, who=who, request_id=request_id, execute=execute):
+            yield line
+        return
     send, receive = anyio.create_memory_object_stream[dict[str, object]](1)
     delivered = 0
     failures = 0
@@ -140,3 +158,109 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
             log.info(json.dumps({"event": "group_finished", "request_id": request_id,
                 "item_count": len(items), "delivered": delivered, "failures": failures,
                 "complete": complete}))
+
+
+# Deltas per item are coalesced to at most this often. Coalescing only delays:
+# every character is kept and sent.
+DELTA_INTERVAL = 0.05
+
+
+@dataclass
+class _Outbound:
+    """One item's ordered, lossless outbound state."""
+    pending: str = ""
+    sent: int = 0
+    terminal: dict[str, object] | None = None
+    last_flush: float = float("-inf")
+    finished: bool = False
+
+
+async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quota.Principal, request_id: str,
+                           execute: Callable[..., Awaitable[dict[str, object]]]) -> AsyncIterator[bytes]:
+    """Protocol version 2. Per item: deltas in order, offsets in Unicode scalar
+    values, the remaining text flushed before the terminal event, and nothing
+    for an item after its terminal event. Items are served round-robin, so a
+    terminal waits at most one flush."""
+    states = [_Outbound() for _ in items]
+    wake = [anyio.Event()]
+    delivered = 0
+    failures = 0
+    complete = False
+
+    def notify() -> None:
+        wake[0].set()
+
+    async def run(item_index: int, item: Item) -> None:
+        state = states[item_index]
+        runtime.emit("operation_started", request_id=request_id, item_index=item_index)
+        event: dict[str, object] = {"operation_id": item.operation_id, "attempt_id": item.attempt_id}
+
+        def on_delta(text: str) -> None:
+            if state.terminal is None and text:
+                state.pending += text
+                notify()
+        try:
+            with anyio.CancelScope(shield=True):
+                await anyio.to_thread.run_sync(partial(admission.take, db, lane="account", subject=who.user_id))
+                held = await anyio.to_thread.run_sync(partial(work.claim, db, user_id=who.user_id, attempt_id=item.attempt_id, digest=item.digest))
+            runtime.emit("operation_claimed" if held.acquired else "operation_duplicate", request_id=request_id, item_index=item_index)
+            if held.acquired:
+                event.update(await execute(item, held, on_delta if item.deltas else None))
+            else:
+                event.update({"type": "duplicate", "state": held.state})
+        except HTTPException as error:
+            record_failure(error.status_code, error, request_id=request_id, item_index=item_index)
+            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": getattr(error, "diagnostics", None), "request_id": request_id})
+            retry = (error.headers or {}).get("Retry-After", "")
+            if retry.isdigit() and 0 < int(retry) <= 604800:
+                event["retry_after"] = int(retry)
+        except Exception as error:
+            record_failure(500, error, request_id=request_id, item_index=item_index)
+            event.update({"type": "error", "code": "UNKNOWN_OUTCOME", "status": 500, "diagnostics": describe(error), "request_id": request_id})
+        runtime.emit("operation_finished", request_id=request_id, item_index=item_index)
+        state.terminal = event
+        notify()
+
+    def delta_line(index: int) -> bytes:
+        state = states[index]
+        event = {"type": "delta", "operation_id": items[index].operation_id, "attempt_id": items[index].attempt_id,
+                 "offset": state.sent, "text": state.pending}
+        state.sent += len(state.pending)
+        state.pending = ""
+        state.last_flush = anyio.current_time()
+        return (json.dumps(event, ensure_ascii=False) + "\n").encode()
+
+    async with anyio.create_task_group() as tasks:
+        for item_index, item in enumerate(items):
+            tasks.start_soon(run, item_index, item)
+        try:
+            start = 0
+            while delivered < len(items):
+                progressed = False
+                for step in range(len(items)):
+                    index = (start + step) % len(items)
+                    state = states[index]
+                    if state.finished:
+                        continue
+                    now = anyio.current_time()
+                    if state.pending and (state.terminal is not None or now - state.last_flush >= DELTA_INTERVAL):
+                        yield delta_line(index)
+                        progressed = True
+                    if state.terminal is not None and not state.pending:
+                        failures += state.terminal["type"] == "error"
+                        delivered += 1
+                        state.finished = True
+                        progressed = True
+                        yield (json.dumps(state.terminal, ensure_ascii=False) + "\n").encode()
+                start = (start + 1) % len(items)
+                if not progressed:
+                    with anyio.move_on_after(DELTA_INTERVAL):
+                        await wake[0].wait()
+                    wake[0] = anyio.Event()
+            yield (json.dumps({"type": "complete", "count": len(items)}) + "\n").encode()
+            complete = True
+        finally:
+            tasks.cancel_scope.cancel()
+            log.info(json.dumps({"event": "group_finished", "request_id": request_id,
+                "item_count": len(items), "delivered": delivered, "failures": failures,
+                "complete": complete, "version": 2}))

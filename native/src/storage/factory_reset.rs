@@ -325,6 +325,7 @@ pub fn factory_reset(
             .map_err(|error| storage_error(format!("Could not clear browser data: {error}")))?;
     }
     diagnostics::shutdown()?;
+    state.reset_streams();
     state.stop(AppError::new(
         ErrorCode::Internal,
         "Local data was deleted.",

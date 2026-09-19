@@ -741,7 +741,42 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
 
 
 
+class StreamFailure(HTTPException):
+    """A streamed item that did not complete. `code` and bounded diagnostics
+    travel in the existing error event; the text already went out as deltas."""
+    def __init__(self, code: str, diagnostics: dict[str, object]):
+        super().__init__(502, "Provider stream did not complete.")
+        self.code = code
+        self.diagnostics = diagnostics
+
+
+async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dict[str, object],
+                              headers: dict[str, str], on_delta: Callable[[str], None],
+                              accumulator: streaming.CompletionAccumulator) -> streaming.CompletionAccumulator:
+    """Stream one prose item upstream, handing each piece of text to `on_delta`."""
+    request = {**outbound, "stream": True, "usage": {"include": True}}
+    async with runtime.phase("provider", provider="OPENROUTER"):
+        async with client.stream("POST", url, json=request, headers=headers, follow_redirects=False) as response:
+            runtime.emit("provider_headers", provider="OPENROUTER", status=response.status_code)
+            if not response.is_success:
+                metadata = await provider_errors.capture(response, "OPENROUTER", {"json": request, "headers": headers})
+                raise UpstreamHTTPError(response.status_code, "OPENROUTER", metadata)
+            accumulator.http = {"status": response.status_code, "response_headers": provider_errors.response_headers(response)}
+            try:
+                async for payload in streaming.frames(response.aiter_bytes()):
+                    added = accumulator.accept(payload)
+                    if added:
+                        on_delta(added)
+            except streaming.ResponseLimitExceeded as error:
+                raise StreamFailure("RESPONSE_LIMIT", accumulator.partial("response_limit")) from error
+            except (ValueError, UnicodeError, httpx.HTTPError):
+                # Framing broke; `end()` reports the stream as incomplete.
+                pass
+    return accumulator
+
+
 async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
+                               on_delta: Callable[[str], None] | None = None,
                                *, who: quota.Principal) -> dict[str, object]:
     reservation: budget.Reservation | None = None
     cost: int | None = 0
@@ -749,6 +784,7 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
     provider_id: str = ""
     state = "failed"
     execution_error: BaseException | None = None
+    accumulator: streaming.CompletionAccumulator | None = None
     try:
         # Preparation cannot incur provider charges. Fail before reserving money.
         try:
@@ -767,17 +803,53 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
                 state = "unknown"
                 base = CFG.openrouter_base_url
                 key = CFG.openrouter_key
-                payload = await provider_json(client, f"{base}/chat/completions",
-                    limit=4 * 1024 * 1024, provider="OPENROUTER", json=outbound,
-                    headers={"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"})
+                headers = {"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"}
+                if on_delta is not None:
+                    accumulator = streaming.CompletionAccumulator(tuple(provider_errors.request_strings({"json": outbound, "headers": headers})))
+                    await stream_grouped_item(client, f"{base}/chat/completions", outbound, headers, on_delta, accumulator)
+                    if accumulator.usage is not None:
+                        cost, tokens = _usage_from({"usage": accumulator.usage})
+                    provider_id = str(accumulator.top.get("id", ""))
+                    ended = accumulator.end()
+                    if ended == "provider_error":
+                        error = accumulator.error if isinstance(accumulator.error, dict) else {}
+                        status = error.get("code")
+                        raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, "OPENROUTER",
+                                                {"error": accumulator.partial("provider_error")["error"],
+                                                 "partial": accumulator.partial("provider_error")})
+                    if ended == "transport_broken":
+                        raise StreamFailure("STREAM_BROKEN", accumulator.partial("transport_broken"))
+                    payload = accumulator.completion()
+                else:
+                    payload = await provider_json(client, f"{base}/chat/completions",
+                        limit=4 * 1024 * 1024, provider="OPENROUTER", json=outbound, headers=headers)
         if payload.get("error"):
             raise HTTPException(502, "Invalid provider response.")
         provider_id = str(payload.get("id", ""))
         cost, tokens = _usage_from(payload)
         if cost is not None:
             state = "succeeded"
+        # A streamed item's result has exactly the non-streaming shape, so the
+        # client's strict decoder and publication run unchanged on it.
         return {"type": "result", "response": payload}
     except BaseException as error:
+        # Limit failures and the enclosing work timeout may bypass the normal
+        # return from stream_grouped_item. Keep already received billing facts
+        # for settlement, and expose the bounded metadata on timeout errors.
+        if accumulator is not None:
+            provider_id = str(accumulator.top.get("id", ""))
+            if accumulator.usage is not None:
+                try:
+                    cost, tokens = _usage_from({"usage": accumulator.usage})
+                except ValueError as invalid_usage:
+                    details = accumulator.partial("invalid_usage")
+                    details["validation"] = {"stage": "usage", "path": "usage",
+                                             "expected": "nonnegative integer total_tokens and finite nonnegative cost"}
+                    execution_error = StreamFailure("STREAM_BROKEN", details)
+                    raise execution_error from invalid_usage
+            if isinstance(error, TimeoutError):
+                execution_error = StreamFailure("STREAM_BROKEN", accumulator.partial("timeout"))
+                raise execution_error from error
         execution_error = error
         raise
     finally:
@@ -818,6 +890,7 @@ async def audio_speech(request: Request, who: quota.Principal = Depends(current_
 @app.get("/v1/protocol")
 async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_providers: bool = False) -> dict[str, object]:
     result = {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
+            "operations_versions": list(grouped.SUPPORTED_VERSIONS),
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
             "accepts_other_text_models": True,
             "transcription_model": CFG.stt_model if CFG.stt_provider == "elevenlabs" else "whisper-large-v3",

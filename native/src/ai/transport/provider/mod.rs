@@ -5,7 +5,7 @@ mod response;
 
 pub use keys::{validate_key_format, verify_key};
 pub use payload::{MAX_OUTPUT_TOKENS, RequestOutput, payload, payload_with_output};
-pub use request::{client, complete, complete_with_output};
+pub use request::{client, complete, complete_streaming, complete_with_output};
 pub use response::{decode, validate_prose};
 
 use serde::{Deserialize, Serialize};

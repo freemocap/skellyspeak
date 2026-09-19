@@ -52,6 +52,7 @@
 @import './features/conversation/explanations.css';
 @import './features/skills/evidence.css';
 @import './features/conversation/analysis.css';
+@import './features/activity/ai-view.css';
 @import './features/settings/forms.css';
 @import './features/settings/settings.css';
 @import './features/settings/access.css';

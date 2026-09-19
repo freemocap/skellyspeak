@@ -14,11 +14,11 @@ import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 /// fills the draft; it never sends. The ideas sit in their own titled tray above
 /// the composer, so they never read as part of the conversation; folded, the
 /// tray is one "Reply ideas" chip.
-export function ComposerHelp({ assistance, onAsk, replies, pending, busy, errors, onUse, onRequest }: {
+export function ComposerHelp({ assistance, onAsk, replies, pending, running = false, busy, errors, onUse, onRequest }: {
   assistance?: ReplyAssistance
   onAsk?: (question: string) => void
   onRequest?: () => Promise<void>
-  replies: SuggestedReply[]; pending: boolean; busy: boolean; errors: string[]
+  replies: SuggestedReply[]; pending: boolean; running?: boolean; busy: boolean; errors: string[]
   onUse: (text: string, source: 'suggestion' | 'scaffold') => void
 }) {
   const tr = useI18n()
@@ -37,7 +37,7 @@ export function ComposerHelp({ assistance, onAsk, replies, pending, busy, errors
   if (!assistance && !onRequest && !replies.length && !pending && !errors.length) return null
   if (collapsed) return <div className="composer-help-folded"><button type="button" className="composer-help-toggle composer-help-show" aria-expanded={false} aria-controls="composer-help-content"
     onClick={() => void toggle()}><ToolbarIcon name="idea" size={15} />{tr("Show suggested replies")}</button></div>
-  return <section id="composer-help-content" className="composer-help-content" aria-label={tr("Reply ideas")} aria-live="polite" aria-busy={pending}>
+  return <section id="composer-help-content" className={running ? 'composer-help-content is-hydrating' : 'composer-help-content'} aria-label={tr("Reply ideas")} aria-live="polite" aria-busy={pending}>
     <div className="composer-help-head">
       <span className="composer-help-title"><ToolbarIcon name="idea" size={15} />{tr("Reply ideas")}</span>
       <button type="button" className="composer-help-toggle" aria-expanded={true} aria-controls="composer-help-content"

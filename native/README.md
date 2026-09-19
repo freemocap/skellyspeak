@@ -10,7 +10,7 @@ remote [Python server](../server/).
 | --- | --- |
 | [src/application/](src/application/) | Startup, runtime state, native command registration and background scheduling |
 | [src/conversations/](src/conversations/) | Conversation turns and execution, prompts, opening choices, revisions, reading results and conversation export |
-| [src/partners/](src/partners/) | Persona definitions and prompts, generation and its receipts, discovery and reactions |
+| [src/partners/](src/partners/) | Persona definitions and prompts, generation and its receipts, and reactions |
 | [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, rewards and reward settings |
 | [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and speech cache |
 | [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, hosted connections and provider transports |

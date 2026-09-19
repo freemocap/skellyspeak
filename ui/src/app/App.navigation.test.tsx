@@ -60,12 +60,12 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
   fireEvent.click(screen.getByRole('button', { name: 'AI activity & tools' }))
   expect(screen.getByText('Live operations')).toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Close AI activity & tools' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Close AI activity' }))
   expect(screen.queryByText('Live operations')).not.toBeInTheDocument()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
 })
 
-vi.mock('../features/activity/LiveActivity', () => ({ LiveActivity: () => <p role="status">Live operations</p> }))
+vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">Live operations</p> }))
 
 it('connects the page stub to hosted sign-in through the session store', async () => {
   state.connection = { route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }

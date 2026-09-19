@@ -16,6 +16,13 @@ pub(crate) struct Application {
     pub(super) fatal: Mutex<Option<AppError>>,
     pub(super) signing_in: tokio::sync::Mutex<()>,
     pub(super) auth_epoch: std::sync::atomic::AtomicU64,
+    /// The AI View's place, kept while it moves between the panel and its window.
+    pub(super) ai_view_selection: Mutex<Option<crate::model::AiViewSelection>>,
+    /// Streamed text of running attempts, between the transport and windows.
+    pub(super) streams: Mutex<super::streams::StreamRegistry>,
+    /// Whether each grouped target (URL, connection revision) speaks protocol
+    /// version 2. Only successful answers are kept; a failed probe is retried.
+    pub(super) delta_support: Mutex<std::collections::HashMap<(String, i32), bool>>,
 }
 pub(crate) struct StoreGuard<'a>(MutexGuard<'a, Option<Store>>);
 impl Deref for StoreGuard<'_> {
@@ -51,6 +58,16 @@ impl Application {
             fatal: Mutex::new(None),
             signing_in: tokio::sync::Mutex::new(()),
             auth_epoch: std::sync::atomic::AtomicU64::new(0),
+            ai_view_selection: Mutex::new(None),
+            // Seconds since the epoch: a later launch always has a higher
+            // generation, so windows adopt it and drop anything older.
+            streams: Mutex::new(super::streams::StreamRegistry::new(
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|elapsed| elapsed.as_secs() as u32)
+                    .unwrap_or(1),
+            )),
+            delta_support: Mutex::new(std::collections::HashMap::new()),
         })
     }
     pub(super) fn refusal(&self) -> Option<AppError> {

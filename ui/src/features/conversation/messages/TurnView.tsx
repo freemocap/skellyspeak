@@ -10,6 +10,9 @@ import { TargetText } from '../../../components/reading/TargetText'
 import { TokenSpan } from '../../../components/reading/TokenSpan'
 import { RewardInspectionContext } from '../progress/RewardInspectionContext'
 import { ReplyStatus } from './ReplyStatus'
+import { TurnActivityLine } from './TurnActivityLine'
+import { retainedReplyText, turnActivity } from '../../../domain/conversation/activity-summary'
+import { useReplyStream } from '../../../state/session/attempt-streams'
 import { TranslationStatus } from './TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
@@ -25,6 +28,7 @@ import { sourceToken } from '../../../domain/reading/source-token'
 
 export interface TurnShape {
   replyState?: import('../../../domain/conversation/reply-state').ReplyState
+  execution?: import('../../../generated/contracts').TurnView
   turnId?: string
   replacedBy?: string | null
   userSavedGloss?: import('../../../generated/contracts').WordGlossView | null
@@ -90,6 +94,8 @@ export interface TurnViewProps {
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
   editDisabled?: boolean
   onEditUser?: (turn: TurnShape) => void
+  /// The newest exchange: its live activity line shows even while only waiting.
+  latest?: boolean
 }
 
 /// Memoized: during streaming, every delta re-renders only the turn that
@@ -123,8 +129,11 @@ export const TurnView = memo(function TurnView({
   onRetryHelp,
   onReplyControl,
   onActivity,
+  latest = false,
 }: TurnViewProps) {
   const tr = useI18n()
+  const replyStream = useReplyStream(turn.execution)
+  const activity = useMemo(() => turn.execution ? turnActivity(turn.execution, replyStream?.text ?? null) : null, [turn.execution, replyStream])
   const reading = useReadingPreferences()
   const [savedWordsOverride, setSavedWordsOverride] = useState<boolean | null>(null)
   const savedWordsOpen = savedWordsOverride ?? reading.autoTranslate
@@ -354,14 +363,17 @@ export const TurnView = memo(function TurnView({
         </div>
           <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
           {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
-          <button type="button" className="message-translate" disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={assistant.savedGloss ? savedWordsOpen : assistant.tokens.length > 0 && assistant.tokens.every((_, i) => revealed.has(`${turn.id}:bot:${i}`))} onClick={() => assistant.savedGloss ? setSavedWordsOverride(!savedWordsOpen) : onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))}>{tr("Word by word")}</button>
-          <button type="button" className="message-translate" aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
+          <button type="button" className={assistant.glossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={assistant.savedGloss ? savedWordsOpen : assistant.tokens.length > 0 && assistant.tokens.every((_, i) => revealed.has(`${turn.id}:bot:${i}`))} onClick={() => assistant.savedGloss ? setSavedWordsOverride(!savedWordsOpen) : onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))}>{tr("Word by word")}</button>
+          <button type="button" className={assistant.explanationsState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
           </div>
 
         </div>
       )}
       {assistant === null && (
-        <ReplyStatus reply={turn.replyState} onControl={onReplyControl} onActivity={onActivity} />
+        <ReplyStatus reply={turn.replyState} activity={activity} stream={replyStream} retainedText={retainedReplyText(turn.execution)} rtl={rtl} onControl={onReplyControl} onActivity={onActivity} />
+      )}
+      {assistant !== null && activity && (latest || activity.running.length > 0) && (
+        <TurnActivityLine activity={activity} onActivity={onActivity} />
       )}
     </div>
   )
