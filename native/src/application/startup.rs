@@ -3,6 +3,8 @@ use super::*;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(diagnostics::sharing::plugin());
     #[cfg(mobile)]
     let builder = builder.plugin(tauri_plugin_deep_link::init());
     #[cfg(desktop)]
@@ -108,6 +110,7 @@ pub fn run() {
             updater::latest_github_release,
             commands::workspace::read_speech_audio,
             diagnostics::record_frontend_diagnostic,
+            diagnostics::sharing::share_diagnostic_logs,
             diagnostics::read_frontend_diagnostics,
             voice::mic_start,
             voice::mic_wave,

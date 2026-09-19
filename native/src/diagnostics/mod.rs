@@ -2,6 +2,7 @@
 pub(crate) mod ai_graphs;
 pub(crate) mod inference;
 pub(crate) mod response;
+pub(crate) mod sharing;
 pub(crate) mod speech;
 pub(crate) mod structured;
 use crate::model::AppError;
@@ -83,6 +84,7 @@ pub enum DiagnosticEvent {
 #[derive(Debug, Clone, Deserialize, Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum DiagnosticCommand {
+    ShareDiagnosticLogs,
     ReadSpeechAudio,
     GetUpdateChannel,
     LatestGithubRelease,

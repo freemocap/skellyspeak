@@ -34,12 +34,9 @@ use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 use store::Store;
-use tauri::Manager;
 #[cfg(desktop)]
-use tauri::{
-    Emitter,
-    menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
-};
+use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+use tauri::{Emitter, Manager};
 use zeroize::Zeroizing;
 
 mod commands;

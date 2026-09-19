@@ -1,3 +1,4 @@
+import { ShareLogsButton } from '../../components/feedback/ShareLogsButton'
 import { useI18n } from '../../components/localization/i18n'
 import { Component, type ReactNode } from 'react'
 
@@ -17,5 +18,5 @@ export class PageBoundary extends Component<{ children: ReactNode }, { error: Er
 
 function CrashedView({ error, reload }: { error: Error; reload: () => void }) {
   const tr = useI18n()
-  return <div className="not-tauri"><p>{tr('This view crashed: {message}', { message: error.message })}</p><button type="button" className="btn" onClick={reload}>{tr('Reload view')}</button></div>
+  return <div className="not-tauri"><p>{tr('This view crashed: {message}', { message: error.message })}</p><button type="button" className="btn" onClick={reload}>{tr('Reload view')}</button><ShareLogsButton /></div>
 }

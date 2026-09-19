@@ -38,7 +38,7 @@ it('polls without redrawing unchanged history, but updates the elapsed second', 
   for (let i = 1; i < 60; i++) advance(i * 1000 / 60)
   expect(reads).toBe(60)
   expect(context.fillRect).toHaveBeenCalledTimes(1)
-  expect(context.lineTo).toHaveBeenCalledTimes(7501)
+  expect(context.lineTo).toHaveBeenCalledTimes(591)
   advance(1000)
   expect(context.fillRect).toHaveBeenCalledTimes(2)
   expect(context.fillText).toHaveBeenLastCalledWith('● rec 1s', 6, 12)
@@ -51,7 +51,7 @@ it('paints every incoming batch at 10Hz without extra paints between batches', (
   for (let i = 1; i < 60; i++) advance(i * 1000 / 60)
   expect(reads).toBe(60)
   expect(context.fillRect).toHaveBeenCalledTimes(10)
-  expect(context.lineTo).toHaveBeenCalledTimes(75010)
+  expect(context.lineTo.mock.calls.length).toBeLessThanOrEqual(10 * (2 * 590 + 1))
 })
 
 it('repaints after resize even without incoming samples or a new elapsed second', () => {
@@ -69,9 +69,9 @@ it('retains only the visible history and preserves a one-sample peak', () => {
   samples[samples.length - 2] = 1
   samples[samples.length - 1] = -1
   render(<WaveformStrip source={{ samplesPerSecond: 750, read: () => samples }} timelineSeconds={10} />)
-  expect(context.lineTo).toHaveBeenCalledTimes(7501)
-  expect(context.lineTo).toHaveBeenCalledWith(590 - 2 * 590 / 7500, 22 - 44 * 0.45)
-  expect(context.lineTo).toHaveBeenCalledWith(590 - 590 / 7500, 22 + 44 * 0.45)
+  expect(context.lineTo.mock.calls.length).toBeLessThanOrEqual(1181)
+  expect(context.lineTo).toHaveBeenCalledWith(7498 * 590 / 7500, 22 - 44 * 0.45)
+  expect(context.lineTo).toHaveBeenCalledWith(7499 * 590 / 7500, 22 + 44 * 0.45)
 })
 
 it('replaces the source without retaining old samples or leaking frames/listeners', () => {

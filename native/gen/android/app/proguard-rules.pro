@@ -27,3 +27,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Instantiated by Tauri through JNI; command arguments are populated reflectively.
+-keep class com.freemocap.skellyspeak.DiagnosticSharePlugin { *; }
+-keep class com.freemocap.skellyspeak.DiagnosticShareArgs { *; }

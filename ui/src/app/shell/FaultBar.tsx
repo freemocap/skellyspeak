@@ -1,3 +1,4 @@
+import { ShareLogsButton } from '../../components/feedback/ShareLogsButton'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { useFaultStore } from '../../platform/diagnostics/faults'
@@ -12,6 +13,7 @@ export function FaultBar() {
   if (faults.length === 0) return null
   return (
     <div className="fault-bar" role="alert">
+      <ShareLogsButton />
       <button type="button" className="btn tiny" onClick={dismissAll}>{tr("Dismiss all")}</button>
       {faults.map((f) => (
         <div key={f.id} className="fault">

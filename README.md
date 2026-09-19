@@ -132,6 +132,18 @@ a local SkellySpeak server, start `npm run server:local` in a second terminal an
 run `adb reverse tcp:8765 tcp:8765`; the device may then use
 `http://127.0.0.1:8765/v1`.
 
+### Share Android diagnostic logs
+
+Open **More → Share logs** to attach one ZIP through Android's normal share sheet
+(ChatGPT, email, messaging, or a file destination offered by the phone). The action
+also appears in app error views. Choose the destination yourself; opening the
+sheet does not send anything automatically.
+
+The ZIP includes all retained app diagnostic runs, app/device/WebView versions,
+and recognizable graphics failures from the recent app-only system-log buffer.
+It excludes conversations, recordings and credentials. System-log access limits
+are recorded in the manifest. Sharing preserves the original logs.
+
 ## Publish a release
 
 The user authorizes a release version or bump; agents may perform the Git writes.

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { waveformEnvelope } from '../../domain/audio/waveform-envelope'
 import type { WaveSource } from '../../domain/audio/waveform'
 import { cssToken } from '../../platform/appearance/css-token'
 
@@ -96,14 +97,14 @@ export function WaveformStrip({
       // scrolling waveform
       const history = historyRef.current
       if (history.length > 1) {
-        const pxPerSample = width / maxSamples
         ctx2d.globalAlpha = 1
         ctx2d.strokeStyle = waveColor
         ctx2d.lineWidth = 1.5
         ctx2d.beginPath()
-        for (let i = 0; i < history.length; i++) {
-          const x = width - (history.length - i) * pxPerSample
-          const y = height / 2 - (history[i] ?? 0) * height * 0.45
+        const points = waveformEnvelope(history, maxSamples, width)
+        for (let i = 0; i < points.length; i++) {
+          const [x, sample] = points[i]!
+          const y = height / 2 - sample * height * 0.45
           if (i === 0) ctx2d.moveTo(x, y)
           else ctx2d.lineTo(x, y)
         }

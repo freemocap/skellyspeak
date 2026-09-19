@@ -1,3 +1,4 @@
+import { ShareLogsButton } from '../../components/feedback/ShareLogsButton'
 import { useI18n } from '../../components/localization/i18n'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { useNavigationStore } from '../../state/navigation/navigation'
@@ -14,6 +15,7 @@ export function MoreDialog() {
     <DetailDialog title={tr("More")} onClose={closeOverlay}>
       <h2>{tr("More")}</h2>
       <div className="more-actions">
+        <ShareLogsButton />
         <button className="btn" onClick={() => showOverlay('settings')}>{tr("Settings")}</button>
         <button className="btn" onClick={() => showOverlay('languages')}>{tr("Browse languages")}</button>
         <button className="btn" onClick={() => { closeOverlay(); openSkills() }}>{tr("Skill tree")}</button>
