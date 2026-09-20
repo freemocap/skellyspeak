@@ -272,7 +272,7 @@ fn r1_translation_restart_before_and_after_dispatch_never_replays() {
 }
 
 #[test]
-fn r1_retry_reserves_last_attempt_for_translation() {
+fn explicit_translation_retry_remains_available_after_many_reply_attempts() {
     let (_dir, mut store, conversation) = setup();
     let first = begin(&mut store, &conversation);
     let turn = store
@@ -308,11 +308,15 @@ fn r1_retry_reserves_last_attempt_for_translation() {
             Err(AppError::new(ErrorCode::Provider, "Rejected")),
         )
         .unwrap();
-    let error = control_turn(&store.connection, &turn, TurnControl::Retry).unwrap_err();
-    assert_eq!(error.code, ErrorCode::AdmissionHeld);
+    control_turn(&store.connection, &turn, TurnControl::Retry).unwrap();
+    let retried = store.dispatch().unwrap().unwrap();
+    assert_eq!(retried.operation, translation.operation);
+    store
+        .finish(&retried, Ok(translation_reply(&retried, "Hello.")))
+        .unwrap();
     assert_eq!(
         store.profile().unwrap().global.attempts,
-        TURN_ATTEMPT_LIMIT as i32
+        (TURN_ATTEMPT_LIMIT + 1) as i32
     );
     assert!(store.dispatch().unwrap().is_none());
     assert_eq!(

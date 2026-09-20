@@ -44,12 +44,52 @@ pub(crate) fn active_credential(db: &Connection) -> Result<Option<String>> {
 }
 
 pub(crate) fn invalidate(db: &Connection, revoked: Option<ConnectionRoute>) -> Result<()> {
-    db.execute("UPDATE turns SET state='invalidated' WHERE state IN ('pending','assisting') AND (route=?1 OR NOT EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=turns.id AND o.state='running'))",[revoked.map(|r|r.label())])?;
+    let accepted = db.prepare("SELECT id FROM turns WHERE state IN ('pending','assisting') AND EXISTS(SELECT 1 FROM messages WHERE turn_id=turns.id AND role='assistant')")?
+        .query_map([], |r| r.get::<_, String>(0))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    db.execute("UPDATE turns SET state='invalidated' WHERE state IN ('pending','assisting') AND (EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=turns.id AND o.state='running' AND COALESCE(CASE WHEN o.kind='persona_speech' THEN json_extract(turns.context,'$.speechTarget.route') ELSE json_extract(turns.context,'$.retryTargets.\"' || o.id || '\".target.route') END,turns.route)=?1) OR NOT EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=turns.id AND o.state='running'))",[revoked.map(|r|r.label())])?;
     db.execute("UPDATE operations SET state='invalidated',permit=0 WHERE state IN ('ready','running','waiting_dependencies') AND turn_id IN (SELECT id FROM turns WHERE state='invalidated')",[])?;
     // A running parent keeps publication authority, but cannot authorize new
     // dependency work under a superseded profile.
     db.execute("UPDATE operations SET state='invalidated',permit=0 WHERE state IN ('ready','waiting_dependencies') AND turn_id IN (SELECT id FROM turns WHERE state IN ('pending','assisting'))", [])?;
     db.execute("UPDATE attempts SET state='invalidated',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Connection authority changed.' WHERE state='running' AND operation_id IN (SELECT id FROM operations WHERE state='invalidated')",[])?;
+    // Revoking request authority must not revoke already accepted source text.
+    // Stop old work, but leave its helpers explicitly retryable on that text.
+    for turn in accepted {
+        db.execute(
+            "UPDATE operations SET state='failed' WHERE turn_id=?1 AND state='invalidated'",
+            [&turn],
+        )?;
+        refresh_turn(db, &turn)?;
+    }
+    Ok(())
+}
+
+/// An explicit retry is new work on saved content, with the currently selected
+/// access settings. Do not rewrite the original turn or running sibling targets.
+pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -> Result<()> {
+    let base = crate::ai::connections::access::resolve(
+        db,
+        crate::ai::connections::access::Capability::Chat,
+    )?;
+    crate::ai::policy::holds::check(db, &base)?;
+    let fast = config(db)?.fast_model;
+    let operations = db.prepare("SELECT id,kind FROM operations WHERE turn_id=?1 AND kind NOT IN ('persona_context','coach_context','persona_speech') AND ((?2 IS NOT NULL AND id=?2) OR (?2 IS NULL AND state IN ('failed','unknown','waiting_dependencies'))) ")?
+        .query_map(params![turn, operation], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    for (id, kind) in operations {
+        let target = crate::ai::connections::model_routing::target(&base, &kind, &fast);
+        db.execute(
+            "UPDATE turns SET context=json_set(context,?2,json(?3)) WHERE id=?1",
+            params![
+                turn,
+                format!("$.retryTargets.\"{id}\""),
+                serde_json::json!({"target":target,"fastModel":fast}).to_string()
+            ],
+        )?;
+    }
+    // Current scoped holds above are authoritative; a historical turn hold must
+    // not prevent retry after the user changes credentials or destination.
+    db.execute("UPDATE turns SET paused=CASE WHEN refusal_hold IS NOT NULL THEN 0 ELSE paused END,refusal_hold=NULL WHERE id=?1", [turn])?;
     Ok(())
 }
 

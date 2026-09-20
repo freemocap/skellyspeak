@@ -15,9 +15,9 @@ const TRANSCRIPT_LIMIT: usize = 32 * 1024;
 #[cfg(test)]
 const MODEL: &str = "fixture-speech-model";
 
-use super::speech_diagnostics::TranscriptDiagnostics;
+use crate::language::text_diagnostics::TranscriptDiagnostics;
 #[cfg(test)]
-use super::speech_diagnostics::{TranscriptDifference, transcript_difference};
+use crate::language::text_diagnostics::{TranscriptDifference, transcript_difference};
 use crate::ai::audio::{SpeechInput, SpeechOutcome};
 fn fault(message: &str) -> AppError {
     AppError::new(ErrorCode::Provider, message)

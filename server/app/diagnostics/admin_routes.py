@@ -77,6 +77,10 @@ def build_router(database, configuration, throttle_signin):
         report['administrator'] = actor
         return report
 
+    @router.get('/admin/api/timeline')
+    def timeline(span: str = '1d', interval: str = '1h', actor=Depends(owner)):
+        return admin_reports.timeline(database(), span=span, interval=interval)
+
     @router.get('/admin/api/users/{user_id}')
     def user(user_id: str, days: int = 30, actor=Depends(owner)):
         if not 1 <= days <= 90 or len(user_id) > 128:
@@ -110,4 +114,6 @@ def build_router(database, configuration, throttle_signin):
         import asyncio
         return await asyncio.to_thread(admin_controls.change, database(), actor=actor, **command.model_dump())
 
+    from server.app.diagnostics.admin_live import register
+    register(router, database, configuration)
     return router

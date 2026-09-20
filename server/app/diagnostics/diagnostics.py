@@ -1,5 +1,7 @@
 """Read-only account diagnostics; no global usage totals or other identities."""
 from __future__ import annotations
+
+from server.app.accounting import usage_limits
 import os
 from google.cloud import firestore
 import server.app.admission.admission as admission
@@ -29,16 +31,17 @@ def read(db: firestore.Client, who: quota.Principal, *, global_limit: int) -> di
         used = int(personal.get("micros", 0))
         count = int(requests.get("requests", 0))
         return {
+            "usage_limits_enforced": usage_limits.enforced(db),
             "revision": os.environ.get("K_REVISION", "local")[:128],
             "resets_at": reset_at(),
             "account_requests": {"used": count, "limit": account_limit,
                                  "credit": int(requests.get("requests_credit", 0)),
-                                 "exhausted": max(0, count - int(requests.get("requests_credit", 0))) >= account_limit},
+                                 "exhausted": usage_limits.enforced(db) and max(0, count - int(requests.get("requests_credit", 0))) >= account_limit},
             "account_allowance": {"used_micros": used, "limit_micros": who.daily_limit,
                                   "allowance_credit_micros": int(personal.get("micros_credit", 0)),
                                   "remaining_micros": max(0, who.daily_limit + int(personal.get("micros_credit", 0)) - used)},
-            "shared_requests_exhausted": int(shared_requests.get("account_requests", 0)) >= policy.get("global_requests", admission.GLOBAL_REQUESTS_PER_DAY),
-            "shared_allowance_exhausted": int(shared.get("micros", 0)) >= policy.get("global_daily_micros", global_limit),
+            "shared_requests_exhausted": usage_limits.enforced(db) and int(shared_requests.get("account_requests", 0)) >= policy.get("global_requests", admission.GLOBAL_REQUESTS_PER_DAY),
+            "shared_allowance_exhausted": usage_limits.enforced(db) and int(shared.get("micros", 0)) >= policy.get("global_daily_micros", global_limit),
             "spending_paused": bool(controls.get("blocked") or shared.get("blocked")),
             "diagnostics_requests": {"used": int(requests.get("diagnostics_requests", 0)),
                                      "credit": int(requests.get("diagnostics_requests_credit", 0)),

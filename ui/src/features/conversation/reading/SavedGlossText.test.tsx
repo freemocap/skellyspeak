@@ -1,11 +1,19 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render as renderView, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { invoke } from '@tauri-apps/api/core'
 import type { WordGlossView } from '../../../generated/contracts'
 import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
-import { SavedGlossText } from './SavedGlossText'
+import { SavedGlossText as SharedSavedGlossText } from './SavedGlossText'
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
+const enabled = { autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }
+function render(node: React.ReactNode) {
+  return renderView(node, { wrapper: ({ children }) => <ReadingPreferencesContext value={enabled}>{children}</ReadingPreferencesContext> })
+}
+function SavedGlossText(props: React.ComponentProps<typeof SharedSavedGlossText>) {
+  return <SharedSavedGlossText showAids={false} {...props} />
+}
+
 const text = '  sí, sí!\ne\u0301 👩🏽‍💻 مرحبا  '
 const result: WordGlossView = {
   sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english',
@@ -36,14 +44,14 @@ it('does not make literal or unresolved spans interactive', () => {
 
 it('shows saved romanization when its reading preference is enabled', () => {
   const reading: WordGlossView = { ...result, segments: [{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }] }
-  render(<ReadingPreferencesContext value={{ autoTranslate: false, alwaysPronunciation: false, alwaysRomanize: true }}><SavedGlossText text="你" segments={reading.segments} /></ReadingPreferencesContext>)
+  render(<ReadingPreferencesContext value={{ autoTranslate: false, alwaysPronunciation: false, alwaysRomanize: true }}><SavedGlossText showAids text="你" segments={reading.segments} /></ReadingPreferencesContext>)
   expect(screen.getByText('nǐ')).toBeVisible()
   expect(invoke).not.toHaveBeenCalled()
 })
 
 
 it('shows token translations from reading preferences without an inspection click', () => {
-  render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: false, alwaysPronunciation: false }}><SavedGlossText text={text} segments={result.segments} /></ReadingPreferencesContext>)
+  render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: false, alwaysPronunciation: false }}><SavedGlossText showAids text={text} segments={result.segments} /></ReadingPreferencesContext>)
   expect(screen.getByText('yes')).toBeVisible()
   expect(screen.getByText('indeed')).toBeVisible()
 })
@@ -68,6 +76,7 @@ function hoverEvent(type: 'pointerover' | 'pointerout'): Event {
 }
 
 it('opens saved word help in the top layer so no clipping host can cut it off', () => {
+  vi.useFakeTimers()
   const show = vi.fn()
   const original = HTMLElement.prototype.showPopover
   HTMLElement.prototype.showPopover = show
@@ -80,9 +89,12 @@ it('opens saved word help in the top layer so no clipping host can cut it off', 
     expect(help).toHaveAttribute('popover', 'manual')
     expect(help).toHaveTextContent('yes')
     fireEvent(word, hoverEvent('pointerout'))
+    expect(view.container.querySelector('.saved-word-help')).not.toBeNull()
+    act(() => vi.advanceTimersByTime(200))
     expect(view.container.querySelector('.saved-word-help')).toBeNull()
   } finally {
     HTMLElement.prototype.showPopover = original
+    vi.useRealTimers()
   }
 })
 
@@ -103,8 +115,8 @@ it('shapes Arabic clitics as one source word while retaining each gloss anchor',
   expect(word.childNodes).toHaveLength(1) // One shaping run, no flex boxes inside the word.
   expect(screen.getAllByRole('button')).toHaveLength(2)
   fireEvent.keyDown(word, { key: 'Enter' })
-  expect([...view.container.querySelectorAll('[data-gloss-start]')].map(node => [node.getAttribute('data-gloss-start'), node.getAttribute('data-gloss-end'), node.textContent])).toEqual([
-    ['2', '3', 'و: and'], ['3', '5', 'ال: the'], ['5', '9', 'كتاب: book'],
+  expect([...view.container.querySelectorAll('[data-gloss-start]')].map(node => [node.getAttribute('data-gloss-start'), node.getAttribute('data-gloss-end'), node.querySelector('.gloss-help-source')?.textContent, node.querySelector('.wg')?.textContent])).toEqual([
+    ['2', '3', 'و', 'and'], ['3', '5', 'ال', 'the'], ['5', '9', 'كتاب', 'book'],
   ])
   expect(markers).toHaveBeenCalledWith(0, 9)
   expect(markers).toHaveBeenCalledWith(9, 17)
@@ -120,18 +132,18 @@ it('keeps uncovered Arabic letters, combining marks and joining controls in the 
   expect(screen.getByRole('button', { name: 'ک\u200cتاب' }).childNodes).toHaveLength(1)
 })
 
-it('reveals all saved details together whenever a token is opened', () => {
+it('reveals saved meaning and romanization without redundant pronunciation whenever a token is opened', () => {
   render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ', pronunciation: 'nee' }]} />)
   const word = screen.getByRole('button', { name: '你' })
   fireEvent.click(word)
   expect(screen.getByText('you')).toBeVisible()
   expect(screen.getByText('nǐ')).toBeVisible()
-  expect(screen.getByText('nee')).toBeVisible()
+  expect(screen.queryByText('nee')).toBeNull()
   expect(word).toHaveAttribute('aria-expanded', 'true')
   fireEvent.click(word)
   fireEvent.click(word)
   expect(screen.getByText('nǐ')).toBeVisible()
-  expect(screen.getByText('nee')).toBeVisible()
+  expect(screen.queryByText('nee')).toBeNull()
   expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
 })
 
@@ -149,7 +161,7 @@ it('opens anchored help on narrow screens instead of a bottom sheet', () => {
 })
 
 it('reads a clitic group as one word under the text', () => {
-  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: false }}><SavedGlossText text="الأكلة" segments={[
+  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: false }}><SavedGlossText showAids text="الأكلة" segments={[
     { start: 0, end: 2, kind: 'gloss', gloss: 'the', romanization: 'al-' },
     { start: 2, end: 6, kind: 'gloss', gloss: 'dish', romanization: 'aklah' },
   ]} /></ReadingPreferencesContext>)
@@ -158,10 +170,10 @@ it('reads a clitic group as one word under the text', () => {
 })
 
 it('keeps a nonempty expansion target when every field is already inline', () => {
-  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }}><SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} /></ReadingPreferencesContext>)
+  const view = render(<ReadingPreferencesContext value={{ autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }}><SavedGlossText showAids text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} /></ReadingPreferencesContext>)
   fireEvent.click(screen.getByRole('button', { name: '你' }))
   expect(screen.getAllByText('you')).toHaveLength(2)
-  expect(screen.getAllByText('nǐ')).toHaveLength(1)
+  expect(screen.getAllByText('nǐ')).toHaveLength(2)
   expect(view.container.querySelector('[popover]')).toHaveTextContent('you')
   expect(screen.queryByRole('button', { name: 'More' })).toBeNull()
 })

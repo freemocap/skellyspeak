@@ -1,3 +1,4 @@
+import type { AiViewSelection } from '../../generated/contracts'
 import { create } from 'zustand'
 
 /// Which surface and which dialog the shell is showing.
@@ -19,6 +20,10 @@ export type MobileLocation = 'chat' | 'panel'
 export type Overlay = 'more' | 'profile' | 'settings' | 'activity' | 'languages'
 
 interface NavigationState {
+  aiInspection: AiViewSelection | null
+  inspectAi: (selection: AiViewSelection) => void
+  readingQuestion: string | null
+  draftReadingQuestion: (question: string | null) => void
   page: Page
   mode: WorkspaceMode
   setMode: (mode: WorkspaceMode) => void
@@ -84,6 +89,10 @@ const initialState = {
 
 export const useNavigationStore = create<NavigationState>((set) => ({
   ...initialState,
+  aiInspection: null,
+  inspectAi: aiInspection => set({ aiInspection: { ...aiInspection }, overlay: 'activity' }),
+  readingQuestion: null,
+  draftReadingQuestion: readingQuestion => set({ readingQuestion }),
 
   setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
   showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),

@@ -29,7 +29,7 @@ CREATE TABLE attempts(id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES
 CREATE TABLE inference_holds(id TEXT PRIMARY KEY, generation TEXT NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), error TEXT NOT NULL CHECK(json_valid(error)));
 CREATE TABLE transcription_attempts(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), model TEXT NOT NULL, profile_revision INTEGER NOT NULL, state TEXT NOT NULL CHECK(state IN ('running','succeeded','failed','unknown')), started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, error TEXT, diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics)));
 CREATE INDEX transcription_conversation ON transcription_attempts(conversation_id);
-PRAGMA user_version=24;
+PRAGMA user_version=25;
 
 CREATE TRIGGER revision_link_insert BEFORE INSERT ON turns WHEN NEW.replaces_turn_id IS NOT NULL AND (NEW.replaces_turn_id=NEW.id OR NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id)) BEGIN SELECT RAISE(ABORT,'Invalid revision ownership'); END;
 CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns WHEN OLD.replaces_turn_id IS NOT NULL OR NEW.replaces_turn_id=NEW.id OR (NEW.replaces_turn_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id AND rowid<OLD.rowid)) BEGIN SELECT RAISE(ABORT,'Invalid revision chain'); END;
@@ -37,3 +37,6 @@ CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns W
 CREATE TABLE conversation_openings(conversation_id TEXT PRIMARY KEY REFERENCES conversations(id) ON DELETE CASCADE,opening TEXT NOT NULL CHECK(json_valid(opening)),turn_id TEXT REFERENCES turns(id) ON DELETE CASCADE,created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')));
 
 CREATE TABLE saved_topics (id TEXT PRIMARY KEY, text TEXT NOT NULL UNIQUE);
+
+-- Reading source and audio remain volatile; receipts contain redacted metadata only.
+CREATE TABLE reading_attempts (id TEXT PRIMARY KEY, receipt TEXT NOT NULL CHECK(json_valid(receipt)));

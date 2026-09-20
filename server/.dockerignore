@@ -60,3 +60,5 @@ app/diagnostics/admin_assets/*
 !app/diagnostics/admin_assets/index.html
 !app/diagnostics/admin_assets/admin.css
 !app/diagnostics/admin_assets/admin.js
+!app/diagnostics/admin_events.py
+!app/diagnostics/admin_live.py

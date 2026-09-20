@@ -22,13 +22,6 @@
   padding: var(--space-hairline) var(--space-4);
 }
 
-.exp-ex {
-  font-family: var(--font-serif);
-  font-size: var(--type-body);
-  color: var(--warning-ink);
-  margin-top: var(--space-4);
-  line-height: var(--leading-normal);
-}
 
 .exp-vs {
   font-size: var(--type-ui);
@@ -37,7 +30,7 @@
   line-height: var(--leading-normal);
 }
 
-.exp-vs span {
+.exp-vs > span {
   font-family: var(--font-sans);
   font-size: var(--type-meta);
   font-weight: var(--weight-semibold);

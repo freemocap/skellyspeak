@@ -79,7 +79,7 @@ defaults:
   orthography:
     local: arabic-vocalized
   scalars:
-    font_scale: 1.8
+    font_scale: 1.0
   romanization:
     mode: scheme
     scheme:

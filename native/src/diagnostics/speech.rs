@@ -35,10 +35,8 @@ fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
 mod tests {
     use super::*;
     use crate::{
-        ai::{
-            connections::access::ResolvedTarget,
-            transport::speech_diagnostics::TranscriptDiagnostics,
-        },
+        ai::connections::access::ResolvedTarget,
+        language::text_diagnostics::TranscriptDiagnostics,
         model::{AppError, ConnectionRoute, ErrorCode},
     };
 

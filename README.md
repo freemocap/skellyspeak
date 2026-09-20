@@ -275,7 +275,7 @@ preferences save per conversation. Desktop voice interaction has prior user
 verification. Mobile capture code and Android build checks do not establish device
 login/voice/update behavior; those checks and general speech fidelity remain separate.
 
-The right pane contains Coaching and Evidence tabs. Partner details open from the header picker. Coach exchanges
+The right pane starts with Coach and Experience tabs. Partner details open from the header picker. Coach exchanges
 persist separately from partner messages and use the same gated execution
 machinery. Partner prompts never include coach messages. The coach can explain
 or suggest phrasing; it cannot apply settings changes. Saved word glosses
@@ -495,8 +495,9 @@ or reopening the conversation creates no requests.
 The model selects inclusive first/last grapheme IDs; native code derives exact
 source spans and validates strict structured output before persistence. Valid partial results are usable. Malformed output fails explicitly,
 retains reported usage and does not replace saved meanings. Retry word meanings
-retries only that operation within the turn's attempt budget; it never regenerates
-the reply or translation. Restarted unknown work requires explicit retry.
+retries only that operation using the current AI access settings; it never regenerates
+the reply or translation. Explicit retries have no lifetime attempt limit; automatic
+repair remains bounded. Restarted unknown work requires explicit retry.
 
 Tests cover sibling completion order, failures, cancellation, source deletion,
 captured languages, partial results, restart and scoped retry. The latest local
@@ -673,12 +674,12 @@ changes; the prompt preview shows the same assembly used by new turns.
 Lesson generation, quizzes and lesson handoffs have been removed. Coaching,
 evidence and conversation rewards remain. See the
 [implementation report](docs/notes/conversation-prompt-implementation-2026-09-18.md)
-for scope and verification. Database schema 23 requires an explicit development
+for scope and verification. Database schema 25 requires an explicit development
 reset for older workspaces; it does not migrate or silently erase them.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current development database schema is **23**; older workspaces require an
+The current development database schema is **25**; older workspaces require an
 explicit reset rather than a migration. App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in

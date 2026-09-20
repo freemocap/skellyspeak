@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import { useNavigationStore } from '../../state/navigation/navigation'
 import { AiView } from './AiView'
 
 const api = vi.hoisted(() => ({ readWorkspace: vi.fn(), watchConversation: vi.fn(), listTurnHistory: vi.fn(), readAttemptDetail: vi.fn() }))
@@ -18,6 +19,7 @@ vi.mock('@xyflow/react', () => ({
 }))
 beforeEach(() => {
   vi.resetAllMocks()
+  useNavigationStore.setState({ aiInspection: null })
   windowApi.getAiViewSelection.mockResolvedValue(null)
   windowApi.setAiViewSelection.mockResolvedValue(undefined)
   api.readAttemptDetail.mockResolvedValue({ requestMessages: null, responseText: null, previewText: null })
@@ -267,4 +269,20 @@ it('reports graph catalog failures and retries only when requested', async () =>
   expect(windowApi.getAiGraphDefinitions).toHaveBeenCalledOnce()
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
   expect(await screen.findByText('Inspect {{sourceMessage}}.')).toBeVisible()
+})
+
+
+it('accepts an error link while already open and pins its operation in an older exchange', async () => {
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.watchConversation.mockResolvedValueOnce(snapshot('chat', 1, [
+    turn('latest', [{id:'latest-reply',kind:'persona_reply',state:'succeeded',dependencies:[]}]),
+    turn('older', [{id:'old-help',kind:'reply_assistance',state:'failed',dependencies:[]}], [attempt('old-help', {state:'failed',error:'Invalid romanization'})]),
+  ])).mockImplementation(() => new Promise(() => {}))
+  render(<AiView mode="docked" actions={null} />)
+  await waitFor(() => expect(screen.getByTestId('graph')).toHaveTextContent('latest-reply'))
+  act(() => useNavigationStore.getState().inspectAi({conversationId:'chat',turnId:'older',operationKind:'reply_assistance'}))
+  await waitFor(() => expect(screen.getByRole('complementary', {name:'Selected operation'})).toHaveTextContent('Invalid romanization'))
+  expect(screen.getByTestId('graph')).toHaveTextContent('old-help')
+  expect(useNavigationStore.getState().aiInspection).toBeNull()
+  await waitFor(() => expect(windowApi.setAiViewSelection).toHaveBeenLastCalledWith({conversationId:'chat',turnId:'older',operationKind:'reply_assistance'}))
 })

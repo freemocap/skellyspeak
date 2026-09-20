@@ -119,12 +119,17 @@ class Transaction:
 
 
 class Database:
-    def __init__(self):
+    def __init__(self, *, enforce_usage_limits: bool = True):
+        self.enforce_usage_limits = enforce_usage_limits
         self._records: dict[str, dict[str, Any]] = {}
         self._lock = RLock()
 
     def collection(self, name: str) -> Collection:
         return Collection(self, name)
+
+    def get_all(self, references):
+        with self._lock:
+            return iter([reference.get() for reference in references])
 
     def transaction(self, *, max_attempts: int = 1) -> Transaction:
         del max_attempts
@@ -147,9 +152,9 @@ def transactional(function: Callable[[Transaction], T]) -> Callable[[Transaction
     return run
 
 
-def install() -> Database:
+def install(*, enforce_usage_limits: bool = True) -> Database:
     """Install local factories before any hosted application module is imported."""
-    database = Database()
+    database = Database(enforce_usage_limits=enforce_usage_limits)
     firestore.transactional = transactional  # type: ignore[assignment]
     # main.py constructs its database at import time. Replacing the constructor
     # prevents even an attempted Application Default Credentials/cloud lookup.

@@ -59,6 +59,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate local configuration without starting the server or making provider calls")
     parser.add_argument("--reset-session-token", action="store_true", help="Replace local credentials and invalidate the previously saved app token")
+    parser.add_argument("--enforce-usage-limits", action="store_true", help="Enable daily spending and request limits for local quota testing")
     args = parser.parse_args()
     if args.check and args.reset_session_token:
         parser.error("--check cannot be combined with --reset-session-token")
@@ -74,7 +75,7 @@ def main() -> None:
     configure(keys, signing_key)
     # Install disposable local storage before importing modules that declare
     # Firestore transactions. The hosted application continues to use Firestore.
-    database = memory_store.install()
+    database = memory_store.install(enforce_usage_limits=args.enforce_usage_limits)
     api = importlib.import_module("server.app.main")
     quota = importlib.import_module("server.app.accounting.quota")
     uvicorn = importlib.import_module("uvicorn")
@@ -84,6 +85,7 @@ def main() -> None:
 
     quota.upsert_user(api.db, user_id="local-learner", email="local@example.invalid",
                       name="Local test", max_users=1)
+    print("Daily usage limits: " + ("enabled" if args.enforce_usage_limits else "disabled (usage is still recorded)"))
     print("Local API: http://127.0.0.1:8765/v1")
     print("Session token: server/.local-server/session-token.txt (reused across restarts)")
     print("Provider calls use real keys. Data is process-local and is cleared when the server stops.")

@@ -336,7 +336,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit message' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit and resend message' }))
   const composer = screen.getByPlaceholderText(/Write in/)
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
@@ -426,7 +426,7 @@ it('shows a raced native pending-turn rejection without dropping the repair draf
   expect(commands()).toHaveLength(1)
 })
 
-it('selects a topic locally then starts a partner-first exchange while the composer remains usable', async () => {
+it('clicks a topic to start a partner-first exchange while the composer remains usable', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
@@ -434,8 +434,6 @@ it('selects a topic locally then starts a partner-first exchange while the compo
   await act(async () => watches[0].resolve(value))
   expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: /Ordering food/ }))
-  expect(commands()).toHaveLength(0)
-  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: { kind: 'builtin', id: 'food' }, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
   expect(screen.queryByText('¿Qué quieres beber?')).toBeNull()
@@ -572,18 +570,17 @@ it('offers explicit read recovery in the chat without issuing inference', async 
   expect(commands()).toEqual([])
 })
 
-it('captures topic, tense and difficulty with the real first learner message', async () => {
+it('captures tense and difficulty with the real first learner message', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
   value.topicChoices = [{ id: 'food', glyph: '☕', target: 'Ordering food', romanized: null, translation: 'Ordering food' }]
   await act(async () => watches[0].resolve(value))
-  fireEvent.click(screen.getByRole('button', { name: 'Ordering food' }))
   fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
   fireEvent.change(screen.getByRole('combobox', { name: 'Difficulty' }), { target: { value: 'absolute_zero' } })
   expect(commands()).toHaveLength(0)
   fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Comí arroz.' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  expect(commands()[0].action).toMatchObject({ kind: 'startConversation', conversationId: 'a', message: 'Comí arroz.', input: { scaffold: false }, configuration: { difficulty: 'absolute_zero', direction: { topic: { kind: 'builtin', id: 'food' }, timeReference: 'past' } } })
+  expect(commands()[0].action).toMatchObject({ kind: 'startConversation', conversationId: 'a', message: 'Comí arroz.', input: { scaffold: false }, configuration: { difficulty: 'absolute_zero', direction: { topic: null, timeReference: 'past' } } })
 })

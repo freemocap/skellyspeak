@@ -266,6 +266,12 @@ disposable process-local storage, real OpenRouter/Groq HTTPS endpoints, and bind
 the API to `127.0.0.1:8765`. Local data is cleared when it stops. Add `--check` to
 validate `.env` without starting the API or contacting either provider.
 
+Daily spending, inference-request and diagnostics-request limits are disabled by
+default in this local launcher. Usage, reservations and settlement are still
+recorded; provider refusals, concurrency/rate controls and explicit spending
+pauses still apply. Add `--enforce-usage-limits` to test daily quota enforcement.
+The admin overview labels disabled limits. Hosted enforcement is unchanged.
+
 In a desktop development build from this checkout, start the local server, then
 open Settings → AI access → Custom URL and click **Connect to local server**.
 The native app reads this checkout's `session-token.txt`, saves it in the existing
@@ -595,3 +601,24 @@ the local API. It reports the newest 10,000 sanitized log events from the curren
 run, with 500-event pages and request/error filters. Server restart clears these
 records and invalidates local admin sessions. Existing JSONL log files remain on
 disk. Local provider requests still use real keys and can incur charges.
+
+### Live admin stream
+
+Enable **Live** to open one cookie-authenticated `/admin/live` WebSocket. The server
+pushes overview/chart/account snapshots after committed data changes or runtime
+events, coalescing bursts; the browser does not poll HTTP endpoints. Chart/filter
+changes are subscriptions sent over that connection. Draft limit fields retain
+their original revision and are never replaced by stream updates.
+
+Local commits wake the stream directly. Hosted connections also use Firestore
+snapshot listeners for shared account, usage, admission and policy changes.
+Live request events cover the connected server instance's newest 500 sanitized
+events. **Load logs** stops Live and loads historical/cross-instance logs through
+the existing reporting API. Expanded log details stay readable during updates.
+
+The server checks the same admin identity and exact browser Origin before accepting
+connections, rechecks session expiry/revocation during updates and at idle
+heartbeats, limits connections/subscription changes, and releases listeners on
+close. No administrative writes are accepted over this socket. Disconnects are
+visible; enable Live again to reconnect. The refresh-frequency selector and
+one-second HTTP polling are removed.

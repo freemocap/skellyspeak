@@ -1,13 +1,11 @@
 import type { GlossSegment } from '../../generated/contracts'
 import type { GuidedToken } from '../../types'
 import { sourceToken } from './source-token'
-
-// Unicode script detection also covers mixed-language passages. [@unicode17_indic]
-export const requiresWholeWordShaping = (text: string): boolean => /[\p{Script=Arabic}\p{Script=Devanagari}\p{Script=Malayalam}]/u.test(text)
+import { requiresWholeWordShaping } from '../language/script-text'
 
 /** Morphological anchors remain unchanged. Only their presentation shares a word box.
  * Include marks and joining controls, including uncovered prefixes/suffixes, so
- * annotations can never interrupt shaping inside the original word in a supported shaping script.
+ * annotations can never interrupt shaping inside a word with joining or combining characters.
  */
 export function glossDisplayGroups(text: string, segments: GlossSegment[]) {
   const words = [...text.matchAll(/[\p{L}\p{M}\p{N}\u200c\u200d]+/gu)]

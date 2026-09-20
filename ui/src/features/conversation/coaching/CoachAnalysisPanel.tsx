@@ -1,3 +1,5 @@
+import { CoachChatLayout, type CoachChatLayoutHandle } from './CoachChatLayout'
+import { CoachPanelTabs } from './CoachPanelTabs'
 import { useI18n } from '../../../components/localization/i18n'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
@@ -26,6 +28,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   const sending = useRef(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const threadRef = useRef<HTMLDivElement>(null)
+  const chatLayoutRef = useRef<CoachChatLayoutHandle>(null)
   useEffect(() => {
     const current = ++generation.current
     setInput(''); setError(null); setSubmitting(false); sending.current = false
@@ -43,6 +46,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   const ask = async (text = input): Promise<void> => {
     const question = text.trim()
     if (!question || sending.current || busy || conversationBusy || !currentSnapshot) return
+    chatLayoutRef.current?.expand()
     const current = generation.current
     sending.current = true; setSubmitting(true); setError(null)
     try {
@@ -73,31 +77,26 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     if (autoSendDraft) void ask(draftQuestion)
   }, [draftQuestion, autoSendDraft, busy, conversationBusy, currentSnapshot, onDraftConsumed])
   const draft = (question: string): void => { setInput(question); inputRef.current?.focus() }
-  const coachDock = <div className="study-coaching" hidden={tab !== 'coaching'}>
-    <div className="study-coaching-scroll">{tab === 'coaching' && coachingContent}
-    <div className="coach-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
+  const coachDock = <CoachChatLayout ref={chatLayoutRef} hidden={tab !== 'coaching'} content={tab === 'coaching' && coachingContent}
+    onExpand={() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }}
+    thread={<div className="coach-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
       {thread.length > 0 && <h3 className="coach-group-label">{tr("You asked")}</h3>}
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
-    </div>
-    </div>
-    {readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
-    {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}
-    <form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
+    </div>}
+    notices={<>{readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
+    {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}</>}
+    composer={<form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
           event.preventDefault(); event.currentTarget.form?.requestSubmit()
         }
       }} value={input} onChange={event => setInput(event.target.value)} placeholder={tr("Ask about a message or language usage…")} aria-label={tr("Message your coach")} disabled={!isTauri || busy} />
       <button type="submit" className="coach-send" aria-label={tr("Send to coach")} disabled={!currentSnapshot || !input.trim() || busy || conversationBusy}>↑</button>
-    </form>
-  </div>
+    </form>}
+  />
   return <>
-    <div className="coach-heading"><strong>{tr("Coach")}</strong>{onCollapse && <button type="button" aria-label={tr("Close coach")} onClick={onCollapse}>›</button>}</div>
-    <div className="panel-tabs" role="tablist" aria-label={tr("Learning panel")}>
-      <button type="button" role="tab" aria-selected={tab === 'coaching'} className={`panel-tab ${tab === 'coaching' ? 'active' : ''}`} onClick={() => onTab('coaching')}>{tr("Coaching")}</button>
-      <button type="button" role="tab" aria-selected={tab === 'evidence'} className={`panel-tab ${tab === 'evidence' ? 'active' : ''}`} onClick={() => onTab('evidence')}>{tr("Evidence")}</button>
-    </div>
+    <CoachPanelTabs tab={tab} onTab={onTab} onCollapse={onCollapse} />
     {tab === 'evidence' && <ConversationProgress chatId={chatId} />}
     {coachDock}
   </>

@@ -113,53 +113,79 @@ fn speech_cancellation_defeats_late_publication_and_keeps_usage() {
 }
 
 #[test]
-fn speech_three_attempts_explicit_retry_does_not_regenerate_siblings() {
-    let (_dir, mut store, conversation) = setup();
-    let (mut speech, others) = speech_children(&mut store, &conversation);
-    for child in others {
-        store.finish(&child, Err(fail("helper failure"))).unwrap();
-    }
-    let operation = speech.operation.clone();
-    let message = speech.speech_source.as_ref().unwrap().message_id.clone();
-    for number in 1..=3 {
-        assert!(
-            store
-                .finish_speech(&speech, speech_outcome(Err(fail("invalid audio"))))
-                .unwrap()
-                .is_none()
-        );
+fn explicit_speech_requests_outlive_attempt_budgets_without_regenerating_siblings() {
+    for succeeds in [false, true] {
+        let (_dir, mut store, conversation) = setup();
+        let (mut speech, others) = speech_children(&mut store, &conversation);
+        for child in others {
+            store.finish(&child, Err(fail("helper failure"))).unwrap();
+        }
+        let operation = speech.operation.clone();
+        let message = speech.speech_source.as_ref().unwrap().message_id.clone();
+        let siblings: i64 = store
+            .connection
+            .query_row(
+                "SELECT count(*) FROM attempts WHERE operation_id != ?1",
+                [&operation],
+                |r| r.get(0),
+            )
+            .unwrap();
+        // Cover both the old three-generation cap and the total turn budget.
+        for number in 1..=TURN_ATTEMPT_LIMIT + 2 {
+            let audio = if succeeds {
+                Ok(vec![1; 44])
+            } else {
+                Err(fail("invalid audio"))
+            };
+            assert_eq!(
+                store
+                    .finish_speech(&speech, speech_outcome(audio))
+                    .unwrap()
+                    .is_some(),
+                succeeds
+            );
+            assert_eq!(
+                store
+                    .connection
+                    .query_row(
+                        "SELECT count(*) FROM attempts WHERE operation_id=?1",
+                        [&operation],
+                        |r| r.get::<_, i64>(0),
+                    )
+                    .unwrap(),
+                number
+            );
+            // Completion or failure never creates an automatic retry.
+            assert!(store.dispatch().unwrap().is_none());
+            if number < TURN_ATTEMPT_LIMIT + 2 {
+                for _ in 0..2 {
+                    assert_eq!(
+                        request_speech(&store.connection, &message, false).unwrap(),
+                        operation
+                    );
+                }
+                speech = store.dispatch().unwrap().unwrap();
+                assert_eq!(speech.operation, operation);
+                // A repeated click while running does not dispatch duplicate work.
+                assert_eq!(
+                    request_speech(&store.connection, &message, false).unwrap(),
+                    operation
+                );
+                assert!(store.dispatch().unwrap().is_none());
+            }
+        }
         assert_eq!(
             store
                 .connection
                 .query_row(
-                    "SELECT count(*) FROM attempts WHERE operation_id=?1",
+                    "SELECT count(*) FROM attempts WHERE operation_id != ?1",
                     [&operation],
-                    |r| r.get::<_, i64>(0)
+                    |r| r.get::<_, i64>(0),
                 )
                 .unwrap(),
-            number
+            siblings
         );
-        if number < 3 {
-            assert_eq!(
-                request_speech(&store.connection, &message, false).unwrap(),
-                operation
-            );
-            assert_eq!(
-                request_speech(&store.connection, &message, false).unwrap(),
-                operation
-            );
-            speech = store.dispatch().unwrap().unwrap();
-            assert_eq!(speech.operation, operation);
-        }
     }
-    assert_eq!(
-        request_speech(&store.connection, &message, false)
-            .unwrap_err()
-            .code,
-        ErrorCode::AdmissionHeld
-    );
-    assert_eq!(store.connection.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.kind IN ('persona_reply','persona_opening')",[],|r|r.get::<_,i64>(0)).unwrap(),1);
-    assert!(store.dispatch().unwrap().is_none());
 }
 
 #[test]
@@ -210,10 +236,7 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
         let (_dir, mut store, conversation) = setup();
         let (speech, _) = speech_children(&mut store, &conversation);
         if route_change {
-            store
-                .connection
-                .execute("UPDATE ai_config SET revision=revision+1", [])
-                .unwrap();
+            invalidate(&store.connection, Some(speech.target.route)).unwrap();
         } else {
             store
                 .connection
@@ -229,11 +252,18 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
                 .unwrap()
                 .is_none()
         );
-        assert!(
-            store
-                .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
-                .is_err()
-        );
+        let audio = store.speech_audio(&speech.operation, &crate::speech::cache::Cache::default());
+        if route_change {
+            assert!(matches!(
+                audio.unwrap(),
+                SpeechAudioState::Unavailable {
+                    reason: SpeechUnavailableReason::Failed,
+                    ..
+                }
+            ));
+        } else {
+            assert!(audio.is_err());
+        }
         assert_eq!(
             store
                 .connection
@@ -249,7 +279,7 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
 }
 
 #[test]
-fn changing_audio_settings_revokes_late_speech_and_preserves_usage() {
+fn changing_audio_settings_preserves_in_flight_speech_and_usage() {
     let (_dir, mut store, conversation) = setup();
     let (speech, _) = speech_children(&mut store, &conversation);
     let config = store.connection_config().unwrap();
@@ -269,7 +299,7 @@ fn changing_audio_settings_revokes_late_speech_and_preserves_usage() {
         store
             .finish_speech(&speech, speech_outcome(Ok(vec![1; 44])))
             .unwrap()
-            .is_none()
+            .is_some()
     );
     let tokens: i32 = store
         .connection

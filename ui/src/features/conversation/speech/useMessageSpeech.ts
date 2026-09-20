@@ -3,8 +3,8 @@ import { invoke } from '../../../platform/ipc/native'
 import type { ConversationSnapshot, SpeechAudioState } from '../../../generated/contracts'
 import { executeAction, nativeError } from '../../../platform/ipc/workspace'
 import { reportFault } from '../../../platform/diagnostics/faults'
-import { speechPlaybackPermit } from '../../../platform/audio/speech'
-import { playSpeechAudio } from './speech-player'
+import { interruptSpeech, speechPlaybackPermit } from '../../../platform/audio/speech'
+import { playSpeechAudio } from '../../../platform/audio/speech-player'
 
 /** Snapshot observation reads audio only; generation is exclusive to explicit replay. */
 export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversationId: string | null, enabled: boolean, active: boolean, rate = 1, volume = 1) {
@@ -58,7 +58,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
 
   const start = useCallback(async (sourceId: string, operationId?: string) => {
     const state = latest.current
-    const permit = speechPlaybackPermit()
+    const permit = interruptSpeech()
     if (!permit || !state || state.conversationId !== conversationId || !active) return
     stop()
     const scope = generation.current

@@ -168,7 +168,7 @@ fn queue_budget_counts_chat_coach_and_paused_work_transactionally() {
 }
 
 #[test]
-fn explicit_retry_budget_survives_restart_and_preserves_receipts() {
+fn explicit_retries_survive_restart_without_lifetime_limit_and_preserve_receipts() {
     let (dir, mut store, conversation) = setup();
     store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.translation',json('false')) WHERE conversation_id=?1", [&conversation]).unwrap();
     let first = begin(&mut store, &conversation);
@@ -184,7 +184,7 @@ fn explicit_retry_budget_survives_restart_and_preserves_receipts() {
         .turns[0]
         .id
         .clone();
-    for _ in 1..TURN_ATTEMPT_LIMIT - 1 {
+    for _ in 1..TURN_ATTEMPT_LIMIT + 2 {
         apply(
             &mut store,
             Action::ControlTurn {
@@ -202,19 +202,17 @@ fn explicit_retry_budget_survives_restart_and_preserves_receipts() {
     }
     drop(store);
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
-    let before = store.snapshot().unwrap().revision;
-    let error = store
-        .execute(Command {
-            session_id: store.session_id.clone(),
-            action_id: id(),
-            action: Action::ControlTurn {
-                turn_id: turn.clone(),
-                control: TurnControl::Retry,
-            },
-        })
-        .unwrap_err();
-    assert_eq!(error.code, ErrorCode::AdmissionHeld);
-    assert_eq!(store.snapshot().unwrap().revision, before);
+    apply(
+        &mut store,
+        Action::ControlTurn {
+            turn_id: turn.clone(),
+            control: TurnControl::Retry,
+        },
+    );
+    let retried = store.dispatch().unwrap().unwrap();
+    store
+        .finish(&retried, Err(fail("Still retryable")))
+        .unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 1);
     assert_eq!(
@@ -223,7 +221,7 @@ fn explicit_retry_budget_survives_restart_and_preserves_receipts() {
             .iter()
             .filter(|a| a.requested_model != "local")
             .count(),
-        (TURN_ATTEMPT_LIMIT - 1) as usize
+        (TURN_ATTEMPT_LIMIT + 3) as usize
     );
     assert_eq!(snapshot.turns[0].state, "failed");
     assert!(store.dispatch().unwrap().is_none());

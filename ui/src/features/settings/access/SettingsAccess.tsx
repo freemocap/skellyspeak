@@ -149,7 +149,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     return <div className="form-row">
       <label htmlFor={`access-${provider}`}>{label}</label>
       <div className="key-row">
-        <input id={`access-${provider}`} className="key-input" type="password" autoComplete="off"
+        <input data-reading-private id={`access-${provider}`} className="key-input" type="password" autoComplete="off"
           value={keys[provider]} placeholder={access?.credentialPreviews?.[provider] ?? (configured ? tr("Saved — enter replacement") : label)}
           disabled={busy || (dirty !== null && dirty !== provider)}
           onFocus={() => setEditingField(true)} onBlur={() => { setKeys(current => ({ ...current, [provider]: current[provider].trim() })); setEditingField(false) }}
@@ -224,7 +224,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
         onCheck={() => void run(() => check('custom'))} />
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>
         <input id="access-url" className="field" value={endpoint.baseUrl} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy}
-          placeholder={tr("https://your-server.example/v1")} onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
+          data-reading-private placeholder={tr("https://your-server.example/v1")} onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />
         <InfoTip>{tr("Self-hosted SkellySpeak server. Include /v1. HTTPS is required except on loopback.")}</InfoTip>
       </div>
       <div className="form-row check-row"><label className="check-label"><input type="checkbox" checked={endpoint.bearerAuth} disabled={busy}

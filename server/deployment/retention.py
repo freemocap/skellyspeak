@@ -6,7 +6,7 @@ import time
 
 COLLECTIONS = (
     "auth_states", "login_codes", "admission", "usage",
-    "global_usage", "devices", "reservations", "work_attempts", "admin_audit",
+    "global_usage", "usage_timeline", "devices", "reservations", "work_attempts", "admin_audit",
 )
 
 

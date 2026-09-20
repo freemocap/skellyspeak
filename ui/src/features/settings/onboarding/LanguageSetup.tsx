@@ -1,3 +1,4 @@
+import { InspectText } from '../../../components/reading/InspectText'
 import { useState } from 'react'
 import type { Preferences } from '../../../generated/contracts'
 import { UI_LOCALE_METADATA } from '../../../domain/localization'
@@ -46,7 +47,7 @@ function LanguageForm({ language, variety, explanation, locale, busy, setLanguag
         </button>)}
       </div>
 
-      {selected && <div className="language-chosen">
+      {selected && <div className="language-chosen"><InspectText text={selected.greeting.text} language={selected.code} variety={variety} />
         <p className="language-chosen-partner">
           <span className="language-chosen-vibe" aria-hidden="true">{selected.partner.vibe[0] ?? ''}</span>
           {tr('You will be talking with {name}', { name: selected.partner.romanizedName ?? selected.partner.name })}

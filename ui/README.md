@@ -273,3 +273,41 @@ independent of script and learner size settings. See the
 [font coverage and extension policy](public/fonts/README.md) before adding a new
 language or changing a stack. The comparison fixture is
 `/tools/fonts-preview.html`; it includes all current languages and marked Arabic.
+
+### Language behavior boundary
+
+Language-specific rules belong to content configuration and `domain/language/`.
+Reading and feature components ask generic character capabilities; they must not
+match language IDs or Unicode scripts themselves. The shared script helper uses
+Unicode joining properties and grapheme segmentation to preserve connected text
+across languages. Mixed-script runs and grapheme-safe language badge samples also
+belong to that owner. `tests/architecture/language-handling.test.ts` guards against
+script matchers escaping into runtime components. Translation dictionaries,
+multilingual fixtures and bundled font asset declarations are data, not runtime
+language branches.
+
+### Shared target-language reading
+
+`components/reading` owns word help across surfaces. Use `SavedGlossText` for
+exact saved anchors, `AnnotatedText` for token arrays, and `TargetText` for known
+target-language text without saved annotations. Unannotated words open compact
+anchored help on a deliberate 300 ms mouse hover or a click/keyboard action.
+Missing meanings are requested then and cached by source and language; rendering
+and brief pointer passes never start inference. Source words remain mounted with
+inherited sentence typography while helpers live outside the text flow. Use
+`ReadingLanguageScope` for a source in a different language/variety. Selecting text does not open a global popup. Inspection is available through
+explicit word-help actions. Use
+`InspectText` beside action labels instead of nesting token buttons inside them.
+
+Saved conversation annotations are projected by `ConversationReadingProvider`
+into the shared `SavedReadingProvider` index. Known exact surface forms resolve
+synchronously across reading surfaces and use `SavedGlossText`; a known word
+must not enter loading state or request inference. Scope includes both languages
+and varieties. Exact source annotations take precedence over saved alternatives.
+Reply suggestions, frames and starters use this same renderer and reading
+preferences, without a separate translation/pronunciation disclosure layout.
+
+Word helpers include token read-aloud. `app/ReadingTools.tsx` injects the native
+reading service and shared audio player; shared controls must not import feature
+state. The inspector and AI activity expose retained reading-request receipts.
+`/tools/reading-preview.html` is an offline fixture with no live speech or AI.

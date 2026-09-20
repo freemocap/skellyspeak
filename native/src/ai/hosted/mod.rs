@@ -231,7 +231,7 @@ fn refusal_message(status: u16, body: Option<&[u8]>) -> String {
     format!("Service HTTP {status}: {guidance} No automatic retry was made.")
 }
 
-fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
+pub(crate) fn limit_error(bytes: &[u8], retry_after: Option<u32>) -> AppError {
     let value: serde_json::Value = serde_json::from_slice(bytes).unwrap_or(serde_json::Value::Null);
     let refusal = crate::ai::policy::refusal::classify(
         value.get("code").and_then(|v| v.as_str()),

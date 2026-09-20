@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { Settings } from '../../types'
 import { SavedGlossText } from './SavedGlossText'
@@ -25,9 +25,9 @@ it('preserves punctuation without AI preparation', () => {
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 it('uses saved annotations without requests', () => {
-  render(<ReadingProvider settings={null}><AnnotatedText text="Hola" tokens={[token]} /></ReadingProvider>)
+  render(<ReadingProvider settings={{target_language: "spanish", auto_translate: true} as Settings}><AnnotatedText text="Hola" tokens={[token]} /></ReadingProvider>)
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
-  expect(screen.getByText('hello')).toBeVisible()
+  expect(within(screen.getByRole('group', {name:'Word help'})).getByText('hello')).toBeVisible()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
 it('leaves missing word help inert on click, keyboard and context menu', () => {
@@ -54,14 +54,14 @@ it('preserves joined Arabic source words across semantic token boundaries', () =
   expect(screen.getByRole('button', { name: 'الكتاب' }).childNodes).toHaveLength(1)
 })
 
-it('suppresses saved Spanish romanization even with the global preference enabled, without hiding pronunciation', () => {
-  const settings = { target_language: 'spanish', always_romanize: true, always_pronunciation: true } as Settings
+it('suppresses saved Spanish romanization even with the global preference enabled, and does not substitute pronunciation for available romanization', () => {
+  const settings = { target_language: 'spanish', always_romanize: true, always_pronunciation: true, auto_translate: true } as Settings
   const view = render(<ReadingProvider settings={settings}><SavedGlossText text="Hola" segments={[{ start: 0, end: 4, kind: 'gloss', gloss: 'hello', romanization: 'Hola', pronunciation: 'OH-lah' }]} /></ReadingProvider>)
   expect(view.container.querySelector('.wroman')).toBeNull()
-  expect(screen.getByText('OH-lah')).toBeVisible()
+  expect(screen.queryByText('OH-lah')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   expect(view.container.querySelector('.wroman')).toBeNull()
-  expect(screen.getByText('hello')).toBeVisible()
+  expect(within(screen.getByRole('group', {name:'Word help'})).getByText('hello')).toBeVisible()
   view.rerender(<ReadingProvider settings={{ ...settings, target_language: 'mandarin' }}><SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} /></ReadingProvider>)
   expect(screen.getByText('nǐ')).toBeVisible()
   expect(backend.invoke).not.toHaveBeenCalled()

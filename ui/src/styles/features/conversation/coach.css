@@ -1,10 +1,10 @@
 /* Private coach conversation beside the conversation. */
 
 .coach-thread {
-  flex: 0 1 auto; max-height: 45%;
+  flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; gap: var(--space-4);
-  padding: var(--space-5) var(--space-7); border-top: var(--border-width) solid var(--line-soft);
+  padding: var(--space-5) var(--space-7);
 }
 
 .coach-msg {
@@ -170,8 +170,18 @@
 .study-coaching { display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
 .study-coaching[hidden] { display: none; }
 .study-coaching-scroll { flex: 1; min-height: 0; overflow: auto; padding: var(--space-6) var(--space-10) var(--space-10); display: flex; flex-direction: column; gap: var(--space-6); }
-.study-coaching .coach-thread { max-height: none; padding: var(--space-4) 0; border: 0; background: transparent; }
-.study-coaching .coach-input-row { background: transparent; }
+/* The internal split separates chat scrollback from feedback, independently of
+   the outer dock width. Minimized chat keeps its input and errors available. */
+.coach-chat-history { min-height: 0; display: flex; overflow: hidden; background: var(--sheet); }
+.coach-chat-history[hidden] { display: none; }
+.coach-chat-footer { flex: none; background: var(--sheet); max-height: 50%; overflow-y: auto; }
+.coach-chat-divider { flex: none; display: flex; align-items: stretch; min-height: 24px; background: var(--chrome); border-block: var(--border-width) solid var(--line); }
+.coach-chat-resize { flex: 1; display: grid; place-items: center; min-width: 0; cursor: row-resize; touch-action: none; user-select: none; }
+.coach-chat-resize > span { width: 48px; height: 4px; border-radius: var(--radius-pill); background: var(--ink-3); }
+.coach-chat-resize:hover > span, .coach-chat-resize.dragging > span { background: var(--interaction-ink); }
+.coach-chat-toggle { min-width: 32px; border: 0; border-inline-start: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.coach-chat-resize:focus-visible, .coach-chat-toggle:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: -2px; }
+@media (pointer: coarse) { .coach-chat-divider { min-height: var(--touch-target); } .coach-chat-toggle { min-width: var(--touch-target); } }
 
 .study-credit-badges { display: flex; gap: var(--space-4); min-height: var(--control-height); }
 .study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }

@@ -1,10 +1,13 @@
+import { useSavedReading } from './SavedReadingProvider'
+import { useReadingScope } from './ReadingContext'
+import { ReadingScopeContext } from './ReadingContext'
+import { UnannotatedText } from './UnannotatedText'
 import { SavedGlossText } from './SavedGlossText'
-import { anchoredTokenGlosses, requiresWholeWordShaping } from '../../domain/reading/gloss-display'
+import { anchoredTokenGlosses } from '../../domain/reading/gloss-display'
 import { languageFor } from '../../platform/ipc/tauri'
-import { ReadingPreferencesProvider, useReadingPreferences } from './ReadingPreferences'
-import { createContext, Fragment, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { ReadingPreferencesProvider } from './ReadingPreferences'
+import { createContext, useEffect, type ReactNode } from 'react'
 import type { GuidedToken, Settings } from '../../types'
-import { TokenSpan } from './TokenSpan'
 
 export const ReadingSentenceContext = createContext<string | null>(null)
 
@@ -22,52 +25,18 @@ export function ReadingProvider({ settings, children }: { settings: Settings | n
     root.style.setProperty('--word-spacing', `${settings?.text_spacing ?? 0}px`)
     return () => { root.style.removeProperty('--reading-scale'); root.style.removeProperty('--script-scale'); root.style.removeProperty('--word-spacing') }
   }, [settings?.text_size, settings?.text_spacing, settings?.target_language, settings?.target_variety, settings?.script_scales])
-  return <ReadingPreferencesProvider settings={settings}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'english', language: settings?.target_language ?? 'english' }}>
+  return <ReadingPreferencesProvider settings={settings}><ReadingScopeContext value={settings ? { language: settings.target_language, variety: settings.target_variety ?? null, explanation: settings.native_language, explanationVariety: settings.native_variety ?? null } : null}><ReadingContext value={{ nativeLanguage: settings?.native_language ?? 'english', language: settings?.target_language ?? 'english' }}>
     {children}
-  </ReadingContext></ReadingPreferencesProvider>
+  </ReadingContext></ReadingScopeContext></ReadingPreferencesProvider>
 }
 
-/** Text without saved word help is passive reading content. */
 export function TargetText({ text, interactive = true }: { text: string; interactive?: boolean }) {
-  return <AnnotatedText text={text} tokens={[]} interactive={interactive} />
+  const saved = useSavedReading()
+  const scope = useReadingScope()
+  const segments = scope ? saved(text, scope) : []
+  return segments.length ? <SavedGlossText text={text} segments={segments} interactive={interactive} /> : <UnannotatedText text={text} interactive={interactive} />
 }
 
 export function AnnotatedText({ text, tokens, interactive = true }: { text: string; tokens: GuidedToken[]; interactive?: boolean }) {
-  const reading = useContext(ReadingContext)
-  const sentence = useContext(ReadingSentenceContext) ?? text
-  if (requiresWholeWordShaping(text) && tokens.length) return <SavedGlossText key={text} text={text} segments={anchoredTokenGlosses(text, tokens)} interactive={interactive} />
-  return <TargetTextContent key={`${reading?.language}:${reading?.nativeLanguage}:${sentence}:${text}`} text={text} tokens={tokens} interactive={interactive} />
-}
-
-function TargetTextContent({ text, tokens: savedTokens, interactive }: { text: string; tokens: GuidedToken[]; interactive: boolean }) {
-  const { alwaysPronunciation, alwaysRomanize, supportsRomanization } = useReadingPreferences()
-  const reading = useContext(ReadingContext)
-  const [revealed, setRevealed] = useState<Set<number>>(new Set())
-  const tokens = savedTokens
-  const segments = useMemo(() => {
-    if (tokens.length === 0) return [{segment: text, index: 0, isWordLike: false, saved: null}]
-    let cursor = 0
-    const entries = tokens.flatMap(token => {
-      const index = text.indexOf(token.text, cursor)
-      if (index < 0) throw new Error('Saved token is missing from its source text')
-      const prefix = { segment: text.slice(cursor, index), index: cursor, isWordLike: false, saved: null }
-      cursor = index + token.text.length
-      return [...(prefix.segment ? [prefix] : []), { segment: token.text, index, isWordLike: /[\p{L}\p{N}]/u.test(token.text), saved: token }]
-    })
-    if (cursor < text.length) entries.push({ segment: text.slice(cursor), index: cursor, isWordLike: false, saved: null })
-    return entries
-  }, [text, tokens, reading?.language])
-  return <span className="target-text" dir="auto">{segments.map(({ segment, index, isWordLike, saved }) => {
-    if (!isWordLike) return <Fragment key={index}>{segment}</Fragment>
-    if (!saved) return <Fragment key={index}>{segment}</Fragment>
-    const token = saved
-    const tap = (): void => {
-      if (!token.gloss) return
-      setRevealed(previous => { const next = new Set(previous); if (next.has(index)) next.delete(index); else next.add(index); return next })
-    }
-    return <Fragment key={`${text}:${index}`}><TokenSpan key={`${text}:${index}`} tok={token} interactive={interactive} revealed={revealed.has(index)} hasTranslation={!!token.gloss}
-      showRomanization={supportsRomanization} alwaysRomanize={alwaysRomanize} alwaysPronunciation={alwaysPronunciation}
-      onTap={tap}
-      onDragStart={() => {}} onDragOver={() => {}} /></Fragment>
-  })}</span>
+  return tokens.length ? <SavedGlossText text={text} segments={anchoredTokenGlosses(text, tokens)} interactive={interactive} /> : <TargetText text={text} interactive={interactive} />
 }

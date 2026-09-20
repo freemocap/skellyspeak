@@ -261,7 +261,7 @@ fn g2_success_orders_preserve_source_and_reads_do_not_schedule() {
 }
 
 #[test]
-fn g2_retry_checks_source_archival_and_attempt_budget() {
+fn explicit_gloss_retries_check_archival_without_lifetime_limit() {
     let (_dir, mut store, conversation) = setup();
     let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
     store.finish(&gloss, Ok(reply("invalid json"))).unwrap();
@@ -289,20 +289,14 @@ fn g2_retry_checks_source_archival_and_attempt_budget() {
         .connection
         .execute("UPDATE contacts SET archived=0", [])
         .unwrap();
-    for _ in 3..TURN_ATTEMPT_LIMIT {
+    for _ in 3..TURN_ATTEMPT_LIMIT + 4 {
         retry_gloss(&store.connection, &gloss.operation).unwrap();
         let next = store.dispatch().unwrap().unwrap();
         store.finish(&next, Ok(reply("bad output"))).unwrap();
     }
     assert_eq!(
-        retry_gloss(&store.connection, &gloss.operation)
-            .unwrap_err()
-            .code,
-        ErrorCode::AdmissionHeld
-    );
-    assert_eq!(
         store.profile().unwrap().global.attempts,
-        TURN_ATTEMPT_LIMIT as i32
+        (TURN_ATTEMPT_LIMIT + 4) as i32
     );
     assert!(!store.has_ready_work().unwrap());
 }

@@ -1,3 +1,5 @@
+import { CoachChatLayout } from '../src/features/conversation/coaching/CoachChatLayout'
+import { CoachPanelTabs } from '../src/features/conversation/coaching/CoachPanelTabs'
 /** Layout review using production components and sample data. No native or AI calls. */
 import { mockIPC } from '@tauri-apps/api/mocks'
 import { loadLanguages } from '../src/platform/ipc/tauri'
@@ -7,15 +9,14 @@ import { TopBar } from '../src/app/shell/TopBar'
 import { MobileNav } from '../src/app/shell/MobileNav'
 import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
 import { ConversationSettings } from '../src/features/conversation/session/ConversationSettings'
-import { SavedGlossText } from '../src/components/reading/SavedGlossText'
 import { ReadingPreferencesContext } from '../src/components/reading/ReadingPreferences'
 import { PersonaPicker } from '../src/features/conversation/partners/PersonaPicker'
 import { ConversationStart } from '../src/features/conversation/session/ConversationStart'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
-import { ComposerHelp } from '../src/features/conversation/composer/ComposerHelp'
+import { ReplyHelp } from '../src/features/conversation/composer/ReplyHelp'
 import { TurnView } from '../src/features/conversation/messages/TurnView'
 import { PracticeDivider } from '../src/features/conversation/messages/PracticeDivider'
-import { CoachEntry } from '../src/features/conversation/coaching/CoachEntry'
+import { ConversationFeedbackCard } from '../src/features/conversation/coaching/ConversationFeedbackCard'
 import { ReadingProvider } from '../src/components/reading/TargetText'
 import { ReadingPreferencesProvider } from '../src/components/reading/ReadingPreferences'
 import { useAppearance } from '../src/platform/appearance/useAppearance'
@@ -23,8 +24,7 @@ import { useIsMobile } from '../src/components/layout/useIsMobile'
 import { useNavigationStore } from '../src/state/navigation/navigation'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import { DEFAULT_APPEARANCE } from '../src/generated/contracts'
-import type { CoachDecision, ConversationStartConfig, TopicCard } from '../src/generated/contracts'
-import type { GuidedTurnResult } from '../src/types'
+import type { ConversationFeedback, ConversationStartConfig, TopicCard } from '../src/generated/contracts'
 import '../src/styles/index.css'
 
 // Production controls may expose native-only actions (for example Customize).
@@ -52,21 +52,24 @@ const initialStart: ConversationStartConfig = {
   difficulty: 'beginner', varietyId: 'spanish-spain',
   direction: { topic: null, timeReference: 'any', usePersonaDetails: true },
 }
-const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'he ido a la playa', move: 'hint', text: 'Which past tense fits an event from last summer?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
-// "What's your favorite dish?" with clitic-split glosses, as saved word help arrives.
-const arabicText = 'شو الأكلة المفضلة عندك؟'
+// Existing ConversationFeedbackCard.test.tsx fixture, reproduced verbatim.
+// These are test judgments, not an assessment of a live conversation.
+const feedback: ConversationFeedback = { remark: 'Your meaning is clear.', usedTarget: ['Ayer'], usedNative: ['go'], grammar: 3, conversation: 5, corrections: [{ said: 'go', corrected: 'fui', explanation: 'Use [[past tense]] for yesterday.', kind: 'missing_expression' }] }
+// Exact word and saved fields visible in the user's token-help screenshot.
+// Regression fixture only; this does not generate or assess language data.
+const arabicText = 'البيوت'
 const arabicSegments = [
-  { start: 0, end: 2, kind: 'gloss' as const, gloss: 'what', romanization: 'shū' },
-  { start: 3, end: 5, kind: 'gloss' as const, gloss: 'the', romanization: 'al-' },
-  { start: 5, end: 9, kind: 'gloss' as const, gloss: 'dish', romanization: 'aklah' },
-  { start: 10, end: 12, kind: 'gloss' as const, gloss: 'the', romanization: 'al-' },
-  { start: 12, end: 17, kind: 'gloss' as const, gloss: 'favorite', romanization: 'mufaḍḍalah' },
-  { start: 18, end: 21, kind: 'gloss' as const, gloss: 'with', romanization: 'ʿind' },
-  { start: 21, end: 22, kind: 'gloss' as const, gloss: 'you', romanization: 'ak' },
+  { start: 0, end: 2, kind: 'gloss' as const, gloss: 'the', romanization: 'al-', pronunciation: 'il' },
+  { start: 2, end: 6, kind: 'gloss' as const, gloss: 'houses', romanization: 'buyūt', pronunciation: 'buyuut' },
 ]
-const assistant = { reply: '¡Qué bien! ¿Fuiste con tu familia o con amigos?', translation: 'How nice! Did you go with your family or friends?', tokens: [], user_tokens: [], errors: [], mechanics: [], scaffolds: { replies: [] } } as unknown as GuidedTurnResult
 function Preview() {
   const [input, setInput] = useState('')
+  const [revealed, setRevealed] = useState(new Set<string>())
+  const toggleWords = (keys: string[]) => setRevealed(current => {
+    const next = new Set(current)
+    for (const key of keys) { if (next.has(key)) next.delete(key); else next.add(key) }
+    return next
+  })
   const [opening, setOpening] = useState(false)
   const [startConfig, setStartConfig] = useState(initialStart)
   const [recording, setRecording] = useState(false)
@@ -75,16 +78,16 @@ function Preview() {
   const [palette, setPalette] = useState<'warm' | 'cool'>('warm')
   const [spacing, setSpacing] = useState<'roomy' | 'balanced' | 'tight' | 'extra_tight'>('tight')
   const [notice, setNotice] = useState('')
-  const [tab, setTab] = useState('Coaching')
+  const [tab, setTab] = useState<'coaching' | 'evidence'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
   const [quick, setQuick] = useState(PREVIEW_SETTINGS)
   const workspace = useRef<HTMLDivElement>(null)
   const mobile = useIsMobile()
   const surface = useNavigationStore(state => state.mobileSurface)
-  const settings = { ...PREVIEW_SETTINGS, appearance: { ...DEFAULT_APPEARANCE, palette, layoutSpacing: spacing }, theme: dark ? 'dark' as const : 'light' as const }
+  const settings = { ...quick, appearance: { ...DEFAULT_APPEARANCE, palette, layoutSpacing: spacing }, theme: dark ? 'dark' as const : 'light' as const }
   useAppearance(settings)
   return <ReadingProvider settings={null}><ReadingPreferencesProvider settings={settings}><div className="app">
-    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · sample data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>warm</option><option>cool</option></select></label><label>Spacing<select value={spacing} onChange={event => setSpacing(event.target.value as typeof spacing)}><option>roomy</option><option>balanced</option><option>tight</option><option>extra_tight</option></select></label><output>{notice}</output></div>
+    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>warm</option><option>cool</option></select></label><label>Spacing<select value={spacing} onChange={event => setSpacing(event.target.value as typeof spacing)}><option>roomy</option><option>balanced</option><option>tight</option><option>extra_tight</option></select></label><output>{notice}</output></div>
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-lesson' : ''}`} ref={workspace}>
       <section className="chat">
@@ -95,21 +98,26 @@ function Preview() {
             difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
-          <div className="turn-stack"><div className="msg chat-message bot"><span className="target-text">Me gusta mucho caminar por la costa cuando el tiempo está agradable.</span></div></div>
-          <div className="turn-stack" style={{ '--script-scale': 1.5 } as React.CSSProperties}><div className="msg chat-message bot rtl"><ReadingPreferencesContext value={{ autoTranslate: false, alwaysRomanize: quick.always_romanize, alwaysPronunciation: false }}><SavedGlossText text={arabicText} segments={arabicSegments} /></ReadingPreferencesContext></div></div>
-          <TurnView turn={{id:1,user:'Sí, he ido a la playa de Samil el verano pasado.',assistant, pendingText:'',coachDecision:decision}} reviewing={false} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={() => {}} />
+          {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}
+          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
+          <div style={{ '--script-scale': 1.5 } as React.CSSProperties}><ReadingPreferencesContext value={{ autoTranslate: quick.auto_translate, alwaysRomanize: quick.always_romanize, alwaysPronunciation: quick.always_pronunciation, supportsRomanization: true }}>
+            <TurnView turn={{ id: 2, user: arabicText, assistant: null, pendingText: '', userSavedGloss: {
+              sourceMessageId: 'preview-arabic-user', targetLanguageId: 'arabic', explanationLanguageId: 'english',
+              formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
+            } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} revealed={revealed} showRomanization alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
+          </ReadingPreferencesContext></div>
+          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
         </>}</div>
         <div className="composer">
-          {!opening && <ComposerHelp replies={[{text:'Con mi familia.',segments:[]},{text:'Con unos amigos.',segments:[]}]} busy={false} pending={false} errors={[]} onUse={setInput} />}
+          {!opening && <ReplyHelp replies={[{text:'Con mi familia.',segments:[]},{text:'Con unos amigos.',segments:[]}]} busy={false} errors={[]} onUse={setInput} />}
           <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => setRecording(!recording)} onDiscardRecording={() => setRecording(false)} />
         </div>
       </section>
       {coach && !mobile && <PracticeDivider workspace={workspace} />}
       <section className={`break ${coach || mobile ? '' : 'collapsed'}`}>
         {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}>Coach</button>}
-        <div className="coach-heading"><strong>Coach</strong><button aria-label="Close coach" onClick={() => setCoach(false)}>›</button></div>
-        <div className="panel-tabs">{['Coaching','Evidence'].map(label => <button key={label} className={`panel-tab ${tab === label ? 'active' : ''}`} onClick={() => setTab(label)}>{label}</button>)}</div>
-        <div className="study-coaching"><div className="study-coaching-scroll">{!opening && tab === 'Coaching' && <><h3 className="coach-group-label">On your message</h3><CoachEntry decision={decision} source={null} /><h3 className="coach-group-label">You asked</h3><div className="coach-thread"><div className="coach-msg user">When do I use “haya” instead of “ha”?</div><div className="coach-msg coach">“Haya” is a subjunctive form. It can follow expressions of uncertainty.</div></div></>}</div><form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form></div>
+        <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={() => setCoach(false)} />
+        <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <><h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
       </section>
     </div><MobileNav />
   </div></ReadingPreferencesProvider></ReadingProvider>

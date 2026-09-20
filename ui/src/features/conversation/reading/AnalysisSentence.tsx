@@ -1,7 +1,7 @@
 import type { GuidedToken } from '../../../types'
 import type { WordGlossView } from '../../../generated/contracts'
-import { AnnotatedText } from '../../../components/reading/TargetText'
-import { SavedGlossText } from './SavedGlossText'
+import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
+import { ReadingPassage } from './ReadingPassage'
 
 /** The same saved, interactive words as the conversation, kept in sentence order. */
 export function AnalysisSentence({ text, translation, gloss, tokens = [], label, side = 'me' }: {
@@ -9,9 +9,6 @@ export function AnalysisSentence({ text, translation, gloss, tokens = [], label,
 }) {
   return <section className={`analysis-sentence analysis-sentence-${side}`} aria-label={label}>
     <h4>{label}</h4>
-    <p className="sentence" dir="auto">{gloss
-      ? <SavedGlossText key={gloss.attemptId} text={text} segments={gloss.segments} />
-      : <AnnotatedText text={text} tokens={tokens} />}</p>
-    {translation && <p className="trans-d" dir="auto">{translation}</p>}
+    <ReadingPassage key={text} text={text} translation={translation} segments={gloss?.segments ?? anchoredTokenGlosses(text,tokens)} />
   </section>
 }

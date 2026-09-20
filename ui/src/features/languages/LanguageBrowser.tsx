@@ -1,3 +1,5 @@
+import { languageBadgeSample } from '../../domain/language/script-text'
+import { InspectText } from '../../components/reading/InspectText'
 import { useEffect, useId, useState } from 'react'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { useI18n } from '../../components/localization/i18n'
@@ -89,7 +91,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
           <div className="language-browser-overview">
           <header className="language-browser-hero">
             <LanguageBadge endonym={selected.endonym} large />
-            <h3><span dir="auto">{selected.endonym}</span>{selected.endonym !== translatedName(tr.locale, selected.name) && <small>{translatedName(tr.locale, selected.name)}</small>}</h3>
+            <h3><span dir="auto" lang={selected.languageTag}>{selected.endonym}</span><InspectText text={selected.endonym} language={selected.code} variety={variety} />{selected.endonym !== translatedName(tr.locale, selected.name) && <small>{translatedName(tr.locale, selected.name)}</small>}</h3>
           </header>
           <label>{tr('Variety')}<select className="field" value={variety} disabled={saving || savingLanguage} onChange={event => { setVariety(event.target.value); setActionError(null); setNotice(null) }}>
             {selected.varieties.map(item => <option key={item.id} value={item.id}>{translatedName(tr.locale, item.label)}</option>)}
@@ -97,7 +99,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
           </div>
           {error && <div role="alert"><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></div>}
           {!report && !error && <p role="status">{tr('Loading…')}</p>}
-          {report && <LanguageDetails report={report} key={language + variety} />}
+          {report && <LanguageDetails report={report} variety={variety} key={language + variety} />}
         </section>
       </div>
     </div>
@@ -105,8 +107,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
 }
 /** A neutral script sample, not a flag: languages are not countries. */
 function LanguageBadge({ endonym, large = false }: { endonym: string; large?: boolean }) {
-  const latinLike = /^[\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Greek}]/u.test(endonym)
-  const glyph = latinLike ? endonym.slice(0, 2) : [...endonym][0]
+  const glyph = languageBadgeSample(endonym)
   return <span className={`language-badge${large ? ' large' : ''}`} aria-hidden="true" dir="auto">{glyph}</span>
 }
 function errorText(reason: unknown): string {

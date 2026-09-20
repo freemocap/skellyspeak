@@ -59,3 +59,18 @@ export async function onAiWindowEvent(handler: (event: AiWindowEvent) => void): 
 export function getAiGraphDefinitions(): Promise<AiGraphDefinition[]> {
   return invoke<AiGraphDefinition[]>('get_ai_graph_definitions')
 }
+
+/** A reading question is a local draft, never a coach request sent automatically. */
+export async function sendReadingQuestion(question: string): Promise<void> {
+  const { emitTo } = await import('@tauri-apps/api/event')
+  await emitTo('main', 'reading-coach-question', question)
+  await dockAiWindow()
+}
+export async function onReadingQuestion(handler: (question: string) => void): Promise<() => void> {
+  if (!isTauri) return () => {}
+  const { listen } = await import('@tauri-apps/api/event')
+  return listen<string>('reading-coach-question', event => {
+    if (typeof event.payload !== 'string' || event.payload.length > 16000) throw new Error('Invalid reading question.')
+    handler(event.payload)
+  })
+}

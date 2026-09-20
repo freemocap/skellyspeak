@@ -106,6 +106,10 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::reading::begin_reading,
+            commands::reading::run_reading,
+            commands::reading::cancel_reading,
+            commands::reading::get_reading_activity,
             updater::get_update_channel,
             updater::latest_github_release,
             commands::workspace::read_speech_audio,

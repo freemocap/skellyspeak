@@ -23,7 +23,7 @@ EVENTS = {
 ROUTES = {"/health", "/v1/me", "/v1/diagnostics", "/v1/operations", "/v1/protocol",
           "/v1/chat/completions", "/v1/audio/speech", "/v1/audio/transcriptions", "/auth/start",
           "/auth/callback/google", "/auth/exchange", "unmatched",
-          "/admin", "/admin/login", "/admin/logout", "/admin/api/overview",
+          "/admin", "/admin/login", "/admin/logout", "/admin/api/overview", "/admin/api/timeline",
           "/admin/api/audit", "/admin/api/logs", "/admin/api/change",
           "/admin/api/users/{user_id}", "/admin/assets/{name}"}
 ENUMS = {"credential_state": {"accepted", "rejected", "unreachable", "invalid_response"},"route": ROUTES, "method": {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "OTHER"},

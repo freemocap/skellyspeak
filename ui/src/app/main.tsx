@@ -61,6 +61,7 @@ async function start() {
     await loadLanguages()
     await initStores()
   }
+  if (isTauri && dev) await loadLanguages()
   mount(dev)
 }
 void start().catch(async (error: unknown) => {

@@ -1,6 +1,7 @@
 use super::*;
 
 pub(crate) struct Application {
+    pub(super) reading: crate::language::reading::Registry,
     pub(crate) admission: admission::Admission,
     pub(super) generations: generation::Registry,
     pub(crate) capture: Mutex<Option<voice::Recording>>,
@@ -48,6 +49,7 @@ impl Application {
         };
         Arc::new(Self {
             admission: admission::Admission::new(),
+            reading: Default::default(),
             generations: generation::Registry::default(),
             capture: Mutex::new(None),
             store: Mutex::new(store),

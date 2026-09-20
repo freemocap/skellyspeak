@@ -23,8 +23,8 @@ impl Store {
             tx.commit()?;
             return Ok(None);
         }
-        let candidate:Option<(String,String,String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.credential_id,t.model,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) ORDER BY CASE WHEN o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply','persona_speech') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?))).optional()?;
-        let Some((operation, kind, turn, credential, model, context)) = candidate else {
+        let candidate:Option<(String,String,String,String)>=tx.query_row("SELECT o.id,o.kind,t.id,t.context FROM operations o JOIN turns t ON t.id=o.turn_id WHERE o.state='ready' AND t.state IN ('pending','assisting') AND (t.paused=0 OR o.permit=1) ORDER BY CASE WHEN o.kind IN ('persona_context','coach_context','persona_reply','persona_opening','coach_reply','persona_speech') THEN 0 ELSE 1 END,t.rowid,o.rowid LIMIT 1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?))).optional()?;
+        let Some((operation, kind, turn, context)) = candidate else {
             tx.commit()?;
             return Ok(None);
         };
@@ -124,8 +124,15 @@ impl Store {
         {
             return Err(fail("No executor for declared operation."));
         }
-        let captured: serde_json::Value = serde_json::from_str(&context)?;
+        let mut captured: serde_json::Value = serde_json::from_str(&context)?;
+        if let Some(retry) = captured["retryTargets"].get(&operation).cloned() {
+            captured["target"] = retry["target"].clone();
+            captured["fastModel"] = retry["fastModel"].clone();
+        }
         let prepared = (|| -> Result<_> {
+            let model = captured["target"]["model"]
+                .as_str()
+                .ok_or_else(|| fail("Captured model is missing."))?;
             let mut gloss_source = None;
             let mut gloss_schema = None;
             let coaching_schema = if kind == "skill_assessment" {
@@ -215,7 +222,7 @@ impl Store {
                     let target: crate::ai::connections::access::ResolvedTarget =
                         serde_json::from_value(captured["target"].clone())?;
                     crate::ai::transport::provider::payload_with_output(
-                        &model,
+                        model,
                         &prompt.messages,
                         target.route,
                         crate::ai::transport::provider::RequestOutput::JsonSchema {
@@ -332,21 +339,17 @@ impl Store {
             } else {
                 0.7
             },
+            credential: target.credential.clone().unwrap_or_default(),
+            route: target.route,
             target,
             attempt,
             operation,
-            credential,
             model,
             messages,
             gloss_schema,
             coaching_schema,
             gloss_source,
             speech_source: None,
-            route: ConnectionRoute::parse(&self.connection.query_row(
-                "SELECT route FROM turns WHERE id=?1",
-                [&turn],
-                |r| r.get::<_, String>(0),
-            )?)?,
             install_id: self.snapshot()?.learner.id,
         };
         crate::diagnostics::inference::prepared(&dispatch, &kind, &captured, self.config.hash());

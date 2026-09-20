@@ -648,6 +648,8 @@ pub fn bindings() -> String {
         crate::speech::analysis::audio_inspection::InspectionUnsupportedWord::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionTimingStatus::decl(&config),
         RefusalReason::decl(&config),
+        crate::language::reading::ReadingInput::decl(&config),
+        crate::language::reading::ReadingResult::decl(&config),
         AppError::decl(&config),
     ];
     format!(

@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import { TurnView, type TurnViewProps } from './TurnView'
+import { TurnView as SharedTurnView, type TurnViewProps } from './TurnView'
+
+import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
+
+function TurnView(input: TurnViewProps) {
+  return <ReadingPreferencesContext value={{autoTranslate:input.autoTranslate, alwaysRomanize:input.alwaysRomanize, alwaysPronunciation:input.alwaysPronunciation, supportsRomanization:input.showRomanization}}><SharedTurnView {...input} /></ReadingPreferencesContext>
+}
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function () { this.open = true }
@@ -35,6 +41,7 @@ it('keeps an explicit message translation override when the default changes', ()
 
 it('honors pronunciation even when token information is revealed', () => {
   const input = props()
+  input.autoTranslate = true
   input.turn.assistant!.reply = 'Soy Elia.'
   input.turn.assistant!.tokens = [
     { text: 'Soy', gloss: 'I am', pronunciation: 'soy', romanization: null, pos: null, notable: false },
@@ -74,6 +81,7 @@ it('does not expose playback without a connected action', () => {
 
 it('retries partial saved gloss only on explicit request and keeps reading during retry', async () => {
   const input = props()
+  input.autoTranslate = true
   input.turn.assistant!.tokens = []
   input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'template', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'partial', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
   input.turn.assistant!.glossState = 'succeeded'
@@ -97,6 +105,7 @@ it('retries partial saved gloss only on explicit request and keeps reading durin
 
 it('keeps accepted meanings visible while background repair is pending', () => {
   const input = props()
+  input.autoTranslate = true
   input.onRetryGloss = vi.fn()
   input.turn.assistant!.tokens = []
   input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'policy', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'partial', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
@@ -169,6 +178,8 @@ it('distinguishes no requested translation from failure and clears progress when
 
 it('uses saved human glosses before a reply and separates scores from bottom actions', () => {
   const input = props()
+  input.autoTranslate = true
+  input.alwaysPronunciation = true
   input.turn.assistant = null
   input.turn.userTranslation = 'Hello there'
   input.turn.userSavedGloss = {
@@ -186,9 +197,8 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   expect(view.container.querySelector('.saved-word-help')).toHaveAttribute('popover', 'manual')
   const grade = screen.getByRole('button', { name: 'Coach feedback for message 1' })
   expect(grade.parentElement).toHaveClass('message-feedback')
-  expect(grade.closest('.msg.me')).toBeNull()
+  expect(grade.closest('.msg.me')).not.toBeNull()
   expect(screen.getByRole('button', { name: 'Analyze your message' }).closest('.message-actions')).not.toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
@@ -209,11 +219,14 @@ it('lets a message hide translation while the conversation default stays on', ()
 
 it('reveals saved word meanings without starting inference or changing whole-message translation', () => {
   const input = props()
+  input.autoTranslate = true
   input.turn.assistant!.tokens = []
   input.turn.assistant!.savedGloss = { sourceMessageId: 'message', targetLanguageId: 'spanish', explanationLanguageId: 'english', formatVersion: 'format', templateVersion: 'template', boundaryPolicy: 'policy', operationId: 'operation', attemptId: 'attempt', coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'Hello'}] }
   const view = render(<TurnView {...input} />)
-  const words = screen.getByRole('button', {name:/Word by word/})
+  fireEvent.click(screen.getByRole('button', { name: 'Translate persona message' }))
+  const words = within(view.container.querySelector('.msg.bot') as HTMLElement).getByRole('button', {name:'Word by word'})
   expect(words).toBeEnabled()
+  fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
@@ -231,4 +244,215 @@ it('shows a failed learner translation on the learner message without invented t
   const view = render(<TurnView {...input} />)
   expect(view.container.querySelector('.msg.me [role="status"]')?.textContent).toBe('Translation failed')
   expect(view.container.querySelector('.msg.bot [role="status"]')).toBeNull()
+})
+
+
+it('keeps corner edit and playback actions isolated from token reveal and honors their availability', () => {
+  const input = props()
+  const edit = vi.fn()
+  const view = render(<TurnView {...input} onEditUser={edit} rtl />)
+  const pencil = screen.getByRole('button', { name: 'Edit message' })
+  const speaker = screen.getByRole('button', { name: 'Speak reply' })
+  expect(pencil).toHaveTextContent('✏️')
+  expect(pencil.closest('.msg.me')).toHaveClass('with-corner-control', 'rtl')
+  expect(speaker.closest('.msg.bot')).toHaveClass('with-corner-control', 'rtl')
+  fireEvent.click(pencil)
+  fireEvent.doubleClick(pencil)
+  fireEvent.click(speaker)
+  fireEvent.doubleClick(speaker)
+  expect(edit).toHaveBeenCalledExactlyOnceWith(input.turn)
+  expect(input.onSpeak).toHaveBeenCalledExactlyOnceWith('Hola', 1)
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  view.rerender(<TurnView {...input} onEditUser={edit} editDisabled speaking />)
+  expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Stop playback' }))
+  expect(input.onSpeak).toHaveBeenCalledTimes(2)
+  view.rerender(<TurnView {...input} onEditUser={undefined} ttsReady={false} />)
+  expect(screen.queryByRole('button', { name: 'Edit message' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Speak reply' })).toBeNull()
+})
+
+
+it('attaches both assistance rows to their source bubble and toggles only learner token keys', () => {
+  const input = props()
+  input.autoTranslate = true
+  const view = render(<TurnView {...input} />)
+  const learner = view.container.querySelector('.msg.me') as HTMLElement
+  const partner = view.container.querySelector('.msg.bot') as HTMLElement
+  for (const bubble of [learner, partner]) {
+    expect(within(bubble).getByRole('button', { name: /Translate/ }).closest('.message-actions')).not.toBeNull()
+    expect(within(bubble).getByRole('button', { name: /Analy/ }).closest('.message-actions')).not.toBeNull()
+  }
+  const words = within(learner).getByRole('button', { name: 'Word by word' })
+  expect(words).toHaveAttribute('aria-pressed', 'true')
+  fireEvent.click(words)
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  expect(within(partner).getByRole('button', { name: 'Word by word' })).toHaveAttribute('aria-pressed', 'true')
+  input.onToggleReveal = vi.fn()
+  view.rerender(<TurnView {...input} revealed={new Set()} />)
+  expect(words).toHaveAttribute('aria-pressed', 'false')
+  for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
+  for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  fireEvent.click(within(learner).getByRole('button', { name: 'Analyze your message' }))
+  const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
+  expect(dialog.parentElement).toBe(document.body)
+})
+
+it('toggles saved learner meanings independently before a reply without requesting work', () => {
+  const input = props()
+  input.autoTranslate = true
+  input.turn.assistant = null
+  input.turn.userTranslation = 'Hello there'
+  input.turn.userGlossState = 'running'
+  input.turn.userSavedGloss = {
+    sourceMessageId: 'human', targetLanguageId: 'spanish', explanationLanguageId: 'english',
+    formatVersion: 'v1', templateVersion: 'v1', boundaryPolicy: 'v1',
+    operationId: 'human-gloss', attemptId: 'attempt', coverage: 'partial',
+    segments: [{ start: 0, end: 4, kind: 'gloss', gloss: 'Hello' }],
+  }
+  input.onRetryGloss = vi.fn()
+  const view = render(<TurnView {...input} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
+  const words = screen.getByRole('button', { name: 'Word by word' })
+  expect(words).toBeEnabled()
+  expect(words).toHaveClass('is-hydrating')
+  fireEvent.click(words)
+  expect(view.container.querySelector('.msg.me .wg')).toBeNull()
+  fireEvent.click(words)
+  expect(words).toHaveAttribute('aria-pressed', 'true')
+  expect(view.container.querySelector('.msg.me .wg')).toHaveTextContent('Hello')
+  expect(screen.queryByText('Hello there')).toBeNull()
+  fireEvent.click(words)
+  expect(view.container.querySelector('.msg.me .wg')).toBeNull()
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  expect(input.onRetryGloss).not.toHaveBeenCalled()
+  expect(input.onAskCoach).not.toHaveBeenCalled()
+})
+
+it('keeps word actions disabled without annotations and allows them when saved meanings arrive', () => {
+  const input = props()
+  input.turn.assistant!.user_tokens = []
+  input.turn.assistant!.tokens = []
+  input.turn.userGlossState = 'running'
+  input.turn.assistant!.glossState = 'failed'
+  const view = render(<TurnView {...input} />)
+  for (const words of screen.getAllByRole('button', { name: 'Word by word' })) {
+    expect(words).toBeDisabled()
+    expect(words).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(words)
+  }
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+  const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
+  view.rerender(<TurnView {...input} turn={{ ...input.turn, assistant: { ...input.turn.assistant!, user_tokens: [token] } }} />)
+  expect(within(view.container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Word by word' })).toBeEnabled()
+})
+
+it('reveals Arabic token meanings through the shaping-safe renderer on either side', () => {
+  const input = props()
+  input.autoTranslate = true
+  const token = { text: 'بيوت', gloss: 'houses', romanization: 'buyūt', pronunciation: null, pos: null, notable: false }
+  input.turn.user = 'بيوت'
+  input.turn.assistant!.reply = 'بيوت'
+  input.turn.assistant!.tokens = [token]
+  input.turn.assistant!.user_tokens = [token]
+  const view = render(<TurnView {...input} rtl />)
+  const learner = view.container.querySelector('.msg.me') as HTMLElement
+  const partner = view.container.querySelector('.msg.bot') as HTMLElement
+  fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Word by word' }))
+  expect(learner.querySelector('.wg')).toHaveTextContent('houses')
+  expect(partner.querySelector('.wg')).toBeNull()
+  fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
+  expect(partner.querySelector('.wg')).toHaveTextContent('houses')
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
+})
+
+
+it('keeps assistance in interface direction independently of the source script', async () => {
+  const input = props()
+  document.documentElement.dir = 'rtl'
+  const view = render(<TurnView {...input} rtl={false} />)
+  expect(view.container.querySelector('.msg.me .message-feedback')).toHaveAttribute('dir', 'rtl')
+  expect(view.container.querySelector('.msg.bot .message-actions')).toHaveAttribute('dir', 'rtl')
+  await act(async () => { document.documentElement.dir = 'ltr' })
+  view.rerender(<TurnView {...input} rtl />)
+  expect(view.container.querySelector('.msg.me .message-feedback')).toHaveAttribute('dir', 'ltr')
+  expect(view.container.querySelector('.msg.bot .message-actions')).toHaveAttribute('dir', 'ltr')
+})
+
+it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both message sides through the %s path', path => {
+  const input = props()
+  const text = path === 'joining' ? 'بيوت' : 'Hola'
+  const token = {text, gloss:'meaning', romanization:'roman', pronunciation:'redundant', pos:null, notable:false}
+  input.turn.user = text
+  input.turn.assistant!.reply = text
+  input.turn.assistant!.tokens = [token]
+  input.turn.assistant!.user_tokens = [token]
+  input.revealed = new Set()
+  if (path === 'saved') {
+    input.turn.userSavedGloss = input.turn.assistant!.savedGloss = {
+      sourceMessageId:'message', targetLanguageId:'language', explanationLanguageId:'english',
+      formatVersion:'format', templateVersion:'template', boundaryPolicy:'policy',
+      operationId:'operation', attemptId:'attempt', coverage:'complete',
+      segments:[{start:0,end:text.length,kind:'gloss',gloss:'meaning',romanization:'roman',pronunciation:'redundant'}],
+    }
+  }
+  const view = render(<TurnView {...input} autoTranslate alwaysRomanize alwaysPronunciation showRomanization />)
+  for (const side of ['me','bot']) {
+    const bubble = view.container.querySelector(`.msg.${side}`) as HTMLElement
+    expect(bubble.querySelector('.wg')).toHaveTextContent('meaning')
+    expect(bubble.querySelector('.wroman')).toHaveTextContent('roman')
+    expect(bubble.querySelector('.wpronunciation')).toBeNull()
+    fireEvent.click(within(bubble).getByRole('button', {name:'Word by word'}))
+    expect(bubble.querySelector('.wg')).toBeNull()
+  }
+  view.rerender(<TurnView {...input} autoTranslate={false} alwaysRomanize={false} alwaysPronunciation showRomanization />)
+  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+  view.rerender(<TurnView {...input} autoTranslate alwaysRomanize alwaysPronunciation showRomanization />)
+  expect(view.container.querySelectorAll('.wg')).toHaveLength(2)
+  expect(view.container.querySelectorAll('.wroman')).toHaveLength(2)
+  expect(input.onAskCoach).not.toHaveBeenCalled()
+})
+
+it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveals and hides each side with all defaults off (%s)', path => {
+  const input = props()
+  input.revealed = new Set()
+  input.showRomanization = true
+  const text = path === 'joining' ? 'بيوت باب' : 'Hola casa'
+  const words = text.split(' ')
+  const tokens = words.map((text, index) => ({text, gloss:index ? 'second meaning' : 'meaning', romanization:index ? null : 'roman', pronunciation:index ? 'fallback' : 'redundant', pos:null, notable:false}))
+  input.turn.user = text
+  input.turn.assistant!.reply = text
+  input.turn.assistant!.tokens = tokens
+  input.turn.assistant!.user_tokens = tokens
+  if (path === 'saved') {
+    input.turn.userSavedGloss = input.turn.assistant!.savedGloss = {
+      sourceMessageId:'message', targetLanguageId:'language', explanationLanguageId:'english',
+      formatVersion:'format', templateVersion:'template', boundaryPolicy:'policy',
+      operationId:'operation', attemptId:'attempt', coverage:'complete',
+      segments:tokens.map((token,index) => ({start:index ? words[0].length+1 : 0,end:index ? text.length : words[0].length,kind:'gloss',gloss:token.gloss,romanization:token.romanization ?? undefined,pronunciation:token.pronunciation})),
+    }
+  }
+  const view = render(<TurnView {...input} />)
+  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+  for (const side of ['me','bot']) {
+    const bubble = view.container.querySelector(`.msg.${side}`) as HTMLElement
+    const button = within(bubble).getByRole('button',{name:'Word by word'})
+    expect(button).toHaveAttribute('aria-pressed','false')
+    fireEvent.click(button)
+    expect(button).toHaveAttribute('aria-pressed','true')
+    expect(within(bubble).getByText('meaning')).toBeVisible()
+    expect(within(bubble).getByText('roman')).toBeVisible()
+    expect(within(bubble).getByText('fallback')).toBeVisible()
+    expect(within(bubble).queryByText('redundant')).toBeNull()
+    expect(within(bubble).queryByText('Persona translation')).toBeNull()
+    expect(within(bubble).queryByText('Learner translation')).toBeNull()
+    fireEvent.click(button)
+    expect(button).toHaveAttribute('aria-pressed','false')
+    expect(bubble.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+  }
+  expect(input.onAskCoach).not.toHaveBeenCalled()
+  expect(input.onToggleReveal).not.toHaveBeenCalled()
 })

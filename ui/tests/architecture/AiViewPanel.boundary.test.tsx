@@ -10,7 +10,7 @@ vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.native }))
 vi.mock('../../src/components/layout/useIsMobile', () => ({ useIsMobile: () => mocks.mobile }))
 vi.mock('../../src/components/dialogs/DetailDialog', () => ({ DetailDialog: ({ children }: { children: React.ReactNode }) => <div role="dialog">{children}</div> }))
 vi.mock('../../src/platform/ipc/window', () => ({ openAiWindow: mocks.openAiWindow, dockAiWindow: mocks.dockAiWindow, aiWindowState: mocks.aiWindowState }))
-vi.mock('../../src/platform/ipc/tauri', () => ({ getSettings: () => new Promise(() => {}), isTauri: true }))
+vi.mock('../../src/platform/ipc/tauri', () => ({ getSettings: () => new Promise(() => {}), isTauri: true, languages: () => [], languageFor: () => null }))
 vi.mock('../../src/features/activity/AiView', () => ({ AiView: ({ mode, actions }: { mode: string; actions: React.ReactNode }) => <section><p role="status">AI view {mode}</p>{actions}</section> }))
 beforeEach(() => {
   vi.clearAllMocks(); mocks.mobile = false

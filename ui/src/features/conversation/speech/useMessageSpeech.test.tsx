@@ -8,7 +8,7 @@ const native = vi.hoisted(() => ({ invoke: vi.fn(), execute: vi.fn(), fault: vi.
 vi.mock('@tauri-apps/api/core', () => ({ invoke: native.invoke }))
 vi.mock('../../../platform/ipc/workspace', () => ({ executeAction: native.execute, nativeError: String }))
 vi.mock('../../../platform/diagnostics/faults', () => ({ reportFault: native.fault }))
-vi.mock('./speech-player', () => ({ playSpeechAudio: () => ({ play: native.play, stop: native.stop }) }))
+vi.mock('../../../platform/audio/speech-player', () => ({ playSpeechAudio: () => ({ play: native.play, stop: native.stop }) }))
 function snapshot(ids: string[], operation = true): ConversationSnapshot {
   return { conversationId: 'chat', sessionId: 'session', revision: ids.length, messages: ids.map((id, i) => ({ id, sequence: i, role: 'assistant', text: id })), turns: operation ? ids.map(id => ({ operations: [{ id: `speech-${id}`, kind: 'persona_speech', sourceMessageId: id }] })) : [] } as unknown as ConversationSnapshot
 }

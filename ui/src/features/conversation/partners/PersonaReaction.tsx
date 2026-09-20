@@ -1,3 +1,5 @@
+import { SavedGlossText } from '../../../components/reading/SavedGlossText'
+import type { WordGlossView } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
 import { TargetText } from '../../../components/reading/TargetText'
 import { useEffect, useRef, useState } from 'react'
@@ -16,7 +18,9 @@ const reactions: Record<Reaction['kind'], { icon: string; label: string }> = {
   concerned: { icon: '😟', label: 'Partner seems concerned' },
 }
 
-export function PersonaReaction({ reaction, error, message, reply, onEdit }: {
+export function PersonaReaction({ reaction, error, message, reply, onEdit, userGloss, replyGloss }: {
+  userGloss?: WordGlossView | null
+  replyGloss?: WordGlossView | null
   reaction: Reaction | undefined
   error: string | undefined
   message: string
@@ -45,8 +49,8 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit }: {
       <div className="reaction-details">
         <h2><span aria-hidden="true">{display.icon} </span>{display.label}</h2>
         <section className="reaction-exchange" aria-label={tr("Conversation exchange")}>
-          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto"><TargetText text={message} /></div></div>
-          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto"><TargetText text={reply} /></div></div>
+          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto">{userGloss ? <SavedGlossText text={message} segments={userGloss.segments} /> : <TargetText text={message} />}</div></div>
+          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto">{replyGloss ? <SavedGlossText text={reply} segments={replyGloss.segments} /> : <TargetText text={reply} />}</div></div>
         </section>
         {error ? <p role="alert">{error}</p> : <>
           <h3>{tr("How your message came across")}</h3><p dir="auto">{reaction!.interpretation}</p>

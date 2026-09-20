@@ -5,10 +5,24 @@ use rusqlite::{Connection, params};
 
 pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -> Result<()> {
     let valid: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM conversations c JOIN contacts r ON r.id=c.contact_id WHERE c.id=?1 AND c.archived=0 AND r.archived=0)", [conversation], |r| r.get(0))?;
-    if !valid || crate::conversations::execution::config(db)?.revision != target.revision {
+    let current = crate::ai::connections::access::resolve(
+        db,
+        crate::ai::connections::access::Capability::Transcription,
+    )
+    .map_err(|mut error| {
+        if error.code == ErrorCode::Validation {
+            error.code = ErrorCode::Conflict;
+        }
+        error
+    })?;
+    if !valid
+        || current.route != target.route
+        || current.url != target.url
+        || current.credential != target.credential
+    {
         return Err(AppError::new(
             ErrorCode::Conflict,
-            "The conversation or AI connection changed. Transcription cannot be inserted.",
+            "The recording destination, credentials, or conversation are no longer available.",
         ));
     }
     Ok(())
@@ -303,7 +317,10 @@ mod tests {
             .unwrap();
         store
             .connection
-            .execute("UPDATE ai_config SET revision=revision+1", [])
+            .execute(
+                "UPDATE ai_config SET revision=revision+1,groq_credential_id=NULL",
+                [],
+            )
             .unwrap();
         assert_eq!(
             store
@@ -320,6 +337,35 @@ mod tests {
         assert_eq!(
             views(&store.connection, &conversation).unwrap()[0].state,
             "unknown"
+        );
+    }
+    #[test]
+    fn unrelated_settings_revision_does_not_discard_recorded_words() {
+        let (_dir, mut store, conversation, target) = setup();
+        store
+            .connection
+            .execute(
+                "UPDATE ai_config SET revision=revision+1,standard_model='other-chat-model'",
+                [],
+            )
+            .unwrap();
+        store
+            .begin_transcription("recording", &conversation, &target)
+            .unwrap();
+        store
+            .connection
+            .execute("UPDATE ai_config SET revision=revision+1", [])
+            .unwrap();
+        assert_eq!(
+            store
+                .finish_transcription(
+                    "recording",
+                    &conversation,
+                    &target,
+                    Ok("Recorded words".into())
+                )
+                .unwrap(),
+            "Recorded words"
         );
     }
 }

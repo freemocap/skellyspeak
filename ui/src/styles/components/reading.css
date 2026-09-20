@@ -18,8 +18,8 @@
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-xs);
 }
-.wu:has(.wg), .wu:has(.wroman), .wu:has(.wpronunciation) { min-width: 2em; }
-.wu:has(.wg) > .w {
+.wu:has(> .wg), .wu:has(> .wroman), .wu:has(> .wpronunciation) { min-width: 2em; }
+.wu:has(> .wg) > .w, .saved-word:has(> .wg) > .reading-word {
   text-decoration: underline dotted var(--interaction-ink);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -86,7 +86,7 @@
 
 .w.preserve-space { white-space: pre-wrap; }
 
-.target-text .wu { vertical-align: top; margin-inline-end: var(--word-spacing); }
+.target-text .wu:not(.saved-word) { vertical-align: top; margin-inline-end: var(--word-spacing); }
 
 .target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
 
@@ -101,7 +101,7 @@
    inline text flow as unannotated words and punctuation. A separate flex box
    per word is unnecessary here and introduces a separate baseline calculation.
    Only visible inline annotations need a column beneath their source word. */
-.saved-word { position: relative; display: inline; }
+.saved-word { position: relative; display: inline; padding: 0; border: 0; margin-inline-end: var(--word-spacing); }
 
 .saved-word:has(> .wg, > .wroman, > .wpronunciation) {
   display: inline-flex;
@@ -123,10 +123,17 @@
   box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
 
-.saved-word-help > span { display: block; }
+.saved-word-help > span, .saved-word-help > span > span { display: block; }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-reading-aid); color: var(--ink-3); }
+
+/* A clitic's meaning and sound fields share one source label in compact help. */
+.gloss-help-parts { font: var(--type-ui) / var(--leading-normal) var(--font-sans); white-space: normal; text-align: start; }
+.gloss-help-part { display: block; }
+.gloss-help-part + .gloss-help-part { margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--border-width) solid var(--line-soft); }
+.gloss-help-part > .wg, .gloss-help-part > .wroman, .gloss-help-part > .wpronunciation { display: block; }
+.gloss-help-source { font: var(--type-body) / var(--leading-normal) var(--font-serif); }
 
 /* Full saved details are a second-step modal; the first-step helper stays anchored. */
 @media (pointer: coarse) {
@@ -150,3 +157,55 @@
 
 /* Reserve vertical room for vocalized right-to-left text. */
 .w:dir(rtl), .target-text:dir(rtl) { line-height: var(--leading-vocalized); }
+
+/* Reading actions are independent controls: they must never activate the source
+   message, navigation item or insertion button. */
+.token-audio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  width: var(--space-11);
+  height: var(--space-11);
+  padding: var(--space-1);
+  margin-inline-start: var(--space-1);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--field);
+  color: var(--ink);
+  box-shadow: none;
+  cursor: pointer;
+}
+.reading-language-scope { display: contents; }
+.reading-language-controls { display: flex; flex-wrap: wrap; gap: var(--space-6); }
+.reading-language-controls label { display: flex; flex-direction: column; gap: var(--space-1); }
+.reading-selected-word { display: flex; align-items: center; gap: var(--space-2); }
+.reading-audio-status {
+  position: fixed;
+  inset: auto var(--space-3) var(--space-3) auto;
+  max-width: min(90vw, 32rem);
+  max-height: 40vh;
+  overflow: auto;
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--shadow-floating);
+}
+@media (pointer: coarse) { .token-audio { min-width: 44px; min-height: 44px; } }
+
+/* Source words inherit their sentence metrics. Hover/focus never creates a new
+   inline box, changes a border, or removes the source from Arabic bidi flow. */
+.reading-word { cursor: pointer; font: inherit; color: inherit; }
+.reading-word:hover { text-decoration: underline dotted; text-underline-offset: 2px; }
+.saved-word-help:has(> .token-audio) { padding-inline-end: calc(var(--space-11) + var(--space-4)); }
+.saved-word-help > .token-audio { position: absolute; inset-block-start: var(--space-1); inset-inline-end: var(--space-1); margin: 0; }
+.reading-word-help { font: var(--type-ui) / var(--leading-normal) var(--font-sans); text-align: start; white-space: normal; }
+.reading-help-source { font: calc(var(--type-reading) * var(--script-scale)) / var(--leading-vocalized) var(--font-serif); color: var(--ink); }
+.reading-help-action { display: block; padding: 0; margin-top: var(--space-2); border: 0; background: transparent; color: var(--interaction-ink); font: inherit; cursor: pointer; }
+@media (pointer: coarse) { .saved-word-help:has(> .token-audio) { padding-inline-end: calc(var(--touch-target) + var(--space-4)); } }
+
+/* Saved and unresolved source words use reading-word and inherit the sentence
+   baseline. Only visible annotations introduce a column; hover never does. */

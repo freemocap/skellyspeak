@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen, fireEvent } from '@testing-library/react'
 import { expect, it } from 'vitest'
+import { ReadingPreferencesContext } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 import { AnnotatedText } from './TargetText'
 
@@ -9,7 +10,7 @@ it.each(['किताब', 'नमस्ते', 'വീട്ടിൽ', 'ന�
     { start: 0, end: 1, kind: 'gloss' as const, gloss: 'first' },
     { start: 1, end: text.length, kind: 'gloss' as const, gloss: 'rest' },
   ]
-  const view = render(<SavedGlossText text={text} segments={segments} />)
+  const view = render(<ReadingPreferencesContext value={{autoTranslate:true, alwaysRomanize:false, alwaysPronunciation:false}}><SavedGlossText text={text} segments={segments} showAids={false} /></ReadingPreferencesContext>)
   expect(view.container.textContent).toBe(text)
   const word = screen.getByRole('button', { name: text })
   expect(word.childNodes).toHaveLength(1)

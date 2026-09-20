@@ -4,7 +4,7 @@
    design system (docs/design-system/) is generated from this file.
 
    Names say what a value is FOR, not what it looks like. Two roles may share a
-   value today (success-ink and di-situating, say) and still stay separate:
+   value today (danger-ink and di-questions, say) and still stay separate:
    equal colours do not merge status, learning-domain or interaction meanings.
    There are no aliases — if two names would always mean the same thing, there
    is one name.
@@ -53,10 +53,11 @@
   /* ══ Colour: status ══════════════════════════════════════════════════════
      Success, warning and danger, each with an ink for text, a line for
      borders and marks, and a tint to sit behind the ink. Used for system state
-     and for the coach's judgments alike; never replaced by a domain hue. */
-  --success-ink: #0e5c53;
-  --success-line: #a6b9aa;
-  --success-tint: #ddf0ec;
+     and for the coach's judgments alike; never replaced by a domain hue.
+     Cyan success and red danger avoid a red–green correctness axis. */
+  --success-ink: #086581;
+  --success-line: #79c9e2;
+  --success-tint: #def4fc;
   --warning-ink: #8a4e0a;
   --warning-line: #c78a2f;
   --warning-tint: #fbebd6;
@@ -268,8 +269,9 @@
   --bubble-learner-bg: #1e2836;
   --bubble-learner-line: #34465f;
   --interaction-ink: #6fa3ea;
-  --success-ink: #3fc0af;
-  --success-tint: color-mix(in srgb, #3fc0af 16%, transparent);
+  --success-ink: #75d6f5;
+  --success-line: #75d6f5;
+  --success-tint: color-mix(in srgb, #75d6f5 16%, transparent);
   --warning-ink: #f0a957;
   --warning-line: #f0a957;
   --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
@@ -581,3 +583,12 @@
 #admin-console #apply-change { background: var(--interaction-fill); color: var(--ink-on-fill); }
 @media (max-width: 600px) { #admin-console header { flex-direction: column; align-items: flex-start; padding: var(--space-10); } #admin-console main { padding: var(--space-8); } #admin-console section { padding: var(--space-8); } }
 @media (pointer: coarse) { #admin-console button, #admin-console input, #admin-console select { min-height: 44px; } }
+
+#admin-console .usage-line { width: 100%; min-width: 560px; font-size: var(--type-meta); fill: var(--ink-3); }
+#admin-console #usage-chart { overflow-x: auto; }
+#admin-console .chart-grid { stroke: var(--line-soft); }
+#admin-console .chart-line { fill: none; stroke: var(--interaction-fill); stroke-width: 2; pointer-events: none; }
+#admin-console .chart-point { fill: var(--interaction-fill); }
+#admin-console .money-input { display: flex; align-items: center; gap: var(--space-3); }
+#admin-console .money-input input { min-width: 0; width: 100%; }
+#admin-console .money-input button { white-space: nowrap; }

@@ -1,7 +1,9 @@
-import { ReadingPreferencesContext, useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+import { requiresWholeWordShaping } from '../../../domain/language/script-text'
+import { InspectText } from '../../../components/reading/InspectText'
+import { useUiDirection } from '../../../components/localization/useUiDirection'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
-import { anchoredTokenGlosses, requiresWholeWordShaping } from '../../../domain/reading/gloss-display'
+import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
 import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMappingNotice'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { GlossAssistance } from '../reading/GlossAssistance'
@@ -17,7 +19,7 @@ import { TranslationStatus } from './TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle, type MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
-import { Fragment, memo, useContext, useMemo, useRef, useState } from 'react'
+import { Fragment, memo, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { MessageFeedback } from '../coaching/MessageFeedback'
 import { PersonaReaction } from '../partners/PersonaReaction'
 import type { GuidedToken, GuidedTurnResult } from '../../../types'
@@ -132,11 +134,15 @@ export const TurnView = memo(function TurnView({
   latest = false,
 }: TurnViewProps) {
   const tr = useI18n()
+  const uiDirection = useUiDirection()
   const replyStream = useReplyStream(turn.execution)
   const activity = useMemo(() => turn.execution ? turnActivity(turn.execution, replyStream?.text ?? null) : null, [turn.execution, replyStream])
-  const reading = useReadingPreferences()
   const [savedWordsOverride, setSavedWordsOverride] = useState<boolean | null>(null)
-  const savedWordsOpen = savedWordsOverride ?? reading.autoTranslate
+  const aidsEnabled = autoTranslate || alwaysRomanize && showRomanization || alwaysPronunciation
+  const savedWordsOpen = savedWordsOverride ?? aidsEnabled
+  const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
+  const userWordsOpen = userWordsOverride ?? aidsEnabled
+  useEffect(() => { setSavedWordsOverride(null); setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation, showRomanization])
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
   const selectEvidence = useMemo(createMessageEvidenceSelector, [])
@@ -156,7 +162,7 @@ export const TurnView = memo(function TurnView({
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button></Fragment> : <TargetText key={start} text={text} />
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button><InspectText text={source} start={start} end={end} /></Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
   const userTranslation = turn.userTranslation ?? assistant?.user_translation
@@ -225,7 +231,7 @@ export const TurnView = memo(function TurnView({
     translation: string | null,
     rawText: string
   ) => {
-    if (requiresWholeWordShaping(rawText)) return <SavedGlossText text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
+    if (requiresWholeWordShaping(rawText)) return <SavedGlossText revealAids={(side === 'me' ? userWordsOverride : savedWordsOverride) === true} showAids={side === 'me' ? userWordsOpen : savedWordsOpen} text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
       decorateSegment={(node, start, end) => {
         const matches = side === 'me' ? evidence.filter(item => item.start < end && item.end > start) : []
         return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
@@ -245,17 +251,19 @@ export const TurnView = memo(function TurnView({
         const isRevealed = revealed.has(key)
         return (
           <Fragment key={`${side}-${gi}`}>
-            {prefix}
+            <TargetText text={prefix} />
           <span className={matches.length ? 'message-evidence token-evidence' : undefined} data-reward-evidence={matches.length ? JSON.stringify([...new Set(matches.map(item => item.id))]) : undefined}>
           <TokenSpan
             key={`${side}-${gi}`}
-            tok={tok}
+            tok={tok} sourceText={rawText} sourceStart={start}
             textStyle={evidenceStyle(matches)}
             revealed={isRevealed}
             hasTranslation={!!translation}
+            showAids={side === 'me' ? userWordsOpen : savedWordsOpen}
+            showTranslation={autoTranslate || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
             showRomanization={showRomanization}
-            alwaysRomanize={alwaysRomanize}
-            alwaysPronunciation={alwaysPronunciation}
+            alwaysRomanize={alwaysRomanize || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
+            alwaysPronunciation={alwaysPronunciation || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
             onTap={(e) => {
               e.stopPropagation()
               if (dragRef.current.moved) return
@@ -280,7 +288,7 @@ export const TurnView = memo(function TurnView({
           </Fragment>
         )
       })}
-      {rawText.slice(cursor)}
+      <TargetText text={rawText.slice(cursor)} />
     </span>
   )
   }
@@ -288,16 +296,15 @@ export const TurnView = memo(function TurnView({
   return (
     <div className="turn-stack">
       {turn.user && (
-        <>
         <div
           data-reward-message={turn.id}
-          className={`msg chat-message me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-edit' : ''} with-actions`}
+          className={`msg chat-message me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${onEditUser ? ' with-corner-control' : ''}${turn.conversationFeedback ? ' with-scores' : ''} with-actions`}
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
           }
         >
           {turn.userSavedGloss
-            ? <SavedGlossText key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} decorateSegment={(node, start, end) => {
+            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} decorateSegment={(node, start, end) => {
                 const matches = evidence.filter(item => item.start < end && item.end > start)
                 return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
               }} />
@@ -311,7 +318,8 @@ export const TurnView = memo(function TurnView({
           {onEditUser && (
             <button
               type="button"
-              className="edit-btn"
+              className="bubble-corner-control edit-btn"
+              onDoubleClick={event => event.stopPropagation()}
               disabled={editDisabled}
               title={tr("Edit message")}
               aria-label={tr("Edit message")}
@@ -320,16 +328,16 @@ export const TurnView = memo(function TurnView({
                 onEditUser(turn)
               }}
             >
-              ✎
+              <span aria-hidden="true">✏️</span>
             </button>
           )}
-        </div>
-        <div className="message-feedback">
+        <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
           <MessageFeedback conversationFeedback={turn.conversationFeedback} onOpenCoach={onOpenCoach ? () => onOpenCoach(turn.id) : undefined} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {userTranslation && <button type="button" className="message-translate" aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
+            <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!turn.userSavedGloss && !userEntries.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
           </MessageFeedback>
         </div>
-        </>
+        </div>
       )}
       {assistant && (
         <div className="partner-turn">
@@ -337,10 +345,10 @@ export const TurnView = memo(function TurnView({
           onDoubleClick={() =>
             assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))
           }
-          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${rtl ? ' rtl' : ''}`}
+          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${rtl ? ' rtl' : ''}${ttsReady && onSpeak ? ' with-corner-control' : ''}`}
         >
           {assistant.savedGloss ? (
-            <ReadingPreferencesContext value={{ ...reading, autoTranslate: savedWordsOpen }}><SavedGlossText key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} /></ReadingPreferencesContext>
+            <SavedGlossText revealAids={savedWordsOverride === true} showAids={savedWordsOpen} key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} />
           ) : assistant.tokens.length > 0 ? (
             renderTokens(
               replyEntries,
@@ -352,21 +360,20 @@ export const TurnView = memo(function TurnView({
           ) : (
             <TargetText text={assistant.reply} />
           )}
-          {turn.user && <PersonaReaction reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
+          {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
           {(showPersonaTranslation) && assistant.translation && (
             <div className="trans" dir="auto">{assistant.translation}</div>
           )}
           <TranslationStatus state={assistant.translationState} />
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
-          {ttsReady && onSpeak && <button type="button" className="speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
+          {ttsReady && onSpeak && <button type="button" className="bubble-corner-control speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
           {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}
-        </div>
-          <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>
+          <div className="message-actions" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
           {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
-          <button type="button" className={assistant.glossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={assistant.savedGloss ? savedWordsOpen : assistant.tokens.length > 0 && assistant.tokens.every((_, i) => revealed.has(`${turn.id}:bot:${i}`))} onClick={() => assistant.savedGloss ? setSavedWordsOverride(!savedWordsOpen) : onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))}>{tr("Word by word")}</button>
+          <button type="button" className={assistant.glossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={savedWordsOpen} onClick={() => setSavedWordsOverride(!savedWordsOpen)}>{tr("Word by word")}</button>
           <button type="button" className={assistant.explanationsState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
           </div>
-
+        </div>
         </div>
       )}
       {assistant === null && (

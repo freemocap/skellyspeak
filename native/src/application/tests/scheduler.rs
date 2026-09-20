@@ -131,7 +131,7 @@ async fn revoked_work_is_not_submitted_after_a_delayed_probe() {
             .unwrap();
         drop(socket);
         let result = preparation.await;
-        if change == "none" {
+        if change == "none" || change == "revision" {
             assert!(result.unwrap());
         } else {
             assert!(result.is_err(), "{change} must stop dispatch");

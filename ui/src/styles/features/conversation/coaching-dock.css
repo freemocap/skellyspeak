@@ -36,12 +36,11 @@
 .break.collapsed > :not(.break-head) { display: none; }
 
 .coach-heading { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-8) var(--space-4) var(--space-10); color: var(--ink); }
-.coach-heading strong { margin-inline-end: auto; font-size: var(--type-title); font-weight: var(--weight-semibold); }
-.coach-heading button { min-height: var(--control-height-xs); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); padding: 0 var(--space-5); cursor: pointer; }
-.coach-heading button:hover { color: var(--ink); background: var(--line-soft); }
-/* Coaching / Evidence is a segmented switch, not a row of underlined links. */
-.break > .panel-tabs { align-self: flex-start; min-height: 0; margin: 0 var(--space-10) var(--space-4); padding: var(--space-2); gap: var(--space-1); background: var(--line-soft); border: 0; border-radius: var(--radius-md); }
+.coach-collapse { margin-inline-start: auto; min-height: var(--control-height-xs); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); padding: 0 var(--space-5); cursor: pointer; }
+.coach-collapse:hover { color: var(--ink); background: var(--line-soft); }
+/* Coach / Experience tabs share the top row with the dock collapse control. */
+.coach-heading > .panel-tabs { min-height: 0; margin: 0; padding: var(--space-2); gap: var(--space-1); background: var(--line-soft); border: 0; border-radius: var(--radius-md); }
 .break .panel-tab { min-height: 30px; background: transparent; border: 0; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: var(--type-ui); font-weight: var(--weight-medium); letter-spacing: normal; text-transform: none; padding: 0 var(--space-7); color: var(--ink-3); }
 .break .panel-tab:hover { color: var(--ink); }
 .break .panel-tab.active { color: var(--ink); background: var(--sheet); box-shadow: var(--shadow-sm); }
-@media (pointer: coarse) { .coach-heading button, .break.collapsed .break-head { min-height: var(--touch-target); min-width: var(--touch-target); } }
+@media (pointer: coarse) { .coach-heading .panel-tab, .coach-collapse, .break.collapsed .break-head { min-height: var(--touch-target); min-width: var(--touch-target); } }

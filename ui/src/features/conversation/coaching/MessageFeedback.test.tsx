@@ -131,7 +131,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   expect(chip).toHaveTextContent(currentDecision.shown ? 'Which form goes with yo?' : 'Feedback')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))
   expect(edit).toHaveBeenCalledOnce()
   expect(screen.queryByRole('dialog')).toBeNull()
 })

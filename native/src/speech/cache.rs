@@ -4,7 +4,6 @@ use crate::model::ErrorCode;
 use crate::model::Result;
 use std::collections::VecDeque;
 
-pub const ATTEMPT_LIMIT: i64 = 3;
 pub const AUDIO_LIMIT: usize = 4 * 1024 * 1024;
 pub const CACHE_ENTRIES: usize = 4;
 pub const CACHE_BYTES: usize = 16 * 1024 * 1024;

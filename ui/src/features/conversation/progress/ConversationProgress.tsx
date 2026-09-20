@@ -1,3 +1,4 @@
+import { TargetText } from '../../../components/reading/TargetText'
 import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../../components/localization/i18n'
 import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMappingNotice'
@@ -38,7 +39,7 @@ export function ConversationProgress({ chatId, children }: { chatId: string; chi
         <div className="study-credit-badges">{messageEvidence(snapshot, chatId, record.turn_id, record.source).map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => { if (!inspection) throw new Error('XP inspection provider is missing'); inspection.open([item], record.turn_id, record.source) }} />)}</div>{record.assessment?.judgments.filter(item => skills.has(item.skill_id)).map(item => {
           const skill = snapshot.catalog.find(node => node.id === item.skill_id)
           const xp = snapshot.profile.credits.find(credit => credit.attempt_id === record.attempt_id && credit.skill_id === item.skill_id)?.xp ?? 0
-          return <div key={item.skill_id}><strong>{skill && tr(skill.label)} · {tr.number(xp)} {tr(" XP")}</strong><blockquote dir="auto">{item.quotes.join(' · ')}</blockquote><p>{item.rationale}</p></div>
+          return <div key={item.skill_id}><strong>{skill && tr(skill.label)} · {tr.number(xp)} {tr(" XP")}</strong><blockquote dir="auto"><TargetText text={item.quotes.join(' · ')} /></blockquote><p>{item.rationale}</p></div>
         })}</article>)}
       </details>
     </div>

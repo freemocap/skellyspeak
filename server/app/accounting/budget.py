@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from server.app.accounting import usage_limits
+
 import secrets
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timezone, timedelta
 from typing import Literal
 
 from google.cloud import firestore
@@ -31,6 +33,8 @@ def reserve(
     if micros <= 0 or user_limit < 0 or global_limit < 0:
         raise ValueError("Reservation must be positive and limits nonnegative.")
     reservation = Reservation(user_id, secrets.token_urlsafe(24), quota.utc_day(), micros)
+    stamp = int(datetime.now(timezone.utc).timestamp())
+    buckets = [f"m{stamp // 60 * 60}", f"h{stamp // 3600 * 3600}"]
     user = db.collection(quota.USERS).document(user_id)
     usage = user.collection(quota.USAGE).document(reservation.day)
     shared = db.collection(quota.GLOBAL_USAGE).document(reservation.day)
@@ -50,7 +54,7 @@ def reserve(
             (personal, user_limit + int(personal.get("micros_credit", 0)), "Your"),
             (global_usage, policy.get("global_daily_micros", global_limit), "The shared")
         ):
-            if int(data.get("micros", 0)) + micros > limit:
+            if usage_limits.enforced(db) and int(data.get("micros", 0)) + micros > limit:
                 raise quota.QuotaExceeded(
                     f"{label} remaining daily allowance cannot cover this request. "
                     "Wait for pending requests to finish or for the 00:00 UTC reset.",
@@ -64,10 +68,13 @@ def reserve(
         }
         transaction.set(usage, entry, merge=True)
         transaction.set(shared, entry, merge=True)
+        for bucket in buckets:
+            transaction.set(db.collection("usage_timeline").document(bucket), entry, merge=True)
         # Unresolved charges do not expire: they require reconciliation.
         transaction.set(record, {
             "day": reservation.day, "reserved_micros": micros,
             "status": "pending", "created_at": firestore.SERVER_TIMESTAMP,
+            "timeline_buckets": buckets,
         })
 
     transactions.run(db, admit)
@@ -115,6 +122,9 @@ def settle(
         missing_ledgers = personal is None or global_usage is None
         if missing_ledgers and not historical:
             raise RuntimeError("Daily ledger is missing; refusing to create a negative settlement balance.")
+        timeline_refs = [db.collection("usage_timeline").document(bucket)
+                         for bucket in stored.get("timeline_buckets", [])] if not historical else []
+        retained_timeline = [ref for ref in timeline_refs if ref.get(transaction=transaction).exists]
         previous_tokens = int(stored.get("tokens", 0))
         correction = {
             "micros": firestore.Increment(actual_micros - reservation.micros),
@@ -138,6 +148,9 @@ def settle(
             result["historical_finalization"] = True
         if status == "settled":
             result["ttl"] = quota.ttl_after(quota.USAGE_RETENTION_DAYS)
+        # Expired chart buckets stay absent; never recreate a negative correction.
+        for reference in retained_timeline:
+            transaction.set(reference, correction, merge=True)
         transaction.set(record, result, merge=True)
 
     transactions.run(db, apply)

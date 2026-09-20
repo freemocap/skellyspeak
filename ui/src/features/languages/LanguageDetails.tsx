@@ -1,3 +1,5 @@
+import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
+import { TargetText } from '../../components/reading/TargetText'
 import { ScriptSize } from './ScriptSize'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useState } from 'react'
@@ -5,7 +7,7 @@ import { useI18n } from '../../components/localization/i18n'
 import type { LanguageInspection } from '../../generated/contracts'
 import { useReadingFont } from '../../platform/appearance/readingFont'
 
-export function LanguageDetails({ report }: { report: LanguageInspection }) {
+export function LanguageDetails({ report, variety }: { report: LanguageInspection; variety?: string }) {
   const tr = useI18n()
   const readingFont = useReadingFont(report.language.nativeName)
   const defaultScale = Number(report.values.find(value => value.field === 'font_scale')?.value ?? report.language.fontScale)
@@ -28,7 +30,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
     if (field === 'font_scale') return `${value}×`
     return value.replaceAll('-', ' ')
   }
-  return <div className="language-content">
+  return <ReadingLanguageScope language={report.language.id} variety={variety ?? report.varietyId}><div className="language-content">
     <p className="language-status"><span data-review={report.review}>{report.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</span><span>{report.family}</span></p>
     <section className="language-writing"><h3>{tr('Writing and reading')}</h3>
       <dl className="language-writing-facts">{report.values.filter(value => value.field !== 'font_scale').map(value => <div key={value.field}><dt>{labels[value.field]}</dt><dd>{display(value.field, value.value)}</dd></div>)}
@@ -39,7 +41,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
       <div className="language-schemes">
       {report.schemes.map(scheme => <article key={scheme.id}>
         <h4>{scheme.label}{scheme.selected && ` · ${tr('Default')}`}</h4>
-        <div className="language-example-groups">{Array.from({ length: Math.ceil(scheme.examples.length / 4) }, (_, group) => <table key={group}><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.slice(group * 4, group * 4 + 4).map(([original, romanized], index) => <tr key={index}><td className="language-script-example" style={{fontSize: `calc(var(--type-reading) * ${scale})`}} lang={report.language.languageTag ?? undefined} dir={report.language.direction}>{original}</td><td>{romanized}</td></tr>)}</tbody></table>)}</div>
+        <div className="language-example-groups">{Array.from({ length: Math.ceil(scheme.examples.length / 4) }, (_, group) => <table key={group}><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.slice(group * 4, group * 4 + 4).map(([original, romanized], index) => <tr key={index}><td className="language-script-example" style={{fontSize: `calc(var(--type-reading) * ${scale})`}} lang={report.language.languageTag ?? undefined} dir={report.language.direction}><TargetText text={original} /></td><td>{romanized}</td></tr>)}</tbody></table>)}</div>
         <details><summary>{tr('Romanization instructions')}</summary><p>{scheme.instructions}</p><p>{tr('Sources')}: {scheme.sources.join(', ')} · {scheme.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</p></details>
       </article>)}
       </div>
@@ -55,5 +57,5 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
       </select></label>
       <pre aria-label={document.label}>{document.text}</pre>
     </section>
-  </div>
+  </div></ReadingLanguageScope>
 }

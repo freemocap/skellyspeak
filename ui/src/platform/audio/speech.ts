@@ -8,6 +8,13 @@ export interface ActiveSpeechPlayback {
   setVolume: (volume: number) => void
 }
 
+const interruptionListeners = new Set<() => void>()
+export function onSpeechInterrupted(listener: () => void): () => void {
+  interruptionListeners.add(listener)
+  return () => { interruptionListeners.delete(listener) }
+}
+const notifyInterrupted = () => { for (const listener of [...interruptionListeners]) listener() }
+
 let active: ActiveSpeechPlayback | null = null
 // A permit is invalidated by suspension even if focus returns before an async
 // audio read completes. Returning to the app must never resume abandoned speech.
@@ -24,12 +31,20 @@ export function registerSpeechPlayback(playback: ActiveSpeechPlayback | null): v
 
 /** Lifecycle suspension stops the active utterance; returning never resumes it. */
 export function setPlaybackAllowed(allowed: boolean): void {
-  if (!allowed) { permit = null; active?.suspend() }
+  if (!allowed) { permit = null; active?.suspend(); notifyInterrupted() }
   else permit ??= {}
 }
 
 export function setVoiceVolume(volume: number): void {
   if (!Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Voice volume must be between 0 and 1.')
-  if (volume === 0) { active?.suspend(); return }
+  if (volume === 0) { interruptSpeech(); return }
   active?.setVolume(volume)
+}
+
+/** Explicit new speech invalidates pending playback as well as the active audio. */
+export function interruptSpeech(): object | null {
+  active?.suspend()
+  if (permit) permit = {}
+  notifyInterrupted()
+  return permit
 }

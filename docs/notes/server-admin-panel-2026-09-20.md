@@ -138,3 +138,96 @@ normal local server's account, actual account-check counter, local identity and
 request log loading through the real one-use link flow. Desktop button interaction
 is covered by component tests; native desktop UI clicking was not available to this
 agent. New native command requires restarting any already-running desktop binary.
+
+## Allowance controls and time chart — implemented 2026-09-20
+
+Dollar fields now use explicit minus/plus $1 controls and decimal text entry,
+without micro-dollar browser spinners or browser step-mismatch validation.
+Frontend validation preserves six-decimal precision, nonnegative values and the
+existing server caps ($10,000 shared; $1,000 personal/default/extended).
+
+The overview chart has separate range and interval selectors: 1m, 5m, 10m, 1h,
+12h, 1d, 1w and 1mo (plus a three-month range). It renders a line chart with
+horizontal UTC date/time ticks, dollar-axis values, point details and a numeric
+table. Account daily history has its own selector. Oversized combinations adjust
+the paired control automatically; server reads are capped at 1,500 source buckets
+and minute/hour document reads are batched. Month intervals use calendar months;
+month ranges are rolling 30-day windows and three-month ranges are 90 days.
+
+Minute and hour aggregates in `usage_timeline` are written in the existing reserve
+and settlement transactions. Corrections stay attributed to the request-start
+bucket. Retries do not duplicate charges, and expired buckets are not recreated
+with negative balances. Existing daily ledgers supply day/week/month intervals.
+No historical subdaily data is fabricated. Missing buckets remain explicit;
+provider invoice cost and recorded allowance remain distinct. Retention provisioning
+now includes this collection; no live cloud provisioning was performed.
+
+Verification: 423 server tests passed, seven emulator tests skipped; two admin UI
+tests passed; standalone TypeScript and generated-asset checks passed. Browser
+verification used isolated synthetic data, including a successful shared allowance
+change from $2 to $3. Hosted upload allowlist check passed. The global style check
+subsequently encountered an unrelated concurrent change in components/reading.css
+(literal z-index 1000); admin styles had passed before that change. No local user
+server was stopped or restarted for this work. Restart it to enable new routes and
+recording. Nothing committed or deployed.
+
+## Live mode — implemented 2026-09-20
+
+The header now offers an opt-in Live toggle and 5/15/30/60-second refresh cadence
+(default 15 seconds). Each completed cycle refreshes overview metrics, timeline,
+account rows and the latest filtered log page. This is polling, not a push stream;
+cycles never overlap. The status displays the last successful update.
+
+Polling pauses for hidden tabs, pending work, unsaved policy edits, focused edit
+controls, confirmation dialogs, account details and expanded log details. Account
+inspection has a Close button to resume polling. Older log pagination disables
+Live so background refresh cannot discard the browsed history. Editable policy
+fields and their original revision are preserved even if typing begins during a
+fetch. A failed cycle stops Live and displays the error; enabling Live explicitly
+retries. Sign-out and page departure stop scheduling. No administrative writes
+are submitted automatically.
+
+Verification: four admin UI tests passed (including scheduling, disabled/hidden
+states, draft preservation and failure handling); standalone TypeScript,
+generated-assets and style checks passed. Browser verified enabling Live fetched
+an updated snapshot and latest logs in the isolated fixture preview. No running
+user server restart or deployment was needed for this frontend-only change.
+
+Live cadence follow-up: added a 1-second option (15 seconds remains the default).
+Authenticated admin ingress/read limits now allow 240 requests/minute, supporting
+three reads per second plus navigation headroom; write limits remain 20/minute.
+Cycles still wait for completion before scheduling the next update. Four frontend
+and eight admin endpoint tests passed. Restart the server to load the updated
+limits before using the new cadence continuously.
+
+## WebSocket live mode — implemented 2026-09-20; supersedes polling sections above
+
+Replaced the polling timer and cadence selector with a persistent `/admin/live`
+WebSocket. Initial page loading and explicit historical reports remain HTTP;
+Live subscriptions, changed snapshots and process log events use the socket.
+Committed transactions signal the feed directly, runtime events wake subscribers,
+and hosted sessions attach bounded Firestore snapshot listeners to shared state.
+Snapshots coalesce event bursts for 250 ms; no recurring report-fetch loop runs.
+Thirty-second idle heartbeats revalidate authorization without refreshing reports.
+
+Same-origin checks and existing hosted/local cookie validation guard the handshake
+and ongoing session. Read-only subscriptions are validated and bounded; four live
+connections per process, subscription/handshake rate limits, bounded event history,
+and send deadlines bound resources. Disconnect cleanup removes event subscribers,
+cancels pending tasks and unsubscribes Firestore listeners. Authentication failures
+close the stream. UI connection/error states are explicit; no automatic retry loop.
+Live updates preserve draft policy inputs and revision, account inspections and
+expanded log details. The latest snapshot is rendered after hidden/busy states.
+Historical log browsing disables Live; streamed events are explicitly instance-local.
+Restored HTTP admin read limits to their pre-polling values.
+
+Verification: 427 server tests passed, seven emulator tests skipped; four frontend
+tests passed. Tests cover data-change pushes, settlement, hosted and local identity,
+cross-origin rejection, read-only messages, revocation, cleanup, draft preservation,
+and no periodic browser HTTP requests. Browser connected to an isolated preview;
+a separate health request appeared in its live log view while overview/timeline
+HTTP counts each remained one (initial page load). TypeScript, generated assets,
+style and hosted upload checks passed. Starlette emitted a test-client dependency
+deprecation warning. Hosted Firestore listeners have not been exercised against a
+live cloud deployment. No deployment or running user-server restart was performed.
+Restart the local server and reload the panel to use the WebSocket implementation.

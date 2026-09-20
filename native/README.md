@@ -29,6 +29,15 @@ modules and exports `application::run`. Application composition lives in
 their shared imports and application entry points.
 `src/model.rs` retains mixed types pending a separate ownership-based split.
 
+Language- and script-specific rules belong in `language/` or editable language
+configuration. Feature and transport code consume generic language capabilities;
+they must not branch on individual language or script identities. `language/script_text.rs`
+owns configured-script validation, and `language/text_diagnostics.rs` owns
+content-free script/Unicode comparison metadata. Its serialized diagnostic fields
+remain stable when called by audio transport. Language-specific test examples,
+localized messages and font asset declarations are data, not exceptions for
+embedding language behavior in feature code.
+
 ### Subfolder groups
 
 | Area | Current groups |
@@ -133,3 +142,13 @@ supported by this convenience launcher. It follows `XDG_DATA_HOME`, defaults to
 `~/.local/share`, and refuses to overwrite an unrelated launcher. To retire the
 development checkout, remove its `applications/skellyspeak.desktop` and
 `icons/hicolor/256x256/apps/skellyspeak.png` from that data directory.
+
+### Explicit reading help
+
+`language/reading/` owns bounded, source-captured gloss and token-speech requests
+outside conversation turns. `application/commands/reading.rs` registers begin,
+run, cancel and receipt-inspection commands. Requests reuse the existing gloss
+validator and speech transport, validate captured connection/workspace authority,
+and create no learning credit. Source text and audio remain volatile;
+`reading_attempts` retains content-free diagnostic receipts. Development schema
+25 requires explicit reset of older workspaces.

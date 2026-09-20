@@ -11,6 +11,21 @@ impl Application {
                 ));
             }
             holds::check(&store.connection, &dispatch.target)?;
+            let capability = if dispatch.speech_source.is_some() {
+                access::Capability::Speech
+            } else {
+                access::Capability::Chat
+            };
+            let current = access::resolve(&store.connection, capability)?;
+            if current.route != dispatch.target.route
+                || current.url != dispatch.target.url
+                || current.credential != dispatch.target.credential
+            {
+                return Err(AppError::new(
+                    ErrorCode::Conflict,
+                    "AI destination or credentials changed before dispatch. Retry using current settings.",
+                ));
+            }
         }
         Ok(())
     }
@@ -25,19 +40,6 @@ impl Application {
     ) -> Result<bool> {
         let deltas = self.grouped_deltas(client, key, &dispatches[0]).await;
         self.check_dispatches(dispatches)?;
-        let current = access::resolve(&self.lock()?.connection, access::Capability::Chat)?;
-        for dispatch in dispatches {
-            if current.route != dispatch.target.route
-                || current.revision != dispatch.target.revision
-                || current.url != dispatch.target.url
-                || current.credential != dispatch.target.credential
-            {
-                return Err(AppError::new(
-                    ErrorCode::Conflict,
-                    "AI connection changed before dispatch.",
-                ));
-            }
-        }
         Ok(deltas)
     }
 }

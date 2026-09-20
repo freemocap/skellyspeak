@@ -19,7 +19,7 @@ it('anchors repeated semantic tokens to the original source instead of inserting
   expect(anchoredTokenGlosses('الكتاب،  البيت؟', [token, {...token,text:'كتاب'}, token, {...token,text:'بيت'}]).map(({start,end})=>[start,end])).toEqual([[0,2],[2,6],[9,11],[11,14]])
 })
 
-it.each(['किताब', 'नमस्ते', 'മലയാളം', 'വീട്ടിൽ', 'ന്\u200d'])('keeps %s in one shaping group without moving saved anchors', word => {
+it.each(['किताब', 'नमस्ते', 'മലയാളം', 'വീട്ടിൽ', 'ന്\u200d', 'اردو', 'فارسی', 'ܫܠܡܐ', 'বাংলা', 'தமிழ்', 'ಕನ್ನಡ', 'မြန်မာ'])('keeps %s in one shaping group without moving saved anchors', word => {
   const text = `🙂 ${word}! next`
   const segments = [{ start: 3, end: 4, kind: 'gloss' as const, gloss: 'first' }, { start: 4, end: 3 + word.length, kind: 'gloss' as const, gloss: 'rest' }]
   expect(glossDisplayGroups(text, segments)).toEqual([{ start: 3, end: 3 + word.length, parts: segments }])

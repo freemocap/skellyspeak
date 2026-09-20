@@ -33,7 +33,7 @@ export function ConversationFeedbackCard({ feedback, onAsk }: { feedback: Conver
         <ScoreMeter label={tr("Conversation fit")} value={feedback.conversation} text={tr("Conversation fit: {value0}/5", { value0: String(feedback.conversation) })} />
       </div>
       {feedback.usedTarget.length > 0 && <div className="coach-wording" data-kind="target"><span>{tr("Target-language wording")}</span>
-        <ul>{feedback.usedTarget.map(text => <li key={text} dir="auto">{text}</li>)}</ul></div>}
+        <ul>{feedback.usedTarget.map(text => <li key={text} dir="auto"><TargetText text={text} /></li>)}</ul></div>}
       {feedback.usedNative.length > 0 && <div className="coach-wording" data-kind="native"><span>{tr("Native-language wording")}</span>
         <ul>{feedback.usedNative.map(text => <li key={text} dir="auto">{text}</li>)}</ul></div>}
     </section>

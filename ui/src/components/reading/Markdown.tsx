@@ -1,5 +1,6 @@
 import { useI18n } from '../localization/i18n'
-import { ReadingSentenceContext, TargetText } from './TargetText'
+import { MixedText } from './MixedText'
+import { ReadingSentenceContext } from './TargetText'
 import { Fragment, type ReactNode } from 'react'
 
 /// The small slice of Markdown that models actually emit into coach text:
@@ -39,7 +40,7 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNod
   let match: RegExpExecArray | null
   INLINE.lastIndex = 0
   while ((match = INLINE.exec(text)) !== null) {
-    if (match.index > last) out.push(<TargetText key={`${keyPrefix}-${last}-text`} text={text.slice(last, match.index)} />)
+    if (match.index > last) out.push(<MixedText key={`${keyPrefix}-${last}-text`} text={text.slice(last, match.index)} />)
     const key = `${keyPrefix}-${match.index}`
     const [, term, code, bold, italic] = match
     if (term !== undefined) {
@@ -50,12 +51,12 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNod
           term
         )
       )
-    } else if (code !== undefined) out.push(<code key={key}><TargetText text={code} /></code>)
-    else if (bold !== undefined) out.push(<strong key={key}><TargetText text={bold} /></strong>)
-    else out.push(<em key={key}><TargetText text={italic} /></em>)
+    } else if (code !== undefined) out.push(<code key={key}><MixedText text={code} /></code>)
+    else if (bold !== undefined) out.push(<strong key={key}><MixedText text={bold} /></strong>)
+    else out.push(<em key={key}><MixedText text={italic} /></em>)
     last = match.index + match[0].length
   }
-  if (last < text.length) out.push(<TargetText key={`${keyPrefix}-${last}-tail`} text={text.slice(last)} />)
+  if (last < text.length) out.push(<MixedText key={`${keyPrefix}-${last}-tail`} text={text.slice(last)} />)
   return out
 }
 

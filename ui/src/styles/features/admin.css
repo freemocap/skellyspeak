@@ -51,3 +51,12 @@
 #admin-console #apply-change { background: var(--interaction-fill); color: var(--ink-on-fill); }
 @media (max-width: 600px) { #admin-console header { flex-direction: column; align-items: flex-start; padding: var(--space-10); } #admin-console main { padding: var(--space-8); } #admin-console section { padding: var(--space-8); } }
 @media (pointer: coarse) { #admin-console button, #admin-console input, #admin-console select { min-height: 44px; } }
+
+#admin-console .usage-line { width: 100%; min-width: 560px; font-size: var(--type-meta); fill: var(--ink-3); }
+#admin-console #usage-chart { overflow-x: auto; }
+#admin-console .chart-grid { stroke: var(--line-soft); }
+#admin-console .chart-line { fill: none; stroke: var(--interaction-fill); stroke-width: 2; pointer-events: none; }
+#admin-console .chart-point { fill: var(--interaction-fill); }
+#admin-console .money-input { display: flex; align-items: center; gap: var(--space-3); }
+#admin-console .money-input input { min-width: 0; width: 100%; }
+#admin-console .money-input button { white-space: nowrap; }

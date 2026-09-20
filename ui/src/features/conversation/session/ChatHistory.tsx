@@ -1,3 +1,4 @@
+import { InspectText } from '../../../components/reading/InspectText'
 import { t, formatDate, formatRelativeTime } from '../../../domain/localization'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useState } from 'react'
@@ -94,6 +95,7 @@ export function ChatHistory({
                     {chat.turn_count !== undefined && chat.turn_count > 0 && tr("Conversation turns", { count: chat.turn_count })}
                   </span>
                 </button>
+                <InspectText text={chat.title ?? ''} />
                 {confirming === chat.id ? (
                   <span className="chat-history-confirm">
                     <button

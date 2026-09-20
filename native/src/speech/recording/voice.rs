@@ -141,9 +141,11 @@ pub async fn mic_transcribe(
     };
     let (credential, install) = {
         let store = state.lock()?;
-        if store.connection_config()?.revision != recording.target.revision {
-            return Err(fault("AI connection changed during recording."));
-        }
+        crate::speech::recording::transcription::permitted(
+            &store.connection,
+            &recording.conversation,
+            &recording.target,
+        )?;
         (
             recording.target.credential.clone(),
             store.snapshot()?.learner.id,

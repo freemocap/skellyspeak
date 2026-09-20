@@ -69,3 +69,5 @@ server/app/diagnostics/admin_assets/*
 !server/app/diagnostics/admin_assets/index.html
 !server/app/diagnostics/admin_assets/admin.css
 !server/app/diagnostics/admin_assets/admin.js
+!server/app/diagnostics/admin_events.py
+!server/app/diagnostics/admin_live.py

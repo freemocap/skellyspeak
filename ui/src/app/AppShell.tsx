@@ -1,3 +1,4 @@
+import { onReadingQuestion } from '../platform/ipc/window'
 import { OnboardingSetup } from '../features/settings/onboarding/OnboardingSetup'
 import { useOnboardingStore } from '../state/settings/onboarding'
 import { LanguageBrowser } from '../features/languages/LanguageBrowser'
@@ -16,7 +17,7 @@ import { reportFault } from '../platform/diagnostics/faults'
 import { SHORTCUT_DEFAULTS } from '../domain/input/keyboard'
 import { AiViewPanel } from '../features/activity/AiViewPanel'
 import { useAiWindowSync } from './useAiWindowSync'
-import { ReadingProvider } from '../components/reading/TargetText'
+import { ReadingTools } from './ReadingTools'
 import { SettingsModal } from '../features/settings/SettingsModal'
 import { UpdateBanner } from './shell/UpdateBanner'
 import { FaultBar } from './shell/FaultBar'
@@ -69,11 +70,22 @@ export function AppShell() {
   useAiWindowSync()
   useLoadSkillEvidence()
   useAppShortcuts(shortcuts)
+  useEffect(() => {
+    let closed = false
+    let unlisten: (() => void) | undefined
+    void onReadingQuestion(question => {
+      const navigation = useNavigationStore.getState()
+      navigation.draftReadingQuestion(question)
+      if (!navigation.settingsBusy) navigation.openPractice('panel')
+    }).then(stop => { if (closed) stop(); else unlisten = stop }).catch(error => reportFault('Reading question navigation', error))
+    return () => { closed = true; unlisten?.() }
+  }, [])
 
-  if (onboarding?.onboardingRequired) return <I18nProvider locale={onboarding.interfaceLocale}><OnboardingSetup /></I18nProvider>
+
+  if (onboarding?.onboardingRequired) return <I18nProvider locale={onboarding.interfaceLocale}><ReadingTools settings={settings} onAsk={null} defaultScope={{ language: onboarding.onboardingLanguage ?? 'english', variety: null, explanation: onboarding.explanationLanguage, explanationVariety: onboarding.explanationVarietyId }}><OnboardingSetup /></ReadingTools></I18nProvider>
 
   return (
-    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingProvider settings={settings}><div className="app">
+    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><div className="app">
       <UpdateBanner />
       <TopBar />
       <FaultBar />
@@ -85,6 +97,6 @@ export function AppShell() {
       {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
-    </div></ReadingProvider></I18nProvider>
+    </div></ReadingTools></I18nProvider>
   )
 }

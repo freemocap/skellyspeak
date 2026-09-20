@@ -8,7 +8,7 @@ pub(super) fn speech_owner(
 }
 
 pub(super) fn speech_binding(
-    db: &Connection,
+    _db: &Connection,
     message: &str,
     text: &str,
     captured: &serde_json::Value,
@@ -20,9 +20,6 @@ pub(super) fn speech_binding(
     }
     let target: crate::ai::connections::access::ResolvedTarget =
         serde_json::from_value(captured["speechTarget"].clone())?;
-    if config(db)?.revision != target.revision {
-        return Err(fail("Speech connection changed."));
-    }
     Ok(target)
 }
 
@@ -36,14 +33,6 @@ pub(super) fn prepare_speech(
     let captured: serde_json::Value = serde_json::from_str(context)?;
     let target = speech_binding(db, &message_id, &text, &captured)?;
     crate::ai::policy::holds::check(db, &target)?;
-    let attempts: i64 = db.query_row(
-        "SELECT count(*) FROM attempts WHERE operation_id=?1",
-        [operation],
-        |r| r.get(0),
-    )?;
-    if attempts >= crate::speech::cache::ATTEMPT_LIMIT {
-        return Err(budget_error("Speech has reached its three-attempt limit."));
-    }
     let voice = captured["speechVoice"]
         .as_str()
         .ok_or_else(|| fail("Missing captured speech voice."))?
@@ -100,18 +89,6 @@ pub(super) fn prepare_speech(
 pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -> Result<String> {
     let (turn,text,context):(String,String,String)=db.query_row("SELECT t.id,m.text,t.context FROM messages m JOIN turns t ON t.id=m.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts r ON r.id=c.contact_id WHERE m.id=?1 AND m.role='assistant' AND c.archived=0 AND r.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind IN ('persona_reply','persona_opening') AND state='succeeded')",[message_id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?.ok_or_else(||fail("Speech requires an accepted persona message."))?;
     let mut captured: serde_json::Value = serde_json::from_str(&context)?;
-    let original: crate::ai::connections::access::ResolvedTarget =
-        serde_json::from_value(captured["target"].clone())?;
-    if config(db)?.revision != original.revision {
-        return Err(fail("Speech connection changed. Start a new exchange."));
-    }
-    if captured["speechTarget"].is_null() {
-        captured["speechTarget"] = serde_json::to_value(crate::ai::connections::access::resolve(
-            db,
-            crate::ai::connections::access::Capability::Speech,
-        )?)?;
-    }
-    let target = speech_binding(db, message_id, &text, &captured)?;
     let existing: Option<(String, String)> = db
         .query_row(
             "SELECT id,state FROM operations WHERE turn_id=?1 AND kind='persona_speech'",
@@ -123,8 +100,17 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
         && (matches!(state.as_str(), "ready" | "running" | "waiting_dependencies")
             || (state == "succeeded" && resident_audio))
     {
+        speech_binding(db, message_id, &text, &captured)?;
         return Ok(operation.clone());
     }
+    // A click authorizes synthesis of this saved text using today's settings.
+    // Completed audio and active requests above need no new connection at all.
+    let target = crate::ai::connections::access::resolve(
+        db,
+        crate::ai::connections::access::Capability::Speech,
+    )?;
+    captured["speechTarget"] = serde_json::to_value(&target)?;
+    speech_binding(db, message_id, &text, &captured)?;
     if config(db)?.paused {
         return Err(AppError::new(
             ErrorCode::AdmissionHeld,
@@ -133,21 +119,8 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
     }
     crate::ai::policy::holds::check(db, &target)?;
     let operation = existing.map(|(id, _)| id).unwrap_or_else(id);
-    let attempts: i64 = db.query_row(
-        "SELECT count(*) FROM attempts WHERE operation_id=?1",
-        [&operation],
-        |r| r.get(0),
-    )?;
-    if attempts >= crate::speech::cache::ATTEMPT_LIMIT {
-        return Err(budget_error("Speech has reached its three-attempt limit."));
-    }
-    let spent:i64=db.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'",[&turn],|r|r.get(0))?;
-    let reserved:i64=db.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('ready','waiting_dependencies') AND kind NOT IN ('persona_context','coach_context')",[&turn],|r|r.get(0))?;
-    if spent + reserved + 1 > TURN_ATTEMPT_LIMIT {
-        return Err(budget_error(
-            "This turn has reached its network attempt budget.",
-        ));
-    }
+    // Each explicit request authorizes another generation. Historical attempts
+    // remain observable, but do not impose a lifetime replay/retry limit.
     admit_network_work(db, 1)?;
     // Releasing a corrected hold may not resume any sibling.
     let paused: bool = db.query_row("SELECT paused FROM turns WHERE id=?1", [&turn], |r| {

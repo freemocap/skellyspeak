@@ -84,6 +84,10 @@ pub enum DiagnosticEvent {
 #[derive(Debug, Clone, Deserialize, Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum DiagnosticCommand {
+    BeginReading,
+    RunReading,
+    CancelReading,
+    GetReadingActivity,
     ShareDiagnosticLogs,
     ReadSpeechAudio,
     GetUpdateChannel,

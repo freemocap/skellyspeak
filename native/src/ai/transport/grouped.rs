@@ -217,12 +217,11 @@ impl Decoder {
                     let mut error = if let Some(message) = provider_message {
                         AppError::new(ErrorCode::UnknownOutcome, message)
                     } else if status == 429 {
-                        AppError::new(
-                            ErrorCode::Provider,
-                            "Server admission refused this operation.",
-                        )
-                        .with_refusal(
-                            crate::ai::policy::refusal::classify(Some(&code), retry_after, None),
+                        crate::ai::hosted::limit_error(
+                            &serde_json::to_vec(
+                                &serde_json::json!({"code":code,"request_id":request_id}),
+                            )?,
+                            retry_after,
                         )
                     } else if status >= 500 {
                         AppError::new(
@@ -247,7 +246,12 @@ impl Decoder {
                                 .push_str(&format!(" Provider reason: {reason}"));
                         }
                         error.diagnostics = Some(
-                            serde_json::json!({"stage":"grouped_operation", "response":details, "request_id":request_id, "status":status}),
+                            serde_json::json!({"stage":"grouped_operation", "response":details, "request_id":request_id, "status":status, "code":code}),
+                        );
+                    }
+                    if error.diagnostics.is_none() {
+                        error.diagnostics = Some(
+                            serde_json::json!({"stage":"grouped_operation", "request_id":request_id, "status":status, "code":code}),
                         );
                     }
                     (operation_id, attempt_id, Err(error))
@@ -814,6 +818,31 @@ mod tests {
             }
             server.await.unwrap();
         }
+    }
+
+    #[test]
+    fn daily_refusal_retains_specific_limit_and_inspection_metadata() {
+        let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
+        let event = serde_json::json!({"type":"error","operation_id":"one","attempt_id":"a","code":"SHARED_ACCOUNT_DAILY_LIMIT","status":429,"request_id":"0123456789abcdef0123456789abcdef"});
+        decoder
+            .push(format!("{event}\n").as_bytes(), |_, result| {
+                let error = result.unwrap_err();
+                assert!(
+                    error
+                        .message
+                        .contains("service's daily authenticated-request limit")
+                );
+                assert!(matches!(
+                    error.refusal.as_ref().unwrap().reason,
+                    crate::model::RefusalReason::DailyLimit
+                ));
+                let details = error.diagnostics.unwrap();
+                assert_eq!(details["code"], "SHARED_ACCOUNT_DAILY_LIMIT");
+                assert_eq!(details["status"], 429);
+                assert_eq!(details["request_id"], "0123456789abcdef0123456789abcdef");
+                Ok(())
+            })
+            .unwrap();
     }
 
     #[test]

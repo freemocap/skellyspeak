@@ -18,7 +18,10 @@ _local_transactions = Lock()
 def run(db: firestore.Client, operation: Callable[[firestore.Transaction], T]) -> T:
     # Serialize local ledger work; Firestore transactions arbitrate other instances.
     with _local_transactions:
-        return _retry(db, operation)
+        result = _retry(db, operation)
+    from server.app.diagnostics.admin_events import notify
+    notify()
+    return result
 
 
 def _retry(db: firestore.Client, operation: Callable[[firestore.Transaction], T]) -> T:

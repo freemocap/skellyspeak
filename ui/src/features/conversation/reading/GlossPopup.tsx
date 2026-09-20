@@ -1,4 +1,5 @@
 import { useI18n } from '../../../components/localization/i18n'
+import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
 import { useRef } from 'react'
 import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 
@@ -22,6 +23,7 @@ export function popupAnchor(el: Element): { x: number; y: number } {
 
 export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
   const tr = useI18n()
+  const { supportsRomanization } = useReadingPreferences()
   const host = useRef<HTMLDivElement>(null)
   useOverlayLayer(host, onClose, true)
 
@@ -30,7 +32,7 @@ export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () 
       <div className="popup-card">
         <span>
           {popup.text}
-          {popup.romanization && (
+          {supportsRomanization && popup.romanization && (
             <span className="popup-roman"> · {popup.romanization}</span>
           )}
         </span>

@@ -1,14 +1,14 @@
 //! Content-free comparison metadata. This never decides whether audio may play.
 /// Diagnostics only. Transcript similarity does not verify waveform fidelity.
 #[derive(Debug, PartialEq, Eq)]
-pub(super) enum TranscriptDifference {
+pub(crate) enum TranscriptDifference {
     Exact,
     Missing,
     Whitespace,
     PunctuationOrCase,
     Content,
 }
-pub(super) fn transcript_difference(source: &str, transcript: &str) -> TranscriptDifference {
+pub(crate) fn transcript_difference(source: &str, transcript: &str) -> TranscriptDifference {
     if source.trim().is_empty() || transcript.trim().is_empty() {
         return TranscriptDifference::Missing;
     }

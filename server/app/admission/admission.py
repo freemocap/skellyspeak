@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from server.app.accounting import usage_limits
+
 import time
 from collections import deque, OrderedDict
 from threading import Lock
@@ -99,10 +101,10 @@ def take(db: firestore.Client, *, lane: Literal["auth", "account", "diagnostics"
         limit = policy.get({'auth': 'auth_requests', 'account': 'global_requests', 'diagnostics': 'global_diagnostics'}[lane], limit)
         personal_limit = policy.get('diagnostics_requests' if lane == 'diagnostics' else 'account_requests', personal_limit)
         personal_field = "diagnostics_requests" if lane == "diagnostics" else "requests"
-        if total >= limit:
+        if usage_limits.enforced(db) and total >= limit:
             raise Rejection(f"SHARED_{lane.upper()}_DAILY_LIMIT",
                             "Daily request limit reached. Resets at 00:00 UTC.", daily=True)
-        if lane != "auth" and max(0, int(user_data.get(personal_field, 0)) - int(user_data.get(personal_field + "_credit", 0))) >= personal_limit:
+        if usage_limits.enforced(db) and lane != "auth" and max(0, int(user_data.get(personal_field, 0)) - int(user_data.get(personal_field + "_credit", 0))) >= personal_limit:
             raise Rejection(f"PERSONAL_{lane.upper()}_DAILY_LIMIT",
                             "Daily request limit reached. Resets at 00:00 UTC.", daily=True)
         transaction.set(shared, {field: firestore.Increment(1), "ttl": quota.ttl_after(2)}, merge=True)

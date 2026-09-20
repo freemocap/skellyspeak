@@ -1,3 +1,5 @@
+import { useNavigationStore } from '../../state/navigation/navigation'
+import { ReadingActivity } from './ReadingActivity'
 import { AiSplit } from './AiSplit'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { AiDefinitionSelection, TurnView } from '../../generated/contracts'
@@ -44,6 +46,7 @@ function turnLabel(turn: TurnView, tr: ReturnType<typeof useI18n>): string {
 
 /// A live view of the selected conversation's recorded AI operations.
 export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode }) {
+  const inspection = useNavigationStore(state => state.aiInspection)
   const tr = useI18n()
   const activity = useConversationActivity()
   const { snapshot, turns } = activity
@@ -62,6 +65,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     let cancelled = false
     getAiViewSelection().then(saved => {
       if (cancelled) return
+      saved = useNavigationStore.getState().aiInspection ?? saved
       if (saved) {
         setSelection({ conversationId: saved.conversationId, turnId: saved.turnId, kind: saved.operationKind })
         setDefinition(saved.definition)
@@ -70,6 +74,12 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     }).catch(error => { if (!cancelled) setSelectionError(nativeError(error)) })
     return () => { cancelled = true }
   }, [])
+  useEffect(() => {
+    if (!inspection || !selectionLoaded) return
+    setSelection({ conversationId: inspection.conversationId, turnId: inspection.turnId, kind: inspection.operationKind })
+    setDefinition(undefined)
+    useNavigationStore.setState({ aiInspection: null })
+  }, [inspection, selectionLoaded])
   useEffect(() => {
     if (selectionLoaded && conversationId && selection.conversationId !== conversationId) {
       setSelection({ conversationId, turnId: null, kind: null })
@@ -140,7 +150,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
         <details className="ai-other">
           <summary>{tr('Other AI activity')}</summary>
           {snapshot?.transcriptionAttempts.map(attempt => <details key={attempt.id}><summary>{attempt.model} · {attempt.state}</summary>{attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} /></details>)}
-          <GenerationActivity />
+          <GenerationActivity /><ReadingActivity />
         </details>
       </div>
 

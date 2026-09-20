@@ -1,3 +1,4 @@
+import { ReadingTools } from '../ReadingTools'
 import { useEffect, useState } from 'react'
 import type { Settings } from '../../types'
 import { I18nProvider, useI18n } from '../../components/localization/i18n'
@@ -6,7 +7,7 @@ import { AiView } from '../../features/activity/AiView'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { getSettings } from '../../platform/ipc/tauri'
 import { useAppearance } from '../../platform/appearance/useAppearance'
-import { dockAiWindow } from '../../platform/ipc/window'
+import { dockAiWindow, sendReadingQuestion } from '../../platform/ipc/window'
 
 function PoppedOutView() {
   const tr = useI18n()
@@ -23,5 +24,5 @@ export default function DevWindow() {
   const [settings, setSettings] = useState<Settings | null>(null)
   useEffect(() => { getSettings().then(setSettings).catch(error => reportFault('Reading settings for the AI window', error)) }, [])
   useAppearance(settings)
-  return <I18nProvider locale={settings?.interface_locale ?? 'english'}><PoppedOutView /></I18nProvider>
+  return <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings} onAsk={question => { void sendReadingQuestion(question).catch(error => reportFault('Opening the coach', error)) }}><PoppedOutView /></ReadingTools></I18nProvider>
 }

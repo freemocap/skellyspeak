@@ -29,10 +29,6 @@ pub(super) fn admit_network_work(db: &Connection, additional: i64) -> Result<()>
 }
 
 pub(super) fn admit_turn_retry(db: &Connection, turn: &str) -> Result<()> {
-    let attempts: i64 = db.query_row(
-        "SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'",
-        [turn], |r| r.get(0),
-    )?;
     let additional: i64 = db.query_row(
         "SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('failed','unknown') AND kind NOT IN ('persona_context','coach_context','persona_speech')",
         [turn], |r| r.get(0),
@@ -41,10 +37,5 @@ pub(super) fn admit_turn_retry(db: &Connection, turn: &str) -> Result<()> {
         return Err(fail("Retry speech explicitly from its source message."));
     }
     let dependent: i64 = db.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND state='waiting_dependencies' AND kind NOT IN ('persona_context','coach_context')", [turn], |r| r.get(0))?;
-    if attempts + additional + dependent > TURN_ATTEMPT_LIMIT {
-        return Err(budget_error(
-            "This turn has reached its network attempt budget. No retry was accepted. Start a new exchange if you want to continue.",
-        ));
-    }
     admit_network_work(db, additional + dependent)
 }

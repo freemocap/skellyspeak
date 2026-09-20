@@ -14,19 +14,24 @@ it('starts without requiring a topic selection', async () => {
   const start = vi.fn().mockResolvedValue(undefined)
   render(<ConversationStart {...props} onStart={start} />)
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Let partner start' })))
-  expect(start).toHaveBeenCalledExactlyOnceWith()
+  expect(start).toHaveBeenCalledExactlyOnceWith(value)
 })
-it('topic, time and difficulty choices only update the draft', async () => {
+it('time and difficulty choices only update the draft', async () => {
   const start = vi.fn()
   const change = vi.fn()
   render(<ConversationStart {...props} onStart={start} onChange={change} />)
-  fireEvent.click(screen.getByRole('button', { name: /الطعام والشراب/ }))
-  expect(change).toHaveBeenLastCalledWith({ ...value, direction: { ...value.direction, topic: { kind: 'builtin', id: 'food' } } })
   fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
   expect(change).toHaveBeenLastCalledWith({ ...value, direction: { ...value.direction, timeReference: 'past' } })
   await act(async () => fireEvent.change(screen.getByRole('combobox', { name: 'Difficulty' }), { target: { value: 'absolute_zero' } }))
   expect(change).toHaveBeenLastCalledWith({ ...value, difficulty: 'absolute_zero' })
   expect(start).not.toHaveBeenCalled()
+})
+it('starts immediately with the clicked topic and current settings', async () => {
+  const start = vi.fn().mockResolvedValue(undefined)
+  const selected = { ...value, difficulty: 'advanced' as const }
+  render(<ConversationStart {...props} value={selected} onStart={start} />)
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: /الطعام والشراب/ })))
+  expect(start).toHaveBeenCalledExactlyOnceWith({ ...selected, direction: { ...selected.direction, topic: { kind: 'builtin', id: 'food' } } })
 })
 it('names each scene in the target language, romanized, and in the explanation language', () => {
   render(<ConversationStart {...props} onStart={vi.fn()} targetTag="ar" targetDir="rtl" />)
@@ -48,6 +53,7 @@ it('offers the authored greeting and only opens the recorder with it', () => {
 it('withholds the partner-first start while a draft or the microphone is in use', () => {
   const { rerender } = render(<ConversationStart {...props} onStart={vi.fn()} canPartnerStart={false} />)
   expect(screen.getByRole('button', { name: 'Let partner start' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: /الطعام والشراب/ })).toBeDisabled()
   rerender(<ConversationStart {...props} onStart={vi.fn()} recording={true} />)
   expect(screen.getByRole('button', { name: 'Let partner start' })).toBeDisabled()
   // The same control stops the recording it started.

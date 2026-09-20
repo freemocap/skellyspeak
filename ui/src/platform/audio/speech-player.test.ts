@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { playSpeechAudio } from './speech-player'
-import { setPlaybackAllowed, setVoiceVolume } from '../../../platform/audio/speech'
+import { setPlaybackAllowed, setVoiceVolume } from './speech'
 
 const audio0 = { status: 'ready', operationId: 'op', messageId: 'message', attemptId: 'attempt', mime: 'audio/mpeg', audioBase64: 'AA==' } as const
 

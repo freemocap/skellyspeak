@@ -1,3 +1,4 @@
+import { InspectText } from '../../../components/reading/InspectText'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { PersonaAvatar } from '../../../components/media/PersonaAvatar'
@@ -38,6 +39,7 @@ export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCr
       {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No persona")}</span>}
       <span aria-hidden="true">▾</span>
     </button>
+    {current && <InspectText text={current.name} />}
     {open && <div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
       {choices.map(choice => <button type="button" role="menuitemradio" aria-checked={choice.id === currentId} key={choice.id}
         className="persona-picker-item" onClick={() => { setOpen(false); if (choice.id !== currentId) onSelect(choice.id) }}>

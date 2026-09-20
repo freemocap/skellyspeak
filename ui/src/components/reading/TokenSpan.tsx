@@ -1,12 +1,20 @@
+import { useReadingActions, useReadingScope } from './ReadingContext'
+import { readingPassage } from '../../domain/reading/word-boundaries'
+import { InspectText } from './InspectText'
+import { TokenAudio } from './TokenAudio'
 import { useEffect, useRef, useState } from 'react'
 import type { GuidedToken } from '../../types'
 
 interface TokenSpanProps {
+  sourceText?: string
+  sourceStart?: number
   textStyle?: React.CSSProperties
   interactive?: boolean
   tok: GuidedToken
   revealed: boolean
   hasTranslation: boolean
+  showTranslation: boolean
+  showAids: boolean
   showRomanization: boolean
   alwaysRomanize: boolean
   alwaysPronunciation: boolean
@@ -19,10 +27,14 @@ interface TokenSpanProps {
 
 export function TokenSpan({
   tok,
+  sourceText = tok.text,
+  sourceStart = 0,
   textStyle,
   interactive = true,
   revealed,
   hasTranslation,
+  showTranslation,
+  showAids,
   showRomanization,
   alwaysRomanize,
   alwaysPronunciation,
@@ -32,7 +44,9 @@ export function TokenSpan({
   onInspect,
   onHold,
 }: TokenSpanProps) {
-  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation)
+  const readingActions = useReadingActions()
+  const scope = useReadingScope()
+  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation || (readingActions && scope && /[\p{L}\p{N}]/u.test(tok.text)))
   // Press-and-hold (450ms, near-stationary) opens the deep word-insight
   // modal. Works for mouse + touch; a plain click never fires it, and
   // dragging cancels it.
@@ -71,6 +85,9 @@ export function TokenSpan({
       heldRef.current = false // the long-press just fired — suppress the click
       return
     }
+    if (!tok.gloss && !tok.pronunciation && !tok.romanization && readingActions && scope && /[\p{L}\p{N}]/u.test(tok.text)) {
+      e.stopPropagation(); readingActions.inspect({ ...readingPassage(sourceText, sourceStart, sourceStart + tok.text.length), scope }); return
+    }
     onTap(e)
   }
   return (
@@ -96,10 +113,11 @@ export function TokenSpan({
       >
         {tok.text}
       </span>
-      {revealed && tok.gloss && <span className="wg">{tok.gloss}</span>}
-      {alwaysPronunciation && tok.pronunciation && <span className="wpronunciation" dir="auto">{tok.pronunciation}</span>}
+      {(revealed || showAids) && showTranslation && tok.gloss && <span className="wg">{tok.gloss}</span>}
+      {revealed && interactive && <span><TokenAudio text={sourceText} start={sourceStart} end={sourceStart + tok.text.length} /><InspectText text={sourceText} start={sourceStart} end={sourceStart + tok.text.length} /></span>}
+      {(revealed || showAids) && alwaysPronunciation && !tok.romanization && tok.pronunciation && <span className="wpronunciation" dir="auto">{tok.pronunciation}</span>}
       {/* Always-visible romanization does not depend on revealing the gloss. */}
-      {(revealed || alwaysRomanize) && showRomanization && tok.romanization && (
+      {(revealed || showAids) && alwaysRomanize && showRomanization && tok.romanization && (
         <span className="wroman">{tok.romanization}</span>
       )}
     </span>

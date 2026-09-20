@@ -1,3 +1,4 @@
+import { TargetText } from '../../../components/reading/TargetText'
 import { useI18n } from '../../../components/localization/i18n'
 import { useSkillNavigationStore } from '../../../state/navigation/skill-navigation'
 import { useContext, useRef, type RefObject } from 'react'
@@ -6,11 +7,11 @@ import { domainColors } from '../../../domain/learning/catalog/skill-domains'
 import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 
-export function RewardBadge({ domainId, label, xp, quote, creditKind }: { domainId: string; label: string; xp: number; quote: string; creditKind: 'earned' | 'stored' }) {
+export function RewardBadge({ domainId, label, xp, quote, creditKind, interactive = false }: { interactive?: boolean; domainId: string; label: string; xp: number; quote: string; creditKind: 'earned' | 'stored' }) {
   const tr = useI18n()
   return <div className="reward-badge" style={{ borderColor: domainColors(domainId).bright }}>
     <div className="reward-badge-heading"><span className="reward-domain-dot" style={{ background: domainColors(domainId).bright }} /><span>{tr(label)}</span><strong style={{ background: domainColors(domainId).ink }}>{creditKind === 'earned' ? '+' : ''}{tr.number(xp)} {tr(" XP")}</strong></div>
-    <blockquote dir="auto">{quote}</blockquote>
+    <blockquote dir="auto"><TargetText text={quote} interactive={interactive} /></blockquote>
   </div>
 }
 
@@ -33,8 +34,8 @@ export function RewardDetail({ evidence, onClose, interactive, automatic }: { au
   return <section ref={host} className="reward-inspection-card" role="dialog" aria-label={tr("XP details")} inert={!interactive}>{!automatic && interactive && <InspectionLayer host={host} onClose={onClose} />}<button className="reward-inspection-close" aria-label={tr("Close XP details")} onClick={onClose}>×</button>
     {[...groups.values()].map(group => {
       const item = group[0]
-      return <section key={item.id}><RewardBadge {...item} creditKind="stored" />
-      {group.slice(1).map(quote => <blockquote key={quote.quote} dir="auto">{quote.quote}</blockquote>)}
+      return <section key={item.id}><RewardBadge {...item} creditKind="stored" interactive={interactive} />
+      {group.slice(1).map(quote => <blockquote key={quote.quote} dir="auto"><TargetText text={quote.quote} /></blockquote>)}
       {group.some(quote => quote.ambiguous) && <p className="reward-credit-note">{tr("This wording appears more than once. The review identifies the phrase, but does not specify which occurrence.")}</p>}<p className="reward-rationale">{item.rationale}</p><small className="reward-credit-note">{tr("Total credited for this skill in this message. The animation shows only newly added XP.")}</small>{snapshot && <button className="detail-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: item.skillId }) }}>{tr("Explore this skill")}</button>}</section>})}
   </section>
 }

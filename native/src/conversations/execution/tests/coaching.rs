@@ -234,6 +234,17 @@ fn assistance_rejects_swapped_target_and_explanation_fields() {
     };
     let valid = serde_json::json!({"explanation":"They ask what you like to eat.","replies":[{"text":"أنا بحب آكل المنسف.","translation":"I like to eat mansaf.","romanization":"ana baḥibb ākul il-mansaf.","pronunciation":"AH-na ba-HIBB AH-kul il-MAN-saf"},{"text":"بحب الفلافل.","translation":"I like falafel.","romanization":"baḥibb il-falāfil.","pronunciation":"ba-HIBB il-fa-LAH-fil"}],"frames":["بحب ___.","ما بحب ___."],"starters":["أنا…","بحب…"]});
     assert!(check(&valid).is_ok());
+    // Latin diacritics, decomposed pinyin tones and Arabic transliteration
+    // modifier letters are valid reading aids, not target-script content.
+    for text in [
+        "Nǐ xǐhuān kēhuàn xiǎoshuō ma?",
+        "Ni\u{030c} xi\u{030c}hua\u{0304}n",
+        "ʿana ʾaḥibb",
+    ] {
+        let mut romanized = valid.clone();
+        romanized["replies"][0]["romanization"] = serde_json::json!(text);
+        assert!(check(&romanized).is_ok(), "{text}");
+    }
     // Observed failure: English in text, Arabic in translation and romanization.
     let mut swapped = valid.clone();
     swapped["replies"][0]["text"] = serde_json::json!("I like to eat mansaf.");
@@ -253,6 +264,11 @@ fn assistance_rejects_swapped_target_and_explanation_fields() {
             .to_string()
             .contains("not in Latin script")
     );
+    romanized["replies"][1]["romanization"] = serde_json::json!("Nǐ 喜欢");
+    let error = check(&romanized).unwrap_err().to_string();
+    assert!(error.contains("replies[1].romanization"));
+    assert!(error.contains("U+559C"));
+    assert!(!error.contains("喜欢"));
 }
 #[test]
 fn correct_message_has_useful_remark_without_manufactured_correction() {
@@ -323,4 +339,61 @@ fn latin_assistance_constrains_and_rejects_romanization() {
         .to_string()
         .contains("not applicable")
     );
+}
+
+#[test]
+fn assistance_binds_writing_guidance_to_fields_and_keeps_exchange_as_data() {
+    use crate::learning::coaching::conversation_support as support;
+    for (language, script) in [
+        ("arabic", "arabic"),
+        ("mandarin", "simplified-chinese"),
+        ("spanish", "latin"),
+    ] {
+        let captured = serde_json::json!({
+            "targetLanguage":language,"translationLanguage":"english","messages":[],
+            "languageContext":{"script":script,"guidance":{
+                "target_writing":["TARGET_WRITING"],"romanization":["ROMANIZATION_RULES"],
+                "explanation_writing":["EXPLANATION_WRITING"],"pragmatics":["PRAGMATICS"],
+                "assessment":["ASSESSMENT_NOT_FOR_DRAFTS"],"segmentation":["SEGMENTATION_NOT_FOR_DRAFTS"]
+            }},"practiceSettings":{"difficulty":"beginner"},"input":null
+        });
+        let prompt = support::prompt_for_exchange(
+            "PARTNER_SOURCE".into(),
+            Some("LEARNER_SOURCE".into()),
+            support::ASSISTANCE,
+            &captured,
+        )
+        .unwrap();
+        assert_eq!(prompt.len(), 2);
+        assert_eq!(prompt[0].role, "system");
+        assert_eq!(prompt[1].role, "user");
+        let instruction = &prompt[0].content;
+        let fields = instruction
+            .split_once("Field-specific language guidance: ")
+            .unwrap()
+            .1
+            .split_once(". Target writing rules apply ONLY")
+            .unwrap()
+            .0;
+        let fields: serde_json::Value = serde_json::from_str(fields).unwrap();
+        assert_eq!(
+            fields["replies[].text, frames[], starters[]"]["writing"],
+            serde_json::json!(["TARGET_WRITING"])
+        );
+        assert_eq!(
+            fields["replies[].romanization"]["transliteration"],
+            serde_json::json!(["ROMANIZATION_RULES"])
+        );
+        assert_eq!(
+            fields["explanation, replies[].translation"]["writing"],
+            serde_json::json!(["EXPLANATION_WRITING"])
+        );
+        assert!(!instruction.contains("ASSESSMENT_NOT_FOR_DRAFTS"));
+        assert!(!instruction.contains("SEGMENTATION_NOT_FOR_DRAFTS"));
+        assert!(!instruction.contains("PARTNER_SOURCE"));
+        assert!(!instruction.contains("LEARNER_SOURCE"));
+        let exchange: serde_json::Value = serde_json::from_str(&prompt[1].content).unwrap();
+        assert_eq!(exchange["actualPartnerReply"], "PARTNER_SOURCE");
+        assert_eq!(exchange["latestLearnerInput"], "LEARNER_SOURCE");
+    }
 }

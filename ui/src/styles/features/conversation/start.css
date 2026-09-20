@@ -2,9 +2,9 @@
 .conversation-start {
   color: var(--ink);
   display: grid;
-  justify-items: center;
-  gap: var(--space-8);
-  padding: var(--space-11) var(--space-8); margin-block: auto;
+  justify-items: stretch;
+  gap: var(--space-6);
+  padding: var(--space-6); margin-block: 0;
   min-width: 0;
 }
 
@@ -14,7 +14,6 @@
 
 .start-conversation-button {
   min-height: var(--touch-target);
-  flex: 1;
   padding: var(--space-3) var(--space-5);
   background: var(--interaction-fill);
   color: var(--ink-on-fill);
@@ -30,16 +29,18 @@
 .opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
 
 .opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
-.conversation-start .persona-avatar { width: 76px; height: 76px; border-radius: var(--radius-circle); background: var(--sheet); border: var(--border-width) solid var(--bubble-partner-line); font-size: calc(var(--type-display) * 1.5); }
-.conversation-start h2 { margin: 0; font-size: var(--type-display); }
+.conversation-start .persona-avatar { width: 48px; height: 48px; flex: none; border-radius: var(--radius-circle); background: var(--sheet); border: var(--border-width) solid var(--bubble-partner-line); font-size: var(--type-display); }
+.conversation-start h2 { margin: 0; font-size: var(--type-title); overflow-wrap: anywhere; }
 
 /* The invitation reads as the partner's side of the table, so it borrows the
    colours the partner's messages already use. */
-.invitation { position: relative; display: grid; justify-items: center; gap: var(--space-5);
-  width: 100%; padding: var(--space-11) var(--space-8);
+.invitation { display: grid; gap: var(--space-5);
+  width: 100%; padding: var(--space-6);
   background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
   border-radius: var(--radius-xl); }
-.invitation-partner-actions { position: absolute; inset-block-start: var(--space-5); inset-inline-end: var(--space-5); display: flex; gap: var(--space-3); }
+.invitation-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.invitation-partner { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.invitation-partner-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .invitation-partner-actions .btn { background: var(--sheet); }
 
 /* Opening the microphone is the peer of letting the partner start, so it is the
@@ -57,17 +58,16 @@
 .start-greeting-button:hover:not(:disabled) { background: var(--chrome); }
 .start-greeting-button:disabled { opacity: .5; cursor: default; }
 .start-greeting-dot { width: 10px; height: 10px; flex: none; border-radius: var(--radius-circle); background: var(--danger-fill); }
-.start-greeting-romanized { margin: 0; color: var(--ink-3); font: var(--type-ui) var(--font-sans); font-style: italic; }
 
 /* A cluster of scenes, not a list: as many per row as the width allows. */
 .start-scenes { border: 0; padding: 0; margin: 0; min-width: 0; width: 100%; }
-.start-scenes legend { text-align: center; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
-.scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: var(--space-4);
-  max-width: 42rem; margin-inline: auto; min-width: 0; }
+.start-scenes legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+.scene-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--space-4);
+  min-width: 0; }
 .scene-card { display: grid; justify-items: center; align-content: center; gap: var(--space-2);
   text-align: center; min-height: var(--touch-target); padding: var(--space-5) var(--space-4);
   background: var(--sheet); color: var(--ink);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  border: var(--border-width-strong) solid var(--line); border-radius: var(--radius-lg);
   font-family: var(--font-sans); cursor: pointer; }
 .scene-card:hover:not(:disabled) { border-color: var(--ink-3); }
 .scene-card[aria-pressed=true] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
@@ -79,16 +79,17 @@
 
 /* Difficulty and grammar practice are ordinary settings; they stay on the
    surface rather than behind a disclosure. */
-.start-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-5) var(--space-8); }
-.start-hint { color: var(--ink-3); font: var(--type-ui) var(--font-sans); }
+.start-controls { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-5) var(--space-8); }
 .start-conversation-button:disabled { opacity: .5; }
 @media (max-width: 480px) { .conversation-start { padding: var(--space-5); gap: var(--space-4); } }
 
 /* Compact start controls share one draft with the detailed prompt creator. */
 .start-choice-row { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
-.start-choice-row legend { text-align: center; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+.start-choice-row legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
 .start-choice-row .btn[aria-pressed=true], .prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
-.start-difficulty { display: flex; align-items: center; gap: var(--space-3); }
+.start-difficulty { display: grid; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-ui); }
+.start-difficulty .chat-language-picker { font-size: var(--type-ui); min-height: var(--control-height); }
+.start-error { margin: 0; color: var(--danger-ink); overflow-wrap: anywhere; }
 .prompt-actions, .prompt-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .prompt-creator { display: grid; gap: var(--space-5); }
 .prompt-creator > section:not([hidden]) { display: grid; gap: var(--space-5); }

@@ -1,3 +1,6 @@
+import { ConversationErrorScope } from './reading/ConversationErrorScope'
+import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
+import { interruptSpeech } from '../../platform/audio/speech'
 import { ConversationHelp } from './composer/ConversationHelp'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
@@ -25,9 +28,9 @@ import { ReadingPreferencesProvider } from '../../components/reading/ReadingPref
 import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
 import { RewardPresentationProvider } from './progress/RewardPresentation'
 import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
-import { ComposerHelp } from './composer/ComposerHelp'
+import { ReplyHelp } from './composer/ReplyHelp'
 import { useSkillNavigationStore } from '../../state/navigation/skill-navigation'
-import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createContact as createContactRequest, executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
 import type { Settings } from '../../types'
 import type { PersonaDetails } from '../../generated/contracts'
@@ -277,6 +280,15 @@ export default function ConversationPage({
     openCoach()
   }
   useEffect(() => { setAnalysisOpen(false) }, [currentChatId, settingsVersion])
+  const readingSettingsBusy = useNavigationStore(state => state.settingsBusy)
+  const readingOverlay = useNavigationStore(state => state.overlay)
+  const readingQuestion = useNavigationStore(state => state.readingQuestion)
+  useEffect(() => {
+    if (!readingQuestion || !active || !currentChatId || readingSettingsBusy || readingOverlay) return
+    askCoach(readingQuestion)
+    useNavigationStore.getState().draftReadingQuestion(null)
+  }, [readingQuestion, active, currentChatId, readingSettingsBusy, readingOverlay])
+
 
   const onBubbleTap = useCallback(
     (id: number) => {
@@ -337,7 +349,7 @@ export default function ConversationPage({
     } finally { acceptingSend.current = false }
   }
 
-  async function startConversation() {
+  async function startConversation(configuration: ConversationStartConfig) {
     if (acceptingSend.current || sending) throw new Error('A conversation action is already pending.')
     if (!snapshot || snapshot.conversationId !== currentChatId) throw new Error('The conversation is not ready.')
     const reviewed = snapshot
@@ -347,10 +359,9 @@ export default function ConversationPage({
     try {
       await details.beforeSend()
       if (selectedChatRef.current !== owner) throw new Error('The conversation changed before starting.')
-      if (!startConfiguration) throw new Error('Conversation settings are unavailable.')
       const latest = await readWorkspace()
       if (selectedChatRef.current !== owner) throw new Error('The conversation changed before starting.')
-      await executeAction(latest, { kind: 'startConversation', conversationId: reviewed.conversationId, configuration: startConfiguration, message: null, input: null, expectedRevision: latest.revision })
+      await executeAction(latest, { kind: 'startConversation', conversationId: reviewed.conversationId, configuration, message: null, input: null, expectedRevision: latest.revision })
     } catch (reason) {
       if (selectedChatRef.current === owner) setSending(false)
       throw reason
@@ -455,8 +466,8 @@ export default function ConversationPage({
     },
   })
   const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
-  stopSpeechRef.current = speech.stop
-  const toggleMic = () => { speech.stop(); void mic.toggleMic() }
+  stopSpeechRef.current = () => { speech.stop(); interruptSpeech() }
+  const toggleMic = () => { stopSpeechRef.current(); void mic.toggleMic() }
   toggleMicRef.current = toggleMic
 
   const aiBusy = replyActive
@@ -466,6 +477,9 @@ export default function ConversationPage({
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
+  const latestTurn = activeTurns.at(-1)
+  const latest = latestTurn?.assistant
+  const working = (state?: string | null) => ['ready', 'running', 'waiting_dependencies'].includes(state ?? '')
   const chatComposer = (
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
@@ -483,23 +497,24 @@ export default function ConversationPage({
           </div>
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
-          {<ComposerHelp
-            assistance={activeTurns.at(-1)?.assistant?.assistance}
+          {<ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}><ReplyHelp
+            key={`${currentChatId}:${latestTurn?.id}`}
+            brief={latest?.assistance?.explanation}
+            briefPending={working(latest?.explanationsState)}
             onAsk={askCoach}
-            onRequest={activeTurns.at(-1)?.assistant?.messageId ? async () => {
-              await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: activeTurns.at(-1)!.assistant!.messageId! })
+            grammar={latest?.mechanics.length ? latest.mechanics : undefined}
+            replies={latest?.scaffolds.replies.length ? latest.scaffolds.replies : undefined}
+            starters={latest ? [...latest.scaffolds.frames, ...latest.scaffolds.starters] : undefined}
+            onSuggestReply={latest?.messageId ? async () => {
+              await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: latest.messageId! })
             } : undefined}
-            key={`${currentChatId}:${activeTurns.at(-1)?.id}`}
             busy={sending}
-            replies={activeTurns.at(-1)?.assistant?.scaffolds.replies ?? []}
-            pending={['ready', 'running', 'waiting_dependencies'].includes(activeTurns.at(-1)?.assistant?.suggestionsState ?? '')}
-            running={activeTurns.at(-1)?.assistant?.suggestionsState === 'running'}
-            errors={activeTurns.at(-1)?.assistant?.errors ?? []}
+            errors={latest?.errors ?? []}
             onUse={(text, source) => {
               inputEvidence.current = { ...inputEvidence.current, [source]: true }
               setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
               composer.current?.querySelector<HTMLTextAreaElement>('.field')?.focus()
-            }} />}
+            }} /></ConversationErrorScope>}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             transcriptionWarning={targetLanguage?.transcriptionLanguage === null && connection && connection.route === 'openrouter' ? tr("The {model} transcription model has no language code for {language}; output may be unreliable.", { model: connection.audio.transcription.model, language: targetLanguageName }) : undefined}
@@ -510,7 +525,7 @@ export default function ConversationPage({
   )
 
   return (
-    <AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
+    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
@@ -560,9 +575,9 @@ export default function ConversationPage({
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} greeting={snapshot.starterGreeting} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onRecord={toggleMic} onSwitchPartner={() => setHistoryOpen(true)} onEditPersona={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
           {activeTurns.map((turn) => (
-            <Fragment key={turn.turnId}><TurnView
+            <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
-              onActivity={() => useNavigationStore.getState().showOverlay('activity')}
+              onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
               latest={turn === activeTurns.at(-1)}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
@@ -600,7 +615,7 @@ export default function ConversationPage({
                 composer.current?.querySelector('textarea')?.focus()
               } : undefined}
             />
-            </Fragment>
+            </ConversationErrorScope>
           ))}
           {error && (
             <ErrorDetails label={tr("Request failed")} errorKey={error}>
@@ -671,11 +686,11 @@ export default function ConversationPage({
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <AnalysisContent onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 
     </div>
-    </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext>
+    </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext></ConversationReadingProvider>
   )
 }

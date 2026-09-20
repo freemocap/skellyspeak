@@ -1,3 +1,5 @@
+import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
+import { TargetText } from '../../../components/reading/TargetText'
 import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../../components/localization/i18n'
 import { InfoTip } from '../../../components/controls/InfoTip'
@@ -59,7 +61,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
               const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
               return <article key={credit.attempt_id} className="practice-credit">
                 <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{assisted ? tr("Assisted") : tr("Unassisted")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
-                <blockquote dir="auto">{record.source}</blockquote><p>{judgment.rationale}</p>
+                <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><blockquote dir="auto"><TargetText text={record.source} /></blockquote></ReadingLanguageScope><p>{judgment.rationale}</p>
                 <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Chat ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
               </article>
             })}

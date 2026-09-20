@@ -392,22 +392,8 @@ pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result
                 return Err(fail("Only a failed or unknown turn can be retried."));
             }
             if db.query_row("SELECT EXISTS(SELECT 1 FROM turns WHERE conversation_id=?1 AND rowid>(SELECT rowid FROM turns WHERE id=?2)) AND NOT EXISTS(SELECT 1 FROM messages WHERE turn_id=?2 AND role='assistant')",params![conversation,turn],|r|r.get::<_,bool>(0))? { return Err(fail("A later turn exists. Start a new exchange instead of inserting a reply into an earlier exchange.")); }
-            let (profile, credential): (i32, Option<String>) =
-                db.query_row("SELECT revision,CASE route WHEN 'hosted' THEN hosted_credential_id WHEN 'custom' THEN CASE WHEN json_extract(custom_config,'$.bearerAuth') THEN custom_credential_id ELSE '' END ELSE credential_id END FROM ai_config", [], |r| {
-                    Ok((r.get(0)?, r.get(1)?))
-                })?;
-            let original: i32 = db.query_row(
-                "SELECT profile_revision FROM turns WHERE id=?1",
-                [turn],
-                |r| r.get(0),
-            )?;
-            if profile != original || credential.is_none() {
-                return Err(fail(
-                    "The connection changed. Send a new exchange with the current connection.",
-                ));
-            }
             admit_turn_retry(db, turn)?;
-            release_hold(db, turn, false)?;
+            connections::bind_retry(db, turn, None)?;
             db.execute("UPDATE turns SET state=CASE WHEN EXISTS(SELECT 1 FROM operations WHERE turn_id=?1 AND kind IN ('persona_reply','persona_opening','coach_reply') AND state IN ('ready','waiting_dependencies','running')) THEN 'pending' ELSE 'assisting' END WHERE id=?1", [turn])?;
             db.execute("UPDATE operations SET state='ready',permit=0 WHERE turn_id=?1 AND state IN ('failed','unknown') AND kind!='persona_speech'",[turn])?;
         }

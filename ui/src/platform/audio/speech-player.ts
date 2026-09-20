@@ -1,6 +1,6 @@
-import { mediaError } from '../../../platform/audio/media-error'
-import type { SpeechAudioState } from '../../../generated/contracts'
-import { registerSpeechPlayback, speechPlaybackPermit } from '../../../platform/audio/speech'
+import { mediaError } from './media-error'
+import type { SpeechAudioState } from '../../generated/contracts'
+import { registerSpeechPlayback, speechPlaybackPermit } from './speech'
 
 /** Playback only: this module cannot request speech generation. */
 interface PlaybackHandle {

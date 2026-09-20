@@ -89,9 +89,22 @@ pub fn record(db: &Connection, target: &ResolvedTarget, error: &AppError) -> Res
 pub fn check(db: &Connection, target: &ResolvedTarget) -> Result<()> {
     for key in keys(target)? {
         if let Some(hold) = read(db, &key)? {
-            return Err(AppError::new(ErrorCode::AdmissionHeld,
-                format!("AI access is held. Use Recover access in the execution panel after correcting the cause. {}", hold.error.message))
-                .with_refusal(hold.error.refusal.ok_or_else(|| AppError::new(ErrorCode::Storage, "Invalid AI hold."))?));
+            let refusal = hold
+                .error
+                .refusal
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Invalid AI hold."))?;
+            let cause = if hold.error.message == "Server admission refused this operation."
+                && matches!(refusal.reason, RefusalReason::DailyLimit)
+            {
+                "The server's daily request or allowance limit was reached. It resets at 00:00 UTC. The original response did not retain which daily limit applied."
+            } else {
+                &hold.error.message
+            };
+            let mut error = AppError::new(ErrorCode::AdmissionHeld,
+                format!("New AI requests are paused. {cause} Saved word meanings remain available. After the limit resets or the cause is corrected, use Recover access in AI activity."))
+                .with_refusal(refusal);
+            error.diagnostics = hold.error.diagnostics;
+            return Err(error);
         }
     }
     if db.query_row("SELECT count(*) FROM inference_holds", [], |r| {
