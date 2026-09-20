@@ -49,6 +49,11 @@ export interface LanguageInfo {
   romanization: string | null
   varieties: VarietyInfo[]
   defaultVariety: string
+  /// The authored greeting in this language, and its transliteration where the
+  /// language has a romanization scheme.
+  greeting: { text: string; romanized: string | null }
+  /// Who the learner meets first in this language.
+  partner: { name: string; romanizedName: string | null; vibe: string[] }
 }
 
 let registry: LanguageInfo[] | null = null
@@ -61,6 +66,7 @@ export async function loadLanguages(): Promise<void> {
     if (language.direction !== 'ltr' && language.direction !== 'rtl') throw new Error('Invalid language direction.')
     return { transcriptionLanguage: language.transcriptionLanguage, languageTag: language.languageTag ?? undefined, fontScale: language.fontScale, code: language.id, base: language.id, name: language.name, endonym: language.nativeName,
       defaultVariety: language.defaultVariety, direction: language.direction, romanization: language.romanization,
+      greeting: language.greeting, partner: language.partner,
       varieties: language.varieties.map(variety => ({ transcriptionLanguage: variety.transcriptionLanguage, id: variety.id, label: variety.name, direction: variety.direction as "ltr" | "rtl", fontScale: variety.fontScale, romanization: variety.romanization })) }
   })
   logInfo(`[lang] registry loaded: ${registry.map((l) => l.code).join(', ')}`)

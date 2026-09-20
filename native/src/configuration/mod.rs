@@ -151,6 +151,12 @@ impl Registry {
                     .unwrap(),
             )
             .cloned(),
+            greeting: self.starter_greeting(&l.id, None)?,
+            partner: model::LanguagePartner {
+                name: l.starter_persona.name.clone(),
+                romanized_name: l.starter_persona.romanized_name.clone(),
+                vibe: l.starter_persona.vibe.clone(),
+            },
             varieties: l
                 .varieties
                 .iter()
@@ -168,6 +174,129 @@ impl Registry {
     }
     pub fn starter_persona(&self, id: &str) -> model::Result<model::PersonaDetails> {
         Ok(self.language_config(id)?.starter_persona.clone())
+    }
+    /// Every starter card and greeting must be authored for every language a
+    /// learner can reach, and for every scheme any variety resolves to.
+    ///
+    /// `deny_unknown_fields` rejects unknown FIELDS; it does not require a map
+    /// to hold a given KEY. Without this pass, a missing label or transliteration
+    /// would reach the start surface as a blank line instead of refusing to load.
+    pub(super) fn validate_starter_content(&self) -> Result<()> {
+        let mut schemes: Vec<(String, String)> = vec![];
+        for language in &self.languages {
+            for variety in &language.varieties {
+                if let Some(key) = Self::variety_romanization(language, variety) {
+                    schemes.push((variety.id.clone(), key.clone()));
+                }
+            }
+        }
+        for topic in &self.topics {
+            let path = format!("shared/conversation-topics.yaml#{}", topic.id);
+            if topic.glyph.trim().is_empty() {
+                return Err(error(&path, "missing_glyph", "Give the topic a glyph."));
+            }
+            for language in &self.languages {
+                match topic.labels.get(&language.id) {
+                    Some(label) if !label.trim().is_empty() => {}
+                    _ => {
+                        return Err(error(
+                            format!("{path}.labels.{}", language.id),
+                            "missing_label",
+                            "Every language needs this topic's name; it is shown as both the target label and its translation.",
+                        )
+                        );
+                    }
+                }
+            }
+            for (variety, key) in &schemes {
+                match topic.romanizations.get(key) {
+                    Some(value) if !value.trim().is_empty() => {}
+                    _ => {
+                        return Err(error(
+                            format!("{path}.romanizations.{key}"),
+                            "missing_romanization",
+                            format!("Variety {variety} romanizes with {key}."),
+                        )
+                        );
+                    }
+                }
+            }
+        }
+        for language in &self.languages {
+            let greeting = &self
+                .documents
+                .get(&language.id)
+                .expect("added language document")
+                .conversation
+                .greeting;
+            let path = format!("languages/{}.yaml#conversation.greeting", language.id);
+            if greeting.text.trim().is_empty() {
+                return Err(error(&path, "missing_greeting", "Give the language a greeting."));
+            }
+            for variety in &language.varieties {
+                let Some(key) = Self::variety_romanization(language, variety) else {
+                    continue;
+                };
+                match greeting.romanizations.get(key) {
+                    Some(value) if !value.trim().is_empty() => {}
+                    _ => {
+                        return Err(error(
+                            format!("{path}.romanizations.{key}"),
+                            "missing_romanization",
+                            format!("Variety {} romanizes with {key}.", variety.id),
+                        )
+                        );
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    /// The romanization scheme key in force for a language, or its named variety
+    /// when one is given. `None` when the variety writes in Latin script or
+    /// disables romanization. The key is the same one topic and greeting
+    /// romanizations are stored under.
+    pub fn active_romanization_scheme(
+        &self,
+        language: &str,
+        variety: Option<&str>,
+    ) -> model::Result<Option<String>> {
+        let config = self.language_config(language)?;
+        let chosen = variety.unwrap_or(&config.default_variety);
+        let variety = config
+            .varieties
+            .iter()
+            .find(|v| v.id == chosen)
+            .ok_or_else(|| error("languages", "unknown_variety", chosen))?;
+        Ok(Self::variety_romanization(config, variety).cloned())
+    }
+    /// The greeting the start surface offers, with the transliteration that the
+    /// same variety resolves to.
+    pub fn starter_greeting(
+        &self,
+        language: &str,
+        variety: Option<&str>,
+    ) -> model::Result<model::StarterGreeting> {
+        let greeting = &self
+            .documents
+            .get(language)
+            .ok_or_else(|| error("languages", "unknown_language", language))?
+            .conversation
+            .greeting;
+        let romanized = match self.active_romanization_scheme(language, variety)? {
+            Some(key) => Some(greeting.romanizations.get(&key).cloned().ok_or_else(|| {
+                error(
+                    format!("languages/{language}.yaml#conversation.greeting.romanizations"),
+                    "missing_romanization",
+                    format!("The greeting has no {key} romanization."),
+                )
+            })?),
+            None => None,
+        };
+        Ok(model::StarterGreeting {
+            text: greeting.text.clone(),
+            romanized,
+        })
     }
     pub fn language_projection(&self) -> Vec<model::Language> {
         self.languages

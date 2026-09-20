@@ -94,6 +94,10 @@ learning:
       - شكرًا
       - شكرا
 conversation:
+  greeting:
+    text: مرحبا
+    romanizations:
+      "arabic:ala-lc-arabic": marḥaban
   default_partner:
     name: نور
     romanizedName: Nūr

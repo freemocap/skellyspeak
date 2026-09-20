@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "port": 1420,
       "url": "http://127.0.0.1:1420"
+    },
+    {
+      "name": "previews",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "1421"],
+      "port": 1421,
+      "url": "http://127.0.0.1:1421"
     }
   ]
 }

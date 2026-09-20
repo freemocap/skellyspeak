@@ -81,6 +81,10 @@ learning:
       tokens:
       - നന്ദി
 conversation:
+  greeting:
+    text: നമസ്കാരം
+    romanizations:
+      "malayalam:ala-lc-malayalam": namaskāraṁ
   default_partner:
     name: മീന
     romanizedName: Mīna

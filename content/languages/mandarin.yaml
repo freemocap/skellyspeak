@@ -88,6 +88,10 @@ learning:
       tokens:
       - 谢谢
 conversation:
+  greeting:
+    text: 你好
+    romanizations:
+      "mandarin:pinyin": nǐ hǎo
   default_partner:
     name: 小林
     romanizedName: Xiǎo Lín

@@ -6,6 +6,7 @@ use std::net::TcpListener;
 async fn structured_direct_preserves_raw_candidate_finish_usage_and_redaction() {
     let schema = serde_json::json!({"type":"object"});
     let contract = RequestOutput::JsonSchema {
+        max_output_tokens: 2048,
         name: "fixture",
         schema: &schema,
     };
@@ -66,6 +67,7 @@ async fn structured_invalid_preflight_submits_no_http_for_any_route_or_group() {
     let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
     let schema = serde_json::json!({"description":"private-schema".repeat(10000)});
     let contract = RequestOutput::JsonSchema {
+        max_output_tokens: 2048,
         name: "fixture",
         schema: &schema,
     };

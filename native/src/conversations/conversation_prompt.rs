@@ -4,7 +4,7 @@ use crate::{
     configuration::{ConversationPromptContent, LanguageContext, Registry},
     model::*,
 };
-pub(crate) const VERSION: &str = "conversation-12";
+pub(crate) const VERSION: &str = "conversation-16";
 
 pub(crate) fn difficulty(
     content: &ConversationPromptContent,
@@ -19,7 +19,7 @@ pub(crate) fn difficulty(
         Difficulty::Fluent => ("fluent", "Fluent"),
     };
     format!(
-        "Your conversation partner is learning {language} at the selected {label} difficulty level. That means you should {}\n\n{}",
+        "{language}. {label} difficulty level: {}\n\n{}",
         content.difficulty[key], content.ceiling
     )
 }
@@ -40,13 +40,18 @@ fn render(
             serde_json::to_string(persona)?
         ));
     }
-    parts.extend(
-        language
-            .guidance("target_writing")
-            .into_iter()
-            .map(|text| format!("Target-language writing: {text}")),
-    );
-    parts.extend(language.guidance("pragmatics"));
+    let mut seen = std::collections::HashSet::new();
+    for scope in ["target_writing", "pragmatics"] {
+        for text in language.guidance(scope) {
+            if seen.insert(text.clone()) {
+                parts.push(if scope == "target_writing" {
+                    format!("Target-language writing: {text}")
+                } else {
+                    text
+                });
+            }
+        }
+    }
     parts.push(difficulty(
         content,
         &format!("{} ({})", language.target_name, language.variety_name),
@@ -151,6 +156,25 @@ pub(crate) fn preview(
 mod tests {
     use super::*;
     use crate::conversations::direction::TopicChoice;
+    #[test]
+    fn language_guidance_is_unique_without_losing_scope_specific_rules() {
+        let r = Registry::bundled().unwrap();
+        let settings = r.defaults("arabic", "english").unwrap();
+        let mut ctx = r.resolve("arabic", None, "english").unwrap();
+        ctx.guidance.insert(
+            "target_writing".into(),
+            vec!["Shared identity.".into(), "Writing rule.".into()],
+        );
+        ctx.guidance.insert(
+            "pragmatics".into(),
+            vec!["Shared identity.".into(), "Pragmatic rule.".into()],
+        );
+        let persona = r.starter_persona("arabic").unwrap();
+        let prompt = system(&r, &ctx, &settings, &persona, true).unwrap();
+        for rule in ["Shared identity.", "Writing rule.", "Pragmatic rule."] {
+            assert_eq!(prompt.matches(rule).count(), 1);
+        }
+    }
     #[test]
     fn all_varieties_get_topics_and_named_difficulty_without_persona_leaks() {
         let r = Registry::bundled().unwrap();

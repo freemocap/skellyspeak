@@ -36,6 +36,9 @@ learning:
       tokens:
       - danke
 conversation:
+  greeting:
+    text: hallo
+    romanizations: {}
   default_partner:
     name: Jonas
     romanizedName: null

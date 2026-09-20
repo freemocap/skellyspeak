@@ -1,8 +1,7 @@
 //! Irreversible local reset.
 //!
 //! The reset erases secrets and workspace data while retaining the ownership lock,
-//! and clears the
-//! webview's browsing data through WebView2, which owns its profile folder and may
+//! and clears the webview's browsing data through WebView2, which owns its profile folder and may
 //! hold files in it after this process exits. The log directory is still open while
 //! this process runs, so it is recorded for the next launch, which clears it before
 //! the log sink opens. A cleanup that fails again is reported on screen rather than
@@ -134,8 +133,8 @@ pub(crate) fn clear_pending(directory: &Path) -> Result<()> {
 
 /// Finishes the cleanup a previous reset recorded.
 ///
-/// Called before the webview exists, which is the only moment its cache is not
-/// held open. A directory that still cannot be cleared keeps its record, so the
+/// Called before diagnostics opens its files. A directory that still cannot be
+/// cleared keeps its record, so the
 /// next launch tries again and the failure is reported until it succeeds.
 pub(crate) fn finish_pending(directory: &Path, trusted_logs: &Path) -> Result<()> {
     let _ownership = WorkspaceOwnership::acquire(&directory.join(WORKSPACE_FILE))?;
@@ -182,8 +181,9 @@ fn credential_ids(store: &Store) -> Result<BTreeSet<String>> {
     Ok(ids)
 }
 
-/// Erases every secret and workspace entry except the lock and record of what the next
-/// launch still has to clear. Split from the command so the case that matters most
+/// Erases every secret and workspace entry except the lock, active mobile logs and
+/// record of what the next launch still has to clear. Split from the command so
+/// the case that matters most
 /// — a refused workspace, where no store exists — is covered by a test rather than
 /// only by the running app. Credential removal is injected so a test never touches
 /// the real keychain.
@@ -196,7 +196,9 @@ pub(crate) fn erase(
     for id in ids {
         remove(id)?;
     }
-    clear_directory(data, &[PENDING, WORKSPACE_LOCK])
+    // Mobile diagnostics live inside app data and remain open through shutdown.
+    // The pending cleanup clears them before diagnostics initializes at launch.
+    clear_directory(data, &[PENDING, WORKSPACE_LOCK, "logs"])
 }
 
 /// Caller holds workspace ownership and, for an open Store, its write mutex.
@@ -324,7 +326,6 @@ pub fn factory_reset(
             .clear_all_browsing_data()
             .map_err(|error| storage_error(format!("Could not clear browser data: {error}")))?;
     }
-    diagnostics::shutdown()?;
     state.reset_streams();
     state.stop(AppError::new(
         ErrorCode::Internal,
@@ -338,6 +339,7 @@ pub fn factory_reset(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
 
     fn ownership(data: &Path) -> WorkspaceOwnership {
         WorkspaceOwnership::acquire(&data.join(WORKSPACE_FILE)).unwrap()
@@ -355,6 +357,35 @@ mod tests {
         clear_directory(root.path(), &[]).unwrap();
         assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
         assert!(outside.path().join("keep").exists());
+    }
+
+    #[test]
+    fn reset_retains_active_mobile_logs_until_next_launch() {
+        let data = tempfile::tempdir().unwrap();
+        let logs = data.path().join("logs");
+        std::fs::create_dir(&logs).unwrap();
+        let log_path = logs.join("native.jsonl");
+        let mut log = std::fs::File::create(&log_path).unwrap();
+        let guard = ownership(data.path());
+        record_pending(data.path()).unwrap();
+        std::fs::write(data.path().join(WORKSPACE_FILE), "workspace").unwrap();
+
+        erase(data.path(), &guard, &BTreeSet::new(), &mut |_| Ok(())).unwrap();
+        assert!(!data.path().join(WORKSPACE_FILE).exists());
+        log.write_all(b"shutdown diagnostic\n").unwrap();
+        log.flush().unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&log_path).unwrap(),
+            "shutdown diagnostic\n"
+        );
+        assert!(pending(data.path()).unwrap());
+
+        drop(log);
+        drop(guard);
+        finish_pending(data.path(), &logs).unwrap();
+        assert!(!log_path.exists());
+        assert!(!pending(data.path()).unwrap());
+        assert!(Store::open(&data.path().join(WORKSPACE_FILE)).is_ok());
     }
 
     #[test]

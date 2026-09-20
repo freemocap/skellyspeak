@@ -57,7 +57,7 @@ async def test_transcription_language_is_not_limited_by_whisper(language):
         body = await request.aread()
         assert request.url.path == "/v1/speech-to-text"
         assert b'name="model_id"\r\n\r\nscribe_v2' in body
-        for name, value in [("no_verbatim", "false"), ("tag_audio_events", "false"),
+        for name, value in [("no_verbatim", "true"), ("tag_audio_events", "false"),
                             ("diarize", "false"), ("timestamps_granularity", "word")]:
             assert f'name="{name}"\r\n\r\n{value}'.encode() in body
         assert b'name="prompt"' not in body
@@ -76,6 +76,7 @@ async def test_transcription_language_is_not_limited_by_whisper(language):
     assert result.language_probability == 0.87
     assert result.receipt.provider == "elevenlabs"
     assert result.receipt.cost_micros is None
+    assert result.receipt.diagnostics["no_verbatim"] is True
 
 
 @pytest.mark.asyncio
@@ -102,7 +103,7 @@ async def test_refusals_do_not_retry_follow_redirects_or_expose_body(status):
     (b"", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
     (b"x", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
     (b"{}", "application/json", "AUDIO_RESPONSE_TYPE"),
-    (b"x" * (MAX_PCM_BYTES + 2), "audio/pcm", "AUDIO_RESPONSE_LIMIT"),
+    pytest.param(b"x" * (MAX_PCM_BYTES + 2), "audio/pcm", "AUDIO_RESPONSE_LIMIT", id="oversized-pcm"),
 ])
 async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code):
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(

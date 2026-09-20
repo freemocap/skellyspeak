@@ -2,6 +2,7 @@ use super::PromptMessage;
 use crate::model::{AppError, ConnectionRoute, ErrorCode, Result};
 
 pub const MAX_OUTPUT_TOKENS: i32 = 2048;
+pub const GLOSS_OUTPUT_TOKENS: i32 = 8192;
 
 pub fn payload(
     model: &str,
@@ -19,6 +20,7 @@ pub fn payload(
 pub enum RequestOutput<'a> {
     Prose,
     JsonSchema {
+        max_output_tokens: i32,
         name: &'a str,
         schema: &'a serde_json::Value,
     },
@@ -95,9 +97,19 @@ pub fn payload_with_output(
     route: ConnectionRoute,
     output: RequestOutput<'_>,
 ) -> Result<serde_json::Value> {
-    let RequestOutput::JsonSchema { name, schema } = output else {
+    let RequestOutput::JsonSchema {
+        name,
+        schema,
+        max_output_tokens,
+    } = output
+    else {
         return payload(model, messages, route);
     };
+    if !(1..=32768).contains(&max_output_tokens) {
+        return Err(structured_error(
+            "Structured output token limit must be between 1 and 32768.",
+        ));
+    }
     // The server accepts a strict named schema object. Restrict names to portable
     // identifiers locally; nested schema keyword support remains provider-owned.
     if name.is_empty()
@@ -133,6 +145,7 @@ pub fn payload_with_output(
     // Check depth/size before cloning or serializing a caller-supplied schema.
     structured_input_bound(schema)?;
     let mut request = payload(model, messages, route)?;
+    request["max_tokens"] = serde_json::json!(max_output_tokens);
     request["response_format"] = serde_json::json!({"type":"json_schema","json_schema":{"name":name,"strict":true,"schema":schema}});
     if route == ConnectionRoute::Openrouter {
         request["provider"] =

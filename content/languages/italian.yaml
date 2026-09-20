@@ -57,6 +57,9 @@ learning:
       tokens:
       - grazie
 conversation:
+  greeting:
+    text: ciao
+    romanizations: {}
   default_partner:
     name: Elena
     romanizedName: null

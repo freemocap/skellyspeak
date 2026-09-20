@@ -27,6 +27,7 @@ pub fn request_output<'a>(
 ) -> RequestOutput<'a> {
     if source.is_some() {
         RequestOutput::JsonSchema {
+            max_output_tokens: crate::ai::transport::provider::GLOSS_OUTPUT_TOKENS,
             name: adapter::FORMAT_ID,
             schema,
         }
@@ -50,7 +51,7 @@ pub fn validate(
 ) -> Result<WordGlossView> {
     let analysis =
         adapter::validate_word_gloss_completion(&source.identity, &source.text, completion)
-            .map_err(gloss_error)?;
+            .map_err(|error| gloss_error(error, completion))?;
     project(source, analysis, operation, attempt)
 }
 pub fn validate_with_context(
@@ -66,7 +67,7 @@ pub fn validate_with_context(
         completion,
         context,
     )
-    .map_err(gloss_error)?;
+    .map_err(|error| gloss_error(error, completion))?;
     project(source, analysis, operation, attempt)
 }
 pub fn recover_with_context(
@@ -77,7 +78,7 @@ pub fn recover_with_context(
     context: &crate::configuration::LanguageContext,
 ) -> Result<(WordGlossView, serde_json::Value)> {
     let recovered = adapter::recovery::recover(&source.identity, &source.text, completion, context)
-        .map_err(gloss_error)?;
+        .map_err(|error| gloss_error(error, completion))?;
     let report = serde_json::json!({"policy": "word-gloss-recovery-v1", "rejected_spans": recovered.rejected});
     Ok((
         project(source, recovered.analysis, operation, attempt)?,
@@ -132,7 +133,15 @@ pub fn merge_repair(previous: &WordGlossView, mut next: WordGlossView) -> Result
     Ok(next)
 }
 
-fn gloss_error(error: adapter::AdapterError) -> AppError {
+fn gloss_error(error: adapter::AdapterError, completion: &Completion) -> AppError {
+    if matches!(error, adapter::AdapterError::InvalidTermination)
+        && completion.finish_reason == "length"
+    {
+        return AppError::new(
+            ErrorCode::Provider,
+            "Word meanings reached the provider's output limit (gloss_invalid_termination). No new word meanings were saved. Retry word meanings.",
+        );
+    }
     let location = error
         .span_index()
         .map(|index| format!("; span {index}"))
@@ -256,6 +265,18 @@ mod tests {
         let error = validate(&source(), &output, "operation", "attempt").unwrap_err();
         assert!(!error.message.contains("private"));
         assert!(error.message.starts_with("Word meanings rejected: "));
+        assert_eq!(output.input_tokens, Some(10));
+        assert_eq!(output.output_tokens, Some(4));
+    }
+    #[test]
+    fn truncated_gloss_explains_the_limit_and_preserves_usage() {
+        let mut output = completion();
+        output.finish_reason = "length".into();
+        output.text = "private incomplete response".into();
+        let error = validate(&source(), &output, "operation", "attempt").unwrap_err();
+        assert!(error.message.contains("provider's output limit"));
+        assert!(error.message.contains("gloss_invalid_termination"));
+        assert!(!error.message.contains("private"));
         assert_eq!(output.input_tokens, Some(10));
         assert_eq!(output.output_tokens, Some(4));
     }

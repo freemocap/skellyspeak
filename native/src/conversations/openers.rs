@@ -22,18 +22,45 @@ pub(crate) fn band(difficulty: &Difficulty) -> &'static str {
         Difficulty::Fluent => "C1",
     }
 }
-pub(crate) fn choices(registry: &Registry, locale: &str) -> Result<Vec<TopicCard>> {
+/// The starter cards for one conversation: each scene named in the target
+/// language, transliterated where that variety resolves to a romanization
+/// scheme, and named again in the explanation language.
+///
+/// Content completeness is enforced at registry load, so a missing label here is
+/// a bug in validation rather than a learner-visible blank.
+pub(crate) fn choices(
+    registry: &Registry,
+    target: &str,
+    variety: Option<&str>,
+    explanation: &str,
+) -> Result<Vec<TopicCard>> {
+    let scheme = registry.active_romanization_scheme(target, variety)?;
+    let label = |id: &str, labels: &std::collections::BTreeMap<String, String>, language: &str| {
+        labels.get(language).cloned().ok_or_else(|| {
+            AppError::new(
+                ErrorCode::Validation,
+                format!("Topic {id} has no label for {language}."),
+            )
+        })
+    };
     registry
         .topics()
         .iter()
         .map(|t| {
             Ok(TopicCard {
                 id: t.id.clone(),
-                label: t
-                    .labels
-                    .get(locale)
-                    .ok_or_else(|| AppError::new(ErrorCode::Validation, "Topic label is missing."))?
-                    .clone(),
+                glyph: t.glyph.clone(),
+                target: label(&t.id, &t.labels, target)?,
+                romanized: match &scheme {
+                    Some(key) => Some(t.romanizations.get(key).cloned().ok_or_else(|| {
+                        AppError::new(
+                            ErrorCode::Validation,
+                            format!("Topic {} has no {key} romanization.", t.id),
+                        )
+                    })?),
+                    None => None,
+                },
+                translation: label(&t.id, &t.labels, explanation)?,
             })
         })
         .collect()

@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=../schemas/conversation-topics.json
 - id: food
+  glyph: ☕
   labels:
     arabic: الطعام والشراب
     english: Food and drink
@@ -13,8 +14,14 @@
     portuguese: Comida e bebida
     scottish-gaelic: Biadh is deoch
     spanish: Comida y bebida
+  romanizations:
+    "arabic:ala-lc-arabic": aṭ-ṭaʿām wa-al-sharāb
+    "hindi:ala-lc-hindi": khānā-pīnā
+    "malayalam:ala-lc-malayalam": bhakṣaṇavuṁ pānīyaṅṅaḷuṁ
+    "mandarin:pinyin": yǐnshí
   subject: You are serving at a café. Greet the learner and ask what they would like.
 - id: family
+  glyph: 👪
   labels:
     arabic: عائلتك
     english: Your family
@@ -28,9 +35,15 @@
     portuguese: Sua família
     scottish-gaelic: Do theaghlach
     spanish: Tu familia
+  romanizations:
+    "arabic:ala-lc-arabic": ʿāʾilatuka
+    "hindi:ala-lc-hindi": āpkā parivār
+    "malayalam:ala-lc-malayalam": niṅṅaḷuṭe kuṭumbaṁ
+    "mandarin:pinyin": nǐ de jiārén
   subject: Ask about someone important to the learner. They may choose a friend or
     an invented person.
 - id: weekend
+  glyph: 🌤️
   labels:
     arabic: خطط نهاية الأسبوع
     english: Weekend plans
@@ -44,9 +57,15 @@
     portuguese: Planos para o fim de semana
     scottish-gaelic: Planaichean airson an deireadh-sheachdain
     spanish: Planes de fin de semana
+  romanizations:
+    "arabic:ala-lc-arabic": khuṭaṭ nihāyat al-usbūʿ
+    "hindi:ala-lc-hindi": saptāhānta kī yojanāeṁ
+    "malayalam:ala-lc-malayalam": vārāntya paddhatikaḷ
+    "mandarin:pinyin": zhōumò jìhuà
   subject: Ask what the learner would like to do this weekend and share a plan of
     your own.
 - id: place
+  glyph: 🗺️
   labels:
     arabic: مكان تحبه
     english: A place you like
@@ -60,8 +79,14 @@
     portuguese: Um lugar de que você gosta
     scottish-gaelic: Àite as toil leat
     spanish: Un lugar que te gusta
+  romanizations:
+    "arabic:ala-lc-arabic": makān tuḥibbuhu
+    "hindi:ala-lc-hindi": āpkī pasand kī jagah
+    "malayalam:ala-lc-malayalam": niṅṅaḷkk iṣṭamuḷḷa sthalaṁ
+    "mandarin:pinyin": nǐ xǐhuān de dìfāng
   subject: Talk about a place the learner likes. Invite a small detail about it.
 - id: day
+  glyph: ☀️
   labels:
     arabic: يومك
     english: Your day
@@ -75,9 +100,15 @@
     portuguese: Seu dia
     scottish-gaelic: An latha agad
     spanish: Tu día
+  romanizations:
+    "arabic:ala-lc-arabic": yawmuka
+    "hindi:ala-lc-hindi": āpkā din
+    "malayalam:ala-lc-malayalam": niṅṅaḷuṭe divasaṁ
+    "mandarin:pinyin": nǐ de yītiān
   subject: Ask about something from the learner’s day. Keep the exchange open to their
     interests.
 - id: music
+  glyph: 🎵
   labels:
     arabic: الموسيقى
     english: Music
@@ -91,4 +122,9 @@
     portuguese: Música
     scottish-gaelic: Ceòl
     spanish: Música
+  romanizations:
+    "arabic:ala-lc-arabic": al-mūsīqā
+    "hindi:ala-lc-hindi": saṅgīt
+    "malayalam:ala-lc-malayalam": saṅgītaṁ
+    "mandarin:pinyin": yīnyuè
   subject: Ask about music the learner enjoys and share a preference.

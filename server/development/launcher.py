@@ -49,7 +49,7 @@ def configure(keys: dict[str, str], signing_key: str) -> None:
         "PUBLIC_BASE_URL": "http://127.0.0.1:8765",
         "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
         "GROQ_BASE_URL": "https://api.groq.com/openai/v1",
-        "MAX_COMPLETION_TOKENS": "2048",
+        "MAX_COMPLETION_TOKENS": "32768",
         "FREE_DAILY_MICROS": "500000", "GLOBAL_DAILY_MICROS": "500000",
         "MAX_USERS": "1",
     })

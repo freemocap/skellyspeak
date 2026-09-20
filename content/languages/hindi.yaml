@@ -81,6 +81,10 @@ learning:
       - धन्यवाद
       - शुक्रिया
 conversation:
+  greeting:
+    text: नमस्ते
+    romanizations:
+      "hindi:ala-lc-hindi": namaste
   default_partner:
     name: आशा
     romanizedName: Āśā

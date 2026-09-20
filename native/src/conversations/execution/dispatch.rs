@@ -219,6 +219,7 @@ impl Store {
                         &prompt.messages,
                         target.route,
                         crate::ai::transport::provider::RequestOutput::JsonSchema {
+                            max_output_tokens: crate::ai::transport::provider::GLOSS_OUTPUT_TOKENS,
                             name: crate::language::linguistics::adapter::FORMAT_ID,
                             schema: &prompt.output_schema,
                         },

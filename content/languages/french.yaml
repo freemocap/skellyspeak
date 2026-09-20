@@ -43,6 +43,9 @@ learning:
       tokens:
       - merci
 conversation:
+  greeting:
+    text: bonjour
+    romanizations: {}
   default_partner:
     name: Camille
     romanizedName: null

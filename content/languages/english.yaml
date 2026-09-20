@@ -43,6 +43,9 @@ learning:
       tokens:
       - thanks
 conversation:
+  greeting:
+    text: hello
+    romanizations: {}
   default_partner:
     name: Rowan
     romanizedName: null

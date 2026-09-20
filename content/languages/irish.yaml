@@ -63,6 +63,9 @@ learning:
       - go raibh maith agat
       - go raibh maith agaibh
 conversation:
+  greeting:
+    text: dia duit
+    romanizations: {}
   default_partner:
     name: Nóra
     romanizedName: null

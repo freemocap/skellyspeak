@@ -6,10 +6,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 macro_rules! document {
-    ($name:ident { $($field:ident: $kind:ty),* $(,)? }) => {
+    ($(#[$outer:meta])* $name:ident { $($(#[$meta:meta])* $field:ident: $kind:ty),* $(,)? }) => {
+        $(#[$outer])*
         #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
         #[serde(deny_unknown_fields)]
-        pub struct $name { $(pub $field: $kind),* }
+        pub struct $name { $($(#[$meta])* pub $field: $kind),* }
     };
 }
 
@@ -122,7 +123,17 @@ pub struct VarietyOverrides {
 document!(LearningContent { goal_material: BTreeMap<String, GoalMaterial> });
 document!(GoalMaterial { tokens: Vec<String> });
 document!(ConversationContent {
-    default_partner: crate::model::PersonaDetails
+    default_partner: crate::model::PersonaDetails,
+    greeting: GreetingContent
+});
+document!(
+/// The greeting the start surface offers as a first thing to say. Display
+/// content with one canonical wording, kept apart from `goal_material`, which is
+/// retrieval data for the learning system and whose token order means nothing here.
+GreetingContent {
+    text: String,
+    /// Keyed by romanization scheme key, as ConversationTopic::romanizations is.
+    romanizations: BTreeMap<String, String>
 });
 document!(Foundations {
     scripts: Vec<Script>, families: Vec<Family>, traits: Vec<TraitDefinition>,
@@ -133,6 +144,19 @@ document!(TraitDefinition {
     review: ReviewStatus
 });
 document!(TeachingPolicy { guidance: Vec<Guidance>, feedback: FeedbackPolicy, estimator: EstimatorPolicy, game: GamePolicy });
-document!(ConversationTopic { id: String, labels: BTreeMap<String, String>, subject: String });
+document!(ConversationTopic {
+    id: String,
+    /// One emoji identifying the scene. Shared across languages: decorative, and
+    /// never the only carrier of the card's meaning.
+    glyph: String,
+    /// The scene name in every language. Read twice per card: once at the
+    /// conversation's target language, once at its explanation language.
+    labels: BTreeMap<String, String>,
+    /// The label transliterated, keyed by romanization SCHEME key
+    /// ("mandarin:pinyin"), not by language: `supported_romanizations` is a list
+    /// and a language may offer more than one scheme.
+    romanizations: BTreeMap<String, String>,
+    subject: String
+});
 
 document!(ConversationPromptContent { base: String, persona: String, difficulty: BTreeMap<String,String>, ceiling: String, past: String, future: String, opening: String, response: String, subject: String });

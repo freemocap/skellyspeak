@@ -14,7 +14,7 @@ import './onboarding-preview.css'
 
 mockIPC(() => { throw new Error('Native actions are unavailable in the onboarding design preview.') })
 const varieties = [{ id: 'spanish-spain', label: 'Spain' }, { id: 'spanish-mexico', label: 'Mexico' }]
-const topics = [{ id: 'food', label: 'Food' }, { id: 'weekend', label: 'Your weekend' }]
+const topics = [{ id: 'food', glyph: '☕', target: 'Food', romanized: null, translation: 'Food' }, { id: 'weekend', glyph: '☕', target: 'Your weekend', romanized: null, translation: 'Your weekend' }]
 const initial: ConversationStartConfig = { difficulty: 'beginner', varietyId: 'spanish-spain', direction: { topic: null, timeReference: 'any', usePersonaDetails: true } }
 const titles = ['Choose your languages', 'Connect AI access', 'Your first conversation', 'Practice with Lucía']
 const notes = [

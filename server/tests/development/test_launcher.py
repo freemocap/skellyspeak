@@ -29,6 +29,7 @@ def test_local_configuration_replaces_inherited_destinations(monkeypatch: pytest
     assert os.environ["GOOGLE_CLOUD_PROJECT"] == "skellyspeak-local-test"
     assert os.environ["OPENROUTER_BASE_URL"] == "https://openrouter.ai/api/v1"
     assert os.environ["GLOBAL_DAILY_MICROS"] == "500000"
+    assert os.environ["MAX_COMPLETION_TOKENS"] == "32768"
 
 
 def test_elevenlabs_local_configuration_requires_voice_and_explicit_selection(tmp_path, monkeypatch):

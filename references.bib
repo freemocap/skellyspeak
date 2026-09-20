@@ -24,6 +24,21 @@
 }
 
 % ---------------------------------------------------------------- frameworks & scales
+@misc{cefr_interlocutor_descriptors,
+  author = {{Council of Europe}},
+  title = {CEFR descriptors search: Understanding an interlocutor and general linguistic range},
+  url = {https://www.coe.int/en/web/common-european-framework-reference-languages/cefr-descriptors-search},
+  review = {full-text},
+  claim = {A1 interlocutor guidance emphasizes clear, supported everyday language about concrete needs. Learner production descriptors are not word quotas for a conversation partner. SkellySpeak difficulty wording is a product adaptation, not a validated CEFR mapping.}
+}
+@misc{british_council_simple_instructions,
+  author = {Deb Avery},
+  title = {Using simple language for instructions},
+  year = {2023},
+  url = {https://africa.teachingenglish.org.uk/skills/tips/giving-simple-instructions},
+  review = {full-text},
+  claim = {Recommends short, simple language matched to learners and checking understanding. Applying this classroom guidance to conversational prompts is a design inference, not evidence of a particular word limit or AI prompt effectiveness.}
+}
 @techreport{cefr2020,
   author = {{Council of Europe}}, title = {Common European Framework of Reference for Languages: Learning, Teaching, Assessment. Companion Volume},
   institution = {Council of Europe}, year = {2020},
@@ -607,7 +622,14 @@
   title = {Create transcript API reference},
   url = {https://elevenlabs.io/docs/api-reference/speech-to-text/convert},
   review = {reviewed},
-  claim = {The batch endpoint accepts model_id, file, ISO 639-1 or 639-3 language hints, word timestamps and no_verbatim=false; adapter fields preserve learner speech and normalize word events. Language hints do not guarantee recognition accuracy.}
+  claim = {The batch endpoint accepts model_id, file, ISO 639-1 or 639-3 language hints, word timestamps and a no_verbatim option. Language hints do not guarantee recognition accuracy.}
+}
+@misc{elevenlabs_non_verbatim,
+  author = {{ElevenLabs}},
+  title = {Transcription: non-verbatim mode},
+  url = {https://elevenlabs.io/docs/overview/capabilities/speech-to-text},
+  review = {full-text},
+  claim = {With Scribe v2, no_verbatim removes filler words, false starts and disfluencies. These transcripts cannot represent omitted fillers or restarts as learner evidence.}
 }
 @misc{elevenlabs_tts_20260917,
   author = {{ElevenLabs}},

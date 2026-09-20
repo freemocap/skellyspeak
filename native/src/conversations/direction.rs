@@ -55,7 +55,17 @@ pub struct SavedTopic {
 #[serde(rename_all = "camelCase")]
 pub struct TopicCard {
     pub id: String,
-    pub label: String,
+    /// Decorative; the labels carry the meaning.
+    pub glyph: String,
+    /// The scene name in the conversation's target language.
+    pub target: String,
+    /// The target name transliterated, when the conversation's variety resolves
+    /// to a romanization scheme. `None` for Latin-script languages.
+    pub romanized: Option<String>,
+    /// The same scene name in the conversation's explanation language. Equal to
+    /// `target` when the two languages match; the surface decides whether to
+    /// draw it twice.
+    pub translation: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

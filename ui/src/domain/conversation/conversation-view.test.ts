@@ -7,7 +7,7 @@ function message(sequence: number, role: string, text: string, translation: stri
 }
 function snapshot(messages: ChatMessage[]): ConversationSnapshot {
   return {
-    opening: null, topicChoices: [], revisionSuffixCounts: [], messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
+    opening: null, topicChoices: [], starterGreeting: { text: 'hola', romanized: null }, revisionSuffixCounts: [], messages, turns: [], coachMessages: [], transcriptionAttempts: [], holds: [],
     conversationId: 'conversation', sessionId: 'session', revision: 1, hasOlder: false,
     connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false },
   }

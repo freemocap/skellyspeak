@@ -50,7 +50,26 @@ export type PartnerReaction = { kind: ReactionKind, interpretation: string, expl
 export type ReactionKind = "happy" | "sad" | "angry" | "understood" | "confused" | "curious" | "surprised" | "concerned";
 export type RepairStatus = "repaired" | "not_repaired" | "uncertain";
 export type Opening = { "kind": "learner" } | { "kind": "partner" };
-export type TopicCard = { id: string, label: string, };
+export type TopicCard = { id: string, 
+/**
+ * Decorative; the labels carry the meaning.
+ */
+glyph: string, 
+/**
+ * The scene name in the conversation's target language.
+ */
+target: string, 
+/**
+ * The target name transliterated, when the conversation's variety resolves
+ * to a romanization scheme. `None` for Latin-script languages.
+ */
+romanized: string | null, 
+/**
+ * The same scene name in the conversation's explanation language. Equal to
+ * `target` when the two languages match; the surface decides whether to
+ * draw it twice.
+ */
+translation: string, };
 export type SavedTopic = { id: string, text: string, };
 export type TimeReference = "any" | "past" | "future";
 export type TopicChoice = { "kind": "builtin", id: string, } | { "kind": "custom", text: string, };
@@ -83,7 +102,12 @@ export type AiGraphDefinition = { id: string, description: string, operations: A
 export type AiOperationDefinition = { kind: string, dependencies: Array<string>, role: string, contractVersion: number | null, description: string, source: string, templates: Array<AiPromptTemplate>, outputSchema: unknown, };
 export type AiPromptTemplate = { label: string, text: string, };
 export type AiWindowState = { supported: boolean, open: boolean, };
-export type ConversationSnapshot = { topicChoices: Array<TopicCard>, opening: Opening | null, revisionSuffixCounts: Array<RevisionSuffixCount>, transcriptionAttempts: Array<TranscriptionAttempt>, holds: Array<InferenceHold>, coachMessages: Array<ChatMessage>, conversationId: string, sessionId: string, revision: number, messages: Array<ChatMessage>, turns: Array<TurnView>, connection: ConnectionConfig, hasOlder: boolean, };
+export type ConversationSnapshot = { topicChoices: Array<TopicCard>, 
+/**
+ * The greeting the start surface offers as a first thing to say, resolved
+ * for this conversation's target language and variety.
+ */
+starterGreeting: StarterGreeting, opening: Opening | null, revisionSuffixCounts: Array<RevisionSuffixCount>, transcriptionAttempts: Array<TranscriptionAttempt>, holds: Array<InferenceHold>, coachMessages: Array<ChatMessage>, conversationId: string, sessionId: string, revision: number, messages: Array<ChatMessage>, turns: Array<TurnView>, connection: ConnectionConfig, hasOlder: boolean, };
 export type Difficulty = "absolute_zero" | "beginner" | "intermediate" | "advanced" | "fluent";
 export type HelpAmount = "minimal" | "balanced" | "generous";
 export type CoachProactivity = "on_request" | "occasional" | "frequent";
@@ -108,7 +132,17 @@ export type Persona = { id: string, learnerId: string, languageId: string, revis
 export type Contact = { id: string, learnerId: string, personaId: string, archived: boolean, revision: number, };
 export type Conversation = { id: string, contactId: string, languageId: string, title: string, archived: boolean, revision: number, settingsRevision: number, settings: PracticeSettings, createdAt: string, lastUsed: number, };
 export type Variety = { transcriptionLanguage: string | null, direction: string, fontScale: number, romanization: string | null, id: string, name: string, description: string, };
-export type Language = { transcriptionLanguage: string | null, languageTag: string | null, fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, defaultVariety: string, };
+export type Language = { transcriptionLanguage: string | null, languageTag: string | null, fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, defaultVariety: string, 
+/**
+ * The authored greeting, at this language's default variety. Carried on the
+ * catalog so choosing a language can show what saying it sounds like.
+ */
+greeting: StarterGreeting, 
+/**
+ * Who the learner meets first in this language. Enough of the bundled
+ * starter persona to introduce them, not the whole profile.
+ */
+partner: LanguagePartner, };
 export type LanguageInspection = { fingerprint: string, language: Language, varietyId: string, review: string, family: string, values: Array<ContentValue>, rules: Array<ContentRule>, schemes: Array<SchemeInspection>, sources: Array<ContentSource>, partner: PersonaDetails, schemaJson: string, resolvedJson: string, learningJson: string, conversationJson: string, };
 export type ContentSource = { path: string, yaml: string, };
 export type ContentRule = { scope: string, text: string, source: string, };
@@ -131,6 +165,8 @@ export type Receipt = { actionId: string, entityId: string, revision: number, };
 export type ErrorCode = "validation" | "conflict" | "not_found" | "session_expired" | "storage" | "provider" | "admission_held" | "pending_turn" | "config_load" | "unknown_outcome" | "credential" | "internal";
 export type Refusal = { reason: RefusalReason, serviceWide: boolean, retryAt: number | null, requestId: string | null, };
 export type InferenceHold = { id: string, generation: string, route: ConnectionRoute, error: AppError, };
+export type StarterGreeting = { text: string, romanized: string | null, };
+export type LanguagePartner = { name: string, romanizedName: string | null, vibe: Array<string>, };
 export type TranscriptionAttempt = { diagnostics?: unknown, id: string, route: ConnectionRoute, model: string, state: string, startedAt: string, finishedAt: string | null, error: string | null, };
 export type Segment = { id: number, start: number, end: number, text: string, avg_logprob: number, no_speech_prob: number, seek: number | null, tokens: Array<number> | null, temperature: number | null, compression_ratio: number | null, };
 export type TranscriptionInspectionResult = { text: string, inspection: AudioInspection, audioBase64: string, segments: Array<Segment>, };

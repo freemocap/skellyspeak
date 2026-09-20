@@ -2,20 +2,53 @@ import type { ConversationStartConfig, TopicCard } from '../../../generated/cont
 import { useI18n } from '../../../components/localization/i18n'
 import { DifficultySelect } from './DifficultySelect'
 
-export function ConversationChoices({ value, topics, disabled, onChange, onCustom }: {
+/// The optional choices on an empty conversation: which scene to open in, and
+/// the two settings that shape the opening.
+///
+/// Selecting a scene changes the pending start configuration and nothing else —
+/// it records nothing, sends nothing, and touches neither the composer nor the
+/// partner. Difficulty and grammar practice stay on the surface rather than
+/// behind a disclosure: they are ordinary settings, not advanced ones.
+export function ConversationChoices({ value, topics, disabled, targetTag, targetDir, onChange, onCustom }: {
   value: ConversationStartConfig; topics: TopicCard[]; disabled: boolean
+  /// The target language's tag and direction. A card names its scene in the
+  /// target language and again in the explanation language, so each run carries
+  /// its own language and direction rather than inheriting the interface's.
+  targetTag?: string; targetDir?: string
   onChange: (value: ConversationStartConfig) => void; onCustom: () => void
 }) {
   const tr = useI18n()
+  const choose = (topic: ConversationStartConfig['direction']['topic']) =>
+    onChange({ ...value, direction: { ...value.direction, topic } })
   return <>
-    <label className="start-difficulty">{tr('Difficulty')}<DifficultySelect value={value.difficulty} saving={disabled} onChange={async difficulty => onChange({ ...value, difficulty })} /></label>
-    <fieldset className="start-choice-row" disabled={disabled}><legend>{tr('Topic')}</legend>
-      <button type="button" className="btn" aria-pressed={!value.direction.topic} onClick={() => onChange({ ...value, direction: { ...value.direction, topic: null } })}>{tr('Partner chooses')}</button>
-      {topics.map(topic => <button type="button" className="btn" key={topic.id} aria-pressed={value.direction.topic?.kind === 'builtin' && value.direction.topic.id === topic.id} onClick={() => onChange({ ...value, direction: { ...value.direction, topic: { kind: 'builtin', id: topic.id } } })}>{topic.label}</button>)}
-      <button type="button" className="btn" aria-pressed={value.direction.topic?.kind === 'custom'} onClick={onCustom}>{tr('Custom topic')}</button>
+    <fieldset className="start-scenes" disabled={disabled}><legend>{tr('Topic')}</legend>
+      <div className="scene-grid">
+        <button type="button" className="scene-card" aria-pressed={!value.direction.topic} onClick={() => choose(null)}>
+          <span className="scene-glyph" aria-hidden="true">🎲</span>
+          <span className="scene-label">{tr('Partner chooses')}</span>
+        </button>
+        {topics.map(topic => <button type="button" className="scene-card" key={topic.id}
+          aria-pressed={value.direction.topic?.kind === 'builtin' && value.direction.topic.id === topic.id}
+          onClick={() => choose({ kind: 'builtin', id: topic.id })}>
+          <span className="scene-glyph" aria-hidden="true">{topic.glyph}</span>
+          <span className="scene-label"><bdi lang={targetTag} dir={targetDir}>{topic.target}</bdi></span>
+          {/* Romanization is Latin whatever the surrounding script, so it states
+              its direction rather than inferring one: a leading modifier letter
+              such as ʿ is not a strong character and would inherit RTL. */}
+          {topic.romanized && <span className="scene-roman"><bdi dir="ltr">{topic.romanized}</bdi></span>}
+          {topic.translation !== topic.target && <span className="scene-translation">{topic.translation}</span>}
+        </button>)}
+        <button type="button" className="scene-card" aria-pressed={value.direction.topic?.kind === 'custom'} onClick={onCustom}>
+          <span className="scene-glyph" aria-hidden="true">✎</span>
+          <span className="scene-label">{tr('Custom topic')}</span>
+        </button>
+      </div>
     </fieldset>
-    <fieldset className="start-choice-row" disabled={disabled}><legend>{tr('Grammar practice')}</legend>
-      {(['any', 'past', 'future'] as const).map(timeReference => <button type="button" className="btn" key={timeReference} aria-pressed={value.direction.timeReference === timeReference} onClick={() => onChange({ ...value, direction: { ...value.direction, timeReference } })}>{tr({ any: 'No preference', past: 'Past events', future: 'Future plans' }[timeReference])}</button>)}
-    </fieldset>
+    <div className="start-controls">
+      <label className="start-difficulty">{tr('Difficulty')}<DifficultySelect value={value.difficulty} saving={disabled} onChange={async difficulty => onChange({ ...value, difficulty })} /></label>
+      <fieldset className="start-choice-row" disabled={disabled}><legend>{tr('Grammar practice')}</legend>
+        {(['any', 'past', 'future'] as const).map(timeReference => <button type="button" className="btn" key={timeReference} aria-pressed={value.direction.timeReference === timeReference} onClick={() => onChange({ ...value, direction: { ...value.direction, timeReference } })}>{tr({ any: 'No preference', past: 'Past events', future: 'Future plans' }[timeReference])}</button>)}
+      </fieldset>
+    </div>
   </>
 }

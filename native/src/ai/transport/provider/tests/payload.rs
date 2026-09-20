@@ -29,6 +29,7 @@ fn structured_payload_preserves_prose_and_routes_strict_schema() {
             &messages,
             route,
             RequestOutput::JsonSchema {
+                max_output_tokens: GLOSS_OUTPUT_TOKENS,
                 name: "word_gloss_v1",
                 schema: &schema,
             },
@@ -39,7 +40,7 @@ fn structured_payload_preserves_prose_and_routes_strict_schema() {
             serde_json::json!({"type":"json_schema","json_schema":{"name":"word_gloss_v1","strict":true,"schema":schema}})
         );
         assert_eq!(structured["messages"], prose["messages"]);
-        assert_eq!(structured["max_tokens"], 2048);
+        assert_eq!(structured["max_tokens"], GLOSS_OUTPUT_TOKENS);
         assert_eq!(structured["temperature"], 0.7);
         assert_eq!(
             structured["reasoning"],
@@ -90,6 +91,7 @@ fn structured_bounds_include_schema_python_spaces_escaping_and_float_headroom() 
             content: String::new(),
         }];
         let output = RequestOutput::JsonSchema {
+            max_output_tokens: 2048,
             name: "bounded",
             schema: &schema,
         };
@@ -118,6 +120,7 @@ fn structured_bounds_include_schema_python_spaces_escaping_and_float_headroom() 
             }],
             ConnectionRoute::Hosted,
             RequestOutput::JsonSchema {
+                max_output_tokens: 2048,
                 name: "schema",
                 schema: &huge_schema
             }
@@ -139,6 +142,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
             &messages,
             ConnectionRoute::Hosted,
             RequestOutput::JsonSchema {
+                max_output_tokens: 2048,
                 name,
                 schema: &schema,
             },
@@ -158,6 +162,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
                 &messages,
                 ConnectionRoute::Openrouter,
                 RequestOutput::JsonSchema {
+                    max_output_tokens: 2048,
                     name: "schema",
                     schema: &schema
                 }
@@ -166,6 +171,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
         );
     }
     let output = RequestOutput::JsonSchema {
+        max_output_tokens: 2048,
         name: "schema",
         schema: &schema,
     };
@@ -196,6 +202,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
             &messages,
             ConnectionRoute::Openrouter,
             RequestOutput::JsonSchema {
+                max_output_tokens: 2048,
                 name: "schema",
                 schema: &nested
             }
@@ -234,6 +241,7 @@ fn every_route_preserves_an_arbitrary_structured_model() {
             &messages,
             route,
             RequestOutput::JsonSchema {
+                max_output_tokens: 2048,
                 name: "reply",
                 schema: &schema,
             },

@@ -9,6 +9,13 @@ use sha2::{Digest, Sha256};
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
+fn output_limit(dispatch: &Dispatch) -> i32 {
+    if dispatch.gloss_source.is_some() {
+        crate::ai::transport::provider::GLOSS_OUTPUT_TOKENS
+    } else {
+        crate::ai::transport::provider::MAX_OUTPUT_TOKENS
+    }
+}
 fn identity(value: &str) -> Option<String> {
     if let Ok(id) = uuid::Uuid::parse_str(value) {
         return Some(id.to_string());
@@ -88,7 +95,7 @@ pub(crate) fn prepared(
             .map(|hash| hash == current_config_hash)
     );
     event["candidateCount"] = json!(captured["candidateConstructs"].as_array().map(Vec::len));
-    event["maxOutputTokens"] = json!(crate::ai::transport::provider::MAX_OUTPUT_TOKENS);
+    event["maxOutputTokens"] = json!(output_limit(dispatch));
     emit(&event);
 }
 pub(crate) fn completed(
@@ -134,11 +141,8 @@ fn completion_event(
         event["outputBytes"] = json!(output.text.len());
         event["inputTokens"] = json!(output.input_tokens);
         event["outputTokens"] = json!(output.output_tokens);
-        event["outputAtTokenLimit"] = json!(
-            output
-                .output_tokens
-                .map(|n| n >= crate::ai::transport::provider::MAX_OUTPUT_TOKENS)
-        );
+        event["outputAtTokenLimit"] =
+            json!(output.output_tokens.map(|n| n >= output_limit(dispatch)));
         event["actualModelHash"] = json!(hash(output.actual_model.as_bytes()));
         if let Some(schema) = &dispatch.coaching_schema {
             event["structure"] = super::structured::inspect(&output.text, schema);

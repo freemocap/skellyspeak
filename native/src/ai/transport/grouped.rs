@@ -660,7 +660,14 @@ mod tests {
                         assert_eq!(payload["version"], 1);
                         let child = &payload["items"][0]["request"];
                         assert!(child.get("provider").is_none());
-                        assert_eq!(child["max_tokens"], 2048);
+                        assert_eq!(
+                            child["max_tokens"],
+                            if structured {
+                                provider::GLOSS_OUTPUT_TOKENS
+                            } else {
+                                provider::MAX_OUTPUT_TOKENS
+                            }
+                        );
                         if structured {
                             assert_eq!(payload["items"].as_array().unwrap().len(), 2);
                             assert_eq!(child["messages"], expected_helper);
@@ -764,6 +771,7 @@ mod tests {
                     &[dispatch, second],
                     &[
                         provider::RequestOutput::JsonSchema {
+                            max_output_tokens: provider::GLOSS_OUTPUT_TOKENS,
                             name: "fixture",
                             schema: &schema,
                         },
@@ -1053,6 +1061,7 @@ mod delta_tests {
         let outputs = [
             provider::RequestOutput::Prose,
             provider::RequestOutput::JsonSchema {
+                max_output_tokens: 2048,
                 name: "fixture",
                 schema: &schema,
             },

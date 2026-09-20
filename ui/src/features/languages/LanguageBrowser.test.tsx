@@ -19,7 +19,7 @@ const current = { my_languages:['arabic','english'], target_varieties:{}, target
 function report(id='arabic-levantine'): LanguageInspection {
   return {
     fingerprint:'content-fingerprint',varietyId:id,review:'needs_review',family:'afro-asiatic',
-    language:{id:'arabic',name:'Arabic',nativeName:'العربية',transcriptionLanguage: null, languageTag:'ar',defaultVariety:'arabic-levantine',fontScale:1.5,direction:'rtl',romanization:'arabic:ala-lc-arabic',varieties:[]},
+    language:{id:'arabic',name:'Arabic',nativeName:'العربية',transcriptionLanguage: null, languageTag:'ar',defaultVariety:'arabic-levantine',fontScale:1.5,direction:'rtl',romanization:'arabic:ala-lc-arabic',varieties:[],greeting:{text:'مرحبا',romanized:'marḥaban'},partner:{name:'نور',romanizedName:'Nūr',vibe:['🏛️']}},
     values:[{field:'font_scale',value:'1.5',source:'languages/arabic.yaml#defaults.scalars.font_scale'}],
     rules:[{scope:'assessment',text:'Preserve learner quotations.',source:'languages/arabic.yaml#guidance.0'}],
     schemes:[{id:'arabic:ala-lc-arabic',label:'ALA-LC Arabic',instructions:'Preserve the source.',examples:[['كتاب','kitāb']],sources:['ala_lc_arabic'],review:'needs_review',source:'languages/arabic.yaml#definitions',selected:true,usedBy:['Arabic — Levantine Arabic']}],

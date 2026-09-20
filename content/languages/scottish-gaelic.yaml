@@ -62,6 +62,9 @@ learning:
       - tapadh leat
       - tapadh leibh
 conversation:
+  greeting:
+    text: halò
+    romanizations: {}
   default_partner:
     name: Màiri
     romanizedName: null

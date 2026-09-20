@@ -12,7 +12,7 @@ const persona = { name: 'Nūr' } as PersonaDetails
 function mount() {
   const apply = vi.fn().mockResolvedValue(undefined)
   const close = vi.fn()
-  render(<ConversationPromptCreator conversationId="chat" initial={initial} topics={[{ id: 'food', label: 'Food' }]} savedTopics={[{ id: 'saved', text: 'My hometown' }]} language={language} persona={persona} onApply={apply} onClose={close} />)
+  render(<ConversationPromptCreator conversationId="chat" initial={initial} topics={[{ id: 'food', glyph: '☕', target: 'Food', romanized: null, translation: 'Food' }]} savedTopics={[{ id: 'saved', text: 'My hometown' }]} language={language} persona={persona} onApply={apply} onClose={close} />)
   return { apply, close }
 }
 beforeEach(() => {

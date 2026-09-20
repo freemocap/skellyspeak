@@ -23,12 +23,36 @@ fn every_target_and_explanation_variety_has_the_shared_topics() {
                         )
                         .unwrap();
                     assert_eq!(context.variety_id, variety.id);
-                    for locale in super::INTERFACE_LOCALES {
-                        let topics =
-                            crate::conversations::openers::choices(&registry, locale).unwrap();
-                        assert_eq!(topics.len(), registry.topics().len());
-                        assert!(topics.iter().all(|topic| !topic.label.is_empty()));
+                    // Starter cards are named in the conversation's own
+                    // languages, so the coverage that matters is target variety
+                    // x explanation language, not the interface locale.
+                    let topics = crate::conversations::openers::choices(
+                        &registry,
+                        &target.id,
+                        Some(&variety.id),
+                        &explanation.id,
+                    )
+                    .unwrap();
+                    assert_eq!(topics.len(), registry.topics().len());
+                    let scheme = registry
+                        .active_romanization_scheme(&target.id, Some(&variety.id))
+                        .unwrap();
+                    for topic in &topics {
+                        assert!(!topic.glyph.is_empty(), "{} glyph", topic.id);
+                        assert!(!topic.target.is_empty(), "{} target", topic.id);
+                        assert!(!topic.translation.is_empty(), "{} translation", topic.id);
+                        assert_eq!(
+                            topic.romanized.is_some(),
+                            scheme.is_some(),
+                            "{} romanization follows the variety's scheme",
+                            topic.id
+                        );
                     }
+                    let greeting = registry
+                        .starter_greeting(&target.id, Some(&variety.id))
+                        .unwrap();
+                    assert!(!greeting.text.is_empty());
+                    assert_eq!(greeting.romanized.is_some(), scheme.is_some());
                     let mut settings = registry.defaults(&target.id, &explanation.id).unwrap();
                     settings.variety_id = variety.id.clone();
                     settings.explanation_variety_id = explanation_variety.id.clone();

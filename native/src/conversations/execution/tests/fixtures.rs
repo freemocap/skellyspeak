@@ -143,6 +143,10 @@ pub(super) fn gloss_children(
                 [0]["properties"]["romanization"],
             serde_json::json!({"type":"null"})
         );
+        assert_eq!(
+            payload["max_tokens"],
+            crate::ai::transport::provider::GLOSS_OUTPUT_TOKENS
+        );
         assert!(
             payload["messages"][0]["content"]
                 .as_str()

@@ -54,6 +54,20 @@ fn shared_schemes_have_one_owner_and_explicit_references() {
     edit(&mut source, "shared/language-foundations.yaml", |v| {
         v["romanization_schemes"]["ala-lc-arabic"] = scheme
     });
+    // Moving a scheme from a language to the shared namespace renames its key,
+    // and authored romanizations are stored under that key.
+    edit(&mut source, "shared/conversation-topics.yaml", |v| {
+        for topic in v.as_array_mut().expect("topic list") {
+            let romanizations = &mut topic["romanizations"];
+            let value = romanizations["arabic:ala-lc-arabic"].take();
+            romanizations["shared:ala-lc-arabic"] = value;
+        }
+    });
+    edit(&mut source, "languages/arabic.yaml", |v| {
+        let romanizations = &mut v["conversation"]["greeting"]["romanizations"];
+        let value = romanizations["arabic:ala-lc-arabic"].take();
+        romanizations["shared:ala-lc-arabic"] = value;
+    });
     let registry = Registry::from_files(source).unwrap();
     let report = registry
         .inspect_language("arabic", None, "english", None)
@@ -119,6 +133,14 @@ fn language_without_browser_or_speech_mapping_loads_and_resolves() {
         "languages/test-language.yaml".into(),
         serde_yaml_ng::to_string(&custom).unwrap(),
     );
+    // A reachable language needs a name for every starter card, because each
+    // card is also the translation shown to learners explaining into it.
+    edit(&mut source, "shared/conversation-topics.yaml", |v| {
+        for topic in v.as_array_mut().expect("topic list") {
+            let spanish = topic["labels"]["spanish"].clone();
+            topic["labels"]["test-language"] = spanish;
+        }
+    });
     let registry = Registry::from_files(source).unwrap();
     let context = registry.resolve("test-language", None, "english").unwrap();
     assert!(context.external_tags.is_empty());

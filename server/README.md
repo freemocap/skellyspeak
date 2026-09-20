@@ -508,6 +508,8 @@ The default when this setting is absent remains Groq. The ElevenLabs branch
 accepts ISO 639-1/639-3 hints, drops conversational prompting, and returns
 provider-neutral timing without fabricated Whisper segments. It does not silently
 rewrite a low-confidence transcript or retry another provider.
+Scribe uses `no_verbatim=true` to omit fillers and false starts. Receipts record this
+mode; transcript-derived metrics cannot count the omitted disfluencies. [@elevenlabs_non_verbatim]
 
 Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` in the private local environment.
 The public sample uses George (`JBFqnCBsd6RMkjVDRZzb`). Synthesis currently binds

@@ -1,9 +1,56 @@
 /* First-run composition; fields, buttons and access controls retain their owners. */
-.onboarding-page { height: 100%; overflow: auto; padding: var(--space-11); background: var(--bg); }
-.onboarding-sheet { max-width: min(100%, 600px); margin-inline: auto; padding: var(--space-11); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-surface); }
-.onboarding-sheet h1 { font-size: var(--type-title); }
+.onboarding-page { height: 100%; overflow: auto; padding: var(--space-12) var(--space-11); background: var(--bg); }
+.onboarding-sheet { max-width: min(100%, 720px); margin-inline: auto; padding: var(--space-12); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface); }
+.onboarding-sheet h1 { font-size: var(--type-display); letter-spacing: var(--tracking-tight); margin-block: 0 var(--space-8); }
 .onboarding-sheet p { line-height: var(--leading-normal); }
 .onboarding-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
 .onboarding-fields select { max-width: 100%; }
 .onboarding-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-11); }
-@media (max-width: 480px) { .onboarding-page, .onboarding-sheet { padding: var(--space-8); } }
+
+/* ── The shell: who we are, and where you are in this ─────────────────────── */
+.onboarding-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); margin-bottom: var(--space-11); }
+.onboarding-wordmark { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--type-ui); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); color: var(--ink-2); }
+.onboarding-progress .sr-only {
+  position: absolute; width: var(--space-hairline); height: var(--space-hairline);
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.onboarding-progress:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--space-2); }
+.onboarding-rail { display: flex; gap: var(--space-3); }
+.onboarding-rail-step { width: var(--space-13); height: var(--space-2); border-radius: var(--radius-pill); background: var(--track); }
+.onboarding-rail-step[data-state='current'] { background: var(--interaction-fill); }
+.onboarding-rail-step[data-state='done'] { background: var(--success-ink); }
+
+/* ── Step 1: a choice between languages, not a row in a form ──────────────── */
+.language-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--space-5); min-width: 0; }
+.language-choice {
+  display: grid; justify-items: center; align-content: center; gap: var(--space-2);
+  min-height: 7rem; padding: var(--space-7) var(--space-4); text-align: center;
+  background: var(--sheet); color: var(--ink);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  font-family: var(--font-sans); cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+/* A chosen card keeps its chosen colours under the cursor: plain :hover is the
+   more specific selector and would otherwise grey it back out. */
+.language-choice:hover:not(:disabled):not([aria-checked='true']) { border-color: var(--ink-3); background: var(--chrome); }
+.language-choice[aria-checked='true'] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
+.language-choice:disabled { opacity: .5; cursor: default; }
+/* The endonym is the card: its own script, its own scale, its own direction. */
+.language-choice-endonym { font-size: calc(var(--type-title) * var(--script-scale)); font-weight: var(--weight-semibold); line-height: var(--leading-tight); }
+.language-choice-greeting { font-family: var(--font-serif); font-size: var(--type-body); color: var(--interaction-ink); line-height: var(--leading-snug); }
+.language-choice-name { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+
+/* The payoff for choosing: who you are about to meet. */
+.language-chosen { display: grid; gap: var(--space-5); margin-top: var(--space-8); padding: var(--space-8);
+  background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); border-radius: var(--radius-lg); }
+.language-chosen-partner { display: flex; align-items: center; gap: var(--space-4); margin: 0; font-size: var(--type-title); }
+.language-chosen-vibe { font-size: var(--type-display); line-height: var(--leading-none); }
+
+/* Secondary choices sit below the one that matters, and read as settings. */
+.onboarding-secondary { display: grid; gap: var(--space-5); margin-top: var(--space-11); padding-top: var(--space-8); border-top: var(--border-width) solid var(--line-soft); }
+
+@media (max-width: 480px) {
+  .onboarding-page { padding: var(--space-8) var(--space-5); }
+  .onboarding-sheet { padding: var(--space-8); }
+  .language-choices { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
+}

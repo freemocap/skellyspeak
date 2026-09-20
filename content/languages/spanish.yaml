@@ -43,6 +43,9 @@ learning:
       tokens:
       - gracias
 conversation:
+  greeting:
+    text: hola
+    romanizations: {}
   default_partner:
     name: Lucía
     romanizedName: null

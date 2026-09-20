@@ -1,5 +1,6 @@
 /** Layout review using production components and sample data. No native or AI calls. */
 import { mockIPC } from '@tauri-apps/api/mocks'
+import { loadLanguages } from '../src/platform/ipc/tauri'
 import { createRoot } from 'react-dom/client'
 import { useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
@@ -28,11 +29,24 @@ import '../src/styles/index.css'
 
 // Production controls may expose native-only actions (for example Customize).
 // Keep those explicit and isolated instead of reaching a workspace from a fixture.
-mockIPC(() => { throw new Error('This layout preview does not support native actions. Use the running app for this control.') })
+// The language registry is read through IPC before the first render, so the
+// preview answers that one read with sample languages and refuses every other
+// native action. Without it the whole surface throws and renders blank.
+const previewLanguages = [
+  { transcriptionLanguage: 'es', languageTag: 'es', fontScale: 1, id: 'spanish', name: 'Spanish', nativeName: 'Español', direction: 'ltr', romanization: null, defaultVariety: 'spanish-spain',
+    varieties: [{ transcriptionLanguage: 'es', id: 'spanish-spain', name: 'Spain', description: 'Spain', direction: 'ltr', fontScale: 1, romanization: null }] },
+  { transcriptionLanguage: 'en', languageTag: 'en', fontScale: 1, id: 'english', name: 'English', nativeName: 'English', direction: 'ltr', romanization: null, defaultVariety: 'english-united-states',
+    varieties: [{ transcriptionLanguage: 'en', id: 'english-united-states', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null }] },
+]
+mockIPC((command) => {
+  if (command === 'get_snapshot') return { languages: previewLanguages } as unknown
+  throw new Error('This layout preview does not support native actions. Use the running app for this control.')
+})
+await loadLanguages()
 const topics: TopicCard[] = [
-  { id: 'weekend', label: 'Your weekend' },
-  { id: 'food', label: 'Food' },
-  { id: 'travel', label: 'Travel' },
+  { id: 'weekend', glyph: '☕', target: 'Your weekend', romanized: null, translation: 'Your weekend' },
+  { id: 'food', glyph: '☕', target: 'Food', romanized: null, translation: 'Food' },
+  { id: 'travel', glyph: '☕', target: 'Travel', romanized: null, translation: 'Travel' },
 ]
 const initialStart: ConversationStartConfig = {
   difficulty: 'beginner', varietyId: 'spanish-spain',
@@ -80,7 +94,7 @@ function Preview() {
             nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>}
             difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
         </ConversationHeader>
-        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
+        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           <div className="turn-stack"><div className="msg chat-message bot"><span className="target-text">Me gusta mucho caminar por la costa cuando el tiempo está agradable.</span></div></div>
           <div className="turn-stack" style={{ '--script-scale': 1.5 } as React.CSSProperties}><div className="msg chat-message bot rtl"><ReadingPreferencesContext value={{ autoTranslate: false, alwaysRomanize: quick.always_romanize, alwaysPronunciation: false }}><SavedGlossText text={arabicText} segments={arabicSegments} /></ReadingPreferencesContext></div></div>
           <TurnView turn={{id:1,user:'Sí, he ido a la playa de Samil el verano pasado.',assistant, pendingText:'',coachDecision:decision}} reviewing={false} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={() => {}} />

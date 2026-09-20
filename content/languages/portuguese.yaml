@@ -37,6 +37,9 @@ learning:
       - obrigado
       - obrigada
 conversation:
+  greeting:
+    text: olá
+    romanizations: {}
   default_partner:
     name: Marina
     romanizedName: null

@@ -225,6 +225,19 @@ pub struct Language {
     pub native_name: String,
     pub varieties: Vec<Variety>,
     pub default_variety: String,
+    /// The authored greeting, at this language's default variety. Carried on the
+    /// catalog so choosing a language can show what saying it sounds like.
+    pub greeting: StarterGreeting,
+    /// Who the learner meets first in this language. Enough of the bundled
+    /// starter persona to introduce them, not the whole profile.
+    pub partner: LanguagePartner,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct LanguagePartner {
+    pub name: String,
+    pub romanized_name: Option<String>,
+    pub vibe: Vec<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -615,6 +628,8 @@ pub fn bindings() -> String {
         ErrorCode::decl(&config),
         Refusal::decl(&config),
         InferenceHold::decl(&config),
+        StarterGreeting::decl(&config),
+        LanguagePartner::decl(&config),
         TranscriptionAttempt::decl(&config),
         crate::speech::analysis::fluency::Segment::decl(&config),
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult::decl(&config),
@@ -890,6 +905,9 @@ pub struct TurnHistoryPage {
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
     pub topic_choices: Vec<crate::conversations::direction::TopicCard>,
+    /// The greeting the start surface offers as a first thing to say, resolved
+    /// for this conversation's target language and variety.
+    pub starter_greeting: StarterGreeting,
     pub opening: Option<Opening>,
     pub revision_suffix_counts: Vec<RevisionSuffixCount>,
     pub transcription_attempts: Vec<TranscriptionAttempt>,
@@ -902,6 +920,15 @@ pub struct ConversationSnapshot {
     pub turns: Vec<TurnView>,
     pub connection: ConnectionConfig,
     pub has_older: bool,
+}
+/// Authored display content: one canonical greeting per language, with the
+/// transliteration for the variety in force. Separate from `goal_material`,
+/// which is the learning system's retrieval data.
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct StarterGreeting {
+    pub text: String,
+    pub romanized: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

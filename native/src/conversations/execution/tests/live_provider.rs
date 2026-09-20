@@ -76,6 +76,7 @@ async fn live_multilingual_conversation_support() {
                 key,
                 &work,
                 crate::ai::transport::provider::RequestOutput::JsonSchema {
+                    max_output_tokens: 2048,
                     name: "conversation_support",
                     schema: work.coaching_schema.as_ref().unwrap(),
                 },

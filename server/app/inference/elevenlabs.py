@@ -137,9 +137,10 @@ class ElevenLabs:
         if (not _identifier(request.model) or len(request.pcm) % 2 or not 0.1 <= duration <= MAX_SECONDS
                 or not _language(request.language_code, synthesis=False)):
             raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False)
-        # No prompt, translation, keyterms or clean-up: learner errors are evidence.
+        # Scribe omits fillers and false starts; no corrective prompt or keyterms are supplied.
+        # [@elevenlabs_non_verbatim]
         fields = {"model_id": request.model, "timestamps_granularity": "word",
-                  "tag_audio_events": "false", "diarize": "false", "no_verbatim": "false"}
+                  "tag_audio_events": "false", "diarize": "false", "no_verbatim": "true"}
         if request.language_code is not None:
             fields["language_code"] = request.language_code
         body, receipt = await self._post(
@@ -190,7 +191,7 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
             raise AudioFailure("AUDIO_NO_SPEECH", receipt=receipt, unknown_outcome=False)
         # Preserve script and learner wording; do not rewrite low-confidence text.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
-                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value)})
+                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": True})
         return TranscriptionResult(text, duration, tuple(words), language, probability, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
         raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"valid transcript fields and ordered timing within recording duration", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None

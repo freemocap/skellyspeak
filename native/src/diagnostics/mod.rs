@@ -295,9 +295,9 @@ impl FileSink {
             .map_err(|_| unavailable())
     }
 }
-static SINK: OnceLock<Mutex<Option<FileSink>>> = OnceLock::new();
+static SINK: OnceLock<Mutex<FileSink>> = OnceLock::new();
 static LOG_ROOT: OnceLock<PathBuf> = OnceLock::new();
-fn sink() -> Result<&'static Mutex<Option<FileSink>>> {
+fn sink() -> Result<&'static Mutex<FileSink>> {
     SINK.get().ok_or_else(unavailable)
 }
 
@@ -332,12 +332,7 @@ pub(crate) fn configured_root(fallback_root: &Path) -> Result<PathBuf> {
 
 pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     if let Some(sink) = SINK.get() {
-        return sink
-            .lock()
-            .map_err(|_| unavailable())?
-            .as_ref()
-            .map(|value| value.directory.clone())
-            .ok_or_else(unavailable);
+        return Ok(sink.lock().map_err(|_| unavailable())?.directory.clone());
     }
     let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
     let root = configured_root(fallback_root)?;
@@ -353,7 +348,7 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     LOG_ROOT
         .set(root)
         .map_err(|_| unavailable_at("root_registration"))?;
-    SINK.set(Mutex::new(Some(output)))
+    SINK.set(Mutex::new(output))
         .map_err(|_| unavailable_at("sink_registration"))?;
     #[cfg(desktop)]
     {
@@ -376,17 +371,11 @@ fn append_native(event: &serde_json::Value) -> Result<()> {
     sink()?
         .lock()
         .map_err(|_| unavailable())?
-        .as_mut()
-        .ok_or_else(unavailable)?
         .append("native", event)
 }
 
 pub fn log_root() -> Result<PathBuf> {
     LOG_ROOT.get().cloned().ok_or_else(unavailable)
-}
-pub fn shutdown() -> Result<()> {
-    sink()?.lock().map_err(|_| unavailable())?.take();
-    Ok(())
 }
 
 /// Authored diagnostic code with numerical metrics only; no arbitrary error body.
@@ -458,7 +447,7 @@ pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<Diagn
         event,
     };
     let mut sink = sink()?.lock().map_err(|_| unavailable())?;
-    sink.as_mut().ok_or_else(unavailable)?.append(
+    sink.append(
         "frontend",
         &serde_json::to_value(&record).map_err(|_| unavailable())?,
     )?;

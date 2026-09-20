@@ -5,7 +5,12 @@
   justify-items: center;
   gap: var(--space-8);
   padding: var(--space-11) var(--space-8); margin-block: auto;
+  min-width: 0;
 }
+
+/* Grid and fieldset children both take a min-content floor by default, which
+   let the scene cluster push the whole stream wider than the chat column. */
+.conversation-start > * { min-width: 0; max-width: 100%; }
 
 .start-conversation-button {
   min-height: var(--touch-target);
@@ -25,8 +30,56 @@
 .opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
 
 .opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
-.conversation-start > .persona-avatar { width: 76px; height: 76px; border-radius: var(--radius-circle); background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); font-size: calc(var(--type-display) * 1.5); }
-.conversation-start h2 { margin: 0; font-size: var(--type-title); }
+.conversation-start .persona-avatar { width: 76px; height: 76px; border-radius: var(--radius-circle); background: var(--sheet); border: var(--border-width) solid var(--bubble-partner-line); font-size: calc(var(--type-display) * 1.5); }
+.conversation-start h2 { margin: 0; font-size: var(--type-display); }
+
+/* The invitation reads as the partner's side of the table, so it borrows the
+   colours the partner's messages already use. */
+.invitation { position: relative; display: grid; justify-items: center; gap: var(--space-5);
+  width: 100%; padding: var(--space-11) var(--space-8);
+  background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
+  border-radius: var(--radius-xl); }
+.invitation-partner-actions { position: absolute; inset-block-start: var(--space-5); inset-inline-end: var(--space-5); display: flex; gap: var(--space-3); }
+.invitation-partner-actions .btn { background: var(--sheet); }
+
+/* Opening the microphone is the peer of letting the partner start, so it is the
+   same size and sits beside it rather than under it. */
+.start-greeting-button {
+  min-height: var(--touch-target);
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--sheet); color: var(--interaction-ink);
+  border: var(--border-width-strong) solid var(--interaction-fill);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-body); font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+.start-greeting-button:hover:not(:disabled) { background: var(--chrome); }
+.start-greeting-button:disabled { opacity: .5; cursor: default; }
+.start-greeting-dot { width: 10px; height: 10px; flex: none; border-radius: var(--radius-circle); background: var(--danger-fill); }
+.start-greeting-romanized { margin: 0; color: var(--ink-3); font: var(--type-ui) var(--font-sans); font-style: italic; }
+
+/* A cluster of scenes, not a list: as many per row as the width allows. */
+.start-scenes { border: 0; padding: 0; margin: 0; min-width: 0; width: 100%; }
+.start-scenes legend { text-align: center; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+.scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: var(--space-4);
+  max-width: 42rem; margin-inline: auto; min-width: 0; }
+.scene-card { display: grid; justify-items: center; align-content: center; gap: var(--space-2);
+  text-align: center; min-height: var(--touch-target); padding: var(--space-5) var(--space-4);
+  background: var(--sheet); color: var(--ink);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  font-family: var(--font-sans); cursor: pointer; }
+.scene-card:hover:not(:disabled) { border-color: var(--ink-3); }
+.scene-card[aria-pressed=true] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
+.scene-card:disabled { opacity: .5; cursor: default; }
+.scene-glyph { font-size: var(--type-title); line-height: var(--leading-none); }
+.scene-label { font-size: var(--type-ui); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.scene-roman { font-size: var(--type-meta); color: var(--ink-3); font-style: italic; line-height: var(--leading-snug); }
+.scene-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+
+/* Difficulty and grammar practice are ordinary settings; they stay on the
+   surface rather than behind a disclosure. */
+.start-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-5) var(--space-8); }
 .start-hint { color: var(--ink-3); font: var(--type-ui) var(--font-sans); }
 .start-conversation-button:disabled { opacity: .5; }
 @media (max-width: 480px) { .conversation-start { padding: var(--space-5); gap: var(--space-4); } }

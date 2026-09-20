@@ -7,10 +7,14 @@
       "properties": {
         "default_partner": {
           "$ref": "#/definitions/PersonaDetails"
+        },
+        "greeting": {
+          "$ref": "#/definitions/GreetingContent"
         }
       },
       "required": [
-        "default_partner"
+        "default_partner",
+        "greeting"
       ],
       "type": "object"
     },
@@ -76,6 +80,27 @@
       },
       "required": [
         "tokens"
+      ],
+      "type": "object"
+    },
+    "GreetingContent": {
+      "additionalProperties": false,
+      "description": "The greeting the start surface offers as a first thing to say. Display content with one canonical wording, kept apart from `goal_material`, which is retrieval data for the learning system and whose token order means nothing here.",
+      "properties": {
+        "romanizations": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Keyed by romanization scheme key, as ConversationTopic::romanizations is.",
+          "type": "object"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "romanizations",
+        "text"
       ],
       "type": "object"
     },

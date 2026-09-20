@@ -123,6 +123,7 @@ pub(in crate::application) async fn run_persona_generation(
                     &key,
                     &dispatch,
                     provider::RequestOutput::JsonSchema {
+                        max_output_tokens: 2048,
                         name: persona_prompt::SCHEMA_NAME,
                         schema: &schema,
                     },
