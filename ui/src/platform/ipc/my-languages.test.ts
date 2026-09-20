@@ -36,3 +36,19 @@ it('propagates revision conflicts instead of overwriting another preference edit
   await expect(saveMyLanguage('arabic','arabic-levantine')).rejects.toEqual({code:'conflict',message:'Learner changed'})
   expect(mocks.execute).toHaveBeenCalledTimes(1)
 })
+
+it('saves script scale independently of membership and resets only the chosen language', async () => {
+  const { saveScriptScale } = await import('./my-languages')
+  const current = snapshot()
+  current.learner.preferences.scriptScales = {spanish:1.25}
+  mocks.read.mockResolvedValue(current)
+  await saveScriptScale('arabic',2)
+  expect(mocks.execute.mock.calls[0][1].preferences).toEqual({...current.learner.preferences,scriptScales:{spanish:1.25,arabic:2}})
+  await saveScriptScale('spanish',null)
+  expect(mocks.execute.mock.calls[1][1].preferences.scriptScales).toEqual({})
+  mocks.execute.mockClear()
+  await expect(saveScriptScale('arabic',NaN)).rejects.toThrow('Script size')
+  await expect(saveScriptScale('arabic',4)).rejects.toThrow('Script size')
+  await expect(saveScriptScale('missing',1)).rejects.toThrow('unavailable')
+  expect(mocks.execute).not.toHaveBeenCalled()
+})

@@ -1,4 +1,4 @@
-import { saveMyLanguage } from '../../platform/ipc/my-languages'
+import { saveMyLanguage, saveScriptScale } from '../../platform/ipc/my-languages'
 import { languages } from '../../platform/ipc/tauri'
 import { create } from 'zustand'
 import { applyFontSizeAction, type FontSizeAction } from '../../domain/input/font-size'
@@ -69,6 +69,7 @@ interface SettingsState {
   /// already moved on from.
   update: (change: (current: Settings) => Settings | null, faultContext: string) => Promise<void>
 
+  saveScriptScale: (language: string, scale: number | null) => Promise<void>
   saveMyLanguage: (language: string, variety: string | null) => Promise<void>
   selectLanguageVariety: (language: string, variety: string) => Promise<void>
   setLanguage: (field: LanguageField, value: string) => Promise<void>
@@ -122,6 +123,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       } catch (error) {
         reportFault(faultContext, error)
       }
+    },
+
+    saveScriptScale: async (language, scale) => {
+      if (get().savingLanguage) throw new Error('A language change is already being saved.')
+      set({ savingLanguage: true })
+      try {
+        await saveScriptScale(language, scale)
+        await read(true)
+      } finally { set({ savingLanguage: false }) }
     },
 
     saveMyLanguage: async (language, variety) => {

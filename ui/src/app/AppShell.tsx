@@ -35,6 +35,7 @@ import { useAppShortcuts } from './shortcuts/useAppShortcuts'
 /// is copied into component state and nothing can go stale behind a store update.
 export function AppShell() {
   const page = useNavigationStore((state) => state.page)
+  const languageInfo = useNavigationStore(state => state.languageInfo)
   const overlay = useNavigationStore((state) => state.overlay)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
   const closeOverlay = useNavigationStore((state) => state.closeOverlay)
@@ -81,7 +82,7 @@ export function AppShell() {
       <SurfaceHost />
       <MobileNav />
       <MoreDialog />
-      {overlay === 'languages' && <LanguageBrowser onClose={closeOverlay} />}
+      {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
     </div></ReadingProvider></I18nProvider>

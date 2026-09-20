@@ -1,3 +1,5 @@
+import { AiSplit } from './AiSplit'
+import { InspectionContent, InspectionModeControl, type InspectionMode } from './InspectionContent'
 import { useEffect, useState } from 'react'
 import type { AiDefinitionSelection, AiGraphDefinition, AiOperationDefinition } from '../../generated/contracts'
 import { getAiGraphDefinitions } from '../../platform/ipc/window'
@@ -10,6 +12,7 @@ import { DefinitionGraph } from './ActivityGraph'
 
 function DefinitionDetails({ graph, node, onSelect }: { graph: AiGraphDefinition; node: AiOperationDefinition; onSelect: (kind: string) => void }) {
   const tr = useI18n()
+  const [mode, setMode] = useState<InspectionMode>('readable')
   const downstream = graph.operations.filter(item => item.dependencies.includes(node.kind))
   const links = (kinds: string[]) => kinds.map(kind => <button key={kind} type="button" className="ai-chip" onClick={() => onSelect(kind)}>{humanizeKind(kind)}</button>)
   return <div className="ai-inspector-body">
@@ -21,10 +24,11 @@ function DefinitionDetails({ graph, node, onSelect }: { graph: AiGraphDefinition
       <dt>{tr('Feeds')}</dt><dd>{downstream.length ? links(downstream.map(item => item.kind)) : '—'}</dd>
     </dl>
     <h4>{tr('Prompt templates')}</h4>
+    <InspectionModeControl mode={mode} onChange={setMode} />
     {node.templates.length ? <>
       <p className="ai-muted">{tr('Placeholders are filled at runtime. These are definitions, not recorded requests.')}</p>
       {node.templates.map((template, index) => <details key={`${node.kind}:${template.label}`} className="ai-message" open={index === 0}>
-        <summary>{template.label}</summary><pre>{template.text}</pre>
+        <summary>{template.label}</summary><InspectionContent text={template.text} mode={mode} />
       </details>)}
     </> : <p className="ai-muted">{tr('No chat prompt for this operation.')}</p>}
     {node.outputSchema != null && <details><summary>{tr('Output schema')}</summary><ResponseDetails value={node.outputSchema} /></details>}
@@ -67,16 +71,16 @@ export function GraphDefinitions({ selection, onSelect }: { selection: AiDefinit
     </div>
     {error && <p className="ai-error" role="alert">{error} <button type="button" className="btn" onClick={() => setRequest(value => value + 1)}>{tr('Retry')}</button></p>}
     {!graph && graphs && <p className="ai-error" role="alert">{tr('Choose a graph')}</p>}
-    {graph && <div className="ai-view-body">
+    {graph && <AiSplit inspector={node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
+        <header className="ai-inspector-head"><h3>{humanizeKind(node.kind)}</h3><button type="button" className="ai-chip" onClick={() => setExpanded(true)}>{tr('Expand')}</button></header>
+        <DefinitionDetails graph={graph} node={node} onSelect={pick} />
+      </aside>}>
       <div className="ai-view-main">
         <p className="ai-definition-description">{graph.description}</p>
         <DefinitionGraph graph={graph} selectedKind={node?.kind ?? null} onSelect={pick} />
       </div>
-      {node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
-        <header className="ai-inspector-head"><h3>{humanizeKind(node.kind)}</h3><button type="button" className="ai-chip" onClick={() => setExpanded(true)}>{tr('Expand')}</button></header>
-        <DefinitionDetails graph={graph} node={node} onSelect={pick} />
-      </aside>}
-    </div>}
+
+    </AiSplit>}
     {expanded && graph && node && <DetailDialog size="wide" title={tr('Prompt templates')} onClose={() => setExpanded(false)}>
       <h2>{humanizeKind(node.kind)}</h2><DefinitionDetails graph={graph} node={node} onSelect={pick} />
     </DetailDialog>}

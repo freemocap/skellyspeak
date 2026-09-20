@@ -32,6 +32,8 @@ interface NavigationState {
   /// replaces whatever was showing — and one field cannot be in the state two
   /// flags can, both true at once.
   overlay: Overlay | null
+  languageInfo: string | null
+  showLanguageInfo: (language: string) => void
   /// Whether the skill tree has ever been opened. It is mounted lazily and then
   /// kept mounted, so this is not the same as `page === 'skills'`.
   skillsOpened: boolean
@@ -73,6 +75,7 @@ const initialState = {
   mobileSurface: 'chat' as MobileLocation,
   historyOpen: false,
   overlay: null as Overlay | null,
+  languageInfo: null as string | null,
   skillsOpened: false,
   settingsBusy: false,
   newChatAction: null as (() => void) | null,
@@ -89,9 +92,10 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   goHome: () => set({ mode: 'practice', page: 'guided', mobileSurface: 'chat', overlay: null, historyOpen: false }),
   toggleHistory: () => set((state) => ({ historyOpen: !state.historyOpen })),
   setHistoryOpen: (historyOpen) => set({ historyOpen }),
-  showOverlay: (overlay) => set({ overlay }),
-  toggleOverlay: (overlay) => set((state) => ({ overlay: state.overlay === overlay ? null : overlay })),
-  closeOverlay: () => set({ overlay: null }),
+  showLanguageInfo: (languageInfo) => set({ overlay: 'languages', languageInfo }),
+  showOverlay: (overlay) => set({ overlay, languageInfo: null }),
+  toggleOverlay: (overlay) => set((state) => ({ overlay: state.overlay === overlay ? null : overlay, languageInfo: null })),
+  closeOverlay: () => set({ overlay: null, languageInfo: null }),
   setSettingsBusy: (settingsBusy) => set({ settingsBusy }),
   registerNewChat: (newChatAction) => set({ newChatAction }),
   toggleSuggestions: () => set((state) => ({ suggestionsCollapsed: !state.suggestionsCollapsed })),

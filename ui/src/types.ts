@@ -29,6 +29,7 @@ export interface Settings {
   observer_model: string | null
   my_languages: string[]
   target_varieties: Record<string, string>
+  script_scales?: Record<string, number>
   target_language: string
   target_variety: string
   native_variety: string

@@ -588,6 +588,8 @@ impl Registry {
             &[
                 &prompt.base,
                 &prompt.persona,
+                &prompt.interaction,
+                &prompt.examples_intro,
                 &prompt.ceiling,
                 &prompt.past,
                 &prompt.future,
@@ -596,6 +598,30 @@ impl Registry {
                 &prompt.subject,
             ],
         )?;
+        if !prompt.opening_angles.is_empty() && prompt.opening_angles.len() < 4 {
+            return Err(error(
+                "conversation prompt",
+                "opening_angles",
+                "At least four opening situations required.",
+            ));
+        }
+        for angle in &prompt.opening_angles {
+            nonempty("conversation opening situations", &[angle])?;
+        }
+        for (variety, examples) in &prompt.examples {
+            if !self
+                .languages
+                .iter()
+                .any(|language| language.varieties.iter().any(|v| &v.id == variety))
+            {
+                return Err(error(
+                    "conversation prompt",
+                    "examples",
+                    "Conversation examples must name a known target variety.",
+                ));
+            }
+            nonempty("conversation prompt examples", &[examples])?;
+        }
         let expected = [
             "absolute_zero",
             "beginner",

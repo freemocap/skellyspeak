@@ -318,7 +318,7 @@ pub async fn request_streaming(
     for (dispatch, output) in dispatches.iter().zip(outputs) {
         let operation = dispatch.operation.replace('-', "");
         let mut item = serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
-            "request":provider::payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, *output)?});
+            "request":provider::dispatch_payload(dispatch, *output)?});
         // Structured output stays whole until structured deltas are verified.
         if deltas && matches!(output, provider::RequestOutput::Prose) {
             item["deltas"] = serde_json::json!(true);
@@ -660,6 +660,7 @@ mod tests {
                         assert_eq!(payload["version"], 1);
                         let child = &payload["items"][0]["request"];
                         assert!(child.get("provider").is_none());
+                        assert_eq!(child["temperature"], if structured { 0.7 } else { 1.1 });
                         assert_eq!(
                             child["max_tokens"],
                             if structured {
@@ -724,6 +725,7 @@ mod tests {
                 socket.write_all(&body).await.unwrap();
             });
             let dispatch = crate::conversations::execution::Dispatch {
+                temperature: if structured { 0.7 } else { 1.1 },
                 gloss_schema: None,
                 coaching_schema: None,
                 gloss_source: None,
@@ -751,6 +753,7 @@ mod tests {
             let schema = serde_json::json!({"type":"object"});
             if structured {
                 let second = crate::conversations::execution::Dispatch {
+                    temperature: 0.7,
                     gloss_schema: None,
                     coaching_schema: None,
                     gloss_source: None,
@@ -938,6 +941,7 @@ mod delta_tests {
     }
     fn dispatch(url: String) -> crate::conversations::execution::Dispatch {
         crate::conversations::execution::Dispatch {
+            temperature: 0.7,
             target: crate::ai::connections::access::ResolvedTarget {
                 route: crate::model::ConnectionRoute::Custom,
                 revision: 1,

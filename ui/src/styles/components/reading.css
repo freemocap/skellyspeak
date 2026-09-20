@@ -52,7 +52,7 @@
   font-size: var(--type-meta);
   color: var(--interaction-ink);
   line-height: var(--leading-tight);
-  font-family: var(--font-mono);
+  font-family: var(--font-reading-aid);
   font-style: normal;
 }
 
@@ -78,6 +78,7 @@
   line-height: var(--leading-snug);
   color: var(--interaction-ink);
   margin-block-start: var(--space-1);
+  font-family: var(--font-reading-aid);
   overflow-wrap: anywhere;
 }
 
@@ -96,7 +97,16 @@
 
 .target-text .w { font-size: inherit; }
 
-.saved-word { position: relative; }
+/* Saved word help normally lives in a popover: keep the source in the same
+   inline text flow as unannotated words and punctuation. A separate flex box
+   per word is unnecessary here and introduces a separate baseline calculation.
+   Only visible inline annotations need a column beneath their source word. */
+.saved-word { position: relative; display: inline; }
+
+.saved-word:has(> .wg, > .wroman, > .wpronunciation) {
+  display: inline-flex;
+  vertical-align: baseline;
+}
 
 .saved-word-help {
   cursor: pointer;
@@ -116,7 +126,7 @@
 .saved-word-help > span { display: block; }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
-.saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
+.saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-reading-aid); color: var(--ink-3); }
 
 /* Full saved details are a second-step modal; the first-step helper stays anchored. */
 @media (pointer: coarse) {
@@ -129,7 +139,7 @@
 .saved-word-details > span, .saved-word-part > span { display: block; }
 .saved-word-details .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-details .wroman, .saved-word-details .wpronunciation {
-  font: var(--type-ui) var(--font-mono); color: var(--ink-2);
+  font: var(--type-ui) var(--font-reading-aid); color: var(--ink-2);
 }
 .saved-word-parts { margin-top: var(--space-6); }
 .saved-word-part { padding-block: var(--space-4); border-top: var(--border-width) solid var(--line-soft); }
@@ -137,3 +147,6 @@
 /* Romanization under a word may be wider than the word; it widens the column
    rather than breaking mid-word. */
 .saved-word > .wroman, .saved-word > .wpronunciation { contain: none; width: auto; white-space: nowrap; }
+
+/* Reserve vertical room for vocalized right-to-left text. */
+.w:dir(rtl), .target-text:dir(rtl) { line-height: var(--leading-vocalized); }

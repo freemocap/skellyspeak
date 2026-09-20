@@ -3,6 +3,7 @@
   "productName": "SkellySpeak",
   "identifier": "com.freemocap.skellyspeak",
   "build": {
+    "additionalWatchFolders": ["../content"],
     "beforeDevCommand": {
       "script": "npm run dev",
       "cwd": ".."

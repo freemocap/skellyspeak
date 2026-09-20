@@ -44,7 +44,7 @@
 
 .msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
-  line-height: var(--leading-normal);
+  line-height: var(--leading-vocalized);
 }
 
 .msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }

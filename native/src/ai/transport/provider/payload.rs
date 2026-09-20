@@ -158,3 +158,19 @@ pub fn payload_with_output(
 #[cfg(test)]
 #[path = "tests/payload.rs"]
 mod tests;
+
+/// Actual dispatch settings shared by streamed, direct and grouped requests.
+pub fn dispatch_payload(
+    dispatch: &crate::conversations::execution::Dispatch,
+    output: RequestOutput<'_>,
+) -> Result<serde_json::Value> {
+    let mut body =
+        payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, output)?;
+    if !dispatch.temperature.is_finite() || !(0.0..=2.0).contains(&dispatch.temperature) {
+        return Err(structured_error(
+            "Temperature must be finite and between 0 and 2.",
+        ));
+    }
+    body["temperature"] = serde_json::json!(dispatch.temperature);
+    Ok(body)
+}

@@ -40,7 +40,8 @@ keyring = { version = "3.6.3", features = ["apple-native"] }
 [target.'cfg(target_os = "windows")'.dependencies]
 keyring = { version = "3.6.3", features = ["windows-native"] }
 [target.'cfg(target_os = "linux")'.dependencies]
-keyring = { version = "3.6.3", features = ["sync-secret-service", "crypto-rust"] }
+# Build D-Bus from bundled source so Linux builds do not require libdbus-1-dev.
+keyring = { version = "3.6.3", features = ["sync-secret-service", "crypto-rust", "vendored"] }
 
 [dev-dependencies]
 tempfile = "3"

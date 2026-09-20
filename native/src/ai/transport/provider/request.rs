@@ -1,5 +1,7 @@
+#[cfg(test)]
+use super::PromptMessage;
 use super::response::malformed;
-use super::{Completion, PromptMessage, RequestOutput, decode, payload, payload_with_output};
+use super::{Completion, RequestOutput, decode, dispatch_payload};
 use crate::model::{AppError, ConnectionRoute, ErrorCode, Result};
 use std::time::Duration;
 
@@ -24,15 +26,13 @@ pub async fn complete(
     if dispatch.route != ConnectionRoute::Openrouter {
         return crate::ai::transport::grouped::complete(client, key, dispatch).await;
     }
-    let url = &dispatch.target.url;
-    request(
+    request_payload(
         client,
-        url,
+        &dispatch.target.url,
         key,
-        &dispatch.model,
-        &dispatch.messages,
         dispatch.route,
         &dispatch.install_id,
+        dispatch_payload(dispatch, RequestOutput::Prose)?,
     )
     .await
 }
@@ -50,7 +50,7 @@ pub async fn complete_with_output(
         return crate::ai::transport::grouped::complete_with_output(client, key, dispatch, output)
             .await;
     }
-    let body = payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, output)?;
+    let body = dispatch_payload(dispatch, output)?;
     request_payload(
         client,
         &dispatch.target.url,
@@ -62,6 +62,7 @@ pub async fn complete_with_output(
     .await
 }
 
+#[cfg(test)]
 async fn request(
     client: &reqwest::Client,
     url: &str,
@@ -77,7 +78,7 @@ async fn request(
         key,
         route,
         install,
-        payload(model, messages, route)?,
+        super::payload(model, messages, route)?,
     )
     .await
 }
@@ -165,7 +166,7 @@ pub async fn complete_streaming(
     if dispatch.route != ConnectionRoute::Openrouter {
         return complete(client, key, dispatch).await;
     }
-    let mut body = payload(&dispatch.model, &dispatch.messages, dispatch.route)?;
+    let mut body = dispatch_payload(dispatch, RequestOutput::Prose)?;
     body["stream"] = serde_json::json!(true);
     // OpenRouter reports usage and cost in the final chunk only when asked.
     body["usage"] = serde_json::json!({"include": true});

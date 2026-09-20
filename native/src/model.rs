@@ -114,6 +114,10 @@ pub struct Preferences {
     pub explanation_variety_id: String,
     pub interface_locale: String,
     pub target_varieties: std::collections::BTreeMap<String, String>,
+    // Per-language learner overrides; absent entries use bundled script defaults.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub script_scales: Option<std::collections::BTreeMap<String, f64>>,
     // Learner-owned picker shortcuts; independent of conversations and history.
     #[serde(default)]
     pub my_languages: Vec<String>,

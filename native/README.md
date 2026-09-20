@@ -71,6 +71,25 @@ conversation execution and speech lifecycle keep their respective domain owners.
   are tracked, while other generated output follows `.gitignore`.
 - `target/`: ignored Cargo build output.
 
+During `npm run tauri dev`, edits under `content/` trigger a native rebuild and
+application relaunch through `build.additionalWatchFolders` in `tauri.conf.json`.
+Content is embedded at compile time; refreshing the webview alone does not reload
+YAML. Restart an already running dev command once after changing watcher settings.
+
+## Linux build dependencies
+
+The Linux credential-store dependency enables `keyring`'s `vendored` feature.
+Cargo compiles the bundled D-Bus library automatically, so `libdbus-1-dev` and
+a custom `PKG_CONFIG_PATH` are not needed for this dependency. This still uses
+the desktop's running D-Bus session and Secret Service for credential storage.
+Other Tauri and audio system build dependencies remain required. On Pop!_OS,
+Ubuntu and Debian, interactive `npm run tauri dev` checks GTK 3, WebKitGTK 4.1
+and ALSA before starting Vite/Cargo, installs missing development packages through
+`sudo apt-get`, then verifies them again. Enter your sudo password when requested.
+Failed installation stops startup. CI and noninteractive runs report the required
+install command without attempting installation. Other distributions receive a
+prerequisite error; explicit cross-target runs and other Tauri commands skip setup.
+
 ## Verification
 
 From the repository root:

@@ -384,3 +384,29 @@ fn an_old_not_started_flag_does_not_force_setup() {
     assert!(!preferences.onboarding_required);
     assert!(!preferences.onboarding_help);
 }
+
+#[test]
+fn script_scale_preferences_survive_restart_and_reject_invalid_values() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("script-scales.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    store.prepare_chat().unwrap();
+    let before = store.snapshot().unwrap();
+    let mut preferences = before.learner.preferences.clone();
+    preferences.script_scales = Some([("arabic".into(), 2.0)].into());
+    apply(&mut store, Action::UpdateLearner {
+        expected_revision: before.learner.revision,
+        name: before.learner.name,
+        preferences,
+    });
+    drop(store);
+    let store = Store::open(&path).unwrap();
+    let saved = store.snapshot().unwrap();
+    assert_eq!(saved.learner.preferences.script_scales.as_ref().unwrap()["arabic"], 2.0);
+    assert_eq!(saved.conversations[0].id, before.conversations[0].id);
+    for (language, scale) in [("arabic", 0.0), ("arabic", 3.1), ("missing", 1.0)] {
+        let mut preferences = saved.learner.preferences.clone();
+        preferences.script_scales = Some([(language.into(), scale)].into());
+        assert!(crate::configuration::Registry::bundled().unwrap().validate_preferences(&preferences).is_err());
+    }
+}

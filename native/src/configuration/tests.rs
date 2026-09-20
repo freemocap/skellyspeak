@@ -1,10 +1,52 @@
 use super::*;
 #[test]
+fn conversation_opening_situations_require_variety_and_content() {
+    let bib = SEEDS
+        .iter()
+        .find(|(name, _)| *name == "references.bib")
+        .unwrap()
+        .1;
+    let mut r = Registry::bundled().unwrap();
+    assert!(r.validate(bib).is_ok());
+    r.conversation_prompt.opening_angles = vec!["situation".into(); 3];
+    assert!(r.validate(bib).is_err());
+    let mut r = Registry::bundled().unwrap();
+    r.conversation_prompt.opening_angles = vec![" ".into(); 4];
+    assert!(r.validate(bib).is_err());
+}
+
+#[test]
+fn conversation_examples_require_known_varieties_and_nonempty_content() {
+    let bib = SEEDS
+        .iter()
+        .find(|(name, _)| *name == "references.bib")
+        .unwrap()
+        .1;
+    let mut r = Registry::bundled().unwrap();
+    r.conversation_prompt
+        .examples
+        .insert("unknown-variety".into(), "Example".into());
+    assert!(r.validate(bib).is_err());
+    r.conversation_prompt.examples.remove("unknown-variety");
+    r.conversation_prompt
+        .examples
+        .insert("spanish-spain".into(), "  ".into());
+    assert!(r.validate(bib).is_err());
+    r.conversation_prompt.examples.clear();
+    assert!(
+        r.validate(bib).is_ok(),
+        "Examples are opt-in, not a cross-variety fallback"
+    );
+    r.conversation_prompt.interaction.clear();
+    assert!(r.validate(bib).is_err());
+}
+
+#[test]
 fn script_scale_defaults_to_standard_and_language_overrides_remain_effective() {
     let mut r = Registry::bundled().unwrap();
     assert!(r.scripts.iter().all(|script| script.font_scale == 1.0));
     assert_eq!(r.language("english").unwrap().font_scale, 1.0);
-    assert_eq!(r.language("arabic").unwrap().font_scale, 1.5);
+    assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
     assert_eq!(r.language("mandarin").unwrap().font_scale, 1.3);
     let ar = r
         .languages
@@ -297,7 +339,7 @@ fn varieties_resolve_independently_with_script_overrides_and_owned_defaults() {
         .find(|l| l.id == "english")
         .unwrap();
     en.varieties[1].script = Some("arabic".into());
-    en.varieties[1].orthography = Some("arabic:arabic-unvocalized".into());
+    en.varieties[1].orthography = Some("arabic:arabic-vocalized".into());
     en.varieties[1].romanization = Some("arabic:ala-lc-arabic".into());
     let overridden = registry
         .resolve_pair(

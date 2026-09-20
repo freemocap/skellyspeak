@@ -392,6 +392,15 @@ impl Registry {
                 .into());
             }
         }
+        if let Some(scales) = &preferences.script_scales {
+            for (language, scale) in scales {
+                self.language(language)?;
+                if !scale.is_finite() || !(0.5..=3.0).contains(scale) {
+                    return Err(error("preferences.script_scales", "invalid_scale",
+                        "Script size must be between 0.5 and 3.0.").into());
+                }
+            }
+        }
         for (language, variety) in &preferences.target_varieties {
             self.resolve(language, Some(variety), &preferences.explanation_language)?;
         }

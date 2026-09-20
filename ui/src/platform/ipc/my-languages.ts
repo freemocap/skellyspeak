@@ -18,3 +18,18 @@ export async function saveMyLanguage(language: string, variety: string | null): 
     preferences: { ...learner.preferences, myLanguages, targetVarieties },
   })
 }
+
+/** Persist a learner's per-language script scale; null restores content defaults. */
+export async function saveScriptScale(language: string, scale: number | null): Promise<void> {
+  const snapshot = await readWorkspace()
+  if (!snapshot.languages.some(item => item.id === language)) throw new Error('The selected language is unavailable.')
+  if (scale !== null && (!Number.isFinite(scale) || scale < 0.5 || scale > 3)) throw new Error('Script size must be between 0.5 and 3.0.')
+  const learner = snapshot.learner
+  const scriptScales = { ...learner.preferences.scriptScales }
+  if (scale === null) delete scriptScales[language]
+  else scriptScales[language] = scale
+  await executeAction(snapshot, {
+    kind: 'updateLearner', expectedRevision: learner.revision, name: learner.name,
+    preferences: { ...learner.preferences, scriptScales },
+  })
+}

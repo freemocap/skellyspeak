@@ -25,12 +25,15 @@ val keystoreProperties = Properties().apply {
     }
 }
 val hasReleaseKeystore = keystoreProperties.getProperty("storeFile") != null
+// Opt in for a standalone developer install; preserve the standard dev runner's identity.
+val separateDevApp = providers.environmentVariable("SKELLYSPEAK_ANDROID_DEV_APP").orNull == "1"
 
 android {
     compileSdk = 36
     namespace = "com.freemocap.skellyspeak"
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
+        manifestPlaceholders["appLabel"] = "SkellySpeak"
         applicationId = "com.freemocap.skellyspeak"
         minSdk = 24
         targetSdk = 36
@@ -49,6 +52,10 @@ android {
     }
     buildTypes {
         getByName("debug") {
+            applicationIdSuffix = ".dev"
+            if (separateDevApp) {
+                manifestPlaceholders["appLabel"] = "Dev-SkellySpeak"
+            }
             manifestPlaceholders["usesCleartextTraffic"] = "true"
             isDebuggable = true
             isJniDebuggable = true

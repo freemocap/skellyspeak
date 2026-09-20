@@ -21,6 +21,10 @@ archived `workflow/` inputs and require a separate review before reuse. Do not r
 them against `old/` in place. Screening helpers are isolated from their file and
 credential reads.
 
+The active [conversation prompt experiments](benchmarks/conversation-prompts/README.md)
+use synthetic current-source fixtures, offline plans, bounded paid OpenRouter runs
+and saved comparisons. They do not depend on archived workflows or alter app prompts.
+
 `npm run test:reports` prints unreachable-module, unused-export and unused-style
 candidates separately from passing test totals. Candidates require source review;
 the command does not delete code. Broken import resolution remains an error.
@@ -70,3 +74,9 @@ Missing inputs, unsupported arguments and symlinks fail explicitly.
 These are raw file sizes, not compressed downloads, native package sizes or the
 installed app footprint. No network, app data, archived sources or native build
 caches are inspected. The command does not change release packaging.
+
+Resume the saved prompt study (offline viewer):
+`node tools/benchmarks/conversation-prompts/explorer/explore.ts`.
+The [experiment README](benchmarks/conversation-prompts/README.md) records the
+selected Relationship prompt at temperature 1.1, runtime ownership, saved results,
+and how to design and run the next round.

@@ -14,11 +14,29 @@
       },
       "type": "object"
     },
+    "examples": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "examples_intro": {
+      "type": "string"
+    },
     "future": {
+      "type": "string"
+    },
+    "interaction": {
       "type": "string"
     },
     "opening": {
       "type": "string"
+    },
+    "opening_angles": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
     },
     "past": {
       "type": "string"
@@ -37,8 +55,12 @@
     "base",
     "ceiling",
     "difficulty",
+    "examples",
+    "examples_intro",
     "future",
+    "interaction",
     "opening",
+    "opening_angles",
     "past",
     "persona",
     "response",

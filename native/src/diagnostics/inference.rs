@@ -95,6 +95,7 @@ pub(crate) fn prepared(
             .map(|hash| hash == current_config_hash)
     );
     event["candidateCount"] = json!(captured["candidateConstructs"].as_array().map(Vec::len));
+    event["temperature"] = json!(dispatch.temperature);
     event["maxOutputTokens"] = json!(output_limit(dispatch));
     emit(&event);
 }
@@ -204,6 +205,16 @@ fn completion_event(
     event
 }
 
+/// Content-free warning; original response and provider metadata remain in the attempt.
+pub(crate) fn emojis_removed(dispatch: &Dispatch, operation_kind: &str, count: usize) {
+    emit(&json!({
+        "code": "prose_emojis_removed", "level": "WARN",
+        "attemptId": identity(&dispatch.attempt),
+        "operationId": identity(&dispatch.operation),
+        "operationKind": kind(operation_kind), "removedGraphemes": count,
+    }));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,6 +225,7 @@ mod tests {
     #[test]
     fn completion_metadata_survives_rejection_without_content() {
         let dispatch = Dispatch {
+            temperature: 0.7,
             target: ResolvedTarget {
                 route: ConnectionRoute::Custom,
                 revision: 1,

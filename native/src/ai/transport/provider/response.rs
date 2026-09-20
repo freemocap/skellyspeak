@@ -3,16 +3,42 @@ use crate::model::{AppError, ErrorCode, Result};
 use serde::Deserialize;
 use std::sync::OnceLock;
 
-pub fn validate_prose(text: &str) -> Result<()> {
+fn emoji_pattern() -> &'static regex::Regex {
     static EMOJI: OnceLock<regex::Regex> = OnceLock::new();
-    let emoji = EMOJI.get_or_init(|| {
+    EMOJI.get_or_init(|| {
         regex::Regex::new(r"[\p{Emoji_Presentation}\p{Extended_Pictographic}\x{FE0F}\x{20E3}]")
             .expect("valid Unicode emoji policy")
-    });
+    })
+}
+
+/// Remove whole emoji graphemes, including joiners, modifiers and flag tags.
+/// Ordinary digits and script joiners in non-emoji graphemes remain unchanged.
+pub fn strip_prose_emojis(text: &str) -> (String, usize) {
+    use unicode_segmentation::UnicodeSegmentation;
+    let mut removed = 0;
+    let clean: String = text
+        .graphemes(true)
+        .filter(|grapheme| {
+            if emoji_pattern().is_match(grapheme) {
+                removed += 1;
+                false
+            } else {
+                true
+            }
+        })
+        .collect();
+    if removed == 0 {
+        (clean, 0)
+    } else {
+        (clean.trim().to_owned(), removed)
+    }
+}
+
+pub fn validate_prose(text: &str) -> Result<()> {
     if text.trim().is_empty()
         || text.chars().count() > 12000
         || text.contains('\0')
-        || emoji.is_match(text)
+        || emoji_pattern().is_match(text)
     {
         return Err(AppError::new(
             ErrorCode::Provider,

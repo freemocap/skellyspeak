@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { useI18n } from '../../components/localization/i18n'
 import { languageLabel } from '../../domain/language/language-label'
@@ -9,26 +9,22 @@ import { useSettingsStore } from '../../state/settings/settings'
 import type { LanguageInspection } from '../../generated/contracts'
 import { LanguageDetails } from './LanguageDetails'
 
-/** Browsing never mutates preferences. Only the explicit selection action writes. */
-export function LanguageBrowser({ onClose }: { onClose: () => void }) {
+/** Checkboxes save membership immediately; inspecting a language does not switch chats. */
+export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => void; initialLanguage?: string | null }) {
   const tr = useI18n()
   const settings = useSettingsStore(state => state.settings)
   const savingLanguage = useSettingsStore(state => state.savingLanguage)
   const catalog = languages()
-  const [language, setLanguage] = useState(settings?.target_language ?? catalog[0].code)
+  const [language, setLanguage] = useState(initialLanguage ?? settings?.target_language ?? catalog[0].code)
   const selected = catalog.find(item => item.code === language)!
-  const [variety, setVariety] = useState(settings?.target_variety ?? selected.defaultVariety)
+  const [variety, setVariety] = useState(language === settings?.target_language ? settings.target_variety : settings?.target_varieties[language] ?? selected.defaultVariety)
   const explanation = settings?.native_language ?? catalog[0].code
   const explanationVariety = settings?.native_variety ?? catalog.find(item => item.code === explanation)!.defaultVariety
   const viewId = useId()
   const [onlyMine, setOnlyMine] = useState(false)
   const myLanguages = new Set([...(settings?.my_languages ?? []), ...(settings ? [settings.target_language] : [])])
-  const added = myLanguages.has(language)
-  const active = settings?.target_language === language
   const [actionError, setActionError] = useState<string | null>(null)
   const [notice, setNotice] = useState<'added' | 'removed' | null>(null)
-  const primaryAction = useRef<HTMLButtonElement>(null)
-  useEffect(() => { if (notice) primaryAction.current?.focus() }, [notice])
   const [query, setQuery] = useState('')
   const [report, setReport] = useState<LanguageInspection | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -42,21 +38,14 @@ export function LanguageBrowser({ onClose }: { onClose: () => void }) {
     }).catch((reason: unknown) => { if (active) setError(errorText(reason)) })
     return () => { active = false }
   }, [language, variety, explanation, explanationVariety, attempt])
-  async function select() {
+  async function changeMembership(code: string, checked: boolean) {
     if (saving || savingLanguage) return
+    const definition = catalog.find(item => item.code === code)!
+    const remembered = settings?.target_varieties[code] ?? definition.defaultVariety
     setSaving(true); setActionError(null); setNotice(null)
     try {
-      await useSettingsStore.getState().selectLanguageVariety(language, variety)
-      onClose()
-    } catch (reason) { setActionError(errorText(reason)) }
-    finally { setSaving(false) }
-  }
-  async function changeMembership(remove = false) {
-    if (saving || savingLanguage) return
-    setSaving(true); setActionError(null); setNotice(null)
-    try {
-      await useSettingsStore.getState().saveMyLanguage(language, remove ? null : variety)
-      setNotice(remove ? 'removed' : 'added')
+      await useSettingsStore.getState().saveMyLanguage(code, checked ? remembered : null)
+      setNotice(checked ? 'added' : 'removed')
     } catch (reason) { setActionError(errorText(reason)) }
     finally { setSaving(false) }
   }
@@ -77,15 +66,27 @@ export function LanguageBrowser({ onClose }: { onClose: () => void }) {
       <div className="language-browser-layout" role="tabpanel" id={`${viewId}-panel`} aria-labelledby={`${viewId}-${onlyMine ? 'mine' : 'all'}`}>
         <nav aria-label={tr('Languages')} className="language-browser-list">
           <input className="field" type="search" aria-label={tr('Search languages')} placeholder={tr('Search languages')} value={query} onChange={event => setQuery(event.target.value)} />
-          {matches.map(item => <button type="button" className="language-browser-item" key={item.code} aria-current={language === item.code ? 'true' : undefined}
-            aria-label={languageLabel(item, tr.locale)} disabled={saving || savingLanguage} onClick={() => { setLanguage(item.code); setVariety(item.code === settings?.target_language ? settings.target_variety : settings?.target_varieties[item.code] ?? item.defaultVariety); setActionError(null); setNotice(null) }}>
-            <LanguageBadge endonym={item.endonym} />
-            <span className="language-browser-names"><strong dir="auto">{item.endonym}</strong><small>{translatedName(tr.locale, item.name)}</small></span>
-            {myLanguages.has(item.code) && <span className="language-browser-current">{tr('Added')}</span>}
-          </button>)}
+          <div className="language-browser-grid">
+          {matches.map(item => <div className="language-browser-tile" key={item.code}>
+            <input type="checkbox" aria-label={languageLabel(item, tr.locale)}
+              checked={myLanguages.has(item.code)}
+              disabled={item.code === settings?.target_language || saving || savingLanguage}
+              title={item.code === settings?.target_language ? tr('Switch languages before removing the current language.') : undefined}
+              onChange={event => void changeMembership(item.code, event.target.checked)} />
+            <button type="button" className="language-browser-item" aria-current={language === item.code ? 'true' : undefined}
+              aria-label={languageLabel(item, tr.locale)} disabled={saving || savingLanguage} onClick={() => { setLanguage(item.code); setVariety(item.code === settings?.target_language ? settings.target_variety : settings?.target_varieties[item.code] ?? item.defaultVariety); setActionError(null); setNotice(null) }}>
+              <LanguageBadge endonym={item.endonym} />
+              <span className="language-browser-names"><strong dir="auto">{item.endonym}</strong><small>{translatedName(tr.locale, item.name)}</small></span>
+            </button>
+          </div>)}
+          </div>
           {matches.length === 0 && <p>{tr('No matching languages')}</p>}
+          {saving && <p role="status">{tr('Saving…')}</p>}
+          {notice && <p role="status">{notice === 'added' ? tr('Language added. Your current conversation is unchanged.') : tr('Language removed from My languages.')}</p>}
+          {actionError && <p role="alert">{actionError}</p>}
         </nav>
         <section className="language-browser-detail" aria-label={selected.name}>
+          <div className="language-browser-overview">
           <header className="language-browser-hero">
             <LanguageBadge endonym={selected.endonym} large />
             <h3><span dir="auto">{selected.endonym}</span>{selected.endonym !== translatedName(tr.locale, selected.name) && <small>{translatedName(tr.locale, selected.name)}</small>}</h3>
@@ -93,19 +94,10 @@ export function LanguageBrowser({ onClose }: { onClose: () => void }) {
           <label>{tr('Variety')}<select className="field" value={variety} disabled={saving || savingLanguage} onChange={event => { setVariety(event.target.value); setActionError(null); setNotice(null) }}>
             {selected.varieties.map(item => <option key={item.id} value={item.id}>{translatedName(tr.locale, item.label)}</option>)}
           </select></label>
-          <div className="language-browser-actions">
-            {!added && <button type="button" className="btn primary" ref={primaryAction} disabled={!report || saving || savingLanguage} onClick={() => void changeMembership()}>{saving ? tr('Saving…') : tr('Add language')}</button>}
-            {added && <>
-              <button type="button" className="btn primary" ref={primaryAction} disabled={!report || saving || savingLanguage} onClick={() => void select()}>{saving ? tr('Saving…') : tr('Use now')}</button>
-              <button type="button" className="btn" disabled={active || saving || savingLanguage} onClick={() => void changeMembership(true)}>{tr('Remove from My languages')}</button>
-            </>}
           </div>
-          {added && <p className="field-note">{active ? tr('Switch languages before removing the current language.') : tr('Removing a language keeps its conversations and progress.')}</p>}
-          {notice && <p role="status">{notice === 'added' ? tr('Language added. Your current conversation is unchanged.') : tr('Language removed from My languages.')}</p>}
-          {actionError && <p role="alert">{actionError}</p>}
           {error && <div role="alert"><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></div>}
           {!report && !error && <p role="status">{tr('Loading…')}</p>}
-          {report && <details><summary>{tr("Language details")}</summary><LanguageDetails report={report} /></details>}
+          {report && <LanguageDetails report={report} key={language + variety} />}
         </section>
       </div>
     </div>

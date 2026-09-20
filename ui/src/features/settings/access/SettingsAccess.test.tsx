@@ -344,6 +344,7 @@ it('shows server and token verification and replaces it with a failed check', as
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
   await screen.findByLabelText('Server address')
   expect(screen.queryByRole('button', { name: 'Connect to local server' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Open local admin' })).toBeNull()
  })
 
  it('reports a missing local token without checking or altering hosted access', async () => {
@@ -358,4 +359,18 @@ it('shows server and token verification and replaces it with a failed check', as
   fireEvent.click(await screen.findByRole('button', { name: 'Connect to local server' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('Start the local server')
   expect(native.mock.calls.some(([command]) => command === 'check_access' || command === 'hosted_sign_in')).toBe(false)
+ })
+
+ it('opens local administration natively without passing credentials or changing access', async () => {
+  native.mockImplementation(async (command: string) => {
+    if (command === 'local_server_available') return true
+    if (command === 'get_connection') return connection
+    if (command === 'get_access_settings') return access
+    if (command === 'open_local_admin') return
+    throw new Error(command)
+  })
+  render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Open local admin' }))
+  await waitFor(() => expect(native).toHaveBeenCalledWith('open_local_admin'))
+  expect(native.mock.calls.some(([command]) => command === 'save_access_settings' || command === 'hosted_sign_in')).toBe(false)
  })

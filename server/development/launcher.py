@@ -79,6 +79,8 @@ def main() -> None:
     quota = importlib.import_module("server.app.accounting.quota")
     uvicorn = importlib.import_module("uvicorn")
     api.db = database
+    from server.development.admin import LocalAdmin
+    LocalAdmin(ROOT / ".local-server", logs).install(api.app)
 
     quota.upsert_user(api.db, user_id="local-learner", email="local@example.invalid",
                       name="Local test", max_users=1)

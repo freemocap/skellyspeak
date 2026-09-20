@@ -197,3 +197,37 @@ fn periodic_saves_never_move_the_revision_and_survive_a_crash() {
         Some("Hola, ¿qu")
     );
 }
+
+#[test]
+fn inspection_bodies_survive_while_diagnostics_redact_content_and_credentials() {
+    let (_dir, mut store, conversation) = setup();
+    let (_, dispatched) = reply_dispatch(&mut store, &conversation);
+    let mut output = reply("INSPECTION_RESPONSE");
+    output.diagnostics = Some(crate::diagnostics::response::metadata(
+        &serde_json::json!({
+            "id": "provider-request-id", "model": "actual-model",
+            "choices": [{"message": {"content": "INSPECTION_RESPONSE"}, "finish_reason": "stop"}],
+            "authorization": "Bearer private-credential"
+        }),
+        &["private-credential"],
+    ));
+    store.finish(&dispatched, Ok(output)).unwrap();
+    let detail = store.attempt_detail(&dispatched.attempt).unwrap();
+    assert_eq!(detail.response_text.as_deref(), Some("INSPECTION_RESPONSE"));
+    assert_eq!(
+        detail.request_messages.unwrap()[0].content,
+        dispatched.messages[0].content
+    );
+    let saved: String = store
+        .connection
+        .query_row(
+            "SELECT diagnostics FROM attempts WHERE id=?1",
+            [&dispatched.attempt],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert!(!saved.contains("INSPECTION_RESPONSE"));
+    assert!(!saved.contains("private-credential"));
+    assert!(saved.contains("provider-request-id"));
+    assert!(saved.contains("actual-model"));
+}

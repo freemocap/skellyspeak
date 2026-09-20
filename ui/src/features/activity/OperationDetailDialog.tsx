@@ -2,10 +2,9 @@ import { useState } from 'react'
 import type { OperationView, TurnView } from '../../generated/contracts'
 import { humanizeKind } from '../../domain/conversation/activity-summary'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
-import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { attemptDuration } from './graph-layout'
-import { OperationFacts, OperationHistory, operationRuns } from './OperationInspector'
+import { InspectionDiagnostics, OperationFacts, OperationHistory, operationRuns } from './OperationInspector'
 import { AttemptBodies } from './AttemptBodies'
 
 /// Latency of this operation across loaded exchanges, oldest to newest.
@@ -46,8 +45,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
         <h3 className="ai-section-title">{tr('History of this operation')}</h3>
         <Sparkline values={durations} />
         <OperationHistory runs={runs} current={turn.id} onPickTurn={onPickTurn} now={now} />
-        <h3 className="ai-section-title">{tr('Diagnostics')}</h3>
-        <ResponseDetails value={attempt?.diagnostics} />
+        <InspectionDiagnostics value={attempt?.diagnostics} />
       </section>
     </div>
   </DetailDialog>

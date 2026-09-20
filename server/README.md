@@ -43,8 +43,9 @@ domain subfolders are deferred. Working notes belong in [docs/notes/](../docs/no
 ## Diagnostics
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
-session as chat. Together they use a separate Firestore admission lane allowing
-120 calls per account per UTC day and 600 calls globally. They do not debit the
+session as chat. Together they use a separate Firestore admission lane, defaulting
+to 120 calls per account per UTC day and 600 calls globally. The owner panel can
+change those defaults through effective service overrides. They do not debit the
 inference/account daily request counter.
 
 Signed-session short-window admission has two lanes per process:
@@ -88,8 +89,8 @@ response finished successfully. Cloud Run's separately managed request logs have
 Google's own fields and retention; these application changes do not configure them.
 
 `/health` remains lightweight liveness, not account/Firestore/provider readiness.
-No reset endpoint, administrative credentials, public diagnostics or relaxed
-spending controls are introduced.
+The learner diagnostics endpoints do not expose resets or administrative data.
+The separate owner-only administration surface is documented below.
 
 ## Verification and deployment
 
@@ -536,3 +537,61 @@ See [the setup and deployment guide](../docs/notes/audio-provider-setup.md) for
 exact native Models settings, key placement, Secret Manager IAM, pinned version
 selection and rotation. The Cloud Build source now binds `elevenlabs-api-key:1`
 by default via an overridable substitution. This source has **not been deployed**.
+
+## Owner administration
+
+The source includes a browser panel at `/admin`, restricted to the Google-verified
+email `info@freemocap.org`. This uses the existing Google client and callback with
+separate browser-bound admin state and a one-hour HttpOnly session. App bearer
+sessions do not grant admin access. Admin checks are independent of learner daily
+quotas, so the panel can investigate and restore an exhausted account allowance.
+
+The panel shows paginated users and custom spending exceptions, up to 90 UTC days
+of ledger history, device registrations, recent reservations, service controls,
+Cloud Logging events and audited administrative changes. Logs load on demand with
+bounded pagination. Time-of-day heat maps summarize loaded request-arrival events;
+geographic origin is not collected. Usage includes reservations and estimated
+charges and must not be read as a provider invoice.
+
+Changes require a review dialog, same-origin request, current revision and operation
+UUID. Daily allowance resets preserve usage/history and shared counters; they
+restore personal allowance through credit offsets. Session revocation invalidates
+existing sessions but permits signing in again. Effective service overrides survive
+redeployment in `service_controls/limits`; missing overrides use environment/code
+defaults. The extended allowance is a preset copied into individual account limits.
+
+UI source is `ui/src/features/admin/entry.ts`, with the shared-token stylesheet at
+`ui/src/styles/features/admin.css` and HTML source in `ui/tools/admin.html`.
+Generated browser assets are explicitly included in the runtime image:
+
+```sh
+node ui/tools/admin-build.ts
+node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext ui/src/features/admin/entry.ts ui/tools/admin-build.ts
+node ui/tools/admin-build.ts --check
+```
+
+Cloud log access requires the runtime identity to have `logging.logEntries.list`
+(e.g. Logs Viewer). The panel reports missing permissions as an error. Admin audit
+records have a 365-day TTL, included in deployment retention provisioning. This
+source work does not authorize deployment, IAM changes or live account resets.
+See [implementation, verification and remaining decisions](../docs/notes/server-admin-panel-2026-09-20.md).
+
+### Local administration
+
+`npm run server:local` builds the admin assets and serves the panel with the normal
+local API. In a desktop development build, choose **Settings → AI access → Custom
+URL → Open local admin**. Restart the desktop app after rebuilding native commands.
+The button opens your browser without changing the app's selected connection or
+passing credentials through the webview.
+
+Google sign-in remains disabled for the local launcher. Local administration uses
+this checkout's private `server/.local-server/admin-token.txt` to obtain a one-use,
+60-second browser link. The resulting HttpOnly session lasts one hour. This access
+is loopback-only and implemented under `development/`, excluded from the hosted
+image. Hosted administration continues to require the verified owner Google account.
+
+The panel reads the same in-memory accounts, usage, policies and audit records as
+the local API. It reports the newest 10,000 sanitized log events from the current
+run, with 500-event pages and request/error filters. Server restart clears these
+records and invalidates local admin sessions. Existing JSONL log files remain on
+disk. Local provider requests still use real keys and can incur charges.

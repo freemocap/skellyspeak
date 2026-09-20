@@ -75,3 +75,5 @@
 @import './foundations/motion.css';
 
 @import './features/settings/onboarding.css';
+
+@import './features/admin.css';

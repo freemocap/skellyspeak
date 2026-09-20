@@ -381,6 +381,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/00/f3/8508a702c094af5f6e89773f4dfdeee74913df0f41a02c21b5e7dc3d75cd/google_auth-2.57.0-py3-none-any.whl", hash = "sha256:180dafe015cfb62193bea26b677500fab5b9fd51a1e825ebf3ad9b182047ae59", size = 259728, upload-time = "2026-08-24T21:55:08.449Z" },
 ]
 
+[package.optional-dependencies]
+requests = [
+    { name = "requests" },
+]
+
 [[package]]
 name = "google-cloud-core"
 version = "2.7.0"
@@ -863,6 +868,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "anyio" },
     { name = "fastapi" },
+    { name = "google-auth", extra = ["requests"] },
     { name = "google-cloud-firestore" },
     { name = "httpx" },
     { name = "pyjwt", extra = ["crypto"] },
@@ -880,6 +886,7 @@ dev = [
 requires-dist = [
     { name = "anyio", specifier = ">=4" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "google-auth", extras = ["requests"], specifier = ">=2.35" },
     { name = "google-cloud-firestore", specifier = ">=2.19" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.9" },

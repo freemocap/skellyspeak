@@ -49,3 +49,14 @@ app/diagnostics/*
 !app/inference/audio_contracts.py
 !app/inference/elevenlabs.py
 !app/inference/audio_service.py
+
+!app/diagnostics/admin_assets/
+app/diagnostics/admin_assets/*
+!app/identity/admin_auth.py
+!app/accounting/admin_controls.py
+!app/diagnostics/admin_routes.py
+!app/diagnostics/admin_reports.py
+!app/diagnostics/admin_logs.py
+!app/diagnostics/admin_assets/index.html
+!app/diagnostics/admin_assets/admin.css
+!app/diagnostics/admin_assets/admin.js

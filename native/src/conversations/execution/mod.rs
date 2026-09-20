@@ -53,6 +53,7 @@ pub use turns::control_turn;
 pub use turns::request_suggestions;
 
 pub struct Dispatch {
+    pub temperature: f64,
     pub target: crate::ai::connections::access::ResolvedTarget,
     pub attempt: String,
     pub operation: String,

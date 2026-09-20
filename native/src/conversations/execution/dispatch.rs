@@ -327,6 +327,11 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
+            temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
+                1.1
+            } else {
+                0.7
+            },
             target,
             attempt,
             operation,

@@ -211,3 +211,17 @@ it('places shared model selection in its own section and search result', async (
   expect(screen.getByText('AI access', { selector: 'p:not(.settings-group-k)' })).toBeVisible()
   expect(screen.queryByText('Shared model editor')).toBeNull()
 })
+
+it('offers an enabled onboarding restart in language settings', async () => {
+  const { useOnboardingStore } = await import('../../state/settings/onboarding')
+  const restart = vi.fn().mockResolvedValue(undefined)
+  useOnboardingStore.setState({ busy: false, reviewSetup: restart })
+  const close = vi.fn()
+  render(<SettingsModal onClose={close} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'onboarding' } })
+  const button = screen.getByRole('button', { name: 'Restart onboarding' })
+  expect(button).toBeEnabled()
+  fireEvent.click(button)
+  await waitFor(() => expect(restart).toHaveBeenCalledOnce())
+  await waitFor(() => expect(close).toHaveBeenCalledOnce())
+})

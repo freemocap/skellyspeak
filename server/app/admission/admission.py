@@ -87,6 +87,8 @@ def take(db: firestore.Client, *, lane: Literal["auth", "account", "diagnostics"
 
     @firestore.transactional
     def apply(transaction: firestore.Transaction) -> None:
+        from server.app.accounting.admin_controls import stored
+        policy = stored(db, transaction)
         global_data: dict[str, object] = shared.get(transaction=transaction).to_dict() or {}
         user_data: dict[str, object] = (personal.get(transaction=transaction).to_dict() or {}) if lane != "auth" else {}
         field: str = f"{lane}_requests"
@@ -94,11 +96,13 @@ def take(db: firestore.Client, *, lane: Literal["auth", "account", "diagnostics"
         limit: int = {"auth": AUTH_PER_DAY, "account": GLOBAL_REQUESTS_PER_DAY,
                       "diagnostics": GLOBAL_DIAGNOSTICS_PER_DAY}[lane]
         personal_limit = DIAGNOSTICS_PER_DAY if lane == "diagnostics" else ACCOUNT_REQUESTS_PER_DAY
+        limit = policy.get({'auth': 'auth_requests', 'account': 'global_requests', 'diagnostics': 'global_diagnostics'}[lane], limit)
+        personal_limit = policy.get('diagnostics_requests' if lane == 'diagnostics' else 'account_requests', personal_limit)
         personal_field = "diagnostics_requests" if lane == "diagnostics" else "requests"
         if total >= limit:
             raise Rejection(f"SHARED_{lane.upper()}_DAILY_LIMIT",
                             "Daily request limit reached. Resets at 00:00 UTC.", daily=True)
-        if lane != "auth" and int(user_data.get(personal_field, 0)) >= personal_limit:
+        if lane != "auth" and max(0, int(user_data.get(personal_field, 0)) - int(user_data.get(personal_field + "_credit", 0))) >= personal_limit:
             raise Rejection(f"PERSONAL_{lane.upper()}_DAILY_LIMIT",
                             "Daily request limit reached. Resets at 00:00 UTC.", daily=True)
         transaction.set(shared, {field: firestore.Increment(1), "ttl": quota.ttl_after(2)}, merge=True)

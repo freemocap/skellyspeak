@@ -76,6 +76,7 @@ pub(super) fn prepare_speech(
         [turn],
     )?;
     Ok(Dispatch {
+        temperature: 0.7,
         credential: target.credential.clone().unwrap_or_default(),
         model: target.model.clone(),
         route: target.route,

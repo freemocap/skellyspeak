@@ -44,7 +44,7 @@
 
 .learning-picker:disabled { opacity: .6; cursor: default; }
 
-.learning-picker option { background: var(--sheet); color: var(--ink); font: var(--type-body) var(--font-sans); }
+
 
 .learning-saving {
   position: absolute;
@@ -223,3 +223,32 @@
   .chat-config-summary { font-size: var(--type-ui); color: var(--ink-2); }
 }
 @media (pointer: coarse) { .chat-new, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }
+
+/* Cascading language menu: the first panel matches its trigger; varieties float beside the row. */
+.language-dropdown { position: relative; min-width: 0; }
+.language-dropdown .learning-picker { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; text-align: start; white-space: normal; overflow-wrap: anywhere; }
+.learning-picker-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-4); min-width: 0; }
+.language-dropdown .learning-picker small { font-size: var(--type-ui); font-weight: var(--weight-regular); color: var(--ink-2); }
+.language-dropdown .learning-picker > span:last-child { grid-column: 2; align-self: center; }
+.language-dropdown-panel { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: 100%; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
+.language-dropdown-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); width: 100%; }
+.language-dropdown-row > span:last-child { flex: none; }
+.language-dropdown-check { flex: none; width: var(--space-8); color: var(--ink); font-weight: var(--weight-semibold); text-align: center; }
+.language-dropdown-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.language-dropdown-varieties > button { display: flex; align-items: center; gap: var(--space-4); width: 100%; }
+.language-dropdown-row, .language-dropdown-add, .language-dropdown-varieties > button { min-height: var(--control-height); padding: var(--space-4); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); text-align: start; font-size: var(--type-body); cursor: pointer; }
+.language-dropdown-row:hover, .language-dropdown-row[aria-expanded=true], .language-dropdown-add:hover, .language-dropdown-varieties > button:hover { background: var(--interaction-tint); }
+.language-dropdown-add { width: 100%; border-top: var(--border-width) solid var(--line-soft); border-radius: 0; }
+.language-dropdown-varieties { position: fixed; z-index: var(--z-popover); display: grid; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
+.language-dropdown-varieties > button[aria-pressed=true] { background: var(--interaction-tint); color: var(--interaction-ink); }
+[dir=rtl] .language-dropdown-row > span:last-child { transform: rotate(180deg); }
+@media (pointer: coarse) {
+  .language-dropdown-row, .language-dropdown-add, .language-dropdown-varieties > button { min-height: var(--touch-target); }
+}
+
+.language-dropdown-group { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.language-dropdown-info { display: grid; place-items: center; min-width: var(--control-height); min-height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2); font-size: var(--type-title); cursor: pointer; }
+.language-dropdown-info:hover { background: var(--interaction-tint); color: var(--interaction-ink); }
+@media (pointer: coarse) {
+  .language-dropdown-info { min-width: var(--touch-target); min-height: var(--touch-target); }
+}

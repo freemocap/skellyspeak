@@ -45,6 +45,7 @@ mod tests {
     #[test]
     fn speech_event_is_correlated_durable_and_content_free_on_success_and_failure() {
         let dispatch = Dispatch {
+            temperature: 0.7,
             target: ResolvedTarget {
                 route: ConnectionRoute::Custom,
                 revision: 1,

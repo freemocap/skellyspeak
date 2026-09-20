@@ -18,7 +18,7 @@ fn documents_reject_invalid_fields_references_defaults_and_content() {
         |v| v["extra"] = json!(true),
         |v| v["schema_version"] = json!(99),
         |v| v["defaults"]["orthography"] = json!({"local":"missing"}),
-        |v| v["defaults"]["orthography"] = json!({"local":"arabic-unvocalized","shared":"latin"}),
+        |v| v["defaults"]["orthography"] = json!({"local":"arabic-vocalized","shared":"latin"}),
         |v| v["defaults"]["romanization"]["scheme"] = json!({"local":"missing"}),
         |v| v["defaults"]["supported_romanizations"] = json!([]),
         |v| v["defaults"]["scalars"]["font_scale"] = json!(-1),
@@ -194,7 +194,7 @@ fn browser_reports_effective_values_and_ordered_rule_sources() {
         .iter()
         .find(|v| v.field == "font_scale")
         .unwrap();
-    assert_eq!(scale.value, "1.5");
+    assert_eq!(scale.value, "1.8");
     assert!(scale.source.ends_with("defaults.scalars.font_scale"));
 }
 #[test]
@@ -211,9 +211,21 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     let report = registry
         .inspect_language("arabic", None, "english", None)
         .unwrap();
-    assert_eq!(report.rules.len(), 1);
-    assert_eq!(report.rules[0].source, "languages/arabic.yaml#guidance.0");
-    assert!(report.rules[0].text.contains("Arabic learner evidence"));
+    assert_eq!(report.rules.len(), 3);
+    let evidence = report
+        .rules
+        .iter()
+        .find(|rule| rule.source == "languages/arabic.yaml#guidance.0")
+        .unwrap();
+    assert!(evidence.text.contains("Arabic learner evidence"));
+    assert_eq!(
+        report
+            .rules
+            .iter()
+            .filter(|rule| { rule.text.contains("full vowel marks") })
+            .count(),
+        2
+    );
     let serialized = serde_json::to_value(&report).unwrap();
     assert!(serialized.get("goals").is_none());
     assert!(serialized.get("topics").is_none());

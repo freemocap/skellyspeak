@@ -156,7 +156,7 @@ fn cancellation_and_deletion_revoke_late_publication() {
 fn invalid_prose_keeps_usage_and_retry_does_not_duplicate_user_message() {
     let (_dir, mut store, conversation) = setup();
     let dispatch = begin(&mut store, &conversation);
-    store.finish(&dispatch, Ok(reply("Hello 🌊"))).unwrap();
+    store.finish(&dispatch, Ok(reply("🌊"))).unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 1);
     assert_eq!(snapshot.turns[0].state, "failed");

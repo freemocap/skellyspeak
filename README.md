@@ -61,6 +61,11 @@ npm ci --prefix docs/website
 npm run macos:dev
 ```
 
+On Linux, run `npm run tauri dev`. In an interactive terminal on Pop!_OS,
+Ubuntu or Debian, this installs missing GTK/WebKit/ALSA development packages
+automatically through apt; sudo may ask for your password. See
+[Linux build dependencies](native/README.md#linux-build-dependencies).
+
 The repository's `.nvmrc` selects Node 24. Run `nvm use` when opening a new
 terminal here. If a launcher reports `ERR_UNKNOWN_FILE_EXTENSION` for a `.ts`
 file, check `node --version`: an older system Node may be taking precedence.
@@ -131,6 +136,19 @@ signing certificates differ. Keep the command running for frontend reloads. For
 a local SkellySpeak server, start `npm run server:local` in a second terminal and
 run `adb reverse tcp:8765 tcp:8765`; the device may then use
 `http://127.0.0.1:8765/v1`.
+
+For a standalone debug APK that lives alongside the official Android app, set
+`SKELLYSPEAK_ANDROID_DEV_APP=1` when running `npm run tauri -- android build --debug
+--apk --target aarch64 --ci --config native/tauri.android-dev.conf.json`.
+This opt-in debug variant uses
+`com.freemocap.skellyspeak.dev` and the launcher label **Dev-SkellySpeak**, with
+separate app data and credentials. Install its APK with `adb install -r`; it bundles
+the interface and can run after USB is unplugged. AI access still requires a
+reachable service. Supply a build config whose `version` matches `native/Cargo.toml`
+to stamp the Android version, as the release workflow does. This variant is for
+APK installation; the normal `android dev` runner still targets the standard ID.
+Both apps handle `skellyspeak://auth`; select **Dev-SkellySpeak** if Android asks
+which app should receive a developer sign-in callback.
 
 ### Share Android diagnostic logs
 
@@ -636,6 +654,21 @@ all difficulty instructions, custom topics and saved-topic management. Apply cha
 the draft; Cancel discards edits. Conversation settings reopen it after starting,
 with changes applying to subsequent turns. Preview and actual requests share the
 same native composer; editable prose lives under `content/prompts/conversation/`.
+
+The active prompt source is
+[`content/prompts/conversation/instructions.yaml`](content/prompts/conversation/instructions.yaml).
+The native composer sends the partner's name, location, interests and opinions;
+Intermediate and higher also receive occupation and current situation. The full
+profile remains intact. Canned dialogue examples are currently disabled. The
+selected difficulty is the final constraint after the opening/reply task. Openings combine a
+small concrete contribution with an answerable question. For fresh conversations
+without a selected topic, a stable hash of the conversation ID chooses an editable
+`opening_angles` situation; preview and execution use the same choice. This varies
+starting material without guaranteeing unique outputs. A learner-selected topic
+takes priority, and follow-ups receive no new opening situation.
+The `conversation-XX` value is a request version label, not another prompt file.
+Experiment records in `docs/notes/` are not runtime inputs. Restart/rebuild the native app to load YAML
+changes; the prompt preview shows the same assembly used by new turns.
 
 Lesson generation, quizzes and lesson handoffs have been removed. Coaching,
 evidence and conversation rewards remain. See the

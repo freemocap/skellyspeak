@@ -7,33 +7,35 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -41,7 +43,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -92,33 +94,35 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -126,7 +130,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -177,10 +181,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -189,21 +193,22 @@
           "Use German — Germany (german-germany). Germany"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -211,7 +216,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -262,10 +267,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -274,21 +279,22 @@
           "Use English — United Kingdom (english-united-kingdom). United Kingdom"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -296,7 +302,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -347,10 +353,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -359,21 +365,22 @@
           "Use English — United States (english-united-states). United States"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -381,7 +388,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -432,10 +439,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -444,21 +451,22 @@
           "Use Spanish — Spain (spanish-spain). Spain"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -466,7 +474,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -517,10 +525,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -529,21 +537,22 @@
           "Use Spanish — Mexico (spanish-mexico). Mexico"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -551,7 +560,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -602,10 +611,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -614,21 +623,22 @@
           "Use French — Canada (french-canada). Canada"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -636,7 +646,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -687,10 +697,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -699,21 +709,22 @@
           "Use French — France (french-france). France"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -721,7 +732,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -772,10 +783,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -784,21 +795,22 @@
           "Use Portuguese — Brazil (portuguese-brazil). Brazil"
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -806,7 +818,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -857,10 +869,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -870,21 +882,22 @@
           "Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation is requested."
         ],
         "pragmatics": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "romanization": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic",
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic"
         ],
         "target_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -892,7 +905,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-modern-standard",
-      "variety_name": "Modern Standard Arabic",
+      "variety_name": "Modern Standard",
       "word_spacing": true
     },
     "persona": {
@@ -943,33 +956,35 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -977,7 +992,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1028,33 +1043,35 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1062,7 +1079,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1113,10 +1130,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1125,21 +1142,22 @@
           "Use German — Germany (german-germany). Germany"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1147,7 +1165,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1198,10 +1216,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1210,21 +1228,22 @@
           "Use English — United Kingdom (english-united-kingdom). United Kingdom"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1232,7 +1251,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1283,10 +1302,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1295,21 +1314,22 @@
           "Use English — United States (english-united-states). United States"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1317,7 +1337,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1368,10 +1388,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1380,21 +1400,22 @@
           "Use Spanish — Spain (spanish-spain). Spain"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1402,7 +1423,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1453,10 +1474,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1465,21 +1486,22 @@
           "Use Spanish — Mexico (spanish-mexico). Mexico"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1487,7 +1509,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1538,10 +1560,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1550,21 +1572,22 @@
           "Use French — Canada (french-canada). Canada"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1572,7 +1595,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1623,10 +1646,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1635,21 +1658,22 @@
           "Use French — France (french-france). France"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1657,7 +1681,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1708,10 +1732,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1720,21 +1744,22 @@
           "Use Portuguese — Brazil (portuguese-brazil). Brazil"
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1742,7 +1767,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1793,10 +1818,10 @@
       "external_tags": {
         "transcription": "ar"
       },
-      "font_scale": 1.5,
+      "font_scale": 1.8,
       "guidance": {
         "assessment": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Distinguish errors from valid forms in another variety. Explain a mismatch with the selected variety without treating all variation as incorrect.",
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors.",
           "For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
@@ -1806,21 +1831,22 @@
           "Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation is requested."
         ],
         "pragmatics": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Support the learner’s chosen purpose through dialogue. The conversation partner remains a partner, never an examiner; feedback concerns the work, never the person."
         ],
         "reading": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "romanization": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
           "Romanization: ALA-LC Arabic (arabic:ala-lc-arabic). Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration rules, not a pronunciation respelling. Never alter the Arabic source. Examples: كتاب → kitāb; صورة → ṣūrah; على → ‘alá; مسألة → mas’alah; إيمان → īmān; الشمس → al-shams; وزارة التربية → Wizārat al-Tarbiyah; فجأةً → faj’atan; قاضٍ → qāḍin; أدهم → Adʹham. Sources: ala_lc_arabic."
         ],
         "segmentation": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
         ],
         "target_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ]
       },
       "hash": "",
@@ -1828,7 +1854,7 @@
       "script": "arabic",
       "target_name": "Arabic",
       "variety_id": "arabic-levantine",
-      "variety_name": "Levantine Arabic",
+      "variety_name": "Levantine",
       "word_spacing": true
     },
     "persona": {
@@ -1887,7 +1913,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use German — Germany (german-germany). Germany",
@@ -1962,7 +1989,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use German — Germany (german-germany). Germany",
@@ -2713,7 +2741,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use English — United Kingdom (english-united-kingdom). United Kingdom",
@@ -2796,7 +2825,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use English — United Kingdom (english-united-kingdom). United Kingdom",
@@ -3627,7 +3657,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use English — United States (english-united-states). United States",
@@ -3710,7 +3741,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use English — United States (english-united-states). United States",
@@ -4541,7 +4573,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Spanish — Spain (spanish-spain). Spain",
@@ -4627,7 +4660,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Spanish — Spain (spanish-spain). Spain",
@@ -5488,7 +5522,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Spanish — Mexico (spanish-mexico). Mexico",
@@ -5574,7 +5609,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Spanish — Mexico (spanish-mexico). Mexico",
@@ -6435,7 +6471,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use French — Canada (french-canada). Canada",
@@ -6519,7 +6556,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use French — Canada (french-canada). Canada",
@@ -7360,7 +7398,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use French — France (french-france). France",
@@ -7444,7 +7483,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use French — France (french-france). France",
@@ -8285,7 +8325,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Portuguese — Brazil (portuguese-brazil). Brazil",
@@ -8360,7 +8401,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Portuguese — Brazil (portuguese-brazil). Brazil",
@@ -9111,7 +9153,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Modern Standard Arabic (arabic-modern-standard). Modern Standard Arabic"
+          "Use Arabic — Modern Standard (arabic-modern-standard). Modern Standard Arabic",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Mandarin — Mainland China (mandarin-mainland-china). Mainland China",
@@ -9198,7 +9241,8 @@
           "Copy evidence character-for-character from learner text. Never correct spelling or translate evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's response schema. Never invent errors."
         ],
         "explanation_writing": [
-          "Use Arabic — Levantine Arabic (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review."
+          "Use Arabic — Levantine (arabic-levantine). Conversational Levantine Arabic; regional coverage remains under review.",
+          "Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and tanwin wherever appropriate to the selected variety and intended pronunciation; do not default to unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes exactly as written; this exception does not apply to newly generated replies, examples or corrections."
         ],
         "pragmatics": [
           "Use Mandarin — Mainland China (mandarin-mainland-china). Mainland China",

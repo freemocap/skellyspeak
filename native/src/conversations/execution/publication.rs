@@ -147,6 +147,25 @@ impl Store {
             [&dispatch.operation],
             |r| r.get(0),
         )?;
+        // Keep the provider's original response above; publish and derive assistance
+        // from cleaned conversation prose, never rewrite structured JSON outputs.
+        let mut result = result;
+        if matches!(
+            kind.as_str(),
+            "persona_opening" | "persona_reply" | "coach_reply"
+        ) && let Ok(output) = &mut result
+        {
+            let (clean, removed) = crate::ai::transport::provider::strip_prose_emojis(&output.text);
+            if removed > 0 {
+                output.text = clean;
+                let diagnostics = output
+                    .diagnostics
+                    .get_or_insert_with(|| serde_json::json!({}));
+                diagnostics["prose_cleanup"] =
+                    serde_json::json!({"emoji_graphemes_removed": removed});
+                crate::diagnostics::inference::emojis_removed(dispatch, &kind, removed);
+            }
+        }
         let mut translation = None;
         let mut gloss = None;
         let mut gloss_report = None;

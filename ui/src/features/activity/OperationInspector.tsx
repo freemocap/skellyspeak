@@ -77,9 +77,19 @@ export function OperationInspector({ turn, operation, turns, now, onPickTurn, on
       <OperationFacts turn={turn} operation={operation} attempt={attempt} now={now} />
       {children}
       {attempt?.error && <p className="ai-error" role="alert">{attempt.error}</p>}
-      <ResponseDetails value={attempt?.diagnostics} />
+      <InspectionDiagnostics value={attempt?.diagnostics} />
       <h4 className="ai-section-title">{tr('History of this operation')}</h4>
       <OperationHistory runs={operationRuns(turns, operation.kind)} current={turn.id} onPickTurn={onPickTurn} now={now} />
     </div>
   </aside>
+}
+
+export function InspectionDiagnostics({ value }: { value: unknown }) {
+  const tr = useI18n()
+  if (value == null) return null
+  return <section>
+    <h4 className="ai-section-title">{tr('Diagnostics')}</h4>
+    <p className="ai-muted">{tr('Diagnostic metadata excludes message content. Use Request and Response to inspect recorded text.')}</p>
+    <ResponseDetails value={value} />
+  </section>
 }

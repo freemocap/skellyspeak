@@ -40,6 +40,43 @@ pub(in crate::application) async fn connect_local_server(
     }
 }
 
+#[tauri::command]
+pub(in crate::application) async fn open_local_admin(app: tauri::AppHandle) -> Result<()> {
+    #[cfg(all(debug_assertions, desktop))]
+    {
+        use tauri_plugin_opener::OpenerExt;
+        let failure = || AppError::new(ErrorCode::Credential,
+            "Cannot open local administration. Start the local server from this checkout, then try again.");
+        let token = read_token(&std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../server/.local-server/admin-token.txt"))?;
+        let client = reqwest::Client::builder().no_proxy()
+            .redirect(reqwest::redirect::Policy::none())
+            .timeout(std::time::Duration::from_secs(5)).build().map_err(|_| failure())?;
+        let mut response = client.post("http://127.0.0.1:8765/admin/local/ticket")
+            .bearer_auth(token.as_str()).send().await.map_err(|_| failure())?
+            .error_for_status().map_err(|_| failure())?;
+        let mut bytes = Vec::new();
+        while let Some(chunk) = response.chunk().await.map_err(|_| failure())? {
+            if bytes.len() + chunk.len() > 1024 { return Err(failure()); }
+            bytes.extend_from_slice(&chunk);
+        }
+        let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(|_| failure())?;
+        let ticket = value.get("ticket").and_then(|v| v.as_str()).ok_or_else(failure)?;
+        if ticket.len() != 43 || !ticket.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_') {
+            return Err(failure());
+        }
+        app.opener().open_url(format!("http://127.0.0.1:8765/admin/local/login#{ticket}"), None::<&str>)
+            .map_err(|_| failure())?;
+        Ok(())
+    }
+    #[cfg(not(all(debug_assertions, desktop)))]
+    {
+        let _ = app;
+        Err(AppError::new(ErrorCode::Validation,
+            "Local administration is available only in desktop development builds."))
+    }
+}
+
 #[cfg(all(debug_assertions, desktop))]
 fn read_token(path: &std::path::Path) -> Result<Zeroizing<String>> {
     use std::io::Read;

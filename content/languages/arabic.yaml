@@ -11,9 +11,32 @@ integrations:
   transcription: ar
 definitions:
   orthographies:
-    arabic-unvocalized:
+    # Full vocalization at every level is a learner-requested product policy.
+    arabic-vocalized:
       script: arabic
-      guidance: []
+      guidance:
+      - scope: target_writing
+        text: Write all newly generated Arabic in Arabic script with full vowel marks
+          (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and
+          tanwin wherever appropriate to the selected variety and intended pronunciation; do not
+          default to unvocalized text. For Levantine, vocalize the spoken dialect without adding
+          Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+          grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+          exactly as written; this exception does not apply to newly generated replies, examples or
+          corrections.
+        sources:
+        - unicode17_arabic
+      - scope: explanation_writing
+        text: Write all newly generated Arabic in Arabic script with full vowel marks
+          (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and
+          tanwin wherever appropriate to the selected variety and intended pronunciation; do not
+          default to unvocalized text. For Levantine, vocalize the spoken dialect without adding
+          Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+          grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+          exactly as written; this exception does not apply to newly generated replies, examples or
+          corrections.
+        sources:
+        - unicode17_arabic
   romanization_schemes:
     ala-lc-arabic:
       label: ALA-LC Arabic
@@ -54,9 +77,9 @@ definitions:
 defaults:
   variety: arabic-levantine
   orthography:
-    local: arabic-unvocalized
+    local: arabic-vocalized
   scalars:
-    font_scale: 1.5
+    font_scale: 1.8
   romanization:
     mode: scheme
     scheme:
@@ -68,14 +91,14 @@ traits:
 - construct-state
 varieties:
 - id: arabic-levantine
-  name: Levantine Arabic
+  name: Levantine
   description: Conversational Levantine Arabic; regional coverage remains under review.
   review: needs_review
   sources: []
   overrides: {}
   guidance: []
 - id: arabic-modern-standard
-  name: Modern Standard Arabic
+  name: Modern Standard
   description: Modern Standard Arabic
   review: needs_review
   sources: []
@@ -95,7 +118,7 @@ learning:
       - شكرا
 conversation:
   greeting:
-    text: مرحبا
+    text: مَرْحَبًا
     romanizations:
       "arabic:ala-lc-arabic": marḥaban
   default_partner:

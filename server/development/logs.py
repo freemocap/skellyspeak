@@ -38,6 +38,9 @@ class LocalLogs:
         directory.chmod(0o700)
         self.directory = directory
         self.lock = threading.RLock()
+        from collections import deque
+        self.recent = deque(maxlen=10000)
+        self.sequence = 0
         self.files = {name: private_file(directory / f"server-{name}.jsonl")
                       for name in ("stdout", "stderr", "logging")}
         with private_file(directory / f"server-{os.getpid()}.manifest.json") as file:
@@ -49,6 +52,10 @@ class LocalLogs:
 
     def append(self, source: str, event: dict) -> None:
         with self.lock:
+            # Console mirrors also pass through stdout/stderr; report each event once.
+            if source == "logging":
+                self.sequence += 1
+                self.recent.append((self.sequence, time.time(), dict(event)))
             json.dump({"recordedAtMs": time.time_ns() // 1_000_000, "run": self.directory.name,
                        "pid": os.getpid(), "source": f"server.{source}", "event": event}, self.files[source])
             self.files[source].write("\n")

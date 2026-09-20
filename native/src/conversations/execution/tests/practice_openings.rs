@@ -31,6 +31,14 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
     assert_eq!(store.connection.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND kind IN ('coach_feedback','coach_retry_check','user_word_gloss')",[&turn],|r|r.get::<_,i32>(0)).unwrap(),0);
     assert!(store.dispatch().unwrap().is_none());
     let opening = store.dispatch().unwrap().unwrap();
+    assert_eq!(opening.temperature, 1.1);
+    let request = crate::ai::transport::provider::dispatch_payload(
+        &opening,
+        crate::ai::transport::provider::RequestOutput::Prose,
+    )
+    .unwrap();
+    assert_eq!(request["temperature"], 1.1);
+    assert!(request.get("top_p").is_none());
     assert_eq!(
         store
             .connection
@@ -43,7 +51,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         "persona_opening"
     );
     store
-        .finish(&opening, Ok(reply("¿Qué te gusta cocinar?")))
+        .finish(&opening, Ok(reply("🏛️🎻🌿\n\n¿Qué te gusta cocinar?")))
         .unwrap();
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["records"]
@@ -51,6 +59,21 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
             .unwrap()
             .len(),
         0
+    );
+    let (state, raw, diagnostics): (String, String, String) = store
+        .connection
+        .query_row(
+            "SELECT state,response_text,diagnostics FROM attempts WHERE id=?1",
+            [&opening.attempt],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    assert_eq!(state, "succeeded");
+    assert_eq!(raw, "🏛️🎻🌿\n\n¿Qué te gusta cocinar?");
+    let diagnostics: serde_json::Value = serde_json::from_str(&diagnostics).unwrap();
+    assert_eq!(
+        diagnostics["response"]["prose_cleanup"]["emoji_graphemes_removed"],
+        3
     );
     let mut answer = send(&store, &conversation);
     if let Action::SendMessage { text, .. } = &mut answer.action {
@@ -82,7 +105,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         wire[0]["content"]
             .as_str()
             .unwrap()
-            .contains("never answer your own previous question")
+            .contains("Your earlier messages are yours, not theirs")
     );
     assert_eq!(captured["sourceIds"].as_array().unwrap().len(), 1);
     finish_fixture_exchange(&mut store, &next, "¿Qué preparas?");

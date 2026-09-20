@@ -293,7 +293,7 @@ export function SettingsModal({
   // fallbacks double as the search index).
   const rows: Record<string, RowDef> = {
     conversation_help: {
-      section: 'reading', label: tr('Conversation help'), kw: 'onboarding tutorial help guide',
+      section: 'languages', label: tr('Restart onboarding'), kw: 'onboarding tutorial help guide',
       node: <ShowHelp onShown={onClose} />,
     },
     models: {
@@ -567,7 +567,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['models', 'appearance', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['conversation_help', 'models', 'appearance', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && id !== 'models' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

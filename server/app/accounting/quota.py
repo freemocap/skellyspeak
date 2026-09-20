@@ -91,14 +91,15 @@ class Balance:
     # Reporting only — these do not gate anything.
     tokens: int = 0
     requests: int = 0
+    allowance_credit: int = 0
 
     @property
     def remaining(self) -> int:
-        return max(0, self.limit - self.used)
+        return max(0, self.limit + self.allowance_credit - self.used)
 
     @property
     def exhausted(self) -> bool:
-        return self.used >= self.limit
+        return self.used >= self.limit + self.allowance_credit
 
     @property
     def micros_per_request(self) -> int:
@@ -165,6 +166,7 @@ def read_balance(db: firestore.Client, user_id: str, *, limit: int) -> Balance:
         limit=limit,
         tokens=_read(snapshot, "tokens"),
         requests=_read(snapshot, "requests"),
+        allowance_credit=_read(snapshot, "micros_credit"),
     )
 
 
@@ -209,6 +211,8 @@ def load_principal(
     if token_version < current:
         raise SessionRevoked("This session was signed out remotely. Sign in again.")
 
+    from server.app.accounting.admin_controls import stored
+    default_limit = stored(db).get("free_daily_micros", default_limit)
     override = _field(snapshot, LIMIT_FIELD)
     limit = int(override) if override is not None else default_limit
     if limit < 0:
@@ -316,8 +320,10 @@ def upsert_user(
 
         # `select([])` asks for document ids and no fields: the count is all
         # that matters and the profiles are not worth transferring.
+        from server.app.accounting.admin_controls import stored
+        ceiling = stored(db, transaction).get("max_users", max_users)
         count = sum(1 for _ in transaction.get(users.select([])))
-        if count >= max_users:
+        if count >= ceiling:
             raise SignupClosed(
                 "SkellySpeak's free hosted service is in closed testing and is "
                 "currently full. You can still use the app with your own API "

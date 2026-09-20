@@ -43,7 +43,22 @@
   author = {{Council of Europe}}, title = {Common European Framework of Reference for Languages: Learning, Teaching, Assessment. Companion Volume},
   institution = {Council of Europe}, year = {2020},
   url = {https://rm.coe.int/cefr-companion-volume-with-new-descriptors-2020/16809ea0d4},
-  review = {abstract}, claim = {Adds mediation, online interaction and plurilingual descriptors; levels Pre-A1 to C2 with plus-levels.}, used-by = {constructs; bands}
+  review = {reviewed}, claim = {Adds mediation, online interaction and plurilingual descriptors; levels Pre-A1 to C2 with plus-levels. Reviewed interaction and conversation scales on pages 72--75: increasing communicative demands and decreasing interlocutor support inform difficulty adaptation, not a validated mapping of SkellySpeak settings.}, used-by = {constructs; bands}
+}
+@misc{british_council_asking_questions,
+  author = {Steve Darn and Funda Çetin},
+  title = {Asking questions},
+  year = {2025},
+  url = {https://www.teachingenglish.org.uk/professional-development/teachers/managing-lesson/asking-questions},
+  review = {full-text},
+  claim = {TeachingEnglish recommends purposeful, relevant questions, limiting yes/no questions except for support, grading question language and responding to extend dialogue. Adaptation to an AI conversation partner is a product inference, not tested prompt efficacy.}
+}
+@misc{british_council_lower_level_fluency,
+  author = {Clare Lavery},
+  title = {Fluency activities for lower levels},
+  url = {https://www.teachingenglish.org.uk/teaching-resources/teaching-secondary/activities/pre-intermediate-a2/fluency-activities-lower},
+  review = {full-text},
+  claim = {This A2 classroom resource uses preparation, language support and personal contributions developed through follow-up interaction. It does not establish an Absolute Zero sentence quota or prescribe an AI opening formula.}
 }
 @misc{actfl2024,
   author = {{ACTFL}}, title = {ACTFL Proficiency Guidelines 2024}, year = {2024},
@@ -688,4 +703,79 @@
   author = {{Tauri}}, title = {Configuration reference: asset protocol}, year = {2026},
   url = {https://v2.tauri.app/reference/config/#assetprotocolconfig},
   review = {full-text}, claim = {Tauri configures asset protocol enablement and filesystem access scope explicitly.}
+}
+
+@misc{umapParameters,
+  title = {Basic UMAP Parameters}, author = {{UMAP developers}},
+  url = {https://umap-learn.readthedocs.io/en/latest/parameters.html},
+  review = {reviewed},
+  note = {reviewed parameter documentation},
+  claim = {Neighborhood size, minimum distance and embedding dimensions change the representation; stored parameter sweeps are used for inspection, not prompt quality scores.}
+}
+@misc{umapClustering,
+  title = {Using UMAP for Clustering}, author = {{UMAP developers}},
+  url = {https://umap-learn.readthedocs.io/en/latest/clustering.html},
+  review = {reviewed},
+  note = {reviewed clustering caveats},
+  claim = {UMAP can introduce false tears; visible islands are not automatically reliable clusters. The prompt explorer therefore computes density labels in original embedding space.}
+}
+@misc{sklearnTrustworthiness,
+  title = {Trustworthiness}, author = {{scikit-learn developers}},
+  url = {https://scikit-learn.org/stable/modules/generated/sklearn.manifold.trustworthiness.html},
+  review = {reviewed},
+  note = {reviewed API documentation},
+  claim = {Trustworthiness measures preservation of local neighborhood structure and is not a conversational-quality metric.}
+}
+
+@misc{unicode17_arabic,
+  author = {{The Unicode Consortium}},
+  title = {The Unicode Standard, Version 17.0, Chapter 9: Arabic},
+  year = {2025},
+  url = {https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-9/},
+  review = {abstract},
+  claim = {Arabic combining marks include harakat, tanwin, shaddah and sukun.},
+  note = {The requirement to vocalize generated learning text at every level is user-directed product policy, not a claim of this source.}
+}
+
+@misc{noto_script_families2026,
+  author = {{The Noto Project}},
+  title = {Use Noto},
+  url = {https://notofonts.github.io/noto-docs/website/use/},
+  review = {abstract},
+  claim = {Noto provides script-specific font families and regional CJK variants.},
+  note = {Family choice is SkellySpeak presentation policy; bundled binary coverage and visual samples are audited separately.}
+}
+
+@misc{webkit_arabic_shaping255972,
+  author = {{WebKit contributors}},
+  title = {[Harfbuzz] Some Arabic fonts are not being shaped correctly},
+  url = {https://bugs.webkit.org/show_bug.cgi?id=255972},
+  review = {reviewed},
+  claim = {WebKitGTK has reported Arabic glyph and diacritic positioning failures that vary by font and runtime version.},
+  note = {Reviewed 2026-09-20. This report provides context, not identification of the exact defect reproduced in SkellySpeak.}
+}
+
+@misc{w3c_arabic_layout,
+  author = {{W3C Internationalization Working Group}},
+  title = {Arabic and Persian Layout Requirements},
+  url = {https://www.w3.org/TR/alreq/},
+  review = {reviewed},
+  claim = {Sections 4.2.7 and 4.2.8 require the font's combination and positioning information to be applied to Arabic diacritics.},
+  note = {Relevant sections reviewed 2026-09-20.}
+}
+@misc{harfbuzz_opentype_features,
+  author = {{HarfBuzz contributors}},
+  title = {OpenType features: HarfBuzz Manual},
+  url = {https://harfbuzz.github.io/shaping-opentype-features.html},
+  review = {reviewed},
+  claim = {HarfBuzz enables mark, mkmk, ccmp and required ligature features by default.}
+}
+
+@misc{sil_scheherazade_new2026,
+  title = {Scheherazade New: Design},
+  author = {{SIL International}},
+  year = {2026},
+  url = {https://software.sil.org/scheherazade/design/},
+  review = {reviewed},
+  claim = {Scheherazade New uses simplified Naskh forms and limits ligatures to required forms, providing an Arabic reading font candidate. Native application legibility was verified separately.}
 }

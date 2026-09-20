@@ -130,6 +130,7 @@ pub fn run() {
             access::check_access,
             commands::local_server::local_server_available,
             commands::local_server::connect_local_server,
+            commands::local_server::open_local_admin,
             commands::connections::get_connection,
             commands::connections::save_connection,
             commands::connections::save_models,

@@ -1,3 +1,4 @@
+import { AiSplit } from './AiSplit'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { AiDefinitionSelection, TurnView } from '../../generated/contracts'
 import { operationPhase, turnActivity } from '../../domain/conversation/activity-summary'
@@ -10,7 +11,7 @@ import { useConversationActivity } from './useConversationActivity'
 import { ActivityGraph } from './ActivityGraph'
 import { GraphDefinitions } from './GraphDefinitions'
 import { OperationInspector } from './OperationInspector'
-import { AttemptResponse, useAttemptDetail } from './AttemptBodies'
+import { AttemptBodies } from './AttemptBodies'
 import { latestAttempt } from '../../domain/conversation/activity-summary'
 import { OperationDetailDialog } from './OperationDetailDialog'
 import { ExchangeTimeline } from './ExchangeTimeline'
@@ -102,7 +103,6 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
   const replyText = useReplyStream(turn)?.text ?? null
   const summary = useMemo(() => turn ? turnActivity(turn, replyText) : null, [turn, replyText])
   const selectedAttempt = turn && operation ? latestAttempt(turn, operation.id) : null
-  const selectedDetail = useAttemptDetail(selectedAttempt)
   const pick = (turnId: string) => setSelection(current => ({ ...current, turnId: turnId === turns[0]?.id ? null : turnId }))
 
   return <section className="ai-view" data-mode={mode} aria-label={tr('AI activity')}>
@@ -130,7 +130,9 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     </header>
     {(!definition && activity.error || selectionError) && <p className="ai-error" role="alert">{selectionError || activity.error}</p>}
     {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} /> : <>
-    <div className="ai-view-body">
+    <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => setDetailOpen(true)}>
+        {selectedAttempt && <AttemptBodies attempt={selectedAttempt} />}
+      </OperationInspector>}>
       <div className="ai-view-main">
         {turn ? <ActivityGraph turn={turn} selectedKind={operation?.kind ?? null} onSelect={kind => setSelection(current => ({ ...current, kind }))} now={now} />
           : <p className="ai-muted">{conversationId && !activity.error && !selectionError && (!selectionReady || (restoring && activity.hasOlder)) ? tr('Loading…') : tr('No recorded AI operations.')}</p>}
@@ -141,10 +143,8 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
           <GenerationActivity />
         </details>
       </div>
-      {turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => setDetailOpen(true)}>
-        {selectedAttempt && <AttemptResponse attempt={selectedAttempt} detail={selectedDetail.detail} />}
-      </OperationInspector>}
-    </div>
+
+    </AiSplit>
     {detailOpen && turn && operation && <OperationDetailDialog turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onClose={() => setDetailOpen(false)} />}
     </>}
   </section>

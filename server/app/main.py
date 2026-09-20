@@ -93,6 +93,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="SkellySpeak API", lifespan=lifespan)
 ingress: admission.Ingress = admission.Ingress()
 liveness_ingress = admission.Ingress(60)
+admin_ingress = admission.Ingress(180)
 authenticated_ingress = admission.AuthenticatedIngress()
 db = firestore.Client()
 bearer = HTTPBearer(auto_error=False)
@@ -100,6 +101,19 @@ _google_jwks = pyjwt.PyJWKClient(auth.GOOGLE_JWKS_URL)
 
 
 def admit_http(request: Request) -> None:
+    if request.url.path.startswith('/admin'):
+        from server.app.identity.admin_auth import claims_for
+        try:
+            local = getattr(request.app.state, "development_admin", None)
+            if local:
+                local.require(request)
+            else:
+                claims_for(request, CFG)
+        except HTTPException:
+            pass
+        else:
+            admin_ingress.take()
+            return
     if request.method == "GET" and request.url.path == "/health":
         liveness_ingress.take()
         return
@@ -273,7 +287,7 @@ def auth_start(
 
 
 @app.get("/auth/callback/google")
-async def auth_callback_google(code: str = "", state: str = "", error: str = "") -> RedirectResponse:
+async def auth_callback_google(request: Request, code: str = "", state: str = "", error: str = "") -> RedirectResponse:
     """Where Google returns. Exchanges the code, then hands the app a one-time
     code through its own redirect — never the session token itself."""
     if error:
@@ -282,11 +296,22 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
         raise HTTPException(status_code=400, detail="Sign-in response was incomplete.")
 
     def validate_state(stored: dict[str, object]) -> None:
-        auth.validate_redirect_uri(str(stored["redirect_uri"]))
+        if (stored.get("admin_flow") is True) != admin_flow:
+            raise auth.AuthError("Sign-in state does not match this flow.")
+        if admin_flow:
+            from server.app.identity.admin_auth import validate_flow
+            validate_flow(stored, request)
+        else:
+            auth.validate_redirect_uri(str(stored["redirect_uri"]))
 
     try:
-        auth.verify_issued_code(state, purpose="state", signing_key=CFG.jwt_signing_key)
-        await asyncio.to_thread(admission.take, db, lane="auth", subject="public")
+        try:
+            auth.verify_issued_code(state, purpose="admin-state", signing_key=CFG.jwt_signing_key)
+            admin_flow = True
+        except auth.AuthError:
+            auth.verify_issued_code(state, purpose="state", signing_key=CFG.jwt_signing_key)
+            admin_flow = False
+            await asyncio.to_thread(admission.take, db, lane="auth", subject="public")
         stored = await asyncio.to_thread(auth_store.consume, db, collection=quota.AUTH_STATES,
                                          code=state, validate=validate_state)
     except auth.AuthError as exc:
@@ -313,6 +338,9 @@ async def auth_callback_google(code: str = "", state: str = "", error: str = "")
     except auth.AuthError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    if stored.get("admin_flow") is True:
+        from server.app.identity.admin_auth import finish
+        return await asyncio.to_thread(finish, identity, CFG, db)
     try:
         token_version = await asyncio.to_thread(quota.upsert_user,
             db,
@@ -458,6 +486,7 @@ def me(request: Request, who: quota.Principal = Depends(diagnostic_user)) -> dic
         "used_micros": balance.used,
         "limit_micros": balance.limit,
         "remaining_micros": balance.remaining,
+        "allowance_credit_micros": balance.allowance_credit,
         "used_usd": round(quota.micros_to_dollars(balance.used), 4),
         "limit_usd": round(quota.micros_to_dollars(balance.limit), 4),
         "remaining_usd": round(quota.micros_to_dollars(balance.remaining), 4),
@@ -904,3 +933,8 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
 
 # Registered last to surround ingress and retain correlation through streamed bodies.
 app.add_middleware(runtime.RequestActivity)
+
+
+# Admin routes remain separate from the learner API and its daily diagnostic lane.
+from server.app.diagnostics.admin_routes import build_router
+app.include_router(build_router(lambda: db, lambda: CFG, _throttle_auth_start))

@@ -66,3 +66,18 @@ it('records skipping separately from optional help, and preserves unrelated pref
   expect(preferences.onboardingHelp).toBe(false)
   expect(preferences.myLanguages).toEqual(['spanish'])
 })
+
+it('restarts setup with existing languages and preferences intact', async () => {
+  preferences.onboardingRequired = false
+  preferences.onboarding = 'completed'
+  preferences.myLanguages = ['english']
+  preferences.targetVarieties = { english:'english-default' }
+  mocks.settings.mockResolvedValue({target_language:'spanish',target_variety:'spanish-default'})
+  await useOnboardingStore.getState().reviewSetup()
+  expect(preferences).toMatchObject({
+    onboardingRequired:true, onboarding:'not_started', onboardingLanguage:'spanish',
+    myLanguages:['english','spanish'],
+    targetVarieties:{english:'english-default',spanish:'spanish-default'},textSize:85,
+  })
+  expect(mocks.select).not.toHaveBeenCalled()
+})

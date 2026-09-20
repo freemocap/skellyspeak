@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { AttemptView } from '../../generated/contracts'
 import { useAttemptStreams } from '../../state/session/attempt-streams'
@@ -23,4 +23,17 @@ it('keeps live response text in the inspector until the later retention commit a
   act(() => useAttemptStreams.getState().evict('a'))
   expect(screen.getByText('Hola mundo')).toBeInTheDocument()
   await waitFor(() => expect(read).toHaveBeenCalledTimes(2))
+})
+
+it('shows retained content even when diagnostics redact it and exposes exact source', async () => {
+  const attempt: AttemptView = { id: 'a', operationId: 'o', state: 'succeeded', requestedModel: 'm', actualModel: 'm',
+    providerId: 'request', startedAt: '', finishedAt: '', inputTokens: 10, outputTokens: 4, error: null,
+    diagnostics: { response: { content: '[redacted: content or credential]' } }, unpublishedText: null }
+  const raw = JSON.stringify({ reply: '**Visible response**', value: 0 })
+  read.mockResolvedValue({ requestMessages: [{ role: 'system', content: 'Visible request' }], responseText: raw, previewText: null })
+  const view = render(<AttemptBodies attempt={attempt} />)
+  expect(await screen.findByText('Visible request')).toBeInTheDocument()
+  expect(screen.getByText('Visible response').closest('strong')).not.toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Source' }))
+  await waitFor(() => expect(view.container.querySelector('.ai-response pre')?.textContent).toBe(raw))
 })

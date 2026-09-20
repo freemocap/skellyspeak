@@ -248,3 +248,28 @@ Model selection has its own Settings section, owned by
 `features/settings/models/SettingsModels.tsx`. Standard, Fast and Transcription
 choices are shared across all access routes. `features/settings/access/` owns
 route selection, credentials and endpoint configuration, with no model editor.
+
+
+### Language membership and script size
+
+The language browser's checkboxes save membership immediately; unchecking removes
+the shortcut while preserving conversations and progress. The current language
+cannot be removed until the learner switches languages. Clicking a language's
+name inspects it without switching conversations. Details remain expanded and the
+dialog scrolls; section grids adapt to the available width.
+
+Script size is an independent per-language learner preference in this browser.
+Rust validates and persists optional scriptScales overrides; missing entries use
+the selected variety's content scalars.font_scale. ReadingProvider applies the
+effective scale alongside the learner's overall reading size. The browser's
+original-script examples preview the selected size. Default removes the override.
+
+### Language fonts
+
+Reading and interface roles share bundled script fallbacks for Arabic,
+Devanagari, Malayalam and Simplified Chinese. Latin roles retain Newsreader and
+IBM Plex; Noto Sans covers extended letters and reading aids. Font selection is
+independent of script and learner size settings. See the
+[font coverage and extension policy](public/fonts/README.md) before adding a new
+language or changing a stack. The comparison fixture is
+`/tools/fonts-preview.html`; it includes all current languages and marked Arabic.

@@ -22,7 +22,10 @@ EVENTS = {
 }
 ROUTES = {"/health", "/v1/me", "/v1/diagnostics", "/v1/operations", "/v1/protocol",
           "/v1/chat/completions", "/v1/audio/speech", "/v1/audio/transcriptions", "/auth/start",
-          "/auth/callback/google", "/auth/exchange", "unmatched"}
+          "/auth/callback/google", "/auth/exchange", "unmatched",
+          "/admin", "/admin/login", "/admin/logout", "/admin/api/overview",
+          "/admin/api/audit", "/admin/api/logs", "/admin/api/change",
+          "/admin/api/users/{user_id}", "/admin/assets/{name}"}
 ENUMS = {"credential_state": {"accepted", "rejected", "unreachable", "invalid_response"},"route": ROUTES, "method": {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "OTHER"},
          "provider": {"OPENROUTER", "GROQ", "ELEVENLABS", "UPSTREAM"}, "outcome": {"known", "unknown"}}
 COUNTS = {"duration_ms", "bytes", "chunks", "item_index", "item_count", "micros", "tokens", "status"}
@@ -86,6 +89,11 @@ class RequestActivity:
         token = request_id.set(identity)
         scope.setdefault("state", {})["request_id"] = identity
         route = scope.get("path")
+        if isinstance(route, str):
+            if route.startswith('/admin/api/users/') and route.count('/') == 4:
+                route = '/admin/api/users/{user_id}'
+            elif route.startswith('/admin/assets/') and route.count('/') == 3:
+                route = '/admin/assets/{name}'
         fields = {"route": route if route in ROUTES else "unmatched",
                   "method": scope.get("method") if scope.get("method") in ENUMS["method"] else "OTHER"}
         started = last_progress = time.monotonic()

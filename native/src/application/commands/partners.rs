@@ -90,6 +90,7 @@ pub(in crate::application) async fn run_persona_generation(
         let language = &request.language;
         let schema = persona::output_schema();
         let dispatch = execution::Dispatch {
+            temperature: 0.7,
             target: request.target.clone(),
             attempt: request.attempt.clone(),
             operation: request.operation.clone(),

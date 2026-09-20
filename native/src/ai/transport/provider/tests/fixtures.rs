@@ -80,6 +80,7 @@ pub(super) fn structured_dispatch(
     route: ConnectionRoute,
 ) -> crate::conversations::execution::Dispatch {
     crate::conversations::execution::Dispatch {
+        temperature: 0.7,
         gloss_schema: None,
         coaching_schema: None,
         gloss_source: None,

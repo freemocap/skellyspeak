@@ -353,7 +353,7 @@
 @media (max-width: 480px) { .app-home > span { display: none; } }
 
 .topbar-language { min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
-.topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); max-width: 220px; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (max-width: 860px) { .topbar-language .learning-picker { max-width: 120px; min-width: 104px; padding-inline: var(--space-3); } .topbar .app-home > span { display: none; } }
+.topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); width: 360px; max-width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
+@media (max-width: 860px) { .topbar-language .learning-picker { width: 260px; max-width: 100%; min-width: 0; padding-inline: var(--space-3); } .topbar .app-home > span { display: none; } }
 @media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .hamburger { min-height: var(--touch-target); } }
 

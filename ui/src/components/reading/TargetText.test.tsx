@@ -66,3 +66,12 @@ it('suppresses saved Spanish romanization even with the global preference enable
   expect(screen.getByText('nǐ')).toBeVisible()
   expect(backend.invoke).not.toHaveBeenCalled()
 })
+
+it('applies the selected language script override independently of reading size', () => {
+  const settings = {target_language:'arabic',target_variety:'arabic-levantine',script_scales:{arabic:2},text_size:125} as unknown as Settings
+  const view = render(<ReadingProvider settings={settings}><TargetText text="مرحبا" /></ReadingProvider>)
+  expect(document.documentElement.style.getPropertyValue('--script-scale')).toBe('2')
+  expect(document.documentElement.style.getPropertyValue('--reading-scale')).toBe('1.25')
+  view.rerender(<ReadingProvider settings={{...settings,script_scales:{arabic:1.25}}}><TargetText text="مرحبا" /></ReadingProvider>)
+  expect(document.documentElement.style.getPropertyValue('--script-scale')).toBe('1.25')
+})

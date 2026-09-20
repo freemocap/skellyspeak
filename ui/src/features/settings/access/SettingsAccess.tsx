@@ -219,6 +219,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     {connection.route === 'custom' && <>
       {localAvailable && <button type="button" className="btn primary access-local-connect" disabled={locked}
         onClick={() => void run(connectLocal)}>{tr('Connect to local server')}</button>}
+      {localAvailable && <button className="btn" disabled={locked} onClick={() => void run(async () => { await invoke('open_local_admin') })}>{tr('Open local admin')}</button>}
       <ConnectionHealthPanel health={health} bearerAuth={endpoint.bearerAuth} disabled={locked}
         onCheck={() => void run(() => check('custom'))} />
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>

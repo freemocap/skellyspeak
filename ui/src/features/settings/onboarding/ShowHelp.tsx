@@ -14,6 +14,6 @@ export function ShowHelp({ onShown }: { onShown: () => void }) {
     <button className="btn" disabled={busy} onClick={() => {
       setError('')
       void useOnboardingStore.getState().reviewSetup().then(onShown).catch(reason => setError(nativeError(reason)))
-    }}>{tr('Review setup')}</button>
+    }}>{tr('Restart onboarding')}</button>
     {error && <p role="alert">{error}</p>}</div>
 }

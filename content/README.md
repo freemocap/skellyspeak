@@ -36,6 +36,9 @@ loading, linking, resolution and inspection have separate modules there.
   their language. Shared definitions have exactly one owner in the foundations
   document. Missing references and duplicate keys fail; no file-order precedence,
   cross-language imports, deep merging or automatic conflict resolution exists.
+- Variety display names identify the region or register without repeating the
+  parent language name (for example Arabic → Levantine / Modern Standard).
+  Keep the full language-qualified IDs unchanged.
 - Defaults select an orthography and romanization. Supported schemes are an
   explicit list; the default must belong to that list. A variety inherits defaults
   unless it supplies an override. `{mode: disabled}` explicitly disables
@@ -44,6 +47,9 @@ loading, linking, resolution and inspection have separate modules there.
 - Shared scripts provide scalar defaults. Language `defaults.scalars` and then
   variety `overrides.scalars` override individual values. `font_scale` remains
   independent of learner reading size and must be finite, between 0.5 and 3.0.
+  The language browser lets learners override script size per language (50–300%).
+  These overrides are stored in learner preferences; Default restores the selected
+  variety’s configured scale without modifying the bundled YAML.
 - Guidance resolves in this order: generated variety identity, generated variety
   assessment rule where relevant, shared teaching guidance, selected orthography,
   language, variety, selected romanization instructions. Explanation-writing
@@ -57,6 +63,9 @@ loading, linking, resolution and inspection have separate modules there.
 - Topics are available for every language, variety and difficulty. They contain
   subject matter, not prewritten dialogue. Labels use the interface locale;
   dialect affects language instructions only. New languages need no topic pack.
+- Bibliography `review` fields accept only `abstract`, `full-text`, or `reviewed`.
+  Put explanatory review prose in `note`, and the supported claim in `claim`.
+  Startup validates the entire bibliography, including exploration-only entries.
 - Root `references.bib` remains authoritative. Existing linguistic material is
   `needs_review`; schema validation does not establish linguistic correctness.
   Conflicting prose under different identities still requires human review.
@@ -127,7 +136,7 @@ files are neither loaded nor included in current workspace exports.
 
 ## AI behavior still implemented in code
 
-Conversation prose is authored in `prompts/conversation/instructions.yaml`; its pure native composer supplies selected language, optional persona, topic, time reference and named difficulty. Preview and execution use that same composer. Other feature prompts keep their existing owners.
+Conversation prose is authored in `prompts/conversation/instructions.yaml`; its pure native composer supplies selected language, optional persona, topic, time reference and named difficulty. Preview and execution use that same composer. Shared Relationship behavior and difficulty instructions are written in English for every target language. Resolved language, variety and writing-system guidance determine the response language; there are no per-language translations of the shared behavior layer. Other feature prompts keep their existing owners.
 
 | Responsibility | Current owner |
 | --- | --- |

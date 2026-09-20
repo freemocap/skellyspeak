@@ -221,12 +221,11 @@ async fn streamed_prose_reports_growth_and_decodes_like_a_whole_response() {
     );
     let (url, worker) = server("200 OK", &body, "");
     let mut seen = Vec::new();
-    let result = complete_streaming(
-        &client().unwrap(),
-        "test-credential",
-        &structured_dispatch(url, ConnectionRoute::Openrouter),
-        |text| seen.push(text.to_owned()),
-    )
+    let mut dispatch = structured_dispatch(url, ConnectionRoute::Openrouter);
+    dispatch.temperature = 1.1;
+    let result = complete_streaming(&client().unwrap(), "test-credential", &dispatch, |text| {
+        seen.push(text.to_owned())
+    })
     .await
     .unwrap();
     assert_eq!(result.text, "¿Qué tal?");
@@ -238,6 +237,7 @@ async fn streamed_prose_reports_growth_and_decodes_like_a_whole_response() {
     assert_eq!(seen.last().map(String::as_str), Some("¿Qué tal?"));
     assert!(result.diagnostics.unwrap().get("http").is_some());
     let payload = worker.join().unwrap();
+    assert_eq!(payload["temperature"], 1.1);
     assert_eq!(payload["stream"], true);
     assert_eq!(payload["usage"], serde_json::json!({"include": true}));
 }
@@ -361,4 +361,18 @@ async fn every_stream_failure_keeps_received_metadata_and_redacts_content() {
             assert!(!recorded.contains(private), "{reason} leaked {private}");
         }
     }
+}
+
+#[tokio::test]
+async fn conversation_temperature_reaches_direct_request() {
+    let raw = serde_json::json!({"id":"request", "model":"actual", "choices":[{"finish_reason":"stop","message":{"content":"¿Rojo o azul?"}}]}).to_string();
+    let (url, worker) = server("200 OK", &raw, "");
+    let mut dispatch = structured_dispatch(url, ConnectionRoute::Openrouter);
+    dispatch.temperature = 1.1;
+    complete(&client().unwrap(), "test-credential", &dispatch)
+        .await
+        .unwrap();
+    let body = worker.join().unwrap();
+    assert_eq!(body["temperature"], 1.1);
+    assert!(body.get("top_p").is_none());
 }

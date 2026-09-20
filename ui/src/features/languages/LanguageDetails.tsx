@@ -1,9 +1,16 @@
+import { ScriptSize } from './ScriptSize'
+import { useSettingsStore } from '../../state/settings/settings'
 import { useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import type { LanguageInspection } from '../../generated/contracts'
+import { useReadingFont } from '../../platform/appearance/readingFont'
 
 export function LanguageDetails({ report }: { report: LanguageInspection }) {
   const tr = useI18n()
+  const readingFont = useReadingFont(report.language.nativeName)
+  const defaultScale = Number(report.values.find(value => value.field === 'font_scale')?.value ?? report.language.fontScale)
+  const savedScale = useSettingsStore(state => state.settings?.script_scales?.[report.language.id])
+  const scale = savedScale ?? defaultScale
   const [documentKey, setDocumentKey] = useState('resolved')
   const documents = [
     { key: 'resolved', label: tr('Resolved model'), text: report.resolvedJson },
@@ -23,17 +30,22 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
   }
   return <div className="language-content">
     <p className="language-status"><span data-review={report.review}>{report.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</span><span>{report.family}</span></p>
-    <section><h3>{tr('Writing and reading')}</h3>
-      <dl>{report.values.map(value => <div key={value.field}><dt>{labels[value.field]}</dt><dd>{display(value.field, value.value)}</dd></div>)}</dl>
+    <section className="language-writing"><h3>{tr('Writing and reading')}</h3>
+      <dl className="language-writing-facts">{report.values.filter(value => value.field !== 'font_scale').map(value => <div key={value.field}><dt>{labels[value.field]}</dt><dd>{display(value.field, value.value)}</dd></div>)}
+        <div><dt>{tr('Reading font')}</dt><dd title={readingFont.stack}>{readingFont.family || '—'}</dd></div>
+      </dl>
+      <ScriptSize language={report.language.id} defaultScale={defaultScale} />
       {report.schemes.length === 0 && <p>{tr('No romanization scheme configured')}</p>}
+      <div className="language-schemes">
       {report.schemes.map(scheme => <article key={scheme.id}>
         <h4>{scheme.label}{scheme.selected && ` · ${tr('Default')}`}</h4>
-        <table><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.map(([original, romanized], index) => <tr key={index}><td lang={report.language.languageTag ?? undefined} dir={report.language.direction}>{original}</td><td>{romanized}</td></tr>)}</tbody></table>
-        <h5>{tr('Romanization instructions')}</h5><p>{scheme.instructions}</p><p>{tr('Sources')}: {scheme.sources.join(', ')} · {scheme.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</p>
+        <div className="language-example-groups">{Array.from({ length: Math.ceil(scheme.examples.length / 4) }, (_, group) => <table key={group}><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.slice(group * 4, group * 4 + 4).map(([original, romanized], index) => <tr key={index}><td className="language-script-example" style={{fontSize: `calc(var(--type-reading) * ${scale})`}} lang={report.language.languageTag ?? undefined} dir={report.language.direction}>{original}</td><td>{romanized}</td></tr>)}</tbody></table>)}</div>
+        <details><summary>{tr('Romanization instructions')}</summary><p>{scheme.instructions}</p><p>{tr('Sources')}: {scheme.sources.join(', ')} · {scheme.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</p></details>
       </article>)}
+      </div>
     </section>
     {report.rules.length > 0 && <section><h3>{tr('Language-specific guidance')}</h3>{report.rules.map((rule,index) => <p key={index}>{rule.text}</p>)}</section>}
-    <section><h3>{tr('Default conversation partner')}</h3><h4>{report.partner.name}</h4><p>{report.partner.location} · {report.partner.occupation}</p><p>{report.partner.background}</p><p>{report.partner.currentSituation}</p></section>
+    <section><h3>{tr('Default conversation partner')}</h3><h4>{report.partner.name}</h4><p>{[report.partner.location, report.partner.occupation].filter(Boolean).join(' · ')}</p><p>{report.partner.background}</p><p>{report.partner.currentSituation}</p></section>
     <section className="language-definition"><h3>{tr('Full definition')}</h3>
       <h4>{tr('Resolved settings and sources')}</h4>
       <dl>{report.values.map(value => <div key={value.field}><dt>{value.field}</dt><dd>{value.value}<small>{value.source}</small></dd></div>)}</dl>

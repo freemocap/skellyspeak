@@ -17,6 +17,10 @@ def read(db: firestore.Client, who: quota.Principal, *, global_limit: int) -> di
     def snapshot(transaction):
         def data(ref):
             return ref.get(transaction=transaction).to_dict() or {}
+        from server.app.accounting.admin_controls import stored
+        policy = stored(db, transaction)
+        account_limit = policy.get("account_requests", admission.ACCOUNT_REQUESTS_PER_DAY)
+        diagnostic_limit = policy.get("diagnostics_requests", admission.DIAGNOSTICS_PER_DAY)
         personal = data(user.collection(quota.USAGE).document(day))
         requests = data(user.collection(admission.ADMISSION).document(day))
         shared_requests = data(db.collection(admission.ADMISSION).document(day))
@@ -27,15 +31,18 @@ def read(db: firestore.Client, who: quota.Principal, *, global_limit: int) -> di
         return {
             "revision": os.environ.get("K_REVISION", "local")[:128],
             "resets_at": reset_at(),
-            "account_requests": {"used": count, "limit": admission.ACCOUNT_REQUESTS_PER_DAY,
-                                 "exhausted": count >= admission.ACCOUNT_REQUESTS_PER_DAY},
+            "account_requests": {"used": count, "limit": account_limit,
+                                 "credit": int(requests.get("requests_credit", 0)),
+                                 "exhausted": max(0, count - int(requests.get("requests_credit", 0))) >= account_limit},
             "account_allowance": {"used_micros": used, "limit_micros": who.daily_limit,
-                                  "remaining_micros": max(0, who.daily_limit - used)},
-            "shared_requests_exhausted": int(shared_requests.get("account_requests", 0)) >= admission.GLOBAL_REQUESTS_PER_DAY,
-            "shared_allowance_exhausted": int(shared.get("micros", 0)) >= global_limit,
+                                  "allowance_credit_micros": int(personal.get("micros_credit", 0)),
+                                  "remaining_micros": max(0, who.daily_limit + int(personal.get("micros_credit", 0)) - used)},
+            "shared_requests_exhausted": int(shared_requests.get("account_requests", 0)) >= policy.get("global_requests", admission.GLOBAL_REQUESTS_PER_DAY),
+            "shared_allowance_exhausted": int(shared.get("micros", 0)) >= policy.get("global_daily_micros", global_limit),
             "spending_paused": bool(controls.get("blocked") or shared.get("blocked")),
             "diagnostics_requests": {"used": int(requests.get("diagnostics_requests", 0)),
-                                     "limit": admission.DIAGNOSTICS_PER_DAY},
+                                     "credit": int(requests.get("diagnostics_requests_credit", 0)),
+                                     "limit": diagnostic_limit},
             "scope": "Admission snapshot; does not test provider availability or reserve a chat request.",
         }
     return transactions.run(db, snapshot)

@@ -39,13 +39,16 @@ def reserve(
 
     @firestore.transactional
     def admit(transaction: firestore.Transaction) -> None:
+        from server.app.accounting.admin_controls import stored
+        policy = stored(db, transaction)
         personal = usage.get(transaction=transaction).to_dict() or {}
         global_usage = shared.get(transaction=transaction).to_dict() or {}
         controls = control.get(transaction=transaction).to_dict() or {}
         if controls.get("blocked") or global_usage.get("blocked"):
             raise quota.QuotaExceeded("Hosted spending is paused while a provider billing discrepancy is investigated.", code="SPENDING_PAUSED")
         for data, limit, label in (
-            (personal, user_limit, "Your"), (global_usage, global_limit, "The shared")
+            (personal, user_limit + int(personal.get("micros_credit", 0)), "Your"),
+            (global_usage, policy.get("global_daily_micros", global_limit), "The shared")
         ):
             if int(data.get("micros", 0)) + micros > limit:
                 raise quota.QuotaExceeded(

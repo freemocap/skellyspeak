@@ -16,7 +16,7 @@ vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () =
 const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
 vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
-  {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español'}, {code:'french',base:'french',name:'French',endonym:'Français'}
+  {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español',defaultVariety:'spanish-mexico',varieties:[{id:'spanish-mexico',label:'Mexico'}]}, {code:'french',base:'french',name:'French',endonym:'Français',defaultVariety:'french-france',varieties:[{id:'french-france',label:'France'}]}
 ] }))
 beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
@@ -36,12 +36,15 @@ it.each(['hosted', 'openrouter', 'custom'] as const)('opens AI access from the %
 })
 it.each([false, true])('keeps history and target language reachable with mobile=%s', mobile => {
   viewport.mobile = mobile
-  const setLanguage = vi.fn()
-  useSettingsStore.setState({setLanguage})
+  const setLanguage = vi.fn().mockResolvedValue(undefined)
+  useSettingsStore.setState({selectLanguageVariety:setLanguage})
   useNavigationStore.getState().openSkills()
   render(<TopBar />)
-  fireEvent.change(screen.getByRole('combobox', {name:'Target language'}), {target:{value:'french'}})
-  expect(setLanguage).toHaveBeenCalledExactlyOnceWith('target_language','french')
+  fireEvent.click(screen.getByRole('button', {name:'Target language'}))
+  fireEvent.click(screen.getByRole('button', {name:'Français (French)'}))
+  expect(setLanguage).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', {name:'France'}))
+  expect(setLanguage).toHaveBeenCalledExactlyOnceWith('french','french-france')
   fireEvent.click(screen.getByRole('button', {name:'Conversations'}))
   expect(useNavigationStore.getState()).toMatchObject({page:'guided',mode:'practice',historyOpen:true})
   expect(screen.queryByRole('navigation', {name:'Main navigation'})).toBeNull()
@@ -49,11 +52,11 @@ it.each([false, true])('keeps history and target language reachable with mobile=
 it('disables language switching during a save or settings edit', () => {
   useSettingsStore.setState({savingLanguage:true})
   const view = render(<TopBar />)
-  expect(screen.getByRole('combobox', {name:'Target language'})).toBeDisabled()
+  expect(screen.getByRole('button', {name:'Target language'})).toBeDisabled()
   useSettingsStore.setState({savingLanguage:false})
   useNavigationStore.getState().showOverlay('settings')
   view.rerender(<TopBar />)
-  expect(screen.getByRole('combobox', {name:'Target language'})).toBeDisabled()
+  expect(screen.getByRole('button', {name:'Target language'})).toBeDisabled()
 })
 it('returns from review to conversation history and preserves secondary navigation', () => {
   useNavigationStore.getState().setMode('review')
@@ -64,11 +67,12 @@ it('returns from review to conversation history and preserves secondary navigati
   expect(useNavigationStore.getState().overlay).toBe('more')
 })
 
-it('opens the language browser alongside the compact selector', () => {
+it('opens the language browser from the compact selector', () => {
   render(<TopBar />)
-  fireEvent.click(screen.getByRole('button', { name: 'My languages' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Target language' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Add language…' }))
   expect(useNavigationStore.getState().overlay).toBe('languages')
-  expect(screen.getByRole('combobox', { name: 'Target language' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Target language' })).toBeInTheDocument()
 })
 
 
