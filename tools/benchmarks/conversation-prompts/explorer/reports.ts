@@ -1,0 +1,16 @@
+import {writeFileSync} from 'node:fs';
+import {config,groups,levels,prompts,name,mean,ordering,summarize,type Row} from './compare.ts';
+export function writeReports(directory:string,rows:Row[],promptTexts:string[],cos:(a:Row,b:Row)=>number){
+ let responses='# Responses by prompt and difficulty\n\nAll successful responses, including repetitions. Experiments are no-topic openings (target language is recorded in the study); each complete cell contains ten observations.\n\n';
+ let promptReport='# Exact prompts\n\nIdentical prompts used at different temperatures are printed once. Sampling settings are listed beside each block. No unseen prompt layer is added.\n\n';
+ for(const p of [...new Set(rows.map(r=>r.prompt))].sort((a,b)=>prompts.indexOf(a)-prompts.indexOf(b)||a.localeCompare(b))){responses+=`> ${name(p)}\n\n`;promptReport+=`## ${name(p)}\n\n`;for(const l of levels){
+  const cell=rows.filter(r=>r.prompt===p&&r.level===l);responses+=`#### ${name(l)}\n\n`;promptReport+=`### ${name(l)}\n\n`;
+  for(const group of groups(cell)){responses+=`**${config(group[0])}**\n\n`;for(const r of group)responses+=`- ${r.text.replaceAll('\n','\n  ')}\n`;responses+='\n';}
+  for(const pi of [...new Set(cell.map(r=>r.promptIndex))]){const matches=cell.filter(r=>r.promptIndex===pi);promptReport+=`**${[...new Set(matches.map(config))].join(' / ')}**\n\n\`\`\`text\n${promptTexts[pi]}\n\`\`\`\n\n`;}
+ }}
+ let summary='# Quantified condition comparison\n\nImplemented experiment results, not production acceptance. Mean semantic cosine is averaged equally over within-difficulty pair means, never over mixed levels. Ordering counts ties as half. All cells have ten successful observations; 45 pairs per cell are not independent samples. Sampling settings are listed per condition; default means not supplied. See README for interpretation and caveats.\n\n| Prompt / settings / identity | N | Mean cosine | Worst-level length fit | P(AZ < Beginner) | P(Beginner < Intermediate) |\n|---|---:|---:|---:|---:|---:|\n';
+ for(const g of groups(rows)){const cells=levels.map(l=>g.filter(r=>r.level===l)),s=cells.map(c=>summarize(c,cos));summary+=`| ${name(g[0].prompt)} / ${config(g[0])} | ${g.length} | ${mean(s.map(x=>x.similarity)).toFixed(3)} | ${(Math.min(...s.map(x=>x.adherence))*100).toFixed(0)}% | ${(ordering(cells[0],cells[1],'words')*100).toFixed(1)}% | ${(ordering(cells[1],cells[2],'words')*100).toFixed(1)}% |\n`;}
+ summary+='\n## Detailed cells\n\n| Condition / level | N | Mean words | In target | Unique text | Words/sentence | Letters/word | Cosine | Exact-pair collision | Opening-pair collision |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n';
+ for(const g of groups(rows))for(const l of levels){const s=summarize(g.filter(r=>r.level===l),cos);summary+=`| ${name(g[0].prompt)} / ${config(g[0])} / ${name(l)} | ${s.n} | ${s.words.toFixed(2)} | ${(s.adherence*100).toFixed(0)}% | ${s.unique} | ${s.complexity.toFixed(2)} | ${s.letters.toFixed(2)} | ${s.similarity.toFixed(3)} | ${(s.duplicates*100).toFixed(1)}% | ${(s.openings*100).toFixed(1)}% |\n`;}
+ writeFileSync(`${directory}/responses.md`,responses);writeFileSync(`${directory}/prompts.md`,promptReport);writeFileSync(`${directory}/comparison.md`,summary);
+}

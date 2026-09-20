@@ -1,0 +1,135 @@
+{
+  "upstreamRevision": "e44c4b011a820c2cbe2fd2cfa8052037d7edb571",
+  "conversion": "Upstream fonts: fontTools 4.65.0 TTFont flavor=woff2, no subsetting or table edits.",
+  "fonts": [
+    {
+      "file": "noto-sans-arabic.woff2",
+      "sha256": "a4035ed0f77a004dee87e1515f759e1b43c82b431d3e08e1947335b084614551",
+      "sourceSha256": "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e",
+      "bytes": 361476,
+      "codepoints": 1561,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansarabic/NotoSansArabic[wdth,wght].ttf",
+      "license": "noto-sans-arabic-OFL.txt"
+    },
+    {
+      "file": "noto-sans-devanagari.woff2",
+      "sha256": "bdf15480002717cf99e087d8927c94e6d83836b401d83f2afe6afa3467957330",
+      "sourceSha256": "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e",
+      "bytes": 263604,
+      "codepoints": 551,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansdevanagari/NotoSansDevanagari[wdth,wght].ttf",
+      "license": "noto-sans-devanagari-OFL.txt"
+    },
+    {
+      "file": "noto-sans-malayalam.woff2",
+      "sha256": "5f7c973368f23d3fac9f51fcfc4938f5246ce38212f5ff1acd0b23db52ad4e0c",
+      "sourceSha256": "312e0e7c3cc15fa09eb42a8f749eeb246b593ed420e3c81aafe8d910c3a6fb56",
+      "bytes": 218780,
+      "codepoints": 467,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansmalayalam/NotoSansMalayalam[wdth,wght].ttf",
+      "license": "noto-sans-malayalam-OFL.txt"
+    },
+    {
+      "file": "noto-sans-sc.woff2",
+      "sha256": "8127b6b56f046816f5afabbe7388fa49e9695442b57619906ca07bf3c8500c10",
+      "sourceSha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+      "bytes": 7782184,
+      "codepoints": 30890,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosanssc/NotoSansSC[wght].ttf",
+      "license": "noto-sans-sc-OFL.txt"
+    },
+    {
+      "file": "noto-sans.woff2",
+      "sha256": "51aaaa2fd07fc5c4e80e4f45514d3bf998e2f874c0dcdcb85e7c1c9039aa5c1a",
+      "sourceSha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+      "bytes": 890360,
+      "codepoints": 3094,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosans/NotoSans[wdth,wght].ttf",
+      "license": "noto-sans-OFL.txt"
+    },
+    {
+      "file": "scheherazade-new-400.woff2",
+      "sha256": "fd12c322cd8a0033d5c30b0a9fc0432e1d51288cd065f3f04a85a7974f1de3b7",
+      "sourceSha256": "fd12c322cd8a0033d5c30b0a9fc0432e1d51288cd065f3f04a85a7974f1de3b7",
+      "bytes": 124783,
+      "codepoints": 800,
+      "source": "https://github.com/silnrsi/font-scheherazade/releases/download/v4.500/ScheherazadeNew-4.500.zip",
+      "archivePath": "ScheherazadeNew-4.500/web/ScheherazadeNew-Regular.woff2",
+      "version": "4.500",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "None; original upstream web font"
+    },
+    {
+      "file": "scheherazade-new-500.woff2",
+      "sha256": "ce963bf18a1c1d391b24db4108259ed74e5048ea5cb70c9e727575a608ad41d5",
+      "sourceSha256": "ce963bf18a1c1d391b24db4108259ed74e5048ea5cb70c9e727575a608ad41d5",
+      "bytes": 151323,
+      "codepoints": 800,
+      "source": "https://github.com/silnrsi/font-scheherazade/releases/download/v4.500/ScheherazadeNew-4.500.zip",
+      "archivePath": "ScheherazadeNew-4.500/web/ScheherazadeNew-Medium.woff2",
+      "version": "4.500",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "None; original upstream web font"
+    },
+    {
+      "file": "scheherazade-new-600.woff2",
+      "sha256": "a857024fda7acac48d8b77e8f6b9d9c2783c13ff1f5739923ff6fc287c5f06a0",
+      "sourceSha256": "a857024fda7acac48d8b77e8f6b9d9c2783c13ff1f5739923ff6fc287c5f06a0",
+      "bytes": 153607,
+      "codepoints": 800,
+      "source": "https://github.com/silnrsi/font-scheherazade/releases/download/v4.500/ScheherazadeNew-4.500.zip",
+      "archivePath": "ScheherazadeNew-4.500/web/ScheherazadeNew-SemiBold.woff2",
+      "version": "4.500",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "None; original upstream web font"
+    },
+    {
+      "file": "scheherazade-new-700.woff2",
+      "sha256": "c769d2526655afccadc7201fbc05eae222d3f9982d4da47c3d6ddc3c2f97e926",
+      "sourceSha256": "c769d2526655afccadc7201fbc05eae222d3f9982d4da47c3d6ddc3c2f97e926",
+      "bytes": 137067,
+      "codepoints": 800,
+      "source": "https://github.com/silnrsi/font-scheherazade/releases/download/v4.500/ScheherazadeNew-4.500.zip",
+      "archivePath": "ScheherazadeNew-4.500/web/ScheherazadeNew-Bold.woff2",
+      "version": "4.500",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "None; original upstream web font"
+    },
+    {
+      "file": "skelly-arabic-reading-400.woff2",
+      "sha256": "9b9040c266257b14d39054188e3b1fdab19087f2a7aa24215ae2b5f9f147afd7",
+      "sourceSha256": "fd12c322cd8a0033d5c30b0a9fc0432e1d51288cd065f3f04a85a7974f1de3b7",
+      "bytes": 125155,
+      "source": "scheherazade-new-400.woff2",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "Renamed OFL derivative; 25 vowel glyph outlines translated +123/2048 em; GPOS and GSUB unchanged. Recipe: docs/notes/arabic-mark-offset-2026-09-20.md"
+    },
+    {
+      "file": "skelly-arabic-reading-500.woff2",
+      "sha256": "6f620588462515a2875f822c9f2b7450a8f905f6567edfda15c441d24ee54f5e",
+      "sourceSha256": "ce963bf18a1c1d391b24db4108259ed74e5048ea5cb70c9e727575a608ad41d5",
+      "bytes": 151543,
+      "source": "scheherazade-new-500.woff2",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "Renamed OFL derivative; 25 vowel glyph outlines translated +123/2048 em; GPOS and GSUB unchanged. Recipe: docs/notes/arabic-mark-offset-2026-09-20.md"
+    },
+    {
+      "file": "skelly-arabic-reading-600.woff2",
+      "sha256": "f0d52a91dfd002cb38364ad06188ae4eebaf02f0b94c6635145283735b77d727",
+      "sourceSha256": "a857024fda7acac48d8b77e8f6b9d9c2783c13ff1f5739923ff6fc287c5f06a0",
+      "bytes": 153815,
+      "source": "scheherazade-new-600.woff2",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "Renamed OFL derivative; 25 vowel glyph outlines translated +123/2048 em; GPOS and GSUB unchanged. Recipe: docs/notes/arabic-mark-offset-2026-09-20.md"
+    },
+    {
+      "file": "skelly-arabic-reading-700.woff2",
+      "sha256": "ccdd96ab934557a601d3b0216fb4489542da322d550ec72717b2337ea0ed98ea",
+      "sourceSha256": "c769d2526655afccadc7201fbc05eae222d3f9982d4da47c3d6ddc3c2f97e926",
+      "bytes": 136975,
+      "source": "scheherazade-new-700.woff2",
+      "license": "scheherazade-new-OFL.txt",
+      "conversion": "Renamed OFL derivative; 25 vowel glyph outlines translated +123/2048 em; GPOS and GSUB unchanged. Recipe: docs/notes/arabic-mark-offset-2026-09-20.md"
+    }
+  ]
+}

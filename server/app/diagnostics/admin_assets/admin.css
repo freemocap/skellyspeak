@@ -1,0 +1,583 @@
+/* The shared vocabulary: every colour, size, shadow, duration and layer the
+   interface uses, one name per role. Component sheets reference these names
+   and never literal values; check-styles.ts enforces that. The published
+   design system (docs/design-system/) is generated from this file.
+
+   Names say what a value is FOR, not what it looks like. Two roles may share a
+   value today (success-ink and di-situating, say) and still stay separate:
+   equal colours do not merge status, learning-domain or interaction meanings.
+   There are no aliases — if two names would always mean the same thing, there
+   is one name.
+
+   Themes, palettes, density, spacing and depth are learner preferences applied
+   as data-* attributes on the root (platform/appearance/useAppearance.ts); each
+   overrides only the roles it changes. */
+
+:root {
+  /* ══ Colour: surfaces and text ═══════════════════════════════════════════
+     Warm light is the default palette. Palettes and the dark theme override
+     these eleven roles and nothing else in this group. */
+  --bg: #ede8dc;              /* the ground behind every sheet */
+  --chrome: #f7f4ec;          /* top bar, panel tabs, hover on sheet */
+  --sheet: #fffdf8;           /* the raised surface: chat, cards, dialogs */
+  --field: #ffffff;           /* inputs and the active tab */
+  --chip: #dbd4c5;            /* chips, selected rows, recessed wells */
+  --track: #e2dac6;           /* the unfilled part of meters and rails */
+  --line: #cfc5b0;            /* default borders */
+  --line-soft: #e6dfcf;       /* dividers inside a surface */
+  --ink: #1f1c17;             /* primary text */
+  --ink-2: #3a3630;           /* labels, supporting text */
+  --ink-3: #5c564b;           /* metadata, glosses, placeholders; ≥4.5:1 on sheet and bg */
+  --ink-on-fill: #ffffff;     /* text on interaction-fill and danger-fill */
+
+  /* Reply ideas sit in a tinted tray so suggestions never read as conversation. */
+  --reply-tray: color-mix(in srgb, var(--track) 45%, var(--sheet));
+  /* The coach sits recessed behind the chat, sunk below the ground. */
+  --coach-surface: color-mix(in srgb, var(--bg) 90%, rgb(0 0 0));
+
+  /* ══ Colour: the conversation ════════════════════════════════════════════
+     The partner's side is warm; the learner's side is cool. */
+  --bubble-partner-bg: #fff4e3;
+  --bubble-partner-line: #ebd3a8;
+  --bubble-learner-bg: #e8eef8;
+  --bubble-learner-line: #c9d6eb;
+
+  /* ══ Colour: interaction ═════════════════════════════════════════════════
+     The one accent: links, selection, active tabs, XP, focus. */
+  --interaction-ink: #1f4785;
+  --interaction-fill: #1f4785;
+  --interaction-fill-hover: #12395e;
+  --interaction-tint: color-mix(in srgb, #6f9bff 15%, transparent);
+  --focus-ring: var(--interaction-ink);
+
+  /* ══ Colour: status ══════════════════════════════════════════════════════
+     Success, warning and danger, each with an ink for text, a line for
+     borders and marks, and a tint to sit behind the ink. Used for system state
+     and for the coach's judgments alike; never replaced by a domain hue. */
+  --success-ink: #0e5c53;
+  --success-line: #a6b9aa;
+  --success-tint: #ddf0ec;
+  --warning-ink: #8a4e0a;
+  --warning-line: #c78a2f;
+  --warning-tint: #fbebd6;
+  --warning-ring: color-mix(in srgb, #e6b357 55%, transparent);
+  --warning-ring-clear: color-mix(in srgb, #e6b357 0%, transparent);
+  --danger-ink: #922c2a;
+  --danger-line: #d84a4a;
+  --danger-tint: #f7e0de;
+  --danger-fill: #bd3038;
+  --danger-fill-hover: #a2262d;
+  /* The application fault bar is dark red in every theme. */
+  --fault-bar-bg: #3a1a1a;
+  --fault-bar-line: #7a3535;
+  --fault-bar-ink: #ffd7d7;
+  --fault-bar-strong: #ffb4b4;
+  /* Review mode's navigation colour; a mode, not a judgment. */
+  --mode-review-ink: var(--success-ink);
+
+  /* ══ Colour: skill domains ═══════════════════════════════════════════════
+     Data colours for the six domains: d-* fills marks (map nodes, bars, dots),
+     di-* is the domain as text on sheet, dm-* a muted fill. Read from
+     domain/learning/catalog/skill-domains.ts. Never a status. */
+  --d-social: #e08a2e;
+  --di-social: #8a4e0a;
+  --dm-social: color-mix(in srgb, var(--d-social) 65%, var(--sheet));
+  --d-questions: #d9564f;
+  --di-questions: #922c2a;
+  --dm-questions: color-mix(in srgb, var(--d-questions) 65%, var(--sheet));
+  --d-opinions: #c0519b;
+  --di-opinions: #822f66;
+  --dm-opinions: color-mix(in srgb, var(--d-opinions) 65%, var(--sheet));
+  --d-statements: #3d7bd6;
+  --di-statements: #1f4785;
+  --dm-statements: color-mix(in srgb, var(--d-statements) 65%, var(--sheet));
+  --d-descriptions: #7d5bd4;
+  --di-descriptions: #4e3590;
+  --dm-descriptions: color-mix(in srgb, var(--d-descriptions) 65%, var(--sheet));
+  --d-situating: #1e9c8e;
+  --di-situating: #0e5c53;
+  --dm-situating: color-mix(in srgb, var(--d-situating) 65%, var(--sheet));
+  /* Text on a domain ink (di-*): the XP badge. */
+  --ink-on-domain: #ffffff;
+
+  /* Recording spectrum intensity; independent of skill-domain colours. */
+  --spectrogram-low: #171b36;
+  --spectrogram-mid: #8056b5;
+  --spectrogram-high: #ffe071;
+
+  /* ══ Depth ═══════════════════════════════════════════════════════════════
+     The depth preference (flat, default, raised, recessed) overrides the
+     surface, floating and input shadows, the scrim and the surface fill. */
+  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* bubbles, cards, active tab */
+  --shadow-surface: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%); /* the chat sheet off the ground */
+  --shadow-floating: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%); /* dialogs, popovers, rewards */
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 25%);                                  /* menus */
+  --shadow-drawer: 2px 0 18px rgb(0 0 0 / 35%);                                /* side drawers */
+  --shadow-input: inset 0 1px 3px rgb(0 0 0 / 12%);                            /* fields */
+  --shadow-recessed: inset 0 2px 6px rgb(0 0 0 / 16%), inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent); /* the coach, inspectors */
+  --scrim: rgb(0 0 0 / 38%);                                                   /* behind dialogs */
+  --scrim-strong: rgb(5 9 15 / 72%);                                           /* behind drawers and destructive confirmations */
+  --surface-bg: var(--sheet);
+  /* Written by useAppearance when a glow colour is chosen. */
+  --appearance-glow: 0 0 0 transparent;
+  --appearance-glow-inset: inset 0 0 0 transparent;
+  --surface-glow: var(--appearance-glow);
+
+  /* ══ Scales ══════════════════════════════════════════════════════════════
+     Every scale is complete on purpose, including steps no rule uses yet. */
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  /* Script faces are range-limited: mixed-language text gets the same fonts in
+     every surface without replacing Latin glyphs or depending on the UI locale. */
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC';
+  --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
+  --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
+  --font-reading-aid: 'Noto Sans', var(--font-scripts), sans-serif;
+
+  --type-hero: 30px;
+  --type-display: 24px;
+  --type-title: 18px;
+  --type-reading: 20px;
+  --type-body: 15px;
+  --type-ui: 13px;
+  --type-meta: 11px;
+
+  --leading-none: 1;
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+  --leading-vocalized: 1.9;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-heavy: 800;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-label: 0.04em;
+  --tracking-tag: 0.08em;
+  --tracking-caps: 0.14em;
+
+  /* ── Space ──────────────────────────────────────────────────────────────
+     A 2px grid up to 20px, then wider steps. Every step is multiplied by the
+     spacing preference, so their order holds at every density. Hairlines,
+     reading size and control minimums are independent. */
+  --layout-scale: .75;
+  --space-hairline: 1px;
+  --space-1: calc(2px * var(--layout-scale));
+  --space-2: calc(4px * var(--layout-scale));
+  --space-3: calc(6px * var(--layout-scale));
+  --space-4: calc(8px * var(--layout-scale));
+  --space-5: calc(10px * var(--layout-scale));
+  --space-6: calc(12px * var(--layout-scale));
+  --space-7: calc(14px * var(--layout-scale));
+  --space-8: calc(16px * var(--layout-scale));
+  --space-9: calc(18px * var(--layout-scale));
+  --space-10: calc(20px * var(--layout-scale));
+  --space-11: calc(24px * var(--layout-scale));
+  --space-12: calc(32px * var(--layout-scale));
+  --space-13: calc(40px * var(--layout-scale));
+
+  /* ── Radius ───────────────────────────────────────────────────────────── */
+  --radius-xs: 3px;       /* tags, badges */
+  --radius-sm: 6px;       /* tabs, small buttons, a bubble's tail corner */
+  --radius-md: 8px;       /* buttons, fields */
+  --radius-lg: 12px;      /* cards */
+  --radius-xl: 16px;      /* bubbles, the composer, dialogs, sheets */
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  /* ── Controls and lines ───────────────────────────────────────────────── */
+  --control-height-xs: 28px;
+  --control-height-sm: 26px;
+  --control-height: 32px;
+  --control-height-lg: 40px;
+  --touch-target: 44px;
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --border-width-thick: 3px;
+  --focus-width-thin: 1px;
+  --focus-width: 2px;
+  --focus-width-thick: 3px;
+  --measure-thread: 860px;
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --dur-instant: 80ms;
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-deliberate: 800ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-spin: 800ms;
+  --dur-loop-fast: 1.1s;
+  --dur-loop: 1.6s;
+  --dur-loop-slow: 2.8s;
+  --dur-loop-long: 5s;
+
+  /* ── Layering ─────────────────────────────────────────────────────────────
+     The reward band sits above everything, including React Flow's own
+     panels, so an earned reward is never hidden behind the skill map. */
+  --z-raised: 1;
+  --z-sticky: 5;
+  --z-dropdown: 30;
+  --z-scrim: 40;
+  --z-drawer: 41;
+  --z-popover: 50;
+  --z-modal: 60;
+  --z-reward-toast: 1090;
+  --z-reward-path: 1095;
+  --z-reward: 1100;
+
+  /* ══ Runtime contracts ═══════════════════════════════════════════════════
+     Written from TypeScript; declared here so every consumer has a default.
+
+       --reading-scale   text_size / 100          components/reading/TargetText.tsx
+       --script-scale    language fontScale       components/reading/TargetText.tsx
+       --word-spacing    preference.text_spacing  components/reading/TargetText.tsx
+       --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
+       --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx */
+  --reading-scale: 1;
+  --script-scale: 1;
+  --word-spacing: 0px;
+  --ai-inspector-width: 40%;
+  --chat-share: calc(100% - 360px);
+  --node-color: var(--interaction-ink);
+}
+
+/* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
+:root[data-theme='dark'] {
+  --bg: #141517;
+  --chrome: #1b1d20;
+  --sheet: #24262a;
+  --field: #111214;
+  --chip: #131416;
+  --track: #343a41;
+  --line: #454b53;
+  --line-soft: #343a41;
+  --ink: #f0f1f3;
+  --ink-2: #d3d6da;
+  --ink-3: #a3a8af;
+  --bubble-partner-bg: #32291b;
+  --bubble-partner-line: #695339;
+  --bubble-learner-bg: #1e2836;
+  --bubble-learner-line: #34465f;
+  --interaction-ink: #6fa3ea;
+  --success-ink: #3fc0af;
+  --success-tint: color-mix(in srgb, #3fc0af 16%, transparent);
+  --warning-ink: #f0a957;
+  --warning-line: #f0a957;
+  --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
+  --danger-ink: #f07a72;
+  --danger-tint: color-mix(in srgb, #f07a72 16%, transparent);
+  --d-social: #f0a957;
+  --di-social: #f0a957;
+  --d-questions: #f07a72;
+  --di-questions: #f07a72;
+  --d-opinions: #de7bbb;
+  --di-opinions: #de7bbb;
+  --d-statements: #6fa3ea;
+  --di-statements: #6fa3ea;
+  --d-descriptions: #a585e8;
+  --di-descriptions: #bfa4f0;
+  --d-situating: #3fc0af;
+  --di-situating: #3fc0af;
+  --ink-on-domain: var(--bg);
+}
+
+/* Palettes: alternative surfaces and inks for each theme. */
+:root[data-palette='cool'] {
+  --bg: #eceef0; --chrome: #f3f4f5; --sheet: #ffffff; --field: #ffffff;
+  --line: #cdd2d8; --line-soft: #e1e4e8;
+  --ink: #1c1f24; --ink-2: #454a52; --ink-3: #565d66;
+}
+:root[data-theme='dark'][data-palette='cool'] {
+  --bg: #141517; --chrome: #1b1d20; --sheet: #24262a; --field: #111214;
+  --line: #59616b; --line-soft: #3b4149;
+  --ink: #f0f1f3; --ink-2: #d3d6da; --ink-3: #a3a8af;
+}
+:root[data-theme='dark'][data-palette='warm'] {
+  --bg: #191714; --chrome: #201e19; --sheet: #292620; --field: #15130f;
+  --line: #6b6051; --line-soft: #463f34;
+  --ink: #f5f0e6; --ink-2: #ded6c8; --ink-3: #b8ad9b;
+}
+
+/* Spacing: named densities sit one step roomier than raw multipliers; at .5 the
+   whole app collapsed into a flat, cramped sheet with no room for hierarchy. */
+:root[data-spacing='roomy'] { --layout-scale: 1.25; }
+:root[data-spacing='balanced'] { --layout-scale: 1; }
+:root[data-spacing='tight'] { --layout-scale: .75; }
+:root[data-spacing='extra_tight'] { --layout-scale: .5; }
+:root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
+:root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
+:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
+:root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
+:root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
+
+/* Density never reduces touch targets below the platform minimum. */
+@media (pointer: coarse) {
+  :root[data-density='standard'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+  :root[data-density='compact'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+}
+
+/* Phones: a 20px reading size times a script scale (1.5 for Arabic) filled the
+   screen with a few words. The learner's own text-size setting still applies. */
+@media (max-width: 860px) {
+  :root { --type-reading: 17px; --type-title: 16px; --type-display: 21px; }
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-mono-400.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-mono-500.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-mono-600.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-sans-400.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-sans-500.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-sans-600.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(/fonts/ibm-plex-sans-700.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/newsreader-400.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/newsreader-500.ttf) format('truetype');
+}
+
+/* Local, complete WOFF2 fonts; ranges route scripts, not character subsets.
+   Font coverage/provenance and language-extension policy: public/fonts/README.md. */
+
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-arabic.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Devanagari';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-devanagari.woff2) format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CFF, U+A830-A839, U+A8E0-A8FF, U+11B00-11B5F;
+}
+
+@font-face {
+  font-family: 'Noto Sans Malayalam';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-malayalam.woff2) format('woff2');
+  unicode-range: U+0D00-0D7F;
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-sc.woff2) format('woff2');
+  unicode-range: U+2E80-2FFF, U+3000-303F, U+3100-312F, U+31A0-31BF, U+31C0-31EF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+20000-323AF;
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans.woff2) format('woff2');
+}
+
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/scheherazade-new-400.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/scheherazade-new-500.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/scheherazade-new-600.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/scheherazade-new-700.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+/* Learner-selected +0.06em vowel outlines; original shaping tables retained. */
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-400.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-500.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-600.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-700.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+/* Standalone server-admin document. Scoped to its body so the learner shell is unaffected. */
+#admin-console { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color-scheme: light; }
+#admin-console * { box-sizing: border-box; }
+#admin-console header { background: var(--interaction-fill); color: var(--ink-on-fill); padding: var(--space-11) var(--space-13); display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); }
+#admin-console h1 { margin: var(--space-2) 0 0; font-size: var(--type-display); font-weight: var(--weight-semibold); }
+#admin-console .eyebrow { font-size: var(--type-meta); letter-spacing: .12em; color: var(--ink-on-fill); }
+#admin-console main { max-width: 1500px; margin: auto; padding: var(--space-10) var(--space-13) var(--space-13); }
+#admin-console nav { display: flex; flex-wrap: wrap; gap: var(--space-10); padding: var(--space-4) 0 var(--space-10); }
+#admin-console a { color: var(--interaction-ink); }
+#admin-console section { margin: 0 0 var(--space-11); padding: var(--space-11); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); scroll-margin-top: var(--space-8); }
+#admin-console h2 { margin: 0 0 var(--space-6); font-size: var(--type-title); }
+#admin-console h3 { font-size: var(--type-body); margin: var(--space-10) 0 var(--space-6); }
+#admin-console p, #admin-console small { color: var(--ink-3); }
+#admin-console .section-head, #admin-console .filters { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-6); }
+#admin-console .filters { justify-content: flex-start; margin: var(--space-9) 0; }
+#admin-console button, #admin-console input, #admin-console select { font: inherit; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); background: var(--sheet); color: var(--ink); min-height: 38px; }
+#admin-console button { cursor: pointer; }
+#admin-console button:hover { background: var(--chrome); }
+#admin-console button:disabled { opacity: .5; cursor: default; }
+#admin-console input[type=checkbox] { min-height: auto; }
+#admin-console :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+#admin-console .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: var(--space-6); }
+#admin-console .metrics > div { background: var(--chrome); padding: var(--space-8); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+#admin-console .metrics span { display: block; color: var(--ink-3); font-size: var(--type-meta); }
+#admin-console .metrics strong { display: block; font-size: var(--type-title); font-weight: var(--weight-semibold); margin-top: var(--space-3); font-variant-numeric: tabular-nums; }
+#admin-console .scroll { overflow: auto; }
+#admin-console table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: var(--type-ui); }
+#admin-console th, #admin-console td { padding: var(--space-5) var(--space-6); text-align: left; border-bottom: var(--border-width) solid var(--line-soft); vertical-align: top; }
+#admin-console th { background: var(--chrome); color: var(--ink-3); font-size: var(--type-meta); text-transform: uppercase; letter-spacing: .04em; }
+#admin-console .fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: var(--space-9); margin: var(--space-10) 0; }
+#admin-console .fields label { display: flex; flex-direction: column; gap: var(--space-3); }
+#admin-console small { font-size: var(--type-meta); }
+#admin-console pre { white-space: pre-wrap; overflow-wrap: anywhere; font: var(--type-meta)/var(--leading-normal) var(--font-mono); max-width: 850px; }
+#admin-console #error { background: var(--danger-tint); border: var(--border-width) solid var(--danger-line); padding: var(--space-9); color: var(--danger-ink); }
+#admin-console #user-detail { margin-top: var(--space-11); padding-top: var(--space-4); border-top: var(--border-width-strong) solid var(--line); overflow-x: auto; }
+#admin-console .bars { display: flex; gap: var(--space-3); align-items: flex-end; min-height: 190px; overflow-x: auto; border-bottom: var(--border-width) solid var(--line); margin: var(--space-8) 0; padding-top: var(--space-7); }
+#admin-console .bar { flex: 1; min-width: 21px; display: flex; align-items: center; flex-direction: column; justify-content: flex-end; }
+#admin-console .bar-fill { background: var(--interaction-fill); width: 100%; min-height: 1px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
+#admin-console .bar-fill.missing { background: var(--track); }
+#admin-console .bar span { writing-mode: vertical-rl; font-size: var(--type-meta); margin-top: var(--space-3); color: var(--ink-3); }
+#admin-console .heat { display: block; min-width: 28px; text-align: center; border-radius: var(--radius-xs); padding: var(--space-2); }
+#admin-console #heatmap td, #admin-console #heatmap th { padding: var(--space-1); }
+#admin-console .heat-0 { background: var(--chrome); }
+#admin-console .heat-1 { background: var(--interaction-tint); }
+#admin-console .heat-2 { background: color-mix(in srgb, var(--interaction-fill) 35%, var(--sheet)); }
+#admin-console .heat-3 { background: var(--interaction-fill); color: var(--ink-on-fill); }
+#admin-console .heat-4 { background: var(--interaction-fill-hover); color: var(--ink-on-fill); }
+#admin-console dialog { border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); padding: var(--space-11); max-width: 650px; width: calc(100% - 32px); max-height: 85vh; overflow: auto; }
+#admin-console dialog::backdrop { background: var(--scrim-strong); }
+#admin-console .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-6); }
+#admin-console #apply-change { background: var(--interaction-fill); color: var(--ink-on-fill); }
+@media (max-width: 600px) { #admin-console header { flex-direction: column; align-items: flex-start; padding: var(--space-10); } #admin-console main { padding: var(--space-8); } #admin-console section { padding: var(--space-8); } }
+@media (pointer: coarse) { #admin-console button, #admin-console input, #admin-console select { min-height: 44px; } }

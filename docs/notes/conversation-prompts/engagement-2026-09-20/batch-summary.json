@@ -1,0 +1,128 @@
+[
+  {
+    "batch": "balanced",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0127818,
+    "missingCosts": 0,
+    "meanLatencyMs": 680
+  },
+  {
+    "batch": "balanced-new-model",
+    "model": "google/gemini-3.8-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.068712,
+    "missingCosts": 0,
+    "meanLatencyMs": 2190
+  },
+  {
+    "batch": "balanced-reasoning",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0303668,
+    "missingCosts": 0,
+    "meanLatencyMs": 2056
+  },
+  {
+    "batch": "baseline",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0106202,
+    "missingCosts": 0,
+    "meanLatencyMs": 477
+  },
+  {
+    "batch": "concise",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0121948,
+    "missingCosts": 0,
+    "meanLatencyMs": 752
+  },
+  {
+    "batch": "lean",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0081897,
+    "missingCosts": 0,
+    "meanLatencyMs": 584
+  },
+  {
+    "batch": "no-persona",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 24,
+    "complete": 23,
+    "costUsd": 0.0069666,
+    "missingCosts": 1,
+    "meanLatencyMs": 671
+  },
+  {
+    "batch": "refined",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.011209,
+    "missingCosts": 0,
+    "meanLatencyMs": 596
+  },
+  {
+    "batch": "refined-mini",
+    "model": "openai/gpt-5.4-mini",
+    "attempted": 1,
+    "complete": 0,
+    "costUsd": 0,
+    "missingCosts": 1,
+    "meanLatencyMs": 108
+  },
+  {
+    "batch": "refined-mini-supported",
+    "model": "openai/gpt-5.4-mini",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.028392,
+    "missingCosts": 0,
+    "meanLatencyMs": 941
+  },
+  {
+    "batch": "refined-new-model",
+    "model": "google/gemini-3.8-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0442425,
+    "missingCosts": 0,
+    "meanLatencyMs": 1326
+  },
+  {
+    "batch": "shaped",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0184878,
+    "missingCosts": 0,
+    "meanLatencyMs": 729
+  },
+  {
+    "batch": "varied",
+    "model": "google/gemini-2.5-flash",
+    "attempted": 38,
+    "complete": 38,
+    "costUsd": 0.0117207,
+    "missingCosts": 0,
+    "meanLatencyMs": 620
+  },
+  {
+    "batch": "varied-reference",
+    "model": "openai/gpt-6-astra",
+    "attempted": 16,
+    "complete": 16,
+    "costUsd": 0.17449,
+    "missingCosts": 0,
+    "meanLatencyMs": 3130
+  }
+]

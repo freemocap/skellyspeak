@@ -17,7 +17,7 @@ and output SHA-256 hashes, conversion tool, character counts and license files.
 
 | Text | Font | Weight range |
 | --- | --- | --- |
-| Arabic script | Scheherazade New 4.500 | 400/500/600/700 |
+| Arabic script | Skelly Arabic Reading (Scheherazade New 4.500 derivative) | 400/500/600/700 |
 | Arabic fallback and comparison reference | Noto Sans Arabic | 100–900 |
 | Devanagari (currently Hindi) | Noto Sans Devanagari | 100–900 |
 | Malayalam | Noto Sans Malayalam | 100–900 |
@@ -35,7 +35,7 @@ pronunciation use `--font-reading-aid` so their diacritics share one font.
 Non-Latin text inside a code block is not guaranteed to be monospaced.
 
 Font choice is presentation policy, independent of language `font_scale`, learner
-reading size and spacing. Arabic uses the unmodified upstream font, including its original diacritic positioning.
+reading size and spacing. Arabic uses a renamed derivative with vowel outlines raised 123/2048 em (approximately 0.06 em), selected in the native app. The original font remains bundled as a reference. GPOS/GSUB and base-letter outlines are unchanged. See docs/notes/arabic-mark-offset-2026-09-20.md for the exact recipe.
 RTL reading line height provides room for vowel marks. Fonts retain their shaping tables; source text and
 whole-word shaping are unchanged. Missing characters ultimately use device
 fallback. That is a safety net, not a claim of verified support.

@@ -1,0 +1,16 @@
+{
+  "signature": "c7636c6e5910beb65dd79e75346e6f9000ffca30d084ced750b024200af03039",
+  "model": "openai/text-embedding-3-small",
+  "dimensions": 512,
+  "reservationUsd": 0.0223664,
+  "uniqueTexts": 1013,
+  "directories": [
+    "docs/notes/conversation-prompts/spanish-persona-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-variety-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-temp03-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-temp11-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-p08-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-p1-2026-09-20"
+  ],
+  "retries": 0
+}

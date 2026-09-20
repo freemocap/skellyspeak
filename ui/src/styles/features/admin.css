@@ -1,0 +1,53 @@
+/* Standalone server-admin document. Scoped to its body so the learner shell is unaffected. */
+#admin-console { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color-scheme: light; }
+#admin-console * { box-sizing: border-box; }
+#admin-console header { background: var(--interaction-fill); color: var(--ink-on-fill); padding: var(--space-11) var(--space-13); display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); }
+#admin-console h1 { margin: var(--space-2) 0 0; font-size: var(--type-display); font-weight: var(--weight-semibold); }
+#admin-console .eyebrow { font-size: var(--type-meta); letter-spacing: .12em; color: var(--ink-on-fill); }
+#admin-console main { max-width: 1500px; margin: auto; padding: var(--space-10) var(--space-13) var(--space-13); }
+#admin-console nav { display: flex; flex-wrap: wrap; gap: var(--space-10); padding: var(--space-4) 0 var(--space-10); }
+#admin-console a { color: var(--interaction-ink); }
+#admin-console section { margin: 0 0 var(--space-11); padding: var(--space-11); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); scroll-margin-top: var(--space-8); }
+#admin-console h2 { margin: 0 0 var(--space-6); font-size: var(--type-title); }
+#admin-console h3 { font-size: var(--type-body); margin: var(--space-10) 0 var(--space-6); }
+#admin-console p, #admin-console small { color: var(--ink-3); }
+#admin-console .section-head, #admin-console .filters { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-6); }
+#admin-console .filters { justify-content: flex-start; margin: var(--space-9) 0; }
+#admin-console button, #admin-console input, #admin-console select { font: inherit; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); background: var(--sheet); color: var(--ink); min-height: 38px; }
+#admin-console button { cursor: pointer; }
+#admin-console button:hover { background: var(--chrome); }
+#admin-console button:disabled { opacity: .5; cursor: default; }
+#admin-console input[type=checkbox] { min-height: auto; }
+#admin-console :focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+#admin-console .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: var(--space-6); }
+#admin-console .metrics > div { background: var(--chrome); padding: var(--space-8); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+#admin-console .metrics span { display: block; color: var(--ink-3); font-size: var(--type-meta); }
+#admin-console .metrics strong { display: block; font-size: var(--type-title); font-weight: var(--weight-semibold); margin-top: var(--space-3); font-variant-numeric: tabular-nums; }
+#admin-console .scroll { overflow: auto; }
+#admin-console table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: var(--type-ui); }
+#admin-console th, #admin-console td { padding: var(--space-5) var(--space-6); text-align: left; border-bottom: var(--border-width) solid var(--line-soft); vertical-align: top; }
+#admin-console th { background: var(--chrome); color: var(--ink-3); font-size: var(--type-meta); text-transform: uppercase; letter-spacing: .04em; }
+#admin-console .fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: var(--space-9); margin: var(--space-10) 0; }
+#admin-console .fields label { display: flex; flex-direction: column; gap: var(--space-3); }
+#admin-console small { font-size: var(--type-meta); }
+#admin-console pre { white-space: pre-wrap; overflow-wrap: anywhere; font: var(--type-meta)/var(--leading-normal) var(--font-mono); max-width: 850px; }
+#admin-console #error { background: var(--danger-tint); border: var(--border-width) solid var(--danger-line); padding: var(--space-9); color: var(--danger-ink); }
+#admin-console #user-detail { margin-top: var(--space-11); padding-top: var(--space-4); border-top: var(--border-width-strong) solid var(--line); overflow-x: auto; }
+#admin-console .bars { display: flex; gap: var(--space-3); align-items: flex-end; min-height: 190px; overflow-x: auto; border-bottom: var(--border-width) solid var(--line); margin: var(--space-8) 0; padding-top: var(--space-7); }
+#admin-console .bar { flex: 1; min-width: 21px; display: flex; align-items: center; flex-direction: column; justify-content: flex-end; }
+#admin-console .bar-fill { background: var(--interaction-fill); width: 100%; min-height: 1px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
+#admin-console .bar-fill.missing { background: var(--track); }
+#admin-console .bar span { writing-mode: vertical-rl; font-size: var(--type-meta); margin-top: var(--space-3); color: var(--ink-3); }
+#admin-console .heat { display: block; min-width: 28px; text-align: center; border-radius: var(--radius-xs); padding: var(--space-2); }
+#admin-console #heatmap td, #admin-console #heatmap th { padding: var(--space-1); }
+#admin-console .heat-0 { background: var(--chrome); }
+#admin-console .heat-1 { background: var(--interaction-tint); }
+#admin-console .heat-2 { background: color-mix(in srgb, var(--interaction-fill) 35%, var(--sheet)); }
+#admin-console .heat-3 { background: var(--interaction-fill); color: var(--ink-on-fill); }
+#admin-console .heat-4 { background: var(--interaction-fill-hover); color: var(--ink-on-fill); }
+#admin-console dialog { border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); padding: var(--space-11); max-width: 650px; width: calc(100% - 32px); max-height: 85vh; overflow: auto; }
+#admin-console dialog::backdrop { background: var(--scrim-strong); }
+#admin-console .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-6); }
+#admin-console #apply-change { background: var(--interaction-fill); color: var(--ink-on-fill); }
+@media (max-width: 600px) { #admin-console header { flex-direction: column; align-items: flex-start; padding: var(--space-10); } #admin-console main { padding: var(--space-8); } #admin-console section { padding: var(--space-8); } }
+@media (pointer: coarse) { #admin-console button, #admin-console input, #admin-console select { min-height: 44px; } }

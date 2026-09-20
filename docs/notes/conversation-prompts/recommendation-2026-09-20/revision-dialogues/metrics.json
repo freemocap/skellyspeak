@@ -1,0 +1,54 @@
+{
+  "compact-grounded": {
+    "calls": 24,
+    "completed": 24,
+    "costUsd": 0.0048557999999999995,
+    "meanPromptTokens": 582.75,
+    "meanCompletionTokens": 11,
+    "p50Ms": 518,
+    "p95Ms": 625,
+    "lowLevelSingleSentence": 12,
+    "lowLevelCount": 12,
+    "multiQuestionTurns": 0,
+    "metricLimit": "Punctuation counts are mechanical screens; latency is descriptive and unreplicated."
+  },
+  "spanish/compact-grounded": {
+    "calls": 8,
+    "completed": 8,
+    "costUsd": 0.0015984000000000003,
+    "meanPromptTokens": 581.625,
+    "meanCompletionTokens": 10.125,
+    "p50Ms": 490,
+    "p95Ms": 639,
+    "lowLevelSingleSentence": 4,
+    "lowLevelCount": 4,
+    "multiQuestionTurns": 0,
+    "metricLimit": "Punctuation counts are mechanical screens; latency is descriptive and unreplicated."
+  },
+  "arabic/compact-grounded": {
+    "calls": 8,
+    "completed": 8,
+    "costUsd": 0.0016733,
+    "meanPromptTokens": 595.125,
+    "meanCompletionTokens": 12.25,
+    "p50Ms": 511,
+    "p95Ms": 591,
+    "lowLevelSingleSentence": 4,
+    "lowLevelCount": 4,
+    "multiQuestionTurns": 0,
+    "metricLimit": "Punctuation counts are mechanical screens; latency is descriptive and unreplicated."
+  },
+  "mandarin/compact-grounded": {
+    "calls": 8,
+    "completed": 8,
+    "costUsd": 0.0015841,
+    "meanPromptTokens": 571.5,
+    "meanCompletionTokens": 10.625,
+    "p50Ms": 543,
+    "p95Ms": 625,
+    "lowLevelSingleSentence": 4,
+    "lowLevelCount": 4,
+    "multiQuestionTurns": 0,
+    "metricLimit": "Punctuation counts are mechanical screens; latency is descriptive and unreplicated."
+  }
+}

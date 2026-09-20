@@ -175,13 +175,13 @@ pub async fn mic_transcribe(
     };
     let inspection_recording = recording.id.clone();
     let inspection_conversation = recording.conversation.clone();
-    let (wav, mut inspection, local) = tauri::async_runtime::spawn_blocking(move || {
-        let (inspection, local) = crate::speech::analysis::audio_inspection::inspect_wav(
+    let (wav, mut inspection) = tauri::async_runtime::spawn_blocking(move || {
+        let (inspection, _) = crate::speech::analysis::audio_inspection::inspect_wav(
             &wav,
             &inspection_recording,
             &inspection_conversation,
         )?;
-        Ok::<_, AppError>((wav, inspection, local))
+        Ok::<_, AppError>((wav, inspection))
     })
     .await
     .map_err(|_| fault("Audio inspection stopped unexpectedly."))??;
@@ -238,14 +238,13 @@ pub async fn mic_transcribe(
         }
     };
     let diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
-    let result = result.and_then(|response| {
+    let result = result.map(|response| {
         crate::speech::analysis::audio_inspection::attach_words(
             &mut inspection,
-            &local,
             response.timing.as_ref(),
-        )?;
+        );
         segments = response.whisper_segments.unwrap_or_default();
-        Ok(response.text)
+        response.text
     });
     let text = state.lock()?.finish_transcription_with_diagnostics(
         &recording_id,

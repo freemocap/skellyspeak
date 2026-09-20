@@ -1,0 +1,17 @@
+{
+  "studyHash": "a76e2592ddadc5e1b8afabebbd3d143e0584771f9cad2f269fe7a7997131b1b2",
+  "builtAt": "2026-09-20T15:15:34.299Z",
+  "runs": [
+    {
+      "path": "docs/notes/conversation-prompts/instruction-language-2026-09-20",
+      "round": "Instruction language",
+      "recordedAt": "2026-09-20",
+      "planHash": "1bba71bdd767fde41abd706351680f7f8a44de4a749f0e0ca366150b2cd1de7e"
+    }
+  ],
+  "rows": 180,
+  "uniqueEmbeddings": 178,
+  "projections": 12,
+  "generationReportedCost": 0.009687,
+  "embeddingReportedCost": 0.00011532
+}

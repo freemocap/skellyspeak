@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "id": "instruction-language-2026-09-20",
+  "title": "Relationship · English versus target-language instructions",
+  "runs": [
+    {
+      "path": "docs/notes/conversation-prompts/instruction-language-2026-09-20",
+      "round": "Instruction language",
+      "recordedAt": "2026-09-20",
+      "planHash": "1bba71bdd767fde41abd706351680f7f8a44de4a749f0e0ca366150b2cd1de7e"
+    }
+  ],
+  "recommendation": "Pilot conclusion: no universal winner. English is a reasonable default candidate, but this run does not establish equivalence or acceptable app quality. Spanish shows no clear target-language advantage. Mandarin target-language instructions improve the variety and usefulness of some situations, while increasing length. Arabic target-language instructions often produce more coherent colloquial replies but strongly repeat cat situations and usually omit the requested vowel marks. Both conditions frequently fail to invite a useful reply at Absolute Zero. Do not generate configuration translations for every language on this evidence; validate the promising language-specific effects with reviewed translations and matched app prompts first.",
+  "metricNotes": "Compare English versus target-language instructions WITHIN each target language and difficulty. Persona off; no topic; ten independent openings per cell. English is the assumed explanation language, not a third independent condition. Output-language directives are identical English wrappers in each pair; the behavior, difficulty, clarification and task blocks are translated. Arabic vowel marks are excluded from word-token counts; Mandarin uses Intl.Segmenter word segmentation. Length bands are transferred screening targets, not equivalent proficiency scales across languages. Multilingual embedding clusters can reflect output language. Translation phrasing and register remain confounds; this is a small pilot, not proof of equivalence or a native-speaker review.",
+  "review": [
+    "Spanish: mean within-level cosine is 0.382 with English instructions versus 0.407 with Spanish instructions (lower means more semantic spread). Average word counts by level are almost unchanged: 4.9/12.8/21.5 versus 4.7/13.2/21.8. The Spanish condition repeats “Hoy he visto un gato negro. ¿Te gustan los gatos?” three times at Beginner. “Hoy, el sol. ¿Sí?” fits the length target but provides no clear decision or meaningful reply. English is not reliable either: “Compro pan.” is a dead end.",
+    "Mandarin: mean cosine falls from 0.403 to 0.361 with target-language instructions; means rise from 5.6/9.7/15.3 to 5.9/13.1/20.7 segmented words. Target-language Intermediate has more concrete choices, such as whether to visit another shop because the peaches look stale, or whether to walk in light rain. English Intermediate often switches from an unrelated observation to asking about the weather. But target-language Absolute Zero includes “冰箱门没关好。” (“The fridge door was not closed properly”) with no invitation; a longer response is not automatically better.",
+    "Arabic: mean cosine rises from 0.417 to 0.444 with target-language instructions. Nine of ten target-language Beginner replies concern cats. Some target-language replies have a usable problem, such as coffee turning out too strong/plain and asking for advice, but others ask for guesses about unseen cats. English Intermediate contains visibly garbled wording and mixed registers; target-language wording is often more coherent, yet most replies omit the full vowel marking required by the shared directive. A native review should separate translation/register priming from an instruction-language effect.",
+    "Review method: the assistant read all 180 outputs and assessed concrete situation, meaningful invitation, coherence, unseen-scene assumptions, repetition and level burden. This is an unblinded qualitative review, not a validated per-response score. Ten repetitions per cell are too few to establish equivalence. Original response text, exact prompts, API receipts and numerical measures are retained for inspection."
+  ]
+}

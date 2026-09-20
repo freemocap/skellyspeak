@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {Script} from 'node:vm';
+import {renderDocument} from './document.ts';
+const script="const $=1; if($&&true){}; const text=\"</script>\";";
+const html=renderDocument('<!--DATA--><!--SCRIPT-->',{text:"$& $' $` </script>"},script);
+const json=html.match(/application\/json" id="prompt-explorer-data">([\s\S]*?)<\/script>/)![1];
+assert.equal(JSON.parse(json).text,"$& $' $` </script>");
+const executable=html.match(/<script>([\s\S]*?)<\/script>/)![1];
+assert.ok(executable.includes('$&&true'));new Script(executable);
+assert.ok(!html.includes('<!--SCRIPT-->'));

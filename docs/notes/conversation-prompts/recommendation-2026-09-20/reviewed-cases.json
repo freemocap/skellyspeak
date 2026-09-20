@@ -1,0 +1,216 @@
+{
+  "reviewer": "assistant, unblinded",
+  "scope": "All confusion turns in linked batches and all ownership probes in the paired revision. Not a CEFR score or independent human validation.",
+  "records": [
+    {
+      "batch": "dialogues",
+      "id": "spanish-beginner-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "spanish-beginner-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "dialogues",
+      "id": "spanish-intermediate-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "spanish-intermediate-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "dialogues",
+      "id": "arabic-beginner-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "arabic-beginner-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "dialogues",
+      "id": "arabic-intermediate-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "arabic-intermediate-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "dialogues",
+      "id": "mandarin-beginner-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "mandarin-beginner-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Changes partner I like cycling to learner you like cycling."
+    },
+    {
+      "batch": "dialogues",
+      "id": "mandarin-intermediate-approved-23-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Does not clarify the partner’s preceding meaning; treats earlier partner content as a learner contribution or restarts conversation."
+    },
+    {
+      "batch": "dialogues",
+      "id": "mandarin-intermediate-compact-examples-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "spanish-beginner-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "spanish-intermediate-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "arabic-beginner-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "arabic-intermediate-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "mandarin-beginner-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision-dialogues",
+      "id": "mandarin-intermediate-compact-grounded-t1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves partner ownership and the main preceding meaning. This does not certify that the vocabulary is simpler."
+    },
+    {
+      "batch": "revision",
+      "id": "spanish-beginner-compact-grounded-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves first-person ownership and core preference; minor narrowing/omission is not counted as an ownership failure."
+    },
+    {
+      "batch": "revision",
+      "id": "spanish-beginner-compact-examples-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Asks the learner a new preference question or attributes the partner’s preference to the learner."
+    },
+    {
+      "batch": "revision",
+      "id": "arabic-beginner-compact-examples-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Asks the learner a new preference question or attributes the partner’s preference to the learner."
+    },
+    {
+      "batch": "revision",
+      "id": "arabic-beginner-compact-grounded-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves first-person ownership and core preference; minor narrowing/omission is not counted as an ownership failure."
+    },
+    {
+      "batch": "revision",
+      "id": "mandarin-beginner-compact-grounded-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves first-person ownership and core preference; minor narrowing/omission is not counted as an ownership failure."
+    },
+    {
+      "batch": "revision",
+      "id": "mandarin-beginner-compact-examples-owned-confusion-r1",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Asks the learner a new preference question or attributes the partner’s preference to the learner."
+    },
+    {
+      "batch": "revision",
+      "id": "spanish-beginner-compact-examples-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Retains first-person book/story preference."
+    },
+    {
+      "batch": "revision",
+      "id": "spanish-beginner-compact-grounded-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves first-person ownership and core preference; minor narrowing/omission is not counted as an ownership failure."
+    },
+    {
+      "batch": "revision",
+      "id": "arabic-beginner-compact-grounded-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "pass",
+      "note": "Preserves first-person ownership and core preference; minor narrowing/omission is not counted as an ownership failure."
+    },
+    {
+      "batch": "revision",
+      "id": "arabic-beginner-compact-examples-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Asks the learner a new preference question or attributes the partner’s preference to the learner."
+    },
+    {
+      "batch": "revision",
+      "id": "mandarin-beginner-compact-examples-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Asks the learner a new preference question or attributes the partner’s preference to the learner."
+    },
+    {
+      "batch": "revision",
+      "id": "mandarin-beginner-compact-grounded-owned-confusion-r2",
+      "criterion": "clarification_preserves_speaker_and_main_meaning",
+      "verdict": "fail",
+      "note": "Replaces tea in the actual history with cycling from the added example."
+    }
+  ]
+}

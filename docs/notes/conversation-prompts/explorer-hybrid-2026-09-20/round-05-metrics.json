@@ -1,0 +1,362 @@
+[
+  {
+    "prompt": "relationship",
+    "persona": "no-persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 5.1,
+        "complexity": 3.8,
+        "letters": 3.7161904761904765,
+        "adherence": 0.7,
+        "similarity": 0.41160383296767644,
+        "duplicates": 0,
+        "openings": 0.08888888888888889,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 12.8,
+        "complexity": 6.4,
+        "letters": 3.7473992673992678,
+        "adherence": 0.1,
+        "similarity": 0.5321446101141174,
+        "duplicates": 0.022222222222222223,
+        "openings": 0.13333333333333333,
+        "unique": 9
+      },
+      {
+        "n": 10,
+        "words": 21.8,
+        "complexity": 9.675,
+        "letters": 4.073085489887886,
+        "adherence": 0.7,
+        "similarity": 0.39978654410692877,
+        "duplicates": 0,
+        "openings": 0.044444444444444446,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.4478449957295742,
+    "fitFloor": 0.1,
+    "order": [
+      1,
+      1
+    ]
+  },
+  {
+    "prompt": "relationship",
+    "persona": "persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 5.8,
+        "complexity": 3.6,
+        "letters": 3.459404761904762,
+        "adherence": 0.4,
+        "similarity": 0.3935418874847848,
+        "duplicates": 0,
+        "openings": 0.044444444444444446,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 12.9,
+        "complexity": 6.45,
+        "letters": 3.8098985736485735,
+        "adherence": 0.2,
+        "similarity": 0.4546667058263741,
+        "duplicates": 0.022222222222222223,
+        "openings": 0.4666666666666667,
+        "unique": 9
+      },
+      {
+        "n": 10,
+        "words": 24.4,
+        "complexity": 11.416666666666668,
+        "letters": 3.956837736337736,
+        "adherence": 0.3,
+        "similarity": 0.39391232887059946,
+        "duplicates": 0,
+        "openings": 0.08888888888888889,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.41404030739391945,
+    "fitFloor": 0.2,
+    "order": [
+      1,
+      1
+    ]
+  },
+  {
+    "prompt": "examples",
+    "persona": "no-persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 4.1,
+        "complexity": 2.05,
+        "letters": 4.173333333333334,
+        "adherence": 0.9,
+        "similarity": 0.5025087122476246,
+        "duplicates": 0.022222222222222223,
+        "openings": 0.08888888888888889,
+        "unique": 9
+      },
+      {
+        "n": 10,
+        "words": 5.9,
+        "complexity": 2.95,
+        "letters": 3.8916666666666666,
+        "adherence": 0.9,
+        "similarity": 0.8238015966747512,
+        "duplicates": 0.4666666666666667,
+        "openings": 0.8,
+        "unique": 4
+      },
+      {
+        "n": 10,
+        "words": 19.8,
+        "complexity": 7.466666666666667,
+        "letters": 4.366822895755626,
+        "adherence": 0.9,
+        "similarity": 0.4410890950308362,
+        "duplicates": 0,
+        "openings": 0.24444444444444444,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.5891331346510706,
+    "fitFloor": 0.9,
+    "order": [
+      0.91,
+      1
+    ]
+  },
+  {
+    "prompt": "examples",
+    "persona": "persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 4.3,
+        "complexity": 2.15,
+        "letters": 3.9666666666666672,
+        "adherence": 0.9,
+        "similarity": 0.6817667078227468,
+        "duplicates": 0.13333333333333333,
+        "openings": 0.6222222222222222,
+        "unique": 7
+      },
+      {
+        "n": 10,
+        "words": 6.6,
+        "complexity": 3.3,
+        "letters": 3.861904761904762,
+        "adherence": 1,
+        "similarity": 0.6983587953564829,
+        "duplicates": 0.15555555555555556,
+        "openings": 0.4888888888888889,
+        "unique": 6
+      },
+      {
+        "n": 10,
+        "words": 23.3,
+        "complexity": 10.833333333333332,
+        "letters": 4.021236239394133,
+        "adherence": 0.6,
+        "similarity": 0.4601967151027399,
+        "duplicates": 0,
+        "openings": 0.28888888888888886,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.6134407394273232,
+    "fitFloor": 0.6,
+    "order": [
+      0.98,
+      1
+    ]
+  },
+  {
+    "prompt": "relationship-calibrated",
+    "persona": "no-persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 4.6,
+        "complexity": 2.3,
+        "letters": 3.4416666666666673,
+        "adherence": 0.8,
+        "similarity": 0.5721001306409771,
+        "duplicates": 0.022222222222222223,
+        "openings": 0.2222222222222222,
+        "unique": 9
+      },
+      {
+        "n": 10,
+        "words": 9.9,
+        "complexity": 4.95,
+        "letters": 3.836212121212121,
+        "adherence": 0.7,
+        "similarity": 0.5800424310760488,
+        "duplicates": 0,
+        "openings": 0.26666666666666666,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 24.9,
+        "complexity": 10.516666666666666,
+        "letters": 4.163094815916798,
+        "adherence": 0.4,
+        "similarity": 0.3512091565098695,
+        "duplicates": 0,
+        "openings": 0.1111111111111111,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.501117239408965,
+    "fitFloor": 0.4,
+    "order": [
+      1,
+      1
+    ]
+  },
+  {
+    "prompt": "relationship-calibrated",
+    "persona": "persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 5.1,
+        "complexity": 2.55,
+        "letters": 3.712142857142858,
+        "adherence": 0.7,
+        "similarity": 0.4034782042332332,
+        "duplicates": 0,
+        "openings": 0.044444444444444446,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 9.8,
+        "complexity": 4.9,
+        "letters": 3.775217282717283,
+        "adherence": 0.9,
+        "similarity": 0.4048264201472384,
+        "duplicates": 0,
+        "openings": 0.1111111111111111,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 25.8,
+        "complexity": 10.733333333333334,
+        "letters": 4.086862854694552,
+        "adherence": 0.6,
+        "similarity": 0.35489613890639,
+        "duplicates": 0,
+        "openings": 0.15555555555555556,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.3877335877622872,
+    "fitFloor": 0.6,
+    "order": [
+      0.99,
+      1
+    ]
+  },
+  {
+    "prompt": "examples-capability",
+    "persona": "no-persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 3.8,
+        "complexity": 1.9,
+        "letters": 4.27,
+        "adherence": 1,
+        "similarity": 0.49219597693753075,
+        "duplicates": 0.08888888888888889,
+        "openings": 0.1111111111111111,
+        "unique": 7
+      },
+      {
+        "n": 10,
+        "words": 7.1,
+        "complexity": 3.55,
+        "letters": 4.085912698412698,
+        "adherence": 1,
+        "similarity": 0.42080473909022253,
+        "duplicates": 0,
+        "openings": 0.2222222222222222,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 25.1,
+        "complexity": 11.183333333333334,
+        "letters": 4.144813410337438,
+        "adherence": 0.2,
+        "similarity": 0.4451100889460447,
+        "duplicates": 0,
+        "openings": 0.17777777777777778,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.45270360165793266,
+    "fitFloor": 0.2,
+    "order": [
+      1,
+      1
+    ]
+  },
+  {
+    "prompt": "examples-capability",
+    "persona": "persona",
+    "levels": [
+      {
+        "n": 10,
+        "words": 3.4,
+        "complexity": 1.6333333333333333,
+        "letters": 4.75,
+        "adherence": 1,
+        "similarity": 0.4879137494832891,
+        "duplicates": 0.022222222222222223,
+        "openings": 0.06666666666666667,
+        "unique": 9
+      },
+      {
+        "n": 10,
+        "words": 7.8,
+        "complexity": 3.9,
+        "letters": 4.055299422799423,
+        "adherence": 1,
+        "similarity": 0.45521317627953306,
+        "duplicates": 0,
+        "openings": 0.35555555555555557,
+        "unique": 10
+      },
+      {
+        "n": 10,
+        "words": 23.6,
+        "complexity": 10.966666666666667,
+        "letters": 4.255878766965724,
+        "adherence": 0.5,
+        "similarity": 0.4373616804609589,
+        "duplicates": 0,
+        "openings": 0.08888888888888889,
+        "unique": 10
+      }
+    ],
+    "meanCos": 0.4601628687412604,
+    "fitFloor": 0.5,
+    "order": [
+      1,
+      1
+    ]
+  }
+]

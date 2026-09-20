@@ -282,44 +282,34 @@ fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
         bins,
     }
 }
+/// Display validated provider timestamps without fluency alignment. Acoustic
+/// activity is inspection data, never a gate on a successful transcription.
 pub(crate) fn attach_words(
     inspection: &mut AudioInspection,
-    local: &fluency::LocalTiming,
     transcript: Option<&fluency::TranscriptTiming>,
-) -> Result<()> {
+) {
     let Some(transcript) = transcript else {
-        return Ok(());
+        return;
     };
-    let aligned = fluency::align_timing(transcript, local)?;
     inspection.word_timing = InspectionWordTiming {
         status: InspectionTimingStatus::Available,
         reason: None,
-        words: aligned
+        words: transcript
             .words
-            .into_iter()
-            .map(|word| InspectionWord {
-                index: word.index,
-                word: word.word,
-                provider_start: word.provider_start,
-                provider_end: word.provider_end,
+            .iter()
+            .enumerate()
+            .map(|(index, word)| InspectionWord {
+                index,
+                word: word.word.clone(),
+                provider_start: word.start,
+                provider_end: word.end,
                 start: word.start,
                 end: word.end,
-                clipped: word.clipped,
+                clipped: false,
             })
             .collect(),
-        unsupported: aligned
-            .unsupported_words
-            .into_iter()
-            .map(|word| InspectionUnsupportedWord {
-                index: word.index,
-                word: word.word,
-                provider_start: word.provider_start,
-                provider_end: word.provider_end,
-                reason: word.reason.into(),
-            })
-            .collect(),
+        unsupported: vec![],
     };
-    Ok(())
 }
 
 #[cfg(test)]
@@ -405,7 +395,7 @@ mod tests {
         assert!(inspect_wav(&vec![0; MAX_BYTES + 1], "r", "c").is_err());
     }
     #[test]
-    fn aligned_words_are_overlay_data_and_original_text_is_never_changed() {
+    fn provider_timing_is_preserved_without_fluency_alignment() {
         let rate = 16000;
         let samples: Vec<i16> = (0..rate)
             .map(|i| {
@@ -416,8 +406,7 @@ mod tests {
                 }
             })
             .collect();
-        let (mut inspection, local) =
-            inspect_wav(&wav(&samples, rate as u32, 1), "r", "c").unwrap();
+        let (mut inspection, _) = inspect_wav(&wav(&samples, rate as u32, 1), "r", "c").unwrap();
         // A provider need only supply word timing, not Whisper segment probabilities.
         let transcript = fluency::TranscriptTiming {
             text: "مرحبا وهم".into(),
@@ -430,20 +419,25 @@ mod tests {
                 },
                 fluency::Word {
                     word: "وهم".into(),
-                    start: 1.1,
-                    end: 1.2,
+                    start: 0.9,
+                    end: 0.9,
                 },
             ],
         };
-        attach_words(&mut inspection, &local, Some(&transcript)).unwrap();
+        attach_words(&mut inspection, Some(&transcript));
         assert!(matches!(
             inspection.word_timing.status,
             InspectionTimingStatus::Available
         ));
         assert_eq!(inspection.word_timing.words[0].word, "مرحبا");
         assert_eq!(inspection.word_timing.words[0].provider_end, 0.9);
-        assert!((inspection.word_timing.words[0].end - 0.6).abs() < 0.021);
-        assert_eq!(inspection.word_timing.unsupported[0].word, "وهم");
+        assert_eq!(inspection.word_timing.words[0].end, 0.9);
+        assert!(!inspection.word_timing.words[0].clipped);
+        // Zero-duration timestamps accepted by the service must not invalidate
+        // the transcript, even when the word falls outside local activity.
+        assert_eq!(inspection.word_timing.words[1].start, 0.9);
+        assert_eq!(inspection.word_timing.words[1].end, 0.9);
+        assert!(inspection.word_timing.unsupported.is_empty());
         assert_eq!(transcript.text, "مرحبا وهم");
         let encoded = serde_json::to_string(&inspection).unwrap();
         assert!(!encoded.contains("\"samples\""));

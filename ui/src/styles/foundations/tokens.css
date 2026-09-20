@@ -129,7 +129,7 @@
   /* ── Typography ───────────────────────────────────────────────────────── */
   /* Script faces are range-limited: mixed-language text gets the same fonts in
      every surface without replacing Latin glyphs or depending on the UI locale. */
-  --font-scripts: 'Scheherazade New', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC';
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC';
   --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
   --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
@@ -488,5 +488,42 @@
   font-weight: 700;
   font-display: swap;
   src: url(/fonts/scheherazade-new-700.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+/* Learner-selected +0.06em vowel outlines; original shaping tables retained. */
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-400.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-500.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-600.woff2) format('woff2');
+  unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Skelly Arabic Reading';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/skelly-arabic-reading-700.woff2) format('woff2');
   unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
 }

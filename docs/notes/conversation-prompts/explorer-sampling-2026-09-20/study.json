@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "id": "spanish-openings-2026-09-20",
+  "title": "Spanish openings \u00b7 cumulative exploration",
+  "decisionProcess": "Human review between generations; no automatic prompt mutation or selection",
+  "runs": [
+    {
+      "path": "docs/notes/conversation-prompts/spanish-persona-2026-09-20",
+      "round": "01 \u00b7 Baseline",
+      "recordedAt": "2026-09-20",
+      "planHash": "29b19bb5e25fb039fb3c0e781e0a98b8eaf43983ef5841cb64c99d588a640e5d"
+    },
+    {
+      "path": "docs/notes/conversation-prompts/spanish-variety-2026-09-20",
+      "round": "02 \u00b7 Wording",
+      "recordedAt": "2026-09-20",
+      "planHash": "363814f8b18e07b445d14446bf065bcd758d47d0e765430ba391465f449e17e4"
+    },
+    {
+      "path": "docs/notes/conversation-prompts/spanish-temp03-2026-09-20",
+      "round": "03 \u00b7 Temperature",
+      "recordedAt": "2026-09-20",
+      "planHash": "a66fefd5b39b6afca72836da16f05120fe123be3f9f9d5d6d1157cbc8c13352f"
+    },
+    {
+      "path": "docs/notes/conversation-prompts/spanish-temp11-2026-09-20",
+      "round": "03 \u00b7 Temperature",
+      "recordedAt": "2026-09-20",
+      "planHash": "900a6da3ab5a256e65eec17f69c6354cdd7b8deb06f7887b98c3e52b7020524f"
+    },
+    {
+      "path": "docs/notes/conversation-prompts/spanish-p08-2026-09-20",
+      "round": "04 \u00b7 Nucleus sampling",
+      "recordedAt": "2026-09-20",
+      "planHash": "94884b7d0bf0670e752b716c96604b16c71376eefee4cc655e442aab38b9c9de"
+    },
+    {
+      "path": "docs/notes/conversation-prompts/spanish-p1-2026-09-20",
+      "round": "04 \u00b7 Nucleus sampling",
+      "recordedAt": "2026-09-20",
+      "planHash": "53ca49c369ede5547fac11d633cf5ab32550cf278ea5e19ae5e19ff8482cb7e2"
+    }
+  ],
+  "recommendation": "Use Prompt 4 (Examples), temperature 1.1, as the parent for the next human-reviewed generation. The prior default-top-p/no-persona cell averaged 0.512 within-level cosine and at least 80% length fit at every level. Explicit top_p=0.8 averaged 0.545 with the same 80% floor, but reading exposes repetitive and awkward openings. top_p=1 lowers cosine to 0.442 while dropping the length-fit floor to 60% and introducing incoherent fragments. Keep the prior default condition as the control; carry explicit 0.8 as a reproducible sampling comparator. Neither is ready for production without improving grounding and testing continuation. Do not maximize letters/word or sentence length: they are descriptive proxies, not desirable outcomes by themselves."
+}

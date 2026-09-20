@@ -1,0 +1,11 @@
+{
+  "signature": "cdf4edbf6450c0a0edae5c8ba70e5c82a570c4faeb983104e30607341074a909",
+  "model": "openai/text-embedding-3-small",
+  "dimensions": 512,
+  "reservationUsd": 0.0039253000000000005,
+  "uniqueTexts": 178,
+  "directories": [
+    "docs/notes/conversation-prompts/instruction-language-2026-09-20"
+  ],
+  "retries": 0
+}

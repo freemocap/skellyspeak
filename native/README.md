@@ -113,3 +113,23 @@ The root Tauri launcher selects this directory explicitly. Moving the native
 project root can invalidate cached build-script paths;
 `cargo clean --manifest-path native/Cargo.toml` clears build output without touching
 source or application data. Working notes belong in [docs/notes/](../docs/notes/).
+
+### Linux desktop icon
+
+The running GTK/Wayland window identifies as the executable name
+(`skellyspeak`), independently of its D-Bus application identifier.
+Tauri's standard Linux package launcher already uses the executable name as
+`StartupWMClass` and bundles the configured PNG icons.
+
+`npm run tauri dev` registers a user-local `skellyspeak.desktop` launcher and
+256px logo through `tools/linux-desktop.ts`. Its filename and StartupWMClass
+match the actual window; Icon uses the absolute local PNG path to avoid
+desktop-specific theme-cache lookup differences. This makes the logo available
+for the unbundled debug executable too.
+
+The launcher points to this checkout's default
+`native/target/debug/skellyspeak`; custom Cargo target directories are not
+supported by this convenience launcher. It follows `XDG_DATA_HOME`, defaults to
+`~/.local/share`, and refuses to overwrite an unrelated launcher. To retire the
+development checkout, remove its `applications/skellyspeak.desktop` and
+`icons/hicolor/256x256/apps/skellyspeak.png` from that data directory.

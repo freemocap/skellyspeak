@@ -1,0 +1,14 @@
+{
+  "signature": "612be878b454ea1755a99232da313cb9d65cc76d3dccaa4e8b5887d4840265fe",
+  "model": "openai/text-embedding-3-small",
+  "dimensions": 512,
+  "reservationUsd": 0.01439096,
+  "uniqueTexts": 651,
+  "directories": [
+    "docs/notes/conversation-prompts/spanish-persona-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-variety-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-temp03-2026-09-20",
+    "docs/notes/conversation-prompts/spanish-temp11-2026-09-20"
+  ],
+  "retries": 0
+}
