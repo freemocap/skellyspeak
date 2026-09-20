@@ -8,7 +8,7 @@ import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { AnalysisContent, type AnalysedTurn } from './AnalysisContent'
 import { TargetText } from '../../../components/reading/TargetText'
-import { ComposerHelp } from '../composer/ComposerHelp'
+import { ReplyHelp } from '../composer/ReplyHelp'
 vi.mock('../../../platform/ipc/tauri',()=>({languageFor:()=>({languageTag:'es'})}))
 const scope={language:'spanish',variety:'spain',explanation:'english',explanationVariety:'us'}
 const conversation={id:'chat',languageId:'spanish',settings:{varietyId:'spain',explanationLanguage:'english',explanationVarietyId:'us'}} as Conversation
@@ -17,7 +17,7 @@ it('reuses durable message annotations in coaching, replies, frames and starters
   const read=vi.fn(), onUse=vi.fn()
   render(<ReadingScopeContext value={scope}><ReadingHelp services={{read,speak:vi.fn(),activity:vi.fn()}} languages={[]}><ConversationReadingProvider snapshot={snapshot} conversation={conversation}>
     <TargetText text="Otra playa." />
-    <ComposerHelp assistance={{explanation:'',replies:[{text:'Voy a la playa.',translation:'Do not show this',pronunciation:'Do not show this either',romanization:''}],frames:['En la playa ___'],starters:['La playa…']}} replies={[]} pending={false} busy={false} errors={[]} onUse={onUse} />
+    <ReplyHelp brief="Reply help" opened={['replies']} replies={[{text:'Voy a la playa.',translation:'Do not show this',pronunciation:'Do not show this either',romanization:''}]} starters={['En la playa ___','La playa…']} busy={false} errors={[]} onUse={onUse} />
   </ConversationReadingProvider></ReadingHelp></ReadingScopeContext>)
   const words=screen.getAllByRole('button',{name:'playa'})
   expect(words).toHaveLength(4)
@@ -81,4 +81,18 @@ it('preserves mounted controls when the conversation scope arrives', () => {
   expect(screen.getByRole('textbox', {name:'Draft'})).toBe(input)
   expect(input).toHaveFocus()
   expect(input).toHaveValue('keep this')
+})
+
+it('keeps saved glosses in their captured explanation scope after conversation preferences change', () => {
+  const read=vi.fn().mockRejectedValue(new Error('Unexpected reading request'))
+  const captured={...snapshot,messages:snapshot.messages.map(message=>({...message,readingScope:scope}))}
+  const changed={...conversation,settings:{...conversation.settings,explanationLanguage:'french',explanationVarietyId:'france'}} as Conversation
+  render(<ReadingScopeContext value={scope}><ReadingHelp services={{read,speak:vi.fn(),activity:vi.fn()}} languages={[]}>
+    <ConversationReadingProvider snapshot={captured} conversation={changed}>
+      <ReadingScopeContext value={scope}><TargetText text="La playa." /></ReadingScopeContext>
+    </ConversationReadingProvider>
+  </ReadingHelp></ReadingScopeContext>)
+  fireEvent.click(screen.getByRole('button',{name:'playa'}))
+  expect(screen.getByText('beach')).toBeVisible()
+  expect(read).not.toHaveBeenCalled()
 })

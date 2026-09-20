@@ -194,7 +194,7 @@ fn browser_reports_effective_values_and_ordered_rule_sources() {
         .iter()
         .find(|v| v.field == "font_scale")
         .unwrap();
-    assert_eq!(scale.value, "1.8");
+    assert_eq!(scale.value, "1");
     assert!(scale.source.ends_with("defaults.scalars.font_scale"));
 }
 #[test]

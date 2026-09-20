@@ -27,17 +27,25 @@ export interface GraphEdge {
 /// turn's own operations and their recorded dependencies; nothing here knows
 /// any operation by name.
 export function layoutOperations<T extends { id: string; kind: string; dependencies: string[] }>(
-  operations: T[], started: (operation: T) => number = () => 0,
+  operations: T[],
 ) {
   const byId = new Map(operations.map(operation => [operation.id, operation]))
+  if (byId.size !== operations.length) throw new Error('AI graph has duplicate operation IDs.')
+  for (const operation of operations) {
+    if (new Set(operation.dependencies).size !== operation.dependencies.length) throw new Error('AI graph has duplicate dependencies.')
+    for (const dependency of operation.dependencies) {
+      if (!byId.has(dependency)) throw new Error('AI graph has a missing dependency.')
+    }
+  }
   const depths = new Map<string, number>()
   const depth = (id: string, visiting: Set<string> = new Set()): number => {
     const known = depths.get(id)
     if (known !== undefined) return known
     const operation = byId.get(id)
-    if (!operation || visiting.has(id)) return 0
+    if (!operation) throw new Error('AI graph has a missing operation.')
+    if (visiting.has(id)) throw new Error('AI graph contains a dependency cycle.')
     const next = new Set(visiting).add(id)
-    const parents = operation.dependencies.filter(dependency => byId.has(dependency))
+    const parents = operation.dependencies
     const value = parents.length ? 1 + Math.max(...parents.map(dependency => depth(dependency, next))) : 0
     depths.set(id, value)
     return value
@@ -50,7 +58,7 @@ export function layoutOperations<T extends { id: string; kind: string; dependenc
   const tallest = Math.max(0, ...[...columns.values()].map(column => column.length))
   const nodes: { operation: T; depth: number; x: number; y: number }[] = []
   for (const [column, operations] of [...columns.entries()].sort((a, b) => a[0] - b[0])) {
-    const ordered = [...operations].sort((a, b) => started(a) - started(b) || a.kind.localeCompare(b.kind))
+    const ordered = operations
     const offset = (tallest - ordered.length) * ROW_GAP / 2
     ordered.forEach((operation, row) => nodes.push({
       operation,
@@ -60,16 +68,12 @@ export function layoutOperations<T extends { id: string; kind: string; dependenc
     }))
   }
   const edges = operations.flatMap(operation => operation.dependencies
-    .filter(dependency => byId.has(dependency))
     .map(dependency => ({ id: `${dependency}:${operation.id}`, source: dependency, target: operation.id })))
   return { nodes, edges }
 }
 
 export function layoutTurn(turn: Pick<TurnView, 'operations' | 'attempts'>): { nodes: GraphNode[]; edges: GraphEdge[] } {
-  const layout = layoutOperations(turn.operations, operation => {
-    const value = Date.parse(latestAttempt(turn, operation.id)?.startedAt ?? '')
-    return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER
-  })
+  const layout = layoutOperations(turn.operations)
   const phases = new Map(turn.operations.map(operation => [operation.id, operationPhase(operation.state)]))
   return {
     nodes: layout.nodes.map(node => ({ ...node, attempt: latestAttempt(turn, node.operation.id), phase: operationPhase(node.operation.state) })),

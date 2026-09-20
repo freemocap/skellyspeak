@@ -32,6 +32,22 @@ impl Handlers<'_> {
         Ok(operation)
     }
 
+    pub(super) fn request_explanations(&mut self, message_id: String) -> Result<String> {
+        let (conversation, operation) =
+            crate::conversations::execution::request_explanations(self.tx, &message_id)?;
+        self.conversation_scope = Some(conversation);
+        Ok(operation)
+    }
+    pub(super) fn retry_reply_help(
+        &mut self,
+        message_id: String,
+        kind: crate::learning::coaching::conversation_support::ReplyHelpKind,
+    ) -> Result<String> {
+        let (conversation, operation) =
+            crate::conversations::execution::retry_reply_help(self.tx, &message_id, kind)?;
+        self.conversation_scope = Some(conversation);
+        Ok(operation)
+    }
     pub(super) fn retry_gloss(&mut self, operation_id: String) -> Result<String> {
         self.conversation_scope = Some(crate::conversations::execution::retry_gloss(
             self.tx,

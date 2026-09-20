@@ -138,6 +138,13 @@ impl Store {
             Action::CancelMessageSpeech { operation_id } => {
                 handlers.cancel_message_speech(operation_id)?
             }
+            Action::RequestExplanations { message_id } => {
+                handlers.request_explanations(message_id)?
+            }
+            Action::RetryReplyHelp {
+                message_id,
+                help_kind,
+            } => handlers.retry_reply_help(message_id, help_kind)?,
             Action::RequestSuggestions { message_id } => {
                 handlers.request_suggestions(message_id)?
             }

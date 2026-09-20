@@ -28,6 +28,9 @@ impl Store {
             tx.commit()?;
             return Ok(None);
         };
+        if !super::graph::dependencies_succeeded(&tx, &turn, &kind)? {
+            return Err(fail("Ready operation has unsatisfied declared dependencies."));
+        }
         let attempt = id();
         if kind == "persona_context" || kind == "coach_context" {
             let captured: serde_json::Value = serde_json::from_str(&context)?;
@@ -65,18 +68,7 @@ impl Store {
                 "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
                 [&operation],
             )?;
-            for declaration in plan_for(&tx, &turn)? {
-                let ready = declaration
-                    .dependencies
-                    .iter()
-                    .map(|dep| ops_succeeded(&tx, &turn, dep))
-                    .collect::<Result<Vec<_>>>()?
-                    .into_iter()
-                    .all(|done| done);
-                if ready {
-                    tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind=?2 AND state='waiting_dependencies'",params![turn,declaration.kind])?;
-                }
-            }
+            super::graph::release_dependents(&tx, &turn)?;
             bump(&tx)?;
             tx.commit()?;
             return Ok(None);
@@ -252,7 +244,7 @@ impl Store {
             let mut target = if captured["routingPolicy"] == "task-models-v1" {
                 crate::ai::connections::model_routing::target(
                     &base,
-                    &kind,
+                    super::graph::declaration_for(&tx, &turn, &kind)?.role,
                     captured["fastModel"]
                         .as_str()
                         .ok_or_else(|| fail("Captured fast model is missing."))?,

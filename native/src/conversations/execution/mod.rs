@@ -10,9 +10,11 @@ use rusqlite::{Connection, OptionalExtension, params};
 use uuid::Uuid;
 
 mod admission;
+mod assistance;
 mod connections;
 mod dispatch;
 mod holds;
+mod graph;
 mod publication;
 mod reading;
 mod recovery;
@@ -26,6 +28,7 @@ use admission::TURN_ATTEMPT_LIMIT;
 use admission::admit_network_work;
 use admission::admit_turn_retry;
 use admission::budget_error;
+pub use assistance::{request_explanations, request_suggestions, retry_reply_help};
 pub(crate) use connections::active_credential;
 pub use connections::config;
 pub(crate) use connections::invalidate;
@@ -50,7 +53,6 @@ pub(crate) use turns::accept_opening;
 pub(crate) use turns::accept_revision_send;
 pub use turns::accept_send;
 pub use turns::control_turn;
-pub use turns::request_suggestions;
 
 pub struct Dispatch {
     pub temperature: f64,

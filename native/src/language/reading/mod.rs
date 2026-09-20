@@ -22,6 +22,14 @@ use ts_rs::TS;
 
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ReadingScope {
+    pub language: String,
+    pub variety: Option<String>,
+    pub explanation: String,
+    pub explanation_variety: Option<String>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReadingInput {
     pub text: String,
     pub language: String,

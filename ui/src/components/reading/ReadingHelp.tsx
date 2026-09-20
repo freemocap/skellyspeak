@@ -1,3 +1,4 @@
+import { readingRequests } from './reading-requests'
 import { readingWords } from '../../domain/reading/word-boundaries'
 import { SavedReadingContext, SavedReadingRegistryContext } from './SavedReadingProvider'
 import { glossScopeKey, savedGlossIndex, type SavedGlossSource } from '../../domain/reading/saved-gloss-index'
@@ -33,6 +34,8 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   const [speechError, setSpeechError] = useState<unknown>(null)
   const [speechReceipt, setSpeechReceipt] = useState<unknown>(null)
   const speech = useRef<AbortController | null>(null)
+  const requests = useRef(readingRequests<ReadingResult>())
+  useEffect(() => { const current = requests.current; return () => current.clear() }, [])
   const cache = useRef(new Map<string, ReadingResult>())
   const [cacheRevision, setCacheRevision] = useState(0)
   const peek = useCallback((input: import('../../generated/contracts').ReadingInput): ReadingResult | null => {
@@ -59,13 +62,15 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     const saved = peek(input)
     if (saved?.gloss?.coverage === 'complete') return saved
     const { text, speech: _speech, ...scope } = input
-    const result = await services.read(input, signal)
-    if (!signal.aborted) {
+    const key = JSON.stringify([glossScopeKey(scope), text])
+    return requests.current.run(key, signal, async owned => {
+      const result = await services.read(input, owned)
+      owned.throwIfAborted()
       if (cache.current.size >= 64) cache.current.delete(cache.current.keys().next().value!)
-      cache.current.set(JSON.stringify([glossScopeKey(scope), text]), result)
+      cache.current.set(key, result)
       setCacheRevision(value => value + 1)
-    }
-    return result
+      return result
+    })
   }, [services, peek])
   const audioStatus = useRef<HTMLDivElement>(null)
   const stop = useCallback(() => { speech.current?.abort(); speech.current = null; setSpeaking(null) }, [])

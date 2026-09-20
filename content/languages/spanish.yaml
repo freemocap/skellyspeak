@@ -22,13 +22,6 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: spanish-spain
-  name: Spain
-  description: Spain
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
 - id: spanish-mexico
   name: Mexico
   description: Mexico
@@ -36,6 +29,14 @@ varieties:
   sources: []
   overrides: {}
   guidance: []
+- id: spanish-spain
+  name: Spain
+  description: Spain
+  review: needs_review
+  sources: []
+  overrides: {}
+  guidance: []
+
 guidance: []
 learning:
   goal_material:

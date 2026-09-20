@@ -1150,5 +1150,8 @@
   "Loading speech…": "Loading speech…",
   "Coach chat height": "Coach chat height",
   "Expand coach chat": "Expand coach chat",
-  "Minimize coach chat": "Minimize coach chat"
+  "Minimize coach chat": "Minimize coach chat",
+  "AI work is paused or held.": "AI work is paused or held.",
+  "Reply help is unavailable for this message.": "Reply help is unavailable for this message.",
+  "The outcome is unknown. This request may have incurred usage.": "The outcome is unknown. This request may have incurred usage."
 }

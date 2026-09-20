@@ -3,6 +3,7 @@ import { reportDiagnosticBridgeFailure, reportFault, reportUnhandledError } from
 import { installDiagnosticCapture, logDiagnostic } from '../platform/diagnostics/log'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+import { CrashBoundary } from './CrashBoundary'
 import DevWindow from './windows/DevWindow'
 import { isTauri, invoke, loadLanguages } from '../platform/ipc/tauri'
 import type { AppError, StartupState } from '../generated/contracts'
@@ -37,7 +38,7 @@ async function isDevWindow(): Promise<boolean> {
 
 function mount(dev: boolean) {
   const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
-  root.render(dev ? <DevWindow /> : <App />)
+  root.render(<CrashBoundary>{dev ? <DevWindow /> : <App />}</CrashBoundary>)
 }
 
 /// A refused workspace has no store, so the shell cannot mount. The reason and

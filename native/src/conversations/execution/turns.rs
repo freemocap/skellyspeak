@@ -234,17 +234,6 @@ fn accept_turn(
         db,
         crate::ai::connections::access::Capability::Chat,
     )?;
-    let target = crate::ai::connections::model_routing::target(
-        &target,
-        if coach {
-            "coach_reply"
-        } else if opening.is_some() {
-            "persona_opening"
-        } else {
-            "persona_reply"
-        },
-        &profile.fast_model,
-    );
     crate::ai::policy::holds::check(db, &target)?;
     let speech_enabled = !coach && conversation.settings.read_aloud;
     let speech_target = if speech_enabled {
@@ -268,12 +257,7 @@ fn accept_turn(
     admit_network_work(
         db,
         plan.iter()
-            .filter(|node| {
-                node.role != "local"
-                    && node.kind != "coach_suggestions"
-                    && node.kind != "coach_retry_check"
-                    && (node.kind != "persona_speech" || speech_enabled)
-            })
+            .filter(|node| node.role != "local" && node.activation.enabled(speech_enabled))
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
@@ -283,10 +267,7 @@ fn accept_turn(
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }
     for node in plan {
-        if node.kind == "coach_retry_check" || node.kind == "coach_suggestions" {
-            continue;
-        }
-        if node.kind == "persona_speech" && !speech_enabled {
+        if !node.activation.enabled(speech_enabled) {
             continue;
         }
         db.execute(
@@ -308,28 +289,6 @@ fn accept_turn(
         params![conversation_id],
     )?;
     Ok(turn)
-}
-
-pub fn request_suggestions(db: &Connection, message: &str) -> Result<(String, String)> {
-    let (turn, conversation): (String,String) = db.query_row("SELECT m.turn_id,m.conversation_id FROM messages m JOIN turns t ON t.id=m.turn_id JOIN conversations c ON c.id=m.conversation_id JOIN contacts contact ON contact.id=c.contact_id WHERE m.id=?1 AND m.role='assistant' AND c.archived=0 AND contact.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening') AND o.state='succeeded')", [message], |r|Ok((r.get(0)?,r.get(1)?))).optional()?.ok_or_else(||fail("Suggested replies require a current partner message."))?;
-    if let Some(operation) = db
-        .query_row(
-            "SELECT id FROM operations WHERE turn_id=?1 AND kind='reply_assistance'",
-            [&turn],
-            |r| r.get::<_, String>(0),
-        )
-        .optional()?
-    {
-        return Ok((conversation, operation));
-    }
-    admit_network_work(db, 1)?;
-    let operation = id();
-    db.execute(
-        "INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?2,'reply_assistance','ready')",
-        params![operation, turn],
-    )?;
-    db.execute("UPDATE turns SET state='assisting' WHERE id=?1", [&turn])?;
-    Ok((conversation, operation))
 }
 
 pub fn control_turn(db: &Connection, turn: &str, control: TurnControl) -> Result<String> {

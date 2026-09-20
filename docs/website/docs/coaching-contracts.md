@@ -5,6 +5,15 @@ title: Coaching contracts
 
 # Coaching contracts
 
+> **September 20 reply-help update (implemented):** only the brief is automatic.
+> Grammar and suggestions are independently requested and saved for the partner
+> message; both composer and Analysis reuse the same operation and result.
+> Suggestions retain two full replies, two frames and two starters, with shared
+> reading assistance. This supersedes automatic scheduling of those two outputs
+> in the restoration notes below, without changing learning evidence or rewards.
+> [Implementation and verification](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/reply-help-implementation-verification-2026-09-20.md)
+> records schema 26 and the limits of offline verification.
+
 > **Current restoration target:** the user has requested the v0 coaching and
 > conversation-assistance experience. The
 > [v0 source comparison and restoration contract](https://github.com/freemocap/skellyspeak/blob/main/docs/notes/v0-conversation-assistance-restoration.md)

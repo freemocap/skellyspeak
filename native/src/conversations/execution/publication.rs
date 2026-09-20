@@ -324,9 +324,7 @@ impl Store {
             params![dispatch.operation, state],
         )?;
         if state == "succeeded" {
-            if kind == "persona_reply" || kind == "persona_opening" {
-                tx.execute("UPDATE operations SET state='ready' WHERE turn_id=?1 AND kind IN ('reply_translation','persona_word_gloss','persona_speech','coach_suggestions','coach_reaction','conversation_feedback','reply_assistance','reply_explanations') AND state='waiting_dependencies'", [&turn])?;
-            }
+            super::graph::release_dependents(&tx, &turn)?;
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
                 if kind == "skill_assessment" {

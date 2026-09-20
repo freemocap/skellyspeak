@@ -1,5 +1,6 @@
 import type { ConversationSnapshot } from '../../generated/contracts'
 import type { StoredTurn } from '../../types'
+import { replyHelp } from './reply-help'
 import { replyState } from './reply-state'
 
 /** Read-only presentation of durable messages. Empty assistance is absent, never a completed analysis. */
@@ -27,6 +28,7 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
       turn.reactionError = message.reactionError ?? undefined
       turn.assistant = {
         messageId: message.id,
+        help: replyHelp(message, turn.execution),
         reply: message.text, translation: message.translation, translationState: message.translationState,
         savedGloss: message.wordGloss, glossError: message.glossError, glossState: message.glossState, glossOperationId: message.glossOperationId,
         tokens: [], user_tokens: [], user_translation: null, mechanics: message.replyExplanations?.cards.map(card => ({ ...card, cefr: null })) ?? [],

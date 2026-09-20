@@ -91,7 +91,7 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
             }
         }
     })();
-    state.reading.remove(&id)?;
+    state.reading.remove(id)?;
     result
 }
 

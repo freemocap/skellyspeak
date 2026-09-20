@@ -13,6 +13,8 @@ import { ReadingPreferencesContext } from '../src/components/reading/ReadingPref
 import { PersonaPicker } from '../src/features/conversation/partners/PersonaPicker'
 import { ConversationStart } from '../src/features/conversation/session/ConversationStart'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
+import { MessageReadingScope } from '../src/features/conversation/reading/MessageReadingScope'
+import { replyHelpFixture } from '../src/features/conversation/composer/ReplyHelp.fixtures'
 import { ReplyHelp } from '../src/features/conversation/composer/ReplyHelp'
 import { TurnView } from '../src/features/conversation/messages/TurnView'
 import { PracticeDivider } from '../src/features/conversation/messages/PracticeDivider'
@@ -33,6 +35,7 @@ import '../src/styles/index.css'
 // preview answers that one read with sample languages and refuses every other
 // native action. Without it the whole surface throws and renders blank.
 const previewLanguages = [
+  { transcriptionLanguage:'zh',languageTag:'zh-CN',fontScale:1,id:'mandarin',name:'Mandarin',nativeName:'中文',direction:'ltr',romanization:'pinyin',defaultVariety:'mandarin-mainland',varieties:[{transcriptionLanguage:'zh',id:'mandarin-mainland',name:'Mainland',description:'Mainland',direction:'ltr',fontScale:1,romanization:'pinyin'}]},
   { transcriptionLanguage: 'es', languageTag: 'es', fontScale: 1, id: 'spanish', name: 'Spanish', nativeName: 'Español', direction: 'ltr', romanization: null, defaultVariety: 'spanish-spain',
     varieties: [{ transcriptionLanguage: 'es', id: 'spanish-spain', name: 'Spain', description: 'Spain', direction: 'ltr', fontScale: 1, romanization: null }] },
   { transcriptionLanguage: 'en', languageTag: 'en', fontScale: 1, id: 'english', name: 'English', nativeName: 'English', direction: 'ltr', romanization: null, defaultVariety: 'english-united-states',
@@ -109,7 +112,7 @@ function Preview() {
           <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
         </>}</div>
         <div className="composer">
-          {!opening && <ReplyHelp replies={[{text:'Con mi familia.',segments:[]},{text:'Con unos amigos.',segments:[]}]} busy={false} errors={[]} onUse={setInput} />}
+          {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
           <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => setRecording(!recording)} onDiscardRecording={() => setRecording(false)} />
         </div>
       </section>
@@ -117,7 +120,7 @@ function Preview() {
       <section className={`break ${coach || mobile ? '' : 'collapsed'}`}>
         {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}>Coach</button>}
         <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={() => setCoach(false)} />
-        <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <><h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
+        <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
       </section>
     </div><MobileNav />
   </div></ReadingPreferencesProvider></ReadingProvider>

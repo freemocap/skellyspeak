@@ -46,14 +46,21 @@ fn script_scale_defaults_to_standard_and_language_overrides_remain_effective() {
     let mut r = Registry::bundled().unwrap();
     assert!(r.scripts.iter().all(|script| script.font_scale == 1.0));
     assert_eq!(r.language("english").unwrap().font_scale, 1.0);
-    assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
+    assert_eq!(r.language("arabic").unwrap().font_scale, 1.0);
     assert_eq!(r.language("mandarin").unwrap().font_scale, 1.3);
     let ar = r
         .languages
         .iter_mut()
         .find(|language| language.id == "arabic")
         .unwrap();
-    ar.scalars.font_scale = None;
+    ar.scalars.font_scale = Some(1.8);
+    assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
+    r.languages
+        .iter_mut()
+        .find(|language| language.id == "arabic")
+        .unwrap()
+        .scalars
+        .font_scale = None;
     assert_eq!(r.language("arabic").unwrap().font_scale, 1.0);
 }
 

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { SavedGlossText } from './SavedGlossText'
-import { TokenSpan } from './TokenSpan'
-import { ReadingPreferencesContext } from './ReadingPreferences'
-import { GlossPopup } from '../../features/conversation/reading/GlossPopup'
+import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
+import { TokenSpan } from '../../src/components/reading/TokenSpan'
+import { ReadingPreferencesContext } from '../../src/components/reading/ReadingPreferences'
+import { GlossPopup } from '../../src/features/conversation/reading/GlossPopup'
 
 const combinations = [false, true].flatMap(autoTranslate => [false, true].flatMap(alwaysRomanize =>
   [false, true].map(alwaysPronunciation => ({autoTranslate, alwaysRomanize, alwaysPronunciation}))))

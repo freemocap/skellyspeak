@@ -6,6 +6,7 @@
 /// other acceptable way to handle an error: no swallowing, no degrading to a
 /// lesser code path, no `catch { log }`.
 
+import { errorDetails } from './error-details'
 import { create } from 'zustand'
 import { logDiagnostic } from './log'
 
@@ -39,14 +40,7 @@ export const useFaultStore = create<FaultState>((set) => ({
 let nextId = 1
 
 function describe(e: unknown): string {
-  if (e instanceof Error) return e.message
-  if (typeof e === 'object' && e !== null && 'message' in e && typeof e.message === 'string') return e.message
-  if (typeof e === 'string') return e.replace(/^Error:\s*/, '')
-  try {
-    return JSON.stringify(e)
-  } catch {
-    return String(e)
-  }
+  return String(errorDetails(e).message)
 }
 
 /// Record a failure and show it. Always call this in a `catch` — the only
@@ -58,7 +52,7 @@ function describe(e: unknown): string {
 export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
   const id = nextId++
-  useFaultStore.getState().publish({ id, context, message, diagnostics: typeof e === 'object' && e !== null && 'diagnostics' in e ? e.diagnostics : undefined })
+  useFaultStore.getState().publish({ id, context, message, diagnostics: errorDetails(e) })
   void Promise.resolve(logDiagnostic(context, e, id)).catch(() => {
     // The sink cannot report its own failure through the sink.
     reportDiagnosticBridgeFailure()
@@ -72,7 +66,7 @@ export function reportUnhandledError(event: Event): void {
   const message = describe(event.detail)
   const { faults, publish } = useFaultStore.getState()
   if (faults.some(fault => fault.context === 'Unexpected error' && fault.message === message)) return
-  publish({ id: nextId++, context: 'Unexpected error', message })
+  publish({ id: nextId++, context: 'Unexpected error', message, diagnostics: errorDetails(event.detail) })
 }
 
 /** Sink failures cannot be sent through the failing sink again. */

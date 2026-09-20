@@ -135,19 +135,12 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
 }
 
 #[test]
-fn earlier_revision_removes_exact_suffix_and_rejects_stale_pending_and_wrong_targets() {
+fn earlier_revision_removes_exact_suffix_despite_background_changes_and_rejects_wrong_targets() {
     let (_dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
         .unwrap()
         .entity_id;
-    assert_eq!(
-        store
-            .execute(revision_command(&store, &conversation, &first, "Change"))
-            .unwrap_err()
-            .code,
-        ErrorCode::PendingTurn
-    );
     finish_fixture_exchange(&mut store, &first, "First reply.");
     let stale = revision_command(&store, &conversation, &first, "Change");
     let later = store
@@ -155,7 +148,7 @@ fn earlier_revision_removes_exact_suffix_and_rejects_stale_pending_and_wrong_tar
         .unwrap()
         .entity_id;
     finish_fixture_exchange(&mut store, &later, "Later reply.");
-    assert_eq!(store.execute(stale).unwrap_err().code, ErrorCode::Conflict);
+    bump(&store.connection).unwrap();
     let rev = store
         .snapshot()
         .unwrap()
@@ -223,15 +216,7 @@ fn earlier_revision_removes_exact_suffix_and_rejects_stale_pending_and_wrong_tar
     assert_eq!(after.revision, before.revision);
     assert_eq!(after.messages.len(), before.messages.len());
     assert_eq!(after.coach_messages.len(), before.coach_messages.len());
-    let new = store
-        .execute(revision_command(
-            &store,
-            &conversation,
-            &first,
-            "New wording",
-        ))
-        .unwrap()
-        .entity_id;
+    let new = store.execute(stale).unwrap().entity_id;
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(view.messages.len(), 3);
     assert!(view.coach_messages.is_empty());
@@ -380,5 +365,35 @@ fn retained_versions_are_available_beyond_message_and_operation_pages() {
     assert_eq!(
         earlier.messages[2].replaces_turn_id.as_deref(),
         Some(first.as_str())
+    );
+}
+
+#[test]
+fn revision_replaces_running_reply_and_rejects_its_late_publication() {
+    let (_dir, mut store, conversation) = setup();
+    let original = store
+        .execute(send(&store, &conversation))
+        .unwrap()
+        .entity_id;
+    store.dispatch().unwrap();
+    let running = store.dispatch().unwrap().unwrap();
+    let revised = store
+        .execute(revision_command(
+            &store,
+            &conversation,
+            &original,
+            "Replacement speech",
+        ))
+        .unwrap()
+        .entity_id;
+    store
+        .finish(&running, Ok(reply("Obsolete response")))
+        .unwrap();
+    let view = store.conversation_snapshot(&conversation, None).unwrap();
+    assert!(!view.messages.iter().any(|m| m.text == "Obsolete response"));
+    assert!(
+        view.messages
+            .iter()
+            .any(|m| m.turn_id == revised && m.text == "Replacement speech")
     );
 }

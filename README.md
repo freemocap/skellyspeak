@@ -674,12 +674,12 @@ changes; the prompt preview shows the same assembly used by new turns.
 Lesson generation, quizzes and lesson handoffs have been removed. Coaching,
 evidence and conversation rewards remain. See the
 [implementation report](docs/notes/conversation-prompt-implementation-2026-09-18.md)
-for scope and verification. Database schema 25 requires an explicit development
+for scope and verification. Database schema 26 requires an explicit development
 reset for older workspaces; it does not migrate or silently erase them.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current development database schema is **25**; older workspaces require an
+The current development database schema is **26**; older workspaces require an
 explicit reset rather than a migration. App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in

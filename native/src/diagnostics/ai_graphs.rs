@@ -96,7 +96,7 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
     };
     match kind {
         "persona_context" | "coach_context" => {
-            node.description = "Local context capture and dependency gate. No model prompt is submitted by this operation. The reply node shows the prompt assembled from this context.".into();
+            node.description = "Local validation of the captured conversation history, partner instructions and language settings. Checks source ownership and input limits before releasing dependent work. No AI request or tokens are used. The reply node shows the assembled prompt.".into();
             node.source = "native/src/conversations/execution/turns.rs; native/src/conversations/execution/dispatch.rs".into();
         }
         "persona_reply" | "persona_opening" => {
@@ -290,6 +290,9 @@ pub fn definitions() -> Result<Vec<AiGraphDefinition>> {
             .map(|d| {
                 let mut node = operation(d.kind, &registry)?;
                 node.dependencies = d.dependencies.iter().map(|s| (*s).into()).collect();
+                if d.activation == turn_plan::Activation::Explicit {
+                    node.description.push_str(" Created only by an explicit action; not automatically scheduled.");
+                }
                 node.role = d.role.into();
                 node.contract_version = Some(d.contract_version);
                 Ok(node)
@@ -328,7 +331,17 @@ mod tests {
             turn_plan::OPENING_PLAN,
             turn_plan::COACH_PLAN,
         ]) {
-            assert_eq!(graph.operations.len(), plan.len());
+            assert_eq!(
+                graph.operations.len(),
+                plan.len()
+            );
+            for node in &graph.operations {
+                assert!(
+                    node.dependencies
+                        .iter()
+                        .all(|d| graph.operations.iter().any(|n| &n.kind == d))
+                );
+            }
             for (node, declaration) in graph.operations.iter().zip(plan) {
                 assert_eq!(node.kind, declaration.kind);
                 assert_eq!(node.dependencies, declaration.dependencies);

@@ -1,15 +1,19 @@
 # Reply help: integrated implementation plan
 
-Status: proposed implementation specification, prepared at the user's request on
-September 20, 2026. Application changes below are not implemented by this planning
-pass. This supersedes the pasted three-layer plan, including its unsafe rollback
-instructions. The [audit](reply-help-plan-audit-2026-09-20.md) remains a historical
-assessment of the inspected tree. No commit or deployment is authorized.
+Status: implemented in source on September 20, 2026, following the user's
+checkpoint and instruction to complete the plan. See the
+[implementation and verification report](reply-help-implementation-verification-2026-09-20.md)
+for completed behavior, checks and remaining runtime verification limits. This
+supersedes the pasted three-layer plan, including its unsafe rollback instructions.
+The [audit](reply-help-plan-audit-2026-09-20.md) remains a historical assessment of
+the inspected tree. Changes remain uncommitted; no deployment is authorized.
 
 ## 1. Product behavior and ownership
 
-The composer shows one automatic, source-bound explanation of what the partner
-means or asks. Below it, **Explain grammar** and **Suggest a reply** are independent
+Reply help starts collapsed. On desktop it lives in the Coach panel; on mobile
+it remains in the composer tray. Opening it shows one automatic, source-bound
+explanation of what the partner means or asks. This placement and collapsed default
+reflect the user’s follow-up after the initial implementation. Below it, **Explain grammar** and **Suggest a reply** are independent
 disclosures. The first deliberate opening of either requests that help if absent.
 Subsequent openings display its saved result or current operation state. No render,
 mount, hover over an action button, or preview initialization requests assistance.
@@ -338,8 +342,9 @@ only its differences; shared reading rules stay in component styles.
 Re-read current files and diff before each checkpoint: the tree is shared with
 active reading, retry, UI and server work. Do not restore whole files from HEAD.
 Implement one bounded checkpoint at a time. Leave work uncommitted unless a fresh
-explicit commit instruction is given. Stop at the existing queue's visual-review
-gate after checkpoint B before starting native behavior changes.
+explicit commit instruction is given. The user's subsequent checkpoint and request
+to complete the work authorized continuation through A–E; the earlier intermediate
+visual-review gate no longer blocks implementation.
 
 **A — Repair integration without changing AI behavior.** Fix the typed ReplyHelp
 API, use the active AssistedReply array, repair deleted ComposerHelp imports,

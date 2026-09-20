@@ -12,7 +12,7 @@ fn send_is_atomic_idempotent_and_only_one_pending_reply() {
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 1);
     assert_eq!(snapshot.turns.len(), 1);
-    assert_eq!(snapshot.turns[0].operations.len(), 10); // Three independent support tasks are automatic; read aloud is disabled in this fixture.
+    assert_eq!(snapshot.turns[0].operations.len(), 9); // Brief and feedback are automatic; grammar and suggestions are requested; read aloud is disabled in this fixture.
 }
 
 #[test]

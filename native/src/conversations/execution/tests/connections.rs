@@ -210,6 +210,7 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             "user_word_gloss"
             | "persona_word_gloss"
             | "conversation_feedback"
+            | "reply_brief"
             | "reply_assistance"
             | "reply_explanations" => "google/gemini-2.5-flash",
             _ => panic!("Unexpected automatic task: {kind}"),
@@ -236,8 +237,7 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
         "user_word_gloss",
         "persona_word_gloss",
         "conversation_feedback",
-        "reply_assistance",
-        "reply_explanations",
+        "reply_brief",
     ] {
         assert!(kinds.contains(kind), "Missing {kind}");
     }

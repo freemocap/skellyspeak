@@ -112,10 +112,24 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
             let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachReplies" }], |r|r.get(0))?;
+            let captured: String = db.query_row(
+                "SELECT context FROM turns WHERE id=?1",
+                [&message.turn_id],
+                |r| r.get(0),
+            )?;
+            let captured: serde_json::Value = serde_json::from_str(&captured)?;
+            let language: crate::configuration::LanguageContext =
+                serde_json::from_value(captured["languageContext"].clone())?;
+            message.reading_scope = Some(crate::language::reading::ReadingScope {
+                language: language.language_id,
+                variety: Some(language.variety_id),
+                explanation: language.explanation_language_id,
+                explanation_variety: Some(language.explanation_variety_id),
+            });
             if message.role == "user" {
                 let captured: String = db.query_row(
                     "SELECT context FROM turns WHERE id=?1",
@@ -153,6 +167,12 @@ impl Store {
                     |r| r.get(0),
                 )?;
                 let context: serde_json::Value = serde_json::from_str(&context)?;
+                message.reply_brief = context
+                    .get("reply_brief")
+                    .cloned()
+                    .map(serde_json::from_value)
+                    .transpose()?;
+                (message.brief_state,message.brief_error)=db.query_row("SELECT o.state,json_extract(t.context,'$.reply_briefError') FROM turns t LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='reply_brief' WHERE t.id=?1",[&message.turn_id],|r|Ok((r.get(0)?,r.get(1)?)))?;
                 message.reply_assistance = context
                     .get("reply_assistance")
                     .cloned()
@@ -204,7 +224,7 @@ impl Store {
             .into_iter()
             .map(|(id, state, paused, route, hold)| turn_view(db, id, state, paused, route, hold))
             .collect::<Result<Vec<_>>>()?;
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         let snapshot = self.snapshot()?;
         // Starter content is named in the languages of THIS conversation, not in
@@ -214,9 +234,7 @@ impl Store {
             .conversations
             .iter()
             .find(|c| c.id == conversation)
-            .ok_or_else(|| {
-                AppError::new(ErrorCode::NotFound, "Conversation no longer exists.")
-            })?;
+            .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Conversation no longer exists."))?;
         Ok(ConversationSnapshot {
             topic_choices: crate::conversations::openers::choices(
                 &self.config,
@@ -261,7 +279,7 @@ pub(super) fn turn_view(
     route: String,
     hold: Option<String>,
 ) -> Result<TurnView> {
-    let ops = db
+    let mut ops = db
         .prepare("SELECT id,kind,state,permit FROM operations WHERE turn_id=?1 ORDER BY rowid")?
         .query_map([&id], |r| {
             Ok((
@@ -272,17 +290,16 @@ pub(super) fn turn_view(
             ))
         })?
         .collect::<rusqlite::Result<Vec<_>>>()?;
+    let plan = plan_for(db, &id)?;
+    ops.sort_by_key(|(_, kind, _, _)| {
+        plan.iter()
+            .chain(crate::conversations::turn_plan::RETAINED)
+            .position(|node| node.kind == kind)
+            .unwrap_or(usize::MAX)
+    });
     let mut operations = Vec::new();
     for (op, kind, status, permit) in &ops {
-        let declaration = plan_for(db, &id)?
-            .iter()
-            .find(|n| n.kind == kind)
-            .or_else(|| {
-                crate::conversations::turn_plan::RETAINED
-                    .iter()
-                    .find(|n| n.kind == kind)
-            })
-            .ok_or_else(|| fail("Unknown operation declaration."))?;
+        let declaration = super::graph::declaration_for(db, &id, kind)?;
         let dependencies = declaration
             .dependencies
             .iter()
@@ -294,7 +311,8 @@ pub(super) fn turn_view(
             })
             .collect::<Result<Vec<_>>>()?;
         operations.push(OperationView {
-            source_message_id: if kind == "persona_speech" {
+            reply_help_kind: crate::learning::coaching::conversation_support::ReplyHelpKind::from_operation(kind),
+            source_message_id: if kind == "persona_speech" || crate::learning::coaching::conversation_support::owns(kind) {
                 db.query_row(
                     "SELECT id FROM messages WHERE turn_id=?1 AND role='assistant'",
                     [&id],

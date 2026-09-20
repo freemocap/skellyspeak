@@ -23,6 +23,20 @@ fn unknown() -> AppError {
     )
 }
 
+fn network(error: &reqwest::Error, stage: &str) -> AppError {
+    let mut failure = crate::diagnostics::response::network(error, stage);
+    if error.is_connect() || stage == "grouped_protocol" {
+        failure.code = ErrorCode::Provider;
+        failure.message = "Could not reach the AI server. No inference request was accepted. Check the connection and retry.".into();
+    }
+    failure
+}
+
+fn protocol_timeout() -> AppError {
+    AppError::new(ErrorCode::Provider, "AI server connection check timed out. No inference request was sent. Retry when the server is available.")
+        .with_diagnostics(serde_json::json!({"stage":"grouped_protocol","reason":"timeout"}))
+}
+
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case", deny_unknown_fields)]
 enum Event {
@@ -354,7 +368,10 @@ pub async fn request_streaming(
     } else {
         request
     };
-    let mut response = request.send().await.map_err(|_| unknown())?;
+    let mut response = request
+        .send()
+        .await
+        .map_err(|error| network(&error, "grouped_request"))?;
     if !response.status().is_success() {
         if let Some(message) = crate::ai::connections::auth_errors::message(
             first.route,
@@ -392,7 +409,11 @@ pub async fn request_streaming(
             .position(|(id, _)| id == operation)
             .ok_or_else(unknown)
     };
-    while let Some(chunk) = response.chunk().await.map_err(|_| unknown())? {
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|error| network(&error, "grouped_response"))?
+    {
         decoder.push_with_deltas(
             &chunk,
             |operation, result| publish(index(operation)?, result),
@@ -406,7 +427,7 @@ pub async fn request_streaming(
 }
 
 /// Whether the server behind a grouped target advertises protocol version 2.
-/// An unreachable or older server answers no; the route then keeps version 1.
+/// Older servers use version 1; an unreachable server reports a connection failure.
 pub async fn supports_deltas(
     client: &reqwest::Client,
     key: &str,
@@ -428,15 +449,15 @@ pub async fn supports_deltas(
     };
     let response = tokio::time::timeout(std::time::Duration::from_secs(5), request.send())
         .await
-        .map_err(|_| unknown())?
-        .map_err(|_| unknown())?;
+        .map_err(|_| protocol_timeout())?
+        .map_err(|error| network(&error, "grouped_protocol"))?;
     if !response.status().is_success() {
         return Ok(false);
     }
     let bytes = tokio::time::timeout(std::time::Duration::from_secs(5), response.bytes())
         .await
-        .map_err(|_| unknown())?
-        .map_err(|_| unknown())?;
+        .map_err(|_| protocol_timeout())?
+        .map_err(|error| network(&error, "grouped_protocol"))?;
     if bytes.len() > 64 * 1024 {
         return Ok(false);
     }

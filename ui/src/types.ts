@@ -153,6 +153,7 @@ export interface Scaffolds {
 }
 
 export interface GuidedTurnResult {
+  help?: import('./domain/conversation/reply-help').ReplyHelpView
   assistance?: import('./generated/contracts').ReplyAssistance
   explanationsState?: string | null
   explanationsError?: string | null

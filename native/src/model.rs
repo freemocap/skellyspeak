@@ -320,6 +320,13 @@ pub enum Action {
     RequestSuggestions {
         message_id: String,
     },
+    RequestExplanations {
+        message_id: String,
+    },
+    RetryReplyHelp {
+        message_id: String,
+        help_kind: crate::learning::coaching::conversation_support::ReplyHelpKind,
+    },
     RetryGloss {
         operation_id: String,
     },
@@ -585,6 +592,9 @@ pub fn bindings() -> String {
         crate::learning::coaching::conversation_support::ConversationCorrection::decl(&config),
         crate::learning::coaching::conversation_support::AssistedReply::decl(&config),
         crate::learning::coaching::conversation_support::ReplyAssistance::decl(&config),
+        crate::learning::coaching::conversation_support::ReplyBrief::decl(&config),
+        crate::learning::coaching::conversation_support::ReplyHelpKind::decl(&config),
+        crate::language::reading::ReadingScope::decl(&config),
         crate::learning::coaching::conversation_support::ReplyExplanation::decl(&config),
         crate::learning::coaching::conversation_support::ReplyExplanations::decl(&config),
         ChatMessage::decl(&config),
@@ -752,6 +762,14 @@ pub struct ChatMessage {
     pub conversation_feedback:
         Option<crate::learning::coaching::conversation_support::ConversationFeedback>,
     #[ts(optional)]
+    pub reply_brief: Option<crate::learning::coaching::conversation_support::ReplyBrief>,
+    #[ts(optional)]
+    pub brief_state: Option<String>,
+    #[ts(optional)]
+    pub brief_error: Option<String>,
+    #[ts(optional)]
+    pub reading_scope: Option<crate::language::reading::ReadingScope>,
+    #[ts(optional)]
     pub reply_assistance: Option<crate::learning::coaching::conversation_support::ReplyAssistance>,
     #[ts(optional)]
     pub reply_explanations:
@@ -795,6 +813,8 @@ pub struct ChatMessage {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct OperationView {
+    #[ts(optional)]
+    pub reply_help_kind: Option<crate::learning::coaching::conversation_support::ReplyHelpKind>,
     pub source_message_id: Option<String>,
     pub id: String,
     pub kind: String,

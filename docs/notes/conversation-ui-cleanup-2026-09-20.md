@@ -47,13 +47,12 @@ deployment are authorized. Preserve existing unrelated working-tree changes.
    in-progress reading changes first; preserve deliberate user settings. No new
    standalone romanization action is requested.
 
-8. **Planned; implementation incomplete — Reply help and on-demand assistance.**
-   Follow the [integrated implementation plan](reply-help-implementation-plan-2026-09-20.md),
-   which supersedes the pasted three-layer proposal. Preserve the active
-   AssistedReply data and shared reading/cache machinery; complete presentation
-   before the reviewed native scheduling change. The
-   [audit](reply-help-plan-audit-2026-09-20.md) records current integration failures.
-   This entry does not mark the existing draft complete or reorder tasks 4–7.
+8. **Implemented — Reply help and on-demand assistance.**
+   Completed the [integrated implementation plan](reply-help-implementation-plan-2026-09-20.md)
+   after the user's checkpoint and authorization to finish. The automatic brief,
+   independently requested grammar/suggestions, durable retries, and shared reading
+   and cache integration are wired. See [verification and runtime limits](reply-help-implementation-verification-2026-09-20.md).
+   The earlier [audit](reply-help-plan-audit-2026-09-20.md) describes the preimplementation tree.
 
 ## Scope control
 

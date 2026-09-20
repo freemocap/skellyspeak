@@ -8,6 +8,9 @@ fn patterns() -> &'static Vec<regex::Regex> {
     static PATTERNS: OnceLock<Vec<regex::Regex>> = OnceLock::new();
     PATTERNS.get_or_init(|| {
         [
+            r"(?s)-----BEGIN [^-]*PRIVATE KEY-----.*?(?:-----END [^-]*PRIVATE KEY-----|$)",
+            r#"(?i)\b(?:authorization|api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|token|cookie)["']?\s*[=:]\s*(?:(?:Bearer|Basic)\s+)?(?:"[^"]*"|'[^']*'|[^\s,;]+)"#,
+            r#"(?i)\b(?:prompt|transcript|content|request body|response body|input|output)["']?\s*[=:]\s*[^\n]*"#,
             r"(?i)Bearer\s+[^\s,;<>]+",
             r"\b(?:sk-|gsk_)[A-Za-z0-9_-]+",
             r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+",
@@ -32,12 +35,21 @@ pub fn scrub(text: &str, private: &[&str]) -> String {
     for pattern in patterns() {
         text = pattern.replace_all(&text, "[redacted]").into_owned();
     }
+    static PROPERTY: OnceLock<regex::Regex> = OnceLock::new();
+    text = PROPERTY
+        .get_or_init(|| {
+            regex::Regex::new(r#"\(reading ["']([A-Za-z_$][A-Za-z0-9_$]*)["']\)"#)
+                .expect("property diagnostic")
+        })
+        .replace_all(&text, "(reading property $1)")
+        .into_owned();
     static QUOTED: OnceLock<regex::Regex> = OnceLock::new();
     let quoted = QUOTED
         .get_or_init(|| regex::Regex::new(r#"["'`]([^"'`\n]*)["'`]"#).expect("quoted diagnostic"));
     text = quoted
         .replace_all(&text, |caps: &regex::Captures<'_>| {
             let value = &caps[1];
+            // Preserve existing schema/permission identifiers, not quoted prose.
             if value
                 .bytes()
                 .all(|b| b.is_ascii_alphanumeric() || b"_/.-".contains(&b))
@@ -45,11 +57,17 @@ pub fn scrub(text: &str, private: &[&str]) -> String {
             {
                 caps[0].to_owned()
             } else {
-                "[redacted]".into()
+                "[redacted: quoted value]".into()
             }
         })
         .into_owned();
-    let clean: String = text.chars().filter(|c| !c.is_control()).collect();
+    static CONTENT: OnceLock<regex::Regex> = OnceLock::new();
+    text = CONTENT.get_or_init(|| regex::Regex::new(r"(?i)\b(prompt|transcript|content|request body|response body|input|output)\s*[=:]\s*[^\n]*").expect("content diagnostic"))
+        .replace_all(&text, "$1=[redacted: content]").into_owned();
+    let clean: String = text
+        .chars()
+        .filter(|c| !c.is_control() || *c == '\n' || *c == '\t')
+        .collect();
     if clean.chars().count() > 2048 {
         format!(
             "{}[truncated: string limit]",
@@ -93,7 +111,12 @@ fn content(key: &str) -> bool {
         "password",
         "authorization",
         "api_key",
+        "apikey",
         "access_token",
+        "accesstoken",
+        "refresh_token",
+        "refreshtoken",
+        "cookie",
     ]
     .iter()
     .any(|v| key.contains(v))
@@ -133,6 +156,9 @@ fn public_string(key: &str) -> bool {
             | "message"
             | "detail"
             | "error"
+            | "stack"
+            | "componentStack"
+            | "redaction"
             | "source_file"
             | "function"
             | "retry_after"
@@ -208,7 +234,23 @@ pub fn metadata(value: &Value, private: &[&str]) -> Value {
     }
     let result = visit(value, "", private, 0, &mut 512);
     if result.to_string().len() > LIMIT {
-        json!({"reason":"metadata_size_limit", "truncated":true})
+        let mut summary = serde_json::Map::new();
+        summary.insert("reason".into(), json!("metadata_size_limit"));
+        summary.insert("truncated".into(), json!(true));
+        // A large metadata attachment must never erase the failure explanation.
+        for key in [
+            "name",
+            "message",
+            "stack",
+            "componentStack",
+            "code",
+            "stage",
+        ] {
+            if let Some(Value::String(value)) = result.get(key) {
+                summary.insert(key.into(), json!(scrub(value, private)));
+            }
+        }
+        Value::Object(summary)
     } else {
         result
     }
@@ -341,10 +383,18 @@ pub fn column(row: &rusqlite::Row<'_>, index: usize) -> rusqlite::Result<Option<
 }
 
 pub fn retained(success: Option<&Value>, error: Option<&AppError>) -> Option<String> {
+    retained_with_private(success, error, &[])
+}
+
+pub fn retained_with_private(
+    success: Option<&Value>,
+    error: Option<&AppError>,
+    private: &[&str],
+) -> Option<String> {
     if success.is_none() && error.is_none() {
         return None;
     }
-    Some(json!({"response":success,"error":error.map(|e| json!({"code":e.code,"diagnostics":e.diagnostics}))}).to_string())
+    Some(json!({"response":success,"error":error.map(|e| json!({"code":e.code,"message":scrub(&e.message, private),"diagnostics":e.diagnostics}))}).to_string())
 }
 
 pub fn headers(response: &reqwest::Response) -> Value {
@@ -380,6 +430,56 @@ pub fn headers(response: &reqwest::Response) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn metadata_limits_and_retained_failures_keep_the_error_explanation() {
+        let mut value = json!({"message":"Language selection failed"});
+        value["extra"] = json!(
+            (0..32)
+                .map(|_| json!({"message":"detail ".repeat(400)}))
+                .collect::<Vec<_>>()
+        );
+        let result = metadata(&value, &[]);
+        assert_eq!(result["message"], "Language selection failed");
+        assert_eq!(result["truncated"], true);
+        let error = AppError::new(
+            ErrorCode::Internal,
+            "Language selection failed; password=private-key",
+        );
+        let retained = retained(None, Some(&error)).unwrap();
+        assert!(retained.contains("Language selection failed"));
+        assert!(!retained.contains("private-key"));
+    }
+    #[test]
+    fn retains_error_message_and_stack_while_redacting_sensitive_spans() {
+        let result = metadata(
+            &json!({
+                "message":"Language picker failed: Maximum update depth exceeded; api_key=short-secret; transcript=private sentence",
+                "stack":"at LearningPicker (src/features/settings/LanguagePickers.tsx:51:9)\nat render (assets/app.js:22:1)",
+                "cause":{"message":"Permission denied", "code":"EACCES"},
+                "request_id":"req-123", "prompt":"private prompt"
+            }),
+            &[],
+        );
+        assert!(
+            result["message"]
+                .as_str()
+                .unwrap()
+                .contains("Maximum update depth exceeded")
+        );
+        assert!(
+            result["stack"]
+                .as_str()
+                .unwrap()
+                .contains("LanguagePickers.tsx:51:9")
+        );
+        assert_eq!(result["cause"]["message"], "Permission denied");
+        assert_eq!(result["request_id"], "req-123");
+        for private in ["short-secret", "private sentence", "private prompt"] {
+            assert!(!result.to_string().contains(private));
+        }
+        assert!(!scrub("Invalid token: Bearer abc123", &[]).contains("abc123"));
+        assert!(!scrub("Parse failed near \"private text\"", &[]).contains("private text"));
+    }
     #[test]
     fn keeps_identifiers_usage_and_extra_numbers_but_removes_content_and_keys() {
         let value = json!({"id":"provider-request", "model":"vendor/model", "usage":{"prompt_tokens":20,"cached_tokens":8},

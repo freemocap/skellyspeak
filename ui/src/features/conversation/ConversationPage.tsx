@@ -28,7 +28,7 @@ import { ReadingPreferencesProvider } from '../../components/reading/ReadingPref
 import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
 import { RewardPresentationProvider } from './progress/RewardPresentation'
 import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
-import { ReplyHelp } from './composer/ReplyHelp'
+import { TurnReplyHelp } from './composer/TurnReplyHelp'
 import { useSkillNavigationStore } from '../../state/navigation/skill-navigation'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createContact as createContactRequest, executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
@@ -370,7 +370,7 @@ export default function ConversationPage({
 
   async function send(text: string) {
     const message = text.trim()
-    if (!message || sending) return
+    if (!message || acceptingSend.current || (sending && editingTurnId === null)) return
     const provenance = { ...inputEvidence.current, revision: editingTurnId !== null }
     stopSpeechRef.current()
     if (editingTurnId !== null) {
@@ -379,7 +379,7 @@ export default function ConversationPage({
       if (!scope || !snapshot) { setError('Revision source is unavailable. Reopen the message to edit it.'); return }
       // A failed admission requires a fresh native preview; the draft stays intact.
       const revision = editRevision ?? snapshot.revision
-      if (scope.exchangeCount || scope.coachTurnCount) {
+      if (scope.exchangeCount) {
         setRevisionConfirmation({ text: message, input: provenance, revision, exchangeCount: scope.exchangeCount, coachTurnCount: scope.coachTurnCount })
         return
       }
@@ -456,7 +456,7 @@ export default function ConversationPage({
     onTranscribe: (text: string) => {
       if (text) {
         inputEvidence.current.modality = 'speech_transcript'
-        if (settingsRef.current?.auto_send && !sending) {
+        if (settingsRef.current?.auto_send && (!sending || editingTurnId !== null)) {
           logInfo('[mic] auto-send enabled — sending transcription')
           void sendRef.current(text)
         } else {
@@ -478,8 +478,16 @@ export default function ConversationPage({
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
   const latestTurn = activeTurns.at(-1)
-  const latest = latestTurn?.assistant
-  const working = (state?: string | null) => ['ready', 'running', 'waiting_dependencies'].includes(state ?? '')
+  const replyHelp = (
+    <ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}>
+      <TurnReplyHelp turn={latestTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} busy={sending}
+        onUse={(text, source) => {
+          inputEvidence.current = { ...inputEvidence.current, [source]: true }
+          setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
+          composer.current?.querySelector<HTMLTextAreaElement>('.field')?.focus()
+        }} />
+    </ConversationErrorScope>
+  )
   const chatComposer = (
         <div className="composer" ref={composer}>
           {editingTurnId !== null && (
@@ -497,25 +505,8 @@ export default function ConversationPage({
           </div>
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
-          {<ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}><ReplyHelp
-            key={`${currentChatId}:${latestTurn?.id}`}
-            brief={latest?.assistance?.explanation}
-            briefPending={working(latest?.explanationsState)}
-            onAsk={askCoach}
-            grammar={latest?.mechanics.length ? latest.mechanics : undefined}
-            replies={latest?.scaffolds.replies.length ? latest.scaffolds.replies : undefined}
-            starters={latest ? [...latest.scaffolds.frames, ...latest.scaffolds.starters] : undefined}
-            onSuggestReply={latest?.messageId ? async () => {
-              await executeAction(await readWorkspace(), { kind: 'requestSuggestions', messageId: latest.messageId! })
-            } : undefined}
-            busy={sending}
-            errors={latest?.errors ?? []}
-            onUse={(text, source) => {
-              inputEvidence.current = { ...inputEvidence.current, [source]: true }
-              setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
-              composer.current?.querySelector<HTMLTextAreaElement>('.field')?.focus()
-            }} /></ConversationErrorScope>}
-          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={sending}
+          {isMobile && replyHelp}
+          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             transcriptionWarning={targetLanguage?.transcriptionLanguage === null && connection && connection.route === 'openrouter' ? tr("The {model} transcription model has no language code for {language}; output may be unreliable.", { model: connection.audio.transcription.model, language: targetLanguageName }) : undefined}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguageName}
@@ -605,7 +596,7 @@ export default function ConversationPage({
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
                 await executeAction(snapshot, { kind: 'coachControl', turnId: selected.turnId, control, expectedRevision: snapshot.revision })
               } : undefined}
-              editDisabled={sending || pendingReply}
+              editDisabled={acceptingSend.current || acceptedEditSource !== null}
               onEditUser={turn.turnId && turn.user !== null ? selected => {
                 setEditingTurnId(selected.id)
                 setEditRevision(snapshot?.revision ?? null)
@@ -647,11 +638,11 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<LiveCoachReview onAsk={askCoach} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview onAsk={askCoach} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
             await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
-          }} />}
+          }} /></>}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
           onCollapse={!isMobile ? toggleBreak : undefined}
@@ -680,13 +671,13 @@ export default function ConversationPage({
         <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns and ")}{revisionConfirmation.coachTurnCount} {tr(" private coach turns. Your edited message replaces the original in this conversation.")}</p>
         <div className="detail-actions">
           <button type="button" onClick={() => setRevisionConfirmation(null)}>{tr("Cancel")}</button>
-          <button type="button" disabled={sending} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>{tr("Revise and remove later turns")}</button>
+          <button type="button" disabled={acceptingSend.current || acceptedEditSource !== null} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>{tr("Revise and remove later turns")}</button>
         </div>
       </DetailDialog>}
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
       {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 

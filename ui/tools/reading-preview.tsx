@@ -9,7 +9,7 @@ import { ReadingProvider, TargetText } from '../src/components/reading/TargetTex
 import { ReadingHelp } from '../src/components/reading/ReadingHelp'
 import { ReadingLanguageScope } from '../src/components/reading/ReadingLanguageScope'
 import { SavedGlossText } from '../src/components/reading/SavedGlossText'
-import { ComposerHelp } from '../src/features/conversation/composer/ComposerHelp'
+import { ReplyHelp } from '../src/features/conversation/composer/ReplyHelp'
 import { ConversationFeedbackCard } from '../src/features/conversation/coaching/ConversationFeedbackCard'
 import { CoachEntry } from '../src/features/conversation/coaching/CoachEntry'
 import { I18nProvider } from '../src/components/localization/i18n'
@@ -44,17 +44,19 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
       <ReadingLanguageScope language="mandarin" variety="mandarin-mainland"><ReadingPassage text="你喜欢科幻小说吗？" romanization="Nǐ xǐhuān kēhuàn xiǎoshuō ma?" translation="Do you like science fiction?" /></ReadingLanguageScope>
       <p className="msg chat-message bot"><SavedGlossText text="أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟" segments={[{start:0,end:5,kind:'gloss',gloss:'I'},{start:6,end:12,kind:'gloss',gloss:'like'},{start:13,end:20,kind:'gloss',gloss:'walk'}]} /></p>
       <p className="msg chat-message bot"><span className="w" dir="auto">أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟</span></p>
+      <h2>Reported grammar example: source and reading aids</h2>
+      <ReplyHelp brief="Grammar example regression" opened={['grammar']} grammar={[{title:'Asking What?',quote:'مَاذَا تَفْعَلُ؟',body:'Ask about an action.',example:'مَاذَا تَأْكُلُ؟ (mādhā ta’kulu?) – What are you eating?',contrast:''}]} busy={false} errors={[]} onUse={()=>{}} />
       <h2>Arabic regression: final-word hover, click and selection</h2>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:24}}>
         <div><p className="msg chat-message bot"><SavedGlossText text="هٰذا بَيْتٌ قَدِيمٌ في عَمّان. كَيْف حالُك؟" segments={[{start:0,end:4,kind:'gloss',gloss:'this'},{start:5,end:11,kind:'gloss',gloss:'house'},{start:12,end:19,kind:'gloss',gloss:'old',romanization:'qadīm',pronunciation:'qa-deem'}]} /></p>
-          <ComposerHelp assistance={{explanation:'Reply ideas',replies:[{text:'أَنا بِحِبّ الْبُيُوت الْقَدِيمَة كَمان.',translation:'I like old houses too.',romanization:'',pronunciation:''},{text:'أَنا بَفَضّل الْبُيُوت الْجَدِيدَة.',translation:'I prefer new houses.',romanization:'',pronunciation:''}],frames:[],starters:[]}} replies={[]} pending={false} busy={false} errors={[]} onUse={()=>{}} />
+          <ReplyHelp brief="Reply ideas" opened={['replies']} replies={[{text:'أَنا بِحِبّ الْبُيُوت الْقَدِيمَة كَمان.',translation:'I like old houses too.',romanization:'',pronunciation:''},{text:'أَنا بَفَضّل الْبُيُوت الْجَدِيدَة.',translation:'I prefer new houses.',romanization:'',pronunciation:''}]} busy={false} errors={[]} onUse={()=>{}} />
         </div>
         <ConversationFeedbackCard feedback={{remark:'Use the correct verb form when asking a male if he likes something.',usedTarget:['بتحب البيوت القديمة'],usedNative:[],corrections:[{kind:'grammar',said:'بتحب البيوت القديمة',corrected:'بتحب البيوت القديمة',explanation:'To ask “Do you like…?” use this form.'}],grammar:3,conversation:3}} />
       </div>
     </section></ReadingLanguageScope>
     <h2>Same saved word in another surface</h2><p><TargetText text="Otra playa." /></p>
     <h2>Saved message and suggestions</h2><p><SavedGlossText text="Hola, mundo." segments={segments} /></p>
-    <ComposerHelp replies={[{text:'Hola, mundo.',segments}]} pending={false} busy={false} errors={[]} onUse={()=>{}} />
+    <ReplyHelp brief="Saved reading fixture" opened={['replies']} replies={[{text:'Hola, mundo.',translation:'Hello, world.',romanization:'',pronunciation:''}]} busy={false} errors={[]} onUse={()=>{}} />
     <h2>Unannotated coaching correction</h2><CoachEntry source="Hola, mundo." decision={{exposedMove:'explicit',shown:{move:'explicit',construct:'greeting',quote:'Hola mundo',text:'Hola, mundo.'},repairStatus:null,retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false}} />
     <h2>Arabic word with parts</h2><ReadingLanguageScope language="arabic" variety="arabic-levantine"><p><SavedGlossText text="الكتاب" segments={[{start:0,end:2,kind:'gloss',gloss:'the',romanization:'al-'},{start:2,end:6,kind:'gloss',gloss:'book',romanization:'kitāb'}]} /></p></ReadingLanguageScope>
     <h2>New text</h2><p><TargetText text="Hola, mundo." /></p>

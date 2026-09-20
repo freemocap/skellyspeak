@@ -2,27 +2,32 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ReplyHelp } from './ReplyHelp'
+import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
+import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { ReadingProvider } from '../../../components/reading/TargetText'
-import type { ReplyExplanation, SuggestedReply } from '../../../generated/contracts'
+import { replyHelpFixture } from './ReplyHelp.fixtures'
 
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
-vi.mock('../../../platform/ipc/tauri', () => backend)
+vi.mock('../../../platform/ipc/tauri', () => ({...backend,languageFor:() => ({languageTag:'zh',romanization:'pinyin'})}))
 beforeEach(() => { backend.invoke.mockReset() })
 
-const replies: SuggestedReply[] = [
-  { text: '我很好。', segments: [{ start: 0, end: 1, kind: 'gloss', gloss: 'I', romanization: 'wǒ' }, { start: 1, end: 2, kind: 'gloss', gloss: 'very' }, { start: 2, end: 3, kind: 'gloss', gloss: 'good' }] },
-  { text: '还不错。', segments: [{ start: 0, end: 3, kind: 'gloss', gloss: 'not bad' }] },
-]
-const grammar: ReplyExplanation[] = [
-  { quote: '你好吗？', title: 'Yes-no questions with 吗', body: 'Add 吗 to a statement to make it a question.', example: '你累吗？', contrast: 'English inverts the verb; Mandarin keeps the word order.' },
-]
-const base = { brief: 'She asked how you are. Answer, then ask her back.', busy: false, errors: [] as string[], onUse: () => {} }
+const annotatedReplies = replyHelpFixture.saved
+const { replies, grammar } = replyHelpFixture
+const base = { brief: replyHelpFixture.brief, busy: false, errors: [] as string[], onUse: () => {} }
 
-function show(props: Partial<Parameters<typeof ReplyHelp>[0]> = {}) {
-  return render(<ReadingProvider settings={null}><ReplyHelp {...base} {...props} /></ReadingProvider>)
+function wrap(props: Partial<Parameters<typeof ReplyHelp>[0]>) {
+  const scope = {language:'mandarin',variety:null,explanation:'english',explanationVariety:null}
+  return <ReadingProvider settings={null}><ReadingScopeContext value={scope}><SavedReadingProvider sources={annotatedReplies.map(reply => ({...reply,scope}))}><ReplyHelp {...base} {...props} /></SavedReadingProvider></ReadingScopeContext></ReadingProvider>
 }
 
-it('opens to the brief alone and computes neither request', () => {
+function show(props: Partial<Parameters<typeof ReplyHelp>[0]> = {}) {
+  const view = render(wrap(props))
+  const folded = screen.queryByRole('button', { name: 'Help with this reply' })
+  if (folded) fireEvent.click(folded)
+  return view
+}
+
+it('opens to the brief alone on demand and computes neither request', () => {
   const onExplainGrammar = vi.fn(), onSuggestReply = vi.fn()
   show({ onExplainGrammar, onSuggestReply })
   expect(screen.getByText(/She asked how you are/)).toBeVisible()
@@ -39,7 +44,7 @@ it('asks for reply ideas once and keeps them on reopen', async () => {
   fireEvent.click(screen.getByRole('button', { name: /Suggest a reply/ }))
   expect(onSuggestReply).toHaveBeenCalledOnce()
   // The answer lands in the snapshot, so reopening must not ask again.
-  view.rerender(<ReadingProvider settings={null}><ReplyHelp {...base} onSuggestReply={onSuggestReply} replies={replies} /></ReadingProvider>)
+  view.rerender(wrap({onSuggestReply, replies}))
   expect(screen.getAllByRole('listitem')).toHaveLength(2)
   fireEvent.click(screen.getByRole('button', { name: /Suggest a reply/ }))
   fireEvent.click(screen.getByRole('button', { name: /Suggest a reply/ }))
@@ -48,10 +53,10 @@ it('asks for reply ideas once and keeps them on reopen', async () => {
 
 it('discloses grammar without touching the reply ideas', () => {
   show({ grammar, replies })
-  expect(screen.queryByText('Yes-no questions with 吗')).toBeNull()
+  expect(screen.queryByRole('heading', {name:'Yes-no questions with 吗'})).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: /Explain grammar/ }))
-  expect(screen.getByText('Yes-no questions with 吗')).toBeVisible()
-  expect(screen.getByText(/Add 吗 to a statement/)).toBeVisible()
+  expect(screen.getByRole('heading', {name:'Yes-no questions with 吗'})).toBeVisible()
+  expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent === 'Add 吗 to a statement to make it a question.')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Insert reply: 我很好。' })).toBeNull()
 })
 
@@ -110,4 +115,79 @@ it('reports a failed suggestions job without hiding the brief', () => {
 it('renders nothing without a brief, a request or a failure', () => {
   const { container } = render(<ReplyHelp busy={false} errors={[]} onUse={() => {}} />)
   expect(container).toBeEmptyDOMElement()
+})
+
+it('keeps generation pending after the enqueue command resolves and never re-requests on reopen', async () => {
+  const request = vi.fn().mockResolvedValue(undefined)
+  show({onSuggestReply:request})
+  fireEvent.click(screen.getByRole('button',{name:'Suggest a reply'}))
+  await screen.findByText('Writing reply ideas…')
+  await Promise.resolve()
+  fireEvent.click(screen.getByRole('button',{name:'Suggest a reply'}))
+  fireEvent.click(screen.getByRole('button',{name:'Suggest a reply'}))
+  expect(request).toHaveBeenCalledOnce()
+  expect(screen.getByText('Writing reply ideas…')).toBeVisible()
+})
+
+it('accepts an empty grammar result and fixture disclosure without any request', () => {
+  const request=vi.fn()
+  show({grammar:[],opened:['grammar'],onExplainGrammar:request})
+  expect(screen.getByText('Nothing to flag in this reply.')).toBeVisible()
+  expect(request).not.toHaveBeenCalled()
+})
+
+it('reconciles a failed command response with a later durable result', async () => {
+  const request = vi.fn().mockRejectedValue(new Error('Command response lost'))
+  const retry = vi.fn()
+  const view = show({ onSuggestReply: request, onRetry: retry })
+  fireEvent.click(screen.getByRole('button', { name: 'Suggest a reply' }))
+  expect(await screen.findByRole('button', { name: 'Retry' })).toBeVisible()
+  view.rerender(wrap({ onSuggestReply: request, onRetry: retry, replies }))
+  expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull()
+  expect(screen.queryByRole('alert')).toBeNull()
+  expect(screen.getAllByRole('listitem')).toHaveLength(2)
+  expect(request).toHaveBeenCalledOnce()
+})
+
+it('starts collapsed and stays collapsed when a brief arrives', () => {
+  const view=render(wrap({brief:undefined,onSuggestReply:vi.fn()}))
+  view.rerender(wrap({brief:base.brief}))
+  expect(screen.getByRole('button', {name:'Help with this reply'})).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.queryByText(base.brief)).toBeNull()
+  view.rerender(wrap({brief:'Another saved brief'}))
+  expect(screen.queryByText('Another saved brief')).toBeNull()
+})
+
+it('shows independent durable failures and retries only the selected lane', () => {
+  const retry=vi.fn().mockResolvedValue(undefined), request=vi.fn()
+  show({onRetry:retry,onExplainGrammar:request,lanes:{brief:{state:'succeeded'},grammar:{state:'failed',error:'Invalid grammar',details:{requestId:'safe-id'}},replies:{state:null}}})
+  fireEvent.click(screen.getByRole('button',{name:'Explain grammar'}))
+  expect(request).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button',{name:'Retry'}))
+  expect(retry).toHaveBeenCalledExactlyOnceWith('grammar')
+  expect(screen.getByRole('button',{name:'Suggest a reply'})).toHaveAttribute('aria-expanded','false')
+})
+
+it('retains whole-passage translation and sound help without inserting or inventing glosses', () => {
+  const onUse=vi.fn()
+  show({replies:[{text:'新词。',translation:'New word.',romanization:'xīn cí',pronunciation:'shin tsuh'}],opened:['replies'],onUse})
+  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
+  expect(screen.getByText('New word.')).toBeVisible()
+  fireEvent.click(screen.getByRole('button',{name:'Pronunciation'}))
+  // The null settings fixture has no romanization-enabled language preference.
+  expect(screen.getByText('shin tsuh')).toBeVisible()
+  expect(onUse).not.toHaveBeenCalled()
+  expect(backend.invoke).not.toHaveBeenCalled()
+})
+
+it('splits saved mixed-script grammar examples into source and separate reading aids', () => {
+  const example = 'مَاذَا تَأْكُلُ؟ (mādhā ta’kulu?) – What are you eating?'
+  const view = render(<ReplyHelp {...base} opened={['grammar']} grammar={[{ title: 'Question', quote: 'مَاذَا تَفْعَلُ؟', body: 'Ask a question.', example, contrast: '' }]} />)
+  const passages = view.container.querySelectorAll('.reading-passage-text')
+  expect(passages[1].textContent).toBe('مَاذَا تَأْكُلُ؟')
+  fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
+  expect(screen.getByText('What are you eating?')).toHaveAttribute('dir', 'auto')
+  expect(passages[1].querySelector('.w')?.textContent).not.toContain('mādhā')
+  fireEvent.click(screen.getByRole('button', { name: 'Pronunciation' }))
+  expect(screen.getByText('mādhā ta’kulu?')).toHaveAttribute('dir', 'auto')
 })

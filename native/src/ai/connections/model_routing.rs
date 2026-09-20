@@ -1,12 +1,8 @@
 //! Task policy captured with each turn, independent of prompt wording.
 use crate::ai::connections::access::ResolvedTarget;
-pub fn target(base: &ResolvedTarget, kind: &str, fast: &str) -> ResolvedTarget {
+pub fn target(base: &ResolvedTarget, role: &str, fast: &str) -> ResolvedTarget {
     let mut target = base.clone();
-    let easy = matches!(
-        kind,
-        "skill_assessment" | "user_translation" | "reply_translation" | "coach_reaction"
-    );
-    target.model = if easy {
+    target.model = if role == "fast" {
         fast.into()
     } else {
         base.model.clone()
@@ -17,37 +13,20 @@ pub fn target(base: &ResolvedTarget, kind: &str, fast: &str) -> ResolvedTarget {
 mod tests {
     use super::*;
     #[test]
-    fn shared_models_apply_to_every_route() {
-        let mut base = ResolvedTarget {
-            route: crate::model::ConnectionRoute::Hosted,
+    fn declared_role_selects_model_without_changing_access() {
+        let base = ResolvedTarget {
+            route: crate::model::ConnectionRoute::Custom,
             revision: 1,
             url: "https://example.test/v1/operations".into(),
             model: "chosen-standard".into(),
             credential: Some("test".into()),
         };
-        for kind in [
-            "persona_reply",
-            "persona_opening",
-            "user_word_gloss",
-            "persona_word_gloss",
-        ] {
-            assert_eq!(target(&base, kind, "chosen-fast").model, "chosen-standard");
+        for (role, expected) in [("standard", "chosen-standard"), ("fast", "chosen-fast")] {
+            let resolved = target(&base, role, "chosen-fast");
+            assert_eq!(resolved.model, expected);
+            assert_eq!(resolved.url, base.url);
+            assert_eq!(resolved.credential, base.credential);
+            assert_eq!(resolved.route, base.route);
         }
-        for kind in ["user_translation", "reply_translation", "coach_reaction"] {
-            assert_eq!(target(&base, kind, "chosen-fast").model, "chosen-fast");
-        }
-        assert_eq!(
-            target(&base, "coach_feedback", "chosen-fast").model,
-            "chosen-standard"
-        );
-        base.route = crate::model::ConnectionRoute::Custom;
-        assert_eq!(
-            target(&base, "persona_reply", "chosen-fast").model,
-            "chosen-standard"
-        );
-        assert_eq!(
-            target(&base, "reply_translation", "chosen-fast").model,
-            "chosen-fast"
-        );
     }
 }

@@ -63,6 +63,21 @@ This pass grouped existing modules without decomposing their implementations.
 `src/types.ts` still mixes types from several areas; splitting it and the large
 components is separate work. `src/vite-env.d.ts` provides frontend type declarations.
 
+## Reply help and reading ownership
+
+`features/conversation/composer/TurnReplyHelp.tsx` binds the automatic brief and
+explicit grammar/suggestion requests to their accepted partner message. Analysis
+uses the same grammar operation. `domain/conversation/reply-help.ts` projects
+native result and operation state; command acceptance is not generation completion.
+Retries target one help kind, and opening saved help does not request new work.
+
+Replies retain whole-passage translation and sound fields through `ReadingPassage`.
+Words use shared `TargetText`/`ReadingHelp`, saved annotations and the existing
+speech path. `MessageReadingScope` restores the message's captured language,
+variety and explanation context. Shared reading requests coalesce by full scope;
+consumer cancellation is independent, and the bounded cache resets with workspace
+session identity in `app/ReadingTools.tsx`.
+
 ## Commands
 
 From the repository root, `npm ci` installs the UI workspace and development tools.

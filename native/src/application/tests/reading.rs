@@ -71,7 +71,7 @@ async fn selected_word_reaches_speech_and_receipt_survives_without_source_conten
     let id = state
         .reading
         .begin(
-            &*state.lock().unwrap(),
+            &state.lock().unwrap(),
             reading::ReadingInput {
                 text: "كتاب".into(),
                 language: "arabic".into(),
@@ -86,7 +86,7 @@ async fn selected_word_reaches_speech_and_receipt_survives_without_source_conten
     worker.join().unwrap();
     assert!(result.audio_base64.is_some());
     assert!(result.gloss.is_none());
-    let receipts = reading::activity(&*state.lock().unwrap()).unwrap();
+    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
     assert_eq!(receipts[0]["state"], "succeeded");
     assert_eq!(receipts[0]["response"]["providerId"], "speech-receipt");
     assert!(receipts[0]["response"]["costMicros"].is_null());

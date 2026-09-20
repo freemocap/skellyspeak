@@ -11,7 +11,7 @@ afterEach(() => { dispose?.(); dispose = undefined; vi.restoreAllMocks() })
 it('persists precise safe causes and vetted commands without private bodies', async () => {
   await logDiagnostic('Microphone', { code: 'validation', message: 'This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings.' }, 7, 'native_command_failed', 'error', { command: 'mic_start' })
   expect(invoke.mock.calls[0][1].event).toMatchObject({ context: 'microphone', nativeCode: 'validation', command: 'mic_start', cause: 'custom_transcription_unconfigured', faultId: 7 })
-  await logDiagnostic('PRIVATE_CONTEXT', { code: 'PRIVATE_CODE', message: 'PRIVATE_TRANSCRIPT' }, undefined, 'ui_fault', 'error', { command: 'PRIVATE_COMMAND' })
+  await logDiagnostic('PRIVATE_CONTEXT', { code: 'PRIVATE_CODE', message: 'Rendering failed; transcript=PRIVATE_TRANSCRIPT' }, undefined, 'ui_fault', 'error', { command: 'PRIVATE_COMMAND' })
   expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
   expect(JSON.stringify(getLogs())).not.toContain('PRIVATE')
 })
@@ -19,7 +19,7 @@ it('captures each console/helper occurrence once, redacts cyclic bodies and inst
   dispose = installDiagnosticCapture()
   expect(installDiagnosticCapture()).toBe(dispose)
   const cyclic: { secret: string; self?: unknown } = { secret: 'PRIVATE_TOKEN' }; cyclic.self = cyclic
-  console.error('PRIVATE_TRANSCRIPT', cyclic)
+  console.error('Rendering failed; transcript=PRIVATE_TRANSCRIPT', cyclic)
   console.info('PRIVATE_URL')
   logInfo('[settings] autosaving')
   await vi.waitFor(() => expect(invoke).toHaveBeenCalledTimes(3))
@@ -27,14 +27,16 @@ it('captures each console/helper occurrence once, redacts cyclic bodies and inst
   expect(invoke.mock.calls[2][1].event.eventName).toBe('settings_saving')
   expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
 })
-it('captures window errors and rejections with safe error type and no stack', async () => {
+it('captures window errors and rejections with useful scrubbed messages and stack locations', async () => {
   dispose = installDiagnosticCapture()
-  window.dispatchEvent(new ErrorEvent('error', { error: new TypeError('PRIVATE_STACK') }))
+  window.dispatchEvent(new ErrorEvent('error', { error: new TypeError('Cannot render picker; token=PRIVATE_STACK') }))
   const rejection = new Event('unhandledrejection')
-  Object.defineProperty(rejection, 'reason', { value: new Error('PRIVATE_REASON') })
+  Object.defineProperty(rejection, 'reason', { value: new Error('Selection failed; prompt=PRIVATE_REASON') })
   window.dispatchEvent(rejection)
   await vi.waitFor(() => expect(invoke).toHaveBeenCalledTimes(2))
   expect(invoke.mock.calls[0][1].event.cause).toBe('type_error')
+  expect(invoke.mock.calls[0][1].event.diagnostics.message).toContain('Cannot render picker')
+  expect(invoke.mock.calls[0][1].event.diagnostics.stack).toBeTruthy()
   expect(invoke.mock.calls[1][1].event.code).toBe('unhandled_rejection')
   expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
 })
@@ -43,7 +45,7 @@ it('names resize-observer and resource-load events and surfaces everything but t
   const surfaced = vi.fn(); window.addEventListener('unhandled-ui-error', surfaced)
   window.dispatchEvent(new ErrorEvent('error', { message: 'ResizeObserver loop completed with undelivered notifications.' }))
   const image = document.createElement('img'); document.body.append(image); image.dispatchEvent(new Event('error'))
-  window.dispatchEvent(new ErrorEvent('error', { error: new TypeError('PRIVATE_STACK') }))
+  window.dispatchEvent(new ErrorEvent('error', { error: new TypeError('Cannot render picker; token=PRIVATE_STACK') }))
   await vi.waitFor(() => expect(invoke).toHaveBeenCalledTimes(3))
   expect(invoke.mock.calls.map(call => call[1].event.cause)).toEqual(['resize_observer_loop', 'resource_load_failed', 'type_error'])
   expect(surfaced).toHaveBeenCalledTimes(2)
@@ -53,11 +55,11 @@ it('names resize-observer and resource-load events and surfaces everything but t
 })
 it('shows a repeating unhandled error once on the fault bar', () => {
   for (let i = 0; i < 5; i++) reportUnhandledError(new CustomEvent('unhandled-ui-error', { detail: new Error('Layout failed') }))
-  expect(useFaultStore.getState().faults).toEqual([{ id: expect.any(Number), context: 'Unexpected error', message: 'Layout failed' }])
+  expect(useFaultStore.getState().faults).toEqual([expect.objectContaining({ id: expect.any(Number), context: 'Unexpected error', message: 'Layout failed' })])
 })
 it('makes failed delivery explicit without forwarding its own failure recursively', async () => {
   await logDiagnostic('application', null)
-  invoke.mockClear(); invoke.mockRejectedValue(new Error('PRIVATE_TRANSPORT_DETAILS'))
+  invoke.mockClear(); invoke.mockRejectedValue(new Error('Bridge refused delivery; token=PRIVATE_TRANSPORT_DETAILS'))
   const visible = vi.fn(); window.addEventListener('diagnostic-bridge-failed', visible)
   const error = vi.spyOn(console, 'error').mockImplementation(() => {})
   dispose = installDiagnosticCapture()
@@ -67,6 +69,19 @@ it('makes failed delivery explicit without forwarding its own failure recursivel
   expect(invoke).toHaveBeenCalledTimes(2)
   expect(error).toHaveBeenCalledTimes(2)
   expect(diagnosticDeliveryState().failed).toBeGreaterThanOrEqual(2)
+  expect(JSON.stringify(getLogs())).toContain('Bridge refused delivery')
   expect(JSON.stringify(getLogs())).not.toContain('PRIVATE')
   window.removeEventListener('diagnostic-bridge-failed', visible)
+})
+
+it('retains browser filename and line when ErrorEvent has no Error object', async () => {
+  dispose = installDiagnosticCapture()
+  window.dispatchEvent(new ErrorEvent('error', {
+    message: 'Language picker failed', filename: 'http://localhost:1420/src/LanguagePickers.tsx?token=secret', lineno: 51, colno: 9,
+  }))
+  await vi.waitFor(() => expect(invoke).toHaveBeenCalledOnce())
+  expect(invoke.mock.calls[0][1].event.diagnostics).toMatchObject({
+    message: 'Language picker failed', stack: 'at browser (src/LanguagePickers.tsx:51:9)',
+  })
+  expect(JSON.stringify(invoke.mock.calls)).not.toContain('secret')
 })

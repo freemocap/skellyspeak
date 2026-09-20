@@ -1,3 +1,4 @@
+import { errorDetails } from './error-details'
 import { invoke } from '@tauri-apps/api/core'
 import type { DiagnosticCommand } from '../../generated/contracts'
 import { isTauri } from '../ipc/tauri'
@@ -54,13 +55,13 @@ function causeOf(error: unknown): Cause {
   return 'unknown'
 }
 
-/** Every body is omitted explicitly; only reviewed enums and counts cross IPC. */
+/** Preserve scrubbed error details before console, memory and durable IPC delivery. */
 export async function logDiagnostic(context: string, error: unknown, faultId?: number, code: DiagnosticCode = 'ui_fault', level: Level = 'error', metadata: { command?: string; eventName?: EventName; redactedArgs?: number; cause?: Cause } = {}): Promise<boolean> {
   const candidate = field(error, 'code')
   const event = { context: diagnosticContext(context), code, level,
     nativeCode: typeof candidate === 'string' && nativeCodes.has(candidate) ? candidate : null,
     faultId: faultId ?? null, command: metadata.command && commands.has(metadata.command) ? metadata.command : null,
-    diagnostics: field(error, 'diagnostics') ?? { name: field(error, 'name') },
+    diagnostics: errorDetails(error),
     cause: metadata.cause ?? causeOf(error), eventName: metadata.eventName ?? 'other',
     redactedArgs: metadata.redactedArgs ?? (error == null ? 0 : 1) }
   const summary = JSON.stringify(event)
@@ -71,9 +72,9 @@ export async function logDiagnostic(context: string, error: unknown, faultId?: n
     await invoke('record_frontend_diagnostic', { event })
     bridgeFailureReported = false
     return true
-  } catch {
+  } catch (error) {
     deliveryFailures++
-    const message = `[diagnostics] Durable delivery failed (${deliveryFailures} failures); event is not confirmed persisted.`
+    const message = `[diagnostics] Durable delivery failed (${deliveryFailures} failures); event is not confirmed persisted. ${JSON.stringify(errorDetails(error))}`
     record('error', message)
     consoleBypass = true
     try { console.error(message) } finally { consoleBypass = false }
@@ -99,11 +100,13 @@ function authoredEvent(args: unknown[]): { context: string; eventName: EventName
 }
 function write(level: Level, args: unknown[], directConsole = false) {
   const known = authoredEvent(args)
-  const error = args.find(value => typeof value === 'object' && value !== null) ?? args[0]
-  void logDiagnostic(known.context, error, undefined, 'ui_event', level, { ...known, eventName: directConsole && known.eventName === 'other' ? 'console' : known.eventName, redactedArgs: args.length })
+  const error = args.find(value => typeof field(value, 'message') === 'string') ?? (level === 'error' || level === 'warn' ? args.find(value => typeof value === 'string') : undefined)
+  const details = errorDetails(error, args.filter(value => value !== error))
+  const retained = { ...details, diagnostics: details }
+  void logDiagnostic(known.context, retained, undefined, 'ui_event', level, { ...known, eventName: directConsole && known.eventName === 'other' ? 'console' : known.eventName, redactedArgs: args.length })
   {
     consoleBypass = true
-    try { console[level === 'info' ? 'log' : level](`[${known.eventName}] ${args.length} argument bodies redacted`) }
+    try { console[level === 'info' ? 'log' : level](`[${known.eventName}] ${JSON.stringify(details)}`) }
     finally { consoleBypass = false }
   }
 }
@@ -137,7 +140,7 @@ export function installDiagnosticCapture(): () => void {
       surface(`A ${event.target.tagName.toLowerCase()} element failed to load its resource.`)
       return
     }
-    const error = event.error ?? event.message
+    const error = event.error ?? { name: 'Error', message: event.message, stack: event.filename ? `at browser (${event.filename}:${event.lineno}:${event.colno})` : undefined }
     void logDiagnostic('application', error, undefined, 'unhandled_error')
     if (causeOf(error) !== 'resize_observer_loop') surface(error)
   }

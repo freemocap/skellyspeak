@@ -1,4 +1,4 @@
-//! Durable, content-free diagnostics; the bounded ring is only a recent-read view.
+//! Durable, redacted diagnostics; the bounded ring is only a recent-read view.
 pub(crate) mod ai_graphs;
 pub(crate) mod inference;
 pub(crate) mod response;
@@ -359,9 +359,16 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
         log::set_logger(&NATIVE_LOGGER).map_err(|_| unavailable())?;
         log::set_max_level(log::LevelFilter::Trace);
     }
-    // Panic payloads can contain provider/user data; retain only event and location.
+    // Panic messages explain the failure; redact sensitive spans before persistence.
     std::panic::set_hook(Box::new(|info| {
-        let event = serde_json::json!({"code":"panic", "line":info.location().map(|l| l.line()),
+        let message = info
+            .payload()
+            .downcast_ref::<String>()
+            .map(String::as_str)
+            .or_else(|| info.payload().downcast_ref::<&str>().copied())
+            .map(|text| response::scrub(text, &[]))
+            .unwrap_or_else(|| "[omitted: non-string panic payload]".into());
+        let event = serde_json::json!({"code":"panic", "message":message, "line":info.location().map(|l| l.line()),
             "file":info.location().map(|l| l.file().rsplit("/src/").next().unwrap_or(l.file())),
             "contentRedacted":true});
         if append_native(&event).is_err() {
@@ -408,6 +415,10 @@ impl log::Log for NativeLogger {
         };
         let mut event = serde_json::json!({"code":code, "level":record.level().as_str(),
             "line":record.line(), "file":record.file().map(|p| p.rsplit("/src/").next().unwrap_or(p)), "module":record.module_path(), "contentRedacted":true});
+        if record.level() <= log::Level::Warn {
+            event["message"] = serde_json::json!(response::scrub(&record.args().to_string(), &[]));
+            event["redaction"] = serde_json::json!("sensitive spans removed");
+        }
         if record.target() == "skellyspeak_core::speech::recording::audio" {
             let message = record.args().to_string();
             if let Some(rate) = message
@@ -435,12 +446,16 @@ impl log::Log for NativeLogger {
     fn flush(&self) {} // Each append is flushed before returning.
 }
 
-#[tauri::command]
-pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<DiagnosticReceipt> {
+fn sanitize_frontend(event: &mut FrontendDiagnostic) {
     event.diagnostics = event
         .diagnostics
         .as_ref()
         .map(|v| response::metadata(v, &[]));
+}
+
+#[tauri::command]
+pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<DiagnosticReceipt> {
+    sanitize_frontend(&mut event);
     let timestamp = timestamp()?;
     let mut buffer = buffer().lock().map_err(|_| unavailable())?;
     // Commit to the file before publishing to the recent-read ring or acknowledging.
@@ -514,6 +529,27 @@ mod tests {
         assert!(line.contains("\"recordedAtMs\":123"));
         assert!(line.contains("\"nativeCode\":\"provider\""));
         assert!(!line.contains("private fixture"));
+    }
+    #[test]
+    fn frontend_errors_survive_sanitization_and_durable_storage() {
+        let temp = tempfile::tempdir().unwrap();
+        let directory = temp.path().canonicalize().unwrap().join("run");
+        let mut sink = FileSink::open(&directory).unwrap();
+        let mut value = event();
+        value.diagnostics = Some(serde_json::json!({
+            "message":"Maximum update depth exceeded; password=private-secret",
+            "stack":"at LearningPicker (src/LanguagePickers.tsx:51:9)",
+            "metadata":{"request_id":"req-123","transcript":"private sentence"}
+        }));
+        sanitize_frontend(&mut value);
+        sink.append("frontend", &serde_json::to_value(value).unwrap())
+            .unwrap();
+        let text = std::fs::read_to_string(directory.join("diagnostics.jsonl")).unwrap();
+        assert!(text.contains("Maximum update depth exceeded"));
+        assert!(text.contains("LanguagePickers.tsx:51:9"));
+        assert!(text.contains("req-123"));
+        assert!(!text.contains("private-secret"));
+        assert!(!text.contains("private sentence"));
     }
     #[test]
     fn progression_commands_cross_the_diagnostic_bridge() {

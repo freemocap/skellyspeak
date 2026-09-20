@@ -77,7 +77,11 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
         .query_map(params![turn, operation], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
     for (id, kind) in operations {
-        let target = crate::ai::connections::model_routing::target(&base, &kind, &fast);
+        let target = crate::ai::connections::model_routing::target(
+            &base,
+            super::graph::declaration_for(db, turn, &kind)?.role,
+            &fast,
+        );
         db.execute(
             "UPDATE turns SET context=json_set(context,?2,json(?3)) WHERE id=?1",
             params![

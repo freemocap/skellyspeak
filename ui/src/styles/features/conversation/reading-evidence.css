@@ -52,3 +52,8 @@
 
 /* Analysis quotes/examples reuse chat bubbles and their reading actions. */
 .reading-passage { margin-block: var(--space-4); }
+
+/* Reply help uses the same passage controls in a compact card, without a chat bubble. */
+.reading-passage-compact { margin: 0; min-width: 0; }
+.reading-passage-text { font: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)) / var(--leading-normal) var(--font-serif); overflow-wrap: anywhere; }
+.reading-passage-compact .trans { font: var(--type-ui) / var(--leading-normal) var(--font-sans); }

@@ -33,6 +33,7 @@ fn kind(value: &str) -> &str {
     match value {
         "skill_assessment"
         | "conversation_feedback"
+        | "reply_brief"
         | "reply_assistance"
         | "reply_explanations"
         | "coach_feedback"

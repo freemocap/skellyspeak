@@ -49,7 +49,7 @@ fn support_turn(store: &mut Store, conversation: &str, text: &str) -> String {
     }
     let turn = store.execute(command).unwrap().entity_id;
     isolate_user_reading(store);
-    store.connection.execute("DELETE FROM operations WHERE kind IN ('skill_assessment','persona_word_gloss','reply_translation') AND state='waiting_dependencies'",[]).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('skill_assessment','persona_word_gloss','reply_translation','reply_brief') AND state='waiting_dependencies'",[]).unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
     assert!(
@@ -59,13 +59,24 @@ fn support_turn(store: &mut Store, conversation: &str, text: &str) -> String {
     store
         .finish(&persona, Ok(reply("¿Con quién fuiste?")))
         .unwrap();
+    let message = store
+        .conversation_snapshot(conversation, None)
+        .unwrap()
+        .messages
+        .iter()
+        .find(|m| m.turn_id == turn && m.role == "assistant")
+        .unwrap()
+        .id
+        .clone();
+    request_suggestions(&store.connection, &message).unwrap();
+    request_explanations(&store.connection, &message).unwrap();
     turn
 }
 fn feedback() -> serde_json::Value {
     serde_json::json!({"remark":"Your meaning is clear. Use fui for ‘I went’ yesterday.","usedTarget":["Ayer"],"usedNative":["go"],"corrections":[{"said":"go","corrected":"fui","explanation":"Use [[past tense]] for yesterday.","kind":"missing_expression"}],"grammar":3,"conversation":5})
 }
 fn assistance() -> serde_json::Value {
-    serde_json::json!({"explanation":"They ask who went with you.","replies":[{"text":"Fui con mi hermana.","translation":"I went with my sister.","romanization":"","pronunciation":"fwee kon mee ehr-MAH-nah"},{"text":"Fui solo.","translation":"I went alone.","romanization":"","pronunciation":"fwee SOH-loh"}],"frames":["Fui con ___.","Fuimos a ___."],"starters":["Ayer…","Con mi…"]})
+    serde_json::json!({"replies":[{"text":"Fui con mi hermana.","translation":"I went with my sister.","romanization":"","pronunciation":"fwee kon mee ehr-MAH-nah"},{"text":"Fui solo.","translation":"I went alone.","romanization":"","pronunciation":"fwee SOH-loh"}],"frames":["Fui con ___.","Fuimos a ___."],"starters":["Ayer…","Con mi…"]})
 }
 #[test]
 fn conversation_support_is_source_bound_independent_and_persisted_without_skill_credit() {
@@ -232,7 +243,7 @@ fn assistance_rejects_swapped_target_and_explanation_fields() {
             &reply(&value.to_string()),
         )
     };
-    let valid = serde_json::json!({"explanation":"They ask what you like to eat.","replies":[{"text":"أنا بحب آكل المنسف.","translation":"I like to eat mansaf.","romanization":"ana baḥibb ākul il-mansaf.","pronunciation":"AH-na ba-HIBB AH-kul il-MAN-saf"},{"text":"بحب الفلافل.","translation":"I like falafel.","romanization":"baḥibb il-falāfil.","pronunciation":"ba-HIBB il-fa-LAH-fil"}],"frames":["بحب ___.","ما بحب ___."],"starters":["أنا…","بحب…"]});
+    let valid = serde_json::json!({"replies":[{"text":"أنا بحب آكل المنسف.","translation":"I like to eat mansaf.","romanization":"ana baḥibb ākul il-mansaf.","pronunciation":"AH-na ba-HIBB AH-kul il-MAN-saf"},{"text":"بحب الفلافل.","translation":"I like falafel.","romanization":"baḥibb il-falāfil.","pronunciation":"ba-HIBB il-fa-LAH-fil"}],"frames":["بحب ___.","ما بحب ___."],"starters":["أنا…","بحب…"]});
     assert!(check(&valid).is_ok());
     // Latin diacritics, decomposed pinyin tones and Arabic transliteration
     // modifier letters are valid reading aids, not target-script content.
@@ -385,7 +396,7 @@ fn assistance_binds_writing_guidance_to_fields_and_keeps_exchange_as_data() {
             serde_json::json!(["ROMANIZATION_RULES"])
         );
         assert_eq!(
-            fields["explanation, replies[].translation"]["writing"],
+            fields["replies[].translation"]["writing"],
             serde_json::json!(["EXPLANATION_WRITING"])
         );
         assert!(!instruction.contains("ASSESSMENT_NOT_FOR_DRAFTS"));

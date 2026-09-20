@@ -1150,5 +1150,8 @@
   "Loading speech…": "Cargando audio…",
   "Coach chat height": "Altura del chat con el entrenador",
   "Expand coach chat": "Expandir chat con el entrenador",
-  "Minimize coach chat": "Minimizar chat con el entrenador"
+  "Minimize coach chat": "Minimizar chat con el entrenador",
+  "AI work is paused or held.": "El trabajo de IA está pausado o bloqueado.",
+  "Reply help is unavailable for this message.": "La ayuda para responder no está disponible para este mensaje.",
+  "The outcome is unknown. This request may have incurred usage.": "El resultado es desconocido. Esta solicitud puede haber consumido recursos."
 }

@@ -1,6 +1,6 @@
 import { AiSplit } from './AiSplit'
 import { InspectionContent, InspectionModeControl, type InspectionMode } from './InspectionContent'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { AiDefinitionSelection, AiGraphDefinition, AiOperationDefinition } from '../../generated/contracts'
 import { getAiGraphDefinitions } from '../../platform/ipc/window'
 import { nativeError } from '../../platform/ipc/workspace'
@@ -37,7 +37,7 @@ function DefinitionDetails({ graph, node, onSelect }: { graph: AiGraphDefinition
 }
 
 /** Native blueprints are independent of selected conversation and live snapshots. */
-export function GraphDefinitions({ selection, onSelect }: { selection: AiDefinitionSelection; onSelect: (selection: AiDefinitionSelection) => void }) {
+export function GraphDefinitions({ selection, onSelect, renderHeader }: { selection: AiDefinitionSelection; onSelect: (selection: AiDefinitionSelection) => void; renderHeader: (controls: ReactNode) => ReactNode }) {
   const tr = useI18n()
   const [graphs, setGraphs] = useState<AiGraphDefinition[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -59,8 +59,7 @@ export function GraphDefinitions({ selection, onSelect }: { selection: AiDefinit
     if (graph && !selection.graphId) onSelect({ graphId: graph.id, operationKind: node?.kind ?? null })
   }, [graph, node, selection.graphId, onSelect])
   const pick = (kind: string) => { if (graph) onSelect({ graphId: graph.id, operationKind: kind }) }
-  return <>
-    <div className="ai-definition-toolbar">
+  const controls = <div className="ai-definition-toolbar">
       <label>{tr('Graph')} <select className="field" aria-label={tr('Graph')} value={graph?.id ?? ''} disabled={!graphs} onChange={event => { setExpanded(false); onSelect({ graphId: event.target.value, operationKind: null }) }}>
         {!graph && <option value="">{graphs ? tr('Choose a graph') : tr('Loading…')}</option>}
         {graphs?.map(item => <option key={item.id} value={item.id}>{humanizeKind(item.id)}</option>)}
@@ -69,6 +68,8 @@ export function GraphDefinitions({ selection, onSelect }: { selection: AiDefinit
         {graph.operations.map(item => <option key={item.kind} value={item.kind}>{humanizeKind(item.kind)}</option>)}
       </select></label>}
     </div>
+  return <>
+    {renderHeader(controls)}
     {error && <p className="ai-error" role="alert">{error} <button type="button" className="btn" onClick={() => setRequest(value => value + 1)}>{tr('Retry')}</button></p>}
     {!graph && graphs && <p className="ai-error" role="alert">{tr('Choose a graph')}</p>}
     {graph && <AiSplit inspector={node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
@@ -76,7 +77,6 @@ export function GraphDefinitions({ selection, onSelect }: { selection: AiDefinit
         <DefinitionDetails graph={graph} node={node} onSelect={pick} />
       </aside>}>
       <div className="ai-view-main">
-        <p className="ai-definition-description">{graph.description}</p>
         <DefinitionGraph graph={graph} selectedKind={node?.kind ?? null} onSelect={pick} />
       </div>
 

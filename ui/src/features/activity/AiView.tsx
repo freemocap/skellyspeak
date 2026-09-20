@@ -115,7 +115,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
   const selectedAttempt = turn && operation ? latestAttempt(turn, operation.id) : null
   const pick = (turnId: string) => setSelection(current => ({ ...current, turnId: turnId === turns[0]?.id ? null : turnId }))
 
-  return <section className="ai-view" data-mode={mode} aria-label={tr('AI activity')}>
+  const renderHeader = (controls?: ReactNode) => (
     <header className="ai-view-head">
       <h2 className="ai-view-title">{tr('AI activity')}</h2>
       {!definition && summary && <ActivitySummary activity={summary} showLast={false} />}
@@ -123,6 +123,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
         <button type="button" className="ai-chip" aria-pressed={!definition} disabled={!selectionLoaded} onClick={() => setDefinition(undefined)}>{tr('Recorded runs')}</button>
         <button type="button" className="ai-chip" aria-pressed={!!definition} disabled={!selectionLoaded} onClick={() => setDefinition(current => current ?? lastDefinition.current ?? { graphId: '', operationKind: null })}>{tr('Graph definitions')}</button>
       </div>
+      {controls}
       <div className="ai-view-spacer" />
       {!definition && <div className="ai-exchanges" role="group" aria-label={tr('Exchanges')}>
         <button type="button" className="ai-chip" aria-pressed={following} onClick={() => setSelection(current => ({ ...current, turnId: null }))} title={tr('Follow the newest exchange')}>{tr('Follow live')}</button>
@@ -138,8 +139,12 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
       </div>}
       <div className="ai-view-actions">{actions}</div>
     </header>
+  )
+
+  return <section className="ai-view" data-mode={mode} aria-label={tr('AI activity')}>
+    {!definition && renderHeader()}
     {(!definition && activity.error || selectionError) && <p className="ai-error" role="alert">{selectionError || activity.error}</p>}
-    {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} /> : <>
+    {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} renderHeader={renderHeader} /> : <>
     <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => setDetailOpen(true)}>
         {selectedAttempt && <AttemptBodies attempt={selectedAttempt} />}
       </OperationInspector>}>

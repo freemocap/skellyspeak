@@ -35,7 +35,7 @@ fn reaction_waits_for_reply_and_publishes_on_its_message() {
 }
 
 #[test]
-fn assistance_is_automatic_and_repeated_requests_share_work() {
+fn assistance_is_requested_and_repeated_requests_share_work() {
     let (_dir, mut store, conversation) = setup();
     store.execute(send(&store, &conversation)).unwrap();
     assert_eq!(
@@ -47,7 +47,7 @@ fn assistance_is_automatic_and_repeated_requests_share_work() {
                 |r| r.get::<_, i64>(0)
             )
             .unwrap(),
-        1
+        0
     );
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
@@ -67,7 +67,7 @@ fn assistance_is_automatic_and_repeated_requests_share_work() {
                 |r| r.get::<_, i64>(0)
             )
             .unwrap(),
-        1
+        0
     );
     let first = request_suggestions(&store.connection, &message).unwrap();
     assert_eq!(

@@ -11,8 +11,8 @@ export function ConversationReadingProvider({ snapshot, conversation, children }
     if (!snapshot || !conversation || snapshot.conversationId !== conversation.id) return []
     const scope = { language: conversation.languageId, variety: conversation.settings.varietyId, explanation: conversation.settings.explanationLanguage, explanationVariety: conversation.settings.explanationVarietyId }
     return [...snapshot.messages, ...snapshot.coachMessages].filter(message => !message.replacedBy).flatMap(message => [
-      ...(message.wordGloss ? [{ text: message.text, segments: message.wordGloss.segments, scope: { ...scope, language: message.wordGloss.targetLanguageId, explanation: message.wordGloss.explanationLanguageId } }] : []),
-      ...(message.suggestedReplies ?? []).map(reply => ({ text: reply.text, segments: reply.segments, scope })),
+      ...(message.wordGloss ? [{ text: message.text, segments: message.wordGloss.segments, scope: { ...(message.readingScope ?? scope), language: message.wordGloss.targetLanguageId, explanation: message.wordGloss.explanationLanguageId } }] : []),
+      ...(message.suggestedReplies ?? []).map(reply => ({ text: reply.text, segments: reply.segments, scope: message.readingScope ?? scope })),
     ])
   }, [snapshot, conversation])
   const scope = conversation ? { language: conversation.languageId, variety: conversation.settings.varietyId, explanation: conversation.settings.explanationLanguage, explanationVariety: conversation.settings.explanationVarietyId } : inheritedScope

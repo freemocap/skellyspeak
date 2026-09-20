@@ -1150,5 +1150,8 @@
   "Loading speech…": "جارٍ تحميل الصوت…",
   "Coach chat height": "ارتفاع محادثة المدرب",
   "Expand coach chat": "توسيع محادثة المدرب",
-  "Minimize coach chat": "تصغير محادثة المدرب"
+  "Minimize coach chat": "تصغير محادثة المدرب",
+  "AI work is paused or held.": "عمل الذكاء الاصطناعي متوقف مؤقتًا أو معلّق.",
+  "Reply help is unavailable for this message.": "مساعدة الرد غير متاحة لهذه الرسالة.",
+  "The outcome is unknown. This request may have incurred usage.": "النتيجة غير معروفة. ربما استهلك هذا الطلب موارد."
 }

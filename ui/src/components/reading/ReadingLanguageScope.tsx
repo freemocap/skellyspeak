@@ -1,4 +1,4 @@
-import { useContext, type ReactNode } from 'react'
+import { useContext, type ReactNode, type CSSProperties } from 'react'
 import { ReadingScopeContext } from './ReadingContext'
 import { ReadingPreferencesContext } from './ReadingPreferences'
 import { languageFor } from '../../platform/ipc/tauri'
@@ -11,7 +11,7 @@ export function ReadingLanguageScope({ language, variety, explanation, children 
   const definition = languageFor(language, variety ?? undefined)
   return <ReadingScopeContext value={parent ? { ...parent, language, variety: variety ?? null, explanation: explanation ?? parent.explanation, explanationVariety: explanation && explanation !== parent.explanation ? null : parent.explanationVariety } : null}>
     <ReadingPreferencesContext value={{ ...preferences, supportsRomanization: definition?.romanization != null }}>
-      <div className="reading-language-scope" lang={definition?.languageTag} data-reading-language={language} data-reading-variety={variety ?? undefined}>{children}</div>
+      <div style={{'--script-scale': preferences.scriptScales?.[language] ?? definition?.fontScale ?? 1} as CSSProperties} className="reading-language-scope" lang={definition?.languageTag} data-reading-language={language} data-reading-variety={variety ?? undefined}>{children}</div>
     </ReadingPreferencesContext>
   </ReadingScopeContext>
 }

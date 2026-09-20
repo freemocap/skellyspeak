@@ -384,13 +384,17 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   expect(commands()[0].action).toMatchObject({ expectedRevision: 31 })
 })
 
-it('disables editing while a native partner reply is pending', async () => {
+it('allows editing and replacing a pending partner reply', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = exchangeSnapshot()
   value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, operations: [], attempts: [] }]
   await act(async () => watches[0].resolve(value))
-  expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
+  expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(commands()[0].action.kind).toBe('reviseTurn')
 })
 
 it.each(['resolve', 'reject'] as const)('ignores late revision %s after switching conversations', async outcome => {
@@ -412,8 +416,8 @@ it.each(['resolve', 'reject'] as const)('ignores late revision %s after switchin
   expect(screen.queryByRole('alert')).toBeNull()
 })
 
-it('shows a raced native pending-turn rejection without dropping the repair draft', async () => {
-  submit = async () => { throw { code: 'pending_turn', message: 'A partner reply is pending.' } }
+it('retains a repair draft after a genuine connection failure', async () => {
+  submit = async () => { throw { code: 'connection', message: 'The connection is unavailable.' } }
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
@@ -421,7 +425,7 @@ it('shows a raced native pending-turn rejection without dropping the repair draf
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   fireEvent.click(await screen.findByText('⚠ Request failed'))
-  expect(screen.getByText('A partner reply is pending.')).toBeVisible()
+  expect(screen.getByText('The connection is unavailable.')).toBeVisible()
   expect(screen.getByPlaceholderText(/Write in/)).toHaveValue('Yo fue ayer')
   expect(commands()).toHaveLength(1)
 })
@@ -583,4 +587,17 @@ it('captures tense and difficulty with the real first learner message', async ()
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toMatchObject({ kind: 'startConversation', conversationId: 'a', message: 'Comí arroz.', input: { scaffold: false }, configuration: { difficulty: 'absolute_zero', direction: { topic: null, timeReference: 'past' } } })
+})
+
+it('revises directly when only private coach turns follow the source', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const value = exchangeSnapshot(true)
+  value.revisionSuffixCounts = value.revisionSuffixCounts.map(scope => ({...scope, exchangeCount:0, coachTurnCount:2}))
+  await act(async () => watches[0].resolve(value))
+  fireEvent.click(screen.getByRole('button', {name:'Edit message'}))
+  fireEvent.click(screen.getByRole('button', {name:'Send'}))
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(commands()[0].action.kind).toBe('reviseTurn')
 })

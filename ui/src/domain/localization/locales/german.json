@@ -1150,5 +1150,8 @@
   "Loading speech…": "Sprachausgabe wird geladen…",
   "Coach chat height": "Höhe des Coach-Chats",
   "Expand coach chat": "Coach-Chat erweitern",
-  "Minimize coach chat": "Coach-Chat minimieren"
+  "Minimize coach chat": "Coach-Chat minimieren",
+  "AI work is paused or held.": "Die KI-Arbeit ist pausiert oder angehalten.",
+  "Reply help is unavailable for this message.": "Für diese Nachricht ist keine Antworthilfe verfügbar.",
+  "The outcome is unknown. This request may have incurred usage.": "Das Ergebnis ist unbekannt. Diese Anfrage hat möglicherweise Nutzung verursacht."
 }

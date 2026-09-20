@@ -145,3 +145,44 @@ async fn check_grouped_partial_result(translations: bool, route: ConnectionRoute
     );
     server.await.unwrap();
 }
+
+#[tokio::test]
+async fn unreachable_grouped_server_is_a_connection_failure_before_inference() {
+    let (_dir, mut store, conversation) = setup();
+    let mut dispatch = begin(&mut store, &conversation);
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    drop(listener);
+    dispatch.route = ConnectionRoute::Custom;
+    dispatch.target.route = ConnectionRoute::Custom;
+    dispatch.target.url = format!("http://{address}/v1/operations");
+    let client = crate::ai::transport::provider::client().unwrap();
+    let protocol =
+        crate::ai::transport::grouped::supports_deltas(&client, "private-test-key", &dispatch)
+            .await
+            .unwrap_err();
+    assert_eq!(protocol.code, ErrorCode::Provider);
+    assert_eq!(
+        protocol.diagnostics.as_ref().unwrap()["reason"],
+        "connection_failed"
+    );
+    assert_eq!(
+        protocol.diagnostics.as_ref().unwrap()["stage"],
+        "grouped_protocol"
+    );
+    let error =
+        crate::ai::transport::grouped::request(&client, "private-test-key", &[dispatch], |_, _| {
+            panic!("No result before connection")
+        })
+        .await
+        .unwrap_err();
+    assert_eq!(error.code, ErrorCode::Provider);
+    assert_eq!(
+        error.diagnostics.as_ref().unwrap()["reason"],
+        "connection_failed"
+    );
+    let safe = serde_json::to_string(&error).unwrap();
+    assert!(!safe.contains("private-test-key"));
+    assert!(!safe.contains(&address.to_string()));
+    assert!(!safe.contains("incomplete or invalid"));
+}

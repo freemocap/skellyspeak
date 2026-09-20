@@ -264,8 +264,9 @@
   --ink: #f0f1f3;
   --ink-2: #d3d6da;
   --ink-3: #a3a8af;
-  --bubble-partner-bg: #32291b;
-  --bubble-partner-line: #695339;
+  /* Neutral partner bubbles keep reading aids clear without an amber cast. */
+  --bubble-partner-bg: #282c32;
+  --bubble-partner-line: #4b535e;
   --bubble-learner-bg: #1e2836;
   --bubble-learner-line: #34465f;
   --interaction-ink: #6fa3ea;

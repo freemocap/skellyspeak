@@ -2,7 +2,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { languageFor } from '../../platform/ipc/tauri'
 import type { Settings } from '../../types'
 
-export const ReadingPreferencesContext = createContext<{ autoTranslate: boolean; alwaysPronunciation: boolean; alwaysRomanize: boolean; supportsRomanization?: boolean }>({
+export const ReadingPreferencesContext = createContext<{ autoTranslate: boolean; alwaysPronunciation: boolean; alwaysRomanize: boolean; supportsRomanization?: boolean; scriptScales?: Record<string, number> }>({
   autoTranslate: false,
   alwaysPronunciation: false,
   alwaysRomanize: false,
@@ -10,6 +10,7 @@ export const ReadingPreferencesContext = createContext<{ autoTranslate: boolean;
 
 export function ReadingPreferencesProvider({ settings, children }: { settings: Settings | null; children: ReactNode }) {
   return <ReadingPreferencesContext value={{
+    scriptScales: settings?.script_scales,
     supportsRomanization: settings != null && languageFor(settings.target_language, settings.target_variety)?.romanization != null,
     autoTranslate: settings?.auto_translate ?? false,
     alwaysPronunciation: settings?.always_pronunciation ?? false,

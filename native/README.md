@@ -38,6 +38,22 @@ remain stable when called by audio transport. Language-specific test examples,
 localized messages and font asset declarations are data, not exceptions for
 embedding language behavior in feature code.
 
+### Reply-help execution
+
+Normal and opening turns automatically schedule `reply_brief`. Grammar
+(`reply_explanations`) and suggestions (`reply_assistance`) are created only by
+explicit requests for a published partner message. `conversations/execution/assistance.rs`
+checks source eligibility, reuses existing operations and retries only the selected
+failed/unknown help kind. New requests and retries bind current access settings;
+the turn's captured language and source context remain fixed. Store commands retain
+the transaction, receipt and replay boundary. Existing dispatch, holds, validation,
+publication and safe response diagnostics serve all three operations.
+
+Schema 26 replaces the former automatic assistance graph. Older development
+workspaces require the existing explicit reset path; no migration or silent reset
+is performed. Contracts come from Rust and include each operation's reply-help kind
+and each partner message's captured reading scope.
+
 ### Subfolder groups
 
 | Area | Current groups |

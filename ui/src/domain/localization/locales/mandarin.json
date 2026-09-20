@@ -1150,5 +1150,8 @@
   "Loading speech…": "正在加载语音…",
   "Coach chat height": "教练聊天高度",
   "Expand coach chat": "展开教练聊天",
-  "Minimize coach chat": "最小化教练聊天"
+  "Minimize coach chat": "最小化教练聊天",
+  "AI work is paused or held.": "AI 工作已暂停或被阻止。",
+  "Reply help is unavailable for this message.": "此消息无法使用回复帮助。",
+  "The outcome is unknown. This request may have incurred usage.": "结果未知。此请求可能已产生用量。"
 }

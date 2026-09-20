@@ -27,7 +27,16 @@
 
 .wu:hover, .wu:focus-within { border-color: var(--line); }
 
-.wu > .wg, .wu > .wroman, .wu > .wpronunciation { contain: inline-size; width: 100%; overflow-wrap: anywhere; }
+/* Center each word's secondary information, including wrapped and RTL text. */
+.wu > .wg, .wu > .wroman, .wu > .wpronunciation {
+  contain: inline-size;
+  width: 100%;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 
 .wg {
   font-size: var(--type-meta);
@@ -199,7 +208,9 @@
 /* Source words inherit their sentence metrics. Hover/focus never creates a new
    inline box, changes a border, or removes the source from Arabic bidi flow. */
 .reading-word { cursor: pointer; font: inherit; color: inherit; }
-.reading-word:hover { text-decoration: underline dotted; text-underline-offset: 2px; }
+/* Avoid decorating shaped Arabic glyphs on hover: the native screenshot
+   showed the decoration without its glyphs. Highlight without reshaping. */
+.reading-word:hover { background-color: var(--interaction-tint); }
 .saved-word-help:has(> .token-audio) { padding-inline-end: calc(var(--space-11) + var(--space-4)); }
 .saved-word-help > .token-audio { position: absolute; inset-block-start: var(--space-1); inset-inline-end: var(--space-1); margin: 0; }
 .reading-word-help { font: var(--type-ui) / var(--leading-normal) var(--font-sans); text-align: start; white-space: normal; }

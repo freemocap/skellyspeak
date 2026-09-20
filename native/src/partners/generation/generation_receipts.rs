@@ -102,9 +102,14 @@ pub fn finish(
         }
     };
     let error = outcome.as_ref().err().map(safe_error);
-    let diagnostics = crate::diagnostics::response::retained(
+    let diagnostics = crate::diagnostics::response::retained_with_private(
         completion.and_then(|c| c.diagnostics.as_ref()),
         outcome.as_ref().err(),
+        &[
+            request.credential.as_str(),
+            request.brief.as_deref().unwrap_or_default(),
+            completion.map(|c| c.text.as_str()).unwrap_or_default(),
+        ],
     );
     tx.execute(
         "UPDATE persona_generation_attempts SET diagnostics=?2 WHERE id=?1",
@@ -336,6 +341,11 @@ mod tests {
         assert_eq!(view.usage.output_tokens, 4);
         assert_eq!(view.usage.unknown_usage, 0);
         assert!(!serde_json::to_string(&view).unwrap().contains("PRIVATE-"));
+        assert!(
+            serde_json::to_string(&view)
+                .unwrap()
+                .contains("Invalid Vibe:")
+        );
     }
 
     #[test]

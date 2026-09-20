@@ -11,6 +11,8 @@ import { ErrorDetails } from '../../src/components/feedback/ErrorDetails'
 import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
 import { ReadingPreferencesContext } from '../../src/components/reading/ReadingPreferences'
 import { ComposerInput } from '../../src/features/conversation/composer/ComposerInput'
+import { ReplyHelp } from '../../src/features/conversation/composer/ReplyHelp'
+import { replyHelpFixture } from '../../src/features/conversation/composer/ReplyHelp.fixtures'
 import { ConversationFeedbackCard } from '../../src/features/conversation/coaching/ConversationFeedbackCard'
 
 export type Preview = { name: string; group: string; height: number; element: ReactElement }
@@ -18,6 +20,10 @@ export type Preview = { name: string; group: string; height: number; element: Re
 const noop = () => {}
 
 export const previews: Preview[] = [
+  {name:'ReplyHelp',group:'Conversation',height:600,element:<div className="ds-stack">
+    <ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={noop} />
+    <ReplyHelp {...replyHelpFixture} opened={['grammar']} busy={false} errors={[]} onUse={noop} />
+  </div>},
   { name: 'Button', group: 'Actions', height: 72, element: <div className="ds-row">
     <button className="btn primary">Start a conversation</button>
     <button className="btn">Review</button>
