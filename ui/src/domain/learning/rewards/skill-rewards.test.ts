@@ -79,3 +79,13 @@ it('celebrates native assisted revision credit only to its positive net increase
   current.profile.credits = []
   expect(skillRewards(skillDemo, current, 'chat')).toEqual([])
 })
+
+it('credits explicit whole-message evidence without inventing a supporting quote', () => {
+  const snapshot = completed()
+  snapshot.records[0].assessment_adapter = 'jev_choice'
+  const judgment = snapshot.records[0].assessment!.judgments[0]
+  judgment.evidence_kind = 'whole_message'; judgment.quotes = []; judgment.rationale = ''
+  expect(skillRewards(skillDemo, snapshot, 'chat')[0]).toMatchObject({ quote: snapshot.records[0].source, xp: 10 })
+  snapshot.records[0].assessment_adapter = 'chat_model'
+  expect(() => skillRewards(skillDemo, snapshot, 'chat')).toThrow('evidence')
+})

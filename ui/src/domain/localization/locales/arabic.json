@@ -1150,5 +1150,17 @@
   "Minimize coach chat": "تصغير محادثة المدرب",
   "AI work is paused or held.": "عمل الذكاء الاصطناعي متوقف مؤقتًا أو معلّق.",
   "Reply help is unavailable for this message.": "مساعدة الرد غير متاحة لهذه الرسالة.",
-  "The outcome is unknown. This request may have incurred usage.": "النتيجة غير معروفة. ربما استهلك هذا الطلب موارد."
+  "The outcome is unknown. This request may have incurred usage.": "النتيجة غير معروفة. ربما استهلك هذا الطلب موارد.",
+  "Skill assessment": "تقييم المهارات",
+  "Jev Choice": "Jev Choice",
+  "Chat model assessment": "التقييم بنموذج المحادثة",
+  "Whole-message assessment": "تقييم الرسالة كاملة",
+  "Probability of some evidence": "احتمال وجود بعض الأدلة",
+  "Probability of full demonstration": "احتمال إظهار المهارة بالكامل",
+  "Decision scores and policy": "درجات القرار وقواعده",
+  "A decision model that evaluates predefined skill questions and returns category probabilities in parallel. It assesses the whole learner message; it does not generate supporting quotes or explanations.": "نموذج لاتخاذ القرارات يقيّم أسئلة مهارات محددة مسبقًا ويعيد احتمالات الفئات بالتوازي. يقيّم رسالة المتعلم كاملة ولا يولّد اقتباسات داعمة أو تفسيرات.",
+  "Uses the selected Fast model to generate structured observations, including exact learner quotes and explanations. The app validates those quotes before accepting evidence.": "يستخدم النموذج السريع المحدد لإنشاء ملاحظات منظمة تتضمن اقتباسات حرفية من المتعلم وتفسيرات. يتحقق التطبيق من الاقتباسات قبل قبول الأدلة.",
+  "Both can make incorrect judgments. Probabilities describe assessment outcomes, not learner proficiency. Switching affects future assessments; saved evidence keeps its original source and method.": "قد يصدر كلاهما أحكامًا خاطئة. تصف الاحتمالات نتائج التقييم، لا مستوى إتقان المتعلم. يؤثر التبديل في التقييمات المستقبلية؛ وتحتفظ الأدلة المحفوظة بمصدرها وطريقتها الأصليين.",
+  " later conversation turns. Your edited message replaces the original; private coach history is kept.": " من أدوار المحادثة اللاحقة. تحل رسالتك المعدلة محل الأصلية؛ ويُحتفظ بسجل المدرب الخاص.",
+  "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "يقيّم Jev أسئلة المهارات ويعيد احتمالات الفئات. ثم يحدد النموذج السريع المختار اقتباسات داعمة في رسالتك. يتحقق التطبيق من هذه الاقتباسات قبل إضافة نقاط الخبرة."
 }

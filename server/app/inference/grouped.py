@@ -1,6 +1,8 @@
 """Bounded grouped chat transport; each item owns admission and settlement."""
 from __future__ import annotations
 
+from server.app.inference import decisions
+
 import hashlib
 import json
 import logging
@@ -15,6 +17,7 @@ from fastapi import HTTPException
 from google.cloud import firestore
 
 from server.app.diagnostics.exceptions import describe
+from server.app.diagnostics.provider_errors import sanitize, request_strings
 import server.app.diagnostics.runtime as runtime
 import server.app.admission.admission as admission
 import server.app.inference.contracts as contracts
@@ -23,6 +26,17 @@ import server.app.admission.work_admission as work
 
 MAX_ITEMS = 8
 log = logging.getLogger("skellyspeak.operations")
+
+
+def failure_details(error: HTTPException, payload: dict) -> dict:
+    # Rejection details are authored server messages. Remove any request echoes
+    # before retaining them beside provider diagnostics; never serialize a body.
+    private = tuple(request_strings(payload))
+    diagnostic = sanitize(getattr(error, "diagnostics", None), private)
+    details = diagnostic if isinstance(diagnostic, dict) else {}
+    details.setdefault("message", sanitize(error.detail, private, field="message"))
+    details.setdefault("stage", "grouped_admission_or_execution")
+    return details
 
 
 def record_failure(status: int, error: BaseException, *, request_id: str, item_index: int) -> None:
@@ -91,9 +105,9 @@ def parse(payload: object, *, max_tokens: int) -> list[Item]:
         attempts.add(attempt)
         if not isinstance(request, dict) or request.get("stream", False) is not False or "audio" in request or "modalities" in request:
             raise HTTPException(400, "Grouped operations require non-streaming text chat requests.")
-        if deltas and "response_format" in request:
+        if deltas and ("response_format" in request or "questions" in request):
             raise HTTPException(400, "Only prose operations can stream deltas.")
-        contract = contracts.chat_request(request, max_tokens=max_tokens)
+        contract = decisions.request(request) if "questions" in request else contracts.chat_request(request, max_tokens=max_tokens)
         # The duplicate-protection digest covers the client's request alone, so
         # a retry of the same attempt matches whichever protocol carried it.
         canonical = json.dumps({"version": 1, "operation_id": operation, "request": contract.payload}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -132,7 +146,7 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
                 event.update({"type": "duplicate", "state": held.state})
         except HTTPException as error:
             record_failure(error.status_code, error, request_id=request_id, item_index=item_index)
-            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": getattr(error, "diagnostics", None), "request_id": request_id})
+            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": failure_details(error, item.contract.payload), "request_id": request_id})
             retry = (error.headers or {}).get("Retry-After", "")
             if retry.isdigit() and 0 < int(retry) <= 604800:
                 event["retry_after"] = int(retry)
@@ -210,7 +224,7 @@ async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quot
                 event.update({"type": "duplicate", "state": held.state})
         except HTTPException as error:
             record_failure(error.status_code, error, request_id=request_id, item_index=item_index)
-            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": getattr(error, "diagnostics", None), "request_id": request_id})
+            event.update({"type": "error", "code": getattr(error, "code", "REQUEST_REJECTED"), "status": error.status_code, "diagnostics": failure_details(error, item.contract.payload), "request_id": request_id})
             retry = (error.headers or {}).get("Retry-After", "")
             if retry.isdigit() and 0 < int(retry) <= 604800:
                 event["retry_after"] = int(retry)

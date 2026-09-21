@@ -50,3 +50,10 @@ local.env.*
 # Generated Tauri schemas, including leftovers beside archived source snapshots.
 **/native/gen/schemas/
 **/src-tauri/gen/schemas/
+
+# Local Jev experiment runs: expanded requests, receipts and generated viewers.
+# Keep authored Markdown reports, reviewed CSVs and tooling/fixtures in Git.
+/docs/notes/conversation-prompts/jev-*/**/*.json
+/docs/notes/conversation-prompts/jev-*/**/*.jsonl
+/docs/notes/conversation-prompts/jev-*/**/*.html
+/docs/notes/conversation-prompts/jev-*/**/quote-candidates-review.csv

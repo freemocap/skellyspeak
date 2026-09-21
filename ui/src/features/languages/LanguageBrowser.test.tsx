@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { LanguageBrowser } from './LanguageBrowser'
 import { useSettingsStore } from '../../state/settings/settings'
 import type { Settings } from '../../types'
@@ -10,8 +11,13 @@ const mocks = vi.hoisted(() => ({ inspect: vi.fn(), getSettings: vi.fn(), save: 
 vi.mock('../../platform/ipc/content', () => ({ inspectLanguage: mocks.inspect }))
 vi.mock('../../platform/ipc/tauri', () => ({
   getSettings: mocks.getSettings,
+  languageFor: (language: string, variety?: string) => {
+    if (variety && !variety.startsWith(`${language}-`)) throw new Error('The selected variety is unavailable.')
+    return null
+  },
   languages: () => [
     { code:'arabic', name:'Arabic', endonym:'العربية', defaultVariety:'arabic-levantine', varieties:[{id:'arabic-levantine',label:'Levantine'},{id:'arabic-modern-standard',label:'Modern Standard'}] },
+    { code:'scottish-gaelic', name:'Scottish Gaelic', endonym:'Gàidhlig', defaultVariety:'scottish-gaelic-scotland', varieties:[{id:'scottish-gaelic-scotland',label:'Scotland'}] },
     { code:'french', name:'French', endonym:'Français', defaultVariety:'french-france', varieties:[{id:'french-france',label:'France'}] },
     { code:'english', name:'English', endonym:'English', defaultVariety:'english-united-states', varieties:[{id:'english-united-states',label:'United States'}] },
   ],
@@ -148,4 +154,49 @@ it('opens directly on the requested language with its remembered variety', async
   expect(screen.getByRole('combobox',{name:'Variety'})).toHaveValue('arabic-modern-standard')
   expect(mocks.save).not.toHaveBeenCalled()
   expect(mocks.membership).not.toHaveBeenCalled()
+})
+
+it('switches loaded details to Gaelic safely inside the app reading scope', async () => {
+  const gaelic = { ...report('scottish-gaelic-scotland'), language: { ...report().language, id: 'scottish-gaelic', name: 'Scottish Gaelic', nativeName: 'Gàidhlig' }, fingerprint: 'gaelic-content', schemes: [] }
+  let resolve!: (value: LanguageInspection) => void
+  mocks.inspect.mockResolvedValueOnce(report()).mockReturnValueOnce(new Promise<LanguageInspection>(done => { resolve = done }))
+  render(<ReadingScopeContext value={{ language: 'arabic', variety: 'arabic-levantine', explanation: 'english', explanationVariety: 'english-united-states' }}>
+    <LanguageBrowser onClose={vi.fn()} />
+  </ReadingScopeContext>)
+  await screen.findByText('kitāb')
+  fireEvent.click(screen.getByRole('button', { name: 'Gàidhlig (Scottish Gaelic)' }))
+  expect(screen.queryByText('kitāb')).not.toBeInTheDocument()
+  expect(screen.getByRole('status')).toHaveTextContent('Loading…')
+  await act(async () => resolve(gaelic))
+  expect(screen.getByText('gaelic-content')).toBeInTheDocument()
+  expect(document.querySelector('[data-reading-language="scottish-gaelic"]')).toHaveAttribute('data-reading-variety', 'scottish-gaelic-scotland')
+})
+
+it('hides the previous variety report while the selected variety loads', async () => {
+  let resolve!: (value: LanguageInspection) => void
+  mocks.inspect.mockResolvedValueOnce(report()).mockReturnValueOnce(new Promise<LanguageInspection>(done => { resolve = done }))
+  render(<LanguageBrowser onClose={vi.fn()} />)
+  await screen.findByText('kitāb')
+  fireEvent.change(screen.getByRole('combobox', { name: 'Variety' }), { target: { value: 'arabic-modern-standard' } })
+  expect(screen.queryByText('kitāb')).not.toBeInTheDocument()
+  expect(screen.getByRole('status')).toHaveTextContent('Loading…')
+  await act(async () => resolve({ ...report('arabic-modern-standard'), fingerprint: 'standard-content' }))
+  expect(screen.getByText('standard-content')).toBeInTheDocument()
+})
+
+it('ignores a rejected request after switching back to loaded language details', async () => {
+  let reject!: (reason: Error) => void
+  mocks.inspect.mockResolvedValueOnce(report())
+    .mockReturnValueOnce(new Promise<LanguageInspection>((_resolve, fail) => { reject = fail }))
+    .mockResolvedValueOnce({ ...report(), fingerprint: 'latest-arabic' })
+  render(<ReadingScopeContext value={{ language: 'arabic', variety: 'arabic-levantine', explanation: 'english', explanationVariety: 'english-united-states' }}>
+    <LanguageBrowser onClose={vi.fn()} />
+  </ReadingScopeContext>)
+  await screen.findByText('kitāb')
+  fireEvent.click(screen.getByRole('button', { name: 'Gàidhlig (Scottish Gaelic)' }))
+  fireEvent.click(screen.getByRole('button', { name: 'العربية (Arabic)' }))
+  await screen.findByText('latest-arabic')
+  await act(async () => reject(new Error('Old Gaelic request failed')))
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  expect(screen.getByText('latest-arabic')).toBeInTheDocument()
 })

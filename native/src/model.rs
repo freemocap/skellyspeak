@@ -76,6 +76,10 @@ pub enum SpeechAudioState {
         operation_id: String,
         message_id: String,
         reason: SpeechUnavailableReason,
+        message: String,
+        attempt_id: Option<String>,
+        #[ts(type = "unknown")]
+        diagnostics: Option<serde_json::Value>,
     },
 }
 
@@ -552,6 +556,7 @@ pub fn bindings() -> String {
         PersonaGenerationActivity::decl(&config),
         AudioModelSettings::decl(&config),
         AudioSettings::decl(&config),
+        AssessmentAdapter::decl(&config),
         ConnectionConfig::decl(&config),
         TurnControl::decl(&config),
         GlossSegmentKind::decl(&config),
@@ -693,9 +698,17 @@ pub struct AudioSettings {
     pub transcription: AudioModelSettings,
     pub speech: AudioModelSettings,
 }
+/// Assessment strategy, independent of the access route and chat model selection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum AssessmentAdapter { JevChoice, ChatModel }
+impl AssessmentAdapter {
+    pub fn label(self) -> &'static str { match self { Self::JevChoice => "jev_choice", Self::ChatModel => "chat_model" } }
+}
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConnectionConfig {
+    pub assessment_adapter: AssessmentAdapter,
     pub route: ConnectionRoute,
     pub signed_in: bool,
     pub own_key_configured: bool,
@@ -908,6 +921,8 @@ pub struct AttemptStreamRead {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AttemptDetail {
+    #[ts(optional, type = "unknown")]
+    pub decision_request: Option<serde_json::Value>,
     pub request_messages: Option<Vec<RecordedMessage>>,
     pub response_text: Option<String>,
     pub preview_text: Option<String>,

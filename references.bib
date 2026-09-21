@@ -4,6 +4,19 @@
 % Seeded 2026-09-12 from the coaching-plan research. Most entries were checked via abstracts/summaries only.
 
 % ---------------------------------------------------------------- philosophy of the tool
+@misc{typesafeChoice2026,
+  author = {{TypeSafe AI}}, title = {Choice and independent structured decisions}, year = {2026},
+  url = {https://docs.typesafe.ai/primitives/choice},
+  review = {reviewed},
+  claim = {Choice returns a named option, probabilities and confidence; shared-state questions are evaluated independently. This does not establish multilingual assessment validity.}
+}
+@misc{openrouterJev2026,
+  author = {{OpenRouter}}, title = {Jev 1.13 model and API listing}, year = {2026},
+  url = {https://openrouter.ai/typesafe/jev-1.13},
+  review = {reviewed},
+  claim = {Jev is available as a decisions model with listed input pricing of 0.042 USD per million tokens and zero output-token charge; experiments preserve actual usage receipts.}
+}
+
 @book{illich1973,
   author = {Illich, Ivan}, title = {Tools for Conviviality}, publisher = {Harper \& Row}, year = {1973},
   url = {https://arl.human.cornell.edu/linked%20docs/Illich_Tools_for_Conviviality.pdf},
@@ -805,4 +818,166 @@
   url = {https://elevenlabs.io/blog/eleven-v3-audio-tags-emulating-accents-with-precision},
   review = {reviewed},
   claim = {Eleven v3 supports bracketed accent cues in synthesis text to guide regional pronunciation without translating the words. Source voice affects accent quality; tags do not establish verified regional fidelity.}
+}
+
+@article{hautus1995,
+  author = {Hautus, Michael J.},
+  title = {Corrections for extreme proportions and their biasing effects on estimated values of d-prime},
+  journal = {Behavior Research Methods, Instruments, & Computers},
+  year = {1995},
+  volume = {27},
+  pages = {46--51},
+  doi = {10.3758/BF03203619},
+  url = {https://link.springer.com/article/10.3758/BF03203619},
+  review = {abstract},
+  claim = {The log-linear correction adds 0.5 to every contingency-table cell to permit finite d-prime estimates at extreme rates; the paper's simulations compare its bias with the 1/(2N) rule.}
+}
+
+@misc{typesafeSystemOne2026,
+  author = {{TypeSafe AI}}, title = {System One and State}, year = {2026},
+  url = {https://docs.typesafe.ai/concepts/system-one},
+  review = {full-text},
+  claim = {Jev makes typed decisions rather than generating prose or explanations; text is its supported input modality. Calibration is a population property, not a guarantee for individual outputs.}
+}
+@misc{typesafePrimitives2026,
+  author = {{TypeSafe AI}}, title = {Primitives (Questions)}, year = {2026},
+  url = {https://docs.typesafe.ai/primitives},
+  review = {full-text},
+  claim = {Batch independent atomic judgments over shared state, put complete questions in instructions rather than IDs, and reference structured fields explicitly. Noul represents yes/no probability, Choice categories, and Score defined ordered levels.}
+}
+@misc{typesafeState2026,
+  author = {{TypeSafe AI}}, title = {State}, year = {2026},
+  url = {https://docs.typesafe.ai/concepts/state},
+  review = {full-text},
+  claim = {Structured state separates content from questions. Jev primarily trains in English and the vendor cautions that other languages currently have lower accuracy.}
+}
+
+@online{typesafeNoul2026,
+  author = {{TypeSafe AI}},
+  title = {Noul: binary judgments and probability semantics},
+  year = {2026},
+  url = {https://docs.typesafe.ai/primitives/noul},
+  review = {full-text},
+  review-notes = {Reviewed September 21, 2026. Vendor interface documentation, not independent validation.},
+  claim = {Noul returns a yes probability without separate confidence; supports optional true/false criteria and batched independent questions. A middle probability is uncertainty rather than degree of skill.}
+}
+
+@misc{nikl_romanization,
+  author = {{National Institute of Korean Language}},
+  title = {Romanization of Korean},
+  url = {https://www.korean.go.kr/front_eng/roman/roman_01.do},
+  review = {reviewed},
+  claim = {Revised Romanization specifies standard-pronunciation vowel and consonant mappings, sound-change rules and name exceptions.}
+}
+
+@misc{ala_lc_japanese2022,
+  author = {{Library of Congress}},
+  title = {Japanese Romanization Table, 2022},
+  url = {https://loc.gov/catdir/cpso/romanization/japanese.pdf},
+  review = {reviewed},
+  claim = {Japanese romanization requires contextual readings, grammatical-particle readings, vowel-length handling and word division. The app uses an explicitly named conversational Hepburn reading convention.}
+}
+
+@misc{unicode17_europe,
+  author = {{Unicode Consortium}},
+  title = {Unicode 17, Chapter 7: Europe-I},
+  url = {https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-7/},
+  review = {reviewed},
+  claim = {Latin and Cyrillic letters and combining marks preserve language-specific distinctions; Vietnamese uses vowel letters with tone diacritics.}
+}
+
+@misc{indonesian_eyd_v,
+  author = {{Badan Pengembangan dan Pembinaan Bahasa}},
+  title = {Ejaan Bahasa Indonesia yang Disempurnakan, Edisi V},
+  url = {https://ejaan.kemendikdasmen.go.id/},
+  review = {reviewed},
+  claim = {EYD V supplies the Indonesian spelling conventions used for contemporary written Indonesian.}
+}
+
+@misc{tdk_alphabet,
+  author = {{Türk Dil Kurumu}},
+  title = {Ses, Harf ve Alfabe},
+  url = {https://tdk.gov.tr/icerik/yazim-kurallari/ses-harf-ve-alfabe/},
+  review = {reviewed},
+  claim = {The Turkish alphabet distinguishes dotted and dotless I and retains language-specific letters such as ç, ğ, ö, ş and ü.}
+}
+
+@misc{ala_lc_russian2012,
+  author = {{Library of Congress}},
+  title = {Russian Romanization Table, 2012},
+  url = {https://www.loc.gov/catdir/cpso/romanization/russian.pdf},
+  review = {reviewed},
+  claim = {ALA-LC Russian specifies spelling-based Cyrillic mappings including ë, ĭ, signs and tied digraphs; it is not phonetic transcription.}
+}
+
+@misc{ala_lc_ukrainian2011,
+  author = {{Library of Congress}},
+  title = {Ukrainian Romanization Table, 2011},
+  url = {https://www.loc.gov/catdir/cpso/romanization/ukrainia.pdf},
+  review = {reviewed},
+  claim = {Ukrainian romanization distinguishes г/h, ґ/g, и/y, і/i and ї/ï independently of Russian and uses the specified tied digraphs.}
+}
+
+@misc{cherokee_verb_handbook2003,
+  author = {Feeling, Durbin and Kopris, Craig and Lachler, Jordan and van Tuyl, Charles},
+  title = {A Handbook of the Cherokee Verb},
+  url = {https://language.cherokee.org/media/gd4diu54/handbook_verb.pdf},
+  review = {reviewed},
+  claim = {The traditional romanization follows written syllabary; linguistic transcription separately represents tone, vowel length and glottal stops. Cherokee verb forms encode interacting grammatical categories.}
+}
+
+@misc{cherokee_nation_lexicon,
+  author = {Cherokee Nation},
+  title = {Cherokee Nation word list},
+  url = {https://language.cherokee.gov/word-list/},
+  review = {reviewed},
+  claim = {The language department publishes an English-Cherokee lexicon and links language-consortium terminology resources.}
+}
+
+@misc{cherokee_first500,
+  author = {Cherokee Dictionary},
+  title = {First 500 Cherokee words},
+  url = {https://www.cherokeedictionary.net/first500},
+  review = {reviewed},
+  claim = {Lexical entries supply syllabary forms for food, beverage, family and music used in the authored topic labels.}
+}
+
+@misc{cherokee_shiyo,
+  author = {Eastern Band of Cherokee Indians},
+  title = {Shiyo Cherokee Language Engine: Basic Vocabulary},
+  url = {https://shiyo.org/search},
+  review = {reviewed},
+  claim = {Basic vocabulary provides Cherokee syllabary entries for Saturday, Sunday, today and home.}
+}
+
+@misc{unicode17_cherokee,
+  author = {Unicode Consortium},
+  title = {Unicode 17, Chapter 20: Americas},
+  url = {https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-20/},
+  review = {reviewed},
+  claim = {Cherokee is a left-to-right Iroquoian syllabary with uppercase and lowercase forms, including the Cherokee Supplement block.}
+}
+
+@misc{unicode17_east_asia,
+  author = {Unicode Consortium},
+  title = {Unicode 17, Chapter 18: East Asia},
+  url = {https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-18/},
+  review = {reviewed},
+  claim = {Japanese mixes Han and kana; Korean Hangul supports precomposed syllables and conjoining jamo which must remain intact.}
+}
+
+@misc{unicode_turkish_case,
+  author = {Unicode Consortium},
+  title = {Case mappings FAQ},
+  url = {https://www.unicode.org/faq/casemap_charprop.html},
+  review = {reviewed},
+  claim = {Turkish distinguishes the dotted pair İ/i from the dotless pair I/ı; locale-independent lowercase conversion is insufficient.}
+}
+
+@misc{elevenlabs_language_codes_20260921,
+  author = {ElevenLabs},
+  title = {Create transcript: language hints},
+  url = {https://elevenlabs.io/docs/api-reference/speech-to-text/convert},
+  review = {reviewed},
+  claim = {Scribe accepts ISO 639-1 or ISO 639-3 language codes. The service forwards the selected language identity as its language_code without a Whisper allowlist.}
 }

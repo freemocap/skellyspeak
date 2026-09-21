@@ -187,7 +187,7 @@ fn earlier_revision_removes_exact_suffix_despite_background_changes_and_rejects_
         .unwrap()
         .revision_suffix_counts;
     let counts = counts.iter().find(|c| c.turn_id == first).unwrap();
-    assert_eq!((counts.exchange_count, counts.coach_turn_count), (1, 1));
+    assert_eq!((counts.exchange_count, counts.coach_turn_count), (1, 0));
     let contact = store.snapshot().unwrap().contacts[0].id.clone();
     let other = apply(
         &mut store,
@@ -219,14 +219,18 @@ fn earlier_revision_removes_exact_suffix_despite_background_changes_and_rejects_
     let new = store.execute(stale).unwrap().entity_id;
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(view.messages.len(), 3);
-    assert!(view.coach_messages.is_empty());
+    assert_eq!(view.coach_messages.len(), before.coach_messages.len());
+    assert!(view.coach_messages.iter().any(|m| m.text == "Private answer."));
+    let edits = crate::conversations::revision::coach_edits(&store.connection, &conversation).unwrap();
+    assert_eq!(edits[0]["after"], "Change");
+    assert_eq!(edits[0]["replacesTurnId"], first);
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["choices"]
             ["excluded_attempts"],
         serde_json::json!([])
     );
 
-    for removed in [later, coach] {
+    for removed in [later] {
         assert_eq!(
             store
                 .connection
@@ -396,4 +400,27 @@ fn revision_replaces_running_reply_and_rejects_its_late_publication() {
             .iter()
             .any(|m| m.turn_id == revised && m.text == "Replacement speech")
     );
+}
+
+#[test]
+fn coach_sees_retained_dialogue_and_before_after_edit_history() {
+    let (_dir, mut store, conversation) = setup();
+    let first = store.execute(send(&store, &conversation)).unwrap().entity_id;
+    finish_fixture_exchange(&mut store, &first, "Original reply.");
+    let ask = |store: &mut Store, text: &str| {
+        let revision = store.snapshot().unwrap().conversations.iter().find(|c| c.id == conversation).unwrap().revision;
+        apply(store, Action::AskCoach { conversation_id:conversation.clone(), text:text.into(), expected_revision:revision }).entity_id
+    };
+    let coach = ask(&mut store, "Explain my wording");
+    finish_fixture_exchange(&mut store, &coach, "Private guidance.");
+    let original: String = store.connection.query_row("SELECT text FROM messages WHERE turn_id=?1 AND role='user'", [&first], |r|r.get(0)).unwrap();
+    let revised = store.execute(revision_command(&store,&conversation,&first,"Revised wording")).unwrap().entity_id;
+    finish_fixture_exchange(&mut store,&revised,"Updated reply.");
+    let next = ask(&mut store,"What changed?");
+    let context = wave2_context(&store,&next);
+    let system = context["messages"][0]["content"].as_str().unwrap();
+    assert!(system.contains("messageEdits"));
+    assert!(system.contains(&original));
+    assert!(system.contains("Revised wording"));
+    assert!(context["messages"].as_array().unwrap().iter().any(|m|m["content"]=="Private guidance."));
 }

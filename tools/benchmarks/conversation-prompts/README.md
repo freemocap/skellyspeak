@@ -1,5 +1,17 @@
 # Conversation prompt experiments
 
+## Jev skill assessment — design review
+
+The [assessment extension](assessment/README.md) reuses this experiment runner's
+helpers and the same explorer, saved source IDs, embeddings and projection fits.
+It opens with a reviewable design and preserves an interrupted pilot. Further
+paid runs require the user's review of that design. Reopen with:
+
+```sh
+node tools/benchmarks/conversation-prompts/explorer/explore.ts --study docs/notes/conversation-prompts/jev-design-review-2026-09-21/study.json --port 8773
+```
+
+
 ## New isolated study: instruction language
 
 The [English versus target-language study](../../../docs/notes/conversation-prompts/explorer-instruction-language-2026-09-20/README.md) contains **180 new responses only**, with Relationship/T=1.1 across Spanish, Arabic and Mandarin. Reopen it with:
@@ -234,3 +246,11 @@ it does not ban words or subjects. These flags use the shortened word targets.
 See [the explorer guide](explorer/README.md) for cached OpenRouter embeddings,
 linked semantic/length plots, group inspection, exact prompts, similarity search,
 and reproducible build commands. These experimental prompts do not change the app.
+
+## Dedicated skill-assessment study
+
+The approved Spanish 648-request native/dense/Jev experiment has its own
+[assessment runner and dashboard](assessment/README.md). Its new output-profile
+PCA/t-SNE/UMAP maps use the existing projection machinery but no earlier study
+coordinates or responses. Quality, measured latency, actual cost, failures and
+reference-label limitations remain separately visible.

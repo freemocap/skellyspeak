@@ -67,6 +67,14 @@ fn every_target_and_explanation_variety_has_the_shared_topics() {
 fn courtesy_retrieval_uses_only_the_target_languages_material() {
     let registry = Registry::bundled().unwrap();
     let examples = [
+        ("korean", "감사합니다"),
+        ("japanese", "ありがとう"),
+        ("vietnamese", "cảm ơn"),
+        ("indonesian", "terima kasih"),
+        ("turkish", "teşekkür ederim"),
+        ("russian", "спасибо"),
+        ("ukrainian", "дякую"),
+        ("cherokee", "ᏩᏙ"),
         ("english", "thanks"),
         ("spanish", "gracias"),
         ("french", "merci"),
@@ -143,5 +151,50 @@ fn indic_scripts_and_romanization_resolve_in_both_language_roles() {
             .text;
         assert!(target.contains(writing));
         assert!(explanation.contains(writing));
+    }
+}
+
+/// Exercise the exact report consumed by the browser for the whole live catalog.
+#[test]
+fn browser_reports_keep_language_and_variety_together_for_every_context() {
+    let registry = Registry::bundled().unwrap();
+    for target in &registry.languages {
+        let projection = registry.language(&target.id).unwrap();
+        assert!(projection
+            .varieties
+            .iter()
+            .any(|v| v.id == projection.default_variety));
+        for explanation in &registry.languages {
+            let default = registry
+                .inspect_language(&target.id, None, &explanation.id, None)
+                .unwrap();
+            assert_eq!(default.language.id, target.id);
+            assert_eq!(default.variety_id, target.default_variety);
+            for variety in &target.varieties {
+                for explanation_variety in &explanation.varieties {
+                    let report = registry
+                        .inspect_language(
+                            &target.id,
+                            Some(&variety.id),
+                            &explanation.id,
+                            Some(&explanation_variety.id),
+                        )
+                        .unwrap_or_else(|error| {
+                            panic!(
+                                "{}/{} explained by {}/{}: {error:?}",
+                                target.id, variety.id, explanation.id, explanation_variety.id
+                            )
+                        });
+                    assert_eq!(report.language.id, target.id);
+                    assert_eq!(report.variety_id, variety.id);
+                    assert!(report
+                        .language
+                        .varieties
+                        .iter()
+                        .any(|v| v.id == report.variety_id));
+                    assert_eq!(report.fingerprint, registry.hash());
+                }
+            }
+        }
     }
 }

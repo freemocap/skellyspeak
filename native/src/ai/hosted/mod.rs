@@ -1,4 +1,6 @@
 mod audio_errors;
+#[cfg(test)]
+mod service_error_tests;
 use crate::model::AppError;
 use crate::model::ErrorCode;
 use crate::model::HostedAccount;
@@ -52,7 +54,13 @@ pub async fn body_with_private(
         let mut value: serde_json::Value =
             serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null);
         sanitize_service_body(&mut value);
-        return Err(limit_error(&bytes, retry_after).with_diagnostics(serde_json::json!({"http":http,"response":crate::diagnostics::response::metadata(&value, private)})));
+        let response = crate::diagnostics::response::metadata(&value, private);
+        let mut error = limit_error(&bytes, retry_after);
+        if let Some(reason) = crate::diagnostics::response::reason(&response) {
+            let delay = retry_after.map(|seconds| format!(" Retry-After: {seconds} seconds.")).unwrap_or_default();
+            error.message = format!("Service HTTP 429: {reason}{delay} No automatic retry was made.");
+        }
+        return Err(error.with_diagnostics(serde_json::json!({"http":http,"response":response})));
     }
     if !response.status().is_success() {
         let status = response.status().as_u16();
@@ -62,11 +70,9 @@ pub async fn body_with_private(
             sanitize_service_metadata(metadata);
             let body = &metadata["response"];
             let fallback = refusal_message(status, serde_json::to_vec(body).ok().as_deref());
-            if let Some(detail) = body
-                .get("diagnostics")
-                .and_then(crate::diagnostics::response::reason)
-            {
-                error.message = format!("{fallback} Provider reason: {detail}");
+            if let Some(detail) = crate::diagnostics::response::reason(body) {
+                error.message =
+                    format!("Service HTTP {status}: {detail} No automatic retry was made.");
             } else {
                 error.message = fallback;
             }
@@ -98,14 +104,6 @@ fn valid_service_id(id: &str) -> bool {
 }
 fn sanitize_service_body(body: &mut serde_json::Value) {
     if let Some(object) = body.as_object_mut() {
-        // Generic server detail may echo arbitrary submitted values. Reviewed
-        // provider diagnostics have their own structured, redacted envelope.
-        if object.contains_key("detail") {
-            object.insert(
-                "detail".into(),
-                serde_json::json!("[redacted: unstructured service detail]"),
-            );
-        }
         if object
             .get("request_id")
             .and_then(|v| v.as_str())
@@ -129,10 +127,8 @@ fn sanitize_service_metadata(metadata: &mut serde_json::Value) {
     }
 }
 
-/// Refusal messages can be persisted in attempts and turn context. Remote text
-/// is untrusted, including responses from Custom URL servers: only client-authored
-/// status/code guidance and the bounded, service-redacted audio reason are allowed
-/// through this boundary. Arbitrary remote detail/body fields are never displayed.
+/// Guidance used only when the service supplies no readable reason. Remote
+/// reasons are retained through the shared content/credential scrubber above.
 pub(crate) fn provider_failure_message(code: &str) -> Option<String> {
     let (provider, number) = if let Some(number) = code.strip_prefix("OPENROUTER_HTTP_") {
         ("OpenRouter", number)

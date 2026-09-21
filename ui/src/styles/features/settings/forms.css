@@ -52,3 +52,5 @@
 @media (max-width: 860px) {
   .settings-modal .form-row { margin-bottom: var(--space-4); }
 }
+
+.assessment-label { display: flex; align-items: center; gap: var(--space-2); }

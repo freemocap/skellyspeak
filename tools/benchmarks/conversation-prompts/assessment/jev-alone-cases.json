@@ -1,0 +1,23 @@
+{
+ "review":"Agent-authored extension, not independent human adjudication. Focal labels reviewed against catalog before inference. New cases are unseen by the compared formulations, not an independently sampled population.",
+ "cases":[
+ {"id":"new-thanks-full","group":"full","text":"Gracias por ayudarme con la maleta.","targets":{"courtesy":"demonstrated"},"review":"Gratitude with explicit reason."},
+ {"id":"new-thanks-partial","group":"partial","text":"Te agra... por la maleta.","targets":{"courtesy":"partial"},"review":"Interrupted gratitude verb; intended social action recognizable but incomplete. Boundary label provisional."},
+ {"id":"new-thanks-absent","group":"absent","text":"La maleta es azul.","targets":{"courtesy":"not_observed"},"review":"Description without social courtesy."},
+ {"id":"new-past-full","group":"full","text":"El lunes pasado perdí el tren.","targets":{"past_reference":"demonstrated"},"review":"Completed past event."},
+ {"id":"new-past-partial","group":"partial","text":"El lunes pasado yo había...","targets":{"past_reference":"partial"},"review":"Past frame and auxiliary with no event expressed."},
+ {"id":"new-past-absent","group":"absent","text":"El tren tiene diez vagones.","targets":{"past_reference":"not_observed"},"review":"Present property, no past event."},
+ {"id":"new-future-full","group":"full","text":"Dentro de dos días compraré una bicicleta.","targets":{"future_reference":"demonstrated"},"review":"Future purchase stated."},
+ {"id":"new-future-partial","group":"partial","text":"Dentro de dos días voy a...","targets":{"future_reference":"partial"},"review":"Future action frame without action."},
+ {"id":"new-future-absent","group":"absent","text":"La bicicleta está junto a la puerta.","targets":{"future_reference":"not_observed"},"review":"Present location only."},
+ {"id":"new-comparison-full","group":"full","text":"Mi mochila pesa menos que la tuya.","targets":{"comparison":"demonstrated"},"review":"Explicit comparison, dimension and standard."},
+ {"id":"new-comparison-partial","group":"partial","text":"Mi mochila pesa menos que...","targets":{"comparison":"partial"},"review":"Missing comparison standard; conservative full/partial boundary."},
+ {"id":"new-comparison-absent","group":"absent","text":"Mi mochila pesa cinco kilos.","targets":{"comparison":"not_observed"},"review":"Absolute measure, no comparison."},
+ {"id":"new-reason-full","group":"full","text":"Abrí la ventana porque hacía calor.","targets":{"reason":"demonstrated"},"review":"Action and causal explanation."},
+ {"id":"new-reason-partial","group":"partial","text":"Abrí la ventana porque...","targets":{"reason":"partial"},"review":"Cause connector without explanation."},
+ {"id":"new-reason-absent","group":"absent","text":"Abrí la ventana.","targets":{"reason":"not_observed"},"review":"Action without reason."},
+ {"id":"new-condition-full","group":"full","text":"Si llueve, llevaré un paraguas.","targets":{"condition":"demonstrated"},"review":"Condition and consequence."},
+ {"id":"new-condition-partial","group":"partial","text":"Si llueve...","targets":{"condition":"partial"},"review":"Conditional clause without consequence; boundary provisional."},
+ {"id":"new-condition-absent","group":"absent","text":"Está lloviendo.","targets":{"condition":"not_observed"},"review":"Weather statement, no conditional relation."}
+ ]
+}

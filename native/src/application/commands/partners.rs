@@ -104,6 +104,7 @@ pub(in crate::application) async fn run_persona_generation(
                 &request.language_context,
             ),
             gloss_schema: None,
+            decisions: None,
             coaching_schema: None,
             gloss_source: None,
             speech_source: None,
@@ -117,21 +118,12 @@ pub(in crate::application) async fn run_persona_generation(
             request.mark_submitted();
         }
         provider_outcome = Some(
-            generation::await_checked(
-                request,
-                provider::complete_with_output(
-                    &client,
-                    &key,
-                    &dispatch,
-                    provider::RequestOutput::JsonSchema {
-                        max_output_tokens: 2048,
-                        name: persona_prompt::SCHEMA_NAME,
-                        schema: &schema,
-                    },
-                ),
+            retry::run(
+                || provider::complete_with_output(&client, &key, &dispatch,
+                    provider::RequestOutput::JsonSchema { max_output_tokens: 2048, name: persona_prompt::SCHEMA_NAME, schema: &schema }),
                 validate,
-            )
-            .await?,
+                |error| generation_receipts::record_retry(&*state.lock()?, request, error),
+            ).await,
         );
         drop(permit);
         let completed = provider_outcome

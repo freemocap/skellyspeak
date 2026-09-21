@@ -16,17 +16,25 @@ from sklearn.preprocessing import normalize
 from umap import UMAP
 
 directory = Path(sys.argv[1])
-plan = json.loads((directory / "embedding-plan.json").read_text())
-# Only project texts actually present in the frozen corpus, not spare cache entries.
-hashes = set()
-for run in plan["directories"]:
-    for line in (Path(run) / "results.jsonl").read_text().splitlines():
-        row = json.loads(line)
-        if row["status"] == "complete":
-            hashes.add(hashlib.sha256(row["content"].encode()).hexdigest())
-cache = {r["hash"]: r for r in map(json.loads, (directory / "embeddings.jsonl").read_text().splitlines())}
-keys = sorted(hashes)
-x = normalize(np.array([cache[key]["vector"] for key in keys], dtype=np.float64))
+profiles_mode = len(sys.argv) == 3 and sys.argv[2] == "--profiles"
+if profiles_mode:
+    plan = json.loads((directory / "profiles.json").read_text())
+    keys = plan["hashes"]
+    x = normalize(np.array(plan["vectors"], dtype=np.float64))
+    if len(keys) < 41:
+        raise ValueError("Need at least 41 unique profiles for the declared projection settings")
+else:
+    plan = json.loads((directory / "embedding-plan.json").read_text())
+    # Only project texts actually present in the frozen corpus, not spare cache entries.
+    hashes = set()
+    for run in plan["directories"]:
+        for line in (Path(run) / "results.jsonl").read_text().splitlines():
+            row = json.loads(line)
+            if row["status"] == "complete":
+                hashes.add(hashlib.sha256(row["content"].encode()).hexdigest())
+    cache = {r["hash"]: r for r in map(json.loads, (directory / "embeddings.jsonl").read_text().splitlines())}
+    keys = sorted(hashes)
+    x = normalize(np.array([cache[key]["vector"] for key in keys], dtype=np.float64))
 distances = np.maximum(0, pairwise_distances(x, metric="cosine"))
 np.fill_diagonal(distances, 0)
 neighbors = np.argsort(distances, axis=1)[:, 1:11]
@@ -52,7 +60,7 @@ for dimensions in [2, 3]:
             projected_neighbors = np.argsort(pairwise_distances(y), axis=1)[:, 1:11]
             recall = np.mean([len(set(a) & set(b)) / 10 for a, b in zip(neighbors, projected_neighbors)])
             label = f"{method} {dimensions}D · " + " · ".join(f"{k}={v}" for k, v in parameters.items())
-            label += f" · seed {seed}" if method != "PCA" else "unique texts"
+            label += f" · seed {seed}" if method != "PCA" else ("unique output profiles" if profiles_mode else "unique texts")
             projections.append(dict(label=label, method=method, dimensions=dimensions, parameters=parameters,
                                     seed=seed if method != "PCA" else None, coordinates=y.tolist(),
                                     trustworthiness10=float(trustworthiness(x, y, n_neighbors=10, metric="cosine")),

@@ -32,3 +32,5 @@ pub struct Completion {
 #[cfg(test)]
 #[path = "tests/fixtures.rs"]
 mod fixtures;
+
+pub(crate) mod decisions;

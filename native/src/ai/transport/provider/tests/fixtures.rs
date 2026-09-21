@@ -82,6 +82,7 @@ pub(super) fn structured_dispatch(
     crate::conversations::execution::Dispatch {
         temperature: 0.7,
         gloss_schema: None,
+        decisions: None,
         coaching_schema: None,
         gloss_source: None,
         speech_source: None,

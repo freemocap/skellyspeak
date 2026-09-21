@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { useI18n } from '../../../components/localization/i18n'
 import { useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/tauri'
@@ -14,7 +15,7 @@ export function FactoryReset() {
     setBusy(true)
     setError(null)
     try { await invoke('factory_reset', { confirmation }) }
-    catch (failure) { setError(String(failure)); setBusy(false) }
+    catch (failure) { setError(errorMessage(failure)); setBusy(false) }
   }
   return <>
     <button type="button" className="btn danger" onClick={() => { setConfirmation(''); setError(null); dialog.current!.showModal() }}>{tr("Delete my data and close")}</button>

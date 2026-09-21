@@ -24,9 +24,11 @@ export function readDisclosure(root: Document, message: string, start: string): 
     .find(node => node.getAttribute('data-source-start') === start)
   const word = saved?.querySelector('[role="button"][aria-expanded]')
   if (!word) return null
+  const helperId = word.getAttribute('aria-controls')
+  const helper = helperId ? root.getElementById(helperId) : null
   return {
     message, start, word: word.textContent ?? '', expanded: word.getAttribute('aria-expanded'),
-    meaningVisible: Array.from(saved!.querySelectorAll<HTMLElement>('.wg'))
+    meaningVisible: [...saved!.querySelectorAll<HTMLElement>('.wg'), ...helper?.querySelectorAll<HTMLElement>('.wg') ?? []]
       .some(node => !!node.textContent?.trim() && node.getClientRects().length > 0),
   }
 }

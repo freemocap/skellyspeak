@@ -15,7 +15,7 @@ it.each(['किताब', 'नमस्ते', 'വീട്ടിൽ', 'ന�
   const word = screen.getByRole('button', { name: text })
   expect(word.childNodes).toHaveLength(1)
   fireEvent.click(word)
-  expect(view.container.querySelectorAll('[data-gloss-start]')).toHaveLength(2)
+  expect(document.querySelectorAll('[data-gloss-start]')).toHaveLength(2)
   expect(word.textContent).toBe(text)
 })
 

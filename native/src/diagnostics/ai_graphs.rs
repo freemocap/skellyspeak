@@ -178,9 +178,18 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
+        "skill_evidence" => {
+            node.source = "native/src/learning/coaching/skill_evidence.rs".into();
+            node.description = "After Jev, locate exact learner quotes for implicated skills using the captured Fast model. Preserve Jev outcomes and probabilities. Native validation rejects missing, duplicate, invented or ambiguous quotes before publishing credit. Chat model assessments already contain quotes; they and empty Jev assessments complete this node locally without a provider call.".into();
+            let mut input = captured.clone();
+            input["skillCriteria"] = json!([{"id":"question","criterion":"Request information"}]);
+            input["skillDecisions"] = json!({"items":[{"construct":"question","outcome":"demonstrated"}]});
+            node.templates = messages(crate::learning::coaching::skill_evidence::prompt_for_source("{{currentLearnerMessage}}".into(), &input)?);
+            node.output_schema = Some(crate::learning::coaching::skill_evidence::schema(&input)?);
+        }
         "skill_assessment" => {
-            node.source = "native/src/learning/coaching/skill_assessment.rs".into();
-            node.description = "Current learner message, up to four preceding messages and the shared skill criteria. The output schema is bound to the current skill catalog.".into();
+            node.source = "native/src/learning/coaching/assessment_adapter.rs; native/src/learning/coaching/skill_assessment.rs".into();
+            node.description = "Selectable assessment adapter. Jev Choice (default) returns 45 category decisions and probabilities, then skill_evidence localizes implicated skills before credit publication. Chat model assessment uses the Fast model and returns up to four quoted observations. Both receive the current learner message, up to four preceding messages and the shared criteria. The output schema below describes the chat adapter; the Jev request shows its typed Choice contract.".into();
             node.templates = messages(skill_assessment::prompt_for_source(
                 "{{currentLearnerMessage}}".into(),
                 &captured,
@@ -188,6 +197,27 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
             node.output_schema = Some(skill_assessment::schema(
                 &json!({"skillCriteria":registry.constructs().iter().map(|c| json!({"id":c.id})).collect::<Vec<_>>()}),
             )?);
+            let mut decision_context = captured.clone();
+            decision_context["skillCriteria"] = json!(
+                registry
+                    .constructs()
+                    .iter()
+                    .map(|c| json!({"id":c.id,"criterion":c.criterion}))
+                    .collect::<Vec<_>>()
+            );
+            let input = skill_assessment::prompt_for_source(
+                "{{currentLearnerMessage}}".into(),
+                &decision_context,
+            )?;
+            node.templates.push(section(
+                "Jev Choice · decisions request",
+                serde_json::to_string_pretty(
+                    &crate::learning::coaching::assessment_adapter::request(
+                        &input,
+                        &decision_context,
+                    )?,
+                )?,
+            ));
         }
         kind if conversation_support::owns(kind) => {
             node.source = "native/src/learning/coaching/conversation_support.rs".into();

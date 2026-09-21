@@ -1,7 +1,8 @@
+import { errorDetails, errorMessage } from '../../../platform/diagnostics/error-details'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/native'
 import type { ConversationSnapshot, SpeechAudioState } from '../../../generated/contracts'
-import { executeAction, nativeError } from '../../../platform/ipc/workspace'
+import { executeAction } from '../../../platform/ipc/workspace'
 import { reportFault } from '../../../platform/diagnostics/faults'
 import { interruptSpeech, speechPlaybackPermit } from '../../../platform/audio/speech'
 import { playSpeechAudio } from '../../../platform/audio/speech-player'
@@ -13,12 +14,12 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   const generation = useRef(0)
   const current = useRef<{ messageId: string; operationId: string | null; sessionId: string; stop?: () => void } | null>(null)
   const [messageId, setMessageId] = useState<string | null>(null)
-  const [failure, setFailure] = useState<{ messageId: string; text: string } | null>(null)
+  const [failure, setFailure] = useState<{ messageId: string; text: string; details: unknown } | null>(null)
   const baseline = useRef<{ conversation: string; messages: Set<string>; eligible: Set<string>; operations: Set<string> } | null>(null)
 
   const cancelOperation = useCallback((sessionId: string, operationId: string) => {
     void executeAction({ sessionId }, { kind: 'cancelMessageSpeech', operationId })
-      .catch(error => reportFault('Stopping speech', nativeError(error)))
+      .catch(error => reportFault('Stopping speech', error))
   }, [])
   const stop = useCallback(() => {
     generation.current++
@@ -45,10 +46,10 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (speechPlaybackPermit() !== permit) { stop(); return }
       if (audio.operationId !== operationId || audio.messageId !== sourceId) throw new Error('Speech does not belong to this reply.')
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 400)); continue }
-      if (audio.status === 'unavailable') throw new Error(`Speech unavailable: ${audio.reason}`)
+      if (audio.status === 'unavailable') throw { message: audio.message, code: audio.reason, diagnostics: { ...audio.diagnostics as object, operationId, attemptId: audio.attemptId } }
       const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
       const player = playSpeechAudio(audio, finish, error => {
-        if (scope === generation.current) { setFailure({ messageId: sourceId, text: nativeError(error) }); reportFault('Speech playback', error); finish() }
+        if (scope === generation.current) { setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech playback', error); finish() }
       }, playback.current.rate, playback.current.volume)
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
       try { await player.play() } catch (error) { player.stop(); throw error }
@@ -75,7 +76,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (speechPlaybackPermit() !== permit) { stop(); return }
       await consume(scope, permit, state.sessionId, operationId, sourceId)
     } catch (error) {
-      if (scope === generation.current) { current.current = null; setMessageId(null); setFailure({ messageId: sourceId, text: nativeError(error) }) }
+      if (scope === generation.current) { current.current = null; setMessageId(null); setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech', error) }
     }
   }, [active, conversationId, stop, consume, cancelOperation])
 

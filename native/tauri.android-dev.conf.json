@@ -1,7 +1,0 @@
-{
-  "bundle": {
-    "android": {
-      "debugApplicationIdSuffix": ".dev"
-    }
-  }
-}

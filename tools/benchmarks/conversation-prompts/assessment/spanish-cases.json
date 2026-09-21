@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "review": "Agent-authored and checked against the current meaning-based criteria before inference. Provisional reference labels, not independently adjudicated human ground truth. Only listed targets are scored; unlisted skills are unknown.",
+  "cases": [
+    {"id":"clear-courtesy","group":"clear","text":"Gracias por tu ayuda.","targets":{"courtesy":"demonstrated","past_reference":"not_observed","future_reference":"not_observed"},"review":"Conventional thanks; no past or future event is expressed."},
+    {"id":"clear-comparison","group":"clear","text":"Mi casa es más grande que tu casa.","targets":{"comparison":"demonstrated","property":"demonstrated","possession":"demonstrated","past_reference":"not_observed"},"review":"Explicit size comparison, property and ownership; no past reference."},
+    {"id":"clear-many","group":"clear","text":"Hola. Ayer le di dos libros a mi hermana en el parque porque los necesitaba. Mañana no iré. ¿Quieres venir?","targets":{"greeting":"demonstrated","past_reference":"demonstrated","future_reference":"demonstrated","quantity":"demonstrated","transfer":"demonstrated","location":"demonstrated","reason":"demonstrated","negation":"demonstrated","question":"demonstrated"},"review":"Nine explicit targets exceed the native four-item reporting cap; the resulting ceiling is reported separately from model judgment errors."},
+    {"id":"partial-comparison","group":"partial","text":"Mi casa es más...","targets":{"comparison":"partial","past_reference":"not_observed"},"review":"An overt comparison is attempted but neither dimension nor standard is supplied. Provisional partial label; inspect partial/uncertain boundary."},
+    {"id":"partial-condition","group":"partial","text":"Si llueve...","targets":{"condition":"partial","quantity":"not_observed"},"review":"Conditional antecedent is expressed but its outcome is missing. Provisional partial label; inspect partial/not_observed boundary."},
+    {"id":"partial-transfer","group":"partial","text":"Le di...","targets":{"transfer":"partial","past_reference":"demonstrated"},"review":"Past giving is attempted; transferred thing and recipient identity are unresolved. Provisional partial transfer; past reference remains explicit."},
+    {"id":"absent-punctuation","group":"absent","text":"...","targets":"all_absent","review":"No Spanish linguistic attempt."},
+    {"id":"absent-emoji","group":"absent","text":"🙂","targets":"all_absent","review":"Emoji alone is not target-language wording under the current source-evidence contract."},
+    {"id":"absent-other-language","group":"absent","text":"Thank you for your help.","targets":"all_absent","review":"English courtesy is not evidence of Spanish expression; the native prompt explicitly excludes other-language wording."},
+    {"id":"partner-courtesy","group":"partner-only","text":"...","partner":"Gracias por tu ayuda.","targets":"all_absent","review":"Courtesy appears only in partner context; learner text has no linguistic attempt."},
+    {"id":"partner-transfer","group":"partner-only","text":"...","partner":"Ayer le di dos libros a mi hermana.","targets":"all_absent","review":"Transfer, quantity and past reference belong solely to the partner."},
+    {"id":"partner-condition","group":"partner-only","text":"...","partner":"Si llueve, me quedaré en casa.","targets":"all_absent","review":"Conditional/future wording belongs solely to the partner."}
+  ],
+  "distractors": [
+    "Ayer compré tres manzanas para mi hermana.",
+    "Mi casa es más grande que la de mi vecino.",
+    "Si llueve mañana, no iremos al parque.",
+    "Gracias por tu ayuda. ¿Quieres venir?"
+  ]
+}

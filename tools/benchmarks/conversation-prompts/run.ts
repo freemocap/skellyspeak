@@ -51,11 +51,13 @@ export function checkPrices(pricing: Record<string, unknown>, limits = { inputRa
 export function credential() {
   if (process.env.OPENROUTER_API_KEY?.trim()) return process.env.OPENROUTER_API_KEY.trim();
   let text: string;
-  try { text = readFileSync('server/development/.env', 'utf8'); }
-  catch { throw Error('Configure OPENROUTER_API_KEY in the environment or server/development/.env; never paste it into chat.'); }
-  const value = text.split('\n').find(line => /^\s*OPENROUTER_API_KEY\s*=/.test(line))?.split('=').slice(1).join('=').trim().replace(/^(['"])(.*)\1$/, '$2');
-  if (!value) throw Error('OPENROUTER_API_KEY is missing');
-  return value;
+  for (const path of ['server/.env', 'server/development/.env']) {
+    try { text = readFileSync(path, 'utf8'); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue; throw error; }
+    const value = text.split('\n').find(line => /^\s*(?:export\s+)?OPENROUTER_API_KEY\s*=/.test(line))?.split('=').slice(1).join('=').trim().replace(/^(['"])(.*)\1$/, '$2');
+    if (value) return value;
+  }
+  throw Error('Configure OPENROUTER_API_KEY in the environment or ignored server/.env; never paste it into chat.');
 }
 export async function boundedJson(response: Response, limit = 262144) {
   const reader = response.body?.getReader();

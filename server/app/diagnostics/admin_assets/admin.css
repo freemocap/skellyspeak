@@ -14,6 +14,8 @@
    overrides only the roles it changes. */
 
 :root {
+  /* Native menus and controls follow the resolved app theme, including System. */
+  color-scheme: light;
   /* ══ Colour: surfaces and text ═══════════════════════════════════════════
      Warm light is the default palette. Palettes and the dark theme override
      these eleven roles and nothing else in this group. */
@@ -253,6 +255,7 @@
 
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --bg: #141517;
   --chrome: #1b1d20;
   --sheet: #24262a;

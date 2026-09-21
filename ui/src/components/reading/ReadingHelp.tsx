@@ -1,3 +1,4 @@
+import { errorMessage as message, errorDetails as details } from '../../platform/diagnostics/error-details'
 import { readingRequests } from './reading-requests'
 import { readingWords } from '../../domain/reading/word-boundaries'
 import { SavedReadingContext, SavedReadingRegistryContext } from './SavedReadingProvider'
@@ -14,8 +15,7 @@ import { useI18n } from '../localization/i18n'
 import type { ReadingResult } from '../../generated/contracts'
 
 export interface ReadingLanguage { code: string; name: string; languageTag?: string; defaultVariety: string; varieties: { id: string; label: string }[] }
-const message = (error: unknown) => error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)
-const details = (error: unknown) => error && typeof error === 'object' ? error : undefined
+
 
 /** Shared reading services for explicit word and inspection actions.
  * Requests are made only by learner actions, never merely by rendering text. */

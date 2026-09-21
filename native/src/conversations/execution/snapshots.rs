@@ -33,10 +33,17 @@ impl Store {
             )
             .optional()?
             .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Attempt no longer exists."))?;
-        let request_messages = request
-            .map(|json| serde_json::from_str::<Vec<crate::model::RecordedMessage>>(&json))
-            .transpose()?;
+        let request: Option<serde_json::Value> =
+            request.map(|raw| serde_json::from_str(&raw)).transpose()?;
+        let (request_messages, decision_request) = match request {
+            Some(value) if value.is_object() && value.get("questions").is_some() => {
+                (None, Some(value))
+            }
+            Some(value) => (Some(serde_json::from_value(value)?), None),
+            None => (None, None),
+        };
         Ok(crate::model::AttemptDetail {
+            decision_request,
             request_messages,
             response_text,
             preview_text,

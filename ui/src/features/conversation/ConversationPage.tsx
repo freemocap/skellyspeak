@@ -110,7 +110,7 @@ export default function ConversationPage({
   const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
   const [acceptedEditSource, setAcceptedEditSource] = useState<string | null>(null)
   const [editRevision, setEditRevision] = useState<number | null>(null)
-  const [revisionConfirmation, setRevisionConfirmation] = useState<{ text: string; input: InputEvidence; revision: number; exchangeCount: number; coachTurnCount: number } | null>(null)
+  const [revisionConfirmation, setRevisionConfirmation] = useState<{ text: string; input: InputEvidence; revision: number; exchangeCount: number } | null>(null)
   const connection = useSessionStore((state) => state.connection)
   const signingIn = useSessionStore((state) => state.signingIn)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)
@@ -380,7 +380,7 @@ export default function ConversationPage({
       // A failed admission requires a fresh native preview; the draft stays intact.
       const revision = editRevision ?? snapshot.revision
       if (scope.exchangeCount) {
-        setRevisionConfirmation({ text: message, input: provenance, revision, exchangeCount: scope.exchangeCount, coachTurnCount: scope.coachTurnCount })
+        setRevisionConfirmation({ text: message, input: provenance, revision, exchangeCount: scope.exchangeCount })
         return
       }
       await submitText(message, provenance, revision)
@@ -577,7 +577,7 @@ export default function ConversationPage({
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
-              speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure?.text : undefined}
+              speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
               revealed={words.revealed}
               showRomanization={showRomanization}
@@ -609,8 +609,7 @@ export default function ConversationPage({
             </ConversationErrorScope>
           ))}
           {error && (
-            <ErrorDetails label={tr("Request failed")} errorKey={error}>
-              <div>{error}</div>
+            <ErrorDetails label={tr("Request failed")} errorKey={error} explanation={error}>
               {/* A message that says "go to Settings" should take you there,
                   rather than making you find the gear yourself. */}
               {onOpenSettings && needsProviderSetup(error) && (
@@ -668,7 +667,7 @@ export default function ConversationPage({
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
       {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
       {revisionConfirmation && <DetailDialog title={tr("Revise earlier message")} onClose={() => setRevisionConfirmation(null)}>
-        <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns and ")}{revisionConfirmation.coachTurnCount} {tr(" private coach turns. Your edited message replaces the original in this conversation.")}</p>
+        <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns. Your edited message replaces the original; private coach history is kept.")}</p>
         <div className="detail-actions">
           <button type="button" onClick={() => setRevisionConfirmation(null)}>{tr("Cancel")}</button>
           <button type="button" disabled={acceptingSend.current || acceptedEditSource !== null} onClick={() => void submitText(revisionConfirmation.text, revisionConfirmation.input, revisionConfirmation.revision)}>{tr("Revise and remove later turns")}</button>

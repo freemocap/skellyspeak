@@ -1,0 +1,106 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: ukrainian
+  name: Ukrainian
+  native_name: Українська
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: uk
+  transcription: uk
+definitions:
+  orthographies:
+    modern-ukrainian:
+      script: cyrillic
+      guidance:
+      - scope: target_writing
+        text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
+          Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian letters,
+          vocabulary or romanization rules for Ukrainian.
+        sources:
+        - ala_lc_ukrainian2011
+      - scope: explanation_writing
+        text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
+          Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian letters,
+          vocabulary or romanization rules for Ukrainian.
+        sources:
+        - ala_lc_ukrainian2011
+  romanization_schemes:
+    ala-lc-ukrainian:
+      label: ALA-LC Ukrainian
+      instructions: Use the ALA-LC Ukrainian table as a spelling-based reading aid. Distinguish г h from
+        ґ g, и y from і i, ї ï and й ĭ. Use tied i͡e, z͡h, t͡s, i͡u and i͡a for є, ж, ц, ю and я; use
+        kh, ch, sh and shch. Retain ь as ʹ and preserve the source apostrophe. Do not use Russian letter
+        mappings. Keep case and word boundaries; pronunciation and stress require separate explanation.
+      examples:
+      - original: Україна
+        romanized: Ukraïna
+      - original: ґанок
+        romanized: ganok
+      - original: гора
+        romanized: hora
+      - original: дякую
+        romanized: di͡akui͡u
+      sources:
+      - ala_lc_ukrainian2011
+      review: needs_review
+defaults:
+  variety: ukrainian-ukraine
+  orthography:
+    local: modern-ukrainian
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme: &id001
+      local: ala-lc-ukrainian
+  supported_romanizations:
+  - *id001
+traits: []
+varieties:
+- id: ukrainian-ukraine
+  name: Ukraine
+  description: Contemporary Ukrainian in Ukraine, with standard writing and context-appropriate everyday
+    conversation; no single regional accent is prescribed.
+  review: needs_review
+  sources:
+  - ala_lc_ukrainian2011
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - дякую
+      - спасибі
+conversation:
+  greeting:
+    text: Добрий день
+    romanizations:
+      ukrainian:ala-lc-ukrainian: Dobryĭ denʹ
+  default_partner:
+    name: Олена
+    romanizedName: Olena
+    age: 31
+    location: Lviv, Ukraine
+    occupation: Works in a bookbinding studio
+    background: Grew up in Lviv and learned bookbinding while helping at a local library.
+    currentSituation: Repairing a family photo album and planning a walk with a friend.
+    interests:
+    - bookbinding
+    - urban sketching
+    opinions:
+    - A repaired book should remain comfortable to use.
+    interestingFacts:
+    - Makes small notebooks from leftover paper.
+    favoriteBooks:
+    - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+    - My Neighbor Totoro (1988)
+    manner: Attentive and direct. Uses everyday Ukrainian and concrete examples.
+    quirks:
+    - Dates every sketch.
+    vibe:
+    - 📖
+    - ✏️

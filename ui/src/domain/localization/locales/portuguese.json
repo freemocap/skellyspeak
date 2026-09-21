@@ -1150,5 +1150,17 @@
   "Minimize coach chat": "Minimizar conversa com o treinador",
   "AI work is paused or held.": "O trabalho da IA está pausado ou bloqueado.",
   "Reply help is unavailable for this message.": "A ajuda para responder não está disponível para esta mensagem.",
-  "The outcome is unknown. This request may have incurred usage.": "O resultado é desconhecido. Este pedido pode ter gerado consumo."
+  "The outcome is unknown. This request may have incurred usage.": "O resultado é desconhecido. Este pedido pode ter gerado consumo.",
+  "Skill assessment": "Avaliação de habilidades",
+  "Jev Choice": "Jev Choice",
+  "Chat model assessment": "Avaliação por modelo de chat",
+  "Whole-message assessment": "Avaliação da mensagem inteira",
+  "Probability of some evidence": "Probabilidade de alguma evidência",
+  "Probability of full demonstration": "Probabilidade de demonstração completa",
+  "Decision scores and policy": "Pontuações e política de decisão",
+  "A decision model that evaluates predefined skill questions and returns category probabilities in parallel. It assesses the whole learner message; it does not generate supporting quotes or explanations.": "Um modelo de decisão que avalia perguntas predefinidas sobre habilidades e retorna probabilidades de categorias em paralelo. Avalia a mensagem inteira do aluno; não gera citações de apoio nem explicações.",
+  "Uses the selected Fast model to generate structured observations, including exact learner quotes and explanations. The app validates those quotes before accepting evidence.": "Usa o modelo rápido selecionado para gerar observações estruturadas, com citações exatas do aluno e explicações. O aplicativo valida as citações antes de aceitar a evidência.",
+  "Both can make incorrect judgments. Probabilities describe assessment outcomes, not learner proficiency. Switching affects future assessments; saved evidence keeps its original source and method.": "Ambos podem fazer julgamentos incorretos. As probabilidades descrevem resultados da avaliação, não a proficiência do aluno. A alteração afeta avaliações futuras; a evidência salva mantém sua fonte e método originais.",
+  " later conversation turns. Your edited message replaces the original; private coach history is kept.": " turnos posteriores da conversa. Sua mensagem editada substitui a original; o histórico privado com o tutor é mantido.",
+  "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "O Jev avalia questões de competências e devolve probabilidades por categoria. O modelo rápido selecionado localiza depois citações de apoio na sua mensagem. A aplicação valida essas citações antes de atribuir XP."
 }

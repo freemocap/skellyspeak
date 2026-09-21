@@ -14,11 +14,24 @@
     portuguese: Comida e bebida
     scottish-gaelic: Biadh is deoch
     spanish: Comida y bebida
+    korean: 음식과 음료
+    japanese: 食べ物と飲み物
+    vietnamese: Đồ ăn và thức uống
+    indonesian: Makanan dan minuman
+    turkish: Yiyecek ve içecek
+    russian: Еда и напитки
+    ukrainian: Їжа та напої
+    cherokee: ᎠᎵᏍᏓᏴᏗ ᎠᎴ ᎠᏗᏔᏍᏗ
   romanizations:
     "arabic:ala-lc-arabic": aṭ-ṭaʿām wa-al-sharāb
     "hindi:ala-lc-hindi": khānā-pīnā
     "malayalam:ala-lc-malayalam": bhakṣaṇavuṁ pānīyaṅṅaḷuṁ
     "mandarin:pinyin": yǐnshí
+    "korean:revised-romanization": eumsikgwa eumnyo
+    "japanese:hepburn-reading": tabemono to nomimono
+    "russian:ala-lc-russian": Eda i napitki
+    "ukrainian:ala-lc-ukrainian": Ïz͡ha ta napoï
+    "cherokee:traditional-syllabary": alisdayvdi ale aditasdi
   subject: You are serving at a café. Greet the learner and ask what they would like.
 - id: family
   glyph: 👪
@@ -35,11 +48,24 @@
     portuguese: Sua família
     scottish-gaelic: Do theaghlach
     spanish: Tu familia
+    korean: 가족
+    japanese: 家族
+    vietnamese: Gia đình
+    indonesian: Keluarga
+    turkish: Ailen
+    russian: Твоя семья
+    ukrainian: Твоя родина
+    cherokee: ᏏᏓᏁᎸᎯ
   romanizations:
     "arabic:ala-lc-arabic": ʿāʾilatuka
     "hindi:ala-lc-hindi": āpkā parivār
     "malayalam:ala-lc-malayalam": niṅṅaḷuṭe kuṭumbaṁ
     "mandarin:pinyin": nǐ de jiārén
+    "korean:revised-romanization": gajok
+    "japanese:hepburn-reading": kazoku
+    "russian:ala-lc-russian": Tvoi͡a semʹi͡a
+    "ukrainian:ala-lc-ukrainian": Tvoi͡a rodyna
+    "cherokee:traditional-syllabary": sidanelvhi
   subject: Ask about someone important to the learner. They may choose a friend or
     an invented person.
 - id: weekend
@@ -57,11 +83,24 @@
     portuguese: Planos para o fim de semana
     scottish-gaelic: Planaichean airson an deireadh-sheachdain
     spanish: Planes de fin de semana
+    korean: 주말 계획
+    japanese: 週末の予定
+    vietnamese: Kế hoạch cuối tuần
+    indonesian: Rencana akhir pekan
+    turkish: Hafta sonu planları
+    russian: Планы на выходные
+    ukrainian: Плани на вихідні
+    cherokee: ᎤᎾᏙᏓᏈᏕᏂ ᎠᎴ ᎤᎾᏙᏓᏆᏍᎬᎢ
   romanizations:
     "arabic:ala-lc-arabic": khuṭaṭ nihāyat al-usbūʿ
     "hindi:ala-lc-hindi": saptāhānta kī yojanāeṁ
     "malayalam:ala-lc-malayalam": vārāntya paddhatikaḷ
     "mandarin:pinyin": zhōumò jìhuà
+    "korean:revised-romanization": jumal gyehoek
+    "japanese:hepburn-reading": shūmatsu no yotei
+    "russian:ala-lc-russian": Plany na vykhodnye
+    "ukrainian:ala-lc-ukrainian": Plany na vykhidni
+    "cherokee:traditional-syllabary": unadodaquideni ale unadodaquasgvi
   subject: Ask what the learner would like to do this weekend and share a plan of
     your own.
 - id: place
@@ -79,11 +118,24 @@
     portuguese: Um lugar de que você gosta
     scottish-gaelic: Àite as toil leat
     spanish: Un lugar que te gusta
+    korean: 좋아하는 장소
+    japanese: 好きな場所
+    vietnamese: Một nơi bạn thích
+    indonesian: Tempat yang kamu sukai
+    turkish: Sevdiğin bir yer
+    russian: Место, которое тебе нравится
+    ukrainian: Місце, яке тобі подобається
+    cherokee: ᎤᏪᏅᏒ
   romanizations:
     "arabic:ala-lc-arabic": makān tuḥibbuhu
     "hindi:ala-lc-hindi": āpkī pasand kī jagah
     "malayalam:ala-lc-malayalam": niṅṅaḷkk iṣṭamuḷḷa sthalaṁ
     "mandarin:pinyin": nǐ xǐhuān de dìfāng
+    "korean:revised-romanization": joahaneun jangso
+    "japanese:hepburn-reading": suki na basho
+    "russian:ala-lc-russian": Mesto, kotoroe tebe nravit͡si͡a
+    "ukrainian:ala-lc-ukrainian": Mist͡se, i͡ake tobi podobai͡etʹsi͡a
+    "cherokee:traditional-syllabary": uwenvsv
   subject: Talk about a place the learner likes. Invite a small detail about it.
 - id: day
   glyph: ☀️
@@ -100,11 +152,24 @@
     portuguese: Seu dia
     scottish-gaelic: An latha agad
     spanish: Tu día
+    korean: 하루
+    japanese: 一日のこと
+    vietnamese: Ngày của bạn
+    indonesian: Harimu
+    turkish: Günün
+    russian: Твой день
+    ukrainian: Твій день
+    cherokee: ᎯᎪ ᎢᎦ
   romanizations:
     "arabic:ala-lc-arabic": yawmuka
     "hindi:ala-lc-hindi": āpkā din
     "malayalam:ala-lc-malayalam": niṅṅaḷuṭe divasaṁ
     "mandarin:pinyin": nǐ de yītiān
+    "korean:revised-romanization": haru
+    "japanese:hepburn-reading": ichinichi no koto
+    "russian:ala-lc-russian": Tvoĭ denʹ
+    "ukrainian:ala-lc-ukrainian": Tviĭ denʹ
+    "cherokee:traditional-syllabary": higo iga
   subject: Ask about something from the learner’s day. Keep the exchange open to their
     interests.
 - id: music
@@ -122,9 +187,22 @@
     portuguese: Música
     scottish-gaelic: Ceòl
     spanish: Música
+    korean: 음악
+    japanese: 音楽
+    vietnamese: Âm nhạc
+    indonesian: Musik
+    turkish: Müzik
+    russian: Музыка
+    ukrainian: Музика
+    cherokee: ᏗᎧᏃᎩᏛ
   romanizations:
     "arabic:ala-lc-arabic": al-mūsīqā
     "hindi:ala-lc-hindi": saṅgīt
     "malayalam:ala-lc-malayalam": saṅgītaṁ
     "mandarin:pinyin": yīnyuè
+    "korean:revised-romanization": eumak
+    "japanese:hepburn-reading": ongaku
+    "russian:ala-lc-russian": Muzyka
+    "ukrainian:ala-lc-ukrainian": Muzyka
+    "cherokee:traditional-syllabary": dikanogidv
   subject: Ask about music the learner enjoys and share a preference.

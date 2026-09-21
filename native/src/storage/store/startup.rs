@@ -94,6 +94,7 @@ impl Store {
         };
         store.snapshot()?;
         store.reconcile_execution()?;
+        store.shelve_jev_assessment()?;
         crate::partners::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;
         store.connection.execute("DELETE FROM receipts", [])?;

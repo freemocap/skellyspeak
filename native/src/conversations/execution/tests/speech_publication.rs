@@ -291,6 +291,7 @@ fn changing_audio_settings_preserves_in_flight_speech_and_usage() {
             &config.standard_model,
             &config.fast_model,
             &audio,
+            AssessmentAdapter::ChatModel,
         )
         .unwrap();
     assert_eq!(store.connection_config().unwrap().route, config.route);
@@ -310,4 +311,67 @@ fn changing_audio_settings_preserves_in_flight_speech_and_usage() {
         )
         .unwrap();
     assert_eq!(tokens, 30);
+}
+
+#[test]
+fn unavailable_speech_retains_provider_failure_and_request_metadata() {
+    let (_dir, mut store, conversation) = setup();
+    let (speech, _) = speech_children(&mut store, &conversation);
+    let error = AppError::new(ErrorCode::Provider, "The selected model does not support audio.")
+        .with_diagnostics(serde_json::json!({"request_id":"req-speech-7", "status":400, "error":{"code":"unsupported_audio", "message":"Choose a speech-capable model."}}));
+    store
+        .finish_speech(&speech, speech_outcome(Err(error)))
+        .unwrap();
+    let state = store
+        .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+        .unwrap();
+    let SpeechAudioState::Unavailable {
+        message,
+        attempt_id,
+        diagnostics,
+        ..
+    } = state
+    else {
+        panic!("expected unavailable speech")
+    };
+    assert_eq!(message, "The selected model does not support audio.");
+    assert_eq!(attempt_id.as_deref(), Some(speech.attempt.as_str()));
+    let diagnostic = diagnostics.unwrap().to_string();
+    assert!(diagnostic.contains("req-speech-7"));
+    assert!(diagnostic.contains("unsupported_audio"));
+}
+
+#[test]
+fn unavailable_speech_retains_admission_failure_before_a_new_attempt() {
+    let (_dir, mut store, conversation) = setup();
+    let (speech, _) = speech_children(&mut store, &conversation);
+    let error = AppError::new(
+        ErrorCode::AdmissionHeld,
+        "Speech is held by the service rate limit.",
+    )
+    .with_diagnostics(serde_json::json!({"request_id":"req-admission", "retry_after":30}));
+    store
+        .connection
+        .execute(
+            "UPDATE operations SET state='failed' WHERE id=?1",
+            [&speech.operation],
+        )
+        .unwrap();
+    store.connection.execute("UPDATE turns SET context=json_set(context,'$.speechError',json(?2)) WHERE id=(SELECT turn_id FROM operations WHERE id=?1)", params![speech.operation, serde_json::to_string(&error).unwrap()]).unwrap();
+    let state = store
+        .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+        .unwrap();
+    let SpeechAudioState::Unavailable {
+        message,
+        diagnostics,
+        ..
+    } = state
+    else {
+        panic!("expected unavailable speech")
+    };
+    assert_eq!(message, error.message);
+    assert_eq!(
+        diagnostics.unwrap()["diagnostics"]["request_id"],
+        "req-admission"
+    );
 }

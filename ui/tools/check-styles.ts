@@ -62,7 +62,11 @@ for (const { name, path, css } of parsed) {
     const parent = decl.parent;
     const selector = parent?.type === "rule" ? (parent as {selector:string}).selector : "";
     const theme = /^:root(?:\[data-(?:theme|palette|density|spacing|depth)='[a-z_]+'\])+$/.test(selector);
-    if (name !== tokens || (selector !== ":root" && !theme))
+    // Script families follow explicit text-language boundaries; only these
+    // font roles may vary here. All other tokens remain root/theme-owned.
+    const languageFont = /^:where\(\[lang(?:\|="[a-z]{2,3}")?\]\)$/.test(selector)
+      && ["--font-scripts", "--font-sans", "--font-serif", "--font-mono"].includes(decl.prop);
+    if (name !== tokens || (selector !== ":root" && !theme && !languageFont))
       errors.push(`${where(path, decl)}: ${decl.prop} must be a root token or theme override in ${tokens}`);
     const context: string[] = [];
     let ancestor = parent?.parent;

@@ -1,3 +1,5 @@
+import { positionWordHelp, wordHelpLayer } from './word-help-layer'
+import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
 import { useSavedReading } from './SavedReadingProvider'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
@@ -27,6 +29,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   const actions = useReadingActions()
   const { supportsRomanization } = useReadingPreferences()
   const helper = useRef<HTMLSpanElement>(null)
+  const layer = wordHelpLayer(anchor.current)
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
   const [attempt, setAttempt] = useState(0)
@@ -42,36 +45,33 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   useLayoutEffect(() => {
     const card = helper.current, word = anchor.current
     if (!card || !word) return
-    card.showPopover()
-    const position = () => {
-      const box = word.getBoundingClientRect(), size = card.getBoundingClientRect()
-      const left = getComputedStyle(word).direction === 'rtl' ? box.right - size.width : box.left
-      card.style.left = `${Math.max(8, Math.min(left, window.innerWidth - size.width - 8))}px`
-      card.style.top = `${Math.max(8, box.top - size.height - 4 >= 8 ? box.top - size.height - 4 : Math.min(box.bottom + 4, window.innerHeight - size.height - 8))}px`
-    }
+    if (card.hasAttribute('popover')) card.showPopover()
+    const position = () => positionWordHelp(card, word)
     position()
     const observer = new ResizeObserver(position); observer.observe(card)
+    window.visualViewport?.addEventListener('resize', position); window.visualViewport?.addEventListener('scroll', position)
     window.addEventListener('scroll', position, true); window.addEventListener('resize', position)
     const dismiss = (event: Event) => {
       if (event instanceof KeyboardEvent ? event.key === 'Escape' : !word.contains(event.target as Node) && !card.contains(event.target as Node)) onClose()
     }
     document.addEventListener('pointerdown', dismiss); document.addEventListener('keydown', dismiss)
     return () => {
+      window.visualViewport?.removeEventListener('resize', position); window.visualViewport?.removeEventListener('scroll', position)
       observer.disconnect(); window.removeEventListener('scroll', position, true); window.removeEventListener('resize', position)
       document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
-      if (card.isConnected) card.hidePopover()
+      if (card.isConnected && card.hasAttribute('popover')) card.hidePopover()
     }
   }, [anchor, onClose])
   const parts = localParts.length ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
-  return createPortal(<span ref={helper} popover="manual" className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
+  return createPortal(<span ref={helper} popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
     <TokenAudio text={selection.text} start={selection.start} end={selection.end} />
     <span className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span>
     {!parts.length && !result && !failure && <span role="status">{tr('Finding word meanings…')}</span>}
     <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />
-    {failure != null && <><span role="alert">{failure && typeof failure === 'object' && 'message' in failure ? String(failure.message) : String(failure)}</span>
-      <ResponseDetails value={typeof failure === 'object' ? failure : null} /></>}
+    {failure != null && <><span role="alert">{errorMessage(failure)}</span>
+      <ResponseDetails value={errorDetails(failure)} /></>}
     {(failure != null || result && !parts.length) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
     <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Word help')}</button>
-  </span>, document.body)
+  </span>, layer.host)
 }

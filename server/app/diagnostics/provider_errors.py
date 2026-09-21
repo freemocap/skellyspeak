@@ -9,7 +9,7 @@ import httpx
 
 LIMIT = 16_384
 SAFE_TEXT = {"type", "code", "status", "param", "id", "request_id", "requestId", "model", "model_id", "requested_model", "actual_model", "provider", "provider_name", "finish_reason", "native_finish_reason", "detected_language", "language_code", "format", "cost_basis", "allowance_basis", "stage", "reason", "path", "expected", "exception_type", "name", "source_file", "function"}
-CONTENT = {"content", "text", "transcript", "prompt", "messages", "input", "output", "audio", "audio_base64", "data", "arguments", "reasoning", "reasoning_details", "file", "request", "body", "url", "user_id", "organization_id", "email", "headers", "authorization", "api_key", "key", "token", "password", "secret"}
+CONTENT = {"answers", "questions", "state", "content", "text", "transcript", "prompt", "messages", "input", "output", "audio", "audio_base64", "data", "arguments", "reasoning", "reasoning_details", "file", "request", "body", "url", "user_id", "organization_id", "email", "headers", "authorization", "api_key", "key", "token", "password", "secret"}
 TEXT_FIELDS = {"message", "detail", "error"}
 HEADER_FIELDS = {"request-id", "x-request-id", "retry-after", "content-type", "processing-ms", "openai-processing-ms"}
 

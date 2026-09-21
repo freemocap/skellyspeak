@@ -24,3 +24,15 @@ it.each(['اردو', 'हिन्दी', 'தமிழ்', '中文', 'Рус�
   const text = `Meaning: ${source} (reading aid)`
   expect(sourceScriptRuns(text)).toEqual([{ text: source, start: 9, end: 9 + source.length }])
 })
+
+
+it.each(['한', 'か\u3099', 'e\u0323\u0302'])('preserves decomposed clusters in %s', text => {
+  expect(requiresWholeWordShaping(text)).toBe(true)
+})
+
+it.each([
+  ['한국어', '한'], ['日本語', '日'], ['Tiếng Việt', 'Ti'], ['Bahasa Indonesia', 'Ba'],
+  ['Türkçe', 'Tü'], ['Українська', 'Ук'], ['ᏣᎳᎩ', 'Ꮳ'],
+])('keeps new language badge %s intact', (text, sample) => {
+  expect(languageBadgeSample(text)).toBe(sample)
+})

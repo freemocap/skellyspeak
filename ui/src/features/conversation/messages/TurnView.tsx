@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { requiresWholeWordShaping } from '../../../domain/language/script-text'
 import { InspectText } from '../../../components/reading/InspectText'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
@@ -11,6 +12,7 @@ import { SavedGlossText } from '../reading/SavedGlossText'
 import { TargetText } from '../../../components/reading/TargetText'
 import { TokenSpan } from '../../../components/reading/TokenSpan'
 import { RewardInspectionContext } from '../progress/RewardInspectionContext'
+import { InlineXpBadge } from '../progress/InlineXpBadge'
 import { ReplyStatus } from './ReplyStatus'
 import { TurnActivityLine } from './TurnActivityLine'
 import { retainedReplyText, turnActivity } from '../../../domain/conversation/activity-summary'
@@ -73,7 +75,7 @@ export interface TurnViewProps {
   focused: boolean
   ttsReady: boolean
   speaking: boolean
-  speechError?: string
+  speechError?: { text: string; details: unknown }
   revealed: Set<string>
   showRomanization: boolean
   alwaysRomanize: boolean
@@ -158,11 +160,13 @@ export const TurnView = memo(function TurnView({
   const showPersonaTranslation = personaTranslationOverride ?? autoTranslate
   const source = turn.user ?? ''
   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
+  const badgesAt = (start: number, end: number) => evidence.filter(item => item.end > start && item.end <= end).map(item =>
+    <InlineXpBadge key={item.id} item={item} generation={item.xp} onOpen={() => setRewardDetail([item])} />)
   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
     const end = boundaries[index + 1]
     const matches = evidence.filter(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button><InspectText text={source} start={start} end={end} /></Fragment> : <TargetText key={start} text={text} />
+    return matches.length ? <Fragment key={start}><button className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])} onClick={event => { event.stopPropagation(); setRewardDetail(matches) }}>{text}</button>{badgesAt(start, end)}<InspectText text={source} start={start} end={end} /></Fragment> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
   const userTranslation = turn.userTranslation ?? assistant?.user_translation
@@ -231,7 +235,7 @@ export const TurnView = memo(function TurnView({
     translation: string | null,
     rawText: string
   ) => {
-    if (requiresWholeWordShaping(rawText)) return <SavedGlossText revealAids={(side === 'me' ? userWordsOverride : savedWordsOverride) === true} showAids={side === 'me' ? userWordsOpen : savedWordsOpen} text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
+    if (requiresWholeWordShaping(rawText)) return <SavedGlossText revealAids={(side === 'me' ? userWordsOverride : savedWordsOverride) === true} showAids={side === 'me' ? userWordsOpen : savedWordsOpen} text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))} afterSegment={side === 'me' ? badgesAt : undefined}
       decorateSegment={(node, start, end) => {
         const matches = side === 'me' ? evidence.filter(item => item.start < end && item.end > start) : []
         return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
@@ -243,6 +247,7 @@ export const TurnView = memo(function TurnView({
         const match = sourceToken(rawText, annotation.text, cursor)
         if (!match) return null
         const { start, end } = match
+        const before = cursor
         const prefix = rawText.slice(cursor, start)
         const tok = { ...annotation, text: match.text }
         cursor = end
@@ -284,11 +289,12 @@ export const TurnView = memo(function TurnView({
               onHold(tok.text, sents[si] ?? rawText)
             } : undefined}
           />
-          </span>
+          {side === 'me' && badgesAt(before, end)}</span>
           </Fragment>
         )
       })}
       <TargetText text={rawText.slice(cursor)} />
+      {side === 'me' && badgesAt(cursor, rawText.length)}
     </span>
   )
   }
@@ -304,7 +310,7 @@ export const TurnView = memo(function TurnView({
           }
         >
           {turn.userSavedGloss
-            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} decorateSegment={(node, start, end) => {
+            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} afterSegment={badgesAt} decorateSegment={(node, start, end) => {
                 const matches = evidence.filter(item => item.start < end && item.end > start)
                 return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
               }} />
@@ -367,7 +373,7 @@ export const TurnView = memo(function TurnView({
           <TranslationStatus state={assistant.translationState} />
           <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
           {ttsReady && onSpeak && <button type="button" className="bubble-corner-control speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
-          {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError}>{speechError}</ErrorDetails>}
+          {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError.text} explanation={speechError.text}><ResponseDetails value={speechError.details} /></ErrorDetails>}
           <div className="message-actions" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
           {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
           <button type="button" className={assistant.glossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={savedWordsOpen} onClick={() => setSavedWordsOverride(!savedWordsOpen)}>{tr("Word by word")}</button>

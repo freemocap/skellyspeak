@@ -28,7 +28,9 @@ persona icons and oversized composer text.
 - Progress through its badge. More provides skill tree, activity and reload on
   desktop and mobile. Lessons remain available through the coach.
 - Coaching/Evidence tabs, with mystery-partner information retained in the
-  persona dialog. Coach resizing is clamped to 320–520px; collapse has an edge tab.
+  persona dialog. Coach resizing originally clamped to 320–520px; the 2026-09-21 correction
+  removes those fixed bounds and permits resizing across the available workspace.
+  Collapse has an edge tab.
 - Mobile Chat/Coach navigation shows one surface at a time.
 - A multiline composer with Record, Stop, Discard and Send, with recording waveform
   inside the field. Enter sends, Shift+Enter inserts a line, and IME confirmation

@@ -5,7 +5,7 @@ import { RewardInspectionContext } from './RewardInspectionContext'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { skillRewards, type SkillReward } from '../../../domain/learning/rewards/skill-rewards'
-import { messageEvidence } from '../../../domain/learning/evidence/message-evidence'
+import { messageRewardEvidence } from '../../../domain/learning/evidence/message-evidence'
 import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
 
 export function SkillRewards({ chatId, active }: { chatId: string | null; active: boolean }) {
@@ -27,6 +27,14 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     if (!baseline || baseline.chatId !== chatId || baseline.snapshot.construct_registry_hash !== snapshot.construct_registry_hash || baseline.snapshot.target !== snapshot.target || baseline.snapshot.learner_id !== snapshot.learner_id || baseline.snapshot.catalog_version !== snapshot.catalog_version || baseline.snapshot.profile.choices.revision !== snapshot.profile.choices.revision) { setQueue([]); return }
     const rewards = skillRewards(baseline.snapshot, snapshot, chatId)
     if (!active) { setQueue([]); return }
+    // Resolve presentation data before consuming durable display claims.
+    const presentation = new Map(rewards.map(reward => {
+      const record = snapshot.records.find(item => `${item.attempt_id}:${reward.skillId}` === reward.id)
+      if (!record) throw new Error(`Missing reward record ${reward.id}`)
+      const evidence = messageRewardEvidence(snapshot, chatId, reward.messageId, record.source).filter(item => item.id === reward.id)
+      if (!evidence.length) throw new Error(`Missing reward presentation evidence ${reward.id}`)
+      return [reward.id, { record, evidence }] as const
+    }))
     const present = (accepted: SkillReward[]) => {
       if (!visible.current.active || visible.current.chatId !== chatId) return
     const totals = new Map(baseline.snapshot.profile.skills.map(skill => [skill.skill_id, skill.xp]))
@@ -35,9 +43,7 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
       const after = before + reward.xp
       totals.set(reward.skillId, after)
       const milestone = Math.floor(after / 50) > Math.floor(before / 50) ? Math.floor(after / 50) * 50 : undefined
-      const record = snapshot.records.find(item => `${item.attempt_id}:${reward.skillId}` === reward.id)
-      if (!record) throw new Error(`Missing reward record ${reward.id}`)
-      const evidence = messageEvidence(snapshot, chatId, reward.messageId, record.source).filter(item => item.id === reward.id)
+      const { record, evidence } = presentation.get(reward.id)!
       arrive(evidence.map(item => ({ ...item, xp: reward.xp, milestone })), reward.messageId, record.source)
     }
     setQueue(items => [...items.filter(item => snapshot.profile.credits.some(credit => `${credit.attempt_id}:${credit.skill_id}` === item.id)), ...accepted])

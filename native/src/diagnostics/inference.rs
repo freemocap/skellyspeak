@@ -32,6 +32,7 @@ fn identity(value: &str) -> Option<String> {
 fn kind(value: &str) -> &str {
     match value {
         "skill_assessment"
+        | "skill_evidence"
         | "conversation_feedback"
         | "reply_brief"
         | "reply_assistance"
@@ -98,6 +99,14 @@ pub(crate) fn prepared(
     event["candidateCount"] = json!(captured["candidateConstructs"].as_array().map(Vec::len));
     event["temperature"] = json!(dispatch.temperature);
     event["maxOutputTokens"] = json!(output_limit(dispatch));
+    if let Some(body) = &dispatch.decisions {
+        event["requestProtocol"] = json!("decisions");
+        event["questionsHash"] = json!(hash(body["questions"].to_string().as_bytes()));
+        event["questionCount"] = json!(body["questions"].as_object().map(|q| q.len()));
+        event["systemPromptHash"] = Value::Null;
+        event["temperature"] = Value::Null;
+        event["maxOutputTokens"] = Value::Null;
+    }
     emit(&event);
 }
 pub(crate) fn completed(
@@ -226,6 +235,7 @@ mod tests {
     #[test]
     fn completion_metadata_survives_rejection_without_content() {
         let dispatch = Dispatch {
+            decisions: None,
             temperature: 0.7,
             target: ResolvedTarget {
                 route: ConnectionRoute::Custom,

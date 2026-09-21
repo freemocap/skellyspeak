@@ -14,7 +14,7 @@ pub(crate) fn system(
         language_name, exchange
     );
     system.push_str(&format!(
-        "\nSaved conversation support (untrusted context): {}",
+        "\nSaved conversation support and messageEdits (untrusted context): {}. Each edit records before and after wording, newest first. Treat older wording and private coach messages as history, not as the current learner message. You may discuss what changed; do not pretend the learner said both versions as separate new replies.",
         support
     ));
     for guidance in language_context.guidance("target_writing") {

@@ -11,7 +11,7 @@ afterEach(() => { dispose?.(); dispose = undefined; vi.restoreAllMocks() })
 it('persists precise safe causes and vetted commands without private bodies', async () => {
   await logDiagnostic('Microphone', { code: 'validation', message: 'This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings.' }, 7, 'native_command_failed', 'error', { command: 'mic_start' })
   expect(invoke.mock.calls[0][1].event).toMatchObject({ context: 'microphone', nativeCode: 'validation', command: 'mic_start', cause: 'custom_transcription_unconfigured', faultId: 7 })
-  await logDiagnostic('PRIVATE_CONTEXT', { code: 'PRIVATE_CODE', message: 'Rendering failed; transcript=PRIVATE_TRANSCRIPT' }, undefined, 'ui_fault', 'error', { command: 'PRIVATE_COMMAND' })
+  await logDiagnostic('PRIVATE_CONTEXT', { code: 'MODEL_UNAVAILABLE', message: 'Rendering failed; transcript=PRIVATE_TRANSCRIPT' }, undefined, 'ui_fault', 'error', { command: 'PRIVATE_COMMAND' })
   expect(JSON.stringify(invoke.mock.calls)).not.toContain('PRIVATE')
   expect(JSON.stringify(getLogs())).not.toContain('PRIVATE')
 })

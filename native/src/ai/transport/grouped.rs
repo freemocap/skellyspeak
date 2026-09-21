@@ -268,6 +268,11 @@ impl Decoder {
                             serde_json::json!({"stage":"grouped_operation", "request_id":request_id, "status":status, "code":code}),
                         );
                     }
+                    if let Some(history) = error.diagnostics.as_ref()
+                        .and_then(|d| d.pointer("/response/automatic_retries"))
+                        .and_then(serde_json::Value::as_array).cloned() {
+                        crate::ai::policy::retry::annotate(&mut error, &history);
+                    }
                     (operation_id, attempt_id, Err(error))
                 }
             };
@@ -338,7 +343,7 @@ pub async fn request_streaming(
         let mut item = serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
             "request":provider::dispatch_payload(dispatch, *output)?});
         // Structured output stays whole until structured deltas are verified.
-        if deltas && matches!(output, provider::RequestOutput::Prose) {
+        if deltas && dispatch.decisions.is_none() && matches!(output, provider::RequestOutput::Prose) {
             item["deltas"] = serde_json::json!(true);
         }
         items.push(item);
@@ -471,7 +476,8 @@ pub fn compatible(
     a: &crate::conversations::execution::Dispatch,
     b: &crate::conversations::execution::Dispatch,
 ) -> bool {
-    a.route == b.route
+    a.decisions.is_some() == b.decisions.is_some()
+        && a.route == b.route
         && a.target.url == b.target.url
         && a.credential == b.credential
         && a.target.revision == b.target.revision
@@ -752,6 +758,7 @@ mod tests {
             let dispatch = crate::conversations::execution::Dispatch {
                 temperature: if structured { 0.7 } else { 1.1 },
                 gloss_schema: None,
+                decisions: None,
                 coaching_schema: None,
                 gloss_source: None,
                 speech_source: None,
@@ -780,6 +787,7 @@ mod tests {
                 let second = crate::conversations::execution::Dispatch {
                     temperature: 0.7,
                     gloss_schema: None,
+                    decisions: None,
                     coaching_schema: None,
                     gloss_source: None,
                     speech_source: None,
@@ -839,6 +847,20 @@ mod tests {
             }
             server.await.unwrap();
         }
+    }
+
+    #[test]
+    fn exhausted_server_retries_are_reported_without_claiming_no_retry() {
+        let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
+        let event = serde_json::json!({"type":"error", "operation_id":"one", "attempt_id":"a", "code":"OPENROUTER_HTTP_429", "status":502,
+            "diagnostics":{"automatic_retries":[{"number":1,"delay_ms":1000}], "http":{"status":429}}});
+        decoder.push(format!("{event}\n").as_bytes(), |_, result| {
+            let error = result.unwrap_err();
+            assert!(error.message.contains("retries scheduled: 1"));
+            assert!(!error.message.contains("no automatic retry"));
+            assert_eq!(error.diagnostics.unwrap()["automatic_retries"][0]["delay_ms"], 1000);
+            Ok(())
+        }).unwrap();
     }
 
     #[test]
@@ -1010,6 +1032,7 @@ mod delta_tests {
                 content: "Hola".into(),
             }],
             gloss_schema: None,
+            decisions: None,
             coaching_schema: None,
             gloss_source: None,
             speech_source: None,

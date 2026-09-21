@@ -85,7 +85,7 @@ function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
     opening: null, topicChoices: [], starterGreeting: { text: 'hola', romanized: null }, revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
     messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
     turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
-    connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false },
+    connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'google/gemini-2.5-flash', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false },
   }
 }
 let workspace: Snapshot
@@ -220,7 +220,7 @@ function page() {
 it('offers AI access settings alongside hosted sign-in on an unconfigured conversation', async () => {
   useSessionStore.setState({ connection: {
     route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 1,
-    configured: false, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: false, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   const openSettings = vi.fn()
   render(<ConversationPage nativePicker={null} mobileSurface="chat" active onOpenSettings={openSettings} />)
@@ -375,7 +375,7 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   const composer = screen.getByPlaceholderText(/Write in/)
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-  expect(screen.getByRole('dialog', { name: 'Revise earlier message' })).toHaveTextContent('1 later conversation turns and 2 private coach turns')
+  expect(screen.getByRole('dialog', { name: 'Revise earlier message' })).toHaveTextContent('1 later conversation turns. Your edited message replaces the original; private coach history is kept.')
   expect(commands()).toHaveLength(0)
   fireEvent.click(screen.getByRole('button', { name: 'Revise and remove later turns' }))
   await waitFor(() => expect(commands()).toHaveLength(1))

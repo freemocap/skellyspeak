@@ -1,5 +1,5 @@
 //! Transactional self-repair. Retain exact predecessor wording, remove only the
-//! dependent later suffix, and never reuse a superseded operation's authority.
+//! dependent later persona suffix; preserve private coach history, and never reuse a superseded operation's authority.
 use crate::learning::coaching::InputEvidence;
 use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
@@ -15,7 +15,7 @@ pub(crate) fn suffix_counts(
         .map(|m| m.turn_id.as_str())
         .collect();
     // One ordered scan computes suffix totals; only the bounded visible page is returned.
-    Ok(db.prepare("WITH active AS (SELECT t.id,t.rowid AS ordering,EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind='persona_reply') AS exchange,EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind='coach_reply') AS coach FROM turns t WHERE conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)), counts AS (SELECT id,exchange,coalesce(sum(exchange) OVER (ORDER BY ordering ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING),0) AS exchanges,coalesce(sum(coach) OVER (ORDER BY ordering ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING),0) AS coaches FROM active) SELECT id,exchanges,coaches FROM counts WHERE exchange AND id IN (SELECT value FROM json_each(?2))")?.query_map(params![conversation,serde_json::to_string(&targets)?], |r| Ok(RevisionSuffixCount { turn_id:r.get(0)?, exchange_count:r.get(1)?, coach_turn_count:r.get(2)? }))?.collect::<rusqlite::Result<Vec<_>>>()?)
+    Ok(db.prepare("WITH active AS (SELECT t.id,t.rowid AS ordering,EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind='persona_reply') AS exchange FROM turns t WHERE conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)), counts AS (SELECT id,exchange,coalesce(sum(exchange) OVER (ORDER BY ordering ROWS BETWEEN 1 FOLLOWING AND UNBOUNDED FOLLOWING),0) AS exchanges FROM active) SELECT id,exchanges,0 FROM counts WHERE exchange AND id IN (SELECT value FROM json_each(?2))")?.query_map(params![conversation,serde_json::to_string(&targets)?], |r| Ok(RevisionSuffixCount { turn_id:r.get(0)?, exchange_count:r.get(1)?, coach_turn_count:r.get(2)? }))?.collect::<rusqlite::Result<Vec<_>>>()?)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -48,15 +48,21 @@ pub(crate) fn accept(
     db.execute("UPDATE attempts SET state='invalidated',finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),error='Source revised.' WHERE state='running' AND operation_id IN (SELECT id FROM operations WHERE turn_id=?1)", [turn])?;
     db.execute("UPDATE operations SET state='invalidated',permit=0 WHERE turn_id=?1 AND state IN ('ready','running','waiting_dependencies','unknown','failed')", [turn])?;
     db.execute("UPDATE turns SET state='invalidated' WHERE id=?1", [turn])?;
+    // Capture one removal set for receipts, evidence choices and turns. Private
+    // coach dialogue is history, not part of the regenerated persona exchange.
+    let suffix: String = db.query_row(
+        "SELECT coalesce(json_group_array(id),'[]') FROM turns WHERE conversation_id=?1 AND rowid>?2 AND NOT EXISTS(SELECT 1 FROM operations kept_coach WHERE kept_coach.turn_id=turns.id AND kept_coach.kind='coach_reply')",
+        params![conversation, order], |row| row.get(0),
+    )?;
     // Action receipts contain submitted text too; suffix removal must remove
     // those source-owned copies, not merely their visible messages.
-    db.execute("DELETE FROM receipts WHERE conversation_id=?1 AND (json_extract(receipt,'$.entityId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2) OR json_extract(request,'$.turnId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
+    db.execute("DELETE FROM receipts WHERE conversation_id=?1 AND (json_extract(receipt,'$.entityId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND id IN (SELECT value FROM json_each(?2))) OR json_extract(request,'$.turnId') IN (SELECT id FROM turns WHERE conversation_id=?1 AND id IN (SELECT value FROM json_each(?2))))",params![conversation,suffix])?;
     // Exclusions are choices about retained observations. Remove only references
     // whose evidence is deleted with this suffix; keep predecessor exclusions.
-    db.execute("UPDATE skill_choices SET excluded=(SELECT coalesce(json_group_array(value),'[]') FROM json_each(skill_choices.excluded) WHERE value NOT IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2)),revision=revision+1 WHERE language_id=(SELECT language_id FROM conversations WHERE id=?1) AND EXISTS(SELECT 1 FROM json_each(skill_choices.excluded) WHERE value IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND rowid>?2))",params![conversation,order])?;
+    db.execute("UPDATE skill_choices SET excluded=(SELECT coalesce(json_group_array(value),'[]') FROM json_each(skill_choices.excluded) WHERE value NOT IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND id IN (SELECT value FROM json_each(?2)))),revision=revision+1 WHERE language_id=(SELECT language_id FROM conversations WHERE id=?1) AND EXISTS(SELECT 1 FROM json_each(skill_choices.excluded) WHERE value IN (SELECT coalesce(json_extract(context,'$.coachObservationAttempt'),id) FROM turns WHERE conversation_id=?1 AND id IN (SELECT value FROM json_each(?2))))",params![conversation,suffix])?;
     db.execute(
-        "DELETE FROM turns WHERE conversation_id=?1 AND rowid>?2",
-        params![conversation, order],
+        "DELETE FROM turns WHERE conversation_id=?1 AND id IN (SELECT value FROM json_each(?2))",
+        params![conversation, suffix],
     )?;
     let current = snapshot
         .conversations
@@ -83,4 +89,12 @@ pub(crate) fn accept(
     input.revision = true;
     db.execute("UPDATE turns SET replaces_turn_id=?2,context=json_set(context,'$.input',json(?3)) WHERE id=?1", params![replacement,turn,serde_json::to_string(&input)?])?;
     Ok(replacement)
+}
+
+/// Project the retained revision chain into coach context; no duplicate event store.
+pub(crate) fn coach_edits(db: &Connection, conversation: &str) -> Result<Vec<serde_json::Value>> {
+    let rows = db.prepare("SELECT t.id,t.replaces_turn_id,old.text,new.text FROM turns t JOIN messages old ON old.turn_id=t.replaces_turn_id AND old.role='user' JOIN messages new ON new.turn_id=t.id AND new.role='user' WHERE t.conversation_id=?1 ORDER BY t.rowid DESC LIMIT 10")?
+        .query_map([conversation], |r| Ok(serde_json::json!({"type":"message_edited", "turnId":r.get::<_,String>(0)?, "replacesTurnId":r.get::<_,String>(1)?, "before":r.get::<_,String>(2)?, "after":r.get::<_,String>(3)?})))?
+        .collect::<rusqlite::Result<Vec<_>>>()?;
+    Ok(rows)
 }

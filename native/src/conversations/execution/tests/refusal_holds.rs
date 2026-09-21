@@ -31,7 +31,7 @@ async fn custom_server_refusal_redacts_remote_content_before_persistence() {
                     }
                 }
             }
-            let body = r#"{"detail":"private-authorization-secret private-echoed-message","code":"INVALID_REQUEST","request_id":"private-body-token"}"#;
+            let body = r#"{"detail":"Invalid request: authorization=private-authorization-secret; content=private-echoed-message","code":"INVALID_REQUEST","request_id":"private-body-token"}"#;
             let response = format!(
                 "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nX-Request-ID: {request_id}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
                 body.len()
@@ -51,7 +51,7 @@ async fn custom_server_refusal_redacts_remote_content_before_persistence() {
         .unwrap_err();
         server.await.unwrap();
         assert!(error.message.contains("HTTP 400"));
-        assert!(error.message.contains("request format"));
+        assert!(error.message.contains("Invalid request"));
         assert!(!error.message.contains("private"));
         assert!(
             !serde_json::to_string(&error.diagnostics)

@@ -128,10 +128,12 @@ pub(crate) fn publish(db: &Connection, turn: &str, attempt: &str) -> Result<()> 
         } else {
             "xp_tick"
         };
-        let quote = item["quote"]
+        let quote = if item["evidenceKind"] == "whole_message" && observation["adapter"] == "jev_choice" {
+            source.as_str()
+        } else { item["quote"]
             .as_str()
             .filter(|q| !q.trim().is_empty() && source.contains(q))
-            .ok_or_else(|| fail("Reward lacks an exact source quote."))?;
+            .ok_or_else(|| fail("Reward lacks an exact source quote."))? };
         let xp = (f64::from(policy.base[base_key])
             * support
             * difficulty_weight

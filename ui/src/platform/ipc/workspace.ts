@@ -1,3 +1,4 @@
+import { errorMessage } from '../diagnostics/error-details'
 import { invoke } from './native'
 import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot, TurnHistoryPage, AttemptDetail } from '../../generated/contracts'
 
@@ -49,8 +50,7 @@ export function selectedConversation(snapshot: Snapshot, languageId?: string): C
 }
 
 export function nativeError(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') return error.message
-  return String(error)
+  return errorMessage(error)
 }
 
 /** Older turns keyed by turn, so history reaches turns that never produced a message. */

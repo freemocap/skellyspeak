@@ -29,6 +29,5 @@ export function RewardProgress({ evidence, snapshot, onClose, arrivedIds }: { ar
         <span style={{ width: `${(Math.max(0, skill.xp - skill.pending) % 50) / 50 * 100}%` }} />
       </div>
     </div>)}
-    <small>{tr("Saved to your skill progress")}</small>
   </aside>, document.body)
 }

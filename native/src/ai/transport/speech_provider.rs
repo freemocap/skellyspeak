@@ -29,7 +29,7 @@ fn unknown() -> AppError {
     )
 }
 impl SpeechOutcome {
-    pub(super) fn empty() -> Self {
+    pub(crate) fn empty() -> Self {
         Self {
             diagnostics: None,
             audio: Err(unknown()),

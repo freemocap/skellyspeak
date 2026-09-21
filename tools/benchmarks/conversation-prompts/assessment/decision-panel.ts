@@ -1,0 +1,11 @@
+import type {DecisionReport} from './decision-gates.ts';
+import type {JevRow} from './jev-alone-analysis.ts';
+const esc=(s:string)=>s.replaceAll('&','&amp;').replaceAll('<','&lt;');
+export function installDecision(report:DecisionReport,names:Record<string,string>,rows:JevRow[],select:(rows:JevRow[],label:string)=>void){
+ const tabs=document.querySelector('.tabs')!,main=document.querySelector('main')!;
+ const button=document.createElement('button');button.dataset.tab='decision';button.textContent='Go / No-Go';tabs.prepend(button);
+ const section=document.createElement('section');section.id='decision';section.className='tab-panel';section.hidden=true;
+ section.innerHTML=`<h2>${report.status} · frozen acceptance gates</h2><p>${esc(report.scope)}</p><p>All gates were fixed before inference. Each candidate must pass every gate; no threshold changes or repaired outputs. Matched coverage: ${(report.coverage*100).toFixed(1)}%. Labels remain provisional; this decision is conditional on those labels, not proof of real-world accuracy.</p>`+report.candidates.map(c=>`<article class="card"><h3>${esc(names[c.arm])}: ${report.status==='PENDING'?'PENDING':c.pass?'PASS':'FAIL'}</h3><button data-candidate="${c.arm}">Inspect classification errors</button><div class="table-wrap"><table><tr><th>Gate</th><th>Observed</th><th>Required</th><th>Result</th></tr>${c.gates.map(g=>`<tr><td>${g.label}</td><td>${g.actual}</td><td>${g.required}</td><td>${report.status==='PENDING'?'Pending':g.pass?'Pass':'FAIL'}</td></tr>`).join('')}</table></div></article>`).join('')+'<p>No combined quality/speed/cost score is used. If multiple candidates pass, compare their error, validity, latency and cost tradeoffs. If none passes, do not replace the current assessor with a tested configuration.</p>';
+ main.append(section);
+ for(const b of section.querySelectorAll<HTMLButtonElement>('button'))b.onclick=()=>select(rows.filter(r=>r.engine===b.dataset.candidate&&r.status==='complete'&&Object.entries(r.reference).some(([skill,label])=>{const t=r.operatingThresholds??{attempt:.5,full:.5},s=r.evidenceScores[skill];return (s.attempt>=t.attempt)!==['partial','demonstrated'].includes(label)||(s.full>=t.full)!==(label==='demonstrated');})),`${names[b.dataset.candidate!]} errors`);
+}

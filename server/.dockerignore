@@ -62,3 +62,7 @@ app/diagnostics/admin_assets/*
 !app/diagnostics/admin_assets/admin.js
 !app/diagnostics/admin_events.py
 !app/diagnostics/admin_live.py
+
+!app/accounting/usage_limits.py
+!app/inference/retry.py
+!app/inference/decisions.py

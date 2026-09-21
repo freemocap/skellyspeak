@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: indonesian
+  name: Indonesian
+  native_name: Bahasa Indonesia
+  family: austronesian
+  review: needs_review
+integrations:
+  language_tag: id
+  transcription: id
+definitions:
+  orthographies:
+    eyd-v:
+      script: latin
+      guidance:
+      - scope: target_writing
+        text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+          including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted source
+          spelling exactly.
+        sources:
+        - indonesian_eyd_v
+      - scope: explanation_writing
+        text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+          including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted source
+          spelling exactly.
+        sources:
+        - indonesian_eyd_v
+  romanization_schemes: {}
+defaults:
+  variety: indonesian-indonesia
+  orthography:
+    local: eyd-v
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+- id: indonesian-indonesia
+  name: Indonesia
+  description: Contemporary Indonesian in Indonesia, with standard writing and context-appropriate everyday
+    conversation; no single regional accent is prescribed.
+  review: needs_review
+  sources:
+  - indonesian_eyd_v
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - terima kasih
+      - maaf
+conversation:
+  greeting:
+    text: Halo
+    romanizations: {}
+  default_partner:
+    name: Dita
+    romanizedName: null
+    age: 30
+    location: Bandung, Indonesia
+    occupation: Runs a small printing workshop
+    background: Grew up in Bandung and learned printing from a neighbour.
+    currentSituation: Preparing posters for a community event and trying a new cycling route.
+    interests:
+    - printmaking
+    - cycling
+    opinions:
+    - A poster should make its main information easy to find.
+    interestingFacts:
+    - Collects unusual paper offcuts.
+    favoriteBooks:
+    - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+    - Laskar Pelangi (2008)
+    manner: Direct and good-humoured. Uses everyday Indonesian and explains unfamiliar local terms.
+    quirks:
+    - Writes reminders on the backs of test prints.
+    vibe:
+    - 🎨
+    - 🚲

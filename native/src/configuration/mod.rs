@@ -448,7 +448,10 @@ impl Registry {
             .iter()
             .position(|b| *b == band)
             .ok_or_else(|| error("constructs", "unknown_band", band))?;
-        let hints = lexical_hints::LexicalHints::new(tokens);
+        let hints = lexical_hints::LexicalHints::new(
+            tokens,
+            ctx.external_tags.get("language_tag").map(String::as_str),
+        );
         let mut selected = BTreeSet::new();
         for id in focus.iter().chain(due) {
             self.add_required(id, &ctx.language_id, &mut selected)?;
@@ -563,3 +566,6 @@ mod language_audit_tests;
 
 #[cfg(test)]
 mod latin_language_tests;
+
+#[cfg(test)]
+mod added_language_tests;

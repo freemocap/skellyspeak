@@ -1,0 +1,9 @@
+import type {CurrentComparison} from './current-comparison.ts';
+/** Paired differences preserve each candidate's own matched denominator. */
+export function comparisonCharts(c:CurrentComparison,names:Record<string,string>){
+ const colors=['#4ab8dc','#cf8afb','#f4b35e'];
+ return `<h3>Change versus current assessor</h3><p>Percentage-point differences on matched valid pairs. Right is better for hit rate; left is better for false-alarm rate. Each arm uses its own matched cohort.</p>`+(['attempt','full'] as const).map(task=>{
+ const rows=c.comparisons.flatMap((r,i)=>{const t=r.tasks.find(t=>t.task===task)!;return [{name:names[r.arm]+' · hits',value:100*((t.candidate.hitRate??0)-(t.current.hitRate??0)),color:colors[i]},{name:names[r.arm]+' · false alarms',value:100*((t.candidate.falseAlarmRate??0)-(t.current.falseAlarmRate??0)),color:colors[i]}];});
+ return `<svg viewBox="0 0 800 258" role="img" aria-label="${task} paired rate changes" style="width:100%;max-width:900px;color:inherit"><text x="12" y="20" fill="currentColor">${task==='full'?'Full demonstration':'Some evidence'}</text><line x1="490" y1="30" x2="490" y2="227" stroke="currentColor" opacity=".5"/>${[-30,-20,-10,0,10,20,30].map(x=>`<text x="${490+x*7}" y="249" text-anchor="middle" fill="currentColor" font-size="12">${x>0?'+':''}${x} pp</text>`).join('')}${rows.map((r,i)=>{const y=35+i*31,w=Math.abs(r.value)*7;return `<text x="12" y="${y+17}" fill="currentColor" font-size="13">${r.name}</text><rect x="${r.value<0?490-w:490}" y="${y}" width="${w}" height="22" fill="${r.color}"><title>${r.name}: ${r.value.toFixed(1)} percentage points</title></rect><text x="${r.value<0?490-w-6:490+w+6}" y="${y+16}" text-anchor="${r.value<0?'end':'start'}" fill="currentColor" font-size="12">${r.value>0?'+':''}${r.value.toFixed(1)}</text>`;}).join('')}</svg>`;
+ }).join('');
+}

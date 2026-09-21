@@ -91,6 +91,13 @@ async fn request_payload(
     install: &str,
     payload: serde_json::Value,
 ) -> Result<Completion> {
+    request_payload_decoded(client,url,key,route,install,payload,decode).await
+}
+pub(super) async fn request_payload_decoded(
+    client: &reqwest::Client, url: &str, key: &str, route: ConnectionRoute,
+    install: &str, payload: serde_json::Value,
+    decoder: fn(&[u8])->Result<Completion>,
+) -> Result<Completion> {
     let request = client.post(url).json(&payload);
     let request = if key.is_empty() {
         request
@@ -107,6 +114,8 @@ async fn request_payload(
         .into_iter()
         .flatten()
         .filter_map(|m| m["content"].as_str())
+        .chain(payload.get("state").and_then(|v|v.get("currentLearnerMessage")).and_then(|v|v.as_str()))
+        .chain(payload.get("state").and_then(|v|v.get("precedingExchange")).and_then(|v|v.as_array()).into_iter().flatten().filter_map(|m|m["content"].as_str()))
         .chain(std::iter::once(key))
         .collect();
     let mut response = request
@@ -130,7 +139,7 @@ async fn request_payload(
         }
         bytes.extend_from_slice(&chunk);
     }
-    let mut result = decode(&bytes);
+    let mut result = decoder(&bytes);
     attach_http(&mut result, http, &private);
     result
 }

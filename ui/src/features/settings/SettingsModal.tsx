@@ -1,3 +1,4 @@
+import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ShowHelp } from './onboarding/ShowHelp'
 import { UI_LOCALE_METADATA } from '../../domain/localization'
 import { TEXT_SIZE } from '../../generated/contracts'
@@ -170,7 +171,7 @@ export function SettingsModal({
     try { configureAudioVolumes(settings) }
     catch (error) {
       reportFault('Audio settings', error)
-      setLoadError(String(error instanceof Error ? error.message : error))
+      setLoadError(errorMessage(error))
       setSettings(null)
     }
   }, [settings === null, settings?.master_volume, settings?.voice_volume, settings?.effects_volume])

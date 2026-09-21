@@ -134,16 +134,27 @@ Transport tests use local loopback servers; allow localhost binding when running
 inside a sandbox. They do not need live AI providers. The UI registration check
 reads `src/application/startup.rs`, where the `generate_handler!` list lives.
 
-`application/rate_limit_retry.rs` coordinates the scheduler's direct OpenRouter
-text retries: explicit HTTP/embedded/empty-stream 429 failures only, three retries,
-exponential delay with jitter, and a 30-second cumulative wait budget. It respects
-numeric and HTTP-date `Retry-After`, checks operation/connection authority before
-each submission and during waits, and persists refusals before sleeping through
-`conversations/execution/retry_diagnostics.rs`. HTTP rounds remain inside the
-original durable attempt; `automatic_retries` retains each scheduled retry's
-refusal, redacted metadata, timestamp and delay on success, failure or cancellation.
-The admission permit remains held during backoff. Hosted/grouped, audio and
-standalone reading/generation requests retain their existing retry behavior.
+`ai/policy/retry.rs` owns bounded automatic retries for direct text/decision
+requests, transcription, read-aloud, reading help and persona generation. All use
+one runner with typed outcomes and owner-specific authority/persistence callbacks:
+three retries, 1/2/4-second exponential delays plus up to 250ms jitter, and a
+30-second cumulative wait budget. Numeric and HTTP-date `Retry-After` values are
+minimum waits; values outside the budget stop automatic retry. Only explicit
+HTTP/embedded/empty-stream 429 refusals qualify, including a server 502 containing
+an explicit upstream 429. Quota exhaustion, ambiguous transport failures, partial
+output, credentials and validation failures are not replayed.
+
+The admission permit stays held. Cancellation, pause and destination authority
+are checked in flight, during waits and before each submission. Each scheduled
+retry's redacted refusal, timestamp and delay is persisted before sleeping and
+retained on success, failure or cancellation. Audio's typed outcomes preserve
+partial metadata even when a response is not retryable.
+
+Grouped operations are retried individually by `server/app/inference/retry.py`
+inside their existing claim; native code never replays a group or completed sibling.
+The Python executor implements the same limits because those requests execute in
+a separate runtime and each round needs its own server ledger reservation. Adapters
+remain single-submission transports. See the [audit](../docs/notes/ai-retry-audit-2026-09-21.md).
 
 The root Tauri launcher selects this directory explicitly. Moving the native
 project root can invalidate cached build-script paths;

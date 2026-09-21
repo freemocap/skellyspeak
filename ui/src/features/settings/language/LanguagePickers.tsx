@@ -99,7 +99,7 @@ export function LearningPicker() {
       <button type="button" className="learning-picker" ref={trigger} aria-label={tr('Target language')}
         aria-expanded={open} aria-controls={id} disabled={disabled} onClick={() => { setExpanded(null); setOpen(!open) }}>
         <span className="learning-picker-identity">
-          <span>{languageLabel(selected, tr.locale)}</span>
+          <span lang={selected.languageTag}>{languageLabel(selected, tr.locale)}</span>
           <small>{selectedVariety && translatedName(tr.locale, selectedVariety.label)}</small>
         </span>
         <span aria-hidden="true">▾</span>
@@ -121,7 +121,7 @@ export function LearningPicker() {
                 }
               }}>
               <span className="language-dropdown-check" aria-hidden="true">{settings.target_language === item.code ? '✓' : ''}</span>
-              <span className="language-dropdown-label">{languageLabel(item, tr.locale)}</span><span aria-hidden="true">▸</span>
+              <span className="language-dropdown-label" lang={item.languageTag}>{languageLabel(item, tr.locale)}</span><span aria-hidden="true">▸</span>
             </button>
             <button type="button" className="language-dropdown-info" disabled={disabled}
               aria-label={tr('Information') + ': ' + languageLabel(item, tr.locale)}

@@ -43,6 +43,12 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
 }
 
 fn main() {
+    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
+        // NDK r27 needs explicit ELF alignment for Android's 16 KB page sizes.
+        // https://developer.android.com/guide/practices/page-sizes
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-z,max-page-size=16384");
+        println!("cargo:rustc-link-arg-cdylib=-Wl,-z,common-page-size=16384");
+    }
     let manifest = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
     let root = manifest.join("../content");
     let mut files = Vec::new();

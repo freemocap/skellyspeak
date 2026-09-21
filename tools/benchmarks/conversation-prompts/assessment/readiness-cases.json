@@ -1,0 +1,24 @@
+{
+ "version":1,"review":"New agent-authored Spanish fixtures; provisional focal labels frozen before inference, not independent human adjudication.",
+ "distractors":["Gracias por recoger mis llaves.","Ayer cociné una sopa. Mañana visitaré a Ana.","Este tren es más rápido que el autobús.","Me quedé en casa porque nevaba. Si tengo tiempo, te llamaré."],
+ "cases":[
+ {"id":"thanks-full","group":"full","text":"Te agradezco que hayas recogido mis llaves.","targets":{"courtesy":"demonstrated"},"review":"Explicit gratitude."},
+ {"id":"thanks-partial","group":"partial","text":"Muchas gra...","targets":{"courtesy":"partial"},"review":"Provisional interrupted thanks."},
+ {"id":"thanks-absent","group":"absent","text":"Mis llaves están en la mesa.","targets":{"courtesy":"not_observed"},"review":"Same topic, no thanks."},
+ {"id":"past-full","group":"full","text":"Anoche cociné una sopa.","targets":{"past_reference":"demonstrated"},"review":"Explicit completed past event."},
+ {"id":"past-partial","group":"partial","text":"Anoche yo...","targets":{"past_reference":"partial"},"review":"Provisional temporal frame without event."},
+ {"id":"past-absent","group":"absent","text":"La sopa está caliente.","targets":{"past_reference":"not_observed"},"review":"Present state without past event."},
+ {"id":"future-full","group":"full","text":"La próxima semana visitaré a Ana.","targets":{"future_reference":"demonstrated"},"review":"Explicit planned future visit."},
+ {"id":"future-partial","group":"partial","text":"La próxima semana voy a...","targets":{"future_reference":"partial"},"review":"Provisional unfinished future action."},
+ {"id":"future-absent","group":"absent","text":"Ana vive cerca de mí.","targets":{"future_reference":"not_observed"},"review":"Present location, no future."},
+ {"id":"comparison-full","group":"full","text":"Este tren es más rápido que el autobús.","targets":{"comparison":"demonstrated"},"review":"Dimension and comparison standard both expressed."},
+ {"id":"comparison-partial","group":"partial","text":"Este tren es más rápido que...","targets":{"comparison":"partial"},"review":"Provisional missing comparison standard."},
+ {"id":"comparison-absent","group":"absent","text":"Este tren sale de la estación.","targets":{"comparison":"not_observed"},"review":"No comparison."},
+ {"id":"reason-full","group":"full","text":"Me quedé en casa porque nevaba.","targets":{"reason":"demonstrated"},"review":"Explicit causal link."},
+ {"id":"reason-partial","group":"partial","text":"Me quedé en casa porque...","targets":{"reason":"partial"},"review":"Provisional causal attempt, explanation missing."},
+ {"id":"reason-absent","group":"absent","text":"Me quedé en casa.","targets":{"reason":"not_observed"},"review":"Event without cause."},
+ {"id":"condition-full","group":"full","text":"Si tengo tiempo, te llamaré.","targets":{"condition":"demonstrated"},"review":"Antecedent and consequent expressed."},
+ {"id":"condition-partial","group":"partial","text":"Si tengo tiempo...","targets":{"condition":"partial"},"review":"Provisional missing consequent."},
+ {"id":"condition-absent","group":"absent","text":"Tengo tiempo libre.","targets":{"condition":"not_observed"},"review":"No conditional link."}
+ ]
+}

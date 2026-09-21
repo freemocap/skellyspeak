@@ -1,3 +1,4 @@
+import { errorMessage } from '../../platform/diagnostics/error-details'
 import { useI18n } from '../../components/localization/i18n'
 import { EvidenceMappingNotice } from '../../components/learning/EvidenceMappingNotice'
 import { SkillList } from '../../components/learning/SkillList'
@@ -31,7 +32,7 @@ export function SkillListView({ languageTag, snapshot, demonstration, refresh, s
   function inspect(id: string) { select({target:snapshot.target,skillId:id}); setOpen(true) }
   async function update(choices: ProfileChoices, practice = false) {
     setError(null)
-    try { await save(choices); if (practice) onPractice() } catch (e) { setError(String(e)) }
+    try { await save(choices); if (practice) onPractice() } catch (e) { setError(errorMessage(e)) }
   }
   return <main className="skills-page">
     <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{tr.number(snapshot.profile.xp)} XP</strong><button onClick={refresh}>{tr('Refresh')}</button></header>

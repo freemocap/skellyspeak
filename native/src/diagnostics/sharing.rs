@@ -50,10 +50,10 @@ pub async fn share_diagnostic_logs(app: tauri::AppHandle) -> crate::model::Resul
                 };
                 crate::model::AppError::new(
                     crate::model::ErrorCode::Internal,
-                    "Could not prepare or share diagnostic logs. Please try again.",
+                    format!("Diagnostic log sharing failed at {stage}: {}", crate::diagnostics::response::scrub(&error.to_string(), &[])),
                 )
                 .with_diagnostics(
-                    serde_json::json!({"stage": stage, "untrustedDetailsOmitted": true}),
+                    serde_json::json!({"stage": stage, "message": crate::diagnostics::response::scrub(&error.to_string(), &[])}),
                 )
             })?;
         Ok(())

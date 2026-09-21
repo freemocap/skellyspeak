@@ -56,7 +56,8 @@ function layout() {
   })
 }
 
-it('accepts only a closed-to-open disclosure on the selected source occurrence', () => {
+it.each([false, true])('accepts only the selected source disclosure (touch=%s)', touch => {
+  vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: touch } as MediaQueryList)
   layout()
   render(<Gloss />)
   const before = readDisclosure(document, 'selected', '4')!

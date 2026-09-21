@@ -34,7 +34,7 @@ export function UnannotatedText({ text, interactive = true, inline = false }: { 
   const scope = useReadingScope()
   const locale = scope ? languageFor(scope.language, scope.variety ?? undefined)?.languageTag : undefined
   const parts = useMemo(() => readingWords(text, locale).map(part => ({ ...part, selection: scope ? { ...readingPassage(text, part.start, part.end, locale), scope } : null })), [text, locale, scope])
-  if (!interactive || !actions || !scope) return <span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"}>{text}</span>
+  if (!interactive || !actions || !scope) return <span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale}>{text}</span>
   return <span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale} data-reading-language={scope.language} data-reading-variety={scope.variety ?? undefined}>{parts.map(part => part.word
     ? <ReadingWord key={part.start} text={text.slice(part.start, part.end)} selection={part.selection!} />
     : <Fragment key={part.start}>{text.slice(part.start, part.end)}</Fragment>)}</span>

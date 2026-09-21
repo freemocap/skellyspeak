@@ -6,6 +6,14 @@ import { SavedGlossText } from '../src/components/reading/SavedGlossText'
 import '../src/styles/index.css'
 
 const samples = [
+  ['ja', 'Japanese', 'こんにちは。日本語、学校、音楽。が か\u3099 コーヒー。', 1],
+  ['ko', 'Korean', '안녕하세요. 한국어와 음악. 한 한', 1],
+  ['vi', 'Vietnamese', 'Xin chào. Tiếng Việt, cảm ơn. ệ e\u0323\u0302', 1],
+  ['id', 'Indonesian', 'Halo. Terima kasih. Makanan dan minuman.', 1],
+  ['tr', 'Turkish', 'Merhaba. Teşekkür ederim. İ i I ı ç ğ ö ş ü', 1],
+  ['ru', 'Russian', 'Здравствуйте. Семья, музыка, ёлка. Ъ ь й', 1],
+  ['uk', 'Ukrainian', 'Добрий день. Україна, ґанок, сім’я. Ґ Є І Ї', 1],
+  ['chr', 'Cherokee', 'ᎣᏏᏲ. ᏩᏙ. ᏣᎳᎩ. ꮳꮃꭹ', 1],
   ['ar', 'Arabic · Conversation example', 'شُفْتُ بَاب قَدِيم أَزْرَق فِي الْمَشْيَة. هَلْ بِتْحِبّ الْأَبْوَاب الْقَدِيمَة؟', 1.5],
   ['ar', 'Arabic · Diacritic positioning test', 'إِنَّ الشَّمْسَ مُشْرِقَةٌ. هٰذَا كِتَابٌ. مُدَرِّسٌ، بَيْتٌ، قُوَّةٌ، شُكْرًا.', 1.5],
   ['hi', 'Hindi · Devanagari', 'नमस्ते! क्या आप हिंदी पढ़ सकते हैं? क्ष त्र ज्ञ श्र क़ फ़', 1],

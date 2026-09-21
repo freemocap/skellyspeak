@@ -47,7 +47,7 @@ export function AttemptBodies({ attempt }: { attempt: AttemptView }) {
     <InspectionModeControl mode={mode} onChange={setMode} />
     {error && <p className="ai-error" role="alert">{error}</p>}
     <h4 className="ai-section-title">{tr('Request')}</h4>
-    {detail?.requestMessages?.length ? detail.requestMessages.map((message, index) => <div key={index} className="ai-message">
+    {detail?.decisionRequest ? <div className="ai-message"><div className="ai-message-role">{tr('Jev Choice')}</div><InspectionContent text={JSON.stringify(detail.decisionRequest, null, 2)} mode={mode} /></div> : detail?.requestMessages?.length ? detail.requestMessages.map((message, index) => <div key={index} className="ai-message">
       <div className="ai-message-role">{message.role}</div>
       <InspectionContent text={message.content} mode={mode} />
     </div>) : <p className="ai-muted">{detail ? tr('No request recorded for this attempt.') : tr('Loading…')}</p>}

@@ -22,6 +22,9 @@ and output SHA-256 hashes, conversion tool, character counts and license files.
 | Devanagari (currently Hindi) | Noto Sans Devanagari | 100–900 |
 | Malayalam | Noto Sans Malayalam | 100–900 |
 | Simplified Chinese (currently Mandarin) | Noto Sans SC | 100–900 |
+| Japanese | Noto Sans JP | 100–900 |
+| Korean | Noto Sans KR | 100–900 |
+| Cherokee | Noto Sans Cherokee | 100–900 |
 | Reading aids and broad Latin/Greek/Cyrillic fallback | Noto Sans | 100–900 |
 
 Font declarations and stacks have one owner:
@@ -54,15 +57,16 @@ fallback. That is a safety net, not a claim of verified support.
    mixed-language quotes have independent languages. No per-language font picker
    or YAML font field is implemented by this change.
 4. Han defaults here are **Simplified Chinese only**. Before adding Traditional
-   Chinese, Japanese or Korean, add and verify the appropriate regional fonts and
-   language boundaries. Likewise, Arabic-script coverage alone does not establish
+   Chinese, add and verify the appropriate regional fonts and
+   language boundaries. Japanese and Korean now use bundled regional faces at
+   their `ja` and `ko` language boundaries. Likewise, Arabic-script coverage alone does not establish
    suitable typography for Urdu or other languages.
 5. Add representative samples to `/tools/fonts-preview.html`, including stacked
    marks, conjunctions, mixed scripts, bold text, word help and narrow layouts.
    Test native webviews as well as the browser; glyph coverage alone cannot prove
    linguistic correctness or legibility.
 
-New WOFF2 assets total 10,083,244 bytes (9.62 MiB); Simplified Chinese accounts for
+The initial script WOFF2 assets total 10,083,244 bytes (9.62 MiB); Simplified Chinese accounts for
 7,782,184 bytes. All glyphs are retained to avoid restricting arbitrary learner
 text to a sample-derived subset. Revisit optional offline font packs if the
 supported script set becomes large; automatic remote font downloads are not
@@ -71,3 +75,6 @@ implemented.
 Inspect `/tools/fonts-preview.html` through `npm run dev` for the before/after
 comparison using production reading components. The previous-font column uses
 this device's fallback; it does not reproduce every operating system's old font.
+
+The 2026-09-21 additions retain complete Japanese, Korean and Cherokee fonts
+(8,376,368 bytes combined), with licenses and pinned provenance in `sources.json`.

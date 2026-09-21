@@ -151,10 +151,10 @@ it('opens anchored help on narrow screens instead of a bottom sheet', () => {
   const original = window.matchMedia
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
   try {
-    const view = render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
+    render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
-    const sheet = view.container.querySelector('.saved-word-help')
-    expect(sheet).toHaveAttribute('popover', 'manual')
+    const sheet = document.querySelector('.saved-word-help')
+    expect(sheet).not.toHaveAttribute('popover')
     expect(sheet).toHaveTextContent('you')
     expect(sheet).toHaveTextContent('nǐ')
   } finally { media.mockRestore() }

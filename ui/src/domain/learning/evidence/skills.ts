@@ -17,12 +17,17 @@ export interface InputEvidence {
 export const unreportedInput = (): InputEvidence => ({ modality: 'text', suggestion: false, scaffold: false, revision: false })
 export type SkillOutcome = import('../../../generated/contracts').Outcome
 export interface SkillJudgment {
+  evidence_kind?: 'quoted' | 'whole_message'
+  scores?: { evidence: number; full: number } | null
+  answer?: { choice: string; confidence: number; probabilities: Record<string, number> } | null
   skill_id: string
   outcome: SkillOutcome
   quotes: string[]
   rationale: string
 }
 export interface SkillRecord {
+  assessment_adapter?: 'jev_choice' | 'chat_model'
+  decision_policy?: { version: string; evidenceThreshold: number; fullThreshold: number } | null
   variety?: string | null
   construct_registry_hash: string | null
   mapping_error: string | null

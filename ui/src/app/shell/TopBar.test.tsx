@@ -28,7 +28,7 @@ beforeEach(() => {
 it.each(['hosted', 'openrouter', 'custom'] as const)('opens AI access from the %s setup status', route => {
   useSessionStore.setState({ connection: {
     route, signedIn: false, ownKeyConfigured: false, email: '', revision: 1,
-    configured: false, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: false, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   render(<TopBar />)
   fireEvent.click(screen.getByRole('button', { name: 'AI Not Connected' }))
@@ -79,7 +79,7 @@ it('opens the language browser from the compact selector', () => {
 it('shows a clickable connected state only after a successful check at the current revision', () => {
   useSessionStore.setState({ connection: {
     route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 9,
-    configured: true, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   const view = render(<TopBar />)
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
@@ -116,7 +116,7 @@ it('updates the System theme toggle when the OS appearance changes', async () =>
 function connect() {
   useSessionStore.setState({ connection: {
     route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1,
-    configured: true, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
+    configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
   } })
   useConnectionHealth.setState({ routes: { hosted: { revision: 1, status: 'connected', checkedAt: 1, error: null } } })
 }

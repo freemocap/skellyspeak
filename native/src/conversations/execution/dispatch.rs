@@ -75,6 +75,20 @@ impl Store {
             tx.commit()?;
             return Ok(None);
         }
+        if kind == "skill_evidence" {
+            let captured: serde_json::Value = serde_json::from_str(&context)?;
+            let chat = captured["skillAssessment"]["adapter"] == "chat_model";
+            if chat || crate::learning::coaching::skill_evidence::implicated(&captured)?.is_empty() {
+                if !chat { crate::learning::coaching::skill_evidence::publish(&tx, &turn, &captured["skillDecisions"])?; }
+                tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) VALUES(?1,?2,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now'))", params![attempt,operation])?;
+                tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE id=?1", [&operation])?;
+                super::graph::release_dependents(&tx, &turn)?;
+                refresh_turn(&tx, &turn)?;
+                bump(&tx)?;
+                tx.commit()?;
+                return Ok(None);
+            }
+        }
         if kind == "persona_speech" {
             let result = prepare_speech(&tx, &operation, &turn, &context);
             match result {
@@ -92,8 +106,8 @@ impl Store {
                         [&operation],
                     )?;
                     tx.execute(
-                        "UPDATE turns SET context=json_set(context,'$.speechError',?2) WHERE id=?1",
-                        params![turn, error.message],
+                        "UPDATE turns SET context=json_set(context,'$.speechError',json(?2)) WHERE id=?1",
+                        params![turn, serde_json::to_string(&error)?],
                     )?;
                     refresh_turn(&tx, &turn)?;
                     bump(&tx)?;
@@ -104,6 +118,7 @@ impl Store {
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
             && kind != "skill_assessment"
+            && kind != "skill_evidence"
             && kind != "persona_reply"
             && kind != "persona_opening"
             && kind != "coach_retry_check"
@@ -122,6 +137,7 @@ impl Store {
         if let Some(retry) = captured["retryTargets"].get(&operation).cloned() {
             captured["target"] = retry["target"].clone();
             captured["fastModel"] = retry["fastModel"].clone();
+            if kind == "skill_assessment" { captured["assessmentAdapter"] = retry["assessmentAdapter"].clone(); }
         }
         let prepared = (|| -> Result<_> {
             let model = captured["target"]["model"]
@@ -129,7 +145,10 @@ impl Store {
                 .ok_or_else(|| fail("Captured model is missing."))?;
             let mut gloss_source = None;
             let mut gloss_schema = None;
-            let coaching_schema = if kind == "skill_assessment" {
+            let jev = kind == "skill_assessment" && crate::learning::coaching::assessment_adapter::selected(&captured)? == AssessmentAdapter::JevChoice;
+            let coaching_schema = if kind == "skill_evidence" {
+                Some(crate::learning::coaching::skill_evidence::schema(&captured)?)
+            } else if kind == "skill_assessment" && !jev {
                 Some(crate::learning::coaching::skill_assessment::schema(
                     &captured,
                 )?)
@@ -153,7 +172,9 @@ impl Store {
             } else {
                 None
             };
-            let messages = if kind == "skill_assessment" {
+            let messages = if kind == "skill_evidence" {
+                crate::learning::coaching::skill_evidence::prompt(&tx, &turn, &captured)?
+            } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 crate::learning::coaching::conversation_support::prompt(
@@ -270,7 +291,13 @@ impl Store {
             } else {
                 coaching_schema
             };
+            let decisions = if jev {
+                target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
+                if target.route == ConnectionRoute::Openrouter { target.url = crate::ai::transport::provider::decisions::URL.into(); }
+                Some(crate::learning::coaching::assessment_adapter::request(&messages, &captured)?)
+            } else { None };
             Ok((
+                decisions,
                 gloss_source,
                 gloss_schema,
                 coaching_schema,
@@ -278,7 +305,7 @@ impl Store {
                 target,
             ))
         })();
-        let (gloss_source, gloss_schema, coaching_schema, messages, target) = match prepared {
+        let (decisions, gloss_source, gloss_schema, coaching_schema, messages, target) = match prepared {
             Ok(prepared) => prepared,
             Err(error) => {
                 if matches!(
@@ -324,10 +351,11 @@ impl Store {
         )?;
         // The exact request, kept locally for inspection. It never leaves the
         // workspace: logs, exports and server traffic do not read it.
-        tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,request_messages) VALUES(?1,?2,'running',?3,?4)",params![attempt,operation,model,serde_json::to_string(&messages)?])?;
+        tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,request_messages) VALUES(?1,?2,'running',?3,?4)",params![attempt,operation,model,serde_json::to_string(&decisions.as_ref().cloned().unwrap_or(serde_json::to_value(&messages)?))?])?;
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
+            decisions,
             temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
                 1.1
             } else {

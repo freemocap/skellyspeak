@@ -113,7 +113,7 @@ async fn eventual_success_retains_refusal_and_persists_before_retry() {
 #[tokio::test]
 async fn stops_after_three_retries_and_keeps_all_refusals() {
     let count = Cell::new(0);
-    let error = run(
+    let error = run::<_, _, _, _, Result<Completion>>(
         || {
             count.set(count.get() + 1);
             async { Err(limited()) }
@@ -139,7 +139,7 @@ async fn stops_after_three_retries_and_keeps_all_refusals() {
 async fn revocation_during_wait_prevents_resubmission_and_keeps_history() {
     let count = Cell::new(0);
     let revoked = Cell::new(false);
-    let error = run(
+    let error = run::<_, _, _, _, Result<Completion>>(
         || {
             count.set(count.get() + 1);
             async { Err(limited()) }
@@ -170,7 +170,7 @@ async fn revocation_during_wait_prevents_resubmission_and_keeps_history() {
 async fn permanent_errors_and_persistence_failures_never_resubmit() {
     for fail_save in [false, true] {
         let count = Cell::new(0);
-        let result = run(
+        let result = run::<_, _, _, _, Result<Completion>>(
             || {
                 count.set(count.get() + 1);
                 async {
@@ -299,4 +299,95 @@ async fn real_embedded_429_retries_and_records_redacted_receipt_before_success()
     assert!(saved.contains("refusal-id"));
     assert!(saved.contains("automatic_retries"));
     assert!(!saved.contains("private-secret"));
+}
+
+fn busy_audio() -> AppError {
+    AppError::new(ErrorCode::UnknownOutcome, "ElevenLabs system_busy").with_diagnostics(
+        json!({"stage":"http", "status":502, "response": {
+            "provider_error":{"code":"system_busy", "message":"Heavy traffic"},
+            "diagnostics":{"http":{"status":429,"response_headers":{"retry_after":"1"}},
+                           "detail":{"request_id":"eleven-request"}}
+        }}),
+    )
+}
+
+#[test]
+fn recognizes_wrapped_provider_limits_but_not_quota_or_group_replays() {
+    assert_eq!(
+        delay(&busy_audio(), 0, Duration::ZERO, 0),
+        Some(Duration::from_secs(1))
+    );
+    let mut quota = busy_audio();
+    quota.diagnostics.as_mut().unwrap()["response"]["provider_error"]["code"] =
+        json!("quota_exceeded");
+    assert!(delay(&quota, 0, Duration::ZERO, 0).is_none());
+    for d in [
+        json!({"status":502}),
+        json!({"stage":"grouped_operation","status":429}),
+        json!({"status":429,"automatic_retries":[{}]}),
+        json!({"status":429,"chars":1}),
+    ] {
+        assert!(delay(&limited().with_diagnostics(d), 0, Duration::ZERO, 0).is_none());
+    }
+}
+
+#[tokio::test]
+async fn transcription_and_speech_share_the_runner_and_retain_history() {
+    let calls = Cell::new(0);
+    let result: Result<TranscriptionResponse> = run(
+        || {
+            calls.set(calls.get() + 1);
+            async {
+                if calls.get() == 1 {
+                    Err(busy_audio())
+                } else {
+                    Ok(TranscriptionResponse {
+                        diagnostics: Some(json!({"request_id":"success"})),
+                        text: "hello".into(),
+                        timing: None,
+                        whisper_segments: None,
+                    })
+                }
+            }
+        },
+        || Ok(()),
+        |_| Ok(()),
+    )
+    .await;
+    let result = result.unwrap();
+    assert_eq!(calls.get(), 2);
+    assert_eq!(result.text, "hello");
+    let history = result.diagnostics.unwrap();
+    assert_eq!(
+        history["automatic_retries"][0]["error"]["diagnostics"]["response"]["diagnostics"]["detail"]
+            ["request_id"],
+        "eleven-request"
+    );
+
+    calls.set(0);
+    let speech = run(
+        || {
+            calls.set(calls.get() + 1);
+            async {
+                let mut value = SpeechOutcome::empty();
+                value.audio = if calls.get() == 1 {
+                    Err(busy_audio())
+                } else {
+                    Ok(vec![1, 2])
+                };
+                value
+            }
+        },
+        || Ok(()),
+        |_| Ok(()),
+    )
+    .await;
+    assert_eq!(speech.audio.unwrap(), vec![1, 2]);
+    assert_eq!(
+        speech.diagnostics.unwrap()["automatic_retries"]
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
 }

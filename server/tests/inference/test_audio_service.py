@@ -128,6 +128,8 @@ async def test_tts_provider_reason_reaches_client_with_secrets_and_source_redact
     detail = response.json()["provider_error"]
     assert detail["code"] == "missing_permissions"
     assert "Missing permission text_to_speech" in detail["message"]
+    assert "ElevenLabs missing_permissions (provider HTTP 401)" in response.json()["detail"]
+    assert "Missing permission text_to_speech" in response.json()["detail"]
     assert "test-elevenlabs-key" not in response.text
     assert "private learner sentence" not in response.text
     assert set(detail) == {"code", "message"}
@@ -160,3 +162,26 @@ async def test_accent_cue_counts_toward_provider_limit(proxy, ledger):
     })
     assert response.status_code == 400
     assert not records(ledger)
+
+
+@pytest.mark.asyncio
+async def test_provider_busy_reason_is_in_primary_error_without_retry(proxy, ledger, monkeypatch):
+    calls = []
+    def respond(request):
+        calls.append(request)
+        return httpx.Response(429, json={"detail": {
+            "status": "system_busy", "code": "system_busy", "type": "rate_limit_error",
+            "message": "The system is experiencing heavy traffic, please try again.",
+            "request_id": "provider-busy-request",
+        }})
+    upstream(monkeypatch, respond)
+    response = await proxy.post("/v1/audio/speech", json={
+        "model": "eleven_v3", "language": "Spanish — Mexico", "text": "Gracias.",
+    })
+    assert response.status_code == 502
+    body = response.json()
+    assert body["detail"] == "ElevenLabs system_busy (provider HTTP 429): The system is experiencing heavy traffic, please try again."
+    assert body["diagnostics"]["detail"]["request_id"] == "provider-busy-request"
+    assert len(calls) == 1
+    row, = records(ledger)
+    assert row["status"] == "unknown"  # HTTP status alone does not prove zero billing.

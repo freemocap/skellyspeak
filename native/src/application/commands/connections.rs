@@ -1,3 +1,4 @@
+use crate::model::AssessmentAdapter;
 use super::*;
 use crate::model::AudioSettings;
 
@@ -78,13 +79,16 @@ pub(in crate::application) fn save_models(
     standard_model: String,
     fast_model: String,
     audio: AudioSettings,
+    assessment_adapter: AssessmentAdapter,
 ) -> Result<ConnectionConfig> {
+    available_assessment(assessment_adapter)?;
     let mut store = state.lock()?;
     store.set_models(
         expected_revision,
         standard_model.trim(),
         fast_model.trim(),
         &audio,
+        assessment_adapter,
     )?;
     store.connection_config()
 }
@@ -151,4 +155,22 @@ pub(in crate::application) fn select_route(
     let mut store = state.lock()?;
     store.select_route(expected_revision, route)?;
     store.connection_config()
+}
+
+// Experimental adapters remain testable internally but are not selectable by the app.
+fn available_assessment(adapter: AssessmentAdapter) -> Result<()> {
+    if adapter == AssessmentAdapter::JevChoice {
+        return Err(AppError::new(ErrorCode::Validation, "Jev assessment is disabled. Use Chat model assessment."));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod assessment_availability_tests {
+    use super::*;
+    #[test]
+    fn settings_reject_shelved_jev_and_accept_chat() {
+        assert!(available_assessment(AssessmentAdapter::JevChoice).is_err());
+        assert!(available_assessment(AssessmentAdapter::ChatModel).is_ok());
+    }
 }

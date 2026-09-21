@@ -35,6 +35,34 @@ scripts:
   has_case: false
   word_spacing: true
   font_scale: 1.0
+- id: hangul
+  direction: ltr
+  cursive: false
+  shaping: true
+  has_case: false
+  word_spacing: true
+  font_scale: 1.0
+- id: japanese
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: false
+  word_spacing: false
+  font_scale: 1.0
+- id: cyrillic
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: true
+  word_spacing: true
+  font_scale: 1.0
+- id: cherokee
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: true
+  word_spacing: true
+  font_scale: 1.0
 families:
 - id: indo-european
   label: Indo-European
@@ -44,6 +72,18 @@ families:
   label: Sino-Tibetan
 - id: dravidian
   label: Dravidian
+- id: koreanic
+  label: Koreanic
+- id: japonic
+  label: Japonic
+- id: austroasiatic
+  label: Austroasiatic
+- id: austronesian
+  label: Austronesian
+- id: turkic
+  label: Turkic
+- id: iroquoian
+  label: Iroquoian
 traits:
 - id: abjad-vowel-omission
   review: needs_review

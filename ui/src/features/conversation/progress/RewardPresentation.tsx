@@ -8,9 +8,8 @@ import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, 
 import { RewardInspectionContext } from './RewardInspectionContext'
 import { RewardDetail } from './RewardBadge'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
-import { createMessageEvidenceSelector, type MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
+import { createMessageRewardEvidenceSelector, type MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 import { rewardAnchor, visibleRewardRect } from '../../../domain/rewards/reward-anchors'
-import { domainColors } from '../../../domain/learning/catalog/skill-domains'
 import { pulseRewardDomain } from '../../../domain/rewards/reward-pulse'
 
 type Presentation = { milestone?: number; key: number; ids: string[]; messageId: number; source: string; phase: 'waiting' | 'opening' | 'hovering' | 'departing'; origin: DOMRect | null; automatic: boolean; startAt: number; gains: Record<string, number> }
@@ -43,9 +42,10 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
     const { cards, isMobile, snapshot, chatId } = current.current
     const card = cards.find(item => item.key === key)
     if (!card || card.phase === 'departing') return
-    if (isMobile && snapshot) {
-      const evidence = createMessageEvidenceSelector()(snapshot, chatId, card.messageId, card.source)
-        .filter(item => card.ids.includes(item.id) && !presented.current.has(item.id))
+    if (snapshot) {
+      const evidence = createMessageRewardEvidenceSelector()(snapshot, chatId, card.messageId, card.source)
+        .filter(item => card.ids.includes(item.id) && !presented.current.has(item.id)
+          && (isMobile || !workspace.current || !rewardAnchor(workspace.current, 'skill', item.skillId)))
         .map(item => ({ ...item, xp: Math.min(item.xp, card.gains[item.id]) }))
       if (evidence.length) {
         evidence.forEach(item => presented.current.add(item.id))
@@ -53,7 +53,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
       }
     }
     setCards(previous => previous.map(card => card.key === key ? { ...card, phase: 'departing' } : card))
-  }, [])
+  }, [workspace])
   const landed = useCallback((ids: string[]) => setReceipt(previous => previous ? { ...previous, arrivedIds: [...new Set([...previous.arrivedIds, ...ids])] } : null), [])
   const open = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, false), [present])
   const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
@@ -65,10 +65,9 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
 function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { mobile: boolean; landed: (ids: string[]) => void; begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
   const tr = useI18n()
   const { snapshot } = useContext(SkillEvidenceContext)
-  const selector = useRef(createMessageEvidenceSelector())
+  const selector = useRef(createMessageRewardEvidenceSelector())
   const evidence = selector.current(snapshot, chatId, card.messageId, card.source).filter(item => card.ids.includes(item.id))
   const host = useRef<HTMLDivElement>(null)
-  const dock = useRef<HTMLButtonElement>(null)
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const sounded = useRef(false)
@@ -84,7 +83,6 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
     const cleanups = trailCleanups.current
     return () => { for (const stop of cleanups) stop() }
   }, [])
-  const [compactTarget, setCompactTarget] = useState(false)
   const first = evidence[0]
   const domainId = first?.domainId
   useEffect(() => {
@@ -114,7 +112,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       // Cards are overlays. The visible viewport bounds their size even when
       // the keyboard or composer leaves almost no room in the message stream.
       const height = Math.max(1, Math.min(260, viewportHeight - 16 - depth * 9))
-      const width = Math.max(1, Math.min(300, rect.width - 24, viewportWidth - 16 - depth * 3))
+      const width = Math.max(1, Math.min(230, rect.width - 24, viewportWidth - 16 - depth * 3))
       const top = Math.min(Math.max(mobile && card.origin ? card.origin.top - 12 : scope.getBoundingClientRect().top + 4, viewportTop + 8), viewportTop + viewportHeight - height - 8 - depth * 9)
       const left = Math.max(viewportLeft + 8, Math.min(rect.left + 12 + depth * 3, viewportLeft + viewportWidth - width - 8))
       element.style.width = `${width}px`
@@ -122,8 +120,6 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       element.style.top = `${top + depth * 9}px`
       element.style.zIndex = String(card.automatic ? 1105 - depth : 1106)
       element.style.maxHeight = `${height}px`
-      const branch = rewardAnchor(scope, 'skill', first.skillId)
-      setCompactTarget(!branch)
     }
     place()
     window.addEventListener('resize', place)
@@ -148,11 +144,18 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       animation.current = element.animate(frames, timing)
       animation.current.onfinish = () => settled(card.key)
     } else {
-      if (reduced) { landed(card.ids); remove(card.key); return }
+      if (reduced) {
+        // Fast mobile arrivals skip hovering; reduced motion still keeps sound.
+        if (mobile && fast && card.automatic && !sounded.current) {
+          sounded.current = true
+          playRewardSound({ kind: 'xp', xp: Object.values(card.gains).reduce((sum, value) => sum + value, 0) }, element)
+        }
+        landed(card.ids); remove(card.key); return
+      }
       const scope = workspace.current
       const arm = Array.from(scope.querySelectorAll('[data-reward-skill]')).find(node => node.getAttribute('data-reward-skill') === first?.skillId && visibleRewardRect(node, scope))
       const receiptTarget = document.querySelector(`[data-mobile-reward-skill="${first?.skillId}"]`)
-      const destination = receiptTarget ?? arm ?? (mobile ? document.querySelector('.profile-trigger') : dock.current)
+      const destination = receiptTarget ?? arm ?? document.querySelector('.profile-trigger')
       const target = destination?.getBoundingClientRect()
       const rect = element.getBoundingClientRect()
       const x = target ? target.left + target.width / 2 - rect.left - rect.width / 2 : 0
@@ -176,7 +179,6 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   }, [card.phase, card.key, domainId, workspace, settled, remove, mobile, fast, dismiss, landed])
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
-    {compactTarget && !mobile && <button ref={dock} className="reward-map-destination" style={{ color: domainColors(first.domainId).bright }} aria-label={tr("{value0} skill map", { value0: tr(first.label) })} onClick={() => { workspace.current?.querySelector<HTMLButtonElement>('.conversation-map-toggle')?.click() }}>✦</button>}
     <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><>{card.milestone && <p className="reward-milestone" role="status">{tr("{value0} XP milestone", { value0: card.milestone })}</p>}<RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></></div>
   </>, document.body)
 }

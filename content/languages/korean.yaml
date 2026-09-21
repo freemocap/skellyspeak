@@ -1,0 +1,104 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: korean
+  name: Korean
+  native_name: 한국어
+  family: koreanic
+  review: needs_review
+integrations:
+  language_tag: ko
+  transcription: ko
+definitions:
+  orthographies:
+    standard-korean:
+      script: hangul
+      guidance:
+      - scope: target_writing
+        text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+          source text exactly, including jamo sequences; do not replace the source with romanization.
+        sources:
+        - nikl_romanization
+      - scope: explanation_writing
+        text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+          source text exactly, including jamo sequences; do not replace the source with romanization.
+        sources:
+        - nikl_romanization
+  romanization_schemes:
+    revised-romanization:
+      label: Revised Romanization
+      instructions: Use the National Institute of Korean Language Revised Romanization based on standard
+        pronunciation, including its assimilation and aspiration rules and exceptions for names. Use eo
+        and eu, distinguish tense consonants, and use r or l by position. Keep word boundaries and never
+        rewrite the Hangul source. This reading aid does not encode all pronunciation detail.
+      examples:
+      - original: 한국어
+        romanized: hangugeo
+      - original: 서울
+        romanized: Seoul
+      - original: 음악
+        romanized: eumak
+      - original: 감사합니다
+        romanized: gamsahamnida
+      sources:
+      - nikl_romanization
+      review: needs_review
+defaults:
+  variety: korean-south-korea
+  orthography:
+    local: standard-korean
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme: &id001
+      local: revised-romanization
+  supported_romanizations:
+  - *id001
+traits: []
+varieties:
+- id: korean-south-korea
+  name: South Korea
+  description: Contemporary Korean in South Korea, with standard writing and context-appropriate everyday
+    conversation; no single regional accent is prescribed.
+  review: needs_review
+  sources:
+  - nikl_romanization
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - 감사합니다
+      - 고마워요
+conversation:
+  greeting:
+    text: 안녕하세요
+    romanizations:
+      korean:revised-romanization: annyeonghaseyo
+  default_partner:
+    name: 민서
+    romanizedName: Minseo
+    age: 29
+    location: Seoul, South Korea
+    occupation: Repairs audio equipment at a small workshop
+    background: Grew up in Suwon and moved to Seoul for work. Shares a flat with a cousin.
+    currentSituation: Preparing a listening evening with friends and repairing an old radio.
+    interests:
+    - field recording
+    - weekend walks
+    opinions:
+    - A repair is better when its owner understands what changed.
+    interestingFacts:
+    - Keeps a notebook of interesting sounds.
+    favoriteBooks:
+    - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+    - Little Forest (2018)
+    manner: Practical and curious. Uses polite everyday Korean with new acquaintances.
+    quirks:
+    - Labels spare parts by hand.
+    vibe:
+    - 📻
+    - 🌿

@@ -38,7 +38,7 @@ async fn structured_direct_preserves_raw_candidate_finish_usage_and_redaction() 
     destination.set_nonblocking(true).unwrap();
     let (url, worker) = server(
         "302 Found",
-        "private-schema test-credential",
+        "Invalid schema. prompt=private-schema test-credential",
         &format!(
             "Location: http://{}/leak\r\n",
             destination.local_addr().unwrap()

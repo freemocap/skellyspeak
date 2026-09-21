@@ -71,19 +71,6 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 
 .floating-reward .reward-badge blockquote { font-size: var(--type-ui); margin-block: var(--space-2); }
 
-.reward-map-destination {
-  position: fixed;
-  top: 82px;
-  right: 12px;
-  z-index: var(--z-reward-path);
-  border: var(--border-width-strong) solid currentColor;
-  border-radius: var(--radius-circle);
-  background: var(--chrome);
-  width: var(--control-height);
-  height: var(--control-height);
-  font-size: var(--type-display);
-}
-
 .reward-progress-toast {
   position: fixed;
   z-index: var(--z-reward-toast);
@@ -124,8 +111,6 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   background: currentColor;
   transition: width var(--dur-deliberate) ease-out;
 }
-
-.reward-progress-toast small { color: var(--ink-2); }
 
 @media (prefers-reduced-motion: reduce) {
   .reward-progress-toast { animation: none; }
@@ -181,4 +166,10 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   border-top: 0;
   padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
   line-height: var(--leading-snug);
+}
+
+.floating-reward .reward-badge-heading strong { font-size: var(--type-ui); padding: var(--space-2); }
+.floating-reward .reward-inspection-card .detail-action { font-size: var(--type-meta); }
+@media (pointer: coarse) {
+  .reward-inspection-close { min-width: 44px; min-height: 44px; }
 }

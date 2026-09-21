@@ -120,10 +120,13 @@
 .saved-word-help {
   cursor: pointer;
   position: fixed;
+  z-index: var(--z-popover);
+  overflow: auto;
+  box-sizing: border-box;
   inset: auto;
   margin: 0;
   width: max-content;
-  max-width: min(220px, 65vw);
+  max-width: min(320px, calc(100vw - 16px));
   padding: var(--space-4) var(--space-6);
   border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-xs);
@@ -147,6 +150,8 @@
 /* Full saved details are a second-step modal; the first-step helper stays anchored. */
 @media (pointer: coarse) {
   .saved-word-help { min-height: 44px; min-width: 44px; box-sizing: border-box; }
+  .saved-word-help .wg { font-size: var(--type-title); }
+  .saved-word-help .wroman, .saved-word-help .wpronunciation { font-size: var(--type-body); }
 }
 .saved-word-details { overflow-wrap: anywhere; }
 .saved-word-details h2, .saved-word-part-source {

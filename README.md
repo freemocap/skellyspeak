@@ -137,18 +137,18 @@ a local SkellySpeak server, start `npm run server:local` in a second terminal an
 run `adb reverse tcp:8765 tcp:8765`; the device may then use
 `http://127.0.0.1:8765/v1`.
 
-For a standalone debug APK that lives alongside the official Android app, set
-`SKELLYSPEAK_ANDROID_DEV_APP=1` when running `npm run tauri -- android build --debug
---apk --target aarch64 --ci --config native/tauri.android-dev.conf.json`.
-This opt-in debug variant uses
-`com.freemocap.skellyspeak.dev` and the launcher label **Dev-SkellySpeak**, with
-separate app data and credentials. Install its APK with `adb install -r`; it bundles
-the interface and can run after USB is unplugged. AI access still requires a
-reachable service. Supply a build config whose `version` matches `native/Cargo.toml`
-to stamp the Android version, as the release workflow does. This variant is for
-APK installation; the normal `android dev` runner still targets the standard ID.
-Both apps handle `skellyspeak://auth`; select **Dev-SkellySpeak** if Android asks
-which app should receive a developer sign-in callback.
+For a standalone source-built APK, run:
+
+```sh
+npm run tauri -- android build --debug --apk --target aarch64 --ci --config '{"version":"2.1.1"}'
+adb install -r native/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk
+```
+
+Keep the config version equal to `native/Cargo.toml`. This installs **SkellySpeak**
+using `com.freemocap.skellyspeak` and the normal `skellyspeak://auth` callback.
+Uninstall a differently signed release before the first local install; subsequent
+local builds update the same app. The APK bundles the interface and works without
+USB, while AI access still requires a reachable service.
 
 ### Share Android diagnostic logs
 

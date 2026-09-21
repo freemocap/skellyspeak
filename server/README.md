@@ -104,7 +104,9 @@ Requires Python >=3.12 and ffmpeg. Firestore emulator tests skip unless
 `SKELLYSPEAK_FIRESTORE_TEST=1`; the GitHub workflow runs these with the emulator.
 It also builds the container, checks liveness and unauthenticated rejection before
 deploying. The runtime image includes an explicit list of application modules;
-local secrets, tests and administrative scripts are not included.
+local secrets, tests and administrative scripts are not included. Tests check
+that every runtime module is copied and boot that copied package in isolation,
+so checkout imports cannot hide a missing Docker input.
 
 `.github/workflows/deploy-server.yml` runs on main for
 server changes or manual dispatch, using configured Workload Identity Federation.
@@ -628,3 +630,23 @@ heartbeats, limits connections/subscription changes, and releases listeners on
 close. No administrative writes are accepted over this socket. Disconnects are
 visible; enable Live again to reconnect. The refresh-frequency selector and
 one-second HTTP polling are removed.
+
+
+## Provider rate-limit retries
+
+The grouped operation executor uses `app/inference/retry.py` for explicit upstream
+429s, before any partial output. It keeps the original operation claim and retries
+only the rejected item, with a fresh budget reservation and settlement for each
+provider submission. Limits match native AI policy: at most three retries,
+1/2/4-second delays plus up to 250ms jitter, honoring `Retry-After` within a
+30-second cumulative wait budget. Cancellation, quota exhaustion, partial output,
+transport uncertainty and non-429 failures stop retries. Successful siblings are
+never replayed. Retry diagnostics survive final success and failure; rejected
+rounds retain unknown billing instead of being silently refunded.
+
+Audio retries belong to the native operation owner so there is no second server
+loop multiplying requests. Authentication and key probes are not inference retries.
+The raw chat compatibility endpoint remains one provider submission per request;
+SkellySpeak text operations use the grouped endpoint. Custom servers own retries
+inside their grouped attempts; the client cannot safely replay their durable IDs.
+See [the audit and verification report](../docs/notes/ai-retry-audit-2026-09-21.md).

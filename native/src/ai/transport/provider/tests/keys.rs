@@ -27,7 +27,7 @@ async fn key_verification_checks_authentication_without_a_completion() {
 #[tokio::test]
 async fn key_verification_reports_rejection_without_echoing_response() {
     for (status, body) in [
-        ("401 Unauthorized", "private response"),
+        ("401 Unauthorized", "Invalid API key: test-credential"),
         ("200 OK", "not JSON"),
     ] {
         let (url, worker) = server(status, body, "");
@@ -35,6 +35,7 @@ async fn key_verification_reports_rejection_without_echoing_response() {
             .await
             .unwrap_err();
         assert!(!error.message.contains(body));
+        if status.starts_with("401") { assert!(error.message.contains("Invalid API key")); }
         assert!(!error.message.contains("test-credential"));
         worker.join().unwrap();
     }

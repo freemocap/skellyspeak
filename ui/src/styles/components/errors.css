@@ -3,11 +3,11 @@
 .turn-errors {
   border: var(--border-width) solid var(--danger-ink); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
   background: var(--danger-tint); color: var(--danger-ink);
-  font-family: var(--font-mono); font-size: var(--type-meta); line-height: var(--leading-relaxed);
+  font-family: var(--font-mono); font-size: var(--type-ui); line-height: var(--leading-relaxed);
   margin-bottom: var(--space-6);
 }
 
-.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-meta); }
+.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-ui); }
 
 .error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
 
@@ -29,3 +29,11 @@
 .error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .error-details:not([open]) { flex: none; }
+
+/* Keep the actionable explanation visible before technical details are opened. */
+.error-details > summary > [role="alert"] { display: grid; gap: var(--space-1); overflow-wrap: anywhere; }
+
+/* Diagnostics use the available width and can grow instead of clipping long reasons. */
+.response-details { width: 100%; min-width: 0; }
+.response-details > pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: var(--space-3) 0; }
+.response-details[open], .error-details[open] { resize: both; overflow: auto; min-width: min(240px, 100%); max-width: 100%; min-height: 80px; }

@@ -1,7 +1,7 @@
 /* Resizable coaching dock. Collapsed and narrow-layout variants alter layout only. */
 
 .break {
-  flex: 0 0 clamp(320px, calc(100% - var(--chat-share)), 520px);
+  flex: 0 1 calc(100% - var(--chat-share));
   min-width: 0;
   min-height: 0;
   display: flex;

@@ -65,7 +65,12 @@ async def _execute(who, cfg, reserve, settle, amount, invoke):
                     # Preserve the redacted provider reason alongside the fixed HTTP code.
                     suffix = f" (provider HTTP {error.status})" if error.status else ""
                     code = f"ELEVENLABS_HTTP_{error.status}" if error.status else error.code
-                    raise AudioRejection(status, code, f"{error.code}{suffix}. No automatic retry was made.",
+                    reason = (error.provider_error or {}).get("message")
+                    provider_code = (error.provider_error or {}).get("code", error.code)
+                    detail = f"ElevenLabs {provider_code}{suffix}"
+                    if reason:
+                        detail += f": {reason}"
+                    raise AudioRejection(status, code, detail,
                                          provider_error=error.provider_error, diagnostics=error.diagnostics) from None
             provider_id = result.receipt.request_id or provider_id
             cost = amount

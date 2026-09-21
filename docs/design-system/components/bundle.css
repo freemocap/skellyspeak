@@ -40,6 +40,8 @@
    overrides only the roles it changes. */
 
 :root {
+  /* Native menus and controls follow the resolved app theme, including System. */
+  color-scheme: light;
   /* ══ Colour: surfaces and text ═══════════════════════════════════════════
      Warm light is the default palette. Palettes and the dark theme override
      these eleven roles and nothing else in this group. */
@@ -156,7 +158,7 @@
   /* ── Typography ───────────────────────────────────────────────────────── */
   /* Script faces are range-limited: mixed-language text gets the same fonts in
      every surface without replacing Latin glyphs or depending on the UI locale. */
-  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC';
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
   --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
   --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
@@ -279,6 +281,7 @@
 
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --bg: #141517;
   --chrome: #1b1d20;
   --sheet: #24262a;
@@ -555,6 +558,49 @@
   font-display: swap;
   src: url(/fonts/skelly-arabic-reading-700.woff2) format('woff2');
   unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans JP';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-jp.woff2) format('woff2');
+  unicode-range: U+2E80-30FF, U+31F0-31FF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+1AFF0-1B16F, U+20000-323AF;
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-kr.woff2) format('woff2');
+  unicode-range: U+1100-11FF, U+2E80-303F, U+3130-318F, U+3400-4DBF, U+4E00-9FFF, U+A960-A97F, U+AC00-D7FF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+20000-323AF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Cherokee';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-cherokee.woff2) format('woff2');
+  unicode-range: U+13A0-13FF, U+AB70-ABBF;
+}
+
+/* Han glyph forms follow the language of this text, independently of the chat.
+   Reset at each explicit boundary so a nested Chinese quotation does not inherit
+   a Japanese or Korean face. Latin roles keep their existing owners. */
+:where([lang]) {
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
+  --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
+}
+:where([lang|="ja"]) {
+  --font-scripts: 'Noto Sans JP', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+}
+:where([lang|="ko"]) {
+  --font-scripts: 'Noto Sans KR', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
 }
 
 /* ── foundations/reset.css ── */
@@ -1107,6 +1153,9 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .field:focus { border-color: var(--interaction-ink); }
 
+/* Native option popups can otherwise pair inherited ink with an OS background. */
+select option, select optgroup { background: var(--field); color: var(--ink); }
+
 .form-row { margin-bottom: var(--space-5); }
 
 .field-note {
@@ -1162,7 +1211,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 }
 
 .modal {
-  width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
+  max-width: 100%; width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
   border-radius: var(--radius-xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
@@ -1187,7 +1236,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .detail-dialog {
   box-sizing: border-box;
   width: min(580px, calc(100vw - 28px));
-  max-height: 85dvh;
+  max-height: calc(100dvh - 16px);
+  max-width: calc(100vw - 16px);
   overflow-y: auto;
   padding: var(--space-11) var(--space-12);
   border: 0;
@@ -1220,6 +1270,9 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
 }
 .detail-dialog.dialog-wide { width: min(1080px, calc(100vw - 24px)); padding: var(--space-10) var(--space-12); }
+
+/* Shared dialogs can expand to the viewport rather than fixing reports to their initial width. */
+.modal, .detail-dialog { resize: both; min-width: min(280px, 100%); min-height: 100px; }
 
 /* ── components/popovers.css ── */
 .popup-roman { color: var(--interaction-ink); font-family: var(--font-mono); font-style: normal; }
@@ -1267,7 +1320,9 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   position: fixed;
   inset: auto;
   margin: 0;
-  width: min(290px, 75vw);
+  width: min(360px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
   padding: var(--space-4);
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-sm);
@@ -1278,6 +1333,10 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 }
 
 .popup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }
+
+@media (pointer: coarse) {
+  .info-tip > button { min-width: 44px; min-height: 44px; }
+}
 
 /* ── components/reading.css ── */
 .line {
@@ -1402,10 +1461,13 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .saved-word-help {
   cursor: pointer;
   position: fixed;
+  z-index: var(--z-popover);
+  overflow: auto;
+  box-sizing: border-box;
   inset: auto;
   margin: 0;
   width: max-content;
-  max-width: min(220px, 65vw);
+  max-width: min(320px, calc(100vw - 16px));
   padding: var(--space-4) var(--space-6);
   border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-xs);
@@ -1429,6 +1491,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 /* Full saved details are a second-step modal; the first-step helper stays anchored. */
 @media (pointer: coarse) {
   .saved-word-help { min-height: 44px; min-width: 44px; box-sizing: border-box; }
+  .saved-word-help .wg { font-size: var(--type-title); }
+  .saved-word-help .wroman, .saved-word-help .wpronunciation { font-size: var(--type-body); }
 }
 .saved-word-details { overflow-wrap: anywhere; }
 .saved-word-details h2, .saved-word-part-source {
@@ -1624,11 +1688,11 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .turn-errors {
   border: var(--border-width) solid var(--danger-ink); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5);
   background: var(--danger-tint); color: var(--danger-ink);
-  font-family: var(--font-mono); font-size: var(--type-meta); line-height: var(--leading-relaxed);
+  font-family: var(--font-mono); font-size: var(--type-ui); line-height: var(--leading-relaxed);
   margin-bottom: var(--space-6);
 }
 
-.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-meta); }
+.error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-ui); }
 
 .error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
 
@@ -1650,6 +1714,14 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .error-details:not([open]) { flex: none; }
+
+/* Keep the actionable explanation visible before technical details are opened. */
+.error-details > summary > [role="alert"] { display: grid; gap: var(--space-1); overflow-wrap: anywhere; }
+
+/* Diagnostics use the available width and can grow instead of clipping long reasons. */
+.response-details { width: 100%; min-width: 0; }
+.response-details > pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: var(--space-3) 0; }
+.response-details[open], .error-details[open] { resize: both; overflow: auto; min-width: min(240px, 100%); max-width: 100%; min-height: 80px; }
 
 /* ── components/waveform.css ── */
 /* waveform — conversation style owner. */
@@ -1678,11 +1750,16 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .update-bar b { color: var(--interaction-ink); }
 
+.fault-panel {
+  flex: none; min-height: 80px; max-height: 85dvh; min-width: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
 .fault-bar {
-  flex: none; background: var(--fault-bar-bg); border-bottom: var(--border-width) solid var(--fault-bar-line);
+  flex: 1 1 auto; min-height: 0; background: var(--fault-bar-bg); border-bottom: var(--border-width) solid var(--fault-bar-line);
   color: var(--fault-bar-ink); padding: var(--space-5) var(--space-7); font-size: var(--type-ui); line-height: var(--leading-normal);
   display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start;
-  max-height: min(120px, 18dvh); overflow-y: auto; overscroll-behavior: contain;
+  overflow: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
 }
 
 .fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
@@ -1702,12 +1779,18 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .update-controls .btn { padding: var(--space-3) var(--space-5); }
 
+/* Outside the scrolling content: always reachable with mouse, touch or keyboard. */
+.fault-resize { flex: none; height: 16px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; background: var(--fault-bar-bg); }
+.fault-resize > span { width: 48px; height: 3px; border-radius: var(--radius-sm); background: var(--fault-bar-line); }
+.fault-resize:hover > span, .fault-resize:focus-visible > span { background: var(--fault-bar-strong); }
+@media (pointer: coarse) { .fault-resize { height: 44px; } }
+
 
 /* Feature surfaces, in the order the learner meets them. */
 /* ── features/conversation/workspace.css ── */
 /* workspace — conversation style owner. */
 .chat {
-  flex: 1 1 var(--chat-share); min-width: 0; display: flex; flex-direction: column;
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
   background: var(--sheet);
   /* The dev panel shrinks this pane; without clipping, the composer's
      controls bleed out over the panel below. */
@@ -3091,7 +3174,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 /* Resizable coaching dock. Collapsed and narrow-layout variants alter layout only. */
 
 .break {
-  flex: 0 0 clamp(320px, calc(100% - var(--chat-share)), 520px);
+  flex: 0 1 calc(100% - var(--chat-share));
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -3310,12 +3393,14 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   flex: 1; min-height: 0; min-width: 0;
   display: flex; flex-direction: column;
   font-size: var(--type-ui); color: var(--ink);
+  background: color-mix(in srgb, var(--interaction-fill) 9%, var(--chrome));
 }
 
 .ai-view-head {
   flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
   padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
-  border-bottom: var(--border-width) solid var(--line-soft);
+  border-bottom: var(--border-width) solid var(--line);
+  background: color-mix(in srgb, var(--interaction-fill) 13%, var(--chrome));
 }
 
 .ai-view-title { margin: 0; font-size: var(--type-ui); font-weight: var(--weight-semibold); }
@@ -3595,14 +3680,29 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 /* Static definitions use the same graph geometry with no execution state. */
 .ai-definition-toolbar {
-  display: flex; flex-wrap: wrap; gap: var(--space-4);
-  padding: var(--space-3) var(--space-6); border-bottom: var(--border-width) solid var(--line-soft);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4);
+  min-width: 0;
 }
 .ai-definition-toolbar label { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
-.ai-definition-toolbar select { min-width: 0; max-width: 100%; }
-.ai-definition-description { margin: 0; padding: var(--space-4) var(--space-6); color: var(--ink-2); }
+.ai-definition-toolbar .field {
+  flex: none; min-width: 0; width: auto; max-width: 30ch;
+  min-height: var(--control-height-sm); padding: var(--space-1) var(--space-3);
+  font-size: var(--type-meta);
+}
 .ai-definition-source { font-family: var(--font-mono); font-size: var(--type-meta); overflow-wrap: anywhere; }
 
+
+/* The activity dock sits above the workspace; its tinted frame separates the
+   graph canvas and inspector sheets from the conversation surfaces. */
+.logs-panel:has(> .ai-view[data-mode=docked]) {
+  position: relative; z-index: var(--z-raised);
+  border-top: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -6px 20px color-mix(in srgb, var(--ink) 16%, transparent);
+}
+@media (pointer: coarse) {
+  .ai-definition-toolbar .field { min-height: 44px; }
+}
 
 /* ── features/settings/forms.css ── */
 .shortcut-field { display: flex; align-items: center; gap: var(--space-5); }
@@ -3659,6 +3759,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 @media (max-width: 860px) {
   .settings-modal .form-row { margin-bottom: var(--space-4); }
 }
+
+.assessment-label { display: flex; align-items: center; gap: var(--space-2); }
 
 /* ── features/settings/settings.css ── */
 /* Settings shell: navigation, scrolling content and fixed footer. Mobile uses stacked sections; content must shrink without pushing the footer outside the safe area. */
@@ -4353,19 +4455,6 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 
 .floating-reward .reward-badge blockquote { font-size: var(--type-ui); margin-block: var(--space-2); }
 
-.reward-map-destination {
-  position: fixed;
-  top: 82px;
-  right: 12px;
-  z-index: var(--z-reward-path);
-  border: var(--border-width-strong) solid currentColor;
-  border-radius: var(--radius-circle);
-  background: var(--chrome);
-  width: var(--control-height);
-  height: var(--control-height);
-  font-size: var(--type-display);
-}
-
 .reward-progress-toast {
   position: fixed;
   z-index: var(--z-reward-toast);
@@ -4406,8 +4495,6 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   background: currentColor;
   transition: width var(--dur-deliberate) ease-out;
 }
-
-.reward-progress-toast small { color: var(--ink-2); }
 
 @media (prefers-reduced-motion: reduce) {
   .reward-progress-toast { animation: none; }
@@ -4463,6 +4550,12 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
   border-top: 0;
   padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
   line-height: var(--leading-snug);
+}
+
+.floating-reward .reward-badge-heading strong { font-size: var(--type-ui); padding: var(--space-2); }
+.floating-reward .reward-inspection-card .detail-action { font-size: var(--type-meta); }
+@media (pointer: coarse) {
+  .reward-inspection-close { min-width: 44px; min-height: 44px; }
 }
 
 /* ── features/conversation/progress-report.css ── */

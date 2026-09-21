@@ -1,3 +1,4 @@
+import { messageRewardEvidence } from './message-evidence'
 import { expect, it } from 'vitest'
 import { skillDemo } from '../catalog/skillDemo'
 import { unreportedInput } from './skills'
@@ -62,4 +63,13 @@ it('checks the full registry hash even when numeric catalog fingerprints match',
   const snapshot = reviewed()
   snapshot.records[0].construct_registry_hash = 'different-full-hash'
   expect(() => messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toThrow('different construct registry')
+})
+
+it('does not fabricate a highlighted span for whole-message classifications', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].assessment_adapter = 'jev_choice'
+  const judgment = snapshot.records[0].assessment!.judgments[0]
+  judgment.evidence_kind = 'whole_message'; judgment.quotes = []
+  expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
+  expect(messageRewardEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([expect.objectContaining({ evidenceKind: 'whole_message', quote: 'Ese café.' })])
 })

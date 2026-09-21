@@ -8,7 +8,7 @@ export function exposeOptions(root:HTMLElement){
   group.setAttribute('aria-label',label);
   for(const option of select.options){
    const button=document.createElement('button');button.type='button';
-   button.textContent=option.value===''?'All':option.text.replace(/^Prompt (\d+) · /,'$1 · ');
+   button.textContent=option.value===''?(select.dataset.emptyLabel??'All'):option.text.replace(/^Prompt (\d+) · /,'$1 · ');
    button.dataset.selectValue=option.value;
    button.onclick=()=>{select.value=option.value;select.dispatchEvent(new Event('change'));syncOptions(root);};
    group.append(button);

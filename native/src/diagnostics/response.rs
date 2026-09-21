@@ -43,24 +43,6 @@ pub fn scrub(text: &str, private: &[&str]) -> String {
         })
         .replace_all(&text, "(reading property $1)")
         .into_owned();
-    static QUOTED: OnceLock<regex::Regex> = OnceLock::new();
-    let quoted = QUOTED
-        .get_or_init(|| regex::Regex::new(r#"["'`]([^"'`\n]*)["'`]"#).expect("quoted diagnostic"));
-    text = quoted
-        .replace_all(&text, |caps: &regex::Captures<'_>| {
-            let value = &caps[1];
-            // Preserve existing schema/permission identifiers, not quoted prose.
-            if value
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b"_/.-".contains(&b))
-                && value.bytes().any(|b| b"_/.-".contains(&b))
-            {
-                caps[0].to_owned()
-            } else {
-                "[redacted: quoted value]".into()
-            }
-        })
-        .into_owned();
     static CONTENT: OnceLock<regex::Regex> = OnceLock::new();
     text = CONTENT.get_or_init(|| regex::Regex::new(r"(?i)\b(prompt|transcript|content|request body|response body|input|output)\s*[=:]\s*[^\n]*").expect("content diagnostic"))
         .replace_all(&text, "$1=[redacted: content]").into_owned();
@@ -85,6 +67,9 @@ fn content(key: &str) -> bool {
             | "transcript"
             | "prompt"
             | "messages"
+            | "answers"
+            | "questions"
+            | "state"
             | "input"
             | "output"
             | "audio"
@@ -134,6 +119,8 @@ fn public_string(key: &str) -> bool {
             | "processing_ms"
             | "openai_processing_ms"
             | "requestId"
+            | "attemptId"
+            | "operationId"
             | "model"
             | "model_id"
             | "requested_model"
@@ -241,6 +228,9 @@ pub fn metadata(value: &Value, private: &[&str]) -> Value {
         for key in [
             "name",
             "message",
+            "detail",
+            "reason",
+            "request_id",
             "stack",
             "componentStack",
             "code",
@@ -300,13 +290,22 @@ pub fn network(error: &reqwest::Error, stage: &str) -> AppError {
     } else {
         "transport_failed"
     };
+    let mut causes = Vec::new();
+    let mut source = std::error::Error::source(error);
+    while let Some(cause) = source {
+        if causes.len() == 8 {
+            break;
+        }
+        causes.push(serde_json::json!({"message": scrub(&cause.to_string(), &[])}));
+        source = cause.source();
+    }
     AppError::new(
         ErrorCode::UnknownOutcome,
         format!(
             "{stage}: {reason}. Provider processing may have occurred; no automatic retry was made."
         ),
     )
-    .with_diagnostics(json!({"stage":stage,"reason":reason}))
+    .with_diagnostics(json!({"stage":stage,"reason":reason,"message":scrub(&error.to_string(), &[]),"causes":causes}))
 }
 pub async fn http_error(
     mut response: reqwest::Response,
@@ -358,7 +357,7 @@ pub async fn http_error(
         json!({"reason":"error_body_incomplete"})
     } else {
         serde_json::from_slice(&body).unwrap_or_else(
-            |_| json!({"reason":"non_json_error_body","body":"[redacted: unstructured content]"}),
+            |_| json!({"reason":"non_json_error_body","detail":String::from_utf8_lossy(&body)}),
         )
     };
     let value = metadata(&value, private);
@@ -478,7 +477,7 @@ mod tests {
             assert!(!result.to_string().contains(private));
         }
         assert!(!scrub("Invalid token: Bearer abc123", &[]).contains("abc123"));
-        assert!(!scrub("Parse failed near \"private text\"", &[]).contains("private text"));
+        assert!(!scrub("Parse failed near \"private text\"", &["private text"]).contains("private text"));
     }
     #[test]
     fn keeps_identifiers_usage_and_extra_numbers_but_removes_content_and_keys() {

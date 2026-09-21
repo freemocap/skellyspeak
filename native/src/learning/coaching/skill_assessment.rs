@@ -139,3 +139,7 @@ pub fn publish(db: &Connection, turn: &str, value: &Value, attempt: &str) -> Res
     db.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3) WHERE id=?1",params![turn,value.to_string(),attempt])?;
     crate::learning::rewards::publish(db, turn, attempt)
 }
+
+#[cfg(test)]
+#[path = "skill_assessment_export.rs"]
+mod experiment_export;

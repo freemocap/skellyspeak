@@ -1,3 +1,4 @@
+import { errorMessage as message } from '../../../platform/diagnostics/error-details'
 import { useI18n } from '../../../components/localization/i18n'
 import { ConnectionHealthPanel } from './ConnectionHealthPanel'
 import { useConnectionHealth } from '../../../state/session/connection-health'
@@ -6,8 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/native'
 import type { AccessCheck, AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../../generated/contracts'
 
-const message = (error: unknown): string => error instanceof Error ? error.message :
-  typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
+
 
 function credentialPreview(value: string): string {
   const chars = Array.from(value.trim())

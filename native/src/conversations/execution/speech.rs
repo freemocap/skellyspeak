@@ -74,6 +74,7 @@ pub(super) fn prepare_speech(
         operation: operation.into(),
         messages: vec![],
         gloss_schema: None,
+        decisions: None,
         coaching_schema: None,
         gloss_source: None,
         speech_source: Some(crate::speech::cache::Source {
@@ -213,7 +214,7 @@ impl Store {
                 .as_deref()
                 .is_some_and(|reason| reason != "stop")
             {
-                return Err(fail("Speech did not finish normally."));
+                return Err(fail("Speech generation stopped before normal completion.").with_diagnostics(serde_json::json!({"stage":"speech_publication", "path":"finish_reason", "expected":"stop", "finish_reason":outcome.finish_reason})));
             }
             if (outcome.input_tokens.is_some() && tokens_in.is_none())
                 || (outcome.output_tokens.is_some() && tokens_out.is_none())
@@ -232,6 +233,16 @@ impl Store {
             }),
             Err(error) => Err(error),
         };
+        // Publication validation can fail after provider decoding succeeded.
+        // Retain that failure alongside the already validated provider receipt.
+        let diagnostics = crate::diagnostics::response::retained(
+            outcome.diagnostics.as_ref(),
+            audio.as_ref().err(),
+        );
+        tx.execute(
+            "UPDATE attempts SET diagnostics=?2 WHERE id=?1",
+            params![dispatch.attempt, diagnostics],
+        )?;
         if let Err(error) = &audio {
             pause_related(&tx, &dispatch.target, error)?;
         }
@@ -271,10 +282,72 @@ impl Store {
         let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
         let captured: serde_json::Value = serde_json::from_str(&context)?;
         speech_binding(&self.connection, &message, &text, &captured)?;
-        let unavailable = |reason| SpeechAudioState::Unavailable {
-            operation_id: operation.into(),
-            message_id: message.clone(),
-            reason,
+        let unavailable = |reason: SpeechUnavailableReason| -> Result<SpeechAudioState> {
+            let attempt = self.connection.query_row(
+                "SELECT id,error,diagnostics,requested_model,actual_model,provider_id FROM attempts WHERE operation_id=?1 ORDER BY rowid DESC LIMIT 1",
+                [operation], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<String>>(1)?, r.get::<_, Option<String>>(2)?, r.get::<_, String>(3)?, r.get::<_, Option<String>>(4)?, r.get::<_, Option<String>>(5)?)),
+            ).optional()?;
+            let fallback = match reason {
+                SpeechUnavailableReason::Expired => {
+                    "This reply's audio is no longer cached. Tap the speaker to generate it again."
+                }
+                SpeechUnavailableReason::Cancelled => {
+                    "Speech was cancelled before playback. Tap the speaker to try again."
+                }
+                SpeechUnavailableReason::UnknownOutcome => {
+                    "The speech request ended without a confirmed result. Retrying may repeat provider work and charges."
+                }
+                SpeechUnavailableReason::NotRequested => {
+                    "Speech has not been requested for this reply. Tap the speaker to generate it."
+                }
+                SpeechUnavailableReason::Failed => {
+                    "Speech generation failed without a recorded explanation. Open AI activity to inspect the operation."
+                }
+            };
+            // Admission can fail before an attempt exists. Its full error belongs
+            // to this request, ahead of any previous attempt's failure.
+            let admission = captured.get("speechError");
+            let failure_message = admission
+                .and_then(|v| {
+                    v.get("message")
+                        .and_then(|v| v.as_str())
+                        .or_else(|| v.as_str())
+                })
+                .or_else(|| attempt.as_ref().and_then(|a| a.1.as_deref()));
+            let failed = matches!(
+                reason,
+                SpeechUnavailableReason::Failed | SpeechUnavailableReason::UnknownOutcome
+            );
+            let explanation = if failed {
+                failure_message.unwrap_or(fallback)
+            } else {
+                fallback
+            };
+            let diagnostics = if let Some(error) = admission {
+                Some(error.clone())
+            } else if let Some(a) = &attempt {
+                let response =
+                    a.2.as_deref()
+                        .map(serde_json::from_str::<serde_json::Value>)
+                        .transpose()?;
+                Some(
+                    serde_json::json!({"requested_model": a.3, "actual_model": a.4, "request_id": a.5, "response": response}),
+                )
+            } else {
+                None
+            };
+            Ok(SpeechAudioState::Unavailable {
+                operation_id: operation.into(),
+                message_id: message.clone(),
+                reason,
+                message: explanation.into(),
+                attempt_id: if admission.is_some() {
+                    None
+                } else {
+                    attempt.as_ref().map(|a| a.0.clone())
+                },
+                diagnostics,
+            })
         };
         match state.as_str() {
             "ready" | "waiting_dependencies" | "running" => Ok(SpeechAudioState::Pending {
@@ -295,12 +368,12 @@ impl Store {
                         audio_base64: base64::engine::general_purpose::STANDARD.encode(&audio.wav),
                     })
                 } else {
-                    Ok(unavailable(SpeechUnavailableReason::Expired))
+                    unavailable(SpeechUnavailableReason::Expired)
                 }
             }
-            "cancelled" | "invalidated" => Ok(unavailable(SpeechUnavailableReason::Cancelled)),
-            "unknown" => Ok(unavailable(SpeechUnavailableReason::UnknownOutcome)),
-            _ => Ok(unavailable(SpeechUnavailableReason::Failed)),
+            "cancelled" | "invalidated" => unavailable(SpeechUnavailableReason::Cancelled),
+            "unknown" => unavailable(SpeechUnavailableReason::UnknownOutcome),
+            _ => unavailable(SpeechUnavailableReason::Failed),
         }
     }
 }

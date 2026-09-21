@@ -1,4 +1,5 @@
 import {exposeOptions,syncOptions} from './options.ts';
+import {assessmentPanels} from './assessment-panel.ts';
 import {installTopDivider,installDivider,layerColors,type HighlightLayer} from './interaction.ts';
 import {semantic} from './semantic.ts';
 import {config,groups,levels,bounds,name,mean,ordering,summarize,type Row} from './compare.ts';
@@ -24,7 +25,8 @@ const cos=(a:Row,b:Row)=>dv.getUint16((a.vectorIndex*data.vectorCount+b.vectorIn
 const cellSimilarities=groups(rows).flatMap(g=>levels.map(l=>summarize(g.filter(r=>r.level===l),cos).similarity)).filter(Number.isFinite);
 const similarityRange=[Math.floor(Math.min(...cellSimilarities)*100)/100,Math.ceil(Math.max(...cellSimilarities)*100)/100];
 let filters:Record<string,string>={prompt:'',level:'',persona:'',wording:'',temperature:'',topP:'',round:'',cluster:'',language:'',search:''};
-let selected:Set<string>|null=null,selectionLabel='',focus:Row|null=null,neighbor:Row|null=null,tab='compare',side='responses';
+let selected:Set<string>|null=null,selectionLabel='',focus:Row|null=null,neighbor:Row|null=null,tab=data.assessment?'design':'compare',side='responses';
+const assessment=data.assessment?assessmentPanels(root,data.assessment,rows,choose):null;
 const element=(tag:string,text:string,cls='')=>{const e=document.createElement(tag);e.textContent=text;e.className=cls;return e;};
 const button=(text:string,fn:()=>void,cls='')=>{const e=element('button',text,cls) as HTMLButtonElement;e.type='button';e.onclick=fn;return e;};
 const pct=(n:number)=>Number.isFinite(n)?`${(n*100).toFixed(0)}%`:'—';
@@ -46,13 +48,18 @@ for(const e of root.querySelectorAll<HTMLInputElement|HTMLSelectElement>('[data-
 }
 for(const b of root.querySelectorAll<HTMLButtonElement>('[data-tab]'))b.onclick=()=>{tab=b.dataset.tab!;switchTabs();renderPlots();};
 for(const b of root.querySelectorAll<HTMLButtonElement>('[data-side]'))b.onclick=()=>{side=b.dataset.side!;switchTabs();};
-function switchTabs(){for(const b of root.querySelectorAll<HTMLButtonElement>('[data-tab]'))b.setAttribute('aria-pressed',String(b.dataset.tab===tab));$('#compare-panel').hidden=tab!=='compare';$('#plots-panel').hidden=tab!=='plots';for(const b of root.querySelectorAll<HTMLButtonElement>('[data-side]'))b.setAttribute('aria-pressed',String(b.dataset.side===side));$('#responses').hidden=side!=='responses';$('#prompts').hidden=side!=='prompts';}
+function switchTabs(){for(const b of root.querySelectorAll<HTMLButtonElement>('[data-tab]'))b.setAttribute('aria-pressed',String(b.dataset.tab===tab));$('#compare-panel').hidden=tab!=='compare';$('#plots-panel').hidden=tab!=='plots';if(assessment){$('#design-panel').hidden=tab!=='design';$('#assessment-panel').hidden=tab!=='assessment';assessment.plots();}for(const b of root.querySelectorAll<HTMLButtonElement>('[data-side]'))b.setAttribute('aria-pressed',String(b.dataset.side===side));$('#responses').hidden=side!=='responses';$('#prompts').hidden=side!=='prompts';}
 $('#clear').onclick=()=>{selected=null;neighbor=null;focus=null;render();};
 $('#reset').onclick=()=>{pinned.splice(0);for(const key in filters)filters[key]='';for(const e of root.querySelectorAll<HTMLInputElement>('[data-filter]'))e.value='';selected=null;neighbor=null;focus=null;render();};
 $('#heat-metric').onchange=()=>renderTables();$('#measure').onchange=()=>renderPlots();
 $('#fit-target').onchange=()=>renderTables();$('#cos-target').onchange=()=>renderTables();
 $('#export').onclick=()=>{$<HTMLTextAreaElement>('#json-text').value=JSON.stringify({fingerprint:data.fingerprint,filters,selectionLabel,layers:pinned.map(l=>({...l,ids:[...l.ids]})),rows:listed().map(r=>({...r,promptText:data.prompts[r.promptIndex]}))},null,2);};
 $('#dataset-label').textContent=`${rows.length} responses · Gemini 2.5 Flash Lite · no topic · 10 repetitions per cell`;
+if(data.assessment){
+ $('h1').textContent='Skill assessment experiment explorer';
+ $('#dataset-label').textContent=`${rows.length} saved source responses · ${data.assessment.summary.completed}/${data.assessment.planned} pilot requests complete · design review`;
+ root.querySelector<HTMLElement>('[data-tab="compare"]')!.textContent='Source prompt comparisons';
+}
 for(const [i,p]of prompts.entries()){const e=element('span',name(p));const dot=element('span','','dot');dot.style.background=`var(--s${i%6+1})`;e.prepend(dot);$('#legend').append(e);}
 $('#legend').append(element('span','○ Persona · ◇ No persona · drag or click to select','subtle'));
 function tags(){const area=$('#tags');area.replaceChildren();for(const [key,v]of Object.entries(filters).filter(([,v])=>v))area.append(button(`${key}: ${name(v)} ×`,()=>updateFilter(key,''),'tag'));if(selected)area.append(button(`${selectionLabel} · ${listed().length} ×`,()=>{selected=null;focus=null;neighbor=null;render();},'tag'));}
@@ -114,6 +121,7 @@ for(const text of [
 function render(){
  syncOptions(root);renderTables();renderRight();renderPlots();renderLayers();
  const active=highlighted();
+ assessment?.highlight(active);
  for(const body of ['ranking','heat','summary']){
   const conditions=groups(rows).flatMap(g=>body==='summary'?levels.map(l=>g.filter(r=>r.level===l)):[g]);
   [...$('#'+body).children].forEach((tr,i)=>{tr.className=active?(conditions[i]?.some(r=>active.has(r.id))?'highlighted':''):'';});

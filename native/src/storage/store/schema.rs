@@ -1,7 +1,7 @@
 use super::*;
 
 /// Current development schema; other versions require explicit reset.
-pub(crate) const SCHEMA_VERSION: i32 = 26;
+pub(crate) const SCHEMA_VERSION: i32 = 27;
 pub(super) const GENERATION_SCHEMA: &str = include_str!("../schemas/generation_schema.sql");
 
 pub(super) fn validate_database(connection: &Connection) -> Result<()> {

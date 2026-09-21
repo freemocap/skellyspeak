@@ -15,7 +15,7 @@ EVENTS = {
     "request_started", "request_finished", "request_failed", "request_cancelled",
     "response_progress", "client_disconnected", "runtime_started",
     "runtime_stopped", "decoder_check_started", "decoder_check_finished",
-    "provider_credential_checked", "provider_error_response", "provider_headers", "provider_started", "provider_finished", "provider_failed", "provider_cancelled",
+    "provider_credential_checked", "provider_retry_scheduled", "provider_error_response", "provider_headers", "provider_started", "provider_finished", "provider_failed", "provider_cancelled",
     "reservation_started", "reservation_finished", "reservation_failed",
     "settlement_started", "settlement_finished", "settlement_failed",
     "operation_started", "operation_claimed", "operation_duplicate", "operation_finished",
@@ -46,7 +46,7 @@ def sanitize(data: dict) -> dict:
     value = data.get("request_id")
     if isinstance(value, str) and len(value) == 32 and all(c in "0123456789abcdef" for c in value):
         result["request_id"] = value
-    if data["event"] == "provider_error_response":
+    if data["event"] in {"provider_error_response", "provider_retry_scheduled"}:
         from server.app.diagnostics.provider_errors import sanitize
         result["response_body"] = sanitize(data.get("response_body"))
         for key in ("body_truncated", "body_unreadable"):

@@ -399,7 +399,7 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     store.execute(send(&store, &conversation)).unwrap();
     store
         .connection
-        .execute("DELETE FROM operations WHERE kind='skill_assessment'", [])
+        .execute("DELETE FROM operations WHERE kind IN ('skill_assessment','skill_evidence')", [])
         .unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();

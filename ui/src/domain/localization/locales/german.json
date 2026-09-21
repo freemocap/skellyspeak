@@ -1150,5 +1150,17 @@
   "Minimize coach chat": "Coach-Chat minimieren",
   "AI work is paused or held.": "Die KI-Arbeit ist pausiert oder angehalten.",
   "Reply help is unavailable for this message.": "Für diese Nachricht ist keine Antworthilfe verfügbar.",
-  "The outcome is unknown. This request may have incurred usage.": "Das Ergebnis ist unbekannt. Diese Anfrage hat möglicherweise Nutzung verursacht."
+  "The outcome is unknown. This request may have incurred usage.": "Das Ergebnis ist unbekannt. Diese Anfrage hat möglicherweise Nutzung verursacht.",
+  "Skill assessment": "Kompetenzbewertung",
+  "Jev Choice": "Jev Choice",
+  "Chat model assessment": "Bewertung durch Chatmodell",
+  "Whole-message assessment": "Bewertung der gesamten Nachricht",
+  "Probability of some evidence": "Wahrscheinlichkeit für vorhandene Hinweise",
+  "Probability of full demonstration": "Wahrscheinlichkeit einer vollständigen Demonstration",
+  "Decision scores and policy": "Entscheidungswerte und Regeln",
+  "A decision model that evaluates predefined skill questions and returns category probabilities in parallel. It assesses the whole learner message; it does not generate supporting quotes or explanations.": "Ein Entscheidungsmodell, das vorgegebene Kompetenzfragen bewertet und parallel Wahrscheinlichkeiten für die Kategorien liefert. Es bewertet die gesamte Nachricht der lernenden Person und erzeugt keine Belegzitate oder Erklärungen.",
+  "Uses the selected Fast model to generate structured observations, including exact learner quotes and explanations. The app validates those quotes before accepting evidence.": "Verwendet das ausgewählte schnelle Modell für strukturierte Beobachtungen mit wörtlichen Zitaten und Erklärungen. Die App prüft diese Zitate, bevor sie die Belege akzeptiert.",
+  "Both can make incorrect judgments. Probabilities describe assessment outcomes, not learner proficiency. Switching affects future assessments; saved evidence keeps its original source and method.": "Beide Methoden können falsch urteilen. Die Wahrscheinlichkeiten beschreiben Bewertungsergebnisse, nicht den Kenntnisstand. Ein Wechsel gilt für zukünftige Bewertungen; gespeicherte Belege behalten ihre ursprüngliche Quelle und Methode.",
+  " later conversation turns. Your edited message replaces the original; private coach history is kept.": " spätere Gesprächsbeiträge. Deine bearbeitete Nachricht ersetzt das Original; der private Coach-Verlauf bleibt erhalten.",
+  "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "Jev bewertet Kompetenzfragen und liefert Wahrscheinlichkeiten für die Kategorien. Das ausgewählte schnelle Modell sucht anschließend passende Belegstellen in deiner Nachricht. Die App prüft diese Zitate, bevor sie XP vergibt."
 }

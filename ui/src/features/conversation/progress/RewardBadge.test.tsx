@@ -7,7 +7,7 @@ import { RewardDetail } from './RewardBadge'
 
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 
-it('shows all quotes once with one stored credit, including repeated-phrase ambiguity', () => {
+it('shows all quotes once with one stored credit, without boilerplate', () => {
   HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
   const item: MessageEvidence = { id: 'a:referent', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'Ese café', ambiguous: true, rationale: 'Ese identifies a particular coffee.', start: 0, end: 8, color: domainColors('reference').ink, explanation: '' }
@@ -17,7 +17,7 @@ it('shows all quotes once with one stored credit, including repeated-phrase ambi
   expect(screen.getByText('aquel té')).toBeVisible()
   expect(screen.getAllByText('10 XP')).toHaveLength(1)
   expect(screen.queryByText('+10 XP')).not.toBeInTheDocument()
-  expect(screen.getByText(/does not specify which occurrence/)).toBeVisible()
+  expect(screen.queryByText(/does not specify which occurrence|Total credited/)).toBeNull()
   expect(screen.getByRole('dialog', { name: 'XP details' }).tagName).toBe('SECTION')
   fireEvent.pointerDown(document.body)
   expect(close).toHaveBeenCalledTimes(1)

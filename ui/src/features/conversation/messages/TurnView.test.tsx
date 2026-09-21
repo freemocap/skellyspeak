@@ -456,3 +456,22 @@ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveal
   expect(input.onAskCoach).not.toHaveBeenCalled()
   expect(input.onToggleReveal).not.toHaveBeenCalled()
 })
+
+it('attaches localized Jev XP to the exact source span without a separate badge row', async () => {
+  const { SkillEvidenceContext } = await import('../../../state/learning/useSkillEvidence')
+  const { PracticeContext } = await import('../session/PracticeContext')
+  const { RewardInspectionContext } = await import('../progress/RewardInspectionContext')
+  const { skillDemo } = await import('../../../domain/learning/catalog/skillDemo')
+  const { unreportedInput } = await import('../../../domain/learning/evidence/skills')
+  const snapshot = structuredClone(skillDemo)
+  snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
+  snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'referent', xp: 10 }]
+  const open = vi.fn()
+  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ open, arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
+  expect(view.container.querySelector('.message-evidence')).toHaveTextContent('Hola')
+  expect(view.container.querySelector('.message-credit-badges')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Inspect 10 XP · Identify a referent' }))
+  expect(view.container.querySelector('.message-credit-badges')).toBeNull()
+  expect(view.container.querySelector('.whole-message-credit-source')).toBeNull()
+  expect(open).toHaveBeenCalledWith([expect.objectContaining({ id: 'jev:referent', quote: 'Hola', xp: 10 })], 1, 'Hola')
+})

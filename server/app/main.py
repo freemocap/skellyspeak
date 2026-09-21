@@ -15,6 +15,8 @@ Design rules, matching the app:
 
 from __future__ import annotations
 
+from server.app.inference import decisions
+
 # `python app/main.py` is a convenient local command but cannot import the
 # repository-level `server` package by itself. Delegate it to the supported
 # launcher before importing the hosted application.
@@ -183,8 +185,13 @@ async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, prov
             provider_errors.record(provider, response.status_code, {"error": payload["error"]}, kwargs)
             error = payload["error"]
             status = error.get("code") if isinstance(error, dict) else None
-            raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider,
-                                    provider_errors.sanitize(payload, tuple(provider_errors.request_strings(kwargs))))
+            metadata = provider_errors.sanitize(payload, tuple(provider_errors.request_strings(kwargs)))
+            metadata["chars"] = sum(len(choice.get("message", {}).get("content", ""))
+                                    for choice in payload.get("choices", [])
+                                    if isinstance(choice, dict) and isinstance(choice.get("message"), dict)
+                                    and isinstance(choice["message"].get("content"), str))
+            metadata["http"] = {"status": response.status_code, "response_headers": provider_errors.response_headers(response)}
+            raise UpstreamHTTPError(status if type(status) is int and 400 <= status <= 599 else 502, provider, metadata)
         return payload
 
 
@@ -559,6 +566,11 @@ def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
     if not isinstance(usage, dict):
         raise ValueError("Provider usage must be an object.")
     tokens = usage.get("total_tokens", 0)
+    if "total_tokens" not in usage and ("input_tokens" in usage or "output_tokens" in usage):
+        counts = [usage.get("input_tokens", 0), usage.get("output_tokens", 0)]
+        if any(type(n) is not int or n < 0 for n in counts):
+            raise ValueError("Provider token counts must be nonnegative integers.")
+        tokens = sum(counts)
     cost = usage.get("cost")
     if type(tokens) is not int or tokens < 0:
         raise ValueError("Provider token count must be a nonnegative integer.")
@@ -807,11 +819,28 @@ async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dic
 async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
                                on_delta: Callable[[str], None] | None = None,
                                *, who: quota.Principal) -> dict[str, object]:
+    from server.app.inference import retry
+    state = "unknown"
+    try:
+        result = await retry.run(lambda: _execute_grouped_round(item, held, on_delta, who=who))
+        state = "succeeded"
+        return result
+    except HTTPException as error:
+        if error.status_code < 500:
+            state = "failed"
+        raise
+    finally:
+        with anyio.CancelScope(shield=True):
+            await anyio.to_thread.run_sync(partial(work_admission.finish, db, claim=held, state=state))
+
+
+async def _execute_grouped_round(item: grouped.Item, held: work_admission.Claim,
+                               on_delta: Callable[[str], None] | None = None,
+                               *, who: quota.Principal) -> dict[str, object]:
     reservation: budget.Reservation | None = None
     cost: int | None = 0
     tokens: int = 0
     provider_id: str = ""
-    state = "failed"
     execution_error: BaseException | None = None
     accumulator: streaming.CompletionAccumulator | None = None
     try:
@@ -829,7 +858,6 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
         with anyio.fail_after(work_admission.WORK_SECONDS):
             async with httpx.AsyncClient(timeout=work_admission.WORK_SECONDS) as client:
                 cost = None
-                state = "unknown"
                 base = CFG.openrouter_base_url
                 key = CFG.openrouter_key
                 headers = {"Authorization": f"Bearer {key}", "X-Title": "SkellySpeak"}
@@ -850,17 +878,15 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
                         raise StreamFailure("STREAM_BROKEN", accumulator.partial("transport_broken"))
                     payload = accumulator.completion()
                 else:
-                    payload = await provider_json(client, f"{base}/chat/completions",
+                    payload = await provider_json(client, decisions.endpoint(base) if "questions" in outbound else f"{base}/chat/completions",
                         limit=4 * 1024 * 1024, provider="OPENROUTER", json=outbound, headers=headers)
         if payload.get("error"):
             raise HTTPException(502, "Invalid provider response.")
         provider_id = str(payload.get("id", ""))
         cost, tokens = _usage_from(payload)
-        if cost is not None:
-            state = "succeeded"
         # A streamed item's result has exactly the non-streaming shape, so the
         # client's strict decoder and publication run unchanged on it.
-        return {"type": "result", "response": payload}
+        return {"type": "result", "response": decisions.completion(payload) if "questions" in outbound else payload}
     except BaseException as error:
         # Limit failures and the enclosing work timeout may bypass the normal
         # return from stream_grouped_item. Keep already received billing facts
@@ -887,16 +913,10 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
                 if reservation is not None:
                     await _settle(reservation, cost=cost, tokens=tokens, provider_id=provider_id)
             except UsageUnknown:
-                state = "unknown"
                 # Keep the original execution failure after conservative settlement.
                 # Storage failures still propagate through the separate handler.
                 if execution_error is None:
                     raise
-            except BaseException:
-                state = "unknown"
-                raise
-            finally:
-                await anyio.to_thread.run_sync(partial(work_admission.finish, db, claim=held, state=state))
 
 
 @app.post("/v1/operations")
@@ -922,6 +942,7 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "operations_versions": list(grouped.SUPPORTED_VERSIONS),
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
             "accepts_other_text_models": True,
+            "decisions": {"version": 1, "models": [decisions.MODEL]},
             "transcription_model": CFG.stt_model if CFG.stt_provider == "elevenlabs" else "whisper-large-v3",
             "audio": {"version": 1, "transcription_provider": CFG.stt_provider,
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,

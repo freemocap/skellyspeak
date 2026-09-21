@@ -107,7 +107,7 @@ it('reports a failed suggestions job without hiding the brief', () => {
   show({ errors: ['Coach feedback rejected: suggestion_token_not_in_reply.'] })
   expect(screen.getByText(/She asked how you are/)).toBeVisible()
   expect(screen.getByRole('alert')).toHaveTextContent('Reply help')
-  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).not.toBeVisible()
+  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).toBeVisible()
   fireEvent.click(screen.getByText('⚠ Reply help'))
   expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).toBeVisible()
 })

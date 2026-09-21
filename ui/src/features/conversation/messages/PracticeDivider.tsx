@@ -1,22 +1,22 @@
 import { useI18n } from '../../../components/localization/i18n'
 import { useState, type RefObject } from 'react'
 
-/** Size the coach in pixels so resizing cannot overwhelm the reading surface. */
+/** Let the learner size the coach across the available workspace. */
 export function PracticeDivider({ workspace }: { workspace: RefObject<HTMLDivElement | null> }) {
   const tr = useI18n()
   const [dragging, setDragging] = useState(false)
   const [width, setWidth] = useState(() => Number(/- (\d+)px/.exec(workspace.current?.style.getPropertyValue('--chat-share') ?? '')?.[1] ?? 360))
   function resize(value: number) {
-    const next = Math.min(520, Math.max(320, Math.round(value)))
+    const next = Math.min(workspace.current?.getBoundingClientRect().width ?? 0, Math.max(0, Math.round(value)))
     setWidth(next)
     workspace.current?.style.setProperty('--chat-share', `calc(100% - ${next}px)`)
   }
   return <div className={dragging ? 'practice-divider dragging' : 'practice-divider'} role="separator" tabIndex={0}
     aria-label={tr("Conversation and coach width")} aria-orientation="vertical"
-    aria-valuemin={320} aria-valuemax={520} aria-valuenow={width}
+    aria-valuemin={0} aria-valuemax={workspace.current?.getBoundingClientRect().width ?? 0} aria-valuenow={width}
     onDoubleClick={() => resize(360)}
     onKeyDown={event => {
-      const next = { ArrowLeft: width + 20, ArrowRight: width - 20, Home: 320, End: 520 }[event.key]
+      const next = { ArrowLeft: width + 20, ArrowRight: width - 20, Home: 0, End: workspace.current?.getBoundingClientRect().width ?? 0 }[event.key]
       if (next !== undefined) { event.preventDefault(); resize(next) }
     }}
     onPointerDown={event => { if (event.button === 0) { setDragging(true); event.currentTarget.setPointerCapture(event.pointerId); event.preventDefault() } }}

@@ -56,6 +56,7 @@ pub use turns::accept_send;
 pub use turns::control_turn;
 
 pub struct Dispatch {
+    pub decisions: Option<serde_json::Value>,
     pub temperature: f64,
     pub target: crate::ai::connections::access::ResolvedTarget,
     pub attempt: String,

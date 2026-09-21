@@ -46,7 +46,7 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
             let input = audio::SpeechInput { text: request.input.text.clone(), voice: "alloy".into(), language: format!("{} — {}", request.context.target_name, request.context.variety_name) };
             audio::validate_speech(&request.target, &input)?;
             request.submitted(&*state.lock()?)?;
-            let completed = reading::checked(&request, audio::synthesize(&client, &request.target, &key, &input, &request.install), validate).await?;
+            let completed = retry::run(|| audio::synthesize(&client, &request.target, &key, &input, &request.install), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await;
             metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
                 "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,"diagnostics":completed.diagnostics});
             let bytes = completed.audio?;
@@ -55,12 +55,12 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
         } else {
             let prompt = adapter::build_word_gloss_prompt_with_context(&source.identity, &source.text, &request.context)
                 .map_err(|_| AppError::new(ErrorCode::Validation, "This selection cannot be analyzed. Select a shorter passage."))?;
-            let dispatch = execution::Dispatch { temperature: 0.0, target: request.target.clone(), attempt: request.attempt.clone(), operation: request.operation.clone(),
+            let dispatch = execution::Dispatch { decisions: None, temperature: 0.0, target: request.target.clone(), attempt: request.attempt.clone(), operation: request.operation.clone(),
                 credential: request.target.credential.clone().unwrap_or_default(), model: request.target.model.clone(), route: request.target.route,
                 install_id: request.install.clone(), messages: prompt.messages, gloss_schema: Some(prompt.output_schema.clone()), coaching_schema: None,
                 gloss_source: Some(source.clone()), speech_source: None };
             request.submitted(&*state.lock()?)?;
-            let completed = reading::checked(&request, provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(&source), &prompt.output_schema)), validate).await??;
+            let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(&source), &prompt.output_schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
             metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
                 "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"diagnostics":completed.diagnostics});
             let gloss = gloss::validate_with_context(&source, &completed, &request.operation, &request.attempt, &request.context)?;

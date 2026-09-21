@@ -11,6 +11,9 @@
 
 .field:focus { border-color: var(--interaction-ink); }
 
+/* Native option popups can otherwise pair inherited ink with an OS background. */
+select option, select optgroup { background: var(--field); color: var(--ink); }
+
 .form-row { margin-bottom: var(--space-5); }
 
 .field-note {

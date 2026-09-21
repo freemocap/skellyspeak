@@ -3,6 +3,7 @@ pub(crate) mod coach_observation;
 pub(crate) mod coach_policy;
 pub(crate) mod conversation_support;
 pub(crate) mod skill_assessment;
+pub(crate) mod skill_evidence;
 use crate::ai::transport::provider::Completion;
 use crate::ai::transport::provider::PromptMessage;
 use crate::model::*;
@@ -582,3 +583,5 @@ mod focus_tests {
         assert_eq!(super::focus_block(&serde_json::json!({"label":"Ask a question","opportunity":"Request missing information."})).unwrap(), "\nPractice focus (do not mention or drill): Ask a question.\nOnly when it fits the user's current topic, allow an opportunity: Request missing information. Never change the topic to practise this skill.\nIf the learner's last message was not understood, ask one short natural clarification question.");
     }
 }
+
+pub(crate) mod assessment_adapter;

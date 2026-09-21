@@ -230,7 +230,7 @@ async def test_protocol_capabilities_are_authenticated_and_match_grouped_contrac
     assert response.status_code == 200
     assert response.json() == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [1, 2],
                                "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
-                               "accepts_other_text_models": True, "transcription_model": "whisper-large-v3",
+                               "accepts_other_text_models": True, "decisions": {"version": 1, "models": ["typesafe/jev-1.13"]}, "transcription_model": "whisper-large-v3",
                                "audio": {"version": 1, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_ready": False, "transcription_provider": "groq"}}
 
 
@@ -281,3 +281,62 @@ async def test_concurrent_groups_correlate_failure_and_finish_without_client_dat
         assert finished == {'event': 'group_finished', 'request_id': request_id,
             'item_count': 1, 'delivered': 1, 'failures': 1, 'complete': True}
     assert 'PRIVATE_' not in caplog.text
+
+
+def test_group_rejection_preserves_actionable_reason_and_scrubs_request_echoes():
+    from fastapi import HTTPException
+    error = HTTPException(400, 'Speech model does not support audio; echoed private learner sentence')
+    error.diagnostics = {'request_id': 'req-123', 'error': {'code': 'unsupported_audio'}, 'api_key': 'sk-private-key'}
+    details = grouped.failure_details(error, {'messages': [{'content': 'private learner sentence'}]})
+    assert 'Speech model does not support audio' in details['message']
+    assert details['request_id'] == 'req-123'
+    assert details['error']['code'] == 'unsupported_audio'
+    assert 'private learner sentence' not in json.dumps(details)
+    assert 'sk-private-key' not in json.dumps(details)
+
+
+@pytest.mark.asyncio
+async def test_jev_uses_decisions_endpoint_and_preserves_actual_billing(proxy, monkeypatch):
+    from server.tests.inference.test_decisions import fixture
+    sent = []
+    def respond(request):
+        sent.append((str(request.url), json.loads(request.content)))
+        return httpx.Response(200, json={"id": "jev-receipt", "model": "typesafe/jev-1.13-20260917",
+            "answers": {"skill_0": {"type": "choice", "choice": "partial"}},
+            "usage": {"cost": .0005, "input_tokens": 100, "output_tokens": 25}})
+    upstream(monkeypatch, respond)
+    request = envelope(1)
+    request["items"][0]["request"] = fixture()
+    response = await proxy.post("/v1/operations", json=request)
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert [event["type"] for event in events] == ["result", "complete"]
+    assert len(sent) == 1 and sent[0][0].endswith('/api/alpha/decisions')
+    assert sent[0][1] == fixture()
+    result = events[0]["response"]
+    assert result["usage"]["cost"] == .0005
+    assert result["usage"]["prompt_tokens"] == 100
+    assert result["usage"]["completion_tokens"] == 25
+    assert json.loads(result["choices"][0]["message"]["content"]) == result["answers"]
+    assert main._usage_from(result) == (500, 125)
+
+
+@pytest.mark.asyncio
+async def test_malformed_jev_response_retains_billing_identity_and_validation(proxy, monkeypatch):
+    from server.tests.inference.test_decisions import fixture
+    def respond(request):
+        return httpx.Response(200, json={
+            'id': 'jev-malformed-receipt', 'model': 'typesafe/jev-1.13-20260917',
+            'answers': None, 'usage': {'cost': .0005, 'input_tokens': 100, 'output_tokens': 25},
+            'state': 'PRIVATE_RESPONSE_TEXT'})
+    upstream(monkeypatch, respond)
+    body = envelope(1)
+    body['items'][0]['request'] = fixture()
+    response = await proxy.post('/v1/operations', json=body)
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert [e['type'] for e in events] == ['error', 'complete']
+    d = events[0]['diagnostics']
+    assert events[0]['status'] == 502
+    assert d['response']['id'] == 'jev-malformed-receipt'
+    assert d['response']['usage']['cost'] == .0005
+    assert d['validation']['path'] == 'answers'
+    assert 'PRIVATE_RESPONSE_TEXT' not in json.dumps(events)

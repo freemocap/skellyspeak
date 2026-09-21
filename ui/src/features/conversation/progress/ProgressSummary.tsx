@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
 import { TargetText } from '../../../components/reading/TargetText'
 import { RewardsLedger } from './RewardsLedger'
@@ -97,7 +98,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
         practiceStatistics(language.snapshot)
       }
       if (!disposed) setLoaded({ status: 'ready', overview })
-    }).catch((error: unknown) => { if (!disposed) setLoaded({ status: 'error', error: String(error) }) })
+    }).catch((error: unknown) => { if (!disposed) setLoaded({ status: 'error', error: errorMessage(error) }) })
     return () => { disposed = true }
   }, [snapshot, attempt])
   const overview = loaded.status === 'ready' ? loaded.overview : null

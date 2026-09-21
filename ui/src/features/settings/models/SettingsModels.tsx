@@ -1,13 +1,16 @@
+import { AssessmentInfo } from './AssessmentInfo'
+import { errorMessage as message } from '../../../platform/diagnostics/error-details'
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { invoke } from '../../../platform/ipc/native'
 import type { ConnectionConfig } from '../../../generated/contracts'
 
+// Provider identifier, displayed verbatim.
+const jevModel = 'typesafe/jev-1.13'
 const fields = ['standardModel', 'fastModel'] as const
 const labels = ['Standard model', 'Fast model'] as const
-type Models = Pick<ConnectionConfig, typeof fields[number] | 'audio'>
-const message = (error: unknown) => error instanceof Error ? error.message :
-  typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
+type Models = Pick<ConnectionConfig, typeof fields[number] | 'audio' | 'assessmentAdapter'>
+
 
 /** Shared model preferences have no dependency on access settings or credentials. */
 export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
@@ -23,7 +26,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
   const writing = useRef(false)
-  const dirty = !!saved && !!draft && (fields.some(key => draft[key] !== saved[key]) ||
+  const dirty = !!saved && !!draft && (draft.assessmentAdapter !== saved.assessmentAdapter || fields.some(key => draft[key] !== saved[key]) ||
     (['transcription', 'speech'] as const).some(key => draft.audio[key].model !== saved.audio[key].model))
 
   async function read() {
@@ -40,6 +43,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
         expectedRevision: saved.revision,
         ...Object.fromEntries(fields.map(key => [key, draft[key]])),
         audio: draft.audio,
+        assessmentAdapter: draft.assessmentAdapter,
       })
       setSaved(config); setDraft(config)
       await onChanged(); setStatus('Saved')
@@ -54,6 +58,15 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
 
   if (!draft) return <div role="status">{error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void read().catch(error => setError(message(error)))}>{tr('Retry save')}</button></> : tr('Models')}</div>
   return <section aria-label={tr('Models')}>
+    <div className="form-row">
+      <span className="assessment-label"><label htmlFor="assessment-adapter">{tr('Skill assessment')}</label><AssessmentInfo /></span>
+      <select id="assessment-adapter" className="field" value={draft.assessmentAdapter} disabled
+        onChange={event => { setDraft({ ...draft, assessmentAdapter: event.target.value as ConnectionConfig['assessmentAdapter'] }); setError(null); setStatus('') }}>
+        <option value="jev_choice" disabled>{tr('Jev Choice')} — {tr('Disabled')}</option>
+        <option value="chat_model">{tr('Chat model assessment')}</option>
+      </select>
+      <span className="detail-meta">{draft.assessmentAdapter === 'jev_choice' ? jevModel : draft.fastModel}</span>
+    </div>
     {fields.map((key, index) => <div className="form-row" key={key}>
       <label htmlFor={`model-${key}`}>{tr(labels[index])}</label>
       <input id={`model-${key}`} className="field" value={draft[key]} disabled={busy}

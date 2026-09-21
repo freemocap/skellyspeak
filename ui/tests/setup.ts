@@ -33,6 +33,9 @@ if (typeof document !== 'undefined') {
     })) as unknown as typeof window.matchMedia
   }
 
+  // jsdom has no layout observer; component tests can supply measured boxes.
+  globalThis.ResizeObserver ??= class { observe() {} unobserve() {} disconnect() {} }
+
   // Nothing under test scrolls, but the chat stream asks the DOM to.
   Element.prototype.scrollIntoView ??= vi.fn()
   // jsdom has no top-layer popover implementation; layout is verified in-browser.

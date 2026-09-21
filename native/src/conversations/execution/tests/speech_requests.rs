@@ -124,6 +124,29 @@ fn speech_payload_preflight_fails_before_attempt_without_harming_translation() {
         )
         .unwrap();
     assert_eq!(store.connection.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.kind='persona_speech'",[],|r|r.get::<_,i64>(0)).unwrap(),0);
+    let operation: String = store
+        .connection
+        .query_row(
+            "SELECT id FROM operations WHERE kind='persona_speech'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let SpeechAudioState::Unavailable {
+        message,
+        attempt_id,
+        diagnostics,
+        ..
+    } = store
+        .speech_audio(&operation, &crate::speech::cache::Cache::default())
+        .unwrap()
+    else {
+        panic!("expected unavailable speech")
+    };
+    assert!(!message.contains("without a recorded explanation"));
+    assert!(attempt_id.is_none());
+    assert_eq!(diagnostics.unwrap()["code"], "validation");
+
     assert_eq!(
         store
             .connection

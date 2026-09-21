@@ -16,7 +16,10 @@ impl Application {
             } else {
                 access::Capability::Chat
             };
-            let current = access::resolve(&store.connection, capability)?;
+            let mut current = access::resolve(&store.connection, capability)?;
+            if dispatch.decisions.is_some() && current.route == ConnectionRoute::Openrouter {
+                current.url = provider::decisions::URL.into();
+            }
             if current.route != dispatch.target.route
                 || current.url != dispatch.target.url
                 || current.credential != dispatch.target.credential
@@ -140,18 +143,11 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     }).collect::<Result<Vec<_>>>()?;
                     if let Some(source) = &first.speech_source {
                         let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
-                        let request = audio::synthesize(&client, &first.target, &key, &input, &first.install_id);
-                        tokio::pin!(request);
-                        let outcome = loop {
-                            tokio::select! {
-                                result = &mut request => break result,
-                                _ = tokio::time::sleep(Duration::from_millis(100)) => {
-                                    if !state.lock()?.attempt_active(&first.attempt)? {
-                                        return Err(AppError::new(ErrorCode::UnknownOutcome, "Speech cancelled locally; provider billing may continue."));
-                                    }
-                                }
-                            }
-                        };
+                        let outcome = retry::run(
+                            || audio::synthesize(&client, &first.target, &key, &input, &first.install_id),
+                            || state.check_dispatches(std::slice::from_ref(first)),
+                            |error| state.lock()?.record_retry(first, error),
+                        ).await;
                         let mut store = state.lock()?;
                         if let Some(audio) = store.finish_speech(first, outcome)? {
                             store.speech_cache.insert(audio)?;
@@ -162,13 +158,15 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                         // Prose streams; structured requests stay whole until
                         // structured deltas are verified (plan D4).
                         let request = || async {
-                            if matches!(outputs[0], provider::RequestOutput::Prose) {
+                            if first.decisions.is_some() {
+                                provider::decisions::complete(&client, &key, first).await
+                            } else if matches!(outputs[0], provider::RequestOutput::Prose) {
                                 provider::complete_streaming(&client, &key, first, |text| state.stream_delta(generations[0], &first.attempt, text)).await
                             } else {
                                 provider::complete_with_output(&client, &key, first, outputs[0]).await
                             }
                         };
-                        let outcome = rate_limit_retry::run(
+                        let outcome = retry::run(
                             request,
                             || state.check_dispatches(std::slice::from_ref(first)),
                             |error| state.lock()?.record_retry(first, error),

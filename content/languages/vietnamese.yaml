@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: vietnamese
+  name: Vietnamese
+  native_name: Tiếng Việt
+  family: austroasiatic
+  review: needs_review
+integrations:
+  language_tag: vi
+  transcription: vi
+definitions:
+  orthographies:
+    quoc-ngu:
+      script: latin
+      guidance:
+      - scope: target_writing
+        text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks, including
+          stacked diacritics. Preserve quoted source spelling and Unicode sequences exactly. Do not strip
+          accents or replace Vietnamese text with an ASCII approximation.
+        sources:
+        - unicode17_europe
+      - scope: explanation_writing
+        text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks, including
+          stacked diacritics. Preserve quoted source spelling and Unicode sequences exactly. Do not strip
+          accents or replace Vietnamese text with an ASCII approximation.
+        sources:
+        - unicode17_europe
+  romanization_schemes: {}
+defaults:
+  variety: vietnamese-vietnam
+  orthography:
+    local: quoc-ngu
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits:
+- tones
+varieties:
+- id: vietnamese-vietnam
+  name: Vietnam
+  description: Contemporary Vietnamese in Vietnam, with standard writing and context-appropriate everyday
+    conversation; no single regional accent is prescribed.
+  review: needs_review
+  sources:
+  - unicode17_europe
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - cảm ơn
+      - xin lỗi
+conversation:
+  greeting:
+    text: Xin chào
+    romanizations: {}
+  default_partner:
+    name: Linh
+    romanizedName: null
+    age: 28
+    location: Hanoi, Vietnam
+    occupation: Designs signs for small shops
+    background: Grew up in Hanoi and shares a studio with another designer.
+    currentSituation: Making signs for a neighbourhood market and planning a visit to a friend.
+    interests:
+    - drawing
+    - walking by the lake
+    opinions:
+    - Signs should be easy to read from across the street.
+    interestingFacts:
+    - Keeps sketches of old shopfronts.
+    favoriteBooks:
+    - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+    - My Neighbor Totoro (1988)
+    manner: Observant and practical. Uses everyday Vietnamese and context-sensitive forms of address.
+    quirks:
+    - Tests lettering on scraps of cardboard.
+    vibe:
+    - ✏️
+    - 🌳

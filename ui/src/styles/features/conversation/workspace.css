@@ -1,6 +1,6 @@
 /* workspace — conversation style owner. */
 .chat {
-  flex: 1 1 var(--chat-share); min-width: 0; display: flex; flex-direction: column;
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
   background: var(--sheet);
   /* The dev panel shrinks this pane; without clipping, the composer's
      controls bleed out over the panel below. */

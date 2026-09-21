@@ -6,7 +6,7 @@
 /// other acceptable way to handle an error: no swallowing, no degrading to a
 /// lesser code path, no `catch { log }`.
 
-import { errorDetails } from './error-details'
+import { errorDetails, errorMessage } from './error-details'
 import { create } from 'zustand'
 import { logDiagnostic } from './log'
 
@@ -40,7 +40,7 @@ export const useFaultStore = create<FaultState>((set) => ({
 let nextId = 1
 
 function describe(e: unknown): string {
-  return String(errorDetails(e).message)
+  return errorMessage(e)
 }
 
 /// Record a failure and show it. Always call this in a `catch` — the only

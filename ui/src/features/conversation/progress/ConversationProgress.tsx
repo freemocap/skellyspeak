@@ -11,7 +11,7 @@ import { ConversationMap } from './ConversationMap'
 import { ProgressSummary } from './ProgressSummary'
 import { InlineXpBadge } from './InlineXpBadge'
 import { RewardInspectionContext } from './RewardInspectionContext'
-import { messageEvidence } from '../../../domain/learning/evidence/message-evidence'
+import { messageRewardEvidence } from '../../../domain/learning/evidence/message-evidence'
 import { InfoTip } from '../../../components/controls/InfoTip'
 
 export function ConversationProgress({ chatId, children }: { chatId: string; children?: ReactNode }) {
@@ -36,7 +36,7 @@ export function ConversationProgress({ chatId, children }: { chatId: string; chi
       <div className="detail-actions"><strong>{domain ? tr(domain.label) : tr("Conversation XP")}</strong><InfoTip>{tr("XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.")}</InfoTip><button className="detail-action" onClick={() => setGlobal(true)}>{tr("Show language progression")}</button></div>
       {records.length === 0 && <p className="detail-meta">{tr("No evidence yet.")}</p>}
       {records.map(record => <article className="practice-credit" key={record.attempt_id}><time>{new Date(record.at_secs * 1000).toLocaleString(tr.browserLocale)}</time>
-        <div className="study-credit-badges">{messageEvidence(snapshot, chatId, record.turn_id, record.source).map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => { if (!inspection) throw new Error('XP inspection provider is missing'); inspection.open([item], record.turn_id, record.source) }} />)}</div>{record.assessment?.judgments.filter(item => skills.has(item.skill_id)).map(item => {
+        <div className="study-credit-badges">{messageRewardEvidence(snapshot, chatId, record.turn_id, record.source).map(item => <InlineXpBadge key={item.id} item={item} generation={0} onOpen={() => { if (!inspection) throw new Error('XP inspection provider is missing'); inspection.open([item], record.turn_id, record.source) }} />)}</div>{record.assessment?.judgments.filter(item => skills.has(item.skill_id)).map(item => {
           const skill = snapshot.catalog.find(node => node.id === item.skill_id)
           const xp = snapshot.profile.credits.find(credit => credit.attempt_id === record.attempt_id && credit.skill_id === item.skill_id)?.xp ?? 0
           return <div key={item.skill_id}><strong>{skill && tr(skill.label)} · {tr.number(xp)} {tr(" XP")}</strong><blockquote dir="auto"><TargetText text={item.quotes.join(' · ')} /></blockquote><p>{item.rationale}</p></div>

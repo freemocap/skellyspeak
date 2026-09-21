@@ -130,6 +130,33 @@
       "source": "scheherazade-new-700.woff2",
       "license": "scheherazade-new-OFL.txt",
       "conversion": "Renamed OFL derivative; 25 vowel glyph outlines translated +123/2048 em; GPOS and GSUB unchanged. Recipe: docs/notes/arabic-mark-offset-2026-09-20.md"
+    },
+    {
+      "file": "noto-sans-jp.woff2",
+      "sha256": "93b9061a212d3449f088f0d02d77d1e4fabbf462153e9fbd43409997d7157539",
+      "sourceSha256": "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f",
+      "bytes": 4349896,
+      "codepoints": 16732,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansjp/NotoSansJP[wght].ttf",
+      "license": "noto-sans-jp-OFL.txt"
+    },
+    {
+      "file": "noto-sans-kr.woff2",
+      "sha256": "e4d1dac5a61cf607d58116fe15cc595060d59bb4ac5c79b84f265be46707838a",
+      "sourceSha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252",
+      "bytes": 3908380,
+      "codepoints": 23174,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosanskr/NotoSansKR[wght].ttf",
+      "license": "noto-sans-kr-OFL.txt"
+    },
+    {
+      "file": "noto-sans-cherokee.woff2",
+      "sha256": "9aa0f0b127cca3ed7d55d28813d761413fe35022cdd861c95fe18a126079f5e4",
+      "sourceSha256": "865d9e644f5011f2020a10325b7242f85c9c8ef0edece00e5ed743e5dfb275fd",
+      "bytes": 118092,
+      "codepoints": 511,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosanscherokee/NotoSansCherokee[wght].ttf",
+      "license": "noto-sans-cherokee-OFL.txt"
     }
   ]
 }

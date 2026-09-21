@@ -189,6 +189,9 @@ pub async fn mic_transcribe(
     .map_err(|_| fault("Audio inspection stopped unexpectedly."))??;
     let validate = || {
         let store = state.lock()?;
+        if crate::conversations::execution::config(&store.connection)?.paused {
+            return Err(AppError::new(ErrorCode::AdmissionHeld, "Transcription stopped: AI execution is paused."));
+        }
         crate::ai::policy::holds::check(&store.connection, &recording.target)?;
         crate::speech::recording::transcription::permitted(
             &store.connection,
@@ -210,35 +213,15 @@ pub async fn mic_transcribe(
     use base64::Engine;
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
     let mut segments = Vec::new();
-    let request = crate::ai::audio::transcribe(
-        &client,
-        &recording.target,
-        &token,
-        crate::ai::audio::TranscriptionInput {
-            wav,
-            language: recording.language.clone(),
-            variety_hint: recording.variety_hint.clone(),
-        },
-        &install,
-    );
-    tokio::pin!(request);
-    let result = loop {
-        tokio::select! {
-            value = &mut request => {
-                if let Err(error) = &value {
-                    state.lock()?.note_refusal(&recording.target, error)?;
-                }
-                break value;
-            },
-            _ = tokio::time::sleep(std::time::Duration::from_millis(100)) => {
-                let store = state.lock()?;
-                if let Err(error) = crate::speech::recording::transcription::permitted(&store.connection, &recording.conversation, &recording.target) {
-                    if error.code != ErrorCode::Conflict { return Err(error); }
-                    break Err(AppError::new(ErrorCode::UnknownOutcome, "Transcription cancelled: the connection or conversation changed. Provider billing may continue."));
-                }
-            }
-        }
+    let input = crate::ai::audio::TranscriptionInput {
+        wav, language: recording.language.clone(), variety_hint: recording.variety_hint.clone(),
     };
+    let result = crate::ai::policy::retry::run(
+        || crate::ai::audio::transcribe(&client, &recording.target, &token, input.clone(), &install),
+        validate,
+        |error| state.lock()?.record_transcription_retry(&recording_id, error),
+    ).await;
+    if let Err(error) = &result { state.lock()?.note_refusal(&recording.target, error)?; }
     let diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
     let result = result.map(|response| {
         crate::speech::analysis::audio_inspection::attach_words(

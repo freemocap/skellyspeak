@@ -71,3 +71,7 @@ server/app/diagnostics/admin_assets/*
 !server/app/diagnostics/admin_assets/admin.js
 !server/app/diagnostics/admin_events.py
 !server/app/diagnostics/admin_live.py
+
+!server/app/accounting/usage_limits.py
+!server/app/inference/retry.py
+!server/app/inference/decisions.py

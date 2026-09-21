@@ -11,6 +11,7 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
     let route = ConnectionRoute::parse(&route)?;
     let access = crate::ai::connections::access::settings(db)?;
     Ok(ConnectionConfig {
+        assessment_adapter: serde_json::from_value(serde_json::Value::String(db.query_row("SELECT assessment_adapter FROM ai_config", [], |r| r.get(0))?))?,
         revision,
         configured: if route == ConnectionRoute::Hosted {
             hosted
@@ -72,7 +73,8 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
         crate::ai::connections::access::Capability::Chat,
     )?;
     crate::ai::policy::holds::check(db, &base)?;
-    let fast = config(db)?.fast_model;
+    let profile = config(db)?;
+    let fast = profile.fast_model;
     let operations = db.prepare("SELECT id,kind FROM operations WHERE turn_id=?1 AND kind NOT IN ('persona_context','coach_context','persona_speech') AND ((?2 IS NOT NULL AND id=?2) OR (?2 IS NULL AND state IN ('failed','unknown','waiting_dependencies'))) ")?
         .query_map(params![turn, operation], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
@@ -87,7 +89,7 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
             params![
                 turn,
                 format!("$.retryTargets.\"{id}\""),
-                serde_json::json!({"target":target,"fastModel":fast}).to_string()
+                serde_json::json!({"target":target,"fastModel":fast,"assessmentAdapter":profile.assessment_adapter}).to_string()
             ],
         )?;
     }
@@ -186,6 +188,7 @@ impl Store {
         standard: &str,
         fast: &str,
         audio: &AudioSettings,
+        assessment_adapter: AssessmentAdapter,
     ) -> Result<()> {
         if ![
             standard,
@@ -207,8 +210,12 @@ impl Store {
                 "AI settings changed. Reload before saving models.",
             ));
         }
-        tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,audio_settings=?3", params![standard,fast,serde_json::to_string(audio)?])?;
-        invalidate(&tx, None)?;
+        let previous = config(&tx)?;
+        let routing_changed = previous.standard_model != standard || previous.fast_model != fast
+            || serde_json::to_value(&previous.audio)? != serde_json::to_value(audio)?;
+        tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,audio_settings=?3,assessment_adapter=?4", params![standard,fast,serde_json::to_string(audio)?,assessment_adapter.label()])?;
+        // Adapter-only changes apply to future work; captured operations keep their strategy.
+        if routing_changed { invalidate(&tx, None)?; }
         bump(&tx)?;
         tx.commit()?;
         Ok(())

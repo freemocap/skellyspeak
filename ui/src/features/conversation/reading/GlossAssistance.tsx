@@ -1,3 +1,4 @@
+import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { useI18n } from '../../../components/localization/i18n'
 import { useRef, useState } from 'react'
 import type { GuidedTurnResult } from '../../../types'
@@ -20,7 +21,7 @@ export function GlossAssistance({ assistant, onRetryGloss }: {
     setGlossRetryPending(true)
     setGlossRetryError(null)
     try { await onRetryGloss(operationId) }
-    catch { setGlossRetryError('Could not retry word meanings.') }
+    catch (error) { setGlossRetryError(errorMessage(error)) }
     finally { glossRetryLock.current = false; setGlossRetryPending(false) }
   }
   const showGlossHelp = (assistant.savedGloss?.coverage === 'partial' || ['ready', 'running', 'waiting_dependencies', 'held', 'failed', 'unknown'].includes(assistant.glossState ?? '') || glossRetryError || (assistant.glossState === 'succeeded' && assistant.savedGloss && !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))

@@ -123,3 +123,13 @@ it('stops a superseded reply and never autoplays a retained version', async () =
   expect(view.result.current.messageId).toBeNull()
   expect(native.play).toHaveBeenCalledTimes(1)
 })
+
+it('preserves the speech failure explanation and request metadata beside the message', async () => {
+  native.invoke.mockResolvedValue({ status: 'unavailable', operationId: 'manual', messageId: 'old', reason: 'failed', message: 'Speech model is unavailable', attemptId: 'attempt-7', diagnostics: { request_id: 'req-7', requested_model: 'speech-model', response: { error: { message: 'Audio output is unsupported' } } } })
+  const view = renderHook(() => useMessageSpeech(snapshot(['old']), 'chat', false, true))
+  act(() => view.result.current.toggle('old'))
+  await waitFor(() => expect(view.result.current.failure?.text).toContain('Audio output is unsupported'))
+  expect(view.result.current.failure?.details).toMatchObject({ metadata: { request_id: 'req-7', requested_model: 'speech-model', attemptId: 'attempt-7', operationId: 'manual' } })
+  expect(native.execute).toHaveBeenCalledTimes(1)
+  expect(native.play).not.toHaveBeenCalled()
+})

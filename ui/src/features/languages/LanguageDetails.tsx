@@ -7,9 +7,9 @@ import { useI18n } from '../../components/localization/i18n'
 import type { LanguageInspection } from '../../generated/contracts'
 import { useReadingFont } from '../../platform/appearance/readingFont'
 
-export function LanguageDetails({ report, variety }: { report: LanguageInspection; variety?: string }) {
+export function LanguageDetails({ report }: { report: LanguageInspection }) {
   const tr = useI18n()
-  const readingFont = useReadingFont(report.language.nativeName)
+  const readingFont = useReadingFont(report.language.nativeName, report.language.languageTag)
   const defaultScale = Number(report.values.find(value => value.field === 'font_scale')?.value ?? report.language.fontScale)
   const savedScale = useSettingsStore(state => state.settings?.script_scales?.[report.language.id])
   const scale = savedScale ?? defaultScale
@@ -30,7 +30,7 @@ export function LanguageDetails({ report, variety }: { report: LanguageInspectio
     if (field === 'font_scale') return `${value}×`
     return value.replaceAll('-', ' ')
   }
-  return <ReadingLanguageScope language={report.language.id} variety={variety ?? report.varietyId}><div className="language-content">
+  return <ReadingLanguageScope language={report.language.id} variety={report.varietyId}><div className="language-content">
     <p className="language-status"><span data-review={report.review}>{report.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</span><span>{report.family}</span></p>
     <section className="language-writing"><h3>{tr('Writing and reading')}</h3>
       <dl className="language-writing-facts">{report.values.filter(value => value.field !== 'font_scale').map(value => <div key={value.field}><dt>{labels[value.field]}</dt><dd>{display(value.field, value.value)}</dd></div>)}

@@ -18,6 +18,7 @@ pub struct Declaration {
     pub contract_version: i32,
 }
 pub const PLAN: &[Declaration] = &[
+    Declaration { kind: "skill_evidence", activation: Activation::Automatic, dependencies: &["skill_assessment"], role: "fast", contract_version: 1 },
     Declaration {
         kind: "reply_assistance",
         activation: Activation::Explicit,

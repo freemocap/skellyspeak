@@ -15,7 +15,7 @@ it('removes credentials and echoed content while preserving the failure explanat
   const clean = scrubErrorText(message)
   expect(clean).toContain('Selection failed: invalid credentials')
   for (const secret of ['short-key', 'abc123', 'example.com', 'private words']) expect(clean).not.toContain(secret)
-  expect(scrubErrorText('Parse failed near "private sentence"')).toBe('Parse failed near [redacted: quoted value]')
+  expect(scrubErrorText('Parse failed near "private sentence"', ['private sentence'])).toBe('Parse failed near "[redacted]"' )
 })
 it('removes known private values echoed in a message and preserves nested diagnostic metadata', () => {
   const details = errorDetails({ message: 'Rejected short-secret at validation', diagnostics: {
@@ -49,4 +49,25 @@ it('redacts quoted credential assignments and private keys without erasing the e
 it('preserves the property responsible for a JavaScript TypeError', () => {
   expect(scrubErrorText("Cannot read properties of undefined (reading 'varieties')"))
     .toBe('Cannot read properties of undefined (reading property varieties)')
+})
+
+it('retains root error codes, refusal receipts and camelCase provider fields', () => {
+  const details = errorDetails({ code: 'admission_held', message: 'Speech is held', refusal: { reason: 'rate_limit', requestId: 'req-42', retryAt: 123 }, diagnostics: { requestedModel: 'speech-v1', actualModel: 'speech-v2', providerId: 'provider-42', finish_reason: 'length' } })
+  expect(details).toMatchObject({ code: 'admission_held', fields: { refusal: { reason: 'rate_limit', requestId: 'req-42', retryAt: 123 } }, metadata: { requestedModel: 'speech-v1', actualModel: 'speech-v2', providerId: 'provider-42', finish_reason: 'length' } })
+})
+
+it('summarizes provider explanations and causes instead of an object string', async () => {
+  const { errorMessage } = await import('./error-details')
+  expect(errorMessage({ code: 'provider', message: 'Speech request failed', diagnostics: { response: { error: { message: 'Model does not support audio', code: 'unsupported_model' } } } })).toContain('Model does not support audio')
+  expect(errorMessage(new Error('Request failed', { cause: new Error('Connection refused') }))).toContain('Connection refused')
+  expect(errorMessage({ detail: 'No speech model configured' })).toBe('No speech model configured')
+  expect(errorMessage({ status: 503, secret: 'private' })).not.toContain('[object Object]')
+})
+
+it('preserves novel reasons and quoted validation descriptions while removing supplied content', () => {
+  const message = 'Field "language" failed validation: "must be a supported language code". Received private-utterance; api_key=short-secret'
+  const clean = scrubErrorText(message, ['private-utterance'])
+  expect(clean).toContain('Field "language" failed validation: "must be a supported language code"')
+  expect(clean).not.toContain('private-utterance')
+  expect(clean).not.toContain('short-secret')
 })

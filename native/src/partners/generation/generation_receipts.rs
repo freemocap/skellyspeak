@@ -187,6 +187,14 @@ pub fn activity(db: &Connection) -> Result<PersonaGenerationActivity> {
     })
 }
 
+pub fn record_retry(store: &Store, request: &Request, error: &AppError) -> Result<()> {
+    let diagnostic = crate::diagnostics::response::retained_with_private(None, Some(error), &[request.brief.as_deref().unwrap_or("")]);
+    if store.connection.execute("UPDATE persona_generation_attempts SET diagnostics=?2 WHERE id=?1 AND state='running'", params![request.id, diagnostic])? != 1 {
+        return Err(AppError::new(ErrorCode::Conflict, "Persona generation ended before retry."));
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

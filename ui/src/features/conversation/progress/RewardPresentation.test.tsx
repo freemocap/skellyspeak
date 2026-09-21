@@ -9,7 +9,7 @@ import { RewardInspectionContext } from './RewardInspectionContext'
 import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
-vi.mock('../../../domain/learning/evidence/message-evidence', () => ({ createMessageEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
+vi.mock('../../../domain/learning/evidence/message-evidence', () => ({ createMessageRewardEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
 function Triggers() {
   const controller = useContext(RewardInspectionContext)!
   return <><button onClick={() => controller.open(items as MessageEvidence[], 1, 'this cup')}>Score</button><button onClick={() => controller.open([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Other score</button><button onClick={() => controller.arrive(items as MessageEvidence[], 1, 'this cup')}>Arrive</button><button onClick={() => controller.arrive([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Another arrival</button></>
@@ -191,6 +191,37 @@ it('flies mobile Fast mode rewards straight to the meter and fills only on arriv
     const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
     expect(parseFloat(fill.style.width)).toBeCloseTo(20)
     act(() => animations[0].onfinish!())
+    expect(parseFloat(fill.style.width)).toBeCloseTo(40)
+  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
+})
+
+it('shows a temporary desktop meter when the skill destination is hidden and fills on arrival', () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 300, 200))
+  const snapshot = structuredClone(skillDemo)
+  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
+  const original = Element.prototype.animate
+  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
+  const animate = vi.fn<Element['animate']>(function (this: Element) {
+    const animation = { cancel: vi.fn(), onfinish: null }
+    if (this.classList.contains('floating-reward')) animations.push(animation)
+    return animation as unknown as Animation
+  })
+  Element.prototype.animate = animate
+  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><Fixture fastMode /></SkillEvidenceContext>)
+  try {
+    view.container.querySelector('[data-reward-skill]')!.setAttribute('aria-hidden', 'true')
+    fireEvent.click(screen.getByText('Arrive'))
+    act(() => animations[0].onfinish!())
+    fireEvent.click(screen.getByLabelText('Close XP details'))
+    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
+    expect(document.querySelector('.floating-reward.hovering')).toBeNull()
+    const flights = animate.mock.calls.filter((_, index) => (animate.mock.contexts[index] as Element).classList.contains('floating-reward'))
+    expect(flights).toHaveLength(2)
+    expect(flights[1][1]).toMatchObject({ duration: 560 })
+    const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
+    expect(parseFloat(fill.style.width)).toBeCloseTo(20)
+    act(() => animations[1].onfinish!())
     expect(parseFloat(fill.style.width)).toBeCloseTo(40)
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
 })

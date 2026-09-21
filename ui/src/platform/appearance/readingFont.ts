@@ -24,16 +24,21 @@ export function readingFontForText(stack: string, sample: string, faces: Iterabl
   return [...new Set(selected)].join(', ')
 }
 
-export function useReadingFont(sample: string): { family: string, stack: string } {
+export function useReadingFont(sample: string, languageTag?: string | null): { family: string, stack: string } {
   const [font, setFont] = useState({ family: '', stack: '' })
   useEffect(() => {
     function update() {
-      const stack = getComputedStyle(document.documentElement).getPropertyValue('--font-serif').trim()
+      const probe = document.createElement('span')
+      if (languageTag) probe.lang = languageTag
+      probe.hidden = true
+      document.body.append(probe)
+      const stack = getComputedStyle(probe).getPropertyValue('--font-serif').trim()
+      probe.remove()
       setFont({ stack, family: readingFontForText(stack, sample, document.fonts ?? []) })
     }
     update()
     document.fonts?.addEventListener('loadingdone', update)
     return () => document.fonts?.removeEventListener('loadingdone', update)
-  }, [sample])
+  }, [sample, languageTag])
   return font
 }

@@ -13,7 +13,7 @@
 }
 
 .modal {
-  width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
+  max-width: 100%; width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
   border-radius: var(--radius-xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
@@ -38,7 +38,8 @@
 .detail-dialog {
   box-sizing: border-box;
   width: min(580px, calc(100vw - 28px));
-  max-height: 85dvh;
+  max-height: calc(100dvh - 16px);
+  max-width: calc(100vw - 16px);
   overflow-y: auto;
   padding: var(--space-11) var(--space-12);
   border: 0;
@@ -71,3 +72,6 @@
   .detail-dialog { width: calc(100vw - 16px); padding: var(--space-8); }
 }
 .detail-dialog.dialog-wide { width: min(1080px, calc(100vw - 24px)); padding: var(--space-10) var(--space-12); }
+
+/* Shared dialogs can expand to the viewport rather than fixing reports to their initial width. */
+.modal, .detail-dialog { resize: both; min-width: min(280px, 100%); min-height: 100px; }

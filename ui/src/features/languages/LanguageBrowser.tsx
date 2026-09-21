@@ -1,3 +1,4 @@
+import { errorMessage as errorText } from '../../platform/diagnostics/error-details'
 import { languageBadgeSample } from '../../domain/language/script-text'
 import { InspectText } from '../../components/reading/InspectText'
 import { useEffect, useId, useState } from 'react'
@@ -28,18 +29,21 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
   const [actionError, setActionError] = useState<string | null>(null)
   const [notice, setNotice] = useState<'added' | 'removed' | null>(null)
   const [query, setQuery] = useState('')
-  const [report, setReport] = useState<LanguageInspection | null>(null)
+  const [inspection, setInspection] = useState<{ key: string; report: LanguageInspection } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  // Effects run after render: never pair a previous response with the new selection.
+  const inspectionKey = JSON.stringify([language, variety, explanation, explanationVariety, attempt])
+  const report = inspection?.key === inspectionKey ? inspection.report : null
   useEffect(() => {
     let active = true
-    setReport(null); setError(null)
+    setInspection(null); setError(null)
     void inspectLanguage(language, variety, explanation, explanationVariety).then(value => {
-      if (active) setReport(value)
+      if (active) setInspection({ key: inspectionKey, report: value })
     }).catch((reason: unknown) => { if (active) setError(errorText(reason)) })
     return () => { active = false }
-  }, [language, variety, explanation, explanationVariety, attempt])
+  }, [language, variety, explanation, explanationVariety, inspectionKey])
   async function changeMembership(code: string, checked: boolean) {
     if (saving || savingLanguage) return
     const definition = catalog.find(item => item.code === code)!
@@ -77,8 +81,8 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
               onChange={event => void changeMembership(item.code, event.target.checked)} />
             <button type="button" className="language-browser-item" aria-current={language === item.code ? 'true' : undefined}
               aria-label={languageLabel(item, tr.locale)} disabled={saving || savingLanguage} onClick={() => { setLanguage(item.code); setVariety(item.code === settings?.target_language ? settings.target_variety : settings?.target_varieties[item.code] ?? item.defaultVariety); setActionError(null); setNotice(null) }}>
-              <LanguageBadge endonym={item.endonym} />
-              <span className="language-browser-names"><strong dir="auto">{item.endonym}</strong><small>{translatedName(tr.locale, item.name)}</small></span>
+              <LanguageBadge languageTag={item.languageTag} endonym={item.endonym} />
+              <span className="language-browser-names"><strong lang={item.languageTag} dir="auto">{item.endonym}</strong><small>{translatedName(tr.locale, item.name)}</small></span>
             </button>
           </div>)}
           </div>
@@ -90,7 +94,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
         <section className="language-browser-detail" aria-label={selected.name}>
           <div className="language-browser-overview">
           <header className="language-browser-hero">
-            <LanguageBadge endonym={selected.endonym} large />
+            <LanguageBadge languageTag={selected.languageTag} endonym={selected.endonym} large />
             <h3><span dir="auto" lang={selected.languageTag}>{selected.endonym}</span><InspectText text={selected.endonym} language={selected.code} variety={variety} />{selected.endonym !== translatedName(tr.locale, selected.name) && <small>{translatedName(tr.locale, selected.name)}</small>}</h3>
           </header>
           <label>{tr('Variety')}<select className="field" value={variety} disabled={saving || savingLanguage} onChange={event => { setVariety(event.target.value); setActionError(null); setNotice(null) }}>
@@ -99,18 +103,14 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
           </div>
           {error && <div role="alert"><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></div>}
           {!report && !error && <p role="status">{tr('Loading…')}</p>}
-          {report && <LanguageDetails report={report} variety={variety} key={language + variety} />}
+          {report && <LanguageDetails report={report} key={inspectionKey} />}
         </section>
       </div>
     </div>
   </DetailDialog>
 }
 /** A neutral script sample, not a flag: languages are not countries. */
-function LanguageBadge({ endonym, large = false }: { endonym: string; large?: boolean }) {
+function LanguageBadge({ endonym, languageTag, large = false }: { endonym: string; languageTag?: string; large?: boolean }) {
   const glyph = languageBadgeSample(endonym)
-  return <span className={`language-badge${large ? ' large' : ''}`} aria-hidden="true" dir="auto">{glyph}</span>
-}
-function errorText(reason: unknown): string {
-  if (reason && typeof reason === 'object' && 'message' in reason) return String(reason.message)
-  return String(reason)
+  return <span className={`language-badge${large ? ' large' : ''}`} aria-hidden="true" lang={languageTag} dir="auto">{glyph}</span>
 }

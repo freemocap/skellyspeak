@@ -107,6 +107,17 @@ ReviseTurn {
 - **Prompt provenance:** accepted turns capture `coach-feedback-2`, `coach-suggestions-2` and context template v5. Changed graph declarations are v2; word-gloss prompt template is v5. Evidence reads its captured prompt version.
 - **Credit** stays on current XP rules in wave 1. The support-weighted credit arrives with the wave-3 fold. C must remove the `replaces_message_id !== null` exclusion only when B confirms the credit rule, and in wave 1 shows revision rewards under current rules.
 
+### September 21 revision behavior update
+
+The learner explicitly requested that private coach history survive message edits.
+Earlier statements below about deleting affected private coach records are
+superseded: edits regenerate the dependent persona exchange while retaining private
+coach turns and their receipts. Coach context includes a recent before/after edit
+list projected from retained message versions. Earlier wording is historical
+context, never another current reply or new learning evidence. `coachTurnCount`
+in the deletion preview is zero. Current-source identity, duplicate-action receipts,
+late-result invalidation and one-time learning credit remain enforced.
+
 ### Revision integration requirements
 
 These refine wave one; B must publish the generated field names and action shape before C connects the UI.

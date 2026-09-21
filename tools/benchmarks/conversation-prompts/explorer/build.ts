@@ -4,8 +4,12 @@ import { dirname } from 'node:path';
 import { build } from 'esbuild';
 import {writeReports} from './reports.ts';
 import { dot, hash, measures, project, readRuns, unit } from './data.ts';
+import {readAssessments} from '../assessment/analysis.ts';
 
-const [embeddingDirectory, output, ...runs] = process.argv.slice(2);
+const [embeddingDirectory, output, ...argumentsAfterOutput] = process.argv.slice(2);
+let studyOverride:string|undefined;
+const runs=[...argumentsAfterOutput];
+if(runs[0]==='--study'){runs.shift();studyOverride=runs.shift();if(!studyOverride)throw Error('--study needs a manifest');}
 if (!embeddingDirectory || !output || !runs.length) throw Error('Usage: build.ts EMBEDDING_DIRECTORY OUTPUT_FRAGMENT RUN_DIRECTORY...');
 const raw = readRuns(runs);
 const embeddingPlan = JSON.parse(readFileSync(`${embeddingDirectory}/embedding-plan.json`, 'utf8'));
@@ -26,7 +30,7 @@ const projectionFile = `${embeddingDirectory}/projections.json`;
 const nonlinear = existsSync(projectionFile) ? JSON.parse(readFileSync(projectionFile, 'utf8')) : null;
 if (nonlinear && nonlinear.corpusSignature !== embeddingPlan.signature) throw Error('Projection corpus mismatch');
 const clusterByHash = new Map(nonlinear?.hashes.map((h:string,i:number)=>[h,nonlinear.clusters[i]]) ?? []);
-const studyFile = `${embeddingDirectory}/study.json`;
+const studyFile = studyOverride ?? `${embeddingDirectory}/study.json`;
 const study = existsSync(studyFile) ? JSON.parse(readFileSync(studyFile, 'utf8')) : null;
 const prompts: string[] = [];
 const rows = raw.map((r: any, i: number) => {
@@ -44,10 +48,13 @@ for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
 }
 const receipts = readFileSync(`${embeddingDirectory}/embedding-receipts.jsonl`, 'utf8').trim().split('\n').map(x => JSON.parse(x));
 const dataset = { version: 2, projections: nonlinear, study, rows, prompts, variance: projection.variance, vectorCount: n,
+  assessment:study?.assessmentRuns?{...readAssessments(study.assessmentRuns,raw),
+    instrumentation:study.smokeRuns?readAssessments(study.smokeRuns,raw):null}:null,
   similarity: packed.toString('base64'), embeddingModel: embeddingPlan.model, dimensions: embeddingPlan.dimensions,
   knownEmbeddingCost: receipts.reduce((s, r) => s + (r.metadata?.usage?.cost ?? 0), 0),
   missingEmbeddingCosts: receipts.filter(r => typeof r.metadata?.usage?.cost !== 'number').length };
-writeReports(embeddingDirectory, rows, prompts, (a, b) => dot(vectors[a.vectorIndex], vectors[b.vectorIndex]));
+mkdirSync(dirname(output),{recursive:true});
+writeReports(dirname(output), rows, prompts, (a, b) => dot(vectors[a.vectorIndex], vectors[b.vectorIndex]));
 const fingerprint = hash(JSON.stringify(dataset)).slice(0, 16);
 const bundle = await build({ entryPoints: ['tools/benchmarks/conversation-prompts/explorer/client.ts'], bundle: true, write: false, format: 'iife', minify: true, target: 'es2022' });
 const template = readFileSync('tools/benchmarks/conversation-prompts/explorer/view.html', 'utf8');
@@ -55,5 +62,5 @@ const html = renderDocument(template,{...dataset,fingerprint},bundle.outputFiles
 if (Buffer.byteLength(html) > 20_000_000) throw Error('Explorer exceeds 20 MB standalone limit');
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, html);
-writeFileSync(`${embeddingDirectory}/analysis.json`, JSON.stringify({ fingerprint, variance: projection.variance, rows, embeddingModel: embeddingPlan.model, dimensions: embeddingPlan.dimensions }, null, 2));
+writeFileSync(`${dirname(output)}/analysis.json`, JSON.stringify({ fingerprint, variance: projection.variance, rows, assessment:dataset.assessment, embeddingModel: embeddingPlan.model, dimensions: embeddingPlan.dimensions }, null, 2));
 console.log(JSON.stringify({ output, rows: rows.length, uniqueEmbeddings: n, bytes: Buffer.byteLength(html), variance: projection.variance }));

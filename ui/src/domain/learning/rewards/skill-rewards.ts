@@ -18,7 +18,7 @@ export function skillRewards(previous: SkillSnapshot, current: SkillSnapshot, ch
       if (!xp) continue
       const node = current.catalog.find(item => item.id === credit.skill_id)
       const judgment = record.assessment?.judgments.find(item => item.skill_id === credit.skill_id && (item.outcome === 'demonstrated' || item.outcome === 'partial'))
-      if (!node || !judgment?.quotes.length) throw new Error('Credited skill is missing its catalog entry or evidence')
+      if (!node || !judgment || (!judgment.quotes.length && !(judgment.evidence_kind === 'whole_message' && record.assessment_adapter === 'jev_choice' && record.source.trim()))) throw new Error('Credited skill is missing its catalog entry or evidence')
       let domain = node
       while (domain.kind !== 'domain') {
         const parent = current.catalog.find(item => item.id === domain.parent)
@@ -26,7 +26,7 @@ export function skillRewards(previous: SkillSnapshot, current: SkillSnapshot, ch
         domain = parent
       }
       remaining.set(credit.skill_id, (remaining.get(credit.skill_id) ?? 0) - xp)
-      rewards.push({ id: `${record.attempt_id}:${credit.skill_id}`, messageId: record.message_id, skillId: node.id, domainId: domain.id, label: node.label, quote: judgment.quotes[0], xp })
+      rewards.push({ id: `${record.attempt_id}:${credit.skill_id}`, messageId: record.message_id, skillId: node.id, domainId: domain.id, label: node.label, quote: judgment.evidence_kind === 'whole_message' ? record.source : judgment.quotes[0], xp })
     }
   }
   return rewards

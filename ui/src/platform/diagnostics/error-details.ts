@@ -3,7 +3,7 @@
  * reliably be distinguished from an error explanation by a generic scrubber.
  */
 const sensitive = /secret|password|authorization|api[_-]?key|access[_-]?token|refresh[_-]?token|cookie|^(?:token|key|content|text|transcript|prompt|messages|input|output|audio|data|arguments|reasoning|request|body|url|email)$/i
-const publicField = /^(?:name|message|detail|error|code|type|status|reason|stage|path|expected|function|source_file|id|request_?id|model|requested_model|actual_model|provider|finish_reason|cost_basis|retry_after|stack|componentStack)$/i
+const publicField = /^(?:name|message|detail|error|code|type|status|reason|stage|path|expected|function|source_file|id|x_request_id|request_?id|operation_?id|attempt_?id|model|model_id|requested_?model|actual_?model|provider_?id|provider|provider_name|finish_reason|native_finish_reason|cost_basis|allowance_basis|retry_?after|retry_?at|param|format|content_type|exception_type|redaction|stack|componentStack)$/i
 
 export function scrubErrorText(value: string, privateValues: string[] = []): string {
   let text = value
@@ -17,7 +17,6 @@ export function scrubErrorText(value: string, privateValues: string[] = []): str
     .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z0-9_-]{48,}\b/g, '[redacted]')
     .replace(/\b(prompt|transcript|content|request body|response body|input|output)["']?\s*[=:]\s*[^\n]*/gi, '$1=[redacted: content]')
     .replace(/\(reading (["'])([A-Za-z_$][\w$]*)\1\)/g, '(reading property $2)')
-    .replace(/["'`]([^"'`\n]*)["'`]/g, (match, value: string) => /^[A-Za-z0-9_/.-]+$/.test(value) && /[_/.-]/.test(value) ? match : '[redacted: quoted value]')
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '')
   return text.length > 4096 ? `${text.slice(0, 4096)}[truncated: string limit]` : text
 }
@@ -79,14 +78,38 @@ export function errorDetails(error: unknown, extra: unknown = undefined): Record
       if (causes.has(value)) return { message: '[omitted: circular cause]' }
       causes.add(value)
     }
-    const message = typeof value === 'string' ? value : field(value, 'message')
+    const message = typeof value === 'string' ? value : field(value, 'message') ?? field(value, 'detail') ?? field(value, 'error')
     const cause = field(value, 'cause')
     return {
       name: typeof field(value, 'name') === 'string' ? scrubErrorText(String(field(value, 'name')), privateValues) : undefined,
-      message: typeof message === 'string' ? scrubErrorText(message, privateValues) : '[omitted: no error message]',
+      message: typeof message === 'string' && message.trim() ? scrubErrorText(message, privateValues) : 'The error did not include an explanation. Inspect the recorded details.',
+      code: field(value, 'code') == null ? undefined : metadata(field(value, 'code'), 'code'),
       stack: errorStack(field(value, 'stack'), privateValues),
       ...(cause !== undefined ? { cause: describe(cause, depth + 1) } : {}),
     }
   }
-  return { ...describe(error), metadata: metadata(field(error, 'diagnostics')), ...(extra !== undefined ? { context: metadata(extra) } : {}), redaction: 'sensitive spans and unclassified fields removed' }
+  const envelope = metadata(error)
+  const diagnosticMetadata = field(envelope, 'diagnostics')
+  return { ...describe(error), metadata: diagnosticMetadata, fields: envelope, ...(extra !== undefined ? { context: metadata(extra) } : {}), redaction: 'sensitive spans and unclassified fields removed' }
+}
+
+/** A readable explanation for every error surface, using only reviewed envelopes. */
+export function errorMessage(error: unknown): string {
+  const details = errorDetails(error)
+  const messages: string[] = [String(details.message)]
+  const visit = (value: unknown, depth = 0) => {
+    if (!value || typeof value !== 'object' || depth > 5) return
+    if (Array.isArray(value)) { value.forEach(item => visit(item, depth + 1)); return }
+    for (const key of ['message', 'detail', 'reason']) {
+      const text = field(value, key)
+      if (typeof text === 'string' && text.trim() && !text.startsWith('[')) messages.push(text)
+    }
+    for (const key of ['error', 'cause', 'causes', 'choices', 'diagnostics', 'response']) {
+      const child = field(value, key)
+      if (typeof child === 'string' && !child.startsWith('[')) messages.push(child)
+      else visit(child, depth + 1)
+    }
+  }
+  visit(details.cause); visit(details.fields)
+  return [...new Set(messages)].join(' — ')
 }

@@ -261,4 +261,4 @@ pub async fn checked<T>(
         }
     }
 }
-pub use receipts::{activity, finish, recover};
+pub use receipts::{activity, finish, recover, record_retry};

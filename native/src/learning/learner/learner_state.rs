@@ -121,12 +121,13 @@ pub fn fold(registry: &Registry, evidence: &Value, as_of_secs: i64) -> Result<Le
             let quotes = item["quotes"]
                 .as_array()
                 .ok_or_else(|| invalid("Missing evidence quotes."))?;
-            if quotes.is_empty()
+            let whole = item["evidence_kind"] == "whole_message" && record["assessment_adapter"] == "jev_choice";
+            if (whole && (!quotes.is_empty() || source.trim().is_empty())) || (!whole && (quotes.is_empty()
                 || quotes.iter().any(|q| {
                     q.as_str()
                         .is_none_or(|q| q.trim().is_empty() || !source.contains(q))
                 })
-            {
+            )) {
                 return Err(invalid("Invalid learner-state source quote."));
             }
             // Retries or replayed identical wording cannot manufacture independent evidence.

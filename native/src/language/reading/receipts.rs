@@ -62,3 +62,11 @@ pub fn activity(store: &Store) -> Result<Vec<serde_json::Value>> {
         .map(|r| Ok(serde_json::from_str(&r?)?))
         .collect()
 }
+
+pub fn record_retry(store: &Store, id: &str, error: &AppError) -> Result<()> {
+    let diagnostic = crate::diagnostics::response::retained(None, Some(error));
+    if store.connection.execute("UPDATE reading_attempts SET receipt=json_set(receipt,'$.response.retry',json(?2)) WHERE id=?1 AND json_extract(receipt,'$.state')='running'", params![id, diagnostic])? != 1 {
+        return Err(AppError::new(ErrorCode::Conflict, "Reading request ended before retry."));
+    }
+    Ok(())
+}

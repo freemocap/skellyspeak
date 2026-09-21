@@ -23,6 +23,7 @@ pub struct SpeechOutcome {
 }
 /// Captured recording input. None leaves language selection to the provider;
 /// it must not disable recording or be replaced with an unrelated language code.
+#[derive(Clone)]
 pub struct TranscriptionInput {
     pub wav: Vec<u8>,
     pub language: Option<String>,

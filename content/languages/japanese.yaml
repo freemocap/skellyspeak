@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../schemas/language.json
+schema_version: 1
+identity:
+  id: japanese
+  name: Japanese
+  native_name: 日本語
+  family: japonic
+  review: needs_review
+integrations:
+  language_tag: ja
+  transcription: ja
+definitions:
+  orthographies:
+    modern-japanese:
+      script: japanese
+      guidance:
+      - scope: target_writing
+        text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
+          Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between all
+          characters or replace kanji with Chinese readings.
+        sources:
+        - ala_lc_japanese2022
+      - scope: explanation_writing
+        text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
+          Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between all
+          characters or replace kanji with Chinese readings.
+        sources:
+        - ala_lc_japanese2022
+  romanization_schemes:
+    hepburn-reading:
+      label: Hepburn reading aid
+      instructions: Use Hepburn readings with shi, chi, tsu and fu. Read kanji in context, honoring supplied
+        readings. Render grammatical particles は, へ and を as wa, e and o. Mark long vowels with macrons;
+        retain ei and ii when spelled that way, and keep vowels across morpheme boundaries distinct. Represent
+        small っ by the following consonant, using t before ch; separate syllabic n from a following vowel
+        or y with an apostrophe. Use readable word divisions. This conversational convention draws on
+        ALA-LC but is not its full cataloging standard. Preserve the source.
+      examples:
+      - original: 日本語
+        romanized: nihongo
+      - original: 学校
+        romanized: gakkō
+      - original: お茶
+        romanized: ocha
+      - original: 音楽
+        romanized: ongaku
+      sources:
+      - ala_lc_japanese2022
+      review: needs_review
+defaults:
+  variety: japanese-japan
+  orthography:
+    local: modern-japanese
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme: &id001
+      local: hepburn-reading
+  supported_romanizations:
+  - *id001
+traits:
+- unspaced-words
+varieties:
+- id: japanese-japan
+  name: Japan
+  description: Contemporary Japanese in Japan, with standard writing and context-appropriate everyday
+    conversation; no single regional accent is prescribed.
+  review: needs_review
+  sources:
+  - ala_lc_japanese2022
+  overrides: {}
+  guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+      - ありがとう
+      - ありがとうございます
+conversation:
+  greeting:
+    text: こんにちは
+    romanizations:
+      japanese:hepburn-reading: konnichiwa
+  default_partner:
+    name: 春香
+    romanizedName: Haruka
+    age: 32
+    location: Yokohama, Japan
+    occupation: Works at a community library
+    background: Grew up nearby and enjoys finding quiet walking routes around the city.
+    currentSituation: Organizing a small book exchange and learning to repair a worn backpack.
+    interests:
+    - walking
+    - bookbinding
+    opinions:
+    - A useful book need not be a new book.
+    interestingFacts:
+    - Draws simple maps for visiting friends.
+    favoriteBooks:
+    - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+    - Our Little Sister (2015)
+    manner: Thoughtful and concrete. Uses polite everyday Japanese without excessive formality.
+    quirks:
+    - Keeps ticket stubs as bookmarks.
+    vibe:
+    - 📚
+    - 🚶

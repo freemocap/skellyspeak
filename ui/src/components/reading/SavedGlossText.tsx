@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { TokenAudio } from './TokenAudio'
 import { GlossHelpParts } from './GlossHelpParts'
 import { UnannotatedText } from './UnannotatedText'
@@ -8,7 +10,7 @@ import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
 import { useReadingPreferences } from './ReadingPreferences'
 import { glossDisplayGroups } from '../../domain/reading/gloss-display'
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
 
 function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement | null>; onClose: () => void }) {
@@ -26,29 +28,27 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   const [hovered, setHovered] = useState<number | null>(null)
   const hoveredWord = useRef<HTMLElement | null>(null)
   const helper = useRef<HTMLSpanElement>(null)
+  const helperId = useId()
+  const layer = wordHelpLayer(hoveredWord.current)
+  const renderHelp = (node: ReactNode) => layer.touch ? createPortal(node, layer.host) : node
   const hoverExit = useRef<ReturnType<typeof setTimeout> | null>(null)
   const keepHover = () => { if (hoverExit.current !== null) clearTimeout(hoverExit.current); hoverExit.current = null }
   const leaveHover = () => { keepHover(); hoverExit.current = setTimeout(() => setHovered(null), 200) }
   useEffect(() => () => { if (hoverExit.current !== null) clearTimeout(hoverExit.current) }, [])
   // Both hosts of this text — the reply tray and the message stream — scroll and
   // clip their own box, so a helper anchored inside one of them is cut off at its
-  // edge. It opens as a top-layer popover instead, placed against the word's
-  // viewport box, and falls below the word only when there is no room above it.
+  // edge. Desktop uses the top layer; touch uses an unclipped portal to avoid
+  // the device's top-layer scaling bug. Both stay beside the source word.
   useLayoutEffect(() => {
     const element = helper.current
     const word = hoveredWord.current
     if (!element || !word) return
-    element.showPopover()
-    const position = () => {
-      const box = word.getBoundingClientRect()
-      const width = element.getBoundingClientRect().width
-      const start = getComputedStyle(word).direction === 'rtl' ? box.right - width : box.left
-      element.style.left = `${Math.max(8, Math.min(start, window.innerWidth - width - 8))}px`
-      const height = element.getBoundingClientRect().height
-      const above = box.top - height - 4
-      element.style.top = `${above >= 8 ? above : Math.max(8, Math.min(box.bottom + 4, window.innerHeight - height - 8))}px`
-    }
+    if (element.hasAttribute('popover')) element.showPopover()
+    const position = () => positionWordHelp(element, word)
     position()
+    const observer = new ResizeObserver(position); observer.observe(element)
+    window.visualViewport?.addEventListener('resize', position)
+    window.visualViewport?.addEventListener('scroll', position)
     window.addEventListener('resize', position)
     window.addEventListener('scroll', position, true)
     const dismiss = (event: Event) => {
@@ -59,6 +59,9 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     document.addEventListener('pointerdown', dismiss)
     document.addEventListener('keydown', dismiss)
     return () => {
+      observer.disconnect()
+      window.visualViewport?.removeEventListener('resize', position)
+      window.visualViewport?.removeEventListener('scroll', position)
       window.removeEventListener('resize', position); window.removeEventListener('scroll', position, true)
       document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
       if (element.isConnected && element.hasAttribute('popover')) element.hidePopover()
@@ -89,13 +92,13 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     }
     const piece = interactive && annotations.length > 0
       ? <span className="wu saved-word" key={segment.start} data-source-start={segment.start} data-source-end={segment.end} onPointerEnter={event => { keepHover(); if (event.pointerType === 'mouse' && revealed.size === 0) { hoveredWord.current = event.currentTarget; setHovered(segment.start) } }} onPointerLeave={leaveHover}>
-          <span className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open}
+          <span className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open} aria-controls={open || hovering ? helperId : undefined}
             onClick={event => { event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() }}
             onDoubleClick={event => event.stopPropagation()}
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
             {source}
           </span>
-          {expanded === null && (open || hovering) && <span ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover="manual"
+          {expanded === null && (open || hovering) && renderHelp(<span id={helperId} ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "portal" : undefined}
             role="group" aria-label={tr("Word help")}
             onPointerEnter={keepHover} onPointerLeave={leaveHover}
             onClick={event => event.stopPropagation()}>
@@ -105,7 +108,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
             {open && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setHovered(null) }} />}
             <GlossHelpParts text={text} parts={annotations} />
             </span><TokenAudio text={text} start={segment.start} end={segment.end} />
-          </span>}
+          </span>)}
           {expanded === segment.start && <DetailDialog title={tr("Word help")} onClose={() => { setExpanded(null); hoveredWord.current?.focus() }}>
             <div className="saved-word-details" dir={uiDirection}>
               <h2 dir="auto">{source}<TokenAudio text={text} start={segment.start} end={segment.end} /></h2>

@@ -1,3 +1,4 @@
+import { errorMessage, errorDetails } from '../../../platform/diagnostics/error-details'
 import { useEffect, useRef, useState } from 'react'
 import type { GlossSegment } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
@@ -50,6 +51,6 @@ export function ReadingPassage({ text, translation, romanization, pronunciation,
       {translation && <button type="button" className="message-translate" aria-expanded={translated} onClick={() => setTranslated(!translated)}>{tr('Translate')}</button>}
       <button type="button" className="message-translate" aria-expanded={words} disabled={pending} onClick={() => void toggleWords()}>{tr('Word by word')}</button>
     </div>
-    {error != null && <ErrorDetails label={tr('Word meanings')} errorKey={String(error)}><ResponseDetails value={error} /></ErrorDetails>}
+    {error != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(error)} explanation={errorMessage(error)}><ResponseDetails value={errorDetails(error)} /></ErrorDetails>}
   </div>
 }

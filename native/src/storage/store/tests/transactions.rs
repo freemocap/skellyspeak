@@ -26,6 +26,7 @@ fn handler_failure_after_turn_creation_rolls_back_and_leaves_action_retryable() 
             &config.standard_model,
             &config.fast_model,
             &audio,
+            AssessmentAdapter::ChatModel,
         )
         .unwrap();
     let contact = contact(&mut store);

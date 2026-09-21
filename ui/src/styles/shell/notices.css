@@ -15,11 +15,16 @@
 
 .update-bar b { color: var(--interaction-ink); }
 
+.fault-panel {
+  flex: none; min-height: 80px; max-height: 85dvh; min-width: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
 .fault-bar {
-  flex: none; background: var(--fault-bar-bg); border-bottom: var(--border-width) solid var(--fault-bar-line);
+  flex: 1 1 auto; min-height: 0; background: var(--fault-bar-bg); border-bottom: var(--border-width) solid var(--fault-bar-line);
   color: var(--fault-bar-ink); padding: var(--space-5) var(--space-7); font-size: var(--type-ui); line-height: var(--leading-normal);
   display: flex; flex-direction: column; gap: var(--space-3); align-items: flex-start;
-  max-height: min(120px, 18dvh); overflow-y: auto; overscroll-behavior: contain;
+  overflow: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
 }
 
 .fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
@@ -38,3 +43,9 @@
 .update-controls { display: flex; align-items: center; gap: var(--space-4); }
 
 .update-controls .btn { padding: var(--space-3) var(--space-5); }
+
+/* Outside the scrolling content: always reachable with mouse, touch or keyboard. */
+.fault-resize { flex: none; height: 16px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; background: var(--fault-bar-bg); }
+.fault-resize > span { width: 48px; height: 3px; border-radius: var(--radius-sm); background: var(--fault-bar-line); }
+.fault-resize:hover > span, .fault-resize:focus-visible > span { background: var(--fault-bar-strong); }
+@media (pointer: coarse) { .fault-resize { height: 44px; } }
